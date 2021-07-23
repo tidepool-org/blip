@@ -107,6 +107,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
         <Flex>
           <Button
+            id="patients-view-toggle"
             variant="textSecondary"
             disabled={!_.isEmpty(this.state.search)}
             onClick={this.handleToggleShowNames}
@@ -120,6 +121,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
               width: 'auto',
               minWidth: '250px',
             }}
+            id="patients-search"
             placeholder={t('Search by Name')}
             icon={!_.isEmpty(this.state.search) ? CloseRoundedIcon : SearchIcon}
             iconLabel={t('Search by Name')}

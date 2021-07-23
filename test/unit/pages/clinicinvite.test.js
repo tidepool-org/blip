@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
+import noop from 'lodash/noop';
 import RadioGroup from '../../../app/components/elements/RadioGroup';
 import ClinicInvite from '../../../app/pages/clinicinvite';
 import Checkbox from '../../../app/components/elements/Checkbox';
@@ -29,7 +30,7 @@ describe('ClinicInvite', () => {
     t: sinon.stub().callsFake((string) => string),
     api: {
       clinics: {
-        inviteClinician: sinon.stub().callsArgWith(2, null, {inviteReturn:'success'})
+        inviteClinician: sinon.stub().callsArgWith(2, null, { inviteReturn: 'success' })
       },
     },
   };
@@ -108,6 +109,7 @@ describe('ClinicInvite', () => {
       },
       loggedInUserId: 'clinicianUserId123',
       pendingSentInvites: [],
+      selectedClinicId: 'clinicID456',
     },
   });
 
@@ -171,7 +173,7 @@ describe('ClinicInvite', () => {
     });
   });
 
-  describe('clinician selected', () => {
+  describe('clinic selected', () => {
     before(() => {
       ClinicInvite.__Rewire__('useLocation', sinon.stub().returns(clinicState));
     });
@@ -196,27 +198,31 @@ describe('ClinicInvite', () => {
     });
 
     it('should change selected type when clicked', () => {
-      expect(wrapper.find(RadioGroup).props().value).to.equal('');
+      expect(wrapper.find(RadioGroup).props().value).to.equal(null);
       wrapper
         .find('input[type="radio"]')
         .at(1)
         .simulate('change', {
-          target: { name: 'clinician-type', value: 'CLINIC_MEMBER' },
+          persist: noop,
+          target: { name: 'clinicianType', value: 'CLINIC_MEMBER' },
         });
       expect(wrapper.find(RadioGroup).props().value).to.equal('CLINIC_MEMBER');
     });
 
     it('should set prescriber permission when prescriber checkbox clicked', () => {
-      expect(wrapper.find(Checkbox).props().checked).to.be.false;
+      expect(wrapper.find(Checkbox).at(0).props().checked).to.be.false;
       wrapper
         .find('input[type="checkbox"]')
-        .simulate('change', { target: { checked: true } });
-      expect(wrapper.find(Checkbox).props().checked).to.be.true;
+        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', value: true } });
+
+      expect(wrapper.find(Checkbox).at(0).props().checked).to.be.true;
     });
 
     it('should navigate to "clinic-admin" when back button pushed without edit', () => {
       expect(store.getActions()).to.eql([]);
-      wrapper.find('Button#back').simulate('click');
+      wrapper.find('Button#cancel').simulate('click');
+
+      wrapper.update();
       expect(store.getActions()).to.eql([
         {
           type: '@@router/CALL_HISTORY_METHOD',
@@ -230,28 +236,51 @@ describe('ClinicInvite', () => {
 
     it('should show confirm dialog when navigating without saving', () => {
       wrapper
-        .find('input[type="checkbox"]')
-        .simulate('change', { target: { checked: true } });
+        .find('input[type="text"]')
+        .simulate('change', { persist: noop, target: { name: 'email', value: 'email@email.com' } });
       expect(wrapper.find('Dialog#confirmDialog').props().open).to.be.false;
-      wrapper.find('Button#back').simulate('click');
+      wrapper.find('Button#cancel').simulate('click');
       expect(wrapper.find('Dialog#confirmDialog').props().open).to.be.true;
     });
 
-    it('should update clinician and redirect to "clinic-admin" on save', () => {
+    it('should update clinician and redirect to "clinic-admin" on save', (done) => {
       expect(store.getActions()).to.eql([]);
       expect(defaultProps.api.clinics.inviteClinician.callCount).to.equal(0);
-      wrapper.find('Button#next').simulate('click');
-      expect(defaultProps.api.clinics.inviteClinician.callCount).to.equal(1);
-      expect(store.getActions()).to.eql([
-        { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
-        {
-          type: 'SEND_CLINICIAN_INVITE_SUCCESS',
-          payload: {
-            'clinicId': 'clinicID456',
-            'clinician': { inviteReturn: 'success' },
+      wrapper
+        .find('input[type="radio"]')
+        .at(1)
+        .simulate('change', { persist: noop, target: { name: 'clinicianType', value: 'CLINIC_MEMBER' } });
+
+      wrapper
+        .find('input[type="text"]')
+        .simulate('change', { persist: noop, target: { name: 'email', value: 'email@email.com' } });
+
+      wrapper
+        .find('input[type="checkbox"]')
+        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', value: true } });
+
+      wrapper.find('Button#submit').simulate('submit');
+      setTimeout(() => {
+        expect(defaultProps.api.clinics.inviteClinician.callCount).to.equal(1);
+        sinon.assert.calledWith(
+          defaultProps.api.clinics.inviteClinician,
+          'clinicID456',
+          { email: 'email@email.com', roles: ['CLINIC_MEMBER', 'PRESCRIBER'] },
+        );
+
+        expect(store.getActions()).to.eql([
+          { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
+          {
+            type: 'SEND_CLINICIAN_INVITE_SUCCESS',
+            payload: {
+              'clinicId': 'clinicID456',
+              'clinician': { inviteReturn: 'success' },
+            },
           },
-        },
-      ]);
+        ]);
+
+        done();
+      });
     });
   });
 });

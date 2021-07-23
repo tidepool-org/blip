@@ -548,8 +548,12 @@ describe('Actions', () => {
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, null, user)
-          }
+            get: sinon.stub().callsArgWith(0, null, user),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         let expectedActions = [
@@ -583,11 +587,15 @@ describe('Actions', () => {
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, null, user)
+            get: sinon.stub().callsArgWith(0, null, user),
           },
           patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          }
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         let expectedActions = [
@@ -622,11 +630,15 @@ describe('Actions', () => {
         const api = {
           user: {
             login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, null, user)
+            get: sinon.stub().callsArgWith(0, null, user),
           },
           patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          }
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         const expectedActions = [
@@ -661,11 +673,15 @@ describe('Actions', () => {
         const api = {
           user: {
             login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, null, user)
+            get: sinon.stub().callsArgWith(0, null, user),
           },
           patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          }
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         const expectedActions = [
@@ -691,104 +707,124 @@ describe('Actions', () => {
         expect(trackMetric.calledWith('Logged In')).to.be.true;
       });
 
-      it('should trigger LOGIN_SUCCESS and it should redirect a clinician with no clinic profile to the clinician details form when new clinic interface is enabled', () => {
-        const config = {
-          CLINICS_ENABLED: true,
-        };
+      context('clinic interface is enabled', () => {
+        let api;
+        let creds;
+        let clinics;
+        let invites;
+        let user;
+        let patient;
+        let setAPIData;
 
-        async.__Rewire__('config', config);
-
-        const creds = { username: 'bruce', password: 'wayne' };
-        const user = { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true };
-        const patient = { foo: 'bar' };
-        const clinics = [];
-
-        const api = {
-          user: {
-            login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, null, user)
-          },
-          patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          },
-          clinics: {
-            getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics)
-          },
-        };
-
-        const expectedActions = [
-          { type: 'LOGIN_REQUEST' },
-          { type: 'FETCH_USER_REQUEST' },
-          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
-          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics }},
-          { type: 'LOGIN_SUCCESS', payload: { user } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+        before(() => {
+          async.__Rewire__('config', {
+            CLINICS_ENABLED: true,
+          });
         });
 
-        const store = mockStore(initialState);
+        beforeEach(() => {
+          creds = { username: 'bruce', password: 'wayne' };
 
-        store.dispatch(async.login(api, creds));
+          setAPIData = returnData => {
+            clinics = _.get(returnData, 'clinics', clinics);
+            invites = _.get(returnData, 'invites', invites);
+            user = _.get(returnData, 'user', user);
+            patient = _.get(returnData, 'patient', patient);
 
-        const actions = store.getActions();
-
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.login.calledWith(creds)).to.be.true;
-        expect(api.user.get.callCount).to.equal(1);
-        expect(trackMetric.calledWith('Logged In')).to.be.true;
-      });
-
-
-      it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view when new clinic interface is enabled', () => {
-        const config = {
-          CLINICS_ENABLED: true,
-        };
-
-        async.__Rewire__('config', config);
-        const creds = { username: 'bruce', password: 'wayne' };
-        const user = { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true };
-        const patient = { foo: 'bar' };
-        const clinics = [{id: 'clinicId', name: 'Clinic Name' }];
-
-        const api = {
-          user: {
-            login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, null, user)
-          },
-          patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          },
-          clinics: {
-            getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics)
-          },
-        };
-
-        const expectedActions = [
-          { type: 'LOGIN_REQUEST' },
-          { type: 'FETCH_USER_REQUEST' },
-          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
-          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics }},
-          { type: 'LOGIN_SUCCESS', payload: { user } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+            api = {
+              user: {
+                login: sinon.stub().callsArgWith(2, null),
+                get: sinon.stub().callsArgWith(0, null, user)
+              },
+              patient: {
+                get: sinon.stub().callsArgWith(1, null, patient)
+              },
+              clinics: {
+                getClinicianInvites: sinon.stub().callsArgWith(1, null, invites),
+                getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics),
+              },
+            };
+          };
         });
 
-        const store = mockStore(initialState);
+        after(() => {
+          async.__ResetDependency__('config');
+        });
 
-        store.dispatch(async.login(api, creds));
+        context('clinician has no clinic invites or associated clinics', () => {
+          beforeEach(() => {
+            setAPIData({
+              clinics: [],
+              invites: [],
+              patient: { foo: 'bar' },
+            });
+          });
 
-        const actions = store.getActions();
+          it('should trigger LOGIN_SUCCESS and it should redirect a clinician with no clinic profile to the clinician details form', () => {
+            setAPIData({
+              user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
+            });
 
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.login.calledWith(creds)).to.be.true;
-        expect(api.user.get.callCount).to.equal(1);
-        expect(trackMetric.calledWith('Logged In')).to.be.true;
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinician-details' ] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore(initialState);
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+          });
+
+
+          it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view', () => {
+            setAPIData({
+              user: { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true }
+            });
+
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore(initialState);
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+          });
+        });
       });
 
       it('[400] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request', () => {
@@ -798,7 +834,11 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, {status: 400, body: 'Error!'}),
             get: sinon.stub()
-          }
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         let err = new Error(ErrorMessages.ERR_LOGIN);
@@ -829,8 +869,12 @@ describe('Actions', () => {
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, {status: 401, body: 'Wrong password!'}),
-            get: sinon.stub()
-          }
+            get: sinon.stub(),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         let err = new Error(ErrorMessages.ERR_LOGIN_CREDS);
@@ -861,8 +905,12 @@ describe('Actions', () => {
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, {status: 403, body: 'E-mail not verified!'}),
-            get: sinon.stub()
-          }
+            get: sinon.stub(),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         let err = null;
@@ -892,8 +940,12 @@ describe('Actions', () => {
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'})
-          }
+            get: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         let err = new Error(ErrorMessages.ERR_FETCHING_USER);
@@ -927,12 +979,16 @@ describe('Actions', () => {
         let user = { id: 27, profile: { patient: true}, emailVerified: true };
         let api = {
           patient: {
-            get: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
+            get: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}),
           },
           user: {
             login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, null, user)
-          }
+            get: sinon.stub().callsArgWith(0, null, user),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT);
@@ -4836,7 +4892,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
-          { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS', payload: { patients } }
+          { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patients } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5639,7 +5695,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'ACCEPT_CLINICIAN_INVITE_REQUEST' },
-          { type: 'ACCEPT_CLINICIAN_INVITE_SUCCESS', payload: { result: {} } }
+          { type: 'ACCEPT_CLINICIAN_INVITE_SUCCESS', payload: { inviteId: 'inviteId345' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5697,7 +5753,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'DISMISS_CLINICIAN_INVITE_REQUEST' },
-          { type: 'DISMISS_CLINICIAN_INVITE_SUCCESS', payload: { result: {} } }
+          { type: 'DISMISS_CLINICIAN_INVITE_SUCCESS', payload: { inviteId: 'inviteId345' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5762,7 +5818,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics : clinics } }
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 'clinicianId1', clinics } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

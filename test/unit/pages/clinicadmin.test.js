@@ -9,6 +9,7 @@ import Button from '../../../app/components/elements/Button';
 import Table from '../../../app/components/elements/Table';
 import Popover from '../../../app/components/elements/Popover';
 import ClinicAdmin from '../../../app/pages/clinicadmin';
+import ClinicProfile from '../../../app/components/clinic/ClinicProfile';
 import { Dialog } from '../../../app/components/elements/Dialog';
 
 /* global chai */
@@ -37,10 +38,12 @@ describe('ClinicAdmin', () => {
 
   before(() => {
     mount = createMount();
+    ClinicProfile.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-admin' }));
   });
 
   after(() => {
     mount.cleanUp();
+    ClinicProfile.__ResetDependency__('useLocation');
   });
 
   const defaultWorkingState = {
@@ -112,6 +115,7 @@ describe('ClinicAdmin', () => {
         },
       },
       loggedInUserId: 'clinicianUserId123',
+      selectedClinicId: 'clinicID456',
       pendingSentInvites: [],
     },
   });
@@ -154,7 +158,7 @@ describe('ClinicAdmin', () => {
           args: [
             '/clinic-invite',
             {
-              clinicId: '',
+              clinicId: undefined,
             },
           ],
           method: 'push',
@@ -224,6 +228,7 @@ describe('ClinicAdmin', () => {
 
     it('should navigate to "/clinician-edit" when "Edit" button clicked', () => {
       const editButton = wrapper.find(Table).find(Button).at(0);
+      store.clearActions();
       editButton.simulate('click');
       expect(store.getActions()).to.eql([
         {
