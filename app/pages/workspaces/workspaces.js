@@ -147,9 +147,7 @@ export const Workspaces = (props) => {
   // Populate workspaces with fetched results
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
-    console.log('clinics', clinics);
-    console.log('pendingReceivedClinicianInvites', pendingReceivedClinicianInvites);
-    console.log('userClinics', userClinics);
+
     const userWorkspaces = [
       ...sortBy(map(userClinics, clinic => ({
         id: clinic.id,
