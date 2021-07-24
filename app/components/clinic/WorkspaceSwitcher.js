@@ -26,7 +26,7 @@ import Popover from '../elements/Popover';
 import { colors } from '../../themes/baseTheme';
 
 export const WorkspaceSwitcher = props => {
-  const { t, api } = props;
+  const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
@@ -85,14 +85,19 @@ export const WorkspaceSwitcher = props => {
   }, [clinics]);
 
   const handleSelect = option => {
+    trackMetric('Selected workspace', {
+      type: option.id ? 'clinic' : 'personal',
+    });
+
     dispatch(actions.sync.selectClinic(option.id));
     dispatch(push('/patients'));
     popupState.close();
   };
 
   return (menuOptions.length > 1) ? (
-    <Flex width="400px" justifyContent="center">
+    <Flex id="workspace-switcher" width="400px" justifyContent="center">
       <Button
+        id="workspace-switcher-current"
         variant="textPrimary"
         color="text.primary"
         fontSize={2}
@@ -123,6 +128,7 @@ export const WorkspaceSwitcher = props => {
         <Box py={2}>
           {map(menuOptions, (option, key) => (
             <Button
+              className="workspace-option"
               variant="textPrimary"
               color="text.primary"
               width="100%"
@@ -133,6 +139,7 @@ export const WorkspaceSwitcher = props => {
               key={key}
               fontSize={2}
               icon={option.id === selectedClinic.id ? CheckRoundedIcon : null}
+              iconLabel={t('Selected')}
               onClick={() => handleSelect(option)}
               sx={{
                 '&:hover': {

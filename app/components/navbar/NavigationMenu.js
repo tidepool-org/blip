@@ -120,8 +120,9 @@ export const NavigationMenu = props => {
   }
 
   return (
-    <Flex width="auto" justifyContent="flex-end">
+    <Flex id="navigation-menu" width="auto" justifyContent="flex-end">
       <Button
+        id="navigation-menu-trigger"
         variant="textPrimary"
         color="text.primary"
         fontSize={2}
@@ -152,6 +153,7 @@ export const NavigationMenu = props => {
         <Box py={2}>
           {map(menuOptions, (option, key) => (
             <Button
+              className="navigation-menu-option"
               variant="textPrimary"
               color="text.primary"
               width={`calc(100% - ${space[3]}px)`}
