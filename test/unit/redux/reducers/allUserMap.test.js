@@ -200,7 +200,7 @@ describe('allUsersMap', () => {
     it('should set `isClinicMember` to true if user is member to one or more clinics', () => {
       let initialStateForTest = {
         a1b2c3: { userid: 'a1b2c3', name: 'Xavier', termsAccepted: '' },
-        a1b2c3_cacheUntil: 123456789,
+        a1b2c3_cacheUntil: 123456789, // eslint-disable-line camelcase
       };
 
       let clinics = [{ id: 'clinicId123' }];
@@ -216,7 +216,7 @@ describe('allUsersMap', () => {
     it('should set `isClinicMember` to false if user is not a member of any clinics', () => {
       let initialStateForTest = {
         a1b2c3: { userid: 'a1b2c3', name: 'Xavier', termsAccepted: '' },
-        a1b2c3_cacheUntil: 123456789,
+        a1b2c3_cacheUntil: 123456789, // eslint-disable-line camelcase
       };
 
       let clinics = [];
