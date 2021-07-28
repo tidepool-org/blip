@@ -71,26 +71,6 @@ export const NavigationMenu = props => {
     logoutOption,
   ]);
 
-  // Fetchers
-  useEffect(() => {
-    if (loggedInUserId && personUtils.isClinicianAccount(allUsersMap?.[loggedInUserId])) {
-      forEach([
-        {
-          workingState: fetchingClinicsForClinician,
-          action: actions.async.getClinicsForClinician.bind(null, api, loggedInUserId),
-        },
-      ], ({ workingState, action }) => {
-        if (
-          !workingState.inProgress &&
-          !workingState.completed &&
-          !workingState.notification
-        ) {
-          dispatch(action());
-        }
-      });
-    }
-  }, [loggedInUserId]);
-
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
 

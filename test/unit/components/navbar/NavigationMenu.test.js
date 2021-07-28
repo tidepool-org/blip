@@ -162,48 +162,6 @@ describe('NavigationMenu', () => {
       wrapper = mountWrapper(mockStore(defaultUserState));
     });
 
-    it('should fetch clinics for clinician user', () => {
-      const expectedActions = [
-        {
-          type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST',
-        },
-        {
-          type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS',
-          payload: {
-            clinicianId: 'clinicianUserId123',
-            clinics: {
-              clinicsReturn: 'success',
-            },
-          },
-        },
-      ];
-
-      expect(store.getActions()).to.eql(expectedActions);
-    });
-
-    it('should not fetch clinics for non-clinician user', () => {
-      wrapper = mountWrapper(mockStore({
-        blip: {
-          ...defaultUserState.blip,
-          allUsersMap: {
-            clinicianUserId123: {
-              emails: ['user@example.com'],
-              roles: [], // Remove 'clinic' role
-              userid: 'clinicianUserId123',
-              username: 'user@example.com',
-              profile: {
-                fullName: 'Example User',
-              },
-            },
-          },
-        },
-      }));
-
-      const expectedActions = [];
-
-      expect(store.getActions()).to.eql(expectedActions);
-    });
-
     it('should render default menu options and dispatch correct actions', () => {
       const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
       expect(menuTrigger).to.have.lengthOf(1);
@@ -276,36 +234,6 @@ describe('NavigationMenu', () => {
   context('clinic workspaces available', () => {
     beforeEach(() => {
       wrapper = mountWrapper(mockStore(clinicWorkflowState));
-    });
-
-    it('should fetch clinics if not already fetched', () => {
-      wrapper = mountWrapper(mockStore({
-        blip: {
-          ...clinicWorkflowState.blip,
-          working: defaultState.blip.working,
-        },
-      }));
-
-      const expectedActions = [
-        {
-          type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST',
-        },
-        {
-          type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS',
-          payload: {
-            clinicianId: 'clinicianUserId123',
-            clinics: {
-              clinicsReturn: 'success',
-            },
-          },
-        },
-      ];
-
-      expect(store.getActions()).to.eql(expectedActions);
-    });
-
-    it('should not fetch clinics if already fetched', () => {
-      expect(store.getActions()).to.eql([]);
     });
 
     it('should render clinic workspace and default menu options and dispatch correct actions', () => {

@@ -86,7 +86,7 @@ export default translate()(class extends React.Component {
       ) {
         return (
           <Flex flex={1} alignItems="center" justifyContent="center">
-            <WorkspaceSwitcher api={this.props.api} />
+            <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
           </Flex>
         );
       }

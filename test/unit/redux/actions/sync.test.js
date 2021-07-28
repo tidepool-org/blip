@@ -3502,6 +3502,19 @@ describe('Actions', () => {
         expect(action.error).to.equal(error);
       });
     });
+  });
 
+  describe('selectClinic', () => {
+    it('should be a TSA', () => {
+      let action = sync.selectClinic();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SELECT_CLINIC', () => {
+      let clinicId = 'clinicId'
+      let action = sync.selectClinic(clinicId);
+      expect(action.type).to.equal('SELECT_CLINIC');
+      expect(action.payload.clinicId).to.equal(clinicId);
+    });
   });
 });

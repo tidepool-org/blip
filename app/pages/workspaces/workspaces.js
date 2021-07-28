@@ -100,7 +100,7 @@ export const Workspaces = (props) => {
     }));
 
     // Refetch clinician clinics to include newly-accepeted invitation
-    dispatch(actions.async.getClinicsForClinician(api, loggedInUserId));
+    if (acceptingClinicianInvite.completed) dispatch(actions.async.getClinicsForClinician(api, loggedInUserId));
   }, [acceptingClinicianInvite]);
 
   useEffect(() => {
@@ -124,10 +124,6 @@ export const Workspaces = (props) => {
   useEffect(() => {
     if (loggedInUserId) {
       forEach([
-        {
-          workingState: fetchingClinicsForClinician,
-          action: actions.async.getClinicsForClinician.bind(null, api, loggedInUserId),
-        },
         {
           workingState: fetchingClinicianInvites,
           action: actions.async.fetchClinicianInvites.bind(null, api, loggedInUserId),
@@ -255,6 +251,7 @@ export const Workspaces = (props) => {
     return (
       <Flex
         key={key}
+        className={`workspace-item-${workspace.type}`}
         alignItems="center"
         justifyContent="space-between"
         flexWrap={['wrap']}
@@ -324,12 +321,12 @@ export const Workspaces = (props) => {
               <Subheading>{t('Clinic Workspace')}</Subheading>
               <Body1>{t('View, share and manage patient data')}</Body1>
             </Box>
-            <Box pl={[0, 0, 5, 6]} id="clinics-list">
+            <Box pl={[0, 0, 5, 6]} id="workspaces-clinics-list">
               {map(workspaces, RenderClinicWorkspace)}
             </Box>
           </Box>
 
-          <Flex justifyContent={['center', 'left']} flexWrap={['wrap']}>
+          <Flex id="personal-workspace" justifyContent={['center', 'left']} flexWrap={['wrap']}>
             <Body1
               width={['100%', '100%', 'auto']}
               textAlign={['center', 'center', 'auto']}

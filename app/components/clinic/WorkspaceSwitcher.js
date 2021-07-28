@@ -43,26 +43,6 @@ export const WorkspaceSwitcher = props => {
   const [menuOptions, setMenuOptions] = useState([personalWorkspaceOption])
   const [selectedClinic, setSelectedClinic] = useState(menuOptions[0]);
 
-  // Fetchers
-  useEffect(() => {
-    if (loggedInUserId) {
-      forEach([
-        {
-          workingState: fetchingClinicsForClinician,
-          action: actions.async.getClinicsForClinician.bind(null, api, loggedInUserId),
-        },
-      ], ({ workingState, action }) => {
-        if (
-          !workingState.inProgress &&
-          !workingState.completed &&
-          !workingState.notification
-        ) {
-          dispatch(action());
-        }
-      });
-    }
-  }, [loggedInUserId]);
-
   useEffect(() => {
     const selected = find(menuOptions, {id: selectedClinicId});
     if (selected) setSelectedClinic(selected);

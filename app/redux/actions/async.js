@@ -253,7 +253,7 @@ export function login(api, credentials, options, postLoginAction) {
 
                 if (hasError) {
                   if (errors.clinics) {
-                    handleLoginFailure(ErrorMessages.ERR_GETTING_CLINICS, errors.clinics);
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, errors.clinics);
                   }
                   if (errors.invites) {
                     handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, errors.invites);
@@ -726,7 +726,7 @@ export function updateUser(api, formValues) {
  */
 export function updateClinicianProfile(api, formValues) {
   return (dispatch, getState) => {
-    const { blip: { loggedInUserId, allUsersMap } } = getState();
+    const { blip: { loggedInUserId, allUsersMap, pendingReceivedClinicianInvites } } = getState();
     const loggedInUser = allUsersMap[loggedInUserId];
 
     const newUser = _.assign({},
@@ -749,8 +749,10 @@ export function updateClinicianProfile(api, formValues) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
-        // TODO: if pending clinic invite (should be in state already) and new clinics enabled, then redirect to workspace switcher
-        dispatch(push('/patients?justLoggedIn=true'));
+
+        let redirect = '/patients?justLoggedIn=true';
+        if (config.CLINICS_ENABLED && pendingReceivedClinicianInvites.length) redirect = '/workspaces';
+        dispatch(push(redirect));
       }
     });
   };

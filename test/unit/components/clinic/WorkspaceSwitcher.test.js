@@ -62,18 +62,12 @@ describe('WorkspaceSwitcher', () => {
     },
   };
 
-  const fetchedClinicsState = {
+  const fetchedDataState = {
     blip: {
       ...defaultState.blip,
       working: {
         fetchingClinicsForClinician: completedWorkingState,
       },
-    },
-  };
-
-  const fetchedDataState = {
-    blip: {
-      ...fetchedClinicsState.blip,
       allUsersMap: {
         clinicianUserId123: {
           emails: ['clinic@example.com'],
@@ -138,25 +132,6 @@ describe('WorkspaceSwitcher', () => {
       wrapper = mountWrapper(mockStore(defaultState));
     });
 
-    it('should fetch clinics for clinician', () => {
-      const expectedActions = [
-        {
-          type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST',
-        },
-        {
-          type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS',
-          payload: {
-            clinicianId: 'clinicianUserId123',
-            clinics: {
-              clinicsReturn: 'success',
-            },
-          },
-        },
-      ];
-
-      expect(store.getActions()).to.eql(expectedActions);
-    });
-
     it('should not render anything', () => {
       expect(wrapper.find('#workspace-switcher').hostNodes()).to.have.lengthOf(0);
     });
@@ -165,11 +140,6 @@ describe('WorkspaceSwitcher', () => {
   context('clinics fetched', () => {
     beforeEach(() => {
       wrapper = mountWrapper(mockStore(fetchedDataState));
-    });
-
-    it('should not fetch clinics', () => {
-      wrapper = mountWrapper(mockStore(fetchedClinicsState));
-      expect(store.getActions()).to.eql([]);
     });
 
     it('should render a switcher component with a selected clinic and personal workspace options', () => {

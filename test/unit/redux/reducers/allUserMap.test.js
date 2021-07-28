@@ -196,6 +196,40 @@ describe('allUsersMap', () => {
     });
   });
 
+  describe('getClinicsForClinicianSuccess', () => {
+    it('should set `isClinicMember` to true if user is member to one or more clinics', () => {
+      let initialStateForTest = {
+        a1b2c3: { userid: 'a1b2c3', name: 'Xavier', termsAccepted: '' },
+        a1b2c3_cacheUntil: 123456789,
+      };
+
+      let clinics = [{ id: 'clinicId123' }];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+      let action = actions.sync.getClinicsForClinicianSuccess(clinics, 'a1b2c3');
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(Object.keys(initialStateForTest).length);
+      expect(state['a1b2c3'].isClinicMember).to.be.true;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
+    it('should set `isClinicMember` to false if user is not a member of any clinics', () => {
+      let initialStateForTest = {
+        a1b2c3: { userid: 'a1b2c3', name: 'Xavier', termsAccepted: '' },
+        a1b2c3_cacheUntil: 123456789,
+      };
+
+      let clinics = [];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+      let action = actions.sync.getClinicsForClinicianSuccess(clinics, 'a1b2c3');
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(Object.keys(initialStateForTest).length);
+      expect(state['a1b2c3'].isClinicMember).to.be.false;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
   describe('acceptTermsSuccess', () => {
     it('should update the termsAccepted date for the user', () => {
       let initialStateForTest = {

@@ -77,7 +77,12 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
     }
 
     function getClinicsForMember(user) {
-      if (config.CLINICS_ENABLED && !state.working.fetchingClinicsForClinician.inProgress && !state.working.fetchingClinicsForClinician.completed) {
+      if (
+        config.CLINICS_ENABLED
+        && !state.working.fetchingClinicsForClinician.inProgress
+        && !state.working.fetchingClinicsForClinician.completed
+        && !state.working.fetchingClinicsForClinician.notification
+      ) {
         dispatch(actions.async.getClinicsForClinician(api, user.userid));
       }
       cb();

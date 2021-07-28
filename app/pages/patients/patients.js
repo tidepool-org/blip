@@ -41,7 +41,6 @@ const { Loader } = vizComponents;
 
 export let Patients = translate()(class extends React.Component {
   static propTypes = {
-    clinic: PropTypes.object,
     clearPatientInView: PropTypes.func.isRequired,
     currentPatientInViewId: PropTypes.string,
     fetchers: PropTypes.array.isRequired,
@@ -58,6 +57,7 @@ export let Patients = translate()(class extends React.Component {
     onHideWelcomeSetup: PropTypes.func.isRequired,
     onRemovePatient: PropTypes.func.isRequired,
     patients: PropTypes.array.isRequired,
+    selectedClinicId: PropTypes.string,
     showWelcomeMessage: PropTypes.func.isRequired,
     showingWelcomeMessage: PropTypes.bool,
     trackMetric: PropTypes.func.isRequired,

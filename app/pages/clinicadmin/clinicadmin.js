@@ -139,31 +139,25 @@ export const ClinicAdmin = (props) => {
   }, [working.deletingClinicianFromClinic]);
 
   useEffect(() => {
-    if(loggedInUserId) {
+    if(loggedInUserId && keys(clinics).length) {
+      if (!selectedClinicId) {
+        dispatch(actions.sync.selectClinic(keys(clinics)[0]));
+      }
+
       if (
-        !fetchingClinicsForClinician.inProgress &&
-        !fetchingClinicsForClinician.completed &&
-        !fetchingClinicsForClinician.notification
+        !fetchingCliniciansFromClinic.inProgress &&
+        !fetchingCliniciansFromClinic.completed &&
+        !fetchingCliniciansFromClinic.notification
       ) {
-        dispatch(actions.async.getClinicsForClinician(api, loggedInUserId));
-      } else {
-        if (keys(clinics).length) {
-          dispatch(actions.sync.selectClinic(keys(clinics)[0]));
-        }
-        if (
-          !fetchingCliniciansFromClinic.inProgress &&
-          !fetchingCliniciansFromClinic.completed &&
-          !fetchingCliniciansFromClinic.notification
-        ) {
-          forEach(clinics, (clinic) => {
-            dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id));
-          });
-        }
+        forEach(clinics, clinic => {
+          dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id));
+        })
       }
     }
   }, [
+    clinics,
     loggedInUserId,
-    fetchingClinicsForClinician,
+    selectedClinicId,
     fetchingCliniciansFromClinic,
   ]);
 
