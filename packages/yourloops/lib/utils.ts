@@ -28,7 +28,8 @@
 
 import _ from "lodash";
 
-import { IUser } from "../models/shoreline";
+import { Units } from "../models/generic";
+import { IUser, Settings } from "../models/shoreline";
 import httpStatus from "./http-status-codes";
 import { t } from "./language";
 
@@ -122,4 +123,32 @@ export function getUserInitials(user: IUser): string {
 
 export function getUserEmail(user: IUser): string {
   return Array.isArray(user.emails) ? user.emails[0] : user.username;
+}
+
+/**
+ * YLP-878 Wrong settings for glucose units uploaded by the handset
+ * @param settings Settings received
+ * @returns Fixed settings
+ */
+export function fixYLP878Settings(settings: Settings | undefined | null): Settings {
+  if (_.isNil(settings)) {
+    return {
+      country: "FR",
+      units: {
+        bg: Units.gram,
+      },
+    };
+  }
+  let bgUnit = _.get(settings, "bg", settings.units?.bg ?? Units.gram) as Units;
+  if (![Units.gram, Units.mole].includes(bgUnit)) {
+    bgUnit = Units.gram;
+  }
+  const newSettings: Settings = {
+    country: settings.country ?? "FR",
+    units: { bg: bgUnit },
+  };
+  if (settings.a1c) {
+    newSettings.a1c = settings.a1c;
+  }
+  return newSettings;
 }

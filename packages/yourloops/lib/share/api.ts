@@ -33,7 +33,7 @@ import { UserInvitationStatus } from "../../models/generic";
 import { UserRoles } from "../../models/shoreline";
 import { HttpHeaderKeys } from "../../models/api";
 import appConfig from "../config";
-import { errorFromHttpStatus } from "../utils";
+import { errorFromHttpStatus, fixYLP878Settings } from "../utils";
 import { Session } from "../auth";
 import { getCurrentLang } from "../language";
 import { ShareUser, DirectShareAPI } from "./models";
@@ -42,8 +42,6 @@ const log = bows("ShareApi");
 
 async function getDirectShares(session: Session): Promise<ShareUser[]> {
   log.info("getDirectShares");
-
-  // await waitTimeout(100);
   const { sessionToken, traceToken, user } = session;
 
   const apiURL = new URL("/v0/direct-shares", appConfig.API_HOST);
@@ -72,7 +70,7 @@ async function getDirectShares(session: Session): Promise<ShareUser[]> {
             userid: directShareWith.userId,
             preferences: directShareWith.preferences ?? undefined,
             profile: directShareWith.profile ?? undefined,
-            settings: directShareWith.settings ?? undefined,
+            settings: fixYLP878Settings(directShareWith.settings),
             username: directShareWith.email,
             emails: [directShareWith.email],
             role: user.role === UserRoles.patient ? UserRoles.caregiver : UserRoles.patient,

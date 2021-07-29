@@ -34,11 +34,12 @@ import { v4 as uuidv4, validate as validateUuid } from "uuid";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
-import User from "./user";
 import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
+import { fixYLP878Settings } from "../utils";
 import { availableLanguageCodes, getCurrentLang, changeLanguage } from "../language";
 import sendMetrics from "../metrics";
 import { zendeskLogin, zendeskLogout } from "../zendesk";
+import User from "./user";
 import { Session, AuthAPI, AuthContext, AuthProvider } from "./models";
 import AuthAPIImpl from "./api";
 import { SignUpFormState } from "pages/signup/signup-formstate-context";
@@ -155,6 +156,8 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     } else {
       auth.user.role = tokenInfos.role as UserRoles;
     }
+
+    auth.user.settings = fixYLP878Settings(auth.user.settings);
 
     const expirationDate = tokenInfos.exp;
     if (typeof expirationDate === "number" && Number.isSafeInteger(expirationDate)) {

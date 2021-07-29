@@ -35,7 +35,7 @@ import { MedicalData } from "../../models/device-data";
 import { UserRoles } from "../../models/shoreline";
 import { ITeam, TeamType, TeamMemberRole, TypeTeamMemberRole, ITeamMember } from "../../models/team";
 
-import { errorTextFromException } from "../utils";
+import { errorTextFromException, fixYLP878Settings } from "../utils";
 import { useAuth, Session } from "../auth";
 import { useNotification, notificationConversion } from "../notifications";
 import { LoadTeams, Team, TeamAPI, TeamContext, TeamMember, TeamProvider, TeamUser } from "./models";
@@ -58,7 +58,7 @@ export function iMemberToMember(iTeamMember: ITeamMember, team: Team, users: Map
       emails: [ iTeamMember.email ],
       preferences: iTeamMember.preferences,
       profile: iTeamMember.profile,
-      settings: iTeamMember.settings,
+      settings: fixYLP878Settings(iTeamMember.settings),
       members: [],
     };
     users.set(userId, teamUser);
