@@ -75,11 +75,17 @@ async function authenticate(username: string, password: string, traceToken: stri
   const authURL = new URL("/auth/login", appConfig.API_HOST);
 
   try {
+    // Allow username / password with non ASCII characters
+    // Endode the string to UTF-8 first
+    const encoder = new TextEncoder();
+    const utf8 = encoder.encode(`${username}:${password}`);
+    const basicAuth = btoa(String.fromCharCode.apply(null, utf8 as unknown as number[]));
+
     const response = await fetch(authURL.toString(), {
       method: "POST",
       headers: {
         [HttpHeaderKeys.traceToken]: traceToken,
-        Authorization: `Basic ${btoa(`${username}:${password}`)}`,
+        Authorization: `Basic ${basicAuth}`,
       },
     });
 
