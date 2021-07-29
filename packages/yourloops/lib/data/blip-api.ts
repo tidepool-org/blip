@@ -62,6 +62,10 @@ class BlipApi {
     this.log = bows("BlipAPI");
   }
 
+  public set authContext(context: AuthContext) {
+    this.authHook = context;
+  }
+
   public get whoami(): User | null {
     return _.cloneDeep(this.authHook.user);
   }
