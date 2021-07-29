@@ -319,10 +319,10 @@ function TeamMemberTable(props: TeamMembersProps): JSX.Element {
         <TableRow>
           <TableCell id={`team-members-list-${team.id}-cellheader-icon`} />
           <TableCell id={`team-members-list-${team.id}-cellheader-lastname`}>
-            {t("lastName")}
+            {t("lastname")}
           </TableCell>
           <TableCell id={`team-members-list-${team.id}-cellheader-firstname`}>
-            {t("firstName")}
+            {t("firstname")}
           </TableCell>
           <TableCell id={`team-members-list-${team.id}-cellheader-email`}>
             {t("email")}

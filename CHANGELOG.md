@@ -3,6 +3,8 @@ Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
 ## Unreleased
+### Fixed
+- YLP-910 lastName / firstName / Language translations keys should be in lower-case
 ### Added
 - YLP-759 Add Austria
 ### Engineering Use

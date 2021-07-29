@@ -94,7 +94,7 @@ const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, ha
           fullWidth
           disabled
           id="firstname"
-          label={t("firstName")}
+          label={t("firstname")}
           value={firstName}
           className={textField}
           InputProps={{ classes: { disabled } }}
@@ -103,7 +103,7 @@ const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, ha
           fullWidth
           disabled
           id="lastname"
-          label={t("lastName")}
+          label={t("lastname")}
           value={lastName}
           className={textField}
           InputProps={{ classes: { disabled } }}

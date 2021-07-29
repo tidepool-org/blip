@@ -412,7 +412,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
             </Select>
           </FormControl>
           <FormControl className={classes.formControl}>
-            <InputLabel id="profile-language-input-label">{t("Language")}</InputLabel>
+            <InputLabel id="profile-language-input-label">{t("language")}</InputLabel>
             <Select labelId="locale-selector" id="profile-locale-selector" value={lang} onChange={createHandleSelectChange(setLang)}>
               {availableLanguageCodes.map((languageCode) => (
                 <MenuItem id={`profile-locale-item-${languageCode}`} key={languageCode} value={languageCode}>
