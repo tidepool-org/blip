@@ -75,18 +75,18 @@ class User implements IUser {
    * @description the first login is determined by null consents object
    */
   shouldAcceptConsent(): boolean {
-    return !(this.profile?.termsOfUse?.isAccepted === true && this.profile?.privacyPolicy?.isAccepted === true);
+    return !(this.profile?.termsOfUse?.isAccepted === true && this.profile.privacyPolicy?.isAccepted === true);
   }
 
   /**
    * Check If the user should renew is consent.
    */
   shouldRenewConsent(): boolean {
-    if (this?.profile?.termsOfUse === undefined || this?.profile?.termsOfUse === null) {
+    if (this.profile?.termsOfUse === undefined || this.profile.termsOfUse === null) {
       return true;
     }
 
-    if (this?.profile?.privacyPolicy === undefined || this?.profile?.privacyPolicy === null) {
+    if (this.profile.privacyPolicy === undefined || this.profile.privacyPolicy === null) {
       return true;
     }
 
@@ -101,7 +101,6 @@ class User implements IUser {
    * @returns true if the lastest consent date is greater than the given consent
    */
   checkConsent(consent: Consent): boolean {
-
     if (typeof consent.acceptanceTimestamp === "string") {
       // A `null` is fine here, because `new Date(null).valueOf() === 0`
       const acceptDate = new Date(consent.acceptanceTimestamp);
@@ -113,7 +112,7 @@ class User implements IUser {
       return this.latestConsentChangeDate >= acceptDate;
     }
 
-    return false;
+    return true;
   }
 
   getHomePage(suffix?: string): string {

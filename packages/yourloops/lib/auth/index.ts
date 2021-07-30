@@ -30,6 +30,7 @@ import {
   AuthAPI,
   AuthContext,
   Session,
+  SignupUser,
 } from "./models";
 
 import {
@@ -44,6 +45,7 @@ export {
   AuthContext,
   Session,
   User,
+  SignupUser,
   AuthContextProvider,
   useAuth,
 };

@@ -31,6 +31,13 @@ import { Units, UserInvitationStatus } from "../../models/generic";
 import { UserRoles } from "../../models/shoreline";
 import { ITeam, ITeamMember, TeamMemberRole, TeamType } from "../../models/team";
 
+const userCaregiver = new User("b0000000", "caregiver@example.com");
+userCaregiver.role = UserRoles.caregiver;
+userCaregiver.emailVerified = true;
+userCaregiver.profile = { firstName: "Caregiver", lastName: "Example", fullName: "Caregiver Example" };
+userCaregiver.preferences = { displayLanguageCode: "de" };
+userCaregiver.settings = { country: "DE", units: { bg: Units.mole } };
+
 const userHCP: User = new User("a0000000", "john.doe@example.com");
 userHCP.role = UserRoles.hcp;
 userHCP.emailVerified = true;
@@ -38,14 +45,19 @@ userHCP.profile= { firstName: "John", lastName: "Doe", fullName: "John Doe" };
 userHCP.preferences= { displayLanguageCode: "en" };
 userHCP.settings = { units: { bg: Units.gram } };
 
+const userPatient = new User("a0a0a0b0", "josephine.dupuis@example.com");
+userPatient.role = UserRoles.patient;
+userPatient.preferences = { displayLanguageCode: "fr" };
+userPatient.profile = { firstName: "Josephine", lastName: "Dupuis", fullName: "Josephine D." };
+userPatient.settings = { a1c: { date: "2020-01-01", value: 0 } };
 
 /**
  * Logged in users for test, choose one suitable
  */
 export const loggedInUsers = {
   hcp: userHCP,
-  // patient: {} as User,
-  // careGiver: {} as User,
+  patient: userPatient,
+  caregiver: userCaregiver,
 };
 
 /**
@@ -189,21 +201,21 @@ export const patients: ITeamMember[] = [
     invitationStatus: UserInvitationStatus.accepted,
     role: TeamMemberRole.patient,
     teamId: "team-0",
-    userId: "a0a0a0b0",
-    email: "josephine.dupuis@example.com",
-    preferences: null,
-    profile: { firstName: "Josephine", lastName: "Dupuis", fullName: "Josephine D." },
-    settings: null,
+    userId: userPatient.userid,
+    email: userPatient.username,
+    preferences: userPatient.preferences,
+    profile: userPatient.profile,
+    settings: userPatient.settings,
   },
   {
     invitationStatus: UserInvitationStatus.accepted,
     role: TeamMemberRole.patient,
     teamId: "team-1",
-    userId: "a0a0a0b0",
-    email: "josephine.dupuis@example.com",
-    preferences: null,
-    profile: { firstName: "Josephine", lastName: "Dupuis", fullName: "Josephine D." },
-    settings: null,
+    userId: userPatient.userid,
+    email: userPatient.username,
+    preferences: userPatient.preferences,
+    profile: userPatient.profile,
+    settings: userPatient.settings,
   },
   {
     invitationStatus: UserInvitationStatus.accepted,

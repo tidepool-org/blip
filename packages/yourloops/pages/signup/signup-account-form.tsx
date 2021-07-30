@@ -147,7 +147,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
       try {
         setInProgress(true);
         state.formValues.preferencesLanguage = getCurrentLang();
-        await auth.signup(state);
+        await auth.signup(state.formValues);
         handleNext();
       } catch (reason: unknown) {
         const errorMessage = errorTextFromException(reason);

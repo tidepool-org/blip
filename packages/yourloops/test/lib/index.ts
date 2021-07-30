@@ -30,12 +30,14 @@ import testCookiesManager from "./cookies-manager.test";
 import testLanguage from "./language.test";
 import testMetrics from "./metrics.test";
 import testZendesk from "./zendesk.test";
+import testAuth from "./auth";
 
 function testLib(): void {
   describe("CookiesManager", testCookiesManager);
   describe("Language", testLanguage);
   describe("Metrics", testMetrics);
   describe("Zendesk", testZendesk);
+  describe("Auth", testAuth);
 }
 
 export default testLib;

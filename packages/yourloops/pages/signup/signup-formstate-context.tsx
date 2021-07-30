@@ -29,21 +29,8 @@ import * as React from "react";
 import _ from "lodash";
 
 import { UserRoles } from "../../models/shoreline";
-import { LanguageCodes } from "../../models/locales";
 import { getCurrentLang } from "../../lib/language";
-
-export interface IFormValues {
-  accountUsername: string;
-  accountPassword: string;
-  accountRole: UserRoles;
-  profileFirstname: string;
-  profileLastname: string;
-  profileCountry: string;
-  profilePhone: string;
-  preferencesLanguage: LanguageCodes;
-  terms: boolean;
-  privacyPolicy: boolean;
-}
+import { SignupUser as IFormValues } from "../../lib/auth";
 
 export type FormValuesType = keyof IFormValues;
 

@@ -16,6 +16,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-815 Add TU for metrics / Matomo
 - YLP-816 Add JUnit reports to Jenkins
 - YLP-832 Add TU for zendesk manager
+- YLP-836 Add TU for lib/auth
 
 ## 2.0.2 - 2021-07-05
 ### Fixed

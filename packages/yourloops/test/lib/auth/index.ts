@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Karma main test file
+ * Auth tests
  *
  * All rights reserved.
  *
@@ -26,22 +26,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import enzyme from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import { init as i18nInit } from "../lib/language";
-import testLib from "./lib";
-import testComponents from "./components";
-import testPages from "./pages";
+import testAPI from "./api.test";
+import testUser from "./user.test";
+import testHook from "./hook.test";
 
-enzyme.configure({
-  adapter: new Adapter(),
-  disableLifecycleMethods: true,
-});
+function testAuth(): void {
+  describe("API", testAPI);
+  describe("User", testUser);
+  describe("Hook", testHook);
+}
 
-i18nInit().then(() => {
-  describe("Lib", testLib);
-  describe("Components", testComponents);
-  describe("Pages", testPages);
-}).catch((reason: unknown) => {
-  console.error(reason);
-});
+export default testAuth;

@@ -26,8 +26,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { SignUpFormState } from "pages/signup/signup-formstate-context";
 import User from "./user";
+import { LanguageCodes } from "../../models/locales";
 import { Preferences, Profile, Settings, UserRoles } from "../../models/shoreline";
 
 /** Hook internal usage */
@@ -41,6 +41,19 @@ export interface UpdateUser {
   roles?: UserRoles[];
   password?: string;
   currentPassword?: string;
+}
+
+export interface SignupUser {
+  accountUsername: string;
+  accountPassword: string;
+  accountRole: UserRoles;
+  profileFirstname: string;
+  profileLastname: string;
+  profileCountry: string;
+  profilePhone: string;
+  preferencesLanguage: LanguageCodes;
+  terms: boolean;
+  privacyPolicy: boolean;
 }
 
 export interface AuthAPI {
@@ -78,7 +91,7 @@ export interface AuthContext {
   updateSettings: (settings: Settings, refresh?: boolean) => Promise<Settings>;
   /** Update current user password */
   updatePassword: (currentPassword: string, password: string) => Promise<void>;
-  signup: (signup: SignUpFormState) => Promise<void>;
+  signup: (signup: SignupUser) => Promise<void>;
   isLoggedIn: () => boolean;
   sendPasswordResetEmail: (username: string, language: string) => Promise<void>;
   resetPassword: (key: string, username: string, password: string) => Promise<boolean>;

@@ -83,6 +83,7 @@ async function authenticate(username: string, password: string, traceToken: stri
 
     const response = await fetch(authURL.toString(), {
       method: "POST",
+      cache: "no-store",
       headers: {
         [HttpHeaderKeys.traceToken]: traceToken,
         Authorization: `Basic ${basicAuth}`,
@@ -163,15 +164,16 @@ async function signup(username: string, password: string, role: UserRoles, trace
 
   try {
     const response = await fetch(authURL.toString(), {
+      cache: "no-store",
       method: "POST",
       headers: {
         [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
         [HttpHeaderKeys.traceToken]: traceToken,
       },
       body: JSON.stringify({
-        username: username,
+        username,
+        password,
         emails: [username],
-        password: password,
         roles: [role],
       }),
     });
@@ -188,9 +190,9 @@ async function signup(username: string, password: string, role: UserRoles, trace
         .then((res: IUser) => format(res));
 
       return Promise.resolve({
-        sessionToken: sessionToken,
+        sessionToken,
         traceToken,
-        user: user,
+        user,
       });
     }
 
@@ -207,6 +209,7 @@ async function getProfile(session: Readonly<Session>, userId?: string): Promise<
 
   const response = await fetch(seagullURL.toString(), {
     method: "GET",
+    cache: "no-store",
     headers: {
       [HttpHeaderKeys.traceToken]: session.traceToken,
       [HttpHeaderKeys.sessionToken]: session.sessionToken,
@@ -233,6 +236,7 @@ async function getPreferences(session: Readonly<Session>, userId?: string): Prom
   const seagullURL = new URL(`/metadata/${userId ?? session.user.userid}/preferences`, appConfig.API_HOST);
   const response = await fetch(seagullURL.toString(), {
     method: "GET",
+    cache: "no-store",
     headers: {
       [HttpHeaderKeys.traceToken]: session.traceToken,
       [HttpHeaderKeys.sessionToken]: session.sessionToken,
@@ -259,6 +263,7 @@ async function getSettings(session: Readonly<Session>, userId?: string): Promise
   const seagullURL = new URL(`/metadata/${userId ?? session.user.userid}/settings`, appConfig.API_HOST);
   const response = await fetch(seagullURL.toString(), {
     method: "GET",
+    cache: "no-store",
     headers: {
       [HttpHeaderKeys.traceToken]: session.traceToken,
       [HttpHeaderKeys.sessionToken]: session.sessionToken,
@@ -315,12 +320,11 @@ async function requestPasswordReset(username: string, traceToken: string, langua
   );
   const response = await fetch(confirmURL.toString(), {
     method: "POST",
+    cache: "no-store",
     headers: {
-      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: traceToken,
       [HttpHeaderKeys.language]: language,
     },
-    cache: "no-cache",
   });
 
   if (response.ok) {
@@ -334,13 +338,12 @@ async function sendAccountValidation(session: Readonly<Session>, language = "en"
 
   const response = await fetch(confirmURL.toString(), {
     method: "POST",
+    cache: "no-store",
     headers: {
-      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.sessionToken]: session.sessionToken,
       [HttpHeaderKeys.traceToken]: session.traceToken,
       [HttpHeaderKeys.language]: language,
     },
-    cache: "no-cache",
   });
 
   if (response.ok) {
@@ -359,11 +362,10 @@ async function accountConfirmed(key: string, traceToken: string): Promise<boolea
   const confirmURL = new URL(`/confirm/accept/signup/${key}`, appConfig.API_HOST);
   const response = await fetch(confirmURL.toString(), {
     method: "PUT",
+    cache: "no-store",
     headers: {
-      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: traceToken,
     },
-    cache: "no-cache",
   });
 
   if (response.ok) {
@@ -382,11 +384,12 @@ async function resetPassword(key: string, username: string, password: string, tr
   const confirmURL = new URL(`/confirm/accept/forgot`, appConfig.API_HOST);
   const response = await fetch(confirmURL.toString(), {
     method: "PUT",
+    cache: "no-store",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: traceToken,
     },
-    body: JSON.stringify({ key: key, email: username, password: password }),
+    body: JSON.stringify({ key, email: username, password }),
   });
 
   if (response.ok) {
@@ -402,6 +405,7 @@ async function updateProfile(session: Readonly<Session>): Promise<Profile> {
 
   const response = await fetch(seagullURL.toString(), {
     method: "PUT",
+    cache: "no-store",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: session.traceToken,
@@ -413,8 +417,15 @@ async function updateProfile(session: Readonly<Session>): Promise<Profile> {
   if (response.ok) {
     return (await response.json()) as Profile;
   }
-  const responseBody = (await response.json()) as APIErrorResponse;
-  throw new Error(t(responseBody.reason));
+
+  try {
+    const responseBody = (await response.json()) as APIErrorResponse;
+    return Promise.reject(new Error(t(responseBody.reason)));
+  } catch (e) {
+    log.error(e);
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function updatePreferences(session: Readonly<Session>): Promise<Preferences> {
@@ -423,6 +434,7 @@ async function updatePreferences(session: Readonly<Session>): Promise<Preference
 
   const response = await fetch(seagullURL.toString(), {
     method: "PUT",
+    cache: "no-store",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: session.traceToken,
@@ -434,8 +446,15 @@ async function updatePreferences(session: Readonly<Session>): Promise<Preference
   if (response.ok) {
     return response.json() as Promise<Preferences>;
   }
-  const responseBody = (await response.json()) as APIErrorResponse;
-  throw new Error(t(responseBody.reason));
+
+  try {
+    const responseBody = (await response.json()) as APIErrorResponse;
+    return Promise.reject(new Error(t(responseBody.reason)));
+  } catch (e) {
+    log.error(e);
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function updateSettings(auth: Readonly<Session>): Promise<Settings> {
@@ -444,6 +463,7 @@ async function updateSettings(auth: Readonly<Session>): Promise<Settings> {
 
   const response = await fetch(seagullURL.toString(), {
     method: "PUT",
+    cache: "no-store",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: auth.traceToken,
@@ -455,8 +475,15 @@ async function updateSettings(auth: Readonly<Session>): Promise<Settings> {
   if (response.ok) {
     return (await response.json()) as Settings;
   }
-  const responseBody = (await response.json()) as APIErrorResponse;
-  throw new Error(t(responseBody.reason));
+
+  try {
+    const responseBody = (await response.json()) as APIErrorResponse;
+    return Promise.reject(new Error(t(responseBody.reason)));
+  } catch (e) {
+    log.error(e);
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function updateUser(session: Readonly<Session>, updates: UpdateUser): Promise<void> {
@@ -465,6 +492,7 @@ async function updateUser(session: Readonly<Session>, updates: UpdateUser): Prom
   log.debug("updateUser:", updateURL.toString());
   const response = await fetch(updateURL.toString(), {
     method: "PUT",
+    cache: "no-store",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: session.traceToken,
@@ -486,6 +514,7 @@ async function refreshToken(session: Readonly<Session>): Promise<string> {
   log.debug("refreshToken", refreshURL.toString());
   const response = await fetch(refreshURL.toString(), {
     method: "GET",
+    cache: "no-store",
     headers: {
       [HttpHeaderKeys.traceToken]: session.traceToken,
       [HttpHeaderKeys.sessionToken]: session.sessionToken,
