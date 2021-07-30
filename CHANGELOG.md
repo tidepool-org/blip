@@ -5,6 +5,7 @@ It is based on Tidepool Blip 1.27.
 ## Unreleased
 ### Fixed
 - YLP-878 Wrong settings for glucose units uploaded by the handset
+- YLP-882 Wrong dates in the PDF report
 - YLP-910 lastName / firstName / Language translations keys should be in lower-case
 - YLP-918 Caregivers bg unit change not taken without reload
 - YLP-919 Yourloops do not encode correctly passwords with special characters

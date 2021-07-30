@@ -180,14 +180,13 @@ class DailyPrintView extends PrintView {
     if (charts.length > 0) {
       const start = _.head(charts).date;
       const end = _.last(charts).date;
-
-      super.newPage(this.getDateRange(start, end, t('YYYY-MM-DD')));
+      super.newPage(this.getDateRange(start, end, 'YYYY-MM-DD'));
       this.renderLegend();
     } else {
       // Something is wrong
       const dates = _.keys(this.chartsByDate);
       const date = _.last(dates);
-      super.newPage(this.getDateRange(date, date, t('YYYY-MM-DD')));
+      super.newPage(this.getDateRange(date, date, 'YYYY-MM-DD'));
       this.renderLegend();
     }
   }
