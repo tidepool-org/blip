@@ -380,7 +380,7 @@ export const ClinicAdmin = (props) => {
 
   return (
     <>
-      <ClinicProfile />
+      <ClinicProfile api={api} trackMetric={trackMetric} />
 
       <Box variant="containers.largeBordered">
         <Flex
@@ -388,7 +388,7 @@ export const ClinicAdmin = (props) => {
           alignItems={'center'}
         >
           <Title p={4} flexGrow={1}>
-            {t('Access Management')}
+            {t('Clinic Members')}
           </Title>
           <Box>
             <Button

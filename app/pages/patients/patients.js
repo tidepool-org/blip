@@ -203,7 +203,7 @@ export let Patients = translate()(class extends React.Component {
     if (personUtils.isClinicianAccount(this.props.user) && (!this.props.clinicFlowActive || !_.isEmpty(this.props.selectedClinicId))) {
       return (
         <Box>
-          {this.props.selectedClinicId && <ClinicProfile width={['100%', '100%']} />}
+          {this.props.selectedClinicId && <ClinicProfile api={this.props.api} trackMetric={this.props.trackMetric} width={['100%', '100%']} />}
 
           <Box
             variant="containers.largeBordered"
@@ -498,6 +498,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       onRemovePatient: stateProps.selectedClinicId ? dispatchProps.deletePatientFromClinic.bind(null, api, stateProps.selectedClinicId) : dispatchProps.removeMembershipInOtherCareTeam.bind(null, api),
       trackMetric: ownProps.trackMetric,
       history: ownProps.history,
+      api,
     }
   );
 };
