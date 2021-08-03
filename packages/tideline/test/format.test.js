@@ -203,6 +203,10 @@ describe('format utility', function() {
       expect(fmt.nameForDisplay('Derek Jonesy', 5)).to.equal('Derek Jones...');
       expect(fmt.nameForDisplay('testing123@tidepool.org', 12)).to.equal('testing123@t...');
     });
+
+    it('should sanitize the HTML text', () => {
+      expect(fmt.nameForDisplay('<div>')).to.equal('&lt;div&gt;');
+    });
   });
 
   describe('textPreview', function() {
@@ -231,6 +235,10 @@ describe('format utility', function() {
       expect(fmt.textPreview('I had a dream', 12)).to.equal('I had a...');
       expect(fmt.textPreview('In a world where people live forever.', 12)).to.equal('In a world...');
       expect(fmt.textPreview('In a world where people live forever.', 18)).to.equal('In a world where...');
+    });
+
+    it('should sanitize the HTML text', () => {
+      expect(fmt.textPreview('<div>')).to.equal('&lt;div&gt;');
     });
   });
 

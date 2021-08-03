@@ -12,6 +12,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-910 lastName / firstName / Language translations keys should be in lower-case
 - YLP-918 Caregivers bg unit change not taken without reload
 - YLP-919 Yourloops do not encode correctly passwords with special characters
+- YLP-926 Sanitize HTML in message note
 ### Added
 - YLP-759 Add Austria
 ### Engineering Use

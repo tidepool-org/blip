@@ -60,24 +60,32 @@ const format = {
     }
   },
 
+  escapeHTMLString: (/** @type {string} */ message) => {
+    const tn = document.createTextNode(message);
+    const d = document.createElement("div");
+    d.appendChild(tn);
+    return d.innerHTML;
+  },
+
   /**
    * Return the name to display for message tooltips
    * @param {string|{firstName?: string, lastName?: string, fullName: string}} name A name
    * @param {number} maxWordLength Maximum words length
    */
-  nameForDisplay: function(name, maxWordLength = 22) {
+  nameForDisplay: (name, maxWordLength = 22) => {
     let words = null;
     if (typeof name === 'string') {
       words = name.split(' ');
-    } else if (typeof name.firstName === 'string' && typeof name.lastName === 'string') {
+    } else if (typeof name?.firstName === 'string' && typeof name?.lastName === 'string') {
       words = [name.firstName, name.lastName];
-    } else if (typeof name.fullName === 'string') {
+    } else if (typeof name?.fullName === 'string') {
       words = name.fullName.split(' ');
     } else {
       words = i18next.t('Anonymous user').split(' ');
     }
 
-    return words.map(part => part.length <= maxWordLength ? part : `${part.substring(0, maxWordLength)}...`).join(' ');
+    const dName = words.map(part => part.length <= maxWordLength ? part : `${part.substring(0, maxWordLength)}...`).join(' ');
+    return format.escapeHTMLString(dName);
   },
 
   /**
@@ -90,14 +98,16 @@ const format = {
    * @param  {number} previewLength default = 50
    * @return {string} return a string of max length + 3 (for elipsis).
    */
-  textPreview: function(text, previewLength = 50) {
-    if (text.length <= previewLength) {
-      return text;
+  textPreview: (text, previewLength = 50) => {
+    let returnedText = typeof text === "string" ? text : "";
+    if (returnedText.length > previewLength) {
+      const substring = returnedText.substring(0, previewLength);
+      const lastSpaceIndex = substring.lastIndexOf(' ');
+      const end = (lastSpaceIndex > 0) ? lastSpaceIndex : previewLength;
+
+      returnedText = substring.substring(0, end) + '...';
     }
-    const substring = text.substring(0, previewLength);
-    const lastSpaceIndex = substring.lastIndexOf(' ');
-    const end = (lastSpaceIndex > 0) ? lastSpaceIndex : previewLength;
-    return substring.substring(0, end) + '...';
+    return format.escapeHTMLString(returnedText);
   },
 
   capitalize: function(s) {
