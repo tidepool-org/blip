@@ -24,6 +24,9 @@ window.zESettings = {
           });
         }
       }
+    },
+    helpCenter: {
+      originalArticleButton: false
     }
   }
 };
