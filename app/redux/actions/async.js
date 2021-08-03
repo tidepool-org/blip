@@ -264,8 +264,14 @@ export function login(api, credentials, options, postLoginAction) {
                     // If we have an empty clinic profile, go to clinic details, otherwise workspaces
                     setRedirectRoute(!hasClinicProfile ? routes.clinicDetails : routes.workspaces);
                   } else if (values.clinics.length) {
-                    // If we have an empty clinic object, go to clinic details, otherwise workspaces
-                    setRedirectRoute(_.isEmpty(_.get(values.clinics, '0.clinic')) ? routes.clinicDetails : routes.workspaces)
+                    if (values.clinics.length === 1 && !_.get(user, ['profile', 'patient'])) {
+                      // Go to the clinic patients list if only one clinic and no dsa/data-sharing
+                      dispatch(sync.selectClinic(_.get(values.clinics, '0.clinic.id', null)));
+                      setRedirectRoute(routes.patients);
+                    } else {
+                      // If we have an empty clinic object, go to clinic details, otherwise workspaces
+                      setRedirectRoute(_.isEmpty(_.get(values.clinics, '0.clinic')) ? routes.clinicDetails : routes.workspaces);
+                    }
                   } else {
                     // Clinic flow is not enabled for this account
                     skipClinicFlow();
@@ -307,6 +313,7 @@ export function login(api, credentials, options, postLoginAction) {
           }
 
           function handleLoginSuccess(user) {
+            console.log('user', user);
             dispatch(sync.loginSuccess(user));
             utils.initializePendo(user, _.get(options, 'location', {}), window);
 
