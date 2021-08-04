@@ -130,7 +130,6 @@ export const PatientInvites = (props) => {
   }, [loggedInUserId, clinic]);
 
   useEffect(() => {
-    console.log('clinic', clinic);
     if (clinic) {
       const patientInvites = filter(values(clinic?.patients), patient => patient.status === 'pending');
 
@@ -146,7 +145,6 @@ export const PatientInvites = (props) => {
   }, [clinic]);
 
   useEffect(() => {
-    console.log('selectedInvitation', selectedInvitation);
     if (selectedInvitation) {
       setDeleteDialogContent({
         title: t('Decline invitation?'),
