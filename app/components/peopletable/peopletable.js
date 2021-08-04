@@ -50,6 +50,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
     this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
+    this.handleClearSearch = this.handleClearSearch.bind(this);
     this.handleClickPwD = this.handleClickPwD.bind(this);
     this.handleClickEdit = this.handleClickEdit.bind(this);
 
@@ -96,22 +97,29 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   }
 
   renderHeader() {
-    const { t } = this.props;
+    const { t, layout } = this.props;
     const toggleLabel = this.state.showNames ? t('Hide All') : t('Show All');
+    const isTabLayout = layout === 'tab';
 
     return (
-      <Flex alignItems="center" justifyContent="space-between">
-        <Title py={4} pr={4}>
-          {t('Patients')}
-        </Title>
+      <Flex mb={4} alignItems="center" justifyContent="space-between">
+        {!isTabLayout && (
+          <Title pt={4} pr={4}>
+            {t('Patients')}
+          </Title>
+        )}
 
-        <Flex>
+        <Flex
+          flexDirection={isTabLayout ? 'row-reverse' : 'row'}
+          justifyContent="space-between"
+          flexGrow={isTabLayout ? 1 : 0}
+        >
           <Button
             id="patients-view-toggle"
-            variant="textSecondary"
+            variant={isTabLayout ? 'primary' : 'textSecondary'}
             disabled={!_.isEmpty(this.state.search)}
             onClick={this.handleToggleShowNames}
-            mr={2}
+            mr={isTabLayout ? 0 : 2}
           >
             {toggleLabel}
           </Button>
@@ -352,10 +360,15 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   }
 });
 
+PeopleTable.defaultProps = {
+  layout: 'page',
+};
+
 PeopleTable.propTypes = {
   people: PropTypes.array,
   trackMetric: PropTypes.func.isRequired,
   onRemovePatient: PropTypes.func.isRequired,
+  layout: PropTypes.oneOf(['page', 'tab']).isRequired,
 };
 
 export default connect(null, { push })(PeopleTable);
