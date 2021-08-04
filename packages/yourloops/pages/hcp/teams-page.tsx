@@ -28,6 +28,7 @@
 
 import * as React from "react";
 import bows from "bows";
+import { useTranslation } from "react-i18next";
 
 import Alert from "@material-ui/lab/Alert";
 import Button from "@material-ui/core/Button";
@@ -39,8 +40,7 @@ import { TypeTeamMemberRole } from "../../models/team";
 import sendMetrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { useTeam, Team, TeamMember } from "../../lib/team";
-import { t } from "../../lib/language";
-import { errorTextFromException } from "../../lib/utils";
+import { errorTextFromException, setPageTitle } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
 
 import {
@@ -67,6 +67,7 @@ const log = bows("HCPTeamsPage");
  * HCP page to manage teams
  */
 function TeamsPage(): JSX.Element | null {
+  const { t } = useTranslation("yourloops");
   const alert = useAlert();
   const authHook = useAuth();
   const teamHook = useTeam();
@@ -252,7 +253,11 @@ function TeamsPage(): JSX.Element | null {
     if (loading) {
       setLoading(false);
     }
-  }, [teamHook.initialized, teamHook.errorMessage, loading, errorMessage]);
+  }, [teamHook.initialized, teamHook.errorMessage, loading, errorMessage, t]);
+
+  React.useEffect(() => {
+    setPageTitle(t("hcp-tab-teams"));
+  }, [t]);
 
   if (loading) {
     return (

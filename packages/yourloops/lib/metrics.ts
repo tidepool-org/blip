@@ -77,6 +77,7 @@ function sendMetrics(eventName: string, properties?: unknown): void {
     }
     if (eventName === "metrics") {
       if (metricsEnabled) {
+        matomoPaq.push(["setDomains", window.location.hostname]);
         matomoPaq.push(["setConsentGiven"]);
         // Do it another time, since only one time seems to not be always enough:
         matomoPaq.push(["setConsentGiven"]);

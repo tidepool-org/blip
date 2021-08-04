@@ -36,7 +36,7 @@ import Container from "@material-ui/core/Container";
 
 import { FilterType, SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
 import { IUser, UserRoles } from "../../../models/shoreline";
-import { getUserFirstName, getUserLastName, getUserEmail, errorTextFromException } from "../../../lib/utils";
+import { getUserFirstName, getUserLastName, getUserEmail, errorTextFromException, setPageTitle } from "../../../lib/utils";
 import sendMetrics from "../../../lib/metrics";
 import { useAuth } from "../../../lib/auth";
 import { useSharedUser, ShareUser, addDirectShare, removeDirectShare } from "../../../lib/share";
@@ -257,8 +257,7 @@ function PatientListPage(): JSX.Element {
   };
 
   React.useEffect(() => {
-    document.title = `${t("my-patients-title")} - ${t("brand-name")}`;
-    log.info("Set document title to", document.title);
+    setPageTitle(t("my-patients-title"));
   }, [t]);
 
   // Here we can't have "shares" & "flagged" in the exhaustive deps,

@@ -32,6 +32,8 @@ import { useTranslation } from "react-i18next";
 
 import Grid from "@material-ui/core/Grid";
 
+import { setPageTitle } from "../lib/utils";
+
 interface InvalidRouteProps {
   /** The message to display (default to "page-not-found") */
   message?: string;
@@ -49,7 +51,7 @@ function InvalidRoute(props: InvalidRouteProps): JSX.Element {
     historyHook.push(defaultURL ?? "/");
   };
 
-  document.title = t("brand-name");
+  setPageTitle();
 
   return (
     <Grid container direction="column" justify="center" alignItems="center" style={{ flexGrow: 1 }}>

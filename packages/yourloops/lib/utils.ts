@@ -32,6 +32,7 @@ import { Units } from "../models/generic";
 import { IUser, Settings } from "../models/shoreline";
 import httpStatus from "./http-status-codes";
 import { t } from "./language";
+import sendMetrics from "./metrics";
 
 export const REGEX_EMAIL = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -151,4 +152,17 @@ export function fixYLP878Settings(settings: Settings | undefined | null): Settin
     newSettings.a1c = settings.a1c;
   }
   return newSettings;
+}
+
+/**
+ * Set the page title
+ * @param prefix The text prefix
+ * @param metricsTitle The text for the metrics, to keeps this page title anonymous
+ */
+export function setPageTitle(prefix?: string, metricsTitle?: string): void {
+  const title = prefix ? `${prefix} | ${t("brand-name")}` : t("brand-name");
+  if (document.title !== title) {
+    document.title = title;
+    sendMetrics("setDocumentTitle", metricsTitle ?? title);
+  }
 }

@@ -59,7 +59,7 @@ function testMetrics(): void {
   it("should enable the metrics", () => {
     sendMetrics("metrics", { enabled: true });
     sendMetrics("test", { value: "you should see me" });
-    expect(window._paq.length).to.be.equals(4);
+    expect(window._paq.length).to.be.equals(5);
   });
 
   it("should update matomo page URL", () => {

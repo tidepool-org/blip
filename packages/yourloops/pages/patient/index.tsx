@@ -31,11 +31,11 @@ import { Route, Switch, useHistory } from "react-router-dom";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
 
-import { TeamContextProvider } from "../../lib/team";
-import { DataContextProvider, DefaultDataContext } from "../../lib/data";
-
 import { UserRoles } from "../../models/shoreline";
 import { useAuth } from "../../lib/auth";
+import { TeamContextProvider } from "../../lib/team";
+import { DataContextProvider, DefaultDataContext } from "../../lib/data";
+import { setPageTitle } from "../../lib/utils";
 import PatientDataPage from "../../components/patient-data";
 import InvalidRoute from "../../components/invalid-route";
 import ProfilePage from "../profile";
@@ -65,7 +65,7 @@ function PatientPage(): JSX.Element {
   React.useEffect(() => {
     if (user.role !== UserRoles.patient) {
       // Only allow patient for this route
-      document.title = t("brand-name");
+      setPageTitle();
       log.info("Wrong page for current user");
       historyHook.replace(prefixURL);
     } else if (new RegExp(`^${prefixURL}/?$`).test(pathname)) {

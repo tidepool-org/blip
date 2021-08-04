@@ -30,6 +30,8 @@ import * as React from "react";
 import bows from "bows";
 import _ from "lodash";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 import Container from "@material-ui/core/Container";
 
 import Blip from "blip";
@@ -39,6 +41,7 @@ import appConfig from "../lib/config";
 import { useAuth } from "../lib/auth";
 import { useTeam } from "../lib/team";
 import { useData } from "../lib/data";
+import { getUserFirstLastName, setPageTitle } from "../lib/utils";
 
 import ProfileDialog from "./profile-dialog";
 
@@ -65,6 +68,7 @@ function PatientDataPageError({ msg }: PatientDataPageErrorProps): JSX.Element {
 }
 
 function PatientDataPage(props: PatientDataPageProps): JSX.Element | null {
+  const { t } = useTranslation("yourloops");
   const paramHook = useParams();
   const authHook = useAuth();
   const teamHook = useTeam();
@@ -106,6 +110,14 @@ function PatientDataPage(props: PatientDataPageProps): JSX.Element | null {
       }
     }
   }, [initialized, paramPatientId, patient, userId, teamHook, authUser, userIsPatient]);
+
+  React.useEffect(() => {
+    if (patient !== null && patient.userid !== userId) {
+      setPageTitle(t("user-name", getUserFirstLastName(patient)), "PatientName");
+    } else {
+      setPageTitle();
+    }
+  }, [userId, patient, t]);
 
   log.debug("render", { userId, paramPatientId, error });
 

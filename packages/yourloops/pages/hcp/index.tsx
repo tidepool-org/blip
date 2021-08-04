@@ -35,6 +35,7 @@ import { UserRoles } from "../../models/shoreline";
 import { useAuth } from "../../lib/auth";
 import { TeamContextProvider } from "../../lib/team";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
+import { setPageTitle } from "../../lib/utils";
 import PatientDataPage from "../../components/patient-data";
 import InvalidRoute from "../../components/invalid-route";
 import ProfilePage from "../profile";
@@ -64,7 +65,7 @@ function HcpPage(): JSX.Element {
     const { pathname } = historyHook.location;
     if (user.role !== UserRoles.hcp) {
       // Only allow hcp for this route
-      document.title = t("brand-name");
+      setPageTitle();
       log.info("Wrong page for current user");
       historyHook.replace(user.getHomePage());
     } else if (/^\/professional\/?$/.test(pathname)) {

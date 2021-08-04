@@ -48,7 +48,7 @@ import { Units } from "../../models/generic";
 import { LanguageCodes } from "../../models/locales";
 import { Preferences, Profile, UserRoles, Settings } from "../../models/shoreline";
 import { getLangName, getCurrentLang, availableLanguageCodes } from "../../lib/language";
-import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, getUserEmail } from "../../lib/utils";
+import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, getUserEmail, setPageTitle } from "../../lib/utils";
 import { User, useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import sendMetrics from "../../lib/metrics";
@@ -152,7 +152,8 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     if (!availableLanguageCodes.includes(lang)) {
       setLang(getCurrentLang());
     }
-  }, [lang]);
+    setPageTitle(t("menu-account-preferences"));
+  }, [lang, t]);
 
   React.useEffect(() => {
     // ISO date format is required from the user: It's not a very user friendly format

@@ -15,6 +15,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-926 Sanitize HTML in message note
 ### Added
 - YLP-759 Add Austria
+- YLP-869 Display page title
 ### Engineering Use
 - YLP-814 Add TU for i18next integration / localization
 - YLP-815 Add TU for metrics / Matomo

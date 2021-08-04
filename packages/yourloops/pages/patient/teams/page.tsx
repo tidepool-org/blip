@@ -28,6 +28,7 @@
 
 import * as React from "react";
 import bows from "bows";
+import { useTranslation } from "react-i18next";
 
 import Alert from "@material-ui/lab/Alert";
 import Button from "@material-ui/core/Button";
@@ -37,8 +38,7 @@ import Grid from "@material-ui/core/Grid";
 
 import sendMetrics from "../../../lib/metrics";
 import { useTeam, Team } from "../../../lib/team";
-import { t } from "../../../lib/language";
-import { errorTextFromException } from "../../../lib/utils";
+import { errorTextFromException, setPageTitle } from "../../../lib/utils";
 import { useAlert } from "../../../components/utils/snackbar";
 
 import { AddTeamDialogContentProps, LeaveTeamDialogContentProps } from "./types";
@@ -58,6 +58,7 @@ const log = bows("PatientTeamsPage");
  * Patient teams page
  */
 function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
+  const { t } = useTranslation("yourloops");
   const alert = useAlert();
   const teamHook = useTeam();
   const [loading, setLoading] = React.useState(true);
@@ -157,7 +158,11 @@ function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
     if (loading) {
       setLoading(false);
     }
-  }, [teamHook.initialized, teamHook.errorMessage, loading, errorMessage]);
+  }, [teamHook.initialized, teamHook.errorMessage, loading, errorMessage, t]);
+
+  React.useEffect(() => {
+    setPageTitle(t("breadcrumb-patient-teams"));
+  }, [t]);
 
   if (loading) {
     return (

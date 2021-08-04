@@ -36,8 +36,9 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Typography from "@material-ui/core/Typography";
 
-import { INotification } from "../../lib/notifications/models";
+import { setPageTitle } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
+import { INotification } from "../../lib/notifications/models";
 import { useNotification } from "../../lib/notifications/hook";
 import SwitchRoleDialogs from "../../components/switch-role";
 
@@ -76,6 +77,10 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
   const { user } = useAuth();
   const notificationsHook = useNotification();
   const [switchRoleOpen, setSwitchRoleOpen] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    setPageTitle(t("breadcrumb-notifications"));
+  }, [t]);
 
   if (user === null) {
     throw new Error("Notification require a logged-in user");

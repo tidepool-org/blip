@@ -46,6 +46,7 @@ import {
   sharedUserReducer,
 } from "../../lib/share";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
+import { setPageTitle } from "../../lib/utils";
 import InvalidRoute from "../../components/invalid-route";
 import PrimaryNavBar from "../../components/header-bars/primary";
 import ProfilePage from "../profile";
@@ -111,15 +112,15 @@ const CaregiverPage = (): JSX.Element => {
     log.info("useEffect", { pathname, userRole });
     if (userRole !== UserRoles.caregiver) {
       // Only allow caregivers for this route
-      document.title = t("brand-name");
+      setPageTitle();
       log.info("Wrong page for current user");
       historyHook.replace(session.user.getHomePage());
     } else if (/^\/caregiver\/?$/.test(pathname)) {
       log.info("Redirecting to the patients list", { from: pathname, to: defaultURL });
-      document.title = t("brand-name");
+      setPageTitle();
       historyHook.replace(defaultURL);
     } else if (sharedUsers === null && errorMessage === null && loading === false) {
-      document.title = t("brand-name");
+      setPageTitle();
       setLoading(true);
       getDirectShares(session)
         .then((result: ShareUser[]): void => {

@@ -36,7 +36,7 @@ import Container from "@material-ui/core/Container";
 
 import Blip from "blip";
 
-import { getUserFirstLastName } from "../../lib/utils";
+import { getUserFirstLastName, setPageTitle } from "../../lib/utils";
 import appConfig from "../../lib/config";
 import { useData } from "../../lib/data";
 import { useSharedUser, ShareUser } from "../../lib/share";
@@ -73,8 +73,6 @@ function PatientDataPage(): JSX.Element | null {
         const sharedUser = sharedUsers.find((su) => su.user.userid === paramPatientId);
         if (sharedUser) {
           setPatient(sharedUser);
-          document.title = `${t("user-name", getUserFirstLastName(sharedUser.user))} - ${t("brand-name")}`;
-          log.info("Set document title to", document.title);
         } else {
           log.error("Missing patient", paramPatientId);
           setError(t("patient-not-found"));
@@ -86,6 +84,14 @@ function PatientDataPage(): JSX.Element | null {
       setPatient(null);
     }
   }, [paramPatientId, patient]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  React.useEffect(() => {
+    if (patient) {
+      setPageTitle(t("user-name", getUserFirstLastName(patient.user)), "PatientName");
+    } else {
+      setPageTitle();
+    }
+  }, [patient, t]);
 
   log.debug("render", { sharedUsersContext, patient, error, paramPatientId });
 

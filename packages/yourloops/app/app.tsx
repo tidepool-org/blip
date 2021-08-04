@@ -26,6 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import _ from "lodash";
 import * as React from "react";
 import { BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
 
@@ -45,6 +46,8 @@ import PatientConsentPage from "../pages/patient/patient-consent";
 import CaregiverPage from "../pages/caregiver";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 
+/** Tell matomo the page is changed, but with a little delay, because of some async stuff  */
+const trackPageView = _.debounce(() => { sendMetrics("trackPageView"); }, 1000);
 const RE_PATIENT_URL = /^\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_CAREGIVER_URL = /^\/caregiver\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_HCP_URL = /^\/professional\/patient\/[0-9a-f]+\/?(.*)/;
@@ -84,7 +87,7 @@ function MetricsLocationListener(): null {
     }
 
     sendMetrics("setCustomUrl", pathname);
-    sendMetrics("trackPageView");
+    trackPageView();
   }, [locPathname, locSearch]);
   return null;
 }

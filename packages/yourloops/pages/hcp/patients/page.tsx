@@ -45,7 +45,7 @@ import { FilterType, SortDirection, SortFields } from "../../../models/generic";
 import sendMetrics from "../../../lib/metrics";
 import { useAlert } from "../../../components/utils/snackbar";
 import { useAuth } from "../../../lib/auth";
-import { errorTextFromException, getUserFirstName, getUserLastName, getUserEmail } from "../../../lib/utils";
+import { errorTextFromException, getUserFirstName, getUserLastName, getUserEmail, setPageTitle } from "../../../lib/utils";
 import { Team, TeamContext, TeamUser, useTeam } from "../../../lib/team";
 import { AddPatientDialogResult, AddPatientDialogContentProps } from "../types";
 import PatientsSecondaryBar from "./secondary-bar";
@@ -319,6 +319,10 @@ function PatientListPage(): JSX.Element {
       setLoading(false);
     }
   }, [teamHook.initialized, teamHook.errorMessage, errorMessage, loading, t]);
+
+  React.useEffect(() => {
+    setPageTitle(t("hcp-tab-patients"));
+  }, [t]);
 
   if (loading) {
     return (

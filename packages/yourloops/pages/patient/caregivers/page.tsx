@@ -38,7 +38,7 @@ import { UserInvitationStatus } from "../../../models/generic";
 import { UserRoles } from "../../../models/shoreline";
 import { useAuth } from "../../../lib/auth";
 import sendMetrics from "../../../lib/metrics";
-import { errorTextFromException } from "../../../lib/utils";
+import { errorTextFromException, setPageTitle } from "../../../lib/utils";
 import { useNotification, NotificationType } from "../../../lib/notifications";
 import { ShareUser, addDirectShare, getDirectShares, removeDirectShare } from "../../../lib/share";
 import { useAlert } from "../../../components/utils/snackbar";
@@ -160,6 +160,10 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
       });
     }
   }, [caregivers, session, haveNotifications, sentInvitations]);
+
+  React.useEffect(() => {
+    setPageTitle(t("caregivers-title"));
+  }, [t]);
 
   if (caregivers === null) {
     return (
