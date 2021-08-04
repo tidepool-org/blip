@@ -693,8 +693,35 @@ export const clinics = (state = initialState.clinics, action) => {
         return newSet;
       }, {});
       return update(state, {
-        [clinicId]: { $set: { patients: newPatientSet, ...state[clinicId] } },
+        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet } },
       });
+    }
+    case types.FETCH_PATIENT_INVITES_SUCCESS: {
+      const invites = _.get(action.payload, 'invites', []);
+      const clinicId = _.get(action.payload, 'invites.0.clinicId', '');
+      const newClinics = _.cloneDeep(state);
+      _.forEach(invites, (invite) => {
+        _.set(
+          newClinics,
+          [clinicId, 'patients', invite.key],
+          invite
+        );
+      });
+      return newClinics;
+    }
+    case types.ACCEPT_PATIENT_INVITATION_SUCCESS: {
+      let inviteId = _.get(action.payload, 'inviteId');
+      let clinicId = _.get(action.payload, 'clinicId');
+      let newState = _.cloneDeep(state);
+      delete newState[clinicId].patients[inviteId];
+      return newState;
+    }
+    case types.DELETE_PATIENT_INVITATION_SUCCESS: {
+      let inviteId = _.get(action.payload, 'inviteId');
+      let clinicId = _.get(action.payload, 'clinicId');
+      let newState = _.cloneDeep(state);
+      delete newState[clinicId].patients[inviteId];
+      return newState;
     }
     case types.CREATE_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic', {});

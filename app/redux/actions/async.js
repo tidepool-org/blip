@@ -2210,7 +2210,7 @@ export function acceptPatientInvitation(api, clinicId, inviteId) {
           createActionError(ErrorMessages.ERR_ACCEPTING_PATIENT_INVITATION, err), err
         ));
       } else {
-        dispatch(sync.acceptPatientInvitationSuccess(result));
+        dispatch(sync.acceptPatientInvitationSuccess(clinicId, inviteId));
       }
     });
   };
@@ -2233,7 +2233,7 @@ export function deletePatientInvitation(api, clinicId, inviteId) {
           createActionError(ErrorMessages.ERR_DELETING_PATIENT_INVITATION, err), err
         ));
       } else {
-        dispatch(sync.deletePatientInvitationSuccess(inviteId));
+        dispatch(sync.deletePatientInvitationSuccess(clinicId, inviteId));
       }
     });
   };

@@ -1676,11 +1676,12 @@ export function acceptPatientInvitationRequest() {
   };
 }
 
-export function acceptPatientInvitationSuccess(result) {
+export function acceptPatientInvitationSuccess(clinicId, inviteId) {
   return {
     type: ActionTypes.ACCEPT_PATIENT_INVITATION_SUCCESS,
     payload: {
-      result: result,
+      inviteId: inviteId,
+      clinicId: clinicId,
     },
   };
 }
@@ -1701,11 +1702,12 @@ export function deletePatientInvitationRequest() {
   };
 }
 
-export function deletePatientInvitationSuccess(inviteId) {
+export function deletePatientInvitationSuccess(clinicId, inviteId) {
   return {
     type: ActionTypes.DELETE_PATIENT_INVITATION_SUCCESS,
     payload: {
       inviteId: inviteId,
+      clinicId: clinicId,
     },
   };
 }
