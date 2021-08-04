@@ -59,7 +59,6 @@ export const ClinicAdmin = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
-  const fetchingClinicsForClinician = working.fetchingClinicsForClinician;
   const fetchingCliniciansFromClinic = working.fetchingCliniciansFromClinic;
   const allUsers = useSelector((state) => state.blip.allUsersMap);
 
@@ -407,7 +406,7 @@ export const ClinicAdmin = (props) => {
           <TextInput
             themeProps={{
               minWidth: '250px',
-              py: 3,
+              my: 3,
             }}
             placeholder={t('search')}
             icon={SearchIcon}
