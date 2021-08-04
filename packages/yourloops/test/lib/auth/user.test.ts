@@ -38,7 +38,7 @@ function testUser(): void {
   });
 
   it("should create the user", () => {
-    const user = new User("abcd", "text@example.com");
+    const user = new User({ userid: "abcd", username: "text@example.com", role: UserRoles.unverified });
     expect(user.userid).to.be.equals("abcd");
     expect(user.username).to.be.equals("text@example.com");
     expect(user.latestConsentChangeDate).to.be.instanceOf(Date);
@@ -46,7 +46,7 @@ function testUser(): void {
   });
 
   it("getFirstName", () => {
-    const user = new User("abcd", "text@example.com");
+    const user = new User({ userid: "abcd", username: "text@example.com", role: UserRoles.unverified });
     expect(user.getFirstName()).to.be.equals("");
     user.profile = {
       fullName: "Hello",
@@ -58,7 +58,7 @@ function testUser(): void {
 
 
   it("getLastName", () => {
-    const user = new User("abcd", "text@example.com");
+    const user = new User({ userid: "abcd", username: "text@example.com", role: UserRoles.unverified });
     expect(user.getLastName()).to.be.equals("text@example.com");
     user.profile = {
       fullName: "Hello World",
@@ -74,7 +74,7 @@ function testUser(): void {
   });
 
   it("shouldAcceptConsent", () => {
-    const user = new User("abcd", "text@example.com");
+    const user = new User({ userid: "abcd", username: "text@example.com", role: UserRoles.unverified });
     expect(user.shouldAcceptConsent(), "no profile").to.be.true;
     user.profile = {
       fullName: "Test Example",
@@ -94,7 +94,7 @@ function testUser(): void {
   });
 
   it("shouldRenewConsent", () => {
-    const user = new User("abcd", "text@example.com");
+    const user = new User({ userid: "abcd", username: "text@example.com", role: UserRoles.unverified });
     expect(user.shouldRenewConsent(), "no profile").to.be.true;
     user.profile = {
       fullName: "Test Example",
@@ -120,7 +120,7 @@ function testUser(): void {
   });
 
   it("getHomePage", () => {
-    const user = new User("abcd", "text@example.com");
+    const user = new User({ userid: "abcd", username: "text@example.com", role: UserRoles.unverified });
     expect(user.getHomePage(), "/").to.be.equals("/");
     expect(user.getHomePage("/suffix"), "/suffix").to.be.equals("/suffix");
     user.role = UserRoles.caregiver;

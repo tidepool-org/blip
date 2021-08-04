@@ -124,7 +124,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
    */
   const setUser = (u: User): void => {
     setUserPrivate(u);
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(u));
+    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(u.toJSON()));
   };
 
   // Wrap any methods we want to use making sure
@@ -165,7 +165,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
 
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, auth.sessionToken);
     sessionStorage.setItem(STORAGE_KEY_TRACE_TOKEN, auth.traceToken);
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(auth.user));
+    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(auth.user.toJSON()));
 
     setAuthInfos(auth.sessionToken, auth.traceToken, auth.user);
     return auth.user;
@@ -174,7 +174,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
   const updatePreferences = async (preferences: Preferences, refresh = true): Promise<Preferences> => {
     const authInfo = await getAuthInfos();
     log.info("updatePreferences", authInfo.user.userid);
-    const updatedUser = _.cloneDeep(authInfo.user);
+    const updatedUser = new User(authInfo.user);
     updatedUser.preferences = preferences;
     const updatedPreferences = await api.updatePreferences({ ...authInfo, user: updatedUser });
     if (refresh) {
@@ -187,7 +187,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
   const updateProfile = async (profile: Profile, refresh = true): Promise<Profile> => {
     const authInfo = await getAuthInfos();
     log.info("updateProfile", authInfo.user.userid);
-    const updatedUser = _.cloneDeep(authInfo.user);
+    const updatedUser = new User(authInfo.user);
     updatedUser.profile = profile;
     const updatedProfile = await api.updateProfile({ ...authInfo, user: updatedUser });
     if (refresh) {
@@ -200,7 +200,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
   const updateSettings = async (settings: Settings, refresh = true): Promise<Settings> => {
     const authInfo = await getAuthInfos();
     log.info("updateSettings", authInfo.user.userid);
-    const updatedUser = _.cloneDeep(authInfo.user);
+    const updatedUser = new User(authInfo.user);
     updatedUser.settings = settings;
     const updatedSettings = await api.updateSettings({ ...authInfo, user: updatedUser });
     if (refresh) {
@@ -257,7 +257,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
   const flagPatient = async (userId: string): Promise<void> => {
     log.info("flagPatient", userId);
     const authInfo = await getAuthInfos();
-    const updatedUser = _.cloneDeep(authInfo.user);
+    const updatedUser = new User(authInfo.user);
     if (_.isNil(updatedUser.preferences)) {
       updatedUser.preferences = {};
     }
@@ -269,20 +269,20 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     } else {
       updatedUser.preferences.patientsStarred.push(userId);
     }
-    authInfo.user.preferences = await api.updatePreferences({ ...authInfo, user: updatedUser });
-    setUser(authInfo.user);
+    updatedUser.preferences = await api.updatePreferences({ ...authInfo, user: updatedUser });
+    setUser(updatedUser);
   };
 
   const setFlagPatients = async (userIds: string[]): Promise<void> => {
     log.info("setFlagPatients", userIds);
     const authInfo = await getAuthInfos();
-    const updatedUser = _.cloneDeep(authInfo.user);
+    const updatedUser = new User(authInfo.user);
     if (_.isNil(updatedUser.preferences)) {
       updatedUser.preferences = {};
     }
     updatedUser.preferences.patientsStarred = userIds;
-    authInfo.user.preferences = await api.updatePreferences({ ...authInfo, user: updatedUser });
-    setUser(authInfo.user);
+    updatedUser.preferences = await api.updatePreferences({ ...authInfo, user: updatedUser });
+    setUser(updatedUser);
   };
 
   const getFlagPatients = (): string[] => {
@@ -333,8 +333,8 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
       throw new Error("invalid-user-role");
     }
 
-    // Call first Update user as it is the most importat call
-    // if it failed, for now we dont have compensation transaction that revert db change
+    // Call first Update user as it is the most important call
+    // if it failed, for now we don't have compensation transaction that revert db change
     await api.updateUser(authInfo, { roles: [UserRoles.hcp] });
 
     const now = new Date().toISOString();
@@ -351,11 +351,12 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
       throw new Error("Role change is not effective");
     }
     // Refresh our data:
-    authInfo.user.role = UserRoles.hcp;
-    authInfo.user.profile = profile;
+    const updatedUser = new User(authInfo.user);
+    updatedUser.role = UserRoles.hcp;
+    updatedUser.profile = profile;
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, newToken);
     setSessionToken(newToken);
-    setUser(authInfo.user);
+    setUser(updatedUser);
   };
 
   const initHook = () => {
@@ -395,14 +396,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
         try {
           // FIXME check storage items validity
           const jsonUser = JSON.parse(userStored) as IUser;
-          const currentUser = new User(jsonUser.userid, jsonUser.username);
-          currentUser.emails = jsonUser.emails;
-          currentUser.emailVerified = jsonUser.emailVerified;
-          currentUser.role = jsonUser.role;
-          currentUser.settings = jsonUser.settings;
-          currentUser.profile = jsonUser.profile;
-          currentUser.preferences = jsonUser.preferences;
-          currentUser.medicalData = jsonUser.medicalData;
+          const currentUser = new User(jsonUser);
 
           if (!validateUuid(traceTokenStored)) {
             throw new Error("Invalid trace token uuid");

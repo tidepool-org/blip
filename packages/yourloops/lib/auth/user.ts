@@ -25,6 +25,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import _ from "lodash";
 import { MedicalData } from "../../models/device-data";
 import { IUser, Preferences, Profile, Settings, Consent, UserRoles } from "../../models/shoreline";
 import config from "../config";
@@ -38,22 +39,61 @@ const urlPrefixFromUserRole = {
 class User implements IUser {
   userid: string;
   username: string;
-  role!: UserRoles;
+  role: UserRoles;
   emails?: string[];
-  emailVerified?: boolean;
+  emailVerified: boolean;
   profile?: Profile | null;
   settings?: Settings | null;
   preferences?: Preferences | null;
   medicalData?: MedicalData | null;
   latestConsentChangeDate: Date;
 
-  constructor(id: string, name: string) {
-    this.userid = id;
-    this.username = name;
-    this.latestConsentChangeDate = new Date(0);
-    if (config.LATEST_TERMS !== undefined) {
-      this.latestConsentChangeDate = new Date(config.LATEST_TERMS);
+  constructor(u: IUser | User) {
+    // TODO validate the user before
+    this.userid = u.userid;
+    this.username = u.username;
+
+    if (u.role) {
+      this.role = u.role;
+    } else {
+      const roles = (u as IUser).roles;
+      if (Array.isArray(roles) && roles.length > 0) {
+        this.role = roles[0];
+      } else {
+        this.role = UserRoles.unverified;
+      }
     }
+
+    this.emailVerified = u.emailVerified === true;
+    if (Array.isArray(u.emails)) {
+      this.emails = Array.from(u.emails);
+    } else {
+      this.emails = [ this.username ];
+    }
+    this.profile = u.profile ? _.cloneDeep(u.profile) : null;
+    this.settings = u.settings ? _.cloneDeep(u.settings) : null;
+    this.preferences = u.preferences ? _.cloneDeep(u.preferences): null;
+    this.medicalData = u.medicalData ? _.cloneDeep(u.medicalData) : null;
+
+    if (u instanceof User) {
+      this.latestConsentChangeDate = u.latestConsentChangeDate;
+    } else if (config.LATEST_TERMS) {
+      this.latestConsentChangeDate = new Date(config.LATEST_TERMS);
+    } else {
+      this.latestConsentChangeDate = new Date(0);
+    }
+  }
+
+  toJSON(): IUser {
+    return {
+      userid: this.userid,
+      username: this.username,
+      role: this.role,
+      emailVerified: this.emailVerified,
+      profile: _.cloneDeep(this.profile),
+      settings: _.cloneDeep(this.settings),
+      preferences: _.cloneDeep(this.preferences),
+    };
   }
 
   /**

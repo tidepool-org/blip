@@ -45,14 +45,6 @@ import User from "./user";
 const log = bows("Auth API");
 const failedLoginCounter = new Map<string, number>();
 
-function format(user: IUser): User {
-  const u = new User(user.userid, user.username);
-  u.emails = user.emails;
-  u.emailVerified = user.emailVerified;
-  return u;
-}
-
-
 /**
  * Perform a login.
  * @param {string} username Generally an email
@@ -119,7 +111,6 @@ async function authenticate(username: string, password: string, traceToken: stri
       return Promise.reject(new Error(reason));
     }
 
-    // this.wrongCredentialCount = 0;
     const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
     if (sessionToken === null) {
       sendMetrics("Login", "missing-response-token");
@@ -128,7 +119,7 @@ async function authenticate(username: string, password: string, traceToken: stri
 
     const user = await response
       .json()
-      .then((res: IUser) => format(res));
+      .then((res: IUser) => new User(res));
 
     // We may miss some case, but it's probably good enough:
     failedLoginCounter.clear();
@@ -187,7 +178,7 @@ async function signup(username: string, password: string, role: UserRoles, trace
 
       const user = await response
         .json()
-        .then((res: IUser) => format(res));
+        .then((res: IUser) => new User(res));
 
       return Promise.resolve({
         sessionToken,

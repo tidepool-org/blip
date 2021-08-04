@@ -34,6 +34,8 @@ enum UserRoles {
   hcp = "hcp",
   caregiver = "caregiver",
   patient = "patient",
+  /** When the account is created but not yet confirm */
+  unverified = "unverified"
 }
 
 interface Consent {

@@ -49,7 +49,6 @@ import brandingLogoIcon from "branding/logo-icon.svg";
 import { useNotification } from "../../lib/notifications/hook";
 import config from "../../lib/config";
 import { User, useAuth } from "../../lib/auth";
-import { getUserFirstName, getUserLastName } from "../../lib/utils";
 
 type CloseMenuCallback = () => void;
 export interface HeaderActions {
@@ -218,7 +217,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   let accountMenu = null;
   if (auth.isLoggedIn()) {
     const user = auth.user as User;
-    const name = t("user-name", { firstName: getUserFirstName(user), lastName: getUserLastName(user) });
+    const name = t("user-name", { firstName: user.getFirstName(), lastName: user.getLastName() });
     const { menuItems } = props;
 
     accountMenu = (

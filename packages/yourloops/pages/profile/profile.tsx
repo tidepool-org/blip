@@ -261,7 +261,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     }
 
     if (updated) {
-      const updatedUser = _.cloneDeep(user) as User;
+      const updatedUser = new User(user);
       if (preferences) {
         updatedUser.preferences = preferences;
       }

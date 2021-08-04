@@ -510,6 +510,15 @@ function testAPI(): void {
   });
 
   describe("sendAccountValidation", () => {
+    let unvalidatedUser: User;
+    before(() => {
+      unvalidatedUser = new User({
+        userid: "abcd",
+        username: "abcd@example.com",
+        role: UserRoles.unverified,
+      });
+    });
+
     it("should throw an error if the API reply is not OK", async () => {
       const resolveError: Response = {
         status: HttpStatus.StatusInternalServerError,
@@ -522,7 +531,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(unvalidatedUser),
       };
       fetchMock.resolves(resolveError);
       let error: Error | null = null;
@@ -559,7 +568,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(unvalidatedUser),
       };
 
       fetchMock.resolves(resolveOK);
@@ -767,6 +776,15 @@ function testAPI(): void {
   });
 
   describe("updateProfile", () => {
+    let userToUpdate: User;
+    before(() => {
+      userToUpdate = new User({
+        userid: "abcd",
+        username: "abcd@example.com",
+        role: UserRoles.caregiver,
+      });
+    });
+
     it("should throw an error if the API reply is not OK", async () => {
       const jsonResponse = sinon.stub().rejects(new Error("Not a JSON"));
       const resolveError: Response = {
@@ -781,7 +799,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveError);
@@ -824,7 +842,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveError);
@@ -872,7 +890,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       session.user.profile = profile;
@@ -904,6 +922,15 @@ function testAPI(): void {
   });
 
   describe("updatePreferences", () => {
+    let userToUpdate: User;
+    before(() => {
+      userToUpdate = new User({
+        userid: "abcd",
+        username: "abcd@example.com",
+        role: UserRoles.hcp,
+      });
+    });
+
     it("should throw an error if the API reply is not OK", async () => {
       const jsonResponse = sinon.stub().rejects(new Error("Not a JSON"));
       const resolveError: Response = {
@@ -918,7 +945,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveError);
@@ -961,7 +988,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveError);
@@ -1007,7 +1034,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       session.user.preferences = preferences;
@@ -1039,6 +1066,15 @@ function testAPI(): void {
   });
 
   describe("updateSettings", () => {
+    let userToUpdate: User;
+    before(() => {
+      userToUpdate = new User({
+        userid: "abcd",
+        username: "abcd@example.com",
+        role: UserRoles.patient,
+      });
+    });
+
     it("should throw an error if the API reply is not OK", async () => {
       const jsonResponse = sinon.stub().rejects(new Error("Not a JSON"));
       const resolveError: Response = {
@@ -1053,7 +1089,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveError);
@@ -1096,7 +1132,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveError);
@@ -1142,7 +1178,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       session.user.settings = settings;
@@ -1174,6 +1210,15 @@ function testAPI(): void {
   });
 
   describe("updateUser", () => {
+    let userToUpdate: User;
+    before(() => {
+      userToUpdate = new User({
+        userid: "abcd",
+        username: "abcd@example.com",
+        role: UserRoles.hcp,
+      });
+    });
+
     it("should throw an error if the API reply is not OK", async () => {
       const resolveError: Response = {
         status: HttpStatus.StatusInternalServerError,
@@ -1186,7 +1231,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveError);
@@ -1226,7 +1271,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveOK);
@@ -1256,6 +1301,15 @@ function testAPI(): void {
   });
 
   describe("refreshToken", () => {
+    let userToUpdate: User;
+    before(() => {
+      userToUpdate = new User({
+        userid: "abcd",
+        username: "abcd@example.com",
+        role: UserRoles.caregiver,
+      });
+    });
+
     it("should throw an error if the API reply is not OK", async () => {
       const resolveError: Response = {
         status: HttpStatus.StatusInternalServerError,
@@ -1268,7 +1322,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveError);
@@ -1307,7 +1361,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveOK);
@@ -1351,7 +1405,7 @@ function testAPI(): void {
       const session: Session = {
         sessionToken: "session-token",
         traceToken: "trace-token",
-        user: new User("abcd", "abcd@example.com"),
+        user: new User(userToUpdate),
       };
 
       fetchMock.resolves(resolveOK);

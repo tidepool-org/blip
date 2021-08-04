@@ -26,7 +26,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import _ from "lodash";
 import bows from "bows";
 
 import { PatientData } from "models/device-data";
@@ -67,7 +66,7 @@ class BlipApi {
   }
 
   public get whoami(): User | null {
-    return _.cloneDeep(this.authHook.user);
+    return this.authHook.user !== null ? new User(this.authHook.user) : null;
   }
 
   public getPatientDataRange(patient: IUser): Promise<string[] | null> {

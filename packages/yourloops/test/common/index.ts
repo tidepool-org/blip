@@ -31,25 +31,34 @@ import { Units, UserInvitationStatus } from "../../models/generic";
 import { UserRoles } from "../../models/shoreline";
 import { ITeam, ITeamMember, TeamMemberRole, TeamType } from "../../models/team";
 
-const userCaregiver = new User("b0000000", "caregiver@example.com");
-userCaregiver.role = UserRoles.caregiver;
-userCaregiver.emailVerified = true;
-userCaregiver.profile = { firstName: "Caregiver", lastName: "Example", fullName: "Caregiver Example" };
-userCaregiver.preferences = { displayLanguageCode: "de" };
-userCaregiver.settings = { country: "DE", units: { bg: Units.mole } };
+const userCaregiver = new User({
+  userid: "b0000000",
+  username: "caregiver@example.com",
+  role: UserRoles.caregiver,
+  emailVerified: true,
+  preferences: { displayLanguageCode: "de" },
+  profile: { firstName: "Caregiver", lastName: "Example", fullName: "Caregiver Example" },
+  settings: { country: "DE", units: { bg: Units.mole } },
+});
 
-const userHCP: User = new User("a0000000", "john.doe@example.com");
-userHCP.role = UserRoles.hcp;
-userHCP.emailVerified = true;
-userHCP.profile= { firstName: "John", lastName: "Doe", fullName: "John Doe" };
-userHCP.preferences= { displayLanguageCode: "en" };
-userHCP.settings = { units: { bg: Units.gram } };
+const userHCP: User = new User({
+  userid: "a0000000",
+  username: "john.doe@example.com",
+  role: UserRoles.hcp,
+  emailVerified: true,
+  profile: { firstName: "John", lastName: "Doe", fullName: "John Doe" },
+  preferences: { displayLanguageCode: "en" },
+  settings: { units: { bg: Units.gram } },
+});
 
-const userPatient = new User("a0a0a0b0", "josephine.dupuis@example.com");
-userPatient.role = UserRoles.patient;
-userPatient.preferences = { displayLanguageCode: "fr" };
-userPatient.profile = { firstName: "Josephine", lastName: "Dupuis", fullName: "Josephine D." };
-userPatient.settings = { a1c: { date: "2020-01-01", value: 0 } };
+const userPatient = new User({
+  userid: "a0a0a0b0",
+  username: "josephine.dupuis@example.com",
+  role: UserRoles.patient,
+  preferences: { displayLanguageCode: "fr" },
+  profile: { firstName: "Josephine", lastName: "Dupuis", fullName: "Josephine D." },
+  settings: { a1c: { date: "2020-01-01", value: 0 } },
+});
 
 /**
  * Logged in users for test, choose one suitable
