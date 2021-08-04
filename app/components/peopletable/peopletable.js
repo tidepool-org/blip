@@ -113,6 +113,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
           flexDirection={isTabLayout ? 'row-reverse' : 'row'}
           justifyContent="space-between"
           flexGrow={isTabLayout ? 1 : 0}
+          pt={isTabLayout ? 0 : 4}
         >
           <Button
             id="patients-view-toggle"
