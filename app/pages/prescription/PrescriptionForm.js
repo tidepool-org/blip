@@ -550,7 +550,7 @@ export const PrescriptionForm = props => {
         <Button
           id="back-to-prescriptions"
           variant="primary"
-          onClick={() => props.history.push('/prescriptions')}
+          onClick={() => props.history.push('/clinic-workspace/prescriptions')}
           mr={5}
         >
           {t('Back To Prescriptions')}

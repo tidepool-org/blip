@@ -81,6 +81,10 @@ export default translate()(class extends React.Component {
           '/clinic-admin',
           '/prescriptions',
           '/clinic-invite',
+          '/clinic-workspace',
+          '/clinic-workspace/patients',
+          '/clinic-workspace/invites',
+          '/clinic-workspace/prescriptions',
           '/clinician-edit'
         ], this.props.currentPage) && personUtils.isClinicianAccount(this.props.user)
       ) {

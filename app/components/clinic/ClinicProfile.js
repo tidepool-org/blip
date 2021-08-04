@@ -45,7 +45,7 @@ export const ClinicProfile = (props) => {
   const { updatingClinic } = useSelector((state) => state.blip.working);
   const clinic = get(clinics, selectedClinicId);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
-  const isPatientsPath = pathname === '/patients';
+  const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
   const [editing, setEditing] = useState(false);
 
   const clinicTypes = [
@@ -100,8 +100,8 @@ export const ClinicProfile = (props) => {
   });
 
   const navigationAction = {
-    label: isPatientsPath ? t('View Clinic Members'): t('View Patient List'),
-    action: () => dispatch(push(isPatientsPath ? '/clinic-admin' : '/patients')),
+    label: isWorkspacePath ? t('View Clinic Members'): t('View Patient List'),
+    action: () => dispatch(push(isWorkspacePath ? '/clinic-admin' : '/clinic-workspace')),
   };
 
   const clinicValues = () => ({
@@ -372,7 +372,7 @@ export const ClinicProfile = (props) => {
               id="submit"
               type="submit"
               variant="primary"
-              ml={3}
+              ml={2}
               mr={[0, 4]}
               processing={isSubmitting}
               disabled={!fieldsAreValid(keys(clinicValues()), validationSchema, values)}

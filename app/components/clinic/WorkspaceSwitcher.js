@@ -46,10 +46,6 @@ export const WorkspaceSwitcher = props => {
   useEffect(() => {
     const selected = find(menuOptions, {id: selectedClinicId});
     if (selected) setSelectedClinic(selected);
-
-    if (selectedClinicId && isEmpty(clinics?.[selectedClinicId]?.patients)) {
-      dispatch(actions.async.fetchPatientsForClinic(api, selectedClinicId));
-    }
   }, [menuOptions.length, selectedClinicId]);
 
   useEffect(() => {
@@ -70,7 +66,7 @@ export const WorkspaceSwitcher = props => {
     });
 
     dispatch(actions.sync.selectClinic(option.id));
-    dispatch(push('/patients'));
+    dispatch(push(option.id ? '/clinic-workspace' : '/patients'));
     popupState.close();
   };
 

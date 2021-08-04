@@ -232,7 +232,7 @@ export const Workspaces = (props) => {
 
   function handleGoToWorkspace(workspace) {
     dispatch(actions.sync.selectClinic(workspace?.id || null));
-    dispatch(push('/patients'));
+    dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients'));
   }
 
   const RenderClinicWorkspace = (workspace, key) => {
