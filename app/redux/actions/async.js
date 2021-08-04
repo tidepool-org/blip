@@ -215,6 +215,7 @@ export function login(api, credentials, options, postLoginAction) {
       workspaces: '/workspaces',
       clinicDetails: '/clinic-details',
       clinicianDetails: '/clinician-details',
+      clinicWorkspace: '/clinic-workspace',
     };
 
     let redirectRoute = routes.patients;
@@ -265,9 +266,8 @@ export function login(api, credentials, options, postLoginAction) {
                     setRedirectRoute(!hasClinicProfile ? routes.clinicDetails : routes.workspaces);
                   } else if (values.clinics.length) {
                     if (values.clinics.length === 1 && !_.get(user, ['profile', 'patient'])) {
-                      // Go to the clinic patients list if only one clinic and no dsa/data-sharing
-                      dispatch(sync.selectClinic(_.get(values.clinics, '0.clinic.id', null)));
-                      setRedirectRoute(routes.patients);
+                      // Go to the clinic workspace if only one clinic and no dsa/data-sharing
+                      setRedirectRoute(routes.clinicWorkspace);
                     } else {
                       // If we have an empty clinic object, go to clinic details, otherwise workspaces
                       setRedirectRoute(_.isEmpty(_.get(values.clinics, '0.clinic')) ? routes.clinicDetails : routes.workspaces);
@@ -313,9 +313,8 @@ export function login(api, credentials, options, postLoginAction) {
           }
 
           function handleLoginSuccess(user) {
-            console.log('user', user);
             dispatch(sync.loginSuccess(user));
-            utils.initializePendo(user, _.get(options, 'location', {}), window);
+            config.PENDO_ENABLED && utils.initializePendo(user, _.get(options, 'location', {}), window);
 
             if (postLoginAction) {
               dispatch(postLoginAction());
