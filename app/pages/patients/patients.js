@@ -51,13 +51,11 @@ export let Patients = translate()(class extends React.Component {
     loading: PropTypes.bool.isRequired,
     location: PropTypes.object.isRequired,
     loggedInUserId: PropTypes.string,
-    selectedClinicId: PropTypes.string,
     onAcceptInvitation: PropTypes.func.isRequired,
     onDismissInvitation: PropTypes.func.isRequired,
     onHideWelcomeSetup: PropTypes.func.isRequired,
     onRemovePatient: PropTypes.func.isRequired,
     patients: PropTypes.array.isRequired,
-    selectedClinicId: PropTypes.string,
     showWelcomeMessage: PropTypes.func.isRequired,
     showingWelcomeMessage: PropTypes.bool,
     trackMetric: PropTypes.func.isRequired,
@@ -74,22 +72,18 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.renderPatients();
 
     var backgroundClasses = cx({
-      'patients js-patients-page': (this.props.clinicFlowActive && !this.props.selectedClinicId),
+      'patients js-patients-page': this.props.clinicFlowActive,
       'patients-welcome js-patients-page': this.isShowingWelcomeTitle()
     });
 
     return (
       <Box variant="containers.large" bg="transparent" mb={0}>
         <div className={backgroundClasses}>
-          {!this.props.selectedClinicId && (
-            <>
-            {welcomeTitle}
-            {welcomeSetup}
-            {noPatientsOrInvites}
-            {invites}
-            {noPatientsSetupStorage}
-            </>
-          )}
+          {welcomeTitle}
+          {welcomeSetup}
+          {noPatientsOrInvites}
+          {invites}
+          {noPatientsSetupStorage}
           {patients}
           <Loader show={this.props.loading} overlay={true} />
         </div>
@@ -188,7 +182,7 @@ export let Patients = translate()(class extends React.Component {
 
   renderPatients = () => {
     const { t } = this.props;
-    if (!this.hasPatients() && !this.props.selectedClinicId) {
+    if (!this.hasPatients()) {
       return null;
     }
 
@@ -200,22 +194,18 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
-    if (personUtils.isClinicianAccount(this.props.user) && (!this.props.clinicFlowActive || !_.isEmpty(this.props.selectedClinicId))) {
+    if (personUtils.isClinicianAccount(this.props.user) && !this.props.clinicFlowActive) {
       return (
-        <Box>
-          {this.props.selectedClinicId && <ClinicProfile api={this.props.api} trackMetric={this.props.trackMetric} width={['100%', '100%']} />}
-
-          <Box
-            variant="containers.largeBordered"
-            px={4}
-            width={['100%', '100%']}
-          >
-            <PeopleTable
-              people={patients}
-              trackMetric={this.props.trackMetric}
-              onRemovePatient={this.props.onRemovePatient}
-            />
-          </Box>
+        <Box
+          variant="containers.largeBordered"
+          px={4}
+          width={['100%', '100%']}
+        >
+          <PeopleTable
+            people={patients}
+            trackMetric={this.props.trackMetric}
+            onRemovePatient={this.props.onRemovePatient}
+          />
         </Box>
       );
     }
@@ -382,64 +372,38 @@ export function mapStateToProps(state) {
   var user = null;
   let patientMap = {};
 
-  if (state.blip.selectedClinicId) {
-    const clinic = _.get(state.blip, ['clinics', state.blip.selectedClinicId]);
-
-    patientMap = _.reduce(
-      _.values(_.get(clinic, 'patients', {})),
-      (newSet, patient) => {
-        newSet[patient.id] = {
-          emails: [patient.email],
-          permissions: patient.permissions,
-          profile: {
-            fullName: patient.fullName,
-            patient: {
-              birthday: patient.birthDate,
-            },
-          },
-          userid: patient.id,
-          username: patient.email,
-        };
-        return newSet;
-      },
-      {}
-    );
-  }
-
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
     }
 
-    if (!state.blip.selectedClinicId) {
-      if (state.blip.targetUserId) {
-        patientMap[state.blip.targetUserId] = state.blip.allUsersMap[state.blip.targetUserId];
-        // to pass through the permissions of the logged-in user on the target (usually self)
-        if (state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId]) {
-          patientMap = update(patientMap, {
-            [state.blip.targetUserId]: { $merge: { permissions: state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId] } }
-          });
-        }
+    if (state.blip.targetUserId) {
+      patientMap[state.blip.targetUserId] = state.blip.allUsersMap[state.blip.targetUserId];
+      // to pass through the permissions of the logged-in user on the target (usually self)
+      if (state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId]) {
+        patientMap = update(patientMap, {
+          [state.blip.targetUserId]: { $merge: { permissions: state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId] } }
+        });
       }
+    }
 
-      if (state.blip.membershipInOtherCareTeams) {
-        _.forEach(state.blip.membershipInOtherCareTeams, (key) => {
+    if (state.blip.membershipInOtherCareTeams) {
+      _.forEach(state.blip.membershipInOtherCareTeams, (key) => {
+        patientMap[key] = state.blip.allUsersMap[key];
+      });
+    }
+
+    if (state.blip.membershipPermissionsInOtherCareTeams) {
+      const permissions = state.blip.membershipPermissionsInOtherCareTeams;
+      const keys = _.keys(state.blip.membershipPermissionsInOtherCareTeams);
+      _.forEach(keys, (key) => {
+        if (!patientMap[key]) {
           patientMap[key] = state.blip.allUsersMap[key];
+        }
+        patientMap = update(patientMap, {
+          [key]: { $merge: { permissions: permissions[key] } }
         });
-      }
-
-      if (state.blip.membershipPermissionsInOtherCareTeams) {
-        const permissions = state.blip.membershipPermissionsInOtherCareTeams;
-        const keys = _.keys(state.blip.membershipPermissionsInOtherCareTeams);
-        _.forEach(keys, (key) => {
-          if (!patientMap[key]) {
-            patientMap[key] = state.blip.allUsersMap[key];
-          }
-          patientMap = update(patientMap, {
-            [key]: { $merge: { permissions: permissions[key] } }
-          });
-        });
-      }
+      });
     }
   }
 
@@ -458,7 +422,6 @@ export function mapStateToProps(state) {
     fetchingAssociatedAccounts,
     loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
-    selectedClinicId: state.blip.selectedClinicId,
     patients: _.values(patientMap),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user,
@@ -469,7 +432,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   acceptReceivedInvite: actions.async.acceptReceivedInvite,
   rejectReceivedInvite: actions.async.rejectReceivedInvite,
   removeMembershipInOtherCareTeam: actions.async.removeMembershipInOtherCareTeam,
-  deletePatientFromClinic: actions.async.deletePatientFromClinic,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
@@ -495,7 +457,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       uploadUrl: api.getUploadUrl(),
       onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
       onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
-      onRemovePatient: stateProps.selectedClinicId ? dispatchProps.deletePatientFromClinic.bind(null, api, stateProps.selectedClinicId) : dispatchProps.removeMembershipInOtherCareTeam.bind(null, api),
+      onRemovePatient: dispatchProps.removeMembershipInOtherCareTeam.bind(null, api),
       trackMetric: ownProps.trackMetric,
       history: ownProps.history,
       api,
