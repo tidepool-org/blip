@@ -35,8 +35,6 @@ import Invitation from '../../components/invitation';
 import BrowserWarning from '../../components/browserwarning';
 
 import { components as vizComponents } from '@tidepool/viz';
-import ClinicProfile from '../../components/clinic/ClinicProfile';
-import baseTheme from '../../themes/baseTheme';
 const { Loader } = vizComponents;
 
 export let Patients = translate()(class extends React.Component {
