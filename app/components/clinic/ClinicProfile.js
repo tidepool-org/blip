@@ -14,7 +14,9 @@ import InputMask from 'react-input-mask';
 import { useFormik } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import * as yup from 'yup';
+import { components as vizComponents } from '@tidepool/viz';
 
 import {
   Caption,
@@ -28,10 +30,13 @@ import Button from '../../components/elements/Button';
 import TextInput from '../../components/elements/TextInput';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
+import Icon from '../../components/elements/Icon';
 import baseTheme from '../../themes/baseTheme';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useIsFirstRender } from '../../core/hooks';
 import { useToasts } from '../../providers/ToastProvider';
+
+const { ClipboardButton } = vizComponents;
 
 export const ClinicProfile = (props) => {
   const { t, api, trackMetric, ...boxProps } = props;
@@ -209,7 +214,45 @@ export const ClinicProfile = (props) => {
             </Box>
             <Box>
               <Caption color="grays.4">{t('Clinic Share Code')}</Caption>
-              <Title>{clinic.shareCode}</Title>
+              <Flex
+                sx={{
+                  button: {
+                    border: 'none',
+                    color: 'text.primary',
+                    paddingTop: '.125em',
+                    '&:hover,&:active': {
+                      border: 'none',
+                      color: 'text.primary',
+                      backgroundColor: 'transparent',
+                    },
+                  },
+                  '.success': {
+                    padding: '.175em 0 0',
+                    display: 'block',
+                    fontSize: '1.5em',
+                    textAlign: 'center',
+                    lineHeight: '1.125em',
+                  },
+                }}
+              >
+                <Title>{clinic.shareCode}</Title>
+                <ClipboardButton
+                  buttonTitle={t('Copy Share Code')}
+                  buttonText={(
+                    <Icon
+                      variant="button"
+                      icon={FileCopyRoundedIcon}
+                      label={t('Copy Share Code')}
+                      title={t('Copy Share Code')}
+                    />
+                  )}
+                  successText={<span className="success">{t('✓')}</span>}
+                  onClick={() => {
+                    trackMetric('Clicked Copy Therapy Settings Order')
+                  }}
+                  getText={() => clinic.shareCode}
+                />
+              </Flex>
             </Box>
           </Flex>
 
