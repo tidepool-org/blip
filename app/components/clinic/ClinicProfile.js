@@ -159,6 +159,8 @@ export const ClinicProfile = (props) => {
           message: t('Clinic profile updated.'),
           variant: 'success',
         });
+
+        closeClinicEdit()
       }
 
       if (completed === false) {
@@ -167,12 +169,10 @@ export const ClinicProfile = (props) => {
           variant: 'danger',
         });
       }
-
-      setSubmitting(false);
     }
   }, [updatingClinic]);
 
-  function cancelClinicEdit() {
+  function closeClinicEdit() {
     setEditing(false);
     setSubmitting(false);
     setValues(clinicValues());
@@ -407,7 +407,7 @@ export const ClinicProfile = (props) => {
             alignItems={'center'}
             py={4}
           >
-            <Button id="cancel" variant="secondary" onClick={cancelClinicEdit}>
+            <Button id="cancel" variant="secondary" onClick={closeClinicEdit}>
               {t('Cancel')}
             </Button>
 
