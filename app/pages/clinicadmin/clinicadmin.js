@@ -192,6 +192,8 @@ export const ClinicAdmin = (props) => {
     []
   );
 
+  const isClinicAdmin = includes(userRolesInClinic, 'CLINIC_ADMIN');
+
   function closeDeleteDialog() {
     setShowDeleteDialog(false);
     setSelectedUser(null);
@@ -360,7 +362,7 @@ export const ClinicAdmin = (props) => {
     },
   ];
 
-  if (includes(userRolesInClinic, 'CLINIC_ADMIN')) {
+  if (isClinicAdmin) {
     columns.push(
       {
         title: '',
@@ -389,17 +391,20 @@ export const ClinicAdmin = (props) => {
           <Title p={4} flexGrow={1}>
             {t('Clinic Members')}
           </Title>
-          <Box>
-            <Button
-              mr={4}
-              variant="primary"
-              onClick={() => {
-                dispatch(push('/clinic-invite', { clinicId: selectedClinicId }));
-              }}
-            >
-              {t('Invite new clinic team member')}
-            </Button>
-          </Box>
+
+          {isClinicAdmin && (
+            <Box>
+              <Button
+                mr={4}
+                variant="primary"
+                onClick={() => {
+                  dispatch(push('/clinic-invite', { clinicId: selectedClinicId }));
+                }}
+              >
+                {t('Invite new clinic team member')}
+              </Button>
+            </Box>
+          )}
         </Flex>
 
         <Box mx={4}>
@@ -415,6 +420,7 @@ export const ClinicAdmin = (props) => {
             onChange={handleSearchChange}
             variant="condensed"
           />
+
           <Table
             id="clinicianTable"
             label={t('Clinician Table')}
@@ -438,15 +444,18 @@ export const ClinicAdmin = (props) => {
         <DialogTitle onClose={closeDeleteDialog}>
           <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: selectedUser?.fullName })}</MediumTitle>
         </DialogTitle>
+
         <DialogContent>
           <Body1>
             {t('{{name}} will lose all access to this clinic workspace and patient list. Are you sure you want to remove this user?', { name: selectedUser?.fullName })}
           </Body1>
         </DialogContent>
+
         <DialogActions>
           <Button variant="secondary" onClick={closeDeleteDialog}>
             {t('Cancel')}
           </Button>
+
           <Button
             variant="danger"
             onClick={() => {
