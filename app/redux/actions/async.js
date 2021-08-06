@@ -236,8 +236,8 @@ export function login(api, credentials, options, postLoginAction) {
           if (err) {
             handleLoginFailure(ErrorMessages.ERR_FETCHING_USER, err);
           } else {
-            const isClinicianAccount = personUtils.isClinicianAccount(user);
             const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+            const hasPatientProfile = !!_.get(user, ['profile', 'patient'], false);
 
             if (config.CLINICS_ENABLED) {
               // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
@@ -245,6 +245,7 @@ export function login(api, credentials, options, postLoginAction) {
               const fetchers = {
                 clinics: cb => dispatch(getClinicsForClinician(api, user.userid, {}, cb)),
                 invites: cb => dispatch(fetchClinicianInvites(api, user.userid, cb)),
+                associatedAccounts: cb => dispatch(fetchAssociatedAccounts(api, cb)),
               };
 
               async.parallel(async.reflectAll(fetchers), (err, results) => {
@@ -261,11 +262,11 @@ export function login(api, credentials, options, postLoginAction) {
                   }
                 }
                 else {
-                  if (values.invites.length) {
+                  if (values.invites?.length) {
                     // If we have an empty clinic profile, go to clinic details, otherwise workspaces
                     setRedirectRoute(!hasClinicProfile ? routes.clinicDetails : routes.workspaces);
-                  } else if (values.clinics.length) {
-                    if (values.clinics.length === 1 && !_.get(user, ['profile', 'patient'])) {
+                  } else if (values.clinics?.length) {
+                    if (values.clinics.length === 1 && !hasPatientProfile && !values.associatedAccounts?.patients?.length) {
                       // Go to the clinic workspace if only one clinic and no dsa/data-sharing
                       setRedirectRoute(routes.clinicWorkspace);
                     } else {
@@ -289,7 +290,7 @@ export function login(api, credentials, options, postLoginAction) {
             }
 
             function skipClinicFlow() {
-              if (isClinicianAccount && !hasClinicProfile) {
+              if (personUtils.isClinicianAccount(user) && !hasClinicProfile) {
                 redirectRoute = routes.clinicianDetails;
               }
 
@@ -965,7 +966,7 @@ export function fetchPatient(api, id, cb = _.noop) {
  *
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchAssociatedAccounts(api) {
+export function fetchAssociatedAccounts(api, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.fetchAssociatedAccountsRequest());
 
@@ -977,6 +978,9 @@ export function fetchAssociatedAccounts(api) {
       } else {
         dispatch(sync.fetchAssociatedAccountsSuccess(accounts));
       }
+
+      // Invoke callback if provided
+      cb(err, accounts);
     });
   };
 }
