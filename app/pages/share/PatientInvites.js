@@ -206,6 +206,8 @@ export const PatientInvites = (props) => {
         }}
         processing={acceptingPatientInvitation.inProgress}
         variant="primary"
+        color="purpleMedium"
+        bg="white"
         ml={2}
       >
         {t('Accept')}
