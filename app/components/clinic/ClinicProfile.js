@@ -139,6 +139,7 @@ export const ClinicProfile = (props) => {
   const {
     handleSubmit,
     isSubmitting,
+    resetForm,
     setSubmitting,
     setValues,
     values,
@@ -175,7 +176,7 @@ export const ClinicProfile = (props) => {
   function closeClinicEdit() {
     setEditing(false);
     setSubmitting(false);
-    setValues(clinicValues());
+    resetForm(clinicValues());
   };
 
   if (!clinic) return null;
