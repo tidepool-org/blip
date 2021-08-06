@@ -183,7 +183,7 @@ export const AccessManagement = (props) => {
         },
         {
           workingState: fetchingAssociatedAccounts,
-          action: actions.async.fetchAssociatedAccounts.bind(null, api, loggedInUserId),
+          action: actions.async.fetchAssociatedAccounts.bind(null, api),
         },
       ], ({ workingState, action }) => {
         if (

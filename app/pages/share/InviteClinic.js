@@ -47,7 +47,7 @@ const InviteClinic = props => {
   const formikContext = useFormik({
     initialValues: {
       shareCode: '',
-      uploadPermission: false,
+      uploadPermission: true,
     },
     onSubmit: (values, { setSubmitting }) => {
       if (clinic) {
