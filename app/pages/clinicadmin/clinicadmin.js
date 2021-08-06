@@ -8,6 +8,7 @@ import keys from 'lodash/keys';
 import map from 'lodash/map';
 import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
+import filter from 'lodash/filter';
 import find from 'lodash/find';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
@@ -178,6 +179,7 @@ export const ClinicAdmin = (props) => {
         fullNameOrderable: (personUtils.fullName(user) || '').toLowerCase(),
         role,
         prescriberPermission: includes(roles, 'PRESCRIBER'),
+        isAdmin: includes(roles, 'CLINIC_ADMIN'),
         userId: clinicianId,
         inviteId: inviteId,
         email,
@@ -193,6 +195,7 @@ export const ClinicAdmin = (props) => {
   );
 
   const isClinicAdmin = includes(userRolesInClinic, 'CLINIC_ADMIN');
+  const isOnlyClinicAdmin = filter(clinicianArray, { isAdmin: true, inviteId: undefined }).length === 1;
 
   function closeDeleteDialog() {
     setShowDeleteDialog(false);
@@ -280,25 +283,25 @@ export const ClinicAdmin = (props) => {
   };
 
   const renderMore = props => {
-    let items;
-    if (props.userId) {
-      items = [
-        {
-          icon: DeleteForeverIcon,
-          iconLabel: t('Remove User'),
-          iconPosition: 'left',
-          id: `delete-${props.userId}`,
-          variant: 'actionListItemDanger',
-          onClick: () => {
-            setSelectedUser(props);
-            setShowDeleteDialog(true);
-          },
-          text: t('Remove User'),
+    const items = [];
+
+    if (props.userId && (!props.isAdmin || !isOnlyClinicAdmin)) {
+      items.push({
+        icon: DeleteForeverIcon,
+        iconLabel: t('Remove User'),
+        iconPosition: 'left',
+        id: `delete-${props.userId}`,
+        variant: 'actionListItemDanger',
+        onClick: () => {
+          setSelectedUser(props);
+          setShowDeleteDialog(true);
         },
-      ];
+        text: t('Remove User'),
+      });
     }
+
     if (props.inviteId) {
-      items = [
+      items.push(...[
         {
           icon: InputIcon,
           iconLabel: t('Resend Invitation'),
@@ -317,12 +320,12 @@ export const ClinicAdmin = (props) => {
           onClick: () => handleDeleteInvite(props.inviteId),
           text: t('Delete item'),
         },
-      ];
+      ]);
     }
 
-    return (
+    return items.length ? (
       <PopoverMenu id="action-menu" items={items} />
-    );
+    ) : '';
   };
 
   const columns = [
