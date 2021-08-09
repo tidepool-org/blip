@@ -714,6 +714,7 @@ describe('Actions', () => {
         let invites;
         let user;
         let patient;
+        let patients;
         let setAPIData;
 
         before(() => {
@@ -728,15 +729,18 @@ describe('Actions', () => {
           setAPIData = returnData => {
             const invitesError = _.get(returnData, 'invitesError', null);
             const clinicsError = _.get(returnData, 'clinicsError', null);
+            const patientsError = _.get(returnData, 'patientsError', null);
             clinics = _.get(returnData, 'clinics', clinics);
             invites = _.get(returnData, 'invites', invites);
             user = _.get(returnData, 'user', user);
             patient = _.get(returnData, 'patient', patient);
+            patients = _.get(returnData, 'patients', patients);
 
             api = {
               user: {
                 login: sinon.stub().callsArgWith(2, null),
-                get: sinon.stub().callsArgWith(0, null, user)
+                get: sinon.stub().callsArgWith(0, null, user),
+                getAssociatedAccounts: sinon.stub().callsArgWith(0, patientsError, { patients }),
               },
               patient: {
                 get: sinon.stub().callsArgWith(1, null, patient)
@@ -759,6 +763,7 @@ describe('Actions', () => {
               clinics: [],
               invites: [],
               patient: { foo: 'bar' },
+              patients: [],
             });
           });
 
@@ -775,6 +780,8 @@ describe('Actions', () => {
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinician-details' ] } }
             ];
@@ -808,6 +815,8 @@ describe('Actions', () => {
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
             ];
@@ -836,6 +845,7 @@ describe('Actions', () => {
                 { inviteId: 'invite123' },
               ],
               patient: { foo: 'bar' },
+              patients: [],
             });
           });
 
@@ -852,6 +862,8 @@ describe('Actions', () => {
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [{ inviteId: 'invite123' }] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
             ];
@@ -885,6 +897,8 @@ describe('Actions', () => {
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [{ inviteId: 'invite123' }] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/workspaces'] } }
             ];
@@ -910,6 +924,7 @@ describe('Actions', () => {
             setAPIData({
               invites: [],
               patient: { foo: 'bar' },
+              patients: [],
             });
           });
 
@@ -929,6 +944,8 @@ describe('Actions', () => {
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: {} }] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
             ];
@@ -948,11 +965,12 @@ describe('Actions', () => {
             expect(trackMetric.calledWith('Logged In')).to.be.true;
           });
 
-          it('should trigger LOGIN_SUCCESS and it should redirect a clinician with relationship containing an non-empty clinic object to the workspaces view', () => {
+          it('should trigger LOGIN_SUCCESS and it should redirect a clinician with multiple relationships containing a non-empty clinic object to the workspaces view', () => {
             setAPIData({
               user: { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true },
               clinics: [
                 { clinic: { id: 'clinic123' } },
+                { clinic2: { id: 'clinic456' } },
               ],
             });
 
@@ -961,9 +979,14 @@ describe('Actions', () => {
               { type: 'FETCH_USER_REQUEST' },
               { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
               { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinic123' } }] }},
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
+                { clinic: { id: 'clinic123' } },
+                { clinic2: { id: 'clinic456' } },
+              ] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/workspaces'] } }
             ];
@@ -984,12 +1007,57 @@ describe('Actions', () => {
           });
         });
 
-        context('fetching clinic invites or associated clinics failures', () => {
+        it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a single relationship containing non-empty clinic object to the workspaces view', () => {
+          setAPIData({
+            user: { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true },
+            clinics: [
+              { clinic: { id: 'clinic123' } },
+            ],
+            invites: [],
+            patients: [],
+          });
+
+          const expectedActions = [
+            { type: 'LOGIN_REQUEST' },
+            { type: 'FETCH_USER_REQUEST' },
+            { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+            { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+            { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
+              { clinic: { id: 'clinic123' } },
+            ] }},
+            { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+            { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+            { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+            { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+            { type: 'LOGIN_SUCCESS', payload: { user } },
+            { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace'] } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+
+          const store = mockStore(initialState);
+
+          store.dispatch(async.login(api, creds));
+
+          const actions = store.getActions();
+
+          expect(actions).to.eql(expectedActions);
+          expect(api.user.login.calledWith(creds)).to.be.true;
+          expect(api.user.get.callCount).to.equal(1);
+          expect(trackMetric.calledWith('Logged In')).to.be.true;
+        });
+
+        context('fetching clinic invites, associated clinics, or associated patients failures', () => {
           it('should trigger LOGIN_FAILURE with appropriate messaging for a failed login request due to error fetching invites', () => {
             setAPIData({
               user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
               invitesError: {status: 400, body: 'Error!'},
               invites: [],
+              patients: [],
+              clinics: [
+                { clinic: { id: 'clinic123' } },
+              ],
             });
 
             let err = new Error(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES);
@@ -1003,6 +1071,8 @@ describe('Actions', () => {
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinic123' } }] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_FAILURE', error: err, meta: { apiError: {status: 400, body: 'Error!'}}},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 400, body: 'Error!'}}},
             ];
             _.each(expectedActions, (action) => {
@@ -1013,9 +1083,9 @@ describe('Actions', () => {
 
             const actions = store.getActions();
             expect(actions[6].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES });
-            expect(actions[7].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES });
+            expect(actions[9].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES });
             expectedActions[6].error = actions[6].error;
-            expectedActions[7].error = actions[7].error;
+            expectedActions[9].error = actions[9].error;
             expect(actions).to.eql(expectedActions);
           });
 
@@ -1024,6 +1094,7 @@ describe('Actions', () => {
               user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
               clinicsError: {status: 400, body: 'Error!'},
               clinics: [],
+              patients: [],
             });
 
             let err = new Error(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN);
@@ -1037,6 +1108,8 @@ describe('Actions', () => {
               { type: 'GET_CLINICS_FOR_CLINICIAN_FAILURE', error: err, meta: { apiError: {status: 400, body: 'Error!'}}},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 400, body: 'Error!'}}},
             ];
             _.each(expectedActions, (action) => {
@@ -1047,9 +1120,9 @@ describe('Actions', () => {
 
             const actions = store.getActions();
             expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN });
-            expect(actions[7].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN });
+            expect(actions[9].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN });
             expectedActions[4].error = actions[4].error;
-            expectedActions[7].error = actions[7].error;
+            expectedActions[9].error = actions[9].error;
             expect(actions).to.eql(expectedActions);
           });
         });
@@ -5092,6 +5165,7 @@ describe('Actions', () => {
           { type: 'DELETE_PATIENT_INVITATION_REQUEST' },
           { type: 'DELETE_PATIENT_INVITATION_SUCCESS', payload: {
             inviteId: 'invite_id',
+            clinicId: '5f85fbe6686e6bb9170ab5d0',
           } }
         ];
         _.each(expectedActions, (action) => {
@@ -5780,7 +5854,8 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'ACCEPT_PATIENT_INVITATION_REQUEST' },
           { type: 'ACCEPT_PATIENT_INVITATION_SUCCESS', payload: {
-            result: {},
+            clinicId: 'clinicId123',
+            inviteId: 'inviteIdABC',
           } }
         ];
         _.each(expectedActions, (action) => {

@@ -403,6 +403,65 @@ describe('Patients', () => {
       it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
         expect(result.fetchingAssociatedAccounts).to.deep.equal(state.working.fetchingAssociatedAccounts)
       });
+
+      it('should map the membershipInOtherCareTeams to `patients`', () => {
+        const state = {
+          allUsersMap: {
+            a1b2c3: {
+              userid: 'a1b2c3'
+            },
+            d4e5f6: {
+              userid: 'd4e5f6'
+            },
+            x1y2z3: {
+              userid: 'x1y2z3'
+            }
+          },
+          clinics: {
+            clinicId123: {
+              id: 'clinicId123',
+              patients: {
+                f4d3s2: {
+                  id: 'f4d3s2',
+                  email: 'f4d3s2@email.com',
+                  fullName: 'Patient One',
+                  birthDate: 'today',
+                  permissions: { foo: 'bar' },
+                },
+                j1k2l3: {
+                  id: 'j1k2l3',
+                  email: 'j1k2l3@email.com',
+                  fullName: 'Patient Two',
+                  birthDate: 'tomorrow',
+                  permissions: { foo: 'baz' },
+                },
+              },
+            },
+          },
+          loggedInUserId: 'a1b2c3',
+          membershipInOtherCareTeams: ['d4e5f6', 'x1y2z3'],
+          pendingReceivedInvites: ['g4h5i6'],
+          selectedClinicId: null,
+          showingWelcomeMessage: true,
+          targetUserId: null,
+          working: {
+            fetchingAssociatedAccounts: {inProgress: false},
+            fetchingPendingReceivedInvites: {inProgress: false},
+            fetchingUser: {inProgress: false}
+          }
+        };
+        const tracked = mutationTracker.trackObj(state);
+        const result = mapStateToProps({blip: state});
+
+        expect(result.patients).to.deep.equal([
+          {
+            userid: 'd4e5f6',
+          },
+          {
+            userid: 'x1y2z3',
+          },
+        ]);
+      });
     });
 
     describe('loggedInUser does NOT have DSA', () => {
@@ -476,144 +535,67 @@ describe('Patients', () => {
       });
     });
 
-    describe('selectedClinicId is set', () => {
-      const state = {
-        allUsersMap: {
-          a1b2c3: {
-            userid: 'a1b2c3'
-          },
-          d4e5f6: {
-            userid: 'd4e5f6'
-          },
-          x1y2z3: {
-            userid: 'x1y2z3'
-          }
-        },
-        clinics: {
-          clinicId123: {
-            id: 'clinicId123',
-            patients: {
-              f4d3s2: {
-                id: 'f4d3s2',
-                email: 'f4d3s2@email.com',
-                fullName: 'Patient One',
-                birthDate: 'today',
-                permissions: { foo: 'bar' },
-              },
-              j1k2l3: {
-                id: 'j1k2l3',
-                email: 'j1k2l3@email.com',
-                fullName: 'Patient Two',
-                birthDate: 'tomorrow',
-                permissions: { foo: 'baz' },
-              },
-            },
-          },
-        },
-        loggedInUserId: 'a1b2c3',
-        membershipInOtherCareTeams: ['d4e5f6', 'x1y2z3'],
-        pendingReceivedInvites: ['g4h5i6'],
-        selectedClinicId: 'clinicId123',
-        showingWelcomeMessage: true,
-        targetUserId: null,
-        working: {
-          fetchingAssociatedAccounts: {inProgress: false},
-          fetchingPendingReceivedInvites: {inProgress: false},
-          fetchingUser: {inProgress: false}
-        }
-      };
-      const tracked = mutationTracker.trackObj(state);
-      const result = mapStateToProps({blip: state});
 
-      it('should map the selected clinics patient list to `patients`', () => {
-        expect(result.patients).to.deep.equal([
-          {
-            emails: ['f4d3s2@email.com'],
-            permissions: { foo: 'bar' },
-            profile: {
-              fullName: 'Patient One',
-              patient: {
-                birthday: 'today',
-              },
-            },
-            userid: 'f4d3s2',
-            username: 'f4d3s2@email.com',
-          },
-          {
-            emails: ['j1k2l3@email.com'],
-            permissions: { foo: 'baz' },
-            profile: {
-              fullName: 'Patient Two',
-              patient: {
-                birthday: 'tomorrow',
-              },
-            },
-            userid: 'j1k2l3',
-            username: 'j1k2l3@email.com',
-          },
-        ]);
-      });
-    });
 
-    describe('selectedClinicId is not set', () => {
-      const state = {
-        allUsersMap: {
-          a1b2c3: {
-            userid: 'a1b2c3'
-          },
-          d4e5f6: {
-            userid: 'd4e5f6'
-          },
-          x1y2z3: {
-            userid: 'x1y2z3'
-          }
-        },
-        clinics: {
-          clinicId123: {
-            id: 'clinicId123',
-            patients: {
-              f4d3s2: {
-                id: 'f4d3s2',
-                email: 'f4d3s2@email.com',
-                fullName: 'Patient One',
-                birthDate: 'today',
-                permissions: { foo: 'bar' },
-              },
-              j1k2l3: {
-                id: 'j1k2l3',
-                email: 'j1k2l3@email.com',
-                fullName: 'Patient Two',
-                birthDate: 'tomorrow',
-                permissions: { foo: 'baz' },
-              },
-            },
-          },
-        },
-        loggedInUserId: 'a1b2c3',
-        membershipInOtherCareTeams: ['d4e5f6', 'x1y2z3'],
-        pendingReceivedInvites: ['g4h5i6'],
-        selectedClinicId: null,
-        showingWelcomeMessage: true,
-        targetUserId: null,
-        working: {
-          fetchingAssociatedAccounts: {inProgress: false},
-          fetchingPendingReceivedInvites: {inProgress: false},
-          fetchingUser: {inProgress: false}
-        }
-      };
-      const tracked = mutationTracker.trackObj(state);
-      const result = mapStateToProps({blip: state});
+    // describe('selectedClinicId is not set', () => {
+    //   const state = {
+    //     allUsersMap: {
+    //       a1b2c3: {
+    //         userid: 'a1b2c3'
+    //       },
+    //       d4e5f6: {
+    //         userid: 'd4e5f6'
+    //       },
+    //       x1y2z3: {
+    //         userid: 'x1y2z3'
+    //       }
+    //     },
+    //     clinics: {
+    //       clinicId123: {
+    //         id: 'clinicId123',
+    //         patients: {
+    //           f4d3s2: {
+    //             id: 'f4d3s2',
+    //             email: 'f4d3s2@email.com',
+    //             fullName: 'Patient One',
+    //             birthDate: 'today',
+    //             permissions: { foo: 'bar' },
+    //           },
+    //           j1k2l3: {
+    //             id: 'j1k2l3',
+    //             email: 'j1k2l3@email.com',
+    //             fullName: 'Patient Two',
+    //             birthDate: 'tomorrow',
+    //             permissions: { foo: 'baz' },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     loggedInUserId: 'a1b2c3',
+    //     membershipInOtherCareTeams: ['d4e5f6', 'x1y2z3'],
+    //     pendingReceivedInvites: ['g4h5i6'],
+    //     selectedClinicId: null,
+    //     showingWelcomeMessage: true,
+    //     targetUserId: null,
+    //     working: {
+    //       fetchingAssociatedAccounts: {inProgress: false},
+    //       fetchingPendingReceivedInvites: {inProgress: false},
+    //       fetchingUser: {inProgress: false}
+    //     }
+    //   };
+    //   const tracked = mutationTracker.trackObj(state);
+    //   const result = mapStateToProps({blip: state});
 
-      it('should map the membershipInOtherCareTeams to `patients`', () => {
-        expect(result.patients).to.deep.equal([
-          {
-            userid: 'd4e5f6',
-          },
-          {
-            userid: 'x1y2z3',
-          },
-        ]);
-      });
-    });
+    //   it('should map the membershipInOtherCareTeams to `patients`', () => {
+    //     expect(result.patients).to.deep.equal([
+    //       {
+    //         userid: 'd4e5f6',
+    //       },
+    //       {
+    //         userid: 'x1y2z3',
+    //       },
+    //     ]);
+    //   });
+    // });
   });
 });

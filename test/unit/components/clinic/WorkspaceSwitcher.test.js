@@ -198,7 +198,7 @@ describe('WorkspaceSwitcher', () => {
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/patients'],
+            args: ['/clinic-workspace'],
             method: 'push',
           },
         },

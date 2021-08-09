@@ -62,6 +62,7 @@ describe('NavigationMenu', () => {
       working: {
         fetchingClinicsForClinician: defaultWorkingState,
       },
+      membershipInOtherCareTeams: [],
       loggedInUserId: 'clinicianUserId123',
     },
   };
@@ -242,12 +243,11 @@ describe('NavigationMenu', () => {
       expect(menuTrigger.text()).to.equal('Example Clinic');
 
       const menuOptions = wrapper.find('Button.navigation-menu-option');
-      expect(menuOptions).to.have.lengthOf(5);
+      expect(menuOptions).to.have.lengthOf(4);
       expect(menuOptions.at(0).text()).to.equal('new_clinic_name Workspace');
       expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
-      expect(menuOptions.at(2).text()).to.equal('Personal Workspace');
-      expect(menuOptions.at(3).text()).to.equal('Account Settings');
-      expect(menuOptions.at(4).text()).to.equal('Logout');
+      expect(menuOptions.at(2).text()).to.equal('Account Settings');
+      expect(menuOptions.at(3).text()).to.equal('Logout');
 
       // Click clinic workspace option
       store.clearActions();
@@ -263,7 +263,7 @@ describe('NavigationMenu', () => {
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/patients'],
+            args: ['/clinic-workspace'],
             method: 'push',
           },
         },
@@ -287,25 +287,10 @@ describe('NavigationMenu', () => {
       store.clearActions();
       menuOptions.at(2).simulate('click');
 
-      expect(store.getActions()).to.eql([
-        {
-          type: 'SELECT_CLINIC',
-          payload: {
-            clinicId: null, // null is appropriate for switch to personal workspace
-          },
-        },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/patients'],
-            method: 'push',
-          },
-        },
-      ]);
 
       // Click account settings option
       store.clearActions();
-      menuOptions.at(3).simulate('click');
+      menuOptions.at(2).simulate('click');
 
       expect(store.getActions()).to.eql([
         {
@@ -319,7 +304,7 @@ describe('NavigationMenu', () => {
 
       // Click logout option
       store.clearActions();
-      menuOptions.at(4).simulate('click');
+      menuOptions.at(3).simulate('click');
 
       expect(store.getActions()).to.eql([
         {
@@ -338,6 +323,114 @@ describe('NavigationMenu', () => {
           type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
         },
       ]);
+    });
+
+    context('clinician has a data storage account for personal data', () => {
+      beforeEach(() => {
+        wrapper = mountWrapper(mockStore({
+          blip: {
+            ...clinicWorkflowState.blip,
+            allUsersMap: {
+              clinicianUserId123: {
+                emails: ['clinic@example.com'],
+                roles: ['clinic'],
+                userid: 'clinicianUserId123',
+                username: 'clinic@example.com',
+                profile: {
+                  fullName: 'Example Clinic',
+                  clinic: {
+                    role: 'clinic_manager',
+                  },
+                  patient: { // patient profile indicates that a DSA has been set up
+                    foo: 'bar',
+                  },
+                },
+              },
+            },
+          },
+        }));
+      });
+
+      it('should render a `Personal Workspace` option in a addition to the standard options', () => {
+        const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
+        expect(menuTrigger).to.have.lengthOf(1);
+        expect(menuTrigger.text()).to.equal('Example Clinic');
+
+        const menuOptions = wrapper.find('Button.navigation-menu-option');
+        expect(menuOptions).to.have.lengthOf(5);
+        expect(menuOptions.at(0).text()).to.equal('new_clinic_name Workspace');
+        expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
+        expect(menuOptions.at(2).text()).to.equal('Personal Workspace');
+        expect(menuOptions.at(3).text()).to.equal('Account Settings');
+        expect(menuOptions.at(4).text()).to.equal('Logout');
+
+        // Click personal workspace option
+        store.clearActions();
+        menuOptions.at(2).simulate('click');
+
+        expect(store.getActions()).to.eql([
+          {
+            type: 'SELECT_CLINIC',
+            payload: {
+              clinicId: null, // null is appropriate for switch to personal workspace
+            },
+          },
+          {
+            type: '@@router/CALL_HISTORY_METHOD',
+            payload: {
+              args: ['/patients'],
+              method: 'push',
+            },
+          },
+        ]);
+      });
+    });
+
+    context('clinician has other accounts data shared with theirs', () => {
+      beforeEach(() => {
+        wrapper = mountWrapper(mockStore({
+          blip: {
+            ...clinicWorkflowState.blip,
+            membershipInOtherCareTeams: [
+              'otherUser123',
+            ],
+          },
+        }));
+      });
+
+      it('should render a `Personal Workspace` option in a addition to the standard options', () => {
+        const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
+        expect(menuTrigger).to.have.lengthOf(1);
+        expect(menuTrigger.text()).to.equal('Example Clinic');
+
+        const menuOptions = wrapper.find('Button.navigation-menu-option');
+        expect(menuOptions).to.have.lengthOf(5);
+        expect(menuOptions.at(0).text()).to.equal('new_clinic_name Workspace');
+        expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
+        expect(menuOptions.at(2).text()).to.equal('Personal Workspace');
+        expect(menuOptions.at(3).text()).to.equal('Account Settings');
+        expect(menuOptions.at(4).text()).to.equal('Logout');
+
+        // Click personal workspace option
+        store.clearActions();
+        menuOptions.at(2).simulate('click');
+
+        expect(store.getActions()).to.eql([
+          {
+            type: 'SELECT_CLINIC',
+            payload: {
+              clinicId: null, // null is appropriate for switch to personal workspace
+            },
+          },
+          {
+            type: '@@router/CALL_HISTORY_METHOD',
+            payload: {
+              args: ['/patients'],
+              method: 'push',
+            },
+          },
+        ]);
+      });
     });
   });
 });
