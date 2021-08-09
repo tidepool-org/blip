@@ -31,7 +31,6 @@ export const WorkspaceSwitcher = props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const { fetchingClinicsForClinician } = useSelector((state) => state.blip.working);
 
   const popupState = usePopupState({
     variant: 'popover',

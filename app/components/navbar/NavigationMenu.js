@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
-import forEach from 'lodash/forEach';
+import get from 'lodash/get';
 import has from 'lodash/has';
 import map from 'lodash/map';
 import values from 'lodash/values';
@@ -34,7 +34,8 @@ export const NavigationMenu = props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
-  const { fetchingClinicsForClinician } = useSelector((state) => state.blip.working);
+  const membershipInOtherCareTeams = useSelector((state) => state.blip.membershipInOtherCareTeams);
+  const hasPatientProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'patient'], false);
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -75,17 +76,25 @@ export const NavigationMenu = props => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
 
     if (userClinics.length) {
-      setMenuOptions([
+      const hidePersonalWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
+
+      const options = [
         ...map(userClinics, clinic => ({
           action: handleSelectWorkspace.bind(null, clinic.id),
           icon: DashboardRoundedIcon,
           label: t('{{name}} Workspace', { name: clinic.name }),
         })),
         manageWorkspacesOption,
-        personalWorkspaceOption,
+      ];
+
+      if (!hidePersonalWorkspaceOption) options.push(personalWorkspaceOption);
+
+      options.push(...[
         accountSettingsOption,
         logoutOption,
       ]);
+
+      setMenuOptions(options);
     }
   }, [clinics]);
 
