@@ -5,9 +5,7 @@ import { push } from 'connected-react-router';
 import { translate } from 'react-i18next';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
-import forEach from 'lodash/forEach';
 import has from 'lodash/has';
-import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import values from 'lodash/values';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
@@ -26,7 +24,7 @@ import Popover from '../elements/Popover';
 import { colors } from '../../themes/baseTheme';
 
 export const WorkspaceSwitcher = props => {
-  const { t, api, trackMetric } = props;
+  const { t, trackMetric } = props;
   const dispatch = useDispatch();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
