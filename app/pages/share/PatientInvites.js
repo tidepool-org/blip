@@ -99,16 +99,6 @@ export const PatientInvites = (props) => {
     }));
   }, [deletingPatientInvitation]);
 
-  useEffect(() => {
-    if(loggedInUserId && keys(clinics).length && !selectedClinicId) {
-      dispatch(actions.sync.selectClinic(keys(clinics)[0]));
-    }
-  }, [
-    clinics,
-    loggedInUserId,
-    selectedClinicId,
-  ]);
-
   // Fetchers
   useEffect(() => {
     if (loggedInUserId && clinic) {

@@ -143,8 +143,6 @@ export const ClinicianEdit = (props) => {
 
   if (!selectedClinic || !selectedClinicianId) {
     dispatch(push('/clinic-admin'));
-  } else if (!selectedClinicId) {
-    dispatch(actions.sync.selectClinic(selectedClinic));
   }
 
   if (selectedClinicianId && !selectedClinician) {

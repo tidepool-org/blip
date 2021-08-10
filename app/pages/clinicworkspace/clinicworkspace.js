@@ -73,16 +73,6 @@ export const ClinicWorkspace = (props) => {
     }
   }, [tab]);
 
-  useEffect(() => {
-    if(loggedInUserId && keys(clinics).length && !selectedClinicId) {
-      dispatch(actions.sync.selectClinic(keys(clinics)[0]));
-    }
-  }, [
-    clinics,
-    loggedInUserId,
-    selectedClinicId,
-  ]);
-
   // Fetchers
   useEffect(() => {
     if (loggedInUserId && clinic) {
@@ -106,16 +96,6 @@ export const ClinicWorkspace = (props) => {
       });
     }
   }, [loggedInUserId, clinic]);
-
-  useEffect(() => {
-    if(loggedInUserId && keys(clinics).length && !selectedClinicId) {
-      dispatch(actions.sync.selectClinic(keys(clinics)[0]));
-    }
-  }, [
-    clinics,
-    loggedInUserId,
-    selectedClinicId,
-  ]);
 
   function handleSelectTab(event, newValue) {
     setSelectedTab(newValue);

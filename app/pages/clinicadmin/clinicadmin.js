@@ -62,6 +62,7 @@ export const ClinicAdmin = (props) => {
   const previousWorking = usePrevious(working);
   const fetchingCliniciansFromClinic = working.fetchingCliniciansFromClinic;
   const allUsers = useSelector((state) => state.blip.allUsersMap);
+  const clinic = get(clinics, selectedClinicId);
 
   useEffect(() => {
     const {
@@ -139,23 +140,17 @@ export const ClinicAdmin = (props) => {
   }, [working.deletingClinicianFromClinic]);
 
   useEffect(() => {
-    if(loggedInUserId && keys(clinics).length) {
-      if (!selectedClinicId) {
-        dispatch(actions.sync.selectClinic(keys(clinics)[0]));
-      }
-
+    if(loggedInUserId && clinic) {
       if (
         !fetchingCliniciansFromClinic.inProgress &&
         !fetchingCliniciansFromClinic.completed &&
         !fetchingCliniciansFromClinic.notification
       ) {
-        forEach(clinics, clinic => {
-          dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id));
-        })
+        dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id));
       }
     }
   }, [
-    clinics,
+    clinic,
     loggedInUserId,
     selectedClinicId,
     fetchingCliniciansFromClinic,

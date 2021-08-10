@@ -114,8 +114,6 @@ export const ClinicInvite = (props) => {
 
   if (!selectedClinic) {
     dispatch(push('/clinic-admin'));
-  } else if (!selectedClinicId) {
-    dispatch(actions.sync.selectClinic(selectedClinic));
   }
 
   useEffect(() => {

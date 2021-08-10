@@ -162,10 +162,16 @@ export class AppComponent extends React.Component {
       userIsSupportingNonprofit,
       patient,
       authenticated,
+      clinics,
+      selectedClinicId,
     } = nextProps;
 
     if (!utils.isOnSamePage(this.props, nextProps)) {
       this.doFetching(nextProps);
+    }
+
+    if (!this.props.clinicFlowActive && nextProps.clinicFlowActive && !selectedClinicId && _.keys(clinics).length) {
+      nextProps.selectClinic(_.keys(clinics)[0]);
     }
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
@@ -302,6 +308,7 @@ export class AppComponent extends React.Component {
             patient={patient}
             fetchingPatient={this.props.fetchingPatient}
             currentPage={this.props.location}
+            clinicFlowActive={this.props.clinicFlowActive}
             getUploadUrl={getUploadUrl}
             onLogout={this.props.onLogout}
             trackMetric={this.props.context.trackMetric}
@@ -650,9 +657,18 @@ export function mapStateToProps(state) {
         {}
       );
       permsOfLoggedInUser = _.get(
-        state.blip.membershipPermissionsInOtherCareTeams,
-        state.blip.currentPatientInViewId,
-        {}
+        state.blip.clinics,
+        [
+          state.blip.selectedClinicId,
+          'patients',
+          state.blip.currentPatientInViewId,
+          'permissions',
+        ],
+        _.get(
+          state.blip.membershipPermissionsInOtherCareTeams,
+          state.blip.currentPatientInViewId,
+          {}
+        )
       );
     }
 
@@ -708,6 +724,8 @@ export function mapStateToProps(state) {
 
   return {
     authenticated: state.blip.isLoggedIn,
+    clinics: state.blip.clinics,
+    clinicFlowActive: state.blip.clinicFlowActive,
     fetchingUser: state.blip.working.fetchingUser,
     fetchingDataSources: state.blip.working.fetchingDataSources,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
@@ -719,6 +737,7 @@ export function mapStateToProps(state) {
     user: user,
     patient: patient ? { permissions, ...patient } : null,
     permsOfLoggedInUser: permsOfLoggedInUser,
+    selectedClinicId: state.blip.selectedClinicId,
     showingDonateBanner: state.blip.showingDonateBanner,
     showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
     showingShareDataBanner: state.blip.showingShareDataBanner,
@@ -757,6 +776,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
   resendEmailVerification: actions.async.resendEmailVerification,
+  selectClinic: actions.sync.selectClinic,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -789,7 +809,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     showBanner: dispatchProps.showBanner,
     hideBanner: dispatchProps.hideBanner,
     onResendEmailVerification: dispatchProps.resendEmailVerification.bind(null, api),
-    onLogout: dispatchProps.logout.bind(null, api)
+    onLogout: dispatchProps.logout.bind(null, api),
+    selectClinic: dispatchProps.selectClinic,
   });
 };
 
