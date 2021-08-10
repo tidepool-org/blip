@@ -216,11 +216,13 @@ export const ClinicProfile = (props) => {
             <Box>
               <Caption color="grays.4">{t('Clinic Share Code')}</Caption>
               <Flex
+                alignContent="center"
                 sx={{
                   button: {
                     border: 'none',
                     color: 'text.primary',
                     paddingTop: '.125em',
+                    fontSize: 2,
                     '&:hover,&:active': {
                       border: 'none',
                       color: 'text.primary',
@@ -230,7 +232,6 @@ export const ClinicProfile = (props) => {
                   '.success': {
                     padding: '.175em 0 0',
                     display: 'block',
-                    fontSize: '1.5em',
                     textAlign: 'center',
                     lineHeight: '1.125em',
                   },
