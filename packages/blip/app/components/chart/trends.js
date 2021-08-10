@@ -144,7 +144,7 @@ class Trends extends React.Component {
     const dateDomain = this.getChart()?.state?.dateDomain;
     const msRangeDiv2 = Math.round(msRange / 2);
     const start = dateDomain?.start ?? epochLocation - msRangeDiv2;
-    const end = dateDomain?.end ?? epochLocation + msRangeDiv2;
+    const end = dateDomain?.end ?? epochLocation + msRangeDiv2 - 1;
     const startDate = moment.tz(start, timezone);
     const endDate = moment.tz(end, timezone);
     if (returnMoment) {
@@ -370,16 +370,8 @@ class Trends extends React.Component {
     if (e) {
       e.preventDefault();
     }
-
-    const showingCbg = bgSource === 'cbg';
-    const changedTo = showingCbg ? 'CGM' : 'BGM';
-    this.props.trackMetric(`Trends Click to ${changedTo}`);
-
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.trends.showingCbg = showingCbg;
-    prefs.trends.showingSmbg = !showingCbg;
-    prefs.trends.bgSource = bgSource;
-    this.props.updateChartPrefs(prefs);
+    // YLP-888 Disable SMBG data source
+    this.log.debug("toggleBgDataSource", bgSource, "is disabled");
   }
 
   toggleBoxOverlay() {
@@ -443,6 +435,7 @@ class Trends extends React.Component {
       currentPatientInViewId,
       chartPrefs,
       trendsState,
+      loading,
     } = this.props;
 
     if (_.isEmpty(_.get(trendsState, currentPatientInViewId))) {
@@ -490,7 +483,7 @@ class Trends extends React.Component {
           <div className='container-box-inner patient-data-content-inner'>
             {this.renderSubNav()}
             <div className='patient-data-content'>
-              <Loader show={this.props.loading} overlay={true} />
+              <Loader show={loading} overlay={true} />
               <div id='tidelineContainer' className='patient-data-chart-trends'>
                 {this.renderChart()}
               </div>
@@ -516,6 +509,7 @@ class Trends extends React.Component {
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
                 endpoints={endpoints}
+                loading={loading}
               />
             </div>
           </div>
@@ -600,7 +594,6 @@ class Trends extends React.Component {
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}
-        onSwitchBgDataSource={this.toggleBgDataSource}
         ref={this.chartRef}
       />
     );

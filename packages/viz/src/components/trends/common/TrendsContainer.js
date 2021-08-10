@@ -30,18 +30,14 @@ import * as actions from '../../../redux/actions/';
 import TrendsSVGContainer from './TrendsSVGContainer';
 
 import {
-  CGM_READINGS_ONE_DAY,
   MGDL_CLAMP_TOP,
   MMOLL_CLAMP_TOP,
   MGDL_UNITS,
   MMOLL_UNITS,
-  CGM_DATA_KEY,
-  BGM_DATA_KEY,
   MS_IN_DAY,
 } from '../../../utils/constants';
 
 import * as datetime from '../../../utils/datetime';
-import { weightedCGMCount } from '../../../utils/bloodglucose';
 
 /**
  * getAllDatesInRange
@@ -152,7 +148,6 @@ export class TrendsContainer extends React.Component {
     markTrendsViewed: PropTypes.func.isRequired,
     onDatetimeLocationChange: PropTypes.func.isRequired,
     onSelectDate: PropTypes.func.isRequired,
-    onSwitchBgDataSource: PropTypes.func.isRequired,
     // viz state
     trendsState: PropTypes.shape({
       cbgFlags: PropTypes.shape({
@@ -266,7 +261,6 @@ export class TrendsContainer extends React.Component {
     /** Avoid infinite mount data loop */
     this.mountingData = false;
     this.selectDate = this.selectDate.bind(this);
-    this.determineDataToShow = this.determineDataToShow.bind(this);
   }
 
   componentDidMount() {
@@ -318,6 +312,7 @@ export class TrendsContainer extends React.Component {
     this.mountingData = true;
 
     const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek, bgPrefs, yScaleClampTop, tidelineData } = this.props;
+    const { currentPatientInViewId, trendsState } = this.props;
     const { bgBounds, bgUnits } = bgPrefs;
     const upperBound = yScaleClampTop[bgUnits];
     const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
@@ -334,7 +329,7 @@ export class TrendsContainer extends React.Component {
 
       // find initial date domain (based on initialDatetimeLocation or current time)
       const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-      // Remove 1 miliseconds here, because there is 1 added in tidelinedata
+      // Remove 1 milliseconds here, because there is 1 added in tidelinedata
       const mostRecent = moment.tz(tidelineData.endpoints[1], timezone).subtract(1, 'millisecond');
       let end = moment.tz(initialDatetimeLocation, timezone).endOf('day').add(Math.round(extentSize / 2), 'days');
       if (end.valueOf() > mostRecent.valueOf()) {
@@ -357,13 +352,13 @@ export class TrendsContainer extends React.Component {
         yScale,
       };
 
-      this.setState(state, this.determineDataToShow);
+      this.setState(state);
       const atMostRecent = Math.abs(end.diff(mostRecent, 'hours', true).valueOf()) < 1;
       this.props.onDatetimeLocationChange(dateDomain, atMostRecent).catch((reason) => {
         this.log.error(reason);
       }).finally(() => {
         this.mountingData = false;
-        this.log.debug("Mouting done", { initialDatetimeLocation, dateDomain: state.dateDomain, mostRecent: state.mostRecent, timezone });
+        this.log.debug("Mounting done", { initialDatetimeLocation, dateDomain: state.dateDomain, mostRecent: state.mostRecent, timezone });
       });
     } else {
       const { dateDomain } = this.state;
@@ -375,10 +370,13 @@ export class TrendsContainer extends React.Component {
         currentSmbgData: smbgByDate.top(Infinity).reverse(),
         yScale,
       }, () => {
-        this.determineDataToShow();
         this.mountingData = false;
         this.log.debug("Remount done", { currentCbgData: this.state.currentCbgData, currentSmbgData: this.state.currentSmbgData, dateDomain });
       });
+    }
+
+    if (!trendsState.touched) {
+      this.props.markTrendsViewed(currentPatientInViewId);
     }
   }
 
@@ -505,23 +503,6 @@ export class TrendsContainer extends React.Component {
 
   filterActiveDaysFn(activeDays) {
     return (d) => (activeDays[d]);
-  }
-
-  determineDataToShow() {
-    const { currentPatientInViewId, trendsState: { touched } } = this.props;
-    if (touched) {
-      return;
-    }
-    const { currentCbgData, currentSmbgData } = this.state;
-    const { extentSize, showingCbg } = this.props;
-    const minimumCbgs = (extentSize * CGM_READINGS_ONE_DAY) / 2;
-
-    // If we're set to show CBG data, but have less than 50% coverage AND we have SMBG data,
-    // switch to SBMG view
-    if (showingCbg && weightedCGMCount(currentCbgData) < minimumCbgs && currentSmbgData.length) {
-      this.props.onSwitchBgDataSource(null, showingCbg ? BGM_DATA_KEY : CGM_DATA_KEY);
-    }
-    this.props.markTrendsViewed(currentPatientInViewId);
   }
 
   render() {

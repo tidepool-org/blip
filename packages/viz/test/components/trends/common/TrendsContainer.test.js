@@ -218,7 +218,6 @@ describe('TrendsContainer', () => {
     }
 
     const onDatetimeLocationChange = sinon.stub().resolves(true);
-    const onSwitchBgDataSource = sinon.spy();
     const markTrendsViewed = sinon.spy();
     const unfocusCbgSlice = sinon.spy();
     const unfocusSmbg = sinon.spy();
@@ -259,7 +258,6 @@ describe('TrendsContainer', () => {
       },
       onDatetimeLocationChange,
       onSelectDate: sinon.stub(),
-      onSwitchBgDataSource,
       trendsState: {
         touched: false,
         cbgFlags: {
@@ -307,7 +305,6 @@ describe('TrendsContainer', () => {
 
     afterEach(() => {
       onDatetimeLocationChange.resetHistory();
-      onSwitchBgDataSource.resetHistory();
       markTrendsViewed.resetHistory();
     });
 
@@ -366,78 +363,6 @@ describe('TrendsContainer', () => {
           />, { disableLifecycleMethods: false }
         );
         expect(markTrendsViewed.callCount).to.equal(0);
-      });
-
-      it('should toggle BG data source if not enough cbg data', () => {
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-        shallow(
-          <TrendsContainer
-            {...props}
-            {...mgdl}
-            {...makeDataStubs(justOneDatum())}
-          />, { disableLifecycleMethods: false }
-        );
-        expect(onSwitchBgDataSource.callCount).to.equal(1);
-      });
-
-      it('should not toggle BG data source if enough cbg data (dexcom)', () => {
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-        shallow(
-          <TrendsContainer
-            {...props}
-            {...mgdl}
-            {...makeDataStubs(sevenDaysData())}
-          />, { disableLifecycleMethods: false }
-        );
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-      });
-
-      it('should not toggle BG data source if enough cbg data (libre)', () => {
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-        shallow(
-          <TrendsContainer
-            {...props}
-            {...mgdl}
-            {...makeDataStubs(sevenDaysData(devices.libre))}
-          />, { disableLifecycleMethods: false }
-        );
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-      });
-
-      it('should not toggle BG data source if enough cbg data (dexcom + libre mix)', () => {
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-        shallow(
-          <TrendsContainer
-            {...props}
-            {...mgdl}
-            {...makeDataStubs(sevenDaysDataMixedMinimum())}
-          />, { disableLifecycleMethods: false }
-        );
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-      });
-
-      it('should not toggle BG data source even if not enough cbg data if `touched`', () => {
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-        shallow(
-          <TrendsContainer
-            {..._.merge({}, props, { trendsState: { touched: true } })}
-            {...mgdl}
-            {...makeDataStubs(justOneDatum())}
-          />, { disableLifecycleMethods: false }
-        );
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-      });
-
-      it('should not toggle BG data source even if not enough cbg data if there\'s no smbg data', () => {
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
-        shallow(
-          <TrendsContainer
-            {...props}
-            {...mgdl}
-            {...makeDataStubs(justOneDatum(), { cbg: true, smbg: false })}
-          />, { disableLifecycleMethods: false }
-        );
-        expect(onSwitchBgDataSource.callCount).to.equal(0);
       });
     });
 
