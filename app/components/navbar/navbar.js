@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Flex } from 'rebass/styled-components'
 import { translate } from 'react-i18next';
+import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 
 import _ from 'lodash';
 
@@ -10,10 +11,12 @@ import personUtils from '../../core/personutils';
 import NavbarPatientCard from '../navbarpatientcard';
 import WorkspaceSwitcher from '../clinic/WorkspaceSwitcher';
 import NavigationMenu from './NavigationMenu';
+import Button from '../elements/Button';
 
 import logoSrc from './images/tidepool-logo-408x46.png';
 export default translate()(class extends React.Component {
   static propTypes = {
+    clinicFlowActive: PropTypes.bool,
     currentPage: PropTypes.string,
     user: PropTypes.object,
     fetchingUser: PropTypes.bool,
@@ -30,12 +33,36 @@ export default translate()(class extends React.Component {
   };
 
   render() {
+    const { t } = this.props;
+    const patientListLink = this.props.clinicFlowActive ? '/clinic-workspace/patients' : '/patients';
+    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage);
+
     return (
-      <div className="Navbar">
-        {this.renderLogoSection()}
-        {this.renderMiddleSection()}
-        {this.renderMenuSection()}
-      </div>
+      <>
+        <Flex
+          className="Navbar"
+          flexWrap="wrap"
+          justifyContent={['center', 'space-between']}
+          alignItems="center"
+          sx={{ minHeight: '60px' }}
+        >
+          {this.renderLogoSection()}
+          {this.renderMiddleSection()}
+          {this.renderMenuSection()}
+        </Flex>
+
+        {showPatientListLink && (
+          <Link className="static" to={patientListLink}>
+            <Button
+              variant="textSecondary"
+              icon={ChevronLeftRoundedIcon}
+              iconPosition='left'
+            >
+              {t('Back to Patient List')}
+            </Button>
+          </Link>
+        )}
+      </>
     );
   }
 
