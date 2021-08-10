@@ -46,6 +46,9 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     '&:disabled': {
       color: colors.text.primaryDisabled,
     },
+    '.icon': {
+      marginRight: 1,
+    },
   };
 
   const actionListItemStyles = {
@@ -127,14 +130,16 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       color: colors.purpleMedium,
       '&:hover,&:active': {
         color: colors.text.primary,
+        textDecoration: 'none',
       },
     },
     textSecondary: {
       ...defaultStyles,
       ...textButtonStyles,
-      color: colors.text.primarySubdued,
+      color: colors.text.primary,
       '&:hover,&:active': {
-        color: colors.text.primary,
+        color: colors.text.primarySubdued,
+        textDecoration: 'none',
       },
     },
     actionListItem: {
