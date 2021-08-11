@@ -166,11 +166,9 @@ export const ClinicWorkspace = (props) => {
             {selectedTab === 1 && <PatientInvites {...props} />}
           </Box>
 
-          {config.RX_ENABLED && (
-            <Box>
-              {selectedTab === 2 && <Prescriptions {...props} />}
-            </Box>
-          )}
+          <Box>
+            {config.RX_ENABLED && selectedTab === 2 && <Prescriptions {...props} />}
+          </Box>
         </TabGroup>
       </Box>
     </>
