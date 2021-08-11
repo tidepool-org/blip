@@ -21,7 +21,7 @@ import _ from 'lodash';
 
 import styles from './Table.css';
 
-class Table extends React.PureComponent {
+class Table extends React.Component {
   getItemField(item, field) {
     return item[field];
   }
@@ -67,16 +67,16 @@ class Table extends React.PureComponent {
     return (<thead key={`thead_${cells.length}`}><tr>{cells}</tr></thead>);
   }
 
-  renderRow(normalizedColumns, rowKey, rowData) {
+  renderRow(normalizedColumns, rowKey, rowData, /** @type {string} */ trClassName=null) {
     const cells = _.map(normalizedColumns,
       (column) => {
-        const classname = (column.className) ? `styles.secondaryLabelWithMain` : "styles.secondaryLabelWithMain";
+        const classname = (column.className) ? `${styles.secondaryLabelWithMain} ${column.className}` : styles.secondaryLabelWithMain;
 
         return <td key={column.key} className={classname}>{column.cell(rowData, column.key)}</td>;
-
       }
     );
-    return (<tr key={rowKey}>{cells}</tr>);
+
+    return (<tr key={rowKey} className={trClassName} data-raw={rowData.rawData}>{cells}</tr>);
   }
 
   renderRows(normalizedColumns) {
@@ -87,13 +87,14 @@ class Table extends React.PureComponent {
   }
 
   render() {
+    const { id, title, tableStyle } = this.props;
     const normalizedColumns = this.normalizeColumns();
 
     let tableContents = [];
 
-    if (!_.isEmpty(this.props.title)) {
-      const { className, label: { main, secondary } } = this.props.title;
-      const title = (
+    if (!_.isEmpty(title)) {
+      const { className, label: { main, secondary } } = title;
+      const titleCaption = (
         <caption
           key={main}
           className={className}
@@ -102,7 +103,7 @@ class Table extends React.PureComponent {
         </caption>
       );
       tableContents = [
-        title,
+        titleCaption,
         this.renderHeader(normalizedColumns),
         this.renderRows(normalizedColumns),
       ];
@@ -114,7 +115,7 @@ class Table extends React.PureComponent {
     }
 
     return (
-      <table className={this.props.tableStyle}>
+      <table id={id} className={tableStyle}>
         {tableContents}
       </table>
     );
@@ -129,6 +130,11 @@ Table.propTypes = {
   rows: PropTypes.array.isRequired,
   columns: PropTypes.array.isRequired,
   tableStyle: PropTypes.string.isRequired,
+  id: PropTypes.string,
+};
+
+Table.defaultProps = {
+  id: "table",
 };
 
 export default Table;

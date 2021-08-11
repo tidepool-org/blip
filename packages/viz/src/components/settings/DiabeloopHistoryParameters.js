@@ -63,14 +63,17 @@ export default class HistoryTable extends Table {
     const handleSwitchToDaily = () => {
       onSwitchToDaily(rowData.mLatestDate, 'Diabeloop parameters history');
     };
+    const dateString = rowData.mLatestDate.toISOString();
     return (
-      <tr id={`parameters-history-${rowData.mLatestDate.toISOString()}`} key={rowKey} className={styles.spannedRow}>
+      <tr id={`parameters-history-${dateString}`} key={rowKey} className={styles.spannedRow}>
         <td colSpan={normalizedColumns.length}>
           {content}
           <i
-            id={`parameters-history-${rowData.mLatestDate.toISOString()}-link-daily`}
-            role="button" tabIndex={0}
-            className={`${switchToDailyIconClass} ${styles.clickableIcon}`}
+            id={`parameters-history-${dateString}-link-daily`}
+            role="button"
+            tabIndex={0}
+            data-date={dateString}
+            className={`${switchToDailyIconClass} ${styles.clickableIcon} parameters-history-link-daily`}
             onClick={handleSwitchToDaily}
             onKeyPress={handleSwitchToDaily}
           />
@@ -110,7 +113,12 @@ export default class HistoryTable extends Table {
     return (
       <span>
         {icon}
-        <span id={`parameters-history-${parameter.name}-${parameter.changeType}-${parameter.effectiveDate}`} className={styles.parameterHistory}>
+        <span
+          id={`parameters-history-${parameter.name}-${parameter.changeType}-${parameter.effectiveDate}`}
+          className={`parameters-history-table-name ${styles.parameterHistory}`}
+          data-param={parameter.name}
+          data-changetype={parameter.changeType}
+          data-isodate={parameter.effectiveDate}>
           {t(`params|${parameter.name}`)}
         </span>
       </span>
@@ -120,7 +128,7 @@ export default class HistoryTable extends Table {
   getValueChange(param) {
     const fCurrentValue = formatParameterValue(param.value, param.unit);
     const value = <span key="value">{`${fCurrentValue} ${param.unit}`}</span>;
-    let spanClass = styles.historyValue;
+    let spanClass = `parameters-history-table-value ${styles.historyValue}`;
 
     const elements = [];
     switch (param.changeType) {
@@ -146,7 +154,7 @@ export default class HistoryTable extends Table {
     elements.push(value);
 
     return (
-      <span className={spanClass}>
+      <span className={spanClass} data-changetype={param.changeType}>
         {elements}
       </span>
     );
@@ -177,6 +185,7 @@ export default class HistoryTable extends Table {
           for (let j = 0; j < nParameters; j++) {
             const parameter = parameters[j];
             const row = { ...parameter };
+            row.rawData = parameter.name;
             const changeDate = new Date(parameter.effectiveDate);
 
             if (latestDate.getTime() < changeDate.getTime()) {

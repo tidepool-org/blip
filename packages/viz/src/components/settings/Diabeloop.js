@@ -51,15 +51,15 @@ function renderDiabeloopParameters(parametersByLevel) {
     {
       key: 'name',
       label: t('Parameter'),
-      className: 'secondaryLabelWithMainBold',
+      className: 'table-diabeloop-parameters-name',
     }, {
       key: 'value',
       label: t('Value'),
-      className: 'secondaryLabelWithMainBold',
+      className: 'table-diabeloop-parameters-value',
     }, {
       key: 'unit',
       label: t('Unit'),
-      className: 'secondaryLabelWithMainBold',
+      className: 'table-diabeloop-parameters-unit',
     },
   ];
 
@@ -73,6 +73,7 @@ function renderDiabeloopParameters(parametersByLevel) {
     };
     tables.push(
       <Table
+        id={`diabeloop-settings-table-level-${level}`}
         key={title.label.main}
         title={title}
         rows={parameters}
@@ -173,6 +174,7 @@ const Diabeloop = (props) => {
         <div className={styles.categoryContainer}>
           <div className={styles.categoryTitle}>&nbsp;</div>
           <HistoryTable
+            id="parameters-history-table"
             timePrefs={timePrefs}
             title={HistoryTable.title}
             rows={history}

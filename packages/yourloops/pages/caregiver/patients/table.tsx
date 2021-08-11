@@ -110,7 +110,10 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
   const firstName = getUserFirstName(patient);
   const lastName = getUserLastName(patient);
   const email = getUserEmail(patient);
-  const rowId = `patients-list-row-${userId}`;
+  // Replace the "@" if the userid is the email (status pending)
+  // wdio used in the system tests do not accept "@"" in selectors
+  // Theses ids should be the same as in pages/hcp/patients/table.tsx to ease the tests
+  const rowId = `patients-list-row-${userId.replace(/@/g, "_")}`;
   const isPendingInvitation = shareUser.status === UserInvitationStatus.pending;
 
   const handleSelectPatient = (/* e: React.MouseEvent */): void => {
@@ -125,7 +128,7 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
   const removeMemberButton = (
     <Tooltip title={removeText} aria-label={removeText} placement="bottom">
       <IconButton
-        id={`patients-list-row-action-remove-${userId}`}
+        id={`${rowId}-button-remove`}
         color="primary"
         aria-label={removeText}
         onClick={handleClickRemoveMember}>
@@ -136,27 +139,27 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
 
   if (isPendingInvitation) {
     return (
-      <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending}`} ref={rowRef}>
-        <TableCell id={`patients-list-row-icon-${userId}`}>
+      <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending} patients-list-row`} ref={rowRef} data-userid={userId} data-email={email}>
+        <TableCell id={`${rowId}-icon`}>
           <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
-            <AccessTimeIcon />
+            <AccessTimeIcon id={`${rowId}-icon-pending`} />
           </Tooltip>
         </TableCell>
-        <TableCell id={`patients-list-row-lastname-${userId}`}>{lastName}</TableCell>
-        <TableCell id={`patients-list-row-firstname-${userId}`}>{firstName}</TableCell>
-        <TableCell id={`patients-list-row-email-${userId}`}>{email}</TableCell>
-        <TableCell id={`patients-list-row-actions-${userId}`}>{removeMemberButton}</TableCell>
+        <TableCell id={`${rowId}-lastname`}>{lastName}</TableCell>
+        <TableCell id={`${rowId}-firstname`}>{firstName}</TableCell>
+        <TableCell id={`${rowId}-email`}>{email}</TableCell>
+        <TableCell id={`${rowId}-actions`}>{removeMemberButton}</TableCell>
       </TableRow>
     );
   }
 
   return (
-    <TableRow id={rowId} tabIndex={-1} hover onClick={handleSelectPatient} className={classes.tableRow} ref={rowRef}>
-      <TableCell id={`patients-list-row-icon-${userId}`}></TableCell>
-      <TableCell id={`patients-list-row-lastname-${userId}`}>{lastName}</TableCell>
-      <TableCell id={`patients-list-row-firstname-${userId}`}>{firstName}</TableCell>
-      <TableCell id={`patients-list-row-email-${userId}`}>{email}</TableCell>
-      <TableCell id={`patients-list-row-actions-${userId}`}>{removeMemberButton}</TableCell>
+    <TableRow id={rowId} tabIndex={-1} hover onClick={handleSelectPatient} className={`${classes.tableRow} patients-list-row`} ref={rowRef} data-userid={userId} data-email={email}>
+      <TableCell id={`${rowId}-icon`}></TableCell>
+      <TableCell id={`${rowId}-lastname`}>{lastName}</TableCell>
+      <TableCell id={`${rowId}-firstname`}>{firstName}</TableCell>
+      <TableCell id={`${rowId}-email`}>{email}</TableCell>
+      <TableCell id={`${rowId}-actions`}>{removeMemberButton}</TableCell>
     </TableRow>
   );
 }

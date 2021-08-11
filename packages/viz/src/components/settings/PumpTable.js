@@ -23,15 +23,27 @@ class PumpTable extends React.Component {
     const pumpExpirationDate = this.formatDate(pump.expirationDate);
 
     return (
-      <table className={styles.pumpTable}>
-        <caption className={styles.bdlgSettingsHeader}>
+      <table id="settings-table-pump" className={styles.pumpTable}>
+        <caption id="settings-table-pump-title" className={styles.bdlgSettingsHeader}>
           {t('Pump')}
         </caption>
         <tbody>
-          <tr><td>{t('Manufacturer')}</td><td>{pump.manufacturer}</td></tr>
-          <tr><td>{t('Serial Number')}</td><td>{pump.serialNumber}</td></tr>
-          <tr><td>{t('Pump version')}</td><td>{pump.swVersion}</td></tr>
-          <tr><td>{t('Pump cartridge expiration date')}</td><td>{pumpExpirationDate}</td></tr>
+          <tr>
+            <td id="settings-table-pump-manufacturer">{t('Manufacturer')}</td>
+            <td id="settings-table-pump-manufacturer-value">{pump.manufacturer}</td>
+          </tr>
+          <tr>
+            <td id="settings-table-pump-serial">{t('Serial Number')}</td>
+            <td id="settings-table-pump-serial-value">{pump.serialNumber}</td>
+          </tr>
+          <tr>
+            <td id="settings-table-pump-swversion">{t('Pump version')}</td>
+            <td id="settings-table-pump-swversion-value">{pump.swVersion}</td>
+          </tr>
+          <tr>
+            <td id="settings-table-pump-expdate">{t('Pump cartridge expiration date')}</td>
+            <td id="settings-table-pump-expdate-value" data-isodate={pump.expirationDate}>{pumpExpirationDate}</td>
+          </tr>
         </tbody>
       </table>
     );

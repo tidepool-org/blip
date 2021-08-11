@@ -112,7 +112,10 @@ function PatientRow(props: PatientElementProps): JSX.Element {
   };
 
   const { tir, tbr, lastUpload } = React.useMemo(() => getMedicalValues(medicalData, trNA), [medicalData, trNA]);
-  const rowId = `patients-list-row-${userId}`;
+  // Replace the "@" if the userid is the email (status pending)
+  // wdio used in the system tests do not accept "@"" in selectors
+  // Theses ids should be the same as in pages/caregiver/patients/table.tsx to ease the tests
+  const rowId = `patients-list-row-${userId.replace(/@/g, "_")}`;
   const session = authHook.session();
   const isPendingInvitation = teamHook.isOnlyPendingInvitation(patient);
   React.useEffect(() => {
@@ -155,32 +158,32 @@ function PatientRow(props: PatientElementProps): JSX.Element {
   if (isPendingInvitation) {
     return (
       <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending} patient-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
-        <TableCell id={`patients-list-row-icon-${userId}`}>
-          <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
-            <AccessTimeIcon id={`patients-list-row-pendingicon-${userId}`} />
+        <TableCell id={`${rowId}-icon`}>
+          <Tooltip id={`${rowId}-tooltip-pending`} title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
+            <AccessTimeIcon id={`${rowId}-pendingicon`} />
           </Tooltip>
         </TableCell>
-        <TableCell id={`patients-list-row-lastname-${userId}`}>{lastName}</TableCell>
-        <TableCell id={`patients-list-row-firstname-${userId}`}>{firstName}</TableCell>
-        <TableCell id={`patients-list-row-tir-${userId}`}>{tir}</TableCell>
-        <TableCell id={`patients-list-row-tbr-${userId}`}>{tbr}</TableCell>
-        <TableCell id={`patients-list-row-upload-${userId}`}>{lastUpload}</TableCell>
+        <TableCell id={`${rowId}-lastname`}>{lastName}</TableCell>
+        <TableCell id={`${rowId}-firstname`}>{firstName}</TableCell>
+        <TableCell id={`${rowId}-tir`}>{tir}</TableCell>
+        <TableCell id={`${rowId}-tbr`}>{tbr}</TableCell>
+        <TableCell id={`${rowId}-upload`}>{lastUpload}</TableCell>
       </TableRow>
     );
   }
 
   return (
     <TableRow id={rowId} tabIndex={-1} hover onClick={onRowClick} className={`${classes.tableRow} patient-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
-      <TableCell id={`patients-list-row-icon-${userId}`}>
-        <IconButton className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
-          {isFlagged ? <FlagIcon id={`patients-list-row-flagged-${userId}`} /> : <FlagOutlineIcon id={`patients-list-row-un-flagged-${userId}`} />}
+      <TableCell id={`${rowId}-icon`}>
+        <IconButton id={`${rowId}-icon-button-flag`} className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
+          {isFlagged ? <FlagIcon id={`${rowId}-flagged`} /> : <FlagOutlineIcon id={`${rowId}-un-flagged`} />}
         </IconButton>
       </TableCell>
-      <TableCell id={`patients-list-row-lastname-${userId}`}>{lastName}</TableCell>
-      <TableCell id={`patients-list-row-firstname-${userId}`}>{firstName}</TableCell>
-      <TableCell id={`patients-list-row-tir-${userId}`}>{tir}</TableCell>
-      <TableCell id={`patients-list-row-tbr-${userId}`}>{tbr}</TableCell>
-      <TableCell id={`patients-list-row-upload-${userId}`}>{lastUpload}</TableCell>
+      <TableCell id={`${rowId}-lastname`}>{lastName}</TableCell>
+      <TableCell id={`${rowId}-firstname`}>{firstName}</TableCell>
+      <TableCell id={`${rowId}-tir`}>{tir}</TableCell>
+      <TableCell id={`${rowId}-tbr`}>{tbr}</TableCell>
+      <TableCell id={`${rowId}-upload`}>{lastUpload}</TableCell>
     </TableRow>
   );
 }

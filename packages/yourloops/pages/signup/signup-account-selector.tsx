@@ -128,9 +128,10 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
         flexDirection: "column",
         justifyContent: "center",
       }}>
-      <FormControl component="fieldset" error={error} className={classes.FormControl}>
+      <FormControl id="signup-account-selector-form-control" component="fieldset" error={error} className={classes.FormControl}>
         <FormHelperText className={classes.FormHelperText}>{t(helperText)}</FormHelperText>
         <RadioGroup
+          id="signup-account-selector-radio-group"
           aria-label="account-selector"
           name="account-selector"
           value={state.formValues.accountRole}
@@ -140,9 +141,10 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
               className={classes.FormControlLabel}
               value="hcp"
               id="form-label-signup-account-hcp"
-              control={<Radio color="primary" />}
+              control={<Radio id="signup-account-selector-radio-hcp" color="primary" />}
               label={
                 <RadioLabel
+                  id="signup-account-selector-radio-label-hcp"
                   header={t("signup-radiolabel-hcp-header")}
                   body={t("signup-radiolabel-hcp-body")}
                 />
@@ -154,9 +156,10 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
               className={classes.FormControlLabel}
               value="caregiver"
               id="form-label-signup-account-caregiver"
-              control={<Radio color="primary" />}
+              control={<Radio id="signup-account-selector-radio-caregiver" color="primary" />}
               label={
                 <RadioLabel
+                  id="signup-account-selector-radio-label-caregiver"
                   header={t("signup-radiolabel-caregiver-header")}
                   body={t("signup-radiolabel-caregiver-body")}
                 />

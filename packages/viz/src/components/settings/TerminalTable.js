@@ -19,15 +19,27 @@ class TerminalTable extends React.Component {
     }
 
     return (
-      <table className={styles.deviceTable}>
-        <caption className={styles.bdlgSettingsHeader}>
+      <table id="settings-table-terminal" className={styles.deviceTable}>
+        <caption id="settings-table-terminal-device-name" className={styles.bdlgSettingsHeader}>
           {device.name}
         </caption>
         <tbody>
-          <tr><td>{t('Manufacturer')}</td><td>{device.manufacturer}</td></tr>
-          <tr><td>{t('Identifier')}</td><td>{device.deviceId}</td></tr>
-          <tr><td>{t('IMEI')}</td><td>{device.imei}</td></tr>
-          <tr><td>{t('Software version')}</td><td>{device.swVersion}</td></tr>
+          <tr>
+            <td id="settings-table-terminal-manufacturer">{t('Manufacturer')}</td>
+            <td id="settings-table-terminal-manufacturer-value">{device.manufacturer}</td>
+          </tr>
+          <tr>
+            <td id="settings-table-terminal-deviceid">{t('Identifier')}</td>
+            <td id="settings-table-terminal-deviceid-value">{device.deviceId}</td>
+          </tr>
+          <tr>
+            <td id="settings-table-terminal-imei">{t('IMEI')}</td>
+            <td id="settings-table-terminal-imei-value">{device.imei}</td>
+          </tr>
+          <tr>
+            <td id="settings-table-terminal-swversion">{t('Software version')}</td>
+            <td id="settings-table-terminal-swversion-value">{device.swVersion}</td>
+          </tr>
         </tbody>
       </table>
     );
