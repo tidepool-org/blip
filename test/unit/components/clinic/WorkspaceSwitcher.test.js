@@ -59,6 +59,7 @@ describe('WorkspaceSwitcher', () => {
         fetchingClinicsForClinician: defaultWorkingState,
       },
       loggedInUserId: 'clinicianUserId123',
+      membershipInOtherCareTeams: [],
     },
   };
 
@@ -79,6 +80,14 @@ describe('WorkspaceSwitcher', () => {
             clinic: {
               role: 'clinic_manager',
             },
+          },
+        },
+        otherUser123: {
+          emails: ['other@example.com'],
+          userid: 'otherUser123',
+          username: 'other@example.com',
+          profile: {
+            fullName: 'Other User',
           },
         },
       },
@@ -104,6 +113,7 @@ describe('WorkspaceSwitcher', () => {
         },
       },
       pendingSentInvites: [],
+      membershipInOtherCareTeams: ['otherUser123'],
       selectedClinicId: 'clinicID456',
     },
   };
