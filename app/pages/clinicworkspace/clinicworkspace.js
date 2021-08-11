@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux'
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { translate } from 'react-i18next';
@@ -8,7 +7,6 @@ import filter from 'lodash/filter'
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import keys from 'lodash/keys';
 import map from 'lodash/map'
 import values from 'lodash/values'
 import { Box } from 'rebass/styled-components';
@@ -20,19 +18,24 @@ import { PatientInvites } from '../share';
 import PeopleTable from '../../components/peopletable';
 import * as actions from '../../redux/actions';
 import config from '../../config';
+import { useIsFirstRender } from '../../core/hooks';
+import { useToasts } from '../../providers/ToastProvider';
 
 export const ClinicWorkspace = (props) => {
   const { t, api, trackMetric } = props;
+  const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
+  const { set: setToast } = useToasts();
   const { tab } = useParams();
   const history = useHistory();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
-  const { fetchingPatientInvites, fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
+  const { deletingPatientFromClinic, fetchingPatientInvites, fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
   const clinics = useSelector((state) => state.blip.clinics);
   const clinic = get(clinics, selectedClinicId);
   const patientInvites = filter(values(clinic?.patients), patient => patient.status === 'pending');
+  const [selectedPatient, setSelectedPatient] = useState();
 
   const tabIndices = {
     patients: 0,
@@ -99,7 +102,32 @@ export const ClinicWorkspace = (props) => {
   }, [loggedInUserId, clinic]);
 
   useEffect(() => {
-    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, api, currentPatientInViewId));
+    const { inProgress, completed, notification } = deletingPatientFromClinic;
+
+    if (!isFirstRender && !inProgress) {
+
+      if (completed) {
+        setToast({
+          message: t('{{name}} has been removed from the clinic.', {
+            name: get(selectedPatient, 'fullName', t('This patient')),
+          }),
+          variant: 'success',
+        });
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+
+      setSelectedPatient(null);
+    }
+  }, [deletingPatientFromClinic]);
+
+  useEffect(() => {
+    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     dispatch(actions.sync.clearPatientInView());
   }, []);
 
@@ -108,6 +136,11 @@ export const ClinicWorkspace = (props) => {
     history.push({
       pathname: `/clinic-workspace/${tabs[newValue].name}`,
     });
+  }
+
+  function handleRemovePatient(patientId, cb) {
+    setSelectedPatient(get(clinic, ['patients', patientId]));
+    dispatch(actions.async.deletePatientFromClinic(api, selectedClinicId, patientId, cb));
   }
 
   function clinicPatients() {
@@ -127,10 +160,6 @@ export const ClinicWorkspace = (props) => {
       link: `/patients/${patient.id}/data`,
     }));
   }
-
-  const boundActions = bindActionCreators({
-    deletePatientFromClinic: actions.async.deletePatientFromClinic,
-  }, dispatch);
 
   return (
     <>
@@ -157,7 +186,7 @@ export const ClinicWorkspace = (props) => {
                 layout="tab"
                 people={clinicPatients()}
                 trackMetric={trackMetric}
-                onRemovePatient={boundActions.deletePatientFromClinic.bind(null, api, selectedClinicId)}
+                onRemovePatient={handleRemovePatient}
               />
             )}
           </Box>
