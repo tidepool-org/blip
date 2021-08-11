@@ -524,6 +524,26 @@ async function refreshToken(session: Readonly<Session>): Promise<string> {
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
+async function logout(session: Readonly<Session>): Promise<void> {
+  const refreshURL = new URL("/auth/logout", appConfig.API_HOST);
+
+  log.debug("logout", refreshURL.toString());
+  const response = await fetch(refreshURL.toString(), {
+    method: "GET",
+    cache: "no-store",
+    headers: {
+      [HttpHeaderKeys.traceToken]: session.traceToken,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    return Promise.resolve();
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
+}
+
 export default {
   login,
   requestPasswordReset,
@@ -536,4 +556,5 @@ export default {
   updateSettings,
   updateUser,
   refreshToken,
+  logout,
 };

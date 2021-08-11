@@ -293,8 +293,15 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     return [];
   };
 
-  const logout = (): void => {
+  const logout = async (): Promise<void> => {
     log.info("logout");
+    try {
+      const authInfo = await getAuthInfos();
+      await api.logout(authInfo);
+    } catch (reason) {
+      log.error("logout", reason);
+    }
+
     if (typeof window.cleanBlipReduxStore === 'function') {
       window.cleanBlipReduxStore();
     }

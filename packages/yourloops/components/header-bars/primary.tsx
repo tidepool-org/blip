@@ -204,8 +204,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
 
   const handleLogout = () => {
     setAnchorEl(null);
-    auth.logout();
-    history.push("/");
+    auth.logout().catch((reason) => console.error("logout", reason));
   };
 
   if (_.isObject(props.actions) && props.actions.current === null) {

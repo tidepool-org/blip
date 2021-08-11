@@ -54,6 +54,7 @@ interface AuthAPIStubs {
   updateSettings: sinon.SinonStub<Session[], Promise<Settings>>;
   updateUser: sinon.SinonStub<unknown[], Promise<void>>;
   refreshToken: sinon.SinonStub<Session[], Promise<string>>;
+  logout: sinon.SinonStub<Session[], Promise<void>>;
 }
 
 export const authCaregiver: Session = {
@@ -84,6 +85,7 @@ export const createAuthApiStubs = (session: Session): AuthAPIStubs => ({
   updateSettings: sinon.stub().resolves(session.user.settings),
   updateUser: sinon.stub().resolves(),
   refreshToken: sinon.stub().resolves(""),
+  logout: sinon.stub().resolves(),
 });
 
 export const authApiHcpStubs = createAuthApiStubs(authHcp);
@@ -137,6 +139,11 @@ export function resetStubs(user: Readonly<User>, api: AuthAPI | null = null, con
     stub.resetHistory();
     stub.resetBehavior();
     stub.resolves(authHcp.user.settings);
+
+    stub = api.logout as sinon.SinonStub;
+    stub.resetHistory();
+    stub.resetBehavior();
+    stub.resolves();
   }
   if (context !== null) {
     context.user = authHcp.user;
@@ -293,8 +300,9 @@ function testHook(): void {
       expect(authContext.session()).to.be.not.null;
       expect(authContext.isLoggedIn()).to.be.true;
 
-      authContext.logout();
+      await authContext.logout();
       await waitTimeout(10);
+      expect(authApiHcpStubs.logout.calledOnce, "logout calledOnce").to.be.true;
       expect(authContext.traceToken, "traceToken").to.be.a("string").not.empty;
       expect(authContext.sessionToken, "sessionToken").to.be.null;
       expect(authContext.user, "user").to.be.null;
@@ -305,6 +313,15 @@ function testHook(): void {
       expect(window._paq, "_paq").to.be.lengthOf(2);
       expect(window._paq[1], "_paq[1]").to.be.deep.equals(["resetUserId"]);
       expect(cleanBlipReduxStore.calledOnce, "cleanBlipReduxStore").to.be.true;
+      expect(authContext.session()).to.be.null;
+      expect(authContext.isLoggedIn()).to.be.false;
+    });
+    it("should not crash if the api call crash", async () => {
+      authApiHcpStubs.logout.rejects();
+      initAuthContext(authHcp, authApiHcpStubs);
+      await authContext.logout();
+      await waitTimeout(10);
+      expect(authApiHcpStubs.logout.calledOnce, "logout calledOnce").to.be.true;
       expect(authContext.session()).to.be.null;
       expect(authContext.isLoggedIn()).to.be.false;
     });

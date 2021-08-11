@@ -173,7 +173,7 @@ function Consent(props: ConsentProps): JSX.Element {
   };
 
   const onDecline = (/* event: React.MouseEvent<HTMLButtonElement, MouseEvent> */) => {
-    auth.logout();
+    auth.logout().catch((reason) => console.error("logout", reason));
   };
 
   const onConfirm = (/* event: React.MouseEvent<HTMLButtonElement, MouseEvent> */) => {

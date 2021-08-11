@@ -68,6 +68,7 @@ export interface AuthAPI {
   updateSettings: (session: Readonly<Session>) => Promise<Settings>;
   updateUser: (session: Readonly<Session>, updates: UpdateUser) => Promise<void>;
   refreshToken: (session: Readonly<Session>) => Promise<string>;
+  logout: (session: Readonly<Session>) => Promise<void>;
 }
 
 /**
@@ -82,7 +83,7 @@ export interface AuthContext {
   /** Change the hook user, and update the storage. No API change! */
   setUser: (user: User) => void;
   login: (username: string, password: string, key: string | null) => Promise<User>;
-  logout: () => void;
+  logout: () => Promise<void>;
   /** Update current user preferences */
   updatePreferences: (preferences: Preferences, refresh?: boolean) => Promise<Preferences>;
   /** Update current user profile */
