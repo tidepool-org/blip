@@ -21,6 +21,7 @@
   "aria-team-add-member-dialog-title": "Nuovo membro del team {{teamName}}",
   "error-failed-display-teams": "Impossibile visualizzare i team: {{errorMessage}}",
   "error-failed-display-patients": "Impossibile visualizzare l'elenco dei pazienti. Riprovare più tardi.",
+  "Austria": "Austria",
   "Belgium": "Belgio",
   "button-accept": "Accetta",
   "add-patient": "Aggiungi paziente",

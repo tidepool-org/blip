@@ -1,6 +1,6 @@
 {
   "brand-name": "YourLoops",
-  "alt-img-logo": "YourLoops Logo",
+  "alt-img-logo": "YourLoops",
   "app-crash-title": "Entschuldigung! Etwas ist schief gelaufen.",
   "app-crash-text": "Es ist unsere Schuld, nicht Ihre. Wir werden dem nachgehen.",
   "app-crash-info": "Technische Informationen:",
@@ -21,6 +21,7 @@
   "aria-team-add-member-dialog-title": "Neues Mitglied im Team {{teamName}}",
   "error-failed-display-teams": "Teams konnten nicht angezeigt werden: {{errorMessage}}",
   "error-failed-display-patients": "Es ist nicht möglich, Ihre Patientenliste anzuzeigen. Bitte versuchen Sie es später noch einmal.",
+  "Austria": "Österreich",
   "Belgium": "Belgien",
   "button-accept": "Akzeptieren",
   "add-patient": "Patienten hinzufügen",

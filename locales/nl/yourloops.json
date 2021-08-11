@@ -21,6 +21,7 @@
   "aria-team-add-member-dialog-title": "Nieuw lid voor {{teamName}}",
   "error-failed-display-teams": "Teams kunnen niet worden weergegeven: {{errorMessage}}",
   "error-failed-display-patients": "Onmogelijk om je patiëntenlijst weer te geven. Probeer het later opnieuw.",
+  "Austria": "Oostenrijk",
   "Belgium": "België",
   "button-accept": "Accepteren",
   "add-patient": "Patiënt toevoegen",
