@@ -28,6 +28,7 @@ export const ClinicWorkspace = (props) => {
   const history = useHistory();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const { fetchingPatientInvites, fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
   const clinics = useSelector((state) => state.blip.clinics);
   const clinic = get(clinics, selectedClinicId);
@@ -96,6 +97,11 @@ export const ClinicWorkspace = (props) => {
       });
     }
   }, [loggedInUserId, clinic]);
+
+  useEffect(() => {
+    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, api, currentPatientInViewId));
+    dispatch(actions.sync.clearPatientInView());
+  }, []);
 
   function handleSelectTab(event, newValue) {
     setSelectedTab(newValue);
