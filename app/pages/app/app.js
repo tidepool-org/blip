@@ -72,6 +72,7 @@ export class AppComponent extends React.Component {
       personUtils: PropTypes.object.isRequired,
       trackMetric: PropTypes.func.isRequired,
     }).isRequired,
+    selectedClinicId: PropTypes.string,
     showingDonateBanner: PropTypes.bool,
     showingDexcomConnectBanner: PropTypes.bool,
     showingShareDataBanner: PropTypes.bool,
@@ -314,6 +315,7 @@ export class AppComponent extends React.Component {
             trackMetric={this.props.context.trackMetric}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             api={this.props.context.api}
+            selectedClinicId={this.props.selectedClinicId}
             ref="navbar"/>
           </div>
         );
@@ -656,20 +658,21 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         {}
       );
-      permsOfLoggedInUser = _.get(
-        state.blip.clinics,
-        [
-          state.blip.selectedClinicId,
-          'patients',
-          state.blip.currentPatientInViewId,
-          'permissions',
-        ],
-        _.get(
+      permsOfLoggedInUser = state.blip.selectedClinicId
+        ? _.get(
+          state.blip.clinics,
+          [
+            state.blip.selectedClinicId,
+            'patients',
+            state.blip.currentPatientInViewId,
+            'permissions',
+          ],
+          {}
+        ) : _.get(
           state.blip.membershipPermissionsInOtherCareTeams,
           state.blip.currentPatientInViewId,
           {}
-        )
-      );
+        );
     }
 
     // Check to see if a data-donating patient has selected a nonprofit to support

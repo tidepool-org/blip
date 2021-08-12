@@ -260,6 +260,9 @@ export function login(api, credentials, options, postLoginAction) {
                   if (errors.invites) {
                     handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, errors.invites);
                   }
+                  if (errors.associatedAccounts) {
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, errors.associatedAccounts);
+                  }
                 }
                 else {
                   if (values.invites?.length) {

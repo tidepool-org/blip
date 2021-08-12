@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import NavigationMenu from '../../../../app/components/navbar/NavigationMenu';
-import SettingsRounded from '@material-ui/icons/SettingsRounded';
 
 /* global chai */
 /* global sinon */

@@ -80,6 +80,9 @@ describe('WorkspaceSwitcher', () => {
             clinic: {
               role: 'clinic_manager',
             },
+            patient: {
+              foo: 'bar',
+            },
           },
         },
         otherUser123: {
@@ -115,6 +118,43 @@ describe('WorkspaceSwitcher', () => {
       pendingSentInvites: [],
       membershipInOtherCareTeams: ['otherUser123'],
       selectedClinicId: 'clinicID456',
+    },
+  };
+
+  const multiClinicState = {
+    blip: {
+      ...fetchedDataState.blip,
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_MEMBER'],
+            },
+          },
+          patients: {},
+          id: 'clinicID456',
+          address: '1 Address Ln, City Zip',
+          name: 'new_clinic_name',
+          email: 'new_clinic_email_address@example.com',
+          phoneNumbers: [
+            {
+              number: '(888) 555-5555',
+              type: 'Office',
+            },
+          ],
+        },
+        clinicID123: {
+          id: 'clinicID123',
+          name: 'other_clinic_name',
+          clinicians: {
+            clinicianUserId123: {
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_MEMBER'],
+            },
+          },
+        }
+      },
     },
   };
 
@@ -213,6 +253,43 @@ describe('WorkspaceSwitcher', () => {
           },
         },
       ]);
+    });
+
+    it('should hide the personal workspace options under the appropriate conditions', () => {
+      wrapper = mountWrapper(mockStore(multiClinicState));
+
+      const workspaceButtons = () => wrapper.find('Button.workspace-option');
+      expect(workspaceButtons()).to.have.lengthOf(3);
+      expect(workspaceButtons().at(0).text()).to.equal('new_clinic_name Workspace');
+      expect(workspaceButtons().at(1).text()).to.equal('other_clinic_name Workspace');
+      expect(workspaceButtons().at(2).text()).to.equal('Personal Workspace');
+
+      wrapper = mountWrapper(mockStore({
+        blip: {
+          ...multiClinicState.blip,
+          membershipInOtherCareTeams: [], // not a member of another care team
+          allUsersMap: {
+            ...defaultState.blip.allUsersMap,
+            clinicianUserId123: {
+              emails: ['clinic@example.com'],
+              roles: ['clinic'],
+              userid: 'clinicianUserId123',
+              username: 'clinic@example.com',
+              profile: {
+                fullName: 'Example Clinic',
+                clinic: {
+                  role: 'clinic_manager',
+                },
+                patient: undefined // no DSA / patient profile
+              },
+            },
+          },
+        },
+      }));
+
+      expect(workspaceButtons()).to.have.lengthOf(2);
+      expect(workspaceButtons().at(0).text()).to.equal('new_clinic_name Workspace');
+      expect(workspaceButtons().at(1).text()).to.equal('other_clinic_name Workspace');
     });
   });
 });

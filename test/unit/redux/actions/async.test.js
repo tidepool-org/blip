@@ -1005,6 +1005,46 @@ describe('Actions', () => {
             expect(api.user.get.callCount).to.equal(1);
             expect(trackMetric.calledWith('Logged In')).to.be.true;
           });
+
+          it('should trigger LOGIN_SUCCESS and it should redirect a clinician with one clinic and no DSA or shared member accounts to the clinic workspace view', () => {
+            setAPIData({
+              user: { userid: 27, roles: ['clinic'], profile: { clinic: true, patient: undefined }, emailVerified: true },
+              clinics: [
+                { clinic: { id: 'clinic123' } },
+              ],
+              patients: [],
+            });
+
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
+                { clinic: { id: 'clinic123' } },
+              ] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace'] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore(initialState);
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+          });
         });
 
         it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a single relationship containing non-empty clinic object to the workspaces view', () => {
@@ -1122,6 +1162,44 @@ describe('Actions', () => {
             expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN });
             expect(actions[9].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN });
             expectedActions[4].error = actions[4].error;
+            expectedActions[9].error = actions[9].error;
+            expect(actions).to.eql(expectedActions);
+          });
+
+          it('should trigger LOGIN_FAILURE with appropriate messaging for a failed login request due to error fetching associated patient accounts', () => {
+            setAPIData({
+              user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
+              patientsError: {status: 400, body: 'Error!'},
+              clinics: [],
+              invites: [],
+              patients: [],
+            });
+
+            let err = new Error(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS);
+            err.status = 400;
+
+            let expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_FAILURE', error: err, meta: { apiError: {status: 400, body: 'Error!'}}},
+              { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 400, body: 'Error!'}}},
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+            expect(actions[8].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS });
+            expect(actions[9].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS });
+            expectedActions[8].error = actions[8].error;
             expectedActions[9].error = actions[9].error;
             expect(actions).to.eql(expectedActions);
           });
@@ -3452,6 +3530,8 @@ describe('Actions', () => {
 
     describe('fetchAssociatedAccounts', () => {
       it('should trigger FETCH_ASSOCIATED_ACCOUNTS_SUCCESS and it should call error once for a successful request', () => {
+        const callback = sinon.stub();
+
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
@@ -3470,21 +3550,29 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchAssociatedAccounts(api));
+        store.dispatch(async.fetchAssociatedAccounts(api, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.user.getAssociatedAccounts.callCount).to.equal(1);
+
+        // assert callback contains payload with no error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, null, { patients: [{ age: 65, id: 58686, name: "Buddy Holly" }] });
       });
 
       it('should trigger FETCH_ASSOCIATED_ACCOUNTS_FAILURE and it should call error once for a failed request', () => {
+        const callback = sinon.stub();
+        const error = {status: 500, body: 'Error!'};
+
+
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
 
         let api = {
           user: {
-            getAssociatedAccounts: sinon.stub().callsArgWith(0, {status: 500, body: {status: 500, body: 'Error!'}}, null)
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, {status: 500, body: error}, null)
           }
         };
 
@@ -3493,19 +3581,23 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
-          { type: 'FETCH_ASSOCIATED_ACCOUNTS_FAILURE', error: err, meta: { apiError: {status: 500, body: {status: 500, body: 'Error!'}} } }
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_FAILURE', error: err, meta: { apiError: {status: 500, body: error} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchAssociatedAccounts(api));
+        store.dispatch(async.fetchAssociatedAccounts(api, callback));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.getAssociatedAccounts.callCount).to.equal(1);
+
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, { body: error, status: 500 }, null);
       });
     });
 

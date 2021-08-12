@@ -26,6 +26,7 @@ export default translate()(class extends React.Component {
     onLogout: PropTypes.func,
     trackMetric: PropTypes.func.isRequired,
     permsOfLoggedInUser: PropTypes.object,
+    selectedClinicId: PropTypes.string,
   };
 
   state = {
@@ -34,7 +35,7 @@ export default translate()(class extends React.Component {
 
   render() {
     const { t } = this.props;
-    const patientListLink = this.props.clinicFlowActive ? '/clinic-workspace/patients' : '/patients';
+    const patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
     const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage);
 
     return (
@@ -57,6 +58,7 @@ export default translate()(class extends React.Component {
               variant="textSecondary"
               icon={ChevronLeftRoundedIcon}
               iconPosition='left'
+              id="patientListLink"
             >
               {t('Back to Patient List')}
             </Button>
