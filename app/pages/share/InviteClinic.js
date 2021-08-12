@@ -87,7 +87,7 @@ const InviteClinic = props => {
   } = formikContext;
 
   useEffect(() => {
-    const { inProgress, completed, notification } = fetchingClinic;
+    const { inProgress, completed } = fetchingClinic;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
@@ -96,7 +96,7 @@ const InviteClinic = props => {
 
       if (completed === false) {
         setToast({
-          message: get(notification, 'message'),
+          message: t('We were unable to find a clinic with that share code.'),
           variant: 'danger',
         });
       }
