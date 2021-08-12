@@ -14,6 +14,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-919 Yourloops do not encode correctly passwords with special characters
 - YLP-926 Sanitize HTML in message note
 - YLP-931 Cannot leave and delete a team that still contains a patient
+- YLP-935 Email in user account should not contain special characters
 ### Added
 - YLP-759 Add Austria
 - YLP-869 Display page title
