@@ -3558,7 +3558,7 @@ describe('Actions', () => {
 
         // assert callback contains payload with no error
         sinon.assert.calledOnce(callback);
-        sinon.assert.calledWithExactly(callback, null, { patients: [{ age: 65, id: 58686, name: "Buddy Holly" }] });
+        sinon.assert.calledWithExactly(callback, null, { patients: [{ age: 65, id: 58686, name: 'Buddy Holly' }] });
       });
 
       it('should trigger FETCH_ASSOCIATED_ACCOUNTS_FAILURE and it should call error once for a failed request', () => {
