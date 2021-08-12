@@ -126,6 +126,10 @@ export interface TeamContext {
    */
   getNumMedicalMembers: (team: Team) => number;
   /**
+   * Return true if the team has only one member
+   */
+  teamHasOnlyOneMember: (team: Team) => boolean;
+  /**
    * Return true if the userId is an administrator of this team.
    * @param userId The user id to test
    */

@@ -261,6 +261,11 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     }, 0);
   };
 
+  const teamHasOnlyOneMember = (team: Team): boolean => {
+    const numMembers = team.members.reduce((p, t) => t.role === TeamMemberRole.patient ? p : p+1, 0);
+    return numMembers < 2;
+  };
+
   const isUserAdministrator = (team: Team, userId: string): boolean => {
     const result = team.members.find((member) => member.role === TeamMemberRole.admin && member.user.userid === userId);
     return typeof result === "object";
@@ -389,7 +394,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     log.info("leaveTeam", { ourselve, team });
     if (ourselve.role === TeamMemberRole.patient) {
       await api.removePatient(session, team.id, ourselve.user.userid);
-    } else if (ourselve.role === TeamMemberRole.admin && ourselve.status === UserInvitationStatus.accepted && team.members.length < 2) {
+    } else if (ourselve.role === TeamMemberRole.admin && ourselve.status === UserInvitationStatus.accepted && teamHasOnlyOneMember(team)) {
       await api.deleteTeam(session, team.id);
     } else {
       await api.leaveTeam(session, team.id);
@@ -507,6 +512,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     getPatients,
     getMedicalMembers,
     getNumMedicalMembers,
+    teamHasOnlyOneMember,
     isUserAdministrator,
     isUserTheOnlyAdministrator,
     isInvitationPending,

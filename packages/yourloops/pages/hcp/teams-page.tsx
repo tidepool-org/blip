@@ -144,9 +144,8 @@ function TeamsPage(): JSX.Element | null {
 
     if (isConfirmed) {
       try {
-        const onlyMember = !((team.members.length ?? 0) > 1);
         await teamHook.leaveTeam(team);
-        const message = onlyMember ? t("team-page-success-deleted") : t("team-page-leave-success");
+        const message = teamHook.teamHasOnlyOneMember(team) ? t("team-page-success-deleted") : t("team-page-leave-success");
         alert.success(message);
         return true;
       } catch (reason: unknown) {
