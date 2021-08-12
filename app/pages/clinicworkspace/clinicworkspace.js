@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { push } from 'connected-react-router';
 import { translate } from 'react-i18next';
 import filter from 'lodash/filter'
 import forEach from 'lodash/forEach';
@@ -27,7 +28,6 @@ export const ClinicWorkspace = (props) => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const { tab } = useParams();
-  const history = useHistory();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
@@ -133,9 +133,7 @@ export const ClinicWorkspace = (props) => {
 
   function handleSelectTab(event, newValue) {
     setSelectedTab(newValue);
-    history.push({
-      pathname: `/clinic-workspace/${tabs[newValue].name}`,
-    });
+    dispatch(push(`/clinic-workspace/${tabs[newValue].name}`));
   }
 
   function handleRemovePatient(patientId, cb) {
@@ -180,7 +178,7 @@ export const ClinicWorkspace = (props) => {
             },
           }}
         >
-          <Box>
+          <Box id="patientsTab">
             {selectedTab === 0 && (
               <PeopleTable
                 layout="tab"
@@ -191,11 +189,11 @@ export const ClinicWorkspace = (props) => {
             )}
           </Box>
 
-          <Box>
+          <Box id="invitesTab">
             {selectedTab === 1 && <PatientInvites {...props} />}
           </Box>
 
-          <Box>
+          <Box id="prescriptionsTab">
             {config.RX_ENABLED && selectedTab === 2 && <Prescriptions {...props} />}
           </Box>
         </TabGroup>
