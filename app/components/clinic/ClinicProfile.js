@@ -115,7 +115,7 @@ export const ClinicProfile = (props) => {
     city: get(clinic, 'city', ''),
     state: get(clinic, 'state', ''),
     postalCode: get(clinic, 'postalCode', ''),
-    country: get(clinic, 'country', ''),
+    country: get(clinic, 'country', 'US'),
     phoneNumbers: [
       {
         type: 'Office',

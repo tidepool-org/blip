@@ -16,6 +16,7 @@ import ClinicWorkspace from '../../../app/pages/clinicworkspace';
 /* global beforeEach */
 /* global before */
 /* global after */
+/* global afterEach */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -29,6 +30,8 @@ describe('ClinicWorkspace', () => {
     t: sinon.stub().callsFake((string) => string),
     api: {
       clinics: {
+        getPatientInvites: sinon.stub().callsArgWith(1, null, { invitesReturn: 'success' }),
+        getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
       },
     },
   };
@@ -51,6 +54,11 @@ describe('ClinicWorkspace', () => {
     ClinicWorkspace.__ResetDependency__('config');
   });
 
+  afterEach(() => {
+    defaultProps.api.clinics.getPatientInvites.resetHistory();
+    defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+  });
+
   const defaultWorkingState = {
     inProgress: false,
     completed: false,
@@ -58,6 +66,16 @@ describe('ClinicWorkspace', () => {
   };
 
   const workingState = {
+    blip: {
+      working: {
+        fetchingPatientInvites: defaultWorkingState,
+        fetchingPatientsForClinic: defaultWorkingState,
+        deletingPatientFromClinic: defaultWorkingState,
+      },
+    },
+  };
+
+  const fetchedWorkingState = {
     blip: {
       working: {
         fetchingPatientInvites: {
@@ -76,7 +94,7 @@ describe('ClinicWorkspace', () => {
   };
 
   const fetchedDataState = {
-    blip: merge({}, workingState.blip, {
+    blip: merge({}, fetchedWorkingState.blip, {
       allUsersMap: {
         clinicianUserId123: {
           emails: ['clinic@example.com'],
@@ -124,15 +142,42 @@ describe('ClinicWorkspace', () => {
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
 
-    wrapper = route => mount(
-      <Provider store={store}>
-        <ToastProvider>
-          <MemoryRouter initialEntries={[`/clinic-workspace/${route}`]}>
-            <Route path='/clinic-workspace/:tab?' children={() => (<ClinicWorkspace {...defaultProps} />)} />
-          </MemoryRouter>
-        </ToastProvider>
-      </Provider>
-    );
+    wrapper = (route = '', providedStore = store) => {
+      store = providedStore;
+
+      return mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <MemoryRouter initialEntries={[`/clinic-workspace/${route}`]}>
+              <Route path='/clinic-workspace/:tab?' children={() => (<ClinicWorkspace {...defaultProps} />)} />
+            </MemoryRouter>
+          </ToastProvider>
+        </Provider>
+      );
+    }
+  });
+
+  context('initial fetching', () => {
+    let initialWrapper;
+
+    beforeEach(() => {
+      initialWrapper = wrapper('', mockStore({
+        blip: {
+          ...fetchedDataState.blip,
+          working: workingState.blip.working,
+        },
+      }));
+    });
+
+    it('should fetch patient invites', () => {
+      sinon.assert.callCount(defaultProps.api.clinics.getPatientInvites, 1);
+      sinon.assert.calledWith(defaultProps.api.clinics.getPatientInvites, 'clinicID456');
+    });
+
+    it('should fetch clinic patients', () => {
+      sinon.assert.callCount(defaultProps.api.clinics.getPatientsForClinic, 1);
+      sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID456');
+    });
   });
 
   it('should render a clinic profile', () => {

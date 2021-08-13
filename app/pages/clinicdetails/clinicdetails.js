@@ -6,7 +6,6 @@ import * as yup from 'yup';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
 import sortBy from 'lodash/sortBy';
-import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import forEach from 'lodash/forEach';
@@ -25,6 +24,7 @@ import * as actions from '../../redux/actions';
 import i18next from '../../core/language';
 import config from '../../config';
 import { usePrevious } from '../../core/hooks';
+import { fieldsAreValid } from '../../core/forms';
 import { useToasts } from '../../providers/ToastProvider';
 import { push } from 'connected-react-router';
 import { components as vizComponents } from '@tidepool/viz';
@@ -75,8 +75,7 @@ const clinicSchema = yup.object().shape({
   role: yup.string().oneOf(map(roles, 'value')),
   npi: yup
     .string()
-    .length(10, t('NPI must be 10 digits'))
-    .matches(/^\d+$/, t('NPI must be 10 digits')),
+    .test('npiFormat', t('NPI must be 10 digits'), npi => !npi || /^\d{10}$/.test(npi)),
   clinicType: yup
     .string()
     .oneOf(map(clinicTypes, 'value'))
@@ -126,7 +125,7 @@ export const ClinicDetails = (props) => {
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const displayFullForm = config.CLINICS_ENABLED && isEmpty(pendingReceivedClinicianInvites)
-
+  const validationSchema = displayFullForm ? clinicSchema : clinicianSchema;
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
 
@@ -209,7 +208,7 @@ export const ClinicDetails = (props) => {
               website: '',
               adminAcknowledge: false,
             }}
-            validationSchema={displayFullForm ? clinicSchema : clinicianSchema}
+            validationSchema={validationSchema}
             onSubmit={(values) => {
               const profileUpdates = {
                 profile: {
@@ -252,8 +251,8 @@ export const ClinicDetails = (props) => {
               }
             }}
           >
-            {({ errors, touched, setFieldTouched, setFieldValue, values }) => (
-              <Form>
+            {({ errors, touched, setFieldTouched, setFieldValue, values, isSubmitting }) => (
+              <Form id="clinic-profile">
                 <Flex flexWrap={'wrap'} mb={5}>
                   <FastField
                     as={TextInput}
@@ -431,9 +430,21 @@ export const ClinicDetails = (props) => {
                   </>
                 )}
 
-                <Button type={'submit'} mt={3}>
-                  {t('Submit')}
-                </Button>
+                <Flex justifyContent={['center', 'flex-end']}>
+                  <Button
+                    id="submit"
+                    type="submit"
+                    mt={3}
+                    processing={isSubmitting}
+                    disabled={!fieldsAreValid(
+                      keys(validationSchema.fields),
+                      validationSchema,
+                      values
+                    )}
+                  >
+                    {t('Submit')}
+                  </Button>
+                </Flex>
               </Form>
             )}
           </Formik>
