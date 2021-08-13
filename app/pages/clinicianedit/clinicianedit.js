@@ -65,7 +65,7 @@ export const ClinicianEdit = (props) => {
     <>
       <Title mt="-0.25em">{t('Clinic Admin')}</Title>
       <Body1>
-        {t('Clinic administrators have full read and edit access to access. Clinic administrators have full read and edit access to access')}
+        {t('Clinic administrators have full read and edit access to access management. More details are described here.')}
       </Body1>
     </>
   );
