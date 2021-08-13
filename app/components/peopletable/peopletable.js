@@ -313,15 +313,16 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         size: 'small',
         padding: 'checkbox',
       },
-      {
-        title: t('Remove'),
-        field: 'remove',
-        render: this.renderRemove,
-        align: 'center',
-        size: 'small',
-        padding: 'checkbox',
-      },
     ];
+
+    if (_.isFunction(this.props.onRemovePatient)) columns.push({
+      title: t('Remove'),
+      field: 'remove',
+      render: this.renderRemove,
+      align: 'center',
+      size: 'small',
+      padding: 'checkbox',
+    });
 
     return (
       <Table
@@ -368,7 +369,7 @@ PeopleTable.defaultProps = {
 PeopleTable.propTypes = {
   people: PropTypes.array,
   trackMetric: PropTypes.func.isRequired,
-  onRemovePatient: PropTypes.func.isRequired,
+  onRemovePatient: PropTypes.func,
   layout: PropTypes.oneOf(['page', 'tab']).isRequired,
 };
 

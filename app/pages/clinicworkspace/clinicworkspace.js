@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { translate } from 'react-i18next';
+import includes from 'lodash/includes'
 import filter from 'lodash/filter'
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
@@ -36,6 +37,7 @@ export const ClinicWorkspace = (props) => {
   const clinic = get(clinics, selectedClinicId);
   const patientInvites = filter(values(clinic?.patients), patient => patient.status === 'pending');
   const [selectedPatient, setSelectedPatient] = useState();
+  const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
 
   const tabIndices = {
     patients: 0,
@@ -184,7 +186,7 @@ export const ClinicWorkspace = (props) => {
                 layout="tab"
                 people={clinicPatients()}
                 trackMetric={trackMetric}
-                onRemovePatient={handleRemovePatient}
+                onRemovePatient={isClinicAdmin ? handleRemovePatient : undefined}
               />
             )}
           </Box>
