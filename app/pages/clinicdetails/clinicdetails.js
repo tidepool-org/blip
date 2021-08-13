@@ -225,7 +225,7 @@ export const ClinicDetails = (props) => {
 
               dispatch(actions.async.updateUser(api, profileUpdates));
 
-              if(displayFullForm){
+              if (displayFullForm) {
                 const address =
                 values.address1 + (values.address2 ? ' ' + values.address2 : '');
                 const newClinic = {
