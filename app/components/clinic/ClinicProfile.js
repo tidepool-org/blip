@@ -207,7 +207,7 @@ export const ClinicProfile = (props) => {
       </Flex>
 
       {!editing && (
-        <Flex px={4} py={3} justifyContent="space-between" alignItems="center">
+        <Flex id="clinicProfileDetails" px={4} py={3} justifyContent="space-between" alignItems="center">
           <Flex>
             <Box mr={6}>
               <Caption color="grays.4">{t('Clinic Name')}</Caption>
@@ -261,6 +261,7 @@ export const ClinicProfile = (props) => {
           {isClinicAdmin && (
             <Box>
               <Button
+                id="profileEditButton"
                 variant="textSecondary"
                 onClick={() => setEditing(true)}
                 icon={EditRoundedIcon}
@@ -306,7 +307,7 @@ export const ClinicProfile = (props) => {
                   }}
                 >
                   <TextInput
-                    name="values.phoneNumbers.0.number"
+                    name="phoneNumbers.0.number"
                     label={t('Phone Number')}
                     variant="condensed"
                     width="100%"
