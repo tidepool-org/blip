@@ -80,6 +80,7 @@ describe('Stats', () => {
       '2018-01-15T00:00:00.000Z',
       '2018-01-31T00:00:00.000Z',
     ],
+    loading: false,
   };
 
   let wrapper;
@@ -140,8 +141,6 @@ describe('Stats', () => {
           bgSource: 'cbg',
         });
 
-        expect(wrapper.find('.Stats').children()).to.have.length(7);
-
         const expectedStats = [
           'timeInRange',
           'averageGlucose',
@@ -153,17 +152,14 @@ describe('Stats', () => {
         ];
 
         _.forEach(expectedStats, statId => {
-          expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
+          expect(wrapper.find(`#Stat--${statId}`), statId).to.have.length(1);
         });
+        expect(wrapper.find('.Stats').children()).to.have.length(7);
       });
 
       it('should show all expected stats when bgSource prop is `smbg`', () => {
-        wrapper.setProps({
-          ...wrapper.props(),
-          bgSource: 'smbg',
-        });
-
-        expect(wrapper.find('.Stats').children()).to.have.length(5);
+        const smbgProps = {...baseProps, bgSource: 'smbg' };
+        wrapper = shallow(<Stats {...smbgProps} />);
 
         const expectedStats = [
           'readingsInRange',
@@ -174,8 +170,9 @@ describe('Stats', () => {
         ];
 
         _.forEach(expectedStats, statId => {
-          expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
+          expect(wrapper.find(`#Stat--${statId}`), statId).to.have.length(1);
         });
+        expect(wrapper.find('.Stats').children()).to.have.length(5);
       });
 
       it('should render the Time in Auto stat for automated basal devices', () => {
@@ -196,9 +193,15 @@ describe('Stats', () => {
 
     context('daily', () => {
       beforeEach(() => {
-        wrapper = shallow(<Stats {..._.assign({}, baseProps, {
+        wrapper = mount(<Stats {..._.assign({}, baseProps, {
           chartType: 'daily',
         })} />);
+      });
+      afterEach(() => {
+        if (wrapper) {
+          wrapper.unmount();
+          wrapper = null;
+        }
       });
 
       it('should render without errors when provided all required props', () => {
@@ -211,6 +214,7 @@ describe('Stats', () => {
           ...wrapper.props(),
           bgSource: 'cbg',
         });
+        wrapper.update();
 
         expect(wrapper.find('.Stats').children()).to.have.length(6);
 
@@ -233,6 +237,7 @@ describe('Stats', () => {
           ...wrapper.props(),
           bgSource: 'smbg',
         });
+        wrapper.update();
 
         expect(wrapper.find('.Stats').children()).to.have.length(4);
 
@@ -264,39 +269,17 @@ describe('Stats', () => {
       });
     });
 
-    context('bgLog', () => {
-      beforeEach(() => {
-        wrapper = shallow(<Stats {..._.assign({}, baseProps, {
-          chartType: 'bgLog',
-        })} />);
-      });
-
-      it('should render without errors when provided all required props', () => {
-        expect(wrapper.find('.Stats')).to.have.length(1);
-        expect(console.error.callCount).to.equal(0);
-      });
-
-      it('should show all expected stats', () => {
-        expect(wrapper.find('.Stats').children()).to.have.length(4);
-
-        const expectedStats = [
-          'readingsInRange',
-          'averageGlucose',
-          'standardDev',
-          'coefficientOfVariation',
-        ];
-
-        _.forEach(expectedStats, statId => {
-          expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
-        });
-      });
-    });
-
     context('trends', () => {
       beforeEach(() => {
-        wrapper = shallow(<Stats {..._.assign({}, baseProps, {
+        wrapper = mount(<Stats {..._.assign({}, baseProps, {
           chartType: 'trends',
         })} />);
+      });
+      afterEach(() => {
+        if (wrapper) {
+          wrapper.unmount();
+          wrapper = null;
+        }
       });
 
       it('should render without errors when provided all required props', () => {
@@ -309,6 +292,7 @@ describe('Stats', () => {
           ...wrapper.props(),
           bgSource: 'cbg',
         });
+        wrapper.update();
 
         expect(wrapper.find('.Stats').children()).to.have.length(6);
 
@@ -331,6 +315,7 @@ describe('Stats', () => {
           ...wrapper.props(),
           bgSource: 'smbg',
         });
+        wrapper.update();
 
         expect(wrapper.find('.Stats').children()).to.have.length(4);
 
@@ -351,17 +336,26 @@ describe('Stats', () => {
   describe('getStatsByChartType', () => {
     context('basics', () => {
       beforeEach(() => {
-        wrapper = shallow(<Stats {..._.assign({}, baseProps, {
+        wrapper = mount(<Stats {..._.assign({}, baseProps, {
           chartType: 'basics',
         })} />);
         instance = wrapper.instance();
       });
+      afterEach(() => {
+        if (wrapper) {
+          wrapper.unmount();
+          wrapper = null;
+          instance = null;
+        }
+      });
 
       it('should show all expected stats when bgSource prop is `cbg`', () => {
-        const stats = instance.getStatsByChartType({
-          ...instance.props,
+        wrapper.setProps({
+          ...wrapper.props(),
           bgSource: 'cbg',
         });
+        wrapper.update();
+        const stats = instance.getStatsByChartType();
 
         const expectedStats = [
           'timeInRange',
@@ -377,10 +371,12 @@ describe('Stats', () => {
       });
 
       it('should show all expected stats when bgSource prop is `smbg`', () => {
-        const stats = instance.getStatsByChartType({
-          ...instance.props,
+        wrapper.setProps({
+          ...wrapper.props(),
           bgSource: 'smbg',
         });
+        wrapper.update();
+        const stats = instance.getStatsByChartType();
 
         const expectedStats = [
           'readingsInRange',
@@ -394,8 +390,8 @@ describe('Stats', () => {
       });
 
       it('should render the Time in Auto stat for automated basal devices', () => {
-        const stats = instance.getStatsByChartType({
-          ...instance.props,
+        wrapper.setProps({
+          ...wrapper.props(),
           dataUtil: new DataUtilStub([], {
             latestPump: {
               deviceModel: '1780',
@@ -403,6 +399,8 @@ describe('Stats', () => {
             },
           }),
         });
+        wrapper.update();
+        const stats = instance.getStatsByChartType();
 
         const expectedStats = ['timeInAuto'];
 
@@ -412,17 +410,26 @@ describe('Stats', () => {
 
     context('daily', () => {
       beforeEach(() => {
-        wrapper = shallow(<Stats {..._.assign({}, baseProps, {
+        wrapper = mount(<Stats {..._.assign({}, baseProps, {
           chartType: 'daily',
         })} />);
         instance = wrapper.instance();
       });
+      afterEach(() => {
+        if (wrapper) {
+          wrapper.unmount();
+          wrapper = null;
+          instance = null;
+        }
+      });
 
       it('should show all expected stats when bgSource prop is `cbg`', () => {
-        const stats = instance.getStatsByChartType({
-          ...instance.props,
+        wrapper.setProps({
+          ...wrapper.props(),
           bgSource: 'cbg',
         });
+        wrapper.update();
+        const stats = instance.getStatsByChartType();
 
         const expectedStats = [
           'timeInRange',
@@ -437,10 +444,12 @@ describe('Stats', () => {
       });
 
       it('should show all expected stats when bgSource prop is `smbg`', () => {
-        const stats = instance.getStatsByChartType({
-          ...instance.props,
+        wrapper.setProps({
+          ...wrapper.props(),
           bgSource: 'smbg',
         });
+        wrapper.update();
+        const stats = instance.getStatsByChartType();
 
         const expectedStats = [
           'readingsInRange',
@@ -453,8 +462,8 @@ describe('Stats', () => {
       });
 
       it('should render the Time in Auto stat for automated basal devices', () => {
-        const stats = instance.getStatsByChartType({
-          ...instance.props,
+        wrapper.setProps({
+          ...wrapper.props(),
           dataUtil: new DataUtilStub([], {
             latestPump: {
               deviceModel: '1780',
@@ -462,6 +471,8 @@ describe('Stats', () => {
             },
           }),
         });
+        wrapper.update();
+        const stats = instance.getStatsByChartType();
 
         const expectedStats = ['timeInAuto'];
 
@@ -469,15 +480,47 @@ describe('Stats', () => {
       });
     });
 
-    context('bgLog', () => {
+    context('trends', () => {
       beforeEach(() => {
-        wrapper = shallow(<Stats {..._.assign({}, baseProps, {
-          chartType: 'bgLog',
+        wrapper = mount(<Stats {..._.assign({}, baseProps, {
+          chartType: 'trends',
         })} />);
         instance = wrapper.instance();
       });
+      afterEach(() => {
+        if (wrapper) {
+          wrapper.unmount();
+          wrapper = null;
+          instance = null;
+        }
+      });
 
-      it('should show all expected stats', () => {
+      it('should show all expected stats when bgSource prop is `cbg`', () => {
+        wrapper.setProps({
+          ...wrapper.props(),
+          bgSource: 'cbg',
+        });
+        wrapper.update();
+        const stats = instance.getStatsByChartType();
+
+        const expectedStats = [
+          'timeInRange',
+          'averageGlucose',
+          'sensorUsage',
+          'glucoseManagementIndicator',
+          'standardDev',
+          'coefficientOfVariation',
+        ];
+
+        expect(_.map(stats, 'id')).to.have.ordered.members(expectedStats);
+      });
+
+      it('should show all expected stats when bgSource prop is `smbg`', () => {
+        wrapper.setProps({
+          ...wrapper.props(),
+          bgSource: 'smbg',
+        });
+        wrapper.update();
         const stats = instance.getStatsByChartType();
 
         const expectedStats = [
@@ -490,64 +533,30 @@ describe('Stats', () => {
         expect(_.map(stats, 'id')).to.have.ordered.members(expectedStats);
       });
     });
-
-    context('trends', () => {
-      beforeEach(() => {
-        wrapper = shallow(<Stats {..._.assign({}, baseProps, {
-          chartType: 'trends',
-        })} />);
-        instance = wrapper.instance();
-      });
-
-      it('should show all expected stats when bgSource prop is `cbg`', () => {
-        const stats = instance.getStatsByChartType({
-          ...instance.props,
-          bgSource: 'cbg',
-        });
-
-        const expectedStats = [
-          'timeInRange',
-          'averageGlucose',
-          'sensorUsage',
-          'glucoseManagementIndicator',
-          'standardDev',
-          'coefficientOfVariation',
-        ];
-
-        expect(_.map(stats, 'id')).to.have.ordered.members(expectedStats);
-      });
-
-      it('should show all expected stats when bgSource prop is `smbg`', () => {
-        const stats = instance.getStatsByChartType({
-          ...instance.props,
-          bgSource: 'smbg',
-        });
-
-        const expectedStats = [
-          'readingsInRange',
-          'averageGlucose',
-          'standardDev',
-          'coefficientOfVariation',
-        ];
-
-        expect(_.map(stats, 'id')).to.have.ordered.members(expectedStats);
-      });
-    });
   });
 
-  describe('componentWillReceiveProps', () => {
+  describe('componentDidUpdate', () => {
+    beforeEach(() => {
+      wrapper = mount(<Stats {...baseProps} />);
+      instance = wrapper.instance();
+    });
+    afterEach(() => {
+      sinon.restore();
+      if (wrapper) {
+        wrapper.unmount();
+        wrapper = null;
+        instance = null;
+      }
+    });
+
     it('should update `stats` state when bgSource prop changes', () => {
       const setStateSpy = sinon.spy(instance, 'setState');
       sinon.assert.callCount(setStateSpy, 0);
 
-      // eslint-disable-next-line new-cap
-      instance.UNSAFE_componentWillReceiveProps(_.assign({}, baseProps, {
-        bgSource: 'smbg',
-      }));
+      instance.componentDidUpdate({...baseProps, bgSource: 'smbg' });
 
       sinon.assert.callCount(setStateSpy, 1);
       sinon.assert.calledWith(setStateSpy, { stats: sinon.match.array });
-      setStateSpy.restore();
     });
 
     it('should call `updateDataUtilEndpoints` and `updateStatData` if endpoints change', () => {
@@ -557,114 +566,124 @@ describe('Stats', () => {
       sinon.assert.callCount(dataUtilEndpointsSpy.set, 0);
       sinon.assert.callCount(updateStatDataSpy, 0);
 
-      const nextProps = _.assign({}, baseProps, {
-        endpoints: ['foo', 'bar'],
-      });
+      const prevProps = {...baseProps, endpoints: ['foo', 'bar'] };
 
-      // eslint-disable-next-line new-cap
-      instance.UNSAFE_componentWillReceiveProps(nextProps);
+      instance.componentDidUpdate(prevProps);
 
       sinon.assert.callCount(dataUtilEndpointsSpy.set, 1);
-      sinon.assert.calledWith(dataUtilEndpointsSpy.set, ['foo', 'bar']);
+      sinon.assert.calledWith(dataUtilEndpointsSpy.set, baseProps.endpoints);
 
       sinon.assert.callCount(updateStatDataSpy, 1);
-      sinon.assert.calledWith(updateStatDataSpy, nextProps);
-      updateStatDataSpy.restore();
     });
 
     it('should call `updateStatData` if activeDays changes', () => {
       const updateStatDataSpy = sinon.spy(instance, 'updateStatData');
       sinon.assert.callCount(updateStatDataSpy, 0);
 
-      const nextProps = _.assign({}, baseProps, {
+      const prevProps = {
+        ...baseProps,
         chartType: 'trends',
         chartPrefs: { trends: { activeDays: { monday: false } } },
-      });
+      };
 
-      // eslint-disable-next-line new-cap
-      instance.UNSAFE_componentWillReceiveProps(nextProps);
+      instance.componentDidUpdate(prevProps);
 
       sinon.assert.callCount(updateStatDataSpy, 1);
-      sinon.assert.calledWith(updateStatDataSpy, nextProps);
-      updateStatDataSpy.restore();
-    });
-  });
-
-  describe('shouldComponentUpdate', () => {
-    it('should return result of `updatesRequired`', () => {
-      const updatesRequiredSpy = sinon.spy(instance, 'updatesRequired');
-      sinon.assert.callCount(updatesRequiredSpy, 0);
-
-      const nextProps = _.assign({}, baseProps, {
-        bgSource: 'smbg',
-      });
-
-      const result = instance.shouldComponentUpdate(nextProps);
-
-      sinon.assert.callCount(updatesRequiredSpy, 1);
-      sinon.assert.calledWith(updatesRequiredSpy, nextProps);
-      expect(result).to.eql(instance.updatesRequired(nextProps));
-      updatesRequiredSpy.restore();
     });
   });
 
   describe('updatesRequired', () => {
+    before(() => {
+      wrapper = mount(<Stats {...baseProps} />);
+      instance = wrapper.instance();
+    });
+    after(() => {
+      if (wrapper) {
+        wrapper.unmount();
+        wrapper = null;
+        instance = null;
+      }
+    });
+
     it('should return `false` when props are unchanged', () => {
-      const result = instance.shouldComponentUpdate(baseProps);
+      const result = instance.updatesRequired(baseProps);
       expect(result).to.be.false;
     });
 
     it('should return `true` for `stats` when bgSource prop changes', () => {
-      const nextProps = _.assign({}, baseProps, {
+      const prevProps = {
+        ...baseProps,
         chartType: 'trends',
         bgSource: 'smbg',
-      });
+      };
 
-      const result = instance.shouldComponentUpdate(nextProps);
+      const result = instance.updatesRequired(prevProps);
 
-      expect(result).to.eql({
+      expect(result, JSON.stringify(result)).to.eql({
         activeDays: false,
         endpoints: false,
         stats: true,
+        dataChanged: false,
       });
     });
 
     it('should return `true` for `endpoints` when endpoints prop changes', () => {
-      const nextProps = _.assign({}, baseProps, {
+      const prevProps = {
+        ...baseProps,
         chartType: 'trends',
         endpoints: ['foo', 'bar'],
-      });
+      };
 
-      const result = instance.shouldComponentUpdate(nextProps);
+      const result = instance.updatesRequired(prevProps);
 
-      expect(result).to.eql({
+      expect(result, JSON.stringify(result)).to.eql({
         activeDays: false,
         endpoints: true,
         stats: false,
+        dataChanged: false,
       });
     });
 
     it('should return `true` for `activeDays` when activeDays prop changes', () => {
-      const nextProps = _.assign({}, baseProps, {
+      const prevProps = {
+        ...baseProps,
         chartType: 'trends',
         chartPrefs: { trends: { activeDays: { monday: false } } },
-      });
+      };
 
-      const result = instance.shouldComponentUpdate(nextProps);
+      const result = instance.updatesRequired(prevProps);
 
-      expect(result).to.eql({
+      expect(result, JSON.stringify(result)).to.eql({
         activeDays: true,
         endpoints: false,
         stats: false,
+        dataChanged: false,
+      });
+    });
+
+    it('should return `true` for `dataChanged` when loading prop changes', () => {
+      const prevProps = {
+        ...baseProps,
+        loading: true,
+      };
+
+      const result = instance.updatesRequired(prevProps);
+
+      expect(result, JSON.stringify(result)).to.eql({
+        activeDays: false,
+        endpoints: false,
+        stats: false,
+        dataChanged: true,
       });
     });
   });
 
   describe('updateStatData', () => {
     before(() => {
-      sinon.stub(vizUtils.stat, 'getStatAnnotations');
-      sinon.stub(vizUtils.stat, 'getStatData');
-      sinon.stub(vizUtils.stat, 'getStatTitle');
+      const { getStatAnnotations, getStatData, getStatTitle } = vizUtils.stat;
+      sinon.stub(vizUtils.stat, 'getStatAnnotations').callsFake(getStatAnnotations);
+      sinon.stub(vizUtils.stat, 'getStatData').callsFake(getStatData);
+      sinon.stub(vizUtils.stat, 'getStatTitle').callsFake(getStatTitle);
     });
 
     beforeEach(() => {
@@ -678,6 +697,8 @@ describe('Stats', () => {
       vizUtils.stat.getStatData.resetHistory();
       vizUtils.stat.getStatTitle.resetHistory();
       wrapper.unmount();
+      wrapper = null;
+      instance = null;
     });
 
     after(() => {
@@ -690,7 +711,7 @@ describe('Stats', () => {
 
       expect(instance.state.stats.length).to.equal(7);
 
-      instance.updateStatData(baseProps);
+      instance.updateStatData();
 
       sinon.assert.callCount(vizUtils.stat.getStatAnnotations, 7);
       sinon.assert.callCount(vizUtils.stat.getStatData, 7);

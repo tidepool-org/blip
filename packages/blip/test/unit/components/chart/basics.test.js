@@ -166,6 +166,7 @@ describe('Basics', () => {
     it('should render the bg toggle', () => {
       var props = _.assign({}, baseProps, {
         tidelineData: {
+          grouped: {},
           basicsData: {
             data: {},
             dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
@@ -181,6 +182,7 @@ describe('Basics', () => {
     it('should render the stats', () => {
       const props = _.assign({}, baseProps, {
         tidelineData: {
+          grouped: {},
           basicsData: {
             data: {},
             dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
@@ -207,6 +209,7 @@ describe('Basics', () => {
     it('should set the endpoint after mount', () => {
       const props = _.assign({}, baseProps, {
         tidelineData: {
+          grouped: {},
           basicsData: {
             data: {},
             dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],

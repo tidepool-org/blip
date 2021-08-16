@@ -60,18 +60,18 @@ class Stats extends React.Component {
   updatesRequired(prevProps) {
     const {
       bgSource,
-      chartPrefs,
       chartType,
       endpoints,
       loading,
     } = prevProps;
 
-    const { activeDays } = chartPrefs[chartType];
+    const prevActiveDays = _.get(prevProps, `chartPrefs.${chartType}`, null);
+    const currActiveDays = _.get(this.props, `chartPrefs.${chartType}`, null);
 
-    const activeDaysChanged = activeDays && !_.isEqual(activeDays, this.props.chartPrefs[chartType].activeDays);
-    const bgSourceChanged = bgSource && !_.isEqual(bgSource, this.props.bgSource);
-    const endpointsChanged = endpoints && !_.isEqual(endpoints, this.props.endpoints);
-    const dataChanged = loading && !this.props.loading;
+    const activeDaysChanged = !_.isEqual(prevActiveDays, currActiveDays);
+    const bgSourceChanged = _.isString(bgSource) && !_.isEqual(bgSource, this.props.bgSource);
+    const endpointsChanged = _.isArray(endpoints) && !_.isEqual(endpoints, this.props.endpoints);
+    const dataChanged = loading === true && this.props.loading === false;
 
     return activeDaysChanged || bgSourceChanged || endpointsChanged || dataChanged
       ? {
@@ -159,13 +159,6 @@ class Stats extends React.Component {
         cbgSelected && addStat(commonStats.coefficientOfVariation);
         break;
 
-      case 'bgLog':
-        addStat(commonStats.readingsInRange);
-        addStat(commonStats.averageGlucose);
-        addStat(commonStats.standardDev);
-        addStat(commonStats.coefficientOfVariation);
-        break;
-
       case 'trends':
         cbgSelected && addStat(commonStats.timeInRange);
         smbgSelected && addStat(commonStats.readingsInRange);
@@ -192,7 +185,6 @@ class Stats extends React.Component {
   updateStatData() {
     const { bgSource, dataUtil } = this.props;
     const stats = this.state.stats;
-
 
     const { bgBounds, bgUnits, days, latestPump } = dataUtil;
     const { manufacturer } = latestPump;
