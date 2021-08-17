@@ -47,6 +47,7 @@ class Basics extends React.Component {
   }
 
   render() {
+    const { loading } = this.props;
     const { endpoints, title, inTransition } = this.state;
     return (
       <div id='tidelineMain' className='basics'>
@@ -70,7 +71,7 @@ class Basics extends React.Component {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} />
+              <Loader show={loading} overlay={true} />
               {this.renderChart()}
             </div>
           </div>
@@ -91,6 +92,7 @@ class Basics extends React.Component {
                   chartType={this.chartType}
                   dataUtil={this.props.dataUtil}
                   endpoints={endpoints}
+                  loading={loading}
                 />
               </div>
             </div>

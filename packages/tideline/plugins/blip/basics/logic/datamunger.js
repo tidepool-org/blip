@@ -41,6 +41,10 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
 
     processInfusionSiteHistory: function(basicsData, latestPump, patient, permissions) {
       if (!latestPump) {
+        basicsData.data.reservoirChange = {
+          infusionSiteHistory: {},
+          data: [],
+        };
         return null;
       }
 
