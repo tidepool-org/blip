@@ -74,7 +74,7 @@ const updateLanguageForUser = (user: User) => {
  * Provider hook that creates auth object and handles state
  */
 export function AuthContextImpl(api: AuthAPI): AuthContext {
-  const historyHook = useHistory();
+  const historyHook = useHistory<{ from?: { pathname?: string; }; }>();
   const { t } = useTranslation("yourloops");
   // Trace token is used to trace the calls betweens different microservices API calls for debug purpose.
   const [traceToken, setTraceToken] = React.useState<string | null>(null);
@@ -314,6 +314,9 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     setUserPrivate(null);
     setSessionToken(null);
     setTraceToken(null);
+
+    // Push the new location (this reset the state.from.pathname value)
+    historyHook.push("/");
   };
 
   /**

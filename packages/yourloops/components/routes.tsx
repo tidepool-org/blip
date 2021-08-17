@@ -28,6 +28,7 @@
 
 import * as React from "react";
 import { Redirect, Route, RouteProps, useHistory } from "react-router-dom";
+import bows from "bows";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
@@ -40,12 +41,15 @@ import { SnackbarContextProvider, DefaultSnackbarContext } from "./utils/snackba
 import { externalTheme, mainTheme } from "./theme";
 import FooterLinks from "./footer-links";
 
+const log = bows("Routes");
+
 export const PublicRoute = (props: RouteProps): JSX.Element => {
   const historyHook = useHistory<{ from?: { pathname?: string; }; }>();
   const { isLoggedIn, user } = useAuth();
-  if (isLoggedIn()) {
-    const fromPath = historyHook.location.state?.from?.pathname;
-    return <Redirect to={{ pathname: fromPath ?? user?.getHomePage() }} />;
+  if (isLoggedIn() && user !== null) {
+    const pathname = historyHook.location.state?.from?.pathname ?? user.getHomePage();
+    log.info("User is logged-in, redirecting to", pathname);
+    return <Redirect to={{ pathname }} />;
   }
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -65,6 +69,7 @@ export const PublicRoute = (props: RouteProps): JSX.Element => {
 };
 
 export const PrivateRoute = (props: RouteProps): JSX.Element => {
+  const historyHook = useHistory<{ from?: { pathname?: string; }; }>();
   const { isLoggedIn, user } = useAuth();
 
   const renewConsentPath = props.path === "/renew-consent" || props.path === "/new-consent";
@@ -82,6 +87,11 @@ export const PrivateRoute = (props: RouteProps): JSX.Element => {
       component = <Redirect to={{ pathname: "/new-consent", state: { from: props.location } }} />;
     } else if (user.shouldRenewConsent()) {
       component = <Redirect to={{ pathname: "/renew-consent", state: { from: props.location } }} />;
+    } else if (!historyHook.location.pathname.startsWith(user.getHomePage())) {
+      // We are on the wrong prefix, be sure the path prefix is good
+      const homePage = user.getHomePage();
+      log.warn("Wrong path prefix for user, redirecting to ", homePage);
+      return <Redirect to={{ pathname: homePage }} />;
     }
   }
 

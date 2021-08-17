@@ -529,7 +529,7 @@ async function logout(session: Readonly<Session>): Promise<void> {
 
   log.debug("logout", refreshURL.toString());
   const response = await fetch(refreshURL.toString(), {
-    method: "GET",
+    method: "POST",
     cache: "no-store",
     headers: {
       [HttpHeaderKeys.traceToken]: session.traceToken,

@@ -69,6 +69,8 @@ function PatientPage(): JSX.Element {
       log.info("Wrong page for current user");
       historyHook.replace(prefixURL);
     } else if (new RegExp(`^${prefixURL}/?$`).test(pathname)) {
+      // We are on the home page (getHomePage) -> redirect to the correct default route
+      // for this user
       log.info(`Redirecting to ${defaultURL}`);
       historyHook.replace(defaultURL);
     }

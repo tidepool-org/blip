@@ -69,6 +69,8 @@ function HcpPage(): JSX.Element {
       log.info("Wrong page for current user");
       historyHook.replace(user.getHomePage());
     } else if (/^\/professional\/?$/.test(pathname)) {
+      // We are on the home page (getHomePage) -> redirect to the correct default route
+      // for this user
       log.info("Redirecting to the patients list");
       historyHook.replace(defaultURL);
     }

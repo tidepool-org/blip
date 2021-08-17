@@ -116,6 +116,8 @@ const CaregiverPage = (): JSX.Element => {
       log.info("Wrong page for current user");
       historyHook.replace(session.user.getHomePage());
     } else if (/^\/caregiver\/?$/.test(pathname)) {
+      // We are on the home page (getHomePage) -> redirect to the correct default route
+      // for this user
       log.info("Redirecting to the patients list", { from: pathname, to: defaultURL });
       setPageTitle();
       historyHook.replace(defaultURL);
