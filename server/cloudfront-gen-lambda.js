@@ -147,10 +147,11 @@ function genContentSecurityPolicy() {
 
   if (blipConfig.STONLY_WID !== 'disabled') {
     const stonlyURL = 'https://stonly.com';
-    // TODO check what is needed here:
+    const stonlyAPI = 'https://api.stonly.com';
     contentSecurityPolicy.scriptSrc.push(stonlyURL);
     contentSecurityPolicy.imgSrc.push(stonlyURL);
     contentSecurityPolicy.connectSrc.push(stonlyURL);
+    contentSecurityPolicy.connectSrc.push(stonlyAPI);
     contentSecurityPolicy.fontSrc.push(stonlyURL);
     contentSecurityPolicy.frameSrc.push(stonlyURL);
   }
