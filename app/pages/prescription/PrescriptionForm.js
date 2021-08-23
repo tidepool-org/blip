@@ -25,6 +25,8 @@ import { default as _values } from 'lodash/values';
 import includes from 'lodash/includes';
 import { utils as vizUtils } from '@tidepool/viz';
 import { Box, Flex, Text } from 'rebass/styled-components';
+import canonicalize from 'canonicalize';
+import { sha512 } from 'crypto-hash';
 
 import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -47,7 +49,6 @@ import { useIsFirstRender } from '../../core/hooks';
 import {
   defaultUnits,
   deviceIdMap,
-  getPumpGuardrail,
   prescriptionStateOptions,
   stepValidationFields,
   validCountryCodes,
@@ -66,8 +67,6 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   }),
   mapPropsToValues: props => {
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
-    const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
-    const pump = find(props.devices.pumps, { id: pumpId });
 
     return {
       id: get(props, 'prescription.id'),
@@ -384,7 +383,7 @@ export const PrescriptionForm = props => {
       handlers.activeStepUpdate(pendingStep);
     },
 
-    stepSubmit: () => {
+    stepSubmit: async () => {
       setStepAsyncState(asyncStates.pending);
       // Delete fields that we never want to send to the backend
       const fieldsToDelete = [
@@ -431,6 +430,11 @@ export const PrescriptionForm = props => {
 
       const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
       prescriptionAttributes.state = 'draft';
+
+      prescriptionAttributes.initialSettingsHash = await sha512(
+        JSON.stringify(canonicalize(prescriptionAttributes.initialSettings)),
+        { outputFormat: 'hex' }
+      );
 
       if (isNewPrescription) {
         createPrescription(prescriptionAttributes);
