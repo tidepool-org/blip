@@ -282,11 +282,6 @@ describe('NavigationMenu', () => {
         },
       ]);
 
-      // Click personal workspace option
-      store.clearActions();
-      menuOptions.at(2).simulate('click');
-
-
       // Click account settings option
       store.clearActions();
       menuOptions.at(2).simulate('click');
