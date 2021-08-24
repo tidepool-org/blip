@@ -194,7 +194,7 @@ describe('ClinicWorkspace', () => {
     expect(wrapper().find('div[role="tabpanel"][hidden=false]').parent('#patientsTab')).to.have.lengthOf(1);
   });
 
-  it('should render the patients tab by default when `patient` route param provided', () => {
+  it('should render the patients tab by default when `patients` route param provided', () => {
     expect(wrapper('patients').find('button[aria-selected=true]').hostNodes().text()).to.equal('Patient List');
     expect(wrapper().find('div[role="tabpanel"][hidden=false]').parent('#patientsTab')).to.have.lengthOf(1);
   });
