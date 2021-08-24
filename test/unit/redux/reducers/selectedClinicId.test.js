@@ -33,7 +33,7 @@ var expect = chai.expect;
 
 describe('selectedClinicId', () => {
   describe('selectClinic', () => {
-    it('should set state to userid', () => {
+    it('should set state to clinicId', () => {
       let initialStateForTest = null;
 
       let action = actions.sync.selectClinic('clinicId123');
