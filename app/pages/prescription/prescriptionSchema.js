@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 import i18next from '../../core/language';
-import get from 'lodash/get';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
 import moment from 'moment';
