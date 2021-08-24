@@ -1468,11 +1468,12 @@ export function fetchPatientsForClinicRequest() {
   };
 }
 
-export function fetchPatientsForClinicSuccess(patients) {
+export function fetchPatientsForClinicSuccess(clinicId, patients) {
   return {
     type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS,
     payload: {
       patients: patients,
+      clinicId: clinicId,
     },
   };
 }
@@ -1675,11 +1676,12 @@ export function acceptPatientInvitationRequest() {
   };
 }
 
-export function acceptPatientInvitationSuccess(result) {
+export function acceptPatientInvitationSuccess(clinicId, inviteId) {
   return {
     type: ActionTypes.ACCEPT_PATIENT_INVITATION_SUCCESS,
     payload: {
-      result: result,
+      inviteId: inviteId,
+      clinicId: clinicId,
     },
   };
 }
@@ -1700,11 +1702,12 @@ export function deletePatientInvitationRequest() {
   };
 }
 
-export function deletePatientInvitationSuccess(inviteId) {
+export function deletePatientInvitationSuccess(clinicId, inviteId) {
   return {
     type: ActionTypes.DELETE_PATIENT_INVITATION_SUCCESS,
     payload: {
       inviteId: inviteId,
+      clinicId: clinicId,
     },
   };
 }
@@ -1802,11 +1805,11 @@ export function acceptClinicianInviteRequest() {
   };
 }
 
-export function acceptClinicianInviteSuccess(result) {
+export function acceptClinicianInviteSuccess(inviteId) {
   return {
     type: ActionTypes.ACCEPT_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      result: result,
+      inviteId,
     },
   };
 }
@@ -1827,11 +1830,11 @@ export function dismissClinicianInviteRequest() {
   };
 }
 
-export function dismissClinicianInviteSuccess(result) {
+export function dismissClinicianInviteSuccess(inviteId) {
   return {
     type: ActionTypes.DISMISS_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      result: result,
+      inviteId,
     },
   };
 }
@@ -1852,11 +1855,12 @@ export function getClinicsForClinicianRequest() {
   };
 }
 
-export function getClinicsForClinicianSuccess(clinics) {
+export function getClinicsForClinicianSuccess(clinics, clinicianId) {
   return {
     type: ActionTypes.GET_CLINICS_FOR_CLINICIAN_SUCCESS,
     payload: {
       clinics: clinics,
+      clinicianId: clinicianId,
     },
   };
 }
@@ -1867,6 +1871,15 @@ export function getClinicsForClinicianFailure(error, apiError) {
     error: error,
     meta: {
       apiError: apiError || null,
+    },
+  };
+}
+
+export function selectClinic(clinicId) {
+  return {
+    type: ActionTypes.SELECT_CLINIC,
+    payload: {
+      clinicId
     },
   };
 }

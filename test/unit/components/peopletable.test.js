@@ -99,11 +99,11 @@ describe('PeopleTable', () => {
     });
 
     it('should have provided search box', function () {
-      expect(wrapper.find('.peopletable-search-box')).to.have.length(1);
+      expect(wrapper.find('input#patients-search')).to.have.length(1);
     });
 
     it('should have provided toggle to show or hide names', function () {
-      expect(wrapper.find('.peopletable-names-toggle')).to.have.length(1);
+      expect(wrapper.find('button#patients-view-toggle')).to.have.length(1);
     });
 
     it('should have instructions displayed by default', function () {
@@ -118,20 +118,20 @@ describe('PeopleTable', () => {
 
   describe('showNames', function () {
     it('should show a row of data for each person', function () {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
+      wrapper.find('button#patients-view-toggle').simulate('click');
       wrapper.setState({ showNames: true });
       // 5 people plus one row for the header
       expect(wrapper.find('.MuiTableRow-root')).to.have.length(6);
     });
 
     it('should trigger a call to trackMetric', function () {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
+      wrapper.find('button#patients-view-toggle').simulate('click');
       expect(props.trackMetric.calledWith('Clicked Show All')).to.be.true;
       expect(props.trackMetric.callCount).to.equal(1);
     });
 
     it('should not have instructions displayed', function () {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
+      wrapper.find('button#patients-view-toggle').simulate('click');
       expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
     });
   });
@@ -168,7 +168,7 @@ describe('PeopleTable', () => {
 
   describe('patient removal link', function () {
     beforeEach(() => {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
+      wrapper.find('button#patients-view-toggle').simulate('click');
     });
 
     it('should have a remove icon for each patient', function () {
@@ -210,7 +210,7 @@ describe('PeopleTable', () => {
     let overlay;
 
     beforeEach(() => {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
+      wrapper.find('button#patients-view-toggle').simulate('click');
       overlay = () => wrapper.find('.ModalOverlay');
 
       removeLink = wrapper.find('button[aria-label="Remove"]').last();

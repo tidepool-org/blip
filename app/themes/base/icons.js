@@ -8,6 +8,7 @@ export default ({ colors, fontSizes, radii, space }) => {
   const common = {
     backgroundColor: 'transparent',
     color: colors.text.primary,
+    minWidth: '1em',
   };
 
   return {

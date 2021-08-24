@@ -45,8 +45,8 @@ personUtils.isPatient = (person) => {
   return Boolean(personUtils.patientInfo(person));
 };
 
-personUtils.isClinic = (user) => {
-  return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
+personUtils.isClinicianAccount = (user) => {
+  return (_.indexOf(_.get(user, 'roles', []), 'clinic') !== -1 || user?.isClinicMember);
 };
 
 personUtils.isDataDonationAccount = (account) => {
