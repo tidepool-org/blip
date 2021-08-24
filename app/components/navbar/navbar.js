@@ -1,19 +1,22 @@
-var React = require('react');
-var Link = require('react-router-dom').Link;
+import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
+import { Flex } from 'rebass/styled-components'
 import { translate } from 'react-i18next';
+import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 
-var _ = require('lodash');
-var cx = require('classnames');
+import _ from 'lodash';
 
-var personUtils = require('../../core/personutils');
-var NavbarPatientCard = require('../../components/navbarpatientcard');
+import personUtils from '../../core/personutils';
+import NavbarPatientCard from '../navbarpatientcard';
+import WorkspaceSwitcher from '../clinic/WorkspaceSwitcher';
+import NavigationMenu from './NavigationMenu';
+import Button from '../elements/Button';
 
-var logoSrc = require('./images/tidepool-logo-408x46.png');
-
+import logoSrc from './images/tidepool-logo-408x46.png';
 export default translate()(class extends React.Component {
   static propTypes = {
+    clinicFlowActive: PropTypes.bool,
     currentPage: PropTypes.string,
     user: PropTypes.object,
     fetchingUser: PropTypes.bool,
@@ -23,6 +26,7 @@ export default translate()(class extends React.Component {
     onLogout: PropTypes.func,
     trackMetric: PropTypes.func.isRequired,
     permsOfLoggedInUser: PropTypes.object,
+    selectedClinicId: PropTypes.string,
   };
 
   state = {
@@ -30,12 +34,37 @@ export default translate()(class extends React.Component {
   };
 
   render() {
+    const { t } = this.props;
+    const patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
+    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage);
+
     return (
-      <div className="Navbar">
-        {this.renderLogoSection()}
-        {this.renderPatientSection()}
-        {this.renderMenuSection()}
-      </div>
+      <>
+        <Flex
+          className="Navbar"
+          flexWrap="wrap"
+          justifyContent={['center', 'space-between']}
+          alignItems="center"
+          sx={{ minHeight: '60px' }}
+        >
+          {this.renderLogoSection()}
+          {this.renderMiddleSection()}
+          {this.renderMenuSection()}
+        </Flex>
+
+        {showPatientListLink && (
+          <Link className="static" to={patientListLink}>
+            <Button
+              variant="textSecondary"
+              icon={ChevronLeftRoundedIcon}
+              iconPosition='left'
+              id="patientListLink"
+            >
+              {t('Back to Patient List')}
+            </Button>
+          </Link>
+        )}
+      </>
     );
   }
 
@@ -71,10 +100,29 @@ export default translate()(class extends React.Component {
     return '/patients/' + patient.userid + '/data';
   };
 
-  renderPatientSection = () => {
+  renderMiddleSection = () => {
     var patient = this.props.patient;
 
     if (_.isEmpty(patient)) {
+      if (
+        _.includes([
+          '/patients',
+          '/clinic-admin',
+          '/prescriptions',
+          '/clinic-invite',
+          '/clinic-workspace',
+          '/clinic-workspace/patients',
+          '/clinic-workspace/invites',
+          '/clinic-workspace/prescriptions',
+          '/clinician-edit'
+        ], this.props.currentPage) && personUtils.isClinicianAccount(this.props.user)
+      ) {
+        return (
+          <Flex flex={1} alignItems="center" justifyContent="center">
+            <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
+          </Flex>
+        );
+      }
       return <div className="Navbar-patientSection"></div>;
     }
 
@@ -113,14 +161,12 @@ export default translate()(class extends React.Component {
   };
 
   renderMenuSection = () => {
-    var currentPage = (this.props.currentPage && this.props.currentPage[0] === '/') ? this.props.currentPage.slice(1) : this.props.currentPage;
-    const {user, t} = this.props;
+    const {user} = this.props;
 
     if (_.isEmpty(user)) {
       return <div className="Navbar-menuSection"></div>;
     }
 
-    var displayName = this.getUserDisplayName();
     var self = this;
     var handleClickUser = function() {
       self.props.trackMetric('Clicked Navbar Logged In User');
@@ -130,64 +176,11 @@ export default translate()(class extends React.Component {
     var handleCareteam = function() {
       self.props.trackMetric('Clicked Navbar CareTeam');
     };
-    var patientsClasses = cx({
-      'Navbar-button': true,
-      'Navbar-selected': currentPage && currentPage === 'patients',
-    });
-
-    var accountSettingsClasses = cx({
-      'Navbar-button': true,
-      'Navbar-dropdownIcon-show': currentPage && currentPage === 'profile',
-    });
-
-    var dropdownClasses = cx({
-      'Navbar-menuDropdown': true,
-      'Navbar-menuDropdown-hide': !self.state.showDropdown,
-    });
-
-    var dropdownIconClasses = cx({
-      'Navbar-dropdownIcon': true,
-      'Navbar-dropdownIcon-show': self.state.showDropdown,
-      'Navbar-dropdownIcon-current': currentPage && currentPage === 'profile',
-    });
-
-    var dropdownIconIClasses = cx({
-      'Navbar-icon': true,
-      'icon-account--down': !self.state.showDropdown,
-      'icon-account--up': self.state.showDropdown,
-    });
 
     return (
-      <ul className="Navbar-menuSection" ref="user">
-        <li className="Navbar-menuItem">
-          <Link to="/patients" title="Care Team" onClick={handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></Link>
-        </li>
-        <li className={dropdownIconClasses}>
-          <div onClick={this.toggleDropdown}>
-            <i className='Navbar-icon Navbar-icon-profile icon-profile'></i>
-            <div className="Navbar-logged">
-              <span className="Navbar-loggedInAs">{t('Logged in as ')}</span>
-              <span className="Navbar-userName" ref="userFullName" title={displayName}>{displayName}</span>
-            </div>
-            <i className='Navbar-icon Navbar-icon-down icon-arrow-down'></i>
-            <div className='clear'></div>
-          </div>
-          <div onClick={this.stopPropagation} className={dropdownClasses}>
-            <ul>
-              <li>
-                <Link to="/profile" title={t('Account')} onClick={handleClickUser} className={accountSettingsClasses}>
-                  <i className='Navbar-icon icon-settings'></i><span className="Navbar-menuText">{t('Account Settings')}</span>
-                </Link>
-              </li>
-              <li>
-                <a href="" title={t('Logout')} onClick={this.handleLogout} className="Navbar-button" ref="logout">
-                  <i className='Navbar-icon icon-logout'></i><span className="Navbar-menuText">{t('Logout')}</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
-      </ul>
+      <Flex flex={1} justifyContent="flex-end">
+        <NavigationMenu api={this.props.api} />
+      </Flex>
     );
   };
 

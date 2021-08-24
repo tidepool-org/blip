@@ -47,7 +47,7 @@ const InviteClinic = props => {
   const formikContext = useFormik({
     initialValues: {
       shareCode: '',
-      uploadPermission: false,
+      uploadPermission: true,
     },
     onSubmit: (values, { setSubmitting }) => {
       if (clinic) {
@@ -86,9 +86,8 @@ const InviteClinic = props => {
     values,
   } = formikContext;
 
-
   useEffect(() => {
-    const { inProgress, completed, notification } = fetchingClinic;
+    const { inProgress, completed } = fetchingClinic;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
@@ -97,7 +96,7 @@ const InviteClinic = props => {
 
       if (completed === false) {
         setToast({
-          message: get(notification, 'message'),
+          message: t('We were unable to find a clinic with that share code.'),
           variant: 'danger',
         });
       }
@@ -118,7 +117,7 @@ const InviteClinic = props => {
           variant: 'success',
         });
 
-        dispatch(push(`/patients/${loggedInUserId}/share`))
+        dispatch(push(`/patients/${loggedInUserId}/share`));
       }
 
       if (completed === false) {
@@ -136,7 +135,7 @@ const InviteClinic = props => {
     if (clinic) {
       setClinic(null);
     } else {
-      dispatch(push(`/patients/${loggedInUserId}/share`))
+      dispatch(push(`/patients/${loggedInUserId}/share`));
     }
   };
 
@@ -148,18 +147,7 @@ const InviteClinic = props => {
       as="form"
       id="invite-clinic"
       onSubmit={handleSubmit}
-      mx="auto"
-      mt={2}
-      mb={6}
-      bg="white"
-      width={[1, 0.85]}
-      sx={{
-        border: baseTheme.borders.default,
-        borderLeft: ['none', baseTheme.borders.default],
-        borderRight: ['none', baseTheme.borders.default],
-        borderRadius: ['none', baseTheme.radii.default],
-        maxWidth: '640px',
-      }}
+      variant="containers.smallBordered"
     >
       <Box
         px={[3, 4, 5]}

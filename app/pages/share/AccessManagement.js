@@ -183,7 +183,7 @@ export const AccessManagement = (props) => {
         },
         {
           workingState: fetchingAssociatedAccounts,
-          action: actions.async.fetchAssociatedAccounts.bind(null, api, loggedInUserId),
+          action: actions.async.fetchAssociatedAccounts.bind(null, api),
         },
       ], ({ workingState, action }) => {
         if (
@@ -534,20 +534,7 @@ export const AccessManagement = (props) => {
 
   return (
     <>
-      <Box
-        mx="auto"
-        mt={2}
-        mb={6}
-        bg="white"
-        width={[1, 0.85]}
-        sx={{
-          border: baseTheme.borders.default,
-          borderLeft: ['none', baseTheme.borders.default],
-          borderRight: ['none', baseTheme.borders.default],
-          borderRadius: ['none', baseTheme.radii.default],
-          maxWidth: '1280px',
-        }}
-      >
+      <Box variant="containers.largeBordered">
         <Flex
           sx={{ borderBottom: baseTheme.borders.default }}
           alignItems={'center'}

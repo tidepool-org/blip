@@ -6883,4 +6883,62 @@ describe('dataWorkerQueryData', () => {
     });
   });
 
+  describe('selectClinic', () => {
+    it('should reset `fetchingCliniciansFromClinic` to the default working state', () => {
+      let initialStateForTest = _.merge({}, initialState, {
+        fetchingCliniciansFromClinic: { inProgress: false, notification: {}, completed: true },
+      });
+
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let action = actions.sync.selectClinic('clinicId123');
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.fetchingCliniciansFromClinic).to.eql({
+        inProgress: false,
+        notification: null,
+        completed: null,
+      });
+
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
+    it('should reset `fetchingPatientsForClinic` to the default working state', () => {
+      let initialStateForTest = _.merge({}, initialState, {
+        fetchingPatientsForClinic: { inProgress: false, notification: {}, completed: true },
+      });
+
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let action = actions.sync.selectClinic('clinicId123');
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.fetchingPatientsForClinic).to.eql({
+        inProgress: false,
+        notification: null,
+        completed: null,
+      });
+
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
+    it('should reset `fetchingPatientInvites` to the default working state', () => {
+      let initialStateForTest = _.merge({}, initialState, {
+        fetchingPatientInvites: { inProgress: false, notification: {}, completed: true },
+      });
+
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let action = actions.sync.selectClinic('clinicId123');
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.fetchingPatientInvites).to.eql({
+        inProgress: false,
+        notification: null,
+        completed: null,
+      });
+
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
 });

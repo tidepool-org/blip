@@ -117,7 +117,7 @@ describe('personutils', () => {
     });
   });
 
-  describe('isClinic', () => {
+  describe('isClinicianAccount', () => {
     it('should return true if person has clinic role', () => {
       var person = {
         profile: {
@@ -126,7 +126,7 @@ describe('personutils', () => {
         roles: ['clinic']
       };
 
-      var result = personUtils.isClinic(person);
+      var result = personUtils.isClinicianAccount(person);
 
       expect(result).to.be.ok;
     });
@@ -136,7 +136,33 @@ describe('personutils', () => {
         profile: {}
       };
 
-      var result = personUtils.isClinic(person);
+      var result = personUtils.isClinicianAccount(person);
+
+      expect(result).to.not.be.ok;
+    });
+
+    it('should return true if person is clinic member', () => {
+      var person = {
+        profile: {
+          fullName: 'Mary Smith'
+        },
+        isClinicMember: true,
+      };
+
+      var result = personUtils.isClinicianAccount(person);
+
+      expect(result).to.be.ok;
+    });
+
+    it('should return false if person is not a clinic member', () => {
+      var person = {
+        profile: {
+          fullName: 'Mary Smith'
+        },
+        isClinicMember: false,
+      };
+
+      var result = personUtils.isClinicianAccount(person);
 
       expect(result).to.not.be.ok;
     });

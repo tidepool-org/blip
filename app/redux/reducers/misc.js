@@ -294,6 +294,15 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
         [creator.userid]: creator,
         [`${creator.userid}_cacheUntil`]: generateCacheTTL(36e5),
       } });
+    case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
+      let { clinicianId, clinics } = action.payload;
+      return update(state, { $merge: {
+        [clinicianId]: {
+          ...state[clinicianId],
+          isClinicMember: clinics.length > 0,
+        },
+        [`${clinicianId}_cacheUntil`]: generateCacheTTL(36e5),
+      } });
     case types.ACCEPT_TERMS_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: { termsAccepted: action.payload.acceptedDate } } });
     case types.SETUP_DATA_STORAGE_SUCCESS:
@@ -677,6 +686,43 @@ export const clinics = (state = initialState.clinics, action) => {
       );
       return _.merge({}, state, newClinics);
     }
+    case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
+      let { clinicId, patients } = action.payload;
+      const newPatientSet = _.reduce(patients, (newSet, patient) => {
+        newSet[patient.id] = patient
+        return newSet;
+      }, {});
+      return update(state, {
+        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet } },
+      });
+    }
+    case types.FETCH_PATIENT_INVITES_SUCCESS: {
+      const invites = _.get(action.payload, 'invites', []);
+      const clinicId = _.get(action.payload, 'invites.0.clinicId', '');
+      const newClinics = _.cloneDeep(state);
+      _.forEach(invites, (invite) => {
+        _.set(
+          newClinics,
+          [clinicId, 'patients', invite.key],
+          invite
+        );
+      });
+      return newClinics;
+    }
+    case types.ACCEPT_PATIENT_INVITATION_SUCCESS: {
+      let inviteId = _.get(action.payload, 'inviteId');
+      let clinicId = _.get(action.payload, 'clinicId');
+      let newState = _.cloneDeep(state);
+      delete newState[clinicId]?.patients?.[inviteId];
+      return newState;
+    }
+    case types.DELETE_PATIENT_INVITATION_SUCCESS: {
+      let inviteId = _.get(action.payload, 'inviteId');
+      let clinicId = _.get(action.payload, 'clinicId');
+      let newState = _.cloneDeep(state);
+      delete newState[clinicId]?.patients?.[inviteId];
+      return newState;
+    }
     case types.CREATE_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic', {});
       return update(state, {
@@ -723,14 +769,14 @@ export const clinics = (state = initialState.clinics, action) => {
       let clinicId = _.get(action.payload, 'clinicId');
       let clinicianId = _.get(action.payload, 'clinicianId');
       let newState = _.cloneDeep(state);
-      delete newState[clinicId].clinicians[clinicianId];
+      delete newState[clinicId]?.clinicians?.[clinicianId];
       return newState;
     }
     case types.DELETE_PATIENT_FROM_CLINIC_SUCCESS: {
       let clinicId = _.get(action.payload, 'clinicId');
       let patientId = _.get(action.payload, 'patientId');
       let newState = _.cloneDeep(state);
-      delete newState[clinicId].patients[patientId];
+      delete newState[clinicId]?.patients?.[patientId];
       return newState;
     }
     case types.SEND_CLINICIAN_INVITE_SUCCESS: {
@@ -797,6 +843,51 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.LOGOUT_REQUEST:
       return initialState.clinics;
+    default:
+      return state;
+  }
+};
+
+export const selectedClinicId = (state = initialState.selectedClinicId, action) => {
+  switch(action.type) {
+    case types.SELECT_CLINIC:
+      return _.get(action.payload, 'clinicId', null);
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const pendingReceivedClinicianInvites = (state = initialState.pendingReceivedClinicianInvites, action) => {
+  switch(action.type) {
+    case types.FETCH_CLINICIAN_INVITES_SUCCESS:
+      return update(state, { $set: _.get(action.payload, 'invites', []) });
+    case types.ACCEPT_CLINICIAN_INVITE_SUCCESS:
+      return update(state, { $apply: (invite) => {
+          return invite.filter( (i) => i.key !== _.get(action.payload, 'inviteId', null) );
+        }
+      });
+    case types.DISMISS_CLINICIAN_INVITE_SUCCESS:
+      return update(state, { $apply: (invite) => {
+          return invite.filter( (i) => i.key !== _.get(action.payload, 'inviteId', null) );
+        }
+      });
+    case types.LOGOUT_REQUEST:
+      return [];
+    default:
+      return state;
+  }
+};
+
+export const clinicFlowActive = (state = initialState.clinicFlowActive, action) => {
+  switch(action.type) {
+    case types.FETCH_CLINICIAN_INVITES_SUCCESS:
+      return action.payload.invites.length > 0 || state;
+    case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
+      return action.payload.clinics.length > 0 || state;
+    case types.LOGOUT_REQUEST:
+      return initialState.clinicFlowActive;
     default:
       return state;
   }

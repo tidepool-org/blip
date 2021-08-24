@@ -83,7 +83,7 @@ const InviteMember = props => {
           variant: 'success',
         });
 
-        dispatch(push(`/patients/${loggedInUserId}/share`))
+        dispatch(push(`/patients/${loggedInUserId}/share`));
       }
 
       if (completed === false) {
@@ -102,18 +102,7 @@ const InviteMember = props => {
       as="form"
       id="invite-member"
       onSubmit={handleSubmit}
-      mx="auto"
-      mt={2}
-      mb={6}
-      bg="white"
-      width={[1, 0.85]}
-      sx={{
-        border: baseTheme.borders.default,
-        borderLeft: ['none', baseTheme.borders.default],
-        borderRight: ['none', baseTheme.borders.default],
-        borderRadius: ['none', baseTheme.radii.default],
-        maxWidth: '640px',
-      }}
+      variant="containers.smallBordered"
     >
       <Box
         px={[3, 4, 5]}

@@ -2,6 +2,7 @@ import colorPalette from './colorPalette';
 import avatars from './base/avatars';
 import banners from './base/banners';
 import buttons from './base/buttons';
+import containers from './base/containers';
 import icons from './base/icons';
 import inputs from './base/inputs';
 import links from './base/links';
@@ -71,13 +72,6 @@ export const fontWeights = {
 
 export const lineHeights = [1, 1.25, 1.33, 1.5, 1.75, 2];
 
-export const mediaQueries = {
-  phone: '@media screen and (max-width: 512px)',
-  tablet: '@media screen and (max-width: 767px)',
-  laptop: '@media screen and (max-width: 1024px)',
-  desktop: '@media screen and (min-width: 1280px)',
-};
-
 export const radii = {
   large: 8,
   default: 4,
@@ -113,6 +107,7 @@ const variants = {
   tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
   tables: tables({ borders, colors, fonts, fontSizes, shadows }),
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
+  containers: containers({ borders, colors, radii, space }),
 };
 
 export default {
@@ -126,7 +121,6 @@ export default {
   fontWeights,
   forms: forms({ colors }),
   lineHeights,
-  mediaQueries,
   radii,
   shadows,
   space,
