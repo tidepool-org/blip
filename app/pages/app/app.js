@@ -173,7 +173,7 @@ export class AppComponent extends React.Component {
 
     if (!this.props.clinicFlowActive && nextProps.clinicFlowActive && !selectedClinicId && _.keys(clinics).length) {
       // We keep the selectedClinicId state at it's default 'null' if the app loads on the legacy
-      // patients page. Otherwise, we select teh first available clinic
+      // patients page. Otherwise, we select the first available clinic.
       if (location !== '/patients') nextProps.selectClinic(_.keys(clinics)[0]);
     }
 
