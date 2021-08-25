@@ -139,7 +139,7 @@ export const ensureNoAuth = (api, cb = _.noop) => () => {
 export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
   const { blip: state } = getState();
   if (api.user.isAuthenticated()) {
-    dispatch(push(state.clinicFlowActive ? '/clinic-workspace/patients' : '/patients'));
+    dispatch(push(state.clinicFlowActive ? '/workspaces' : '/patients'));
   }
   cb();
 };
