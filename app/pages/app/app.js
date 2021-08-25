@@ -172,7 +172,9 @@ export class AppComponent extends React.Component {
     }
 
     if (!this.props.clinicFlowActive && nextProps.clinicFlowActive && !selectedClinicId && _.keys(clinics).length) {
-      nextProps.selectClinic(_.keys(clinics)[0]);
+      // We keep the selectedClinicId state at it's default 'null' if the app loads on the legacy
+      // patients page. Otherwise, we select teh first available clinic
+      if (location !== '/patients') nextProps.selectClinic(_.keys(clinics)[0]);
     }
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
@@ -310,6 +312,7 @@ export class AppComponent extends React.Component {
             fetchingPatient={this.props.fetchingPatient}
             currentPage={this.props.location}
             clinicFlowActive={this.props.clinicFlowActive}
+            clinics={this.props.clinics}
             getUploadUrl={getUploadUrl}
             onLogout={this.props.onLogout}
             trackMetric={this.props.context.trackMetric}
@@ -784,7 +787,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.api;
-  return Object.assign({}, _.pick(ownProps, ['children']), stateProps, {
+  return Object.assign({}, _.pick(ownProps, ['children', 'history']), stateProps, {
     context: {
       DEBUG: ownProps.DEBUG,
       api: ownProps.api,
