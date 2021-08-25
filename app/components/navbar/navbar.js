@@ -17,6 +17,7 @@ import logoSrc from './images/tidepool-logo-408x46.png';
 export default translate()(class extends React.Component {
   static propTypes = {
     clinicFlowActive: PropTypes.bool,
+    clinics: PropTypes.array,
     currentPage: PropTypes.string,
     user: PropTypes.object,
     fetchingUser: PropTypes.bool,
@@ -82,8 +83,17 @@ export default translate()(class extends React.Component {
       self.props.trackMetric('Clicked Navbar Logo');
     };
 
+    let linkDisabled = false;
+
+    if (this.props.clinicFlowActive) {
+      const userClinics = _.filter(_.values(this.props.clinics), ({ clinicians }) => _.has(clinicians, _.get(this.props, 'user.userid')));
+      // Disable logo link if the clinician is only a member of a single clinic, or is not on a clinic workspace tab
+      linkDisabled = userClinics.length < 2 || !/^\/clinic-workspace.*/.test(this.props.currentPage);
+    }
+
     return (
       <Link
+        disabled={linkDisabled}
         to="/"
         className="Navbar-logo"
         onClick={handleClick}>
