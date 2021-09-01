@@ -157,7 +157,7 @@ function PatientRow(props: PatientElementProps): JSX.Element {
 
   if (isPendingInvitation) {
     return (
-      <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending} patient-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
+      <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending} patients-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
         <TableCell id={`${rowId}-icon`}>
           <Tooltip id={`${rowId}-tooltip-pending`} title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
             <AccessTimeIcon id={`${rowId}-pendingicon`} />
@@ -173,7 +173,7 @@ function PatientRow(props: PatientElementProps): JSX.Element {
   }
 
   return (
-    <TableRow id={rowId} tabIndex={-1} hover onClick={onRowClick} className={`${classes.tableRow} patient-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
+    <TableRow id={rowId} tabIndex={-1} hover onClick={onRowClick} className={`${classes.tableRow} patients-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
       <TableCell id={`${rowId}-icon`}>
         <IconButton id={`${rowId}-icon-button-flag`} className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
           {isFlagged ? <FlagIcon id={`${rowId}-flagged`} /> : <FlagOutlineIcon id={`${rowId}-un-flagged`} />}
