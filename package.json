@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.47.0-web-880-clinic-signup.2",
+  "version": "1.47.0-web-1214-clinician-permissions-info.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
