@@ -5,12 +5,12 @@ import { translate } from 'react-i18next';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
-import keys from 'lodash/keys';
 import map from 'lodash/map';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
+import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
 
 import {
   MediumTitle,
@@ -31,6 +31,7 @@ import {
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
+import { borders } from '../../themes/baseTheme';
 
 export const PatientInvites = (props) => {
   const { t, api, trackMetric } = props;
@@ -156,6 +157,10 @@ export const PatientInvites = (props) => {
     dispatch(actions.async.deletePatientInvitation(api, clinic.id, invite.key));
   }
 
+  function handleRefetchInvites() {
+    dispatch(actions.async.fetchPatientInvites(api, clinic.id));
+  }
+
   function handleSearchChange(event) {
     setSearchText(event.target.value);
   }
@@ -179,6 +184,7 @@ export const PatientInvites = (props) => {
   const renderActions = member => (
     <Flex justifyContent="flex-end">
       <Button
+        className="decline-invite"
         onClick={() => {
           setSelectedInvitation(member);
           setShowDeleteDialog(true);
@@ -190,6 +196,7 @@ export const PatientInvites = (props) => {
       </Button>
 
       <Button
+        className="accept-invite"
         onClick={() => {
           setSelectedInvitation(member);
           handleAccept(member);
@@ -259,10 +266,32 @@ export const PatientInvites = (props) => {
         orderBy="nameOrderable"
         order="asc"
         searchText={searchText}
+        emptyText={null}
         rowsPerPage={10}
         pagination={pendingInvites.length > 10}
         fontSize={1}
       />
+
+      {pendingInvites.length === 0 && (
+        <Box id="no-invites" pt={3} sx={{ borderTop: borders.divider }}>
+          <Text p={3} fontSize={1} color="text.primary" textAlign="center">
+            {t('There are no invites. Refresh to check for pending invites.')}
+          </Text>
+
+          <Flex justifyContent="center">
+            <Button
+              id="refresh-invites"
+              variant="secondary"
+              icon={RefreshRoundedIcon}
+              iconPosition="left"
+              processing={fetchingPatientInvites.inProgress}
+              onClick={handleRefetchInvites}
+            >
+              {t('Refresh')}
+            </Button>
+          </Flex>
+        </Box>
+      )}
 
       <Dialog
         id="declinePatientInvite"
