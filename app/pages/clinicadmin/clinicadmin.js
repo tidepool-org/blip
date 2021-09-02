@@ -159,7 +159,7 @@ export const ClinicAdmin = (props) => {
   const clinicianArray = map(
     get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
-      const { roles, email, id: clinicianId, inviteId } = clinician;
+      const { roles, email, id: clinicianId, inviteId, name = '' } = clinician;
       const user = get(allUsers, clinicianId, {});
       let role = '';
 
@@ -170,8 +170,8 @@ export const ClinicAdmin = (props) => {
       }
 
       return {
-        fullName: personUtils.fullName(user),
-        fullNameOrderable: (personUtils.fullName(user) || '').toLowerCase(),
+        fullName: name,
+        fullNameOrderable: name.toLowerCase(),
         role,
         prescriberPermission: includes(roles, 'PRESCRIBER'),
         isAdmin: includes(roles, 'CLINIC_ADMIN'),

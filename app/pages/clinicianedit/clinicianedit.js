@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { setNestedObjectValues, useFormik } from 'formik';
+import { useFormik } from 'formik';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get';
@@ -20,13 +20,16 @@ import {
 } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Button from '../../components/elements/Button';
+import ClinicianPermissionsDialog from '../../components/clinic/ClinicianPermissionsDialog';
 import Checkbox from '../../components/elements/Checkbox';
+
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from '../../components/elements/Dialog';
+
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
 import baseTheme from '../../themes/baseTheme';
@@ -42,10 +45,10 @@ export const ClinicianEdit = (props) => {
   const { set: setToast } = useToasts();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
   const location = useLocation();
   const selectedClinicianId = get(location, 'state.clinicianId', false);
   const { updatingClinician, fetchingCliniciansFromClinic } = useSelector((state) => state.blip.working);
-  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const selectedClinic = get(location, 'state.clinicId', false);
 
   const selectedClinician = useSelector((state) =>
@@ -220,6 +223,10 @@ export const ClinicianEdit = (props) => {
     dispatch(push('/clinic-admin'));
   }
 
+  function handleClosePermissionsDialog() {
+    setPermissionsDialogOpen(false);
+  }
+
   return (
     <Box
       variant="containers.mediumBordered"
@@ -286,6 +293,10 @@ export const ClinicianEdit = (props) => {
                 themeProps={{ bg: 'lightestGrey' }}
               />
             </Box>
+
+            <Button variant="textPrimary" onClick={() => setPermissionsDialogOpen(true)}>
+              Learn more about clincian roles and permissions
+            </Button>
 
             <Flex p={4} justifyContent="flex-end">
               <Button id="cancel" variant="secondary" onClick={handleBack}>
@@ -367,6 +378,8 @@ export const ClinicianEdit = (props) => {
               </Button>
             </DialogActions>
           </Dialog>
+
+          <ClinicianPermissionsDialog open={permissionsDialogOpen} onClose={handleClosePermissionsDialog} />
         </>
       ) : <Loader />}
     </Box>

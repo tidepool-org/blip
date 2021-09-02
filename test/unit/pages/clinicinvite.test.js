@@ -282,5 +282,15 @@ describe('ClinicInvite', () => {
         done();
       });
     });
+
+    it('should render permissions details when trigger text is clicked', () => {
+      const permissionsDialog = () => wrapper.find('Dialog#permissionsDialog');
+      expect(permissionsDialog().props().open).to.be.false;
+
+      wrapper.find('Button[variant="textPrimary"]').simulate('click');
+      expect(permissionsDialog().props().open).to.be.true;
+
+      expect(permissionsDialog().find('#dialog-title').hostNodes().text()).to.equal('Clinician Roles and Permissions');
+    });
   });
 });
