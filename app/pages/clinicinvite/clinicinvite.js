@@ -19,6 +19,7 @@ import {
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import Button from '../../components/elements/Button';
+import ClinicianPermissionsDialog from '../../components/clinic/ClinicianPermissionsDialog';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import Checkbox from '../../components/elements/Checkbox';
@@ -40,6 +41,7 @@ export const ClinicInvite = (props) => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
   const location = useLocation();
   const selectedClinic = get(location, 'state.clinicId', false);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -162,6 +164,10 @@ export const ClinicInvite = (props) => {
     dispatch(push('/clinic-admin'));
   }
 
+  function handleClosePermissionsDialog() {
+    setPermissionsDialogOpen(false);
+  }
+
   return (
     <Box
       variant="containers.mediumBordered"
@@ -225,6 +231,10 @@ export const ClinicInvite = (props) => {
           />
         </Box>
 
+        <Button variant="textPrimary" onClick={() => setPermissionsDialogOpen(true)}>
+          Learn more about clincian roles and permissions
+        </Button>
+
         <Flex p={4} justifyContent="flex-end">
           <Button id="cancel" variant="secondary" onClick={handleBack}>
             {t('Back')}
@@ -270,6 +280,8 @@ export const ClinicInvite = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ClinicianPermissionsDialog open={permissionsDialogOpen} onClose={handleClosePermissionsDialog} />
     </Box>
   );
 };
