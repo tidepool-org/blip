@@ -5,7 +5,6 @@ import { translate } from 'react-i18next';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
-import keys from 'lodash/keys';
 import map from 'lodash/map';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -185,6 +184,7 @@ export const PatientInvites = (props) => {
   const renderActions = member => (
     <Flex justifyContent="flex-end">
       <Button
+        className="decline-invite"
         onClick={() => {
           setSelectedInvitation(member);
           setShowDeleteDialog(true);
@@ -196,6 +196,7 @@ export const PatientInvites = (props) => {
       </Button>
 
       <Button
+        className="accept-invite"
         onClick={() => {
           setSelectedInvitation(member);
           handleAccept(member);
@@ -272,7 +273,7 @@ export const PatientInvites = (props) => {
       />
 
       {pendingInvites.length === 0 && (
-        <Box pt={3} sx={{ borderTop: borders.divider }}>
+        <Box id="no-invites" pt={3} sx={{ borderTop: borders.divider }}>
           <Text p={3} fontSize={1} color="text.primary" textAlign="center">
             {t('There are no invites. Refresh to check for pending invites.')}
           </Text>
