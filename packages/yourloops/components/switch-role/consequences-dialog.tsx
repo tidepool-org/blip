@@ -44,7 +44,7 @@ const dialogStyles = makeStyles(
   (theme: Theme) => {
     return {
       dialog: {
-        textAlign: "center",
+        textAlign: "left",
         padding: theme.spacing(4),
       },
       dialogContent: {

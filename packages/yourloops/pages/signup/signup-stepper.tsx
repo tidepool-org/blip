@@ -55,6 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginRight: theme.spacing(1),
     },
     instructions: {
+      textAlign: "left",
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1),
     },
