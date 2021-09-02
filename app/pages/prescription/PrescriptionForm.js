@@ -332,7 +332,7 @@ export const PrescriptionForm = props => {
             variant: 'success',
           });
 
-          history.push('/prescriptions');
+          history.push('/clinic-workspace/prescriptions');
         }
       }
 
