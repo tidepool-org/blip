@@ -18,6 +18,7 @@ const crypto = require('crypto');
 const _ = require('lodash');
 const handlebars = require('handlebars');
 const blipConfig = require('./config.app');
+const locales = require('../locales/languages.json');
 
 const reTitle = /<title>([^<]*)<\/title>/;
 const reZendesk = /(^\s+<!-- Start of support Zendesk Widget script -->\n)(.*\n)*(^\s+<!-- End of support Zendesk Widget script -->)/m;
@@ -196,7 +197,8 @@ function genOutputFile() {
     TARGET_ENVIRONMENT: process.env.TARGET_ENVIRONMENT.toLowerCase(),
     FEATURE_POLICY: featurePolicy.join(';'),
     GEN_DATE: new Date().toISOString(),
-    CSP: ''
+    CSP: '',
+    LANGUAGES: _.keysIn(locales.resources).join(','),
   };
 
   const csp = genContentSecurityPolicy();

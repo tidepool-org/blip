@@ -2,7 +2,9 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## UNREALESED
+## Unreleased
+### Added
+- YLP-952 Add meta "description" to the index.html
 ### Changed
 - YLP-958 Review text justification in modal windows
 

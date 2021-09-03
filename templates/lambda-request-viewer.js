@@ -52,6 +52,7 @@ exports.handler = async (event, context, callback) => {
         'content-type': [{ key: 'Content-Type', value: 'text/html; charset=utf-8' }],
         'content-encoding' : [{ key: 'Content-Encoding', value: 'gzip' }],
         'content-security-policy': [{ key: 'Content-Security-Policy', value: `{{ CSP }}` }],
+        'content-language': [{ key: 'Content-Language', value: "{{ LANGUAGES }}" }],
         'referrer-policy': [{ key: 'Referrer-Policy', value: 'no-referrer' }],
         'feature-policy': [{ key: 'Feature-Policy', value: "{{ FEATURE_POLICY }}" }],
         'strict-transport-security': [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' }],

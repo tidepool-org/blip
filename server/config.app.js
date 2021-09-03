@@ -60,6 +60,7 @@ const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
 const config = {
   TARGET_ENVIRONMENT: stringOption(process.env.TARGET_ENVIRONMENT, 'dev'),
+  DOMAIN_NAME: stringOption(process.env.DOMAIN_NAME, 'www.preview.your-loops.dev'),
   VERSION: stringOption(process.env.APP_VERSION, '0.1.0'),
   API_HOST: stringOption(process.env.API_HOST, null),
   LATEST_TERMS: stringOption(process.env.LATEST_TERMS, '1970-01-01'),
