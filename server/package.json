@@ -7,6 +7,8 @@
     "build": "npm run build-config",
     "prebuild-config": "rm -fv dist/config*.js",
     "build-config": "NODE_ENV=production node build-config.js",
+    "gen-robot": "node gen-robot-txt.js",
+    "gen-sitemap": "node gen-sitemap-xml.js",
     "gen-lambda": "node cloudfront-gen-lambda.js",
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/"
   },

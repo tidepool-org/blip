@@ -1,0 +1,11 @@
+{{#if ALLOW_SEARCH_ENGINE_ROBOTS}}
+User-agent: *
+Allow: /
+Disallow: /*.pdf$
+
+Sitemap: https://{{ DOMAIN_NAME }}/sitemap.xml
+{{^}}
+User-agent: *
+User-agent: AdsBot-Google
+Disallow: /
+{{/if}}

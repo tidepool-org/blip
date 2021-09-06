@@ -208,7 +208,7 @@ function Login(): JSX.Element {
                   helperText={helperTextValue}
                 />
               </form>
-              <Link id="link-password-reset" component={RouterLink} to="/request-password-reset">
+              <Link id="link-password-reset" component={RouterLink} to="/request-password-reset" rel="nofollow">
                 {t("Forgot your password?")}
               </Link>
             </CardContent>

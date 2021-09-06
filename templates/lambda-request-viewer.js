@@ -1,7 +1,7 @@
 /**
  * CloudFront Lambda Edge - Blip Request Viewer
  * Version: {{ VERSION }}
- * Environnement: {{ TARGET_ENVIRONNEMENT }}
+ * Environment: {{ TARGET_ENVIRONMENT }}
  * Date: {{ GEN_DATE }}
  */
 
@@ -28,7 +28,7 @@ exports.handler = async (event, context, callback) => {
         headers: {
           location: [{
             key: 'Location',
-            value: `${basePath}${filename}`
+            value: `${basePath}${filename}`,
           }],
         },
       };

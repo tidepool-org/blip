@@ -11,13 +11,14 @@
  * FOR A PARTICULAR PURPOSE. See the License for more details.
  *
  */
-/* eslint-disable lodash/prefer-lodash-typecheck */
+
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const _ = require('lodash');
 const handlebars = require('handlebars');
 const blipConfig = require('./config.app');
+const { getDistDir } = require('./gen-utils');
 const locales = require('../locales/languages.json');
 
 const reTitle = /<title>([^<]*)<\/title>/;
@@ -194,7 +195,7 @@ function genOutputFile() {
     INDEX_HTML: '',
     CONFIG_JS: configJs,
     CONFIG_HASH: configHash,
-    TARGET_ENVIRONMENT: process.env.TARGET_ENVIRONMENT.toLowerCase(),
+    TARGET_ENVIRONMENT: blipConfig.TARGET_ENVIRONMENT.toLowerCase(),
     FEATURE_POLICY: featurePolicy.join(';'),
     GEN_DATE: new Date().toISOString(),
     CSP: '',
@@ -262,19 +263,6 @@ function withTemplate(err, data) {
   lambdaTemplate = data;
   genOutputFile();
 }
-
-function getDistDir(defaultDir) {
-  let dir = null;
-  if (process.argv.length === 3) {
-    dir = path.resolve(process.argv[2]);
-  } else if(process.env.DIST_DIR !== undefined && process.env.DIST_DIR !== '') {
-    dir = path.resolve(process.env.DIST_DIR);
-  } else {
-    dir = path.resolve(defaultDir);
-  }
-  return dir;
-}
-
 
 /*** Main ***/
 

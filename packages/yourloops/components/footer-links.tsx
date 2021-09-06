@@ -105,7 +105,7 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
     <Container id="footer-links-container" className={containerClassName} maxWidth="sm">
       <Grid id="footer-links" container>
         <Grid item xs={4} className={classes.rightLink}>
-          <Link id="footer-link-url-privacy-policy" href={diabeloopUrls.getPrivacyPolicyUrL(i18n.language)}>{t("footer-link-url-privacy-policy")}</Link>
+          <Link id="footer-link-url-privacy-policy" href={diabeloopUrls.getPrivacyPolicyUrL(i18n.language)} rel="nofollow">{t("footer-link-url-privacy-policy")}</Link>
         </Grid>
         <Grid item xs={4} className={classes.centeredLink}>
           <Typography id="footer-link-app-name" className={classes.appVersion}>
@@ -116,14 +116,14 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
           <Link id="footer-link-url-support" href={diabeloopUrls.SupportUrl}>{t("footer-link-url-support")}</Link>
         </Grid>
         <Grid item xs={4} className={classes.rightLink}>
-          <Link id="footer-link-url-terms" href={diabeloopUrls.getTermsUrL(i18n.language)}>{t("terms-and-conditions")}</Link>
+          <Link id="footer-link-url-terms" href={diabeloopUrls.getTermsUrL(i18n.language)} rel="nofollow">{t("terms-and-conditions")}</Link>
         </Grid>
         <Grid item xs={4} className={classes.centeredLink}>
           {/* TODO: Add tooltip + aria label */}
           <Button id="footer-link-cookies" color="primary" variant="text" size="small" className={classes.cookiesButton} onClick={handleShowCookieBanner}>{t("cookies")}</Button>
         </Grid>
         <Grid item xs={4} className={classes.leftLink}>
-          <Link id="footer-link-url-intended-use" href={diabeloopUrls.getIntendedUseUrL(i18n.language)}>{t("footer-link-url-intended-use")}</Link>
+          <Link id="footer-link-url-intended-use" href={diabeloopUrls.getIntendedUseUrL(i18n.language)} rel="nofollow">{t("footer-link-url-intended-use")}</Link>
         </Grid>
       </Grid>
     </Container>

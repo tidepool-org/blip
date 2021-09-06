@@ -2,6 +2,7 @@
 FROM node:12-alpine3.12 as base
 RUN apk --no-cache update && \
     apk --no-cache upgrade && \
+    apk --no-cache add curl && \
     npm install -g npm@latest
 
 FROM base as deployment
@@ -11,7 +12,7 @@ COPY ./cloudfront-dist/deployment/lib ./deployment/lib
 COPY ./cloudfront-dist/assets ./assets
 COPY ./cloudfront-dist/deployment/package.json ./deployment/package.json
 COPY ./cloudfront-dist/deployment/package-lock.json ./deployment/package-lock.json
-COPY ./cloudfront-dist/deployment/.npmignore ./deployment/npmignore
+COPY ./cloudfront-dist/deployment/.npmignore ./deployment/.npmignore
 COPY ./cloudfront-dist/deployment/tsconfig.json ./deployment/tsconfig.json
 COPY ./cloudfront-dist/deployment/cdk.json ./deployment/cdk.json
 COPY ./cloudfront-dist/deploy.sh ./deploy.sh
@@ -50,6 +51,7 @@ ENV FRONT_APP_NAME=blip
 ENV TARGET_ENVIRONMENT=
 ENV API_HOST=
 ENV DIST_DIR=/dist
+ENV ALLOW_SEARCH_ENGINE_ROBOTS=
 WORKDIR /dist
 RUN \
   chown -v node:node /dist && \

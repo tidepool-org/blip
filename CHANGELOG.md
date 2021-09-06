@@ -4,6 +4,7 @@ It is based on Tidepool Blip 1.27.
 
 ## Unreleased
 ### Added
+- YLP-950 Generate robot.txt and sitemap.xml
 - YLP-952 Add meta "description" to the index.html
 ### Changed
 - YLP-958 Review text justification in modal windows

@@ -16,6 +16,8 @@
     "prebuild": "rm -rf dist",
     "build": "lerna --stream --scope yourloops run build",
     "postbuild": "mkdir dist && mv packages/yourloops/dist dist/static",
+    "gen-robot": "node server/gen-robot-txt.js",
+    "gen-sitemap": "node server/gen-sitemap-xml.js",
     "gen-lambda": "node server/cloudfront-gen-lambda.js",
     "lint": "lerna run lint",
     "clean-coverage": "rm -rf coverage reports",
