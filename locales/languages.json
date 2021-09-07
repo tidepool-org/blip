@@ -69,23 +69,26 @@
     "BE": {
       "name": "Belgium"
     },
-    "DE": {
-      "name": "Germany"
-    },
-    "FR": {
-      "name": "France"
-    },
-    "NL": {
-      "name": "Netherlands"
-    },
     "CH": {
       "name": "Switzerland"
+    },
+    "DE": {
+      "name": "Germany"
     },
     "ES": {
       "name": "Spain"
     },
+    "FR": {
+      "name": "France"
+    },
+    "GB": {
+      "name": "United Kingdom"
+    },
     "IT": {
       "name": "Italy"
+    },
+    "NL": {
+      "name": "Netherlands"
     }
   }
 }
