@@ -60,6 +60,10 @@ export default translate()(class extends React.Component {
               icon={ChevronLeftRoundedIcon}
               iconPosition='left'
               id="patientListLink"
+              onClick={() => this.props.trackMetric('Clinic - View patient list', {
+                clinicId: this.props.selectedClinicId,
+                source: 'Patient data',
+              })}
             >
               {t('Back to Patient List')}
             </Button>
@@ -189,7 +193,7 @@ export default translate()(class extends React.Component {
 
     return (
       <Flex flex={1} justifyContent="flex-end">
-        <NavigationMenu api={this.props.api} />
+        <NavigationMenu api={this.props.api} trackMetric={this.props.trackMetric} />
       </Flex>
     );
   };

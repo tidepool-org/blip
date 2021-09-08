@@ -49,10 +49,12 @@ export const ClinicWorkspace = (props) => {
     {
       name: 'patients',
       label: t('Patient List'),
+      metric: 'Clinic - View patient list',
     },
     {
       name: 'invites',
       label: t('Invites ({{count}})', { count: patientInvites.length }),
+      metric: 'Clinic - View patient invites',
     },
   ];
 
@@ -60,18 +62,11 @@ export const ClinicWorkspace = (props) => {
     tabs.push({
       name: 'prescriptions',
       label: t('Prescriptions'),
+      metric: 'Clinic - View prescriptions',
     });
   }
 
   const [selectedTab, setSelectedTab] = useState(get(tabIndices, tab, 0));
-
-  useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Clinic - View clinic workspace', {
-        selectedTab,
-      });
-    }
-  }, [selectedTab]);
 
   useEffect(() => {
     if (tab && tabIndices[tab] !== selectedTab) {
@@ -134,6 +129,7 @@ export const ClinicWorkspace = (props) => {
   }, []);
 
   function handleSelectTab(event, newValue) {
+    trackMetric(tabs[newValue]?.metric, { clinicId: selectedClinicId, source: 'Workspace table' });
     setSelectedTab(newValue);
     dispatch(push(`/clinic-workspace/${tabs[newValue].name}`));
   }
@@ -185,6 +181,7 @@ export const ClinicWorkspace = (props) => {
               <PeopleTable
                 layout="tab"
                 people={clinicPatients()}
+                selectedClinicId={selectedClinicId}
                 trackMetric={trackMetric}
                 onRemovePatient={isClinicAdmin ? handleRemovePatient : undefined}
               />

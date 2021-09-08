@@ -107,6 +107,7 @@ export const ClinicProfile = (props) => {
   const navigationAction = {
     label: isWorkspacePath ? t('View Clinic Members'): t('View Patient List'),
     action: () => dispatch(push(isWorkspacePath ? '/clinic-admin' : '/clinic-workspace')),
+    metric: isWorkspacePath ? 'Clinic - View clinic members' : 'Clinic - View patient list',
   };
 
   const clinicValues = () => ({
@@ -130,7 +131,7 @@ export const ClinicProfile = (props) => {
   const formikContext = useFormik({
     initialValues: clinicValues(),
     onSubmit: (values, ctx) => {
-      trackMetric('Clinic - Profile updated');
+      trackMetric('Clinic - Edit clinic profile saved', { clinicId: selectedClinicId });
       dispatch(actions.async.updateClinic(api, clinic.id, values));
     },
     validationSchema,
@@ -173,11 +174,22 @@ export const ClinicProfile = (props) => {
     }
   }, [updatingClinic]);
 
+  function handleNavigationAction() {
+    const source = isWorkspacePath ? undefined : 'Clinic members';
+    trackMetric(navigationAction.metric, { clinicId: selectedClinicId, source });
+    navigationAction.action();
+  }
+
+  function openClinicEdit() {
+    trackMetric('Clinic - Edit clinic profile', { clinicId: selectedClinicId });
+    setEditing(true);
+  }
+
   function closeClinicEdit() {
     setEditing(false);
     setSubmitting(false);
     resetForm(clinicValues());
-  };
+  }
 
   if (!clinic) return null;
 
@@ -199,7 +211,7 @@ export const ClinicProfile = (props) => {
           <Button
             mr={4}
             variant="textPrimary"
-            onClick={navigationAction.action}
+            onClick={handleNavigationAction}
           >
             {navigationAction.label}
           </Button>
@@ -250,7 +262,7 @@ export const ClinicProfile = (props) => {
                   )}
                   successText={<span className="success">{t('✓')}</span>}
                   onClick={() => {
-                    trackMetric('Clicked Copy Therapy Settings Order')
+                    trackMetric('Clinic - Copy clinic share code', { clinicId: selectedClinicId })
                   }}
                   getText={() => clinic.shareCode}
                 />
@@ -263,7 +275,7 @@ export const ClinicProfile = (props) => {
               <Button
                 id="profileEditButton"
                 variant="textSecondary"
-                onClick={() => setEditing(true)}
+                onClick={openClinicEdit}
                 icon={EditRoundedIcon}
                 iconPosition='left'
                 fontSize={1}
