@@ -43,13 +43,6 @@ export const PatientInvites = (props) => {
   const [selectedInvitation, setSelectedInvitation] = useState(null);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [searchText, setSearchText] = React.useState('');
-
-  useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Viewed Share');
-    }
-  }, []);
-
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
@@ -146,18 +139,23 @@ export const PatientInvites = (props) => {
   }, [selectedInvitation]);
 
   function handleAccept(invite) {
-    trackMetric('Clinic - Accept patient invitation');
-
+    trackMetric('Clinic - Accept patient invite', { clinicId: selectedClinicId });
     dispatch(actions.async.acceptPatientInvitation(api, clinic.id, invite.key));
   }
 
-  function handleDecline(invite) {
-    trackMetric('Clinic - Decline patient invitation');
+  function handleDecline(member) {
+    trackMetric('Clinic - Decline patient invite', { clinicId: selectedClinicId });
+    setSelectedInvitation(member);
+    setShowDeleteDialog(true);
+  }
 
+  function handleConfirmDecline(invite) {
+    trackMetric('Clinic - Decline patient invite confirmed', { clinicId: selectedClinicId });
     dispatch(actions.async.deletePatientInvitation(api, clinic.id, invite.key));
   }
 
   function handleRefetchInvites() {
+    trackMetric('Clinic - Refresh patient invites', { clinicId: selectedClinicId });
     dispatch(actions.async.fetchPatientInvites(api, clinic.id));
   }
 
@@ -185,10 +183,7 @@ export const PatientInvites = (props) => {
     <Flex justifyContent="flex-end">
       <Button
         className="decline-invite"
-        onClick={() => {
-          setSelectedInvitation(member);
-          setShowDeleteDialog(true);
-        }}
+        onClick={() => handleDecline(member)}
         processing={deletingPatientInvitation.inProgress}
         variant="secondary"
       >
@@ -323,7 +318,7 @@ export const PatientInvites = (props) => {
             variant="danger"
             processing={deletingPatientInvitation.inProgress}
             onClick={() => {
-              handleDecline(selectedInvitation);
+              handleConfirmDecline(selectedInvitation);
             }}
           >
             {deleteDialogContent?.submitText}

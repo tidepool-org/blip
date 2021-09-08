@@ -49,6 +49,7 @@ export const ClinicianEdit = (props) => {
   const location = useLocation();
   const selectedClinicianId = get(location, 'state.clinicianId', false);
   const { updatingClinician, fetchingCliniciansFromClinic } = useSelector((state) => state.blip.working);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const selectedClinic = get(location, 'state.clinicId', false);
 
   const selectedClinician = useSelector((state) =>
@@ -113,9 +114,15 @@ export const ClinicianEdit = (props) => {
 
       const updatedClinician = cloneDeep(selectedClinician);
       const updatedRoles = [clinicianType];
-      if (prescriberPermission) updatedRoles.push('PRESCRIBER');
+      let metricProperties = { clinicId: selectedClinicId, role: clinicianType };
+
+      if (prescriberPermission) {
+        updatedRoles.push('PRESCRIBER');
+        metricProperties.access = 'PRESCRIBER';
+      }
+
       updatedClinician.roles = updatedRoles;
-      trackMetric('Clinic - Edit clinician');
+      trackMetric('Clinic - Update clinic team member', metricProperties);
 
       dispatch(
         actions.async.updateClinician(
@@ -159,12 +166,6 @@ export const ClinicianEdit = (props) => {
   }
 
   useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Clinic - Clinician Edit');
-    }
-  }, []);
-
-  useEffect(() => {
     const { inProgress, completed, notification } = updatingClinician;
 
     if (!isFirstRender && !inProgress) {
@@ -189,6 +190,7 @@ export const ClinicianEdit = (props) => {
   }, [updatingClinician]);
 
   function handleClickDelete() {
+    trackMetric('Clinic - Remove clinic team member', { clinicId: selectedClinicId });
     setDeleteDialogOpen(true);
   }
 
@@ -196,6 +198,7 @@ export const ClinicianEdit = (props) => {
     if (dirty) {
       setConfirmDialogOpen(true);
     } else {
+      trackMetric('Clinic - Update clinic team member back out', { clinicId: selectedClinicId });
       dispatch(push('/clinic-admin'));
     }
   }
@@ -205,6 +208,8 @@ export const ClinicianEdit = (props) => {
   }
 
   function handleConfirmDeleteDialog() {
+    trackMetric('Clinic - Remove clinic team member confirmed', { clinicId: selectedClinicId });
+
     dispatch(
       actions.async.deleteClinicianFromClinic(
         api,
@@ -212,6 +217,7 @@ export const ClinicianEdit = (props) => {
         selectedClinicianId
       )
     );
+
     dispatch(push('/clinic-admin'));
   }
 
@@ -220,6 +226,7 @@ export const ClinicianEdit = (props) => {
   }
 
   function handleExitConfirmDialog() {
+    trackMetric('Clinic - Update clinic team member back out', { clinicId: selectedClinicId });
     dispatch(push('/clinic-admin'));
   }
 

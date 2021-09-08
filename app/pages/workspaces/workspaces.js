@@ -43,13 +43,6 @@ export const Workspaces = (props) => {
   const [workspaces, setWorkspaces] = useState(null);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [popupState, setPopupState] = useState(null);
-
-  useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Viewed Workspaces');
-    }
-  }, []);
-
   const clinics = useSelector((state) => state.blip.clinics);
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
@@ -186,12 +179,15 @@ export const Workspaces = (props) => {
   }, [selectedWorkspace]);
 
   function handleLeaveClinic(workspace) {
+    trackMetric('Clinic - Workspaces - Leave clinic', { clinicId: workspace?.id });
     setSelectedWorkspace(workspace);
     setShowDeleteDialog(true);
   }
 
   function handleAcceptInvite(workspace) {
+    trackMetric('Clinic - Workspaces - Join clinic', { clinicId: workspace?.id });
     setSelectedWorkspace(workspace);
+
     dispatch(
       actions.async.acceptClinicianInvite(
         api,
@@ -202,13 +198,14 @@ export const Workspaces = (props) => {
   }
 
   function handleDeclineInvite(workspace) {
+    trackMetric('Clinic - Workspaces - Ignore clinic invite', { clinicId: workspace?.id });
     setSelectedWorkspace(workspace);
     setShowDeleteDialog(true);
   }
 
   function handleConfirmDelete(workspace) {
     if (workspace.type === 'clinic') {
-      trackMetric('Clinician - Removed self from clinic');
+      trackMetric('Clinic - Workspaces - Leave clinic confirmed', { clinicId: workspace?.id });
 
       dispatch(
         actions.async.deleteClinicianFromClinic(
@@ -218,7 +215,7 @@ export const Workspaces = (props) => {
         )
       );
     } else if (workspace.type === 'clinician_invitation') {
-      trackMetric('Clinician - Declined clinic invite');
+      trackMetric('Clinic - Workspaces - Ignore clinic invite confirmed', { clinicId: workspace?.id });
 
       dispatch(
         actions.async.dismissClinicianInvite(
@@ -231,6 +228,11 @@ export const Workspaces = (props) => {
   }
 
   function handleGoToWorkspace(workspace) {
+    const metric = workspace?.id
+      ? ['Clinic - Workspaces - Go to clinic workspace', { clinicId: workspace.id }]
+      : ['Clinic - Workspaces - Go to personal workspace'];
+
+    trackMetric(...metric);
     dispatch(actions.sync.selectClinic(workspace?.id || null));
     dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients'));
   }
