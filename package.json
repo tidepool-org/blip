@@ -27,7 +27,7 @@
     "test-tideline": "lerna --stream --scope=tideline run test",
     "test-viz": "lerna --stream --scope=tidepool-viz run test",
     "test-blip": "lerna --stream --scope=blip run test",
-    "test-yourloops": "bash -c 'source config/env.docker.sh && lerna --stream  --scope=yourloops run test'",
+    "test-yourloops": "bash -c 'source config/.env.sh && lerna --stream  --scope=yourloops run test'",
     "test-lambda": "bash test-lambda.sh",
     "build-yourloops": "lerna --stream --scope yourloops run build",
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/",
@@ -35,7 +35,7 @@
     "prebuild-dev": "rm -rf dist",
     "build-dev": "NODE_OPTIONS='--max-old-space-size=4096' lerna run --stream --scope yourloops build-dev",
     "postbuild-dev": "mkdir dist && mv packages/yourloops/dist dist/static",
-    "start-dev": "bash -c 'source config/env.docker.sh && lerna run --stream --scope yourloops start-dev'"
+    "start-dev": "bash -c 'source config/.env.sh && lerna run --stream --scope yourloops start-dev'"
   },
   "engines": {
     "node": ">=12.x",

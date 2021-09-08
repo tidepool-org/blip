@@ -21,8 +21,9 @@ node_modules
 tmp
 dist/
 config/*
-!config/local.sh
-!config/env.docker.sh
+!config/.env.sh
+!config/.env.base.sh
+!config/.env.local.template
 test/bin
 web/
 artifact_node.sh

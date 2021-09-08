@@ -1,5 +1,6 @@
 ## Common
-export API_HOST='http://localhost:8009'
+# Public API entry point
+export API_HOST='http://api-public:3000'
 export WEBPACK_DEVTOOL='source-map'
 export PORT='3000'
 

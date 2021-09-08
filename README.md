@@ -1,6 +1,6 @@
 # Blip
 
-[![Build Status](https://travis-ci.org/mdblp/blip.svg?branch=dblp)](https://travis-ci.org/mdblp/blip)
+[![Build Status](https://jenkins.ci.diabeloop.eu/job/mdblp/job/blip/job/dblp/badge/icon)](https://jenkins.ci.diabeloop.eu/job/mdblp/job/blip/job/dblp/)
 
 Blip is a web app for type 1 diabetes (T1D) built on top of the [Tidepool](http://tidepool.org/) platform. It allows patients and their "care team" (family, doctors) to visualize their diabetes device data (from insulin pumps, BGMs, and/or CGMs) and message each other.
 
@@ -22,21 +22,23 @@ This README is focused on just the details of getting blip running locally. For 
 
 ## Before you start
 
-If this is the first time you're looking at Tidepool locally start with the [mdblp/dblp](https://github.com/mdblp/development) repository to setup before continuing here.
+If this is the first time you're looking at Yoorloops (blip) locally, start with the [mdblp/dblp](https://github.com/mdblp/yourloops/tree/next/k8s) repository to setup the backend before continuing here.
 
 ## Install
 
 Requirements:
+- [NVM](https://github.com/nvm-sh/nvm) for managing your nodejs
+- [Node.js](http://nodejs.org/ 'Node.js') version 12.x or higher
+- [npm](https://www.npmjs.com/ 'npm') version 7.x or higher
+- [Lerna](https://lerna.js.org/) version 2.x
 
-- [Node.js](http://nodejs.org/ 'Node.js') version 10.x or higher
-- [npm](https://www.npmjs.com/ 'npm') version 6.x or higher
 
 Clone this repo [from GitHub](https://github.com/mdblp/blip 'GitHub: blip'), then install the dependencies:
 
-After cloning this repository to your local machine, first make sure that you have node `10.x` and npm `6.x` installed. If you have a different major version of node installed, consider using [nvm](https://github.com/creationix/nvm 'GitHub: Node Version Manager') to manage and switch between multiple node (& npm) installations.  
+After cloning this repository to your local machine, first make sure that you have node `12.x` and npm `7.x` installed. If you have a different major version of node installed, consider using [nvm](https://github.com/creationix/nvm 'GitHub: Node Version Manager') to manage and switch between multiple node (& npm) installations.
 You can install the latest npm version with: `npm install -g npm@latest`.
 
-Once your environment is setup with node and npm, install the dependencies:
+Once your environment is setup with node, lerna and npm, install the dependencies:
 
 ```bash
 $ npm install
@@ -47,26 +49,21 @@ $ npm install
 ### Artifact: Fetch branding images & translations
 
 Simplest method, will do everything needed in one command.
+To be able to retreive theses files, a github personal token is mandatory (env GIT_TOKEN)
+See https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
 ```bash
-$ bash artifact.sh
+$ source artifact-lang.sh
+retrieveLanguageParameters
 ```
-
-Options (using env var):
-- `TRAVIS_NODE_VERSION` set to the same value as `ARTIFACT_NODE_VERSION` (see `version.sh`):
-  - Create the docker image (prod version)
-  - Create the archive use for production deployment.
-  - Build the SOUP list
-  - Publish the docker image (if possible)
-  - App will be available in the `server/dist` directory.
 
 This script is used by the continuous build system, but it can be use standalone.
 
 ### Configuration
-To configure blip to the desired environment source one config in the `config` directory.  
+To configure blip to the desired environment source one config in the `config` directory.
 Example for a dev build:
 ```bash
-$ source config/env.docker.sh
+$ source config/.env.sh
 ```
 
 ### Simple dev build
@@ -76,11 +73,11 @@ The app is built as a static site in the `dist/` directory.
 - Will load the env var for a dev environment (docker)
 - Do a development build of the application
 ```bash
-$ bash build-dev.sh
+$ npm run build-dev
 ```
 
 ### Watch dev build
-This will build the application and launch a dev server, with "watch" option.  
+This will build the application and launch a dev server, with "watch" option.
 Everytime a file is changed in the source, the application will be re-build automatically,
 and the changes will be available in the browser
 
@@ -88,7 +85,7 @@ and the changes will be available in the browser
 $ npm run start-dev
 ```
 
-The application will be available at: http://localhost:3001/  
+The application will be available at: http://app-frontend:3001/
 Hit `CTRL+C` to stop the server.
 
 ### Production build
@@ -130,7 +127,10 @@ We use [Mocha](https://mochajs.org/) with [Chai](http://chaijs.com/) for our tes
 To run the unit tests, use:
 
 ```bash
-$ npm test
+// run all test
+$ npm run test
+// run a specific package, either sundiaal, viz, tideline, blip or yourloops
+$ npm run test-<the targeted package>
 ```
 
 To run the unit tests in watch mode, use:
@@ -172,25 +172,27 @@ Blip is designed to be published on AWS Cloudfront. The "static" js and html con
 To test blip locally as if it was running on CloudFront with a lambda@edge middleware you can execute the following command (from root dir):
 * launch a docker container docker lambci/lambda:nodejs10.x in "watch mode": `docker run --rm -e DOCKER_LAMBDA_WATCH=1 -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 -v $PWD/dist/lambda:/var/task:ro,delegated -d --name blip-middleware lambci/lambda:nodejs10.x cloudfront-test-blip-request-viewer.handler` assuming you compile the lambda script with $TARGET_ENVIRONMENT=test.
 * the docker container will pickup any changes you apply to the lambda script
-* source the relevant env file: `. ./config/local.sh`
+* source the relevant env file: `. ./config/.env.sh`
 * then start blip server to serve static js files: `npm run server`
 
 ### Deploy and test on a k8s cluster
-To run blip on k8s (or even on a simple docker compose) you can re-use the deployment image.  
-Create a deployment with 2 pods: 
+To run blip on k8s (or even on a simple docker compose) you can re-use the deployment image.
+Create a deployment with 2 pods:
 * lambci/lambda:nodejs10.x to execute the lambda
 * node:10-alpine to execute the server
 Attach these 2 pods to a volume and use an init container to copy the app files (lambda script + static dist) on the volume.
 `docker run -v blip:/www --env-file .docker.env blip-deployment "-c" "cd server && npm run gen-lambda && cp -R /dist/static /www && cp -R /dist/lambda /static"`
 
 ### Deploy to aws cloud front
-To publish blip to CloudFront the simplest solution is to build the docker image provided under ./cloudfront-dist and use it.  
-1. From the root folder execute: `docker build -t blip-deploy .` 
-1. Prepare an environment file that contains the configuration for the environment you want to deploy to. You can use the template provided in ./cloudfront-dist/docker.template.env.  
+To publish blip to CloudFront the simplest solution is to build the docker image provided under ./cloudfront-dist and use it.
+1. From the root folder execute: `docker build -t blip-deploy .`
+1. Prepare an environment file that contains the configuration for the environment you want to deploy to. You can use the template provided in ./cloudfront-dist/docker.template.env.
 1. Execute the docker image built just above: `docker run --env-file ./cloudfront-dist/deployment/cf-blip.env blip-deploy`
 Et voila, the deployment starts. Of course you need credentials for the aws account you target ;)
- 
+
 ## Documentation for developers
+
+:warning: this part below contains deprecated contents, inhereted from tidepool
 
 + [Blip developer guide](docs/StartHere.md)
     + [overview of features](docs/FeatureOverview.md)
