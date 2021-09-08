@@ -31,7 +31,7 @@ import {
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
-import { borders } from '../../themes/baseTheme';
+import { borders, colors } from '../../themes/baseTheme';
 
 export const PatientInvites = (props) => {
   const { t, api, trackMetric } = props;
@@ -286,6 +286,13 @@ export const PatientInvites = (props) => {
               iconPosition="left"
               processing={fetchingPatientInvites.inProgress}
               onClick={handleRefetchInvites}
+              sx={{
+                '&:hover,&:active,&.active,&.processing': {
+                  color: colors.purpleMedium,
+                  backgroundColor: colors.white,
+                  borderColor: colors.purpleMedium,
+                },
+              }}
             >
               {t('Refresh')}
             </Button>
