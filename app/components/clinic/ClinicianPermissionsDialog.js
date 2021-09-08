@@ -45,7 +45,7 @@ const ClinicianPermissionsDialog = props => {
     t('Add patient users'),
     t('Accept patient invites'),
     t('View and upload patient data'),
-    t('View clinic Members'),
+    t('View clinic members'),
   ];
 
   return (

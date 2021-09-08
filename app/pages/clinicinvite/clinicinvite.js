@@ -51,7 +51,7 @@ export const ClinicInvite = (props) => {
     <>
       <Title mt="-0.25em">{t('Clinic Admin')}</Title>
       <Body1>
-        {t('Clinic administrators have full read and edit access to access management. More details are described here.')}
+        {t('Clinic admins have complete access to a workspace and can manage patients, clinicians and the clinic profile.')}
       </Body1>
     </>
   );
@@ -60,7 +60,7 @@ export const ClinicInvite = (props) => {
     <>
       <Title mt="-0.25em">{t('Clinic Member')}</Title>
       <Body1>
-        {t('Clinic members have read access to access management. More details are described here.')}
+        {t('Clinic members have limited access to a workspace and can only manage patients.')}
       </Body1>
     </>
   );
@@ -232,7 +232,7 @@ export const ClinicInvite = (props) => {
         </Box>
 
         <Button variant="textPrimary" onClick={() => setPermissionsDialogOpen(true)}>
-          Learn more about clincian roles and permissions
+          Learn more about clinician roles and permissions
         </Button>
 
         <Flex p={4} justifyContent="flex-end">
