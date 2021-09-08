@@ -94,7 +94,7 @@ export const ClinicInvite = (props) => {
       } = values;
 
       const roles = [clinicianType];
-      let metricProperties = { role: clinicianType };
+      let metricProperties = { clinicId: selectedClinicId, role: clinicianType };
 
       if (prescriberPermission) {
         roles.push('PRESCRIBER');
@@ -102,7 +102,7 @@ export const ClinicInvite = (props) => {
       }
 
       dispatch(actions.async.sendClinicianInvite(api, selectedClinic, { email, roles }))
-      trackMetric('Clinic - Invite clinician', metricProperties)
+      trackMetric('Clinic - Invite member', metricProperties);
     },
     validationSchema,
   });
@@ -117,12 +117,6 @@ export const ClinicInvite = (props) => {
   if (!selectedClinic) {
     dispatch(push('/clinic-admin'));
   }
-
-  useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Clinic - Clinic Invite');
-    }
-  }, []);
 
   useEffect(() => {
     const { inProgress, completed, notification } = sendingClinicianInvite;
@@ -152,6 +146,7 @@ export const ClinicInvite = (props) => {
     if (values.selectedType || values.prescriberPermission || values.email) {
       setDialogOpen(true);
     } else {
+      trackMetric('Clinic - Invite clinic team member back out', { clinicId: selectedClinicId });
       dispatch(push('/clinic-admin'));
     }
   }
@@ -161,6 +156,7 @@ export const ClinicInvite = (props) => {
   }
 
   function handleDialogConfirm() {
+    trackMetric('Clinic - Invite clinic team member back out', { clinicId: selectedClinicId });
     dispatch(push('/clinic-admin'));
   }
 

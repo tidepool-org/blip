@@ -29,7 +29,7 @@ import personUtils from '../../core/personutils';
 import { borders, colors, space } from '../../themes/baseTheme';
 
 export const NavigationMenu = props => {
-  const { t, api } = props;
+  const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
@@ -46,6 +46,7 @@ export const NavigationMenu = props => {
     action: handleSelectWorkspace.bind(null, null),
     icon: SupervisedUserCircleRoundedIcon,
     label: t('Personal Workspace'),
+    metric: ['Clinic - Menu - Go to personal workspace'],
   };
 
   const accountSettingsOption = {
@@ -58,6 +59,7 @@ export const NavigationMenu = props => {
     action: () => dispatch(push('/workspaces')),
     icon: ViewListRoundedIcon,
     label: t('Manage Workspaces'),
+    metric: ['Clinic - Menu - Manage workspaces'],
   };
 
   const logoutOption = {
@@ -83,6 +85,7 @@ export const NavigationMenu = props => {
           action: handleSelectWorkspace.bind(null, clinic.id),
           icon: DashboardRoundedIcon,
           label: t('{{name}} Workspace', { name: clinic.name }),
+          metric: ['Clinic - Menu - Go to clinic workspace', { clinicId: clinic.id }],
         })),
         manageWorkspacesOption,
       ];
@@ -104,6 +107,7 @@ export const NavigationMenu = props => {
   }
 
   function handleMenuAction(menuOption) {
+    if (menuOption.metric?.length) trackMetric(...menuOption.metric);
     menuOption.action();
     popupState.close();
   }

@@ -203,12 +203,20 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         this.handleCloseOverlay();
       });
 
-      this.props.trackMetric('Web - clinician removed patient account');
+      const metric = this.props.selectedClinicId
+        ? ['Blip - Clinic - Remove patient confirmed', { clinicId: this.props.selectedClinicId }]
+        : ['Web - clinician removed patient account'];
+
+      this.props.trackMetric(...metric);
     };
   }
 
   handleRemove(patient) {
     return () => {
+      if (this.props.selectedClinicId) {
+        this.props.trackMetric('Clinic - Remove patient', { clinicId: this.props.selectedClinicId });
+      }
+
       this.setState({
         showModalOverlay: true,
         dialog: this.renderRemoveDialog(patient)
@@ -231,7 +239,11 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   handleClickEdit(patient) {
     return () => {
-      this.props.trackMetric('Clicked Edit PwD');
+      const metric = this.props.selectedClinicId
+        ? ['Clinic - Edit patient info', { clinicId: this.props.selectedClinicId }]
+        : ['Clicked Edit PwD'];
+
+      this.props.trackMetric(...metric);
       this.props.push(`/patients/${patient.userid}/profile#edit`);
     }
   }
@@ -370,6 +382,7 @@ PeopleTable.propTypes = {
   people: PropTypes.array,
   trackMetric: PropTypes.func.isRequired,
   onRemovePatient: PropTypes.func,
+  selectedClinicId: PropTypes.string,
   layout: PropTypes.oneOf(['page', 'tab']).isRequired,
 };
 

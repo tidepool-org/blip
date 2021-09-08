@@ -52,13 +52,19 @@ export const WorkspaceSwitcher = props => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
 
     if (userClinics.length) {
-      const personalWorkspaceOption = { id: null, label: t('Personal Workspace') };
+      const personalWorkspaceOption = {
+        id: null,
+        label: t('Personal Workspace'),
+        metric: ['Clinic - Workspace Switcher - Go to personal workspace'],
+      };
+
       const hidePersonalWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
 
       const options = [
         ...map(userClinics, clinic => ({
           id: clinic.id,
           label: t('{{name}} Workspace', { name: clinic.name }),
+          metric: ['Clinic - Workspace Switcher - Go to clinic workspace', { clinicId: clinic.id }],
         })),
       ];
 
@@ -69,10 +75,7 @@ export const WorkspaceSwitcher = props => {
   }, [clinics]);
 
   const handleSelect = option => {
-    trackMetric('Selected workspace', {
-      type: option.id ? 'clinic' : 'personal',
-    });
-
+    trackMetric(...option.metric);
     dispatch(actions.sync.selectClinic(option.id));
     dispatch(push(option.id ? '/clinic-workspace' : '/patients'));
     popupState.close();

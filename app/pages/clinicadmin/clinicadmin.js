@@ -48,13 +48,6 @@ export const ClinicAdmin = (props) => {
   const [searchText, setSearchText] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-
-  useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Clinic - View clinician list');
-    }
-  }, []);
-
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -201,7 +194,14 @@ export const ClinicAdmin = (props) => {
     setSearchText(event.target.value);
   }
 
+  function handleInviteNewMember() {
+    trackMetric('Clinic - Invite new clinic team member', { clinicId: selectedClinicId });
+    dispatch(push('/clinic-invite', { clinicId: selectedClinicId }));
+  }
+
   function handleEdit(userId) {
+    trackMetric('Clinic - Edit clinic team member', { clinicId: selectedClinicId });
+
     dispatch(
       push('/clinician-edit', {
         clinicianId: userId,
@@ -210,8 +210,15 @@ export const ClinicAdmin = (props) => {
     );
   }
 
-  function handleDelete(selectedClinicianId) {
-    trackMetric('Clinic - Remove clinician');
+  function handleDelete(selectedClinician) {
+    trackMetric('Clinic - Remove clinic team member', { clinicId: selectedClinicId });
+    setSelectedUser(selectedClinician);
+    setShowDeleteDialog(true);
+  }
+
+  function handleConfirmDelete(selectedClinicianId) {
+    trackMetric('Clinic - Remove clinic team member confirmed', { clinicId: selectedClinicId });
+
     dispatch(
       actions.async.deleteClinicianFromClinic(
         api,
@@ -222,14 +229,16 @@ export const ClinicAdmin = (props) => {
   }
 
   function handleResendInvite(inviteId) {
-    trackMetric('Clinic - Resend clinician invite');
+    trackMetric('Clinic - Resend clinic team invite', { clinicId: selectedClinicId });
+
     dispatch(
       actions.async.resendClinicianInvite(api, selectedClinicId, inviteId)
     );
   }
 
   function handleDeleteInvite(inviteId) {
-    trackMetric('Clinic - Delete clinician invite');
+    trackMetric('Clinic - Remove clinic team invite', { clinicId: selectedClinicId });
+
     dispatch(
       actions.async.deleteClinicianInvite(api, selectedClinicId, inviteId)
     );
@@ -287,10 +296,7 @@ export const ClinicAdmin = (props) => {
         iconPosition: 'left',
         id: `delete-${props.userId}`,
         variant: 'actionListItemDanger',
-        onClick: () => {
-          setSelectedUser(props);
-          setShowDeleteDialog(true);
-        },
+        onClick: () => handleDelete(props),
         text: t('Remove User'),
       });
     }
@@ -395,9 +401,7 @@ export const ClinicAdmin = (props) => {
               <Button
                 mr={4}
                 variant="primary"
-                onClick={() => {
-                  dispatch(push('/clinic-invite', { clinicId: selectedClinicId }));
-                }}
+                onClick={handleInviteNewMember}
               >
                 {t('Invite new clinic team member')}
               </Button>
@@ -457,7 +461,7 @@ export const ClinicAdmin = (props) => {
           <Button
             variant="danger"
             onClick={() => {
-              handleDelete(selectedUser.userId);
+              handleConfirmDelete(selectedUser.userId);
               closeDeleteDialog();
             }}
           >
