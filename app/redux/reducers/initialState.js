@@ -154,6 +154,9 @@ const initialState = {
   dataSources: [],
   authorizedDataSource: null,
   clinics: {},
+  selectedClinicId: null,
+  pendingReceivedClinicianInvites: [],
+  clinicFlowActive: false,
 };
 
 export default initialState;

@@ -427,6 +427,19 @@ export default (state = initialWorkingState, action) => {
         return state;
       }
 
+    case types.SELECT_CLINIC:
+      const newState = _.cloneDeep(state);
+      _.forEach([
+        'fetchingCliniciansFromClinic',
+        'fetchingPatientsForClinic',
+        'fetchingPatientInvites',
+      ], key => _.set(newState, key, {
+        inProgress: false,
+        notification: null,
+        completed: null,
+      }));
+      return newState;
+
     default:
       return state;
   }

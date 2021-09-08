@@ -48,6 +48,18 @@ describe('clinics', () => {
     });
   });
 
+  describe('fetchPatientsForClinicSuccess', () => {
+    it('should add patients to a clinic', () => {
+      let initialStateForTest = {};
+      let clinicId = 'clinicId123';
+      let clinic = { id: clinicId };
+      let patients = [{ id: 'patientId123' }];
+      let action = actions.sync.fetchPatientsForClinicSuccess(clinicId, patients);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinic.id].patients.patientId123).to.eql({ id: 'patientId123' });
+    });
+  });
+
   describe('createClinicSuccess', () => {
     it('should add clinic to state', () => {
       let initialStateForTest = {};
