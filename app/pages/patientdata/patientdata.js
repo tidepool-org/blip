@@ -446,7 +446,7 @@ export const PatientDataClass = createReactClass({
         chartPrefs: this.state.chartPrefs[this.state.chartType],
         data: this.props.data,
         aggregations,
-        stats,
+        stats: _.map(stats, stat => _.omit(stat, 'children')),
       }, `data-${this.state.chartType}.json`);
     };
 
