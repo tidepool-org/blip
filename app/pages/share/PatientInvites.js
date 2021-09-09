@@ -262,6 +262,7 @@ export const PatientInvites = (props) => {
         order="asc"
         searchText={searchText}
         emptyText={null}
+        rowHover={false}
         rowsPerPage={10}
         pagination={pendingInvites.length > 10}
         fontSize={1}

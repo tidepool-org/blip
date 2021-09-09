@@ -415,7 +415,7 @@ export const ClinicAdmin = (props) => {
               minWidth: '250px',
               my: 3,
             }}
-            placeholder={t('search')}
+            placeholder={t('Search')}
             icon={SearchIcon}
             id="search-members"
             name="search-members"
@@ -430,8 +430,9 @@ export const ClinicAdmin = (props) => {
             data={clinicianArray}
             orderBy="fullNameOrderable"
             order="asc"
-            searchText={searchText}
+            rowHover={false}
             rowsPerPage={8}
+            searchText={searchText}
             pagination={true}
             style={{ fontSize: '14px' }}
           />
