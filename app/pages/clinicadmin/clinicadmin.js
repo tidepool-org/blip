@@ -410,18 +410,21 @@ export const ClinicAdmin = (props) => {
         </Flex>
 
         <Box mx={4}>
-          <TextInput
-            themeProps={{
-              minWidth: '250px',
-              my: 3,
-            }}
-            placeholder={t('Search')}
-            icon={SearchIcon}
-            id="search-members"
-            name="search-members"
-            onChange={handleSearchChange}
-            variant="condensed"
-          />
+          <Flex>
+            <TextInput
+              themeProps={{
+                minWidth: '250px',
+                my: 4,
+                flexBasis: 1/2,
+              }}
+              placeholder={t('Search by Name')}
+              icon={SearchIcon}
+              id="search-members"
+              name="search-members"
+              onChange={handleSearchChange}
+              variant="condensed"
+            />
+          </Flex>
 
           <Table
             id="clinicianTable"
