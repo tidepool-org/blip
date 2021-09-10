@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { translate } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
@@ -10,6 +11,7 @@ import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
 import { Box, Flex } from 'rebass/styled-components';
 import map from 'lodash/map';
 import filter from 'lodash/filter';
+import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import keyBy from 'lodash/keyBy';
@@ -40,21 +42,48 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import Table from '../../components/elements/Table';
 import TextInput from '../../components/elements/TextInput';
 import { Body1, MediumTitle } from '../../components/elements/FontStyles';
-import withPrescriptions from './withPrescriptions';
-import withAssociatedAccounts from './withAssociatedAccounts';
 import { dateRegex, prescriptionStateOptions } from './prescriptionFormConstants';
 import { useToasts } from '../../providers/ToastProvider';
 import { useIsFirstRender } from '../../core/hooks';
+import * as actions from '../../redux/actions';
 
 const Prescriptions = props => {
+  const { t, history, api, trackMetric } = props;
+  const dispatch = useDispatch();
+  const membershipPermissionsInOtherCareTeams = useSelector((state) => state.blip.membershipPermissionsInOtherCareTeams);
+  const prescriptions = useSelector((state) => state.blip.prescriptions);
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+
   const {
-    t,
-    deletePrescription,
     deletingPrescription,
-    history,
-    prescriptions = [],
-    membershipPermissionsInOtherCareTeams = {},
-  } = props;
+    fetchingAssociatedAccounts,
+    fetchingClinicPrescriptions,
+  } = useSelector((state) => state.blip.working);
+
+  // Fetchers
+  useEffect(() => {
+    if (loggedInUserId && selectedClinicId) {
+      forEach([
+        {
+          workingState: fetchingAssociatedAccounts,
+          action: actions.async.fetchAssociatedAccounts.bind(null, api),
+        },
+        {
+          workingState: fetchingClinicPrescriptions,
+          action: actions.async.fetchClinicPrescriptions.bind(null, api, selectedClinicId),
+        },
+      ], ({ workingState, action }) => {
+        if (
+          !workingState.inProgress &&
+          !workingState.completed &&
+          !workingState.notification
+        ) {
+          dispatch(action());
+        }
+      });
+    }
+  }, [loggedInUserId, selectedClinicId]);
 
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
@@ -70,7 +99,7 @@ const Prescriptions = props => {
     prescription: {},
   };
 
-  const [deleteDialog, setDeleteDialog] = React.useState(initialDeleteDialogState);
+  const [deleteDialog, setDeleteDialog] = useState(initialDeleteDialogState);
 
   function closeDeleteDialog() {
     setDeleteDialog({
@@ -83,17 +112,17 @@ const Prescriptions = props => {
     setTimeout(() => setDeleteDialog(initialDeleteDialogState), 100);
   }
 
-  const [searchText, setSearchText] = React.useState('');
-  const [filterStateActive, setFilterStateActive] = React.useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [filterStateActive, setFilterStateActive] = useState(false);
 
-  const [activeStates, setActiveStates] = React.useState(reduce(prescriptionStateOptions, (result, { value }) => {
+  const [activeStates, setActiveStates] = useState(reduce(prescriptionStateOptions, (result, { value }) => {
     result[value] = true;
     return result;
   }, {}));
 
   const activeStatesCount = without(values(activeStates), false).length;
 
-  const [pendingActiveStates, setPendingActiveStates] = React.useState(activeStates);
+  const [pendingActiveStates, setPendingActiveStates] = useState(activeStates);
   const togglePendingActiveState = (value) => setPendingActiveStates({ ...pendingActiveStates, [value]: !pendingActiveStates[value] })
 
   const data = filter(
@@ -125,11 +154,17 @@ const Prescriptions = props => {
   };
 
   const handleDeletePrescription = prescription => popupState => {
+    trackMetric('Clinic - Delete prescription', { clinicId: selectedClinicId });
     popupState.close();
     setDeleteDialog({
       open: true,
       prescription,
     });
+  }
+
+  function handleConfirmDeletePrescription(invite) {
+    trackMetric('Clinic - Delete prescription confirmed', { clinicId: selectedClinicId });
+    dispatch(actions.async.deletePrescription(api, selectedClinicId, deleteDialog.prescription.id));
   }
 
   function handleRowClick(prescription) {
@@ -225,7 +260,7 @@ const Prescriptions = props => {
   ];
 
   // Handle successful or failed deletion attempts
-  React.useEffect(() => {
+  useEffect(() => {
     const { inProgress, completed, notification } = deletingPrescription;
 
     if (!isFirstRender && !inProgress) {
@@ -367,7 +402,7 @@ const Prescriptions = props => {
             <Button
               variant="danger"
               processing={deletingPrescription.inProgress}
-              onClick={() => deletePrescription(deleteDialog.prescription.id)}
+              onClick={handleConfirmDeletePrescription}
             >
               Delete Prescription
             </Button>
@@ -377,4 +412,4 @@ const Prescriptions = props => {
   );
 };
 
-export default withPrescriptions(withAssociatedAccounts(translate()(Prescriptions)));
+export default translate()(Prescriptions);
