@@ -4025,8 +4025,8 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPrescriptions', () => {
-      it('should trigger FETCH_PRESCRIPTIONS_SUCCESS and it should call prescription.getAll once for a successful request', () => {
+    describe('fetchClinicPrescriptions', () => {
+      it('should trigger FETCH_CLINIC_PRESCRIPTIONS_SUCCESS and it should call prescription.getAllForClinic once for a successful request', () => {
         let prescriptions = [
           { id: 'one' }
         ];
@@ -4038,46 +4038,46 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'FETCH_PRESCRIPTIONS_REQUEST' },
-          { type: 'FETCH_PRESCRIPTIONS_SUCCESS', payload: { prescriptions : prescriptions } }
+          { type: 'FETCH_CLINIC_PRESCRIPTIONS_REQUEST' },
+          { type: 'FETCH_CLINIC_PRESCRIPTIONS_SUCCESS', payload: { prescriptions : prescriptions } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPrescriptions(api));
+        store.dispatch(async.fetchClinicPrescriptions(api));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.getAll.callCount).to.equal(1);
+        expect(api.prescription.getAllForClinic.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PRESCRIPTIONS_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_CLINIC_PRESCRIPTIONS_FAILURE and it should call error once for a failed request', () => {
         let api = {
           prescription: {
             getAll: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null),
           },
         };
 
-        let err = new Error(ErrorMessages.ERR_FETCHING_PRESCRIPTIONS);
+        let err = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PRESCRIPTIONS);
         err.status = 500;
 
         let expectedActions = [
-          { type: 'FETCH_PRESCRIPTIONS_REQUEST' },
-          { type: 'FETCH_PRESCRIPTIONS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'FETCH_CLINIC_PRESCRIPTIONS_REQUEST' },
+          { type: 'FETCH_CLINIC_PRESCRIPTIONS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPrescriptions(api));
+        store.dispatch(async.fetchClinicPrescriptions(api));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PRESCRIPTIONS });
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINIC_PRESCRIPTIONS });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.getAll.callCount).to.equal(1);
+        expect(api.prescription.getAllForClinic.callCount).to.equal(1);
       });
     });
 

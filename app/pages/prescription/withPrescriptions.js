@@ -14,7 +14,7 @@ const { Loader } = vizComponents;
 export const withPrescriptions = Component => props => {
   const {
     fetchers,
-    fetchingPrescriptions,
+    fetchingClinicPrescriptions,
     prescriptions,
     prescriptionId,
   } = props;
@@ -31,7 +31,7 @@ export const withPrescriptions = Component => props => {
 
   const prescription = get(keyBy(prescriptions, 'id'), prescriptionId);
 
-  return fetchingPrescriptions.completed
+  return fetchingClinicPrescriptions.completed
     ? <Component prescription={prescription} {...props} />
     : <Loader />;
 };
@@ -42,8 +42,8 @@ export const withPrescriptions = Component => props => {
 export function getFetchers(dispatchProps, stateProps, api) {
   const fetchers = [];
 
-  if (!stateProps.fetchingPrescriptions.inProgress && !stateProps.fetchingPrescriptions.completed) {
-    fetchers.push(dispatchProps.fetchPrescriptions.bind(null, api));
+  if (!stateProps.fetchingClinicPrescriptions.inProgress && !stateProps.fetchingClinicPrescriptions.completed) {
+    fetchers.push(dispatchProps.fetchClinicPrescriptions.bind(null, api));
   }
 
   return fetchers;
@@ -54,7 +54,7 @@ export function mapStateToProps(state) {
     creatingPrescription: state.blip.working.creatingPrescription,
     creatingPrescriptionRevision: state.blip.working.creatingPrescriptionRevision,
     deletingPrescription: state.blip.working.deletingPrescription,
-    fetchingPrescriptions: state.blip.working.fetchingPrescriptions,
+    fetchingClinicPrescriptions: state.blip.working.fetchingClinicPrescriptions,
     prescriptions: state.blip.prescriptions,
   };
 }
@@ -63,7 +63,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   createPrescription: actions.async.createPrescription,
   createPrescriptionRevision: actions.async.createPrescriptionRevision,
   deletePrescription: actions.async.deletePrescription,
-  fetchPrescriptions: actions.async.fetchPrescriptions,
+  fetchClinicPrescriptions: actions.async.fetchClinicPrescriptions,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

@@ -25,7 +25,7 @@ describe('withPrescriptions HOC', function() {
     const fetcher2 = sinon.stub();
 
     let defaultProps = {
-      fetchingPrescriptions: { completed: false },
+      fetchingClinicPrescriptions: { completed: false },
       prescriptions: [{ id: 'one' }, { id: 'two' }],
       prescriptionId: 'one',
       fetchers: [fetcher1, fetcher2],
@@ -50,7 +50,7 @@ describe('withPrescriptions HOC', function() {
 
     it('should render the supplied component with relevant props if prescriptions have been fetched', () => {
       wrapper.setProps(props({
-        fetchingPrescriptions: { completed: true },
+        fetchingClinicPrescriptions: { completed: true },
       }));
 
       expect(wrapper.dive().find('.loader')).to.have.lengthOf(0);
@@ -82,7 +82,7 @@ describe('withPrescriptions HOC', function() {
         creatingPrescription: { inProgress: true },
         creatingPrescriptionRevision: { inProgress: false },
         deletingPrescription: { inProgress: false, completed: true },
-        fetchingPrescriptions: { inProgress: true, completed: true },
+        fetchingClinicPrescriptions: { inProgress: true, completed: true },
       },
       prescriptions: [{ id: 'one' }, { id: 'two' }],
     };
@@ -106,8 +106,8 @@ describe('withPrescriptions HOC', function() {
       expect(result.deletingPrescription).to.deep.equal(state.working.deletingPrescription);
     });
 
-    it('should map `working.fetchingPrescriptions` to `fetchingPrescriptions`', () => {
-      expect(result.fetchingPrescriptions).to.deep.equal(state.working.fetchingPrescriptions);
+    it('should map `working.fetchingClinicPrescriptions` to `fetchingClinicPrescriptions`', () => {
+      expect(result.fetchingClinicPrescriptions).to.deep.equal(state.working.fetchingClinicPrescriptions);
     });
 
     it('should pass through `prescriptions`', () => {
@@ -117,25 +117,25 @@ describe('withPrescriptions HOC', function() {
 
   describe('getFetchers', () => {
     const stateProps = {
-      fetchingPrescriptions: {
+      fetchingClinicPrescriptions: {
         inProgress: false,
         completed: null,
       },
     };
 
     const dispatchProps = {
-      fetchPrescriptions: sinon.stub().returns('fetchPrescriptions'),
+      fetchClinicPrescriptions: sinon.stub().returns('fetchClinicPrescriptions'),
     };
 
     const api = {};
 
-    it('should only add the fetchPrescriptions fetcher if fetch is not already in progress or completed', () => {
+    it('should only add the fetchClinicPrescriptions fetcher if fetch is not already in progress or completed', () => {
       const defaultResult = getFetchers(dispatchProps, stateProps, api);
       expect(defaultResult.length).to.equal(1);
-      expect(defaultResult[0]()).to.equal('fetchPrescriptions');
+      expect(defaultResult[0]()).to.equal('fetchClinicPrescriptions');
 
       const inProgressResult = getFetchers(dispatchProps, {
-        fetchingPrescriptions: {
+        fetchingClinicPrescriptions: {
           inProgress: true,
           completed: null,
         },
@@ -144,7 +144,7 @@ describe('withPrescriptions HOC', function() {
       expect(inProgressResult.length).to.equal(0);
 
       const completedResult = getFetchers(dispatchProps, {
-        fetchingPrescriptions: {
+        fetchingClinicPrescriptions: {
           inProgress: false,
           completed: true,
         },

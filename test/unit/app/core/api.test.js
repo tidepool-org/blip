@@ -567,7 +567,7 @@ describe('api', () => {
     describe('getAll', () => {
       it('should call tidepool.getPrescriptions with the appropriate args', () => {
         const cb = sinon.stub();
-        api.prescription.getAll(cb);
+        api.prescription.getAllForClinic(cb);
         sinon.assert.calledWith(tidepool.getPrescriptions, cb);
       });
     });

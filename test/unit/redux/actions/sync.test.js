@@ -1763,53 +1763,53 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPrescriptionsRequest', () => {
+    describe('fetchClinicPrescriptionsRequest', () => {
       it('should be a TSA', () => {
-        let action = sync.fetchPrescriptionsRequest();
+        let action = sync.fetchClinicPrescriptionsRequest();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PRESCRIPTIONS_REQUEST', () => {
-        let action = sync.fetchPrescriptionsRequest();
-        expect(action.type).to.equal('FETCH_PRESCRIPTIONS_REQUEST');
+      it('type should equal FETCH_CLINIC_PRESCRIPTIONS_REQUEST', () => {
+        let action = sync.fetchClinicPrescriptionsRequest();
+        expect(action.type).to.equal('FETCH_CLINIC_PRESCRIPTIONS_REQUEST');
       });
     });
 
-    describe('fetchPrescriptionsSuccess', () => {
+    describe('fetchClinicPrescriptionsSuccess', () => {
       it('should be a TSA', () => {
         let prescriptions = [
           { id: 'one' }
         ];
-        let action = sync.fetchPrescriptionsSuccess(prescriptions);
+        let action = sync.fetchClinicPrescriptionsSuccess(prescriptions);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PRESCRIPTIONS_SUCCESS', () => {
+      it('type should equal FETCH_CLINIC_PRESCRIPTIONS_SUCCESS', () => {
         let prescriptions = [
           { id: 'one' }
         ];
-        let action = sync.fetchPrescriptionsSuccess(prescriptions);
+        let action = sync.fetchClinicPrescriptionsSuccess(prescriptions);
 
-        expect(action.type).to.equal('FETCH_PRESCRIPTIONS_SUCCESS');
+        expect(action.type).to.equal('FETCH_CLINIC_PRESCRIPTIONS_SUCCESS');
         expect(action.payload.prescriptions).to.equal(prescriptions);
       });
     });
 
-    describe('fetchPrescriptionsFailure', () => {
+    describe('fetchClinicPrescriptionsFailure', () => {
       it('should be a TSA', () => {
         let error = new Error(':(');
-        let action = sync.fetchPrescriptionsFailure(error);
+        let action = sync.fetchClinicPrescriptionsFailure(error);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PRESCRIPTIONS_FAILURE and error should equal passed error', () => {
+      it('type should equal FETCH_CLINIC_PRESCRIPTIONS_FAILURE and error should equal passed error', () => {
         let error = new Error(':(');
-        let action = sync.fetchPrescriptionsFailure(error);
+        let action = sync.fetchClinicPrescriptionsFailure(error);
 
-        expect(action.type).to.equal('FETCH_PRESCRIPTIONS_FAILURE');
+        expect(action.type).to.equal('FETCH_CLINIC_PRESCRIPTIONS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

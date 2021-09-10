@@ -876,24 +876,24 @@ export function fetchPatientDataFailure(error, apiError) {
   };
 }
 
-export function fetchPrescriptionsRequest() {
+export function fetchClinicPrescriptionsRequest() {
   return {
-    type: ActionTypes.FETCH_PRESCRIPTIONS_REQUEST,
+    type: ActionTypes.FETCH_CLINIC_PRESCRIPTIONS_REQUEST,
   };
 }
 
-export function fetchPrescriptionsSuccess(prescriptions) {
+export function fetchClinicPrescriptionsSuccess(prescriptions) {
   return {
-    type: ActionTypes.FETCH_PRESCRIPTIONS_SUCCESS,
+    type: ActionTypes.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS,
     payload: {
       prescriptions: prescriptions,
     },
   };
 }
 
-export function fetchPrescriptionsFailure(error, apiError) {
+export function fetchClinicPrescriptionsFailure(error, apiError) {
   return {
-    type: ActionTypes.FETCH_PRESCRIPTIONS_FAILURE,
+    type: ActionTypes.FETCH_CLINIC_PRESCRIPTIONS_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
