@@ -13,8 +13,8 @@
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/"
   },
   "engines": {
-    "node": ">=10.x",
-    "npm": ">=6.x"
+    "node": ">=12.x",
+    "npm": ">=7.x"
   },
   "dependencies": {
     "body-parser": "1.19.0",
