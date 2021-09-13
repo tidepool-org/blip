@@ -431,6 +431,7 @@ export default (state = initialWorkingState, action) => {
       const newState = _.cloneDeep(state);
       _.forEach([
         'fetchingCliniciansFromClinic',
+        'fetchingClinicPrescriptions',
         'fetchingPatientsForClinic',
         'fetchingPatientInvites',
       ], key => _.set(newState, key, {
