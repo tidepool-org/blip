@@ -46,6 +46,7 @@ import { Headline } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 import { useIsFirstRender } from '../../core/hooks';
 import * as actions from '../../redux/actions';
+import { components as vizComponents } from '@tidepool/viz';
 
 import {
   defaultUnits,
@@ -56,10 +57,55 @@ import {
 } from './prescriptionFormConstants';
 
 const { TextUtil } = vizUtils.text;
+const { Loader } = vizComponents;
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionForm');
 
 let schema;
+
+const prescriptionFormWrapper = Component => props => {
+  const { api } = props;
+  const dispatch = useDispatch();
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const devices = useSelector((state) => state.blip.devices);
+  const prescriptions = useSelector((state) => state.blip.prescriptions);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const prescriptionId = props.match?.params?.id;
+  const prescription = get(keyBy(prescriptions, 'id'), prescriptionId);
+
+  const {
+    fetchingDevices,
+    fetchingClinicPrescriptions,
+  } = useSelector((state) => state.blip.working);
+
+   // Fetchers
+   useEffect(() => {
+    if (loggedInUserId && selectedClinicId) {
+      forEach([
+        {
+          workingState: fetchingDevices,
+          action: actions.async.fetchDevices.bind(null, api),
+        },
+        {
+          workingState: fetchingClinicPrescriptions,
+          action: actions.async.fetchClinicPrescriptions.bind(null, api, selectedClinicId),
+        },
+      ], ({ workingState, action }) => {
+        if (
+          !workingState.inProgress &&
+          !workingState.completed &&
+          !workingState.notification
+        ) {
+          dispatch(action());
+        }
+      });
+    }
+  }, [loggedInUserId, selectedClinicId]);
+
+  return fetchingDevices.completed && fetchingClinicPrescriptions.completed
+    ? <Component prescription={prescription} devices={devices} {...props} />
+    : <Loader />;
+}
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToStatus: props => ({
@@ -199,14 +245,11 @@ export const PrescriptionForm = props => {
   const {
     t,
     api,
+    devices,
     history,
     location,
     trackMetric,
-    match: {
-      params: {
-        id: prescriptionId
-      } = {},
-    } = {},
+    prescription,
   } = props;
 
   const dispatch = useDispatch();
@@ -223,15 +266,12 @@ export const PrescriptionForm = props => {
 
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
-  const prescriptions = useSelector((state) => state.blip.prescriptions);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const devices = useSelector((state) => state.blip.devices);
   const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
   const pump = find(devices.pumps, { id: pumpId });
-  const [prescription, setPrescription] = useState();
   const prescriptionState = get(prescription, 'state', 'draft');
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
   const isEditable = includes(['draft', 'pending'], prescriptionState);
@@ -239,37 +279,7 @@ export const PrescriptionForm = props => {
   const {
     creatingPrescription,
     creatingPrescriptionRevision,
-    fetchingClinicPrescriptions,
-    fetchingDevices,
   } = useSelector((state) => state.blip.working);
-
-  // Fetchers
-  useEffect(() => {
-    if (loggedInUserId && selectedClinicId) {
-      forEach([
-        {
-          workingState: fetchingDevices,
-          action: actions.async.fetchDevices.bind(null, api),
-        },
-        {
-          workingState: fetchingClinicPrescriptions,
-          action: actions.async.fetchClinicPrescriptions.bind(null, api, selectedClinicId),
-        },
-      ], ({ workingState, action }) => {
-        if (
-          !workingState.inProgress &&
-          !workingState.completed &&
-          !workingState.notification
-        ) {
-          dispatch(action());
-        }
-      });
-    }
-  }, [loggedInUserId, selectedClinicId]);
-
-  useEffect(() => {
-    setPrescription(get(keyBy(prescriptions, 'id'), prescriptionId));
-  }, [prescriptions]);
 
   useEffect(() => {
     // Schema needs to be recreated to account for conditional mins and maxes as values update
@@ -333,7 +343,7 @@ export const PrescriptionForm = props => {
     }
 
     // Only use the localStorage persistence for new prescriptions - not while editing an existing one.
-    setFormPersistReady(!prescription); // TODO: prescription will not be available on first render - need to figure this out
+    setFormPersistReady(!prescription);
   }, []);
 
   // Save whether or not we are editing a single step to the formik form status for easy reference
@@ -474,7 +484,7 @@ export const PrescriptionForm = props => {
       prescriptionAttributes.createdUserId = loggedInUserId;
 
       prescriptionAttributes.revisionHash = await sha512(
-        JSON.stringify(canonicalize(prescriptionAttributes)),
+        canonicalize(prescriptionAttributes),
         { outputFormat: 'hex' }
       );
 
@@ -631,4 +641,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default withFormik(prescriptionForm())(translate()(PrescriptionForm));
+export default prescriptionFormWrapper(withFormik(prescriptionForm())(translate()(PrescriptionForm)));
