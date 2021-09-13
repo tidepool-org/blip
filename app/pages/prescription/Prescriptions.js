@@ -126,7 +126,7 @@ const Prescriptions = props => {
   const togglePendingActiveState = (value) => setPendingActiveStates({ ...pendingActiveStates, [value]: !pendingActiveStates[value] })
 
   const data = filter(
-    map(prescriptions, prescription => ({
+    map(filter(prescriptions, { clinicId: selectedClinicId }), prescription => ({
       birthday: get(prescription, 'latestRevision.attributes.birthday', '').replace(dateRegex, '$2/$3/$1'),
       createdTime: get(prescription, 'latestRevision.attributes.createdTime'),
       firstName: get(prescription, 'latestRevision.attributes.firstName'),
