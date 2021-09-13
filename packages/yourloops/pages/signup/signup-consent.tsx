@@ -33,7 +33,6 @@ import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import Link from "@material-ui/core/Link";
 
 import diabeloopUrl from "../../lib/diabeloop-url";
@@ -73,13 +72,7 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
   const classes = useStyles();
   const { handleBack, handleNext } = props;
   const { state, dispatch } = useSignUpFormState();
-  const [error, setError] = React.useState(false);
-  const [helperText, setHelperText] = React.useState("");
-
-  const resetFormState = (): void => {
-    setError(false);
-    setHelperText("");
-  };
+  const consentsChecked = state.formValues.terms && state.formValues.privacyPolicy;
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -90,25 +83,11 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
       key: keyField,
       value: (event.target as HTMLInputElement).checked,
     });
-    resetFormState();
-  };
-
-  const valideForm = (): boolean => {
-    if (state.formValues?.terms && state.formValues?.privacyPolicy) {
-      return true;
-    }
-
-    setError(true);
-    setHelperText("required-field");
-    return false;
   };
 
   const onNext = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    resetFormState();
-    if (valideForm()) {
-      handleNext();
-    }
+    handleNext();
   };
 
   // TODO: Fix duplicate code with switch-role-consent-dialog.tsx
@@ -160,12 +139,8 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
       <FormControl
         required
         component="fieldset"
-        error={error}
         className={classes.formControl}
       >
-        <FormHelperText className={classes.formHelperText}>
-          {t(helperText)}
-        </FormHelperText>
         <FormControlLabel
           id="signup-consent-privacy-ctl"
           className={classes.formControlLabel}
@@ -215,6 +190,7 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           id="button-signup-steppers-next"
           variant="contained"
           color="primary"
+          disabled={!consentsChecked}
           className={classes.button}
           classes={{ label: "button-signup-steppers-next-label" }}
           onClick={onNext}>
