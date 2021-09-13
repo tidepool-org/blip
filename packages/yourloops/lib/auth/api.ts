@@ -195,6 +195,25 @@ async function signup(username: string, password: string, role: UserRoles, trace
   }
 }
 
+async function resendSignup(username: string, traceToken: string, language = "en"): Promise<boolean> {
+  if (!_.isString(username) || _.isEmpty(username)) {
+    return Promise.reject(new Error("no-username"));
+  }
+
+  log.debug("resendSignup", username);
+  const resendURL = new URL(`/confirm/resend/signup/${username}`, appConfig.API_HOST);
+  const response = await fetch(resendURL.toString(), {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.language]: language,
+    },
+  });
+
+  return response.ok;
+}
+
 async function getProfile(session: Readonly<Session>, userId?: string): Promise<Profile | null> {
   const seagullURL = new URL(`/metadata/${userId ?? session.user.userid}/profile`, appConfig.API_HOST);
 
@@ -549,6 +568,7 @@ export default {
   requestPasswordReset,
   resetPassword,
   signup,
+  resendSignup,
   sendAccountValidation,
   accountConfirmed,
   updateProfile,

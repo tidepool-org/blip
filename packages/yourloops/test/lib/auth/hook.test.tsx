@@ -47,6 +47,7 @@ interface AuthAPIStubs {
   requestPasswordReset: sinon.SinonStub<unknown[], Promise<void>>;
   resetPassword: sinon.SinonStub<string[], Promise<boolean>>;
   signup: sinon.SinonStub<string[], Promise<Session>>;
+  resendSignup: sinon.SinonStub<string[], Promise<boolean>>;
   sendAccountValidation: sinon.SinonStub<unknown[], Promise<boolean>>;
   accountConfirmed: sinon.SinonStub<string[], Promise<boolean>>;
   updatePreferences: sinon.SinonStub<Session[], Promise<Preferences>>;
@@ -78,6 +79,7 @@ export const createAuthApiStubs = (session: Session): AuthAPIStubs => ({
   requestPasswordReset: sinon.stub().resolves(),
   resetPassword: sinon.stub().resolves(false),
   signup: sinon.stub().resolves(session),
+  resendSignup: sinon.stub().resolves(true),
   sendAccountValidation: sinon.stub().resolves(false),
   accountConfirmed: sinon.stub().resolves(false),
   updatePreferences: sinon.stub().resolves(session.user.preferences),
@@ -105,6 +107,7 @@ export const authHookHcpStubs = {
   updateSettings: sinon.stub().resolves(authHcp.user.profile),
   updatePassword: sinon.stub().resolves(),
   signup: sinon.stub(),
+  resendSignup: sinon.stub().resolves(true),
   isLoggedIn: sinon.stub().returns(true),
   sendPasswordResetEmail: sinon.stub().returns(true),
   resetPassword: sinon.stub().returns(true),
@@ -642,6 +645,16 @@ function testHook(): void {
       expect(authApiHcpStubs.sendAccountValidation.getCall(0).args[1]).to.be.equals(infos.preferencesLanguage);
       expect(error).to.be.null;
       expect(authContext.user).to.be.null;
+    });
+  });
+
+  describe("Resend sign-up", () => {
+    it("should call the resend sign-up api", async () => {
+      initAuthContext(authHcp, authApiHcpStubs);
+      const result = await authContext.resendSignup("abcd");
+      expect(authApiHcpStubs.resendSignup.calledOnce, "resendSignup.calledOnce").to.be.true;
+      expect(authApiHcpStubs.resendSignup.firstCall.args, "resendSignup args").to.be.deep.equals(["abcd", authHcp.traceToken, "en"]);
+      expect(result, "result").to.be.true;
     });
   });
 

@@ -61,6 +61,7 @@ export interface AuthAPI {
   requestPasswordReset: (username: string, traceToken: string, language?: string, info?: boolean) => Promise<void>;
   resetPassword: (key: string, username: string, password: string, traceToken: string) => Promise<boolean>;
   signup: (username: string, password: string, role: UserRoles, traceToken: string) => Promise<Session>;
+  resendSignup: (username: string, traceToken: string, language?: string) => Promise<boolean>;
   sendAccountValidation: (session: Readonly<Session>, language?: string) => Promise<boolean>;
   accountConfirmed: (key: string, traceToken: string) => Promise<boolean>;
   updateProfile: (session: Readonly<Session>) => Promise<Profile>;
@@ -93,6 +94,7 @@ export interface AuthContext {
   /** Update current user password */
   updatePassword: (currentPassword: string, password: string) => Promise<void>;
   signup: (signup: SignupUser) => Promise<void>;
+  resendSignup: (username: string) => Promise<boolean>;
   isLoggedIn: () => boolean;
   sendPasswordResetEmail: (username: string, language: string) => Promise<void>;
   resetPassword: (key: string, username: string, password: string) => Promise<boolean>;

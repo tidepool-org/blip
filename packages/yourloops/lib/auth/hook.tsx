@@ -254,6 +254,13 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     log.info("signup done", auth);
   };
 
+  const resendSignup = (username: string): Promise<boolean> => {
+    if (traceToken === null) {
+      throw new Error("not-yet-initialized");
+    }
+    return api.resendSignup(username, traceToken, getCurrentLang());
+  };
+
   const flagPatient = async (userId: string): Promise<void> => {
     log.info("flagPatient", userId);
     const authInfo = await getAuthInfos();
@@ -465,6 +472,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     updatePassword,
     logout,
     signup,
+    resendSignup,
     isLoggedIn,
     sendPasswordResetEmail,
     resetPassword,

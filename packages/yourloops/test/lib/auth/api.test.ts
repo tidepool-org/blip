@@ -435,6 +435,81 @@ function testAPI(): void {
     });
   });
 
+  describe("resendSignup", () => {
+    it("should throw an error if no username", async () => {
+      let error: Error | null = null;
+      try {
+        await api.resendSignup("", "trace-token");
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.instanceOf(Error);
+    });
+
+    it("should return false if the reply is not OK", async () => {
+      const resolveError: Response = {
+        status: HttpStatus.StatusInternalServerError,
+        ok: false,
+        statusText: "InternalServerError",
+        type: "error",
+        redirected: false,
+      } as Response;
+      fetchMock.resolves(resolveError);
+      let error: Error | null = null;
+      try {
+        const result = await api.resendSignup("abcd", "trace-token");
+        expect(result).to.be.false;
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.null;
+      expect(fetchMock.callCount).to.be.equals(1);
+      expect(fetchMock.getCall(0).args).to.be.deep.equals([
+        "http://localhost:8009/confirm/resend/signup/abcd",
+        {
+          method: "POST",
+          cache: "no-store",
+          headers: {
+            [HttpHeaderKeys.traceToken]: "trace-token",
+            [HttpHeaderKeys.language]: "en",
+          },
+        },
+      ]);
+    });
+
+    it("should resolve with no error when the API reply OK", async () => {
+      const resolveOK: Response = {
+        status: HttpStatus.StatusOK,
+        ok: true,
+        statusText: "OK",
+        type: "basic",
+        redirected: false,
+      } as Response;
+
+      fetchMock.resolves(resolveOK);
+      let error: Error | null = null;
+      try {
+        const result = await api.resendSignup("abcd", "trace-token", "fr");
+        expect(result).to.be.true;
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.null;
+      expect(fetchMock.callCount).to.be.equals(1);
+      expect(fetchMock.getCall(0).args).to.be.deep.equals([
+        "http://localhost:8009/confirm/resend/signup/abcd",
+        {
+          method: "POST",
+          cache: "no-store",
+          headers: {
+            [HttpHeaderKeys.traceToken]: "trace-token",
+            [HttpHeaderKeys.language]: "fr",
+          },
+        },
+      ]);
+    });
+  });
+
   describe("requestPasswordReset", () => {
     it("should throw an error if no username", async () => {
       let error: Error | null = null;

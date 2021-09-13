@@ -44,14 +44,15 @@ export interface ApiAlert {
   message: string;
   severity: AlertSeverity;
   id?: string;
+  action?: JSX.Element | null;
 }
 
 export interface SnackbarContext {
   /** Add a new snackbar alert, return the alert id */
-  error: (message: string, id?: string) => string;
-  warning: (message: string, id?: string) => string;
-  info: (message: string, id?: string) => string;
-  success: (message: string, id?: string) => string;
+  error: (message: string, action?: JSX.Element | null, replace?: boolean, id?: string) => string;
+  warning: (message: string, action?: JSX.Element | null, replace?: boolean, id?: string) => string;
+  info: (message: string, action?: JSX.Element | null, replace?: boolean, id?: string) => string;
+  success: (message: string, action?: JSX.Element | null, replace?: boolean, id?: string) => string;
   /** Remove an alert with it's id */
   removeAlert: (id: string) => void;
   clearAlerts: () => void;
@@ -67,36 +68,50 @@ const log = bows("Snackbar");
 export function DefaultSnackbarContext(): SnackbarContext {
   const [alerts, setAlerts] = React.useState<ApiAlert[]>([]);
 
-  const addAlert = (severity: AlertSeverity, message: string, id?: string): string => {
-    const alert = { severity, message, id: id ?? _.uniqueId() };
-    const a = Array.from(alerts);
-    a.push(alert);
-    setAlerts(a);
+  const addAlert = (severity: AlertSeverity, message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
+    const alert = { severity, message, id: id ?? _.uniqueId(), action };
+    if (replace) {
+      setAlerts([alert]);
+    } else {
+      const a = Array.from(alerts);
+      a.push(alert);
+      setAlerts(a);
+    }
     log.debug("addAlert", alert);
     return alert.id;
   };
-  const error = (message: string, id?: string): string => {
-    return addAlert(AlertSeverity.error, message, id);
+  const error = (message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
+    return addAlert(AlertSeverity.error, message, action, replace, id);
   };
-  const warning = (message: string, id?: string): string => {
-    return addAlert(AlertSeverity.warning, message, id);
+  const warning = (message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
+    return addAlert(AlertSeverity.warning, message, action, replace, id);
   };
-  const info = (message: string, id?: string): string => {
-    return addAlert(AlertSeverity.info, message, id);
+  const info = (message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
+    return addAlert(AlertSeverity.info, message, action, replace, id);
   };
-  const success = (message: string, id?: string): string => {
-    return addAlert(AlertSeverity.success, message, id);
+  const success = (message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
+    return addAlert(AlertSeverity.success, message, action, replace, id);
   };
   const removeAlert = (id: string): void => {
     log.debug("removeAlert", id);
     setAlerts(alerts.filter((a) => a.id !== id));
   };
   const clearAlerts = (): void => {
-    log.debug("clearAlerts");
+    log.debug("clearAlerts", alerts);
     setAlerts([]);
   };
 
   return { error, warning, info, success, removeAlert, clearAlerts, alerts };
+}
+
+function getAlertTimeout(numAlerts: number, haveAction: boolean): number {
+  if (numAlerts > 1) {
+    return 1000;
+  }
+  if (haveAction) {
+    return 12000; // eslint-disable-line no-magic-numbers
+  }
+  return 6000; // eslint-disable-line no-magic-numbers
 }
 
 export const Snackbar = (props: SnackbarContext): JSX.Element => {
@@ -117,7 +132,7 @@ export const Snackbar = (props: SnackbarContext): JSX.Element => {
   const alertUI = React.useMemo(() => {
     if (currentAlert !== null) {
       return (
-        <Alert id="alert-message" onClose={onCloseAlert} severity={currentAlert.severity}>
+        <Alert id="alert-message" onClose={onCloseAlert} severity={currentAlert.severity} action={currentAlert.action}>
           {currentAlert.message}
         </Alert>
       );
@@ -127,7 +142,7 @@ export const Snackbar = (props: SnackbarContext): JSX.Element => {
 
   return (
     <SnackbarUI open={currentAlert !== null}
-      autoHideDuration={alerts.length > 1 ? 1000 : 6000} // eslint-disable-line no-magic-numbers
+      autoHideDuration={getAlertTimeout(alerts.length, Boolean(currentAlert?.action))}
       onClose={onCloseAlert}
       key={currentAlert?.id ?? Number.MAX_SAFE_INTEGER}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}>
@@ -135,7 +150,6 @@ export const Snackbar = (props: SnackbarContext): JSX.Element => {
     </SnackbarUI>
   );
 };
-
 
 const ReactSnackbarContext = React.createContext<SnackbarContext>({
   error: _.constant(""),

@@ -51,6 +51,7 @@ export interface PasswordProps {
   error: boolean;
   helperText: string;
   required?: boolean;
+  disabled?: boolean;
   autoComplete: "current-password" | "new-password";
   variant: "standard" | "filled" | "outlined";
   margin?: "none" | "dense" | "normal";
@@ -83,6 +84,7 @@ const Password: React.FunctionComponent<PasswordProps> = ({
   style,
   className,
   required,
+  disabled,
   variant,
   margin,
   autoComplete,
@@ -118,6 +120,7 @@ const Password: React.FunctionComponent<PasswordProps> = ({
       value={value}
       error={error}
       required={required}
+      disabled={disabled}
       variant={variant}
       type={showPassword ? PasswordVisibility.text : PasswordVisibility.hidden}
       onChange={handleChange}

@@ -51,6 +51,7 @@ import { errorTextFromException } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
 import LanguageSelector from "../../components/language-select";
 import Password from "../../components/utils/password";
+import ButtonResendActivationLink from "./resend-link";
 
 const loginStyle = makeStyles((theme: Theme) => {
   return {
@@ -102,6 +103,7 @@ function Login(): JSX.Element {
   const [password, setPassword] = React.useState("");
   const [validateError, setValidateError] = React.useState(false);
   const [helperTextValue, setHelperTextValue] = React.useState("");
+  const [resendActivationLinkInProgress, setResendActivationLinkInProgress] = React.useState(false);
 
   const emptyUsername = _.isEmpty(username);
   const emptyPassword = _.isEmpty(password);
@@ -130,13 +132,26 @@ function Login(): JSX.Element {
       log.debug("Logged user:", user);
       // The redirect is done by packages/yourloops/components/routes.tsx#PublicRoute
     } catch (reason: unknown) {
-      let errorMessage = errorTextFromException(reason);
+      let action: JSX.Element | null = null;
+      const errorMessage = errorTextFromException(reason);
+      let translatedErrorMessage: string | null = null;
       if (errorMessage === "error-account-lock") {
-        errorMessage = t(errorMessage, { delayBeforeNextLoginAttempt: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT });
-      } else {
-        errorMessage = t(errorMessage);
+        translatedErrorMessage = t(errorMessage, { delayBeforeNextLoginAttempt: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT });
+      } else if (errorMessage === "email-not-verified") {
+        action = (
+          <ButtonResendActivationLink
+            username={username}
+            log={log}
+            setResendActivationLinkInProgress={setResendActivationLinkInProgress}
+          />
+        );
       }
-      alert.error(errorMessage);
+
+      if (translatedErrorMessage === null) {
+        translatedErrorMessage = t(errorMessage);
+      }
+
+      alert.error(translatedErrorMessage as string, action);
     }
   };
 
@@ -187,7 +202,7 @@ function Login(): JSX.Element {
                   label={t("email")}
                   variant="outlined"
                   value={username}
-                  disabled={signupEmail !== null}
+                  disabled={signupEmail !== null || resendActivationLinkInProgress}
                   required
                   error={validateError && emptyUsername}
                   onChange={onUsernameChange}
@@ -205,6 +220,7 @@ function Login(): JSX.Element {
                   value={password}
                   required={true}
                   error={validateError && (emptyPassword || helperTextValue.length > 0)}
+                  disabled={resendActivationLinkInProgress}
                   helperText={helperTextValue}
                 />
               </form>
@@ -222,7 +238,7 @@ function Login(): JSX.Element {
                 color="primary"
                 onClick={onClickLoginButton}
                 className={classes.loginButton}
-                disabled={emptyUsername || emptyPassword}>
+                disabled={emptyUsername || emptyPassword || resendActivationLinkInProgress}>
                 {t("Login")}
               </Button>
             </CardActions>
