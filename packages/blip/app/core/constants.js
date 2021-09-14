@@ -17,6 +17,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import i18next from 'i18next';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 import config from '../config';
 
 export const URL_TIDEPOOL_MOBILE_APP_STORE = 'https://itunes.apple.com/us/app/tidepool-mobile/id1026395200?mt=8';
@@ -91,10 +92,6 @@ export const DIABETES_DATA_TYPES = [
   'food',
   'physicalActivity',
 ];
-
-export const MGDL_UNITS = 'mg/dL';
-export const MMOLL_UNITS = 'mmol/L';
-export const MGDL_PER_MMOLL = 18.01559;
 
 export const DEFAULT_BG_TARGETS = {
   [MGDL_UNITS]: {

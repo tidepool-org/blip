@@ -44,8 +44,8 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import sizeMe from 'react-sizeme';
 import _ from 'lodash';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { THREE_HRS } from '../../../utils/datetime';
 import { findDatesIntersectingWithCbgSliceSegment } from '../../../utils/trends/data';
 import Background from './Background';

@@ -24,8 +24,8 @@ describe('constants', function() {
     expect(typeof constants).to.equal('object');
   });
 
-  it('should define the MGDL_PER_MMOLL conversion as 18.01559', function() {
-    expect(constants.MGDL_PER_MMOLL).to.equal(18.01559);
+  it('should define the MGDL_PER_MMOLL conversion as 18.01577', function() {
+    expect(constants.MGDL_PER_MMOLL).to.equal(18.01577);
   });
 
   it('should define the MGDL_UNITS conversion as mg/dL', function() {
@@ -96,6 +96,6 @@ describe('constants', function() {
   });
 
   it('should define the BG_CLAMP_THRESHOLD in MMOLL_UNITS threshold as 600/MGDL_PER_MMOLL', function() {
-    expect(constants.BG_CLAMP_THRESHOLD[constants.MMOLL_UNITS]).to.equal(600/constants.MGDL_PER_MMOLL);
+    expect(constants.BG_CLAMP_THRESHOLD[constants.MMOLL_UNITS]).to.equal(33.3);
   });
 });

@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from 'tideline';
 import DataUtil from '../../src/utils/data';
 import * as Types from '../../data/types';
-import { MGDL_UNITS, MS_IN_DAY, MS_IN_HOUR, MS_IN_MIN, MMOLL_UNITS } from '../../src/utils/constants';
+import { MS_IN_HOUR, MS_IN_MIN } from '../../src/utils/constants';
 
 /* eslint-disable max-len, no-underscore-dangle */
 

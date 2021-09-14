@@ -21,9 +21,9 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
-import { formatBgValue } from '../../../utils/format';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 
+import { formatBgValue } from '../../../utils/format';
 import styles from './YAxisLabelsAndTicks.css';
 
 const YAxisLabels = (props) => {

@@ -21,9 +21,8 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 import Trends from '../../../../app/components/chart/trends';
 import { mount, shallow } from 'enzyme';
-import { MS_IN_DAY } from 'tideline';
+import { MS_IN_DAY, MGDL_UNITS } from 'tideline';
 import { components as vizComponents } from 'tidepool-viz';
-import { MGDL_UNITS } from '../../../../app/core/constants';
 import DataUtilStub from '../../../helpers/DataUtil';
 
 const { Loader } = vizComponents;

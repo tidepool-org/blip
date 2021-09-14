@@ -3,12 +3,12 @@ import moment from 'moment-timezone';
 import _ from 'lodash';
 import bows from 'bows';
 
+import { convertBG, MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from "tideline";
 import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
 import { getTotalBolus } from './bolus';
 import { cgmSampleFrequency, classifyBgValue, reshapeBgClassesToBgBounds } from './bloodglucose';
 import { addDuration } from './datetime';
 import { getLatestPumpUpload } from './device';
-import { MGDL_UNITS, MGDL_PER_MMOLL, MS_IN_DAY } from './constants';
 
 
 /* eslint-disable lodash/prefer-lodash-method, no-underscore-dangle, no-param-reassign */
@@ -367,7 +367,7 @@ class DataUtil {
 
     const meanInMGDL = this.bgUnits === MGDL_UNITS
       ? averageGlucose
-      : averageGlucose * MGDL_PER_MMOLL;
+      : convertBG(averageGlucose, MMOLL_UNITS);
 
     const glucoseManagementIndicator = (3.31 + 0.02392 * meanInMGDL);
 

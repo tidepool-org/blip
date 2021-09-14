@@ -6,8 +6,8 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import chai from 'chai';
 
+import { MGDL_UNITS } from 'tideline';
 import Settings from '../../../../app/components/chart/settings';
-import { MGDL_UNITS } from '../../../../app/core/constants';
 
 describe('Settings', function () {
   const { expect } = chai;

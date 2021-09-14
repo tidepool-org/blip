@@ -19,9 +19,9 @@ import _ from 'lodash';
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { formatClassesAsSelector } from '../../../helpers/cssmodules';
-import { MGDL_UNITS } from '../../../../src/utils/constants';
+import { MGDL_UNITS } from 'tideline';
 
+import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 import FocusedRangeLabels from '../../../../src/components/trends/common/FocusedRangeLabels';
 import styles from '../../../../src/components/trends/common/FocusedRangeLabels.css';
 

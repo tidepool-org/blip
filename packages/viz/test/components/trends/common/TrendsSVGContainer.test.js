@@ -17,14 +17,12 @@
 
 import _ from 'lodash';
 import React from 'react';
-
 import { shallow } from 'enzyme';
 
+import { MGDL_UNITS } from 'tideline';
+
 import bgBounds from '../../../helpers/bgBounds';
-
 import { TrendsSVGContainer } from '../../../../src/components/trends/common/TrendsSVGContainer';
-
-import { MGDL_UNITS } from '../../../../src/utils/constants';
 import Background
   from '../../../../src/components/trends/common/Background';
 import CBGSlicesContainer

@@ -21,6 +21,8 @@ import _ from 'lodash';
 import sinon from 'sinon';
 import { expect, assert } from 'chai';
 
+import { MMOLL_UNITS } from 'tideline';
+
 import BgLogPrintView from '../../../src/modules/print/BgLogPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
 import * as patients from '../../../data/patient/profiles';
@@ -40,7 +42,6 @@ import {
 import { THREE_HRS } from '../../../src/utils/datetime';
 
 import Doc from '../../helpers/pdfDoc';
-import { MMOLL_UNITS } from '../../../src/utils/constants';
 
 describe('BgLogPrintView', () => {
   let Renderer;

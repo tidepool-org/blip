@@ -23,13 +23,12 @@ import moment from 'moment-timezone';
 import i18next from 'i18next';
 import { Switch, Route /*, Redirect */ } from 'react-router-dom';
 
-import { TidelineData, nurseShark, MS_IN_DAY } from 'tideline';
+import { TidelineData, nurseShark, MS_IN_DAY, MGDL_UNITS } from 'tideline';
 import { utils as vizUtils, components as vizComponents, createPrintPDFPackage } from 'tidepool-viz';
 
 import config from "../config";
 import personUtils from '../core/personutils';
 import utils from '../core/utils';
-import { MGDL_UNITS } from '../core/constants';
 import ApiUtils from '../core/api-utils';
 import { Header, Basics, Daily, Trends, Settings } from './chart';
 import Messages from './messages';

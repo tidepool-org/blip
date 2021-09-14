@@ -38,9 +38,10 @@
 
 import _ from 'lodash';
 import { format } from 'd3-format';
+import i18next from 'i18next';
+import { convertBG, MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 import { formatLocalizedFromUTC, getHourMinuteFormat } from './datetime';
-import { convertToMmolL } from './bloodglucose';
-import { BG_HIGH, BG_LOW, MMOLL_UNITS, MGDL_UNITS } from './constants';
+import { BG_HIGH, BG_LOW } from './constants';
 
 /**
  * formatBgValue
@@ -58,17 +59,17 @@ export function formatBgValue(val, bgPrefs, outOfRangeThresholds) {
     let highThreshold = outOfRangeThresholds.high;
     if (units === MMOLL_UNITS) {
       if (lowThreshold) {
-        lowThreshold = convertToMmolL(lowThreshold);
+        lowThreshold = convertBG(lowThreshold, MGDL_UNITS);
       }
       if (highThreshold) {
-        highThreshold = convertToMmolL(highThreshold);
+        highThreshold = convertBG(highThreshold, MGDL_UNITS);
       }
     }
     if (lowThreshold && val < lowThreshold) {
-      return BG_LOW;
+      return i18next.t(BG_LOW);
     }
     if (highThreshold && val > highThreshold) {
-      return BG_HIGH;
+      return i18next.t(BG_HIGH);
     }
   }
   if (units === MMOLL_UNITS) {

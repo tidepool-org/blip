@@ -17,8 +17,8 @@
 
 import _ from 'lodash';
 import sundial from 'sundial';
-import { TidelineData, nurseShark } from 'tideline';
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES, DEFAULT_BG_TARGETS, DEFAULT_BG_SETTINGS } from './constants';
+import { nurseShark, MGDL_UNITS } from 'tideline';
+import { DIABETES_DATA_TYPES, DEFAULT_BG_TARGETS, DEFAULT_BG_SETTINGS } from './constants';
 import config from '../config';
 
 var utils = {};
@@ -274,38 +274,6 @@ utils.getMedtronic = function (location) {
 };
 
 /**
- * Translate a BG value to the desired target unit
- *
- * @param {Number} a bg value
- * @param {String} one of [mg/dL, mmol/L] the units to convert to
- *
- * @return {Number} the converted value
- */
-utils.translateBg = (value, targetUnits) => {
-  if (targetUnits === MGDL_UNITS) {
-    return parseInt(Math.round(value * MGDL_PER_MMOLL), 10);
-  }
-  return parseFloat((value / MGDL_PER_MMOLL).toFixed(1));
-};
-
-/**
- * Round a target BG value as appropriate
- * mg/dL - to the nearest 5
- * mmol/L - to the nearest .1
- *
- * @param {Number} a bg value
- * @param {String} one of [mg/dL, mmol/L] the units to convert to
- *
- * @return {Number} the converted value
- */
-utils.roundBgTarget = (value, units) => {
-  const nearest = units === MGDL_UNITS ? 5 : 0.1;
-  const precision = units === MGDL_UNITS ? 0 : 1;
-  return parseFloat((nearest * Math.round(value / nearest)).toFixed(precision));
-};
-
-
-/**
  * return settings which are well formed and consistant (same units for all bgTarget) even if input settings do not contain all the properties.
  *
  */
@@ -369,68 +337,9 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBGPrefsForDataProcessing = (queryParams = {}, settings) => {
-  var bgUnits = _.get(settings, 'units.bg', MGDL_UNITS);
-  var bgClasses = {
-    low: { boundary: utils.roundBgTarget(settings.bgTarget.low, bgUnits) },
-    target: { boundary: utils.roundBgTarget(settings.bgTarget.high, bgUnits) },
-  };
-
-  // Allow overriding stored BG Unit preferences via query param
-  const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
-  if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes(['mgdl', 'mmoll'], queryParams.units)) {
-    bgUnits = queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
-    bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.low, bgUnits), bgUnits);
-    bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.high, bgUnits), bgUnits);
-    console.log(`Displaying BG in ${bgUnits} from query params`);
-  }
-
-  return {
-    bgUnits,
-    bgClasses,
-  };
-};
-
 utils.filterPatientData = (data, bgUnits) => {
   return nurseShark.processData(data, bgUnits);
 };
-
-utils.processPatientData = (data, queryParams, settings) => {
-  if (!(data && data.length >= 0)) {
-    return null;
-  }
-
-  const timePrefsForTideline = utils.getTimezoneForDataProcessing(data, queryParams);
-  const bgPrefs = utils.getBGPrefsForDataProcessing(queryParams, settings);
-
-  console.time('Nurseshark Total');
-  const res = utils.filterPatientData(data, bgPrefs.bgUnits);
-  console.timeEnd('Nurseshark Total');
-
-  console.time('TidelineData Total');
-  let tidelineData = new TidelineData(res.processedData, {
-    timePrefs: timePrefsForTideline,
-    bgUnits: bgPrefs.bgUnits,
-    bgClasses: bgPrefs.bgClasses,
-  });
-
-  if (!_.isEmpty(timePrefsForTideline)) {
-    tidelineData.timePrefs = timePrefsForTideline;
-  }
-
-  console.timeEnd('TidelineData Total');
-
-  window.tidelineData = tidelineData;
-  window.downloadProcessedData = () => {
-    console.save(res.processedData, 'nurseshark-output.json');
-  };
-  window.downloadErroredData = () => {
-    console.save(res.erroredData, 'errored.json');
-  };
-
-  return tidelineData;
-};
-
 
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license

@@ -21,9 +21,9 @@ import { shallow, mount } from 'enzyme';
 import sinon from 'sinon';
 import chai from 'chai';
 
+import { MGDL_UNITS } from 'tideline';
 import { utils as vizUtils } from 'tidepool-viz';
 
-import { MGDL_UNITS } from '../../../../app/core/constants';
 import DataUtilStub from '../../../helpers/DataUtil';
 import Stats from '../../../../app/components/chart/stats';
 

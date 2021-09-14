@@ -19,14 +19,11 @@ import _ from 'lodash';
 import crossfilter from 'crossfilter2';
 import bows from 'bows';
 
-import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../js/data/util/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../js/data/util/constants';
 import dt from '../../js/data/util/datetime';
+import format from '../../js/data/util/format';
 
 var log = bows('Nurseshark');
-
-function translateBg(value) {
-  return MGDL_PER_MMOLL * value;
-}
 
 function isBadStatus(d) {
   if (d.annotations == null) {
@@ -325,7 +322,7 @@ function getHandlers(bgUnits) {
     cbg: function(d) {
       d = cloneDeep(d);
       if (bgUnits === MGDL_UNITS) {
-        d.value = translateBg(d.value);
+        d.value = format.convertBG(d.value, MMOLL_UNITS);
       }
       return d;
     },
@@ -347,7 +344,7 @@ function getHandlers(bgUnits) {
     smbg: function(d) {
       d = cloneDeep(d);
       if (bgUnits === MGDL_UNITS) {
-        d.value = translateBg(d.value);
+        d.value = format.convertBG(d.value, MMOLL_UNITS);
       }
       return d;
     },
@@ -363,7 +360,7 @@ function getHandlers(bgUnits) {
             var current = d.bgTarget[j];
             for (var key in current) {
               if (key !== 'start') {
-                current[key] = translateBg(current[key]);
+                current[key] = format.convertBG(current[key], MMOLL_UNITS);
               }
             }
           }
@@ -374,7 +371,7 @@ function getHandlers(bgUnits) {
               var current = d.bgTargets[bgTargetName][j];
               for (var key in current) {
                 if (key !== 'range' && key !== 'start') {
-                  current[key] = translateBg(current[key]);
+                  current[key] = format.convertBG(current[key], MMOLL_UNITS);
                 }
               }
             }
@@ -384,7 +381,7 @@ function getHandlers(bgUnits) {
           var isfLen = d.insulinSensitivity.length;
           for (var i = 0; i < isfLen; ++i) {
             var item = d.insulinSensitivity[i];
-            item.amount = translateBg(item.amount);
+            item.amount = format.convertBG(item.amount, MMOLL_UNITS);
           }
         }
         if (d.insulinSensitivities) {
@@ -392,7 +389,7 @@ function getHandlers(bgUnits) {
             var isfLen = d.insulinSensitivities[sensitivityName].length;
             for (var i = 0; i < isfLen; ++i) {
               var item = d.insulinSensitivities[sensitivityName][i];
-              item.amount = translateBg(item.amount);
+              item.amount = format.convertBG(item.amount, MMOLL_UNITS);
             }
           });
         }
@@ -423,15 +420,15 @@ function getHandlers(bgUnits) {
       d = cloneDeep(d);
       if (bgUnits === MGDL_UNITS) {
         if (d.bgInput) {
-          d.bgInput = translateBg(d.bgInput);
+          d.bgInput = format.convertBG(d.bgInput, MMOLL_UNITS);
         }
         if (d.bgTarget) {
           for (var key in d.bgTarget) {
-            d.bgTarget[key] = translateBg(d.bgTarget[key]);
+            d.bgTarget[key] = format.convertBG(d.bgTarget[key], MMOLL_UNITS);
           }
         }
         if (d.insulinSensitivity) {
-          d.insulinSensitivity = translateBg(d.insulinSensitivity);
+          d.insulinSensitivity = format.convertBG(d.insulinSensitivity, MMOLL_UNITS);
         }
       }
       return d;

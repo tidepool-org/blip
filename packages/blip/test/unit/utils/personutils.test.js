@@ -1,9 +1,8 @@
 
-import _ from 'lodash';
+
 import { expect } from 'chai';
 
 import personUtils from '../../../app/core/personutils';
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../app/core/constants';
 import config from '../../../app/config';
 
 const FORM_DATE_FORMAT = 'MM/DD/YYYY';
@@ -310,62 +309,6 @@ describe('personutils', () => {
       var result = personUtils.isSame(person1, person2);
 
       expect(result).to.not.be.ok;
-    });
-  });
-
-  describe('togglePatientBgUnits', () => {
-    it('should toggle from mg/dL to mmol/L', () => {
-      const settings = {
-        bgTarget: {
-          high: 180,
-          low: 70,
-        },
-        units: {
-          bg: MGDL_UNITS,
-        },
-      };
-
-      const toggled = personUtils.togglePatientBgUnits(settings);
-      expect(toggled.units.bg).to.equal(MMOLL_UNITS);
-      expect(toggled.bgTarget.high).to.equal(10);
-      expect(toggled.bgTarget.low).to.equal(3.9);
-    });
-
-    it('should toggle from mmol/L to mg/dL', () => {
-      const settings = {
-        bgTarget: {
-          high: 10,
-          low: 3.9,
-        },
-        units: {
-          bg: MMOLL_UNITS,
-        },
-      };
-
-      const toggled = personUtils.togglePatientBgUnits(settings);
-      expect(toggled.units.bg).to.equal(MGDL_UNITS);
-      expect(toggled.bgTarget.high).to.equal(180);
-      expect(toggled.bgTarget.low).to.equal(70);
-    });
-
-    it('should return false if the high or low targets, or the bg units are missing from the settings arg', () => {
-      const settings = {
-        bgTarget: {
-          high: 10,
-          low: 3.9,
-        },
-        units: {
-          bg: MMOLL_UNITS,
-        },
-      };
-
-      const withoutHighTarget = _.assign({ bgTarget: { low: 3.9 } }, _.omit(settings, 'bgTarget'));
-      const withoutLowTarget = _.assign({ bgTarget: { high: 10 } }, _.omit(settings, 'bgTarget'));
-      const withoutUnits = _.assign({ units: {} }, _.omit(settings, 'units'));
-
-      expect(personUtils.togglePatientBgUnits(withoutHighTarget)).to.be.false;
-      expect(personUtils.togglePatientBgUnits(withoutLowTarget)).to.be.false;
-      expect(personUtils.togglePatientBgUnits(withoutUnits)).to.be.false;
     });
   });
 

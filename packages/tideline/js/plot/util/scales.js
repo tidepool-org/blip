@@ -27,7 +27,7 @@
 import _ from 'lodash';
 
 import commonbolus from './commonbolus';
-import { MGDL_PER_MMOLL, MGDL_UNITS, DEFAULT_BG_BOUNDS } from '../../data/util/constants';
+import { MGDL_UNITS, DEFAULT_BG_BOUNDS } from '../../data/util/constants';
 import format from '../../data/util/format';
 
 /**
@@ -49,17 +49,14 @@ function getTargetBoundary(tidelineData, bgUnits = MGDL_UNITS) {
  * @returns {ScaleLinear}
  */
 function createScaleBG(tidelineData, pool, extent, pad) {
-  // const MIN_CBG_MGDL = 39;
   const MAX_CBG_MGDL = 401;
-  // const MIN_CBG_MMOLL = MIN_CBG_MGDL/MGDL_PER_MMOLL;
-  const MAX_CBG_MMOLL = MAX_CBG_MGDL/MGDL_PER_MMOLL;
+  const MAX_CBG_MMOLL = format.convertBG(MAX_CBG_MGDL, MGDL_UNITS);
 
   const d3 = window.d3;
   /** @type {"mg/dL" | "mmol/L"} */
   const bgUnits = _.get(tidelineData, 'opts.bgUnits', MGDL_UNITS);
   /** @type {number} */
   const targetBoundary = getTargetBoundary(tidelineData, bgUnits);
-  // const minCBG = bgUnits === MGDL_UNITS ? MIN_CBG_MGDL : MIN_CBG_MMOLL;
   const maxCBG = bgUnits === MGDL_UNITS ? MAX_CBG_MGDL : MAX_CBG_MMOLL;
 
   // We need to ensure that the top of the bgScale is at least at the the target upper bound

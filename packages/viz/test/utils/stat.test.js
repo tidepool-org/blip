@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import chai from 'chai';
+import { MGDL_UNITS } from 'tideline';
 import * as stat from '../../src/utils/stat';
-import { MGDL_UNITS } from '../../src/utils/constants';
 
 /* eslint-disable max-len */
 

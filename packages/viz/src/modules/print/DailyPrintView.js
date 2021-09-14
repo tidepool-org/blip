@@ -23,8 +23,9 @@ import { range } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import moment from 'moment-timezone';
 
-import PrintView from './PrintView';
+import { MMOLL_UNITS } from 'tideline';
 
+import PrintView from './PrintView';
 import { calculateBasalPath, getBasalSequencePaths } from '../render/basal';
 import getBolusPaths from '../render/bolus';
 import { getBasalPathGroups, getBasalPathGroupType } from '../../utils/basal';
@@ -57,7 +58,6 @@ import {
 } from '../../utils/format';
 
 import {
-  MMOLL_UNITS,
   MS_IN_MIN,
   AUTOMATED_DELIVERY,
   SCHEDULED_DELIVERY,

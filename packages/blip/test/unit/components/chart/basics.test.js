@@ -20,10 +20,10 @@ import _ from 'lodash';
 import sinon from 'sinon';
 import chai from 'chai';
 import { mount } from 'enzyme';
+import { MGDL_UNITS } from 'tideline';
 
 import DataUtilStub from '../../../helpers/DataUtil';
 import Basics from '../../../../app/components/chart/basics';
-import { MGDL_UNITS } from '../../../../app/core/constants';
 
 describe('Basics', () => {
   const { expect } = chai;

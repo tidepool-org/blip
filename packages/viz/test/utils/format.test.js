@@ -16,7 +16,8 @@
  */
 
 import { assert, expect } from 'chai';
-import { BG_HIGH, BG_LOW, MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
+import { BG_HIGH, BG_LOW } from '../../src/utils/constants';
 
 import * as format from '../../src/utils/format';
 

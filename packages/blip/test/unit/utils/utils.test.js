@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import utils from '../../../app/core/utils';
-import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 
 describe('utils', () => {
 
@@ -368,25 +367,6 @@ describe('utils', () => {
         }
       };
       expect(utils.getMedtronic(location)).to.equal(null);
-    });
-  });
-
-  describe('translateBg', () => {
-    it('should translate a BG value to the desired target unit', () => {
-      expect(utils.translateBg(180, MMOLL_UNITS)).to.equal(10);
-      expect(utils.translateBg(10, MGDL_UNITS)).to.equal(180);
-    });
-  });
-
-  describe('roundBgTarget', () => {
-    it('should round a target BG value as appropriate', () => {
-      // to the nearest 5 for mg/dL
-      expect(utils.roundBgTarget(178.15, MGDL_UNITS)).to.equal(180);
-      expect(utils.roundBgTarget(172, MGDL_UNITS)).to.equal(170);
-
-      // to the nearest .1 for mmol/L
-      expect(utils.roundBgTarget(3.91, MMOLL_UNITS)).to.equal(3.9);
-      expect(utils.roundBgTarget(3.96, MMOLL_UNITS)).to.equal(4);
     });
   });
 

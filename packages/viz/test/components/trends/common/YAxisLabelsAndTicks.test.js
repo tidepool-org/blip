@@ -16,8 +16,9 @@
  */
 
 import React from 'react';
-
 import { mount } from 'enzyme';
+
+import { MGDL_UNITS } from 'tideline';
 
 import * as scales from '../../../helpers/scales';
 const {
@@ -27,8 +28,6 @@ const {
 } = scales.trends;
 import bgBounds from '../../../helpers/bgBounds';
 import SVGContainer from '../../../helpers/SVGContainer';
-
-import { MGDL_UNITS } from '../../../../src/utils/constants';
 import YAxisLabelsAndTicks from '../../../../src/components/trends/common/YAxisLabelsAndTicks';
 
 describe('YAxisLabelsAndTicks', () => {

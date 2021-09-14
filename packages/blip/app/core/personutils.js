@@ -18,9 +18,6 @@ import i18next from 'i18next';
 import sundial from 'sundial';
 
 import config from '../config';
-import utils from './utils';
-
-import { MGDL_UNITS, MMOLL_UNITS } from './constants';
 
 const personUtils = {
   /** @returns {string} */
@@ -119,36 +116,6 @@ personUtils.hasEditPermissions = (person) => {
 
 personUtils.isRemoveable = (person) => {
   return (person && !_.isEmpty(person.permissions) && !person.permissions.root);
-};
-
-/**
- * Toggle a patient's BG settings between mgd/L and mmol/L
- *
- * @param {Object} settings
- *
- * @return {Object} translated settings object if successful
- * @return {Boolean} false if unsuccessful
- */
-personUtils.togglePatientBgUnits = (settings) => {
-  const bgTargetHigh = _.get(settings, 'bgTarget.high');
-  const bgTargetLow = _.get(settings, 'bgTarget.low');
-  const bgUnits = _.get(settings, 'units.bg');
-
-  if (!bgTargetHigh || !bgTargetLow || !bgUnits) {
-    return false;
-  }
-
-  const targetUnits = bgUnits === MGDL_UNITS ? MMOLL_UNITS : MGDL_UNITS;
-
-  return {
-    bgTarget: {
-      high: utils.translateBg(bgTargetHigh, targetUnits),
-      low: utils.translateBg(bgTargetLow, targetUnits),
-    },
-    units: {
-      bg: targetUnits,
-    },
-  };
 };
 
 /**

@@ -24,7 +24,7 @@ import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import { assert, expect } from 'chai';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../../src/utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 import DummyComponent from '../../../helpers/DummyComponent';
 
 import {

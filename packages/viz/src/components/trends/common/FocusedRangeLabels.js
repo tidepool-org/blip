@@ -19,9 +19,8 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 import Tooltip from '../../common/tooltips/Tooltip';
-
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { formatBgValue } from '../../../utils/format';
 import { formatClocktimeFromMsPer24 } from '../../../utils/datetime';
 

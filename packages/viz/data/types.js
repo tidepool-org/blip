@@ -17,8 +17,8 @@
 
 import _ from 'lodash';
 
+import { MGDL_UNITS, MS_IN_DAY } from 'tideline';
 import { addDuration } from '../src/utils/datetime';
-import { MGDL_UNITS, MS_IN_DAY } from '../src/utils/constants';
 
 const APPEND = '.000Z';
 

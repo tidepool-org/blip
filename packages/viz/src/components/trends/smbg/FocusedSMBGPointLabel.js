@@ -16,13 +16,12 @@
  */
 
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import _ from 'lodash';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
+
 import Tooltip from '../../common/tooltips/Tooltip';
 import SMBGToolTip from '../../daily/smbgtooltip/SMBGTooltip';
-
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
 import { formatBgValue } from '../../../utils/format';
 import { getOutOfRangeThreshold } from '../../../utils/bloodglucose';
 import {

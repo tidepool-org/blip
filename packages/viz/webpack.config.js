@@ -1,7 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 
-const appDirectory = path.resolve(__dirname);
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
 
@@ -13,40 +12,76 @@ const localIdentName = isTest
   ? '[name]--[local]'
   : '[name]--[local]--[hash:base64:5]';
 
-  const cssLoaderConfiguration = {
-    test: /\.css$/,
-    use: [
-      'style-loader',
-      {
-        loader: 'css-loader',
-        options: {
-          importLoaders: 1,
-          sourceMap: true,
-          modules: {
-            localIdentName,
-          }
+const lessLoaderConfiguration = {
+  test: /\.less$/,
+  use: [
+    'style-loader',
+    {
+      loader: 'css-loader',
+      options: {
+        importLoaders: 2,
+        sourceMap: true,
+        modules: {
+          auto: true,
+          exportGlobals: true,
+          localIdentName,
+        }
+      },
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        sourceMap: true,
+        postcssOptions: {
+          path: __dirname,
+        }
+      },
+    },
+    {
+      loader: 'less-loader',
+      options: {
+        sourceMap: true,
+        lessOptions: {
+          strictUnits: true,
+          strictMath: true,
+          javascriptEnabled: true, // Deprecated
         },
       },
-      {
-        loader: 'postcss-loader',
-        options: {
-          sourceMap: true,
-          postcssOptions: {
-            path: __dirname,
-          }
-        },
-      }
-    ],
-  };
+    },
+  ],
+};
+
+const cssLoaderConfiguration = {
+  test: /\.css$/,
+  use: [
+    'style-loader',
+    {
+      loader: 'css-loader',
+      options: {
+        importLoaders: 1,
+        sourceMap: true,
+        modules: {
+          localIdentName,
+        }
+      },
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        sourceMap: true,
+        postcssOptions: {
+          path: __dirname,
+        }
+      },
+    }
+  ],
+};
 
 const babelLoaderConfiguration = {
   test: /\.js$/,
-  include: [
-    // Add every directory that needs to be compiled by babel during the build
-    path.resolve(appDirectory, 'src'),
-    path.resolve(appDirectory, 'test'),
-    path.resolve(appDirectory, 'data'),
-  ],
+  exclude: (modulePath) => {
+    return /node_modules/.test(modulePath) && !/(tideline|tidepool-viz)/.test(modulePath);
+  },
   use: {
     loader: 'babel-loader',
     options: {
@@ -123,6 +158,11 @@ const output = {
 const resolve = {
   alias: {
     pdfkit: 'pdfkit/js/pdfkit.standalone.js',
+    'lock.svg': path.resolve(__dirname, `../../branding/lock.svg`),
+    'cartridge.png': path.resolve(__dirname, '../../branding/sitechange/cartridge.png'),
+    'cartridge-vicentra.png': path.resolve(__dirname, '../../branding/sitechange/cartridge-vicentra.png'),
+    'infusion.png': path.resolve(__dirname, '../../branding/sitechange/infusion.png'),
+    'warmup-dexcom.svg': path.resolve(__dirname, '../../branding/warmup/warmup-dexcom.svg'),
     // Theses aliases will be needed for webpack 5.x :
     // path: require.resolve('path-browserify'),
     // stream: require.resolve('stream-browserify'),
@@ -142,6 +182,7 @@ module.exports = {
       babelLoaderConfiguration,
       imageLoaderConfiguration,
       cssLoaderConfiguration,
+      lessLoaderConfiguration,
       ...fontLoaderConfiguration,
     ],
   },

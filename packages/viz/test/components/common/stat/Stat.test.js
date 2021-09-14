@@ -7,6 +7,7 @@ import { VictoryBar, VictoryContainer } from 'victory';
 import chai from 'chai';
 import sinon from 'sinon';
 
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 import Stat from '../../../../src/components/common/stat/Stat';
 import StatLegend from '../../../../src/components/common/stat/StatLegend';
@@ -15,9 +16,7 @@ import colors from '../../../../src/styles/colors.css';
 import { statFormats, statTypes } from '../../../../src/utils/stat';
 import StatTooltip from '../../../../src/components/common/tooltips/StatTooltip';
 import {
-  MGDL_UNITS,
   MGDL_CLAMP_TOP,
-  MMOLL_UNITS,
   MMOLL_CLAMP_TOP,
   MS_IN_DAY,
   MS_IN_HOUR,

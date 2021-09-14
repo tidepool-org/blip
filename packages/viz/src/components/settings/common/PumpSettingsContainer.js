@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 import Diabeloop from '../Diabeloop';
 
 class PumpSettingsContainer extends React.Component {

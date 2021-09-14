@@ -20,15 +20,6 @@ import { expect } from 'chai';
 import * as Constants from '../../../../app/core/constants';
 
 describe('constants', function() {
-  it('should define correct labels for BG unit types', function() {
-    expect(Constants.MGDL_UNITS).to.equal('mg/dL');
-    expect(Constants.MMOLL_UNITS).to.equal('mmol/L');
-  });
-
-  it('should define the glucose mmoll conversion factor as 18.01559', function() {
-    expect(Constants.MGDL_PER_MMOLL).to.equal(18.01559);
-  });
-
   it('should define the tidepool big data donation account email', function() {
     expect(Constants.TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL).to.equal('bigdata@tidepool.org');
   });

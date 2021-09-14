@@ -16,10 +16,13 @@
  */
 
 import { MS_IN_DAY, MS_IN_HOUR, MGDL_UNITS, MMOLL_UNITS } from './data/util/constants';
+import format from "./data/util/format";
 import TidelineData, { DAILY_TYPES } from './tidelinedata';
 import BasicsChart from '../plugins/blip/basics/chartbasicsfactory';
 import chartDailyFactory from '../plugins/blip/chartdailyfactory';
 import nurseShark from '../plugins/nurseshark';
+
+const { convertBG } = format;
 
 window.d3 = require('d3');
 window.d3.chart = require('d3.chart');
@@ -34,4 +37,5 @@ export {
   BasicsChart,
   chartDailyFactory,
   nurseShark,
+  convertBG,
 };

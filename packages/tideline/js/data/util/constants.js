@@ -19,7 +19,7 @@ import i18next from 'i18next';
 
 export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
-export const MGDL_PER_MMOLL = 18.01559;
+export const MGDL_PER_MMOLL = 18.01577;
 
 const MMMM_D_FORMAT = 'MMMM D';
 const DDDD_MMMM_D_FORMAT = 'dddd, MMMM D';
@@ -77,7 +77,7 @@ export const DEFAULT_BG_BOUNDS = {
 
 export const BG_CLAMP_THRESHOLD = {
   [MGDL_UNITS]: 600,
-  [MMOLL_UNITS]: 600/MGDL_PER_MMOLL,
+  [MMOLL_UNITS]: 33.3, // round(10 * 600 / MGDL_PER_MMOLL) / 10
 };
 
 export const dateTimeFormats = {

@@ -17,7 +17,7 @@
 
 import _ from 'lodash';
 
-import { MGDL_PER_MMOLL, MS_IN_MIN } from './constants';
+import { MS_IN_MIN } from './constants';
 
 import { formatBgValue } from './format.js';
 
@@ -75,16 +75,6 @@ export function classifyCvValue(value) {
   } else {
     return 'high';
   }
-}
-
-/**
- * convertToMmolL
- * @param {Number} bgVal - blood glucose value in mg/dL
- *
- * @return {Number} convertedBgVal - blood glucose value in mmol/L, unrounded
- */
-export function convertToMmolL(val) {
-  return (val / MGDL_PER_MMOLL);
 }
 
 /**

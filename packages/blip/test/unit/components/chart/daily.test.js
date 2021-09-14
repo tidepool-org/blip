@@ -9,11 +9,10 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 import { mount } from 'enzyme';
 import moment from 'moment-timezone';
+import { MGDL_UNITS, MS_IN_DAY } from 'tideline';
 
 import DataUtilStub from '../../../helpers/DataUtil';
 import Daily, { DailyChart } from '../../../../app/components/chart/daily';
-import { MGDL_UNITS } from '../../../../app/core/constants';
-import { MS_IN_DAY } from 'tideline';
 import { components as vizComponents } from 'tidepool-viz';
 
 const { Loader } = vizComponents;

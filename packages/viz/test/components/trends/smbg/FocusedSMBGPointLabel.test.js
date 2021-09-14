@@ -16,12 +16,11 @@
  */
 
 import React from 'react';
-
 import { mount } from 'enzyme';
 
-import { formatClassesAsSelector } from '../../../helpers/cssmodules';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../../../src/utils/constants';
+import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 import FocusedSMBGPointLabel
   from '../../../../src/components/trends/smbg/FocusedSMBGPointLabel';
 import styles

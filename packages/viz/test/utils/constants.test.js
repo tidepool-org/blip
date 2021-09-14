@@ -43,24 +43,6 @@ describe('constants', () => {
     });
   });
 
-  describe('MMOLL_UNITS', () => {
-    it('should be `mmol/L`', () => {
-      expect(constants.MMOLL_UNITS).to.equal('mmol/L');
-    });
-  });
-
-  describe('MGDL_UNITS', () => {
-    it('should be `mg/dL`', () => {
-      expect(constants.MGDL_UNITS).to.equal('mg/dL');
-    });
-  });
-
-  describe('MGDL_PER_MMOLL', () => {
-    it('should be `18.01559`', () => {
-      expect(constants.MGDL_PER_MMOLL).to.equal(18.01559);
-    });
-  });
-
   describe('LBS_PER_KG', () => {
     it('should be `2.2046226218`', () => {
       expect(constants.LBS_PER_KG).to.equal(2.2046226218);

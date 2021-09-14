@@ -19,9 +19,29 @@ import i18next from 'i18next';
 import moment from 'moment-timezone';
 import Duration from 'duration-js';
 
-import { MGDL_UNITS, dateTimeFormats } from './constants';
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, dateTimeFormats } from './constants';
 
 const format = {
+  /**
+   * convertBG is a common util function to convert bg values
+   * to/from "mg/dL" and "mmol/L"
+   * @param {number} value The value to convert
+   * @param {"mg/dL"|"mmol/L"} unit The unit of the passed value
+   * @return: The converted value in the opposite unit
+   */
+  convertBG: (value, unit) => {
+    if (value < 0) {
+      throw new Error("Invalid glycemia value");
+    }
+    switch (unit) {
+    case MGDL_UNITS:
+      return Math.round(10.0 * value / MGDL_PER_MMOLL) / 10;
+    case MMOLL_UNITS:
+      return Math.round(value * MGDL_PER_MMOLL);
+    default:
+      throw new Error("Invalid parameter unit");
+    }
+  },
 
   tooltipBG: function(d, units) {
     if (d.annotations && Array.isArray(d.annotations) && d.annotations.length > 0) {

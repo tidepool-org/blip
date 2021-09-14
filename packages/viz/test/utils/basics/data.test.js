@@ -20,6 +20,7 @@
 import _ from 'lodash';
 import { expect } from 'chai';
 import { utcDay } from 'd3-time';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 import * as dataUtils from '../../../src/utils/basics/data';
 import * as Types from '../../../data/types';
 
@@ -27,8 +28,6 @@ import {
   NO_CGM,
   CGM_CALCULATED,
   NOT_ENOUGH_CGM,
-  MGDL_UNITS,
-  MMOLL_UNITS,
   SITE_CHANGE_RESERVOIR,
   SITE_CHANGE_TUBING,
   SITE_CHANGE_CANNULA,

@@ -1,4 +1,4 @@
-import { MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
 
 export const data = {
   [MGDL_UNITS]: {

@@ -9,10 +9,11 @@ import { SizeMe } from 'react-sizeme';
 import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
 
+import { MGDL_UNITS } from 'tideline';
 import { formatPercentage, formatDecimalNumber, formatBgValue } from '../../../utils/format';
 import { formatDuration } from '../../../utils/datetime';
 import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from '../../../utils/bloodglucose';
-import { LBS_PER_KG, MGDL_UNITS, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
+import { LBS_PER_KG, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
 import { statFormats, statTypes } from '../../../utils/stat';
 import styles from './Stat.css';
 import colors from '../../../styles/colors.css';

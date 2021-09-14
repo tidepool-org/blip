@@ -26,15 +26,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from 'tideline';
+
 import * as actions from '../../../redux/actions/';
 import TrendsSVGContainer from './TrendsSVGContainer';
 
 import {
   MGDL_CLAMP_TOP,
   MMOLL_CLAMP_TOP,
-  MGDL_UNITS,
-  MMOLL_UNITS,
-  MS_IN_DAY,
 } from '../../../utils/constants';
 
 import * as datetime from '../../../utils/datetime';

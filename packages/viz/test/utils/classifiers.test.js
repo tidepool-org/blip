@@ -17,7 +17,7 @@
 
 /* eslint-disable max-len, lodash/prefer-lodash-method */
 
-import { MMOLL_UNITS, MGDL_UNITS } from '../../src/utils/constants';
+import { MMOLL_UNITS, MGDL_UNITS } from 'tideline';
 import generateClassifiers from '../../src/utils/classifiers';
 
 const bgBounds = {
