@@ -837,7 +837,7 @@ api.metrics.track = function(eventName, properties, cb) {
 api.prescription = {};
 
 api.prescription.getAllForClinic = function(clinicId, cb) {
-  return tidepool.getPrescriptions(clinicId, cb);
+  return tidepool.getPrescriptionsForClinic(clinicId, cb);
 };
 
 api.prescription.create = function(clinicId, prescription, cb) {
