@@ -18,7 +18,7 @@ export class StaticWebSiteStack extends core.Stack {
     // Create the bucket
     const bucket = new s3.Bucket(this, `${props?.rootBucketName}.${props?.prefix}`, {
       bucketName: `${props?.rootBucketName}.${props?.prefix}`,
-      removalPolicy: core.RemovalPolicy.RETAIN,
+      removalPolicy: core.RemovalPolicy.DESTROY,
       publicReadAccess: true,
     });
 
@@ -49,7 +49,7 @@ export class StaticWebSiteStack extends core.Stack {
       }
     });
 
-    // AWS variable are required here for getting dns zone 
+    // AWS variable are required here for getting dns zone
     const zone = route53.HostedZone.fromLookup(this, 'domainName', {
       domainName: `${props?.zone}`
     });
@@ -100,7 +100,7 @@ export class StaticWebSiteStack extends core.Stack {
             ],
           },
         ],
-        viewerCertificate: 
+        viewerCertificate:
         {
           aliases: [`${props?.domainName}`, `${props?.altDomainName}`],
           props: {
@@ -109,7 +109,7 @@ export class StaticWebSiteStack extends core.Stack {
             minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018
           },
 
-        }, 
+        },
         errorConfigurations: [
           {
             errorCode: 403,
