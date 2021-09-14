@@ -18447,10 +18447,10 @@ tideline@1.25.0-web-880-clinic-signup.1:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.47.0-web-880-clinic-signup.2:
-  version "0.47.0-web-880-clinic-signup.2"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.47.0-web-880-clinic-signup.2.tgz#820639709d1e0c7502b95357b6a84a003a8de8f8"
-  integrity sha512-QvAr4rDp0P7f/G2dyzAI0RNNJ39okeU6RDHJ17Twl9leDYendEjfirXi/4Vo/7U7DSgwGmfl//slcabM9G9GfQ==
+tidepool-platform-client@0.47.0-web-1219-rx-api-updates.1:
+  version "0.47.0-web-1219-rx-api-updates.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.47.0-web-1219-rx-api-updates.1.tgz#df172738ddc9b78c1a42a98f6c666ad9280bca1d"
+  integrity sha512-hc8trBuWfXovm1ooyrK7yjj6bqQoQQVR6c45rcZiy4P4a/+VOzEc1GA3N9qYdI5EkiLZ+oJ77vGRn/lN8y9Z6g==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
