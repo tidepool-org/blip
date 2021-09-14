@@ -248,8 +248,8 @@ export const PrescriptionForm = props => {
     devices,
     history,
     location,
-    trackMetric,
     prescription,
+    trackMetric,
   } = props;
 
   const dispatch = useDispatch();
