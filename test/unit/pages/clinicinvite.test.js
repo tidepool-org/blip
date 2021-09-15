@@ -21,7 +21,7 @@ import { ToastProvider } from '../../../app/providers/ToastProvider';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicInvite', () => {
+describe.only('ClinicInvite', () => {
   let mount;
 
   let wrapper;
@@ -38,10 +38,12 @@ describe('ClinicInvite', () => {
   before(() => {
     mount = createMount();
     ClinicInvite.__Rewire__('useLocation', sinon.stub().returns({ state: {} }));
+    ClinicInvite.__Rewire__('config', { RX_ENABLED: true });
   });
 
   after(() => {
     mount.cleanUp();
+    ClinicInvite.__ResetDependency__('config');
   });
 
   const defaultWorkingState = {

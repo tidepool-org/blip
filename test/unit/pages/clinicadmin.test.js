@@ -23,7 +23,7 @@ import { Dialog } from '../../../app/components/elements/Dialog';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicAdmin', () => {
+describe.only('ClinicAdmin', () => {
   let mount;
 
   let wrapper;
@@ -39,11 +39,13 @@ describe('ClinicAdmin', () => {
   before(() => {
     mount = createMount();
     ClinicAdmin.__Rewire__('ClinicProfile', sinon.stub().returns('stubbed clinic profile'));
+    ClinicAdmin.__Rewire__('config', { RX_ENABLED: true });
   });
 
   after(() => {
     mount.cleanUp();
     ClinicAdmin.__ResetDependency__('ClinicProfile');
+    ClinicAdmin.__ResetDependency__('config');
   });
 
   const defaultWorkingState = {

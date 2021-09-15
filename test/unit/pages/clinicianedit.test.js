@@ -20,7 +20,7 @@ import Checkbox from '../../../app/components/elements/Checkbox';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicianEdit', () => {
+describe.only('ClinicianEdit', () => {
   let mount;
 
   let wrapper;
@@ -40,10 +40,12 @@ describe('ClinicianEdit', () => {
       'useLocation',
       sinon.stub().returns({ state: {} })
     );
+    ClinicianEdit.__Rewire__('config', { RX_ENABLED: true });
   });
 
   after(() => {
     mount.cleanUp();
+    ClinicianEdit.__ResetDependency__('config');
   });
 
   const defaultWorkingState = {
