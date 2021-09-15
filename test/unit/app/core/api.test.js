@@ -31,7 +31,7 @@ describe('api', () => {
       destroySession: sinon.stub(),
       isLoggedIn: sinon.stub(),
       logAppError: sinon.stub(),
-      getPrescriptions: sinon.stub(),
+      getPrescriptionsForClinic: sinon.stub(),
       createPrescription: sinon.stub(),
       createPrescriptionRevision: sinon.stub(),
       deletePrescription: sinon.stub(),
@@ -88,7 +88,7 @@ describe('api', () => {
     tidepool.destroySession.resetHistory();
     tidepool.isLoggedIn.resetHistory();
     tidepool.logAppError.resetHistory();
-    tidepool.getPrescriptions.resetHistory();
+    tidepool.getPrescriptionsForClinic.resetHistory();
     tidepool.createPrescription.resetHistory();
     tidepool.createPrescriptionRevision.resetHistory();
     tidepool.deletePrescription.resetHistory();
@@ -564,11 +564,11 @@ describe('api', () => {
 
 
   describe('prescription', () => {
-    describe('getAll', () => {
-      it('should call tidepool.getPrescriptions with the appropriate args', () => {
+    describe('getAllForClinic', () => {
+      it('should call tidepool.getPrescriptionsForClinic with the appropriate args', () => {
         const cb = sinon.stub();
-        api.prescription.getAll(cb);
-        sinon.assert.calledWith(tidepool.getPrescriptions, cb);
+        api.prescription.getAllForClinic(cb);
+        sinon.assert.calledWith(tidepool.getPrescriptionsForClinic, cb);
       });
     });
 

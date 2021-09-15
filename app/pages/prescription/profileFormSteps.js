@@ -43,7 +43,7 @@ export const PatientPhone = translate()(props => {
     values,
   } = formikContext;
 
-  const patientName = get(values, 'firstName');
+  const patientName = get(values, 'firstName', t('the patient'));
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
@@ -86,7 +86,7 @@ export const PatientMRN = translate()(props => {
   const { t } = props;
   const formikContext = useFormikContext();
   const { values } = formikContext;
-  const patientName = get(values, 'firstName');
+  const patientName = get(values, 'firstName', t('the patient'));
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
@@ -109,12 +109,12 @@ export const PatientGender = translate()(props => {
   const { t } = props;
   const formikContext = useFormikContext();
   const { values } = formikContext;
-  const patientName = get(values, 'firstName');
+  const patientName = get(values, 'firstName', t('the patient'));
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the {{patientName}}\'s gender?', { patientName })}</Headline>
+      <Headline mb={4}>{t('What is {{patientName}}\'s gender?', { patientName })}</Headline>
       <FastField
         as={RadioGroup}
         variant="verticalBordered"
@@ -139,7 +139,7 @@ export const PatientDevices = translate()(props => {
     values,
   } = formikContext;
 
-  const patientName = get(values, 'firstName');
+  const patientName = get(values, 'firstName', t('the patient'));
   const initialFocusedInputRef = useInitialFocusedInput();
   const [hasInitialFocus, setHasInitialFocus] = React.useState(true);
 

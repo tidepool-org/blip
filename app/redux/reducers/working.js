@@ -49,7 +49,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_REQUEST:
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_DATA_REQUEST:
-    case types.FETCH_PRESCRIPTIONS_REQUEST:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_REQUEST:
     case types.CREATE_PRESCRIPTION_REQUEST:
     case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
     case types.DELETE_PRESCRIPTION_REQUEST:
@@ -195,7 +195,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_DATA_SUCCESS:
-    case types.FETCH_PRESCRIPTIONS_SUCCESS:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS:
     case types.CREATE_PRESCRIPTION_SUCCESS:
     case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
     case types.DELETE_PRESCRIPTION_SUCCESS:
@@ -344,7 +344,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
-    case types.FETCH_PRESCRIPTIONS_FAILURE:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_FAILURE:
     case types.CREATE_PRESCRIPTION_FAILURE:
     case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
     case types.DELETE_PRESCRIPTION_FAILURE:
@@ -431,6 +431,7 @@ export default (state = initialWorkingState, action) => {
       const newState = _.cloneDeep(state);
       _.forEach([
         'fetchingCliniciansFromClinic',
+        'fetchingClinicPrescriptions',
         'fetchingPatientsForClinic',
         'fetchingPatientInvites',
       ], key => _.set(newState, key, {

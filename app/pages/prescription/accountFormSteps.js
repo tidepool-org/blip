@@ -114,7 +114,7 @@ export const PatientEmail = translate()(props => {
     values,
   } = formikContext;
 
-  const patientName = get(values, 'firstName');
+  const patientName = get(values, 'firstName', t('the patient'));
   const isCaregiverAccount = get(values, 'accountType') === 'caregiver';
 
   const initialFocusedInput = get(props, 'initialFocusedInput', isCaregiverAccount

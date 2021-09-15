@@ -4025,69 +4025,74 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPrescriptions', () => {
-      it('should trigger FETCH_PRESCRIPTIONS_SUCCESS and it should call prescription.getAll once for a successful request', () => {
+    describe('fetchClinicPrescriptions', () => {
+      it('should trigger FETCH_CLINIC_PRESCRIPTIONS_SUCCESS and it should call prescription.getAllForClinic once for a successful request', () => {
+        const clinicId = 'clinic123';
+
         let prescriptions = [
           { id: 'one' }
         ];
 
         let api = {
           prescription: {
-            getAll: sinon.stub().callsArgWith(0, null, prescriptions),
+            getAllForClinic: sinon.stub().callsArgWith(1, null, prescriptions),
           },
         };
 
         let expectedActions = [
-          { type: 'FETCH_PRESCRIPTIONS_REQUEST' },
-          { type: 'FETCH_PRESCRIPTIONS_SUCCESS', payload: { prescriptions : prescriptions } }
+          { type: 'FETCH_CLINIC_PRESCRIPTIONS_REQUEST' },
+          { type: 'FETCH_CLINIC_PRESCRIPTIONS_SUCCESS', payload: { prescriptions : prescriptions } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPrescriptions(api));
+        store.dispatch(async.fetchClinicPrescriptions(api, clinicId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.getAll.callCount).to.equal(1);
+        expect(api.prescription.getAllForClinic.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PRESCRIPTIONS_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_CLINIC_PRESCRIPTIONS_FAILURE and it should call error once for a failed request', () => {
+        const clinicId = 'clinic123';
+
         let api = {
           prescription: {
-            getAll: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null),
+            getAllForClinic: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
           },
         };
 
-        let err = new Error(ErrorMessages.ERR_FETCHING_PRESCRIPTIONS);
+        let err = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PRESCRIPTIONS);
         err.status = 500;
 
         let expectedActions = [
-          { type: 'FETCH_PRESCRIPTIONS_REQUEST' },
-          { type: 'FETCH_PRESCRIPTIONS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'FETCH_CLINIC_PRESCRIPTIONS_REQUEST' },
+          { type: 'FETCH_CLINIC_PRESCRIPTIONS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPrescriptions(api));
+        store.dispatch(async.fetchClinicPrescriptions(api, clinicId));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PRESCRIPTIONS });
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINIC_PRESCRIPTIONS });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.getAll.callCount).to.equal(1);
+        expect(api.prescription.getAllForClinic.callCount).to.equal(1);
       });
     });
 
     describe('createPrescription', () => {
       it('should trigger CREATE_PRESCRIPTION_SUCCESS and it should call prescription.create once for a successful request', () => {
         let prescription = { id: 'one' };
+        const clinicId = 'clinic123';
 
         let api = {
           prescription: {
-            create: sinon.stub().callsArgWith(1, null, prescription),
+            create: sinon.stub().callsArgWith(2, null, prescription),
           },
         };
 
@@ -4100,19 +4105,20 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.createPrescription(api, prescription));
+        store.dispatch(async.createPrescription(api, clinicId, prescription));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.create.withArgs(prescription).callCount).to.equal(1);
+        expect(api.prescription.create.withArgs(clinicId, prescription).callCount).to.equal(1);
       });
 
       it('should trigger CREATE_PRESCRIPTION_FAILURE and it should call error once for a failed request', () => {
         let prescription = { id: 'one' };
+        const clinicId = 'clinic123';
 
         let api = {
           prescription: {
-            create: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+            create: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           },
         };
 
@@ -4127,23 +4133,24 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.createPrescription(api, prescription));
+        store.dispatch(async.createPrescription(api, clinicId, prescription));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_PRESCRIPTION });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.create.withArgs(prescription).callCount).to.equal(1);
+        expect(api.prescription.create.withArgs(clinicId, prescription).callCount).to.equal(1);
       });
     });
 
     describe('createPrescriptionRevision', () => {
       it('should trigger CREATE_PRESCRIPTION_REVISION_SUCCESS and it should call prescription.createRevision once for a successful request', () => {
         let prescription = { id: 'one' };
+        const clinicId = 'clinic123';
 
         let api = {
           prescription: {
-            createRevision: sinon.stub().callsArgWith(2, null, prescription),
+            createRevision: sinon.stub().callsArgWith(3, null, prescription),
           },
         };
 
@@ -4156,19 +4163,20 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.createPrescriptionRevision(api, prescription, prescription.id));
+        store.dispatch(async.createPrescriptionRevision(api, clinicId, prescription, prescription.id));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.createRevision.withArgs(prescription, prescription.id).callCount).to.equal(1);
+        expect(api.prescription.createRevision.withArgs(clinicId, prescription, prescription.id).callCount).to.equal(1);
       });
 
       it('should trigger CREATE_PRESCRIPTION_REVISION_FAILURE and it should call error once for a failed request', () => {
         let prescription = { id: 'one' };
+        const clinicId = 'clinic123';
 
         let api = {
           prescription: {
-            createRevision: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+            createRevision: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'}, null),
           },
         };
 
@@ -4183,23 +4191,24 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.createPrescriptionRevision(api, prescription, prescription.id));
+        store.dispatch(async.createPrescriptionRevision(api, clinicId, prescription, prescription.id));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_PRESCRIPTION_REVISION });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.createRevision.withArgs(prescription, prescription.id).callCount).to.equal(1);
+        expect(api.prescription.createRevision.withArgs(clinicId, prescription, prescription.id).callCount).to.equal(1);
       });
     });
 
     describe('deletePrescription', () => {
       it('should trigger DELETE_PRESCRIPTION_SUCCESS and it should call prescription.delete once for a successful request', () => {
         let prescriptionId = 'one';
+        const clinicId = 'clinic123';
 
         let api = {
           prescription: {
-            delete: sinon.stub().callsArgWith(1, null),
+            delete: sinon.stub().callsArgWith(2, null),
           },
         };
 
@@ -4212,19 +4221,20 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.deletePrescription(api, prescriptionId));
+        store.dispatch(async.deletePrescription(api, clinicId, prescriptionId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.delete.withArgs(prescriptionId).callCount).to.equal(1);
+        expect(api.prescription.delete.withArgs(clinicId, prescriptionId).callCount).to.equal(1);
       });
 
       it('should trigger DELETE_PRESCRIPTION_FAILURE and it should call error once for a failed request', () => {
         let prescriptionId = 'one';
+        const clinicId = 'clinic123';
 
         let api = {
           prescription: {
-            delete: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+            delete: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           },
         };
 
@@ -4239,13 +4249,13 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.deletePrescription(api, prescriptionId));
+        store.dispatch(async.deletePrescription(api, clinicId, prescriptionId));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DELETING_PRESCRIPTION });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.prescription.delete.withArgs(prescriptionId).callCount).to.equal(1);
+        expect(api.prescription.delete.withArgs(clinicId, prescriptionId).callCount).to.equal(1);
       });
     });
 
