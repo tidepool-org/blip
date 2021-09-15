@@ -40,6 +40,7 @@ import personUtils from '../../core/personutils';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { usePrevious } from '../../core/hooks';
+import config from '../../config';
 
 export const ClinicAdmin = (props) => {
   const { t, api, trackMetric } = props;
@@ -348,23 +349,27 @@ export const ClinicAdmin = (props) => {
       sortBy: 'inviteSent',
       render: renderStatus,
     },
-    {
+  ];
+
+  if (config.RX_ENABLED) {
+    columns.push({
       title: t('Permission'),
       field: 'prescriberPermission',
       align: 'left',
       sortable: true,
       sortBy: 'prescriberPermission',
       render: renderPermission,
-    },
-    {
-      title: t('Role'),
-      field: 'role',
-      align: 'left',
-      sortable: true,
-      sortBy: 'role',
-      render: renderRole,
-    },
-  ];
+    });
+  }
+
+  columns.push({
+    title: t('Role'),
+    field: 'role',
+    align: 'left',
+    sortable: true,
+    sortBy: 'role',
+    render: renderRole,
+  });
 
   if (isClinicAdmin) {
     columns.push(
