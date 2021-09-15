@@ -38,9 +38,26 @@ describe('PrescriptionForm', () => {
     trackMetric: sinon.stub(),
   };
 
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: false,
+    notification: null,
+  };
+
+  const completedState = {
+    ...defaultWorkingState,
+    completed: true,
+  };
+
   const defaultState = mockStore({
     blip: {
       loggedInUserId: 'clinician123',
+      working: {
+        fetchingDevices: completedState,
+        fetchingClinicPrescriptions: completedState,
+        creatingPrescription: defaultWorkingState,
+        creatingPrescriptionRevision: defaultWorkingState,
+      },
     },
   });
 

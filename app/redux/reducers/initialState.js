@@ -80,7 +80,7 @@ const initialState = {
     fetchingDataDonationAccounts: Object.assign({}, working),
     fetchingDataSources: Object.assign({}, working),
     fetchingServerTime: Object.assign({}, working),
-    fetchingPrescriptions: Object.assign({}, working),
+    fetchingClinicPrescriptions: Object.assign({}, working),
     creatingPrescription: Object.assign({}, working),
     creatingPrescriptionRevision: Object.assign({}, working),
     deletingPrescription: Object.assign({}, working),

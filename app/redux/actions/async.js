@@ -1176,18 +1176,19 @@ export function fetchPatientData(api, options, id) {
  * Fetch Prescriptions Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
  */
-export function fetchPrescriptions(api) {
+export function fetchClinicPrescriptions(api, clinicId) {
   return (dispatch) => {
-    dispatch(sync.fetchPrescriptionsRequest());
+    dispatch(sync.fetchClinicPrescriptionsRequest());
 
-    api.prescription.getAll((err, prescriptions) => {
+    api.prescription.getAllForClinic(clinicId, (err, prescriptions) => {
       if (err) {
-        dispatch(sync.fetchPrescriptionsFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PRESCRIPTIONS, err), err
+        dispatch(sync.fetchClinicPrescriptionsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PRESCRIPTIONS, err), err
         ));
       } else {
-        dispatch(sync.fetchPrescriptionsSuccess(prescriptions));
+        dispatch(sync.fetchClinicPrescriptionsSuccess(prescriptions));
       }
     });
   };
@@ -1197,13 +1198,14 @@ export function fetchPrescriptions(api) {
  * Create Prescription Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
  * @param  {Object} prescription to be created
  */
-export function createPrescription(api, prescription) {
+export function createPrescription(api, clinicId, prescription) {
   return (dispatch) => {
     dispatch(sync.createPrescriptionRequest());
 
-    api.prescription.create(prescription, (err, result) => {
+    api.prescription.create(clinicId, prescription, (err, result) => {
       if (err) {
         dispatch(sync.createPrescriptionFailure(
           createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION, err), err
@@ -1219,14 +1221,15 @@ export function createPrescription(api, prescription) {
  * Create Prescription Revision Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
  * @param  {Object} revision revision to be created
  * @param  {String} prescriptionID id of prescription to add revision to
  */
-export function createPrescriptionRevision(api, revision, prescriptionId) {
+export function createPrescriptionRevision(api, clinicId, revision, prescriptionId) {
   return (dispatch) => {
     dispatch(sync.createPrescriptionRevisionRequest());
 
-    api.prescription.createRevision(revision, prescriptionId, (err, prescription) => {
+    api.prescription.createRevision(clinicId, revision, prescriptionId, (err, prescription) => {
       if (err) {
         dispatch(sync.createPrescriptionRevisionFailure(
           createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION_REVISION, err), err
@@ -1242,13 +1245,14 @@ export function createPrescriptionRevision(api, revision, prescriptionId) {
  * Delete Prescription Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
  * @param  {String} prescriptionID id of prescription to be deleted
  */
-export function deletePrescription(api, prescriptionId) {
+export function deletePrescription(api, clinicId, prescriptionId) {
   return (dispatch) => {
     dispatch(sync.deletePrescriptionRequest(prescriptionId));
 
-    api.prescription.delete(prescriptionId, (err) => {
+    api.prescription.delete(clinicId, prescriptionId, (err) => {
       if (err) {
         dispatch(sync.deletePrescriptionFailure(
           createActionError(ErrorMessages.ERR_DELETING_PRESCRIPTION, err), err
