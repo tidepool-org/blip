@@ -251,15 +251,15 @@ function PatientListPage(): JSX.Element {
         const { email, teamId } = result;
         const team = teamHook.getTeam(teamId);
         await teamHook.invitePatient(team as Team, email);
-        alert.success(t("modal-hcp-add-patient-success"));
+        alert.success(t("alert-invitation-sent-success"));
         sendMetrics("hcp-add-patient", { added: true });
         setTeamCodeToDisplay(team);
       } catch (reason) {
         log.error(reason);
         // TODO Errors:
-        // - "modal-hcp-add-patient-failure-already-in-team"
-        // - "modal-hcp-add-patient-failure-already-invited"
-        alert.error(t("modal-hcp-add-patient-failure"));
+        // - "alert-invitation-patient-failed-already-in-team"
+        // - "alert-invitation-patient-failed-already-invited"
+        alert.error(t("alert-invitation-patient-failed"));
         sendMetrics("hcp-add-patient", { added: true, failed: errorTextFromException(reason) });
       }
     } else {

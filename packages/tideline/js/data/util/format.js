@@ -156,12 +156,6 @@ const format = {
     }
   },
 
-  millisecondsAsTimeOfDay: function(i) {
-    var d = new Date(i);
-    var f = i18next.t('%-I:%M %p');
-    return window.d3.time.format.utc(f)(d);
-  },
-
   timespan: function(d) {
     var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
     var dur = Duration.parse(d.duration + 'ms');

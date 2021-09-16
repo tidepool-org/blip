@@ -256,7 +256,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
     modalTitle = t("team-modal-add-title");
     modalButtonValidate = t("button-create-team");
     infoLine = <p id="team-edit-dialog-info-line" className={classes.pModalInfos}>{t("team-modal-create-info")}</p>;
-    const termsOfUse = t("terms-and-conditions");
+    const termsOfUse = t("terms-of-use");
     const linkTerms = (
       <Link aria-label={termsOfUse} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
         {termsOfUse}
@@ -276,7 +276,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
   } else {
     ariaModal = t("aria-modal-team-edit");
     modalTitle = t("modal-team-edit-title");
-    modalButtonValidate = t("save");
+    modalButtonValidate = t("button-save");
   }
 
   return (
@@ -368,7 +368,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
               onChange={(e) => setTeamPhone(e.target.value)}
               name="phone"
               value={teamPhone}
-              label={t("team-edit-dialog-placeholder-phone")}
+              label={t("phone-number")}
               required={true}
               aria-required="true"
             />
@@ -393,7 +393,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
               className={classes.divModalButtonCancel}
               variant="contained"
               onClick={handleCloseModal}>
-              {t("common-cancel")}
+              {t("button-cancel")}
             </Button>
             <Button
               id="team-edit-dialog-button-validate"

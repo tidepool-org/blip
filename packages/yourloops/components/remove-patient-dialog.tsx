@@ -105,7 +105,7 @@ function RemovePatientDialog(props: RemovePatientDialogProps): JSX.Element {
           className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           id="patient-list-dialog-remove-button-remove"

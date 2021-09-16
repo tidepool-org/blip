@@ -183,7 +183,7 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
         className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
         color="secondary"
         variant="contained">
-        {t("common-cancel")}
+        {t("button-cancel")}
       </Button>
     );
   } else if (userIsTheOnlyAdministrator) {
@@ -195,7 +195,7 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
         disabled={buttonsDisabled}
         color="primary"
         variant="contained">
-        {t("common-ok")}
+        {t("button-ok")}
       </Button>
     );
   } else {
@@ -218,7 +218,7 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
         className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
         color="secondary"
         variant="contained">
-        {t("common-cancel")}
+        {t("button-cancel")}
       </Button>
     );
   }

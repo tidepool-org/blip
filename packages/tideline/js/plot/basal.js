@@ -272,16 +272,14 @@ function plotBasal(pool, opts = defaults) {
   };
 
   basal.rateString = function(d, cssClass) {
-    return format.tooltipValue(d.rate) + ' <span class="' + cssClass + '">U/hr</span>';
+    return format.tooltipValue(d.rate) + ` <span class="${cssClass}">${t('U/hr')}</span>`;
   };
 
   basal.tempPercentage = function(d) {
     if (typeof d.percent === 'number') {
       return format.percentage(d.percent);
     }
-    else {
-      return format.tooltipValue(d.rate) + ' <span class="plain">U/hr</span>';
-    }
+    return format.tooltipValue(d.rate) + ` <span class="plain">${t('U/hr')}</span>`;
   };
 
   basal.tooltipHtml = function(group, datum, showSheduledLabel) {
@@ -327,16 +325,9 @@ function plotBasal(pool, opts = defaults) {
       }
     }
 
-    let begin = '';
-    let end = '';
-    if (source === 'Diabeloop') {
-      const mBegin = moment.tz(datum.epoch, datum.timezone);
-      begin = mBegin.format(H_MM_A_FORMAT);
-      end = moment.tz(datum.epochEnd, datum.timezone).format(H_MM_A_FORMAT);
-    } else {
-      begin = format.timestamp(datum.normalTime, datum.displayOffset);
-      end = format.timestamp(datum.normalEnd, datum.displayOffset);
-    }
+    const mBegin = moment.tz(datum.epoch, datum.timezone);
+    const begin = mBegin.format(H_MM_A_FORMAT);
+    const end = moment.tz(datum.epochEnd, datum.timezone).format(H_MM_A_FORMAT);
     const html = `<span class="fromto">${t('from')}</span> ${begin} <span class="fromto">${t('to')}</span> ${end}`;
     group.append('p')
       .append('span')

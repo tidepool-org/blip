@@ -142,7 +142,7 @@ function AddDialog(props: AddDialogProps): JSX.Element {
           className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           id="patient-add-caregiver-dialog-button-add"

@@ -116,7 +116,7 @@ function TeamCodeDialog(props: TeamCodeDialogProps): JSX.Element {
           className={buttonsClasses.buttonCancel}
           color="primary"
           variant="contained">
-          {t("common-ok")}
+          {t("button-ok")}
         </Button>
       </DialogActions>
     </Dialog>

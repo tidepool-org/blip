@@ -137,9 +137,9 @@ function Consent(props: ConsentProps): JSX.Element {
   const log = React.useMemo(() => bows("consent"), []);
   const fromPath = React.useMemo(() => historyHook.location.state?.from?.pathname, [historyHook]);
 
-  const linkTermsText = t("terms-and-conditions");
+  const linkTermsText = t("terms-of-use");
   const linkTerms = DiabeloopUrl.getTermsLink(i18n.language);
-  const privacyPolicyText = t("footer-link-url-privacy-policy");
+  const privacyPolicyText = t("privacy-policy");
   const linkPrivacyPolicy = DiabeloopUrl.getPrivacyPolicyLink(i18n.language);
 
   const user = auth.user;
@@ -168,7 +168,7 @@ function Consent(props: ConsentProps): JSX.Element {
     }
 
     setError(true);
-    setHelperText("required");
+    setHelperText(t("required-field"));
     return false;
   };
 

@@ -100,7 +100,7 @@ function LeaveTeamDialog(props: LeaveTeamDialogProps): JSX.Element {
           className={`${dialogClasses.buttonCancel} ${buttonsClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           id="team-leave-dialog-button-leave"

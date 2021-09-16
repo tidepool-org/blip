@@ -120,7 +120,7 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
           onClick={handleClose}
           className={`${dialogClasses.buttonCancel} ${buttonClasses.buttonCancel}`}
           variant="contained">
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           id="team-members-dialog-rmmember-button-remove"

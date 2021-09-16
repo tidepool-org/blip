@@ -177,7 +177,7 @@ export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
     );
     break;
   case "phone":
-    infoLabel = t(`team-card-label-${label}`);
+    infoLabel = t("phone-number");
     elemValue = (
       <Link id={`team-card-info-${id}-${label}-value`} className={classes.linkValue} href={`tel:${value}`} target="_blank" rel="noreferrer">
         {value}

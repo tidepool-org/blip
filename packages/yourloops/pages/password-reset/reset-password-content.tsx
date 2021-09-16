@@ -238,14 +238,14 @@ export default function ResetPasswordContent(): JSX.Element {
           </CardContent>
           <CardActions className={classes.CardActions}>
             <Button variant="contained" color="secondary" onClick={onBack}>
-              {t("common-cancel")}
+              {t("button-cancel")}
             </Button>
             <Button
               variant="contained"
               color="primary"
               onClick={onSendResetPassword}
               disabled={emptyUsername || inProgress}>
-              {inProgress ? t("saving") : t("save")}
+              {inProgress ? t("button-saving") : t("button-save")}
             </Button>
           </CardActions>
         </>

@@ -137,6 +137,10 @@ function Login(): JSX.Element {
       let translatedErrorMessage: string | null = null;
       if (errorMessage === "error-account-lock") {
         translatedErrorMessage = t(errorMessage, { delayBeforeNextLoginAttempt: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT });
+      } else if (errorMessage === "no-username" || errorMessage === "no-password") {
+        // Theses error should never be displayed (no-username/no-password)
+        // But it's to cover all possible cases
+        translatedErrorMessage = t("error-invalid-credentials");
       } else if (errorMessage === "email-not-verified") {
         action = (
           <ButtonResendActivationLink
@@ -225,7 +229,7 @@ function Login(): JSX.Element {
                 />
               </form>
               <Link id="link-password-reset" component={RouterLink} to="/request-password-reset" rel="nofollow">
-                {t("Forgot your password?")}
+                {t("forgot-password-question")}
               </Link>
             </CardContent>
             <CardActions className={classes.CardActions}>
@@ -239,7 +243,7 @@ function Login(): JSX.Element {
                 onClick={onClickLoginButton}
                 className={classes.loginButton}
                 disabled={emptyUsername || emptyPassword || resendActivationLinkInProgress}>
-                {t("Login")}
+                {t("login")}
               </Button>
             </CardActions>
           </Card>

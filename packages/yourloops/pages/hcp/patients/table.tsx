@@ -159,7 +159,7 @@ function PatientRow(props: PatientElementProps): JSX.Element {
     return (
       <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending} patients-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
         <TableCell id={`${rowId}-icon`}>
-          <Tooltip id={`${rowId}-tooltip-pending`} title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
+          <Tooltip id={`${rowId}-tooltip-pending`} title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
             <AccessTimeIcon id={`${rowId}-pendingicon`} />
           </Tooltip>
         </TableCell>

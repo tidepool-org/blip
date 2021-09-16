@@ -248,7 +248,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           {menuItems}
           {_.isObject(menuItems) ? <hr id="menu-user-account-separator" /> : null}
           <MenuItem id="menu-user-account-profile" onClick={handleOpenProfilePage} disabled={history.location.pathname.endsWith("/preferences")}>
-            {t("menu-account-preferences")}
+            {t("account-preferences")}
           </MenuItem>
           <MenuItem id="menu-user-account-support" onClick={handleOpenSupport}>
             {t("menu-contact-support")}

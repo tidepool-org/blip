@@ -81,7 +81,7 @@ function SecondaryBar(props: SecondaryBarProps): JSX.Element {
             <HomeIcon id="profile-navbar-breadcrumbs-homeicon" className={classes.homeIcon} />
             {t("breadcrumb-home")}
           </Link>
-          <Typography id="profile-navbar-breadcrumbs-preferences" className={classes.breadcrumbText}>{t("menu-account-preferences")}</Typography>
+          <Typography id="profile-navbar-breadcrumbs-preferences" className={classes.breadcrumbText}>{t("account-preferences")}</Typography>
         </Breadcrumbs>
       </div>
       <div id="profile-navbar-item-middle"></div>

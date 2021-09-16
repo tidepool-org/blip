@@ -126,7 +126,7 @@ function DisplayErrorMessage(props: DisplayErrorMessageProps): JSX.Element {
           onClick={props.handleClose}
           color="primary"
           variant="contained">
-          {t("common-ok")}
+          {t("button-ok")}
         </Button>
       </DialogActions>
     </React.Fragment>
@@ -190,7 +190,7 @@ export function EnterIdentificationCode(props: EnterIdentificationCodeProps): JS
           className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           id="team-add-dialog-button-add-team"
@@ -231,7 +231,7 @@ export function ConfirmTeam(props: ConfirmTeamProps): JSX.Element {
     setPrivacyAccepted(!privacyAccepted);
   };
 
-  const privacyPolicy = t("footer-link-url-privacy-policy");
+  const privacyPolicy = t("privacy-policy");
   const linkPrivacyPolicy = (
     <Link aria-label={privacyPolicy} href={diabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer">
       {privacyPolicy}
@@ -297,7 +297,7 @@ export function ConfirmTeam(props: ConfirmTeamProps): JSX.Element {
           className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           id="team-add-dialog-confirm-team-button-add-team"

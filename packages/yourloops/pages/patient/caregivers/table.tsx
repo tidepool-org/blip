@@ -146,7 +146,7 @@ function CaregiverTable(props: CaregiverTableProps): JSX.Element {
       return (
         <TableRow key={userId} id={`patient-caregivers-table-row-${userId}`} data-userid={userId} data-status={us.status} className={classes.tableRowPending}>
           <TableCell id={`patient-caregivers-table-row-${userId}-status`}>
-            <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
+            <Tooltip title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
               <AccessTimeIcon id={`patient-caregivers-table-row-pendingicon-${userId}`} />
             </Tooltip>
           </TableCell>

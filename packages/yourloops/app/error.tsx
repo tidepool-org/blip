@@ -108,7 +108,7 @@ function OnError(props: OnErrorProps): JSX.Element {
         {moreInfos}
       </DialogContent>
       <DialogActions>
-        <Button color="primary" onClick={handleOK}>{t("common-ok")}</Button>
+        <Button color="primary" onClick={handleOK}>{t("button-ok")}</Button>
       </DialogActions>
     </Dialog>
   );

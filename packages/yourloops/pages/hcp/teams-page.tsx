@@ -143,6 +143,7 @@ function TeamsPage(): JSX.Element | null {
     setTeamToLeave(null); // Hide the dialog
 
     if (isConfirmed) {
+      const onlyMember = !((team.members.length ?? 0) > 1);
       try {
         await teamHook.leaveTeam(team);
         const message = teamHook.teamHasOnlyOneMember(team) ? t("team-page-success-deleted") : t("team-page-leave-success");
@@ -150,8 +151,7 @@ function TeamsPage(): JSX.Element | null {
         return true;
       } catch (reason: unknown) {
         log.error("handleShowLeaveTeamDialog", reason);
-        const errorMessage = errorTextFromException(reason);
-        const message = t("team-page-failed-leave", { errorMessage });
+        const message = onlyMember ? t("team-page-failure-deleted"): t("team-page-failed-leave");
         alert.error(message);
       }
     }

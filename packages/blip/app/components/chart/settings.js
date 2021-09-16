@@ -139,18 +139,8 @@ class Settings extends React.Component {
   }
 
   isMissingSettings() {
-    const data = this.props.patientData;
-    const pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
-    if (pumpSettings === false) {
-      return true;
-    }
-    // the TidelineData constructor currently replaces missing data with
-    // an empty array, so we also have to check for content
-    else if (_.isEmpty(pumpSettings)) {
-      return true;
-    }
-
-    return false;
+    const pumpSettings = _.get(this.props, 'patientData.grouped.pumpSettings', []);
+    return _.isEmpty(pumpSettings);
   }
 
   // handlers

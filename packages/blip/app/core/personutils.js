@@ -14,8 +14,6 @@
  */
 
 import _ from 'lodash';
-import i18next from 'i18next';
-import sundial from 'sundial';
 
 import config from '../config';
 
@@ -68,11 +66,6 @@ personUtils.isClinic = (user) => {
 
 personUtils.haveClinicProfile = (user) => _.get(user, 'profile.clinic', false) !== false;
 
-personUtils.isDataDonationAccount = (account) => {
-  const username = account.username || account.email || '';
-  return /^bigdata(.+)?@tidepool\.org$/.test(username);
-};
-
 personUtils.patientFullName = (person) => {
   return personUtils.fullName(person);
 };
@@ -116,72 +109,6 @@ personUtils.hasEditPermissions = (person) => {
 
 personUtils.isRemoveable = (person) => {
   return (person && !_.isEmpty(person.permissions) && !person.permissions.root);
-};
-
-/**
-   * Validate the form data
-   *  - name has to be present (can only not be present if user is not patient)
-   *  - date of birth needs to be a valid date, and not in the future
-   *  - diagnosis date need to be a valid date, and not in the future, and not before date of birth
-   *
-   * @param  {Object} formValues
-   * @param  {Boolean} isNameRequired
-   * @param  {String} dateFormat of input
-   * @param  {Date|null} currentDate mainly for testing purposes
-   *
-   * @return {String|undefined} returns a string if there is an error
-   */
-personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, currentDateObj) => {
-  const t = i18next.t.bind(i18next);
-  let validationErrors = {};
-
-  const INVALID_DATE_TEXT = t('Hmm, this date doesn’t look right');
-  const OUT_OF_ORDER_TEXT = t('Hmm, diagnosis date usually comes after birthday');
-
-  if (isNameRequired) {
-    if (!formValues.firstName) {
-      validationErrors.firstName = t('First name is required');
-    }
-    if (!formValues.lastName) {
-      validationErrors.lastName = t('Last name is required');
-    }
-  }
-
-  const birthday = formValues.birthday;
-  if (!(birthday && sundial.isValidDateForMask(birthday, dateFormat))) {
-    validationErrors.birthday = INVALID_DATE_TEXT;
-  }
-
-  // moving to make diagnosisDate optional so we can use this to verify custodial accounts
-  const diagnosisDate = formValues.diagnosisDate;
-  if (diagnosisDate && !(diagnosisDate && sundial.isValidDateForMask(diagnosisDate, dateFormat))) {
-    validationErrors.diagnosisDate = INVALID_DATE_TEXT;
-  }
-
-  const now = new Date();
-  currentDateObj = currentDateObj || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  var birthdayDateObj = birthday && sundial.parseFromFormat(birthday, dateFormat);
-  var diagnosisDateObj = diagnosisDate && sundial.parseFromFormat(diagnosisDate, dateFormat);
-
-  if (!validationErrors.birthday && birthdayDateObj > currentDateObj) {
-    validationErrors.birthday = INVALID_DATE_TEXT;
-  }
-
-  if (!validationErrors.diagnosisDate && diagnosisDateObj > currentDateObj) {
-    validationErrors.diagnosisDate = INVALID_DATE_TEXT;
-  }
-
-  if (!validationErrors.diagnosisDate && birthdayDateObj > diagnosisDateObj) {
-    validationErrors.diagnosisDate = OUT_OF_ORDER_TEXT;
-  }
-
-  const maxLength = 256;
-  const about = formValues.about;
-  if (about && about.length > maxLength) {
-    validationErrors.about = t('Please keep "about" text under {{maxLength}} characters', {maxLength});
-  }
-
-  return validationErrors;
 };
 
 export default personUtils;

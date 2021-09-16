@@ -283,22 +283,6 @@ describe('format utility', function() {
     });
   });
 
-  describe('millisecondsAsTimeOfDay', function() {
-    it('should be a function', function() {
-      assert.isFunction(fmt.millisecondsAsTimeOfDay);
-    });
-
-    it('should translate a value of milliseconds per 24 hours into a timestamp', function() {
-      expect(fmt.millisecondsAsTimeOfDay(3900000)).to.equal('1:05 AM');
-    });
-
-    it('should translate in french a value of milliseconds per 24 hours into a timestamp', function() {
-      i18next.changeLanguage('fr');
-      expect(fmt.millisecondsAsTimeOfDay(3900000)).to.equal('1h05');
-      i18next.changeLanguage('en');
-    });
-  });
-
   describe('timespan', function() {
     var MS_IN_HR = 3600000;
     it('should be a function', function() {
@@ -315,20 +299,6 @@ describe('format utility', function() {
 
     it('should return `over 6 ⅔ hrs` on a datum with a duration of 6.67 hours', function() {
       expect(fmt.timespan({duration: (20/3)*MS_IN_HR})).to.equal('over 6 ⅔ hrs');
-    });
-  });
-
-  describe('timestamp', function() {
-    it('should be a function', function() {
-      assert.isFunction(fmt.timestamp);
-    });
-
-    it('should return `1:00 am` on a UTC timestamp at 1 am', function() {
-      expect(fmt.timestamp('2014-01-01T01:00:00.000Z')).to.equal('1:00 am');
-    });
-
-    it('should return `5:00 pm` on a UTC timestamp at 1 am with a Pacific non-DST offset', function() {
-      expect(fmt.timestamp('2014-01-01T01:00:00.000Z', -480)).to.equal('5:00 pm');
     });
   });
 

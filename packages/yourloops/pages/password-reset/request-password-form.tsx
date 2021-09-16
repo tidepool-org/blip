@@ -86,10 +86,10 @@ export default function RequestPasswordForm(props: RequestPasswordFormProps): JS
     <React.Fragment>
       <CardContent className={classes.CardContent}>
         <Typography variant="h6" gutterBottom>
-          {t("Forgot your password?")}
+          {t("forgot-password-question")}
         </Typography>
         <Typography variant="body1" gutterBottom>
-          {t("Please enter your email address.")}
+          {t("forgot-password-enter-your-email-address.")}
         </Typography>
         <form
           style={{
@@ -116,14 +116,14 @@ export default function RequestPasswordForm(props: RequestPasswordFormProps): JS
       </CardContent>
       <CardActions className={classes.CardActions}>
         <Button variant="contained" color="secondary" onClick={props.onBack}>
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={props.onSendResetLink}
           disabled={emptyUsername || props.inProgress}>
-          {props.inProgress ? t("Sending reset link") : t("Send reset link")}
+          {props.inProgress ? t("sending-reset-link") : t("send-reset-link")}
         </Button>
       </CardActions>
     </React.Fragment>

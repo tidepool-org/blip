@@ -216,13 +216,11 @@ function PatientListPage(): JSX.Element {
         const { email } = result;
         await addDirectShare(session, email);
         setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
-        // TODO: rename translation key to "modal-add-patient-success"
-        alert.success(t("modal-hcp-add-patient-success"));
+        alert.success(t("alert-invitation-sent-success"));
         sendMetrics("caregiver-add-patient", { added: true });
       } catch (reason) {
         log.error(reason);
-        // TODO: rename translation key to "modal-add-patient-failure"
-        alert.error(t("modal-hcp-add-patient-failure"));
+        alert.error(t("alert-invitation-patient-failed"));
         sendMetrics("caregiver-add-patient", { added: true, failed: errorTextFromException(reason) });
       }
     } else {
@@ -244,10 +242,10 @@ function PatientListPage(): JSX.Element {
         await removeDirectShare(session, patient.userid);
         setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
         sendMetrics("caregiver-remove-patient", { removed: true, flagged, isPendingInvitation });
-        alert.success(t("modal-remove-patient-success"));
+        alert.success(t("alert-remove-patient-success"));
       } catch (reason) {
         log.error(reason);
-        alert.error(t("modal-delete-patient-failure"));
+        alert.error(t("alert-remove-patient-failure"));
         sendMetrics("caregiver-remove-patient", { removed: true, flagged, isPendingInvitation, failed: errorTextFromException(reason) });
       }
     } else {

@@ -250,7 +250,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     } else {
       rowClassName = props.classes?.tableRowPending ?? "";
       icon = (
-        <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
+        <Tooltip title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
           <AccessTimeIcon id={`team-members-list-${team.id}-row-${userId}-pending-icon`} className="team-members-list-row-pending" />
         </Tooltip>
       );
@@ -399,7 +399,7 @@ function TeamMembersCards(props: TeamMembersProps): JSX.Element {
             </div>
           ) : null}
           <div className={classes.paperMemberChip}>
-            <Chip id={`team-members-list-${team.id}-badge-admin-${email}`} size="small" label={t("team-member-pending")} />
+            <Chip id={`team-members-list-${team.id}-badge-admin-${email}`} size="small" label={t("pending-invitation")} />
           </div>
         </React.Fragment>
       );

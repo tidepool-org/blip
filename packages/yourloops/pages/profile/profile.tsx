@@ -306,7 +306,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
       hba1cTextField = (
         <TextField
           id="hbA1c"
-          label={t("hcp-patient-profile-hba1c", { hba1cDate })}
+          label={t("patient-profile-hba1c", { hba1cDate })}
           disabled
           value={`${a1cValue}%`}
           className={classes.textField}
@@ -318,7 +318,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
       <React.Fragment>
         <TextField
           id="profile-textfield-birthdate"
-          label={t("hcp-patient-profile-birthdate")}
+          label={t("patient-profile-birthdate")}
           value={birthDate ?? ""}
           onChange={createHandleTextChange(setBirthDate)}
           error={errors.birthDate}
@@ -377,7 +377,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
       <Container className={classes.container} maxWidth="sm">
         <div style={{ display: "flex", flexDirection: "column", margin: "16px" }}>
           <DialogTitle className={classes.title} id="profile-title">
-            {t("menu-account-preferences")}
+            {t("account-preferences")}
           </DialogTitle>
           <TextField
             id="profile-textfield-firstname"
@@ -429,7 +429,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
               color="secondary"
               onClick={onCancel}
               className={classes.button}>
-              {t("common-cancel")}
+              {t("button-cancel")}
             </Button>
             <Button
               id="profile-button-save"
@@ -438,7 +438,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
               color="primary"
               onClick={onSave}
               className={classes.button}>
-              {t("save")}
+              {t("button-save")}
             </Button>
           </div>
           {UserRoles.caregiver === role ? (

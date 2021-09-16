@@ -130,7 +130,7 @@ function SwitchRoleConsequencesDialog(props: SwitchRoleConsequencesDialogProps):
           className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           id="switch-role-consequences-dialog-button-ok"

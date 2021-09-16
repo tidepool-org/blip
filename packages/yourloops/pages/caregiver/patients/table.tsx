@@ -141,7 +141,7 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
     return (
       <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending} patients-list-row`} ref={rowRef} data-userid={userId} data-email={email}>
         <TableCell id={`${rowId}-icon`}>
-          <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
+          <Tooltip title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
             <AccessTimeIcon id={`${rowId}-icon-pending`} />
           </Tooltip>
         </TableCell>

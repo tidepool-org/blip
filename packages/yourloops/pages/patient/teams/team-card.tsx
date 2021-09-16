@@ -87,7 +87,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
         startIcon={<ExitToAppIcon color="primary" />}
         onClick={handleClickLeaveTeam}
         disabled={buttonsDisabled}>
-        <span className={classes.buttonText}>{t("remove")}</span>
+        <span className={classes.buttonText}>{t("button-remove")}</span>
       </Button>
     </GenericTeamCard>
   );

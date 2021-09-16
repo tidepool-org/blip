@@ -115,7 +115,7 @@ function AddDialog(props: AddDialogProps): JSX.Element {
   const dialogIsOpen = props.actions !== null;
   const buttonAddDisabled = errorMessage !== null || !isValidEmail();
 
-  const termsOfUse = t("terms-and-conditions");
+  const termsOfUse = t("terms-of-use");
   const linkTerms = (
     <Link id="patient-list-dialog-add-warning-link" aria-label={termsOfUse} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
       {termsOfUse}
@@ -143,7 +143,7 @@ function AddDialog(props: AddDialogProps): JSX.Element {
         />
         <Trans
           id="patient-list-dialog-add-warning"
-          i18nKey="modal-add-patient-warning"
+          i18nKey="modal-add-patient-warning-line2"
           t={t}
           components={{ linkTerms }}
           values={{ termsOfUse }}
@@ -159,7 +159,7 @@ function AddDialog(props: AddDialogProps): JSX.Element {
           className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           id="patient-list-dialog-add-button-add"

@@ -134,13 +134,13 @@ function AddDialog(props: AddDialogProps): JSX.Element {
     );
   }
 
-  const termsOfUse = t("terms-and-conditions");
+  const termsOfUse = t("terms-of-use");
   const linkTerms = (
     <Link id="patient-list-dialog-add-warning-link-terms" aria-label={termsOfUse} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
       {termsOfUse}
     </Link>
   );
-  const privacyPolicy = t("footer-link-url-privacy-policy");
+  const privacyPolicy = t("privacy-policy");
   const linkPrivacyPolicy = (
     <Link id="patient-list-dialog-add-warning-link-privacy" aria-label={termsOfUse} href={DiabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer">
       {privacyPolicy}
@@ -201,7 +201,7 @@ function AddDialog(props: AddDialogProps): JSX.Element {
           className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
-          {t("common-cancel")}
+          {t("button-cancel")}
         </Button>
         <Button
           id="patient-list-dialog-add-button-add"

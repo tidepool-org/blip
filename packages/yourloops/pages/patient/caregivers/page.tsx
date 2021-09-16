@@ -81,7 +81,7 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
     if (email !== null && session !== null) {
       try {
         await addDirectShare(session, email);
-        alert.success(t("modal-hcp-add-patient-success"));
+        alert.success(t("alert-invitation-sent-success"));
         sendMetrics("patient-add-caregiver", { added: true });
         // Refresh the notifications list
         notificationHook.update();
@@ -89,7 +89,7 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
         setCaregivers(null);
       } catch (reason) {
         log.error(reason);
-        alert.error(t("modal-patient-add-caregiver-failure"));
+        alert.error(t("alert-invitation-caregiver-failed"));
         sendMetrics("patient-add-caregiver", { added: true, failed: errorTextFromException(reason) });
       }
     } else {

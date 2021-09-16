@@ -87,7 +87,7 @@ const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, ha
   return (
     <Dialog fullWidth={true} maxWidth="xs" open={isOpen} onClose={handleClose}>
       <DialogTitle className={title} id="patient-dialog-title">
-        {t("patient-profile")}
+        {t("patient-profile-title")}
       </DialogTitle>
       <DialogContent>
         <TextField
@@ -112,7 +112,7 @@ const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, ha
           fullWidth
           disabled
           id="birthDate"
-          label={t("hcp-patient-profile-birthdate")}
+          label={t("patient-profile-birthdate")}
           value={birthDate}
           className={textField}
           InputProps={{ classes: { disabled } }}
@@ -131,7 +131,7 @@ const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, ha
             fullWidth
             disabled
             id="hbA1c"
-            label={t("hcp-patient-profile-hba1c", { hba1cDate: hbA1c?.date })}
+            label={t("patient-profile-hba1c", { hba1cDate: hbA1c?.date })}
             value={hbA1c?.value + "%"}
             className={textField}
             InputProps={{ classes: { disabled } }}
@@ -149,7 +149,7 @@ const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, ha
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">
-          {t("close")}
+          {t("button-close")}
         </Button>
       </DialogActions>
     </Dialog>
