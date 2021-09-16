@@ -20,7 +20,7 @@ import Checkbox from '../../../app/components/elements/Checkbox';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('ClinicianEdit', () => {
+describe('ClinicianEdit', () => {
   let mount;
 
   let wrapper;

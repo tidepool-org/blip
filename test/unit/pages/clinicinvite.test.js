@@ -21,7 +21,7 @@ import { ToastProvider } from '../../../app/providers/ToastProvider';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('ClinicInvite', () => {
+describe('ClinicInvite', () => {
   let mount;
 
   let wrapper;

@@ -23,7 +23,7 @@ import { Dialog } from '../../../app/components/elements/Dialog';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('ClinicAdmin', () => {
+describe('ClinicAdmin', () => {
   let mount;
 
   let wrapper;
