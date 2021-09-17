@@ -269,14 +269,19 @@ export function login(api, credentials, options, postLoginAction) {
                     // If we have an empty clinic profile, go to clinic details, otherwise workspaces
                     setRedirectRoute(!hasClinicProfile ? routes.clinicDetails : routes.workspaces);
                   } else if (values.clinics?.length) {
-                    const firstClinicIsEmpty = _.isEmpty(_.get(values.clinics, '0.clinic'));
+                    const firstEmptyClinic = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) && !clinic.clinic?.canMigrate);
 
-                    if (!firstClinicIsEmpty && values.clinics.length === 1 && !hasPatientProfile && !values.associatedAccounts?.patients?.length) {
+                    if (!firstEmptyClinic && values.clinics.length === 1 && !hasPatientProfile && !values.associatedAccounts?.patients?.length) {
                       // Go to the clinic workspace if only one clinic and no dsa/data-sharing
                       setRedirectRoute(routes.clinicWorkspace);
                     } else {
                       // If we have an empty clinic object, go to clinic details, otherwise workspaces
-                      setRedirectRoute(firstClinicIsEmpty ? routes.clinicDetails : routes.workspaces);
+                      if (firstEmptyClinic) {
+                        dispatch(sync.selectClinic(firstEmptyClinic.clinic?.id));
+                        setRedirectRoute(routes.clinicDetails);
+                      } else {
+                        setRedirectRoute(routes.workspaces);
+                      }
                     }
                   } else {
                     // Clinic flow is not enabled for this account
