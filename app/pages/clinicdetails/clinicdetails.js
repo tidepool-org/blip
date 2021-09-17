@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import * as yup from 'yup';
-import map from 'lodash/map';
-import keys from 'lodash/keys';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 import forEach from 'lodash/forEach';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import keys from 'lodash/keys';
+import map from 'lodash/map';
+import pick from 'lodash/pick';
 import { Formik, Form, FastField } from 'formik';
 import { Box, Flex } from 'rebass/styled-components';
 import countries from 'i18n-iso-countries';
@@ -35,16 +36,15 @@ countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
 const clinicianSchema = yup.object().shape({
   firstName: yup.string().required(t('First name is required')),
   lastName: yup.string().required(t('Last name is required')),
-  role: yup.string().oneOf(map(roles, 'value')),
+  role: yup.string().oneOf([...map(roles, 'value'), '']),
   npi: yup
     .string()
     .test('npiFormat', t('NPI must be 10 digits'), npi => !npi || /^\d{10}$/.test(npi)),
 });
 
 const clinicSchema = clinicianSchema.concat(validationSchema).concat(yup.object().shape({
-  adminAcknowledge: yup
-    .bool()
-    .oneOf([true], t('You must acknowledge admin role')),
+  adminAcknowledge: yup.boolean()
+    .test('isTrue', t('You must acknowledge admin role'), value => (value === true)),
 }));
 
 export const ClinicDetails = (props) => {
@@ -64,6 +64,13 @@ export const ClinicDetails = (props) => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const { updatingClinic } = useSelector((state) => state.blip.working);
   const clinic = get(clinics, selectedClinicId);
+
+  // TODO: do we need to find a different way of deciding whether or not to show the full or partial form?
+  // For instance, if a clinic admin goes back to the page, they get the simple profile form.
+  // Perhaps -- if selectedClinic is set and the user is an admin, we show the full form
+  // Although -- it's strange to show the profile editing in 2 places.  I suppose the real issue is that we
+  // use the same form for a new clinician account with a pending invite, and the initial clinic profile
+  // creation
   const displayFullForm = config.CLINICS_ENABLED && isEmpty(pendingReceivedClinicianInvites)
   const schema = displayFullForm ? clinicSchema : clinicianSchema;
   const working = useSelector((state) => state.blip.working);
@@ -144,11 +151,13 @@ export const ClinicDetails = (props) => {
               const profileUpdates = {
                 profile: {
                   fullName: `${values.firstName} ${values.lastName}`,
-                  clinic: {
-                    role: values.role,
-                  },
+                  clinic: {},
                 },
               };
+
+              if (values.role) {
+                profileUpdates.profile.clinic.role = values.role;
+              }
 
               if (values.npi) {
                 profileUpdates.profile.clinic.npi = values.npi;
@@ -157,28 +166,8 @@ export const ClinicDetails = (props) => {
               dispatch(actions.async.updateUser(api, profileUpdates));
 
               if (displayFullForm) {
-                const address =
-                values.address1 + (values.address2 ? ' ' + values.address2 : '');
-                const newClinic = {
-                  name: values.orgName,
-                  address,
-                  city: values.city,
-                  state: values.state,
-                  postalCode: values.zip,
-                  country: values.country,
-                  phoneNumbers: [
-                    {
-                      type: 'Office',
-                      number: values.phoneNumber,
-                    },
-                  ],
-                  clinicType: values.clinicType,
-                  clinicSize: values.clinicSize,
-                  website: values.website,
-                };
-
                 trackMetric('Clinic - Account created');
-                dispatch(actions.async.createClinic(api, newClinic));
+                dispatch(actions.async.updateClinic(api, clinic.id, pick(values, keys(clinicValuesFromClinic()))));
               }
             }}
           >
@@ -208,9 +197,8 @@ export const ClinicDetails = (props) => {
                   <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
                     <Select
                       {...getCommonFormikFieldProps('role', formikContext)}
-                      options={addEmptyOption(roles)}
+                      options={addEmptyOption(roles, t('Job Title'))}
                       label={t('Job Title (Optional)')}
-                      placeholder={t('Job Title (Optional)')}
                       variant="condensed"
                       themeProps={{
                         width: '100%',
@@ -222,7 +210,7 @@ export const ClinicDetails = (props) => {
                     <TextInput
                       {...getCommonFormikFieldProps('npi', formikContext)}
                       label={t('NPI (Optional)')}
-                      placeholder={t('NPI (Optional)')}
+                      placeholder={t('NPI')}
                       variant="condensed"
                       width="100%"
                     />
