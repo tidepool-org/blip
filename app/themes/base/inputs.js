@@ -102,6 +102,12 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
       color: colors.feedback.danger,
       borderColor: colors.feedback.danger,
     },
+    '&.empty': {
+      color: colors.text.primarySubdued,
+      option: {
+        display: 'block',
+      },
+    },
   };
 
   return {
