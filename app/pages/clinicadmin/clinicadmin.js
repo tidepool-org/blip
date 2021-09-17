@@ -40,6 +40,7 @@ import personUtils from '../../core/personutils';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { usePrevious } from '../../core/hooks';
+import config from '../../config';
 
 export const ClinicAdmin = (props) => {
   const { t, api, trackMetric } = props;
@@ -348,23 +349,27 @@ export const ClinicAdmin = (props) => {
       sortBy: 'inviteSent',
       render: renderStatus,
     },
-    {
+  ];
+
+  if (config.RX_ENABLED) {
+    columns.push({
       title: t('Permission'),
       field: 'prescriberPermission',
       align: 'left',
       sortable: true,
       sortBy: 'prescriberPermission',
       render: renderPermission,
-    },
-    {
-      title: t('Role'),
-      field: 'role',
-      align: 'left',
-      sortable: true,
-      sortBy: 'role',
-      render: renderRole,
-    },
-  ];
+    });
+  }
+
+  columns.push({
+    title: t('Role'),
+    field: 'role',
+    align: 'left',
+    sortable: true,
+    sortBy: 'role',
+    render: renderRole,
+  });
 
   if (isClinicAdmin) {
     columns.push(
@@ -410,18 +415,21 @@ export const ClinicAdmin = (props) => {
         </Flex>
 
         <Box mx={4}>
-          <TextInput
-            themeProps={{
-              minWidth: '250px',
-              my: 3,
-            }}
-            placeholder={t('search')}
-            icon={SearchIcon}
-            id="search-members"
-            name="search-members"
-            onChange={handleSearchChange}
-            variant="condensed"
-          />
+          <Flex>
+            <TextInput
+              themeProps={{
+                minWidth: '250px',
+                my: 4,
+                flexBasis: 1/2,
+              }}
+              placeholder={t('Search by Name')}
+              icon={SearchIcon}
+              id="search-members"
+              name="search-members"
+              onChange={handleSearchChange}
+              variant="condensed"
+            />
+          </Flex>
 
           <Table
             id="clinicianTable"
@@ -430,8 +438,9 @@ export const ClinicAdmin = (props) => {
             data={clinicianArray}
             orderBy="fullNameOrderable"
             order="asc"
-            searchText={searchText}
+            rowHover={false}
             rowsPerPage={8}
+            searchText={searchText}
             pagination={true}
             style={{ fontSize: '14px' }}
           />

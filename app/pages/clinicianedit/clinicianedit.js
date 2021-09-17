@@ -35,6 +35,7 @@ import { useToasts } from '../../providers/ToastProvider';
 import baseTheme from '../../themes/baseTheme';
 import { useIsFirstRender } from '../../core/hooks';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
+import config from '../../config';
 
 const { Loader } = vizComponents;
 
@@ -69,7 +70,7 @@ export const ClinicianEdit = (props) => {
     <>
       <Title mt="-0.25em">{t('Clinic Admin')}</Title>
       <Body1>
-        {t('Clinic administrators have full read and edit access to access management. More details are described here.')}
+        {t('Clinic admins have complete access to a workspace and can manage patients, clinicians and the clinic profile.')}
       </Body1>
     </>
   );
@@ -78,7 +79,7 @@ export const ClinicianEdit = (props) => {
     <>
       <Title mt="-0.25em">{t('Clinic Member')}</Title>
       <Body1>
-        {t('Clinic members have read access to access management. More details are described here.')}
+        {t('Clinic members have limited access to a workspace and can only manage patients.')}
       </Body1>
     </>
   );
@@ -279,30 +280,37 @@ export const ClinicianEdit = (props) => {
                       borderRadius: `${baseTheme.radii.default}px ${baseTheme.radii.default}px 0 0`,
                       borderBottom: 'none',
                     },
+                    '&:last-child': {
+                      borderRadius: config.RX_ENABLED
+                        ? 0
+                        : `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
+                    },
                   },
                 },
               }}
             />
 
-            <Box
-              p={4}
-              mb={4}
-              bg="lightestGrey"
-              sx={{
-                border: baseTheme.borders.default,
-                borderTop: 'none',
-                borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
-              }}
-            >
-              <Checkbox
-                {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
-                label={t('Prescribing access')}
-                themeProps={{ bg: 'lightestGrey' }}
-              />
-            </Box>
+            {config.RX_ENABLED && (
+              <Box
+                p={4}
+                mb={3}
+                bg="lightestGrey"
+                sx={{
+                  border: baseTheme.borders.default,
+                  borderTop: 'none',
+                  borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
+                }}
+              >
+                <Checkbox
+                  {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
+                  label={t('Prescribing access')}
+                  themeProps={{ bg: 'lightestGrey' }}
+                />
+              </Box>
+            )}
 
-            <Button variant="textPrimary" onClick={() => setPermissionsDialogOpen(true)}>
-              Learn more about clincian roles and permissions
+            <Button mt={3} variant="textPrimary" onClick={() => setPermissionsDialogOpen(true)}>
+              Learn more about clinician roles and permissions
             </Button>
 
             <Flex p={4} justifyContent="flex-end">

@@ -39,11 +39,13 @@ describe('ClinicAdmin', () => {
   before(() => {
     mount = createMount();
     ClinicAdmin.__Rewire__('ClinicProfile', sinon.stub().returns('stubbed clinic profile'));
+    ClinicAdmin.__Rewire__('config', { RX_ENABLED: true });
   });
 
   after(() => {
     mount.cleanUp();
     ClinicAdmin.__ResetDependency__('ClinicProfile');
+    ClinicAdmin.__ResetDependency__('config');
   });
 
   const defaultWorkingState = {

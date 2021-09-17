@@ -38,10 +38,12 @@ describe('ClinicInvite', () => {
   before(() => {
     mount = createMount();
     ClinicInvite.__Rewire__('useLocation', sinon.stub().returns({ state: {} }));
+    ClinicInvite.__Rewire__('config', { RX_ENABLED: true });
   });
 
   after(() => {
     mount.cleanUp();
+    ClinicInvite.__ResetDependency__('config');
   });
 
   const defaultWorkingState = {

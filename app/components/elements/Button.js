@@ -20,6 +20,7 @@ const StyledButton = styled(Base)`
     pointer-events: none;
 
     > div:first-child, .icon {
+      transition: none;
       visibility: hidden;
     }
   }

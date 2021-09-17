@@ -40,10 +40,12 @@ describe('ClinicianEdit', () => {
       'useLocation',
       sinon.stub().returns({ state: {} })
     );
+    ClinicianEdit.__Rewire__('config', { RX_ENABLED: true });
   });
 
   after(() => {
     mount.cleanUp();
+    ClinicianEdit.__ResetDependency__('config');
   });
 
   const defaultWorkingState = {

@@ -371,6 +371,7 @@ const Prescriptions = props => {
           data={data}
           columns={columns}
           rowsPerPage={10}
+          rowHover={false}
           searchText={searchText}
           onClickRow={handleRowClick}
           orderBy="createdTime"
