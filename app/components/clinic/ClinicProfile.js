@@ -52,7 +52,7 @@ export const ClinicProfile = (props) => {
   };
 
   const formikContext = useFormik({
-    initialValues: clinicValuesFromClinic(),
+    initialValues: clinicValuesFromClinic(clinic),
     onSubmit: (values, ctx) => {
       trackMetric('Clinic - Edit clinic profile saved', { clinicId: selectedClinicId });
       dispatch(actions.async.updateClinic(api, clinic.id, values));
@@ -71,7 +71,7 @@ export const ClinicProfile = (props) => {
 
   useEffect(() => {
     if (clinic) {
-      setValues(clinicValuesFromClinic())
+      setValues(clinicValuesFromClinic(clinic))
     }
   }, [clinic])
 
@@ -111,7 +111,7 @@ export const ClinicProfile = (props) => {
   function closeClinicEdit() {
     setEditing(false);
     setSubmitting(false);
-    resetForm(clinicValuesFromClinic());
+    resetForm(clinicValuesFromClinic(clinic));
   }
 
   if (!clinic) return null;
