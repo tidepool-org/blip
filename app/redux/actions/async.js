@@ -1854,13 +1854,13 @@ export function updateClinic(api, clinicId, clinic) {
   return (dispatch) => {
     dispatch(sync.updateClinicRequest());
 
-    api.clinics.update(clinicId, clinic, (err) => {
+    api.clinics.update(clinicId, clinic, (err, updatedClinic) => {
       if (err) {
         dispatch(sync.updateClinicFailure(
           createActionError(ErrorMessages.ERR_UPDATING_CLINIC, err), err
         ));
       } else {
-        dispatch(sync.updateClinicSuccess(clinicId, clinic));
+        dispatch(sync.updateClinicSuccess(clinicId, updatedClinic));
       }
     });
   };
