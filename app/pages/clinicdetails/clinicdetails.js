@@ -62,7 +62,6 @@ export const ClinicDetails = (props) => {
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const { updatingClinic } = useSelector((state) => state.blip.working);
   const clinic = get(clinics, selectedClinicId);
 
   // TODO: do we need to find a different way of deciding whether or not to show the full or partial form?
@@ -83,6 +82,11 @@ export const ClinicDetails = (props) => {
     npi: '',
     ...clinicValuesFromClinic(clinic),
   });
+
+  function redirectToWorkspace() {
+    const redirectPath = displayFullForm ? '/clinic-workspace' : '/workspaces';
+    dispatch(push(redirectPath));
+  }
 
   // Fetchers
   useEffect(() => {
@@ -110,11 +114,13 @@ export const ClinicDetails = (props) => {
       completed,
       notification,
     } = working.updatingUser;
+
     const prevInProgress = get(
       previousWorking,
       'updatingUser.inProgress'
     );
-    if (!inProgress && completed && prevInProgress) {
+
+    if (!displayFullForm && !inProgress && completed && prevInProgress) {
       if (notification) {
         setToast({
           message: notification.message,
@@ -125,10 +131,75 @@ export const ClinicDetails = (props) => {
           message: t('Profile updated'),
           variant: 'success',
         });
-        dispatch(push('/workspaces'));
+
+        redirectToWorkspace();
       }
     }
   }, [working.updatingUser]);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.updatingClinic;
+
+    const prevInProgress = get(
+      previousWorking,
+      'updatingClinic.inProgress'
+    );
+
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Clinic Profile updated'),
+          variant: 'success',
+        });
+
+        // If the account is flagged for migration, we trigger that now.
+        // Otherwise redirect to the clinic workspaces tab.
+        if (clinic.canMigrate) {
+          dispatch(actions.async.triggerInitialClinicMigration(api, clinic.id));
+        } else {
+          redirectToWorkspace();
+        }
+      }
+    }
+  }, [working.updatingClinic]);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.triggeringInitialClinicMigration;
+
+    const prevInProgress = get(
+      previousWorking,
+      'triggeringInitialClinicMigration.inProgress'
+    );
+
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Clinic setup completed'),
+          variant: 'success',
+        });
+
+        redirectToWorkspace();
+      }
+    }
+  }, [working.triggeringInitialClinicMigration]);
 
   return (
     <Box
@@ -137,12 +208,10 @@ export const ClinicDetails = (props) => {
     >
       {working.fetchingClinicianInvites.completed ? (
         <>
-          {!displayFullForm && (
-            <>
-              <Title>{t('Update your account')}</Title>
-              <Body2>{t('Before accessing your clinic workspace, please provide the additional account information requested below.')}</Body2>
-            </>
-          )}
+          <Headline mb={2}>{t('Update your account')}</Headline>
+          <Body1 mb={4}>
+            {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
+          </Body1>
 
           <Formik
             initialValues={clinicValues()}
@@ -173,7 +242,7 @@ export const ClinicDetails = (props) => {
           >
             {formikContext => (
               <Form id="clinic-profile">
-                <Flex flexWrap="wrap" flexDirection={['column', 'row']}>
+                <Flex mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
                   <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
                     <TextInput
                       {...getCommonFormikFieldProps('firstName', formikContext)}
@@ -219,7 +288,7 @@ export const ClinicDetails = (props) => {
 
                 {displayFullForm && (
                   <>
-                    <Headline mb={4}>{t('More about your clinic')}</Headline>
+                    <Headline mb={2}>{t('More about your clinic')}</Headline>
                     <Body1 mb={4}>
                       {t('The information below will be displayed along with your name when you invite patients to connect and share their data remotely. Please ensure you have the correct clinic information for their verification.')}
                     </Body1>

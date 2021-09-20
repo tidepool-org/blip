@@ -269,6 +269,10 @@ export function login(api, credentials, options, postLoginAction) {
                     // If we have an empty clinic profile, go to clinic details, otherwise workspaces
                     setRedirectRoute(!hasClinicProfile ? routes.clinicDetails : routes.workspaces);
                   } else if (values.clinics?.length) {
+                    // TODO: what do we do if a clinic has the details filled out, but `canMigrate` is true
+                    // Do we auto-trigger the migration? Go to the clinic details form and have them resubmit?
+                    // Have a UI that allows them to explicitly trigger the migration or continue with normal
+                    // clinician operations until they're ready?
                     const firstEmptyClinic = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) && !clinic.clinic?.canMigrate);
 
                     if (!firstEmptyClinic && values.clinics.length === 1 && !hasPatientProfile && !values.associatedAccounts?.patients?.length) {
@@ -2420,6 +2424,28 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
         ));
       } else {
         dispatch(sync.fetchClinicSuccess(clinic));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Clinic by Share Code Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+ export function triggerInitialClinicMigration(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.triggerInitialClinicMigrationRequest());
+
+    api.clinics.triggerInitialClinicMigration(clinicId, (err, result) => {
+      if (err) {
+        dispatch(sync.triggerInitialClinicMigrationFailure(
+          createActionError(ErrorMessages.ERR_TRIGGERING_INITIAL_CLINIC_MIGRATION, err), err
+        ));
+      } else {
+        dispatch(sync.triggerInitialClinicMigrationSuccess(clinicId, result.userId));
       }
     });
   };

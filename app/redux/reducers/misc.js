@@ -742,9 +742,9 @@ export const clinics = (state = initialState.clinics, action) => {
     case types.UPDATE_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic');
       let clinicId = _.get(action.payload, 'clinicId');
-      let newState = _.cloneDeep(state);
-      newState[clinicId] = { ...newState[clinicId], ...clinic };
-      return newState;
+      return update(state, {
+        [clinicId]: { $merge: clinic },
+      });
     }
     case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS: {
       const clinicians = _.get(action.payload, 'results.clinicians', []);
@@ -839,6 +839,12 @@ export const clinics = (state = initialState.clinics, action) => {
             permissions,
           } } },
         },
+      });
+    }
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS: {
+      let clinicId = _.get(action.payload, 'clinicId');
+      return update(state, {
+        [clinicId]: { canMigrate: { $set: false } },
       });
     }
     case types.LOGOUT_REQUEST:

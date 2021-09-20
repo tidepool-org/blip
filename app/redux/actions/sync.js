@@ -1883,3 +1883,29 @@ export function selectClinic(clinicId) {
     },
   };
 }
+
+export function triggerInitialClinicMigrationRequest() {
+  return {
+    type: ActionTypes.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST,
+  };
+}
+
+export function triggerInitialClinicMigrationSuccess(clinicId, migratedUserId) {
+  return {
+    type: ActionTypes.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      migratedUserId: migratedUserId,
+    },
+  };
+}
+
+export function triggerInitialClinicMigrationFailure(error, apiError) {
+  return {
+    type: ActionTypes.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}

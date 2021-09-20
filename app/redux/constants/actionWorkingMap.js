@@ -364,6 +364,11 @@ export default (type) => {
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
       return 'fetchingClinicsForClinician';
 
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
+      return 'triggeringInitialClinicMigration';
+
     default:
       return null;
   }
