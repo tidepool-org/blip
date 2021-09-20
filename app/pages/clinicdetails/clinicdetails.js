@@ -12,7 +12,7 @@ import pick from 'lodash/pick';
 import { Formik, Form, FastField } from 'formik';
 import { Box, Flex } from 'rebass/styled-components';
 import countries from 'i18n-iso-countries';
-import { Body1, Body2, Headline, Title } from '../../components/elements/FontStyles';
+import { Body1, Headline } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
 import Select from '../../components/elements/Select';
 import Checkbox from '../../components/elements/Checkbox';
