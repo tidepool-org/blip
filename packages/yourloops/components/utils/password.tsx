@@ -46,7 +46,7 @@ export interface PasswordProps {
   id: string;
   label: string;
   value: string;
-  setState: React.Dispatch<React.SetStateAction<string>>;
+  setState: React.Dispatch<string>;
   onValidate?: () => void;
   error: boolean;
   helperText: string;

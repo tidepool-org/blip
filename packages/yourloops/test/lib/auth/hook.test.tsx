@@ -463,7 +463,7 @@ function testHook(): void {
       initAuthContext(authHcp, authApiHcpStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP();
+        await authContext.switchRoleToHCP(false);
       } catch (reason) {
         error = reason;
       }
@@ -475,7 +475,7 @@ function testHook(): void {
       initAuthContext(authPatient, authApiStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP();
+        await authContext.switchRoleToHCP(false);
       } catch (reason) {
         error = reason;
       }
@@ -488,7 +488,7 @@ function testHook(): void {
       initAuthContext(authCaregiver, authApiStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP();
+        await authContext.switchRoleToHCP(false);
       } catch (reason) {
         error = reason;
       }
@@ -506,7 +506,7 @@ function testHook(): void {
       initAuthContext(authCaregiver, authApiStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP();
+        await authContext.switchRoleToHCP(false);
       } catch (reason) {
         error = reason;
       }
@@ -539,7 +539,7 @@ function testHook(): void {
       initAuthContext(authCaregiver, authApiStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP();
+        await authContext.switchRoleToHCP(false);
       } catch (reason) {
         error = reason;
       }
@@ -560,7 +560,7 @@ function testHook(): void {
       expect(Date.parse(profile.privacyPolicy.acceptanceTimestamp), "privacyPolicy").to.be.greaterThanOrEqual(now.valueOf());
       expect(authContext.user.profile, "hook profile not updated").to.be.an("object").and.not.have.any.keys("termsOfUse", "privacyPolicy");
     });
-    it("switchRoleToHCP should succeed", async () => {
+    it("switchRoleToHCP should succeed (accept feedback)", async () => {
       const updatedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNyIjoiYTBhMGEwYjAiLCJuYW1lIjoiY2FyZWdpdmVyQGV4YW1wbGUuY29tIiwiZW1haWwiOiJjYXJlZ2l2ZXJAZXhhbXBsZS5jb20iLCJzdnIiOiJubyIsInJvbGUiOiJoY3AiLCJpYXQiOjE2MjUwNjQxNTgsImV4cCI6NTYyNDk1NjMwNn0._PK65sdZ_o11nZtJBTILxcS9f9HhRLfAmYsn3Us4s7o";
       const now = new Date();
       const authApiStubs = createAuthApiStubs(authCaregiver);
@@ -568,11 +568,11 @@ function testHook(): void {
         acceptanceTimestamp: now.toISOString(),
         isAccepted: true,
       };
-      authApiStubs.updateProfile.resolves({ ...authCaregiver.user.profile, termsOfUse: accepts, privacyPolicy: accepts });
+      authApiStubs.updateProfile.resolves({ ...authCaregiver.user.profile, termsOfUse: accepts, privacyPolicy: accepts, contactConsent: accepts });
       authApiStubs.refreshToken.resolves(updatedToken);
       initAuthContext(authCaregiver, authApiStubs);
 
-      await authContext.switchRoleToHCP();
+      await authContext.switchRoleToHCP(true);
       expect(authApiStubs.updateUser.calledOnce, "updateUser.calledOnce").to.be.true;
       let updateArgs = authApiStubs.updateUser.firstCall.args;
       expect(updateArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
@@ -581,20 +581,66 @@ function testHook(): void {
       updateArgs = authApiStubs.updateProfile.firstCall.args;
       expect(updateArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
       const profile = (updateArgs[0] as Session).user.profile;
-      expect(profile, JSON.stringify(profile)).to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy");
+      expect(profile, JSON.stringify(profile)).to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy", "contactConsent");
       expect(profile.termsOfUse.isAccepted, "termsOfUse.isAccepted").to.be.true;
       expect(profile.privacyPolicy.isAccepted, "privacyPolicy.isAccepted").to.be.true;
+      expect(profile.contactConsent.isAccepted, "contactConsent.isAccepted").to.be.true;
       expect(Date.parse(profile.termsOfUse.acceptanceTimestamp), "termsOfUse").to.be.greaterThanOrEqual(now.valueOf());
       expect(Date.parse(profile.privacyPolicy.acceptanceTimestamp), "privacyPolicy").to.be.greaterThanOrEqual(now.valueOf());
-      expect(authContext.user.profile, "hook profile updated").to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy");
+      expect(Date.parse(profile.contactConsent.acceptanceTimestamp), "contactConsent").to.be.greaterThanOrEqual(now.valueOf());
+      expect(authContext.user.profile, "hook profile updated").to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy", "contactConsent");
       expect(authContext.user.role).to.be.equals(UserRoles.hcp);
       expect(sessionStorage.getItem(STORAGE_KEY_SESSION_TOKEN), "sessionStorage token").to.be.equals(updatedToken);
       expect(authContext.sessionToken, "authContext.sessionToken").to.be.equals(updatedToken);
       const storageUser = JSON.parse(sessionStorage.getItem(STORAGE_KEY_USER)) as User;
       expect(storageUser.role, "sessionStorage user role").to.be.equals(UserRoles.hcp);
-      expect(storageUser.profile, "sessionStorage user profile").to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy");
+      expect(storageUser.profile, "sessionStorage user profile").to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy", "contactConsent");
       expect(storageUser.profile.termsOfUse, "sessionStorage user termsOfUse").to.be.deep.equals(accepts);
       expect(storageUser.profile.privacyPolicy, "sessionStorage user privacyPolicy").to.be.deep.equals(accepts);
+      expect(storageUser.profile.contactConsent, "sessionStorage user contactConsent").to.be.deep.equals(accepts);
+    });
+    it("switchRoleToHCP should succeed (decline feedback)", async () => {
+      const updatedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNyIjoiYTBhMGEwYjAiLCJuYW1lIjoiY2FyZWdpdmVyQGV4YW1wbGUuY29tIiwiZW1haWwiOiJjYXJlZ2l2ZXJAZXhhbXBsZS5jb20iLCJzdnIiOiJubyIsInJvbGUiOiJoY3AiLCJpYXQiOjE2MjUwNjQxNTgsImV4cCI6NTYyNDk1NjMwNn0._PK65sdZ_o11nZtJBTILxcS9f9HhRLfAmYsn3Us4s7o";
+      const now = new Date();
+      const authApiStubs = createAuthApiStubs(authCaregiver);
+      const accepts = {
+        acceptanceTimestamp: now.toISOString(),
+        isAccepted: true,
+      };
+      const decline = {
+        acceptanceTimestamp: accepts.acceptanceTimestamp,
+        isAccepted: false,
+      };
+      authApiStubs.updateProfile.resolves({ ...authCaregiver.user.profile, termsOfUse: accepts, privacyPolicy: accepts, contactConsent: decline });
+      authApiStubs.refreshToken.resolves(updatedToken);
+      initAuthContext(authCaregiver, authApiStubs);
+
+      await authContext.switchRoleToHCP(false);
+      expect(authApiStubs.updateUser.calledOnce, "updateUser.calledOnce").to.be.true;
+      let updateArgs = authApiStubs.updateUser.firstCall.args;
+      expect(updateArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
+      expect(updateArgs[1]).to.be.an("object").deep.equals({ roles: [UserRoles.hcp] });
+      expect(authApiStubs.updateProfile.calledOnce, "updateProfile.calledOnce").to.be.true;
+      updateArgs = authApiStubs.updateProfile.firstCall.args;
+      expect(updateArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
+      const profile = (updateArgs[0] as Session).user.profile;
+      expect(profile, JSON.stringify(profile)).to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy", "contactConsent");
+      expect(profile.termsOfUse.isAccepted, "termsOfUse.isAccepted").to.be.true;
+      expect(profile.privacyPolicy.isAccepted, "privacyPolicy.isAccepted").to.be.true;
+      expect(profile.contactConsent.isAccepted, "contactConsent.isAccepted").to.be.false;
+      expect(Date.parse(profile.termsOfUse.acceptanceTimestamp), "termsOfUse").to.be.greaterThanOrEqual(now.valueOf());
+      expect(Date.parse(profile.privacyPolicy.acceptanceTimestamp), "privacyPolicy").to.be.greaterThanOrEqual(now.valueOf());
+      expect(Date.parse(profile.contactConsent.acceptanceTimestamp), "privacyPolicy").to.be.greaterThanOrEqual(now.valueOf());
+      expect(authContext.user.profile, "hook profile updated").to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy", "contactConsent");
+      expect(authContext.user.role).to.be.equals(UserRoles.hcp);
+      expect(sessionStorage.getItem(STORAGE_KEY_SESSION_TOKEN), "sessionStorage token").to.be.equals(updatedToken);
+      expect(authContext.sessionToken, "authContext.sessionToken").to.be.equals(updatedToken);
+      const storageUser = JSON.parse(sessionStorage.getItem(STORAGE_KEY_USER)) as User;
+      expect(storageUser.role, "sessionStorage user role").to.be.equals(UserRoles.hcp);
+      expect(storageUser.profile, "sessionStorage user profile").to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy", "contactConsent");
+      expect(storageUser.profile.termsOfUse, "sessionStorage user termsOfUse").to.be.deep.equals(accepts);
+      expect(storageUser.profile.privacyPolicy, "sessionStorage user privacyPolicy").to.be.deep.equals(accepts);
+      expect(storageUser.profile.contactConsent, "sessionStorage user contactConsent").to.be.deep.equals(decline);
     });
   });
 
@@ -611,6 +657,7 @@ function testHook(): void {
         profileLastname: loggedInUsers.caregiver.profile.lastName,
         profilePhone: "+0000000",
         terms: true,
+        feedback: false,
       };
       initAuthContext(null, authApiHcpStubs);
       const signupResolve: Session = {
@@ -637,6 +684,10 @@ function testHook(): void {
         authContext.traceToken,
       ]);
       expect(authApiHcpStubs.updateProfile.calledOnce, "updateProfile calledOnce").to.be.true;
+      const sentProfile = authApiHcpStubs.updateProfile.firstCall.args[0].user.profile;
+      expect(sentProfile).to.be.an("object").not.null;
+      expect(sentProfile.contactConsent.isAccepted).to.be.false;
+      expect(sentProfile.contactConsent.acceptanceTimestamp).to.be.a("string");
       expect(authApiHcpStubs.updateSettings.calledOnce, "updateSettings calledOnce").to.be.true;
       expect(authApiHcpStubs.updateSettings.calledAfter(authApiHcpStubs.updateProfile), "settings after profile").to.be.true;
       expect(authApiHcpStubs.updatePreferences.calledOnce, "updatePreferences calledOnce").to.be.true;

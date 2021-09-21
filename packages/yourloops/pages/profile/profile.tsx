@@ -29,7 +29,6 @@
 import * as React from "react";
 import _ from "lodash";
 import bows from "bows";
-import moment from "moment-timezone";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -48,33 +47,26 @@ import { Units } from "../../models/generic";
 import { LanguageCodes } from "../../models/locales";
 import { Preferences, Profile, UserRoles, Settings } from "../../models/shoreline";
 import { getLangName, getCurrentLang, availableLanguageCodes } from "../../lib/language";
-import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, getUserEmail, setPageTitle } from "../../lib/utils";
+import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, setPageTitle } from "../../lib/utils";
 import { User, useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import sendMetrics from "../../lib/metrics";
-import Password from "../../components/utils/password";
 import { useAlert } from "../../components/utils/snackbar";
-
+import { ConsentFeedback } from "../../components/consents";
 import SecondaryHeaderBar from "./secondary-bar";
 import SwitchRoleDialogs from "../../components/switch-role";
+import { Errors } from "./models";
+import PatientProfileForm from "./patient-form";
+import AuthenticationForm from "./auth-form";
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 type TextChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
-type SelectChangeEvent = React.ChangeEvent<{ name?: string; value: unknown; }>;
+type SelectChangeEvent = React.ChangeEvent<{ name?: string; value: unknown }>;
 type HandleChange<E> = (event: E) => void;
 type CreateHandleChange<T, E> = (setState: SetState<T>) => HandleChange<E>;
 
 interface ProfilePageProps {
   defaultURL: string;
-}
-
-interface Errors {
-  firstName: boolean;
-  lastName: boolean;
-  currentPassword: boolean;
-  password: boolean;
-  passwordConfirmation: boolean;
-  birthDate: boolean;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -134,6 +126,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   }
 
   const role = user.role;
+  const showFeedback = role === UserRoles.hcp;
 
   const [firstName, setFirstName] = React.useState<string>(getUserFirstName(user));
   const [lastName, setLastName] = React.useState<string>(getUserLastName(user));
@@ -144,8 +137,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const [birthDate, setBirthDate] = React.useState<string>(user.profile?.patient?.birthday ?? "");
   const [switchRoleOpen, setSwitchRoleOpen] = React.useState<boolean>(false);
   const [lang, setLang] = React.useState<LanguageCodes>(user.preferences?.displayLanguageCode ?? getCurrentLang());
-
-  const browserTimezone = React.useMemo(() => new Intl.DateTimeFormat().resolvedOptions().timeZone, []);
+  const [feedbackAccepted, setFeedbackAccepted] = React.useState(Boolean(user?.profile?.contactConsent?.isAccepted));
 
   React.useEffect(() => {
     // To be sure we have the locale:
@@ -188,6 +180,12 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
 
     if (user.role === UserRoles.patient) {
       _.set(updatedProfile, "patient.birthday", birthDate);
+    }
+    if (showFeedback && Boolean(user?.profile?.contactConsent?.isAccepted) !== feedbackAccepted) {
+      updatedProfile.contactConsent = {
+        isAccepted: feedbackAccepted,
+        acceptanceTimestamp: new Date().toISOString(),
+      };
     }
 
     return updatedProfile;
@@ -296,78 +294,41 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
 
   let roleDependantPart: JSX.Element | null = null;
   if (role === UserRoles.patient) {
-    const a1cDate = user.settings?.a1c?.date;
-    const a1cValue = user.settings?.a1c?.value;
-    const hba1cMoment = typeof a1cDate === "string" ? moment.tz(a1cDate, browserTimezone) : null;
-
-    let hba1cTextField: JSX.Element | null = null;
-    if (_.isNumber(a1cValue) && moment.isMoment(hba1cMoment) && hba1cMoment.isValid()) {
-      const hba1cDate = hba1cMoment.format("L");
-      hba1cTextField = (
-        <TextField
-          id="hbA1c"
-          label={t("patient-profile-hba1c", { hba1cDate })}
-          disabled
-          value={`${a1cValue}%`}
-          className={classes.textField}
-        />
-      );
-    }
-
     roleDependantPart = (
-      <React.Fragment>
-        <TextField
-          id="profile-textfield-birthdate"
-          label={t("patient-profile-birthdate")}
-          value={birthDate ?? ""}
-          onChange={createHandleTextChange(setBirthDate)}
-          error={errors.birthDate}
-          helperText={errors.birthDate && t("required-field")}
-        />
-        {hba1cTextField}
-      </React.Fragment>
+      <PatientProfileForm
+        user={user}
+        classes={classes}
+        errors={errors}
+        birthDate={birthDate}
+        setBirthDate={setBirthDate}
+      />
     );
   } else {
     roleDependantPart = (
-      <React.Fragment>
-        <TextField
-          id="profile-textfield-mail"
-          label={t("Email")}
-          value={getUserEmail(user)}
-          disabled
-          className={classes.textField}
-        />
-        <Password
-          id="profile-textfield-password-current"
-          autoComplete="current-password"
-          variant="standard"
-          label={t("current-password")}
-          value={currentPassword}
-          error={errors.currentPassword}
-          helperText={t("no-password")}
-          setState={setCurrentPassword}
-        />
-        <Password
-          id="profile-textfield-password"
-          autoComplete="new-password"
-          variant="standard"
-          label={t("new-password")}
-          value={password}
-          error={errors.password}
-          helperText={t("password-too-weak")}
-          setState={setPassword}
-        />
-        <Password
-          id="profile-textfield-password-confirmation"
-          autoComplete="new-password"
-          variant="standard"
-          label={t("confirm-password")}
-          value={passwordConfirmation}
-          error={errors.passwordConfirmation}
-          helperText={t("not-matching-password")}
-          setState={setPasswordConfirmation}
-        />
-      </React.Fragment>
+      <AuthenticationForm
+        user={user}
+        classes={classes}
+        errors={errors}
+        currentPassword={currentPassword}
+        setCurrentPassword={setCurrentPassword}
+        password={password}
+        setPassword={setPassword}
+        passwordConfirmation={passwordConfirmation}
+        setPasswordConfirmation={setPasswordConfirmation}
+      />
+    );
+  }
+
+  let formControlFeedback: JSX.Element | null = null;
+  if (showFeedback) {
+    formControlFeedback = (
+      <ConsentFeedback
+        id="profile"
+        userRole={role}
+        checked={feedbackAccepted}
+        style={{ marginLeft: -9, marginRight: 0, marginTop: "1em", marginBottom: 0 }}
+        onChange={() => setFeedbackAccepted(!feedbackAccepted)}
+      />
     );
   }
 
@@ -414,7 +375,11 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           </FormControl>
           <FormControl className={classes.formControl}>
             <InputLabel id="profile-language-input-label">{t("language")}</InputLabel>
-            <Select labelId="locale-selector" id="profile-locale-selector" value={lang} onChange={createHandleSelectChange(setLang)}>
+            <Select
+              labelId="locale-selector"
+              id="profile-locale-selector"
+              value={lang}
+              onChange={createHandleSelectChange(setLang)}>
               {availableLanguageCodes.map((languageCode) => (
                 <MenuItem id={`profile-locale-item-${languageCode}`} key={languageCode} value={languageCode}>
                   {getLangName(languageCode)}
@@ -422,6 +387,9 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
               ))}
             </Select>
           </FormControl>
+
+          {formControlFeedback}
+
           <div style={{ display: "flex", justifyContent: "flex-end", margin: "2em 0em" }}>
             <Button
               id="profile-button-cancel"

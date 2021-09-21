@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
+ * Profile page - interfaces
  *
  * All rights reserved.
  *
@@ -25,15 +26,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-
-import { ConsentPage as Consent } from "../../components/consents";
-
-/**
- * Consent Page
- */
-function ConsentPage(): JSX.Element {
-  return <Consent messageKey="consent-renew-message" />;
+export interface Errors {
+  firstName: boolean;
+  lastName: boolean;
+  currentPassword: boolean;
+  password: boolean;
+  passwordConfirmation: boolean;
+  birthDate: boolean;
 }
-
-export default ConsentPage;

@@ -238,12 +238,12 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
       lastName: signup.profileLastname,
       termsOfUse: { acceptanceTimestamp: now, isAccepted: signup.terms },
       privacyPolicy: { acceptanceTimestamp: now, isAccepted: signup.privacyPolicy },
+      contactConsent: { acceptanceTimestamp: now, isAccepted: signup.feedback },
     };
     auth.user.settings = { country: signup.profileCountry };
     auth.user.preferences = { displayLanguageCode: signup.preferencesLanguage };
 
-    // Cannot Use Promise.All as Backend do not handle parrellel call
-    // correctly
+    // Cannot Use Promise.All as Backend do not handle parallel call correctly
     await api.updateProfile(auth);
     await api.updateSettings(auth);
     await api.updatePreferences(auth);
@@ -344,7 +344,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     return api.resetPassword(key, username, password, traceToken);
   };
 
-  const switchRoleToHCP = async (): Promise<void> => {
+  const switchRoleToHCP = async (feedbackConsent: boolean): Promise<void> => {
     const authInfo = await getAuthInfos();
     if (authInfo.user.role !== UserRoles.caregiver) {
       throw new Error("invalid-user-role");
@@ -358,6 +358,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     const updatedProfile = _.cloneDeep(authInfo.user.profile ?? {}) as Profile;
     updatedProfile.termsOfUse = { acceptanceTimestamp: now, isAccepted: true };
     updatedProfile.privacyPolicy = { acceptanceTimestamp: now, isAccepted: true };
+    updatedProfile.contactConsent = { acceptanceTimestamp: now, isAccepted: feedbackConsent };
     const profile = await updateProfile(updatedProfile, false);
 
     // Ask for a new token with the updated role

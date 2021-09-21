@@ -56,6 +56,7 @@ interface Profile {
   patient?: Patient;
   termsOfUse?: Consent;
   privacyPolicy?: Consent;
+  contactConsent?: Consent;
 }
 
 interface Settings {

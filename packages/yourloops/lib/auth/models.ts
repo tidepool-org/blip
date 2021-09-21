@@ -54,6 +54,8 @@ export interface SignupUser {
   preferencesLanguage: LanguageCodes;
   terms: boolean;
   privacyPolicy: boolean;
+  /** Consent to be contacted by Diabeloop */
+  feedback: boolean;
 }
 
 export interface AuthAPI {
@@ -104,7 +106,7 @@ export interface AuthContext {
   setFlagPatients: (userIds: string[]) => Promise<void>;
   getFlagPatients: () => string[];
   /** Switch user role from caregiver to hcp */
-  switchRoleToHCP: () => Promise<void>;
+  switchRoleToHCP: (feedbackConsent: boolean) => Promise<void>;
 }
 
 export interface AuthProvider {

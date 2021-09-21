@@ -14,14 +14,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-export interface SwitchRoleDialogProps {
-  title?: string;
+interface SwitchRoleDialogProps {
   open: boolean;
-  onResult: (accept: boolean) => void;
 }
 
 export interface SwitchRoleConsequencesDialogProps extends SwitchRoleDialogProps {
   title: string;
+  onResult: (accept: boolean) => void;
+}
+
+export interface SwitchRoleConsentDialogProps extends SwitchRoleDialogProps {
+  onResult: (accept: boolean, feedback: boolean) => void;
 }
 
 export interface SwitchRoleDialogsProps {

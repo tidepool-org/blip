@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
+ * Consents
  *
  * All rights reserved.
  *
@@ -25,15 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import ConsentForm, { ConsentFeedback } from "./form";
+import ConsentPage from "./page";
 
-import { ConsentPage as Consent } from "../../components/consents";
-
-/**
- * Consent Page
- */
-function ConsentPage(): JSX.Element {
-  return <Consent messageKey="consent-renew-message" />;
-}
-
-export default ConsentPage;
+export { ConsentFeedback, ConsentForm, ConsentPage };

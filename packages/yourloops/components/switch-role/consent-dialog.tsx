@@ -27,22 +27,18 @@
  */
 
 import * as React from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import { Theme, makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import Checkbox from "@material-ui/core/Checkbox";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import FormControl from "@material-ui/core/FormControl";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormGroup from "@material-ui/core/FormGroup";
-import Link from "@material-ui/core/Link";
 
-import diabeloopUrl from "../../lib/diabeloop-url";
+import { UserRoles } from "../../models/shoreline";
 import { makeButtonsStyles } from "../theme";
-import { SwitchRoleDialogProps } from "./models";
+import { ConsentForm } from "../consents";
+import { SwitchRoleConsentDialogProps } from "./models";
 
 const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-switch-role-consent-buttons" });
 const dialogStyles = makeStyles(
@@ -84,114 +80,45 @@ const dialogStyles = makeStyles(
       },
     };
   },
-  { name: "ylp-dialog-switch-role-consent" }
+  { name: "ylp-dialog-switch-role-consent" },
 );
 
-function SwitchRoleConsentDialog(props: SwitchRoleDialogProps): JSX.Element {
+function SwitchRoleConsentDialog(props: SwitchRoleConsentDialogProps): JSX.Element {
   const { open, onResult } = props;
   const buttonsClasses = makeButtonsClasses();
   const classes = dialogStyles();
-  const { t, i18n } = useTranslation("yourloops");
+  const { t } = useTranslation("yourloops");
   const [policyAccepted, setPolicyAccepted] = React.useState(false);
   const [termsAccepted, setTermsAccepted] = React.useState(false);
+  const [feedbackAccepted, setFeedbackAccepted] = React.useState(false);
 
   const resetForm = () => {
     setPolicyAccepted(false);
     setTermsAccepted(false);
+    setFeedbackAccepted(false);
   };
   const handleClose = () => {
-    onResult(false);
+    onResult(false, false);
     resetForm();
   };
   const handleAccept = () => {
-    onResult(true);
+    onResult(true, feedbackAccepted);
     resetForm();
   };
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const what = event.target.name;
-    if (what === "policy") {
-      setPolicyAccepted(!policyAccepted);
-    } else if (what === "terms") {
-      setTermsAccepted(!termsAccepted);
-    }
-  };
-
-  const checkboxPolicy = (
-    <Checkbox
-      id="switch-role-consequences-dialog-checkbox-policy"
-      className={classes.checkbox}
-      checked={policyAccepted}
-      onChange={handleChange}
-      name="policy"
-      color="primary"
-    />
-  );
-  const checkboxTerms = (
-    <Checkbox
-      id="switch-role-consequences-dialog-checkbox-terms"
-      className={classes.checkbox}
-      checked={termsAccepted}
-      onChange={handleChange}
-      name="terms"
-      color="primary"
-    />
-  );
-
-  // TODO: Fix duplicate code with signup-consent
-  const privacyPolicy = t("privacy-policy");
-  const linkPrivacyPolicy = (
-    <Link aria-label={privacyPolicy} href={diabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer">
-      {privacyPolicy}
-    </Link>
-  );
-  const terms = t("terms-of-use");
-  const linkTerms = (
-    <Link aria-label={terms} href={diabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
-      {terms}
-    </Link>
-  );
-
-  const labelPrivacyPolicy = (
-    <Trans
-      i18nKey="signup-consent-hcp-privacy-policy"
-      t={t}
-      components={{ linkPrivacyPolicy }}
-      values={{ privacyPolicy }}
-      parent={React.Fragment}>
-      I have read and accepted YourLoops {privacyPolicy}.
-    </Trans>
-  );
-
-  const labelTerms = (
-    <Trans
-      i18nKey="signup-consent-hcp-terms-condition"
-      t={t}
-      components={{ linkTerms }}
-      values={{ terms }}
-      parent={React.Fragment}>
-      I have read and accepted YourLoops {terms}.
-    </Trans>
-  );
 
   return (
     <Dialog id="switch-role-consent-dialog" open={open} onClose={handleClose}>
       <DialogContent id="switch-role-consequences-dialog-content" className={classes.dialogContent}>
-        <FormControl id="switch-role-consequences-dialog-form">
-          <FormGroup>
-            <FormControlLabel
-              id="switch-role-consequences-dialog-label-policy"
-              control={checkboxPolicy}
-              label={labelPrivacyPolicy}
-              className={classes.formControlPolicy}
-            />
-            <FormControlLabel
-              id="switch-role-consequences-dialog-label-terms"
-              control={checkboxTerms}
-              label={labelTerms}
-              className={classes.formControlPolicy}
-            />
-          </FormGroup>
-        </FormControl>
+        <ConsentForm
+          id="switch-role-consequences-dialog"
+          userRole={UserRoles.hcp}
+          policyAccepted={policyAccepted}
+          setPolicyAccepted={setPolicyAccepted}
+          termsAccepted={termsAccepted}
+          setTermsAccepted={setTermsAccepted}
+          feedbackAccepted={feedbackAccepted}
+          setFeedbackAccepted={setFeedbackAccepted}
+        />
       </DialogContent>
 
       <DialogActions id="switch-role-consent-dialog-actions" className={classes.dialogButtons}>

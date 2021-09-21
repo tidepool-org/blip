@@ -69,6 +69,7 @@ export const initialState: SignUpFormState = {
     preferencesLanguage: getCurrentLang(),
     terms: false,
     privacyPolicy: false,
+    feedback: false,
   },
 };
 

@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
+ * Consents models
  *
  * All rights reserved.
  *
@@ -26,14 +27,28 @@
  */
 
 import * as React from "react";
+import { UserRoles } from "../../models/shoreline";
 
-import { ConsentPage as Consent } from "../../components/consents";
-
-/**
- * Consent Page
- */
-function ConsentPage(): JSX.Element {
-  return <Consent messageKey="consent-renew-message" />;
+export interface ConsentCheck {
+  id: string;
+  userRole: UserRoles;
+  checked: boolean;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  style?: React.CSSProperties;
 }
 
-export default ConsentPage;
+export interface ConsentFormProps {
+  userRole: UserRoles;
+  id: string;
+  /** className for the FormControl */
+  className?: string;
+  /** className for the FormGroup */
+  group?: string;
+  policyAccepted: boolean;
+  setPolicyAccepted: React.Dispatch<boolean>;
+  termsAccepted: boolean;
+  setTermsAccepted: React.Dispatch<boolean>;
+  feedbackAccepted?: boolean;
+  // Set to undefined to not display this option
+  setFeedbackAccepted?: React.Dispatch<boolean>;
+}

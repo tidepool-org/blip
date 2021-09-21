@@ -56,13 +56,13 @@ function SwitchRoleDialogs(props: SwitchRoleDialogsProps): JSX.Element {
       props.onCancel();
     }
   };
-  const handleSwitchRoleToUpdate = (accept: boolean): void => {
+  const handleSwitchRoleToUpdate = (accept: boolean, feedbackConsent: boolean): void => {
     const nextStep = accept ? SwitchRoleToHcpSteps.update : SwitchRoleToHcpSteps.none;
     sendMetrics("user-switch-role", { from: role, to: "hcp", step: nextStep, cancel: !accept });
     setSwitchRoleStep(nextStep);
 
     if (accept) {
-      switchRoleToHCP()
+      switchRoleToHCP(feedbackConsent)
         .then(() => {
           sendMetrics("user-switch-role", {
             from: role,

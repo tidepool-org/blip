@@ -26,34 +26,16 @@
  */
 
 import * as React from "react";
-import { useTranslation, Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from "@material-ui/core/FormControl";
-import Link from "@material-ui/core/Link";
 
-import diabeloopUrl from "../../lib/diabeloop-url";
+import { ConsentForm } from "../../components/consents";
 import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
 import SignUpFormProps from "./signup-form-props";
 
 const useStyles = makeStyles((theme: Theme) => ({
-  formControl: {
-    margin: theme.spacing(3),
-  },
-  formHelperText: {
-    textAlign: "center",
-  },
-  formControlLabel: {
-    alignItems: "start",
-    textAlign: "start",
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-  },
   buttons: {
     display: "flex",
     justifyContent: "space-between",
@@ -65,66 +47,35 @@ const useStyles = makeStyles((theme: Theme) => ({
   button: {
     marginRight: theme.spacing(1),
   },
-}));
+}),
+{ name: "ylp-signup-consent" },
+);
 
 export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
-  const { t, i18n } = useTranslation("yourloops");
+  const { t } = useTranslation("yourloops");
   const classes = useStyles();
   const { handleBack, handleNext } = props;
   const { state, dispatch } = useSignUpFormState();
   const consentsChecked = state.formValues.terms && state.formValues.privacyPolicy;
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    keyField: FormValuesType
-  ) => {
-    dispatch({
-      type: "EDIT_FORMVALUE",
-      key: keyField,
-      value: (event.target as HTMLInputElement).checked,
-    });
+  const handleChange = (checked: boolean, keyField: FormValuesType) => {
+    dispatch({ type: "EDIT_FORMVALUE", key: keyField, value: checked });
+  };
+
+  const setPolicyAccepted: React.Dispatch<boolean> = (value: boolean): void => {
+    handleChange(value, "privacyPolicy");
+  };
+  const setTermsAccepted: React.Dispatch<boolean> = (value: boolean): void => {
+    handleChange(value, "terms");
+  };
+  const setFeedbackAccepted: React.Dispatch<boolean> = (value: boolean): void => {
+    handleChange(value, "feedback");
   };
 
   const onNext = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     handleNext();
   };
-
-  // TODO: Fix duplicate code with switch-role-consent-dialog.tsx
-  const privacyPolicy = t("privacy-policy");
-  const linkPrivacyPolicy = (
-    <Link aria-label={privacyPolicy} href={diabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer">
-      {privacyPolicy}
-    </Link>
-  );
-  const terms = t("terms-of-use");
-  const linkTerms = (
-    <Link aria-label={terms} href={diabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
-      {terms}
-    </Link>
-  );
-
-  const labelPrivacyPolicy = (
-    <Trans
-      i18nKey={`signup-consent-${state.formValues.accountRole}-privacy-policy`}
-      t={t}
-      components={{ linkPrivacyPolicy }}
-      values={{ privacyPolicy }}
-      parent={React.Fragment}>
-      I have read and accepted YourLoops {privacyPolicy}.
-    </Trans>
-  );
-
-  const labelTerms = (
-    <Trans
-      i18nKey={`signup-consent-${state.formValues.accountRole}-terms-condition`}
-      t={t}
-      components={{ linkTerms }}
-      values={{ terms }}
-      parent={React.Fragment}>
-      I have read and accepted YourLoops {terms}.
-    </Trans>
-  );
 
   return (
     <form
@@ -136,45 +87,16 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
       noValidate
       autoComplete="off"
     >
-      <FormControl
-        required
-        component="fieldset"
-        className={classes.formControl}
-      >
-        <FormControlLabel
-          id="signup-consent-privacy-ctl"
-          className={classes.formControlLabel}
-          classes={{
-            label: "signup-consent-privacy-text",
-          }}
-          control={
-            <Checkbox
-              id="signup-consent-privacy-check"
-              checked={state.formValues.privacyPolicy}
-              onChange={(e) => handleChange(e, "privacyPolicy")}
-              color="primary"
-            />
-          }
-          label={labelPrivacyPolicy}
-        />
-        <FormControlLabel
-          id="signup-consent-terms-ctl"
-          className={classes.formControlLabel}
-          classes={{
-            label: "signup-consent-terms-text",
-          }}
-          control={
-            <Checkbox
-              id="checkbox-signup-consent-terms"
-              checked={state.formValues.terms}
-              onChange={(e) => handleChange(e, "terms")}
-              color="primary"
-            />
-          }
-          label={labelTerms}
-          labelPlacement="end"
-        />
-      </FormControl>
+      <ConsentForm
+        id="signup"
+        userRole={state.formValues.accountRole}
+        policyAccepted={state.formValues.privacyPolicy}
+        setPolicyAccepted={setPolicyAccepted}
+        termsAccepted={state.formValues.terms}
+        setTermsAccepted={setTermsAccepted}
+        feedbackAccepted={state.formValues.feedback}
+        setFeedbackAccepted={setFeedbackAccepted}
+      />
       <div id="signup-consent-button-group" className={classes.buttons}>
         <Button
           id="button-signup-steppers-back"
