@@ -179,6 +179,8 @@ export const ClinicDetails = (props) => {
       notification,
     } = working.triggeringInitialClinicMigration;
 
+    let messageDelayTimer;
+
     const prevInProgress = get(
       previousWorking,
       'triggeringInitialClinicMigration.inProgress'
@@ -192,13 +194,17 @@ export const ClinicDetails = (props) => {
         });
       } else {
         setToast({
-          message: t('Clinic setup completed'),
+          message: t('Clinic migration in progress. You will be automatically logged out.'),
           variant: 'success',
         });
 
-        redirectToWorkspace();
+        // We log the user since the backend invalidates all of the user's authentication tokens
+        // as part of the migration process
+        messageDelayTimer = setTimeout(() => dispatch(actions.sync.logoutRequest()), 5000);
       }
     }
+
+    return () => clearTimeout(messageDelayTimer);
   }, [working.triggeringInitialClinicMigration]);
 
   return (
