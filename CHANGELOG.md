@@ -13,6 +13,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-925 Update glycemia unit conversion in blip
 - YLP-955 Sign-up consent next button should be greyed when boxes are not checked
 - YLP-958 Review text justification in modal windows
+- YLP-963 Updating urls of legal documents
 ### Engineering Use
 - YLP-688 Cleanup translation keys
 

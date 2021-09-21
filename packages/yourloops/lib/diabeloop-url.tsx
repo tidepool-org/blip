@@ -53,7 +53,7 @@ class DiabeloopUrl {
   }
 
   getTermsUrL(currentLangue: string): string {
-    this.termsUrl = `${this.rootPathName}terms.${currentLangue}.pdf`;
+    this.termsUrl = `${this.rootPathName}yourloops-terms-of-use.${currentLangue}.pdf`;
     return this.termsUrl;
   }
 
@@ -69,7 +69,7 @@ class DiabeloopUrl {
   }
 
   getPrivacyPolicyUrL(currentLangue: string): string {
-    this.privacyPolicyUrl = `${this.rootPathName}data-privacy.${currentLangue}.pdf`;
+    this.privacyPolicyUrl = `${this.rootPathName}yourloops-data-privacy.${currentLangue}.pdf`;
     return this.privacyPolicyUrl;
   }
 
