@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
@@ -20,7 +20,6 @@ import Button from '../../components/elements/Button';
 import ClinicProfileFields from '../../components/clinic/ClinicProfileFields';
 import * as actions from '../../redux/actions';
 import i18next from '../../core/language';
-import config from '../../config';
 import { usePrevious } from '../../core/hooks';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useToasts } from '../../providers/ToastProvider';
@@ -62,18 +61,14 @@ export const ClinicDetails = (props) => {
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const allUsersMap = useSelector((state) => state.blip.allUsersMap);
+  const userHasClinicProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'clinic'], false);
   const clinic = get(clinics, selectedClinicId);
-
-  // TODO: do we need to find a different way of deciding whether or not to show the full or partial form?
-  // For instance, if a clinic admin goes back to the page, they get the simple profile form.
-  // Perhaps -- if selectedClinic is set and the user is an admin, we show the full form
-  // Although -- it's strange to show the profile editing in 2 places.  I suppose the real issue is that we
-  // use the same form for a new clinician account with a pending invite, and the initial clinic profile
-  // creation
-  const displayFullForm = config.CLINICS_ENABLED && isEmpty(pendingReceivedClinicianInvites)
+  const [displayFullForm, setDisplayFullForm] = useState(false);
   const schema = displayFullForm ? clinicSchema : clinicianSchema;
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
+  const [submitting, setSubmitting] = useState(false);
 
   const clinicValues = () => ({
     firstName: '',
@@ -84,9 +79,21 @@ export const ClinicDetails = (props) => {
   });
 
   function redirectToWorkspace() {
-    const redirectPath = displayFullForm ? '/clinic-workspace' : '/workspaces';
+    const redirectPath = isEmpty(pendingReceivedClinicianInvites) ? '/clinic-workspace' : '/workspaces';
     dispatch(push(redirectPath));
   }
+
+  useEffect(() => {
+    if (clinic && !submitting) {
+      // We don't update the form display state until the clinic is available or while submitting
+      setDisplayFullForm(isEmpty(clinic?.name) || clinic?.canMigrate);
+
+      // If there is no reason for the user to be here, we redirect them appropriately
+      if (!isEmpty(clinic.name) && !clinic.canMigrate && userHasClinicProfile) {
+        redirectToWorkspace();
+      }
+    }
+  }, [clinic, submitting]);
 
   // Fetchers
   useEffect(() => {
@@ -120,7 +127,9 @@ export const ClinicDetails = (props) => {
       'updatingUser.inProgress'
     );
 
-    if (!displayFullForm && !inProgress && completed && prevInProgress) {
+    if (submitting === 'partial' && !inProgress && completed && prevInProgress) {
+      setSubmitting(false);
+
       if (notification) {
         setToast({
           message: notification.message,
@@ -156,16 +165,18 @@ export const ClinicDetails = (props) => {
           variant: 'danger',
         });
       } else {
-        setToast({
-          message: t('Clinic Profile updated'),
-          variant: 'success',
-        });
-
         // If the account is flagged for migration, we trigger that now.
         // Otherwise redirect to the clinic workspaces tab.
         if (clinic.canMigrate) {
           dispatch(actions.async.triggerInitialClinicMigration(api, clinic.id));
         } else {
+          setSubmitting(false);
+
+          setToast({
+            message: t('Clinic Profile updated'),
+            variant: 'success',
+          });
+
           redirectToWorkspace();
         }
       }
@@ -200,7 +211,7 @@ export const ClinicDetails = (props) => {
 
         // We log the user since the backend invalidates all of the user's authentication tokens
         // as part of the migration process
-        messageDelayTimer = setTimeout(() => dispatch(actions.sync.logoutRequest()), 5000);
+        messageDelayTimer = setTimeout(() => dispatch(actions.async.logout(api)), 5000);
       }
     }
 
@@ -223,6 +234,8 @@ export const ClinicDetails = (props) => {
             initialValues={clinicValues()}
             validationSchema={schema}
             onSubmit={(values) => {
+              setSubmitting(displayFullForm ? 'full' : 'partial');
+
               const profileUpdates = {
                 profile: {
                   fullName: `${values.firstName} ${values.lastName}`,
@@ -319,7 +332,7 @@ export const ClinicDetails = (props) => {
                     id="submit"
                     type="submit"
                     mt={3}
-                    processing={formikContext.isSubmitting}
+                    processing={!!submitting}
                     disabled={!fieldsAreValid(
                       keys(schema.fields),
                       schema,
