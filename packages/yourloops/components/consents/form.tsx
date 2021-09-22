@@ -35,7 +35,6 @@ import FormControl from "@material-ui/core/FormControl";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormGroup from "@material-ui/core/FormGroup";
 import Link from "@material-ui/core/Link";
-import Typography from "@material-ui/core/Typography";
 
 import { UserRoles } from "../../models/shoreline";
 import diabeloopUrl from "../../lib/diabeloop-url";
@@ -164,7 +163,12 @@ export function ConsentFeedback({ id, userRole, style, checked, onChange }: Cons
       color="primary"
     />
   );
-  const labelFeedback = t(`consent-${userRole}-feedback`);
+
+  const labelFeedback = (
+    <Trans i18nKey={`consent-${userRole}-feedback`} t={t}>
+      I agree to receive information and news from Diabeloop. <i>(optional)</i>
+    </Trans>
+  );
 
   return (
     <FormControlLabel
@@ -191,7 +195,6 @@ function ConsentForm(props: ConsentFormProps): JSX.Element {
     setFeedbackAccepted,
   } = props;
 
-  const { t } = useTranslation("yourloops");
   const classes = formStyles();
   const showFeedback = typeof setFeedbackAccepted === "function" && userRole === UserRoles.hcp;
 
@@ -215,10 +218,8 @@ function ConsentForm(props: ConsentFormProps): JSX.Element {
   };
 
   let formControlFeedback: JSX.Element | null = null;
-  let mandatoryFields: JSX.Element | null = null;
   if (showFeedback) {
     formControlFeedback = <ConsentFeedback id={id} userRole={userRole} checked={feedbackAccepted ?? false} onChange={handleChange} />;
-    mandatoryFields = <Typography id={`${id}-label-mandatory`} variant="caption" className={classes.labelMandatory}>{t("consent-mandatory")}</Typography>;
   }
 
   return (
@@ -227,7 +228,6 @@ function ConsentForm(props: ConsentFormProps): JSX.Element {
         <ConsentPrivacyPolicy id={id} userRole={userRole} checked={policyAccepted} onChange={handleChange} />
         <ConsentTerms id={id} userRole={userRole} checked={termsAccepted} onChange={handleChange} />
         {formControlFeedback}
-        {mandatoryFields}
       </FormGroup>
     </FormControl>
   );
