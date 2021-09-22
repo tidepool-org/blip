@@ -236,8 +236,8 @@ export function login(api, credentials, options, postLoginAction) {
           if (err) {
             handleLoginFailure(ErrorMessages.ERR_FETCHING_USER, err);
           } else {
-            const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
-            const hasPatientProfile = !!_.get(user, ['profile', 'patient'], false);
+            const userHasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+            const userHasPatientProfile = !!_.get(user, ['profile', 'patient'], false);
 
             if (config.CLINICS_ENABLED) {
               // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
@@ -267,21 +267,17 @@ export function login(api, credentials, options, postLoginAction) {
                 else {
                   if (values.invites?.length) {
                     // If we have an empty clinic profile, go to clinic details, otherwise workspaces
-                    setRedirectRoute(!hasClinicProfile ? routes.clinicDetails : routes.workspaces);
+                    setRedirectRoute(!userHasClinicProfile ? routes.clinicDetails : routes.workspaces);
                   } else if (values.clinics?.length) {
-                    // TODO: what do we do if a clinic has the details filled out, but `canMigrate` is true
-                    // Do we auto-trigger the migration? Go to the clinic details form and have them resubmit?
-                    // Have a UI that allows them to explicitly trigger the migration or continue with normal
-                    // clinician operations until they're ready?
-                    const firstEmptyClinic = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) && !clinic.clinic?.canMigrate);
+                    const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
-                    if (!firstEmptyClinic && values.clinics.length === 1 && !hasPatientProfile && !values.associatedAccounts?.patients?.length) {
+                    if (!clinicMigration && values.clinics.length === 1 && !userHasPatientProfile && !values.associatedAccounts?.patients?.length) {
                       // Go to the clinic workspace if only one clinic and no dsa/data-sharing
                       setRedirectRoute(routes.clinicWorkspace);
                     } else {
                       // If we have an empty clinic object, go to clinic details, otherwise workspaces
-                      if (firstEmptyClinic) {
-                        dispatch(sync.selectClinic(firstEmptyClinic.clinic?.id));
+                      if (clinicMigration) {
+                        dispatch(sync.selectClinic(clinicMigration.clinic?.id));
                         setRedirectRoute(routes.clinicDetails);
                       } else {
                         setRedirectRoute(routes.workspaces);
@@ -304,7 +300,7 @@ export function login(api, credentials, options, postLoginAction) {
             }
 
             function skipClinicFlow() {
-              if (personUtils.isClinicianAccount(user) && !hasClinicProfile) {
+              if (personUtils.isClinicianAccount(user) && !userHasClinicProfile) {
                 redirectRoute = routes.clinicianDetails;
               }
 
