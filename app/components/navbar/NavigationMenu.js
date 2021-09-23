@@ -128,7 +128,7 @@ export const NavigationMenu = props => {
           },
         }}
       >
-        {personUtils.patientFullName(allUsersMap?.[loggedInUserId]) || t('Account')}
+        {personUtils.fullName(allUsersMap?.[loggedInUserId]) || t('Account')}
       </Button>
 
       <Popover
