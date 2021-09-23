@@ -167,7 +167,7 @@
     "terser": "4.8.0",
     "terser-webpack-plugin": "2.2.1",
     "tideline": "1.25.0-web-880-clinic-signup.1",
-    "tidepool-platform-client": "0.47.0-web-1219-rx-api-updates.2",
+    "tidepool-platform-client": "0.47.0-web-1236-trigger-clinic-migration.1",
     "tidepool-standard-action": "0.1.1",
     "url-loader": "1.1.1",
     "webpack": "4.44.1",
