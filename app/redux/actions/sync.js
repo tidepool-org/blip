@@ -1890,12 +1890,11 @@ export function triggerInitialClinicMigrationRequest() {
   };
 }
 
-export function triggerInitialClinicMigrationSuccess(clinicId, migratedUserId) {
+export function triggerInitialClinicMigrationSuccess(clinicId) {
   return {
     type: ActionTypes.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS,
     payload: {
       clinicId: clinicId,
-      migratedUserId: migratedUserId,
     },
   };
 }

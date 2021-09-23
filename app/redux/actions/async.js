@@ -2435,13 +2435,13 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
   return (dispatch) => {
     dispatch(sync.triggerInitialClinicMigrationRequest());
 
-    api.clinics.triggerInitialClinicMigration(clinicId, (err, result) => {
+    api.clinics.triggerInitialClinicMigration(clinicId, (err) => {
       if (err) {
         dispatch(sync.triggerInitialClinicMigrationFailure(
           createActionError(ErrorMessages.ERR_TRIGGERING_INITIAL_CLINIC_MIGRATION, err), err
         ));
       } else {
-        dispatch(sync.triggerInitialClinicMigrationSuccess(clinicId, result.userId));
+        dispatch(sync.triggerInitialClinicMigrationSuccess(clinicId));
       }
     });
   };

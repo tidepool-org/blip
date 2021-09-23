@@ -148,7 +148,7 @@ export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
     // profile, or a clinician profile, navigates to the root url with the browser back button
     if (isClinicianAccount && (firstEmptyClinic || !hasClinicProfile)) {
       if (firstEmptyClinic) dispatch(actions.sync.selectClinic(firstEmptyClinic.clinic?.id));
-      dispatch(push(state.clinicFlowActive ? '/clinic-details' : 'clinician-details'));
+      dispatch(push(state.clinicFlowActive ? '/clinic-details' : '/clinician-details'));
     } else {
       dispatch(push(state.clinicFlowActive ? '/workspaces' : '/patients'));
     }

@@ -3515,4 +3515,46 @@ describe('Actions', () => {
       expect(action.payload.clinicId).to.equal(clinicId);
     });
   });
+
+  describe('triggerInitialClinicMigrationRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.triggerInitialClinicMigrationRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST', () => {
+      let action = sync.triggerInitialClinicMigrationRequest();
+      expect(action.type).to.equal('TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST');
+    });
+  });
+
+  describe('triggerInitialClinicMigrationSuccess', () => {
+    const clinicId = 'clinicId';
+
+    it('should be a TSA', () => {
+      let action = sync.triggerInitialClinicMigrationSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS', () => {
+      let action = sync.triggerInitialClinicMigrationSuccess(clinicId);
+      expect(action.type).to.equal('TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId');
+    });
+  });
+
+  describe('triggerInitialClinicMigrationFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('deleting clinic clinician failed :(');
+      let action = sync.triggerInitialClinicMigrationFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.triggerInitialClinicMigrationFailure(error);
+      expect(action.type).to.equal('TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
 });
