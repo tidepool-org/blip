@@ -139,6 +139,10 @@ const InviteClinic = props => {
     }
   };
 
+  const handleSwitchToEmailInvite = () => {
+    dispatch(push(`/patients/${loggedInUserId}/share/member`));
+  };
+
   const backButtonText = clinic ? t('Cancel') : t('Back');
   const submitButtonText = clinic ? t('Send Invite') : t('Submit Code');
 
@@ -192,6 +196,17 @@ const InviteClinic = props => {
                 }}
               />
             </InputMask>
+
+            <Button
+              variant='textTertiary'
+              mb={5}
+              px={0}
+              py={2}
+              fontSize={0}
+              onClick={handleSwitchToEmailInvite}
+            >
+              {t('Want to share data with a new member? Invite via email address')}
+            </Button>
           </>
         )}
 
