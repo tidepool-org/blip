@@ -252,8 +252,9 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
     case types.SIGNUP_SUCCESS:
     case types.LOGIN_SUCCESS: {
       const { user } = action.payload;
+      const updateAction = state[user.userid] ? '$merge' : '$set';
       return update(state, {
-        [user.userid]: { $set: _.omit(user, ['permissions', 'team'])},
+        [user.userid]: { [updateAction]: _.omit(user, ['permissions', 'team'])},
         [`${user.userid}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
       });
     }
@@ -742,9 +743,9 @@ export const clinics = (state = initialState.clinics, action) => {
     case types.UPDATE_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic');
       let clinicId = _.get(action.payload, 'clinicId');
-      let newState = _.cloneDeep(state);
-      newState[clinicId] = { ...newState[clinicId], ...clinic };
-      return newState;
+      return update(state, {
+        [clinicId]: { $merge: clinic },
+      });
     }
     case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS: {
       const clinicians = _.get(action.payload, 'results.clinicians', []);
@@ -839,6 +840,12 @@ export const clinics = (state = initialState.clinics, action) => {
             permissions,
           } } },
         },
+      });
+    }
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS: {
+      let clinicId = _.get(action.payload, 'clinicId');
+      return update(state, {
+        [clinicId]: { canMigrate: { $set: false } },
       });
     }
     case types.LOGOUT_REQUEST:

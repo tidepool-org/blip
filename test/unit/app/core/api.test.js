@@ -63,6 +63,7 @@ describe('api', () => {
       deletePatientFromClinic: sinon.stub(),
       deletePatientInvitation: sinon.stub(),
       getClinicByShareCode: sinon.stub(),
+      triggerInitialClinicMigration: sinon.stub(),
     };
 
     rollbar = {
@@ -119,6 +120,7 @@ describe('api', () => {
     tidepool.deletePatientFromClinic.resetHistory();
     tidepool.deletePatientInvitation.resetHistory();
     tidepool.getClinicByShareCode.resetHistory();
+    tidepool.triggerInitialClinicMigration.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -843,6 +845,14 @@ describe('api', () => {
         const shareCode = 'shareCode';
         api.clinics.getClinicByShareCode(shareCode, cb);
         sinon.assert.calledWith(tidepool.getClinicByShareCode, shareCode, cb);
+      });
+    });
+    describe('clinics.triggerInitialClinicMigration', () => {
+      it('should call tidepool.triggerInitialClinicMigration with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.triggerInitialClinicMigration(clinicId, cb);
+        sinon.assert.calledWith(tidepool.triggerInitialClinicMigration, clinicId, cb);
       });
     });
   });

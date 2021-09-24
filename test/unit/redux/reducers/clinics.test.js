@@ -352,6 +352,21 @@ describe('clinics', () => {
     });
   });
 
+  describe('triggerInitialClinicMigrationSuccess', () => {
+    it('should set the `canMigrate` state of the clinic to `false`', () => {
+      let clinicId = 'clinicId123';
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          canMigrate: true,
+        },
+      };
+      let action = actions.sync.triggerInitialClinicMigrationSuccess(clinicId);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.canMigrate).to.be.false;
+    });
+  });
+
   describe('logoutRequest', () => {
     it('should set clinics to initial state', () => {
       let initialStateForTest = {

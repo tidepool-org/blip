@@ -3,6 +3,10 @@ import map from 'lodash/map';
 import get from 'lodash/get';
 import isNumber from 'lodash/isNumber';
 
+import i18next from './language';
+
+const t = i18next.t.bind(i18next);
+
 /**
  * Checks array of field names and returns whether or not all are valid
  * @param {Array} fieldNames array of field paths in dot notation
@@ -64,3 +68,15 @@ export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 
   error: getFieldError(fieldpath, formikContext),
   [valueProp]: formikContext.values[fieldpath],
 });
+
+/**
+ * Add an empty option to a list of select or radio options
+ * @param {Array} options - Array of options
+ * @param {String} label - Display text to use for empty option
+ * @param {*} value - Default empty value
+ * @returns a new options array
+ */
+export const addEmptyOption = (options = [], label = t('Select one'), value = '') => ([
+  { value, label },
+  ...options,
+]);
