@@ -365,18 +365,7 @@ describe('ClinicProfile', () => {
               type: 'UPDATE_CLINIC_SUCCESS',
               payload: {
                 clinicId: 'clinicID456',
-                clinic: {
-                  address: 'address_updated',
-                  city: 'city_updated',
-                  clinicSize: '250-499',
-                  clinicType: 'healthcare_system',
-                  country: 'CA',
-                  name: 'name_updated',
-                  phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
-                  postalCode: '65432',
-                  state: 'state_updated',
-                  website: 'http://clinic_updated.com',
-                },
+                clinic: { updateReturn: 'success' },
               },
             },
           ]);

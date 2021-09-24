@@ -6941,4 +6941,102 @@ describe('dataWorkerQueryData', () => {
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
+
+  describe('triggerInitialClinicMigration', () => {
+    describe('request', () => {
+      it('should leave triggeringInitialClinicMigration.completed unchanged', () => {
+        expect(initialState.triggeringInitialClinicMigration.completed).to.be.null;
+
+        let requestAction = actions.sync.triggerInitialClinicMigrationRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.triggeringInitialClinicMigration.completed).to.be.null;
+
+        let successAction = actions.sync.triggerInitialClinicMigrationSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.triggeringInitialClinicMigration.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.triggeringInitialClinicMigration.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set triggeringInitialClinicMigration.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.triggerInitialClinicMigrationRequest();
+
+        expect(initialStateForTest.triggeringInitialClinicMigration.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.triggeringInitialClinicMigration.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set triggeringInitialClinicMigration.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.triggeringInitialClinicMigration.completed).to.be.null;
+
+        let failureAction = actions.sync.triggerInitialClinicMigrationFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.triggeringInitialClinicMigration.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set triggeringInitialClinicMigration.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          triggeringInitialClinicMigration: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.triggerInitialClinicMigrationFailure(error);
+
+        expect(initialStateForTest.triggeringInitialClinicMigration.inProgress).to.be.true;
+        expect(initialStateForTest.triggeringInitialClinicMigration.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.triggeringInitialClinicMigration.inProgress).to.be.false;
+        expect(state.triggeringInitialClinicMigration.notification.type).to.equal('error');
+        expect(state.triggeringInitialClinicMigration.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set triggeringInitialClinicMigration.completed to be true', () => {
+        expect(initialState.triggeringInitialClinicMigration.completed).to.be.null;
+
+        let successAction = actions.sync.triggerInitialClinicMigrationSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.triggeringInitialClinicMigration.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set triggeringInitialClinicMigration.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          triggeringInitialClinicMigration: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.triggerInitialClinicMigrationSuccess('strava', 'blah');
+
+        expect(initialStateForTest.triggeringInitialClinicMigration.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.triggeringInitialClinicMigration.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
 });
