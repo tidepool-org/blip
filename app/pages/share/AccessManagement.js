@@ -42,6 +42,7 @@ import personUtils from '../../core/personutils';
 import baseTheme, { colors } from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
+import config from '../../config';
 
 export const AccessManagement = (props) => {
   const { t, api, trackMetric } = props;
@@ -554,17 +555,20 @@ export const AccessManagement = (props) => {
             >
               {t('Invite new member')}
             </Button>
-            <Button
-              ml={3}
-              id="invite-clinic"
-              variant="secondary"
-              className="active"
-              onClick={() => {
-                dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
-              }}
-            >
-              {t('Invite new clinic')}
-            </Button>
+            {/* Clinic invite button is hidden during clinic LMR */}
+            {/* {config.CLINICS_ENABLED && (
+              <Button
+                ml={3}
+                id="invite-clinic"
+                variant="secondary"
+                className="active"
+                onClick={() => {
+                  dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
+                }}
+              >
+                {t('Invite new clinic')}
+              </Button>
+            )} */}
           </Flex>
         </Flex>
 

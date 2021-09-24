@@ -97,6 +97,10 @@ const InviteMember = props => {
     }
   }, [sendingInvite]);
 
+  const handleSwitchToShareCodeInvite = () => {
+    dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
+  };
+
   return (
     <Box
       as="form"
@@ -122,7 +126,7 @@ const InviteMember = props => {
           placeholder={t('Enter email address')}
           variant="condensed"
           themeProps={{
-            mb: 5
+            mb: 3
           }}
         />
 
@@ -135,6 +139,18 @@ const InviteMember = props => {
             mb: 5,
           }}
         />
+
+        <Button
+          id="shareCodeInviteLink"
+          variant="textTertiary"
+          mb={5}
+          px={0}
+          py={2}
+          fontSize={0}
+          onClick={handleSwitchToShareCodeInvite}
+        >
+          {t('Want to share data with a new clinic? Invite via clinic share code')}
+        </Button>
 
         <Flex justifyContent={['center', 'flex-end']}>
           <Button id="cancel" variant="secondary" onClick={() => dispatch(push(`/patients/${loggedInUserId}/share`))}>

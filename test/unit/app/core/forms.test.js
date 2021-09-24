@@ -139,7 +139,7 @@ describe('forms', function() {
         values: { [fieldpath]: 'Fooey McBear' },
       };
 
-      expect (formUtils.getCommonFormikFieldProps(fieldpath, formikContext)).to.eql({
+      expect(formUtils.getCommonFormikFieldProps(fieldpath, formikContext)).to.eql({
         id: 'user.name',
         name: 'user.name',
         onChange: formikContext.handleChange,
@@ -159,7 +159,7 @@ describe('forms', function() {
         values: { [fieldpath]: 'Fooey McBear' },
       };
 
-      expect (formUtils.getCommonFormikFieldProps(fieldpath, formikContext, 'myValue')).to.eql({
+      expect(formUtils.getCommonFormikFieldProps(fieldpath, formikContext, 'myValue')).to.eql({
         id: 'user.name',
         name: 'user.name',
         onChange: formikContext.handleChange,
@@ -167,6 +167,32 @@ describe('forms', function() {
         error: 'name is silly',
         myValue: 'Fooey McBear',
       })
+    });
+  });
+
+  describe('addEmptyOption', () => {
+    it('should prepend an empty option value with default label', () => {
+      const options = [{ label: 'One', value: '1' }];
+      expect(formUtils.addEmptyOption(options)).to.eql([
+        { label: 'Select one', value: '' },
+        { label: 'One', value: '1' },
+      ]);
+    });
+
+    it('should prepend an empty option value with custom label', () => {
+      const options = [{ label: 'One', value: '1' }];
+      expect(formUtils.addEmptyOption(options, 'Gotta pick one!')).to.eql([
+        { label: 'Gotta pick one!', value: '' },
+        { label: 'One', value: '1' },
+      ]);
+    });
+
+    it('should prepend an empty option value with custom value', () => {
+      const options = [{ label: 'One', value: '1' }];
+      expect(formUtils.addEmptyOption(options, undefined, null)).to.eql([
+        { label: 'Select one', value: null },
+        { label: 'One', value: '1' },
+      ]);
     });
   });
 });

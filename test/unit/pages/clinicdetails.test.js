@@ -7,7 +7,6 @@ import merge from 'lodash/merge';
 import noop from 'lodash/noop';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import ClinicDetails from '../../../app/pages/clinicdetails';
-import Button from '../../../app/components/elements/Button';
 
 /* global chai */
 /* global sinon */
@@ -32,7 +31,8 @@ describe('ClinicDetails', () => {
     api: {
       clinics: {
         getClinicianInvites: sinon.stub().callsArgWith(1, null, { invitesReturn: 'success' }),
-        create: sinon.stub().callsArgWith(1, null, { createReturn: 'success' }),
+        update: sinon.stub().callsArgWith(2, null, { canMigrate: true }),
+        triggerInitialClinicMigration: sinon.stub().callsArgWith(1, null, { triggerMigrationReturn: 'success' }),
       },
       user: {
         put: sinon.stub().callsArgWith(1, null, { updateUserReturn: 'success' }),
@@ -60,6 +60,7 @@ describe('ClinicDetails', () => {
         fetchingClinicianInvites: defaultWorkingState,
         updatingClinic: defaultWorkingState,
         updatingUser: defaultWorkingState,
+        triggeringInitialClinicMigration: defaultWorkingState,
       },
     },
   };
@@ -76,7 +77,7 @@ describe('ClinicDetails', () => {
     },
   };
 
-  const clinicMemberNoInvitesState = {
+  const defaultState = {
     blip: merge({}, fetchedWorkingState.blip, {
       allUsersMap: {
         clinicianUserId123: {
@@ -84,16 +85,12 @@ describe('ClinicDetails', () => {
           roles: ['clinic'],
           userid: 'clinicianUserId123',
           username: 'clinic@example.com',
-          profile: {
-            fullName: 'Example Clinic',
-            clinic: {
-              role: 'clinic_manager',
-            },
-          },
         },
       },
       clinics: {
         clinicID456: {
+          name: 'Clinic 1',
+          canMigrate: false,
           clinicians: {
             clinicianUserId123: {
               email: 'clinic@example.com',
@@ -108,14 +105,35 @@ describe('ClinicDetails', () => {
     }),
   };
 
-  const clinicMemberHasInvitesState = {
+  const newClinicianUserInviteState = {
     blip: {
-      ...clinicMemberNoInvitesState.blip,
+      ...defaultState.blip,
       pendingReceivedClinicianInvites: [ { key: 'invite123' } ],
     },
   };
 
-  let store = mockStore(clinicMemberNoInvitesState);
+  const initialEmptyClinicState = {
+    blip: {
+      ...defaultState.blip,
+      clinics: {
+        clinicID456: {
+          id: 'clinicID456',
+          name: '',
+          canMigrate: false,
+          clinicians: {
+            clinicianUserId123: {
+              email: 'clinic@example.com',
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_ADMIN'],
+            },
+          },
+        },
+      },
+      selectedClinicId: 'clinicID456',
+    },
+  };
+
+  let store = mockStore(defaultState);
 
   before(() => {
     ClinicDetails.__Rewire__('config', {
@@ -153,8 +171,9 @@ describe('ClinicDetails', () => {
   });
 
   afterEach(() => {
+    defaultProps.api.clinics.triggerInitialClinicMigration.resetHistory();
     defaultProps.api.clinics.getClinicianInvites.resetHistory();
-    defaultProps.api.clinics.create.resetHistory();
+    defaultProps.api.clinics.update.resetHistory();
     defaultProps.api.user.put.resetHistory();
   });
 
@@ -162,7 +181,7 @@ describe('ClinicDetails', () => {
     beforeEach(() => {
       store = mockStore({
         blip: {
-          ...clinicMemberNoInvitesState.blip,
+          ...defaultState.blip,
           ...workingState.blip,
         },
       });
@@ -183,9 +202,9 @@ describe('ClinicDetails', () => {
   });
 
   describe('profile editing', () => {
-    context('clinic team member has pending invites', () => {
+    context('partial form submission', () => {
       beforeEach(() => {
-        store = mockStore(clinicMemberHasInvitesState);
+        store = mockStore(newClinicianUserInviteState);
 
         wrapper = mount(
           <Provider store={store}>
@@ -266,10 +285,9 @@ describe('ClinicDetails', () => {
       });
     });
 
-    context('clinic team member has no pending invites', () => {
+    context('full form submission', () => {
       beforeEach(() => {
-        store = mockStore(clinicMemberNoInvitesState);
-
+        store = mockStore(initialEmptyClinicState);
         wrapper = mount(
           <Provider store={store}>
             <ToastProvider>
@@ -295,20 +313,17 @@ describe('ClinicDetails', () => {
         wrapper.find('input[name="npi"]').simulate('change', { persist: noop, target: { name: 'npi', value: '1234567890' } });
         expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('1234567890');
 
-        wrapper.find('input[name="orgName"]').simulate('change', { persist: noop, target: { name: 'orgName', value: 'My Clinic' } });
-        expect(wrapper.find('input[name="orgName"]').prop('value')).to.equal('My Clinic');
+        wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'My Clinic' } });
+        expect(wrapper.find('input[name="name"]').prop('value')).to.equal('My Clinic');
 
-        wrapper.find('input[name="phoneNumber"]').simulate('blur', { persist: noop, target: { name: 'phoneNumber', value: '(888) 555-6666' } });
-        expect(wrapper.find('input[name="phoneNumber"]').prop('defaultValue')).to.equal('(888) 555-6666');
+        wrapper.find('input[name="phoneNumbers.0.number"]').simulate('change', { persist: noop, target: { name: 'phoneNumbers.0.number', value: '(888) 555-6666' } });
+        expect(wrapper.find('input[name="phoneNumbers.0.number"]').prop('defaultValue')).to.equal('(888) 555-6666');
 
         wrapper.find('select[name="country"]').simulate('change', { persist: noop, target: { name: 'country', value: 'US' } });
         expect(wrapper.find('select[name="country"]').prop('value')).to.equal('US');
 
-        wrapper.find('input[name="address1"]').simulate('change', { persist: noop, target: { name: 'address1', value: '253 Mystreet Ave' } });
-        expect(wrapper.find('input[name="address1"]').prop('value')).to.equal('253 Mystreet Ave');
-
-        wrapper.find('input[name="address2"]').simulate('change', { persist: noop, target: { name: 'address2', value: 'Apt. 34' } });
-        expect(wrapper.find('input[name="address2"]').prop('value')).to.equal('Apt. 34');
+        wrapper.find('input[name="address"]').simulate('change', { persist: noop, target: { name: 'address', value: '253 Mystreet Ave Apt. 34' } });
+        expect(wrapper.find('input[name="address"]').prop('value')).to.equal('253 Mystreet Ave Apt. 34');
 
         wrapper.find('input[name="city"]').simulate('change', { persist: noop, target: { name: 'city', value: 'Gotham' } });
         expect(wrapper.find('input[name="city"]').prop('value')).to.equal('Gotham');
@@ -316,11 +331,11 @@ describe('ClinicDetails', () => {
         wrapper.find('input[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'New Jersey' } });
         expect(wrapper.find('input[name="state"]').prop('value')).to.equal('New Jersey');
 
-        wrapper.find('input[name="zip"]').simulate('change', { persist: noop, target: { name: 'zip', value: '65432' } });
-        expect(wrapper.find('input[name="zip"]').prop('value')).to.equal('65432');
+        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: '65432' } });
+        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('65432');
 
-        wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic_updated.com' } });
-        expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic_updated.com');
+        wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic.com' } });
+        expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
 
         wrapper.find('input[name="clinicType"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
         expect(wrapper.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('healthcare_system');
@@ -350,10 +365,11 @@ describe('ClinicDetails', () => {
             }
           );
 
-          expect(defaultProps.api.clinics.create.callCount).to.equal(1);
+          expect(defaultProps.api.clinics.update.callCount).to.equal(1);
 
           sinon.assert.calledWith(
-            defaultProps.api.clinics.create,
+            defaultProps.api.clinics.update,
+            'clinicID456',
             {
               address: '253 Mystreet Ave Apt. 34',
               city: 'Gotham',
@@ -364,7 +380,7 @@ describe('ClinicDetails', () => {
               phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
               postalCode: '65432',
               state: 'New Jersey',
-              website: 'http://clinic_updated.com',
+              website: 'http://clinic.com',
             }
           );
 
@@ -396,20 +412,12 @@ describe('ClinicDetails', () => {
                 updatedUser: { updateUserReturn: 'success' },
               },
             },
-            { type: 'CREATE_CLINIC_REQUEST' },
+            { type: 'UPDATE_CLINIC_REQUEST' },
             {
-              type: 'CREATE_CLINIC_SUCCESS',
+              type: 'UPDATE_CLINIC_SUCCESS',
               payload: {
-                clinic: { createReturn: 'success' },
-              },
-            },
-            {
-              type: '@@router/CALL_HISTORY_METHOD',
-              payload: {
-                args: [
-                  '/clinic-admin',
-                ],
-                method: 'push',
+                clinicId: 'clinicID456',
+                clinic: { canMigrate: true },
               },
             },
           ]);

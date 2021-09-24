@@ -116,6 +116,7 @@ export default (state = initialWorkingState, action) => {
     case types.ACCEPT_CLINICIAN_INVITE_REQUEST:
     case types.DISMISS_CLINICIAN_INVITE_REQUEST:
     case types.GET_CLINICS_FOR_CLINICIAN_REQUEST:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
@@ -262,6 +263,7 @@ export default (state = initialWorkingState, action) => {
     case types.ACCEPT_CLINICIAN_INVITE_SUCCESS:
     case types.DISMISS_CLINICIAN_INVITE_SUCCESS:
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -409,6 +411,7 @@ export default (state = initialWorkingState, action) => {
     case types.ACCEPT_CLINICIAN_INVITE_FAILURE:
     case types.DISMISS_CLINICIAN_INVITE_FAILURE:
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
