@@ -142,6 +142,15 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
         textDecoration: 'none',
       },
     },
+    textTertiary: {
+      ...defaultStyles,
+      ...textButtonStyles,
+      color: colors.blueGreyMedium,
+      '&:hover,&:active': {
+        color: colors.text.primary,
+        textDecoration: 'none',
+      },
+    },
     actionListItem: {
       ...defaultStyles,
       ...actionListItemStyles,
