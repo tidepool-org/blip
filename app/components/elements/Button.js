@@ -82,6 +82,7 @@ Button.propTypes = {
     'danger',
     'textPrimary',
     'textSecondary',
+    'textTertiary',
     'actionListItem',
     'actionListItemDanger',
     'pagination',
