@@ -171,7 +171,7 @@ describe('forms', function() {
   });
 
   describe('addEmptyOption', () => {
-    it('should prepen an empty option value with default label', () => {
+    it('should prepend an empty option value with default label', () => {
       const options = [{ label: 'One', value: '1' }];
       expect(formUtils.addEmptyOption(options)).to.eql([
         { label: 'Select one', value: '' },
@@ -179,7 +179,7 @@ describe('forms', function() {
       ]);
     });
 
-    it('should prepen an empty option value with custom label', () => {
+    it('should prepend an empty option value with custom label', () => {
       const options = [{ label: 'One', value: '1' }];
       expect(formUtils.addEmptyOption(options, 'Gotta pick one!')).to.eql([
         { label: 'Gotta pick one!', value: '' },
@@ -187,7 +187,7 @@ describe('forms', function() {
       ]);
     });
 
-    it('should prepen an empty option value with custom value', () => {
+    it('should prepend an empty option value with custom value', () => {
       const options = [{ label: 'One', value: '1' }];
       expect(formUtils.addEmptyOption(options, undefined, null)).to.eql([
         { label: 'Select one', value: null },

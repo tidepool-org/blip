@@ -1120,7 +1120,6 @@ describe('Actions', () => {
           store.dispatch(async.login(api, creds));
 
           const actions = store.getActions();
-          actions.forEach(a => console.log(a))
           expect(actions).to.eql(expectedActions);
           expect(api.user.login.calledWith(creds)).to.be.true;
           expect(api.user.get.callCount).to.equal(1);

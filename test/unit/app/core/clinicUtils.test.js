@@ -65,7 +65,7 @@ describe('clinicUtils', function() {
       });
     });
 
-    it('should return default values for any missing clinic fields', () => {
+    it('should return existing fields values from the provided clinic', () => {
       const clinic = {
         name: 'Clinic 1',
         address: '253 MyStreet',

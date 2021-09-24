@@ -2426,7 +2426,7 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
 }
 
 /**
- * Fetch Clinic by Share Code Action Creator
+ * Trigger migration of a clinician's patient list to a clinic
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic

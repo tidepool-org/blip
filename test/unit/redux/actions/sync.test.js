@@ -3545,7 +3545,7 @@ describe('Actions', () => {
 
   describe('triggerInitialClinicMigrationFailure', () => {
     it('should be a TSA', () => {
-      let error = new Error('deleting clinic clinician failed :(');
+      let error = new Error('clinic migration failed :(');
       let action = sync.triggerInitialClinicMigrationFailure(error);
       expect(isTSA(action)).to.be.true;
     });
