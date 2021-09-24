@@ -932,7 +932,7 @@ describe('Actions', () => {
             setAPIData({
               user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
               clinics: [
-                { clinic: {} },
+                { clinic: { id: 'clinicId123' } },
               ],
             });
 
@@ -941,11 +941,50 @@ describe('Actions', () => {
               { type: 'FETCH_USER_REQUEST' },
               { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
               { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: {} }] }},
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinicId123' } }] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore(initialState);
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+          });
+
+          it('should trigger LOGIN_SUCCESS and it should redirect a clinician with relationship containing a ready-to-migrate clinic object to the clinic details form', () => {
+            setAPIData({
+              user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
+              clinics: [
+                { clinic: { id: 'clinicId123', name: 'Clinic One', canMigrate: true } },
+              ],
+            });
+
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinicId123', name: 'Clinic One', canMigrate: true } }] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
             ];
@@ -969,8 +1008,8 @@ describe('Actions', () => {
             setAPIData({
               user: { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true },
               clinics: [
-                { clinic: { id: 'clinic123' } },
-                { clinic2: { id: 'clinic456' } },
+                { clinic: { id: 'clinic123', name: 'Clinic One' } },
+                { clinic: { id: 'clinic456', name: 'Clinic Two' } },
               ],
             });
 
@@ -980,8 +1019,8 @@ describe('Actions', () => {
               { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
               { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
-                { clinic: { id: 'clinic123' } },
-                { clinic2: { id: 'clinic456' } },
+                { clinic: { id: 'clinic123', name: 'Clinic One' } },
+                { clinic: { id: 'clinic456', name: 'Clinic Two' } },
               ] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
@@ -1010,7 +1049,7 @@ describe('Actions', () => {
             setAPIData({
               user: { userid: 27, roles: ['clinic'], profile: { clinic: true, patient: undefined }, emailVerified: true },
               clinics: [
-                { clinic: { id: 'clinic123' } },
+                { clinic: { id: 'clinic123', name: 'Clinic One' } },
               ],
               patients: [],
             });
@@ -1021,7 +1060,7 @@ describe('Actions', () => {
               { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
               { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
-                { clinic: { id: 'clinic123' } },
+                { clinic: { id: 'clinic123', name: 'Clinic One' } },
               ] }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
@@ -1051,7 +1090,7 @@ describe('Actions', () => {
           setAPIData({
             user: { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true },
             clinics: [
-              { clinic: { id: 'clinic123' } },
+              { clinic: { id: 'clinic123', name: 'My Clinic' } },
             ],
             invites: [],
             patients: [],
@@ -1063,7 +1102,7 @@ describe('Actions', () => {
             { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
             { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
             { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
-              { clinic: { id: 'clinic123' } },
+              { clinic: { id: 'clinic123', name: 'My Clinic' } },
             ] }},
             { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
@@ -1081,7 +1120,6 @@ describe('Actions', () => {
           store.dispatch(async.login(api, creds));
 
           const actions = store.getActions();
-
           expect(actions).to.eql(expectedActions);
           expect(api.user.login.calledWith(creds)).to.be.true;
           expect(api.user.get.callCount).to.equal(1);
@@ -4871,7 +4909,7 @@ describe('Actions', () => {
       it('should trigger UPDATE_CLINIC_SUCCESS and it should call clinics.update once for a successful request', () => {
         let api = {
           clinics: {
-            update: sinon.stub().callsArgWith(2, null, { }),
+            update: sinon.stub().callsArgWith(2, null, { name: 'newName' }),
           },
         };
 
@@ -4892,7 +4930,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.updateClinic(api, '5f85fbe6686e6bb9170ab5d0', {name: 'newName'}));
+        store.dispatch(async.updateClinic(api, '5f85fbe6686e6bb9170ab5d0', { name: 'newName' }));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -6336,7 +6374,7 @@ describe('Actions', () => {
         expect(api.clinics.getClinicsForClinician.callCount).to.equal(1);
       });
 
-      it('should trigger GET_CLINICSFOR_CLINICIAN_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger GET_CLINICS_FOR_CLINICIAN_FAILURE and it should call error once for a failed request', () => {
         let clinicianId = 'clinicianId1';
         let api = {
           clinics: {
@@ -6362,6 +6400,62 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getClinicsForClinician.callCount).to.equal(1);
+      });
+    });
+
+    describe('triggerInitialClinicMigration', () => {
+      it('should trigger TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS and it should call clinics.triggerInitialClinicMigration once for a successful request', () => {
+        let clinicId = 'clinicId1';
+        let userId = 'userId1';
+
+        let api = {
+          clinics: {
+            triggerInitialClinicMigration: sinon.stub().callsArgWith(1, null, { userId }),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST' },
+          { type: 'TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS', payload: { clinicId: 'clinicId1' } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.triggerInitialClinicMigration(api, clinicId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.triggerInitialClinicMigration.callCount).to.equal(1);
+      });
+
+      it('should trigger TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId1';
+        let api = {
+          clinics: {
+            triggerInitialClinicMigration: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_TRIGGERING_INITIAL_CLINIC_MIGRATION);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST' },
+          { type: 'TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.triggerInitialClinicMigration(api, clinicId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_TRIGGERING_INITIAL_CLINIC_MIGRATION });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.triggerInitialClinicMigration.callCount).to.equal(1);
       });
     });
 

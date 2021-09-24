@@ -236,8 +236,8 @@ export function login(api, credentials, options, postLoginAction) {
           if (err) {
             handleLoginFailure(ErrorMessages.ERR_FETCHING_USER, err);
           } else {
-            const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
-            const hasPatientProfile = !!_.get(user, ['profile', 'patient'], false);
+            const userHasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+            const userHasPatientProfile = !!_.get(user, ['profile', 'patient'], false);
 
             if (config.CLINICS_ENABLED) {
               // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
@@ -267,16 +267,21 @@ export function login(api, credentials, options, postLoginAction) {
                 else {
                   if (values.invites?.length) {
                     // If we have an empty clinic profile, go to clinic details, otherwise workspaces
-                    setRedirectRoute(!hasClinicProfile ? routes.clinicDetails : routes.workspaces);
+                    setRedirectRoute(!userHasClinicProfile ? routes.clinicDetails : routes.workspaces);
                   } else if (values.clinics?.length) {
-                    const firstClinicIsEmpty = _.isEmpty(_.get(values.clinics, '0.clinic'));
+                    const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
-                    if (!firstClinicIsEmpty && values.clinics.length === 1 && !hasPatientProfile && !values.associatedAccounts?.patients?.length) {
+                    if (!clinicMigration && values.clinics.length === 1 && !userHasPatientProfile && !values.associatedAccounts?.patients?.length) {
                       // Go to the clinic workspace if only one clinic and no dsa/data-sharing
                       setRedirectRoute(routes.clinicWorkspace);
                     } else {
                       // If we have an empty clinic object, go to clinic details, otherwise workspaces
-                      setRedirectRoute(firstClinicIsEmpty ? routes.clinicDetails : routes.workspaces);
+                      if (clinicMigration) {
+                        dispatch(sync.selectClinic(clinicMigration.clinic?.id));
+                        setRedirectRoute(routes.clinicDetails);
+                      } else {
+                        setRedirectRoute(routes.workspaces);
+                      }
                     }
                   } else {
                     // Clinic flow is not enabled for this account
@@ -295,7 +300,7 @@ export function login(api, credentials, options, postLoginAction) {
             }
 
             function skipClinicFlow() {
-              if (personUtils.isClinicianAccount(user) && !hasClinicProfile) {
+              if (personUtils.isClinicianAccount(user) && !userHasClinicProfile) {
                 redirectRoute = routes.clinicianDetails;
               }
 
@@ -1845,13 +1850,13 @@ export function updateClinic(api, clinicId, clinic) {
   return (dispatch) => {
     dispatch(sync.updateClinicRequest());
 
-    api.clinics.update(clinicId, clinic, (err) => {
+    api.clinics.update(clinicId, clinic, (err, updatedClinic) => {
       if (err) {
         dispatch(sync.updateClinicFailure(
           createActionError(ErrorMessages.ERR_UPDATING_CLINIC, err), err
         ));
       } else {
-        dispatch(sync.updateClinicSuccess(clinicId, clinic));
+        dispatch(sync.updateClinicSuccess(clinicId, updatedClinic));
       }
     });
   };
@@ -2415,6 +2420,28 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
         ));
       } else {
         dispatch(sync.fetchClinicSuccess(clinic));
+      }
+    });
+  };
+}
+
+/**
+ * Trigger migration of a clinician's patient list to a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+ export function triggerInitialClinicMigration(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.triggerInitialClinicMigrationRequest());
+
+    api.clinics.triggerInitialClinicMigration(clinicId, (err) => {
+      if (err) {
+        dispatch(sync.triggerInitialClinicMigrationFailure(
+          createActionError(ErrorMessages.ERR_TRIGGERING_INITIAL_CLINIC_MIGRATION, err), err
+        ));
+      } else {
+        dispatch(sync.triggerInitialClinicMigrationSuccess(clinicId));
       }
     });
   };

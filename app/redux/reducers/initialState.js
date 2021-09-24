@@ -141,6 +141,7 @@ const initialState = {
     acceptingClinicianInvite: Object.assign({}, working),
     dismissingClinicianInvite: Object.assign({}, working),
     fetchingClinicsForClinician: Object.assign({}, working),
+    triggeringInitialClinicMigration: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {

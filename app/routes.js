@@ -139,7 +139,19 @@ export const ensureNoAuth = (api, cb = _.noop) => () => {
 export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
   const { blip: state } = getState();
   if (api.user.isAuthenticated()) {
-    dispatch(push(state.clinicFlowActive ? '/workspaces' : '/patients'));
+    const user = _.get(state.allUsersMap, state.loggedInUserId, {});
+    const isClinicianAccount = personUtils.isClinicianAccount(user);
+    const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+    const firstEmptyClinic = _.find(state.clinics, clinic => _.isEmpty(clinic.clinic?.name) && !clinic.clinic?.canMigrate);
+
+    // We don't want to navigate forward to a workspace if a clinician who needs to set up their
+    // profile, or a clinician profile, navigates to the root url with the browser back button
+    if (isClinicianAccount && (firstEmptyClinic || !hasClinicProfile)) {
+      if (firstEmptyClinic) dispatch(actions.sync.selectClinic(firstEmptyClinic.clinic?.id));
+      dispatch(push(state.clinicFlowActive ? '/clinic-details' : '/clinician-details'));
+    } else {
+      dispatch(push(state.clinicFlowActive ? '/workspaces' : '/patients'));
+    }
   }
   cb();
 };
