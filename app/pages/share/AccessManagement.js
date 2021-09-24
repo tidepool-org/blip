@@ -555,7 +555,8 @@ export const AccessManagement = (props) => {
             >
               {t('Invite new member')}
             </Button>
-            {config.CLINICS_ENABLED && (
+            {/* Clinic invite button is hidden during clinic LMR */}
+            {/* {config.CLINICS_ENABLED && (
               <Button
                 ml={3}
                 id="invite-clinic"
@@ -567,7 +568,7 @@ export const AccessManagement = (props) => {
               >
                 {t('Invite new clinic')}
               </Button>
-            )}
+            )} */}
           </Flex>
         </Flex>
 
