@@ -198,7 +198,8 @@ const InviteClinic = props => {
             </InputMask>
 
             <Button
-              variant='textTertiary'
+              id="emailInviteLink"
+              variant="textTertiary"
               mb={5}
               px={0}
               py={2}

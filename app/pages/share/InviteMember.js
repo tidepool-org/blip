@@ -141,7 +141,8 @@ const InviteMember = props => {
         />
 
         <Button
-          variant='textTertiary'
+          id="shareCodeInviteLink"
+          variant="textTertiary"
           mb={5}
           px={0}
           py={2}

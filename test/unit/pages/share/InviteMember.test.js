@@ -101,6 +101,28 @@ describe('InviteMember', () => {
     expect(actions).to.eql(expectedActions);
   });
 
+  it('should navigate to the share code invite form if link is clicked', () => {
+    const shareCodeInviteLink = wrapper.find('button#shareCodeInviteLink');
+    expect(shareCodeInviteLink).to.have.length(1);
+
+    const expectedActions = [
+      {
+        type: '@@router/CALL_HISTORY_METHOD',
+        payload: {
+          args: [
+            '/patients/patient123/share/clinic',
+          ],
+          method: 'push',
+        },
+      },
+    ];
+
+    shareCodeInviteLink.props().onClick();
+    const store = wrapper.props().store;
+    const actions = store.getActions();
+    expect(actions).to.eql(expectedActions);
+  });
+
   it('should sumbit an invitation if submit is clicked', (done) => {
     const submitButton = () => wrapper.find('button#submit');
     expect(submitButton()).to.have.length(1);

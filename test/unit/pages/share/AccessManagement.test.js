@@ -224,7 +224,8 @@ describe('AccessManagement', () => {
     expect(actions).to.eql(expectedActions);
   });
 
-  it('should render an Invite New Clinic button', () => {
+  // Skipping this test during the clinic UI LMR
+  it.skip('should render an Invite New Clinic button', () => {
     const inviteButton = wrapper.find('button#invite-clinic');
     expect(inviteButton).to.have.length(1);
     expect(inviteButton.text()).to.equal('Invite new clinic');
