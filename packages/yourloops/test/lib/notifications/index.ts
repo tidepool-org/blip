@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Lib tests
+ * Notification tests
  *
  * All rights reserved.
  *
@@ -26,20 +26,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testCookiesManager from "./cookies-manager.test";
-import testLanguage from "./language.test";
-import testMetrics from "./metrics.test";
-import testZendesk from "./zendesk.test";
-import testAuth from "./auth";
-import testNotifications from "./notifications";
+import testAPI from "./api.test";
+import testHook from "./hook.test";
+import testUtils from "./utils.test";
 
-function testLib(): void {
-  describe("CookiesManager", testCookiesManager);
-  describe("Language", testLanguage);
-  describe("Metrics", testMetrics);
-  describe("Zendesk", testZendesk);
-  describe("Auth", testAuth);
-  describe("Notifications", testNotifications);
+function testNotifications(): void {
+  describe("API", testAPI);
+  describe("Hook", testHook);
+  describe("Utils", testUtils);
 }
 
-export default testLib;
+export default testNotifications;

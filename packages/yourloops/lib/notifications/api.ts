@@ -38,7 +38,7 @@ import { INotificationAPI } from "../../models/notification";
 import { INotification, NotificationAPI, NotificationType } from "./models";
 import { notificationConversion } from "./utils";
 
-const log = bows("Notifcation API");
+const log = bows("Notification API");
 
 async function getInvitations(session: Readonly<Session>, url: URL): Promise<INotification[]> {
   const response = await fetch(url.toString(), {
@@ -108,7 +108,7 @@ async function updateInvitation(session: Readonly<Session>, url: URL, key: strin
   });
 
   if (response.ok) {
-    console.info("updateInvitation response:", await response.text());
+    log.info("updateInvitation response:", await response.text());
     return Promise.resolve();
   }
 
@@ -154,7 +154,7 @@ function declineInvitation(session: Readonly<Session>, notification: INotificati
 }
 
 async function cancelInvitation(session: Readonly<Session>, notification: INotification): Promise<void> {
-  const confirmURL = new URL(`/confirm/cancel/invite`, appConfig.API_HOST);
+  const confirmURL = new URL("/confirm/cancel/invite", appConfig.API_HOST);
   const body: Partial<INotificationAPI> = {
     key: notification.id,
   };
@@ -187,7 +187,7 @@ async function cancelInvitation(session: Readonly<Session>, notification: INotif
   });
 
   if (response.ok) {
-    console.info("cancelInvitation response:", await response.text());
+    log.info("cancelInvitation response:", await response.text());
     return Promise.resolve();
   }
 

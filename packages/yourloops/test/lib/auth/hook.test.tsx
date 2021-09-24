@@ -58,21 +58,9 @@ interface AuthAPIStubs {
   logout: sinon.SinonStub<Session[], Promise<void>>;
 }
 
-export const authCaregiver: Session = {
-  user: _.cloneDeep(loggedInUsers.caregiver),
-  sessionToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNyIjoiYTBhMGEwYjAiLCJuYW1lIjoiY2FyZWdpdmVyQGV4YW1wbGUuY29tIiwiZW1haWwiOiJjYXJlZ2l2ZXJAZXhhbXBsZS5jb20iLCJzdnIiOiJubyIsInJvbGUiOiJjYXJlZ2l2ZXIiLCJpYXQiOjE2MjQ5NTYzMDcsImV4cCI6NTYyNDk1NjMwNn0.3xkhP0NaF4z_KTE5m387lN4S3n4haRpHW0NelQubxZ0",
-  traceToken: uuidv4(),
-};
-export const authHcp: Session = {
-  user: _.cloneDeep(loggedInUsers.hcp),
-  sessionToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNyIjoiYTAwMDAwMDAiLCJuYW1lIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwic3ZyIjoibm8iLCJyb2xlIjoiaGNwIiwiaWF0IjoxNjI0OTU2MzA3LCJleHAiOjU1MTYyMzkwMjJ9.FG7_pP6vyWVWpPar0kKV5yHlnFOhJRAWoANCKzC-_pg",
-  traceToken: uuidv4(),
-};
-export const authPatient: Session = {
-  user: _.cloneDeep(loggedInUsers.patient),
-  sessionToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNyIjoiYTBhMGEwYjAiLCJuYW1lIjoiam9zZXBoaW5lLmR1cHVpc0BleGFtcGxlLmNvbSIsImVtYWlsIjoiam9zZXBoaW5lLmR1cHVpc0BleGFtcGxlLmNvbSIsInN2ciI6Im5vIiwicm9sZSI6InBhdGllbnQiLCJpYXQiOjE2MjQ5NTYzMDcsImV4cCI6NTYyNDk1NjMwNn0.48r_J2axhfz-GA5uNcd6QZCsSQnIkJU3QUJtjYrctYw",
-  traceToken: uuidv4(),
-};
+export const authCaregiver = loggedInUsers.caregiverSession;
+export const authHcp = loggedInUsers.hcpSession;
+export const authPatient = loggedInUsers.patientSession;
 
 export const createAuthApiStubs = (session: Session): AuthAPIStubs => ({
   login: sinon.stub().resolves(session),
@@ -163,7 +151,6 @@ function testHook(): void {
   const ReactAuthContext = React.createContext({} as AuthContext);
   let container: HTMLDivElement | null = null;
   let authContext: AuthContext | null = null;
-  // let authApiStubs: typeof authApiHcpStubs | null = authApiHcpStubs;
 
   const initAuthContext = (session: Session | null, stubApi: typeof authApiHcpStubs) => {
     if (session !== null) {

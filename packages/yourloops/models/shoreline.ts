@@ -26,9 +26,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { JwtPayload } from "jwt-decode";
+
 import { Units } from "./generic";
 import { LanguageCodes } from "./locales";
 import { MedicalData } from "./device-data";
+
+interface JwtShorelinePayload extends JwtPayload {
+  role: "hcp" | "patient" | "caregiver";
+  /** username: an e-mail */
+  name: string;
+  email: string;
+  /** userid */
+  usr: string;
+  /** yes for server token - we will never have that in Blip: always "no" */
+  srv: "yes" | "no";
+}
 
 enum UserRoles {
   hcp = "hcp",
@@ -98,4 +111,4 @@ interface IUser {
   medicalData?: MedicalData | null;
 }
 
-export { IUser, Profile, Settings, Preferences, Consent, UserRoles };
+export { JwtShorelinePayload, IUser, Profile, Settings, Preferences, Consent, UserRoles };

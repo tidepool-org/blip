@@ -26,10 +26,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { User } from "../../lib/auth";
+import { v4 as uuidv4 } from "uuid";
+
+import { User, Session } from "../../lib/auth";
 import { Units, UserInvitationStatus } from "../../models/generic";
 import { UserRoles } from "../../models/shoreline";
 import { ITeam, ITeamMember, TeamMemberRole, TeamType } from "../../models/team";
+import { createSessionToken } from "./utils";
+
+export { createSessionToken, refreshToken } from "./utils";
 
 const userCaregiver = new User({
   userid: "b0000000",
@@ -67,6 +72,30 @@ export const loggedInUsers = {
   hcp: userHCP,
   patient: userPatient,
   caregiver: userCaregiver,
+  get hcpSession(): Session {
+    const user = new User(userHCP);
+    return {
+      user,
+      sessionToken: createSessionToken(user),
+      traceToken: uuidv4(),
+    };
+  },
+  get patientSession(): Session {
+    const user = new User(userPatient);
+    return {
+      user,
+      sessionToken: createSessionToken(user),
+      traceToken: uuidv4(),
+    };
+  },
+  get caregiverSession(): Session {
+    const user = new User(userCaregiver);
+    return {
+      user,
+      sessionToken: createSessionToken(user),
+      traceToken: uuidv4(),
+    };
+  },
 };
 
 /**

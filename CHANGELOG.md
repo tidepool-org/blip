@@ -15,6 +15,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-958 Review text justification in modal windows
 - YLP-963 Updating urls of legal documents
 ### Engineering Use
+- YLP-864 Add TU for lib notifications
 - YLP-688 Cleanup translation keys
 
 ## 2.0.3 - 2021-08-20
