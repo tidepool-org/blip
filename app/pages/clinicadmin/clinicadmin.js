@@ -408,7 +408,7 @@ export const ClinicAdmin = (props) => {
                 variant="primary"
                 onClick={handleInviteNewMember}
               >
-                {t('Invite new clinic team member')}
+                {t('Invite New Clinic Team Member')}
               </Button>
             </Box>
           )}

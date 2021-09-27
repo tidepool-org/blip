@@ -175,7 +175,7 @@ export const ClinicInvite = (props) => {
         p={4}
         px={6}
       >
-        <Title flexGrow={1}>{t('Invite team members')}</Title>
+        <Title flexGrow={1}>{t('Invite Team Members')}</Title>
       </Flex>
 
       <Box

@@ -113,7 +113,7 @@ const InviteMember = props => {
         py={3}
         sx={{ borderBottom: baseTheme.borders.default }}
       >
-        <Title textAlign={['center', 'left']}>{t('Share with a Member')}</Title>
+        <Title textAlign={['center', 'left']}>{t('Share With A Member')}</Title>
       </Box>
 
       <Box px={5} py={5}>

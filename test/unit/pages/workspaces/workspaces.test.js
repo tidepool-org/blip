@@ -198,7 +198,7 @@ describe('Workspaces', () => {
 
     it('should render the workspaces title', () => {
       const title = wrapper.find('h3').at(0);
-      expect(title.text()).to.equal('Welcome to Tidepool');
+      expect(title.text()).to.equal('Welcome To Tidepool');
     });
 
     it('should render the workspaces section heading', () => {
