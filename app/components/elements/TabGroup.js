@@ -17,14 +17,15 @@ const StyledTab = styled(Tab)`
   text-transform: none;
   padding: ${space[3]}px ${space[4]}px;
   opacity: 0.85;
+  color: ${colors.tab.primary};
 
   &.Mui-selected {
-    color: ${colors.text.link};
+    color: ${colors.tab.selected};
     opacity: 1;
   }
 
   &.Mui-disabled {
-    color: ${colors.text.primaryDisabled};
+    color: ${colors.tab.disabled};
   }
 
   &:hover {
@@ -56,7 +57,7 @@ const StyledTabGroup = styled(Tabs)`
   min-height: auto;
 
   .MuiTabs-indicator {
-    background-color: ${colors.purpleBright};
+    background-color: ${colors.tab.selected};
     z-index: 1;
   }
 `;
@@ -102,8 +103,8 @@ export const TabGroup = props => {
           width={isHorizontal ? '100%' : '2px'}
           height={isHorizontal ? '2px' : '100%'}
           sx={{
-            borderTop: isHorizontal ? borders.divider : 'none',
-            borderRight: isHorizontal ? 'none' : borders.divider,
+            borderTop: isHorizontal ? borders.dividerDark : 'none',
+            borderRight: isHorizontal ? 'none' : borders.dividerDark,
             position: 'relative',
             top: isHorizontal ? '-2px' : '-100%',
             left: isHorizontal ? 0 : 'calc(100% - 2px)',

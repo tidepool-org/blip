@@ -158,7 +158,7 @@ const InviteClinic = props => {
         py={3}
         sx={{ borderBottom: baseTheme.borders.default }}
       >
-        <Title textAlign={['center', 'left']}>{t('Share with a Clinic')}</Title>
+        <Title textAlign={['center', 'left']}>{t('Share With A Clinic')}</Title>
       </Box>
 
       <Box px={5} py={5}>

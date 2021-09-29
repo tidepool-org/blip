@@ -241,7 +241,7 @@ export const Workspaces = (props) => {
     const workspaceActions = workspace.type === 'clinic' ? (
       <>
         <Button variant='secondary' onClick={handleLeaveClinic.bind(null, workspace)}>{t('Leave Clinic')}</Button>
-        <Button ml={[3]} onClick={handleGoToWorkspace.bind(null, workspace)}>{t('Go to Workspace')}</Button>
+        <Button ml={[3]} onClick={handleGoToWorkspace.bind(null, workspace)}>{t('Go To Workspace')}</Button>
       </>
     ) : (
       <>
@@ -299,7 +299,7 @@ export const Workspaces = (props) => {
           px={[3, 4, 5, 6]}
         >
           <Title flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
-            {t('Welcome to Tidepool')}
+            {t('Welcome To Tidepool')}
           </Title>
         </Flex>
 
@@ -343,7 +343,7 @@ export const Workspaces = (props) => {
               py={0}
               onClick={handleGoToWorkspace}
             >
-              {t('Go to Personal Workspace')}
+              {t('Go To Personal Workspace')}
             </Button>
           </Flex>
         </Box>

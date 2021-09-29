@@ -69,6 +69,7 @@ export const TextInput = (props) => {
             icon={icon}
             label={iconLabel || label}
             cursor={onClickIcon ? 'pointer' : 'auto'}
+            tabIndex={onClickIcon ? 0 : -1}
             onClick={onClickIcon}
           />
         )}
