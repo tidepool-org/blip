@@ -29,15 +29,22 @@ import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 
 import personUtils from '../../core/personutils';
-import ModalOverlay from '../modaloverlay';
-
 import Button from '../elements/Button';
 import Icon from '../elements/Icon';
 import Table from '../elements/Table';
 import TextInput from '../elements/TextInput';
 
 import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '../elements/Dialog';
+
+import {
   Title,
+  MediumTitle,
+  Body1,
 } from '../elements/FontStyles';
 
 export const PeopleTable = translate()(class PeopleTable extends React.Component {
@@ -58,9 +65,9 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
       showNames: false,
       dataList: this.buildDataList(),
       showModalOverlay: false,
-      dialog: '',
       tableHeight: 590,
       search:'',
+      selectedPatient: null,
     };
 
     WindowSizeListener.DEBOUNCE_TIME = 50;
@@ -110,10 +117,12 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         )}
 
         <Flex
+          alignItems="center"
           flexDirection={isTabLayout ? 'row-reverse' : 'row'}
           justifyContent="space-between"
           flexGrow={isTabLayout ? 1 : 0}
           pt={isTabLayout ? 0 : 4}
+          lineHeight={0}
         >
           <Button
             id="patients-view-toggle"
@@ -163,43 +172,50 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     );
   }
 
-  renderRemoveDialog(patient) {
+  renderRemoveDialog() {
     const { t } = this.props;
-    const fullName = patient.fullName;
-    return (
-      <div className="patient-remove-dialog">
-        <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
-          <p>
-            Are you sure you want to remove patient: {{fullName}} from your list?
-          </p>
-          <p>
-            You will no longer be able to see or comment on their data.
-          </p>
-        </Trans>
-        <div className="ModalOverlay-controls">
-          <button className="btn-secondary" type="button" onClick={this.handleCloseOverlay}>
-            {t('Cancel')}
-          </button>
-          <button className="btn btn-danger" type="submit" onClick={this.handleRemovePatient(patient)}>
-            {t('Remove')}
-          </button>
-        </div>
-      </div>
-    );
-  }
+    const fullName = this.state.selectedPatient?.fullName;
 
-  renderModalOverlay() {
     return (
-      <ModalOverlay
-        show={this.state.showModalOverlay}
-        dialog={this.state.dialog}
-        overlayClickHandler={this.handleCloseOverlay} />
+      <Dialog
+        id="deleteUser"
+        aria-labelledBy="dialog-title"
+        open={this.state.showModalOverlay}
+        onClose={this.handleCloseOverlay}
+      >
+        <DialogTitle onClose={this.handleCloseOverlay}>
+          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: fullName })}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
+            <Body1>
+              Are you sure you want to remove patient: {{fullName}} from your list?
+            </Body1>
+            <Body1>
+              You will no longer be able to see or comment on their data.
+            </Body1>
+          </Trans>
+        </DialogContent>
+
+        <DialogActions>
+          <Button variant="secondary" onClick={this.handleCloseOverlay}>
+            {t('Cancel')}
+          </Button>
+          <Button
+            variant="danger"
+            onClick={this.handleRemovePatient(this.state.selectedPatient)}
+          >
+            {t('Remove')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     );
   }
 
   handleRemovePatient(patient) {
     return () => {
-      this.props.onRemovePatient(patient.userid, (err) => {
+      this.props.onRemovePatient(this.state.selectedPatient?.userid, (err) => {
         this.handleCloseOverlay();
       });
 
@@ -219,7 +235,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
       this.setState({
         showModalOverlay: true,
-        dialog: this.renderRemoveDialog(patient)
+        selectedPatient: patient,
       });
     };
   }
@@ -367,7 +383,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
       <div>
         {this.renderHeader()}
         {this.renderPeopleArea()}
-        {this.renderModalOverlay()}
+        {this.renderRemoveDialog()}
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
