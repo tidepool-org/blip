@@ -204,7 +204,7 @@ describe('AccessManagement', () => {
   it('should render an Invite New Member button', () => {
     const inviteButton = wrapper.find('button#invite-member');
     expect(inviteButton).to.have.length(1);
-    expect(inviteButton.text()).to.equal('Invite new member');
+    expect(inviteButton.text()).to.equal('Invite New Member');
     expect(inviteButton.props().onClick).to.be.a('function');
 
     const expectedActions = [

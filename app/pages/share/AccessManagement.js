@@ -553,7 +553,7 @@ export const AccessManagement = (props) => {
                 dispatch(push(`/patients/${loggedInUserId}/share/member`));
               }}
             >
-              {t('Invite new member')}
+              {t('Invite New Member')}
             </Button>
             {/* Clinic invite button is hidden during clinic LMR */}
             {/* {config.CLINICS_ENABLED && (
@@ -566,7 +566,7 @@ export const AccessManagement = (props) => {
                   dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
                 }}
               >
-                {t('Invite new clinic')}
+                {t('Invite New Clinic')}
               </Button>
             )} */}
           </Flex>
