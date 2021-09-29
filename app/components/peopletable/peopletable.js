@@ -198,10 +198,11 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         </DialogContent>
 
         <DialogActions>
-          <Button variant="secondary" onClick={this.handleCloseOverlay}>
+          <Button id="patientRemoveCancel" variant="secondary" onClick={this.handleCloseOverlay}>
             {t('Cancel')}
           </Button>
           <Button
+            id="patientRemoveConfirm"
             variant="danger"
             onClick={this.handleRemovePatient(this.state.selectedPatient)}
           >
@@ -214,7 +215,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   handleRemovePatient(patient) {
     return () => {
-      this.props.onRemovePatient(this.state.selectedPatient?.userid, (err) => {
+      this.props.onRemovePatient(patient.userid, (err) => {
         this.handleCloseOverlay();
       });
 

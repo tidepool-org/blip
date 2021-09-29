@@ -221,7 +221,7 @@ describe('ClinicAdmin', () => {
     it('should render an Invite button', () => {
       const inviteButton = wrapper.find(Button).filter({ variant: 'primary' });
       expect(inviteButton).to.have.length(1);
-      expect(inviteButton.text()).to.equal('Invite new clinic team member');
+      expect(inviteButton.text()).to.equal('Invite New Clinic Team Member');
       expect(inviteButton.props().onClick).to.be.a('function');
 
       const expectedActions = [

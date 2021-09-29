@@ -223,7 +223,7 @@ describe('Workspaces', () => {
       const clinic = wrapper.find('div.workspace-item-clinic').at(0);
       const navigateButton = clinic.find('Button[variant="primary"]');
       expect(navigateButton).to.have.lengthOf(1);
-      expect(navigateButton.text()).to.equal('Go to Workspace');
+      expect(navigateButton.text()).to.equal('Go To Workspace');
 
       store.clearActions();
       navigateButton.simulate('click');
@@ -345,7 +345,7 @@ describe('Workspaces', () => {
       expect(personalWorkspace).to.have.lengthOf(1);
       const personalWorkspaceCTA = personalWorkspace.find('button');
       expect(personalWorkspaceCTA).to.have.lengthOf(1);
-      expect(personalWorkspaceCTA.text()).to.equal('Go to Personal Workspace');
+      expect(personalWorkspaceCTA.text()).to.equal('Go To Personal Workspace');
 
       store.clearActions();
       personalWorkspaceCTA.simulate('click');

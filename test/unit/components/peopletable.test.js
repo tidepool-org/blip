@@ -24,6 +24,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import { PeopleTable } from '../../../app/components/peopletable';
+import { Dialog } from '../../../app/components/elements/Dialog';
 
 const expect = chai.expect;
 
@@ -176,12 +177,10 @@ describe('PeopleTable', () => {
     });
 
     it('should show open a modal for removing a patient when their remove icon is clicked', function () {
-      const renderRemoveDialog = sinon.spy(wrapper.instance().getWrappedInstance(), 'renderRemoveDialog');
+      const removeDialog = () => wrapper.find(Dialog);
 
       // Modal should be hidden
-      const overlay = () => wrapper.find('.ModalOverlay').hostNodes();
-      expect(overlay()).to.have.length(1);
-      expect(overlay().is('.ModalOverlay--show')).to.be.false;
+      expect(removeDialog().props().open).to.be.false;
 
       // Click the remove link for the last patient
       const removeLink = wrapper.find('button[aria-label="Remove"]').last();
@@ -193,52 +192,50 @@ describe('PeopleTable', () => {
       // Ensure the currentRowIndex is set to highlight the proper patient
       const state = (key) => wrapper.instance().getWrappedInstance().state[key];
 
-      // Ensure the renderRemoveDialog method is called with the correct patient
+      // Ensure the selectedPateint state is set to the correct patient
       // Since we've clicked the last one, and the default sort is fullName alphabetically,
       // it should be 'Zoe Doe'
-      sinon.assert.callCount(renderRemoveDialog, 1);
-      sinon.assert.calledWithMatch(renderRemoveDialog, {fullName: 'Zoe Doe'});
+      expect(state('selectedPatient').fullName).to.equal('Zoe Doe');
 
       // Ensure the modal is showing
-      expect(overlay().is('.ModalOverlay--show')).to.be.true;
-      expect(state('showModalOverlay')).to.equal(true);
+      expect(removeDialog().props().open).to.be.true;
     });
   });
 
   describe('patient removal modal', function () {
     let removeLink;
-    let overlay;
+    let dialog;
 
     beforeEach(() => {
       wrapper.find('button#patients-view-toggle').simulate('click');
-      overlay = () => wrapper.find('.ModalOverlay');
+      dialog = () => wrapper.find(Dialog);
 
       removeLink = wrapper.find('button[aria-label="Remove"]').last();
       removeLink.simulate('click');
     });
 
     it('should close the modal when the background overlay is clicked', function () {
-      const overlayBackdrop = wrapper.find('.ModalOverlay-target');
+      const overlayBackdrop = wrapper.find('.MuiBackdrop-root');
 
-      expect(overlay().is('.ModalOverlay--show')).to.be.true;
+      expect(dialog().props().open).to.be.true;
       overlayBackdrop.simulate('click');
 
-      expect(overlay().is('.ModalOverlay--show')).to.be.false;
+      expect(dialog().props().open).to.be.false;
     });
 
     it('should close the modal when the cancel link is clicked', function () {
-      const cancelButton = overlay().find('.btn-secondary');
+      const cancelButton = wrapper.find('Button#patientRemoveCancel');
 
-      expect(overlay().is('.ModalOverlay--show')).to.be.true;
-      cancelButton.simulate('click')
+      expect(dialog().props().open).to.be.true;
+      cancelButton.simulate('click');
 
-      expect(overlay().is('.ModalOverlay--show')).to.be.false;
+      expect(dialog().props().open).to.be.false;
     });
 
     it('should remove the patient when the remove button is clicked', function () {
-      const removeButton = overlay().first().find('.btn-danger');
+      const removeButton = wrapper.find('Button#patientRemoveConfirm');
 
-      expect(overlay().is('.ModalOverlay--show')).to.be.true;
+      expect(dialog().props().open).to.be.true;
 
       // Ensure that onRemovePatient is called with the proper userid
       removeButton.simulate('click')
@@ -260,15 +257,15 @@ describe('PeopleTable', () => {
       expect(proxy).to.be.a('function');
     });
 
-    it('should set the modal and currentRowIndex state appropriately when called', function () {
+    it('should set the showModalOverlay and selectedPatient state appropriately when called', function () {
       const state = key => wrapper.instance().getWrappedInstance().state[key];
       expect(state('showModalOverlay')).to.be.false;
-      expect(state('dialog')).to.equal('');
+      expect(state('selectedPatient')).to.equal(null);
 
       proxy();
 
       expect(state('showModalOverlay')).to.be.true;
-      expect(state('dialog')).to.be.an('object');
+      expect(state('selectedPatient')).to.be.an('object');
     });
   })
 
