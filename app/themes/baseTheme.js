@@ -23,19 +23,22 @@ export const colors = {
   text: {
     link: colorPalette.primary.purpleBright,
     primary: colorPalette.primary.blueGreyDark,
-    primaryDisabled: colorPalette.primary.blueGreyLight,
+    primaryDisabled: '#A5ADBA',
     primarySubdued: colorPalette.primary.blueGreyMedium,
   },
   border: {
-    webkitFocus: '#005fcc',
+    focus: '#4C9AFF',
     default: colorPalette.extended.grays[1],
     divider: colorPalette.extended.grays[0],
+    dividerDark: colorPalette.extended.grays[1],
     modal: colorPalette.extended.grays[0],
+    inputLight: '#DFE2E6',
+    inputDark: '#A6B1BB',
   },
   feedback: {
     info: colorPalette.primary.purpleMedium,
-    warning: '#FFAB00',
-    danger: '#DE350C',
+    warning: '#FFC400',
+    danger: '#EC4C47',
     success: '#47B881',
   },
   stat: {
@@ -46,13 +49,20 @@ export const colors = {
     pending: ['#E2FFEE', '#006644'],
     declined: ['#FFECEE', '#DD2C00'],
   },
+  tab: {
+    primary: '#66788A',
+    disabled: '#A5ADBA',
+    selected: colorPalette.primary.purpleMedium,
+  },
 };
 
 export const borders = {
   default: `1px solid ${colors.border.default}`,
-  input: `1px solid ${colors.border.default}`,
+  input: `1px solid ${colors.border.inputLight}`,
+  inputDark: `1px solid ${colors.border.inputDark}`,
   modal: `1px solid ${colors.border.modal}`,
   divider: `2px solid ${colors.border.divider}`,
+  dividerDark: `2px solid ${colors.border.dividerDark}`,
 };
 
 export const fonts = {
