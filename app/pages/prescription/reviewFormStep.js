@@ -558,9 +558,9 @@ export const PrescriptionReview = translate()(props => {
   );
 });
 
-const reviewFormStep = (schema, pump, handlers, values, isEditable) => ({
-  label: t('Review and Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
-  completeText: t('Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
+const reviewFormStep = (schema, pump, handlers, values, isEditable, isPrescriber) => ({
+  label: t('Review and {{action}} Prescription', { action: isPrescriber ? 'Send' : 'Save' }),
+  completeText: t('{{action}} Prescription', { action: isPrescriber ? 'Send Final' : 'Save Pending' }),
   disableComplete: !fieldsAreValid(flattenDeep(stepValidationFields), schema, values),
   panelContent: <PrescriptionReview pump={pump} handlers={handlers} isEditable={isEditable} />
 });

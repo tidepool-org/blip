@@ -275,6 +275,9 @@ export const PrescriptionForm = props => {
   const prescriptionState = get(prescription, 'state', 'draft');
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
   const isEditable = includes(['draft', 'pending'], prescriptionState);
+  const clinics = useSelector((state) => state.blip.clinics);
+  const clinic = get(clinics, selectedClinicId);
+  const isPrescriber = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'PRESCRIBER');
 
   const {
     creatingPrescription,
@@ -500,7 +503,7 @@ export const PrescriptionForm = props => {
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
   const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
   const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
-  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable);
+  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber);
 
   const stepProps = step => ({
     ...step,
