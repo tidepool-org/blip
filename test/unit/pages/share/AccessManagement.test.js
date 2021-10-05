@@ -324,10 +324,10 @@ describe('AccessManagement', () => {
 
       // Click remove account button to open confirmation modal
       expect(popoverActionButtons.at(1).text()).contains('Remove account');
-      expect(wrapper.find(Dialog).props().open).to.be.false;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();
-      expect(wrapper.find(Dialog).props().open).to.be.true;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
 
       // Confirm delete in modal
       const deleteButton = wrapper.find('button.remove-account-access');
@@ -363,9 +363,17 @@ describe('AccessManagement', () => {
 
       const actions = () => store.getActions();
 
-      // Click resent invitation button
+      // Click resent invitation button to open confirmation modal
       expect(popoverActionButtons.at(0).text()).contains('Resend invitation');
+      expect(wrapper.find(Dialog).at(1).props().open).to.be.false;
       popoverActionButtons.at(0).props().onClick();
+      wrapper.update()
+      expect(wrapper.find(Dialog).at(1).props().open).to.be.true;
+
+      // Confirm resend invitation in modal
+      const resendButton = wrapper.find('button.resend-invitation');
+      expect(resendButton).to.have.length(1);
+      resendButton.props().onClick();
       expect(actions()[0]).to.eql(expectedActions[0]);
 
       sinon.assert.calledWith(
@@ -375,10 +383,10 @@ describe('AccessManagement', () => {
 
       // Click revoke invitation button to open confirmation modal
       expect(popoverActionButtons.at(1).text()).contains('Revoke invitation');
-      expect(wrapper.find(Dialog).props().open).to.be.false;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();
-      expect(wrapper.find(Dialog).props().open).to.be.true;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
 
       // Confirm delete in modal
       const deleteButton = wrapper.find('button.remove-account-access');
@@ -428,10 +436,10 @@ describe('AccessManagement', () => {
 
       // Click remove account button to open confirmation modal
       expect(popoverActionButtons.at(1).text()).contains('Remove clinic');
-      expect(wrapper.find(Dialog).props().open).to.be.false;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();
-      expect(wrapper.find(Dialog).props().open).to.be.true;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
 
       // Confirm delete in modal
       const deleteButton = wrapper.find('button.remove-account-access');
@@ -467,10 +475,10 @@ describe('AccessManagement', () => {
 
       // Click revoke invitation button to open confirmation modal
       expect(popoverActionButtons.at(0).text()).contains('Revoke invitation');
-      expect(wrapper.find(Dialog).props().open).to.be.false;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(0).props().onClick();
       wrapper.update();
-      expect(wrapper.find(Dialog).props().open).to.be.true;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
 
       // Confirm delete in modal
       const deleteButton = wrapper.find('button.remove-account-access');

@@ -17,6 +17,7 @@ import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import sundial from 'sundial';
 
 import {
   Title,
@@ -50,6 +51,7 @@ export const AccessManagement = (props) => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
   const [sharedAccounts, setSharedAccounts] = useState([]);
   const [pendingClinicInvites, setPendingClinicInvites] = useState([]);
   const [selectedSharedAccount, setSelectedSharedAccount] = useState(null);
@@ -69,6 +71,7 @@ export const AccessManagement = (props) => {
   const membersOfTargetCareTeam = useSelector((state) => state.blip.membersOfTargetCareTeam);
   const pendingSentInvites = useSelector((state) => state.blip.pendingSentInvites);
   const permissionsOfMembersInTargetCareTeam = useSelector((state) => state.blip.permissionsOfMembersInTargetCareTeam);
+  const timePrefs = useSelector((state) => state.timePrefs);
 
   const {
     cancellingSentInvite,
@@ -248,6 +251,7 @@ export const AccessManagement = (props) => {
         status: invite.status,
         type: invite.type,
         uploadPermission: !!get(invite, ['context', 'upload']),
+        created: invite.created,
       }))),
       ...(map(clinicInvites, invite => ({
         id: invite.clinicId,
@@ -454,9 +458,9 @@ export const AccessManagement = (props) => {
         iconPosition: 'left',
         id: `resendInvite-${member.inviteId}`,
         onClick: _popupState => {
-          setPopupState(_popupState);
+          _popupState.close();
           setSelectedSharedAccount(member);
-          handleResendInvite(member);
+          setShowResendInviteDialog(true);
         },
         processing: resendingInvite.inProgress,
         text: t('Resend invitation'),
@@ -532,6 +536,15 @@ export const AccessManagement = (props) => {
       align: 'left',
     },
   ];
+
+  const formattedInviteDate =
+    selectedSharedAccount?.created &&
+    sundial.formatInTimezone(
+      selectedSharedAccount?.created,
+      timePrefs?.timezoneName ||
+        new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      'MM/DD/YYYY [at] h:mm a'
+    );
 
   return (
     <>
@@ -620,6 +633,42 @@ export const AccessManagement = (props) => {
             }}
           >
             {deleteDialogContent?.submitText}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        id="resendInvite"
+        aria-labelledBy="dialog-title"
+        open={showResendInviteDialog}
+        onClose={() => setShowResendInviteDialog(false)}
+      >
+        <DialogTitle onClose={() => setShowResendInviteDialog(false)}>
+          <MediumTitle id="dialog-title">{t('Confirm Resending Invitation')}</MediumTitle>
+        </DialogTitle>
+        <DialogContent>
+          <Body1>
+            {t(
+              'You invited {{inviteName}} to view your data on {{inviteDate}}. Are you sure you want to resend this invitation?',
+              {
+                inviteName: selectedSharedAccount?.name || selectedSharedAccount?.email,
+                inviteDate: formattedInviteDate,
+              }
+            )}
+          </Body1>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="secondary" onClick={() => setShowResendInviteDialog(false)}>
+            {t('Cancel')}
+          </Button>
+          <Button
+            className="resend-invitation"
+            variant="primary"
+            processing={resendingInvite.inProgress}
+            onClick={() => {
+              handleResendInvite(selectedSharedAccount);
+            }}
+          >
+            {t('Resend Invitation')}
           </Button>
         </DialogActions>
       </Dialog>
