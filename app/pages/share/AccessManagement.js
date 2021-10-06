@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -294,7 +294,9 @@ export const AccessManagement = (props) => {
       if (selectedSharedAccount.type === 'careteam_invitation') {
         title = t('Revoke invitation?');
         submitText = t('Revoke Invitation');
-        body = t('Are you sure you want to revoke this share invitation to {{member}}?', { member: selectedSharedAccount.email || selectedSharedAccount.name });
+        body = (<Trans>
+          Are you sure you want to revoke this share invitation to <Text as='span' fontWeight='bold'>{{member: selectedSharedAccount.email || selectedSharedAccount.name }}</Text>?
+        </Trans>)
       }
 
       setDeleteDialogContent({
@@ -647,13 +649,14 @@ export const AccessManagement = (props) => {
         </DialogTitle>
         <DialogContent>
           <Body1>
-            {t(
-              'You invited {{inviteName}} to view your data on {{inviteDate}}. Are you sure you want to resend this invitation?',
-              {
-                inviteName: selectedSharedAccount?.name || selectedSharedAccount?.email,
-                inviteDate: formattedInviteDate,
-              }
-            )}
+            <Trans>
+              <Text>
+                You invited <Text as='span' fontWeight='bold'>{{inviteName: selectedSharedAccount?.name || selectedSharedAccount?.email}}</Text> to view your data on <Text as='span' fontWeight='bold'>{{inviteDate: formattedInviteDate}}</Text>.
+              </Text>
+              <Text>
+                Are you sure you want to resend this invitation?
+              </Text>
+            </Trans>
           </Body1>
         </DialogContent>
         <DialogActions>
