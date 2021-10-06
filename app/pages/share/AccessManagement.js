@@ -447,7 +447,7 @@ export const AccessManagement = (props) => {
     }
 
     if (member.type === 'careteam_invitation') {
-      if (member.role === 'member') items.push({
+      if (member.role === 'member' && member.status !== 'declined') items.push({
         disabled: resendingInvite.inProgress,
         icon: InputIcon,
         iconLabel: t('Resend invitation'),
