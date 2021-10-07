@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
 import has from 'lodash/has';
+import includes from 'lodash/includes';
 import map from 'lodash/map';
 import values from 'lodash/values';
 import DashboardRoundedIcon from '@material-ui/icons/DashboardRounded';
@@ -31,6 +33,8 @@ import { borders, colors, space } from '../../themes/baseTheme';
 export const NavigationMenu = props => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
+  const isClinicProfileFormPath = includes(['/clinic-details', '/clinician-details'], pathname);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
@@ -77,7 +81,9 @@ export const NavigationMenu = props => {
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
 
-    if (userClinics.length) {
+    if (isClinicProfileFormPath) {
+      setMenuOptions([logoutOption]);
+    } else if (userClinics.length) {
       const hidePersonalWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
 
       const options = [
