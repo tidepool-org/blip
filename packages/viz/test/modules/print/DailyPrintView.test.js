@@ -17,7 +17,7 @@
 
 import _ from 'lodash';
 import moment from 'moment-timezone';
-import sinon from 'sinon';
+import * as sinon from 'sinon';
 import { expect } from 'chai';
 
 import DailyPrintView from '../../../src/modules/print/DailyPrintView';
@@ -637,8 +637,13 @@ describe('DailyPrintView', () => {
 
   describe('renderFoodCarbs', () => {
     it('should graph food carb events', () => {
-      Renderer.renderFoodCarbs(Renderer.chartsByDate[sampleDate]);
+      const param = {
+        ...Renderer.chartsByDate[sampleDate],
+        xScale: sinon.stub().returns(1),
+      };
+      Renderer.renderFoodCarbs(param);
 
+      sinon.assert.calledOnce(param.xScale);
       sinon.assert.calledOnce(Renderer.doc.circle);
       sinon.assert.calledWith(Renderer.doc.text, 65);
     });

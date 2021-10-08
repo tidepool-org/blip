@@ -197,13 +197,13 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
   const boluses = _.reduce(
     selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'bolus'], []))), []
   );
-  _.each(boluses, (bolus) => {
+  _.forEach(boluses, (bolus) => {
     // eslint-disable-next-line no-param-reassign
     bolus.threeHrBin = Math.floor(moment.utc(bolus.utc).tz(selected.timezone).hours() / 3) * 3;
   });
   selected.bolusRange = extent(boluses, (d) => (d.normal + (d.extended || 0)));
 
-  _.each(selectedDataByDate, (dateObj) => {
+  _.forEach(selectedDataByDate, (dateObj) => {
     const { data: { bolus: bolusesForDate } } = dateObj;
     selectedDataByDate[dateObj.date].data.bolus = _.map(bolusesForDate, (bolus) => {
       if (bolus.wizard) {
@@ -226,7 +226,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
   // don't sit at the very top of the basal rendering area and bump into boluses
   selected.basalRange = [0, rawBasalRange[1] * 1.1];
 
-  _.each(selected.dataByDate, (dateData) => {
+  _.forEach(selected.dataByDate, (dateData) => {
     const { bounds, data: { basal: basals } } = dateData;
     for (let i = 0; i < basals.length; ++i) {
       const basal = basals[i];

@@ -266,7 +266,7 @@ class DailyPrintView extends PrintView {
         dateChart.topEdge + notesEtc - this.cbgRadius,
       ]);
     dateChart.bolusScale = scaleLinear() // eslint-disable-line no-param-reassign
-      .domain([0, this.data.bolusRange[1]])
+      .domain([0, this.data.bolusRange[1] ?? 0])
       .range([
         dateChart.topEdge + notesEtc + bgEtcChart,
         dateChart.topEdge + notesEtc + (bgEtcChart / 3),
@@ -796,6 +796,10 @@ class DailyPrintView extends PrintView {
       if (carbs) {
         const carbsX = xScale(foodEvent.utc);
         const carbsY = bolusScale(0) - this.carbRadius - circleOffset;
+        if (Number.isNaN(carbsX) || Number.isNaN(carbsY)) {
+          console.error("renderFoodCarbs", { carbsX, carbsY, carbs, foodEvent });
+          return;
+        }
         this.doc.circle(carbsX, carbsY, this.carbRadius)
           .fill(this.colors.carbs);
         this.doc.font(this.font)
