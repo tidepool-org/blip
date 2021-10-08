@@ -37,10 +37,12 @@ describe('NavigationMenu', () => {
   };
 
   before(() => {
+    NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
     mount = createMount();
   });
 
   after(() => {
+    NavigationMenu.__ResetDependency__('useLocation');
     mount.cleanUp();
   });
 
@@ -425,6 +427,48 @@ describe('NavigationMenu', () => {
           },
         ]);
       });
+    });
+  });
+
+  context('clinician profile form page', () => {
+    before(() => {
+      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinician-details' }));
+      mount = createMount();
+    });
+
+    beforeEach(() => {
+      wrapper = mountWrapper(mockStore(defaultUserState));
+    });
+
+    it('should only show the logout action', () => {
+      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
+      expect(menuTrigger).to.have.lengthOf(1);
+      expect(menuTrigger.text()).to.equal('Example User');
+
+      const menuOptions = wrapper.find('Button.navigation-menu-option');
+      expect(menuOptions).to.have.lengthOf(1);
+      expect(menuOptions.at(0).text()).to.equal('Logout');
+    });
+  });
+
+  context('clinic profile form page', () => {
+    before(() => {
+      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details' }));
+      mount = createMount();
+    });
+
+    beforeEach(() => {
+      wrapper = mountWrapper(mockStore(clinicWorkflowState));
+    });
+
+    it('should only show the logout action', () => {
+      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
+      expect(menuTrigger).to.have.lengthOf(1);
+      expect(menuTrigger.text()).to.equal('Example Clinic');
+
+      const menuOptions = wrapper.find('Button.navigation-menu-option');
+      expect(menuOptions).to.have.lengthOf(1);
+      expect(menuOptions.at(0).text()).to.equal('Logout');
     });
   });
 });

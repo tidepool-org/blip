@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.22.0-web-1202-tir-percentage-text.1":
-  version "1.22.0-web-1202-tir-percentage-text.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.22.0-web-1202-tir-percentage-text.1.tgz#3a2f04f173ad342b786b86e71265eb10749fea84"
-  integrity sha512-kerM+MSersNOr5PuuNvgSfeCfTCUbbXu3JMpNVLYUk/qkcug4dimM6Z026DaIfHzhk1+XTM1mCBWKzyGk3LmQA==
+"@tidepool/viz@1.22.0-web-698-basics-std-dev.1":
+  version "1.22.0-web-698-basics-std-dev.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.22.0-web-698-basics-std-dev.1.tgz#9d67c4f4bdc6e70e134dea4e5078862d573e8f7e"
+  integrity sha512-3qfldQ+tv488z0ADDQTsvS89Nk14b3PF8W4RLwQnN/fOh7BuqWzQ47wJALiowJI4YeNQnFfyAddhV4fR+9jhqg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
