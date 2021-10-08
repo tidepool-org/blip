@@ -37,7 +37,6 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 
 import { TypeTeamMemberRole } from "../../models/team";
-import sendMetrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { useTeam, Team, TeamMember } from "../../lib/team";
 import { errorTextFromException, setPageTitle } from "../../lib/utils";
@@ -103,7 +102,6 @@ function TeamsPage(): JSX.Element | null {
 
     const editedTeam = await getEditedTeamInfo();
     setTeamToEdit(null);
-    sendMetrics("edit-medical-team", { cancel: editedTeam === null, mode: team === null ? "create" : "edit" });
 
     if (editedTeam === null) {
       // Edit cancelled

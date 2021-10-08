@@ -165,6 +165,11 @@ export function setPageTitle(prefix?: string, metricsTitle?: string): void {
   const title = prefix ? `${prefix} | ${t("brand-name")}` : t("brand-name");
   if (document.title !== title) {
     document.title = title;
-    sendMetrics("setDocumentTitle", metricsTitle ?? title);
+    sendMetrics("metrics", "setDocumentTitle", metricsTitle ?? title);
   }
+}
+
+export function numberPrecision(value: number, precision = 1): number {
+  const v = 10 ** precision;
+  return Math.round(value * v) / v;
 }

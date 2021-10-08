@@ -45,6 +45,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Link from "@material-ui/core/Link";
 import TextField from "@material-ui/core/TextField";
 
+import sendMetrics from "../../../lib/metrics";
 import { useTeam, Team, getDisplayTeamCode, REGEX_TEAM_CODE_DISPLAY } from "../../../lib/team";
 import diabeloopUrl from "../../../lib/diabeloop-url";
 import { makeButtonsStyles } from "../../../components/theme";
@@ -233,7 +234,7 @@ export function ConfirmTeam(props: ConfirmTeamProps): JSX.Element {
 
   const privacyPolicy = t("privacy-policy");
   const linkPrivacyPolicy = (
-    <Link aria-label={privacyPolicy} href={diabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer">
+    <Link aria-label={privacyPolicy} href={diabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer" onClick={() => sendMetrics("pdf_document", "view_document", "privacy_policy")}>
       {privacyPolicy}
     </Link>
   );

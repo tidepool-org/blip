@@ -38,7 +38,7 @@ import { UserInvitationStatus } from "../../../models/generic";
 import { UserRoles } from "../../../models/shoreline";
 import { useAuth } from "../../../lib/auth";
 import sendMetrics from "../../../lib/metrics";
-import { errorTextFromException, setPageTitle } from "../../../lib/utils";
+import { setPageTitle } from "../../../lib/utils";
 import { useNotification, NotificationType } from "../../../lib/notifications";
 import { ShareUser, addDirectShare, getDirectShares, removeDirectShare } from "../../../lib/share";
 import { useAlert } from "../../../components/utils/snackbar";
@@ -82,7 +82,7 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
       try {
         await addDirectShare(session, email);
         alert.success(t("alert-invitation-sent-success"));
-        sendMetrics("patient-add-caregiver", { added: true });
+        sendMetrics("invitation", "send_invitation", "caregiver");
         // Refresh the notifications list
         notificationHook.update();
         // And refresh the list
@@ -90,10 +90,7 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
       } catch (reason) {
         log.error(reason);
         alert.error(t("alert-invitation-caregiver-failed"));
-        sendMetrics("patient-add-caregiver", { added: true, failed: errorTextFromException(reason) });
       }
-    } else {
-      sendMetrics("patient-add-caregiver", { added: false });
     }
   };
 
@@ -115,15 +112,11 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
           await removeDirectShare(session, us.user.userid);
         }
         alert.success(t("modal-patient-remove-caregiver-success"));
-        sendMetrics("patient-remove-caregiver", { removed: true, caregiver: us.user.userid });
         setCaregivers(null); // Refresh the list
       } catch (reason) {
         log.error(reason);
         alert.error(t("modal-patient-remove-caregiver-failure"));
-        sendMetrics("patient-remove-caregiver", { removed: true, caregiver: us.user.userid, failed: errorTextFromException(reason) });
       }
-    } else {
-      sendMetrics("patient-remove-caregiver", { removed: false, caregiver: us.user.userid });
     }
   };
 

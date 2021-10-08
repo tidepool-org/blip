@@ -172,12 +172,12 @@ function PatientCard(props: PatientElementCardProps): JSX.Element {
 
   const onClickFlag = (e: React.MouseEvent): void => {
     e.stopPropagation();
-    sendMetrics("flag-patient", { flagged: !isFlagged });
     onFlagPatient(userId);
+    sendMetrics("patient_selection", "flag_patient", isFlagged ? "un-flagged" : "flagged");
   };
   const handleShowPatientData = (/* e: React.MouseEvent */): void => {
-    sendMetrics("show-patient-data", { flagged: isFlagged });
     onClickPatient(patient);
+    sendMetrics("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
   };
 
   return (

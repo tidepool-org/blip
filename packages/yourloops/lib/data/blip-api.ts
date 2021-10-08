@@ -53,7 +53,7 @@ import {
 class BlipApi {
   private log: Console;
   private authHook: AuthContext;
-  public sendMetrics: (eventName: string, properties?: unknown) => void;
+  public sendMetrics: typeof sendMetrics;
 
   constructor(authHook: AuthContext) {
     this.authHook = authHook;
@@ -82,12 +82,12 @@ class BlipApi {
     this.log.debug("getPatientData", { userId: patient.userid, options });
     const session = this.authHook.session();
     if (session !== null) {
-      sendMetrics.startTimer("fetch-patient-data");
+      sendMetrics.startTimer("load_data");
       return apiGetPatientData(session, patient, options).then((r) => {
-        sendMetrics.endTimer("fetch-patient-data", "OK");
+        sendMetrics.endTimer("load_data");
         return Promise.resolve(r);
       }).catch((r) => {
-        sendMetrics.endTimer("fetch-patient-data", "failed");
+        sendMetrics.endTimer("load_data");
         return Promise.reject(r);
       });
     }

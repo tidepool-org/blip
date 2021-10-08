@@ -40,6 +40,7 @@ import Button from "@material-ui/core/Button";
 
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
 import appConfig from "../../lib/config";
+import sendMetrics from "../../lib/metrics";
 import SignUpFormProps from "./signup-form-props";
 import { useAuth } from "../../lib/auth";
 import { getCurrentLang } from "../../lib/language";
@@ -149,6 +150,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
         state.formValues.preferencesLanguage = getCurrentLang();
         await auth.signup(state.formValues);
         handleNext();
+        sendMetrics("registration", "complete_signup", state.formValues.accountRole);
       } catch (reason: unknown) {
         const errorMessage = errorTextFromException(reason);
         alert.error(t(errorMessage));

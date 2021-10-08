@@ -46,6 +46,7 @@ import TextField from "@material-ui/core/TextField";
 import brandingLogo from "branding/logo.png";
 
 import appConfig from "../../lib/config";
+import sendMetrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { errorTextFromException } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
@@ -156,6 +157,7 @@ function Login(): JSX.Element {
       }
 
       alert.error(translatedErrorMessage as string, action);
+      sendMetrics("error", "login", errorMessage);
     }
   };
 
@@ -228,12 +230,12 @@ function Login(): JSX.Element {
                   helperText={helperTextValue}
                 />
               </form>
-              <Link id="link-password-reset" component={RouterLink} to="/request-password-reset" rel="nofollow">
+              <Link id="link-password-reset" component={RouterLink} to="/request-password-reset" onClick={() => sendMetrics("support", "password_reset")}>
                 {t("forgot-password-question")}
               </Link>
             </CardContent>
             <CardActions className={classes.CardActions}>
-              <Link id="link-signup" component={RouterLink} to="/signup">
+              <Link id="link-signup" component={RouterLink} to="/signup" onClick={() => sendMetrics("registration", "start_signup")}>
                 {t("signup-steppers-create-account")}
               </Link>
               <Button

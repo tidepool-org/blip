@@ -31,7 +31,7 @@ import bows from "bows";
 
 import config from "./config";
 import sendMetrics from "./metrics";
-import { zendeskAllowCookies } from "./zendesk";
+import { zendeskAllowCookies, zendeskTrackWidgetOpen } from "./zendesk";
 
 const log = bows("Cookies");
 
@@ -39,9 +39,9 @@ function acceptCookiesListener(choices: CookiesComplete): void {
   log.info("User choices:", choices);
 
   if (choices.matomo === true) {
-    sendMetrics("metrics", { enabled: true });
+    sendMetrics("metrics", "enabled");
   } else {
-    sendMetrics("metrics", { enabled: false });
+    sendMetrics("metrics", "disabled");
   }
   if (choices.stonly === true && typeof window.loadStonlyWidget === "function") {
     window.loadStonlyWidget();
@@ -51,18 +51,24 @@ function acceptCookiesListener(choices: CookiesComplete): void {
   } else {
     zendeskAllowCookies(false);
   }
+
+  if (choices.matomo === true && choices.zendesk === true) {
+    zendeskTrackWidgetOpen();
+  }
 }
 
 function initCookiesConcentListener(): void {
   // eslint-disable-next-line no-underscore-dangle
   const axeptioCb = window._axcb;
-  log.debug("Waiting for acceptation", axeptioCb);
+  log.debug("Waiting for acceptation");
   if (config.COOKIE_BANNER_CLIENT_ID === "disabled") {
     acceptCookiesListener({ matomo: true, stonly: true, zendesk: true });
   } else if (_.isObject(axeptioCb) && _.isFunction(_.get(axeptioCb, "push"))) {
     axeptioCb.push((axeptio: AxeptIO) => {
       axeptio.on("cookies:complete", acceptCookiesListener);
     });
+  } else {
+    log.error("axept.io configured, but unavailable");
   }
 }
 

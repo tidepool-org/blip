@@ -95,17 +95,20 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
   const containerClassName = props.atBottom ? `${classes.container} ${classes.containerAtBottom}` : classes.container;
 
   const handleShowCookieBanner = () => {
-    sendMetrics("show-cookie-banner");
     if (typeof window.openAxeptioCookies === "function") {
       window.openAxeptioCookies();
     }
+  };
+
+  const metricsPdfDocument = (title: string) => {
+    return () => sendMetrics("pdf_document", "view_document", title);
   };
 
   return (
     <Container id="footer-links-container" className={containerClassName} maxWidth="sm">
       <Grid id="footer-links" container>
         <Grid item xs={4} className={classes.rightLink}>
-          <Link id="footer-link-url-privacy-policy" href={diabeloopUrls.getPrivacyPolicyUrL(i18n.language)} rel="nofollow">{t("privacy-policy")}</Link>
+          <Link id="footer-link-url-privacy-policy" target="_blank" href={diabeloopUrls.getPrivacyPolicyUrL(i18n.language)} rel="nofollow" onClick={metricsPdfDocument("privacy_policy")}>{t("privacy-policy")}</Link>
         </Grid>
         <Grid item xs={4} className={classes.centeredLink}>
           <Typography id="footer-link-app-name" className={classes.appVersion}>
@@ -113,17 +116,17 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
           </Typography>
         </Grid>
         <Grid item xs={4} className={classes.leftLink}>
-          <Link id="footer-link-url-support" href={diabeloopUrls.SupportUrl}>{t("footer-link-url-support")}</Link>
+          <Link id="footer-link-url-support" target="_blank" href={diabeloopUrls.SupportUrl} rel="nofollow" onClick={() => sendMetrics("support", "click_url_support")}>{t("footer-link-url-support")}</Link>
         </Grid>
         <Grid item xs={4} className={classes.rightLink}>
-          <Link id="footer-link-url-terms" href={diabeloopUrls.getTermsUrL(i18n.language)} rel="nofollow">{t("terms-of-use")}</Link>
+          <Link id="footer-link-url-terms" target="_blank" href={diabeloopUrls.getTermsUrL(i18n.language)} rel="nofollow" onClick={metricsPdfDocument("terms")}>{t("terms-of-use")}</Link>
         </Grid>
         <Grid item xs={4} className={classes.centeredLink}>
           {/* TODO: Add tooltip + aria label */}
           <Button id="footer-link-cookies" color="primary" variant="text" size="small" className={classes.cookiesButton} onClick={handleShowCookieBanner}>{t("cookies")}</Button>
         </Grid>
         <Grid item xs={4} className={classes.leftLink}>
-          <Link id="footer-link-url-intended-use" href={diabeloopUrls.getIntendedUseUrL(i18n.language)} rel="nofollow">{t("intended-use")}</Link>
+          <Link id="footer-link-url-intended-use" target="_blank" href={diabeloopUrls.getIntendedUseUrL(i18n.language)} rel="nofollow" onClick={metricsPdfDocument("intended_use")}>{t("intended-use")}</Link>
         </Grid>
       </Grid>
     </Container>

@@ -183,7 +183,6 @@ class DailyChart extends React.Component {
     if (windowHeight !== height || width !== windowWidth) {
       const needRecreate = loading || chart?.isInTransition() === true;
       this.setState({ windowHeight: height, windowWidth: width, needRecreate }, () => {
-        this.props.trackMetric('daily', { event: 'resize', width, height });
         if (!needRecreate) {
           this.reCreateChart();
         } else {
@@ -420,9 +419,6 @@ class Daily extends React.Component {
     if (e) {
       e.preventDefault();
     }
-
-    const changedTo = bgSource === 'cbg' ? 'CGM' : 'BGM';
-    this.props.trackMetric(`Daily Click to ${changedTo}`);
 
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.daily.bgSource = bgSource;

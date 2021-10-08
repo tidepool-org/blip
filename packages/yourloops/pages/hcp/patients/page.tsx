@@ -59,6 +59,8 @@ const log = bows("PatientListPage");
 
 // eslint-disable-next-line no-magic-numbers
 const throttledMetrics = _.throttle(sendMetrics, 60000); // No more than one per minute
+// eslint-disable-next-line no-magic-numbers
+const throttleSearchMetrics = _.throttle(sendMetrics, 10000, { trailing: true });
 
 /**
  * Compare two patient for sorting the patient table
@@ -128,7 +130,8 @@ function updatePatientList(
     patients = allPatients.filter((patient) => teamHook.isOnlyPendingInvitation(patient));
   }
 
-  if (filter.length > 0) {
+  const searchByName = filter.length > 0;
+  if (searchByName) {
     const searchText = filter.toLocaleLowerCase();
     patients = patients.filter((patient: TeamUser): boolean => {
       switch (filterType) {
@@ -189,6 +192,10 @@ function updatePatientList(
     return order === SortDirection.asc ? c : -c;
   });
 
+  if (searchByName) {
+    throttleSearchMetrics("trackSiteSearch", "patient_name", "hcp", patients.length);
+  }
+
   return patients;
 }
 
@@ -227,11 +234,12 @@ function PatientListPage(): JSX.Element {
   };
 
   const handleSelectPatient = (user: TeamUser): void => {
-    sendMetrics("hcp-select-patient");
+    sendMetrics("patient_selection", "select_patient", flagged.includes(user.userid) ? "flagged" : "not_flagged");
     historyHook.push(`/professional/patient/${user.userid}`);
   };
 
   const handleFlagPatient = async (userId: string): Promise<void> => {
+    sendMetrics("patient_selection", "flag_patient", flagged.includes(userId) ? "flagged" : "un-flagged");
     await authHook.flagPatient(userId);
   };
 
@@ -252,7 +260,7 @@ function PatientListPage(): JSX.Element {
         const team = teamHook.getTeam(teamId);
         await teamHook.invitePatient(team as Team, email);
         alert.success(t("alert-invitation-sent-success"));
-        sendMetrics("hcp-add-patient", { added: true });
+        sendMetrics("invitation", "send_invitation", "patient");
         setTeamCodeToDisplay(team);
       } catch (reason) {
         log.error(reason);
@@ -260,15 +268,12 @@ function PatientListPage(): JSX.Element {
         // - "alert-invitation-patient-failed-already-in-team"
         // - "alert-invitation-patient-failed-already-invited"
         alert.error(t("alert-invitation-patient-failed"));
-        sendMetrics("hcp-add-patient", { added: true, failed: errorTextFromException(reason) });
       }
-    } else {
-      sendMetrics("hcp-add-patient", { added: false });
     }
   };
 
   const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
-    sendMetrics("hcp-sort-patient", { orderBy, order });
+    sendMetrics("patient_selection", "sort_patients", orderBy, order === SortDirection.asc ? 1 : -1);
     setSortFlaggedFirst(false);
     setOrder(order);
     setOrderBy(orderBy);
@@ -276,14 +281,18 @@ function PatientListPage(): JSX.Element {
 
   const handleFilter = (filter: string): void => {
     log.info("Filter patients name", filter);
-    throttledMetrics("hcp-filter-patient", { type: "by-name" });
+    throttledMetrics("patient_selection", "search_patient", "by-name");
     setFilter(filter);
   };
 
   const handleFilterType = (filterType: FilterType | string): void => {
     log.info("Filter patients with", filterType);
-    throttledMetrics("hcp-filter-patient", { type: filterType });
     setFilterType(filterType);
+    if (!(filterType in FilterType)) {
+      log.info("Replace", filterType, "with team"); // TODO Remove me if it works
+      filterType = "team";
+    }
+    sendMetrics("patient_selection", "filter_patient", filterType);
   };
 
   const handleCloseTeamCodeDialog = (): void => {

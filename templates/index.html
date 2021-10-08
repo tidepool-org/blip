@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Diabeloop</title>
+  <title>YourLoops</title>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -37,6 +37,8 @@
       p.appendChild(document.createTextNode("Try out Google Chrome instead?"));
       divApp.appendChild(p);
     };
+    // To measure loading perf:
+    window.startLoadingTime = Date.now();
   </script>
   <div id="app">
     <p class="loading">Loading app...</p>

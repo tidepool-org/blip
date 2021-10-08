@@ -93,8 +93,6 @@ function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
     const isConfirmed = await getConfirmation();
     setTeamToLeave(null); // Hide the dialog
 
-    sendMetrics("leave-team", { isConfirmed, teamId: team.id });
-
     if (isConfirmed) {
       try {
         await teamHook.leaveTeam(team);
@@ -119,7 +117,6 @@ function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
     };
 
     const teamId = await getTeamId();
-    sendMetrics("add-team", { teamId });
     setTeamToAdd(null); // Close the dialog
 
     if (teamId === null) {
@@ -130,6 +127,7 @@ function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
       await teamHook.joinTeam(teamId);
       alert.success(t("modal-patient-add-team-success"));
       setTimeout(() => teamHook.refresh(true), 10);
+      sendMetrics("invitation", "add_care_team");
     } catch (reason: unknown) {
       log.error("handleShowAddTeamDialog", reason);
       const errorMessage = errorTextFromException(reason);

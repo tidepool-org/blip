@@ -150,15 +150,26 @@ class TrendsSubNav extends React.Component {
     );
   };
 
-  renderDomainLink = (domain) => {
+  renderDomainLink = (/** @type {string} */ domain) => {
     var domainLinkClass = cx({
       'btn btn-chart-control': true,
       'active': domain === this.extentSizeToDomain(this.props.extentSize)
     });
 
+    const clickButton = () => {
+      this.props.domainClickHandlers[domain]();
+    };
+
     return (
-      <button className={domainLinkClass} key={domain}
-        onClick={this.props.domainClickHandlers[domain]}>{this.renderDomain(domain)}</button>
+      <button
+        id={`button-trends-period-${domain.replace(/\s/g, '')}`}
+        className={domainLinkClass}
+        key={domain}
+        type="button"
+        onClick={clickButton}>
+
+        {this.renderDomain(domain)}
+      </button>
     );
   };
 

@@ -33,10 +33,9 @@ import { APIErrorResponse } from "../../models/error";
 import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../models/api";
 
-import { errorFromHttpStatus, errorTextFromException } from "../utils";
+import { errorFromHttpStatus } from "../utils";
 import appConfig from "../config";
 import { t } from "../language";
-import sendMetrics from "../metrics";
 import HttpStatus from "../http-status-codes";
 
 import { Session, UpdateUser } from "./models";
@@ -54,12 +53,10 @@ const failedLoginCounter = new Map<string, number>();
  */
 async function authenticate(username: string, password: string, traceToken: string): Promise<Session> {
   if (!_.isString(username) || _.isEmpty(username)) {
-    sendMetrics("Login", "no-username");
     return Promise.reject(new Error("no-username"));
   }
 
   if (!_.isString(password) || _.isEmpty(password)) {
-    sendMetrics("Login", "no-password");
     return Promise.reject(new Error("no-password"));
   }
 
@@ -107,13 +104,11 @@ async function authenticate(username: string, password: string, traceToken: stri
         reason = "error-invalid-credentials";
       }
 
-      sendMetrics("Login", reason);
       return Promise.reject(new Error(reason));
     }
 
     const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
     if (sessionToken === null) {
-      sendMetrics("Login", "missing-response-token");
       return Promise.reject(new Error("error-http-40x"));
     }
 
@@ -124,11 +119,8 @@ async function authenticate(username: string, password: string, traceToken: stri
     // We may miss some case, but it's probably good enough:
     failedLoginCounter.clear();
 
-    sendMetrics("Login", "success");
-
     return { sessionToken, traceToken, user };
   } catch (reason) {
-    sendMetrics("Login", errorTextFromException(reason));
     return Promise.reject(new Error("error-http-500"));
   }
 }
@@ -172,7 +164,6 @@ async function signup(username: string, password: string, role: UserRoles, trace
     if (response.ok) {
       const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
       if (sessionToken === null) {
-        sendMetrics("Signup", "missing-response-token");
         return Promise.reject(new Error("error-http-40x"));
       }
 
@@ -187,10 +178,8 @@ async function signup(username: string, password: string, role: UserRoles, trace
       });
     }
 
-    sendMetrics("Signup", `error-http-${response.status}`);
     return Promise.reject(errorFromHttpStatus(response, log));
   } catch (reason) {
-    sendMetrics("Signup", errorTextFromException(reason));
     return Promise.reject(new Error("error-http-500"));
   }
 }

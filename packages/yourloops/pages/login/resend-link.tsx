@@ -36,7 +36,6 @@ import { useAuth } from "../../lib/auth";
 import { waitTimeout } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
 
-
 interface ButtonResendActivationLinkProps {
   username: string;
   log: Console;
@@ -62,7 +61,7 @@ function ButtonResendActivationLink(props: ButtonResendActivationLinkProps): JSX
   const onClickResendActivationLink = () => {
     setWorkInProgress(true);
     setResendActivationLinkInProgress(true);
-    sendMetrics("resend-signup");
+    sendMetrics("registration", "resend_signup");
 
     let resendResult = false;
 

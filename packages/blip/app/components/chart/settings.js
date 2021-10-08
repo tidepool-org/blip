@@ -26,7 +26,6 @@ import i18next from 'i18next';
 import { Trans } from 'react-i18next';
 import bows from 'bows';
 
-import utils from '../../core/utils';
 import * as viz from 'tidepool-viz';
 
 import Header from './header';
@@ -109,7 +108,8 @@ class Settings extends React.Component {
     const mostRecentSettings = _.last(patientData.grouped.pumpSettings);
     this.log.debug('Settings.renderChart()', mostRecentSettings);
     const handleCopySettings = (success, useClipboardAPI, error ) => {
-      this.props.trackMetric('setting-copy-as-text', { success, useClipboardAPI, error });
+      this.log.info('handleCopySettings', { success, useClipboardAPI, error });
+      this.props.trackMetric('export_data', 'copy_as_text', 'settings');
     };
 
     return (

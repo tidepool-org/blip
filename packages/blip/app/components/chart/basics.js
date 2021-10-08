@@ -147,9 +147,6 @@ class Basics extends React.Component {
       e.preventDefault();
     }
 
-    const bgSourceLabel = bgSource === 'cbg' ? 'CGM' : 'BGM';
-    this.props.trackMetric(`Basics Click to ${bgSourceLabel}`);
-
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.basics.bgSource = bgSource;
     this.props.updateChartPrefs(prefs);

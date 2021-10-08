@@ -74,7 +74,6 @@ const config = {
   ASSETS_URL: stringOption(process.env.ASSETS_URL, 'https://example.com/'),
   BRANDING: stringOption(process.env.BRANDING, 'tidepool'),
   METRICS_SERVICE: stringOption(process.env.METRICS_SERVICE, 'disabled'),
-  METRICS_FORCED: booleanFromText(process.env.METRICS_FORCED, false),
   STONLY_WID: stringOption(process.env.STONLY_WID, 'disabled'),
   MAX_FAILED_LOGIN_ATTEMPTS: integerFromText(process.env.MAX_FAILED_LOGIN_ATTEMPTS, 5),
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: integerFromText(process.env.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT, 10),

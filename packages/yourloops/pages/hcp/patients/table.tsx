@@ -103,12 +103,12 @@ function PatientRow(props: PatientElementProps): JSX.Element {
 
   const onClickFlag = (e: React.MouseEvent): void => {
     e.stopPropagation();
-    sendMetrics("flag-patient", { flagged: !isFlagged });
     onFlagPatient(userId);
+    sendMetrics("patient_selection", "flag_patient", isFlagged ? "un-flagged" : "flagged");
   };
   const onRowClick = (/* e: React.MouseEvent */): void => {
-    sendMetrics("show-patient-data", { flagged: isFlagged });
     onClickPatient(patient);
+    sendMetrics("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
   };
 
   const { tir, tbr, lastUpload } = React.useMemo(() => getMedicalValues(medicalData, trNA), [medicalData, trNA]);

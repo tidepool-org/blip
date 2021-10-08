@@ -36,6 +36,7 @@ import { UserRoles } from "../../models/shoreline";
 import { ITeam, TeamType, TeamMemberRole, TypeTeamMemberRole, ITeamMember } from "../../models/team";
 
 import { errorTextFromException, fixYLP878Settings } from "../utils";
+import sendMetrics from "../metrics";
 import { useAuth, Session } from "../auth";
 import { useNotification, notificationConversion } from "../notifications";
 import { LoadTeams, Team, TeamAPI, TeamContext, TeamMember, TeamProvider, TeamUser } from "./models";
@@ -362,6 +363,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     const newTeam = iTeamToTeam(iTeam, users);
     teams.push(newTeam);
     setTeams(teams);
+    sendMetrics("team_management", "create_care_team", _.isEmpty(team.email) ? "email_not_filled" : "email_filled");
   };
 
   const editTeam = async (team: Team): Promise<void> => {
@@ -383,6 +385,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     } else {
       log.warn('editTeam(): Team not found', team);
     }
+    sendMetrics("team_management", "edit_care_team");
   };
 
   const leaveTeam = async (team: Team): Promise<void> => {
@@ -394,10 +397,13 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     log.info("leaveTeam", { ourselve, team });
     if (ourselve.role === TeamMemberRole.patient) {
       await api.removePatient(session, team.id, ourselve.user.userid);
+      sendMetrics("team_management", "leave_team");
     } else if (ourselve.role === TeamMemberRole.admin && ourselve.status === UserInvitationStatus.accepted && teamHasOnlyOneMember(team)) {
       await api.deleteTeam(session, team.id);
+      sendMetrics("team_management", "delete_team");
     } else {
       await api.leaveTeam(session, team.id);
+      sendMetrics("team_management", "leave_team");
     }
     const idx = teams.findIndex((t: Team) => t.id === team.id);
     if (idx > -1) {
@@ -431,6 +437,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     await api.changeMemberRole(session, member.team.id, member.user.userid, role);
     member.role = role as TeamMemberRole;
     setTeams(teams);
+    sendMetrics("team_management", "manage_admin_permission", role === "admin" ? "grant" : "revoke");
   };
 
   const setPatientMedicalData = (userId: string, medicalData: MedicalData | null): void => {

@@ -37,6 +37,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 
+import sendMetrics from "../../lib/metrics";
 import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
 import { availableCountries } from "../../lib/language";
 import SignUpFormProps from "./signup-form-props";
@@ -143,6 +144,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
       validateCountry()
     ) {
       handleNext();
+      sendMetrics("registration", "create_profile", state.formValues.accountRole);
     }
   };
 

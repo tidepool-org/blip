@@ -90,7 +90,6 @@ function TeamCard(props: TeamCardProps): JSX.Element {
     }
   };
 
-
   if (memberRole === TeamMemberRole.admin && memberStatus === UserInvitationStatus.accepted) {
     const handleClickEdit = async (): Promise<void> => {
       setButtonsDisabled(true);

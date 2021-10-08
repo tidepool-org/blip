@@ -35,9 +35,11 @@ import { INotification, NotificationType } from "./models";
  */
 export function notificationConversion(apin: INotificationAPI): INotification | null {
   let type: NotificationType;
+  let metricsType: "share_data" | "join_team" = "join_team";
   switch (apin.type) {
   case APINotificationType.careTeamInvitation:
     type = NotificationType.directInvitation;
+    metricsType = "share_data";
     break;
   case APINotificationType.medicalTeamPatientInvitation:
     type = NotificationType.careTeamPatientInvitation;
@@ -62,6 +64,7 @@ export function notificationConversion(apin: INotificationAPI): INotification | 
     date: apin.created,
     email: apin.email,
     type,
+    metricsType,
     creator: apin.creator,
     role: apin.role,
     target: apin.target,

@@ -165,7 +165,7 @@ class TidelineHeader extends React.Component {
 
     /** @type {(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void} */
     const handleShowPatientProfile = (/* e */) => {
-      this.props.trackMetric('show-patient-profile', { chart: chartType });
+      this.props.trackMetric('data_visualization', 'display_patient_profile');
       this.setState({ isDialogOpen: true });
     };
 

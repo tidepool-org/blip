@@ -131,6 +131,7 @@ function testHook(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -157,6 +158,7 @@ function testHook(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -183,6 +185,7 @@ function testHook(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,

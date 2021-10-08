@@ -62,7 +62,7 @@ const LOADING_STATE_ERROR = LOADING_STATE_EARLIER_PROCESS + 1;
  * @typedef { import("../core/lib/partial-data-load").DateRange } DateRange
  *
  * @typedef {{ api: API, patient: User, store: Store, prefixURL: string, history: History }} PatientDataProps
- * @typedef {{loadingState: number, tidelineData: TidelineData, epochLocation: number, epochRange: number, patient: User, canPrint: boolean, pdf: object, chartPrefs: object, createMessageDatetime: moment.Moment | null, messageThread: MessageNote[] | null}} PatientDataState
+ * @typedef {{loadingState: number; tidelineData: TidelineData | null; epochLocation: number; epochRange: number; patient: User; canPrint: boolean; pdf: object; chartPrefs: object; createMessageDatetime: string | null; messageThread: MessageNote[] | null; errorMessage?: string | null; msRange: number}} PatientDataState
  */
 
 /**
@@ -75,9 +75,10 @@ class PatientDataPage extends React.Component {
     const { api, patient } = this.props;
 
     this.log = bows('PatientData');
-    /** @type {(eventName: string, properties?: unknown) => void} */
     this.trackMetric = api.sendMetrics;
     this.chartRef = React.createRef();
+    /** @type {DataUtil | null} */
+    this.dataUtil = null;
     this.apiUtils = new ApiUtils(api, patient);
 
     const currentUser = api.whoami;
@@ -149,7 +150,7 @@ class PatientDataPage extends React.Component {
           bgLog: 30,
         },
       },
-      /** @type {TidelineData} */
+      /** @type {TidelineData | null} */
       tidelineData: null,
     };
 
@@ -622,13 +623,13 @@ class PatientDataPage extends React.Component {
 
     this.log.debug({ message, shapedMessage });
     await this.chartRef.current.createMessage(nurseShark.reshapeMessage(message));
-    this.trackMetric('message', { action: 'Created New Message' });
+    this.trackMetric('note', 'create_note');
   }
 
   async handleReplyToMessage(comment) {
     const { api } = this.props;
     const id = await api.replyMessageThread(comment);
-    this.trackMetric('Replied To Message');
+    this.trackMetric('note', 'reply_note');
     return id;
   }
 
@@ -652,7 +653,7 @@ class PatientDataPage extends React.Component {
     const { api } = this.props;
 
     await api.editMessage(message);
-    this.trackMetric('message', { action: 'edited' });
+    this.trackMetric('note', 'edit_note');
 
     if (_.isEmpty(message.parentmessage)) {
       // Daily timeline view only cares for top-level note
@@ -667,27 +668,21 @@ class PatientDataPage extends React.Component {
 
     const messages = await api.getMessageThread(messageThread);
     this.setState({ messageThread: messages });
-    this.trackMetric('message', { action: 'Clicked Message Icon' });
   }
 
   handleShowMessageCreation(/** @type {moment.Moment | Date} */ datetime) {
     const { epochLocation, tidelineData } = this.state;
     this.log.debug('handleShowMessageCreation', { datetime, epochLocation });
     let mDate = datetime;
-    let action = 'Create a message from background';
     if (datetime === null) {
-      action = 'Clicked create a message';
       const timezone = tidelineData.getTimezoneAt(epochLocation);
       mDate = moment.utc(epochLocation).tz(timezone);
     }
     this.setState({ createMessageDatetime : mDate.toISOString() });
-
-    this.trackMetric('message', { action, date: mDate });
   }
 
   closeMessageThread() {
     this.setState({ createMessageDatetime: null, messageThread: null });
-    this.trackMetric('message', { action: 'Closed Message Thread Modal' });
   }
 
   closeMessageCreation() {
@@ -705,7 +700,7 @@ class PatientDataPage extends React.Component {
     this.dataUtil.chartPrefs = this.state.chartPrefs[toChart];
     if (fromChart !== toChart) {
       history.push(`${prefixURL}/${toChart}`);
-      this.trackMetric('switch-blip-view', { fromChart, toChart });
+      this.trackMetric('data_visualization', 'click_view', toChart);
     }
   }
 
@@ -736,11 +731,7 @@ class PatientDataPage extends React.Component {
     }, () => {
       if (fromChart !== toChart) {
         history.push(`${prefixURL}/${toChart}`);
-        this.trackMetric('switch-blip-view', {
-          fromChart,
-          fromCalendar: calendarName,
-          toChart,
-        });
+        this.trackMetric('data_visualization', 'click_view', toChart);
       }
     });
   }
@@ -756,7 +747,7 @@ class PatientDataPage extends React.Component {
     this.dataUtil.chartPrefs = this.state.chartPrefs[toChart];
     if (fromChart !== toChart) {
       history.push(`${prefixURL}/${toChart}`);
-      this.trackMetric('switch-blip-view', { fromChart, toChart });
+      this.trackMetric('data_visualization', 'click_view', toChart);
     }
   }
 
@@ -769,10 +760,11 @@ class PatientDataPage extends React.Component {
     }
     if (fromChart !== toChart) {
       history.push(`${prefixURL}/${toChart}`);
-      this.trackMetric('switch-blip-view', { fromChart, toChart });
+      this.trackMetric('data_visualization', 'click_view', toChart);
     }
   }
 
+  /** @returns {Promise<void>} */
   handleClickPrint = () => {
     function openPDFWindow(pdf) {
       const printWindow = window.open(pdf.url);
@@ -784,9 +776,7 @@ class PatientDataPage extends React.Component {
       }
     }
 
-    this.trackMetric('Clicked Print', {
-      fromChart: this.getChartType(),
-    });
+    this.trackMetric('export_data', 'save_report', this.getChartType() ?? "");
 
     // Return a promise for the tests
     return new Promise((resolve, reject) => {
@@ -822,11 +812,11 @@ class PatientDataPage extends React.Component {
   }
 
   handleClickRefresh(/* e */) {
-    this.handleRefresh().finally(() => this.trackMetric('Clicked Refresh'));
+    this.handleRefresh().catch(reason => this.log.error(reason));
   }
 
   handleClickNoDataRefresh(/* e */) {
-    this.handleRefresh().finally(() => this.trackMetric('Clicked No Data Refresh'));
+    this.handleRefresh().catch(reason => this.log.error(reason));
   }
 
   onLoadingFailure(err) {
@@ -946,7 +936,7 @@ class PatientDataPage extends React.Component {
 
     const firstLoadOrRefresh = tidelineData === null;
 
-    this.trackMetric.startTimer('process-patient-data');
+    this.trackMetric.startTimer('process_data');
 
     const res = nurseShark.processData(data, bgPrefs.bgUnits);
     await waitTimeout(1);
@@ -964,7 +954,7 @@ class PatientDataPage extends React.Component {
     await tidelineData.addData(res.processedData);
 
     if (_.isEmpty(tidelineData.data)) {
-      this.trackMetric.endTimer('process-patient-data', 'no-data');
+      this.trackMetric.endTimer('process_data');
       throw new Error('no-data');
     }
 
@@ -1003,7 +993,7 @@ class PatientDataPage extends React.Component {
       });
     }
 
-    this.trackMetric.endTimer('process-patient-data', 'OK');
+    this.trackMetric.endTimer('process_data');
   }
 }
 

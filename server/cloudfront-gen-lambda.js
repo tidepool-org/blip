@@ -460,7 +460,7 @@ if (blipConfig.COOKIE_BANNER_CLIENT_ID !== 'disabled') {
 
   const cookieBannerScripts = `\
   <script type="text/javascript" defer src="${fileName}" integrity="sha512-${integrity}" crossorigin="anonymous"></script>
-  <script type="text/javascript" defer src="https://static.axept.io/sdk-slim.js" async="true"></script>`;
+  <script type="text/javascript" defer src="https://static.axept.io/sdk-slim.js"></script>`;
 
   if (!reCookieBanner.test(indexHtml)) {
     console.error(`/!\\ Can't find cookie banner pattern in index.html: ${reCookieBanner.source} /!\\`);

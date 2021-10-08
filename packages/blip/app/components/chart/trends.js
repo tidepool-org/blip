@@ -206,6 +206,7 @@ class Trends extends React.Component {
         this.props.updateChartPrefs(prefs, () => {
           const chart = this.getChart();
           chart?.setExtent(newDomain);
+          this.props.trackMetric("data_visualization", "select_period", "range_date_picker", end.diff(begin, 'days'));
         });
       });
     };
@@ -257,7 +258,6 @@ class Trends extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    this.props.trackMetric("Trends", { action: "pan-back" });
     this.getChart()?.goBack();
   }
 
@@ -278,7 +278,6 @@ class Trends extends React.Component {
     if (this.state.atMostRecent) {
       return;
     }
-    this.props.trackMetric("Trends", { action: "pan-forward" });
     this.getChart()?.goForward();
   }
 
@@ -289,7 +288,6 @@ class Trends extends React.Component {
     if (this.state.atMostRecent) {
       return;
     }
-    this.props.trackMetric("Trends", { action: "pan-most-recent" });
     this.getChart()?.goToMostRecent();
   }
 
@@ -319,6 +317,7 @@ class Trends extends React.Component {
       const newDomain = [startDate.toISOString(), endDate.toISOString()];
 
       this.log.info(`Changing number of displays days to ${prefs.trends.extentSize} days`, { oldDomain, newDomain });
+      this.props.trackMetric("data_visualization", "select_period", "button_trends_period", prefs.trends.extentSize);
 
       updateChartPrefs(prefs, () => {
         chart.setExtent(newDomain, oldDomain);
@@ -552,6 +551,7 @@ class Trends extends React.Component {
   renderSubNav() {
     return (
       <SubNav
+        trackMetric={this.props.trackMetric}
         activeDays={this.props.chartPrefs.trends.activeDays}
         extentSize={this.props.chartPrefs.trends.extentSize}
         domainClickHandlers={{

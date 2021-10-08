@@ -32,6 +32,7 @@ import _ from "lodash";
 import { MS_IN_DAY } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
 import { IUser, UserRoles } from "../../models/shoreline";
+import { numberPrecision } from "../utils";
 import sendMetrics from "../metrics";
 import { Session } from "../auth";
 
@@ -52,27 +53,13 @@ const avgMetrics: ITimerAvgMetrics[] = [];
 const sendTimerMetrics = _.throttle(() => {
   const nMetrics = avgMetrics.length;
   let totalTime = 0;
-  let nRangeErrors = 0;
-  let nTirErrors = 0;
-  let nOK = 0;
   for (let i=0; i<nMetrics; i++) {
     const m = avgMetrics[i];
     totalTime += m.duration;
-    switch (m.result) {
-    case "OK":
-      nOK++;
-      break;
-    case "range-error":
-      nRangeErrors++;
-      break;
-    case "tir-error":
-      nTirErrors++;
-      break;
-    }
   }
-  sendMetrics("timer", { name: "fetch-summaries", avgTime: Math.round(totalTime / nMetrics), nOK, nRangeErrors, nTirErrors });
+  sendMetrics("performance", "fetch_summaries", "/professional/patients", numberPrecision(totalTime / (nMetrics * 1000)));
   avgMetrics.splice(0);
-}, 30000); // eslint-disable-line no-magic-numbers
+}, 30000, { trailing: true, leading: false }); // eslint-disable-line no-magic-numbers
 
 function addMetric(metric: ITimerAvgMetrics): void {
   avgMetrics.push(metric);

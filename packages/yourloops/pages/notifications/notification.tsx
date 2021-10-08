@@ -185,7 +185,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
     setInProgress(true);
     try {
       await notifications.accept(notification);
-      sendMetrics("accept-invitation", { type: notification.type });
+      sendMetrics("invitation", "accept_invitation", notification.metricsType);
       sharedUsersDispatch({ type: "reset" });
       if (_.isFunction(teamHook.refresh)) {
         teamHook.refresh(true);
@@ -202,7 +202,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
     setInProgress(true);
     try {
       await notifications.decline(notification);
-      sendMetrics("decline-invitation", { type: notification.type });
+      sendMetrics("invitation", "decline_invitation", notification.metricsType);
     } catch (reason: unknown) {
       const errorMessage = errorTextFromException(reason);
       alert.error(t(errorMessage));

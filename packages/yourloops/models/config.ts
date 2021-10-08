@@ -30,6 +30,7 @@ export interface AppConfig {
   VERSION: string;
   API_HOST: string;
   BRANDING: string;
+  DOMAIN_NAME?: string;
   DEV: boolean;
   TEST: boolean;
   LATEST_TERMS?: string;
@@ -39,7 +40,6 @@ export interface AppConfig {
   SUPPORT_WEB_ADDRESS?: string;
   ASSETS_URL?: string | null;
   METRICS_SERVICE?: string | null;
-  METRICS_FORCED: boolean;
   MAX_FAILED_LOGIN_ATTEMPTS?: number;
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT?: number;
   TERMS_PRIVACY_DATE?: string;

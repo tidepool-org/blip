@@ -42,8 +42,9 @@ declare global {
 
   // var window: Window & typeof globalThis & ExtendedWindow;
   interface Window {
+    startLoadingTime?: number;
     _jipt: any; // Zendesk
-    _paq: any[]; // Matomo
+    _paq?: (string|number)[][]; // Matomo
     _axcb?: { // Axeptio
       push: (f: (a: AxeptIO) => void) => void;
     };

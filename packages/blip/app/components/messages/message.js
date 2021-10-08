@@ -102,7 +102,6 @@ class Message extends React.Component {
   handleCancelEdit = (e) => {
     e.preventDefault();
     this.setState({ editing: false });
-    this.props.trackMetric('message', { action: 'Cancel edit message' });
   }
 
   renderTitle() {
@@ -210,7 +209,6 @@ Message.propTypes = {
   timePrefs: PropTypes.shape({
     timezoneName: PropTypes.string.isRequired,
   }).isRequired,
-  trackMetric: PropTypes.func.isRequired,
 };
 
 export default Message;

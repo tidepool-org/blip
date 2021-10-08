@@ -217,17 +217,6 @@ describe('Daily', () => {
   });
 
   describe('toggleBgDataSource', () => {
-    it('should track metric when toggled', () => {
-      const instance = wrapper.instance();
-      instance.toggleBgDataSource(null, 'cbg');
-      sinon.assert.callCount(baseProps.trackMetric, 1);
-      sinon.assert.calledWith(baseProps.trackMetric, 'Daily Click to CGM');
-
-      instance.toggleBgDataSource(null, 'smbg');
-      sinon.assert.callCount(baseProps.trackMetric, 2);
-      sinon.assert.calledWith(baseProps.trackMetric, 'Daily Click to BGM');
-    });
-
     it('should call the `updateChartPrefs` handler to update the bgSource', () => {
       const instance = wrapper.instance();
       instance.toggleBgDataSource(null, 'cbg');

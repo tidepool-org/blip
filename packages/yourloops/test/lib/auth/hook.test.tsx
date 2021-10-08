@@ -246,7 +246,11 @@ function testHook(): void {
       expect(sessionStorage.getItem(STORAGE_KEY_SESSION_TOKEN), "STORAGE_KEY_SESSION_TOKEN").to.be.equals(authHcp.sessionToken);
       expect(sessionStorage.getItem(STORAGE_KEY_TRACE_TOKEN), "STORAGE_KEY_SESSION_TOKEN").to.be.equals(authHcp.traceToken);
       expect(sessionStorage.getItem(STORAGE_KEY_USER), "STORAGE_KEY_SESSION_TOKEN").to.be.equals(JSON.stringify(authHcp.user));
-      expect(window._paq, "_paq").to.be.deep.equals([["setUserId", authHcp.user.userid]]);
+      expect(window._paq, JSON.stringify(window._paq)).to.be.deep.equals([
+        ["setUserId", authHcp.user.userid],
+        ["setCustomVariable", 1, "UserRole", "hcp", "page"],
+        ["trackEvent", "registration", "login", "hcp"],
+      ]);
       expect(authContext.session()).to.be.deep.equals(authHcp);
       expect(authContext.isLoggedIn()).to.be.true;
     });
@@ -290,6 +294,7 @@ function testHook(): void {
       expect(authContext.session()).to.be.not.null;
       expect(authContext.isLoggedIn()).to.be.true;
 
+      window._paq = []; // Clear the login part
       await authContext.logout();
       await waitTimeout(10);
       expect(authApiHcpStubs.logout.calledOnce, "logout calledOnce").to.be.true;
@@ -300,8 +305,11 @@ function testHook(): void {
       expect(sessionStorage.getItem(STORAGE_KEY_TRACE_TOKEN), "STORAGE_KEY_SESSION_TOKEN").to.be.null;
       expect(sessionStorage.getItem(STORAGE_KEY_USER), "STORAGE_KEY_SESSION_TOKEN").to.be.null;
       // The first entry is for the "fake" login at the init
-      expect(window._paq, "_paq").to.be.lengthOf(2);
-      expect(window._paq[1], "_paq[1]").to.be.deep.equals(["resetUserId"]);
+      expect(window._paq, "_paq").to.be.lengthOf(4);
+      expect(window._paq[0], "_paq[0]").to.be.deep.equals(['trackEvent', 'registration', 'logout']);
+      expect(window._paq[1], "_paq[1]").to.be.deep.equals(["deleteCustomVariable", 1, "page"]);
+      expect(window._paq[2], "_paq[2]").to.be.deep.equals(["resetUserId"]);
+      expect(window._paq[3], "_paq[3]").to.be.deep.equals(["deleteCookies"]);
       expect(cleanBlipReduxStore.calledOnce, "cleanBlipReduxStore").to.be.true;
       expect(authContext.session()).to.be.null;
       expect(authContext.isLoggedIn()).to.be.false;

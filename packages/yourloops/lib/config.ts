@@ -37,6 +37,7 @@ const DUMMY_URL = `https://${DUMMY_DOMAIN}/`;
 const defaultConfig: AppConfig = {
   VERSION: "0.0.0",
   API_HOST: `${window.location.protocol}//${window.location.hostname}:8009`,
+  DOMAIN_NAME: window.location.hostname,
   LATEST_TERMS: "1970-01-01",
   PWD_MIN_LENGTH: 8,
   PWD_MAX_LENGTH: 72,
@@ -45,7 +46,6 @@ const defaultConfig: AppConfig = {
   ASSETS_URL: DUMMY_URL,
   BRANDING: "diabeloop",
   METRICS_SERVICE: "disabled",
-  METRICS_FORCED: false,
   MAX_FAILED_LOGIN_ATTEMPTS: 5,
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: 10,
   TERMS_PRIVACY_DATE: "",

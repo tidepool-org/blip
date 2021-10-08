@@ -55,6 +55,7 @@ function testUtils(): void {
     };
     const baseNotification: INotification = {
       id: "abcd",
+      metricsType: "join_team",
       type: NotificationType.careTeamProInvitation,
       creator: {
         userid: "abcdef",
@@ -78,7 +79,7 @@ function testUtils(): void {
       try {
         notificationConversion(apiNotification);
       } catch (reason) {
-        error = reason;
+        error = reason as Error;
       }
       expect(error).to.be.not.null;
       expect(error.message).to.be.equals("Invalid notification type");
@@ -87,6 +88,7 @@ function testUtils(): void {
     it("should transform 'careteam_invitation' to 'directInvitation'", () => {
       baseAPINotification.type = "careteam_invitation" as APINotificationType.careTeamInvitation;
       baseNotification.type = NotificationType.directInvitation;
+      baseNotification.metricsType = "share_data";
       const convertedNotification = notificationConversion(baseAPINotification);
       expect(convertedNotification).to.be.deep.equals(baseNotification);
     });
@@ -94,6 +96,7 @@ function testUtils(): void {
     it("should transform 'medicalteam_patient_invitation' to 'careTeamPatientInvitation'", () => {
       baseAPINotification.type = "medicalteam_patient_invitation" as APINotificationType.medicalTeamPatientInvitation;
       baseNotification.type = NotificationType.careTeamPatientInvitation;
+      baseNotification.metricsType = "join_team";
       const convertedNotification = notificationConversion(baseAPINotification);
       expect(convertedNotification).to.be.deep.equals(baseNotification);
     });
@@ -101,6 +104,7 @@ function testUtils(): void {
     it("should transform 'medicalteam_invitation' to 'careTeamProInvitation'", () => {
       baseAPINotification.type = "medicalteam_invitation" as APINotificationType.medicalTeamProInvitation;
       baseNotification.type = NotificationType.careTeamProInvitation;
+      baseNotification.metricsType = "join_team";
       const convertedNotification = notificationConversion(baseAPINotification);
       expect(convertedNotification).to.be.deep.equals(baseNotification);
     });
@@ -108,6 +112,7 @@ function testUtils(): void {
     it.skip("should transform 'medicalteam_do_admin' to 'careTeamDoAdmin'", () => {
       baseAPINotification.type = "medicalteam_do_admin" as APINotificationType.medicalTeamDoAdmin;
       baseNotification.type = NotificationType.careTeamDoAdmin;
+      baseNotification.metricsType = "join_team";
       const convertedNotification = notificationConversion(baseAPINotification);
       expect(convertedNotification).to.be.deep.equals(baseNotification);
     });
@@ -115,6 +120,7 @@ function testUtils(): void {
     it.skip("should transform 'medicalteam_remove' to 'careTeamRemoveMember'", () => {
       baseAPINotification.type = "medicalteam_remove" as APINotificationType.medicalTeamRemoveMember;
       baseNotification.type = NotificationType.careTeamRemoveMember;
+      baseNotification.metricsType = "join_team";
       const convertedNotification = notificationConversion(baseAPINotification);
       expect(convertedNotification).to.be.deep.equals(baseNotification);
     });

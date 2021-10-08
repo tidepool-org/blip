@@ -39,6 +39,7 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 
+import sendMetrics from "../../lib/metrics";
 import RadioLabel from "./signup-radio-label";
 import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
 import SignUpFormProps from "./signup-form-props";
@@ -117,6 +118,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
     resetFormState();
     if (valideForm()) {
       handleNext();
+      sendMetrics("registration", "select_account_type", state.formValues.accountRole);
     }
   };
 

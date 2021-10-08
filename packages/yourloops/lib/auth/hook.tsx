@@ -35,7 +35,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
 import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
-import { fixYLP878Settings } from "../utils";
+import { defer, fixYLP878Settings, numberPrecision } from "../utils";
 import { availableLanguageCodes, getCurrentLang, changeLanguage } from "../language";
 import sendMetrics from "../metrics";
 import { zendeskLogin, zendeskLogout } from "../zendesk";
@@ -60,6 +60,7 @@ export const STORAGE_KEY_USER = "logged-in-user";
 
 const ReactAuthContext = React.createContext({} as AuthContext);
 const log = bows("AuthHook");
+let firstLoadingDone = false;
 
 const updateLanguageForUser = (user: User) => {
   const userLanguage = user.preferences?.displayLanguageCode;
@@ -114,7 +115,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
       setTraceToken(trace);
     }
     zendeskLogin();
-    sendMetrics("setUserId", usr.userid);
+    sendMetrics.setUser(usr);
   }, [sessionToken, traceToken]);
 
   /**
@@ -315,7 +316,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     sessionStorage.removeItem(STORAGE_KEY_SESSION_TOKEN);
     sessionStorage.removeItem(STORAGE_KEY_TRACE_TOKEN);
     sessionStorage.removeItem(STORAGE_KEY_USER);
-    sendMetrics("resetUserId");
+    sendMetrics.resetUser();
     zendeskLogout();
 
     setUserPrivate(null);
@@ -451,6 +452,18 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
       // Create a trace token since, we do not have one set in
       // the DOM storage
       setTraceToken(uuidv4());
+    }
+
+    if (!firstLoadingDone) {
+      firstLoadingDone = true;
+      defer(() => {
+        const startLoadingTime = window.startLoadingTime;
+        if (_.isNumber(startLoadingTime) && Number.isFinite(startLoadingTime)) {
+          const loadingTime = (Date.now() - startLoadingTime) / 1000;
+          sendMetrics("performance", "load_time", "initial", numberPrecision(loadingTime));
+          delete window.startLoadingTime;
+        }
+      }, 1);
     }
 
     // return unmount;

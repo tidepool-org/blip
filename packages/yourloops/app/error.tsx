@@ -63,7 +63,7 @@ function OnError(props: OnErrorProps): JSX.Element {
 
   React.useEffect(() => {
     try {
-      sendMetrics("app-crash", props);
+      sendMetrics("error", "app-crash", props.error?.message ?? "n/a");
     } catch (err) {
       console.error(err);
     }

@@ -31,19 +31,24 @@ import moment from "moment-timezone";
 import sinon from "sinon";
 import { expect } from "chai";
 
+import config from "../../lib/config";
 import { getCurrentLang, getLangName } from "../../lib/language";
 
 function testLanguage(): void {
   const zeSpy = sinon.spy();
   before(() => {
     window.zE = zeSpy;
+    config.METRICS_SERVICE = "matomo";
   });
   after(async () => {
     delete window.zE;
     await i18n.changeLanguage("en");
+    delete window._paq;
+    config.METRICS_SERVICE = "disabled";
   });
   beforeEach(() => {
     zeSpy.resetHistory();
+    window._paq = [];
   });
 
   it("should update zendesk & moment locale on change", async () => {
@@ -52,6 +57,7 @@ function testLanguage(): void {
     expect(moment.locale(), "moment").to.be.equals("fr");
     expect(localStorage.getItem("lang"), "localStorage").to.be.equals("fr");
     expect(getCurrentLang(), "getCurrentLang").to.be.equals("fr");
+    expect(window._paq, "_paq").to.be.deep.equals([["setCustomVariable", 1, "UserLang", "fr", "visit"]]);
   });
 
   it("getLangName should return the language name", () => {

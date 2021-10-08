@@ -113,7 +113,7 @@ function testAPI(): void {
       try {
         await api.getReceivedInvitations(session);
       } catch (reason) {
-        error = reason;
+        error = reason as Error;
       }
       expect(error).to.be.instanceof(Error);
       expect(fetchMock.calledOnce).to.be.true;
@@ -172,6 +172,7 @@ function testAPI(): void {
       const expectedResult: INotification[] = [
         {
           id: apiNotifications[0].key,
+          metricsType: "share_data",
           creatorId: apiNotifications[0].creatorId,
           date: apiNotifications[0].created,
           email: apiNotifications[0].email,
@@ -220,7 +221,7 @@ function testAPI(): void {
       try {
         await api.getSentInvitations(session);
       } catch (reason) {
-        error = reason;
+        error = reason as Error;
       }
       expect(error).to.be.instanceof(Error);
       expect(fetchMock.calledOnce).to.be.true;
@@ -279,6 +280,7 @@ function testAPI(): void {
       const expectedResult: INotification[] = [
         {
           id: apiNotifications[0].key,
+          metricsType: "share_data",
           creatorId: apiNotifications[0].creatorId,
           date: apiNotifications[0].created,
           email: apiNotifications[0].email,
@@ -312,6 +314,7 @@ function testAPI(): void {
       const notificationTypes = [NotificationType.careTeamDoAdmin, NotificationType.careTeamRemoveMember];
       const session = loggedInUsers.hcpSession;
       const notification: INotification = {
+        metricsType: "join_team",
         type: NotificationType.careTeamDoAdmin,
         creator: { userid: session.user.userid, profile: session.user.profile },
         creatorId: session.user.userid,
@@ -324,7 +327,7 @@ function testAPI(): void {
         try {
           await api.acceptInvitation(session, { ...notification, type: notificationType });
         } catch (reason) {
-          err = reason;
+          err = reason as Error;
         }
         expect(err).to.be.not.null;
       }
@@ -347,6 +350,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "share_data",
         type: NotificationType.directInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -358,7 +362,7 @@ function testAPI(): void {
       try {
         await api.acceptInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -393,6 +397,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "share_data",
         type: NotificationType.directInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -404,7 +409,7 @@ function testAPI(): void {
       try {
         await api.acceptInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -440,6 +445,7 @@ function testAPI(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -455,7 +461,7 @@ function testAPI(): void {
       try {
         await api.acceptInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -490,6 +496,7 @@ function testAPI(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "share_data",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -505,7 +512,7 @@ function testAPI(): void {
       try {
         await api.acceptInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -541,6 +548,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamPatientInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -556,7 +564,7 @@ function testAPI(): void {
       try {
         await api.acceptInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -591,6 +599,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamPatientInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -606,7 +615,7 @@ function testAPI(): void {
       try {
         await api.acceptInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -643,6 +652,7 @@ function testAPI(): void {
       const notificationTypes = [NotificationType.careTeamDoAdmin, NotificationType.careTeamRemoveMember];
       const session = loggedInUsers.hcpSession;
       const notification: INotification = {
+        metricsType: "join_team",
         type: NotificationType.careTeamDoAdmin,
         creator: { userid: session.user.userid, profile: session.user.profile },
         creatorId: session.user.userid,
@@ -655,7 +665,7 @@ function testAPI(): void {
         try {
           await api.declineInvitation(session, { ...notification, type: notificationType });
         } catch (reason) {
-          err = reason;
+          err = reason as Error;
         }
         expect(err).to.be.not.null;
       }
@@ -678,6 +688,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "share_data",
         type: NotificationType.directInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -689,7 +700,7 @@ function testAPI(): void {
       try {
         await api.declineInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -724,6 +735,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "share_data",
         type: NotificationType.directInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -735,7 +747,7 @@ function testAPI(): void {
       try {
         await api.declineInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -771,6 +783,7 @@ function testAPI(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -782,7 +795,7 @@ function testAPI(): void {
       try {
         await api.declineInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.called).to.be.false;
@@ -804,6 +817,7 @@ function testAPI(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -819,7 +833,7 @@ function testAPI(): void {
       try {
         await api.declineInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -854,6 +868,7 @@ function testAPI(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -869,7 +884,7 @@ function testAPI(): void {
       try {
         await api.declineInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -905,6 +920,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamPatientInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -916,7 +932,7 @@ function testAPI(): void {
       try {
         await api.declineInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.called).to.be.false;
@@ -938,6 +954,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamPatientInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -953,7 +970,7 @@ function testAPI(): void {
       try {
         await api.declineInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -988,6 +1005,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamPatientInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -1003,7 +1021,7 @@ function testAPI(): void {
       try {
         await api.declineInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -1044,6 +1062,7 @@ function testAPI(): void {
       ];
       const session = loggedInUsers.hcpSession;
       const notification: INotification = {
+        metricsType: "join_team",
         type: NotificationType.careTeamDoAdmin,
         creator: { userid: session.user.userid, profile: session.user.profile },
         creatorId: session.user.userid,
@@ -1056,7 +1075,7 @@ function testAPI(): void {
         try {
           await api.cancelInvitation(session, { ...notification, type: notificationType });
         } catch (reason) {
-          err = reason;
+          err = reason as Error;
         }
         expect(err).to.be.not.null;
       }
@@ -1079,6 +1098,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.directInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -1090,7 +1110,7 @@ function testAPI(): void {
       try {
         await api.cancelInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -1125,6 +1145,7 @@ function testAPI(): void {
       const patient = loggedInUsers.patient;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "share_data",
         type: NotificationType.directInvitation,
         creator: patient,
         creatorId: patient.userid,
@@ -1136,7 +1157,7 @@ function testAPI(): void {
       try {
         await api.cancelInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -1172,6 +1193,7 @@ function testAPI(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -1183,7 +1205,7 @@ function testAPI(): void {
       try {
         await api.cancelInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.called).to.be.false;
@@ -1205,6 +1227,7 @@ function testAPI(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -1220,7 +1243,7 @@ function testAPI(): void {
       try {
         await api.cancelInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.not.null;
       expect(fetchMock.calledOnce).to.be.true;
@@ -1258,6 +1281,7 @@ function testAPI(): void {
       const caregiver = loggedInUsers.caregiver;
       const notification: INotification = {
         id: uuidv4(),
+        metricsType: "join_team",
         type: NotificationType.careTeamProInvitation,
         creator: caregiver,
         creatorId: caregiver.userid,
@@ -1273,7 +1297,7 @@ function testAPI(): void {
       try {
         await api.cancelInvitation(session, notification);
       } catch (reason) {
-        err = reason;
+        err = reason as Error;
       }
       expect(err).to.be.null;
       expect(fetchMock.calledOnce).to.be.true;

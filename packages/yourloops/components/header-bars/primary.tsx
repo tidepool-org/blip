@@ -46,6 +46,7 @@ import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 import brandingLogoFull from "branding/logo-full.svg";
 import brandingLogoIcon from "branding/logo-icon.svg";
 
+import sendMetrics from "../../lib/metrics";
 import { useNotification } from "../../lib/notifications/hook";
 import config from "../../lib/config";
 import { User, useAuth } from "../../lib/auth";
@@ -200,6 +201,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   const handleOpenSupport = () => {
     window.open(config.SUPPORT_WEB_ADDRESS, "_blank");
     setAnchorEl(null);
+    sendMetrics("support", "click_customer_service");
   };
 
   const handleLogout = () => {

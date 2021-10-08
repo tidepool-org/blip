@@ -26,9 +26,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import _ from "lodash";
 import bows from "bows";
+import sendMetrics from "./metrics";
 
 const log = bows("Zendesk");
+const throttleMetricsOpenWidget = _.throttle(sendMetrics, 500);
 let allowCookies = false;
 
 /**
@@ -92,5 +95,16 @@ export function zendeskAllowCookies(allow: boolean): void {
 export function zendeskLocale(lang: string): void {
   if (isZendeskActive()) {
     window.zE("webWidget", "setLocale", lang);
+  }
+}
+
+/**
+ * Track opening the zendesk widget
+ */
+export function zendeskTrackWidgetOpen(): void {
+  if (isZendeskActive()) {
+    window.zE('webWidget:on', 'open', () => {
+      throttleMetricsOpenWidget("support", "open_zendesk_widget");
+    });
   }
 }

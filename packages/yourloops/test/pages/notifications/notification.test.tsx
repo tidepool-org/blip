@@ -44,6 +44,7 @@ import { INotification, NotificationType } from "../../../lib/notifications/mode
 export const testNotification = (): void => {
   const notif: INotification = {
     id: "11",
+    metricsType: "share_data",
     date: "2021-02-18T10:00:00",
     creator: {
       userid: "1",

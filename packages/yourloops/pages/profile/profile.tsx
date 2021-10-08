@@ -144,7 +144,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     if (!availableLanguageCodes.includes(lang)) {
       setLang(getCurrentLang());
     }
-    setPageTitle(t("menu-account-preferences"));
+    setPageTitle(t("account-preferences"));
   }, [lang, t]);
 
   React.useEffect(() => {
@@ -207,6 +207,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
 
   const handleSwitchRoleOpen = () => {
     setSwitchRoleOpen(true);
+    sendMetrics("switch_account", "display_switch_preferences");
   };
   const handleSwitchRoleCancel = () => {
     setSwitchRoleOpen(false);
@@ -234,8 +235,6 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     let updateFailed = false;
     /** Set to true if we need to update the user only (no change needed for the password) */
     let updated = false;
-
-    sendMetrics("save-preferences", { preferencesChanged, profileChanged, settingsChanged, passwordChanged });
 
     try {
       if (preferencesChanged) {

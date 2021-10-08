@@ -17,7 +17,7 @@
 
 /**
  * @typedef {import('./tidelinedata').Datum} Datum
- * @typedef {{ trackMetric: (s: string, p: object) => void }} OneDayOptions
+ * @typedef {{ trackMetric: (category: string, action: string, name?: string, value?: number) => void }} OneDayOptions
  * @typedef {import('./pool').default} Pool
  */
 
@@ -205,7 +205,7 @@ function oneDay(emitter, options = {}) {
 
     const domain = container.getCurrentDomain();
     const nDays = Math.round(10 * (date.valueOf() - domain.center.valueOf()) / MS_IN_DAY) / 10.0;
-    options.trackMetric('Daily - pan to date', { direction: nDays > 0 ? 'forward': 'back', nDays: Math.abs(nDays) });
+    options.trackMetric('data_visualization', 'daily_pan_date', nDays > 0 ? 'forward': 'back', Math.abs(nDays));
 
     const currentPosition = container.xScale(domain.center);
     const wantedPosition = container.xScale(date);
@@ -513,7 +513,7 @@ function oneDay(emitter, options = {}) {
   container.onDragEnd = () => {
     container.navString(true);
     container.inTransition(false);
-    container.throttleTrackMetric('daily', { event: 'drag' });
+    container.throttleTrackMetric('data_visualization', 'daily_drag_view');
   };
 
   container.setScrollNav = function() {

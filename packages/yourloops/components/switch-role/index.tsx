@@ -28,14 +28,16 @@
 
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import bows from "bows";
 
-import { errorTextFromException } from "../../lib/utils";
 import sendMetrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { useAlert } from "../utils/snackbar";
 import { SwitchRoleDialogsProps, SwitchRoleToHcpSteps } from "./models";
 import SwitchRoleConsequencesDialog from "./consequences-dialog";
 import SwitchRoleConsentDialog from "./consent-dialog";
+
+const log = bows("SwitchRoleDialogs");
 
 function SwitchRoleDialogs(props: SwitchRoleDialogsProps): JSX.Element {
   const { t } = useTranslation("yourloops");
@@ -50,7 +52,6 @@ function SwitchRoleDialogs(props: SwitchRoleDialogsProps): JSX.Element {
   const role = user.role;
   const handleSwitchRoleToConditions = (accept: boolean): void => {
     const nextStep = accept ? SwitchRoleToHcpSteps.consent : SwitchRoleToHcpSteps.none;
-    sendMetrics("user-switch-role", { from: role, to: "hcp", step: nextStep, cancel: !accept });
     setSwitchRoleStep(nextStep);
     if (!accept) {
       props.onCancel();
@@ -58,28 +59,16 @@ function SwitchRoleDialogs(props: SwitchRoleDialogsProps): JSX.Element {
   };
   const handleSwitchRoleToUpdate = (accept: boolean, feedbackConsent: boolean): void => {
     const nextStep = accept ? SwitchRoleToHcpSteps.update : SwitchRoleToHcpSteps.none;
-    sendMetrics("user-switch-role", { from: role, to: "hcp", step: nextStep, cancel: !accept });
     setSwitchRoleStep(nextStep);
 
     if (accept) {
       switchRoleToHCP(feedbackConsent)
         .then(() => {
-          sendMetrics("user-switch-role", {
-            from: role,
-            to: "hcp",
-            step: SwitchRoleToHcpSteps.update,
-            success: true,
-          });
+          sendMetrics("switch_account", "accept_terms");
         })
         .catch((reason: unknown) => {
           alert.error(t("modal-switch-hcp-failure"));
-          sendMetrics("user-switch-role", {
-            from: role,
-            to: "hcp",
-            step: SwitchRoleToHcpSteps.update,
-            success: false,
-            error: errorTextFromException(reason),
-          });
+          log.error("switchRoleToHCP", reason);
         });
     } else {
       props.onCancel();
@@ -89,7 +78,6 @@ function SwitchRoleDialogs(props: SwitchRoleDialogsProps): JSX.Element {
   React.useEffect(() => {
     if (props.open && switchRoleStep === SwitchRoleToHcpSteps.none) {
       setSwitchRoleStep(SwitchRoleToHcpSteps.consequences);
-      sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.consequences });
     } else if (!props.open && switchRoleStep !== SwitchRoleToHcpSteps.none) {
       setSwitchRoleStep(SwitchRoleToHcpSteps.none);
     }

@@ -41,6 +41,7 @@ export enum NotificationType {
 export interface INotification {
   id: string;
   type: NotificationType;
+  metricsType: "share_data" | "join_team";
   /** Current user email for received invitation, target user email for sent invitations */
   email: string;
   /** User who create the invitation == creator.userid? */
@@ -58,7 +59,7 @@ export interface INotification {
   /** Some information on the user who created this notification */
   creator: {
     userid: string;
-    profile?: Profile;
+    profile?: Profile | null;
   };
 }
 

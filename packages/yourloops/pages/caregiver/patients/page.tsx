@@ -51,6 +51,8 @@ const log = bows("PatientListPage");
 
 // eslint-disable-next-line no-magic-numbers
 const throttledMetrics = _.throttle(sendMetrics, 60000); // No more than one per minute
+// eslint-disable-next-line no-magic-numbers
+const throttleSearchMetrics = _.throttle(sendMetrics, 10000, { trailing: true });
 
 /**
  * Compare two patient for sorting the patient table
@@ -110,7 +112,8 @@ function updatePatientList(
     patients = shares.filter((p) => p.status !== UserInvitationStatus.pending && p.user.role === UserRoles.patient);
   }
 
-  if (filter.length > 0) {
+  const searchByName = filter.length > 0;
+  if (searchByName) {
     const searchText = filter.toLocaleLowerCase();
     patients = patients.filter((patient) => {
       const firstName = getUserFirstName(patient.user);
@@ -151,6 +154,10 @@ function updatePatientList(
     return order === SortDirection.asc ? c : -c;
   });
 
+  if (searchByName) {
+    throttleSearchMetrics("trackSiteSearch", "patient_name", "caregiver", patients.length);
+  }
+
   return patients;
 }
 
@@ -173,33 +180,36 @@ function PatientListPage(): JSX.Element {
   const shares = sharedUsersContext.sharedUsers ?? [];
 
   const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
-    sendMetrics("caregiver-sort-patient", { orderBy, order });
+    sendMetrics("patient_selection", "sort_patients", orderBy, order === SortDirection.asc ? 1 : -1);
     setSortFlaggedFirst(false);
     setOrder(order);
     setOrderBy(orderBy);
   };
   const handleSelectPatient = (user: IUser, flagged: boolean): void => {
-    sendMetrics("caregiver-show-patient-data", { flagged });
+    sendMetrics("patient_selection", "select_patient", flagged ? "flagged" : "not_flagged");
     historyHook.push(`/caregiver/patient/${user.userid}`);
   };
   const handleFlagPatient = async (userId: string, flagged: boolean): Promise<void> => {
     try {
       await authHook.flagPatient(userId);
-      sendMetrics("caregiver-flag-patient", { flagged });
+      sendMetrics("patient_selection", "flag_patient", flagged ? "flagged" : "un-flagged");
     } catch (reason) {
-      const message = errorTextFromException(reason);
-      sendMetrics("caregiver-flag-patient", { flagged, error: message });
+      log.error(errorTextFromException(reason));
     }
   };
   const handleFilter = (filter: string): void => {
     log.info("Filter patients name", filter);
-    throttledMetrics("caregiver-filter-patient", { type: "by-name" });
+    throttledMetrics("patient_selection", "search_patient", "by_name");
     setFilter(filter);
   };
   const handleFilterType = (filterType: FilterType | string): void => {
     log.info("Filter patients with", filterType);
-    sendMetrics("caregiver-filter-patient", { type: filterType });
     setFilterType(filterType);
+    if (!(filterType in FilterType)) {
+      log.info("Replace", filterType, "with team"); // TODO Remove me if it works
+      filterType = "team";
+    }
+    sendMetrics("patient_selection", "filter_patient", filterType);
   };
   const handleInvitePatient = async (): Promise<void> => {
     const getPatientEmailAndTeam = (): Promise<AddPatientDialogResult | null> => {
@@ -217,14 +227,11 @@ function PatientListPage(): JSX.Element {
         await addDirectShare(session, email);
         setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
         alert.success(t("alert-invitation-sent-success"));
-        sendMetrics("caregiver-add-patient", { added: true });
+        sendMetrics("invitation", "send_invitation", "patient");
       } catch (reason) {
         log.error(reason);
         alert.error(t("alert-invitation-patient-failed"));
-        sendMetrics("caregiver-add-patient", { added: true, failed: errorTextFromException(reason) });
       }
-    } else {
-      sendMetrics("caregiver-add-patient", { added: false });
     }
   };
   const handleRemovePatient = async (patient: IUser, flagged: boolean, isPendingInvitation: boolean): Promise<void> => {
@@ -241,15 +248,13 @@ function PatientListPage(): JSX.Element {
       try {
         await removeDirectShare(session, patient.userid);
         setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
-        sendMetrics("caregiver-remove-patient", { removed: true, flagged, isPendingInvitation });
         alert.success(t("alert-remove-patient-success"));
       } catch (reason) {
-        log.error(reason);
+        log.error(reason, { removed: result, flagged, isPendingInvitation });
         alert.error(t("alert-remove-patient-failure"));
-        sendMetrics("caregiver-remove-patient", { removed: true, flagged, isPendingInvitation, failed: errorTextFromException(reason) });
       }
     } else {
-      sendMetrics("caregiver-remove-patient", { removed: false, flagged, isPendingInvitation });
+      log.error("remove_patient", { removed: result, flagged, isPendingInvitation });
     }
     await Promise.resolve();
   };

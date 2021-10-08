@@ -68,7 +68,7 @@ function testCookiesManager(): void {
     initCookiesConcentListener();
     expect((window.loadStonlyWidget as sinon.SinonSpy).calledOnce, "loadStonlyWidget").to.be.true;
     expect(sendMetrics.calledOnce, "sendMetrics.calledOnce").to.be.true;
-    expect(sendMetrics.calledWith("metrics", { enabled: true }), "sendMetrics.calledWith").to.be.true;
+    expect(sendMetrics.calledWith("metrics", "enabled"), "sendMetrics.calledWith").to.be.true;
     expect(isZendeskAllowCookies(), "zendeskAllowCookies").to.be.true;
   });
 
@@ -100,7 +100,7 @@ function testCookiesManager(): void {
     (callbackFn as unknown as AxceptIOCallback)(axeptIO);
 
     expect(sendMetrics.calledOnce, "sendMetrics.calledOnce").to.be.true;
-    expect(sendMetrics.calledWith("metrics", { enabled: false }), "sendMetrics.calledWith").to.be.true;
+    expect(sendMetrics.calledWith("metrics", "disabled"), "sendMetrics.calledWith").to.be.true;
     expect((window.loadStonlyWidget as sinon.SinonSpy).calledOnce, "loadStonlyWidget").to.be.false;
     expect(isZendeskAllowCookies(), "zendeskAllowCookies").to.be.false;
   });
