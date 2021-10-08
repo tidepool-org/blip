@@ -35,7 +35,8 @@
     "prebuild-dev": "rm -rf dist",
     "build-dev": "NODE_OPTIONS='--max-old-space-size=4096' lerna run --stream --scope yourloops build-dev",
     "postbuild-dev": "mkdir dist && mv packages/yourloops/dist dist/static",
-    "start-dev": "bash -c 'source config/.env.sh && lerna run --stream --scope yourloops start-dev'"
+    "start-dev": "bash -c 'source config/.env.sh && lerna run --stream --scope yourloops start-dev'",
+    "sort-translations": "node ./locales/translations-sorter.js"
   },
   "engines": {
     "node": ">=12.x",
