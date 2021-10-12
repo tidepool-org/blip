@@ -78,6 +78,7 @@ function PatientProfileForm(props: PatientProfileFormProps): JSX.Element {
         onChange={(event) => setBirthDate(event.target.value)}
         error={errors.birthDate}
         helperText={errors.birthDate && t("required-field")}
+        className={classes.textField}
       />
       {hba1cTextField}
     </React.Fragment>

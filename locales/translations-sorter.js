@@ -24,7 +24,7 @@ function sortKeysInFile(locale, filename) {
 
   fs.writeFile(
     `./locales/${locale}/${filename}`,
-    JSON.stringify(sortedJson, null, 2),
+    JSON.stringify(sortedJson, null, 2) + "\n",
     (err) => {
       console.log(err ?? `Sort ${jsonFilename} done !`);
     });

@@ -42,6 +42,12 @@ import { User, AuthAPI, Session, AuthContext, SignupUser } from "../../../lib/au
 import { AuthContextImpl, STORAGE_KEY_SESSION_TOKEN, STORAGE_KEY_TRACE_TOKEN, STORAGE_KEY_USER } from "../../../lib/auth/hook";
 import { loggedInUsers } from "../../common";
 
+export const authCaregiver = loggedInUsers.caregiverSession;
+export const authHcp = loggedInUsers.hcpSession;
+export const authPatient = loggedInUsers.patientSession;
+
+/***** API Stubs *****/
+/*********************/
 interface AuthAPIStubs {
   login: sinon.SinonStub<string[], Promise<Session>>;
   requestPasswordReset: sinon.SinonStub<unknown[], Promise<void>>;
@@ -57,10 +63,6 @@ interface AuthAPIStubs {
   refreshToken: sinon.SinonStub<Session[], Promise<string>>;
   logout: sinon.SinonStub<Session[], Promise<void>>;
 }
-
-export const authCaregiver = loggedInUsers.caregiverSession;
-export const authHcp = loggedInUsers.hcpSession;
-export const authPatient = loggedInUsers.patientSession;
 
 export const createAuthApiStubs = (session: Session): AuthAPIStubs => ({
   login: sinon.stub().resolves(session),
@@ -79,20 +81,21 @@ export const createAuthApiStubs = (session: Session): AuthAPIStubs => ({
 });
 
 export const authApiHcpStubs = createAuthApiStubs(authHcp);
-export const authApiHcp: AuthAPI = authApiHcpStubs;
 
-export const authHookHcpStubs = {
-  user: authHcp.user,
-  sessionToken: authHcp.sessionToken,
-  traceToken: authHcp.traceToken,
-  session: sinon.stub().returns(authHcp),
+/***** Hook Stubs *****/
+/*********************/
+export const createAuthHookStubs = (authSession: Session): AuthContext => ({
+  user: authSession.user,
+  sessionToken: authSession.sessionToken,
+  traceToken: authSession.traceToken,
+  session: sinon.stub().returns(authSession),
   initialized: sinon.stub().returns(true),
   setUser: sinon.stub(),
-  login: sinon.stub().resolves(authHcp.user),
+  login: sinon.stub().resolves(authSession.user),
   logout: sinon.stub(),
-  updateProfile: sinon.stub().resolves(authHcp.user.profile),
-  updatePreferences: sinon.stub().resolves(authHcp.user.profile),
-  updateSettings: sinon.stub().resolves(authHcp.user.profile),
+  updateProfile: sinon.stub().resolves(authSession.user.profile),
+  updatePreferences: sinon.stub().resolves(authSession.user.profile),
+  updateSettings: sinon.stub().resolves(authSession.user.profile),
   updatePassword: sinon.stub().resolves(),
   signup: sinon.stub(),
   resendSignup: sinon.stub().resolves(true),
@@ -103,9 +106,11 @@ export const authHookHcpStubs = {
   setFlagPatients: sinon.stub().resolves(),
   getFlagPatients: sinon.stub().returns([]),
   switchRoleToHCP: sinon.stub().resolves(),
-};
+});
 
-export const authHookHcp: AuthContext = authHookHcpStubs;
+export const authHookHcp: AuthContext = createAuthHookStubs(authHcp);
+export const authHookPatient: AuthContext = createAuthHookStubs(authPatient);
+export const authHookCaregiver: AuthContext = createAuthHookStubs(authCaregiver);
 
 export function resetStubs(user: Readonly<User>, api: AuthAPI | null = null, context: AuthContext | null = null): void {
   let stub: sinon.SinonStub;

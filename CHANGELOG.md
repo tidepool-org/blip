@@ -5,6 +5,7 @@ It is based on Tidepool Blip 1.27.
 ## Unreleased
 ### Changed
 - YLP-662 Rework events tagging for Matomo
+- YLP-996 Restructure account preferences page
 ### Fixed
 - YLP-1041 Fix potential crash in YourLoops when rendering the PDF
 

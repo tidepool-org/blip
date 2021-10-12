@@ -61,7 +61,16 @@ const userPatient = new User({
   username: "josephine.dupuis@example.com",
   role: UserRoles.patient,
   preferences: { displayLanguageCode: "fr" },
-  profile: { firstName: "Josephine", lastName: "Dupuis", fullName: "Josephine D." },
+  profile: {
+    firstName: "Josephine",
+    lastName: "Dupuis",
+    fullName: "Josephine D.",
+    patient: {
+      birthday: "1964-12-01",
+      diagnosisDate: "2020-12-02",
+      diagnosisType: "1",
+    },
+  },
   settings: { a1c: { date: "2020-01-01", value: 0 } },
 });
 

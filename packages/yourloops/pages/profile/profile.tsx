@@ -32,7 +32,12 @@ import bows from "bows";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import AccountCircle from "@material-ui/icons/AccountCircle";
+import Assignment from "@material-ui/icons/Assignment";
+import Tune from "@material-ui/icons/Tune";
+
 import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -74,7 +79,7 @@ const useStyles = makeStyles((theme: Theme) =>
     button: {
       marginLeft: "1em",
     },
-    formControl: { marginTop: "1em", minWidth: 120 },
+    formControl: { marginTop: "1em" },
     homeIcon: {
       marginRight: "0.5em",
     },
@@ -109,6 +114,25 @@ const useStyles = makeStyles((theme: Theme) =>
       borderColor: theme.palette.grey[300],
       borderWidth: "1px",
       padding: "0 64px",
+      [theme.breakpoints.only('xs')]: {
+        padding: 0,
+      },
+    },
+    uppercase: {
+      textTransform: "uppercase",
+    },
+    halfWide: {
+      [theme.breakpoints.up('sm')]: {
+        width: "calc(50% - 16px)",
+      },
+    },
+    inputContainer: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      [theme.breakpoints.only('xs')]: {
+        flexDirection: "column",
+      },
     },
   })
 );
@@ -304,17 +328,25 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     );
   } else {
     roleDependantPart = (
-      <AuthenticationForm
-        user={user}
-        classes={classes}
-        errors={errors}
-        currentPassword={currentPassword}
-        setCurrentPassword={setCurrentPassword}
-        password={password}
-        setPassword={setPassword}
-        passwordConfirmation={passwordConfirmation}
-        setPasswordConfirmation={setPasswordConfirmation}
-      />
+      <React.Fragment>
+        <Box display="flex" justifyContent="flex-start" alignItems="end" mt={5}>
+          <Assignment color="primary" style={{ margin: "0" }} />
+          <Box ml={2}>
+            <strong className={classes.uppercase}>{t("my-credentials")}</strong>
+          </Box>
+        </Box>
+        <AuthenticationForm
+          user={user}
+          classes={classes}
+          errors={errors}
+          currentPassword={currentPassword}
+          setCurrentPassword={setCurrentPassword}
+          password={password}
+          setPassword={setPassword}
+          passwordConfirmation={passwordConfirmation}
+          setPasswordConfirmation={setPasswordConfirmation}
+        />
+      </React.Fragment>
     );
   }
 
@@ -339,53 +371,77 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           <DialogTitle className={classes.title} id="profile-title">
             {t("account-preferences")}
           </DialogTitle>
-          <TextField
-            id="profile-textfield-firstname"
-            label={t("firstname")}
-            value={firstName}
-            onChange={createHandleTextChange(setFirstName)}
-            error={errors.firstName}
-            helperText={errors.firstName && t("required-field")}
-            className={classes.textField}
-          />
-          <TextField
-            id="profile-textfield-lastname"
-            label={t("lastname")}
-            value={lastName}
-            onChange={createHandleTextChange(setLastName)}
-            error={errors.lastName}
-            helperText={errors.lastName && t("required-field")}
-            className={classes.textField}
-          />
+
+          <Box display="flex" justifyContent="flex-start" alignItems="end" mt={3}>
+            <AccountCircle color="primary" style={{ margin: "0" }} />
+            <Box ml={2}>
+              <strong className={classes.uppercase}>{t("personal-information")}</strong>
+            </Box>
+          </Box>
+
+          <Box className={classes.inputContainer}>
+            <TextField
+              id="profile-textfield-firstname"
+              label={t("firstname")}
+              value={firstName}
+              onChange={createHandleTextChange(setFirstName)}
+              error={errors.firstName}
+              helperText={errors.firstName && t("required-field")}
+              className={`${classes.textField} ${classes.halfWide}`}
+            />
+            <TextField
+              id="profile-textfield-lastname"
+              label={t("lastname")}
+              value={lastName}
+              onChange={createHandleTextChange(setLastName)}
+              error={errors.lastName}
+              helperText={errors.lastName && t("required-field")}
+              className={`${classes.textField} ${classes.halfWide}`}
+            />
+          </Box>
 
           {roleDependantPart}
 
-          <FormControl className={classes.formControl}>
-            <InputLabel id="profile-units-input-label">{t("units")}</InputLabel>
-            <Select
-              disabled={role === UserRoles.patient}
-              labelId="unit-selector"
-              id="profile-units-selector"
-              value={unit}
-              onChange={createHandleSelectChange(setUnit)}>
-              <MenuItem id="profile-units-mmoll" value={Units.mole}>{Units.mole}</MenuItem>
-              <MenuItem id="profile-units-mgdl" value={Units.gram}>{Units.gram}</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl className={classes.formControl}>
-            <InputLabel id="profile-language-input-label">{t("language")}</InputLabel>
-            <Select
-              labelId="locale-selector"
-              id="profile-locale-selector"
-              value={lang}
-              onChange={createHandleSelectChange(setLang)}>
-              {availableLanguageCodes.map((languageCode) => (
-                <MenuItem id={`profile-locale-item-${languageCode}`} key={languageCode} value={languageCode}>
-                  {getLangName(languageCode)}
+          <Box display="flex" justifyContent="flex-start" alignItems="end" mt={5}>
+            <Tune color="primary" style={{ margin: "0" }} />
+            <Box ml={2}>
+              <strong className={classes.uppercase}>{t("preferences")}</strong>
+            </Box>
+          </Box>
+
+          <Box className={classes.inputContainer}>
+            <FormControl className={`${classes.formControl} ${classes.halfWide}`}>
+              <InputLabel id="profile-units-input-label">{t("units")}</InputLabel>
+              <Select
+                disabled={role === UserRoles.patient}
+                labelId="unit-selector"
+                id="profile-units-selector"
+                value={unit}
+                onChange={createHandleSelectChange(setUnit)}
+              >
+                <MenuItem id="profile-units-mmoll" value={Units.mole}>
+                  {Units.mole}
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                <MenuItem id="profile-units-mgdl" value={Units.gram}>
+                  {Units.gram}
+                </MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl className={`${classes.formControl} ${classes.halfWide}`}>
+              <InputLabel id="profile-language-input-label">{t("language")}</InputLabel>
+              <Select
+                labelId="locale-selector"
+                id="profile-locale-selector"
+                value={lang}
+                onChange={createHandleSelectChange(setLang)}>
+                {availableLanguageCodes.map((languageCode) => (
+                  <MenuItem id={`profile-locale-item-${languageCode}`} key={languageCode} value={languageCode}>
+                    {getLangName(languageCode)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
 
           {formControlFeedback}
 
