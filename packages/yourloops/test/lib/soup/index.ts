@@ -26,22 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testsSoup from "./soup";
-import testCookiesManager from "./cookies-manager.test";
-import testLanguage from "./language.test";
-import testMetrics from "./metrics.test";
-import testZendesk from "./zendesk.test";
-import testAuth from "./auth";
-import testNotifications from "./notifications";
+import { validate as validateUuid } from "uuid";
+import { expect } from "chai";
 
-function testLib(): void {
-  describe("SOUP", testsSoup);
-  describe("CookiesManager", testCookiesManager);
-  describe("Language", testLanguage);
-  describe("Metrics", testMetrics);
-  describe("Zendesk", testZendesk);
-  describe("Auth", testAuth);
-  describe("Notifications", testNotifications);
+function testSOUPDeps(): void {
+  it("UUID soup should be >= v8 with the validate function available", () => {
+    expect(validateUuid).to.be.a('function');
+  });
 }
 
-export default testLib;
+export default testSOUPDeps;

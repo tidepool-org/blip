@@ -62,6 +62,18 @@ const ReactAuthContext = React.createContext({} as AuthContext);
 const log = bows("AuthHook");
 let firstLoadingDone = false;
 
+const warnNoValidateUUID = _.once(() => log.warn("validateUuid function is not available"));
+const validateUuidV4 = (value: string): boolean => {
+  // FIXME validateUuid is sometime not present
+  // because we have some SOUP which depends on an old deprecated uuid version (v3)
+  // and the build seems to choose from one or another...
+  if (_.isFunction(validateUuid)) {
+    return validateUuid(value);
+  }
+  warnNoValidateUUID();
+  return true;
+};
+
 const updateLanguageForUser = (user: User) => {
   const userLanguage = user.preferences?.displayLanguageCode;
   if (typeof userLanguage === "string" && availableLanguageCodes.includes(userLanguage) && userLanguage !== getCurrentLang()) {
@@ -417,7 +429,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
           const jsonUser = JSON.parse(userStored) as IUser;
           const currentUser = new User(jsonUser);
 
-          if (!validateUuid(traceTokenStored)) {
+          if (!validateUuidV4(traceTokenStored)) {
             throw new Error("Invalid trace token uuid");
           }
           const decoded = jwtDecode<JwtPayload>(sessionTokenStored);
