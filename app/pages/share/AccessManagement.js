@@ -95,6 +95,7 @@ export const AccessManagement = (props) => {
       if (completed) {
         popupState?.close();
         setShowDeleteDialog(false);
+        setShowResendInviteDialog(false);
 
         setToast({
           message: successMessage,
