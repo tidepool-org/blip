@@ -91,8 +91,9 @@ export default translate()(class extends React.Component {
 
     if (this.props.clinicFlowActive) {
       const userClinics = _.filter(_.values(this.props.clinics), ({ clinicians }) => _.has(clinicians, _.get(this.props, 'user.userid')));
-      // Disable logo link if the clinician is only a member of a single clinic, or is not on a clinic workspace tab
-      linkDisabled = userClinics.length < 2 || !/^\/clinic-workspace.*/.test(this.props.currentPage);
+      // Disable logo link if the clinician is only a member of a single clinic,
+      // or is not on a clinic workspace tab, the personal workspace, or the account settings page
+      linkDisabled = userClinics.length < 2 || !/^(\/clinic-workspace.*|\/profile|\/patients)/.test(this.props.currentPage);
     }
 
     return (

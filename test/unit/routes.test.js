@@ -530,7 +530,7 @@ describe('routes', () => {
               },
               clinicFlowActive: true,
               clinics: {
-                clinic123: { clinic: { id: 'clinic123', name: undefined } },
+                clinic123: { id: 'clinic123', name: undefined },
               },
               loggedInUserId: 'clinician123',
             },
