@@ -79,7 +79,7 @@ interface Settings {
   country?: string;
   a1c?: {
     date: string;
-    value: number;
+    value: string;
   };
 }
 

@@ -71,7 +71,7 @@ const userPatient = new User({
       diagnosisType: "1",
     },
   },
-  settings: { a1c: { date: "2020-01-01", value: 0 } },
+  settings: { a1c: { date: "2020-01-01", value: "7.5" } },
 });
 
 /**
