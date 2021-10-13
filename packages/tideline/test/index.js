@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-
 import enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
@@ -26,10 +25,6 @@ enzyme.configure({
 
 window.d3 = require('d3');
 window.d3.chart = require('d3.chart');
-
-console.log(window.d3);
-
-// localStorage.setItem('debug', 'true');
 
 // DOM not required
 // ====================================

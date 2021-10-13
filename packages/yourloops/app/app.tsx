@@ -34,7 +34,7 @@ import "@fontsource/roboto";
 import "branding/theme-base.css";
 import "branding/theme.css";
 
-import sendMetrics from "../lib/metrics";
+import metrics from "../lib/metrics";
 import { AuthContextProvider } from "../lib/auth";
 import { PrivateRoute, PublicRoute } from "../components/routes";
 import InvalidRoute from "../components/invalid-route";
@@ -47,7 +47,7 @@ import CaregiverPage from "../pages/caregiver";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 
 /** Tell matomo the page is changed, but with a little delay, because of some async stuff  */
-const trackPageView = _.debounce(() => { sendMetrics("metrics", "trackPageView"); }, 1000);
+const trackPageView = _.debounce(() => { metrics.send("metrics", "trackPageView"); }, 1000);
 const RE_PATIENT_URL = /^\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_CAREGIVER_URL = /^\/caregiver\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_HCP_URL = /^\/professional\/patient\/[0-9a-f]+\/?(.*)/;
@@ -86,7 +86,7 @@ function MetricsLocationListener(): null {
       }
     }
 
-    sendMetrics("metrics", "setCustomUrl", pathname);
+    metrics.send("metrics", "setCustomUrl", pathname);
     trackPageView();
   }, [locPathname, locSearch]);
   return null;

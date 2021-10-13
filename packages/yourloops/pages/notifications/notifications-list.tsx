@@ -36,7 +36,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Typography from "@material-ui/core/Typography";
 
-import sendMetrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import { setPageTitle } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import { INotification } from "../../lib/notifications/models";
@@ -101,7 +101,7 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
   }
 
   const handleSwitchRoleOpen = () => {
-    sendMetrics("switch_account", "display_switch_notification");
+    metrics.send("switch_account", "display_switch_notification");
     setSwitchRoleOpen(true);
   };
   const handleSwitchRoleCancel = () => {

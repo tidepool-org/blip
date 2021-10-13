@@ -2,19 +2,12 @@ const path = require('path');
 const webpack = require('webpack');
 
 const appDirectory = path.resolve(__dirname);
-const isDev = (process.env.NODE_ENV === 'development');
-const isTest = (process.env.NODE_ENV === 'test');
 
 const plugins = [
   new webpack.LoaderOptionsPlugin({
-    debug: isDev || isTest,
+    debug: true,
   }),
 ];
-
-const output = {
-  filename: '[name].js',
-  path: path.join(__dirname, '/dist/'),
-};
 
 const babelLoaderConfiguration = {
   test: /\.jsx?$/,
@@ -39,9 +32,7 @@ const babelLoaderConfiguration = {
 // that do not start and *end* with an alpha character
 // but that will sometimes happen with the base64 hashes
 // so we leave them off in the test env
-const localIdentName = isTest
-  ? '[name]--[local]'
-  : '[name]--[local]--[hash:base64:5]';
+const localIdentName = '[name]--[local]';
 
 const lessLoaderConfiguration = {
   test: /\.less$/,
@@ -75,7 +66,6 @@ const lessLoaderConfiguration = {
         lessOptions: {
           strictUnits: true,
           strictMath: true,
-          javascriptEnabled: true, // Deprecated
         },
       },
     },
@@ -85,43 +75,13 @@ const lessLoaderConfiguration = {
 // This is needed for webpack to import static images in JavaScript files
 const imageLoaderConfiguration = {
   test: /\.(gif|jpe?g|png|svg)$/,
-  use: {
-    loader: 'url-loader',
-    options: {
-      name: '[name].[ext]',
-    },
-  },
+  type: "asset/inline",
 };
 
-const fontLoaderConfiguration = [
-  {
-    test: /\.eot$/,
-    use: {
-      loader: 'url-loader',
-      options: {
-        mimetype: 'application/vnd.ms-fontobject',
-      },
-    },
-  },
-  {
-    test: /\.woff$/,
-    use: {
-      loader: 'url-loader',
-      options: {
-        mimetype: 'application/font-woff',
-      },
-    },
-  },
-  {
-    test: /\.ttf$/,
-    use: {
-      loader: 'url-loader',
-      options: {
-        mimetype: 'application/octet-stream',
-      },
-    },
-  },
-];
+const fontLoaderConfiguration = {
+  test: /\.(eot|woff2?|ttf)$/,
+  type: "asset/inline",
+};
 
 const resolve = {
   alias: {
@@ -141,14 +101,13 @@ module.exports = {
   devtool: 'sourcemap',
   entry: './js/index.js',
   stats: "minimal", // See https://webpack.js.org/configuration/stats/
-  output,
-  mode: isDev || isTest ? 'development' : 'production',
+  mode: 'development',
   module: {
     rules: [
       babelLoaderConfiguration,
       imageLoaderConfiguration,
       lessLoaderConfiguration,
-      ...fontLoaderConfiguration,
+      fontLoaderConfiguration,
     ]
   },
   plugins,

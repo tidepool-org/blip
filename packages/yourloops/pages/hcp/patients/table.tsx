@@ -49,7 +49,7 @@ import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 
 import { SortDirection, SortFields } from "../../../models/generic";
 import { MedicalData } from "../../../models/device-data";
-import sendMetrics from "../../../lib/metrics";
+import metrics from "../../../lib/metrics";
 import { getUserFirstName, getUserLastName } from "../../../lib/utils";
 import { useAuth } from "../../../lib/auth";
 import { TeamUser, useTeam } from "../../../lib/team";
@@ -104,11 +104,11 @@ function PatientRow(props: PatientElementProps): JSX.Element {
   const onClickFlag = (e: React.MouseEvent): void => {
     e.stopPropagation();
     onFlagPatient(userId);
-    sendMetrics("patient_selection", "flag_patient", isFlagged ? "un-flagged" : "flagged");
+    metrics.send("patient_selection", "flag_patient", isFlagged ? "un-flagged" : "flagged");
   };
   const onRowClick = (/* e: React.MouseEvent */): void => {
     onClickPatient(patient);
-    sendMetrics("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
+    metrics.send("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
   };
 
   const { tir, tbr, lastUpload } = React.useMemo(() => getMedicalValues(medicalData, trNA), [medicalData, trNA]);

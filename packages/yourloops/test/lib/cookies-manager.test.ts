@@ -28,11 +28,11 @@
 
 /* eslint-disable no-underscore-dangle */
 
-import sinon from "sinon";
+import * as sinon from "sinon";
 import { expect } from "chai";
 
 import config from "../../lib/config";
-import * as metrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import { isZendeskAllowCookies } from "../../lib/zendesk";
 import initCookiesConcentListener from "../../lib/cookies-manager";
 
@@ -42,7 +42,7 @@ function testCookiesManager(): void {
   let sendMetrics: sinon.SinonSpy;
   let loadStonlyWidget: sinon.SinonSpy;
   before(() => {
-    sendMetrics = sinon.spy(metrics, "default");
+    sendMetrics = sinon.spy(metrics, "send");
     // For some reason, it do not work:
     // zendeskAllowCookies = sinon.spy(zendesk, "zendeskAllowCookies");
     loadStonlyWidget = sinon.spy();

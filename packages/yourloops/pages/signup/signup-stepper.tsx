@@ -40,7 +40,7 @@ import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import Typography from "@material-ui/core/Typography";
 
-import sendMetrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import SignUpAccountForm from "./signup-account-form";
 import SignUpAccountSelector from "./signup-account-selector";
 import SignUpProfileForm from "./signup-profile-form";
@@ -96,7 +96,7 @@ export default function SignUpStepper() : JSX.Element {
   };
 
   const handleLogin = () => {
-    sendMetrics("registration", "confirm_email", state.formValues.accountRole);
+    metrics.send("registration", "confirm_email", state.formValues.accountRole);
     dispatch({ type: "RESET_FORMVALUES" });
     history.push("/");
   };

@@ -157,6 +157,7 @@ function updateDefaultConfig(projectName, karmaConfig, webpackConfig, typescript
   });
 
   updatedConfig = _.defaultsDeep(karmaConfig, defaultConfig);
+  updatedConfig.files.unshift('../../node-compat.js');
   updatedConfig.webpack = webpackConfig;
   updatedConfig.coverageIstanbulReporter.dir = path.join(__dirname, `coverage/${projectName}`);
   updatedConfig.junitReporter.name = projectName;

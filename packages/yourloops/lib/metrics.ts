@@ -149,97 +149,92 @@ function sendMatomoMetrics(category: string, action: string, name?: string, valu
   matomoPaq.push(trackEvent);
 }
 
-/**
- * Record something for the tracking metrics
- * @param {string} category Event category
- * @param {string} action Event action
- * @param {string} name Event name
- * @param {number} value optional value
- */
-function sendMetrics(category: string, action: string, name?: string, value?: number): void {
-  log.info({ category, action, name, value });
+const timers = new Map<string, number>();
+const metrics = {
+  /**
+   * Record something for the tracking metrics
+   * @param {string} category Event category
+   * @param {string} action Event action
+   * @param {string} name Event name
+   * @param {number} value optional value
+   */
+  send: (category: string, action: string, name?: string, value?: number): void => {
+    log.info({ category, action, name, value });
 
-  if (category === "metrics" && (action === "enabled" || action === "disabled")) {
-    metricsEnabled = action === "enabled";
-    log.info("metricsEnabled", metricsEnabled);
-  } else if (!metricsEnabled) {
-    return;
-  }
+    if (category === "metrics" && (action === "enabled" || action === "disabled")) {
+      metricsEnabled = action === "enabled";
+      log.info("metricsEnabled", metricsEnabled);
+    } else if (!metricsEnabled) {
+      return;
+    }
 
-  switch (config.METRICS_SERVICE) {
-  case "matomo":
-    sendMatomoMetrics(category, action, name as string, value);
-    break;
-  case "disabled":
-    logDisabledMetricsConfiguration();
-    break;
-  default:
-    logUnknownMetricsConfiguration();
-  }
-}
-
-sendMetrics.setVariable = (name: string, value: string, scope: VariableScope = "page") => {
-  const matomoPaq: unknown[] | undefined = window._paq;
-  const { id, found } = getVariableId(name, scope);
-  if (!found) {
-    customVariables[scope].set(name, id);
-  }
-  if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
-    matomoPaq.push(["setCustomVariable", id, name, value, scope]);
-  }
-};
-sendMetrics.deleteVariable = (name: string, scope: VariableScope = "page") => {
-  const matomoPaq: unknown[] | undefined = window._paq;
-  const { id, found } = getVariableId(name, scope);
-  if (!found) {
-    log.warn(`Variable ${name} / ${scope} do not exists`);
-    return;
-  }
-  customVariables[scope].delete(name);
-  if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
-    matomoPaq.push(["deleteCustomVariable", id, scope]);
-  }
-};
-
-sendMetrics.setUser = (user: User) => {
-  const matomoPaq: unknown[] | undefined = window._paq;
-  if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
-    matomoPaq.push(["setUserId", user.userid]);
-    sendMetrics.setVariable("UserRole", user.role);
-    matomoPaq.push(["trackEvent", "registration", "login", user.role]);
-  }
-};
-
-sendMetrics.resetUser = () => {
-  const matomoPaq: unknown[] | undefined = window._paq;
-  if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
-    matomoPaq.push(["trackEvent", "registration", "logout"]);
-    sendMetrics.deleteVariable("UserRole");
-    matomoPaq.push(["resetUserId"]);
-    matomoPaq.push(["deleteCookies"]); // Reset visitor id
-  }
-};
-
-sendMetrics.setLanguage = (language: string) => {
-  const matomoPaq: unknown[] | undefined = window._paq;
-  if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
-    sendMetrics.setVariable("UserLang", language, "visit");
-  }
-};
-
-// Quick & dirty metrics timer
-
-sendMetrics.timers = new Map<string, number>();
-sendMetrics.startTimer = (name: string) => {
-  sendMetrics.timers.set(name, Date.now());
-};
-sendMetrics.endTimer = (name: string) => {
-  const startTime = sendMetrics.timers.get(name);
-  if (_.isNumber(startTime)) {
-    sendMetrics.timers.delete(name);
-    const duration = Date.now() - startTime;
-    sendMetrics("performance", name, currentMetricsURL, Math.round(duration / 100) / 10);
-  }
+    switch (config.METRICS_SERVICE) {
+    case "matomo":
+      sendMatomoMetrics(category, action, name as string, value);
+      break;
+    case "disabled":
+      logDisabledMetricsConfiguration();
+      break;
+    default:
+      logUnknownMetricsConfiguration();
+    }
+  },
+  setVariable: (name: string, value: string, scope: VariableScope = "page"): void => {
+    const matomoPaq: unknown[] | undefined = window._paq;
+    const { id, found } = getVariableId(name, scope);
+    if (!found) {
+      customVariables[scope].set(name, id);
+    }
+    if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
+      matomoPaq.push(["setCustomVariable", id, name, value, scope]);
+    }
+  },
+  deleteVariable: (name: string, scope: VariableScope = "page"): void => {
+    const matomoPaq: unknown[] | undefined = window._paq;
+    const { id, found } = getVariableId(name, scope);
+    if (!found) {
+      log.warn(`Variable ${name} / ${scope} do not exists`);
+      return;
+    }
+    customVariables[scope].delete(name);
+    if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
+      matomoPaq.push(["deleteCustomVariable", id, scope]);
+    }
+  },
+  setUser: (user: User): void => {
+    const matomoPaq: unknown[] | undefined = window._paq;
+    if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
+      matomoPaq.push(["setUserId", user.userid]);
+      metrics.setVariable("UserRole", user.role);
+      matomoPaq.push(["trackEvent", "registration", "login", user.role]);
+    }
+  },
+  resetUser: (): void => {
+    const matomoPaq: unknown[] | undefined = window._paq;
+    if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
+      matomoPaq.push(["trackEvent", "registration", "logout"]);
+      metrics.deleteVariable("UserRole");
+      matomoPaq.push(["resetUserId"]);
+      matomoPaq.push(["deleteCookies"]); // Reset visitor id
+    }
+  },
+  setLanguage: (language: string): void => {
+    const matomoPaq: unknown[] | undefined = window._paq;
+    if (config.METRICS_SERVICE === "matomo" && _.isObject(matomoPaq)) {
+      metrics.setVariable("UserLang", language, "visit");
+    }
+  },
+  startTimer: (name: string): void => {
+    timers.set(name, Date.now());
+  },
+  endTimer: (name: string): void => {
+    const startTime = timers.get(name);
+    if (_.isNumber(startTime)) {
+      timers.delete(name);
+      const duration = Date.now() - startTime;
+      metrics.send("performance", name, currentMetricsURL, Math.round(duration / 100) / 10);
+    }
+  },
 };
 
-export default sendMetrics;
+export default metrics;

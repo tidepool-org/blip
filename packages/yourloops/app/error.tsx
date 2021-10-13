@@ -45,7 +45,7 @@ import {
   STORAGE_KEY_USER,
 } from "../lib/auth/hook";
 
-import sendMetrics from "../lib/metrics";
+import metrics from "../lib/metrics";
 
 interface OnErrorProps {
   event: Event | string;
@@ -63,7 +63,7 @@ function OnError(props: OnErrorProps): JSX.Element {
 
   React.useEffect(() => {
     try {
-      sendMetrics("error", "app-crash", props.error?.message ?? "n/a");
+      metrics.send("error", "app-crash", props.error?.message ?? "n/a");
     } catch (err) {
       console.error(err);
     }

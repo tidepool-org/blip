@@ -30,7 +30,7 @@ import _ from "lodash";
 import bows from "bows";
 
 import config from "./config";
-import sendMetrics from "./metrics";
+import metrics from "./metrics";
 import { zendeskAllowCookies, zendeskTrackWidgetOpen } from "./zendesk";
 
 const log = bows("Cookies");
@@ -39,9 +39,9 @@ function acceptCookiesListener(choices: CookiesComplete): void {
   log.info("User choices:", choices);
 
   if (choices.matomo === true) {
-    sendMetrics("metrics", "enabled");
+    metrics.send("metrics", "enabled");
   } else {
-    sendMetrics("metrics", "disabled");
+    metrics.send("metrics", "disabled");
   }
   if (choices.stonly === true && typeof window.loadStonlyWidget === "function") {
     window.loadStonlyWidget();

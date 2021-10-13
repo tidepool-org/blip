@@ -42,7 +42,7 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 
 import { FilterType, SortDirection, SortFields } from "../../../models/generic";
-import sendMetrics from "../../../lib/metrics";
+import metrics from "../../../lib/metrics";
 import { useAlert } from "../../../components/utils/snackbar";
 import { useAuth } from "../../../lib/auth";
 import { errorTextFromException, getUserFirstName, getUserLastName, getUserEmail, setPageTitle } from "../../../lib/utils";
@@ -58,9 +58,9 @@ import TeamCodeDialog from "./team-code-dialog";
 const log = bows("PatientListPage");
 
 // eslint-disable-next-line no-magic-numbers
-const throttledMetrics = _.throttle(sendMetrics, 60000); // No more than one per minute
+const throttledMetrics = _.throttle(metrics.send, 60000); // No more than one per minute
 // eslint-disable-next-line no-magic-numbers
-const throttleSearchMetrics = _.throttle(sendMetrics, 10000, { trailing: true });
+const throttleSearchMetrics = _.throttle(metrics.send, 10000, { trailing: true });
 
 /**
  * Compare two patient for sorting the patient table
@@ -234,12 +234,12 @@ function PatientListPage(): JSX.Element {
   };
 
   const handleSelectPatient = (user: TeamUser): void => {
-    sendMetrics("patient_selection", "select_patient", flagged.includes(user.userid) ? "flagged" : "not_flagged");
+    metrics.send("patient_selection", "select_patient", flagged.includes(user.userid) ? "flagged" : "not_flagged");
     historyHook.push(`/professional/patient/${user.userid}`);
   };
 
   const handleFlagPatient = async (userId: string): Promise<void> => {
-    sendMetrics("patient_selection", "flag_patient", flagged.includes(userId) ? "flagged" : "un-flagged");
+    metrics.send("patient_selection", "flag_patient", flagged.includes(userId) ? "flagged" : "un-flagged");
     await authHook.flagPatient(userId);
   };
 
@@ -260,7 +260,7 @@ function PatientListPage(): JSX.Element {
         const team = teamHook.getTeam(teamId);
         await teamHook.invitePatient(team as Team, email);
         alert.success(t("alert-invitation-sent-success"));
-        sendMetrics("invitation", "send_invitation", "patient");
+        metrics.send("invitation", "send_invitation", "patient");
         setTeamCodeToDisplay(team);
       } catch (reason) {
         log.error(reason);
@@ -273,7 +273,7 @@ function PatientListPage(): JSX.Element {
   };
 
   const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
-    sendMetrics("patient_selection", "sort_patients", orderBy, order === SortDirection.asc ? 1 : -1);
+    metrics.send("patient_selection", "sort_patients", orderBy, order === SortDirection.asc ? 1 : -1);
     setSortFlaggedFirst(false);
     setOrder(order);
     setOrderBy(orderBy);
@@ -292,7 +292,7 @@ function PatientListPage(): JSX.Element {
       log.info("Replace", filterType, "with team"); // TODO Remove me if it works
       filterType = "team";
     }
-    sendMetrics("patient_selection", "filter_patient", filterType);
+    metrics.send("patient_selection", "filter_patient", filterType);
   };
 
   const handleCloseTeamCodeDialog = (): void => {
@@ -392,7 +392,7 @@ function PatientListPage(): JSX.Element {
         onFilterType={handleFilterType}
         onInvitePatient={handleInvitePatient}
       />
-      <Grid container direction="row" justify="center" alignItems="center" style={{ marginTop: "1.5em", marginBottom: "1.5em" }}>
+      <Grid container direction="row" justifyContent="center" alignItems="center" style={{ marginTop: "1.5em", marginBottom: "1.5em" }}>
         <Alert severity="info">{t("alert-patient-list-data-computed")}</Alert>
       </Grid>
       {patientListElement}

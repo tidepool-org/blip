@@ -46,7 +46,7 @@ import { errorTextFromException, getUserFirstName, getUserLastName } from "../..
 import { useNotification } from "../../lib/notifications/hook";
 import { useTeam } from "../../lib/team/hook";
 import { useSharedUser } from "../../lib/share";
-import sendMetrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import { useAlert } from "../../components/utils/snackbar";
 
 interface NotificationSpanProps {
@@ -185,7 +185,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
     setInProgress(true);
     try {
       await notifications.accept(notification);
-      sendMetrics("invitation", "accept_invitation", notification.metricsType);
+      metrics.send("invitation", "accept_invitation", notification.metricsType);
       sharedUsersDispatch({ type: "reset" });
       if (_.isFunction(teamHook.refresh)) {
         teamHook.refresh(true);
@@ -202,7 +202,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
     setInProgress(true);
     try {
       await notifications.decline(notification);
-      sendMetrics("invitation", "decline_invitation", notification.metricsType);
+      metrics.send("invitation", "decline_invitation", notification.metricsType);
     } catch (reason: unknown) {
       const errorMessage = errorTextFromException(reason);
       alert.error(t(errorMessage));

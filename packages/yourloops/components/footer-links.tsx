@@ -38,7 +38,7 @@ import Link from "@material-ui/core/Link";
 
 import diabeloopUrls from "../lib/diabeloop-url";
 import config from "../lib/config";
-import sendMetrics from "../lib/metrics";
+import metrics from "../lib/metrics";
 
 interface FooterLinksProps {
   atBottom?: boolean;
@@ -101,7 +101,7 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
   };
 
   const metricsPdfDocument = (title: string) => {
-    return () => sendMetrics("pdf_document", "view_document", title);
+    return () => metrics.send("pdf_document", "view_document", title);
   };
 
   return (
@@ -116,7 +116,7 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
           </Typography>
         </Grid>
         <Grid item xs={4} className={classes.leftLink}>
-          <Link id="footer-link-url-support" target="_blank" href={diabeloopUrls.SupportUrl} rel="nofollow" onClick={() => sendMetrics("support", "click_url_support")}>{t("footer-link-url-support")}</Link>
+          <Link id="footer-link-url-support" target="_blank" href={diabeloopUrls.SupportUrl} rel="nofollow" onClick={() => metrics.send("support", "click_url_support")}>{t("footer-link-url-support")}</Link>
         </Grid>
         <Grid item xs={4} className={classes.rightLink}>
           <Link id="footer-link-url-terms" target="_blank" href={diabeloopUrls.getTermsUrL(i18n.language)} rel="nofollow" onClick={metricsPdfDocument("terms")}>{t("terms-of-use")}</Link>

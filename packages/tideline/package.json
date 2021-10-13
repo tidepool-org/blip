@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "bows": "1.7.2",
-    "classnames": "2.2.6",
     "crossfilter2": "1.4.8",
     "d3": "3.5.17",
     "d3.chart": "0.3.0",

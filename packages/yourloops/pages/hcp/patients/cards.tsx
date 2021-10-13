@@ -44,7 +44,7 @@ import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 import { SortFields } from "../../../models/generic";
 import { MedicalData } from "../../../models/device-data";
 import { getUserFirstLastName } from "../../../lib/utils";
-import sendMetrics from "../../../lib/metrics";
+import metrics from "../../../lib/metrics";
 import { useAuth } from "../../../lib/auth";
 import { TeamUser, useTeam } from "../../../lib/team";
 import { addPendingFetch, removePendingFetch } from "../../../lib/data";
@@ -173,11 +173,11 @@ function PatientCard(props: PatientElementCardProps): JSX.Element {
   const onClickFlag = (e: React.MouseEvent): void => {
     e.stopPropagation();
     onFlagPatient(userId);
-    sendMetrics("patient_selection", "flag_patient", isFlagged ? "un-flagged" : "flagged");
+    metrics.send("patient_selection", "flag_patient", isFlagged ? "un-flagged" : "flagged");
   };
   const handleShowPatientData = (/* e: React.MouseEvent */): void => {
     onClickPatient(patient);
-    sendMetrics("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
+    metrics.send("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
   };
 
   return (

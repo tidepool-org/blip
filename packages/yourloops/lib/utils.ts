@@ -32,7 +32,7 @@ import { Units } from "../models/generic";
 import { IUser, Settings } from "../models/shoreline";
 import httpStatus from "./http-status-codes";
 import { t } from "./language";
-import sendMetrics from "./metrics";
+import metrics from "./metrics";
 
 // From https://emailregex.com/
 // eslint-disable-next-line no-control-regex
@@ -165,7 +165,7 @@ export function setPageTitle(prefix?: string, metricsTitle?: string): void {
   const title = prefix ? `${prefix} | ${t("brand-name")}` : t("brand-name");
   if (document.title !== title) {
     document.title = title;
-    sendMetrics("metrics", "setDocumentTitle", metricsTitle ?? title);
+    metrics.send("metrics", "setDocumentTitle", metricsTitle ?? title);
   }
 }
 

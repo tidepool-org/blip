@@ -35,8 +35,8 @@ import { initReactI18next } from "react-i18next";
 import locales from "../../../locales/languages.json";
 import { Country, LanguageCodes } from "../models/locales";
 import getLocale from "./browser-locale";
+import metrics from "./metrics";
 import { zendeskLocale } from "./zendesk";
-import sendMetrics from "./metrics";
 
 const log = bows('i18n');
 
@@ -62,7 +62,7 @@ async function init(): Promise<void> {
 
   zendeskLocale(language);
   moment.locale(language);
-  sendMetrics.setLanguage(language);
+  metrics.setLanguage(language);
 
   const i18nOptions: InitOptions = {
     fallbackLng: locales.fallback,
@@ -111,7 +111,7 @@ async function init(): Promise<void> {
       // TODO: Get currently use Crowdin language, when Crowdin is active.
       moment.locale(language);
       zendeskLocale(language);
-      sendMetrics.setLanguage(language);
+      metrics.setLanguage(language);
       // Save locale for future load
       localStorage.setItem("lang", language);
     }

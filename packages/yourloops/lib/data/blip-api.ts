@@ -33,7 +33,7 @@ import { MessageNote } from "models/message";
 import { IUser } from "../../models/shoreline";
 import { User, AuthContext } from "../auth";
 import { t as translate } from "../language";
-import sendMetrics from "../metrics";
+import metrics from "../metrics";
 
 import { GetPatientDataOptions, GetPatientDataOptionsV0 } from "./models";
 import {
@@ -53,11 +53,11 @@ import {
 class BlipApi {
   private log: Console;
   private authHook: AuthContext;
-  public sendMetrics: typeof sendMetrics;
+  public metrics: typeof metrics;
 
   constructor(authHook: AuthContext) {
     this.authHook = authHook;
-    this.sendMetrics = sendMetrics;
+    this.metrics = metrics;
     this.log = bows("BlipAPI");
   }
 
@@ -82,12 +82,12 @@ class BlipApi {
     this.log.debug("getPatientData", { userId: patient.userid, options });
     const session = this.authHook.session();
     if (session !== null) {
-      sendMetrics.startTimer("load_data");
+      metrics.startTimer("load_data");
       return apiGetPatientData(session, patient, options).then((r) => {
-        sendMetrics.endTimer("load_data");
+        metrics.endTimer("load_data");
         return Promise.resolve(r);
       }).catch((r) => {
-        sendMetrics.endTimer("load_data");
+        metrics.endTimer("load_data");
         return Promise.reject(r);
       });
     }

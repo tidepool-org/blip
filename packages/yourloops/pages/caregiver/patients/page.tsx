@@ -37,7 +37,7 @@ import Container from "@material-ui/core/Container";
 import { FilterType, SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
 import { IUser, UserRoles } from "../../../models/shoreline";
 import { getUserFirstName, getUserLastName, getUserEmail, errorTextFromException, setPageTitle } from "../../../lib/utils";
-import sendMetrics from "../../../lib/metrics";
+import metrics from "../../../lib/metrics";
 import { useAuth } from "../../../lib/auth";
 import { useSharedUser, ShareUser, addDirectShare, removeDirectShare } from "../../../lib/share";
 import { useAlert } from "../../../components/utils/snackbar";
@@ -50,9 +50,9 @@ import AddPatientDialog from "./add-dialog";
 const log = bows("PatientListPage");
 
 // eslint-disable-next-line no-magic-numbers
-const throttledMetrics = _.throttle(sendMetrics, 60000); // No more than one per minute
+const throttledMetrics = _.throttle(metrics.send, 60000); // No more than one per minute
 // eslint-disable-next-line no-magic-numbers
-const throttleSearchMetrics = _.throttle(sendMetrics, 10000, { trailing: true });
+const throttleSearchMetrics = _.throttle(metrics.send, 10000, { trailing: true });
 
 /**
  * Compare two patient for sorting the patient table
@@ -180,19 +180,19 @@ function PatientListPage(): JSX.Element {
   const shares = sharedUsersContext.sharedUsers ?? [];
 
   const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
-    sendMetrics("patient_selection", "sort_patients", orderBy, order === SortDirection.asc ? 1 : -1);
+    metrics.send("patient_selection", "sort_patients", orderBy, order === SortDirection.asc ? 1 : -1);
     setSortFlaggedFirst(false);
     setOrder(order);
     setOrderBy(orderBy);
   };
   const handleSelectPatient = (user: IUser, flagged: boolean): void => {
-    sendMetrics("patient_selection", "select_patient", flagged ? "flagged" : "not_flagged");
+    metrics.send("patient_selection", "select_patient", flagged ? "flagged" : "not_flagged");
     historyHook.push(`/caregiver/patient/${user.userid}`);
   };
   const handleFlagPatient = async (userId: string, flagged: boolean): Promise<void> => {
     try {
       await authHook.flagPatient(userId);
-      sendMetrics("patient_selection", "flag_patient", flagged ? "flagged" : "un-flagged");
+      metrics.send("patient_selection", "flag_patient", flagged ? "flagged" : "un-flagged");
     } catch (reason) {
       log.error(errorTextFromException(reason));
     }
@@ -209,7 +209,7 @@ function PatientListPage(): JSX.Element {
       log.info("Replace", filterType, "with team"); // TODO Remove me if it works
       filterType = "team";
     }
-    sendMetrics("patient_selection", "filter_patient", filterType);
+    metrics.send("patient_selection", "filter_patient", filterType);
   };
   const handleInvitePatient = async (): Promise<void> => {
     const getPatientEmailAndTeam = (): Promise<AddPatientDialogResult | null> => {
@@ -227,7 +227,7 @@ function PatientListPage(): JSX.Element {
         await addDirectShare(session, email);
         setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
         alert.success(t("alert-invitation-sent-success"));
-        sendMetrics("invitation", "send_invitation", "patient");
+        metrics.send("invitation", "send_invitation", "patient");
       } catch (reason) {
         log.error(reason);
         alert.error(t("alert-invitation-patient-failed"));

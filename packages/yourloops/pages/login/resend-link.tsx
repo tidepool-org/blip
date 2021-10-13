@@ -31,7 +31,7 @@ import { useTranslation } from "react-i18next";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import sendMetrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { waitTimeout } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
@@ -61,7 +61,7 @@ function ButtonResendActivationLink(props: ButtonResendActivationLinkProps): JSX
   const onClickResendActivationLink = () => {
     setWorkInProgress(true);
     setResendActivationLinkInProgress(true);
-    sendMetrics("registration", "resend_signup");
+    metrics.send("registration", "resend_signup");
 
     let resendResult = false;
 

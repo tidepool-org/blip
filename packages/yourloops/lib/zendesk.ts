@@ -28,10 +28,10 @@
 
 import _ from "lodash";
 import bows from "bows";
-import sendMetrics from "./metrics";
+import metrics from "./metrics";
 
 const log = bows("Zendesk");
-const throttleMetricsOpenWidget = _.throttle(sendMetrics, 500);
+const throttleMetricsOpenWidget = _.throttle(metrics.send, 500);
 let allowCookies = false;
 
 /**

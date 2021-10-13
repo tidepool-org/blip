@@ -37,7 +37,7 @@ import Container from "@material-ui/core/Container";
 import { UserInvitationStatus } from "../../../models/generic";
 import { UserRoles } from "../../../models/shoreline";
 import { useAuth } from "../../../lib/auth";
-import sendMetrics from "../../../lib/metrics";
+import metrics from "../../../lib/metrics";
 import { setPageTitle } from "../../../lib/utils";
 import { useNotification, NotificationType } from "../../../lib/notifications";
 import { ShareUser, addDirectShare, getDirectShares, removeDirectShare } from "../../../lib/share";
@@ -82,7 +82,7 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
       try {
         await addDirectShare(session, email);
         alert.success(t("alert-invitation-sent-success"));
-        sendMetrics("invitation", "send_invitation", "caregiver");
+        metrics.send("invitation", "send_invitation", "caregiver");
         // Refresh the notifications list
         notificationHook.update();
         // And refresh the list

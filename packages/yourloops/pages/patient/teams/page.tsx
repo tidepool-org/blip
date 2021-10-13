@@ -36,7 +36,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 
-import sendMetrics from "../../../lib/metrics";
+import metrics from "../../../lib/metrics";
 import { useTeam, Team } from "../../../lib/team";
 import { errorTextFromException, setPageTitle } from "../../../lib/utils";
 import { useAlert } from "../../../components/utils/snackbar";
@@ -127,7 +127,7 @@ function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
       await teamHook.joinTeam(teamId);
       alert.success(t("modal-patient-add-team-success"));
       setTimeout(() => teamHook.refresh(true), 10);
-      sendMetrics("invitation", "add_care_team");
+      metrics.send("invitation", "add_care_team");
     } catch (reason: unknown) {
       log.error("handleShowAddTeamDialog", reason);
       const errorMessage = errorTextFromException(reason);

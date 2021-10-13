@@ -17,14 +17,14 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import i18next from 'i18next';
-import Tooltip from '../../common/tooltips/Tooltip';
+import Grid from '@material-ui/core/Grid';
+import LockIcon from '@material-ui/icons/LockOutlined';
+
 import colors from '../../../styles/colors.css';
 import styles from './ConfidentialTooltip.css';
 
-import {Grid} from '@material-ui/core';
-import LockIcon from '@material-ui/icons/LockOutlined';
+import Tooltip from '../../common/tooltips/Tooltip';
 
 const t = i18next.t.bind(i18next);
 

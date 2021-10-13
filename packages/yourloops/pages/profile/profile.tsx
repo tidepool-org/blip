@@ -55,7 +55,7 @@ import { getLangName, getCurrentLang, availableLanguageCodes } from "../../lib/l
 import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, setPageTitle } from "../../lib/utils";
 import { User, useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
-import sendMetrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import { useAlert } from "../../components/utils/snackbar";
 import { ConsentFeedback } from "../../components/consents";
 import SecondaryHeaderBar from "./secondary-bar";
@@ -231,7 +231,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
 
   const handleSwitchRoleOpen = () => {
     setSwitchRoleOpen(true);
-    sendMetrics("switch_account", "display_switch_preferences");
+    metrics.send("switch_account", "display_switch_preferences");
   };
   const handleSwitchRoleCancel = () => {
     setSwitchRoleOpen(false);

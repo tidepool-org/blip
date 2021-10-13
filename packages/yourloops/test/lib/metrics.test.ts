@@ -29,7 +29,7 @@
 import { expect } from "chai";
 
 import config from "../../lib/config";
-import sendMetrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import { loggedInUsers } from "../common/index";
 
 function testMetrics(): void {
@@ -44,13 +44,13 @@ function testMetrics(): void {
 
   it("should do nothing if metrics is not available", () => {
     delete window._paq;
-    sendMetrics("metrics", "enabled");
+    metrics.send("metrics", "enabled");
     expect(window._paq).to.be.undefined;
   });
 
   it("should disable the metrics", () => {
-    sendMetrics("metrics", "disabled");
-    sendMetrics("test", "you should not see me");
+    metrics.send("metrics", "disabled");
+    metrics.send("test", "you should not see me");
     expect(window._paq).to.be.deep.equals([
       ["forgetConsentGiven"],
       ["setDoNotTrack", true],
@@ -58,8 +58,8 @@ function testMetrics(): void {
   });
 
   it("should enable the metrics", () => {
-    sendMetrics("metrics", "enabled");
-    sendMetrics("test", "you should see me");
+    metrics.send("metrics", "enabled");
+    metrics.send("test", "you should see me");
     expect(window._paq).to.be.an("array");
     if (window._paq) { // Make typescript happy
       // eslint-disable-next-line no-magic-numbers
@@ -68,7 +68,7 @@ function testMetrics(): void {
   });
 
   it("should update matomo page URL", () => {
-    sendMetrics("metrics", "setCustomUrl", location.pathname);
+    metrics.send("metrics", "setCustomUrl", location.pathname);
     expect(window._paq).to.be.an("array");
     if (window._paq) { // Make typescript happy
       expect(window._paq.length).to.be.equals(1);
@@ -79,14 +79,14 @@ function testMetrics(): void {
   });
 
   it("should set trackPageView", () => {
-    sendMetrics("metrics", "trackPageView");
+    metrics.send("metrics", "trackPageView");
     expect(window._paq.length).to.be.equals(1);
     expect(window._paq[0].length).to.be.equals(1);
     expect(window._paq[0][0]).to.be.equals("trackPageView");
   });
 
   it("trackSiteSearch should have a specific call", () => {
-    sendMetrics("trackSiteSearch", "action", "value", 2);
+    metrics.send("trackSiteSearch", "action", "value", 2);
     expect(window._paq.length).to.be.equals(1);
     expect(window._paq[0].length).to.be.equals(4);
     expect(window._paq[0][0]).to.be.equals("trackSiteSearch");
@@ -97,7 +97,7 @@ function testMetrics(): void {
 
   it("should set the userId", () => {
     const user = loggedInUsers.caregiver;
-    sendMetrics.setUser(user);
+    metrics.setUser(user);
     expect(window._paq, JSON.stringify(window._paq)).to.be.deep.equals([
       ["setUserId", user.userid],
       ["setCustomVariable", 1, "UserRole", user.role, "page"],
@@ -106,7 +106,7 @@ function testMetrics(): void {
   });
 
   it("should reset the userId", () => {
-    sendMetrics.resetUser();
+    metrics.resetUser();
     expect(window._paq, JSON.stringify(window._paq)).to.be.deep.equals([
       ["trackEvent", "registration", "logout"],
       ["deleteCustomVariable", 1, "page"],
@@ -116,23 +116,23 @@ function testMetrics(): void {
   });
 
   it("should set the setDocumentTitle", () => {
-    sendMetrics("metrics", "setDocumentTitle", "title");
+    metrics.send("metrics", "setDocumentTitle", "title");
     expect(window._paq).to.be.deep.equals([["setDocumentTitle", "title"]]);
   });
 
   it("should set the properties to a default value", () => {
-    sendMetrics("test_category", "test_action", "test_name", 2);
+    metrics.send("test_category", "test_action", "test_name", 2);
     expect(window._paq).to.be.deep.equals([["trackEvent", "test_category", "test_action", "test_name", 2]]);
   });
 
   it("should set the global language var", () => {
-    sendMetrics.setLanguage("de");
+    metrics.setLanguage("de");
     expect(window._paq).to.be.deep.equals([["setCustomVariable", 1, "UserLang", "de", "visit"]]);
   });
 
   it("should measure performance with the timer functions", () => {
-    sendMetrics.startTimer("test");
-    sendMetrics.endTimer("test");
+    metrics.startTimer("test");
+    metrics.endTimer("test");
     expect(window._paq.length).to.be.equals(1);
     expect(window._paq[0].length).to.be.equals(5);
     expect(window._paq[0][0]).to.be.equals("trackEvent");

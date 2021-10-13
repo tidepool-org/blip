@@ -46,7 +46,7 @@ import TextField from "@material-ui/core/TextField";
 import brandingLogo from "branding/logo.png";
 
 import appConfig from "../../lib/config";
-import sendMetrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { errorTextFromException } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
@@ -157,7 +157,7 @@ function Login(): JSX.Element {
       }
 
       alert.error(translatedErrorMessage as string, action);
-      sendMetrics("error", "login", errorMessage);
+      metrics.send("error", "login", errorMessage);
     }
   };
 
@@ -171,7 +171,7 @@ function Login(): JSX.Element {
 
   return (
     <Container maxWidth="sm">
-      <Grid container spacing={0} alignItems="center" justify="center">
+      <Grid container spacing={0} alignItems="center" justifyContent="center">
         <Grid item xs={12}>
           <Card className={classes.Card}>
             <CardMedia
@@ -230,12 +230,12 @@ function Login(): JSX.Element {
                   helperText={helperTextValue}
                 />
               </form>
-              <Link id="link-password-reset" component={RouterLink} to="/request-password-reset" onClick={() => sendMetrics("support", "password_reset")}>
+              <Link id="link-password-reset" component={RouterLink} to="/request-password-reset" onClick={() => metrics.send("support", "password_reset")}>
                 {t("forgot-password-question")}
               </Link>
             </CardContent>
             <CardActions className={classes.CardActions}>
-              <Link id="link-signup" component={RouterLink} to="/signup" onClick={() => sendMetrics("registration", "start_signup")}>
+              <Link id="link-signup" component={RouterLink} to="/signup" onClick={() => metrics.send("registration", "start_signup")}>
                 {t("signup-steppers-create-account")}
               </Link>
               <Button

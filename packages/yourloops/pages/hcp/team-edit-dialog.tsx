@@ -69,7 +69,7 @@ const modalStyles = makeStyles((theme: Theme) => {
       padding: theme.spacing(2),
       backgroundColor: theme.palette.background.paper,
       borderRadius: theme.shape.borderRadius,
-      width: theme.breakpoints.width("sm"),
+      width: theme.breakpoints.values["sm"],
     },
     title: {
       paddingLeft: theme.spacing(2),

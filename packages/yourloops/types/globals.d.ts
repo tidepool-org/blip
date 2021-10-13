@@ -54,6 +54,7 @@ declare global {
     zE: (...args: any) => void; // Zendesk API
     config?: AppConfig;
     cleanBlipReduxStore?: () => void;
+    process: any;
   }
   interface Navigator {
     userLanguage?: string;

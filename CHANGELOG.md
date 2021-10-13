@@ -8,6 +8,8 @@ It is based on Tidepool Blip 1.27.
 - YLP-996 Restructure account preferences page
 ### Fixed
 - YLP-1041 Fix potential crash in YourLoops when rendering the PDF
+### Engineering Use
+- YLP-1042 Bump some dependencies
 
 ## 2.0.4 - 2021-09-27
 ### Added

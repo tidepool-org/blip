@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { createMuiTheme, Theme, darken, lighten } from "@material-ui/core/styles";
+import { createTheme, Theme, darken, lighten } from "@material-ui/core/styles";
 import { PaletteOptions } from "@material-ui/core/styles/createPalette";
 
 const commonTheme: PaletteOptions = {
@@ -50,14 +50,14 @@ const commonTheme: PaletteOptions = {
 };
 
 // Not using var(): https://github.com/mui-org/material-ui/issues/12827
-export const mainTheme = createMuiTheme({
+export const mainTheme = createTheme({
   palette: {
     ...commonTheme,
     background: { default: "#FFFFFF" },
   },
 });
 
-export const externalTheme = createMuiTheme({
+export const externalTheme = createTheme({
   palette: {
     ...commonTheme,
     background: { default: "#F7F7F8" },

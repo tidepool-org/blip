@@ -30,7 +30,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import bows from "bows";
 
-import sendMetrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { useAlert } from "../utils/snackbar";
 import { SwitchRoleDialogsProps, SwitchRoleToHcpSteps } from "./models";
@@ -64,7 +64,7 @@ function SwitchRoleDialogs(props: SwitchRoleDialogsProps): JSX.Element {
     if (accept) {
       switchRoleToHCP(feedbackConsent)
         .then(() => {
-          sendMetrics("switch_account", "accept_terms");
+          metrics.send("switch_account", "accept_terms");
         })
         .catch((reason: unknown) => {
           alert.error(t("modal-switch-hcp-failure"));

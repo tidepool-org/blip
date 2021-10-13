@@ -33,7 +33,7 @@ import { MS_IN_DAY } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
 import { IUser, UserRoles } from "../../models/shoreline";
 import { numberPrecision } from "../utils";
-import sendMetrics from "../metrics";
+import metrics from "../metrics";
 import { Session } from "../auth";
 
 import {
@@ -57,7 +57,7 @@ const sendTimerMetrics = _.throttle(() => {
     const m = avgMetrics[i];
     totalTime += m.duration;
   }
-  sendMetrics("performance", "fetch_summaries", "/professional/patients", numberPrecision(totalTime / (nMetrics * 1000)));
+  metrics.send("performance", "fetch_summaries", "/professional/patients", numberPrecision(totalTime / (nMetrics * 1000)));
   avgMetrics.splice(0);
 }, 30000, { trailing: true, leading: false }); // eslint-disable-line no-magic-numbers
 

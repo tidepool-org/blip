@@ -31,7 +31,7 @@ import { useTranslation } from "react-i18next";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 
-import sendMetrics from "../../lib/metrics";
+import metrics from "../../lib/metrics";
 import { ConsentForm } from "../../components/consents";
 import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
 import SignUpFormProps from "./signup-form-props";
@@ -76,7 +76,7 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
   const onNext = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     handleNext();
-    sendMetrics("registration", "accept_terms", state.formValues.accountRole);
+    metrics.send("registration", "accept_terms", state.formValues.accountRole);
   };
 
   return (

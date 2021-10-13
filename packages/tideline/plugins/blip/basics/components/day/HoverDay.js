@@ -2,7 +2,6 @@ import i18next from "i18next";
 import PropTypes from "prop-types";
 import React from "react";
 import moment from "moment-timezone";
-import cx from "classnames";
 
 import { getCount } from "../BasicsUtils";
 import { MS_IN_DAY } from "../../logic/constants";
@@ -35,9 +34,7 @@ class HoverDay extends React.Component {
 
   render() {
     const { type, date } = this.props;
-    var containerClass = cx("Calendar-day--" + type, {
-      "Calendar-day--HOVER": true,
-    });
+    const containerClass = `Calendar-day--${type} Calendar-day--HOVER`;
 
     var display = <div className="Calendar-day-text">{this.getCount(this.props.subtotalType)}</div>;
 

@@ -47,7 +47,7 @@ const dialogStyles = makeStyles(
       dialogContent: {
         display: "flex",
         flexDirection: "column",
-        width: theme.breakpoints.width("sm"),
+        width: theme.breakpoints.values["sm"],
         marginTop: "1.5em",
       },
       formControlPolicy: {

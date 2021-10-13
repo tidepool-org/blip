@@ -37,7 +37,7 @@ import { useHistory } from "react-router-dom";
 import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
 import { defer, fixYLP878Settings, numberPrecision } from "../utils";
 import { availableLanguageCodes, getCurrentLang, changeLanguage } from "../language";
-import sendMetrics from "../metrics";
+import metrics from "../metrics";
 import { zendeskLogin, zendeskLogout } from "../zendesk";
 import User from "./user";
 import { Session, AuthAPI, AuthContext, AuthProvider, SignupUser } from "./models";
@@ -127,7 +127,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
       setTraceToken(trace);
     }
     zendeskLogin();
-    sendMetrics.setUser(usr);
+    metrics.setUser(usr);
   }, [sessionToken, traceToken]);
 
   /**
@@ -328,7 +328,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     sessionStorage.removeItem(STORAGE_KEY_SESSION_TOKEN);
     sessionStorage.removeItem(STORAGE_KEY_TRACE_TOKEN);
     sessionStorage.removeItem(STORAGE_KEY_USER);
-    sendMetrics.resetUser();
+    metrics.resetUser();
     zendeskLogout();
 
     setUserPrivate(null);
@@ -472,7 +472,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
         const startLoadingTime = window.startLoadingTime;
         if (_.isNumber(startLoadingTime) && Number.isFinite(startLoadingTime)) {
           const loadingTime = (Date.now() - startLoadingTime) / 1000;
-          sendMetrics("performance", "load_time", "initial", numberPrecision(loadingTime));
+          metrics.send("performance", "load_time", "initial", numberPrecision(loadingTime));
           delete window.startLoadingTime;
         }
       }, 1);

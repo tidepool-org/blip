@@ -75,7 +75,7 @@ class PatientDataPage extends React.Component {
     const { api, patient } = this.props;
 
     this.log = bows('PatientData');
-    this.trackMetric = api.sendMetrics;
+    this.trackMetric = api.metrics.send;
     this.chartRef = React.createRef();
     /** @type {DataUtil | null} */
     this.dataUtil = null;
@@ -936,7 +936,7 @@ class PatientDataPage extends React.Component {
 
     const firstLoadOrRefresh = tidelineData === null;
 
-    this.trackMetric.startTimer('process_data');
+    this.props.api.metrics.startTimer('process_data');
 
     const res = nurseShark.processData(data, bgPrefs.bgUnits);
     await waitTimeout(1);
@@ -954,7 +954,7 @@ class PatientDataPage extends React.Component {
     await tidelineData.addData(res.processedData);
 
     if (_.isEmpty(tidelineData.data)) {
-      this.trackMetric.endTimer('process_data');
+      this.props.api.metrics.endTimer('process_data');
       throw new Error('no-data');
     }
 
@@ -993,7 +993,7 @@ class PatientDataPage extends React.Component {
       });
     }
 
-    this.trackMetric.endTimer('process_data');
+    this.props.api.metrics.endTimer('process_data');
   }
 }
 
