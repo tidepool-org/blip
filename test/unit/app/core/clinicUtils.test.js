@@ -30,6 +30,7 @@ describe('clinicUtils', function() {
     expect(clinicUtils.clinicTypes).to.eql([
       { value: 'provider_practice', label: 'Provider Practice' },
       { value: 'healthcare_system', label: 'Healthcare System' },
+      { value: 'veterinary_clinic', label: 'Veterinary Clinic' },
       { value: 'other', label: 'Other' },
     ]);
   });
