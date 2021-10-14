@@ -27,6 +27,7 @@ export const roles = [
 export const clinicTypes = [
   { value: 'provider_practice', label: t('Provider Practice') },
   { value: 'healthcare_system', label: t('Healthcare System') },
+  { value: 'veterinary_clinic', label: t('Veterinary Clinic') },
   { value: 'other', label: t('Other') },
 ];
 
