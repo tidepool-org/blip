@@ -16,22 +16,10 @@ import TextInput from '../../components/elements/TextInput';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
 import { addEmptyOption, getCommonFormikFieldProps } from '../../core/forms';
+import { clinicSizes, clinicTypes } from '../../core/clinicUtils';
 
 export const ClinicProfileFields = (props) => {
   const { t, formikContext, ...BoxProps } = props;
-
-  const clinicTypes = [
-    { value: 'provider_practice', label: t('Provider Practice') },
-    { value: 'healthcare_system', label: t('Healthcare System') },
-    { value: 'other', label: t('Other') },
-  ];
-
-  const clinicSizes = [
-    { value: '0-249', label: t('0-249') },
-    { value: '250-499', label: t('250-499') },
-    { value: '500-999', label: t('500-999') },
-    { value: '1000+', label: t('1000+') },
-  ];
 
   const selectCountries = sortBy(
     map(countries.getNames('en'), (val, key) => ({
