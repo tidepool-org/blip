@@ -16,10 +16,6 @@
     "build-dev": "NODE_ENV=development webpack",
     "lint": "eslint app test"
   },
-  "engines": {
-    "node": ">=12.x",
-    "npm": ">=7.x"
-  },
   "browser": "app/index.js",
   "main": "app/index.js",
   "types": "app/index.d.ts",

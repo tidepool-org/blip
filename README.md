@@ -28,14 +28,14 @@ If this is the first time you're looking at Yoorloops (blip) locally, start with
 
 Requirements:
 - [NVM](https://github.com/nvm-sh/nvm) for managing your nodejs
-- [Node.js](http://nodejs.org/ 'Node.js') version 12.x or higher
+- [Node.js](http://nodejs.org/ 'Node.js') version 14.x or higher
 - [npm](https://www.npmjs.com/ 'npm') version 7.x or higher
 - [Lerna](https://lerna.js.org/) version 2.x
 
 
 Clone this repo [from GitHub](https://github.com/mdblp/blip 'GitHub: blip'), then install the dependencies:
 
-After cloning this repository to your local machine, first make sure that you have node `12.x` and npm `7.x` installed. If you have a different major version of node installed, consider using [nvm](https://github.com/creationix/nvm 'GitHub: Node Version Manager') to manage and switch between multiple node (& npm) installations.
+After cloning this repository to your local machine, first make sure that you have node >= `14.x` and npm >= `7.x` installed. If you have a different major version of node installed, consider using [nvm](https://github.com/creationix/nvm 'GitHub: Node Version Manager') to manage and switch between multiple node (& npm) installations.
 You can install the latest npm version with: `npm install -g npm@latest`.
 
 Once your environment is setup with node, lerna and npm, install the dependencies:

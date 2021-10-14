@@ -15,8 +15,8 @@ you will find below how to perform manual local deployment.
 
 you need to have the software below :
 
-* a node package manager: npm or yarn
-* node version =10.15.3 or =12.18.3
+* a node package manager: npm
+* node version >=14.0
 * the aws CDK cli called cdk.
 * a linux shell
 

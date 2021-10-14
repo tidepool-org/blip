@@ -15,10 +15,6 @@
   "publishConfig": {
     "registry": "https://nexus.ci.diabeloop.eu/repository/your-loops-npm/"
   },
-  "engines": {
-    "node": ">=10.x",
-    "npm": ">=6.x"
-  },
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/tidepool-org/viz/issues"

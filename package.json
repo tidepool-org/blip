@@ -39,7 +39,7 @@
     "sort-translations": "node ./locales/translations-sorter.js"
   },
   "engines": {
-    "node": ">=12.x",
+    "node": ">=14.x",
     "npm": ">=7.x"
   },
   "dependencies": {

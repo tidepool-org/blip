@@ -10,6 +10,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1041 Fix potential crash in YourLoops when rendering the PDF
 ### Engineering Use
 - YLP-1042 Bump some dependencies
+- YLP-1049 Bump node to v14
 
 ## 2.0.4 - 2021-09-27
 ### Added

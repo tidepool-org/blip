@@ -5,7 +5,7 @@ pipeline {
         label 'blip'
     }
     environment {
-        node_version='12'
+        node_version='14'
     }
     stages {
         stage('Initialization') {
