@@ -25,7 +25,6 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-/* eslint-disable @typescript-eslint/no-var-requires */
 
 const { updateDefaultConfig, setKarmaConfig } = require("../../karma.common.conf");
 const webpack = require("./webpack.config.js");

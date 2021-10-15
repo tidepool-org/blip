@@ -111,7 +111,7 @@ const fontLoaderConfiguration = {
 const localesLoader = {
   test: /locales\/languages\.json$/,
   use: {
-    loader: './locales-loader.js'
+    loader: '../../webpack.locales-loader.js'
   }
 };
 

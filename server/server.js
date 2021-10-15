@@ -182,9 +182,9 @@ if (httpsPort) {
         const now = new Date().toISOString();
         console.log(`${now} Connect server started on HTTPS port`, httpsPort);
         console.log(`${now} Serving static directory '${staticDir}/'`);
-      })
+      });
     }
-  })
+  });
 }
 
 // Handle simple process kill

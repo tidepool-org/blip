@@ -73,7 +73,7 @@ JUnitReporter.prototype.logReport = function() {
       });
     });
   }
-}
+};
 
 JUnitReporter.prototype.getSuiteStats = function(/** @type {string} */ suiteName) {
   const stats = { tests: 0, failures: 0, skipped: 0, time: 0, timestamp: "" };
@@ -96,7 +96,7 @@ JUnitReporter.prototype.getSuiteStats = function(/** @type {string} */ suiteName
     });
   }
   return stats;
-}
+};
 
 JUnitReporter.prototype.getSuitesStats = function() {
   const stats = { tests: 0, failures: 0, time: 0 };
@@ -107,7 +107,7 @@ JUnitReporter.prototype.getSuitesStats = function() {
     stats.time += stat.time;
   });
   return stats;
-}
+};
 
 JUnitReporter.prototype.fileReport = async function() {
   this.log.info(`Writing ${this.config.name} result to ${this.config.filename}`);
@@ -120,6 +120,9 @@ JUnitReporter.prototype.fileReport = async function() {
   for (const name of suitesNames) {
     const stats = this.getSuiteStats(name);
     const suite = this.suites.get(name);
+    if (typeof suite === "undefined") {
+      throw new Error(`Suite ${name} do not exists`);
+    }
     await handle.write(` <testsuite name="${this.config.name}/${name}" errors="0" failures="${stats.failures}" test="${stats.tests}" skipped="${stats.skipped}" time="${(stats.time / 1000).toFixed(3)}" timestamp="${stats.timestamp}">\n`);
     for (const [testName, results] of suite) {
       const time = (results.reduce((p, r) => p + r.time, 0) / (results.length * 1000)).toFixed(3);
@@ -141,7 +144,7 @@ JUnitReporter.prototype.fileReport = async function() {
   }
   await handle.write(`</testsuites>\n`);
   await handle.close();
-}
+};
 
 JUnitReporter.prototype.onExit = function(done) {
   this.logReport();
@@ -159,7 +162,7 @@ JUnitReporter.prototype.onSpecComplete = function(browser, result) {
   const browserName = browser.name;
   const resultValue = getResult(result);
 
-  /** @type {TestError} */
+  /** @type {TestError|undefined} */
   let failure = undefined;
   if (resultValue === "failure") {
     const type = _.escape(_.get(result, "assertionErrors[0].name", "Error").trim());
@@ -170,6 +173,9 @@ JUnitReporter.prototype.onSpecComplete = function(browser, result) {
 
   if (this.suites.has(suiteName)) {
     const suite = this.suites.get(suiteName);
+    if (typeof suite === "undefined") {
+      throw new Error(`Suite ${suiteName} do not exists`);
+    }
     if (suite.has(description)) {
       suite.get(description).push({ browser: browserName, time, result: resultValue, failure, timestamp: new Date().toISOString() });
     } else {
@@ -180,7 +186,7 @@ JUnitReporter.prototype.onSpecComplete = function(browser, result) {
     suite.set(description, [{ browser: browserName, time, result: resultValue, failure, timestamp: new Date().toISOString() }]);
     this.suites.set(suiteName, suite);
   }
-}
+};
 
 JUnitReporter.$inject = ['config', 'logger'];
 

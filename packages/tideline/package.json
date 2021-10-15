@@ -14,8 +14,7 @@
   "scripts": {
     "mrproper": "rm -rf dist node_modules",
     "clean": "rm -rf dist",
-    "test": "TZ=UTC NODE_ENV=test karma start",
-    "lint": "eslint js plugins test"
+    "test": "TZ=UTC NODE_ENV=test karma start"
   },
   "dependencies": {
     "bows": "1.7.2",

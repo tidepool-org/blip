@@ -9,8 +9,7 @@
   "scripts": {
     "mrproper": "rm -rf dist node_modules",
     "clean": "rm -rf dist",
-    "test": "TZ=UTC NODE_ENV=test karma start",
-    "lint": "eslint src/ test/ *.js"
+    "test": "TZ=UTC NODE_ENV=test karma start"
   },
   "publishConfig": {
     "registry": "https://nexus.ci.diabeloop.eu/repository/your-loops-npm/"

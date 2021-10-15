@@ -211,7 +211,7 @@ const webpackConfig = {
 
       // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
       { enforce: "pre", test: reJTSX, loader: "source-map-loader" },
-      { test: /locales\/languages\.json$/, loader: "./locales-loader.js" },
+      { test: /locales\/languages\.json$/, loader: "../../webpack.locales-loader.js" },
     ],
   },
 };

@@ -41,7 +41,6 @@
   },
   "scripts": {
     "mrproper": "rm -rf node_modules",
-    "lint": "eslint sundial.js lib test",
     "test": "TZ=UTC LANG=C mocha --exit --check-leaks test/**/*.test.js ",
     "security-checks": "npm audit --production --registry=https://registry.npmjs.org/"
   },

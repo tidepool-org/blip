@@ -11,6 +11,7 @@ It is based on Tidepool Blip 1.27.
 ### Engineering Use
 - YLP-1042 Bump some dependencies
 - YLP-1049 Bump node to v14
+- YLP-1051 Allow to verify with eslint js files outside main packages
 
 ## 2.0.4 - 2021-09-27
 ### Added

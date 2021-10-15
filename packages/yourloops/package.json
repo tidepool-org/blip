@@ -15,7 +15,6 @@
   "scripts": {
     "mrproper": "rm -rf node_modules dist",
     "clean": "rm -rf dist",
-    "lint": "eslint app components lib models pages test types",
     "build": "npm run build-prod",
     "prebuild-prod": "npm run clean",
     "build-prod": "NODE_ENV=production webpack --mode=production",

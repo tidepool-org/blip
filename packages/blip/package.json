@@ -13,8 +13,7 @@
     "build": "npm run build-app",
     "build-app": "NODE_ENV=production webpack",
     "prebuild-dev": "rm -rf dist",
-    "build-dev": "NODE_ENV=development webpack",
-    "lint": "eslint app test"
+    "build-dev": "NODE_ENV=development webpack"
   },
   "browser": "app/index.js",
   "main": "app/index.js",
