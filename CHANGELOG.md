@@ -9,6 +9,7 @@ It is based on Tidepool Blip 1.27.
 ### Fixed
 - YLP-1041 Fix potential crash in YourLoops when rendering the PDF
 ### Engineering Use
+- YLP-1029 Add a build step to verify translations
 - YLP-1042 Bump some dependencies
 - YLP-1049 Bump node to v14
 - YLP-1051 Allow to verify with eslint js files outside main packages

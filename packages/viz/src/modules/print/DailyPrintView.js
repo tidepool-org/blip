@@ -426,9 +426,7 @@ class DailyPrintView extends PrintView {
 
       this.doc
         .text(
-          t('Below {{threshold}}', {
-            threshold: formatDecimalNumber(veryLowThreshold, bgPrecision),
-          }),
+          t('Below {{threshold}}', { threshold: formatDecimalNumber(veryLowThreshold, bgPrecision) }),
           { indent: statsIndent, continued: true, width: widthWithoutIndent },
         )
         .text(`${formatPercentage(veryLow / totalCbgDuration)}`, { align: 'right' });
@@ -446,9 +444,7 @@ class DailyPrintView extends PrintView {
       }
 
       const ratioTitle = this.isAutomatedBasalDevice
-        ? t('Time in {{automatedLabel}}', {
-          automatedLabel: this.basalGroupLabels.automated,
-        })
+        ? t('Time in {{automatedLabel}}', { automatedLabel: this.basalGroupLabels.automated })
         : t('Basal:Bolus Ratio');
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)

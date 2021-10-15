@@ -219,7 +219,7 @@ describe('stat', () => {
         };
 
         expect(stat.getStatAnnotations(insufficientData, commonStats.coefficientOfVariation, cbgOpts)).to.have.include.members([
-          '**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.',
+          'insufficient-data',
         ]);
       });
     });
@@ -238,7 +238,7 @@ describe('stat', () => {
         };
 
         expect(stat.getStatAnnotations(insufficientData, commonStats.glucoseManagementIndicator, cbgOpts)).to.have.include.members([
-          '**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.',
+          'insufficient-data',
         ]);
       });
     });
@@ -281,39 +281,43 @@ describe('stat', () => {
         };
 
         expect(stat.getStatAnnotations(insufficientData, commonStats.standardDev, cbgOpts)).to.have.include.members([
-          '**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.',
+          'insufficient-data',
         ]);
       });
     });
 
     describe('timeInAuto', () => {
       it('should return annotations for `timeInAuto` stat when viewing a single day of data', () => {
-        expect(stat.getStatAnnotations(data, commonStats.timeInAuto, singleDayOpts)).to.have.ordered.members([
+        const result = stat.getStatAnnotations(data, commonStats.timeInAuto, singleDayOpts);
+        expect(result, JSON.stringify(result)).to.have.ordered.members([
           '**Time In Loop Mode:** Time spent in automated basal delivery.',
-          '**How we calculate this:**\n\n**(%)** is the duration in loop mode ON or OFF divided by the total duration of basals for this time period.\n\n**(time)** is total duration of time in loop mode ON or OFF.',
+          'compute-oneday-time-in-auto',
         ]);
       });
 
       it('should return annotations for `timeInAuto` stat when viewing multiple days of data', () => {
-        expect(stat.getStatAnnotations(data, commonStats.timeInAuto, multiDayOpts)).to.have.ordered.members([
+        const result = stat.getStatAnnotations(data, commonStats.timeInAuto, multiDayOpts);
+        expect(result, JSON.stringify(result)).to.have.ordered.members([
           '**Time In Loop Mode:** Daily average of the time spent in automated basal delivery.',
-          '**How we calculate this:**\n\n**(%)** is the duration in loop mode ON or OFF divided by the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in loop mode ON or OFF.',
+          'compute-ndays-time-in-auto',
         ]);
       });
     });
 
     describe('timeInRange', () => {
       it('should return annotations for `timeInRange` stat when viewing a single day of data', () => {
-        expect(stat.getStatAnnotations(data, commonStats.timeInRange, singleDayOpts)).to.have.ordered.members([
+        const result = stat.getStatAnnotations(data, commonStats.timeInRange, singleDayOpts);
+        expect(result, JSON.stringify(result)).to.have.ordered.members([
           '**Time In Range:** Time spent in range, based on CGM readings.',
-          '**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is number of readings in range multiplied by the CGM sample frequency.',
+          'compute-oneday-time-in-range',
         ]);
       });
 
       it('should return annotations for `timeInRange` stat when viewing multiple days of data', () => {
-        expect(stat.getStatAnnotations(data, commonStats.timeInRange, multiDayOpts)).to.have.ordered.members([
+        const result = stat.getStatAnnotations(data, commonStats.timeInRange, multiDayOpts);
+        expect(result, JSON.stringify(result)).to.have.ordered.members([
           '**Time In Range:** Daily average of the time spent in range, based on CGM readings.',
-          '**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is 24 hours multiplied by % in range.',
+          'compute-ndays-time-in-range',
         ]);
       });
     });
@@ -322,14 +326,14 @@ describe('stat', () => {
       it('should return annotations for `totalInsulin` stat when viewing a single day of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.totalInsulin, singleDayOpts)).to.have.ordered.members([
           '**Total Insulin:** All basal and bolus insulin delivery (in Units) added together',
-          '**How we calculate this:**\n\n**(%)** is the respective total of basal or bolus delivery divided by total insulin delivered for this time period.',
+          'compute-total-insulin',
         ]);
       });
 
       it('should return annotations for `totalInsulin` stat when viewing multiple days of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.totalInsulin, multiDayOpts)).to.have.ordered.members([
           '**Total Insulin:** All basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view',
-          '**How we calculate this:**\n\n**(%)** is the respective total of basal or bolus delivery divided by total insulin delivered for this time period.',
+          'compute-total-insulin',
         ]);
       });
     });
@@ -337,7 +341,7 @@ describe('stat', () => {
     describe('insufficientData', () => {
       it('should return annotation for `insufficientData` stat when insufficient data was present', () => {
         expect(stat.getStatAnnotations({ insufficientData: true }, null, singleDayOpts)).to.have.ordered.members([
-          '**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.',
+          'insufficient-data',
         ]);
       });
     });

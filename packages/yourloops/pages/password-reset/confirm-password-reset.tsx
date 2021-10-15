@@ -84,7 +84,7 @@ function ConfirmPasswordResetPage(): JSX.Element {
               }}>
               <img
                 src={brandingLogo}
-                alt={t("Login Branding Logo")}
+                alt={t("alt-img-logo")}
                 style={{
                   height: "60px",
                   marginLeft: "auto",

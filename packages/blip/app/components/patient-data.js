@@ -243,7 +243,7 @@ class PatientDataPage extends React.Component {
         if (errorMessage === 'no-data') {
           errorDisplay = this.renderNoData();
         } else {
-          errorDisplay = <p id="loading-error-message">{errorMessage ?? t('Failed somewhere')}</p>;
+          errorDisplay = <p id="loading-error-message">{errorMessage ?? t('An unknown error occurred')}</p>;
         }
         break;
     }
@@ -289,9 +289,8 @@ class PatientDataPage extends React.Component {
 
   renderNoData() {
     const header = this.renderEmptyHeader();
-    const noDataText = t('{{patientName}} does not have any data yet.', {
-      patientName: personUtils.fullName(this.props.patient),
-    });
+    const patientName = personUtils.fullName(this.props.patient);
+    const noDataText = t('{{patientName}} does not have any data yet.', { patientName });
     const reloadBtnText = t('Click to reload.');
 
     return (

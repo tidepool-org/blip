@@ -69,7 +69,7 @@ export default function SignUpStepper() : JSX.Element {
   const { state, dispatch } = useSignUpFormState();
   const history = useHistory();
   const [activeStep, setActiveStep] = React.useState(0);
-  const [tittle, setTitle] = React.useState("");
+  const [title, setTitle] = React.useState("");
   const steps = [
     "signup-steppers-step1",
     "signup-steppers-step2",
@@ -79,9 +79,9 @@ export default function SignUpStepper() : JSX.Element {
 
   React.useEffect(() => {
     if (!_.isEmpty(state.formValues?.accountRole)) {
-      setTitle(`signup-steppers-${state.formValues.accountRole}-title`);
+      setTitle(t(`signup-steppers-${state.formValues.accountRole}-title`));
     }
-  }, [state.formValues.accountRole]);
+  }, [state.formValues.accountRole, t]);
 
   const handleNext = (): void => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -132,7 +132,7 @@ export default function SignUpStepper() : JSX.Element {
     <div className={classes.root}>
       {activeStep > 0 && (
         <Typography color="primary" variant="h4" gutterBottom>
-          {t(tittle)}
+          {title}
         </Typography>
       )}
       <Stepper id="signup-stepper" activeStep={activeStep} alternativeLabel>

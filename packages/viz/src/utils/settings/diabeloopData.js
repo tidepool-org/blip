@@ -74,7 +74,11 @@ export function diabeloopText(device, parametersByLevel, displayDeviceDate) {
   parametersByLevel.forEach((parameters, level) => {
     let pLevelText = `-= ${t('Parameters level')} ${level} =-\n`;
 
-    const tableRows = [[t('Name'), t('Value'), t('Unit')]];
+    const tableRows = [[
+      t('Name'),
+      t('Value'),
+      t('Unit')
+    ]];
 
     // eslint-disable-next-line lodash/prefer-lodash-method
     parameters.forEach((parameter) => {

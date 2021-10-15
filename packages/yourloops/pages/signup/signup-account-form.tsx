@@ -189,7 +189,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
         autoComplete="new-password"
         className={classes.TextField}
         margin="normal"
-        label={t("New password")}
+        label={t("new-password")}
         variant="outlined"
         type={showNewPassword ? "text" : "password"}
         value={newPassword}

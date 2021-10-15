@@ -115,7 +115,7 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
           onChange={handleChangeEMail}
           name="email"
           value={email}
-          label={t("Email")}
+          label={t("email")}
           required={true}
           aria-required="true"
           type="email"

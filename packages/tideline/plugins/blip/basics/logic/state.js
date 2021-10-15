@@ -38,7 +38,7 @@ import togglableState from "../TogglableState";
 
 function basicsState(source, manufacturer) {
   const t = i18next.t.bind(i18next);
-  const automatedLabel = t(_.get(AUTOMATED_BASAL_LABELS, source, AUTOMATED_BASAL_LABELS.default));
+  const automatedLabel = _.get(AUTOMATED_BASAL_LABELS, source, AUTOMATED_BASAL_LABELS.default);
   const siteChangesTitle = _.get(
     _.get(SITE_CHANGE_BY_MANUFACTURER, manufacturer, SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]),
     "label"
@@ -64,7 +64,7 @@ function basicsState(source, manufacturer) {
               ? [
                   [
                     // { key: 'temp', label: t('Temp Basals') },
-                    { key: "automatedStart", label: t("{{automatedLabel}}", { automatedLabel }) },
+                    { key: "automatedStart", label: automatedLabel },
                     { key: "automatedStop", label: t("{{automatedLabel}} Exited", { automatedLabel }) },
                   ],
                 ]
@@ -97,7 +97,7 @@ function basicsState(source, manufacturer) {
               ? [
                   [
                     { key: "wizard", label: t("Calculator"), percentage: true },
-                    { key: "manual", label: t("Micro-bolus"), percentage: true },
+                    { key: "manual", label: t("micro-bolus"), percentage: true },
                     { key: "interrupted", label: t("Interrupted"), percentage: true },
                   ],
                 ]
@@ -127,7 +127,7 @@ function basicsState(source, manufacturer) {
         hoverDisplay: React.createFactory(InfusionHoverDisplay),
         id: "siteChanges",
         index: 3,
-        noDataMessage: source === "Diabeloop" ? "" : t("Infusion site changes are not yet available for all pumps. Coming soon!"),
+        noDataMessage: "",
         togglable: togglableState.off,
         selector: React.createFactory(SiteChangeSelector),
         selectorOptions: {

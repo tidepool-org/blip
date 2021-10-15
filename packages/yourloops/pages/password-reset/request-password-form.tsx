@@ -82,6 +82,9 @@ export default function RequestPasswordForm(props: RequestPasswordFormProps): JS
   const { t } = useTranslation("yourloops");
   const classes = requestStyle();
   const emptyUsername = _.isEmpty(props.username);
+  const btnResetLabel = props.inProgress
+    ? t("sending-reset-link")
+    : t("send-reset-link");
   return (
     <React.Fragment>
       <CardContent className={classes.CardContent}>
@@ -123,7 +126,7 @@ export default function RequestPasswordForm(props: RequestPasswordFormProps): JS
           color="primary"
           onClick={props.onSendResetLink}
           disabled={emptyUsername || props.inProgress}>
-          {props.inProgress ? t("sending-reset-link") : t("send-reset-link")}
+          {btnResetLabel}
         </Button>
       </CardActions>
     </React.Fragment>

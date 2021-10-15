@@ -483,13 +483,11 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
         break;
 
       case 'timeInAutoRatio':
-        title = t('Time in {{automatedLabel}} ratio', {
-          automatedLabel: deviceLabels[AUTOMATED_DELIVERY],
-        });
+        title = t('Time in {{automatedLabel}} ratio', { automatedLabel: deviceLabels[AUTOMATED_DELIVERY] });
         active = isAutomatedBasalDevice(manufacturer, deviceModel);
         dimensions = [
-          { key: 'manual', label: t(deviceLabels[SCHEDULED_DELIVERY]) },
-          { key: 'automated', label: t(deviceLabels[AUTOMATED_DELIVERY]) },
+          { key: 'manual', label: deviceLabels[SCHEDULED_DELIVERY] },
+          { key: 'automated', label: deviceLabels[AUTOMATED_DELIVERY] },
         ];
         break;
 

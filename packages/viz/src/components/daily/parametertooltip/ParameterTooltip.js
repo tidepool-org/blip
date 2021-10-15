@@ -56,7 +56,7 @@ class ParameterTooltip extends React.Component {
       previousValue,
       prevToNext,
       <span className={valueClassName} key={`${parameter.id}-value`}>{value}</span>,
-      <span className={styles.units} key={`${parameter.id}-units`}>{i18next.t(`${parameter.units}`)}</span>,
+      <span className={styles.units} key={`${parameter.id}-units`}>{i18next.t(parameter.units)}</span>,
     ];
   }
 

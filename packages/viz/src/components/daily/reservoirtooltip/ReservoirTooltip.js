@@ -27,11 +27,13 @@ import { SITE_CHANGE_BY_MANUFACTURER, RESERVOIR_CHANGE, DEFAULT_MANUFACTURER } f
 
 class ReservoirTooltip extends React.Component {
   renderReservoir(typeOfChange) {
-    const label = (typeOfChange === RESERVOIR_CHANGE) ? 'Reservoir Change' : 'Infusion site change';
+    const label = (typeOfChange === RESERVOIR_CHANGE)
+      ? i18next.t('Reservoir Change')
+      : i18next.t('Infusion site change');
 
     const rows = [
       <div key={'title'} className={styles.pa}>
-        <div className={styles.label}>{i18next.t(label)}</div>
+        <div className={styles.label}>{label}</div>
       </div>,
     ];
 

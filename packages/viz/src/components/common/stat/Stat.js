@@ -158,7 +158,7 @@ class Stat extends React.Component {
           >
             <img
               src={InfoIcon}
-              alt={t('Hover for more info')}
+              alt={t('img-alt-hover-for-more-info')}
               ref={this.setTooltipIconRef}
               onMouseOver={this.handleTooltipIconMouseOver}
               onMouseOut={this.handleTooltipIconMouseOut}

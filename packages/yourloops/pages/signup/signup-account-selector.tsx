@@ -107,7 +107,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
   const valideForm = (): boolean => {
     if (_.isEmpty(state.formValues.accountRole)) {
       setError(true);
-      setHelperText("signup-account-selection-error");
+      setHelperText(t("signup-account-selection-error"));
       return false;
     }
     return true;
@@ -131,7 +131,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
         justifyContent: "center",
       }}>
       <FormControl id="signup-account-selector-form-control" component="fieldset" error={error} className={classes.FormControl}>
-        <FormHelperText className={classes.FormHelperText}>{t(helperText)}</FormHelperText>
+        <FormHelperText className={classes.FormHelperText}>{helperText}</FormHelperText>
         <RadioGroup
           id="signup-account-selector-radio-group"
           aria-label="account-selector"

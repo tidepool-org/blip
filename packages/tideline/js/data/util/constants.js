@@ -21,19 +21,6 @@ export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
 export const MGDL_PER_MMOLL = 18.01577;
 
-const MMMM_D_FORMAT = 'MMMM D';
-const DDDD_MMMM_D_FORMAT = 'dddd, MMMM D';
-const H_MM_A_FORMAT = 'h:mm a'; // 3:25 pm
-const DDD_FORMAT = 'ddd';
-const DD_FORMAT = 'DD';
-const MMM_FORMAT = 'MMM';
-const MMM_D_FORMAT = 'MMM D';
-// not used for now
-// const YYYY_MM_DD_FORMAT = i18next.t('YYYY-MM-DD');
-const MMM_D_YYYY_H_MM_A_FORMAT = 'MMM D, YYYY h:mm a';
-const MMM_D_H_MM_A_FORMAT = 'MMM D, h:mm a';
-const DDDD_H_MM_A = 'dddd, h:mm a'; // Sunday, 3:25:50 pm
-
 /**
  * Used to regroup device parameters in one tooltip, when the changes are too close.
  * This is to avoid superpositions of the icons in the daily view.
@@ -81,23 +68,23 @@ export const BG_CLAMP_THRESHOLD = {
 
 export const dateTimeFormats = {
   /** @returns {string} translated 'MMMM D' format */
-  get MMMM_D_FORMAT() { return i18next.t(MMMM_D_FORMAT); },
+  get MMMM_D_FORMAT() { return i18next.t('MMMM D'); },
   /** @returns {string} translated 'dddd, MMMM D' format */
-  get DDDD_MMMM_D_FORMAT() { return i18next.t(DDDD_MMMM_D_FORMAT); },
+  get DDDD_MMMM_D_FORMAT() { return i18next.t('dddd, MMMM D'); },
   /** @returns {string} translated 'MMM D, YYYY h:mm a' format */
-  get MMM_D_YYYY_H_MM_A_FORMAT() { return i18next.t(MMM_D_YYYY_H_MM_A_FORMAT); },
+  get MMM_D_YYYY_H_MM_A_FORMAT() { return i18next.t('MMM D, YYYY h:mm a'); },
   /** @returns {string} translated 'MMM D, h:mm a' format */
-  get MMM_D_H_MM_A_FORMAT() { return i18next.t(MMM_D_H_MM_A_FORMAT); },
+  get MMM_D_H_MM_A_FORMAT() { return i18next.t('MMM D, h:mm a'); },
   /** @returns {string} translated 'dddd, h:mm a' format */
-  get DDDD_H_MM_A() { return i18next.t(DDDD_H_MM_A); },
+  get DDDD_H_MM_A() { return i18next.t('dddd, h:mm a'); },
   /** @returns {string} translated 'h:mm a' format */
-  get H_MM_A_FORMAT() { return i18next.t(H_MM_A_FORMAT); },
+  get H_MM_A_FORMAT() { return i18next.t('h:mm a'); },
   /** @returns {string} translated 'ddd' format */
-  get DDD_FORMAT() { return i18next.t(DDD_FORMAT); },
+  get DDD_FORMAT() { return i18next.t('ddd'); },
   /** @returns {string} translated 'DD' format */
-  get DD_FORMAT() { return i18next.t(DD_FORMAT); },
+  get DD_FORMAT() { return i18next.t('DD'); },
   /** @returns {string} translated 'MMM' format */
-  get MMM_FORMAT() { return i18next.t(MMM_FORMAT); },
+  get MMM_FORMAT() { return i18next.t('MMM'); },
   /** @returns {string} translated 'MMM D' format */
-  get MMM_D_FORMAT() { return i18next.t(MMM_D_FORMAT); },
+  get MMM_D_FORMAT() { return i18next.t('MMM D'); },
 };

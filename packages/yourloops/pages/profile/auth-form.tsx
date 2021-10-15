@@ -67,7 +67,7 @@ function AuthenticationForm(props: AuthenticationFormProps): JSX.Element {
     <React.Fragment>
       <TextField
         id="profile-textfield-mail"
-        label={t("Email")}
+        label={t("email")}
         value={getUserEmail(user)}
         disabled
         className={classes.textField}

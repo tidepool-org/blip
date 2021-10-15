@@ -5,9 +5,6 @@ import { expect } from 'chai';
 import personUtils from '../../../app/core/personutils';
 import config from '../../../app/config';
 
-const FORM_DATE_FORMAT = 'MM/DD/YYYY';
-
-
 describe('personutils', () => {
 
   describe('fullName', () => {

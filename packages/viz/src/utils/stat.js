@@ -140,20 +140,20 @@ export const getStatAnnotations = (data, type, opts = {}) => {
     case commonStats.timeInAuto:
       if (days > 1) {
         annotations.push(t('**Time In Loop Mode:** Daily average of the time spent in automated basal delivery.'));
-        annotations.push(t('**How we calculate this:**\n\n**(%)** is the duration in loop mode ON or OFF divided by the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in loop mode ON or OFF.'));
+        annotations.push(t('compute-ndays-time-in-auto'));
       } else {
         annotations.push(t('**Time In Loop Mode:** Time spent in automated basal delivery.'));
-        annotations.push(t('**How we calculate this:**\n\n**(%)** is the duration in loop mode ON or OFF divided by the total duration of basals for this time period.\n\n**(time)** is total duration of time in loop mode ON or OFF.'));
+        annotations.push(t('compute-oneday-time-in-auto'));
       }
       break;
 
     case commonStats.timeInRange:
       if (days > 1) {
         annotations.push(t('**Time In Range:** Daily average of the time spent in range, based on {{cbgLabel}} readings.', { cbgLabel: statBgSourceLabels.cbg }));
-        annotations.push(t('**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is 24 hours multiplied by % in range.'));
+        annotations.push(t('compute-ndays-time-in-range'));
       } else {
         annotations.push(t('**Time In Range:** Time spent in range, based on {{cbgLabel}} readings.', { cbgLabel: statBgSourceLabels.cbg }));
-        annotations.push(t('**How we calculate this:**\n\n**(%)** is the number of readings in range divided by all readings for this time period.\n\n**(time)** is number of readings in range multiplied by the {{cbgLabel}} sample frequency.', { cbgLabel: statBgSourceLabels.cbg }));
+        annotations.push(t('compute-oneday-time-in-range', { cbgLabel: statBgSourceLabels.cbg }));
       }
       break;
 
@@ -163,7 +163,7 @@ export const getStatAnnotations = (data, type, opts = {}) => {
       } else {
         annotations.push(t('**Total Insulin:** All basal and bolus insulin delivery (in Units) added together'));
       }
-      annotations.push(t('**How we calculate this:**\n\n**(%)** is the respective total of basal or bolus delivery divided by total insulin delivered for this time period.'));
+      annotations.push(t('compute-total-insulin'));
       break;
 
     default:
@@ -171,7 +171,7 @@ export const getStatAnnotations = (data, type, opts = {}) => {
   }
 
   if (data.insufficientData) {
-    annotations.push(t('**Why is this stat empty?**\n\nThere is not enough data present in this view to calculate it.'));
+    annotations.push(t('insufficient-data'));
   } else if (_.includes(bgStats, type)) {
     if (bgSource === 'smbg') {
       annotations.push(t('Derived from _**{{total}}**_ {{smbgLabel}} readings.', { total: data.total, smbgLabel: statBgSourceLabels.smbg }));

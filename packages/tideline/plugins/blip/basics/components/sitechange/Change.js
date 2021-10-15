@@ -36,7 +36,9 @@ class Change extends React.Component {
     var daysText = null;
     var daysSinceNum = null;
     if (!_.isNaN(this.props.daysSince)){
-      daysText = (this.props.daysSince === 1) ? i18next.t('day') : i18next.t('days');
+      daysText = (this.props.daysSince === 1)
+        ? i18next.t('day')
+        : i18next.t('days');
       daysSinceNum = this.props.daysSince;
     }
     var countElement = null;
