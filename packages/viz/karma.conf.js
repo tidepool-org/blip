@@ -31,11 +31,11 @@
 
  const config = {
   files: [
-    'loadtests.js',
+    'test/index.test.js',
   ],
   frameworks: ['mocha', 'chai', 'sinon'],
   preprocessors: {
-    'loadtests.js': ['webpack', 'sourcemap'],
+    'test/index.test.js': ['webpack', 'sourcemap'],
   },
  };
  updateDefaultConfig("viz", config, webpack);

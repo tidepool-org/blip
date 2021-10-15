@@ -283,25 +283,6 @@ describe('format utility', function() {
     });
   });
 
-  describe('timespan', function() {
-    var MS_IN_HR = 3600000;
-    it('should be a function', function() {
-      assert.isFunction(fmt.timespan);
-    });
-
-    it('should return `over 21 min` on a datum with duration of 21 minutes', function() {
-      expect(fmt.timespan({duration: 1260000})).to.equal('over 21 min');
-    });
-
-    it('should return `over 1 ¾ hr` on a datum wit a duration of 1.75 hours', function() {
-      expect(fmt.timespan({duration: 1.75*MS_IN_HR})).to.equal('over 1 ¾ hr');
-    });
-
-    it('should return `over 6 ⅔ hrs` on a datum with a duration of 6.67 hours', function() {
-      expect(fmt.timespan({duration: (20/3)*MS_IN_HR})).to.equal('over 6 ⅔ hrs');
-    });
-  });
-
   describe('timeChangeInfo', function() {
     it('should be a function', function() {
       assert.isFunction(fmt.timeChangeInfo);

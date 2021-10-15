@@ -165,12 +165,12 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
   poolBasal.id('poolBasal', chart.poolGroup)
     .labels([{
       main: t('Basal Rates'),
-      light: ` (${t('U')}/${t('hr')})`,
+      light: ` (${t('U')}/${t('abbrev_duration_hour')})`,
       spans: [{
         text: t('Basal Rates'),
         className: 'label-main',
       }, {
-        text: ` (${t('U')}/${t('hr')})`,
+        text: ` (${t('U')}/${t('abbrev_duration_hour')})`,
         className: 'label-light',
       }],
       baseline: options.labelBaseline,

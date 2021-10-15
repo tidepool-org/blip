@@ -310,72 +310,72 @@ describe('datetime', () => {
     });
 
     it('should properly format a 1 hr duration', () => {
-      expect(datetime.formatDuration(36e5)).to.equal('1 hr');
+      expect(datetime.formatDuration(36e5)).to.equal('1 h');
       expect(datetime.formatDuration(36e5, condensed)).to.equal('1h');
     });
 
     it('should properly format a 1.25 hr duration', () => {
-      expect(datetime.formatDuration(36e5 + 36e5 / 4)).to.equal('1¼ hr');
+      expect(datetime.formatDuration(36e5 + 36e5 / 4)).to.equal('1¼ h');
       expect(datetime.formatDuration(36e5 + 36e5 / 4, condensed)).to.equal('1h 15m');
     });
 
     it('should properly format a 1.33333 hr duration', () => {
-      expect(datetime.formatDuration(36e5 + 36e5 / 3)).to.equal('1⅓ hr');
+      expect(datetime.formatDuration(36e5 + 36e5 / 3)).to.equal('1⅓ h');
       expect(datetime.formatDuration(36e5 + 36e5 / 3, condensed)).to.equal('1h 20m');
     });
 
     it('should properly format a 1.5 hr duration', () => {
-      expect(datetime.formatDuration(36e5 + 36e5 / 2)).to.equal('1½ hr');
+      expect(datetime.formatDuration(36e5 + 36e5 / 2)).to.equal('1½ h');
       expect(datetime.formatDuration(36e5 + 36e5 / 2, condensed)).to.equal('1h 30m');
     });
 
     it('should properly format a 1.66667 hr duration', () => {
-      expect(datetime.formatDuration(36e5 + 36e5 * (2 / 3))).to.equal('1⅔ hr');
+      expect(datetime.formatDuration(36e5 + 36e5 * (2 / 3))).to.equal('1⅔ h');
       expect(datetime.formatDuration(36e5 + 36e5 * (2 / 3), condensed)).to.equal('1h 40m');
     });
 
     it('should properly format a 1.75 hr duration', () => {
-      expect(datetime.formatDuration(36e5 + 36e5 * (3 / 4))).to.equal('1¾ hr');
+      expect(datetime.formatDuration(36e5 + 36e5 * (3 / 4))).to.equal('1¾ h');
       expect(datetime.formatDuration(36e5 + 36e5 * (3 / 4), condensed)).to.equal('1h 45m');
     });
 
     it('should properly format a 1.1 hr duration', () => {
-      expect(datetime.formatDuration(36e5 + 36e5 / 10)).to.equal('1 hr 6 min');
+      expect(datetime.formatDuration(36e5 + 36e5 / 10)).to.equal('1 h 6 min');
       expect(datetime.formatDuration(36e5 + 36e5 / 10, condensed)).to.equal('1h 6m');
     });
 
     it('should properly format a 2 hr duration', () => {
-      expect(datetime.formatDuration(2 * 36e5)).to.equal('2 hrs');
+      expect(datetime.formatDuration(2 * 36e5)).to.equal('2 h');
       expect(datetime.formatDuration(2 * 36e5, condensed)).to.equal('2h');
     });
 
     it('should properly format a 2.25 hr duration', () => {
-      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 4)).to.equal('2¼ hrs');
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 4)).to.equal('2¼ h');
       expect(datetime.formatDuration(2 * 36e5 + 36e5 / 4, condensed)).to.equal('2h 15m');
     });
 
     it('should properly format a 2.33333 hr duration', () => {
-      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 3)).to.equal('2⅓ hrs');
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 3)).to.equal('2⅓ h');
       expect(datetime.formatDuration(2 * 36e5 + 36e5 / 3, condensed)).to.equal('2h 20m');
     });
 
     it('should properly format a 2.5 hr duration', () => {
-      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 2)).to.equal('2½ hrs');
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 2)).to.equal('2½ h');
       expect(datetime.formatDuration(2 * 36e5 + 36e5 / 2, condensed)).to.equal('2h 30m');
     });
 
     it('should properly format a 2.66667 hr duration', () => {
-      expect(datetime.formatDuration(2 * 36e5 + 36e5 * (2 / 3))).to.equal('2⅔ hrs');
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 * (2 / 3))).to.equal('2⅔ h');
       expect(datetime.formatDuration(2 * 36e5 + 36e5 * (2 / 3), condensed)).to.equal('2h 40m');
     });
 
     it('should properly format a 2.75 hr duration', () => {
-      expect(datetime.formatDuration(2 * 36e5 + 36e5 * (3 / 4))).to.equal('2¾ hrs');
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 * (3 / 4))).to.equal('2¾ h');
       expect(datetime.formatDuration(2 * 36e5 + 36e5 * (3 / 4), condensed)).to.equal('2h 45m');
     });
 
     it('should properly format a 2.1 hr duration', () => {
-      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 10)).to.equal('2 hrs 6 min');
+      expect(datetime.formatDuration(2 * 36e5 + 36e5 / 10)).to.equal('2 h 6 min');
       expect(datetime.formatDuration(2 * 36e5 + 36e5 / 10, condensed)).to.equal('2h 6m');
     });
 

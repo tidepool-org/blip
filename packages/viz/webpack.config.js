@@ -98,6 +98,13 @@ const fontLoaderConfiguration = {
   type: "asset/inline",
 };
 
+const localesLoader = {
+  test: /locales\/languages\.json$/,
+  use: {
+    loader: '../../webpack.locales-loader.js'
+  }
+};
+
 const plugins = [
   // `process.env.NODE_ENV === 'production'` must be `true` for production
   // builds to eliminate development checks and reduce build size. You may
@@ -142,6 +149,7 @@ module.exports = {
       cssLoaderConfiguration,
       lessLoaderConfiguration,
       fontLoaderConfiguration,
+      localesLoader,
     ],
   },
   plugins,

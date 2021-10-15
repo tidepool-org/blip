@@ -17,7 +17,6 @@
 
 import i18next from 'i18next';
 import moment from 'moment-timezone';
-import Duration from 'duration-js';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, dateTimeFormats } from './constants';
 
@@ -153,53 +152,6 @@ const format = {
     }
     else {
       return window.d3.format('%')(f);
-    }
-  },
-
-  timespan: function(d) {
-    var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
-    var dur = Duration.parse(d.duration + 'ms');
-    var hours = dur.hours();
-    var minutes = dur.minutes() - (hours * 60);
-
-    if (hours !== 0) {
-      if (hours === 1) {
-        switch(minutes) {
-        case 0:
-          return 'over ' + hours + ' hr';
-        case 15:
-          return 'over ' + hours + QUARTER + ' hr';
-        case 20:
-          return 'over ' + hours + THIRD + ' hr';
-        case 30:
-          return 'over ' + hours + HALF + ' hr';
-        case 40:
-          return 'over ' + hours + TWO_THIRDS + ' hr';
-        case 45:
-          return 'over ' + hours + THREE_QUARTER + ' hr';
-        default:
-          return 'over ' + hours + ' hr ' + minutes + ' min';
-        }
-      } else {
-        switch(minutes) {
-        case 0:
-          return 'over ' + hours + ' hrs';
-        case 15:
-          return 'over ' + hours + QUARTER + ' hrs';
-        case 20:
-          return 'over ' + hours + THIRD + ' hrs';
-        case 30:
-          return 'over ' + hours + HALF + ' hrs';
-        case 40:
-          return 'over ' + hours + TWO_THIRDS + ' hrs';
-        case 45:
-          return 'over ' + hours + THREE_QUARTER + ' hrs';
-        default:
-          return 'over ' + hours + ' hrs ' + minutes + ' min';
-        }
-      }
-    } else {
-      return 'over ' + minutes + ' min';
     }
   },
 

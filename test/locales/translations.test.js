@@ -48,8 +48,6 @@ const ignoredTransKeysForBlip = [
   "medium-pa",
   "low-pa",
   // Dates (not sure all are still used)
-  "hr",
-  "hrs",
   "hour",
   "hours",
   "minute",
