@@ -6,14 +6,6 @@
     "yourloops"
   ],
   "defaultNS": "main",
-  "crowdin": {
-    "fallback": "lol",
-    "resources": {
-      "name": "Crowdin",
-      "main": {},
-      "params": {}
-    }
-  },
   "resources": {
     "de": {
       "name": "Deutsch",

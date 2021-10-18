@@ -22,7 +22,7 @@
     "lint": "eslint *.js test templates server packages",
     "clean-coverage": "rm -rf coverage reports",
     "pretest": "npm run clean-coverage",
-    "test": "npm run test-sundial && npm run test-tideline && npm run test-viz && npm run test-blip && npm run test-yourloops && npm run test-locales",
+    "test": "npm run test-locales && npm run test-sundial && npm run test-tideline && npm run test-viz && npm run test-blip && npm run test-yourloops",
     "test-sundial": "lerna --stream --scope=sundial run test",
     "test-tideline": "lerna --stream --scope=tideline run test",
     "test-viz": "lerna --stream --scope=tidepool-viz run test",

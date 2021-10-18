@@ -26,10 +26,8 @@ const reZendesk = /(^\s+<!-- Start of support Zendesk Widget script -->\n)(.*\n)
 const reTrackerUrl = /const u = '(.*)';/;
 const reTrackerSiteId = /const id = ([0-9]);/;
 const reMatomoJs = /(^\s+<!-- Start of Tracker Code -->\n)(.*\n)*(^\s+<!-- End of Tracker Code -->)/m;
-const reCrowdin = /(^\s+<!-- Start of Crowdin -->\n)(.*\n)*(^\s+<!-- End of Crowdin -->)/m;
 const reStonly = /(^\s+<!-- Start of stonly-widget -->\n)(.*\n)*(^\s+<!-- End of stonly-widget -->)/m;
 const reCookieBanner = /(^\s+<!-- Start of cookie-banner -->\n)(.*\n)*(^\s+<!-- End of cookie-banner -->)/m;
-const reCrowdinBranding = /BRANDING/;
 
 const reUrl = /(^https?:\/\/[^/]+).*/;
 const reDashCase = /[A-Z](?:(?=[^A-Z])|[A-Z]*(?=[A-Z][^A-Z]|$))/g;
@@ -133,18 +131,6 @@ function genContentSecurityPolicy() {
     contentSecurityPolicy.scriptSrc.push(matomoUrl);
     contentSecurityPolicy.imgSrc.push(matomoUrl);
     contentSecurityPolicy.connectSrc.push(matomoUrl);
-  }
-
-  if (process.env.CROWDIN === 'enabled') {
-    const crowdinURL = 'https://crowdin.com';
-    const crowdinCDN = 'https://cdn.crowdin.com/';
-    contentSecurityPolicy.scriptSrc.push("'unsafe-inline'", crowdinCDN, crowdinURL);
-    contentSecurityPolicy.imgSrc.push(crowdinCDN, 'https://crowdin-static.downloads.crowdin.com', 'https://www.gravatar.com', 'https://*.wp.com');
-    contentSecurityPolicy.styleSrc.push(crowdinCDN, 'https://fonts.googleapis.com');
-    contentSecurityPolicy.connectSrc.push(crowdinCDN);
-    contentSecurityPolicy.fontSrc.push(crowdinCDN, 'https://fonts.gstatic.com');
-    contentSecurityPolicy.objectSrc.push("'self'");
-    contentSecurityPolicy.frameSrc.push(crowdinCDN, crowdinURL, 'https://accounts.crowdin.com');
   }
 
   if (blipConfig.STONLY_WID !== 'disabled') {
@@ -388,36 +374,6 @@ default:
   console.error(`/!\\ Unknown tracker ${process.env.METRICS_SERVICE} /!\\`);
   indexHtml = indexHtml.replace(reMatomoJs, '$1  <!-- Tracker disabled -->\n$3');
   break;
-}
-
-// *** Crowdin ***
-if (process.env.CROWDIN === 'enabled') {
-  console.info('- Enable crowdin...');
-  let crowdinJs = fs.readFileSync(`${templateDir}/crowdin.js`, 'utf8');
-  let crowdinProject = blipConfig.BRANDING;
-  switch (blipConfig.BRANDING) {
-  case 'diabeloop':
-    crowdinProject = 'yourloops';
-    break;
-  }
-  console.info(`  => Setting up crowdin project: ${crowdinProject}`);
-  crowdinJs = crowdinJs.replace(reCrowdinBranding, crowdinProject);
-  const fileHash = getHash(crowdinJs);
-  const integrity = getIntegrity(crowdinJs);
-  const fileName = `crowdin.${fileHash}.js`;
-  fs.writeFileSync(`${distDir}/static/${fileName}`, crowdinJs);
-
-  const crowdinScripts = `\
-  <script type="text/javascript" defer src="${fileName}" integrity="sha512-${integrity}" crossorigin="anonymous"></script>\n\
-  <script type="text/javascript" defer src="https://cdn.crowdin.com/jipt/jipt.js"></script>`;
-  if (!reCrowdin.test(indexHtml)) {
-    console.error(`/!\\ Can't find crowdin pattern in index.html: ${reCrowdin.source} /!\\`);
-    process.exit(1);
-  }
-  indexHtml = indexHtml.replace(reCrowdin, `$1${crowdinScripts}\n$3`);
-} else {
-  console.info('- Crowdin is disabled');
-  indexHtml = indexHtml.replace(reCrowdin, '$1  <!-- disabled -->\n$3');
 }
 
 // ** Stonly **

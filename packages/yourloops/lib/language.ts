@@ -28,7 +28,7 @@
 
 import _ from "lodash";
 import bows from 'bows';
-import i18n, { InitOptions, Resource, TOptions } from "i18next";
+import i18n, { InitOptions, TOptions } from "i18next";
 import moment from "moment-timezone";
 import { initReactI18next } from "react-i18next";
 
@@ -49,8 +49,6 @@ const availableCountries: Country[] = _.map(locales.countries, (item, key) => {
 let language: LanguageCodes = "en";
 
 async function init(): Promise<void> {
-  const crowdinActive = typeof window._jipt === "object";
-
   language = (localStorage.getItem("lang") ?? getLocale()) as LanguageCodes;
 
   // Verification to be sure we have the language:
@@ -93,11 +91,6 @@ async function init(): Promise<void> {
     resources: locales.resources,
   };
 
-  if (crowdinActive) {
-    i18nOptions.fallbackLng = locales.crowdin.fallback;
-    (i18nOptions.resources as Resource)[locales.crowdin.fallback] = locales.crowdin.resources;
-  }
-
   i18n.use(initReactI18next);
 
   // Update moment with the right language, for date display
@@ -107,8 +100,6 @@ async function init(): Promise<void> {
     if (typeof lng === "string" && language !== lng && availableLanguageCodes.includes(lng)) {
       log.debug(`languageChanged from ${language} to ${lng}`);
       language = lng;
-
-      // TODO: Get currently use Crowdin language, when Crowdin is active.
       moment.locale(language);
       zendeskLocale(language);
       metrics.setLanguage(language);
