@@ -16,6 +16,7 @@ This README is focused on just the details of getting blip running locally. For 
 - [Configuration](#configuration)
 - [Run a production server locally](#run-a-production-server-locally)
 - [Debugging](#debugging)
+- [Linting](#Linting)
 - [Running the tests](#running-the-tests)
 - [Independent server for production or docker](#independent-server-for-production-or-docker)
 - [Documentation for developers](#documentation-for-developers)
@@ -119,6 +120,13 @@ app.foo = {
   }
 };
 ```
+
+## Linting
+
+The app is ruled by [eslint](https://eslint.org/) to keep code style consistent. It has an [editorconfig](https://editorconfig.org/) file which defines some common rules to correctly configure IDE formatting.  
+How to enable it :
+- VS code : download and install the [EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig) plugin
+- Webstorm : enable the EditorConfig support into Settings / Code style
 
 ## Running the tests
 
