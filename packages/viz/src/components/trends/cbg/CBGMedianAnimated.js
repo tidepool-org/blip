@@ -1,6 +1,3 @@
-import _ from 'lodash';
-import cx from 'classnames';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017, Tidepool Project
@@ -17,17 +14,17 @@ import cx from 'classnames';
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+import _ from "lodash";
+import cx from "classnames";
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { TransitionMotion, spring } from "react-motion";
 
-import PropTypes from 'prop-types';
+import { classifyBgValue } from "../../../utils/bloodglucose";
+import { springConfig } from "../../../utils/constants";
+import withDefaultYPosition from "../common/withDefaultYPosition";
 
-import React, { PureComponent } from 'react';
-import { TransitionMotion, spring } from 'react-motion';
-
-import { classifyBgValue } from '../../../utils/bloodglucose';
-import { springConfig } from '../../../utils/constants';
-import withDefaultYPosition from '../common/withDefaultYPosition';
-
-import styles from './CBGMedianAnimated.css';
+import styles from "./CBGMedianAnimated.css";
 
 export class CBGMedianAnimated extends PureComponent {
   static defaultProps = {
@@ -104,8 +101,8 @@ export class CBGMedianAnimated extends PureComponent {
     const medianClasses = datum.median ?
       cx({
         [styles.median]: true,
-        [styles[`${classifyBgValue(bgBounds, datum.median, 'fiveWay')}FadeIn`]]: !showingCbgDateTraces,
-        [styles[`${classifyBgValue(bgBounds, datum.median, 'fiveWay')}FadeOut`]]: showingCbgDateTraces,
+        [styles[`${classifyBgValue(bgBounds, datum.median, "fiveWay")}FadeIn`]]: !showingCbgDateTraces,
+        [styles[`${classifyBgValue(bgBounds, datum.median, "fiveWay")}FadeOut`]]: showingCbgDateTraces,
       }) :
       cx({
         [styles.median]: true,
@@ -118,12 +115,12 @@ export class CBGMedianAnimated extends PureComponent {
     const binLeftX = xScale(datum.msX) - medianWidth / 2 + strokeWidth / 2;
     const width = medianWidth - strokeWidth;
 
-    const shouldRender = displayingMedian && (_.get(datum, 'median') !== undefined);
+    const shouldRender = displayingMedian && (_.get(datum, "median") !== undefined);
 
     return (
       <TransitionMotion
         defaultStyles={shouldRender ? [{
-          key: 'median',
+          key: "median",
           style: {
             height: 0,
             median: defaultY,
@@ -131,7 +128,7 @@ export class CBGMedianAnimated extends PureComponent {
           },
         }] : []}
         styles={shouldRender ? [{
-          key: 'median',
+          key: "median",
           style: {
             height: spring(medianHeight, springConfig),
             median: spring(yScale(datum.median) - medianHeight / 2, springConfig),

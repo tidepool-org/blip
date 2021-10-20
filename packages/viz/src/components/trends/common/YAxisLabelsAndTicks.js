@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -17,14 +15,14 @@ import _ from 'lodash';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import _ from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
 
-import React from 'react';
+import { MGDL_UNITS, MMOLL_UNITS } from "tideline";
 
-import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
-
-import { formatBgValue } from '../../../utils/format';
-import styles from './YAxisLabelsAndTicks.css';
+import { formatBgValue } from "../../../utils/format";
+import styles from "./YAxisLabelsAndTicks.css";
 
 const YAxisLabels = (props) => {
   const { bgPrefs, margins, textToTickGap, tickWidth, yScale } = props;
@@ -32,7 +30,7 @@ const YAxisLabels = (props) => {
 
   return (
     <g id="yAxisLabels">
-      {_.map(['targetLowerBound', 'targetUpperBound', 'veryHighThreshold', 'veryLowThreshold'],
+      {_.map(["targetLowerBound", "targetUpperBound", "veryHighThreshold", "veryLowThreshold"],
         (boundKey) => (
           <g id="yAxisLabel" key={boundKey}>
             <text

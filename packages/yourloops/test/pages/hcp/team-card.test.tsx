@@ -26,10 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { expect } from "chai";
 import { mount, shallow, ReactWrapper, ShallowWrapper } from "enzyme";
-import sinon from "sinon";
+import * as sinon from "sinon";
 
 import { UserInvitationStatus } from "../../../models/generic";
 import { TeamMemberRole } from "../../../models/team";
@@ -122,13 +122,13 @@ function testTeamCard(): void {
   describe("Info", () => {
     it("should be able to render", () => {
       component = shallow(<TeamInfo id="test" label="label" value="value" icon={<div id="icon" />} />);
-      expect(component.find(`#team-card-info-test-label`).length).to.be.equal(1);
+      expect(component.find("#team-card-info-test-label").length).to.be.equal(1);
       expect(component.find("#icon").length).to.be.equal(1);
     });
 
     it("should not render if value is not net", () => {
       component = shallow(<TeamInfo id="test" label="label" value={null} icon={<div id="icon" />} />);
-      expect(component.find(`#team-card-info-test-label`).length).to.be.equal(0);
+      expect(component.find("#team-card-info-test-label").length).to.be.equal(0);
       expect(component.find("#icon").length).to.be.equal(0);
       expect(component.html()).to.be.null;
     });

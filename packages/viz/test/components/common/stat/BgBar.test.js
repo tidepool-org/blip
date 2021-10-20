@@ -1,12 +1,13 @@
-import React from 'react';
-import { mount } from 'enzyme';
-import _ from 'lodash';
+import React from "react";
+import { mount } from "enzyme";
+import _ from "lodash";
+import { expect } from "chai";
 
-import BgBar from '../../../../src/components/common/stat/BgBar';
-import colors from '../../../../src/styles/colors.css';
-import { MGDL_CLAMP_TOP } from '../../../../src/utils/constants';
+import BgBar from "../../../../src/components/common/stat/BgBar";
+import colors from "../../../../src/styles/colors.css";
+import { MGDL_CLAMP_TOP } from "../../../../src/utils/constants";
 
-describe('BgBar', () => {
+describe("BgBar", () => {
   let wrapper;
 
   const avgGlucoseDatum = {
@@ -40,7 +41,7 @@ describe('BgBar', () => {
         targetLowerBound: 70,
         veryLowThreshold: 54,
       },
-      bgUnits: 'mg/dL',
+      bgUnits: "mg/dL",
     },
     chartLabelWidth: 80,
     datum: avgGlucoseDatum,
@@ -61,73 +62,73 @@ describe('BgBar', () => {
     wrapper = mount(<BgBar {...defaultProps} />);
   });
 
-  it('should render without errors when required props provided', () => {
-    expect(wrapper.find('BgBar')).to.have.length(1);
+  it("should render without errors when required props provided", () => {
+    expect(wrapper.find("BgBar")).to.have.length(1);
   });
 
-  context('showing Average Glucose', () => {
+  context("showing Average Glucose", () => {
     beforeEach(() => {
       wrapper.setProps(props({ datum: avgGlucoseDatum }));
     });
 
-    it('should render the `bgScale` element', () => {
-      expect(wrapper.find('.bgScale')).to.have.length(1);
+    it("should render the `bgScale` element", () => {
+      expect(wrapper.find(".bgScale")).to.have.length(1);
     });
 
-    it('should render the `bgMean` element', () => {
-      expect(wrapper.find('.bgMean')).to.have.length(1);
+    it("should render the `bgMean` element", () => {
+      expect(wrapper.find(".bgMean")).to.have.length(1);
     });
 
-    it('should not render the `bgMean` element when disabled', () => {
+    it("should not render the `bgMean` element when disabled", () => {
       wrapper.setProps(props({ datum: avgGlucoseDatumDisabled }));
-      expect(wrapper.find('.bgMean')).to.have.length(0);
+      expect(wrapper.find(".bgMean")).to.have.length(0);
     });
 
-    it('should not render the `bgDeviation` element', () => {
-      expect(wrapper.find('.bgDeviation')).to.have.length(0);
+    it("should not render the `bgDeviation` element", () => {
+      expect(wrapper.find(".bgDeviation")).to.have.length(0);
     });
   });
 
-  context('showing Standard Deviation', () => {
+  context("showing Standard Deviation", () => {
     beforeEach(() => {
       wrapper.setProps(props({ datum: stdDevDatum }));
     });
 
-    it('should render the `bgScale` element', () => {
-      expect(wrapper.find('.bgScale')).to.have.length(1);
+    it("should render the `bgScale` element", () => {
+      expect(wrapper.find(".bgScale")).to.have.length(1);
     });
 
-    it('should render the `bgDeviation` element', () => {
-      expect(wrapper.find('.bgDeviation')).to.have.length(1);
+    it("should render the `bgDeviation` element", () => {
+      expect(wrapper.find(".bgDeviation")).to.have.length(1);
     });
 
-    it('should not render the `bgDeviation` element when disabled', () => {
+    it("should not render the `bgDeviation` element when disabled", () => {
       wrapper.setProps(props({ datum: stdDevDatumDisabled }));
-      expect(wrapper.find('.bgDeviation')).to.have.length(0);
+      expect(wrapper.find(".bgDeviation")).to.have.length(0);
     });
 
-    it('should not render the `bgMean` element', () => {
-      expect(wrapper.find('.bgMean')).to.have.length(0);
+    it("should not render the `bgMean` element", () => {
+      expect(wrapper.find(".bgMean")).to.have.length(0);
     });
   });
 
-  describe('bgScale', () => {
+  describe("bgScale", () => {
     let bgScale;
 
     beforeEach(() => {
-      bgScale = () => wrapper.find('.bgScale');
+      bgScale = () => wrapper.find(".bgScale");
     });
 
-    it('should render a three-bar scale with arcs on each end', () => {
+    it("should render a three-bar scale with arcs on each end", () => {
       expect(bgScale().children()).to.have.length(5);
-      expect(bgScale().childAt(0).is('Arc')).to.be.true;
-      expect(bgScale().childAt(1).is('Rect')).to.be.true;
-      expect(bgScale().childAt(2).is('Rect')).to.be.true;
-      expect(bgScale().childAt(3).is('Rect')).to.be.true;
-      expect(bgScale().childAt(4).is('Arc')).to.be.true;
+      expect(bgScale().childAt(0).is("Arc")).to.be.true;
+      expect(bgScale().childAt(1).is("Rect")).to.be.true;
+      expect(bgScale().childAt(2).is("Rect")).to.be.true;
+      expect(bgScale().childAt(3).is("Rect")).to.be.true;
+      expect(bgScale().childAt(4).is("Arc")).to.be.true;
     });
 
-    it('should render the three-bar scale with the proper colors', () => {
+    it("should render the three-bar scale with the proper colors", () => {
       expect(bgScale().childAt(0).props().style.fill).to.equal(colors.low);
       expect(bgScale().childAt(1).props().style.fill).to.equal(colors.low);
       expect(bgScale().childAt(2).props().style.fill).to.equal(colors.target);
@@ -135,7 +136,7 @@ describe('BgBar', () => {
       expect(bgScale().childAt(4).props().style.fill).to.equal(colors.high);
     });
 
-    it('should render the three-bar scale with the disabled color when disabled', () => {
+    it("should render the three-bar scale with the disabled color when disabled", () => {
       wrapper.setProps(props({ datum: avgGlucoseDatumDisabled }));
 
       expect(bgScale().childAt(0).props().style.fill).to.equal(colors.statDisabled);
@@ -145,7 +146,7 @@ describe('BgBar', () => {
       expect(bgScale().childAt(4).props().style.fill).to.equal(colors.statDisabled);
     });
 
-    it('should render proper widths for each section of the three-bar scale', () => {
+    it("should render proper widths for each section of the three-bar scale", () => {
       const {
         width,
         bgPrefs: { bgBounds },
@@ -169,19 +170,19 @@ describe('BgBar', () => {
     });
   });
 
-  describe('bgMean', () => {
+  describe("bgMean", () => {
     let bgMean;
 
     beforeEach(() => {
-      bgMean = () => wrapper.find('.bgMean');
+      bgMean = () => wrapper.find(".bgMean");
     });
 
-    it('should render a bgMean point', () => {
+    it("should render a bgMean point", () => {
       expect(bgMean().children()).to.have.length(1);
-      expect(bgMean().childAt(0).is('Point')).to.be.true;
+      expect(bgMean().childAt(0).is("Point")).to.be.true;
     });
 
-    it('should render the bg mean with the proper colors', () => {
+    it("should render the bg mean with the proper colors", () => {
       // target
       expect(bgMean().childAt(0).props().style.fill).to.equal(colors.target);
 
@@ -211,21 +212,21 @@ describe('BgBar', () => {
     });
   });
 
-  describe('bgDeviation', () => {
+  describe("bgDeviation", () => {
     let bgDeviation;
 
     beforeEach(() => {
       wrapper.setProps(props({ datum: stdDevDatum }));
-      bgDeviation = () => wrapper.find('.bgDeviation');
+      bgDeviation = () => wrapper.find(".bgDeviation");
     });
 
-    it('should render 2 standard deviation markers', () => {
+    it("should render 2 standard deviation markers", () => {
       expect(bgDeviation().children()).to.have.length(2);
-      expect(bgDeviation().childAt(0).is('Rect')).to.be.true;
-      expect(bgDeviation().childAt(1).is('Rect')).to.be.true;
+      expect(bgDeviation().childAt(0).is("Rect")).to.be.true;
+      expect(bgDeviation().childAt(1).is("Rect")).to.be.true;
     });
 
-    it('should render the deviation markers with the proper colors', () => {
+    it("should render the deviation markers with the proper colors", () => {
       // target - target
       expect(bgDeviation().childAt(0).props().style.fill).to.equal(colors.target);
       expect(bgDeviation().childAt(1).props().style.fill).to.equal(colors.target);
@@ -263,7 +264,7 @@ describe('BgBar', () => {
       expect(bgDeviation().childAt(1).props().style.fill).to.equal(colors.high);
     });
 
-    it('should set the color to `low` when the deviation is > the mean, resulting in a negative low bar value', () => {
+    it("should set the color to `low` when the deviation is > the mean, resulting in a negative low bar value", () => {
       // -1 low value
       wrapper.setProps(props({ datum: {
         y: 50,
@@ -273,7 +274,7 @@ describe('BgBar', () => {
       expect(bgDeviation().childAt(0).props().style.fill).to.equal(colors.low);
     });
 
-    it('should constrain the bars to render within the scale when the deviation would cause them to render outside of it', () => {
+    it("should constrain the bars to render within the scale when the deviation would cause them to render outside of it", () => {
       // -50 to 450 -- scale only shows 0 to 400
       wrapper.setProps(props({ datum: {
         y: 200,

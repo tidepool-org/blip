@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import _ from "lodash";
 import bows from "bows";
 
@@ -383,7 +383,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
       }
       setTeams(teams);
     } else {
-      log.warn('editTeam(): Team not found', team);
+      log.warn("editTeam(): Team not found", team);
     }
     metrics.send("team_management", "edit_care_team");
   };
@@ -410,7 +410,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
       teams.splice(idx, 1);
       setTeams(teams);
     } else {
-      log.warn('leaveTeam(): Team not found', team);
+      log.warn("leaveTeam(): Team not found", team);
     }
   };
 
@@ -429,7 +429,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
       team.members.splice(idx, 1);
       setTeams(teams);
     } else {
-      log.warn('removeMember(): Member not found', member);
+      log.warn("removeMember(): Member not found", member);
     }
   };
 

@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { Theme, makeStyles } from "@material-ui/core/styles";
 
@@ -49,11 +49,11 @@ const pageBarStyles = makeStyles((theme: Theme) => {
       gridTemplateColumns: "1fr 1fr 1fr",
       paddingLeft: theme.spacing(12), // eslint-disable-line no-magic-numbers
       paddingRight: theme.spacing(12), // eslint-disable-line no-magic-numbers
-      [theme.breakpoints.down('lg')]: {
+      [theme.breakpoints.down("lg")]: {
         paddingLeft: theme.spacing(4),
         paddingRight: theme.spacing(4),
       },
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         paddingLeft: theme.spacing(2),
         paddingRight: theme.spacing(2),
         paddingTop: theme.spacing(2),
@@ -63,7 +63,7 @@ const pageBarStyles = makeStyles((theme: Theme) => {
         flexDirection: "row",
 
       },
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         paddingLeft: theme.spacing(1),
         paddingRight: theme.spacing(1),
         paddingTop: theme.spacing(1),

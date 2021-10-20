@@ -13,9 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import config from '../config';
+import config from "../config";
 
 const personUtils = {
   /** @returns {string} */
@@ -38,18 +38,18 @@ const personUtils = {
 };
 
 personUtils.patientInfo = (person) => {
-  return _.get(person, 'profile.patient');
+  return _.get(person, "profile.patient");
 };
 
 personUtils.hasAcceptedTerms = (person) => {
   let latestTermsDate = new Date(config.LATEST_TERMS);
-  if (isNaN(latestTermsDate.getTime())) {
+  if (Number.isNaN(latestTermsDate.getTime())) {
     // Set an invalid latestTermsDate to be Epoch 0
     latestTermsDate = new Date(0);
   }
   // A `null` is fine here, because `new Date(null).valueOf() === 0`
-  let acceptDate = new Date(_.get(person, 'termsAccepted', null));
-  if (isNaN(acceptDate.getTime())) {
+  let acceptDate = new Date(_.get(person, "termsAccepted", null));
+  if (Number.isNaN(acceptDate.getTime())) {
     // if acceptDate is not a valid formatted date string, get user to re-accept terms
     acceptDate = new Date(0);
   }
@@ -61,10 +61,10 @@ personUtils.isPatient = (person) => {
 };
 
 personUtils.isClinic = (user) => {
-  return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
+  return _.indexOf(_.get(user, "roles", []), "clinic") !== -1;
 };
 
-personUtils.haveClinicProfile = (user) => _.get(user, 'profile.clinic', false) !== false;
+personUtils.haveClinicProfile = (user) => _.get(user, "profile.clinic", false) !== false;
 
 personUtils.patientFullName = (person) => {
   return personUtils.fullName(person);
@@ -72,24 +72,24 @@ personUtils.patientFullName = (person) => {
 
 personUtils.patientFirstName = (person) => {
   if (personUtils.patientIsOtherPerson(person)) {
-    return _.get(person, 'profile.patient.firstName', personUtils.firstName(person));
+    return _.get(person, "profile.patient.firstName", personUtils.firstName(person));
   }
   return personUtils.firstName(person);
 };
 
 personUtils.patientLastName = (person) => {
   if (personUtils.patientIsOtherPerson(person)) {
-    return _.get(person, 'profile.patient.lastName', personUtils.lastName(person));
+    return _.get(person, "profile.patient.lastName", personUtils.lastName(person));
   }
   return personUtils.lastName(person);
 };
 
 personUtils.patientIsOtherPerson = (person) => {
-  return Boolean(_.get(person, 'profile.patient.isOtherPerson'));
+  return Boolean(_.get(person, "profile.patient.isOtherPerson"));
 };
 
 personUtils.isOnlyCareGiver = (person) => {
-  return Boolean(_.get(person, 'profile.isOnlyCareGiver'));
+  return Boolean(_.get(person, "profile.isOnlyCareGiver"));
 };
 
 personUtils.isSame = (first, second) => {

@@ -15,40 +15,40 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import { assert, expect } from 'chai';
+import _ from "lodash";
+import { assert, expect } from "chai";
 
-import dt from '../js/data/util/datetime';
-import { MGDL_UNITS, MMOLL_UNITS } from '../js/data/util/constants';
+import dt from "../js/data/util/datetime";
+import { MGDL_UNITS, MMOLL_UNITS } from "../js/data/util/constants";
 
-import nurseshark from '../plugins/nurseshark';
+import nurseshark from "../plugins/nurseshark";
 
-describe('nurseshark', function() {
-  describe('processData', function() {
-    it('should be a function', function() {
+describe("nurseshark", function() {
+  describe("processData", function() {
+    it("should be a function", function() {
       assert.isFunction(nurseshark.processData);
     });
 
-    it('should throw an error if you pass it a non-array', function() {
-      var fn = function() { nurseshark.processData('Bob'); };
-      expect(fn).to.throw('An array is required.');
+    it("should throw an error if you pass it a non-array", function() {
+      var fn = function() { nurseshark.processData("Bob"); };
+      expect(fn).to.throw("An array is required.");
     });
 
-    it('should exclude pre-v1 data model data', function() {
+    it("should exclude pre-v1 data model data", function() {
       var data = [{
-        deviceTime: ''
+        deviceTime: ""
       }];
       var res = nurseshark.processData(data);
       expect(res.erroredData.length).to.equal(0);
       expect(res.processedData.length).to.equal(0);
     });
 
-    it('should sort data', function() {
+    it("should sort data", function() {
       var now = new Date();
       var first = now.toISOString();
       var second = new Date(now.valueOf() + 864e5).toISOString();
       var input = [{
-        type: 'bolus',
+        type: "bolus",
         a: 1,
         z: {
           b: 2,
@@ -57,37 +57,37 @@ describe('nurseshark', function() {
         time: second,
         timezoneOffset: 0
       }, {
-        type: 'wizard',
+        type: "wizard",
         d: [{x: 4},{y: 5}],
         time: first,
         timezoneOffset: 0
       }];
       var res = nurseshark.processData(input);
-      expect(res.processedData[0]).to.eql(_.assign({}, input[1], {source: 'Unspecified Data Source'}));
-      expect(res.processedData[1]).to.eql(_.assign({}, input[0], {source: 'Unspecified Data Source'}));
+      expect(res.processedData[0]).to.eql(_.assign({}, input[1], {source: "Unspecified Data Source"}));
+      expect(res.processedData[1]).to.eql(_.assign({}, input[0], {source: "Unspecified Data Source"}));
     });
 
-    it('should return an object, with erroredData and processedData', function() {
-      var res = nurseshark.processData([{type:'cbg'},{type:'wizard'}]);
+    it("should return an object, with erroredData and processedData", function() {
+      var res = nurseshark.processData([{type:"cbg"},{type:"wizard"}]);
       assert.isObject(res);
       expect(res.erroredData).not.to.be.undefined;
       expect(res.processedData).not.to.be.undefined;
     });
 
-    it('should log an error when no type handler exists for an obj in the input array', function() {
-      var res = nurseshark.processData([{type:'foo', time: '2014-01-01T00:00:00.000Z'}]);
+    it("should log an error when no type handler exists for an obj in the input array", function() {
+      var res = nurseshark.processData([{type:"foo", time: "2014-01-01T00:00:00.000Z"}]);
       expect(res.erroredData.length).to.equal(1);
     });
 
-    it('should return an array for processedData, empty if initial array was empty', function() {
+    it("should return an array for processedData, empty if initial array was empty", function() {
       var res = nurseshark.processData([]).processedData;
       expect((res && res.length >= 0 && Array.isArray(res))).to.be.true;
     });
 
-    it('should return an array of new (not mutated) objects', function() {
+    it("should return an array of new (not mutated) objects", function() {
       var now = new Date().toISOString();
       var input = [{
-        type: 'bolus',
+        type: "bolus",
         a: 1,
         z: {
           b: 2,
@@ -96,7 +96,7 @@ describe('nurseshark', function() {
         time: now,
         timezoneOffset: 0
       }, {
-        type: 'wizard',
+        type: "wizard",
         d: [{x: 4},{y: 5}],
         time: now,
         timezoneOffset: 0
@@ -109,35 +109,35 @@ describe('nurseshark', function() {
       expect(input[1].d[0] === output[1].d[0]).to.be.false;
     });
 
-    it('should return off-schedule-rate and null-duration basals in the erroredData', function() {
+    it("should return off-schedule-rate and null-duration basals in the erroredData", function() {
       var now = new Date();
-      var dummyDT = '2014-01-01T12:00:00';
+      var dummyDT = "2014-01-01T12:00:00";
       var nullDuration = [{
-        type: 'basal',
+        type: "basal",
         time: now.toISOString(),
         duration: null,
-        normalTime: dummyDT + '.000Z',
-        normalEnd: new Date(new Date(dummyDT + '.000Z').valueOf() + 1200000).toISOString()
+        normalTime: dummyDT + ".000Z",
+        normalEnd: new Date(new Date(dummyDT + ".000Z").valueOf() + 1200000).toISOString()
       }];
       var res = nurseshark.processData(nullDuration).erroredData;
       expect(res.length).to.equal(1);
-      expect(res[0].errorMessage).to.equal('Basal with null/zero duration.');
+      expect(res[0].errorMessage).to.equal("Basal with null/zero duration.");
     });
 
-    it('should not extend the duration of non-Carelink temps and suspends', function() {
-      var aTime = '2014-01-01T12:00:00.000Z';
-      var nextTime = '2014-01-01T12:20:00.000Z';
+    it("should not extend the duration of non-Carelink temps and suspends", function() {
+      var aTime = "2014-01-01T12:00:00.000Z";
+      var nextTime = "2014-01-01T12:20:00.000Z";
       var basals = [{
-        type: 'basal',
-        deliveryType: 'temp',
+        type: "basal",
+        deliveryType: "temp",
         time: aTime,
         duration: 1199000,
         rate: 0.5,
         percent: 0.5,
         timezoneOffset: 0
       }, {
-        type: 'basal',
-        deliveryType: 'scheduled',
+        type: "basal",
+        deliveryType: "scheduled",
         time: nextTime,
         duration: 3600000,
         rate: 0.9,
@@ -149,25 +149,25 @@ describe('nurseshark', function() {
       expect(dt.addDuration(first.time, first.duration)).to.not.equal(second.time);
     });
 
-    describe('suppressed handler', function() {
+    describe("suppressed handler", function() {
       var now = new Date();
       var minusTen = new Date(now.valueOf() - 600000);
       var minusHour = new Date(now.valueOf() - 3600000);
       var basalWithSuppressed = [{
-        type: 'basal',
+        type: "basal",
         duration: 1200000,
         time: now.toISOString(),
         timezoneOffset: 0,
         suppressed: {
-          type: 'basal',
-          deliveryType: 'temp',
+          type: "basal",
+          deliveryType: "temp",
           duration: 3600000,
           time: minusTen.toISOString(),
           timezoneOffset: 0,
           percent: 0.5,
           suppressed: {
-            type: 'basal',
-            deliveryType: 'scheduled',
+            type: "basal",
+            deliveryType: "scheduled",
             duration: 3600000*2,
             time: minusHour.toISOString(),
             timezoneOffset: 0,
@@ -176,7 +176,7 @@ describe('nurseshark', function() {
         }
       }];
 
-      it('should recursively edit the timespan properties of suppresseds within basals', function() {
+      it("should recursively edit the timespan properties of suppresseds within basals", function() {
         var res = nurseshark.processData(basalWithSuppressed).processedData;
         expect(res.length).to.equal(1);
         var parent = res[0];
@@ -192,30 +192,30 @@ describe('nurseshark', function() {
         expect(parent.duration).to.equal(sup2.duration);
       });
 
-      it('should calculate the rate of a suppressed temp', function() {
+      it("should calculate the rate of a suppressed temp", function() {
         var res = nurseshark.processData(basalWithSuppressed).processedData;
         expect(res[0].suppressed.rate).to.equal(0.25);
       });
     });
 
-    it('should filter out bad deviceEvent events', function() {
+    it("should filter out bad deviceEvent events", function() {
       var data = [{
-        type: 'deviceEvent',
+        type: "deviceEvent",
         time: new Date().toISOString(),
         duration: 300000,
         timezoneOffset: 0
       }, {
-        type: 'deviceEvent',
+        type: "deviceEvent",
         time: new Date().toISOString(),
         annotations: [{
-          code: 'status/incomplete-tuple'
+          code: "status/incomplete-tuple"
         }],
         timezoneOffset: 0
       }, {
-        type: 'deviceEvent',
+        type: "deviceEvent",
         time: new Date().toISOString(),
         annotations: [{
-          code: 'status/unknown-previous'
+          code: "status/unknown-previous"
         }],
         timezoneOffset: 0
       }];
@@ -224,22 +224,22 @@ describe('nurseshark', function() {
       expect(res.erroredData.length).to.equal(1);
     });
 
-    it('should translate cbg and smbg into mg/dL when such units specified', function() {
+    it("should translate cbg and smbg into mg/dL when such units specified", function() {
       var now = new Date().toISOString();
       var bgs = [{
-        type: 'cbg',
+        type: "cbg",
         units: MMOLL_UNITS,
         value: 14.211645580300173,
         time: now,
         timezoneOffset: 0
       }, {
-        type: 'smbg',
+        type: "smbg",
         units: MMOLL_UNITS,
         value: 2.487452256628842,
         time: now,
         timezoneOffset: 0
       }, {
-        type: 'cbg',
+        type: "cbg",
         units: MMOLL_UNITS,
         value: 7.048584587016023,
         time: now,
@@ -251,10 +251,10 @@ describe('nurseshark', function() {
       expect(res[2].value).to.equal(127); // round(7.048584587016023 * MGDL_PER_MMOLL)
     });
 
-    it('should translate wizard bg-related fields to mg/dL when such units specified', function() {
+    it("should translate wizard bg-related fields to mg/dL when such units specified", function() {
       var now = new Date().toISOString();
       var datum = [{
-        type: 'wizard',
+        type: "wizard",
         time: now,
         units: MMOLL_UNITS,
         bgInput: 15.1518112923307,
@@ -276,14 +276,14 @@ describe('nurseshark', function() {
       expect(res.insulinSensitivity).to.equal(68); // round(3.7753739955227665 * MGDL_PER_MMOLL)
     });
 
-    it('should translate pumpSettings bg-related fields to mg/dL when such units specified', function() {
+    it("should translate pumpSettings bg-related fields to mg/dL when such units specified", function() {
       var now = new Date().toISOString();
       var settings = [{
-        type: 'pumpSettings',
+        type: "pumpSettings",
         time: now,
         units: {
           bg: MMOLL_UNITS,
-          carb: 'grams'
+          carb: "grams"
         },
         bgTarget: [{
           target: 6.66089758925464,
@@ -308,10 +308,10 @@ describe('nurseshark', function() {
       expect(res.insulinSensitivity[1].amount).to.equal(90);
     });
 
-    it('should reshape basalSchedules from an object to an array', function() {
+    it("should reshape basalSchedules from an object to an array", function() {
       var now = new Date().toISOString();
       var settings = [{
-        type: 'pumpSettings',
+        type: "pumpSettings",
         basalSchedules: {
           foo: [],
           bar: []
@@ -326,18 +326,18 @@ describe('nurseshark', function() {
       assert.isArray(res[0].basalSchedules);
     });
 
-    it('should add deviceSerialNumber to pumpSettings', function() {
+    it("should add deviceSerialNumber to pumpSettings", function() {
       var now = new Date().toISOString();
       var upload = {
-        type: 'upload',
-        deviceManufacturers: ['Demo'],
-        deviceSerialNumber: '9876',
-        uploadId: '1234',
+        type: "upload",
+        deviceManufacturers: ["Demo"],
+        deviceSerialNumber: "9876",
+        uploadId: "1234",
         time: now,
         timezoneOffset: 0
       };
       var settings = {
-        type: 'pumpSettings',
+        type: "pumpSettings",
         basalSchedules: {
           foo: [],
           bar: []
@@ -347,148 +347,148 @@ describe('nurseshark', function() {
         },
         time: now,
         timezoneOffset: 0,
-        uploadId: '1234'
+        uploadId: "1234"
       };
       var res = nurseshark.processData([upload, settings]).processedData;
-      expect(res[0].deviceSerialNumber).to.equal('9876');
+      expect(res[0].deviceSerialNumber).to.equal("9876");
     });
 
-    it('should add a source field if missing and there is an upload object with deviceManufacturers', function() {
+    it("should add a source field if missing and there is an upload object with deviceManufacturers", function() {
       var now = new Date().toISOString();
       var upload = {
-        type: 'upload',
-        deviceManufacturers: ['Demo'],
-        uploadId: '1234',
+        type: "upload",
+        deviceManufacturers: ["Demo"],
+        uploadId: "1234",
         time: now,
         timezoneOffset: 0
       };
       var bolus = {
         time: now,
         timezoneOffset: 0,
-        type: 'bolus',
-        subType: 'normal',
+        type: "bolus",
+        subType: "normal",
         normal: 2.0,
-        uploadId: '1234'
+        uploadId: "1234"
       };
       var res = nurseshark.processData([upload, bolus]).processedData;
-      expect(res[1].type).to.equal('bolus');
-      expect(res[1].source).to.equal('Demo');
+      expect(res[1].type).to.equal("bolus");
+      expect(res[1].source).to.equal("Demo");
     });
 
-    it('should add `Unknown` as source if no upload metadata', function() {
+    it("should add `Unknown` as source if no upload metadata", function() {
       var now = new Date().toISOString();
       var bolus = {
         time: now,
         timezoneOffset: 0,
-        type: 'bolus',
-        subType: 'normal',
+        type: "bolus",
+        subType: "normal",
         normal: 2.0
       };
       var res = nurseshark.processData([bolus]).processedData;
-      expect(res[0].source).to.equal('Unspecified Data Source');
+      expect(res[0].source).to.equal("Unspecified Data Source");
     });
 
-    it('should return sorted data', function() {
+    it("should return sorted data", function() {
       var now = new Date();
       var nextTime = new Date(now.valueOf() + 600000);
       var data = [{
-        type: 'smbg',
+        type: "smbg",
         units: MMOLL_UNITS,
         time: nextTime.toISOString(),
         timezoneOffset: 0
       }, {
-        type: 'cbg',
+        type: "cbg",
         units: MMOLL_UNITS,
         time: now.toISOString(),
         timezoneOffset: 0
       }];
       var sorted = [data[1], data[0]];
-      _.forEach(sorted, function(d) { d.source = 'Unspecified Data Source'; });
+      _.forEach(sorted, function(d) { d.source = "Unspecified Data Source"; });
       sorted[0].normalTime = now.toISOString();
       sorted[1].normalTime = nextTime.toISOString();
       expect(nurseshark.processData(data).processedData).to.eql(sorted);
     });
   });
 
-  it('should put any datum with year < 2008 into the erroredData', function() {
+  it("should put any datum with year < 2008 into the erroredData", function() {
     var data = [{
-      type: 'message',
-      timestamp: '0002-01-01T12:00:00.000Z'
+      type: "message",
+      timestamp: "0002-01-01T12:00:00.000Z"
     }, {
-      type: 'smbg',
-      time: '0002-01-01T12:00:00.000Z',
+      type: "smbg",
+      time: "0002-01-01T12:00:00.000Z",
       timezoneOffset: 0
     }];
     var res = nurseshark.processData(data);
     expect(res.erroredData.length).to.equal(2);
   });
 
-  describe('reshapeMessage', function() {
-    it('should be a function', function() {
+  describe("reshapeMessage", function() {
+    it("should be a function", function() {
       assert.isFunction(nurseshark.reshapeMessage);
     });
 
-    it('should yield the message format tideline expects', function() {
+    it("should yield the message format tideline expects", function() {
       var now = new Date().toISOString();
       var serverMessage = {
-        id: 'a',
+        id: "a",
         parentmessage: null,
         timestamp: now,
-        messagetext: 'Hello there!',
-        user: 'foo'
+        messagetext: "Hello there!",
+        user: "foo"
       };
       var tidelineMessage = {
-        id: 'a',
+        id: "a",
         parentMessage: null,
         time: now,
-        messageText: 'Hello there!',
-        user: 'foo',
-        type: 'message'
+        messageText: "Hello there!",
+        user: "foo",
+        type: "message"
       };
       const transformedMessage = nurseshark.reshapeMessage(serverMessage);
       expect(transformedMessage, JSON.stringify({ serverMessage, tidelineMessage, transformedMessage }, null, 2)).to.eql(tidelineMessage);
     });
   });
 
-  describe('joinWizardsAndBoluses', function() {
+  describe("joinWizardsAndBoluses", function() {
     var now = new Date().toISOString();
     var data = [{
-      type: 'bolus',
-      id: 'abcde',
+      type: "bolus",
+      id: "abcde",
       time: now,
       timezoneOffset: 0
     }, {
-      type: 'wizard',
-      bolus: 'abcde',
-      id: 'bcdef',
+      type: "wizard",
+      bolus: "abcde",
+      id: "bcdef",
       time: now,
       timezoneOffset: 0
     }, {
-      type: 'bolus',
-      id: 'cdefg',
+      type: "bolus",
+      id: "cdefg",
       time: now,
       timezoneOffset: 0
     }, {
-      type: 'wizard',
-      id: 'defgh',
+      type: "wizard",
+      id: "defgh",
       time: now,
       timezoneOffset: 0
     }];
-    it('should be a function', function() {
+    it("should be a function", function() {
       assert.isFunction(nurseshark.joinWizardsAndBoluses);
     });
 
-    describe('new data model', function() {
+    describe("new data model", function() {
       var res = nurseshark.processData(data).processedData;
       var embeddedBolus = res[1].bolus;
       var secondWiz = res[3];
 
-      it('should join a bolus to a wizard that includes the bolus\'s `id` in the `bolus` field', function() {
+      it("should join a bolus to a wizard that includes the bolus's `id` in the `bolus` field", function() {
         expect(embeddedBolus.id).to.equal(data[0].id);
         expect(secondWiz.bolus).to.be.undefined;
       });
 
-      it('should add a wizard inside the bolus if bolus is associated with a wizard', function() {
+      it("should add a wizard inside the bolus if bolus is associated with a wizard", function() {
         var res = nurseshark.processData(data).processedData;
         var embeddedWiz = res[0].wizard;
         var secondBolus = res[3];
@@ -498,29 +498,29 @@ describe('nurseshark', function() {
     });
   });
 
-  describe('annotateBasals', function() {
-    it('should be a function', function() {
+  describe("annotateBasals", function() {
+    it("should be a function", function() {
       assert.isFunction(nurseshark.annotateBasals);
     });
 
-    it('should annotate a basal segment containing an incomplete suspend', function() {
+    it("should annotate a basal segment containing an incomplete suspend", function() {
       var now = new Date();
       var plusTen = new Date(now.valueOf() + 600000);
       var data = [{
-        type: 'basal',
+        type: "basal",
         time: now.toISOString(),
         timezoneOffset: 0,
         duration: 1800000
       }, {
-        type: 'deviceEvent',
+        type: "deviceEvent",
         annotations: [{
-          code: 'status/incomplete-tuple'
+          code: "status/incomplete-tuple"
         }],
         time: plusTen.toISOString(),
         timezoneOffset: 0
       }];
       var res = nurseshark.processData(data).processedData;
-      expect(res[0].annotations[0].code).to.equal('basal/intersects-incomplete-suspend');
+      expect(res[0].annotations[0].code).to.equal("basal/intersects-incomplete-suspend");
     });
   });
 });

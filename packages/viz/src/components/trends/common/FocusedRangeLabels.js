@@ -15,16 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React from "react";
 
-import React from 'react';
+import { MGDL_UNITS, MMOLL_UNITS } from "tideline";
+import Tooltip from "../../common/tooltips/Tooltip";
+import { formatBgValue } from "../../../utils/format";
+import { formatClocktimeFromMsPer24 } from "../../../utils/datetime";
 
-import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
-import Tooltip from '../../common/tooltips/Tooltip';
-import { formatBgValue } from '../../../utils/format';
-import { formatClocktimeFromMsPer24 } from '../../../utils/datetime';
-
-import styles from './FocusedRangeLabels.css';
+import styles from "./FocusedRangeLabels.css";
 
 const FocusedRangeLabels = (props) => {
   const { focusedKeys, focusedRange, focusedSlice } = props;
@@ -37,14 +36,14 @@ const FocusedRangeLabels = (props) => {
   }
 
   const { bgPrefs, dataType } = props;
-  const isCbg = dataType === 'cbg';
-  const dataBucket = isCbg ? 'focusedSlice' : 'focusedRange';
+  const isCbg = dataType === "cbg";
+  const dataBucket = isCbg ? "focusedSlice" : "focusedRange";
   const { [dataBucket]: { data, position } } = props;
   const timeFrom = formatClocktimeFromMsPer24(data.msFrom);
   const timeTo = formatClocktimeFromMsPer24(data.msTo);
-  const top = isCbg ? focusedKeys[1] : 'max';
-  const center = isCbg ? 'median' : 'mean';
-  const bottom = isCbg ? focusedKeys[0] : 'min';
+  const top = isCbg ? focusedKeys[1] : "max";
+  const center = isCbg ? "median" : "mean";
+  const bottom = isCbg ? focusedKeys[0] : "min";
   const topPosition = {
     top: position.yPositions[top],
     left: position.left,
@@ -57,7 +56,7 @@ const FocusedRangeLabels = (props) => {
     top: position.yPositions[center],
     left: position.left,
   };
-  const centerSide = position.tooltipLeft ? 'left' : 'right';
+  const centerSide = position.tooltipLeft ? "left" : "right";
   return (
     <div className={styles.container}>
       {isCbg ? (
@@ -65,7 +64,7 @@ const FocusedRangeLabels = (props) => {
           title={<span className={styles.timeLabel}>{timeFrom} - {timeTo}</span>}
           borderWidth={0}
           position={{ left: position.left, top: position.yPositions.topMargin }}
-          side={'bottom'}
+          side={"bottom"}
           tail={false}
         />
       ) : null}
@@ -75,11 +74,11 @@ const FocusedRangeLabels = (props) => {
             {formatBgValue(data[top], bgPrefs, data.outOfRangeThresholds)}
           </span>
         }
-        backgroundColor={'transparent'}
-        borderColor={'transparent'}
+        backgroundColor={"transparent"}
+        borderColor={"transparent"}
         offset={{ left: 0, top: isCbg ? props.numberOffsets.top : 0 }}
         position={topPosition}
-        side={'top'}
+        side={"top"}
         tail={false}
       />
       {isCbg ? null : (
@@ -101,11 +100,11 @@ const FocusedRangeLabels = (props) => {
             {formatBgValue(data[bottom], bgPrefs, data.outOfRangeThresholds)}
           </span>
         }
-        backgroundColor={'transparent'}
-        borderColor={'transparent'}
+        backgroundColor={"transparent"}
+        borderColor={"transparent"}
         offset={{ left: 0, top: isCbg ? props.numberOffsets.bottom : 0 }}
         position={bottomPosition}
-        side={'bottom'}
+        side={"bottom"}
         tail={false}
       />
     </div>
@@ -126,15 +125,15 @@ FocusedRangeLabels.propTypes = {
     // only the bgUnits required in this component
     // so leaving off specification of bgBounds shape
   }).isRequired,
-  dataType: PropTypes.oneOf(['cbg', 'smbg']).isRequired,
+  dataType: PropTypes.oneOf(["cbg", "smbg"]).isRequired,
   focusedKeys: PropTypes.arrayOf(PropTypes.oneOf([
-    'firstQuartile',
-    'max',
-    'median',
-    'min',
-    'ninetiethQuantile',
-    'tenthQuantile',
-    'thirdQuartile',
+    "firstQuartile",
+    "max",
+    "median",
+    "min",
+    "ninetiethQuantile",
+    "tenthQuantile",
+    "thirdQuartile",
   ])),
   focusedRange: PropTypes.shape({
     data: PropTypes.shape({

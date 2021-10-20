@@ -15,14 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-
-import { delayShowCbgTracesOnFocus } from '../../../redux/actions/thunks';
-import { unfocusTrendsCbgSlice } from '../../../redux/actions/trends';
+import { delayShowCbgTracesOnFocus } from "../../../redux/actions/thunks";
+import { unfocusTrendsCbgSlice } from "../../../redux/actions/trends";
 
 export class CBGSliceSegment extends PureComponent {
   static propTypes = {
@@ -69,7 +68,7 @@ export class CBGSliceSegment extends PureComponent {
 
   handleMouseOut(e) {
     // we don't want to unfocus the slice if the user just rolled over a cbg inside it
-    if (e.relatedTarget && e.relatedTarget.id.search('cbgCircle') !== -1) {
+    if (e.relatedTarget && e.relatedTarget.id.search("cbgCircle") !== -1) {
       return;
     }
     this.props.unfocusSlice(this.props.userId);

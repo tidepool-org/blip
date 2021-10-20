@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-import schema from './validator/schematron.js';
+import schema from "./validator/schematron.js";
 
 const upload = (common) => schema(
   common,
   {
     id: schema().isId(),
-    type: schema().string().in(['upload']),
+    type: schema().string().in(["upload"]),
     source: schema().string(),
     deviceTags: schema().array(schema().string())
   }

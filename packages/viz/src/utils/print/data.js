@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import moment from 'moment-timezone';
-import { extent } from 'd3-array';
+import _ from "lodash";
+import moment from "moment-timezone";
+import { extent } from "d3-array";
 
-import { getBasalSequences, getGroupDurations } from '../../utils/basal';
-import { getLatestPumpUpload } from '../../utils/device';
-import { getTimezoneFromTimePrefs, getLocalizedCeiling } from '../../utils/datetime';
+import { getBasalSequences, getGroupDurations } from "../../utils/basal";
+import { getLatestPumpUpload } from "../../utils/device";
+import { getTimezoneFromTimePrefs, getLocalizedCeiling } from "../../utils/datetime";
 
 /**
  * stripDatum
@@ -33,23 +33,23 @@ export function stripDatum(d) {
   return _.assign({}, _.omit(
     d,
     [
-      'clockDriftOffset',
-      'conversionOffset',
-      'createdUserId',
-      'deviceId',
-      'deviceSerialNumber',
-      'deviceTime',
-      'displayOffset',
-      'guid',
-      'localDate',
-      'modifiedUserId',
-      'payload',
-      'scheduleName',
-      'source',
-      'time',
-      'timezoneOffset',
-      'units',
-      'uploadId',
+      "clockDriftOffset",
+      "conversionOffset",
+      "createdUserId",
+      "deviceId",
+      "deviceSerialNumber",
+      "deviceTime",
+      "displayOffset",
+      "guid",
+      "localDate",
+      "modifiedUserId",
+      "payload",
+      "scheduleName",
+      "source",
+      "time",
+      "timezoneOffset",
+      "units",
+      "uploadId",
     ]
   ));
 }
@@ -111,7 +111,7 @@ function processDateBoundaries(mostRecent, groupedData, numDays, timePrefs) {
   for (let i = 0; i < numDays; ++i) {
     const startOfDate = moment.utc(last)
       .tz(timezone)
-      .subtract(1, 'day')
+      .subtract(1, "day")
       .toDate();
     dateBoundaries.push(
       startOfDate.toISOString()
@@ -127,7 +127,7 @@ function processDateBoundaries(mostRecent, groupedData, numDays, timePrefs) {
     const thisDateEnd = dateBoundaries[i + 1];
     const date = moment.utc(Date.parse(thisDateStart))
       .tz(timezone)
-      .format('YYYY-MM-DD');
+      .format("YYYY-MM-DD");
     selected.dataByDate[date] = {
       bounds: [Date.parse(thisDateStart), Date.parse(thisDateEnd)],
       date,
@@ -135,7 +135,7 @@ function processDateBoundaries(mostRecent, groupedData, numDays, timePrefs) {
         if (_.isEmpty(dataForType)) {
           return [];
         }
-        const filterFn = _.includes(['basal', 'bolus'], dataForType[0].type) ?
+        const filterFn = _.includes(["basal", "bolus"], dataForType[0].type) ?
           filterWithDurationFnMaker(thisDateStart, thisDateEnd) :
           filterPointInTimeFnMaker(thisDateStart, thisDateEnd);
         return _.sortBy(_.map(
@@ -148,7 +148,7 @@ function processDateBoundaries(mostRecent, groupedData, numDays, timePrefs) {
             reshaped.utc = Date.parse(d.normalTime);
             return reshaped;
           },
-        ), 'utc');
+        ), "utc");
       }),
     };
 
@@ -171,7 +171,7 @@ function processBgRange(selectedDataByDate) {
   const bgs = _.reduce(
     selectedDataByDate,
     (all, date) => (
-      all.concat(_.get(date, ['data', 'cbg'], [])).concat(_.get(date, ['data', 'smbg'], []))
+      all.concat(_.get(date, "data.cbg", [])).concat(_.get(date, "data.smbg", []))
     ),
     []
   );
@@ -195,7 +195,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
   selected.bgRange = processBgRange(selectedDataByDate);
 
   const boluses = _.reduce(
-    selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'bolus'], []))), []
+    selectedDataByDate, (all, date) => (all.concat(_.get(date, "data.bolus", []))), []
   );
   _.forEach(boluses, (bolus) => {
     // eslint-disable-next-line no-param-reassign
@@ -208,7 +208,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
     selectedDataByDate[dateObj.date].data.bolus = _.map(bolusesForDate, (bolus) => {
       if (bolus.wizard) {
         const reversed = stripDatum(bolus.wizard);
-        reversed.bolus = _.omit(bolus, 'wizard');
+        reversed.bolus = _.omit(bolus, "wizard");
         return reversed;
       }
       return bolus;
@@ -216,11 +216,11 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
   });
 
   const allBasals = _.reduce(
-    selectedDataByDate, (all, date) => (all.concat(_.get(date, ['data', 'basal'], []))), []
+    selectedDataByDate, (all, date) => (all.concat(_.get(date, "data.basal", []))), []
   );
   const rawBasalRange = extent(
     allBasals,
-    (d) => (_.max([_.get(d, ['suppressed', 'rate'], 0), d.rate]))
+    (d) => (_.max([_.get(d, "suppressed.rate", 0), d.rate]))
   );
   // multiply the max rate by 1.1 to add a little buffer so the highest basals
   // don't sit at the very top of the basal rendering area and bump into boluses
@@ -255,7 +255,7 @@ export function selectDailyViewData(mostRecent, groupedData, numDays, timePrefs)
     /* eslint-enable no-param-reassign */
   });
 
-  if (_.get(groupedData, 'upload.length', 0) > 0) {
+  if (_.get(groupedData, "upload.length", 0) > 0) {
     selected.latestPumpUpload = getLatestPumpUpload(groupedData.upload);
   }
 

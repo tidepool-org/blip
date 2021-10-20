@@ -15,26 +15,26 @@
  * == BSD2 LICENSE ==
  */
 
-import { expect } from 'chai';
-import * as Constants from '../../../../app/core/constants';
+import { expect } from "chai";
+import * as Constants from "../../../../app/core/constants";
 
-describe('constants', function() {
-  it('should define the list of bg data types', function() {
+describe("constants", function() {
+  it("should define the list of bg data types", function() {
     expect(Constants.BG_DATA_TYPES).to.eql([
-      'cbg',
-      'smbg',
+      "cbg",
+      "smbg",
     ]);
   });
 
-  it('should define the list of diabetes data types', function() {
+  it("should define the list of diabetes data types", function() {
     expect(Constants.DIABETES_DATA_TYPES).to.eql([
-      'cbg',
-      'smbg',
-      'basal',
-      'bolus',
-      'wizard',
-      'food',
-      'physicalActivity',
+      "cbg",
+      "smbg",
+      "basal",
+      "bolus",
+      "wizard",
+      "food",
+      "physicalActivity",
     ]);
   });
 });

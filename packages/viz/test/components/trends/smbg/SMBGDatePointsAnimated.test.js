@@ -15,16 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import React from 'react';
-import { TransitionMotion } from 'react-motion';
+import _ from "lodash";
+import React from "react";
+import { TransitionMotion } from "react-motion";
+import { expect } from "chai";
+import * as sinon from "sinon";
+import { mount } from "enzyme";
 
-import { mount } from 'enzyme';
+import { THREE_HRS } from "../../../../src/utils/datetime";
 
-import { THREE_HRS } from '../../../../src/utils/datetime';
-
-import bgBounds from '../../../helpers/bgBounds';
-import * as scales from '../../../helpers/scales';
+import bgBounds from "../../../helpers/bgBounds";
+import * as scales from "../../../helpers/scales";
 const {
   trendsHeight,
   trendsWidth,
@@ -32,22 +33,22 @@ const {
   trendsYScale: yScale,
 } = scales.trends;
 
-import SVGContainer from '../../../helpers/SVGContainer';
+import SVGContainer from "../../../helpers/SVGContainer";
 import { SMBGDatePointsAnimated }
-  from '../../../../src/components/trends/smbg/SMBGDatePointsAnimated';
+  from "../../../../src/components/trends/smbg/SMBGDatePointsAnimated";
 
-describe('SMBGDatePointsAnimated', () => {
+describe("SMBGDatePointsAnimated", () => {
   let wrapper;
   const focusSmbg = sinon.spy();
   const unfocusSmbg = sinon.spy();
   const onSelectDate = sinon.spy();
   const grouped = true;
   const focusedDay = [];
-  const date = '2016-08-14';
+  const date = "2016-08-14";
   const data = [
-    { id: '0', value: 120, msPer24: 0 },
-    { id: '1', value: 90, msPer24: 9000000 },
-    { id: '2', value: 180, msPer24: 21600000 },
+    { id: "0", value: 120, msPer24: 0 },
+    { id: "1", value: 90, msPer24: 9000000 },
+    { id: "2", value: 180, msPer24: 21600000 },
   ];
   const smbgOpts = {
     maxR: 7.5,
@@ -65,7 +66,7 @@ describe('SMBGDatePointsAnimated', () => {
     smbgOpts,
     tooltipLeftThreshold: THREE_HRS * 6,
     unfocusSmbg,
-    userId: 'a1b2c3',
+    userId: "a1b2c3",
     xScale,
     yScale,
   };
@@ -77,7 +78,7 @@ describe('SMBGDatePointsAnimated', () => {
     );
   });
 
-  describe('when an empty array of data is provided', () => {
+  describe("when an empty array of data is provided", () => {
     let noDataWrapper;
     before(() => {
       const noDataProps = _.assign({}, props, { data: [] });
@@ -89,49 +90,49 @@ describe('SMBGDatePointsAnimated', () => {
       );
     });
 
-    it('should render a TransitionMotion component but no <g> or <circle>s', () => {
+    it("should render a TransitionMotion component but no <g> or <circle>s", () => {
       expect(noDataWrapper.find(TransitionMotion).length).to.equal(1);
       expect(noDataWrapper.find(`#smbgDatePoints-${date}`).length).to.equal(0);
-      expect(noDataWrapper.find('g').length).to.equal(0);
-      expect(noDataWrapper.find('circle').length).to.equal(0);
+      expect(noDataWrapper.find("g").length).to.equal(0);
+      expect(noDataWrapper.find("circle").length).to.equal(0);
     });
   });
 
-  describe('when data is provided', () => {
-    it('should render the appropriate number of smbgDatePoints <circle>s', () => {
+  describe("when data is provided", () => {
+    it("should render the appropriate number of smbgDatePoints <circle>s", () => {
       expect(wrapper.find(`#smbgDatePoints-${date} circle`).length).to.equal(3);
     });
   });
 
-  describe('interactions', () => {
+  describe("interactions", () => {
     afterEach(() => {
       props.focusSmbg.resetHistory();
       props.unfocusSmbg.resetHistory();
     });
 
-    it('should call focusSmbg on mouseover of smbg circle', () => {
+    it("should call focusSmbg on mouseover of smbg circle", () => {
       const smbgCircle = wrapper
         .find(`#smbg-${data[0].id}`);
       expect(focusSmbg.callCount).to.equal(0);
-      smbgCircle.simulate('mouseover');
+      smbgCircle.simulate("mouseover");
       expect(focusSmbg.args[0][0]).to.equal(props.userId);
       expect(focusSmbg.args[0][1]).to.deep.equal(data[0]);
       expect(focusSmbg.callCount).to.equal(1);
     });
 
-    it('should call unfocusSmbg on mouseout of smbg circle', () => {
+    it("should call unfocusSmbg on mouseout of smbg circle", () => {
       const smbgCircle = wrapper
         .find(`#smbg-${data[0].id}`);
       expect(unfocusSmbg.callCount).to.equal(0);
-      smbgCircle.simulate('mouseout');
+      smbgCircle.simulate("mouseout");
       expect(unfocusSmbg.callCount).to.equal(1);
     });
 
-    it('should call onSelectDate on click of smbg circle', () => {
+    it("should call onSelectDate on click of smbg circle", () => {
       const smbgCircle = wrapper
         .find(`#smbg-${data[0].id}`);
       expect(onSelectDate.callCount).to.equal(0);
-      smbgCircle.simulate('click');
+      smbgCircle.simulate("click");
       expect(onSelectDate.callCount).to.equal(1);
     });
   });

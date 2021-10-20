@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, withStyles, useTheme, Theme } from "@material-ui/core/styles";
@@ -144,17 +144,17 @@ const teamMembersTableStyles = makeStyles(() => ({
 const MembersAccordionSummary = withStyles(
   (theme: Theme) => ({
     root: {
-      justifyContent: "left",
-      transition: theme.transitions.create(["background-color", "min-height"]),
+      "justifyContent": "left",
+      "transition": theme.transitions.create(["background-color", "min-height"]),
       "&:hover": {
         backgroundColor: theme.palette.primary.light,
       },
     },
     content: {
-      flexGrow: 0,
-      margin: 0,
-      display: "inline",
-      transition: undefined,
+      "flexGrow": 0,
+      "margin": 0,
+      "display": "inline",
+      "transition": undefined,
       "&$expanded": {
         margin: 0,
       },

@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import legendDefs from './plot/util/legend';
+import legendDefs from "./plot/util/legend";
 
 /**
  * @typedef {import('./tidelinedata').default} TidelineData
@@ -41,8 +41,8 @@ function Pool(container) {
   const minHeight = 20;
   const maxHeight = 300;
 
-  let mainSVG = d3.select('#' + container.id());
-  let id = '';
+  let mainSVG = d3.select("#" + container.id());
+  let id = "";
   let yPosition = 0;
   let gutterWeight = 0;
   /** @type {Labels} Chart name for the user */
@@ -68,7 +68,7 @@ function Pool(container) {
 
   this.destroy = function() {
     plotTypes.forEach((plotType) => {
-      if (typeof plotType.plot.destroy === 'function') {
+      if (typeof plotType.plot.destroy === "function") {
         plotType.plot.destroy();
       }
     });
@@ -97,7 +97,7 @@ function Pool(container) {
       if (type in container.dataFill) {
         plotType.data = _.filter(poolData, { type });
         const dataGroup = group.selectAll(`#${id}_${name}`).data([plotType.data]);
-        dataGroup.enter().append('g').attr('id', `${id}_${name}`);
+        dataGroup.enter().append("g").attr("id", `${id}_${name}`);
         if (plotType.data.length > 0) {
           dataGroup.call(plotType.plot);
         }
@@ -125,7 +125,7 @@ function Pool(container) {
   this.pan = function(translateX) {
     plotTypes.forEach(({ pan, name }) => {
       if (pan) {
-        mainSVG.select(`#${id}_${name}`).attr('transform', `translate(${translateX},0)`);
+        mainSVG.select(`#${id}_${name}`).attr("transform", `translate(${translateX},0)`);
       }
     });
   };
@@ -152,16 +152,16 @@ function Pool(container) {
     const x = container.axisGutter().toString(10);
     labels.forEach((label, labelIndex) => {
       const y = (yPosition - label.baseline).toString(10);
-      const labelGroup = mainSVG.select('#tidelineLabels').append('text');
+      const labelGroup = mainSVG.select("#tidelineLabels").append("text");
       labelGroup.attr({
         id: `${id}_label_${labelIndex}`,
-        'class': 'd3-pool-label',
+        class: "d3-pool-label",
         transform: `translate(${x},${y})`
       });
       label.spans.forEach((tspan, spanIndex) => {
-        labelGroup.append('tspan')
-          .attr('class', tspan.className)
-          .attr('id', `${id}_label_${labelIndex}_span_${spanIndex}`)
+        labelGroup.append("tspan")
+          .attr("class", tspan.className)
+          .attr("id", `${id}_label_${labelIndex}_span_${spanIndex}`)
           .text(tspan.text);
       });
     });
@@ -174,8 +174,8 @@ function Pool(container) {
     legends.forEach((legend) => {
       const x = (this.width() + container.axisGutter()).toString(10);
       const y = (yPosition - legend.baseline).toString(10);
-      const legendGroup = mainSVG.select('#tidelineLabels')
-        .append('g')
+      const legendGroup = mainSVG.select("#tidelineLabels")
+        .append("g")
         .attr({
           id: `${id}_legend_${legend.name}`,
           transform: `translate(${x},${y})`,
@@ -186,17 +186,17 @@ function Pool(container) {
 
   this.drawAxes = _.once(function() {
     if (yAxis) {
-      const axisGroup = mainSVG.select('#tidelineYAxes');
-      axisGroup.append('g')
-        .attr('class', 'd3-y d3-axis')
-        .attr('id', `pool-${id}-yAxis`)
-        .attr('transform', 'translate(' + (container.axisGutter() - 1) + ',' + yPosition + ')');
+      const axisGroup = mainSVG.select("#tidelineYAxes");
+      axisGroup.append("g")
+        .attr("class", "d3-y d3-axis")
+        .attr("id", `pool-${id}-yAxis`)
+        .attr("transform", "translate(" + (container.axisGutter() - 1) + "," + yPosition + ")");
     }
   });
 
   this.updateAxes = function() {
     if (yAxis) {
-      const axisGroup = mainSVG.select('#tidelineYAxes');
+      const axisGroup = mainSVG.select("#tidelineYAxes");
       axisGroup.select(`#pool-${id}-yAxis`).call(yAxis);
     }
     return this;
@@ -206,7 +206,7 @@ function Pool(container) {
   this.id = function(x, selection) {
     if (!arguments.length) return id;
     id = x;
-    group = selection.append('g').attr('id', id);
+    group = selection.append("g").attr("id", id);
     return this;
   };
 
@@ -342,15 +342,15 @@ function Pool(container) {
           background = mainSVG.selectAll(background);
         }
 
-        background.attr('opacity', opts.subdueOpacity);
-        el.attr('opacity', 1);
+        background.attr("opacity", opts.subdueOpacity);
+        el.attr("opacity", 1);
       },
       off: function() {
         if(_.isString(background)) {
           background = mainSVG.selectAll(background);
         }
 
-        background.attr('opacity', 1);
+        background.attr("opacity", 1);
       }
     };
   };

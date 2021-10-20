@@ -14,7 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import * as data from './data';
+import * as data from "./data";
 
 /**
  * basalSchedules
@@ -42,7 +42,7 @@ export function deviceMeta(settings, timePrefs) {
  * @private
  */
 function scheduleLabel(scheduleName, activeScheduleName) {
-  return data.getScheduleLabel(scheduleName, activeScheduleName, 'tandem', true);
+  return data.getScheduleLabel(scheduleName, activeScheduleName, "tandem", true);
 }
 
 /**
@@ -63,29 +63,29 @@ function basalRows(schedule, settings, units) {
  */
 function basalColumns(styles = {}, units) {
   return [
-    { key: 'start',
-      label: 'Start time' },
-    { key: 'rate',
+    { key: "start",
+      label: "Start time" },
+    { key: "rate",
       label: {
-        main: 'Basal Rates',
-        secondary: 'U/hr',
+        main: "Basal Rates",
+        secondary: "U/hr",
       },
       className: styles.basalScheduleHeader },
-    { key: 'bgTarget',
+    { key: "bgTarget",
       label: {
-        main: 'Target BG',
+        main: "Target BG",
         secondary: units,
       },
       className: styles.bolusSettingsHeader },
-    { key: 'carbRatio',
+    { key: "carbRatio",
       label: {
-        main: 'Carb Ratio',
-        secondary: 'g/U',
+        main: "Carb Ratio",
+        secondary: "g/U",
       },
       className: styles.bolusSettingsHeader },
-    { key: 'insulinSensitivity',
+    { key: "insulinSensitivity",
       label: {
-        main: 'Correction Factor',
+        main: "Correction Factor",
         secondary: `${units}/U`,
       },
       className: styles.bolusSettingsHeader },

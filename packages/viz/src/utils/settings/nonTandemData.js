@@ -14,10 +14,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import _ from 'lodash';
-import i18next from 'i18next';
-import * as data from './data';
-import { getPumpVocabularies, AUTOMATED_DELIVERY } from '../constants';
+import _ from "lodash";
+import i18next from "i18next";
+import * as data from "./data";
+import { getPumpVocabularies, AUTOMATED_DELIVERY } from "../constants";
 
 const t = i18next.t.bind(i18next);
 
@@ -50,14 +50,14 @@ export function deviceMeta(settings, timePrefs) {
  */
 export function bolusTitle(manufacturer) {
   switch (manufacturer) {
-    case 'animas':
-      return t('ezCarb ezBG');
-    case 'insulet':
-      return t('Bolus Calculator');
-    case 'medtronic':
-      return t('Bolus Wizard');
-    default:
-      return t('Bolus Calculator');
+  case "animas":
+    return t("ezCarb ezBG");
+  case "insulet":
+    return t("Bolus Calculator");
+  case "medtronic":
+    return t("Bolus Wizard");
+  default:
+    return t("Bolus Calculator");
   }
 }
 
@@ -69,16 +69,16 @@ export function bolusTitle(manufacturer) {
  */
 export function deviceName(manufacturer) {
   switch (manufacturer) {
-    case 'animas':
-      return 'Animas';
-    case 'insulet':
-      return 'OmniPod';
-    case 'medtronic':
-      return 'Medtronic';
-    case 'diabeloop':
-      return 'Diabeloop';
-    default:
-      return t('Unknown');
+  case "animas":
+    return "Animas";
+  case "insulet":
+    return "OmniPod";
+  case "medtronic":
+    return "Medtronic";
+  case "diabeloop":
+    return "Diabeloop";
+  default:
+    return t("Unknown");
   }
 }
 
@@ -103,7 +103,7 @@ function basalRows(schedule, settings) {
  * @private
  */
 function basalColumns() {
-  return data.startTimeAndValue('rate');
+  return data.startTimeAndValue("rate");
 }
 
 /**
@@ -115,13 +115,10 @@ function basalColumns() {
  */
 export function basal(schedule, settings, manufacturer) {
   const name = settings.basalSchedules[schedule].name;
-  const lookupKey = (manufacturer === 'carelink') ? 'medtronic' : manufacturer;
+  const lookupKey = (manufacturer === "carelink") ? "medtronic" : manufacturer;
 
   const pumpVocabulary = getPumpVocabularies();
-  const isAutomated = _.get(pumpVocabulary, [
-    data.deviceName(lookupKey),
-    AUTOMATED_DELIVERY,
-  ]) === name;
+  const isAutomated = _.get(pumpVocabulary, `${data.deviceName(lookupKey)}.${AUTOMATED_DELIVERY}`) === name;
 
   return {
     scheduleName: name,
@@ -139,10 +136,10 @@ export function basal(schedule, settings, manufacturer) {
  */
 function sensitivityTitle(manufacturer) {
   const ISF_BY_MANUFACTURER = {
-    animas: t('ISF'),
-    insulet: t('Correction factor'),
-    medtronic: t('Sensitivity'),
-    diabeloop: t('Sensitivity'),
+    animas: t("ISF"),
+    insulet: t("Correction factor"),
+    medtronic: t("Sensitivity"),
+    diabeloop: t("Sensitivity"),
   };
   return ISF_BY_MANUFACTURER[manufacturer];
 }
@@ -152,7 +149,7 @@ function sensitivityTitle(manufacturer) {
  * @private
  */
 function sensitivityColumns() {
-  return data.startTimeAndValue('amount');
+  return data.startTimeAndValue("amount");
 }
 
 /**
@@ -188,10 +185,10 @@ export function sensitivity(settings, manufacturer, units) {
  */
 function ratioTitle(manufacturer) {
   const CARB_RATIO_BY_MANUFACTURER = {
-    animas: t('I:C Ratio'),
-    insulet: t('IC ratio'),
-    medtronic: t('Carb Ratios'),
-    diabeloop: t('Carb Ratios'),
+    animas: t("I:C Ratio"),
+    insulet: t("IC ratio"),
+    medtronic: t("Carb Ratios"),
+    diabeloop: t("Carb Ratios"),
   };
   return CARB_RATIO_BY_MANUFACTURER[manufacturer];
 }
@@ -201,7 +198,7 @@ function ratioTitle(manufacturer) {
  * @private
  */
 function ratioColumns() {
-  return data.startTimeAndValue('amount');
+  return data.startTimeAndValue("amount");
 }
 
 /**
@@ -233,10 +230,10 @@ export function ratio(settings, manufacturer) {
  */
 function targetTitle(manufacturer) {
   const BG_TARGET_BY_MANUFACTURER = {
-    animas: t('BG Target'),
-    insulet: t('Target BG'),
-    medtronic: t('BG Target'),
-    diabeloop: t('BG Target'),
+    animas: t("BG Target"),
+    insulet: t("Target BG"),
+    medtronic: t("BG Target"),
+    diabeloop: t("BG Target"),
   };
   return BG_TARGET_BY_MANUFACTURER[manufacturer];
 }
@@ -248,24 +245,24 @@ function targetTitle(manufacturer) {
 function targetColumns(manufacturer) {
   const BG_TARGET_COLS_BY_MANUFACTURER = {
     animas: [
-      { key: 'start', label: t('Start time') },
-      { key: 'columnTwo', label: t('Target') },
-      { key: 'columnThree', label: t('Range') },
+      { key: "start", label: t("Start time") },
+      { key: "columnTwo", label: t("Target") },
+      { key: "columnThree", label: t("Range") },
     ],
     insulet: [
-      { key: 'start', label: t('Start time') },
-      { key: 'columnTwo', label: t('Target') },
-      { key: 'columnThree', label: t('Correct Above') },
+      { key: "start", label: t("Start time") },
+      { key: "columnTwo", label: t("Target") },
+      { key: "columnThree", label: t("Correct Above") },
     ],
     medtronic: [
-      { key: 'start', label: t('Start time') },
-      { key: 'columnTwo', label: t('Low') },
-      { key: 'columnThree', label: t('High') },
+      { key: "start", label: t("Start time") },
+      { key: "columnTwo", label: t("Low") },
+      { key: "columnThree", label: t("High") },
     ],
     diabeloop: [
-      { key: 'start', label: t('Start time') },
-      { key: 'columnTwo', label: t('Low') },
-      { key: 'columnThree', label: t('High') },
+      { key: "start", label: t("Start time") },
+      { key: "columnTwo", label: t("Low") },
+      { key: "columnThree", label: t("High") },
     ],
   };
   return BG_TARGET_COLS_BY_MANUFACTURER[manufacturer];
@@ -277,10 +274,10 @@ function targetColumns(manufacturer) {
  */
 function targetRows(settings, units, manufacturer) {
   const BG_TARGET_ACCESSORS_BY_MANUFACTURER = {
-    animas: { columnTwo: 'target', columnThree: 'range' },
-    insulet: { columnTwo: 'target', columnThree: 'high' },
-    medtronic: { columnTwo: 'low', columnThree: 'high' },
-    diabeloop: { columnTwo: 'low', columnThree: 'high' },
+    animas: { columnTwo: "target", columnThree: "range" },
+    insulet: { columnTwo: "target", columnThree: "high" },
+    medtronic: { columnTwo: "low", columnThree: "high" },
+    diabeloop: { columnTwo: "low", columnThree: "high" },
   };
   return data.processBgTargetData(
     settings.bgTarget,

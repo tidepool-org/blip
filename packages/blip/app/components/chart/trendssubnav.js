@@ -15,15 +15,15 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import i18next from 'i18next';
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import i18next from "i18next";
 
 const t = i18next.t.bind(i18next);
-const domains = ['1 week', '2 weeks', '4 weeks', '3 months'];
-const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const domains = ["1 week", "2 weeks", "4 weeks", "3 months"];
+const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday"];
+const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
 class DaysGroup extends React.Component {
   static propTypes = {
@@ -35,9 +35,9 @@ class DaysGroup extends React.Component {
 
   render() {
     var groupClass = cx({
-      'daysGroup': true,
-      'active': this.props.active
-    }) + ' ' + this.props.category;
+      daysGroup: true,
+      active: this.props.active
+    }) + " " + this.props.category;
 
     return (
       <div>
@@ -67,34 +67,34 @@ class TrendsSubNav extends React.Component {
 
   renderDayAbbrev = (day) => {
     switch (day) {
-      case 'monday': return t('M_Monday');
-      case 'tuesday': return t('Tu_Tuesday');
-      case 'wednesday': return t('W_Wednesday');
-      case 'thursday': return t('Th_Thursday');
-      case 'friday': return t('F_Friday');
-      case 'saturday': return t('Sa_Saturday');
-      case 'sunday': return t('Su_Sunday');
-      default: return undefined;
+    case "monday": return t("M_Monday");
+    case "tuesday": return t("Tu_Tuesday");
+    case "wednesday": return t("W_Wednesday");
+    case "thursday": return t("Th_Thursday");
+    case "friday": return t("F_Friday");
+    case "saturday": return t("Sa_Saturday");
+    case "sunday": return t("Su_Sunday");
+    default: return undefined;
     }
   };
 
   extentSizeToDomain = (extentSize) => {
     switch (extentSize) {
-      case 7: return '1 week';
-      case 14: return '2 weeks';
-      case 28: return '4 weeks';
-      case 90: return '3 months';
-      default: return 'custom';
+    case 7: return "1 week";
+    case 14: return "2 weeks";
+    case 28: return "4 weeks";
+    case 90: return "3 months";
+    default: return "custom";
     }
   };
 
   renderDomain = (domain) => {
     switch (domain) {
-      case '1 week': return t('1 week');
-      case '2 weeks': return t('2 weeks');
-      case '4 weeks': return t('4 weeks');
-      case '3 months': return t('3 months');
-      default: return t('custom');
+    case "1 week": return t("1 week");
+    case "2 weeks": return t("2 weeks");
+    case "4 weeks": return t("4 weeks");
+    case "3 months": return t("3 months");
+    default: return t("custom");
     }
   };
 
@@ -136,10 +136,10 @@ class TrendsSubNav extends React.Component {
     const numVisibleDays = (numActiveDays * extentSize) / 7;
     let visibleDaysText = null;
     if (numVisibleDays % 1 !== 0) {
-      visibleDaysText = t('Approx {{numVisibleDays}} days in view', { numVisibleDays: Math.round(numVisibleDays) });
+      visibleDaysText = t("Approx {{numVisibleDays}} days in view", { numVisibleDays: Math.round(numVisibleDays) });
     }
     else {
-      visibleDaysText = t('{{numVisibleDays}} days in view', { numVisibleDays });
+      visibleDaysText = t("{{numVisibleDays}} days in view", { numVisibleDays });
     }
 
     return (
@@ -152,8 +152,8 @@ class TrendsSubNav extends React.Component {
 
   renderDomainLink = (/** @type {string} */ domain) => {
     var domainLinkClass = cx({
-      'btn btn-chart-control': true,
-      'active': domain === this.extentSizeToDomain(this.props.extentSize)
+      "btn btn-chart-control": true,
+      "active": domain === this.extentSizeToDomain(this.props.extentSize)
     });
 
     const clickButton = () => {
@@ -162,7 +162,7 @@ class TrendsSubNav extends React.Component {
 
     return (
       <button
-        id={`button-trends-period-${domain.replace(/\s/g, '')}`}
+        id={`button-trends-period-${domain.replace(/\s/g, "")}`}
         className={domainLinkClass}
         key={domain}
         type="button"
@@ -183,12 +183,12 @@ class TrendsSubNav extends React.Component {
       <div className="daysGroupContainer">
         <DaysGroup
           active={this.state.weekdaysActive}
-          category={'weekday'}
+          category={"weekday"}
           days={dayLinks.slice(0, 5)}
           onClickGroup={this.handleSelectDaysGroup} />
         <DaysGroup
           active={this.state.weekendsActive}
-          category={'weekend'}
+          category={"weekend"}
           days={dayLinks.slice(5, 7)}
           onClickGroup={this.handleSelectDaysGroup} />
       </div>
@@ -198,11 +198,11 @@ class TrendsSubNav extends React.Component {
 
   renderDay = (day) => {
     var dayLinkClass = cx({
-      'dayFilter': true,
-      'btn btn-chart-control': true,
-      'active': this.props.activeDays[day],
-      'inactive': !this.props.activeDays[day]
-    }) + ' ' + day;
+      "dayFilter": true,
+      "btn btn-chart-control": true,
+      "active": this.props.activeDays[day],
+      "inactive": !this.props.activeDays[day]
+    }) + " " + day;
 
     return (
       <a className={dayLinkClass} key={day} onClick={this.props.onClickDay(day)}>{this.renderDayAbbrev(day)}</a>
@@ -233,10 +233,10 @@ class TrendsSubNav extends React.Component {
 
   // handlers
   handleSelectDaysGroup = (category) => {
-    if (category === 'weekday') {
+    if (category === "weekday") {
       this.props.toggleWeekdays(this.state.weekdaysActive);
     }
-    else if (category === 'weekend') {
+    else if (category === "weekend") {
       this.props.toggleWeekends(this.state.weekendsActive);
     }
   };

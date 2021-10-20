@@ -1,10 +1,11 @@
-import React from 'react';
-import _ from 'lodash';
-import { mount } from 'enzyme';
+import React from "react";
+import _ from "lodash";
+import { mount } from "enzyme";
+import { expect } from "chai";
 
-import BgBarLabel from '../../../../src/components/common/stat/BgBarLabel';
+import BgBarLabel from "../../../../src/components/common/stat/BgBarLabel";
 
-describe('BgBarLabel', () => {
+describe("BgBarLabel", () => {
   let wrapper;
 
   const defaultProps = {
@@ -18,7 +19,7 @@ describe('BgBarLabel', () => {
       y: val => val,
     },
     style: {},
-    text: () => 'text!',
+    text: () => "text!",
     width: 80,
   };
 
@@ -28,14 +29,14 @@ describe('BgBarLabel', () => {
     wrapper = mount(<BgBarLabel {...defaultProps} />);
   });
 
-  it('should render the text prop', () => {
-    expect(wrapper.find('VictoryLabel')).to.have.length(1);
-    expect(wrapper.find('VictoryLabel').text()).to.equal('text!');
+  it("should render the text prop", () => {
+    expect(wrapper.find("VictoryLabel")).to.have.length(1);
+    expect(wrapper.find("VictoryLabel").text()).to.equal("text!");
   });
 
-  it('should render the text element with the styles provided in the style prop', () => {
-    wrapper.setProps(props({ style: { fill: 'mauve', fontSize: '40px' } }));
-    expect(wrapper.find('VictoryLabel').props().style.fill).to.equal('mauve');
-    expect(wrapper.find('VictoryLabel').props().style.fontSize).to.equal('40px');
+  it("should render the text element with the styles provided in the style prop", () => {
+    wrapper.setProps(props({ style: { fill: "mauve", fontSize: "40px" } }));
+    expect(wrapper.find("VictoryLabel").props().style.fill).to.equal("mauve");
+    expect(wrapper.find("VictoryLabel").props().style.fontSize).to.equal("40px");
   });
 });

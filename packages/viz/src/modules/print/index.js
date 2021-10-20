@@ -15,27 +15,27 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import i18next from 'i18next';
-import PDFDocument from 'pdfkit';
-import blobStream from 'blob-stream';
-import PrintView from './PrintView';
-import BasicsPrintView from './BasicsPrintView';
-import DailyPrintView from './DailyPrintView';
-import BgLogPrintView from './BgLogPrintView';
-import SettingsPrintView from './SettingsPrintView';
-import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
+import _ from "lodash";
+import i18next from "i18next";
+import PDFDocument from "pdfkit";
+import blobStream from "blob-stream";
+import PrintView from "./PrintView";
+import BasicsPrintView from "./BasicsPrintView";
+import DailyPrintView from "./DailyPrintView";
+import BgLogPrintView from "./BgLogPrintView";
+import SettingsPrintView from "./SettingsPrintView";
+import { reshapeBgClassesToBgBounds } from "../../utils/bloodglucose";
 
-import * as constants from './utils/constants';
-import { arrayBufferToBase64 } from './utils/functions';
+import * as constants from "./utils/constants";
+import { arrayBufferToBase64 } from "./utils/functions";
 
 // TO_DO have a configuration variable to support specific branding or not like done e.g. in Blip
 // branding should make use of artifact.sh to download specific branding artifacts such as images
-import logo from './images/diabeloop/ylp_logo_small.png';
-import siteChangeCannulaImage from './images/sitechange-cannula.png';
-import siteChangeReservoirImage from './images/sitechange-reservoir.png';
-import siteChangeTubingImage from './images/sitechange-tubing.png';
-import siteChangeReservoirDiabeloopImage from './images/diabeloop/sitechange-diabeloop.png';
+import logo from "./images/diabeloop/ylp_logo_small.png";
+import siteChangeCannulaImage from "./images/sitechange-cannula.png";
+import siteChangeReservoirImage from "./images/sitechange-reservoir.png";
+import siteChangeTubingImage from "./images/sitechange-tubing.png";
+import siteChangeReservoirDiabeloopImage from "./images/diabeloop/sitechange-diabeloop.png";
 
 const t = i18next.t.bind(i18next);
 
@@ -52,8 +52,8 @@ export const utils = {
 };
 
 async function loadImages() {
-  const base64Flag = 'data:image/jpeg;base64,';
-  let imageStr = '';
+  const base64Flag = "data:image/jpeg;base64,";
+  let imageStr = "";
 
   if (constants.Images.logo === null) {
     if (logo.startsWith(base64Flag)) {
@@ -147,45 +147,45 @@ export function createPrintView(type, data, opts, doc) {
   };
 
   switch (type) {
-    case 'daily':
-      Renderer = utils.DailyPrintView;
+  case "daily":
+    Renderer = utils.DailyPrintView;
 
-      renderOpts = _.assign(renderOpts, {
-        chartsPerPage: 3,
-        numDays: numDays.daily,
-        summaryHeaderFontSize: 10,
-        summaryWidthAsPercentage: 0.18,
-        title: t('Daily Charts'),
-      });
-      break;
+    renderOpts = _.assign(renderOpts, {
+      chartsPerPage: 3,
+      numDays: numDays.daily,
+      summaryHeaderFontSize: 10,
+      summaryWidthAsPercentage: 0.18,
+      title: t("Daily Charts"),
+    });
+    break;
 
-    case 'basics':
-      Renderer = utils.BasicsPrintView;
+  case "basics":
+    Renderer = utils.BasicsPrintView;
 
-      renderOpts = _.assign(renderOpts, {
-        title: t('The Basics'),
-      });
-      break;
+    renderOpts = _.assign(renderOpts, {
+      title: t("The Basics"),
+    });
+    break;
 
-    case 'bgLog':
-      Renderer = utils.BgLogPrintView;
+  case "bgLog":
+    Renderer = utils.BgLogPrintView;
 
-      renderOpts = _.assign(renderOpts, {
-        numDays: numDays.bgLog,
-        title: t('BG Log'),
-      });
-      break;
+    renderOpts = _.assign(renderOpts, {
+      numDays: numDays.bgLog,
+      title: t("BG Log"),
+    });
+    break;
 
-    case 'settings':
-      Renderer = utils.SettingsPrintView;
+  case "settings":
+    Renderer = utils.SettingsPrintView;
 
-      renderOpts = _.assign(renderOpts, {
-        title: t('Pump Settings'),
-      });
-      break;
+    renderOpts = _.assign(renderOpts, {
+      title: t("Pump Settings"),
+    });
+    break;
 
-    default:
-      return null;
+  default:
+    return null;
   }
 
   return new Renderer(doc, data, renderOpts);
@@ -224,24 +224,24 @@ export function createPrintPDFPackage(data, opts) {
       });
       const stream = doc.pipe(utils.blobStream());
 
-      if (data.basics) createPrintView('basics', data.basics, pdfOpts, doc).render();
-      if (data.daily) createPrintView('daily', data.daily, pdfOpts, doc).render();
-      if (data.bgLog) createPrintView('bgLog', data.bgLog, pdfOpts, doc).render();
-      if (data.settings) createPrintView('settings', data.settings, pdfOpts, doc).render();
+      if (data.basics) createPrintView("basics", data.basics, pdfOpts, doc).render();
+      if (data.daily) createPrintView("daily", data.daily, pdfOpts, doc).render();
+      if (data.bgLog) createPrintView("bgLog", data.bgLog, pdfOpts, doc).render();
+      if (data.settings) createPrintView("settings", data.settings, pdfOpts, doc).render();
 
       PrintView.renderPageNumbers(doc);
 
       doc.end();
 
-      stream.on('finish', () => {
+      stream.on("finish", () => {
         const pdf = {
           blob: stream.toBlob(),
-          url: stream.toBlobURL('application/pdf'),
+          url: stream.toBlobURL("application/pdf"),
         };
         return resolve(pdf);
       });
 
-      stream.on('error', (error) => {
+      stream.on("error", (error) => {
         stream.end();
         return reject(error);
       });

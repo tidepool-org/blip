@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import _ from 'lodash';
-import { mount }from 'enzyme';
-import sinon from 'sinon';
+import React from "react";
+import _ from "lodash";
+import { mount }from "enzyme";
+import * as sinon from "sinon";
 
-import { DEFAULT_BG_BOUNDS, MGDL_UNITS, BG_CLAMP_THRESHOLD } from '../../../js/data/util/constants';
-import CalendarContainer from '../../../plugins/blip/basics/components/CalendarContainer';
+import { DEFAULT_BG_BOUNDS, MGDL_UNITS, BG_CLAMP_THRESHOLD } from "../../../js/data/util/constants";
+import CalendarContainer from "../../../plugins/blip/basics/components/CalendarContainer";
 
-describe('CalendarContainer', () => {
+describe("CalendarContainer", () => {
   const data = {
     basals: {
       summary: {
@@ -36,23 +36,23 @@ describe('CalendarContainer', () => {
 
   var props = {
     bgClasses: {
-      'very-low': {
+      "very-low": {
         boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow,
       },
-      'low': {
+      "low": {
         boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower,
       },
-      'target': {
+      "target": {
         boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper,
       },
-      'high': {
+      "high": {
         boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh,
       },
-      'very-high': {
+      "very-high": {
         boundary: BG_CLAMP_THRESHOLD[MGDL_UNITS],
       },
     },
-    bgUnits: 'mg/dL',
+    bgUnits: "mg/dL",
     data,
     chart: sinon.stub(),
     days: [
@@ -62,27 +62,27 @@ describe('CalendarContainer', () => {
     ],
     hasHover: false,
     onSelectDay: sinon.stub(),
-    sectionId: 'basals',
+    sectionId: "basals",
     settingsTogglable: false,
     selectorOptions: {
       primary: {
-        key: 'basal',
-        path: 'basal',
+        key: "basal",
+        path: "basal",
         average: true,
       },
       rows: [
         [
           {
-            key: 'suspended',
-            path: 'basal',
+            key: "suspended",
+            path: "basal",
             average: true,
           },
         ],
       ],
     },
-    timezone: 'UTC',
-    type: 'basals',
-    title: 'Basals',
+    timezone: "UTC",
+    type: "basals",
+    title: "Basals",
     trackMetric: sinon.stub(),
   };
 
@@ -90,7 +90,7 @@ describe('CalendarContainer', () => {
   let selectSubtotalSpy;
 
   before(() => {
-    selectSubtotalSpy = sinon.stub(CalendarContainer.prototype.actions, 'selectSubtotal');
+    selectSubtotalSpy = sinon.stub(CalendarContainer.prototype.actions, "selectSubtotal");
   });
 
   beforeEach(() => {
@@ -105,8 +105,8 @@ describe('CalendarContainer', () => {
     selectSubtotalSpy.restore();
   });
 
-  describe('componentWillMount', () => {
-    it('should set an alternative selected option with a value if the current one has no value', () => {
+  describe("componentWillMount", () => {
+    it("should set an alternative selected option with a value if the current one has no value", () => {
       sinon.assert.callCount(selectSubtotalSpy, 0);
 
       wrapper.setProps({
@@ -127,7 +127,7 @@ describe('CalendarContainer', () => {
       wrapper.unmount().mount();
 
       sinon.assert.callCount(selectSubtotalSpy, 1);
-      sinon.assert.calledWith(selectSubtotalSpy, props.sectionId, 'suspended');
+      sinon.assert.calledWith(selectSubtotalSpy, props.sectionId, "suspended");
     });
   });
 });

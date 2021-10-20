@@ -30,21 +30,21 @@
  * @typedef { import('redux').Store } Store
  */
 
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import bows from 'bows';
-import { Provider } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import * as React from "react";
+import PropTypes from "prop-types";
+import bows from "bows";
+import { Provider } from "react-redux";
+import { useHistory } from "react-router-dom";
 
-import '../../viz/src/styles/colors.css';
-import '../../tideline/css/tideline.less';
-import './style.less';
+import "../../viz/src/styles/colors.css";
+import "../../tideline/css/tideline.less";
+import "./style.less";
 
-import { updateConfig } from './config';
-import { initStore, cleanStore } from './redux';
-import PatientData from './components/patient-data';
+import { updateConfig } from "./config";
+import { initStore, cleanStore } from "./redux";
+import PatientData from "./components/patient-data";
 
-const log = bows('Blip');
+const log = bows("Blip");
 
 /**
  * @param {import('./index').BlipProperties} props For blip view
@@ -71,7 +71,7 @@ ReduxProvider.propTypes = {
  * @param {import('./index').BlipProperties} props For blip view
  */
 function Blip(props) {
-  if (typeof props === 'object') {
+  if (typeof props === "object") {
     try {
       const { config, api, patient, profileDialog, prefixURL } = props;
       updateConfig(config);
@@ -81,7 +81,7 @@ function Blip(props) {
       log.error(err);
     }
   } else {
-    log.error('Blip: Missing props');
+    log.error("Blip: Missing props");
   }
   return null;
 }

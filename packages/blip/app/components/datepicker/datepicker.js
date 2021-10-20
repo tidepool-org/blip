@@ -14,11 +14,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import moment from 'moment';
-import i18next from 'i18next';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import moment from "moment";
+import i18next from "i18next";
 
 const t = i18next.t.bind(i18next);
 
@@ -52,7 +52,7 @@ class DatePicker extends React.Component {
   };
 
   static defaultProps = {
-    name: 'datepicker',
+    name: "datepicker",
     value: DatePicker.defaultValue,
     min: null,
     max: null,
@@ -71,7 +71,7 @@ class DatePicker extends React.Component {
       mValue = moment.utc(value);
     } else if (moment.isMoment(value)) {
       mValue = value;
-    } else if (typeof value === 'string') {
+    } else if (typeof value === "string") {
       mValue = moment.utc(value);
     } else if (_.isObject(value) && _.isNumber(value.year) && _.isNumber(value.month) && _.isNumber(value.day)) {
       mValue = moment.utc({ year: value.year, month: value.month, day: value.day });
@@ -90,9 +90,9 @@ class DatePicker extends React.Component {
     let value = DatePicker.defaultValue;
     if (defaultDate !== null) {
       value = {
-        day: defaultDate.get('date'),
-        month: defaultDate.get('month'),
-        year: defaultDate.get('year')
+        day: defaultDate.get("date"),
+        month: defaultDate.get("month"),
+        year: defaultDate.get("year")
       };
     } else if (props.popup) {
       // For popup version if value is not set, display the current date
@@ -130,16 +130,16 @@ class DatePicker extends React.Component {
   componentDidMount() {
     const { popup } = this.props;
     if (popup) {
-      const body = document.getElementsByTagName('body');
-      body[0].addEventListener('click', this.handleClickOutside);
+      const body = document.getElementsByTagName("body");
+      body[0].addEventListener("click", this.handleClickOutside);
     }
   }
 
   componentWillUnmount() {
     const { popup } = this.props;
     if (popup) {
-      const body = document.getElementsByTagName('body');
-      body[0].removeEventListener('click', this.handleClickOutside);
+      const body = document.getElementsByTagName("body");
+      body[0].removeEventListener("click", this.handleClickOutside);
     }
   }
 
@@ -151,9 +151,8 @@ class DatePicker extends React.Component {
       return null;
     } else if (popup) {
       return this.renderPopup();
-    } else {
-      return this.renderFlat();
     }
+    return this.renderFlat();
   }
 
   renderFlat() {
@@ -164,13 +163,13 @@ class DatePicker extends React.Component {
       return <option key={item.value} value={item.value}>{item.label}</option>;
     });
 
-    const dateFormat = t('date.format', { defaultValue: 'MDY' });
+    const dateFormat = t("date.format", { defaultValue: "MDY" });
 
     const selectMonth = (
       <select
         className="DatePicker-control DatePicker-control--month"
         name="month"
-        value={value.month || ''}
+        value={value.month || ""}
         disabled={this.props.disabled}
         onChange={this.handleChangeFlat}>
         {monthOptions}
@@ -181,8 +180,8 @@ class DatePicker extends React.Component {
       <input
         className="DatePicker-control DatePicker-control--day"
         name="day"
-        value={value.day || ''}
-        placeholder={t('Day')}
+        value={value.day || ""}
+        placeholder={t("Day")}
         disabled={this.props.disabled}
         onChange={this.handleChangeFlat} />
     );
@@ -191,24 +190,24 @@ class DatePicker extends React.Component {
       <input
         className="DatePicker-control DatePicker-control--year"
         name="year"
-        value={value.year || ''}
-        placeholder={t('Year')}
+        value={value.year || ""}
+        placeholder={t("Year")}
         disabled={this.props.disabled}
         onChange={this.handleChangeFlat} />
     );
 
-    if (dateFormat.length === 3 && containsAll(dateFormat, 'YMD')) {
+    if (dateFormat.length === 3 && containsAll(dateFormat, "YMD")) {
       for (let i = 0; i < 3; i++) {
         switch (dateFormat[i]) {
-          case 'Y':
-            formElements[i] = inputYear;
-            break;
-          case 'M':
-            formElements[i] = selectMonth;
-            break;
-          case 'D':
-            formElements[i] = inputDay;
-            break;
+        case "Y":
+          formElements[i] = inputYear;
+          break;
+        case "M":
+          formElements[i] = selectMonth;
+          break;
+        case "D":
+          formElements[i] = inputDay;
+          break;
         }
       }
     } else {
@@ -235,28 +234,28 @@ class DatePicker extends React.Component {
     const weekDaysLabel = [];
     for (let i = 0; i < 7; i++) {
       const weekDay = moment().weekday(i);
-      const weekDayLabel = weekDay.format('dd');
+      const weekDayLabel = weekDay.format("dd");
       weekDaysLabel.push(weekDayLabel);
       weekDays.push(<span className="datepicker-popup-weekday" key={weekDayLabel}>{weekDayLabel}</span>);
     }
 
     // Build days
     const monthDays = [];
-    const currentMonth = m.get('month');
+    const currentMonth = m.get("month");
     const day = moment.utc(m).date(1).weekday(0);
 
     // Previous month
-    while (day.get('month') !== currentMonth) {
+    while (day.get("month") !== currentMonth) {
       monthDays.push(this.getNextSpanDay(day, false, true));
     }
     // Current month
-    while (day.get('month') === currentMonth) {
-      const isSameDay = moment.isMoment(defaultDate) && defaultDate.isSame(day, 'day');
+    while (day.get("month") === currentMonth) {
+      const isSameDay = moment.isMoment(defaultDate) && defaultDate.isSame(day, "day");
       monthDays.push(this.getNextSpanDay(day, isSameDay));
     }
     // Last week days in the next month
-    if (day.format('dd') !== weekDaysLabel[weekDaysLabel.length - 1]) {
-      while (day.format('dd') !== weekDaysLabel[weekDaysLabel.length - 1]) {
+    if (day.format("dd") !== weekDaysLabel[weekDaysLabel.length - 1]) {
+      while (day.format("dd") !== weekDaysLabel[weekDaysLabel.length - 1]) {
         monthDays.push(this.getNextSpanDay(day, false, true));
       }
       monthDays.push(this.getNextSpanDay(day, false, true));
@@ -266,7 +265,7 @@ class DatePicker extends React.Component {
       <div className="datepicker-popup">
         <div className="datepicker-popup-head">
           <span className="datepicker-popup-change-month icon-back" onClick={this.handlePrevMonth}></span>
-          <span className="datepicker-popup-year">{m.format('MMM YYYY')}</span>
+          <span className="datepicker-popup-year">{m.format("MMM YYYY")}</span>
           <span className="datepicker-popup-change-month icon-next" onClick={this.handleNextMonth}></span>
         </div>
         <div className="datepicker-popup-monthdays">
@@ -287,13 +286,13 @@ class DatePicker extends React.Component {
    */
   getNextSpanDay(day, isSelected = false, wrongMonth = false) {
     const { minDate, maxDate } = this.state;
-    const dayOfMonth = day.get('date');
+    const dayOfMonth = day.get("date");
     const key = day.toISOString();
     const isBefore = moment.isMoment(minDate) && day.isBefore(minDate);
     const isAfter = moment.isMoment(maxDate) && day.isAfter(maxDate);
     const isDisabled = isBefore || isAfter;
 
-    let className = isDisabled ? 'datepicker-popup-day-disabled' : 'datepicker-popup-day';
+    let className = isDisabled ? "datepicker-popup-day-disabled" : "datepicker-popup-day";
     if (isSelected) {
       className = `${className} datepicker-popup-day-selected`;
     }
@@ -302,19 +301,19 @@ class DatePicker extends React.Component {
     }
 
     // Increment day
-    day.add(1, 'days');
+    day.add(1, "days");
 
     const clickEvent = isDisabled ? _.noop : this.handleChangePopup;
 
     let tooltip = null;
     if (isBefore) {
       const { beforeMinDateMessage } = this.props;
-      if (typeof beforeMinDateMessage === 'string') {
+      if (typeof beforeMinDateMessage === "string") {
         tooltip = t(beforeMinDateMessage);
       }
     } else if (isAfter) {
       const { afterMaxDateMessage } = this.props;
-      if (typeof afterMaxDateMessage === 'string') {
+      if (typeof afterMaxDateMessage === "string") {
         tooltip = t(afterMaxDateMessage);
       }
     }
@@ -324,29 +323,29 @@ class DatePicker extends React.Component {
 
   getMonths() {
     return [
-      { value: '', label: t('Month') },
-      { value: '0', label: t('January') },
-      { value: '1', label: t('February') },
-      { value: '2', label: t('March') },
-      { value: '3', label: t('April') },
-      { value: '4', label: t('May') },
-      { value: '5', label: t('June') },
-      { value: '6', label: t('July') },
-      { value: '7', label: t('August') },
-      { value: '8', label: t('September') },
-      { value: '9', label: t('October') },
-      { value: '10', label: t('November') },
-      { value: '11', label: t('December') }
+      { value: "", label: t("Month") },
+      { value: "0", label: t("January") },
+      { value: "1", label: t("February") },
+      { value: "2", label: t("March") },
+      { value: "3", label: t("April") },
+      { value: "4", label: t("May") },
+      { value: "5", label: t("June") },
+      { value: "6", label: t("July") },
+      { value: "7", label: t("August") },
+      { value: "8", label: t("September") },
+      { value: "9", label: t("October") },
+      { value: "10", label: t("November") },
+      { value: "11", label: t("December") }
     ];
   }
 
   handlePrevMonth(e) {
     const m = moment.utc(this.state.value);
-    m.subtract(1, 'months');
+    m.subtract(1, "months");
     const value = {
-      day: m.get('date'),
-      month: m.get('month'),
-      year: m.get('year')
+      day: m.get("date"),
+      month: m.get("month"),
+      year: m.get("year")
     };
 
     e.stopPropagation();
@@ -355,11 +354,11 @@ class DatePicker extends React.Component {
 
   handleNextMonth(e) {
     const m = moment.utc(this.state.value);
-    m.add(1, 'months');
+    m.add(1, "months");
     const value = {
-      day: m.get('date'),
-      month: m.get('month'),
-      year: m.get('year')
+      day: m.get("date"),
+      month: m.get("month"),
+      year: m.get("year")
     };
 
     e.stopPropagation();
@@ -367,12 +366,12 @@ class DatePicker extends React.Component {
   }
 
   handleChangePopup(e) {
-    const isoDate = e.target.getAttribute('value');
+    const isoDate = e.target.getAttribute("value");
     const valueAsMoment = moment.utc(isoDate);
     const value = {
-      day: valueAsMoment.get('date'),
-      month: valueAsMoment.get('month'),
-      year: valueAsMoment.get('year')
+      day: valueAsMoment.get("date"),
+      month: valueAsMoment.get("month"),
+      year: valueAsMoment.get("year")
     };
     const valueAsDate = new Date(isoDate);
 
@@ -394,7 +393,7 @@ class DatePicker extends React.Component {
     value[target.name] = target.value;
 
     let valueAsDate = null;
-    if (typeof value.year === 'number' && typeof value.month === 'number' && typeof value.day === 'number') {
+    if (typeof value.year === "number" && typeof value.month === "number" && typeof value.day === "number") {
       valueAsDate = new Date(value.year, value.month, value.day);
     }
 
@@ -409,7 +408,7 @@ class DatePicker extends React.Component {
     let elem = e.target;
     let isInsidePopup = false;
     while (elem !== null && !isInsidePopup) {
-      isInsidePopup = elem.className === 'datepicker-popup';
+      isInsidePopup = elem.className === "datepicker-popup";
       elem = elem.parentElement;
     }
     if (!isInsidePopup) {

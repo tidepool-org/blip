@@ -15,21 +15,21 @@
  * == BSD2 LICENSE ==
  */
 
-import util from 'util';
-import _ from 'lodash';
+import util from "util";
+import _ from "lodash";
 
-import makeValidator from './validator.js';
+import makeValidator from "./validator.js";
 
 export function error() {
   var args = Array.prototype.slice.call(arguments, 0);
-  args[0] = ' ' + args[0];
+  args[0] = " " + args[0];
   throw new Error(util.format.apply(util, args));
 }
 
 function matchesRegex(regex) {
   return function(v) {
     if (!regex.test(v)) {
-      error('should match the regex [%s], got [%s]', regex, v);
+      error("should match the regex [%s], got [%s]", regex, v);
     }
   };
 }
@@ -37,12 +37,12 @@ function matchesRegex(regex) {
 function typeOf(match) {
   return function(e) {
     if (typeof(e) !== match) {
-      error('should be of type [%s], value was [%s]', match, e);
+      error("should be of type [%s], value was [%s]", match, e);
     }
   };
 }
 
-var isAnId = matchesRegex(/^[A-Za-z0-9\-\_]+$/);
+var isAnId = matchesRegex(/^[A-Za-z0-9\-_]+$/);
 // localDate is a date in YYYY-MM-DD format
 var isADate = matchesRegex(/^(\d{4}-[01]\d-[0-3]\d)$/);
 // deviceTime is the raw, non-timezone-aware string
@@ -62,7 +62,7 @@ function schematron() {
       if (optional && e === undefined) {
         return;
       } else if (!optional && e === undefined) {
-        error('is required');
+        error("is required");
       }
 
       for (var i = 0; i < fns.length; ++i) {
@@ -73,7 +73,7 @@ function schematron() {
       array: function(fn) {
         fns.push(function(e){
           if (!Array.isArray(e)) {
-            error('should be an array, value was [%s]', e);
+            error("should be an array, value was [%s]", e);
           }
 
           for (var i = 0; i < e.length; ++i) {
@@ -89,7 +89,7 @@ function schematron() {
 
         fns.push(function(e) {
           if (e !== undefined) {
-            error('should not exist, but found [%s]', e);
+            error("should not exist, but found [%s]", e);
           }
         });
 
@@ -97,7 +97,7 @@ function schematron() {
       },
 
       boolean: function() {
-        fns.push(typeOf('boolean'));
+        fns.push(typeOf("boolean"));
 
         return this;
       },
@@ -114,8 +114,8 @@ function schematron() {
         }
 
         fns.push(function (e) {
-          if (obj[e] == null) {
-            error('should be one of %j, got [%s]', vals, e);
+          if (_.isNil(obj[e])) {
+            error("should be one of %j, got [%s]", vals, e);
           }
         });
         return this;
@@ -140,7 +140,7 @@ function schematron() {
       isNull: function() {
         fns.push(function(value) {
           if (value !== null) {
-            error('is not null, got [%s]', value);
+            error("is not null, got [%s]", value);
           }
         });
         return this;
@@ -149,7 +149,7 @@ function schematron() {
       isISODateTime: function () {
         fns.push(function (value) {
           if (!isoPattern.test(value)) {
-            error('is not an ISODate string, got [%s]', value);
+            error("is not an ISODate string, got [%s]", value);
           }
         });
         return this;
@@ -158,7 +158,7 @@ function schematron() {
       minLength: function(length) {
         fns.push(function(e) {
           if (e.length < length) {
-            error('should have a length >= [%s], got [%s]', length, e);
+            error("should have a length >= [%s], got [%s]", length, e);
           }
         });
         return this;
@@ -167,7 +167,7 @@ function schematron() {
       max: function (val) {
         fns.push(function (e) {
           if (e > val) {
-            error('should be <= [%s], got [%s]', val, e);
+            error("should be <= [%s], got [%s]", val, e);
           }
         });
         return this;
@@ -176,19 +176,19 @@ function schematron() {
       min: function (val) {
         fns.push(function (e) {
           if (e < val) {
-            error('should be >= [%s], got [%s]', val, e);
+            error("should be >= [%s], got [%s]", val, e);
           }
         });
         return this;
       },
 
       number: function () {
-        fns.push(typeOf('number'));
+        fns.push(typeOf("number"));
         return this;
       },
 
       object: function() {
-        fns.push(typeOf('object'));
+        fns.push(typeOf("object"));
         if (arguments.length > 0) {
           fns.push(schematron(arguments[0]));
         }
@@ -212,9 +212,9 @@ function schematron() {
             }
           }
           if (errors.length > (alts.length - 1)) {
-            error('failed all schemas %j',
-              _.map(errors, 'message'),
-              typeof e === 'object' ? JSON.stringify(e) : e);
+            error("failed all schemas %j",
+              _.map(errors, "message"),
+              typeof e === "object" ? JSON.stringify(e) : e);
           }
         });
 
@@ -224,7 +224,7 @@ function schematron() {
       positive: function () {
         fns.push(function (e) {
           if (e <= 0) {
-            error('should be > 0, got [%s]', e);
+            error("should be > 0, got [%s]", e);
           }
         });
         return this;
@@ -236,7 +236,7 @@ function schematron() {
       },
 
       string: function() {
-        fns.push(typeOf('string'));
+        fns.push(typeOf("string"));
         return this;
       }
     }
@@ -247,8 +247,8 @@ schematron.and = function(fields) {
   return function(e){
     var allNull = true;
     var allNotNull = true;
-    for (var i = 0; i < fields.length; ++i) {
-      if (e[fields[i]] == null) {
+    for (let i = 0; i < fields.length; ++i) {
+      if (_.isNil(e[fields[i]])) {
         allNotNull = false;
       } else {
         allNull = false;
@@ -256,7 +256,7 @@ schematron.and = function(fields) {
     }
 
     if (! (allNull || allNotNull)) {
-      error('Fields in %j must all be present or absent, only value(s) were %j', fields, _.pick(e, fields));
+      error("Fields in %j must all be present or absent, only value(s) were %j", fields, _.pick(e, fields));
     }
   };
 };
@@ -267,10 +267,10 @@ schematron.with = function(primaryField, fields) {
   }
 
   return function(e){
-    if (e[primaryField] != null) {
+    if (e[primaryField]) {
       for (var i = 0; i < fields.length; ++i) {
-        if (e[fields[i]] == null) {
-          error('Field(s) %j are expected when field [%s] exists.  Value(s) were %j', fields, primaryField, _.pick(e, primaryField, fields));
+        if (_.isNil(e[fields[i]])) {
+          error("Field(s) %j are expected when field [%s] exists.  Value(s) were %j", fields, primaryField, _.pick(e, primaryField, fields));
         }
       }
     }

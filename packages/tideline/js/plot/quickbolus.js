@@ -20,11 +20,11 @@
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import utils from './util/utils';
-import commonbolus from './util/commonbolus';
-import drawbolus from './util/drawbolus';
+import utils from "./util/utils";
+import commonbolus from "./util/commonbolus";
+import drawbolus from "./util/drawbolus";
 
 const defaults = {
   width: 12
@@ -46,16 +46,16 @@ function plotQuickBolus(pool, opts = defaults) {
     selection.each(function(data) {
       // filter out boluses with wizard
       const currentData = _.filter(data, (d) => _.isEmpty(d.wizard));
-      drawBolus.annotations(_.filter(currentData, 'annotations'));
+      drawBolus.annotations(_.filter(currentData, "annotations"));
 
       const boluses = d3.select(this)
-        .selectAll('g.d3-bolus-group')
+        .selectAll("g.d3-bolus-group")
         .data(currentData, (d) => d.id);
 
       const bolusGroups = boluses.enter()
-        .append('g')
+        .append("g")
         .attr({
-          'class': 'd3-bolus-group',
+          class: "d3-bolus-group",
           id: (d) => `bolus_group_${d.id}`
         })
         .sort((a, b) => {
@@ -93,14 +93,14 @@ function plotQuickBolus(pool, opts = defaults) {
 
       boluses.exit().remove();
 
-      const highlight = pool.highlight('.d3-wizard-group, .d3-bolus-group', opts);
+      const highlight = pool.highlight(".d3-wizard-group, .d3-bolus-group", opts);
 
       // tooltips
-      selection.selectAll('.d3-bolus-group').on('mouseover', function(d) {
+      selection.selectAll(".d3-bolus-group").on("mouseover", function(d) {
         highlight.on(d3.select(this));
         drawBolus.tooltip.add(d, utils.getTooltipContainer(this));
       });
-      selection.selectAll('.d3-bolus-group').on('mouseout', function(d) {
+      selection.selectAll(".d3-bolus-group").on("mouseout", function(d) {
         highlight.off();
         drawBolus.tooltip.remove(d);
       });

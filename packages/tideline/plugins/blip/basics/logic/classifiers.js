@@ -15,20 +15,19 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import commonbolus from '../../../../js/plot/util/commonbolus';
-import categorizer from '../../../../js/data/util/categorize';
-import { MGDL_UNITS } from '../../../../js/data/util/constants';
+import _ from "lodash";
+import commonbolus from "../../../../js/plot/util/commonbolus";
+import categorizer from "../../../../js/data/util/categorize";
+import { MGDL_UNITS } from "../../../../js/data/util/constants";
 
 function mkClassifiers(bgClasses, bgUnits = MGDL_UNITS) {
   const classifiers = {
     basal: function(d) {
-      if (_.includes(['scheduled', 'automated'], d.deliveryType)) {
+      if (_.includes(["scheduled", "automated"], d.deliveryType)) {
         return [];
       }
-      else {
-        return [d.deliveryType];
-      }
+
+      return [d.deliveryType];
     },
     bolus: function(d) {
       var tags = [];
@@ -36,51 +35,51 @@ function mkClassifiers(bgClasses, bgUnits = MGDL_UNITS) {
       var programmed = commonbolus.getProgrammed(d);
       if (d.wizard && !_.isEmpty(d.wizard)) {
         var recommended = commonbolus.getRecommended(d.wizard);
-        tags.push('wizard');
+        tags.push("wizard");
         if (!Number.isNaN(recommended)) {
           if (recommended > Math.max(delivered, programmed)) {
-            tags.push('underride');
+            tags.push("underride");
           } else if (Math.max(delivered, programmed) > recommended) {
-            tags.push('override');
+            tags.push("override");
           }
 
           if (d.wizard.recommended.correction > 0 && d.wizard.recommended.carb === 0) {
-            tags.push('correction');
+            tags.push("correction");
           }
         }
       }
       else {
-        tags.push('manual');
+        tags.push("manual");
       }
 
       if (programmed !== delivered) {
-        tags.push('interrupted');
+        tags.push("interrupted");
       }
 
       if (d.extended > 0) {
-        tags.push('extended');
+        tags.push("extended");
       }
       return tags;
     },
     categorizeBg: categorizer(bgClasses, bgUnits),
     smbg: function(d) {
       var tags = [];
-      if (d.subType && d.subType === 'manual') {
+      if (d.subType && d.subType === "manual") {
         tags.push(d.subType);
       }
       else {
-        tags.push('meter');
+        tags.push("meter");
       }
       var bgCategory = classifiers.categorizeBg(d);
       switch (bgCategory) {
-        case 'verylow':
-          tags.push('verylow');
-          break;
-        case 'veryhigh':
-          tags.push('veryhigh');
-          break;
-        default:
-          break;
+      case "verylow":
+        tags.push("verylow");
+        break;
+      case "veryhigh":
+        tags.push("veryhigh");
+        break;
+      default:
+        break;
       }
       return tags;
     }

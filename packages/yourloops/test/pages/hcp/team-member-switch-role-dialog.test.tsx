@@ -26,10 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { expect } from "chai";
 import { mount, ReactWrapper } from "enzyme";
-import sinon from "sinon";
+import * as sinon from "sinon";
 
 import { TeamMemberRole } from "../../../models/team";
 import { waitTimeout } from "../../../lib/utils";

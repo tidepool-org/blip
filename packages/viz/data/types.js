@@ -15,26 +15,27 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import { MGDL_UNITS, MS_IN_DAY } from 'tideline';
-import { addDuration } from '../src/utils/datetime';
+import { MGDL_UNITS, MS_IN_DAY } from "tideline";
+import { addDuration } from "../src/utils/datetime";
 
-const APPEND = '.000Z';
+const APPEND = ".000Z";
 
 class Common {
   constructor(opts = {}) {
-    this.deviceId = 'Test Page Data - 123';
-    this.source = opts.source || 'testpage';
+    this.deviceId = "Test Page Data - 123";
+    this.deviceTime = this.makeDeviceTime();
+    this.source = opts.source || "testpage";
     this.conversionOffset = 0;
 
     this.assignGUID();
   }
 
   assignGUID() {
-    const guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const guid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
       const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      const v = c === "x" ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
 
@@ -45,7 +46,7 @@ class Common {
     const clone = {};
 
     _.forIn(this, (value, key) => {
-      if (typeof key !== 'function') {
+      if (typeof key !== "function") {
         clone[key] = value;
       }
     });
@@ -84,13 +85,13 @@ export class Basal extends Common {
     super(opts);
 
     _.defaults(opts, {
-      deliveryType: 'scheduled',
+      deliveryType: "scheduled",
       deviceTime: this.makeDeviceTime(),
       duration: MS_IN_DAY / 12,
       rate: 0.5,
     });
 
-    this.type = 'basal';
+    this.type = "basal";
 
     this.deliveryType = opts.deliveryType;
     this.deviceTime = opts.deviceTime;
@@ -110,15 +111,15 @@ export class Bolus extends Common {
 
     _.defaults(opts, {
       deviceTime: this.makeDeviceTime(),
-      subType: 'normal',
+      subType: "normal",
       value: 5.0,
     });
 
-    this.type = 'bolus';
+    this.type = "bolus";
     this.deviceTime = opts.deviceTime;
     this.subType = opts.subType;
 
-    if (this.subType === 'normal') {
+    if (this.subType === "normal") {
       this.normal = opts.value;
     }
 
@@ -133,14 +134,14 @@ export class CBG extends Common {
     super(opts);
 
     _.defaults(opts, {
-      deviceId: 'DexG4Rec_XXXXXXXXX',
+      deviceId: "DexG4Rec_XXXXXXXXX",
       deviceTime: this.makeDeviceTime(),
       units: MGDL_UNITS,
       value: 100,
       localDate: this.makeLocalDate(),
     });
 
-    this.type = 'cbg';
+    this.type = "cbg";
 
     this.deviceTime = opts.deviceTime;
     this.deviceId = opts.deviceId;
@@ -159,12 +160,12 @@ export class Message extends Common {
     super(opts);
 
     _.defaults(opts, {
-      messageText: 'This is a note.',
+      messageText: "This is a note.",
       parentMessage: null,
       time: new Date().toISOString(),
     });
 
-    this.type = 'message';
+    this.type = "message";
 
     this.time = opts.time;
     const dt = new Date(this.time);
@@ -182,9 +183,9 @@ export class Settings extends Common {
     super(opts);
 
     _.defaults(opts, {
-      activeBasalSchedule: 'standard',
+      activeBasalSchedule: "standard",
       basalSchedules: [{
-        name: 'standard',
+        name: "standard",
         value: [{
           start: 0,
           rate: 1.0,
@@ -205,12 +206,12 @@ export class Settings extends Common {
         start: 0,
       }],
       units: {
-        carb: 'grams',
+        carb: "grams",
         bg: MGDL_UNITS,
       },
     });
 
-    this.type = 'settings';
+    this.type = "settings";
 
     this.activeBasalSchedule = opts.activeBasalSchedule;
     this.basalSchedules = opts.basalSchedules;
@@ -238,7 +239,7 @@ export class SMBG extends Common {
       localDate: this.makeLocalDate(),
     });
 
-    this.type = 'smbg';
+    this.type = "smbg";
 
     this.deviceTime = opts.deviceTime;
     this.units = opts.units;
@@ -258,15 +259,15 @@ export class DeviceEvent extends Common {
 
     _.defaults(opts, {
       deviceTime: this.makeDeviceTime(),
-      units: 'mg/dL',
+      units: "mg/dL",
       value: 100,
-      primeTarget: 'cannula',
+      primeTarget: "cannula",
     });
 
-    this.type = 'deviceEvent';
+    this.type = "deviceEvent";
     this.subType = opts.subType;
 
-    if (opts.subType === 'prime') {
+    if (opts.subType === "prime") {
       this.primeTarget = opts.primeTarget;
     }
 
@@ -285,10 +286,10 @@ export class Upload extends Common {
 
     _.defaults(opts, {
       deviceTime: this.makeDeviceTime(),
-      timezone: 'US/Eastern',
+      timezone: "US/Eastern",
     });
 
-    this.type = 'upload';
+    this.type = "upload";
     this.deviceTags = opts.deviceTags;
     this.source = opts.source;
     this.deviceTime = opts.deviceTime;
@@ -322,7 +323,7 @@ export class Wizard extends Common {
       value: 5.0,
     });
 
-    this.type = 'wizard';
+    this.type = "wizard";
 
     this.bgTarget = opts.bgTarget;
     this.bolus = opts.bolus ? opts.bolus : new Bolus({
@@ -350,7 +351,7 @@ export class Food extends Common {
       deviceTime: this.makeDeviceTime(),
     });
 
-    this.type = 'food';
+    this.type = "food";
     this.deviceTime = opts.deviceTime;
     this.nutrition = opts.nutrition;
 
@@ -367,24 +368,24 @@ export class Food extends Common {
 export class PumpSettings extends Common {
   constructor(opts = {}) {
     super(opts);
-    this.type = 'pumpSettings';
+    this.type = "pumpSettings";
     this.payload = {
-      'device': {
-        'deviceId': 'Xperia XZ1 (AOSP)358321085116760',
-        'imei': '358321085116760',
-        'name': 'DBL4K',
-        'manufacturer': 'Diabeloop',
-        'swVersion': '1.1.1.18_DBL4K_CLINICAL'
+      device: {
+        deviceId: "Xperia XZ1 (AOSP)358321085116760",
+        imei: "358321085116760",
+        name: "DBL4K",
+        manufacturer: "Diabeloop",
+        swVersion: "1.1.1.18_DBL4K_CLINICAL"
       },
-      'parameters':[
+      parameters:[
         {
-            'name': 'WEIGHT',
-            'value': '60',
-            'unit': 'kg',
-            'level': 1
-          },
-        ]
-      };
+          name: "WEIGHT",
+          value: "60",
+          unit: "kg",
+          level: 1
+        },
+      ]
+    };
   }
 }
 

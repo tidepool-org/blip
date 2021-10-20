@@ -15,13 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React from "react";
+import _ from "lodash";
 
-import React from 'react';
-import _ from 'lodash';
-
-import SMBGDatePointsAnimated from './SMBGDatePointsAnimated';
-import SMBGDateLineAnimated from './SMBGDateLineAnimated';
+import SMBGDatePointsAnimated from "./SMBGDatePointsAnimated";
+import SMBGDateLineAnimated from "./SMBGDateLineAnimated";
 
 const SMBGsByDateContainer = (props) => {
   const { data } = props;
@@ -46,9 +45,9 @@ const SMBGsByDateContainer = (props) => {
   } = props;
 
 
-  const focusedDay = focusedSmbg ? focusedSmbg.date : '';
-  const smbgsByDate = _.groupBy(data, 'localDate');
-  _.each(dates, (date) => {
+  const focusedDay = focusedSmbg ? focusedSmbg.date : "";
+  const smbgsByDate = _.groupBy(data, "localDate");
+  _.forEach(dates, (date) => {
     if (!smbgsByDate[date]) {
       smbgsByDate[date] = [];
     }
@@ -56,7 +55,7 @@ const SMBGsByDateContainer = (props) => {
 
   function getLines() {
     const allDateLines = [];
-    _.each(smbgsByDate, (smbgs, date) => {
+    _.forEach(smbgsByDate, (smbgs, date) => {
       const dateData = lines ? smbgs : [];
       allDateLines.push((
         <SMBGDateLineAnimated

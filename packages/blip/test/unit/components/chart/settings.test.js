@@ -1,41 +1,41 @@
 
-import React from 'react';
-import { createStore } from 'redux';
-import { Provider } from 'react-redux';
-import { mount } from 'enzyme';
-import sinon from 'sinon';
-import chai from 'chai';
+import React from "react";
+import { createStore } from "redux";
+import { Provider } from "react-redux";
+import { mount } from "enzyme";
+import * as sinon from "sinon";
+import chai from "chai";
 
-import { MGDL_UNITS } from 'tideline';
-import Settings from '../../../../app/components/chart/settings';
+import { MGDL_UNITS } from "tideline";
+import Settings from "../../../../app/components/chart/settings";
 
-describe('Settings', function () {
+describe("Settings", function () {
   const { expect } = chai;
 
   const bgPrefs = {
     bgClasses: {
-      'very-low': {
+      "very-low": {
         boundary: 60
       },
-      'low': {
+      "low": {
         boundary: 80
       },
-      'target': {
+      "target": {
         boundary: 180
       },
-      'high': {
+      "high": {
         boundary: 200
       },
-      'very-high': {
+      "very-high": {
         boundary: 300
       }
     },
     bgUnits: MGDL_UNITS
   };
 
-  describe('render', () => {
+  describe("render", () => {
     before(() => {
-      sinon.spy(console, 'error');
+      sinon.spy(console, "error");
     });
 
     after(() => {
@@ -53,21 +53,21 @@ describe('Settings', function () {
     const fakeState = { viz: {}, blip: { currentPatientInViewId: null } };
     const fakeStore = createStore((state = fakeState) => { return state; }, fakeState);
 
-    it('should render without problems', function () {
+    it("should render without problems", function () {
       const props = {
         bgPrefs,
         chartPrefs: {},
         timePrefs: {
           timezoneAware: false,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         patientData: {
           opts: {
-            defaultSource: 'Diabeloop',
-            defaultPumpManufacturer: 'default',
+            defaultSource: "Diabeloop",
+            defaultPumpManufacturer: "default",
           },
           grouped: { pumpSettings: [{
-            source: 'diabeloop',
+            source: "diabeloop",
             type: "pumpSettings",
             deviceId: "123456789-ID",
             deviceTime: "2021-01-31T10:26:04",
@@ -104,7 +104,7 @@ describe('Settings', function () {
           view: {},
           notes: {},
         },
-        currentPatientInViewId: '',
+        currentPatientInViewId: "",
         onClickRefresh: sinon.spy(),
         onClickNoDataRefresh: sinon.spy(),
         onSwitchToDaily: sinon.spy(),
@@ -118,15 +118,15 @@ describe('Settings', function () {
 
       settingsElem = mount(<Provider store={fakeStore}><Settings {...props} /></Provider>);
       expect(console.error.callCount, console.error.getCalls()).to.equal(0);
-      expect(settingsElem.find('#tidelineMain').exists()).to.be.true;
+      expect(settingsElem.find("#tidelineMain").exists()).to.be.true;
     });
 
-    it('should render with missing data message when no pumpSettings data supplied', function () {
+    it("should render with missing data message when no pumpSettings data supplied", function () {
       const props = {
         bgPrefs,
         chartPrefs: {},
         patientData: {
-          grouped: { foo: 'bar' }
+          grouped: { foo: "bar" }
         },
         onClickRefresh: sinon.spy(),
         onClickNoDataRefresh: sinon.spy(),
@@ -138,10 +138,10 @@ describe('Settings', function () {
         canPrint: true,
       };
       settingsElem = mount(<Settings {...props} />);
-      expect(settingsElem.find('.patient-data-message').exists()).to.be.true;
+      expect(settingsElem.find(".patient-data-message").exists()).to.be.true;
     });
 
-    it('should have a refresh button which should call onClickRefresh when clicked', function () {
+    it("should have a refresh button which should call onClickRefresh when clicked", function () {
       var props = {
         bgPrefs,
         chartPrefs: {},
@@ -154,14 +154,14 @@ describe('Settings', function () {
       };
 
       settingsElem = mount(<Settings {...props} />);
-      expect(settingsElem.find('.btn-refresh').exists()).to.be.true;
+      expect(settingsElem.find(".btn-refresh").exists()).to.be.true;
 
       expect(props.onClickRefresh.callCount).to.equal(0);
-      settingsElem.find('.btn-refresh').simulate('click');
+      settingsElem.find(".btn-refresh").simulate("click");
       expect(props.onClickRefresh.callCount).to.equal(1);
     });
 
-    it('should have a disabled print button and spinner when a pdf is not ready to print', function () {
+    it("should have a disabled print button and spinner when a pdf is not ready to print", function () {
       var props = {
         bgPrefs,
         chartPrefs: {},
@@ -170,10 +170,10 @@ describe('Settings', function () {
       };
 
       settingsElem = mount(<Settings {...props} />);
-      expect(settingsElem.find('.printview-print-icon').exists()).to.be.false;
+      expect(settingsElem.find(".printview-print-icon").exists()).to.be.false;
     });
 
-    it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', function () {
+    it("should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked", function () {
       var props = {
         bgPrefs,
         chartPrefs: {},
@@ -184,12 +184,12 @@ describe('Settings', function () {
       };
 
       settingsElem = mount(<Settings {...props} />);
-      expect(settingsElem.find('.patient-data-subnav-active').exists()).to.be.true;
-      expect(settingsElem.find('.printview-print-icon').exists()).to.be.true;
-      expect(settingsElem.find('.print-icon').exists()).to.be.true;
+      expect(settingsElem.find(".patient-data-subnav-active").exists()).to.be.true;
+      expect(settingsElem.find(".printview-print-icon").exists()).to.be.true;
+      expect(settingsElem.find(".print-icon").exists()).to.be.true;
 
       expect(props.onClickPrint.callCount).to.equal(0);
-      settingsElem.find('.printview-print-icon').simulate('click');
+      settingsElem.find(".printview-print-icon").simulate("click");
       expect(props.onClickPrint.callCount).to.equal(1);
     });
   });

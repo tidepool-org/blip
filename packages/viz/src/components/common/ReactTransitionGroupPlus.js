@@ -11,11 +11,9 @@
  * Update code for Diabeloop.
  */
 
-/* eslint-disable lodash/prefer-lodash-method, react/no-string-refs, guard-for-in */
-
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
 
 function getChildMapping(children) {
   return _.keyBy(
@@ -33,7 +31,7 @@ class ReactTransitionGroupPlus extends React.Component {
     this.state = {
       children: getChildMapping(this.props.children),
     };
-    this.displayName = 'ReactTransitionGroupPlus';
+    this.displayName = "ReactTransitionGroupPlus";
     this.currentlyEnteringOrEnteredKeys = {};
     this.currentlyEnteringKeys = {};
     this.currentlyEnteringPromises = {};
@@ -87,20 +85,20 @@ class ReactTransitionGroupPlus extends React.Component {
     });
 
     for (const key of _.keys(nextChildMapping)) {
-      const hasPrev = prevChildMapping && prevChildMapping.hasOwnProperty(key);
+      const hasPrev = prevChildMapping && _.has(prevChildMapping, key);
       if (nextChildMapping[key] && (!hasPrev || this.currentlyLeavingKeys[key])) {
         this.keysToEnter.push(key);
       }
     }
 
     for (const key of _.keys(prevChildMapping)) {
-      const hasNext = nextChildMapping && nextChildMapping.hasOwnProperty(key);
+      const hasNext = nextChildMapping && _.has(nextChildMapping, key);
       if (prevChildMapping[key] && !hasNext) {
         this.keysToLeave.push(key);
       }
     }
 
-    if (this.props.transitionMode === 'out-in') {
+    if (this.props.transitionMode === "out-in") {
       this.keysToEnter = _.difference(this.keysToEnter, this.keysToLeave);
     }
 
@@ -112,34 +110,34 @@ class ReactTransitionGroupPlus extends React.Component {
     const keysToLeave = this.keysToLeave;
 
     switch (this.props.transitionMode) {
-      case 'out-in':
-        this.keysToLeave = [];
-        if (keysToLeave.length) {
-          keysToLeave.forEach(this.performLeave);
-        } else {
-          this.keysToEnter = [];
-          keysToEnter.forEach(this.performEnter);
-        }
-        break;
-      case 'in-out':
-        this.keysToEnter = [];
-        this.keysToLeave = [];
-
-        if (keysToEnter.length) {
-          Promise.all(keysToEnter.map(this.performEnter))
-            .then(() => {
-              keysToLeave.forEach(this.performLeave);
-            });
-        } else {
-          keysToLeave.forEach(this.performLeave);
-        }
-        break;
-      default:
-        this.keysToEnter = [];
-        this.keysToLeave = [];
-        keysToEnter.forEach(this.performEnter);
+    case "out-in":
+      this.keysToLeave = [];
+      if (keysToLeave.length) {
         keysToLeave.forEach(this.performLeave);
-        break;
+      } else {
+        this.keysToEnter = [];
+        keysToEnter.forEach(this.performEnter);
+      }
+      break;
+    case "in-out":
+      this.keysToEnter = [];
+      this.keysToLeave = [];
+
+      if (keysToEnter.length) {
+        Promise.all(keysToEnter.map(this.performEnter))
+          .then(() => {
+            keysToLeave.forEach(this.performLeave);
+          });
+      } else {
+        keysToLeave.forEach(this.performLeave);
+      }
+      break;
+    default:
+      this.keysToEnter = [];
+      this.keysToLeave = [];
+      keysToEnter.forEach(this.performEnter);
+      keysToLeave.forEach(this.performLeave);
+      break;
     }
   }
 
@@ -167,7 +165,7 @@ class ReactTransitionGroupPlus extends React.Component {
       this.props.children,
     );
 
-    if (!currentChildMapping || !currentChildMapping.hasOwnProperty(key)) {
+    if (!currentChildMapping || !_.has(currentChildMapping, key)) {
       // This was removed before it had fully appeared. Remove it.
       this.performLeave(key);
     }
@@ -223,10 +221,10 @@ class ReactTransitionGroupPlus extends React.Component {
     );
 
     // eslint-disable-next-line max-len
-    if (!currentChildMapping || (!currentChildMapping.hasOwnProperty(key) && this.currentlyEnteringOrEnteredKeys[key])) {
+    if (!currentChildMapping || (!_.has(currentChildMapping, key) && this.currentlyEnteringOrEnteredKeys[key])) {
       // This was removed before it had fully entered. Remove it.
 
-      if (this.props.transitionMode !== 'in-out') {
+      if (this.props.transitionMode !== "in-out") {
         this.performLeave(key);
       }
     }
@@ -291,16 +289,16 @@ class ReactTransitionGroupPlus extends React.Component {
       });
     };
 
-    if (currentChildMapping && currentChildMapping.hasOwnProperty(key)) {
+    if (currentChildMapping && _.has(currentChildMapping, key)) {
       // This entered again before it fully left. Add it again.
       // but only perform enter if currently animating out, not already animated out
-      if (this.props.transitionMode !== 'in-out') {
+      if (this.props.transitionMode !== "in-out") {
         this.performEnter(key);
       }
     } else {
       delete this.currentlyEnteringOrEnteredKeys[key];
 
-      if (this.props.deferLeavingComponentRemoval && this.props.transitionMode !== 'in-out') {
+      if (this.props.deferLeavingComponentRemoval && this.props.transitionMode !== "in-out") {
         this.deferredLeaveRemovalCallbacks.push(updateChildren);
         this.forceUpdate();
       } else {
@@ -368,14 +366,15 @@ class ReactTransitionGroupPlus extends React.Component {
 ReactTransitionGroupPlus.propTypes = {
   component: PropTypes.any,
   childFactory: PropTypes.func,
-  transitionMode: PropTypes.oneOf(['in-out', 'out-in', 'simultaneous']),
+  transitionMode: PropTypes.oneOf(["in-out", "out-in", "simultaneous"]),
   deferLeavingComponentRemoval: PropTypes.bool,
+  children: PropTypes.node,
 };
 
 ReactTransitionGroupPlus.defaultProps = {
-  component: 'span',
+  component: "span",
   childFactory: arg => arg,
-  transitionMode: 'simultaneous',
+  transitionMode: "simultaneous",
   deferLeavingComponentRemoval: false,
 };
 

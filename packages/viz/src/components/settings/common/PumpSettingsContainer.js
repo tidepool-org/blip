@@ -15,18 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
-import Diabeloop from '../Diabeloop';
+import { MGDL_UNITS, MMOLL_UNITS } from "tideline";
+import Diabeloop from "../Diabeloop";
 
 class PumpSettingsContainer extends React.Component {
   static propTypes = {
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
     copySettingsClicked: PropTypes.func.isRequired,
     manufacturerKey: PropTypes.oneOf(
-      ['animas', 'carelink', 'insulet', 'medtronic', 'tandem', 'diabeloop']
+      ["animas", "carelink", "insulet", "medtronic", "tandem", "diabeloop"]
     ).isRequired,
     pumpSettings: PropTypes.shape({
       deviceId: PropTypes.string.isRequired,

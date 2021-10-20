@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
-import React from 'react';
-import { Bar, Rect } from 'victory';
-import _ from 'lodash';
+import PropTypes from "prop-types";
+import React from "react";
+import { Bar, Rect } from "victory";
+import _ from "lodash";
 
-import colors from '../../../styles/colors.css';
+import colors from "../../../styles/colors.css";
 
 const HoverBar = props => {
   const {
@@ -22,7 +22,7 @@ const HoverBar = props => {
   } = props;
 
   const barGridWidth = barWidth / 6;
-  const barGridRadius = _.get(cornerRadius, 'top', 2);
+  const barGridRadius = _.get(cornerRadius, "top", 2);
   const widthCorrection = (width - chartLabelWidth) / width;
 
   return (
@@ -37,8 +37,8 @@ const HoverBar = props => {
           width={scale.y(domain.x[1])}
           height={barWidth + barSpacing}
           style={{
-            stroke: 'transparent',
-            fill: 'transparent',
+            stroke: "transparent",
+            fill: "transparent",
           }}
         />
       </g>
@@ -52,7 +52,7 @@ const HoverBar = props => {
           width={scale.y(domain.x[1]) - chartLabelWidth}
           height={barGridWidth}
           style={{
-            stroke: 'transparent',
+            stroke: "transparent",
             fill: colors.axis,
           }}
         />
@@ -67,12 +67,17 @@ const HoverBar = props => {
 };
 
 HoverBar.propTypes = {
+  barSpacing: PropTypes.number.isRequired,
+  barWidth: PropTypes.number.isRequired,
+  cornerRadius: PropTypes.object,
   chartLabelWidth: PropTypes.number,
   domain: PropTypes.object.isRequired,
+  index: PropTypes.number,
   scale: PropTypes.object,
+  width: PropTypes.number,
   y: PropTypes.number,
 };
 
-HoverBar.displayName = 'HoverBar';
+HoverBar.displayName = "HoverBar";
 
 export default HoverBar;

@@ -1,18 +1,18 @@
-const path = require('path');
-const webpack = require('webpack');
+const path = require("path");
+const webpack = require("webpack");
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
 // but that will sometimes happen with the base64 hashes
 // so we leave them off in the test env
-const localIdentName = '[name]--[local]';
+const localIdentName = "[name]--[local]";
 
 const lessLoaderConfiguration = {
   test: /\.less$/,
   use: [
-    'style-loader',
+    "style-loader",
     {
-      loader: 'css-loader',
+      loader: "css-loader",
       options: {
         importLoaders: 2,
         sourceMap: true,
@@ -24,7 +24,7 @@ const lessLoaderConfiguration = {
       },
     },
     {
-      loader: 'postcss-loader',
+      loader: "postcss-loader",
       options: {
         sourceMap: true,
         postcssOptions: {
@@ -33,7 +33,7 @@ const lessLoaderConfiguration = {
       },
     },
     {
-      loader: 'less-loader',
+      loader: "less-loader",
       options: {
         sourceMap: true,
         lessOptions: {
@@ -49,9 +49,9 @@ const lessLoaderConfiguration = {
 const cssLoaderConfiguration = {
   test: /\.css$/,
   use: [
-    'style-loader',
+    "style-loader",
     {
-      loader: 'css-loader',
+      loader: "css-loader",
       options: {
         importLoaders: 1,
         sourceMap: true,
@@ -61,7 +61,7 @@ const cssLoaderConfiguration = {
       },
     },
     {
-      loader: 'postcss-loader',
+      loader: "postcss-loader",
       options: {
         sourceMap: true,
         postcssOptions: {
@@ -78,7 +78,7 @@ const babelLoaderConfiguration = {
     return /node_modules/.test(modulePath) && !/(tideline|tidepool-viz)/.test(modulePath);
   },
   use: {
-    loader: 'babel-loader',
+    loader: "babel-loader",
     options: {
       rootMode: "upward",
       configFile: path.resolve(__dirname, "../../babel.config.json"),
@@ -101,7 +101,7 @@ const fontLoaderConfiguration = {
 const localesLoader = {
   test: /locales\/languages\.json$/,
   use: {
-    loader: '../../webpack.locales-loader.js'
+    loader: "../../webpack.locales-loader.js"
   }
 };
 
@@ -115,33 +115,33 @@ const plugins = [
 ];
 
 const entry = {
-  index: [path.join(__dirname, '/src/index')],
-  print: [path.join(__dirname, '/src/modules/print/index')],
+  index: [path.join(__dirname, "/src/index")],
+  print: [path.join(__dirname, "/src/modules/print/index")],
 };
 
 const resolve = {
   alias: {
-    pdfkit: 'pdfkit/js/pdfkit.standalone.js',
-    'lock.svg': path.resolve(__dirname, `../../branding/lock.svg`),
-    'cartridge.png': path.resolve(__dirname, '../../branding/sitechange/cartridge.png'),
-    'cartridge-vicentra.png': path.resolve(__dirname, '../../branding/sitechange/cartridge-vicentra.png'),
-    'infusion.png': path.resolve(__dirname, '../../branding/sitechange/infusion.png'),
-    'warmup-dexcom.svg': path.resolve(__dirname, '../../branding/warmup/warmup-dexcom.svg'),
+    "pdfkit": "pdfkit/js/pdfkit.standalone.js",
+    "lock.svg": path.resolve(__dirname, "../../branding/lock.svg"),
+    "cartridge.png": path.resolve(__dirname, "../../branding/sitechange/cartridge.png"),
+    "cartridge-vicentra.png": path.resolve(__dirname, "../../branding/sitechange/cartridge-vicentra.png"),
+    "infusion.png": path.resolve(__dirname, "../../branding/sitechange/infusion.png"),
+    "warmup-dexcom.svg": path.resolve(__dirname, "../../branding/warmup/warmup-dexcom.svg"),
   },
   fallback: {
     stream: require.resolve("stream-browserify"),
     buffer: require.resolve("buffer"),
   },
   extensions: [
-    '.js',
+    ".js",
   ],
 };
 
 module.exports = {
-  devtool: 'sourcemap',
+  devtool: "sourcemap",
   entry,
   stats: "minimal", // See https://webpack.js.org/configuration/stats/
-  mode: 'development',
+  mode: "development",
   module: {
     rules: [
       babelLoaderConfiguration,

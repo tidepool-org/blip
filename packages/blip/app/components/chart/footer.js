@@ -15,9 +15,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import i18next from 'i18next';
+import React from "react";
+import PropTypes from "prop-types";
+import i18next from "i18next";
 
 function TidelineFooter(props) {
   const { children, onClickRefresh } = props;
@@ -26,7 +26,7 @@ function TidelineFooter(props) {
       <div className="container-box-inner patient-data-footer-inner">
         <div className="patient-data-footer-left">
           <button className="btn btn-chart btn-refresh" onClick={onClickRefresh}>
-            {i18next.t('Refresh')}</button>
+            {i18next.t("Refresh")}</button>
         </div>
         <div className="patient-data-footer-right">{children}</div>
       </div>

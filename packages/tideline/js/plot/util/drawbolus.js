@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import commonbolus from './commonbolus';
+import commonbolus from "./commonbolus";
 
 const BolusTypes = {
   meal: 1,
@@ -30,14 +30,14 @@ const BolusTypes = {
  * @returns {number} The type of bolus
  */
 function bolusToLegend(b) {
-  if (b.type === 'wizard') {
+  if (b.type === "wizard") {
     return BolusTypes.meal;
   }
   const bolus = commonbolus.getBolus(b);
-  if (bolus.subType === 'pen' || bolus.prescriptor === 'manual') {
+  if (bolus.subType === "pen" || bolus.prescriptor === "manual") {
     return BolusTypes.manual;
   }
-  if (bolus.subType === 'biphasic') {
+  if (bolus.subType === "biphasic") {
     return BolusTypes.meal;
   }
   return BolusTypes.micro;
@@ -50,14 +50,14 @@ function bolusToLegend(b) {
  */
 function bolusClass(b, baseClass) {
   switch (bolusToLegend(b)) {
-    case BolusTypes.manual:
-      return `${baseClass} d3-bolus-manual`;
-    case BolusTypes.meal:
-      return `${baseClass} d3-bolus-meal`;
-    case BolusTypes.micro:
-      return `${baseClass} d3-bolus-micro`;
-    }
-    return baseClass;
+  case BolusTypes.manual:
+    return `${baseClass} d3-bolus-manual`;
+  case BolusTypes.meal:
+    return `${baseClass} d3-bolus-meal`;
+  case BolusTypes.micro:
+    return `${baseClass} d3-bolus-micro`;
+  }
+  return baseClass;
 }
 
 function drawBolus(pool, opts = {}) {
@@ -96,21 +96,21 @@ function drawBolus(pool, opts = {}) {
   const triangleMiddle = (x) => { return x + halfWidth; };
 
   const extendedTriangle = (x, y) => {
-    const top = (x + opts.triangleSize) + ' ' + (y + opts.triangleSize/2);
-    const bottom = (x + opts.triangleSize) + ' ' + (y - opts.triangleSize/2);
-    const point = x + ' ' + y;
-    return 'M' + top + 'L' + bottom + 'L' + point + 'Z';
+    const top = (x + opts.triangleSize) + " " + (y + opts.triangleSize/2);
+    const bottom = (x + opts.triangleSize) + " " + (y - opts.triangleSize/2);
+    const point = x + " " + y;
+    return "M" + top + "L" + bottom + "L" + point + "Z";
   };
 
   const underrideTriangle = (x, y) =>
-    triangleLeft(x) + ',' + (y + opts.markerHeight/2) + ' ' +
-    triangleMiddle(x) + ',' + (y + opts.markerHeight/2 + opts.triangleHeight) + ' ' +
-    triangleRight(x) + ',' + (y + opts.markerHeight/2);
+    triangleLeft(x) + "," + (y + opts.markerHeight/2) + " " +
+    triangleMiddle(x) + "," + (y + opts.markerHeight/2 + opts.triangleHeight) + " " +
+    triangleRight(x) + "," + (y + opts.markerHeight/2);
 
   const overrideTriangle = (x, y) =>
-    triangleLeft(x) + ',' + (y + opts.markerHeight/2) + ' ' +
-    triangleMiddle(x) + ',' + (y + opts.markerHeight/2 - opts.triangleHeight) + ' ' +
-    triangleRight(x) + ',' + (y + opts.markerHeight/2);
+    triangleLeft(x) + "," + (y + opts.markerHeight/2) + " " +
+    triangleMiddle(x) + "," + (y + opts.markerHeight/2 - opts.triangleHeight) + " " +
+    triangleRight(x) + "," + (y + opts.markerHeight/2);
 
   return {
     carb: function(carbs) {
@@ -122,28 +122,28 @@ function drawBolus(pool, opts = {}) {
         return opts.yScale(bolusValue) - r - (bolusValue ? opts.carbPadding : 0);
       };
 
-      carbs.append('circle')
+      carbs.append("circle")
         .attr({
-          cx: xPos,
-          cy: yPos,
-          r: (d) => yScaleCarbs(d.carbInput),
-          'stroke-width': 0,
-          'class': 'd3-circle-carbs d3-carbs',
-          id: (d) => `carbs_circle_${d.id}`,
+          "cx": xPos,
+          "cy": yPos,
+          "r": (d) => yScaleCarbs(d.carbInput),
+          "stroke-width": 0,
+          "class": "d3-circle-carbs d3-carbs",
+          "id": (d) => `carbs_circle_${d.id}`,
         });
 
-      carbs.append('text')
+      carbs.append("text")
         .text((d) => d.carbInput)
         .attr({
           x: xPos,
           y: yPos,
-          'class': 'd3-carbs-text',
+          class: "d3-carbs-text",
           id: (d) => `carbs_text_${d.id}`,
         });
     },
     bolus: function(boluses) {
       // delivered amount of bolus
-      boluses.append('rect')
+      boluses.append("rect")
         .attr({
           x: (d) => xPosition(commonbolus.getBolus(d)),
           y: (d) => opts.yScale(commonbolus.getDelivered(d)),
@@ -154,13 +154,13 @@ function drawBolus(pool, opts = {}) {
             return opts.width;
           },
           height: (d) => top - opts.yScale(commonbolus.getDelivered(d)),
-          'class': (b) => bolusClass(b, 'd3-bolus d3-rect-bolus'),
+          class: (b) => bolusClass(b, "d3-bolus d3-rect-bolus"),
           id: (d) => `bolus_${commonbolus.getBolus(d).id}`,
         });
     },
     undelivered: function(undelivered) {
       // draw color in the undelivered portion
-      undelivered.append('rect')
+      undelivered.append("rect")
         .attr({
           x: (d) => xPosition(commonbolus.getBolus(d)),
           y: (d) => opts.yScale(commonbolus.getProgrammed(d)),
@@ -175,12 +175,12 @@ function drawBolus(pool, opts = {}) {
             const m = commonbolus.getProgrammed(b);
             return opts.yScale(d) - opts.yScale(m);
           },
-          'class': 'd3-rect-undelivered d3-bolus',
-          'id': (b) => `${b.type}_undelivered_${b.id}`,
+          class: "d3-rect-undelivered d3-bolus",
+          id: (b) => `${b.type}_undelivered_${b.id}`,
         });
     },
     underride: function(underride) {
-      underride.append('polygon')
+      underride.append("polygon")
         .attr({
           x: (d) => xPosition(commonbolus.getBolus(d)),
           y: (d) => opts.yScale(commonbolus.getProgrammed(d)),
@@ -188,12 +188,12 @@ function drawBolus(pool, opts = {}) {
             const bolus = commonbolus.getBolus(d);
             return underrideTriangle(xPosition(bolus), opts.yScale(commonbolus.getProgrammed(d)));
           },
-          'class': 'd3-polygon-ride d3-bolus',
+          class: "d3-polygon-ride d3-bolus",
           id: (d) => `bolus_ride_polygon_${commonbolus.getBolus(d).id}`,
         });
     },
     override: function(override) {
-      override.append('polygon')
+      override.append("polygon")
         .attr({
           x: (d) => xPosition(commonbolus.getBolus(d)),
           y: function(d) {
@@ -203,92 +203,92 @@ function drawBolus(pool, opts = {}) {
             const bolus = commonbolus.getBolus(d);
             return overrideTriangle(xPosition(bolus), opts.yScale(commonbolus.getRecommended(d)) - opts.markerHeight);
           },
-          'class': 'd3-polygon-ride d3-bolus',
+          class: "d3-polygon-ride d3-bolus",
           id: (d) => `bolus_override_polygon_${commonbolus.getBolus(d).id}`,
         });
     },
     extended: function(extended) {
       // extended "arm" of square- and dual-wave boluses
-      extended.append('path')
+      extended.append("path")
         .attr({
-          d: function(d) {
+          "d": function(d) {
             d = commonbolus.getBolus(d);
             var rightEdge = xPosition(d) + opts.width;
             var doseHeight = computePathHeight(d);
             var doseEnd = opts.xScale(d.epoch + commonbolus.getMaxDuration(d));
-            return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
+            return "M" + rightEdge + " " + doseHeight + "L" + doseEnd + " " + doseHeight;
           },
-          'stroke-width': opts.bolusStroke,
-          'class': 'd3-path-extended d3-bolus',
-          id: function(d) {
+          "stroke-width": opts.bolusStroke,
+          "class": "d3-path-extended d3-bolus",
+          "id": function(d) {
             d = commonbolus.getBolus(d);
-            return 'bolus_' + d.id;
+            return "bolus_" + d.id;
           }
         });
 
       // triangle
-      extended.append('path')
+      extended.append("path")
         .attr({
-          d: function(d) {
+          "d": function(d) {
             d = commonbolus.getBolus(d);
             var doseHeight = computePathHeight(d);
             var doseEnd = opts.xScale(d.epoch + commonbolus.getMaxDuration(d)) - opts.triangleSize;
             return extendedTriangle(doseEnd, doseHeight);
           },
-          'stroke-width': opts.bolusStroke,
-          'class': function(d) {
+          "stroke-width": opts.bolusStroke,
+          "class": function(d) {
             d = commonbolus.getBolus(d);
 
             if (d.expectedExtended) {
-              return 'd3-path-extended-triangle-suspended d3-bolus';
+              return "d3-path-extended-triangle-suspended d3-bolus";
             }
 
-            return 'd3-path-extended-triangle d3-bolus';
+            return "d3-path-extended-triangle d3-bolus";
           },
-          id: function(d) {
+          "id": function(d) {
             d = commonbolus.getBolus(d);
-            return 'bolus_' + d.id;
+            return "bolus_" + d.id;
           }
         });
     },
     extendedSuspended: function(suspended) {
       // red marker indicating where suspend happened
-      suspended.append('path')
+      suspended.append("path")
         .attr({
-          d: function(d) {
+          "d": function(d) {
             d = commonbolus.getBolus(d);
             var doseHeight = computePathHeight(d);
             var rightEdge = opts.xScale(d.epoch + d.duration);
             var pathEnd = rightEdge + opts.suspendMarkerWidth;
 
-            return 'M' + rightEdge + ' ' + doseHeight + 'L' + pathEnd + ' ' + doseHeight;
+            return "M" + rightEdge + " " + doseHeight + "L" + pathEnd + " " + doseHeight;
           },
-          'stroke-width': opts.bolusStroke,
-          'class': 'd3-path-suspended d3-bolus'
+          "stroke-width": opts.bolusStroke,
+          "class": "d3-path-suspended d3-bolus"
         });
 
       // now, light-blue path representing undelivered extended bolus
-      suspended.append('path')
+      suspended.append("path")
         .attr({
-          d: function(d) {
+          "d": function(d) {
             d = commonbolus.getBolus(d);
             var doseHeight = computePathHeight(d);
             var pathEnd = opts.xScale(d.epoch + d.duration) + opts.suspendMarkerWidth;
             var doseEnd = opts.xScale(d.epoch + d.expectedDuration);
 
-            return 'M' + pathEnd + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
+            return "M" + pathEnd + " " + doseHeight + "L" + doseEnd + " " + doseHeight;
           },
-          'stroke-width': opts.bolusStroke,
-          'class': 'd3-path-extended-suspended d3-bolus',
-          id: function(d) {
+          "stroke-width": opts.bolusStroke,
+          "class": "d3-path-extended-suspended d3-bolus",
+          "id": function(d) {
             d = commonbolus.getBolus(d);
-            return 'bolus_' + d.id;
+            return "bolus_" + d.id;
           }
         });
     },
     tooltip: {
       add: function(d, rect) {
-        if (_.get(opts, 'onBolusHover', false)) {
+        if (_.get(opts, "onBolusHover", false)) {
           opts.onBolusHover({
             data: d,
             rect: rect
@@ -296,7 +296,7 @@ function drawBolus(pool, opts = {}) {
         }
       },
       remove: function(d) {
-        if (_.get(opts, 'onBolusOut', false)){
+        if (_.get(opts, "onBolusOut", false)){
           opts.onBolusOut({
             data: d
           });
@@ -315,8 +315,8 @@ function drawBolus(pool, opts = {}) {
             up: true
           }
         };
-        if (_.isEmpty(mainGroup.select('#annotation_for_' + d.id)[0][0])) {
-          mainGroup.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
+        if (_.isEmpty(mainGroup.select("#annotation_for_" + d.id)[0][0])) {
+          mainGroup.select("#tidelineAnnotations_bolus").call(pool.annotations(), annotationOpts);
         }
       });
     }

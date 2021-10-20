@@ -1,8 +1,8 @@
-import dt from '../../data/util/datetime';
+import dt from "../../data/util/datetime";
 
 const utils = {
   xPos: function(d, opts) {
-    if (typeof d.epoch === 'number') {
+    if (typeof d.epoch === "number") {
       return opts.xScale(d.epoch) + 1;
     }
     return opts.xScale(Date.parse(d.normalTime)) + 1; // Why +1 ?
@@ -10,17 +10,17 @@ const utils = {
 
   // get duration in milliseconds
   getDuration: function(d) {
-    if (typeof d.epoch === 'number' && typeof d.epochEnd === 'number') {
+    if (typeof d.epoch === "number" && typeof d.epochEnd === "number") {
       return { start: d.epoch, end: d.epochEnd, duration: d.epochEnd - d.epoch };
     }
     const start = Date.parse(d.normalTime);
     const units = d.duration.units;
     let msfactor = 1000;
     switch (units) {
-    case 'minutes':
+    case "minutes":
       msfactor *= 60;
       break;
-    case 'hours':
+    case "hours":
       msfactor *= 60 * 60;
       break;
     }
@@ -34,7 +34,7 @@ const utils = {
   },
 
   getTooltipContainer: function(d) {
-    const parentContainer = document.getElementById('tidelineMain').getBoundingClientRect();
+    const parentContainer = document.getElementById("tidelineMain").getBoundingClientRect();
     const container = d.getBoundingClientRect();
     container.y = container.top - parentContainer.top;
     container.x = container.left - parentContainer.left;

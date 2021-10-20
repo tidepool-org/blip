@@ -43,7 +43,7 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
   const { sessionToken, traceToken } = session;
   log.info("fetchTeams()");
 
-  const apiURL = new URL(`/v0/teams`, appConfig.API_HOST);
+  const apiURL = new URL("/v0/teams", appConfig.API_HOST);
   const response = await fetch(apiURL.toString(), {
     method: "GET",
     headers: {
@@ -63,7 +63,7 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
   const { sessionToken, traceToken } = session;
   log.info("fetchPatients()");
 
-  const apiURL = new URL(`/v0/patients`, appConfig.API_HOST);
+  const apiURL = new URL("/v0/patients", appConfig.API_HOST);
   const response = await fetch(apiURL.toString(), {
     method: "GET",
     headers: {
@@ -83,7 +83,7 @@ async function invitePatient(session: Session, teamId: string, username: string)
   const { sessionToken, traceToken } = session;
   log.info(`invitePatient(${username}, ${teamId})`);
 
-  const apiURL = new URL(`/confirm/send/team/invite`, appConfig.API_HOST);
+  const apiURL = new URL("/confirm/send/team/invite", appConfig.API_HOST);
   const response = await fetch(apiURL.toString(), {
     method: "POST",
     headers: {
@@ -106,7 +106,7 @@ async function inviteMember(session: Session, teamId: string, email: string, rol
   const { sessionToken, traceToken } = session;
   log.info("inviteMember()", teamId, email, role);
 
-  const apiURL = new URL(`/confirm/send/team/invite`, appConfig.API_HOST);
+  const apiURL = new URL("/confirm/send/team/invite", appConfig.API_HOST);
   const response = await fetch(apiURL.toString(), {
     method: "POST",
     headers: {
@@ -134,16 +134,16 @@ async function createTeam(session: Session, team: Partial<ITeam>): Promise<ITeam
   log.info("createTeam()", team);
 
   if (typeof team.name !== "string") {
-    throw new Error('Missing team name');
+    throw new Error("Missing team name");
   }
   if (typeof team.address !== "object") {
-    throw new Error('Missing team address');
+    throw new Error("Missing team address");
   }
   if (typeof team.phone !== "string") {
-    throw new Error('Missing team phone');
+    throw new Error("Missing team phone");
   }
 
-  const apiURL = new URL(`/crew/v0/teams`, appConfig.API_HOST);
+  const apiURL = new URL("/crew/v0/teams", appConfig.API_HOST);
   const response = await fetch(apiURL.toString(), {
     method: "POST",
     headers: {

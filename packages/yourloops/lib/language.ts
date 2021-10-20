@@ -27,7 +27,7 @@
  */
 
 import _ from "lodash";
-import bows from 'bows';
+import bows from "bows";
 import i18n, { InitOptions, TOptions } from "i18next";
 import moment from "moment-timezone";
 import { initReactI18next } from "react-i18next";
@@ -38,7 +38,7 @@ import getLocale from "./browser-locale";
 import metrics from "./metrics";
 import { zendeskLocale } from "./zendesk";
 
-const log = bows('i18n');
+const log = bows("i18n");
 
 const availableLanguagesNames = _.map(locales.resources, ({ name }) => name);
 const availableLanguageCodes = _.keys(locales.resources) as LanguageCodes[];

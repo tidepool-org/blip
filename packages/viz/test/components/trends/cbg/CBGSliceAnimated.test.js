@@ -15,28 +15,29 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import React from 'react';
-import { TransitionMotion } from 'react-motion';
+import _ from "lodash";
+import React from "react";
+import { TransitionMotion } from "react-motion";
+import { expect } from "chai";
+import { shallow } from "enzyme";
+import * as sinon from "sinon";
 
-import { shallow } from 'enzyme';
-
-import * as scales from '../../../helpers/scales';
+import * as scales from "../../../helpers/scales";
 const {
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
-import bgBounds from '../../../helpers/bgBounds';
+import bgBounds from "../../../helpers/bgBounds";
 
-import { THREE_HRS } from '../../../../src/utils/datetime';
-import { CBGSliceAnimated } from '../../../../src/components/trends/cbg/CBGSliceAnimated';
+import { THREE_HRS } from "../../../../src/utils/datetime";
+import { CBGSliceAnimated } from "../../../../src/components/trends/cbg/CBGSliceAnimated";
 
-describe('CBGSliceAnimated', () => {
+describe("CBGSliceAnimated", () => {
   let wrapper;
   const focusSlice = sinon.spy();
   const unfocusSlice = sinon.spy();
   const datum = {
-    id: '2700000',
+    id: "2700000",
     min: 22,
     tenthQuantile: 60,
     firstQuartile: 100,
@@ -66,36 +67,36 @@ describe('CBGSliceAnimated', () => {
     yScale,
   };
 
-  describe('when full datum and all `displayFlags` enabled', () => {
+  describe("when full datum and all `displayFlags` enabled", () => {
     before(() => {
       wrapper = shallow(<CBGSliceAnimated {...props} />);
     });
 
-    it('should create an array of 5 `styles` to render on the TransitionMotion', () => {
+    it("should create an array of 5 `styles` to render on the TransitionMotion", () => {
       const TM = wrapper.find(TransitionMotion);
-      expect(TM.prop('styles').length).to.equal(5);
+      expect(TM.prop("styles").length).to.equal(5);
     });
 
-    describe('animation', () => {
-      it('should render a TransitionMotion component', () => {
+    describe("animation", () => {
+      it("should render a TransitionMotion component", () => {
         expect(wrapper.find(TransitionMotion).length).to.equal(1);
       });
 
-      it('should define `defaultStyles` on the TransitionMotion component', () => {
-        expect(wrapper.find(TransitionMotion).prop('defaultStyles')).to.exist;
+      it("should define `defaultStyles` on the TransitionMotion component", () => {
+        expect(wrapper.find(TransitionMotion).prop("defaultStyles")).to.exist;
       });
 
-      it('should define a `willEnter` instance method', () => {
+      it("should define a `willEnter` instance method", () => {
         expect(CBGSliceAnimated.prototype.willEnter).to.exist;
       });
 
-      it('should define a `willLeave` instance method', () => {
+      it("should define a `willLeave` instance method", () => {
         expect(CBGSliceAnimated.prototype.willLeave).to.exist;
       });
     });
   });
 
-  describe('when only `cbg100Enabled`', () => {
+  describe("when only `cbg100Enabled`", () => {
     const cbg100EnabledProps = _.assign({}, props, {
       displayFlags: {
         cbg100Enabled: true,
@@ -108,15 +109,15 @@ describe('CBGSliceAnimated', () => {
       wrapper = shallow(<CBGSliceAnimated {...cbg100EnabledProps} />);
     });
 
-    it('should create an array of 2 `styles` to render on the TransitionMotion', () => {
-      const styles = wrapper.find(TransitionMotion).prop('styles');
+    it("should create an array of 2 `styles` to render on the TransitionMotion", () => {
+      const styles = wrapper.find(TransitionMotion).prop("styles");
       expect(styles.length).to.equal(2);
-      expect(styles[0].key).to.equal('top10');
-      expect(styles[1].key).to.equal('bottom10');
+      expect(styles[0].key).to.equal("top10");
+      expect(styles[1].key).to.equal("bottom10");
     });
   });
 
-  describe('when only `cbg80Enabled`', () => {
+  describe("when only `cbg80Enabled`", () => {
     const cbg80EnabledProps = _.assign({}, props, {
       displayFlags: {
         cbg100Enabled: false,
@@ -129,15 +130,15 @@ describe('CBGSliceAnimated', () => {
       wrapper = shallow(<CBGSliceAnimated {...cbg80EnabledProps} />);
     });
 
-    it('should create an array of 2 `styles` to render on the TransitionMotion', () => {
-      const styles = wrapper.find(TransitionMotion).prop('styles');
+    it("should create an array of 2 `styles` to render on the TransitionMotion", () => {
+      const styles = wrapper.find(TransitionMotion).prop("styles");
       expect(styles.length).to.equal(2);
-      expect(styles[0].key).to.equal('upper15');
-      expect(styles[1].key).to.equal('lower15');
+      expect(styles[0].key).to.equal("upper15");
+      expect(styles[1].key).to.equal("lower15");
     });
   });
 
-  describe('when only `cbg50Enabled`', () => {
+  describe("when only `cbg50Enabled`", () => {
     const cbg50EnabledProps = _.assign({}, props, {
       displayFlags: {
         cbg100Enabled: false,
@@ -150,14 +151,14 @@ describe('CBGSliceAnimated', () => {
       wrapper = shallow(<CBGSliceAnimated {...cbg50EnabledProps} />);
     });
 
-    it('should create an array of 1 `styles` to render on the TransitionMotion', () => {
-      const styles = wrapper.find(TransitionMotion).prop('styles');
+    it("should create an array of 1 `styles` to render on the TransitionMotion", () => {
+      const styles = wrapper.find(TransitionMotion).prop("styles");
       expect(styles.length).to.equal(1);
-      expect(styles[0].key).to.equal('innerQuartiles');
+      expect(styles[0].key).to.equal("innerQuartiles");
     });
   });
 
-  describe('when only `cbgMedianEnabled`', () => {
+  describe("when only `cbgMedianEnabled`", () => {
     const cbgMedianEnabledProps = _.assign({}, props, {
       displayFlags: {
         cbg100Enabled: false,
@@ -170,13 +171,13 @@ describe('CBGSliceAnimated', () => {
       wrapper = shallow(<CBGSliceAnimated {...cbgMedianEnabledProps} />);
     });
 
-    it('should create an array of 0 `styles` to render on the TransitionMotion', () => {
-      const styles = wrapper.find(TransitionMotion).prop('styles');
+    it("should create an array of 0 `styles` to render on the TransitionMotion", () => {
+      const styles = wrapper.find(TransitionMotion).prop("styles");
       expect(styles.length).to.equal(0);
     });
   });
 
-  describe('when full datum and no `displayFlags` enabled', () => {
+  describe("when full datum and no `displayFlags` enabled", () => {
     const cbgMedianEnabledProps = _.assign({}, props, {
       displayFlags: {
         cbg100Enabled: false,
@@ -189,16 +190,16 @@ describe('CBGSliceAnimated', () => {
       wrapper = shallow(<CBGSliceAnimated {...cbgMedianEnabledProps} />);
     });
 
-    it('should create an array of 0 `styles` to render on the TransitionMotion', () => {
-      const styles = wrapper.find(TransitionMotion).prop('styles');
+    it("should create an array of 0 `styles` to render on the TransitionMotion", () => {
+      const styles = wrapper.find(TransitionMotion).prop("styles");
       expect(styles.length).to.equal(0);
     });
   });
 
-  describe('when datum with `undefined` statistics (i.e., gap in data)', () => {
+  describe("when datum with `undefined` statistics (i.e., gap in data)", () => {
     const gapInDataProps = _.assign({}, props, {
       datum: {
-        id: '2700000',
+        id: "2700000",
         min: undefined,
         tenthQuantile: undefined,
         firstQuartile: undefined,
@@ -215,9 +216,9 @@ describe('CBGSliceAnimated', () => {
       wrapper = shallow(<CBGSliceAnimated {...gapInDataProps} />);
     });
 
-    it('should create an array of 0 `styles` to render on the TransitionMotion', () => {
+    it("should create an array of 0 `styles` to render on the TransitionMotion", () => {
       expect(wrapper.find(TransitionMotion).length).to.equal(1);
-      const styles = wrapper.find(TransitionMotion).prop('styles');
+      const styles = wrapper.find(TransitionMotion).prop("styles");
       expect(styles.length).to.equal(0);
     });
   });

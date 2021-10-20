@@ -15,24 +15,24 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import i18next from 'i18next';
-import _ from 'lodash';
+import React from "react";
+import PropTypes from "prop-types";
+import i18next from "i18next";
+import _ from "lodash";
 
-import Tooltip from '../../common/tooltips/Tooltip';
-import colors from '../../../styles/colors.css';
-import styles from './ReservoirTooltip.css';
-import { SITE_CHANGE_BY_MANUFACTURER, RESERVOIR_CHANGE, DEFAULT_MANUFACTURER } from '../../../utils/constants';
+import Tooltip from "../../common/tooltips/Tooltip";
+import colors from "../../../styles/colors.css";
+import styles from "./ReservoirTooltip.css";
+import { SITE_CHANGE_BY_MANUFACTURER, RESERVOIR_CHANGE, DEFAULT_MANUFACTURER } from "../../../utils/constants";
 
 class ReservoirTooltip extends React.Component {
   renderReservoir(typeOfChange) {
     const label = (typeOfChange === RESERVOIR_CHANGE)
-      ? i18next.t('Reservoir Change')
-      : i18next.t('Infusion site change');
+      ? i18next.t("Reservoir Change")
+      : i18next.t("Infusion site change");
 
     const rows = [
-      <div key={'title'} className={styles.pa}>
+      <div key={"title"} className={styles.pa}>
         <div className={styles.label}>{label}</div>
       </div>,
     ];
@@ -46,14 +46,14 @@ class ReservoirTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(reservoir, 'source', 'Diabeloop'),
+        source: _.get(reservoir, "source", "Diabeloop"),
         normalTime: reservoir.normalTime,
-        timezone: _.get(reservoir, 'timezone', 'UTC'),
+        timezone: _.get(reservoir, "timezone", "UTC"),
         timePrefs,
       };
     }
 
-    const manufacturer = _.get(reservoir, 'pump.manufacturer', DEFAULT_MANUFACTURER);
+    const manufacturer = _.get(reservoir, "pump.manufacturer", DEFAULT_MANUFACTURER);
     const typeOfChange = _.get(SITE_CHANGE_BY_MANUFACTURER, manufacturer, SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]);
 
     return (
@@ -79,7 +79,7 @@ ReservoirTooltip.propTypes = {
   }),
   title: PropTypes.node,
   tail: PropTypes.bool.isRequired,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]).isRequired,
   tailColor: PropTypes.string.isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
@@ -92,7 +92,7 @@ ReservoirTooltip.propTypes = {
 
 ReservoirTooltip.defaultProps = {
   tail: true,
-  side: 'right',
+  side: "right",
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.deviceEvent,

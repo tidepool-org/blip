@@ -15,34 +15,34 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import _ from 'lodash';
-import sinon from 'sinon';
-import chai from 'chai';
-import { mount } from 'enzyme';
-import { MGDL_UNITS } from 'tideline';
+import React from "react";
+import _ from "lodash";
+import * as sinon from "sinon";
+import chai from "chai";
+import { mount } from "enzyme";
+import { MGDL_UNITS } from "tideline";
 
-import DataUtilStub from '../../../helpers/DataUtil';
-import Basics from '../../../../app/components/chart/basics';
+import DataUtilStub from "../../../helpers/DataUtil";
+import Basics from "../../../../app/components/chart/basics";
 
-describe('Basics', () => {
+describe("Basics", () => {
   const { expect } = chai;
 
   const bgPrefs = {
     bgClasses: {
-      'very-low': {
+      "very-low": {
         boundary: 60,
       },
-      low: {
+      "low": {
         boundary: 80,
       },
-      target: {
+      "target": {
         boundary: 180,
       },
-      high: {
+      "high": {
         boundary: 200,
       },
-      'very-high': {
+      "very-high": {
         boundary: 300,
       },
     },
@@ -51,7 +51,7 @@ describe('Basics', () => {
 
   const baseProps = {
     bgPrefs,
-    bgSource: 'cbg',
+    bgSource: "cbg",
     chartPrefs: { basics: {} },
     dataUtil: new DataUtilStub([], {
       bgPrefs: {
@@ -60,7 +60,7 @@ describe('Basics', () => {
       },
       timePrefs: {
         timezoneAware: true,
-        timezoneName: 'UTC',
+        timezoneName: "UTC",
       },
     }),
     onClickPrint: sinon.stub(),
@@ -76,7 +76,7 @@ describe('Basics', () => {
     canPrint: false,
     timePrefs: {
       timezoneAware: false,
-      timezoneName: 'US/Pacific',
+      timezoneName: "US/Pacific",
     },
     permsOfLoggedInUser: {},
     trackMetric: sinon.stub(),
@@ -102,13 +102,13 @@ describe('Basics', () => {
     }
   });
 
-  describe('render', () => {
-    it('should render the basics chart if any data is uploaded', () => {
+  describe("render", () => {
+    it("should render the basics chart if any data is uploaded", () => {
       const date1 = new Date(Date.now() - 60*60*1000);
       const date2 = new Date();
       const smbgs = [
-        { type: 'smbg', normalTime: date1.toISOString(), epoch: date1.valueOf() },
-        { type: 'smbg', normalTime: date2.toISOString(), epoch: date2.valueOf() }
+        { type: "smbg", normalTime: date1.toISOString(), epoch: date1.valueOf() },
+        { type: "smbg", normalTime: date2.toISOString(), epoch: date2.valueOf() }
       ];
       const dataProps = {
         patient: { userid: "1234" },
@@ -129,7 +129,7 @@ describe('Basics', () => {
             },
             days: [
               {
-                type: 'mostRecent',
+                type: "mostRecent",
               },
             ],
           },
@@ -140,13 +140,13 @@ describe('Basics', () => {
       wrapper = null; // In case the next mount() failed...
       wrapper = mount(<Basics {...dataProps} />);
       wrapper.update();
-      const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
-      const chart = wrapper.find('#tidelineContainer');
+      const noDataMessage = wrapper.find(".patient-data-message").hostNodes();
+      const chart = wrapper.find("#tidelineContainer");
       expect(noDataMessage.length, JSON.stringify(dataProps, null, 2)).to.equal(0);
-      expect(chart.length, '#tidelineContainer').to.equal(1);
+      expect(chart.length, "#tidelineContainer").to.equal(1);
     });
 
-    it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', () => {
+    it("should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked", () => {
       var props = _.assign({}, baseProps, {
         canPrint: true,
       });
@@ -154,65 +154,65 @@ describe('Basics', () => {
       wrapper.setProps(props);
       wrapper.update();
 
-      var printLink = wrapper.find('.printview-print-icon');
+      var printLink = wrapper.find(".printview-print-icon");
       expect(printLink.length).to.equal(1);
-      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.false;
+      expect(printLink.hasClass("patient-data-subnav-disabled")).to.be.false;
 
       expect(props.onClickPrint.callCount).to.equal(0);
-      printLink.simulate('click');
+      printLink.simulate("click");
       expect(props.onClickPrint.callCount).to.equal(1);
     });
 
-    it('should render the bg toggle', () => {
+    it("should render the bg toggle", () => {
       var props = _.assign({}, baseProps, {
         tidelineData: {
           grouped: {},
           basicsData: {
             data: {},
-            dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
+            dateRange: ["2018-01-15T05:00:00.000Z", "2018-01-30T03:46:52.000Z"],
           },
         },
       });
       wrapper.setProps(props);
       wrapper.update();
-      const toggle = wrapper.find('BgSourceToggle');
+      const toggle = wrapper.find("BgSourceToggle");
       expect(toggle.length).to.equal(1);
     });
 
-    it('should render the stats', () => {
+    it("should render the stats", () => {
       const props = _.assign({}, baseProps, {
         tidelineData: {
           grouped: {},
           basicsData: {
             data: {},
-            dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
+            dateRange: ["2018-01-15T05:00:00.000Z", "2018-01-30T03:46:52.000Z"],
           },
         },
       });
       wrapper.setProps(props);
       wrapper.update();
-      const stats = wrapper.find('Stats');
+      const stats = wrapper.find("Stats");
       expect(stats.length).to.equal(1);
     });
   });
 
-  describe('getInitialState', () => {
-    it('should set the initial state', () => {
-      expect(wrapper.state('atMostRecent')).to.be.true;
-      expect(wrapper.state('inTransition')).to.be.false;
-      expect(wrapper.state('title')).to.be.a('string');
-      expect(_.isEmpty(wrapper.state('endpoints'))).to.be.true;
+  describe("getInitialState", () => {
+    it("should set the initial state", () => {
+      expect(wrapper.state("atMostRecent")).to.be.true;
+      expect(wrapper.state("inTransition")).to.be.false;
+      expect(wrapper.state("title")).to.be.a("string");
+      expect(_.isEmpty(wrapper.state("endpoints"))).to.be.true;
     });
   });
 
-  describe('componentDidMount', () => {
-    it('should set the endpoint after mount', () => {
+  describe("componentDidMount", () => {
+    it("should set the endpoint after mount", () => {
       const props = _.assign({}, baseProps, {
         tidelineData: {
           grouped: {},
           basicsData: {
             data: {},
-            dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
+            dateRange: ["2018-01-15T05:00:00.000Z", "2018-01-30T03:46:52.000Z"],
           },
         },
       });
@@ -225,21 +225,21 @@ describe('Basics', () => {
     });
   });
 
-  describe('toggleBgDataSource', () => {
-    it('should call the `updateChartPrefs` handler to update the bgSource', () => {
+  describe("toggleBgDataSource", () => {
+    it("should call the `updateChartPrefs` handler to update the bgSource", () => {
       const instance = wrapper.instance();
-      instance.toggleBgDataSource(null, 'cbg');
+      instance.toggleBgDataSource(null, "cbg");
 
       sinon.assert.callCount(baseProps.updateChartPrefs, 1);
       sinon.assert.calledWith(baseProps.updateChartPrefs, {
-        basics: { bgSource: 'cbg' },
+        basics: { bgSource: "cbg" },
       });
 
-      instance.toggleBgDataSource(null, 'smbg');
+      instance.toggleBgDataSource(null, "smbg");
 
       sinon.assert.callCount(baseProps.updateChartPrefs, 2);
       sinon.assert.calledWith(baseProps.updateChartPrefs, {
-        basics: { bgSource: 'smbg' },
+        basics: { bgSource: "smbg" },
       });
     });
   });

@@ -15,35 +15,35 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import i18next from 'i18next';
-import { formatInputTime } from '../../../utils/format';
-import Tooltip from '../../common/tooltips/Tooltip';
-import colors from '../../../styles/colors.css';
-import styles from './PhysicalTooltip.css';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import i18next from "i18next";
+import { formatInputTime } from "../../../utils/format";
+import Tooltip from "../../common/tooltips/Tooltip";
+import colors from "../../../styles/colors.css";
+import styles from "./PhysicalTooltip.css";
 
 const t = i18next.t.bind(i18next);
 
 class PhysicalTooltip extends React.Component {
   getDurationInMinutes() {
     const display = {
-      units: 'minutes',
+      units: "minutes",
       value: 0,
     };
     const units = this.props.physicalActivity.duration.units;
     const duration = this.props.physicalActivity.duration.value;
     switch (units) {
-      case 'seconds':
-        display.value = Math.round(duration / 60);
-        break;
-      case 'hours':
-        display.value = duration * 60;
-        break;
-      default:
-        display.value = duration;
-        break;
+    case "seconds":
+      display.value = Math.round(duration / 60);
+      break;
+    case "hours":
+      display.value = duration * 60;
+      break;
+    default:
+      display.value = duration;
+      break;
     }
     return display;
   }
@@ -52,26 +52,26 @@ class PhysicalTooltip extends React.Component {
     const { timePrefs } = this.props;
     const d = this.getDurationInMinutes();
     const rows = [
-      <div key={'title'} className={styles.pa}>
-        <div id="tooltip-physical-activity-title" className={styles.title}>{t('Physical Activity')}</div>
+      <div key={"title"} className={styles.pa}>
+        <div id="tooltip-physical-activity-title" className={styles.title}>{t("Physical Activity")}</div>
       </div>,
-      <div key={'physical'} className={styles.pa}>
-        <div className={styles.label}>{t('Intensity')}</div>
+      <div key={"physical"} className={styles.pa}>
+        <div className={styles.label}>{t("Intensity")}</div>
         <div className={styles.value}>
           {t(`${pa.reportedIntensity}-pa`)}
         </div>
       </div>,
-      <div key={'duration'} className={styles.pa}>
-        <div className={styles.label}>{t('Duration')}</div>
+      <div key={"duration"} className={styles.pa}>
+        <div className={styles.label}>{t("Duration")}</div>
         <div className={styles.value}>{`${d.value} ${t(d.units)}`}</div>
       </div>,
     ];
     const inputTime = [];
     if (pa.inputTime) {
       inputTime.push(
-        <div key={'inputTime'} className={styles.pa}>
+        <div key={"inputTime"} className={styles.pa}>
           <div className={styles.label}>
-            {t('Entered at')}
+            {t("Entered at")}
           </div>
           <div className={styles.value}>
             {formatInputTime(pa.inputTime, timePrefs)}
@@ -89,9 +89,9 @@ class PhysicalTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(physicalActivity, 'source', 'Diabeloop'),
+        source: _.get(physicalActivity, "source", "Diabeloop"),
         normalTime: physicalActivity.normalTime,
-        timezone: _.get(physicalActivity, 'timezone', 'UTC'),
+        timezone: _.get(physicalActivity, "timezone", "UTC"),
         timePrefs,
       };
     }
@@ -119,7 +119,7 @@ PhysicalTooltip.propTypes = {
   }),
   title: PropTypes.node,
   tail: PropTypes.bool.isRequired,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]).isRequired,
   tailColor: PropTypes.string.isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
@@ -139,7 +139,7 @@ PhysicalTooltip.propTypes = {
 
 PhysicalTooltip.defaultProps = {
   tail: true,
-  side: 'right',
+  side: "right",
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.physicalActivity,

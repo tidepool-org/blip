@@ -15,24 +15,24 @@
  * == BSD2 LICENSE ==
  */
 
-import dt from '../../js/data/util/datetime';
+import dt from "../../js/data/util/datetime";
 
 export function Cycler(increment, cycles) {
-    var i = 0;
+  var i = 0;
 
-    return function() {
-      if (i < cycles) {
-        ++i;
-      }
-      else {
-        i = 1;
-      }
-      return i * increment;
-    };
-  }
+  return function() {
+    if (i < cycles) {
+      ++i;
+    }
+    else {
+      i = 1;
+    }
+    return i * increment;
+  };
+}
 
-  export function Intervaler(datetime, millis) {
-  const APPEND = '.000Z';
+export function Intervaler(datetime, millis) {
+  const APPEND = ".000Z";
   datetime = dt.addDuration(datetime + APPEND, -millis).slice(0, -5);
   return () => {
     datetime = dt.addDuration(datetime + APPEND, millis).slice(0, -5);

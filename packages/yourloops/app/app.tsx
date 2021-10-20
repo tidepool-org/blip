@@ -27,7 +27,7 @@
  */
 
 import _ from "lodash";
-import * as React from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
 
 import "@fontsource/roboto";

@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import moment from 'moment-timezone';
+import _ from "lodash";
+import moment from "moment-timezone";
 
-import format from '../../../data/util/format';
+import format from "../../../data/util/format";
 
 const defaults = {
   textShiftX: 5,
@@ -27,7 +27,7 @@ const defaults = {
   longTickMultiplier: 2.5,
   /** @type {import("../../../tidelinedata").default} */
   tidelineData: {
-    getTimezoneAt: _.constant('UTC'),
+    getTimezoneAt: _.constant("UTC"),
   },
 };
 
@@ -36,12 +36,12 @@ function axesDaily(pool, opts = defaults) {
   _.defaults(opts, defaults);
 
   let mainGroup = pool.parent();
-  let stickyLabel = mainGroup.select('#tidelineLabels')
-    .append('g')
-    .attr('class', 'd3-axis')
-    .append('text')
+  let stickyLabel = mainGroup.select("#tidelineLabels")
+    .append("g")
+    .attr("class", "d3-axis")
+    .append("text")
     .attr({
-      'class': 'd3-day-label',
+      class: "d3-day-label",
       x: opts.leftEdge,
       // this is the same as dailyx.dayYPosition
       // we just don't have a datum to pass here
@@ -59,9 +59,9 @@ function axesDaily(pool, opts = defaults) {
   function onTransition(value) {
     transitionAccumulator += value ? 1 : -1;
     if (transitionAccumulator > 0) {
-      stickyLabel.attr('opacity', '0.2');
+      stickyLabel.attr("opacity", "0.2");
     } else {
-      stickyLabel.attr('opacity', '1.0');
+      stickyLabel.attr("opacity", "1.0");
     }
   }
 
@@ -77,7 +77,7 @@ function axesDaily(pool, opts = defaults) {
 
       // When we're close to midnight (where close = five hours on either side)
       // remove the sticky label so it doesn't overlap with the midnight-anchored day label
-      let text = '';
+      let text = "";
       if (4 < dateHours && dateHours < 19) {
         text = format.xAxisDayText(startDate);
       }
@@ -85,30 +85,30 @@ function axesDaily(pool, opts = defaults) {
     } else {
       // Don't bother create a bows() log for this one,
       // should not happend outside buggy dev process anyway.
-      console.warn('axesDaily.updateStickyLabel: invalid date', date, timezone);
+      console.warn("axesDaily.updateStickyLabel: invalid date", date, timezone);
     }
   }
 
   // ** Events listeners **
-  opts.emitter.on('inTransition', onTransition);
-  opts.emitter.on('zoomstart', () => onTransition(true));
-  opts.emitter.on('zoomend', () => onTransition(false));
-  opts.emitter.on('dailyx-navigated', updateStickyLabel);
+  opts.emitter.on("inTransition", onTransition);
+  opts.emitter.on("zoomstart", () => onTransition(true));
+  opts.emitter.on("zoomend", () => onTransition(false));
+  opts.emitter.on("dailyx-navigated", updateStickyLabel);
 
   function dailyx(selection) {
     opts.xScale = pool.xScale().copy();
 
     selection.each(function(currentData) {
-      const ticks = selection.selectAll('g.d3-axis.' + opts['class'])
+      const ticks = selection.selectAll("g.d3-axis." + opts["class"])
         .data(currentData, (d) => d.id);
 
-        const tickGroups = ticks.enter()
-        .append('g')
+      const tickGroups = ticks.enter()
+        .append("g")
         .attr({
-          'class': 'd3-axis ' + opts['class']
+          class: "d3-axis " + opts["class"]
         });
 
-      tickGroups.append('line')
+      tickGroups.append("line")
         .attr({
           x1: dailyx.xPosition,
           x2: dailyx.xPosition,
@@ -116,7 +116,7 @@ function axesDaily(pool, opts = defaults) {
           y2: dailyx.tickLength
         });
 
-      tickGroups.append('text')
+      tickGroups.append("text")
         .attr({
           id: (d) => `x-axis-hour-${d.epoch}`,
           x: dailyx.textXPosition,
@@ -135,10 +135,10 @@ function axesDaily(pool, opts = defaults) {
           }
           return display;
         })
-        .append('text')
+        .append("text")
         .attr({
           id: (d) => `x-axis-day-${d.epoch}`,
-          'class': 'd3-day-label',
+          class: "d3-day-label",
           x: dailyx.textXPosition,
           y: dailyx.dayYPosition
         })

@@ -13,16 +13,16 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-const DUMMY_DOMAIN = 'example.com';
+const DUMMY_DOMAIN = "example.com";
 const DUMMY_URL = `https://${DUMMY_DOMAIN}/`;
 
 const defaultConfig = {
-  VERSION: '0.0.0',
-  UPLOAD_API: 'https://tidepool.org/uploader',
+  VERSION: "0.0.0",
+  UPLOAD_API: "https://tidepool.org/uploader",
   API_HOST: `${window.location.protocol}//${window.location.host}`,
-  LATEST_TERMS: '1970-01-01',
+  LATEST_TERMS: "1970-01-01",
   PWD_MIN_LENGTH: 8,
   PWD_MAX_LENGTH: 72,
   ABOUT_MAX_LENGTH: 256,
@@ -30,8 +30,8 @@ const defaultConfig = {
   HELP_SCRIPT_URL: null,
   HELP_PAGE_URL: null,
   ASSETS_URL: DUMMY_URL,
-  BRANDING: 'tidepool',
-  METRICS_SERVICE: 'disabled',
+  BRANDING: "tidepool",
+  METRICS_SERVICE: "disabled",
   MAX_FAILED_LOGIN_ATTEMPTS: 5,
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: 10,
   YLP820_BASAL_TIME: 5000,

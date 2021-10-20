@@ -15,25 +15,25 @@
  * == BSD2 LICENSE ==
  */
 
-import MemoryStream from 'memorystream';
-import sinon from 'sinon';
-import { expect } from 'chai';
-import * as Module from '../../../src/modules/print';
-import Doc from '../../helpers/pdfDoc';
+import MemoryStream from "memorystream";
+import * as sinon from "sinon";
+import { expect } from "chai";
+import * as Module from "../../../src/modules/print";
+import Doc from "../../helpers/pdfDoc";
 
-describe('print module', () => {
+describe("print module", () => {
   const pdf = {
-    url: 'someURL',
-    blob: 'someBlob',
+    url: "someURL",
+    blob: "someBlob",
   };
 
   const margin = 36;
 
   const data = {
-    daily: { type: 'daily' },
-    bgLog: { type: 'bgLog' },
-    basics: { type: 'basics' },
-    settings: { type: 'settings' },
+    daily: { type: "daily" },
+    bgLog: { type: "bgLog" },
+    basics: { type: "basics" },
+    settings: { type: "settings" },
   };
 
   const opts = {
@@ -44,7 +44,7 @@ describe('print module', () => {
     },
     patient: {},
     timePrefs: {},
-    mostRecent: '',
+    mostRecent: "",
   };
 
   class DailyPrintView {
@@ -69,13 +69,13 @@ describe('print module', () => {
   let stream;
 
   before(() => {
-    sinon.stub(Module.utils, 'reshapeBgClassesToBgBounds');
-    sinon.stub(Module.utils.PrintView, 'renderPageNumbers');
-    sinon.stub(Module.utils, 'BasicsPrintView').returns(new BasicsPrintView());
-    sinon.stub(Module.utils, 'DailyPrintView').returns(new DailyPrintView());
-    sinon.stub(Module.utils, 'BgLogPrintView').returns(new BgLogPrintView());
-    sinon.stub(Module.utils, 'SettingsPrintView').returns(new SettingsPrintView());
-    sinon.stub(Module.utils, 'blobStream').returns(new MemoryStream());
+    sinon.stub(Module.utils, "reshapeBgClassesToBgBounds");
+    sinon.stub(Module.utils.PrintView, "renderPageNumbers");
+    sinon.stub(Module.utils, "BasicsPrintView").returns(new BasicsPrintView());
+    sinon.stub(Module.utils, "DailyPrintView").returns(new DailyPrintView());
+    sinon.stub(Module.utils, "BgLogPrintView").returns(new BgLogPrintView());
+    sinon.stub(Module.utils, "SettingsPrintView").returns(new SettingsPrintView());
+    sinon.stub(Module.utils, "blobStream").returns(new MemoryStream());
   });
 
   after(() => {
@@ -85,7 +85,7 @@ describe('print module', () => {
   beforeEach(() => {
     stream = new MemoryStream();
     doc = new Doc({ pdf, margin });
-    sandbox.stub(Module.utils, 'PDFDocument').returns(doc);
+    sandbox.stub(Module.utils, "PDFDocument").returns(doc);
   });
 
   afterEach(() => {
@@ -99,15 +99,15 @@ describe('print module', () => {
     Module.utils.blobStream.resetHistory();
   });
 
-  it('should export a createPrintPDFPackage method', () => {
-    expect(Module.createPrintPDFPackage).to.be.a('function');
+  it("should export a createPrintPDFPackage method", () => {
+    expect(Module.createPrintPDFPackage).to.be.a("function");
   });
 
-  it('should export a createPrintView method', () => {
-    expect(Module.createPrintView).to.be.a('function');
+  it("should export a createPrintView method", () => {
+    expect(Module.createPrintView).to.be.a("function");
   });
 
-  it('should properly set bg bounds', () => {
+  it("should properly set bg bounds", () => {
     const result = Module.createPrintPDFPackage(data, opts, stream);
     doc.stream.end();
 
@@ -117,7 +117,7 @@ describe('print module', () => {
     });
   });
 
-  it('should render and return the complete pdf data package when all data is available', () => {
+  it("should render and return the complete pdf data package when all data is available", () => {
     const result = Module.createPrintPDFPackage(data, opts);
     doc.stream.end();
 
@@ -131,7 +131,7 @@ describe('print module', () => {
           patient: opts.patient,
           timePrefs: opts.timePrefs,
           bgPrefs: opts.bgPrefs,
-          title: 'The Basics',
+          title: "The Basics",
         },
       );
 
@@ -145,7 +145,7 @@ describe('print module', () => {
           patient: opts.patient,
           timePrefs: opts.timePrefs,
           bgPrefs: opts.bgPrefs,
-          title: 'Daily Charts',
+          title: "Daily Charts",
         },
       );
 
@@ -159,7 +159,7 @@ describe('print module', () => {
           patient: opts.patient,
           timePrefs: opts.timePrefs,
           bgPrefs: opts.bgPrefs,
-          title: 'BG Log',
+          title: "BG Log",
         },
       );
 
@@ -172,7 +172,7 @@ describe('print module', () => {
           patient: opts.patient,
           timePrefs: opts.timePrefs,
           bgPrefs: opts.bgPrefs,
-          title: 'Pump Settings',
+          title: "Pump Settings",
         },
       );
 
@@ -180,7 +180,7 @@ describe('print module', () => {
     });
   });
 
-  it('should only render the basics view when only basics data is available', () => {
+  it("should only render the basics view when only basics data is available", () => {
     const basicsDataOnly = {
       basics: data.basics,
     };
@@ -197,7 +197,7 @@ describe('print module', () => {
     });
   });
 
-  it('should only render the daily view when only daily data is available', () => {
+  it("should only render the daily view when only daily data is available", () => {
     const dailyDataOnly = {
       daily: data.daily,
     };
@@ -214,7 +214,7 @@ describe('print module', () => {
     });
   });
 
-  it('should only render the settings view when only settings data is available', () => {
+  it("should only render the settings view when only settings data is available", () => {
     const settingsDataOnly = {
       settings: data.settings,
     };
@@ -231,7 +231,7 @@ describe('print module', () => {
     });
   });
 
-  it('should add the page numbers to the document', () => {
+  it("should add the page numbers to the document", () => {
     const result = Module.createPrintPDFPackage(data, opts);
     doc.stream.end();
 

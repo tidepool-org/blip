@@ -15,23 +15,23 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
+import React from "react";
+import { expect } from "chai";
+import { mount } from "enzyme";
 
-import { mount } from 'enzyme';
-
-import * as scales from '../../../helpers/scales';
+import * as scales from "../../../helpers/scales";
 const {
   trendsHeight,
   trendsWidth,
   trendsXScale: xScale,
 } = scales.trends;
-import SVGContainer from '../../../helpers/SVGContainer';
+import SVGContainer from "../../../helpers/SVGContainer";
 
-import { TWENTY_FOUR_HRS } from '../../../../src/utils/datetime';
+import { TWENTY_FOUR_HRS } from "../../../../src/utils/datetime";
 
-import XAxisLabels from '../../../../src/components/trends/common/XAxisLabels';
+import XAxisLabels from "../../../../src/components/trends/common/XAxisLabels";
 
-describe('XAxisLabels', () => {
+describe("XAxisLabels", () => {
   let wrapper;
   const props = {
     margins: {
@@ -52,13 +52,13 @@ describe('XAxisLabels', () => {
     );
   });
 
-  it('should render eight text labels at three hour intervals', () => {
-    const labels = wrapper.find('text');
+  it("should render eight text labels at three hour intervals", () => {
+    const labels = wrapper.find("text");
     expect(labels).to.have.length(8);
     // Enzyme forEach cannot be replaced by _.forEach
     // eslint-disable-next-line lodash/prefer-lodash-method
     labels.forEach((label, i) => {
-      expect(label.prop('x')).to.equal(xScale(i * (TWENTY_FOUR_HRS / 8)));
+      expect(label.prop("x")).to.equal(xScale(i * (TWENTY_FOUR_HRS / 8)));
     });
   });
 });

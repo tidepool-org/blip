@@ -27,23 +27,22 @@
 // - date is focused (through hover) fatter & solid line connecting the dots
 //   this style also applies when a single smbg is focused
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { TransitionMotion, spring } from "react-motion";
+import { line } from "d3-shape";
+import _ from "lodash";
+import cx from "classnames";
 
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { TransitionMotion, spring } from 'react-motion';
-import { line } from 'd3-shape';
-import _ from 'lodash';
-import cx from 'classnames';
+import { springConfig } from "../../../utils/constants";
+import { THREE_HRS } from "../../../utils/datetime";
+import { findBinForTimeOfDay } from "../../../utils/trends/data";
 
-import { springConfig } from '../../../utils/constants';
-import { THREE_HRS } from '../../../utils/datetime';
-import { findBinForTimeOfDay } from '../../../utils/trends/data';
+import { focusTrendsSmbg, unfocusTrendsSmbg } from "../../../redux/actions/trends";
 
-import { focusTrendsSmbg, unfocusTrendsSmbg } from '../../../redux/actions/trends';
-
-import styles from './SMBGDateLineAnimated.css';
+import styles from "./SMBGDateLineAnimated.css";
 
 export class SMBGDateLineAnimated extends PureComponent {
   static propTypes = {
@@ -157,8 +156,8 @@ export class SMBGDateLineAnimated extends PureComponent {
     const { style } = entered;
     return {
       opacity: 0,
-      x: _.get(style, ['x', 'val'], style.x),
-      y: _.get(style, ['y', 'val'], style.y),
+      x: _.get(style, "x.val", style.x),
+      y: _.get(style, "y.val", style.y),
     };
   }
 
@@ -166,8 +165,8 @@ export class SMBGDateLineAnimated extends PureComponent {
     const { style } = exited;
     return {
       opacity: spring(0, springConfig),
-      x: spring(_.get(style, ['x', 'val'], style.x), springConfig),
-      y: spring(_.get(style, ['y', 'val'], style.y), springConfig),
+      x: spring(_.get(style, "x.val", style.x), springConfig),
+      y: spring(_.get(style, "y.val", style.y), springConfig),
     };
   }
 
@@ -199,15 +198,15 @@ export class SMBGDateLineAnimated extends PureComponent {
             return (
               <path
                 // d3 line() expects an array of 2-member arrays of x, y coordinates
-                d={line()(_.map(_.map(interpolated, 'style'), (style) => (
-                  [_.get(style, ['x', 'val'], style.x), _.get(style, ['y', 'val'], style.y)]
+                d={line()(_.map(_.map(interpolated, "style"), (style) => (
+                  [_.get(style, "x.val", style.x), _.get(style, "y.val", style.y)]
                 )))}
                 className={classes}
                 onMouseOver={this.handleMouseOver}
                 onMouseOut={this.handleMouseOut}
                 onClick={this.handleClick}
-                pointerEvents={nonInteractive ? 'none' : 'stroke'}
-                strokeOpacity={_.get(interpolated[0], ['style', 'opacity'])}
+                pointerEvents={nonInteractive ? "none" : "stroke"}
+                strokeOpacity={_.get(interpolated[0], "style.opacity")}
               />
             );
           }}

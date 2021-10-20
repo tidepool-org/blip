@@ -27,7 +27,7 @@
 var TogglableState = {
   open: true,
   closed: false,
-  off: 'off'
+  off: "off"
 };
 
 export default TogglableState;

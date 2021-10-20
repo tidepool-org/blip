@@ -26,12 +26,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import _ from "lodash";
 import moment from "moment-timezone";
 import { useTranslation } from "react-i18next";
 
-import { ClassNameMap } from '@material-ui/styles/withStyles';
+import { ClassNameMap } from "@material-ui/styles/withStyles";
 import TextField from "@material-ui/core/TextField";
 
 import { User } from "../../lib/auth";

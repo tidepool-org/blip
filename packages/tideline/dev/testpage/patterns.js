@@ -15,16 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import * as types from'./types';
-import { Intervaler } from'./utils';
+import * as types from"./types";
+import { Intervaler } from"./utils";
 
-import dt from '../../js/data/util/datetime';
+import dt from "../../js/data/util/datetime";
 
 // constants
 var MS_IN_24HRS = 86400000;
-var APPEND = '.000Z';
+var APPEND = ".000Z";
 
 var CBGMIN = 0.75*288, SMBGMIN = 4;
 
@@ -86,7 +86,7 @@ function patterns() {
           days: 1,
           value: 100,
           start: naiveTimestamp(),
-          deviceId: 'Dexcom_XXXXXX',
+          deviceId: "Dexcom_XXXXXX",
         };
         _.defaults(opts, defaults);
 
@@ -111,7 +111,7 @@ function patterns() {
           value: 100,
           start: naiveTimestamp(),
           cbgMin: CBGMIN,
-          deviceId: 'Dexcom_XXXXXX',
+          deviceId: "Dexcom_XXXXXX",
         };
         _.defaults(opts, defaults);
 
@@ -139,7 +139,7 @@ function patterns() {
           value: 8.56,
           start: naiveTimestamp(),
           cbgMin: CBGMIN,
-          deviceId: 'Dexcom_XXXXXX',
+          deviceId: "Dexcom_XXXXXX",
         };
         _.defaults(opts, defaults);
 
@@ -167,7 +167,7 @@ function patterns() {
           value: 100,
           start: naiveTimestamp(),
           cbgMin: CBGMIN,
-          deviceId: 'Dexcom_XXXXXX',
+          deviceId: "Dexcom_XXXXXX",
         };
         _.defaults(opts, defaults);
 
@@ -201,7 +201,7 @@ function patterns() {
 
         var smbgs = [];
         var next = new Intervaler(opts.start, MS_IN_24HRS/4);
-        var end = dt.addDuration(opts.start + '.000Z', MS_IN_24HRS*opts.days);
+        var end = dt.addDuration(opts.start + ".000Z", MS_IN_24HRS*opts.days);
         var current = opts.start;
         while (current !== end.slice(0, -5)) {
           current = next();

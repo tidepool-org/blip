@@ -15,12 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import { mount } from 'enzyme';
+import React from "react";
+import * as sinon from "sinon";
+import { mount } from "enzyme";
+import { expect } from "chai";
 
-import LabeledCheckbox from '../../../../src/components/common/controls/LabeledCheckbox';
+import LabeledCheckbox from "../../../../src/components/common/controls/LabeledCheckbox";
 
-describe('LabeledCheckbox', () => {
+describe("LabeledCheckbox", () => {
   let checkedWrapper;
   let uncheckedWrapper;
   const onFn = sinon.spy();
@@ -30,46 +32,46 @@ describe('LabeledCheckbox', () => {
       checked: true,
       onFn,
       offFn,
-      label: 'Checked Label',
-      name: 'checked',
+      label: "Checked Label",
+      name: "checked",
     };
     const uncheckedProps = {
       checked: false,
       onFn,
       offFn,
-      label: 'Unchecked Label',
-      name: 'unchecked',
+      label: "Unchecked Label",
+      name: "unchecked",
     };
     checkedWrapper = mount(<LabeledCheckbox {...checkedProps} />);
     uncheckedWrapper = mount(<LabeledCheckbox {...uncheckedProps} />);
   });
 
-  describe('Checked', () => {
-    it('should render a checked checkbox', () => {
+  describe("Checked", () => {
+    it("should render a checked checkbox", () => {
       expect(checkedWrapper.find('input[type="checkbox"]').length).to.equal(1);
-      expect(checkedWrapper.find('input[type="checkbox"]').prop('checked')).to.be.true;
+      expect(checkedWrapper.find('input[type="checkbox"]').prop("checked")).to.be.true;
     });
-    it('should render the label', () => {
-      expect(checkedWrapper.find('label').text()).to.have.string('Checked Label');
+    it("should render the label", () => {
+      expect(checkedWrapper.find("label").text()).to.have.string("Checked Label");
     });
-    it('should trigger offFn when changed', () => {
+    it("should trigger offFn when changed", () => {
       expect(offFn.callCount).to.equal(0);
-      checkedWrapper.find('input[type="checkbox"]').simulate('change');
+      checkedWrapper.find('input[type="checkbox"]').simulate("change");
       expect(offFn.callCount).to.equal(1);
     });
   });
 
-  describe('Unchecked', () => {
-    it('should render an unchecked checkbox', () => {
+  describe("Unchecked", () => {
+    it("should render an unchecked checkbox", () => {
       expect(uncheckedWrapper.find('input[type="checkbox"]').length).to.equal(1);
-      expect(uncheckedWrapper.find('input[type="checkbox"]').prop('checked')).to.be.false;
+      expect(uncheckedWrapper.find('input[type="checkbox"]').prop("checked")).to.be.false;
     });
-    it('should render the label', () => {
-      expect(uncheckedWrapper.find('label').text()).to.have.string('Unchecked Label');
+    it("should render the label", () => {
+      expect(uncheckedWrapper.find("label").text()).to.have.string("Unchecked Label");
     });
-    it('should trigger onFn when changed', () => {
+    it("should trigger onFn when changed", () => {
       expect(onFn.callCount).to.equal(0);
-      uncheckedWrapper.find('input[type="checkbox"]').simulate('change');
+      uncheckedWrapper.find('input[type="checkbox"]').simulate("change");
       expect(onFn.callCount).to.equal(1);
     });
   });

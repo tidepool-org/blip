@@ -15,22 +15,23 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import { mount } from 'enzyme';
+import React from "react";
+import { mount } from "enzyme";
+import { expect } from "chai";
 
-import { MGDL_UNITS } from 'tideline';
+import { MGDL_UNITS } from "tideline";
 
-import * as scales from '../../../helpers/scales';
+import * as scales from "../../../helpers/scales";
 const {
   trendsHeight,
   trendsWidth,
   trendsYScale: yScale,
 } = scales.trends;
-import bgBounds from '../../../helpers/bgBounds';
-import SVGContainer from '../../../helpers/SVGContainer';
-import YAxisLabelsAndTicks from '../../../../src/components/trends/common/YAxisLabelsAndTicks';
+import bgBounds from "../../../helpers/bgBounds";
+import SVGContainer from "../../../helpers/SVGContainer";
+import YAxisLabelsAndTicks from "../../../../src/components/trends/common/YAxisLabelsAndTicks";
 
-describe('YAxisLabelsAndTicks', () => {
+describe("YAxisLabelsAndTicks", () => {
   let wrapper;
   const props = {
     bgPrefs: {
@@ -54,22 +55,22 @@ describe('YAxisLabelsAndTicks', () => {
     );
   });
 
-  it('should render three tick lines and three text labels', () => {
-    const lines = wrapper.find('line');
+  it("should render three tick lines and three text labels", () => {
+    const lines = wrapper.find("line");
     expect(lines).to.have.length(4);
-    expect(lines.at(0).prop('y1')).to.equal(yScale(props.bgPrefs.bgBounds.targetLowerBound));
-    expect(lines.at(0).prop('y2')).to.equal(yScale(props.bgPrefs.bgBounds.targetLowerBound));
-    expect(lines.at(1).prop('y1')).to.equal(yScale(props.bgPrefs.bgBounds.targetUpperBound));
-    expect(lines.at(1).prop('y2')).to.equal(yScale(props.bgPrefs.bgBounds.targetUpperBound));
-    expect(lines.at(2).prop('y1')).to.equal(yScale(props.bgPrefs.bgBounds.veryHighThreshold));
-    expect(lines.at(2).prop('y2')).to.equal(yScale(props.bgPrefs.bgBounds.veryHighThreshold));
-    expect(lines.at(3).prop('y1')).to.equal(yScale(props.bgPrefs.bgBounds.veryLowThreshold));
-    expect(lines.at(3).prop('y2')).to.equal(yScale(props.bgPrefs.bgBounds.veryLowThreshold));
-    const labels = wrapper.find('text');
+    expect(lines.at(0).prop("y1")).to.equal(yScale(props.bgPrefs.bgBounds.targetLowerBound));
+    expect(lines.at(0).prop("y2")).to.equal(yScale(props.bgPrefs.bgBounds.targetLowerBound));
+    expect(lines.at(1).prop("y1")).to.equal(yScale(props.bgPrefs.bgBounds.targetUpperBound));
+    expect(lines.at(1).prop("y2")).to.equal(yScale(props.bgPrefs.bgBounds.targetUpperBound));
+    expect(lines.at(2).prop("y1")).to.equal(yScale(props.bgPrefs.bgBounds.veryHighThreshold));
+    expect(lines.at(2).prop("y2")).to.equal(yScale(props.bgPrefs.bgBounds.veryHighThreshold));
+    expect(lines.at(3).prop("y1")).to.equal(yScale(props.bgPrefs.bgBounds.veryLowThreshold));
+    expect(lines.at(3).prop("y2")).to.equal(yScale(props.bgPrefs.bgBounds.veryLowThreshold));
+    const labels = wrapper.find("text");
     expect(labels).to.have.length(4);
-    expect(labels.at(0).prop('y')).to.equal(yScale(props.bgPrefs.bgBounds.targetLowerBound));
-    expect(labels.at(1).prop('y')).to.equal(yScale(props.bgPrefs.bgBounds.targetUpperBound));
-    expect(labels.at(2).prop('y')).to.equal(yScale(props.bgPrefs.bgBounds.veryHighThreshold));
-    expect(labels.at(3).prop('y')).to.equal(yScale(props.bgPrefs.bgBounds.veryLowThreshold));
+    expect(labels.at(0).prop("y")).to.equal(yScale(props.bgPrefs.bgBounds.targetLowerBound));
+    expect(labels.at(1).prop("y")).to.equal(yScale(props.bgPrefs.bgBounds.targetUpperBound));
+    expect(labels.at(2).prop("y")).to.equal(yScale(props.bgPrefs.bgBounds.veryHighThreshold));
+    expect(labels.at(3).prop("y")).to.equal(yScale(props.bgPrefs.bgBounds.veryLowThreshold));
   });
 });

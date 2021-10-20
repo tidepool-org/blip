@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import { formatInsulin, formatDecimalNumber } from './format';
-import { ONE_HR } from './datetime';
+import { formatInsulin, formatDecimalNumber } from "./format";
+import { ONE_HR } from "./datetime";
 
 /**
 * getBasalSequences
@@ -53,17 +53,17 @@ export function getBasalSequences(basals) {
 
 /**
  * getBasalPathGroupType
- * @param {Object} basal - single basal datum
- * @return {String} the path group type
+ * @param {object} datum - single basal datum
+ * @return {string} the path group type
  */
 export function getBasalPathGroupType(datum = {}) {
-  const deliveryType = _.get(datum, 'subType', datum.deliveryType);
+  const deliveryType = _.get(datum, "subType", datum.deliveryType);
   const suppressedDeliveryType = _.get(
     datum.suppressed,
-    'subType',
-    _.get(datum.suppressed, 'deliveryType')
+    "subType",
+    _.get(datum.suppressed, "deliveryType")
   );
-  return _.includes([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
+  return _.includes([deliveryType, suppressedDeliveryType], "automated") ? "automated" : "manual";
 }
 
 /**
@@ -74,7 +74,7 @@ export function getBasalPathGroupType(datum = {}) {
 export function getBasalPathGroups(basals) {
   const basalPathGroups = [];
   let currentPathType;
-  _.each(basals, datum => {
+  _.forEach(basals, datum => {
     const pathType = getBasalPathGroupType(datum);
     if (pathType !== currentPathType) {
       currentPathType = pathType;
@@ -172,21 +172,21 @@ export function getGroupDurations(data, s, e) {
  */
 export function getSegmentDose(duration, rate) {
   const hours = duration / ONE_HR;
-  return parseFloat(formatDecimalNumber(hours * rate, 3));
+  return Number.parseFloat(formatDecimalNumber(hours * rate, 3));
 }
 
 /**
  * Get total basal delivered for a given time range
- * @param {Array} data Array of Tidepool basal data
- * @param {[]String} enpoints ISO date strings for the start, end of the range, in that order
- * @return {Number} Formatted total insulin dose
+ * @param {object[]} data Array of Tidepool basal data
+ * @param {string[]} endpoints ISO date strings for the start, end of the range, in that order
+ * @return {string} Formatted total insulin dose
  */
 export function getTotalBasalFromEndpoints(data, endpoints) {
   const start = new Date(endpoints[0]);
   const end = new Date(endpoints[1]);
   let dose = 0;
 
-  _.each(data, (datum, index) => {
+  _.forEach(data, (datum, index) => {
     let duration = datum.duration;
     if (index === 0) {
       // handle first segment, which may have started before the start endpoint
@@ -216,7 +216,7 @@ export function getBasalGroupDurationsFromEndpoints(data, endpoints) {
     manual: 0,
   };
 
-  _.each(data, (datum, index) => {
+  _.forEach(data, (datum, index) => {
     let duration = datum.duration;
     if (index === 0) {
       // handle first segment, which may have started before the start endpoint

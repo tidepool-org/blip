@@ -25,7 +25,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import _ from "lodash";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
@@ -54,7 +54,7 @@ const style = makeStyles((theme: Theme) => {
   return {
     mainContainer: {
       margin: "auto",
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         margin: 0,
         padding: 0,
       },
@@ -69,7 +69,7 @@ const style = makeStyles((theme: Theme) => {
     cardContent: {
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(2),
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         marginLeft: theme.spacing(0),
         marginRight: theme.spacing(0),
       },
@@ -80,7 +80,7 @@ const style = makeStyles((theme: Theme) => {
       marginTop: theme.spacing(2),
       marginRight: theme.spacing(5), // eslint-disable-line no-magic-numbers
       marginLeft: theme.spacing(1),
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         marginRight: 0,
         marginLeft: 0,
         justifyContent: "space-between",
@@ -88,7 +88,7 @@ const style = makeStyles((theme: Theme) => {
     },
     button: {
       marginLeft: "auto",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         marginRight: theme.spacing(1), // eslint-disable-line no-magic-numbers
         marginLeft: theme.spacing(1),
       },

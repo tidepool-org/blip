@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import table from 'text-table';
-import i18next from 'i18next';
+import _ from "lodash";
+import table from "text-table";
+import i18next from "i18next";
 
-import * as tandemData from './tandemData';
-import * as nonTandemData from './nonTandemData';
+import * as tandemData from "./tandemData";
+import * as nonTandemData from "./nonTandemData";
 
-import { formatBirthdate, formatCurrentDate, formatDiagnosisDate } from '../datetime';
-import { getPatientFullName } from '../misc';
+import { formatBirthdate, formatCurrentDate, formatDiagnosisDate } from "../datetime";
+import { getPatientFullName } from "../misc";
 
 const t = i18next.t.bind(i18next);
 
@@ -63,7 +63,7 @@ function getRow(normalizedColumns, rowKey, rowData) {
  */
 function getHeader(normalizedColumns) {
   return _.map(normalizedColumns, (column) => {
-    if (typeof column.label === 'object') {
+    if (typeof column.label === "object") {
       return `${column.label.main} ${column.label.secondary}`;
     }
     return column.label;
@@ -103,9 +103,9 @@ function buildTextTable(name, rows, columns) {
  * @private
  */
 function formatTitle(patient) {
-  const exported = t('Exported from Tidepool: {{date}}', { date: formatCurrentDate() });
-  const bday = t('Date of birth: {{date}}', { date: formatBirthdate(patient) });
-  const diagnosis = t('Date of diagnosis: {{date}}', { date: formatDiagnosisDate(patient) });
+  const exported = t("Exported from Tidepool: {{date}}", { date: formatCurrentDate() });
+  const bday = t("Date of birth: {{date}}", { date: formatBirthdate(patient) });
+  const diagnosis = t("Date of diagnosis: {{date}}", { date: formatDiagnosisDate(patient) });
   const fullname = getPatientFullName(patient);
   return `${fullname}\n${bday}\n${diagnosis}\n${exported}\n`;
 }
@@ -163,8 +163,8 @@ export function nonTandemText(patient, settings, units, manufacturer) {
  */
 export function tandemText(patient, settings, units) {
   const styles = {
-    bolusSettingsHeader: '',
-    basalScheduleHeader: '',
+    bolusSettingsHeader: "",
+    basalScheduleHeader: "",
   };
 
   let tablesString = formatTitle(patient);

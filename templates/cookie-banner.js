@@ -1,3 +1,4 @@
+// @ts-nocheck
 window.axeptioSettings = {
   clientId: "__AXEPTIO_CLIENT_ID__",
   cookiesVersion: "__AXEPTIO_SITE_NAME__",
@@ -20,8 +21,8 @@ window.axeptioSettings = {
     }
 
     // Keep only the language, not the country information:
-    if (lang.indexOf('-') > 0) {
-      lang = lang.split('-')[0];
+    if (lang.indexOf("-") > 0) {
+      lang = lang.split("-")[0];
     }
 
     if (!availableLanguages.includes(lang)) {

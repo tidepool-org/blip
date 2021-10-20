@@ -15,28 +15,27 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import bows from 'bows';
-import { extent } from 'd3-array';
-import { scaleLinear } from 'd3-scale';
-import moment from 'moment-timezone';
-import React from 'react';
-import PropTypes from 'prop-types';
+import _ from "lodash";
+import bows from "bows";
+import { extent } from "d3-array";
+import { scaleLinear } from "d3-scale";
+import moment from "moment-timezone";
+import React from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from "tideline";
 
-import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from 'tideline';
-
-import * as actions from '../../../redux/actions/';
-import TrendsSVGContainer from './TrendsSVGContainer';
+import * as actions from "../../../redux/actions/";
+import TrendsSVGContainer from "./TrendsSVGContainer";
 
 import {
   MGDL_CLAMP_TOP,
   MMOLL_CLAMP_TOP,
-} from '../../../utils/constants';
+} from "../../../utils/constants";
 
-import * as datetime from '../../../utils/datetime';
+import * as datetime from "../../../utils/datetime";
 
 /**
  * getAllDatesInRange
@@ -53,8 +52,8 @@ export function getAllDatesInRange(start, end, timePrefs) {
     .tz(timezoneName);
   const excludedBoundary = moment.utc(end);
   while (current.isBefore(excludedBoundary)) {
-    dates.push(current.format('YYYY-MM-DD'));
-    current.add(1, 'day');
+    dates.push(current.format("YYYY-MM-DD"));
+    current.add(1, "day");
   }
   return dates;
 }
@@ -68,13 +67,13 @@ export function getAllDatesInRange(start, end, timePrefs) {
  */
 export function getLocalizedNoonBeforeUTC(utc, timePrefs) {
   if (utc instanceof Date) {
-    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    throw new Error("`utc` must be a ISO-formatted String timestamp or integer hammertime!");
   }
   const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
   const ceil = datetime.getLocalizedCeiling(utc, timePrefs);
   return moment.utc(ceil.valueOf())
     .tz(timezone)
-    .subtract(1, 'day')
+    .subtract(1, "day")
     .hours(12)
     .toDate();
 }
@@ -91,7 +90,7 @@ export function getLocalizedNoonBeforeUTC(utc, timePrefs) {
  */
 export function getLocalizedOffset(utc, offset, timePrefs) {
   if (utc instanceof Date) {
-    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+    throw new Error("`utc` must be a ISO-formatted String timestamp or integer hammertime!");
   }
   const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
   return moment.utc(utc)
@@ -184,13 +183,13 @@ export class TrendsContainer extends React.Component {
         }),
       }),
       focusedCbgSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
-        'firstQuartile',
-        'max',
-        'median',
-        'min',
-        'ninetiethQuantile',
-        'tenthQuantile',
-        'thirdQuartile',
+        "firstQuartile",
+        "max",
+        "median",
+        "min",
+        "ninetiethQuantile",
+        "tenthQuantile",
+        "thirdQuartile",
       ])),
       focusedSmbg: PropTypes.shape({
         allPositions: PropTypes.arrayOf(PropTypes.shape({
@@ -246,7 +245,7 @@ export class TrendsContainer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.log = bows('TrendsContainer');
+    this.log = bows("TrendsContainer");
     this.state = {
       currentCbgData: [],
       currentSmbgData: [],
@@ -293,13 +292,13 @@ export class TrendsContainer extends React.Component {
       unfocusSmbg,
       unfocusSmbgRangeAvg,
     } = this.props;
-    if (_.get(trendsState, 'focusedCbgSlice') !== null) {
+    if (_.get(trendsState, "focusedCbgSlice") !== null) {
       unfocusCbgSlice(currentPatientInViewId);
     }
-    if (_.get(trendsState, 'focusedSmbg') !== null) {
+    if (_.get(trendsState, "focusedSmbg") !== null) {
       unfocusSmbg(currentPatientInViewId);
     }
-    if (_.get(trendsState, 'focusedSmbgRangeAvg') !== null) {
+    if (_.get(trendsState, "focusedSmbgRangeAvg") !== null) {
       unfocusSmbgRangeAvg(currentPatientInViewId);
     }
   }
@@ -329,13 +328,13 @@ export class TrendsContainer extends React.Component {
       // find initial date domain (based on initialDatetimeLocation or current time)
       const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
       // Remove 1 milliseconds here, because there is 1 added in tidelinedata
-      const mostRecent = moment.tz(tidelineData.endpoints[1], timezone).subtract(1, 'millisecond');
-      let end = moment.tz(initialDatetimeLocation, timezone).endOf('day').add(Math.round(extentSize / 2), 'days');
+      const mostRecent = moment.tz(tidelineData.endpoints[1], timezone).subtract(1, "millisecond");
+      let end = moment.tz(initialDatetimeLocation, timezone).endOf("day").add(Math.round(extentSize / 2), "days");
       if (end.valueOf() > mostRecent.valueOf()) {
-        this.log.info('End after most recent, update it', { end: end.toISOString(), mostRecent: mostRecent.toISOString() });
+        this.log.info("End after most recent, update it", { end: end.toISOString(), mostRecent: mostRecent.toISOString() });
         end = moment.tz(mostRecent.valueOf(), timezone);
       }
-      let start = moment.tz(end.valueOf(), timezone).subtract(extentSize, 'days').add(1, 'millisecond');
+      let start = moment.tz(end.valueOf(), timezone).subtract(extentSize, "days").add(1, "millisecond");
       const dateDomain = [start.toISOString(), end.toISOString()];
 
       // filter data according to current activeDays and dateDomain
@@ -352,7 +351,7 @@ export class TrendsContainer extends React.Component {
       };
 
       this.setState(state);
-      const atMostRecent = Math.abs(end.diff(mostRecent, 'hours', true).valueOf()) < 1;
+      const atMostRecent = Math.abs(end.diff(mostRecent, "hours", true).valueOf()) < 1;
       this.props.onDatetimeLocationChange(dateDomain, atMostRecent).catch((reason) => {
         this.log.error(reason);
       }).finally(() => {
@@ -393,9 +392,9 @@ export class TrendsContainer extends React.Component {
     const { dateDomain } = this.state;
     if (dateDomain) {
       return getLocalizedNoonBeforeUTC(dateDomain.end, this.props.timePrefs).toISOString();
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   setExtent(newDomain, oldDomain = null) {
@@ -425,8 +424,8 @@ export class TrendsContainer extends React.Component {
     const { timePrefs } = this.props;
     return (date) => {
       const noonOnDate = moment.tz(date, datetime.getTimezoneFromTimePrefs(timePrefs))
-        .startOf('day')
-        .add(12, 'hours')
+        .startOf("day")
+        .add(12, "hours")
         .toISOString();
       this.props.onSelectDate(noonOnDate);
     };
@@ -437,15 +436,15 @@ export class TrendsContainer extends React.Component {
     const { dateDomain } = this.state;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
     const mMostAncient = moment.tz(tidelineData.endpoints[0], timezone);
-    let start = moment.tz(dateDomain.start, timezone).subtract(extentSize, 'days');
+    let start = moment.tz(dateDomain.start, timezone).subtract(extentSize, "days");
     if (start.isBefore(mMostAncient)) {
-      this.log.warn(`Requesting start date before our first data`, { start: start.toISOString(), mMostAncient: mMostAncient.toISOString() });
+      this.log.warn("Requesting start date before our first data", { start: start.toISOString(), mMostAncient: mMostAncient.toISOString() });
       start = mMostAncient;
     }
-    const end = moment.tz(start, timezone).add(extentSize, 'days').subtract(1, 'millisecond');
+    const end = moment.tz(start, timezone).add(extentSize, "days").subtract(1, "millisecond");
     const oldDomain = [dateDomain.start, dateDomain.end];
     const newDomain = [start.toISOString(), end.toISOString()];
-    this.log.info('Go back', { newDomain, oldDomain, extentSize });
+    this.log.info("Go back", { newDomain, oldDomain, extentSize });
     this.setExtent(newDomain, oldDomain);
   }
 
@@ -454,15 +453,15 @@ export class TrendsContainer extends React.Component {
     const { dateDomain, mostRecent } = this.state;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
     const mMostRecent = moment.tz(mostRecent, timezone);
-    let end = moment.tz(dateDomain.end, timezone).add(extentSize, 'days');
+    let end = moment.tz(dateDomain.end, timezone).add(extentSize, "days");
     if (end.isAfter(mMostRecent)) {
-      this.log.warn(`Requesting end date after our last data`, { end: end.toISOString(), mMostRecent: mMostRecent.toISOString() });
+      this.log.warn("Requesting end date after our last data", { end: end.toISOString(), mMostRecent: mMostRecent.toISOString() });
       end = mMostRecent;
     }
-    const start = moment.tz(end.valueOf(), timezone).subtract(extentSize, 'days').add(1, 'millisecond');
+    const start = moment.tz(end.valueOf(), timezone).subtract(extentSize, "days").add(1, "millisecond");
     const oldDomain = [dateDomain.start, dateDomain.end];
     const newDomain = [start.toISOString(), end.toISOString()];
-    this.log.info('Go forward', { newDomain, oldDomain, extentSize });
+    this.log.info("Go forward", { newDomain, oldDomain, extentSize });
     this.setExtent(newDomain, oldDomain);
   }
 
@@ -471,10 +470,10 @@ export class TrendsContainer extends React.Component {
     const { dateDomain, mostRecent } = this.state;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
     const end = moment.tz(mostRecent, timezone);
-    const start = moment.tz(end.valueOf(), timezone).subtract(extentSize, 'days').add(1, 'millisecond');
+    const start = moment.tz(end.valueOf(), timezone).subtract(extentSize, "days").add(1, "millisecond");
     const oldDomain = [dateDomain.start, dateDomain.end];
     const newDomain = [start.toISOString(), end.toISOString()];
-    this.log.info('Go to most recent', { newDomain, oldDomain, extentSize });
+    this.log.info("Go to most recent", { newDomain, oldDomain, extentSize });
     this.setExtent(newDomain, oldDomain);
   }
 
@@ -514,8 +513,8 @@ export class TrendsContainer extends React.Component {
 
     const { start: currentStart, end: currentEnd } = dateDomain;
 
-    const prevStart = _.get(this.state, 'previousDateDomain.start');
-    const prevEnd = _.get(this.state, 'previousDateDomain.end');
+    const prevStart = _.get(this.state, "previousDateDomain.start");
+    const prevEnd = _.get(this.state, "previousDateDomain.end");
     let start = currentStart;
     let end = currentEnd;
     if (prevStart && prevEnd) {
@@ -535,11 +534,11 @@ export class TrendsContainer extends React.Component {
         dates={getAllDatesInRange(start, end, this.props.timePrefs)}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
-        focusedSmbgRangeAvgKey={_.get(this.props, 'trendsState.focusedSmbgRangeAvg.data.id', null)}
+        focusedSmbgRangeAvgKey={_.get(this.props, "trendsState.focusedSmbgRangeAvg.data.id", null)}
         focusedSmbg={this.props.trendsState.focusedSmbg}
         displayFlags={this.props.trendsState.cbgFlags}
         showingCbg={this.props.showingCbg}
-        showingCbgDateTraces={_.get(this.props, 'trendsState.showingCbgDateTraces', false)}
+        showingCbgDateTraces={_.get(this.props, "trendsState.showingCbgDateTraces", false)}
         showingSmbg={this.props.showingSmbg}
         smbgGrouped={this.props.smbgGrouped}
         smbgLines={this.props.smbgLines}
@@ -553,7 +552,7 @@ export class TrendsContainer extends React.Component {
 }
 
 export function mapStateToProps(state, ownProps) {
-  const userId = _.get(ownProps, 'currentPatientInViewId');
+  const userId = _.get(ownProps, "currentPatientInViewId");
   return {
     trendsState: _.get(state, `viz.trends.${userId}`, {}),
   };

@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-declare module 'bows' {
+declare module "bows" {
   const bows: (n: string) => Console;
   export default bows;
 }

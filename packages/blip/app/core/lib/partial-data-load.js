@@ -29,8 +29,8 @@
 
 /* eslint-disable no-bitwise */
 
-import moment from 'moment-timezone';
-import { MS_IN_DAY } from 'tideline';
+import moment from "moment-timezone";
+import { MS_IN_DAY } from "tideline";
 
 /**
  * @typedef {{start: number, end: number}} DateRange
@@ -46,8 +46,8 @@ class PartialDataLoad {
    * @param {DateRange} initialLoadedRange start/end epoch values in ms
    */
   constructor(range, initialLoadedRange) {
-    const start = moment.utc(range.start).startOf('day');
-    const end = moment.utc(range.end).endOf('day');
+    const start = moment.utc(range.start).startOf("day");
+    const end = moment.utc(range.end).endOf("day");
 
 
     /** @type {DateRange} */
@@ -56,7 +56,7 @@ class PartialDataLoad {
       end: end.valueOf(),
     };
 
-    this.nDays = end.diff(start, 'days');
+    this.nDays = end.diff(start, "days");
     const arraySize = Math.ceil(this.nDays/32.0);
     this.daysLoaded = [];
     for (let i=0; i<arraySize; i++) {
@@ -135,7 +135,7 @@ class PartialDataLoad {
   toDebug() {
     const daysLoadedStr = [];
     for (let n=0; n<this.daysLoaded.length; n++) {
-      daysLoadedStr.push('0b' + this.daysLoaded[n].toString(2));
+      daysLoadedStr.push("0b" + this.daysLoaded[n].toString(2));
     }
     const rangeStr = {
       start: moment.utc(this.range.start).toISOString(),

@@ -15,14 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import cx from 'classnames';
-import PropTypes from 'prop-types';
-import React from 'react';
+import _ from "lodash";
+import cx from "classnames";
+import PropTypes from "prop-types";
+import React from "react";
 
-import basicsActions from '../logic/actions';
-import NoDataContainer from './NoDataContainer';
+import basicsActions from "../logic/actions";
+import NoDataContainer from "./NoDataContainer";
 
-import togglableState from '../TogglableState';
+import togglableState from "../TogglableState";
 
 class DashboardSection extends React.Component {
   static propTypes = {
@@ -41,8 +42,9 @@ class DashboardSection extends React.Component {
     section: PropTypes.object.isRequired,
     timezone: PropTypes.string.isRequired,
     title: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.func ]).isRequired,
+      PropTypes.string,
+      PropTypes.func,
+    ]).isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateBasicsSettings: PropTypes.func,
     settingsTogglable: PropTypes.oneOf([
@@ -59,7 +61,7 @@ class DashboardSection extends React.Component {
   render() {
     var dataDisplay;
     var section = this.props.section;
-    if (section.column === 'right') {
+    if (section.column === "right") {
       if (section.active) {
         dataDisplay = (
           <section.container
@@ -111,16 +113,16 @@ class DashboardSection extends React.Component {
     }
 
     var iconClass = cx({
-      'icon-down': this.props.togglable === togglableState.open,
-      'icon-right': this.props.togglable === togglableState.closed
+      "icon-down": this.props.togglable === togglableState.open,
+      "icon-right": this.props.togglable === togglableState.closed
     });
 
     var containerClass = cx({
-      'DashboardSection-container': true
+      "DashboardSection-container": true
     });
 
     var titleContainer;
-    if (this.props.title && typeof this.props.title === 'function') {
+    if (this.props.title && typeof this.props.title === "function") {
       titleContainer = this.props.title({
         data: this.props.data,
         iconClass: iconClass,
@@ -129,8 +131,8 @@ class DashboardSection extends React.Component {
       });
     } else if (this.props.title) {
       var headerClasses = cx({
-        'SectionHeader--nodata': section.noData,
-        'selectable': this.props.togglable !== togglableState.off
+        "SectionHeader--nodata": section.noData,
+        "selectable": this.props.togglable !== togglableState.off
       });
       titleContainer = (
         <h3 className={headerClasses} onClick={this.handleToggleSection}>{this.props.title}
@@ -141,10 +143,10 @@ class DashboardSection extends React.Component {
     }
 
     return (
-      <div className='DashboardSection'>
+      <div className="DashboardSection">
         {titleContainer}
         <div className={containerClass}>
-          <div className='DashboardSection-content'>
+          <div className="DashboardSection-content">
             {this.props.togglable !== togglableState.closed ? dataDisplay : null}
           </div>
         </div>

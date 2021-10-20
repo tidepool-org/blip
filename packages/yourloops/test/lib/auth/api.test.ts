@@ -28,7 +28,7 @@
 
 /* eslint-disable max-lines */
 
-import sinon from "sinon";
+import * as sinon from "sinon";
 import { expect } from "chai";
 
 import HttpStatus from "../../../lib/http-status-codes";
@@ -42,7 +42,7 @@ import User from "../../../lib/auth/user";
 function testAPI(): void {
   let fetchMock: sinon.SinonStub<[input: RequestInfo, init?: RequestInit], Promise<Response>>;
   before(() => {
-    fetchMock = sinon.stub(window, 'fetch');
+    fetchMock = sinon.stub(window, "fetch");
   });
 
   after(() => {
@@ -93,7 +93,7 @@ function testAPI(): void {
         cache: "no-store",
         headers: {
           "x-tidepool-trace-session": "abcd",
-          Authorization: `Basic ${btoa("abcd:abcd")}`,
+          "Authorization": `Basic ${btoa("abcd:abcd")}`,
         },
       });
       expect(error).to.be.instanceOf(Error);
@@ -119,7 +119,7 @@ function testAPI(): void {
         cache: "no-store",
         headers: {
           "x-tidepool-trace-session": "abcd",
-          Authorization: `Basic 44Ki44Kt44OpQHRlc3QuY28uanA66buS5r6k`,
+          "Authorization": "Basic 44Ki44Kt44OpQHRlc3QuY28uanA66buS5r6k",
         },
       });
       expect(error).to.be.instanceOf(Error);
@@ -149,7 +149,7 @@ function testAPI(): void {
         cache: "no-store",
         headers: {
           "x-tidepool-trace-session": "abcd",
-          Authorization: `Basic ${btoa("abcd:abcd")}`,
+          "Authorization": `Basic ${btoa("abcd:abcd")}`,
         },
       });
       expect(error).to.be.instanceOf(Error);
@@ -179,7 +179,7 @@ function testAPI(): void {
         cache: "no-store",
         headers: {
           "x-tidepool-trace-session": "abcd",
-          Authorization: `Basic ${btoa("abcd:abcd")}`,
+          "Authorization": `Basic ${btoa("abcd:abcd")}`,
         },
       });
       expect(error).to.be.instanceOf(Error);
@@ -212,7 +212,7 @@ function testAPI(): void {
           cache: "no-store",
           headers: {
             "x-tidepool-trace-session": "abcd",
-            Authorization: `Basic ${btoa("abcd:abcd")}`,
+            "Authorization": `Basic ${btoa("abcd:abcd")}`,
           },
         });
       }
@@ -891,7 +891,7 @@ function testAPI(): void {
         {
           method: "PUT",
           cache: "no-store",
-          body: '{}',
+          body: "{}",
           headers: {
             [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
             [HttpHeaderKeys.traceToken]: "trace-token",
@@ -934,7 +934,7 @@ function testAPI(): void {
         {
           method: "PUT",
           cache: "no-store",
-          body: '{}',
+          body: "{}",
           headers: {
             [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
             [HttpHeaderKeys.traceToken]: "trace-token",
@@ -1037,7 +1037,7 @@ function testAPI(): void {
         {
           method: "PUT",
           cache: "no-store",
-          body: '{}',
+          body: "{}",
           headers: {
             [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
             [HttpHeaderKeys.traceToken]: "trace-token",
@@ -1080,7 +1080,7 @@ function testAPI(): void {
         {
           method: "PUT",
           cache: "no-store",
-          body: '{}',
+          body: "{}",
           headers: {
             [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
             [HttpHeaderKeys.traceToken]: "trace-token",
@@ -1181,7 +1181,7 @@ function testAPI(): void {
         {
           method: "PUT",
           cache: "no-store",
-          body: '{}',
+          body: "{}",
           headers: {
             [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
             [HttpHeaderKeys.traceToken]: "trace-token",
@@ -1224,7 +1224,7 @@ function testAPI(): void {
         {
           method: "PUT",
           cache: "no-store",
-          body: '{}',
+          body: "{}",
           headers: {
             [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
             [HttpHeaderKeys.traceToken]: "trace-token",

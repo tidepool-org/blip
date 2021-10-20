@@ -15,16 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import React from 'react';
-import sinon from 'sinon';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
+import _ from "lodash";
+import React from "react";
+import * as sinon from "sinon";
+import { expect } from "chai";
+import { shallow } from "enzyme";
 
-import { DEFAULT_BG_BOUNDS, MGDL_UNITS } from '../../../../js/data/util/constants';
-import SummaryGroup from '../../../../plugins/blip/basics/components/misc/SummaryGroup';
+import { DEFAULT_BG_BOUNDS, MGDL_UNITS } from "../../../../js/data/util/constants";
+import SummaryGroup from "../../../../plugins/blip/basics/components/misc/SummaryGroup";
 
-describe('SummaryGroup', () => {
+describe("SummaryGroup", () => {
   const data = {
     smbg: {
       count: 1,
@@ -34,34 +34,34 @@ describe('SummaryGroup', () => {
 
   var props = {
     bgClasses: {
-      'very-low': {
+      "very-low": {
         boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow,
       },
-      'low': {
+      "low": {
         boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower,
       },
-      'target': {
+      "target": {
         boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper,
       },
-      'high': {
+      "high": {
         boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh,
       },
-      'very-high': {
+      "very-high": {
         boundary: 600,
       },
     },
-    bgUnits: 'mg/dL',
+    bgUnits: "mg/dL",
     data,
-    selectedSubtotal: 'primary',
+    selectedSubtotal: "primary",
     selectorOptions: {
       primary: {
-        key: 'smbg',
-        label: 'SMBG',
+        key: "smbg",
+        label: "SMBG",
         average: true,
       },
       rows: [],
     },
-    sectionId: 'fingersticks',
+    sectionId: "fingersticks",
     trackMetric: sinon.stub(),
   };
 
@@ -69,7 +69,7 @@ describe('SummaryGroup', () => {
   let selectSubtotalSpy;
 
   before(() => {
-    selectSubtotalSpy = sinon.stub(SummaryGroup.prototype.actions, 'selectSubtotal');
+    selectSubtotalSpy = sinon.stub(SummaryGroup.prototype.actions, "selectSubtotal");
   });
 
   beforeEach(() => {
@@ -84,9 +84,9 @@ describe('SummaryGroup', () => {
     selectSubtotalSpy.restore();
   });
 
-  describe('render', () => {
-    it('should disable options that have a zero value', () => {
-      expect(wrapper.find('.SummaryGroup-info--disabled').length).to.equal(0);
+  describe("render", () => {
+    it("should disable options that have a zero value", () => {
+      expect(wrapper.find(".SummaryGroup-info--disabled").length).to.equal(0);
 
       wrapper.setProps({
         data: _.assign({}, data, {
@@ -96,34 +96,34 @@ describe('SummaryGroup', () => {
         }),
       });
 
-      expect(wrapper.find('.SummaryGroup-info--disabled').length).to.equal(1);
+      expect(wrapper.find(".SummaryGroup-info--disabled").length).to.equal(1);
     });
 
-    it('should set an NaN average to zero', () => {
-      expect(wrapper.find('.SummaryGroup-option-count').text()).to.equal('3');
+    it("should set an NaN average to zero", () => {
+      expect(wrapper.find(".SummaryGroup-option-count").text()).to.equal("3");
 
       wrapper.setProps({
         data: _.assign({}, data, {
-          avgPerDay: NaN,
+          avgPerDay: Number.NaN,
         }),
       });
 
-      expect(wrapper.find('.SummaryGroup-option-count').text()).to.equal('0');
+      expect(wrapper.find(".SummaryGroup-option-count").text()).to.equal("0");
     });
   });
 
-  describe('handleSelectSubtotal', () => {
-    it('should call the selectSubtotal action', () => {
-      const option = wrapper.find('.SummaryGroup-info-primary');
+  describe("handleSelectSubtotal", () => {
+    it("should call the selectSubtotal action", () => {
+      const option = wrapper.find(".SummaryGroup-info-primary");
 
       expect(option.length).to.equal(1);
 
-      option.simulate('click');
+      option.simulate("click");
       sinon.assert.callCount(selectSubtotalSpy, 1);
       sinon.assert.calledWith(selectSubtotalSpy, props.sectionId, props.selectorOptions.primary.key);
     });
 
-    it('should not call the selectSubtotal action for disabled options', () => {
+    it("should not call the selectSubtotal action for disabled options", () => {
       wrapper.setProps({
         data: _.assign({}, data, {
           smbg: {
@@ -132,10 +132,10 @@ describe('SummaryGroup', () => {
         }),
       });
 
-      const disabledOption = wrapper.find('.SummaryGroup-info-primary.SummaryGroup-info--disabled');
+      const disabledOption = wrapper.find(".SummaryGroup-info-primary.SummaryGroup-info--disabled");
 
       expect(disabledOption.length).to.equal(1);
-      disabledOption.simulate('click');
+      disabledOption.simulate("click");
 
       sinon.assert.callCount(selectSubtotalSpy, 0);
     });

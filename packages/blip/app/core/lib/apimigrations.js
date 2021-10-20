@@ -15,7 +15,7 @@
 
 // Tools to migrate to new API data models or endpoints
 
-import _ from 'lodash';
+import _ from "lodash";
 
 const migrations = {
   // Migrate from user profile `firstName`, `lastName` attributes to `fullName`
@@ -42,17 +42,17 @@ const migrations = {
     },
     migrate: (settings = {}) => {
       const s = _.cloneDeep(settings);
-      s.country = 'FR';
+      s.country = "FR";
       return s;
     }
   },
 
   bgUnits: {
     isRequired: (settings) => {
-      return !_.isEmpty(settings) && _.has(settings, 'bg') && !_.has(settings, 'units.bg');
+      return !_.isEmpty(settings) && _.has(settings, "bg") && !_.has(settings, "units.bg");
     },
     migrate: (settings = {}) => {
-      const units = _.get(settings, 'bg', 'mg/dL');
+      const units = _.get(settings, "bg", "mg/dL");
       const s = _.cloneDeep(settings);
       delete s.bg;
       if (_.isEmpty(s.units) || !_.isObject(s.units)) {

@@ -27,7 +27,7 @@
  */
 
 import _ from "lodash";
-import * as React from "react";
+import React from "react";
 import { /* Trans, */ useTranslation } from "react-i18next";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 

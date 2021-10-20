@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
@@ -50,7 +50,7 @@ const pageBarStyles = makeStyles(
     return {
       toolBarRight: {
         display: "flex",
-        [theme.breakpoints.down('sm')]: {
+        [theme.breakpoints.down("sm")]: {
           marginLeft: "auto",
         },
       },
@@ -65,7 +65,7 @@ const pageBarStyles = makeStyles(
         marginLeft: "auto",
       },
       buttonAddTeamText: {
-        [theme.breakpoints.down('xs')]: {
+        [theme.breakpoints.down("xs")]: {
           display: "none",
         },
       },

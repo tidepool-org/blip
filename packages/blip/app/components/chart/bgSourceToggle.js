@@ -1,8 +1,8 @@
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { components as vizComponents, utils as vizUtils } from 'tidepool-viz';
+import React, { PureComponent } from "react";
+import PropTypes from "prop-types";
+import { components as vizComponents, utils as vizUtils } from "tidepool-viz";
 
-import { BG_DATA_TYPES } from '../../core/constants';
+import { BG_DATA_TYPES } from "../../core/constants";
 
 const { TwoOptionToggle } = vizComponents;
 const { statBgSourceLabels } = vizUtils.stat;
@@ -17,7 +17,7 @@ class BgSourceToggle extends PureComponent {
     onClickBgSourceToggle: PropTypes.func.isRequired,
   };
 
-  static displayName = 'BgSourceToggle';
+  static displayName = "BgSourceToggle";
 
   render = () => {
     const showToggle = this.props.bgSources.cbg || this.props.bgSources.smbg;
@@ -26,8 +26,8 @@ class BgSourceToggle extends PureComponent {
     return (
       <div className="toggle-container">
         {showToggle ? <TwoOptionToggle
-          left={{ label: statBgSourceLabels.smbg, state: this.props.bgSource === 'smbg' }}
-          right={{ label: statBgSourceLabels.cbg, state: this.props.bgSource === 'cbg' }}
+          left={{ label: statBgSourceLabels.smbg, state: this.props.bgSource === "smbg" }}
+          right={{ label: statBgSourceLabels.cbg, state: this.props.bgSource === "cbg" }}
           toggleFn={this.handleBgToggle}
           disabled={disabled}
         /> : null}
@@ -41,7 +41,7 @@ class BgSourceToggle extends PureComponent {
     }
 
     if (this.props.bgSource) {
-      const bgSource = this.props.bgSource === 'cbg' ? 'smbg' : 'cbg';
+      const bgSource = this.props.bgSource === "cbg" ? "smbg" : "cbg";
       this.props.onClickBgSourceToggle(e, bgSource);
     }
   };

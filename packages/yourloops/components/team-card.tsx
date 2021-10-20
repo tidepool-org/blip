@@ -27,7 +27,7 @@
  */
 
 import _ from "lodash";
-import * as React from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
@@ -71,7 +71,7 @@ const teamCardStyles = makeStyles((theme: Theme) => {
       flexDirection: "row",
       marginBottom: theme.spacing(4),
       marginTop: theme.spacing(2),
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
         flexWrap: "wrap",
@@ -82,10 +82,10 @@ const teamCardStyles = makeStyles((theme: Theme) => {
       flexDirection: "row",
       justifyContent: "flex-start",
       marginBottom: theme.spacing(2),
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         flexWrap: "wrap",
       },
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         flexDirection: "column",
       },
     },
@@ -93,7 +93,7 @@ const teamCardStyles = makeStyles((theme: Theme) => {
       minWidth: "8em",
       marginTop: "auto",
       marginBottom: "auto",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         width: "100%",
         textAlign: "center",
         marginTop: 0,
@@ -113,7 +113,7 @@ const teamCardStyles = makeStyles((theme: Theme) => {
       display: "flex",
       flexGrow: 1,
       justifyContent: "flex-start",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         marginLeft: "0px",
         justifyContent: "center",
       },
@@ -127,13 +127,13 @@ const teamInfoStyles = makeStyles((theme: Theme) => {
       display: "flex",
       flexDirection: "row",
       marginRight: theme.spacing(3), // eslint-disable-line no-magic-numbers
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         marginRight: 0,
         width: "50%",
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
       },
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         width: "100%",
       },
     },

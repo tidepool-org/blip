@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import { max, mean, median, min, quantile } from 'd3-array';
+import _ from "lodash";
+import { max, mean, median, min, quantile } from "d3-array";
 
-import { TWENTY_FOUR_HRS } from '../datetime';
+import { TWENTY_FOUR_HRS } from "../datetime";
 
 /**
  * determineRangeBoundaries
@@ -27,8 +27,8 @@ import { TWENTY_FOUR_HRS } from '../datetime';
  * @return {Object} highAndLowThresholds - Object with high and low keys
  */
 export function determineRangeBoundaries(outOfRange) {
-  const lowThresholds = _.filter(outOfRange, { value: 'low' });
-  const highThresholds = _.filter(outOfRange, { value: 'high' });
+  const lowThresholds = _.filter(outOfRange, { value: "low" });
+  const highThresholds = _.filter(outOfRange, { value: "high" });
   const boundaries = {};
   if (!_.isEmpty(lowThresholds)) {
     // if there is data from multiple devices present with different thresholds
@@ -52,7 +52,7 @@ export function determineRangeBoundaries(outOfRange) {
  */
 export function findBinForTimeOfDay(binSize, msPer24) {
   if (msPer24 < 0 || msPer24 >= TWENTY_FOUR_HRS) {
-    throw new Error('`msPer24` < 0 or >= 86400000 is invalid!');
+    throw new Error("`msPer24` < 0 or >= 86400000 is invalid!");
   }
 
   return Math.floor(msPer24 / binSize) * binSize + (binSize / 2);
@@ -80,7 +80,7 @@ export function findDatesIntersectingWithCbgSliceSegment(cbgData, focusedSlice, 
           return false;
         }
       ),
-      'localDate',
+      "localDate",
     )
   ).sort();
 }
@@ -93,14 +93,14 @@ export function findDatesIntersectingWithCbgSliceSegment(cbgData, focusedSlice, 
  *                              (and `value` of 'low' or 'high')
  */
 export function findOutOfRangeAnnotations(data) {
-  const isOutOfRangeAnnotation = (annotation) => (annotation.code === 'bg/out-of-range');
+  const isOutOfRangeAnnotation = (annotation) => (annotation.code === "bg/out-of-range");
   const eventsAnnotatedAsOutOfRange = _.filter(
     data,
     (d) => (_.some(d.annotations || [], isOutOfRangeAnnotation))
   );
   const annotations = _.map(eventsAnnotatedAsOutOfRange, (d) => (_.pick(
     _.find(d.annotations || [], isOutOfRangeAnnotation),
-    ['threshold', 'value'],
+    ["threshold", "value"],
   )));
   // the numerical `threshold` is our determiner of uniqueness
   return _.uniqBy(annotations, (d) => (d.threshold));
@@ -117,7 +117,7 @@ export function findOutOfRangeAnnotations(data) {
  */
 export function calculateCbgStatsForBin(binKey, binSize, data, outOfRange) {
   const sorted = _.sortBy(data, d => d);
-  const centerOfBinMs = parseInt(binKey, 10);
+  const centerOfBinMs = Number.parseInt(binKey, 10);
   const stats = {
     id: binKey,
     min: min(sorted),
@@ -148,7 +148,7 @@ export function calculateCbgStatsForBin(binKey, binSize, data, outOfRange) {
  * @return {Object} calculatedSmbgStats
  */
 export function calculateSmbgStatsForBin(binKey, binSize, data, outOfRange) {
-  const centerOfBinMs = parseInt(binKey, 10);
+  const centerOfBinMs = Number.parseInt(binKey, 10);
   const stats = {
     id: binKey,
     min: min(data),
@@ -172,10 +172,10 @@ export function calculateSmbgStatsForBin(binKey, binSize, data, outOfRange) {
  */
 export function categorizeSmbgSubtype(data) {
   let category;
-  if (data.subType && data.subType === 'manual') {
+  if (data.subType && data.subType === "manual") {
     category = data.subType;
   } else {
-    category = 'meter';
+    category = "meter";
   }
   return category;
 }

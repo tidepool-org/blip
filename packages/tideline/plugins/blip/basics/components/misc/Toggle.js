@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames';
+import _ from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
+import ReactDOM from "react-dom";
+import classNames from "classnames";
 
 class Toggle extends React.Component {
   static propTypes = {
@@ -12,16 +12,16 @@ class Toggle extends React.Component {
     name: PropTypes.string,
     value: PropTypes.string,
     id: PropTypes.string,
-    'aria-labelledby': PropTypes.string,
-    'aria-label': PropTypes.string
+    disabled: PropTypes.bool,
+    noImage: PropTypes.bool,
   };
 
   constructor(props) {
     super(props);
     var checked = false;
-    if ('checked' in props) {
+    if ("checked" in props) {
       checked = props.checked;
-    } else if ('defaultChecked' in props) {
+    } else if ("defaultChecked" in props) {
       checked = props.defaultChecked;
     }
 
@@ -32,7 +32,7 @@ class Toggle extends React.Component {
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
-    if ('checked' in nextProps) {
+    if ("checked" in nextProps) {
       this.setState({ checked: !!nextProps.checked });
     }
   }
@@ -47,7 +47,7 @@ class Toggle extends React.Component {
       return;
     }
 
-    if (!('checked' in this.props)) {
+    if (!("checked" in this.props)) {
       this.setState({ checked: checkbox.checked });
     }
   };
@@ -61,10 +61,10 @@ class Toggle extends React.Component {
   };
 
   render() {
-    var classes = classNames('react-toggle', {
-      'react-toggle--checked': this.state.checked,
-      'react-toggle--focus': this.state.hasFocus,
-      'react-toggle--disabled': this.props.disabled
+    var classes = classNames("react-toggle", {
+      "react-toggle--checked": this.state.checked,
+      "react-toggle--focus": this.state.hasFocus,
+      "react-toggle--disabled": this.props.disabled
     });
 
     // eslint-disable-next-line no-undef
@@ -73,30 +73,30 @@ class Toggle extends React.Component {
     var x = this.props.noImage ? null : React.createElement(X, null);
 
     return React.createElement(
-      'div',
+      "div",
       { className: classes, onClick: this.handleClick },
       React.createElement(
-        'div',
-        { className: 'react-toggle-track' },
+        "div",
+        { className: "react-toggle-track" },
         React.createElement(
-          'div',
-          { className: 'react-toggle-track-check' },
+          "div",
+          { className: "react-toggle-track-check" },
           check
         ),
         React.createElement(
-          'div',
-          { className: 'react-toggle-track-x' },
+          "div",
+          { className: "react-toggle-track-x" },
           x
         )
       ),
-      React.createElement('div', { className: 'react-toggle-thumb' }),
-      React.createElement('input', _extends({
-        ref: 'input',
+      React.createElement("div", { className: "react-toggle-thumb" }),
+      React.createElement("input", _.assignIn({
+        ref: "input",
         onFocus: this.handleFocus,
         onBlur: this.handleBlur,
-        className: 'react-toggle-screenreader-only',
-        type: 'checkbox'
-      }, _.omit(this.props, 'noImage')))
+        className: "react-toggle-screenreader-only",
+        type: "checkbox"
+      }, _.omit(this.props, "noImage")))
     );
   }
 }

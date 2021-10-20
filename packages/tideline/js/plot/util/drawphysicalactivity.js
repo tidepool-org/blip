@@ -38,10 +38,10 @@ function drawPhysicalActivity(pool, opts) {
       });
 
       pa.append("image").attr({
-        x: xPos,
-        y: _.constant(0),
-        width: calculateWidth,
-        height: _.constant(offset),
+        "x": xPos,
+        "y": _.constant(0),
+        "width": calculateWidth,
+        "height": _.constant(offset),
         "xlink:href": picto,
       });
     },

@@ -11,10 +11,10 @@
  *
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import i18next from 'i18next';
-import styles from './Stat.css';
+import React from "react";
+import PropTypes from "prop-types";
+import i18next from "i18next";
+import styles from "./Stat.css";
 
 const circleRadius = 70;
 
@@ -26,8 +26,8 @@ function WheelPercent(props) {
   const { values, rawValues, units, className } = props;
 
   const valid = isValidPercent(values.on) && isValidPercent(values.off);
-  const onValue = valid ? values.on.toString(10) : i18next.t('N/A');
-  const offValue = valid ? values.off.toString(10) : i18next.t('N/A');
+  const onValue = valid ? values.on.toString(10) : i18next.t("N/A");
+  const offValue = valid ? values.off.toString(10) : i18next.t("N/A");
 
   const clipPaths = [];
   let optsStyle = {};
@@ -44,7 +44,7 @@ function WheelPercent(props) {
   } else {
     clipPaths.push(<rect x="-70" y="-70" width="140" height="140" key="n/a" />);
     optsStyle = {
-      display: 'none',
+      display: "none",
     };
   }
 
@@ -52,11 +52,11 @@ function WheelPercent(props) {
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 80" className={`${className} ${styles.donutChart}`}>
       <g className={styles.onColor} transform="translate(10 15)">
         <rect className={styles.legendBackground} width="40" height="20" rx="8" />
-        <text x="20" y="10" textAnchor="middle" dominantBaseline="central" className={styles.legendLabelText}>{i18next.t('wheel-label-on')}</text>
+        <text x="20" y="10" textAnchor="middle" dominantBaseline="central" className={styles.legendLabelText}>{i18next.t("wheel-label-on")}</text>
       </g>
       <g className={styles.offColor} transform="translate(240 15)">
         <rect className={styles.legendBackground} width="40" height="20" rx="8" />
-        <text x="20" y="10" textAnchor="middle" dominantBaseline="central" className={styles.legendLabelText}>{i18next.t('wheel-label-off')}</text>
+        <text x="20" y="10" textAnchor="middle" dominantBaseline="central" className={styles.legendLabelText}>{i18next.t("wheel-label-off")}</text>
       </g>
       <g className={styles.labelOnValueUnits} transform="translate(30 63)">
         <text className={styles.labelValueUnits} textAnchor="middle">
@@ -100,7 +100,7 @@ WheelPercent.propTypes = {
   }).isRequired,
 };
 WheelPercent.defaultProps = {
-  units: '%'
+  units: "%"
 };
 
 export default WheelPercent;

@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-import schema from './validator/schematron.js';
-import { MGDL_UNITS, MMOLL_UNITS } from '../data/util/constants';
+import schema from "./validator/schematron.js";
+import { MGDL_UNITS, MMOLL_UNITS } from "../data/util/constants";
 
 const cbg = (common) => {
   return schema(

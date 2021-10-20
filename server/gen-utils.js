@@ -11,10 +11,10 @@
  * FOR A PARTICULAR PURPOSE. See the License for more details.
  */
 
- const fs = require('fs').promises;
-const path = require('path');
-const _ = require('lodash');
-const handlebars = require('handlebars');
+const fs = require("fs").promises;
+const path = require("path");
+const _ = require("lodash");
+const handlebars = require("handlebars");
 
 function getDistDir(defaultDir = `${__dirname}/../dist`) {
   let dir = null;

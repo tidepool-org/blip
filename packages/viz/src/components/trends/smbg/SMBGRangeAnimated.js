@@ -1,5 +1,3 @@
-import cx from 'classnames';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -17,17 +15,17 @@ import cx from 'classnames';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import cx from "classnames";
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { TransitionMotion, spring } from "react-motion";
 
-import React, { PureComponent } from 'react';
-import { TransitionMotion, spring } from 'react-motion';
+import { springConfig } from "../../../utils/constants";
+import withDefaultYPosition from "../common/withDefaultYPosition";
 
-import { springConfig } from '../../../utils/constants';
-import withDefaultYPosition from '../common/withDefaultYPosition';
+import SMBGRange from "./SMBGRange";
 
-import SMBGRange from './SMBGRange';
-
-import styles from './SMBGRangeAnimated.css';
+import styles from "./SMBGRangeAnimated.css";
 
 export class SMBGRangeAnimated extends PureComponent {
   static defaultProps = {

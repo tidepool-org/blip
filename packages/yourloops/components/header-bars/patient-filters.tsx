@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { Theme, makeStyles } from "@material-ui/core/styles";
@@ -66,12 +66,12 @@ const filtersStyles = makeStyles((theme: Theme) => {
     formControl: {
       marginRight: theme.spacing(1),
       minWidth: 120,
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         marginRight: theme.spacing(1),
         marginLeft: 0,
         width: "50%",
       },
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         width: "100%",
         marginRight: 0,
         marginBottom: theme.spacing(1),
@@ -92,28 +92,28 @@ const filtersStyles = makeStyles((theme: Theme) => {
       },
     },
     search: {
-      display: "flex",
-      position: "relative",
-      borderRadius: theme.shape.borderRadius,
-      backgroundColor: theme.palette.secondary.light,
+      "display": "flex",
+      "position": "relative",
+      "borderRadius": theme.shape.borderRadius,
+      "backgroundColor": theme.palette.secondary.light,
       "&:hover": {
         backgroundColor: theme.palette.secondary.dark,
       },
-      transition: theme.transitions.create("background-color"),
-      marginRight: theme.spacing(2),
-      marginLeft: "auto",
+      "transition": theme.transitions.create("background-color"),
+      "marginRight": theme.spacing(2),
+      "marginLeft": "auto",
       [theme.breakpoints.up("sm")]: {
         width: "15em",
       },
-      [theme.breakpoints.down('sm')]: {
-        width: "50%",
-        marginRight: 0,
-        marginLeft: theme.spacing(1),
+      [theme.breakpoints.down("sm")]: {
+        "width": "50%",
+        "marginRight": 0,
+        "marginLeft": theme.spacing(1),
         "&:first-child": {
           width: "100%",
         },
       },
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         width: "100%",
         marginLeft: 0,
         height: "3em",
@@ -136,21 +136,21 @@ const filtersStyles = makeStyles((theme: Theme) => {
       [theme.breakpoints.up("sm")]: {
         width: "15em",
       },
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         width: "initial",
       },
     },
     selectFilterInnerDiv: {
-      display: "flex",
-      alignItems: "center",
-      padding: "0px 0px 0px .5em",
-      height: "100%",
-      transition: theme.transitions.create("background-color"),
+      "display": "flex",
+      "alignItems": "center",
+      "padding": "0px 0px 0px .5em",
+      "height": "100%",
+      "transition": theme.transitions.create("background-color"),
       "&:hover": {
         backgroundColor: theme.palette.secondary.dark,
       },
       "&:focus": {
-        backgroundColor: theme.palette.secondary.light,
+        "backgroundColor": theme.palette.secondary.light,
         "&:hover": {
           backgroundColor: theme.palette.secondary.dark,
         },

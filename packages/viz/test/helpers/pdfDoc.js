@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-import sinon from 'sinon';
-import MemoryStream from 'memorystream';
+import * as sinon from "sinon";
+import MemoryStream from "memorystream";
 
 export default class Doc {
   constructor(opts = {}) {

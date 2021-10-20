@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
-import React from 'react';
-import _ from 'lodash';
-import Select from 'react-select';
+import PropTypes from "prop-types";
+import React from "react";
+import _ from "lodash";
+import Select from "react-select";
 
-import styles from './InputGroup.css';
+import styles from "./InputGroup.css";
 
 const InputGroup = (props) => {
   const {
@@ -19,8 +19,8 @@ const InputGroup = (props) => {
     value,
   } = props;
 
-  const disableManualInput = (inputValue, { action }) => ((action === 'input-change')
-    ? ''
+  const disableManualInput = (inputValue, { action }) => ((action === "input-change")
+    ? ""
     : inputValue
   );
 
@@ -39,7 +39,7 @@ const InputGroup = (props) => {
           min={min}
           name={id}
           onChange={onChange}
-          step={step || 'any'}
+          step={step || "any"}
           type={type}
           value={value}
         />

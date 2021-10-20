@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import i18next from 'i18next';
-import moment from 'moment-timezone';
+import i18next from "i18next";
+import moment from "moment-timezone";
 
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, dateTimeFormats } from './constants';
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, dateTimeFormats } from "./constants";
 
 const format = {
   /**
@@ -45,13 +45,13 @@ const format = {
   tooltipBG: function(d, units) {
     if (d.annotations && Array.isArray(d.annotations) && d.annotations.length > 0) {
       var annotation = d.annotations[0];
-      if (annotation.code && annotation.code === 'bg/out-of-range') {
+      if (annotation.code && annotation.code === "bg/out-of-range") {
         var value = annotation.value;
-        if (value === 'low') {
-          d.tooltipText = d.type === 'cbg' ? 'Lo' : 'Low';
+        if (value === "low") {
+          d.tooltipText = d.type === "cbg" ? "Lo" : "Low";
         }
-        else if (value === 'high') {
-          d.tooltipText = d.type === 'cbg' ? 'Hi' : 'High';
+        else if (value === "high") {
+          d.tooltipText = d.type === "cbg" ? "Hi" : "High";
         }
       }
     }
@@ -59,24 +59,23 @@ const format = {
   },
 
   tooltipBGValue: function(value, units) {
-    return units === MGDL_UNITS ? window.d3.format('g')(Math.round(value)) : window.d3.format('.1f')(value);
+    return units === MGDL_UNITS ? window.d3.format("g")(Math.round(value)) : window.d3.format(".1f")(value);
   },
 
   tooltipValue: function(x) {
     if (x === 0) {
-      return '0.0';
+      return "0.0";
     }
-    else {
-      var formatted = window.d3.format('.3f')(x);
-      // remove zero-padding on the right
-      while (formatted[formatted.length - 1] === '0') {
-        formatted = formatted.slice(0, formatted.length - 1);
-      }
-      if (formatted[formatted.length - 1] === '.') {
-        formatted = formatted + '0';
-      }
-      return formatted;
+
+    var formatted = window.d3.format(".3f")(x);
+    // remove zero-padding on the right
+    while (formatted[formatted.length - 1] === "0") {
+      formatted = formatted.slice(0, formatted.length - 1);
     }
+    if (formatted[formatted.length - 1] === ".") {
+      formatted = formatted + "0";
+    }
+    return formatted;
   },
 
   escapeHTMLString: (/** @type {string} */ message) => {
@@ -93,17 +92,17 @@ const format = {
    */
   nameForDisplay: (name, maxWordLength = 22) => {
     let words = null;
-    if (typeof name === 'string') {
-      words = name.split(' ');
-    } else if (typeof name?.firstName === 'string' && typeof name?.lastName === 'string') {
+    if (typeof name === "string") {
+      words = name.split(" ");
+    } else if (typeof name?.firstName === "string" && typeof name?.lastName === "string") {
       words = [name.firstName, name.lastName];
-    } else if (typeof name?.fullName === 'string') {
-      words = name.fullName.split(' ');
+    } else if (typeof name?.fullName === "string") {
+      words = name.fullName.split(" ");
     } else {
-      words = i18next.t('Anonymous user').split(' ');
+      words = i18next.t("Anonymous user").split(" ");
     }
 
-    const dName = words.map(part => part.length <= maxWordLength ? part : `${part.substring(0, maxWordLength)}...`).join(' ');
+    const dName = words.map(part => part.length <= maxWordLength ? part : `${part.substring(0, maxWordLength)}...`).join(" ");
     return format.escapeHTMLString(dName);
   },
 
@@ -121,10 +120,10 @@ const format = {
     let returnedText = typeof text === "string" ? text : "";
     if (returnedText.length > previewLength) {
       const substring = returnedText.substring(0, previewLength);
-      const lastSpaceIndex = substring.lastIndexOf(' ');
+      const lastSpaceIndex = substring.lastIndexOf(" ");
       const end = (lastSpaceIndex > 0) ? lastSpaceIndex : previewLength;
 
-      returnedText = substring.substring(0, end) + '...';
+      returnedText = substring.substring(0, end) + "...";
     }
     return format.escapeHTMLString(returnedText);
   },
@@ -139,20 +138,19 @@ const format = {
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
-    return moment.utc(d).format('ddd, MMM D');
+    return moment.utc(d).format("ddd, MMM D");
   },
 
   fixFloatingPoint: function(n) {
-    return parseFloat(n.toFixed(3));
+    return Number.parseFloat(n.toFixed(3));
   },
 
   percentage: function(f) {
-    if (isNaN(f)) {
-      return '-- %';
+    if (Number.isNaN(f)) {
+      return "-- %";
     }
-    else {
-      return window.d3.format('%')(f);
-    }
+
+    return window.d3.format("%")(f);
   },
 
   /**
@@ -187,7 +185,7 @@ const format = {
       return time.format(dateTimeFormats.H_MM_A_FORMAT);
     }
     var d = new Date(time);
-    var f = i18next.t('%-I:%M %p');
+    var f = i18next.t("%-I:%M %p");
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
@@ -203,7 +201,7 @@ const format = {
    */
   timeChangeInfo: function(from, to) {
     if (!to) { // guard statement
-      throw new Error('You have not provided a `to` datetime string');
+      throw new Error("You have not provided a `to` datetime string");
     }
 
     // the "from" and "to" fields of a time change are always timezone-naive
@@ -213,21 +211,21 @@ const format = {
     // variant of all JS Date methods to ensure consistency across browsers
     var fromDate = from ? moment.utc(from).toDate() : undefined;
     var toDate = moment.utc(to).toDate();
-    var type = 'Time Change';
+    var type = "Time Change";
 
-    var format = 'h:mm a';
+    var format = "h:mm a";
     if (fromDate && toDate) {
       if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
-        format = 'MMM D, YYYY h:mm a';
+        format = "MMM D, YYYY h:mm a";
       } else if (
         fromDate.getUTCMonth() !== toDate.getUTCMonth() ||
         fromDate.getUTCDay() !== toDate.getUTCDay()
       ) {
-        format = 'MMM D, h:mm a';
+        format = "MMM D, h:mm a";
       }
 
       if (Math.abs(toDate - fromDate) <= (8*(60*1000))) { // Clock Drift Adjustment if less than 8 minutes
-        type = 'Clock Drift Adjustment';
+        type = "Clock Drift Adjustment";
       }
     }
 

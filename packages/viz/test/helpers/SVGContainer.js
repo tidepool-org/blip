@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-import React from 'react';
+import React from "react";
 
 const SVGContainer = (props) => {
   const { children, dimensions: { width, height } } = props;

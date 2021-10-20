@@ -15,24 +15,25 @@
  * == BSD2 LICENSE ==
  */
 
-import isTSA from '../../helpers/tidepoolStandardAction';
+import { expect } from "chai";
 
-import * as actionTypes from '../../../src/redux/constants/actionTypes';
-import * as actions from '../../../src/redux/actions/';
+import isTSA from "../../helpers/tidepoolStandardAction";
+import * as actionTypes from "../../../src/redux/constants/actionTypes";
+import * as actions from "../../../src/redux/actions/";
 
-describe('trends action creators', () => {
-  const userId = 'a1b2c3';
+describe("trends action creators", () => {
+  const userId = "a1b2c3";
 
-  describe('focusTrendsCbgDateTrace', () => {
+  describe("focusTrendsCbgDateTrace", () => {
     const cbgDatum = {};
     const cbgPosition = {};
     const action = actions.focusTrendsCbgDateTrace(userId, cbgDatum, cbgPosition);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to focus a cbg date trace', () => {
+    it("should create an action to focus a cbg date trace", () => {
       expect(action).to.deep.equal({
         type: actionTypes.FOCUS_TRENDS_CBG_DATE_TRACE,
         payload: { cbgDatum, cbgPosition, userId },
@@ -40,17 +41,17 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('focusTrendsCbgSlice', () => {
+  describe("focusTrendsCbgSlice", () => {
     const sliceData = {};
     const slicePosition = {};
     const focusedKeys = [];
     const action = actions.focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKeys);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to focus a trends cbg slice', () => {
+    it("should create an action to focus a trends cbg slice", () => {
       expect(action).to.deep.equal({
         type: actionTypes.FOCUS_TRENDS_CBG_SLICE,
         payload: { sliceData, slicePosition, focusedKeys, userId },
@@ -58,7 +59,7 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('focusTrendsSmbg', () => {
+  describe("focusTrendsSmbg", () => {
     const smbgDatum = {};
     const smbgPosition = {};
     const allPositions = [];
@@ -73,11 +74,11 @@ describe('trends action creators', () => {
       date,
     );
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to focus a trends smbg', () => {
+    it("should create an action to focus a trends smbg", () => {
       expect(action).to.deep.equal({
         type: actionTypes.FOCUS_TRENDS_SMBG,
         payload: { smbgDatum, smbgPosition, allSmbgsOnDate, allPositions, userId, date },
@@ -85,16 +86,16 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('focusTrendsSmbgRangeAvg', () => {
+  describe("focusTrendsSmbgRangeAvg", () => {
     const rangeAvgData = {};
     const rangeAvgPosition = {};
     const action = actions.focusTrendsSmbgRangeAvg(userId, rangeAvgData, rangeAvgPosition);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to focus a trends smbg range average', () => {
+    it("should create an action to focus a trends smbg range average", () => {
       expect(action).to.deep.equal({
         type: actionTypes.FOCUS_TRENDS_SMBG_RANGE_AVG,
         payload: { rangeAvgData, rangeAvgPosition, userId },
@@ -102,14 +103,14 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('markTrendsViewed', () => {
+  describe("markTrendsViewed", () => {
     const action = actions.markTrendsViewed(userId);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to marks trends viewed', () => {
+    it("should create an action to marks trends viewed", () => {
       expect(action).to.deep.equal({
         type: actionTypes.MARK_TRENDS_VIEWED,
         payload: { userId },
@@ -117,14 +118,14 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('showCbgDateTraces', () => {
+  describe("showCbgDateTraces", () => {
     const action = actions.showCbgDateTraces(userId);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to toggle cbg traces on for the user', () => {
+    it("should create an action to toggle cbg traces on for the user", () => {
       expect(action).to.deep.equal({
         type: actionTypes.SHOW_CBG_DATE_TRACES,
         payload: { userId },
@@ -132,15 +133,15 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('turnOffCbgRange', () => {
-    const range = '100';
+  describe("turnOffCbgRange", () => {
+    const range = "100";
     const action = actions.turnOffCbgRange(userId, range);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to turn off cbg range', () => {
+    it("should create an action to turn off cbg range", () => {
       expect(action).to.deep.equal({
         type: actionTypes.TURN_OFF_CBG_RANGE,
         payload: { userId, range },
@@ -148,15 +149,15 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('turnOnCbgRange', () => {
-    const range = '100';
+  describe("turnOnCbgRange", () => {
+    const range = "100";
     const action = actions.turnOnCbgRange(userId, range);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to turn on cbg range', () => {
+    it("should create an action to turn on cbg range", () => {
       expect(action).to.deep.equal({
         type: actionTypes.TURN_ON_CBG_RANGE,
         payload: { userId, range },
@@ -164,14 +165,14 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('unfocusTrendsCbgDateTrace', () => {
+  describe("unfocusTrendsCbgDateTrace", () => {
     const action = actions.unfocusTrendsCbgDateTrace(userId);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to unfocus a cbg date trace', () => {
+    it("should create an action to unfocus a cbg date trace", () => {
       expect(action).to.deep.equal({
         type: actionTypes.UNFOCUS_TRENDS_CBG_DATE_TRACE,
         payload: { userId },
@@ -179,14 +180,14 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('unfocusTrendsCbgSlice', () => {
+  describe("unfocusTrendsCbgSlice", () => {
     const action = actions.unfocusTrendsCbgSlice(userId);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to unfocus (all) trends cbg slices', () => {
+    it("should create an action to unfocus (all) trends cbg slices", () => {
       expect(action).to.deep.equal({
         type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
         payload: { userId },
@@ -194,14 +195,14 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('unfocusTrendsSmbg', () => {
+  describe("unfocusTrendsSmbg", () => {
     const action = actions.unfocusTrendsSmbg(userId);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to unfocus trends smbg', () => {
+    it("should create an action to unfocus trends smbg", () => {
       expect(action).to.deep.equal({
         type: actionTypes.UNFOCUS_TRENDS_SMBG,
         payload: { userId },
@@ -209,14 +210,14 @@ describe('trends action creators', () => {
     });
   });
 
-  describe('unfocusTrendsSmbgRangeAvg', () => {
+  describe("unfocusTrendsSmbgRangeAvg", () => {
     const action = actions.unfocusTrendsSmbgRangeAvg(userId);
 
-    it('should be a TSA', () => {
+    it("should be a TSA", () => {
       expect(isTSA(action)).to.be.true;
     });
 
-    it('should create an action to unfocus (all) trends smbg range averages', () => {
+    it("should create an action to unfocus (all) trends smbg range averages", () => {
       expect(action).to.deep.equal({
         type: actionTypes.UNFOCUS_TRENDS_SMBG_RANGE_AVG,
         payload: { userId },

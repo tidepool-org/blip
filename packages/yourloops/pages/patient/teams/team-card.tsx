@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
@@ -57,7 +57,7 @@ const teamCardStyles = makeStyles((theme: Theme) => {
       textTransform: "initial",
     },
     buttonText: {
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         display: "none",
       },
     },

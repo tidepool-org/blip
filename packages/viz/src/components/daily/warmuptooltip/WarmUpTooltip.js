@@ -15,25 +15,25 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import i18next from 'i18next';
-import moment from 'moment-timezone';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import i18next from "i18next";
+import moment from "moment-timezone";
 
-import { getHourMinuteFormat } from '../../../utils/datetime';
-import Tooltip from '../../common/tooltips/Tooltip';
-import colors from '../../../styles/colors.css';
-import styles from './WarmUpTooltip.css';
+import { getHourMinuteFormat } from "../../../utils/datetime";
+import Tooltip from "../../common/tooltips/Tooltip";
+import colors from "../../../styles/colors.css";
+import styles from "./WarmUpTooltip.css";
 
 function WarmUpTooltip(props) {
   const { datum, timePrefs, title } = props;
 
-  const timezone = _.get(datum, 'timezone', 'UTC');
+  const timezone = _.get(datum, "timezone", "UTC");
   let dateTitle = null;
   if (title === null) {
     dateTitle = {
-      source: _.get(datum, 'source', 'Diabeloop'),
+      source: _.get(datum, "source", "Diabeloop"),
       normalTime: datum.normalTime,
       timezone,
       timePrefs,
@@ -43,9 +43,9 @@ function WarmUpTooltip(props) {
   const endTime = moment.tz(datum.epochEnd, timezone).format(getHourMinuteFormat());
   const content = (
     <div id="sensor-warmup-container" className={styles.container}>
-      <div id="sensor-warmup-title" className={styles.label}>{i18next.t('sensor-warmup')}</div>
+      <div id="sensor-warmup-title" className={styles.label}>{i18next.t("sensor-warmup")}</div>
       <div id="sensor-warmup-session-end" className={styles.labelEnd}>
-        <span id="sensor-warmup-session-end-text" className={styles.labelEndText}>{i18next.t('sensor-warmup-session-end')}</span>
+        <span id="sensor-warmup-session-end-text" className={styles.labelEndText}>{i18next.t("sensor-warmup-session-end")}</span>
         <span id="sensor-warmup-session-end-hour" className={styles.labelEndTime}>{endTime}</span>
       </div>
     </div>
@@ -73,7 +73,7 @@ WarmUpTooltip.propTypes = {
   }),
   title: PropTypes.node,
   tail: PropTypes.bool,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']),
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]),
   tailColor: PropTypes.string,
   tailWidth: PropTypes.number,
   tailHeight: PropTypes.number,
@@ -90,7 +90,7 @@ WarmUpTooltip.propTypes = {
 
 WarmUpTooltip.defaultProps = {
   tail: true,
-  side: 'right',
+  side: "right",
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.deviceEvent,

@@ -26,8 +26,7 @@
  */
 
 import _ from "lodash";
-import * as React from "react";
-import { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
@@ -93,9 +92,9 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
     confirmNewPassword: false,
   };
   const [errors, setErrors] = React.useState<Errors>(defaultErr);
-  const [newPassword, setNewPassword] = useState("");
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [newPassword, setNewPassword] = React.useState("");
+  const [showNewPassword, setShowNewPassword] = React.useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = React.useState(false);
   const [inProgress, setInProgress] = React.useState(false);
 
   const onChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, keyField: FormValuesType): void => {

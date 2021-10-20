@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import * as bolusUtils from '../../utils/bolus';
+import _ from "lodash";
+import * as bolusUtils from "../../utils/bolus";
 
 /**
  * formatBolusRectPath
@@ -96,7 +96,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
     paths.push({
       d: path,
       key: `undelivered-${bolus.id}`,
-      type: 'undelivered',
+      type: "undelivered",
     });
 
     const programmedY = yScale(bolusUtils.getProgrammed(insulinEvent));
@@ -114,7 +114,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
         L ${right - fractionStroke},${deliveredY}
       `,
       key: `programmed-${bolus.id}`,
-      type: 'programmed',
+      type: "programmed",
     });
   // the rectangle for undelivered includes an underride if the insulinEvent
   // was *both* an underride and interrupted/cancelled/suspended
@@ -129,7 +129,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
       paths.push({
         d: path,
         key: `underride-${insulinEvent.id}`,
-        type: 'underride',
+        type: "underride",
       });
     }
   }
@@ -144,7 +144,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
     paths.push({
       d: path,
       key: `delivered-${bolus.id}`,
-      type: 'delivered',
+      type: "delivered",
     });
   }
 
@@ -171,7 +171,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
           L ${startOfTriangle + extendedLineThickness},${extendedY + extendedLineThickness / 2} Z
         `,
         key: `extendedPath-${bolus.id}`,
-        type: 'extendedPath',
+        type: "extendedPath",
       });
     }
 
@@ -188,7 +188,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
           L ${startOfTriangle + extendedLineThickness},${extendedY + extendedLineThickness / 2} Z
         `,
         key: `extendedExpectationPath-${bolus.id}`,
-        type: 'extendedExpectationPath',
+        type: "extendedExpectationPath",
       });
 
       const halfInterrupted = interruptedLineThickness / 2;
@@ -201,7 +201,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
           L ${startOfInterrupted},${extendedY + halfInterrupted} Z
         `,
         key: `extendedInterrupted-${bolus.id}`,
-        type: 'extendedInterrupted',
+        type: "extendedInterrupted",
       });
     }
 
@@ -213,7 +213,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
           L ${startOfTriangle},${extendedY} Z
         `,
         key: `extendedTriangle-${bolus.id}`,
-        type: `extendedTriangle${interruptedExtended ? 'Interrupted' : ''}`,
+        type: `extendedTriangle${interruptedExtended ? "Interrupted" : ""}`,
       });
     }
   }
@@ -234,7 +234,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
         L ${right},${programmedY} Z
       `,
       key: `underrideTriangle-${insulinEvent.id}`,
-      type: 'underrideTriangle',
+      type: "underrideTriangle",
     });
   }
 
@@ -254,7 +254,7 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
         L ${right},${recommendedY} Z
       `,
       key: `overrideTriangle-${insulinEvent.id}`,
-      type: 'overrideTriangle',
+      type: "overrideTriangle",
     });
   }
 
@@ -274,13 +274,13 @@ export default function getBolusPaths(insulinEvent, xScale, yScale, {
     paths.push({
       d: path,
       key: `interrupted-${bolus.id}`,
-      type: 'interrupted',
+      type: "interrupted",
     });
   }
 
   const formattedPaths = _.forEach(paths, (path) => {
     const pathCopy = path;
-    pathCopy.d = path.d.replace(/\n/g, '').replace(/\s\s+/g, ' ');
+    pathCopy.d = path.d.replace(/\n/g, "").replace(/\s\s+/g, " ");
     return pathCopy;
   });
 

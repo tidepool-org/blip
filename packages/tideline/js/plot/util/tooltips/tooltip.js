@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import shapes from './shapes';
+import shapes from "./shapes";
 
 function Tooltips(container, tooltipsGroup) {
   const d3 = window.d3;
@@ -26,15 +26,15 @@ function Tooltips(container, tooltipsGroup) {
 
   var HOURS_IN_DAY = 24, EDGE_THRESHOLD = 5;
 
-  var tooltipDefs = tooltipsGroup.append('defs');
+  var tooltipDefs = tooltipsGroup.append("defs");
   var currentTranslation, width = container.width(), vizWidth = width - container.axisGutter();
 
   function defineShape(shape, cssClass) {
     // add an SVG <defs> at the root of the tooltipsGroup for later <use>
-    var shapeGroup = tooltipDefs.append('g')
+    var shapeGroup = tooltipDefs.append("g")
       .attr({
-        'class': shape.mainClass + ' ' + cssClass,
-        id: shape.id + '_' + cssClass,
+        class: shape.mainClass + " " + cssClass,
+        id: shape.id + "_" + cssClass,
         viewBox: shape.viewBox
       });
     _.forEach(shape.els, function(el) {
@@ -57,18 +57,16 @@ function Tooltips(container, tooltipsGroup) {
     if (position < defineLeftEdge()) {
       return true;
     }
-    else {
-      return false;
-    }
+
+    return false;
   }
 
   function isAtRightEdge(position) {
     if (position > defineRightEdge()) {
       return true;
     }
-    else {
-      return false;
-    }
+
+    return false;
   }
 
   function locationInWindow(xPosition) {
@@ -84,15 +82,15 @@ function Tooltips(container, tooltipsGroup) {
     var translation;
 
     if (shape) {
-      var defaultTranslation = 'translate(' + opts.xPosition(opts.datum) +
-        ',' + opts.yPosition(opts.datum) + ')';
+      var defaultTranslation = "translate(" + opts.xPosition(opts.datum) +
+        "," + opts.yPosition(opts.datum) + ")";
       // applies to shapes without orientation (e.g., basal)
       if (!shapes[shape].orientations) {
         if (atLeftEdge) {
-          translation = 'translate(' + (-currentTranslation + container.axisGutter() + shapes[shape].extensions.left) + ',' + opts.yPosition(opts.datum) + ')';
+          translation = "translate(" + (-currentTranslation + container.axisGutter() + shapes[shape].extensions.left) + "," + opts.yPosition(opts.datum) + ")";
         }
         else if (atRightEdge) {
-          translation = 'translate(' + (-currentTranslation + width - shapes[shape].extensions.right) + ',' + opts.yPosition(opts.datum) + ')';
+          translation = "translate(" + (-currentTranslation + width - shapes[shape].extensions.right) + "," + opts.yPosition(opts.datum) + ")";
         }
         else {
           translation = defaultTranslation;
@@ -102,43 +100,43 @@ function Tooltips(container, tooltipsGroup) {
       else {
         translation = defaultTranslation;
       }
-      var group = tooltipGroups[opts.datum.type].append('g')
+      var group = tooltipGroups[opts.datum.type].append("g")
         .attr({
-          id: 'tooltip_' + opts.datum.id,
-          'class': 'd3-tooltip d3-' + opts.datum.type + ' ' + shapes[shape].mainClass + ' ' + opts.cssClass,
+          id: "tooltip_" + opts.datum.id,
+          class: "d3-tooltip d3-" + opts.datum.type + " " + shapes[shape].mainClass + " " + opts.cssClass,
           transform: translation
         });
-      var foGroup = group.append('foreignObject')
+      var foGroup = group.append("foreignObject")
         .attr({
           // need to set an initial width to give the HTML something to shape itself in relation to
           width: 200,
           // hide the foreignObject initially so that the resizing isn't visible
-          visibility: 'hidden',
-          'class': 'svg-tooltip-fo'
+          visibility: "hidden",
+          class: "svg-tooltip-fo"
         })
-        .append('xhtml:div')
+        .append("xhtml:div")
         .attr({
           // bolus(/wizard) tooltips use completely different CSS
           // with a different main div class passed as an opt
-          'class': opts.div ? opts.div : 'tooltip-div'
+          class: opts.div ? opts.div : "tooltip-div"
         });
       return {
         foGroup: foGroup,
-        edge: atLeftEdge ? 'left': atRightEdge ? 'right': null
+        edge: atLeftEdge ? "left": atRightEdge ? "right": null
       };
     }
   };
 
   this.anchorForeignObjNoOrienation = function(selection, opts) {
     // applies to shapes without orientation (e.g., basal)
-    var atRightEdge = opts.edge === 'right';
-    opts.widthTranslation = 'translate(' + (-opts.w/2) + ',0)';
-    opts.rightEdgeTranslation = 'translate(' + (-opts.w) + ',0)';
+    var atRightEdge = opts.edge === "right";
+    opts.widthTranslation = "translate(" + (-opts.w/2) + ",0)";
+    opts.rightEdgeTranslation = "translate(" + (-opts.w) + ",0)";
     if (!opts.edge) {
-      selection.attr('transform', opts.widthTranslation);
+      selection.attr("transform", opts.widthTranslation);
     }
     else if (atRightEdge) {
-      selection.attr('transform', opts.rightEdgeTranslation);
+      selection.attr("transform", opts.rightEdgeTranslation);
     }
     // no need for an else if atLeftEdge because translation at left edge
     // would just be zero, which has the same effect as no translation
@@ -148,14 +146,14 @@ function Tooltips(container, tooltipsGroup) {
 
   this.makeShape = function(selection, opts) {
     var shape = opts.shape;
-    var atRightEdge = opts.edge === 'right';
-    var atLeftEdge = opts.edge === 'left';
+    var atRightEdge = opts.edge === "right";
+    var atLeftEdge = opts.edge === "left";
     var tooltipGroup = d3.select(selection.node().parentNode);
     _.forEach(shapes[shape].els, (el) => {
       var attrs = _.clone(el.attrs);
       for (var prop in attrs) {
         // polygons have a pointsFn to generate the proper size polygon given the input dimensions
-        if (typeof attrs[prop] === 'function') {
+        if (typeof attrs[prop] === "function") {
           var res = attrs[prop](opts);
           if (shapes[shape].orientations) {
             if (atRightEdge) {
@@ -165,12 +163,12 @@ function Tooltips(container, tooltipsGroup) {
               res = shapes[shape].orientations[opts.orientation.leftEdge](res);
             }
             else {
-              res = shapes[shape].orientations[opts.orientation['default']](res);
+              res = shapes[shape].orientations[opts.orientation["default"]](res);
             }
           }
           // pointsFn isn't a proper SVG attribute, of course, so must be deleted
           delete attrs[prop];
-          attrs[prop.replace('Fn', '')] = res;
+          attrs[prop.replace("Fn", "")] = res;
         }
       }
       // this if/else block applies to shapes without orientation (e.g., basal)
@@ -180,7 +178,7 @@ function Tooltips(container, tooltipsGroup) {
       else if (atRightEdge && opts.rightEdgeTranslation) {
         attrs.transform = opts.rightEdgeTranslation;
       }
-      tooltipGroup.insert(el.el, '.svg-tooltip-fo')
+      tooltipGroup.insert(el.el, ".svg-tooltip-fo")
         .attr(attrs);
     });
   };
@@ -189,7 +187,7 @@ function Tooltips(container, tooltipsGroup) {
     selection.attr({
       width: opts.w,
       height: opts.h,
-      visibility: 'visible'
+      visibility: "visible"
     });
   };
 
@@ -201,13 +199,13 @@ function Tooltips(container, tooltipsGroup) {
       this.anchorForeignObjNoOrienation(selection, opts);
       return;
     }
-    var atRightEdge = opts.edge === 'right';
-    var atLeftEdge = opts.edge === 'left';
+    var atRightEdge = opts.edge === "right";
+    var atLeftEdge = opts.edge === "left";
     // isDefaultNormal catches low and target smbg tooltips
     // (but not high, which default to down orientations)
-    var isDefaultNormal = opts.orientation && opts.orientation['default'] === 'normal';
+    var isDefaultNormal = opts.orientation && opts.orientation["default"] === "normal";
     // isDefaultLeftNormal catches bolus(/wizard) tooltips
-    var isDefaultLeftNormal = opts.orientation && opts.orientation['default'] === 'leftAndUp';
+    var isDefaultLeftNormal = opts.orientation && opts.orientation["default"] === "leftAndUp";
 
     // moving the foreign object into place depending on orientation
     // see wiki page (https://github.com/tidepool-org/tideline/wiki/SVGTooltips) for definition of offset
@@ -229,7 +227,7 @@ function Tooltips(container, tooltipsGroup) {
     // isDefaultNormal tooltips get caught in the first `if` above
     // so we need an additional if to shift them when atRightEdge
     if (atRightEdge) {
-      selection.attr('x', -opts.w - shapes[shape].offset());
+      selection.attr("x", -opts.w - shapes[shape].offset());
     }
     this.setForeignObjDimensions(selection, opts);
     if (shape) {
@@ -241,15 +239,15 @@ function Tooltips(container, tooltipsGroup) {
     // when content is centered, can't use getBoundingClientRect to get width on div
     // need to get it on components instead, and use widest one
     var widths = [];
-    foGroup.selectAll('span')
+    foGroup.selectAll("span")
       .each(function() {
         widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
       });
-    foGroup.selectAll('table')
+    foGroup.selectAll("table")
       .each(function() {
         widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
       });
-    foGroup.selectAll('div.title.wider')
+    foGroup.selectAll("div.title.wider")
       .each(function() {
         widths.push(d3.select(this)[0][0].getBoundingClientRect().width - 20);
       });
@@ -269,17 +267,17 @@ function Tooltips(container, tooltipsGroup) {
 
     var shape = opts.shape;
     if (shape) {
-      var group = tooltipGroups[opts.datum.type].append('g')
+      var group = tooltipGroups[opts.datum.type].append("g")
         .attr({
-          id: 'tooltip_' + opts.datum.id,
-          'class': 'd3-tooltip d3-' + opts.datum.type,
-          transform: 'translate(' + opts.xPosition(opts.datum) + ',' + opts.yPosition(opts.datum) + ')',
+          id: "tooltip_" + opts.datum.id,
+          class: "d3-tooltip d3-" + opts.datum.type,
+          transform: "translate(" + opts.xPosition(opts.datum) + "," + opts.yPosition(opts.datum) + ")",
         });
-      var tooltipShape = group.append('use')
+      var tooltipShape = group.append("use")
         .attr({
-          x: 0,
-          y: 0,
-          'xlink:href': '#' + shapes[shape].id + '_' + opts.cssClass
+          "x": 0,
+          "y": 0,
+          "xlink:href": "#" + shapes[shape].id + "_" + opts.cssClass
         });
       if (opts.orientation) {
         if (atLeftEdge) {
@@ -289,7 +287,7 @@ function Tooltips(container, tooltipsGroup) {
           shapes[shape].orientations[opts.orientation.rightEdge](tooltipShape);
         }
         else {
-          shapes[shape].orientations[opts.orientation['default']](tooltipShape);
+          shapes[shape].orientations[opts.orientation["default"]](tooltipShape);
         }
       }
       else {
@@ -309,16 +307,16 @@ function Tooltips(container, tooltipsGroup) {
     else {
       shape = type;
     }
-    const poolGroup = container.poolGroup.select('#' + pool.id());
-    tooltipGroups[type] = tooltipsGroup.append('g')
-      .attr('id', this.id() + '_' + type)
-      .attr('transform', poolGroup.attr('transform'));
+    const poolGroup = container.poolGroup.select("#" + pool.id());
+    tooltipGroups[type] = tooltipsGroup.append("g")
+      .attr("id", this.id() + "_" + type)
+      .attr("transform", poolGroup.attr("transform"));
     pool.tooltips(this);
     if (shapes[shape].fixed) {
       _.forEach(opts.classes, function(cl) {
         if (shapes[shape]) {
           defineShape(shapes[shape], cl);
-          defs[type + '_' + cl] = true;
+          defs[type + "_" + cl] = true;
         }
       });
     }
@@ -327,7 +325,7 @@ function Tooltips(container, tooltipsGroup) {
   // getters & setters
   this.id = function(/* x */) {
     if (!arguments.length) return id;
-    id = tooltipsGroup.attr('id');
+    id = tooltipsGroup.attr("id");
     return this;
   };
 }

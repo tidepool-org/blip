@@ -71,8 +71,8 @@ export const externalTheme = createTheme({
  */
 export const makeButtonsStyles = (theme: Theme) => { // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
   // I disabled the eslint warning here, because it's too annoying doing the type
-  const getColor = theme.palette.type === 'light' ? darken : lighten;
-  const getBackgroundColor = theme.palette.type === 'light' ? lighten : darken;
+  const getColor = theme.palette.type === "light" ? darken : lighten;
+  const getBackgroundColor = theme.palette.type === "light" ? lighten : darken;
 
   return {
     buttonCancel: {
@@ -82,9 +82,9 @@ export const makeButtonsStyles = (theme: Theme) => { // eslint-disable-line @typ
       boxShadow: "0px 2px 2px #0000003D",
     },
     buttonRedAction: {
-      boxShadow: "0px 2px 2px #0000003D",
-      color: getColor("#FFFFFF", 0.0), // eslint-disable-line no-magic-numbers
-      backgroundColor: getBackgroundColor(theme.palette.error[theme.palette.type], 0.0), // eslint-disable-line no-magic-numbers
+      "boxShadow": "0px 2px 2px #0000003D",
+      "color": getColor("#FFFFFF", 0.0), // eslint-disable-line no-magic-numbers
+      "backgroundColor": getBackgroundColor(theme.palette.error[theme.palette.type], 0.0), // eslint-disable-line no-magic-numbers
       "&:hover": {
         color: getColor("#FFFFFF", 0.1), // eslint-disable-line no-magic-numbers
         backgroundColor: getBackgroundColor(theme.palette.error[theme.palette.type], 0.1), // eslint-disable-line no-magic-numbers

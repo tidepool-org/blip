@@ -27,10 +27,10 @@
  */
 
 import _ from "lodash";
-import * as React from "react";
+import React from "react";
 import { expect } from "chai";
 import { mount, ReactWrapper, MountRendererProps } from "enzyme";
-import sinon from "sinon";
+import * as sinon from "sinon";
 
 import { Team, TeamMember, loadTeams } from "../../../lib/team";
 import TeamEditDialog from "../../../pages/hcp/team-edit-dialog";

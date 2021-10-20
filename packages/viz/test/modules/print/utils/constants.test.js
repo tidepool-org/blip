@@ -15,38 +15,38 @@
  * == BSD2 LICENSE ==
  */
 
-import { expect } from 'chai';
-import * as constants from '../../../../src/modules/print/utils/constants';
+import { expect } from "chai";
+import * as constants from "../../../../src/modules/print/utils/constants";
 
-describe('constants', () => {
-  describe('DPI', () => {
-    it('should be 72', () => {
+describe("constants", () => {
+  describe("DPI", () => {
+    it("should be 72", () => {
       expect(constants.DPI).to.equal(72);
     });
   });
 
-  describe('MARGIN', () => {
-    it('should be 36', () => {
+  describe("MARGIN", () => {
+    it("should be 36", () => {
       expect(constants.MARGIN).to.equal(36);
     });
   });
 
-  describe('HEIGHT', () => {
-    it('should be sized to fit an 11 inch paper with margins applied', () => {
+  describe("HEIGHT", () => {
+    it("should be sized to fit an 11 inch paper with margins applied", () => {
       const height = 11 * constants.DPI - (2 * constants.MARGIN);
       expect(constants.HEIGHT).to.equal(height);
     });
   });
 
-  describe('WIDTH', () => {
-    it('should be sized to fit an 11 inch paper with margins applied', () => {
+  describe("WIDTH", () => {
+    it("should be sized to fit an 11 inch paper with margins applied", () => {
       const width = 8.5 * constants.DPI - (2 * constants.MARGIN);
       expect(constants.WIDTH).to.equal(width);
     });
   });
 
-  describe('MARGINS', () => {
-    it('should be an object with correct left, right, top, and bottom values', () => {
+  describe("MARGINS", () => {
+    it("should be an object with correct left, right, top, and bottom values", () => {
       expect(constants.MARGINS).to.eql({
         left: constants.MARGIN,
         top: constants.MARGIN,
@@ -56,38 +56,38 @@ describe('constants', () => {
     });
   });
 
-  describe('DEFAULT_FONT_SIZE', () => {
-    it('should be 10', () => {
+  describe("DEFAULT_FONT_SIZE", () => {
+    it("should be 10", () => {
       expect(constants.DEFAULT_FONT_SIZE).to.equal(10);
     });
   });
 
-  describe('LARGE_FONT_SIZE', () => {
-    it('should be 12', () => {
+  describe("LARGE_FONT_SIZE", () => {
+    it("should be 12", () => {
       expect(constants.LARGE_FONT_SIZE).to.equal(12);
     });
   });
 
-  describe('FOOTER_FONT_SIZE', () => {
-    it('should be 8', () => {
+  describe("FOOTER_FONT_SIZE", () => {
+    it("should be 8", () => {
       expect(constants.FOOTER_FONT_SIZE).to.equal(8);
     });
   });
 
-  describe('HEADER_FONT_SIZE', () => {
-    it('should be 14', () => {
+  describe("HEADER_FONT_SIZE", () => {
+    it("should be 14", () => {
       expect(constants.HEADER_FONT_SIZE).to.equal(14);
     });
   });
 
-  describe('SMALL_FONT_SIZE', () => {
-    it('should be 8', () => {
+  describe("SMALL_FONT_SIZE", () => {
+    it("should be 8", () => {
       expect(constants.SMALL_FONT_SIZE).to.equal(8);
     });
   });
 
-  describe('EXTRA_SMALL_FONT_SIZE', () => {
-    it('should be 6', () => {
+  describe("EXTRA_SMALL_FONT_SIZE", () => {
+    it("should be 6", () => {
       expect(constants.EXTRA_SMALL_FONT_SIZE).to.equal(6);
     });
   });

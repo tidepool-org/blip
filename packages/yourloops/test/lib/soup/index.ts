@@ -31,7 +31,7 @@ import { expect } from "chai";
 
 function testSOUPDeps(): void {
   it("UUID soup should be >= v8 with the validate function available", () => {
-    expect(validateUuid).to.be.a('function');
+    expect(validateUuid).to.be.a("function");
   });
 }
 

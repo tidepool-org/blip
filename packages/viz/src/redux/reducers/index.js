@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import { combineReducers } from 'redux';
+import { combineReducers } from "redux";
 
-import trends from './trendsStateByUser';
-import settings from './settingsStateByUser';
+import trends from "./trendsStateByUser";
+import settings from "./settingsStateByUser";
 
 export default combineReducers({ settings, trends });

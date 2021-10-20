@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
 /**
  * getPatientFullName
@@ -24,7 +24,7 @@ import _ from 'lodash';
  * @return {String} PwD's full name (first & last)
  */
 export function getPatientFullName(patient) {
-  const profile = _.get(patient, ['profile'], {});
+  const profile = _.get(patient, "profile", {});
   const patientInfo = profile.patient || {};
 
   if (patientInfo.isOtherPerson) {

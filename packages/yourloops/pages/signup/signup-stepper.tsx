@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import _ from "lodash";
 import { Trans, useTranslation } from "react-i18next";

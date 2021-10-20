@@ -15,17 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import schema from './validator/schematron';
-import commonSchema from './common';
-import basal from './basal';
-import bolus from './bolus';
-import bg from './bg';
-import message from './message';
-import pumpSettings from './pumpSettings';
-import upload from './upload';
-import wizard from './wizard';
+import schema from "./validator/schematron";
+import commonSchema from "./common";
+import basal from "./basal";
+import bolus from "./bolus";
+import bg from "./bg";
+import message from "./message";
+import pumpSettings from "./pumpSettings";
+import upload from "./upload";
+import wizard from "./wizard";
 
 const getSchemas = () => {
   const common = commonSchema();

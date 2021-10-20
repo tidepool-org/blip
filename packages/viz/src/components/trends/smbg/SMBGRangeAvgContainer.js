@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017, Tidepool Project
@@ -17,15 +15,15 @@ import _ from 'lodash';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import _ from "lodash";
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { range } from "d3-array";
 
-import React, { PureComponent } from 'react';
-import { range } from 'd3-array';
-
-import { THREE_HRS, TWENTY_FOUR_HRS } from '../../../utils/datetime';
+import { THREE_HRS, TWENTY_FOUR_HRS } from "../../../utils/datetime";
 import {
   findBinForTimeOfDay, findOutOfRangeAnnotations, calculateSmbgStatsForBin,
-} from '../../../utils/trends/data';
+} from "../../../utils/trends/data";
 
 export default class SMBGRangeAvgContainer extends PureComponent {
   static propTypes = {

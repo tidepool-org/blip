@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
 import {
   getDelivered,
   getProgrammed,
   getRecommended,
-} from './bolus';
+} from "./bolus";
 
-import { classifyBgValue } from './bloodglucose.js';
+import { classifyBgValue } from "./bloodglucose.js";
 
 /**
  * Classification functions for tagging constious types of data
@@ -37,7 +37,7 @@ export default function generateClassifiers(bgPrefs) {
 
   const classifers = {
     basal: (datum) => {
-      if (_.includes(['scheduled', 'automated'], datum.deliveryType)) {
+      if (_.includes(["scheduled", "automated"], datum.deliveryType)) {
         return [];
       }
 
@@ -51,29 +51,29 @@ export default function generateClassifiers(bgPrefs) {
 
       if (datum.wizard && !_.isEmpty(datum.wizard)) {
         const recommended = getRecommended(datum.wizard);
-        tags.push('wizard');
-        if (!isNaN(recommended)) {
+        tags.push("wizard");
+        if (!Number.isNaN(recommended)) {
           if (recommended > Math.max(delivered, programmed)) {
-            tags.push('underride');
+            tags.push("underride");
           } else if (Math.max(delivered, programmed) > recommended) {
-            tags.push('override');
+            tags.push("override");
           }
 
           if (datum.wizard.recommended.correction > 0 &&
               datum.wizard.recommended.carb === 0) {
-            tags.push('correction');
+            tags.push("correction");
           }
         }
       } else {
-        tags.push('manual');
+        tags.push("manual");
       }
 
       if (programmed !== delivered) {
-        tags.push('interrupted');
+        tags.push("interrupted");
       }
 
       if (datum.extended > 0) {
-        tags.push('extended');
+        tags.push("extended");
       }
 
       return tags;
@@ -81,23 +81,23 @@ export default function generateClassifiers(bgPrefs) {
 
     smbg: (datum) => {
       const tags = [];
-      const bgCategory = classifyBgValue(bgBounds, datum.value, 'fiveWay');
+      const bgCategory = classifyBgValue(bgBounds, datum.value, "fiveWay");
 
-      if (datum.subType && datum.subType === 'manual') {
+      if (datum.subType && datum.subType === "manual") {
         tags.push(datum.subType);
       } else {
-        tags.push('meter');
+        tags.push("meter");
       }
 
       switch (bgCategory) {
-        case 'veryLow':
-          tags.push('veryLow');
-          break;
-        case 'veryHigh':
-          tags.push('veryHigh');
-          break;
-        default:
-          break;
+      case "veryLow":
+        tags.push("veryLow");
+        break;
+      case "veryHigh":
+        tags.push("veryHigh");
+        break;
+      default:
+        break;
       }
       return tags;
     },

@@ -15,11 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React from "react";
 
-import React from 'react';
-
-import styles from './FocusedCBGSliceSegment.css';
+import styles from "./FocusedCBGSliceSegment.css";
 
 const FocusedCBGSliceSegment = (props) => {
   if (!props.focusedSlice || !props.focusedSliceKeys) {
@@ -67,13 +66,13 @@ FocusedCBGSliceSegment.propTypes = {
     }).isRequired,
   }),
   focusedSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
-    'firstQuartile',
-    'max',
-    'median',
-    'min',
-    'ninetiethQuantile',
-    'tenthQuantile',
-    'thirdQuartile',
+    "firstQuartile",
+    "max",
+    "median",
+    "min",
+    "ninetiethQuantile",
+    "tenthQuantile",
+    "thirdQuartile",
   ])),
   sliceWidth: PropTypes.number.isRequired,
 };

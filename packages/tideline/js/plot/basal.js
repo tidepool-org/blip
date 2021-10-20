@@ -15,20 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import i18next from 'i18next';
-import moment from 'moment-timezone';
+import _ from "lodash";
+import i18next from "i18next";
+import moment from "moment-timezone";
 
-import * as constants from '../data/util/constants';
-import format from '../data/util/format';
-import BasalUtil from '../data/basalutil';
+import * as constants from "../data/util/constants";
+import format from "../data/util/format";
+import BasalUtil from "../data/basalutil";
 
 const defaults = {
   opacity: 0.6,
   opacityDelta: 0.2,
   pathStroke: 1.5,
   tooltipPadding: 20,
-  defaultSource: 'default',
+  defaultSource: "default",
 };
 
 function plotBasal(pool, opts = defaults) {
@@ -42,15 +42,12 @@ function plotBasal(pool, opts = defaults) {
   const mainGroup = pool.parent();
 
   function getDeliverySuppressed(supp) {
-    if (_.includes(['scheduled', 'automated'], supp.deliveryType)) {
+    if (_.includes(["scheduled", "automated"], supp.deliveryType)) {
       return supp;
-    }
-    else if (supp.suppressed) {
+    } else if (supp.suppressed) {
       return getDeliverySuppressed(supp.suppressed);
     }
-    else {
-      return;
-    }
+    return undefined;
   }
 
   function getUndelivereds(data) {
@@ -72,20 +69,20 @@ function plotBasal(pool, opts = defaults) {
     opts.xScale = pool.xScale().copy();
 
     selection.each(function(currentData) {
-      currentData = _.filter(currentData, (d) => d.type === 'basal' && d.duration > 0);
-      basal.addAnnotations(_.filter(currentData, 'annotations'));
+      currentData = _.filter(currentData, (d) => d.type === "basal" && d.duration > 0);
+      basal.addAnnotations(_.filter(currentData, "annotations"));
 
       const basalSegments = d3.select(this)
-        .selectAll('.d3-basal-group')
+        .selectAll(".d3-basal-group")
         .data(currentData, function(d) {
           return d.id;
         });
 
       const basalSegmentGroups = basalSegments.enter()
-        .append('g')
+        .append("g")
         // @ts-ignore
         .attr({
-          'class': 'd3-basal-group',
+          class: "d3-basal-group",
           id: (d) => `basal_group_${d.id}`,
         });
 
@@ -100,13 +97,13 @@ function plotBasal(pool, opts = defaults) {
       const renderGroupMarkers = basalPathGroups.length > 1;
 
       const basalPathsGroup = selection
-        .selectAll('.d3-basal-path-group')
-        .data(['d3-basal-path-group']);
+        .selectAll(".d3-basal-path-group")
+        .data(["d3-basal-path-group"]);
 
       basalPathsGroup
         .enter()
-        .append('g')
-        .attr('class', 'd3-basal-path-group');
+        .append("g")
+        .attr("class", "d3-basal-path-group");
 
       _.forEach(basalPathGroups, (data /*, index */) => {
         const id = data[0].id;
@@ -118,9 +115,9 @@ function plotBasal(pool, opts = defaults) {
 
         paths
           .enter()
-          .append('path')
+          .append("path")
           .attr({
-            'class': (d) => d
+            class: (d) => d
           });
 
         paths.exit().remove();
@@ -131,14 +128,14 @@ function plotBasal(pool, opts = defaults) {
       });
 
       const undeliveredPaths = basalPathsGroup
-        .selectAll('.d3-basal.d3-path-basal.d3-path-basal-undelivered')
-        .data(['d3-basal d3-path-basal d3-path-basal-undelivered']);
+        .selectAll(".d3-basal.d3-path-basal.d3-path-basal-undelivered")
+        .data(["d3-basal d3-path-basal d3-path-basal-undelivered"]);
 
       undeliveredPaths
         .enter()
-        .append('path')
+        .append("path")
         .attr({
-          'class': (d) => d
+          class: (d) => d
         });
 
       const undeliveredPath = d3.select(undeliveredPaths[0][0]);
@@ -147,18 +144,18 @@ function plotBasal(pool, opts = defaults) {
       basalSegments.exit().remove();
 
       // tooltips
-      basalSegmentGroups.on('mouseover', function() {
+      basalSegmentGroups.on("mouseover", function() {
         basal.addTooltip(d3.select(this).datum(), renderGroupMarkers);
-        d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity', opts.opacity + opts.opacityDelta);
+        d3.select(this).selectAll(".d3-basal.d3-rect-basal").attr("opacity", opts.opacity + opts.opacityDelta);
       });
-      basalSegmentGroups.on('mouseout', function() {
-        const id = d3.select(this).attr('id').replace('basal_group_', 'tooltip_');
+      basalSegmentGroups.on("mouseout", function() {
+        const id = d3.select(this).attr("id").replace("basal_group_", "tooltip_");
         mainGroup.select(`#${id}`).remove();
         const datum = d3.select(this).datum();
-        if (datum.deliveryType === 'temp' && datum.rate > 0) {
-          d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity', opts.opacity - opts.opacityDelta);
+        if (datum.deliveryType === "temp" && datum.rate > 0) {
+          d3.select(this).selectAll(".d3-basal.d3-rect-basal").attr("opacity", opts.opacity - opts.opacityDelta);
         } else {
-          d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity', opts.opacity);
+          d3.select(this).selectAll(".d3-basal.d3-rect-basal").attr("opacity", opts.opacity);
         }
       });
     });
@@ -170,20 +167,20 @@ function plotBasal(pool, opts = defaults) {
     var heightFn = invisible ? basal.invisibleRectHeight : basal.height;
     var yPosFn = invisible ? basal.invisibleRectYPosition : basal.yPosition;
 
-    selection.append('rect')
+    selection.append("rect")
       .attr({
         x: basal.xPosition,
         y: yPosFn,
         opacity: function(d) {
-          if (d.deliveryType === 'temp' && d.rate > 0) {
+          if (d.deliveryType === "temp" && d.rate > 0) {
             return opts.opacity - opts.opacityDelta;
           }
           return opts.opacity;
         },
         width: basal.width,
         height: heightFn,
-        'class': function(d) {
-          return invisible ? 'd3-basal d3-basal-invisible' : `d3-basal d3-rect-basal d3-basal-${d.deliveryType}`;
+        class: function(d) {
+          return invisible ? "d3-basal d3-basal-invisible" : `d3-basal d3-rect-basal d3-basal-${d.deliveryType}`;
         }
       });
   };
@@ -193,7 +190,7 @@ function plotBasal(pool, opts = defaults) {
 
     var pathDef = basal.pathData(data, isUndelivered);
 
-    if (pathDef !== '') {
+    if (pathDef !== "") {
       selection.attr({
         d: pathDef,
       });
@@ -204,32 +201,32 @@ function plotBasal(pool, opts = defaults) {
     opts.xScale = pool.xScale().copy();
 
     function stringCoords(datum) {
-      return basal.xPosition(datum) + ',' + basal.pathYPosition(datum) + ' ';
+      return basal.xPosition(datum) + "," + basal.pathYPosition(datum) + " ";
     }
 
-    var d = '';
+    var d = "";
     for (var i = 0; i < data.length; ++i) {
       if (i === 0) {
         // start with a moveto command
-        d += 'M' + stringCoords(data[i]);
+        d += "M" + stringCoords(data[i]);
       }
-      else if (isUndelivered && data[i].deliveryType === 'automated') {
+      else if (isUndelivered && data[i].deliveryType === "automated") {
         // For automated suppressed delivery, we always render at the baseline
         var suppressed = _.clone(data[i]);
         suppressed.rate = 0;
-        d += 'M' + stringCoords(suppressed);
+        d += "M" + stringCoords(suppressed);
       }
       else if (data[i].normalTime === data[i - 1].normalEnd) {
         // if segment is contiguous with previous, draw a vertical line connecting their values
-        d += 'V' + basal.pathYPosition(data[i]) + ' ';
+        d += "V" + basal.pathYPosition(data[i]) + " ";
       }
       // TODO: maybe a robust check for a gap in time here instead of just !==?
       else if (data[i].normalTime !== data[i - 1].normalEnd) {
         // if segment is not contiguous with previous, skip to beginning of segment
-        d += 'M' + stringCoords(data[i]);
+        d += "M" + stringCoords(data[i]);
       }
       // always add a horizontal line corresponding to current segment
-      d += 'H' + basal.segmentEndXPosition(data[i]) + ' ';
+      d += "H" + basal.segmentEndXPosition(data[i]) + " ";
     }
     return d;
   };
@@ -272,78 +269,76 @@ function plotBasal(pool, opts = defaults) {
   };
 
   basal.rateString = function(d, cssClass) {
-    return format.tooltipValue(d.rate) + ` <span class="${cssClass}">${t('U/hr')}</span>`;
+    return format.tooltipValue(d.rate) + ` <span class="${cssClass}">${t("U/hr")}</span>`;
   };
 
   basal.tempPercentage = function(d) {
-    if (typeof d.percent === 'number') {
+    if (typeof d.percent === "number") {
       return format.percentage(d.percent);
     }
-    return format.tooltipValue(d.rate) + ` <span class="plain">${t('U/hr')}</span>`;
+    return format.tooltipValue(d.rate) + ` <span class="plain">${t("U/hr")}</span>`;
   };
 
   basal.tooltipHtml = function(group, datum, showSheduledLabel) {
     const { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = constants;
     const H_MM_A_FORMAT = constants.dateTimeFormats.H_MM_A_FORMAT;
     /** @type {string} */
-    const source = _.get(datum, 'source', opts.defaultSource);
+    const source = _.get(datum, "source", opts.defaultSource);
     switch (datum.deliveryType) {
-    case 'temp':
-      group.append('p')
-        .append('span')
-        .html('<span class="plain">'+t('Temp basal of')+'</span> ' + basal.tempPercentage(datum));
+    case "temp":
+      group.append("p")
+        .append("span")
+        .html(`<span class="plain">${t("Temp basal of")}</span> ` + basal.tempPercentage(datum));
       if (datum.suppressed) {
-        group.append('p')
-          .append('span')
-          .attr('class', 'secondary')
-          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+ t('scheduled'));
+        group.append("p")
+          .append("span")
+          .attr("class", "secondary")
+          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), "secondary") + " "+ t("scheduled"));
       }
       break;
-    case 'suspend':
-      group.append('p')
-        .append('span')
+    case "suspend":
+      group.append("p")
+        .append("span")
         .html('<span class="plain">Pump suspended</span>');
       if (datum.suppressed) {
-        group.append('p')
-          .append('span')
-          .attr('class', 'secondary')
-          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+ t('scheduled'));
+        group.append("p")
+          .append("span")
+          .attr("class", "secondary")
+          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), "secondary") + " "+ t("scheduled"));
       }
       break;
-    case 'automated':
-      group.append('p')
-        .append('span')
-        .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, source, AUTOMATED_BASAL_LABELS.default) + ':</span> ' +
-          basal.rateString(datum, 'plain'));
+    case "automated":
+      group.append("p")
+        .append("span")
+        .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, source, AUTOMATED_BASAL_LABELS.default) + ":</span> " +
+          basal.rateString(datum, "plain"));
       break;
-    default:
-      {
-        const label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, source, SCHEDULED_BASAL_LABELS.default) + ':</span> ' : '';
-        group.append('p')
-          .append('span')
-          .html(label + basal.rateString(datum, 'plain'));
-      }
-    }
+    default: {
+      const label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, source, SCHEDULED_BASAL_LABELS.default) + ":</span> " : "";
+      group.append("p")
+        .append("span")
+        .html(label + basal.rateString(datum, "plain"));
+    }}
 
     const mBegin = moment.tz(datum.epoch, datum.timezone);
     const begin = mBegin.format(H_MM_A_FORMAT);
     const end = moment.tz(datum.epochEnd, datum.timezone).format(H_MM_A_FORMAT);
-    const html = `<span class="fromto">${t('from')}</span> ${begin} <span class="fromto">${t('to')}</span> ${end}`;
-    group.append('p')
-      .append('span')
-      .attr('class', 'secondary')
+    const html = `<span class="fromto">${t("from")}</span> ${begin} <span class="fromto">${t("to")}</span> ${end}`;
+    group.append("p")
+      .append("span")
+      .attr("class", "secondary")
       .html(html);
   };
 
   basal.addTooltip = function(d, showSheduledLabel) {
     var datum = _.clone(d);
-    datum.type = 'basal';
+    datum.type = "basal";
     var tooltips = pool.tooltips();
-    var cssClass = (d.deliveryType === 'temp' || d.deliveryType === 'suspend') ? 'd3-basal-undelivered' : '';
+    var cssClass = (d.deliveryType === "temp" || d.deliveryType === "suspend") ? "d3-basal-undelivered" : "";
     var res = tooltips.addForeignObjTooltip({
       cssClass: cssClass,
       datum: datum,
-      shape: 'basal',
+      shape: "basal",
       xPosition: basal.tooltipXPosition,
       yPosition: _.constant(0),
     });
@@ -355,7 +350,7 @@ function plotBasal(pool, opts = defaults) {
     tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
       w: dims.width + opts.tooltipPadding,
       h: dims.height,
-      shape: 'basal',
+      shape: "basal",
       edge: res.edge
     });
   };
@@ -374,8 +369,8 @@ function plotBasal(pool, opts = defaults) {
         },
         d: d
       };
-      if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
-        mainGroup.select('#tidelineAnnotations_basal')
+      if (_.isNil(mainGroup.select("#annotation_for_" + d.id)[0][0])) {
+        mainGroup.select("#tidelineAnnotations_basal")
           .call(pool.annotations(), annotationOpts);
       }
     }

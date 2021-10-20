@@ -22,9 +22,9 @@ function categorizer(bgClasses = {}, bgUnits = MGDL_UNITS) {
   var classes = _.cloneDeep(bgClasses);
   var defaults = {
     "very-low": { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
-    low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
-    target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
-    high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
+    "low": { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
+    "target": { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
+    "high": { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
   };
 
   _.defaults(classes, defaults);

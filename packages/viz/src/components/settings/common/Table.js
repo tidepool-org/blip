@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
 
-import styles from './Table.css';
+import styles from "./Table.css";
 
 class Table extends React.Component {
   getItemField(item, field) {
@@ -42,7 +42,7 @@ class Table extends React.Component {
     const cells = _.map(normalizedColumns,
       (column, key) => {
         const { label } = column;
-        if (typeof label === 'object' && _.isEqual(_.keys(label), ['main', 'secondary'])) {
+        if (typeof label === "object" && _.isEqual(_.keys(label), ["main", "secondary"])) {
           return (
             <th key={key} className={column.className}>
               {label.main}<span className={styles.secondaryLabelWithMain}>{label.secondary}</span>

@@ -19,8 +19,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
 import i18next from "i18next";
-import bows from 'bows';
-import moment from 'moment-timezone';
+import bows from "bows";
+import moment from "moment-timezone";
 
 import { isTimezoneAware, getDisplayTimestamp } from "./messagemixins";
 
@@ -38,7 +38,7 @@ class MessageForm extends React.Component {
     this.state = this.initialState();
     this.isTimezoneAware = isTimezoneAware.bind(this);
     this.getDisplayTimestamp = getDisplayTimestamp.bind(this);
-    this.log = bows('MessageForm UI');
+    this.log = bows("MessageForm UI");
   }
 
   /**
@@ -47,7 +47,7 @@ class MessageForm extends React.Component {
   initialState() {
     return {
       /** @type {string} The edited message */
-      msg: '',
+      msg: "",
       /** @type {string} ISO date-time string in UTC */
       when: null,
       /** @type {string} The edited date */
@@ -102,7 +102,7 @@ class MessageForm extends React.Component {
     const timestampToEdit = this.hasTimestampToEdit();
 
     if (textToEdit && timestampToEdit) {
-      this.log.info('initEdit at', formFields.editableTimestamp);
+      this.log.info("initEdit at", formFields.editableTimestamp);
       const editable = this.getEditableDateAndTime(formFields.editableTimestamp);
       // allow editing of both the note text and timestamp
       this.setState({
@@ -123,7 +123,7 @@ class MessageForm extends React.Component {
         editing: true,
       });
     } else {
-      this.log.error('initEdit: Wrong state', { textToEdit, timestampToEdit, props: { ...this.props }, state: { ...this.state } });
+      this.log.error("initEdit: Wrong state", { textToEdit, timestampToEdit, props: { ...this.props }, state: { ...this.state } });
     }
 
     this.setState({ rows: 3 });
@@ -166,7 +166,7 @@ class MessageForm extends React.Component {
     if (this.props.onCancel) {
       this.props.onCancel(e);
     } else {
-      this.log.debug('Cancel edit note');
+      this.log.debug("Cancel edit note");
       this.setState(this.initialState());
     }
   };
@@ -181,17 +181,17 @@ class MessageForm extends React.Component {
 
   handleSaving = async (/* e */) => {
     const { alwaysActiveCommentForm } = this.props;
-    this.log.debug('handleSaving', { ...this.state, alwaysActiveCommentForm });
+    this.log.debug("handleSaving", { ...this.state, alwaysActiveCommentForm });
     this.setState({ saving: true });
 
     try {
       if (_.isFunction(this.props.onSubmit)) {
         await this.props.onSubmit({ text: this.state.msg, timestamp: this.getUtcTimestamp() });
       } else {
-        this.log.warn('handleSaving: onSubmit callback is missing');
+        this.log.warn("handleSaving: onSubmit callback is missing");
       }
     } catch (err) {
-      this.log.error('handleSaving(): TODO manage error', err);
+      this.log.error("handleSaving(): TODO manage error", err);
     }
 
     if (alwaysActiveCommentForm) {
@@ -203,7 +203,7 @@ class MessageForm extends React.Component {
 
   handleFocus = (/* e */) => {
     if (this.isExistingNoteEdit() === false) {
-      this.log('Starting to edit a note');
+      this.log("Starting to edit a note");
       this.setState({ editing: true, when: moment.utc().toISOString() });
     }
     this.setState({ rows: 3 });

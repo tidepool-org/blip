@@ -28,7 +28,7 @@
 
 /* eslint-disable max-lines */
 
-import sinon from "sinon";
+import * as sinon from "sinon";
 import { expect } from "chai";
 import { v4 as uuidv4 } from "uuid";
 

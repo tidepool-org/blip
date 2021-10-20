@@ -15,31 +15,31 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import i18next from 'i18next';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import i18next from "i18next";
 
 import {
   classifyBgValue,
   reshapeBgClassesToBgBounds,
   getOutOfRangeThreshold,
-} from '../../../utils/bloodglucose';
-import { formatBgValue } from '../../../utils/format';
+} from "../../../utils/bloodglucose";
+import { formatBgValue } from "../../../utils/format";
 import {
   getOutOfRangeAnnotationMessage,
-} from '../../../utils/annotations';
-import Tooltip from '../../common/tooltips/Tooltip';
-import colors from '../../../styles/colors.css';
-import styles from './SMBGTooltip.css';
+} from "../../../utils/annotations";
+import Tooltip from "../../common/tooltips/Tooltip";
+import colors from "../../../styles/colors.css";
+import styles from "./SMBGTooltip.css";
 
 class SMBGTooltip extends React.Component {
   renderSMBG() {
     const smbg = this.props.smbg;
     const outOfRangeMessage = getOutOfRangeAnnotationMessage(smbg);
     const rows = [
-      <div key={'bg'} className={styles.bg}>
-        <div className={styles.label}>{i18next.t('BG')}</div>
+      <div key={"bg"} className={styles.bg}>
+        <div className={styles.label}>{i18next.t("BG")}</div>
         <div className={styles.value}>
           {`${formatBgValue(smbg.value, this.props.bgPrefs, getOutOfRangeThreshold(smbg))}`}
         </div>
@@ -47,8 +47,8 @@ class SMBGTooltip extends React.Component {
     ];
 
     rows.push(
-      <div key={'source'} className={styles.source}>
-        <div className={styles.label}>{i18next.t('Calibration')}</div>
+      <div key={"source"} className={styles.source}>
+        <div className={styles.label}>{i18next.t("Calibration")}</div>
       </div>
     );
 
@@ -56,17 +56,17 @@ class SMBGTooltip extends React.Component {
       const bgClass = classifyBgValue(
         reshapeBgClassesToBgBounds(this.props.bgPrefs),
         this.props.smbg.value,
-        'fiveWay'
+        "fiveWay"
       );
       rows.push(
         <div
-          key={'divider'}
+          key={"divider"}
           className={styles.dividerLarge}
           style={{ backgroundColor: colors[bgClass] }}
         />
       );
       rows.push(
-        <div key={'outOfRange'} className={styles.annotation}>
+        <div key={"outOfRange"} className={styles.annotation}>
           {outOfRangeMessage[0].message.value}
         </div>
       );
@@ -80,15 +80,15 @@ class SMBGTooltip extends React.Component {
     const bgClass = classifyBgValue(
       reshapeBgClassesToBgBounds(bgPrefs),
       smbg.value,
-      'fiveWay'
+      "fiveWay"
     );
 
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(smbg, 'source', 'Diabeloop'),
+        source: _.get(smbg, "source", "Diabeloop"),
         normalTime: smbg.normalTime,
-        timezone: _.get(smbg, 'timezone', 'UTC'),
+        timezone: _.get(smbg, "timezone", "UTC"),
         timePrefs,
       };
     }
@@ -118,7 +118,7 @@ SMBGTooltip.propTypes = {
   }),
   title: PropTypes.node,
   tail: PropTypes.bool.isRequired,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]).isRequired,
   tailColor: PropTypes.string.isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
@@ -140,7 +140,7 @@ SMBGTooltip.propTypes = {
 
 SMBGTooltip.defaultProps = {
   tail: true,
-  side: 'right',
+  side: "right",
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.bolus,

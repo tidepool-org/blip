@@ -1,6 +1,3 @@
-import _ from 'lodash';
-import { range } from 'd3-array';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -18,13 +15,14 @@ import { range } from 'd3-array';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React from "react";
+import _ from "lodash";
+import { range } from "d3-array";
 
-import React from 'react';
+import * as datetime from "../../../utils/datetime";
 
-import * as datetime from '../../../utils/datetime';
-
-import styles from './XAxisTicks.css';
+import styles from "./XAxisTicks.css";
 
 const XAxisTicks = (props) => {
   const { data, margins, tickLength, xScale } = props;

@@ -15,26 +15,26 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
+import React from "react";
+import { expect } from "chai";
+import { mount } from "enzyme";
 
-import { mount } from 'enzyme';
+import { formatClassesAsSelector } from "../../helpers/cssmodules";
 
-import { formatClassesAsSelector } from '../../helpers/cssmodules';
-
-import ReservoirTooltip from '../../../src/components/daily/reservoirtooltip/ReservoirTooltip';
-import styles from '../../../src/components/daily/reservoirtooltip/ReservoirTooltip.css';
-import { DEFAULT_MANUFACTURER } from '../../../src/utils/constants';
+import ReservoirTooltip from "../../../src/components/daily/reservoirtooltip/ReservoirTooltip";
+import styles from "../../../src/components/daily/reservoirtooltip/ReservoirTooltip.css";
+import { DEFAULT_MANUFACTURER } from "../../../src/utils/constants";
 
 const normal = {
-  type: 'deviceEvent',
-  subType: 'reservoirChange',
+  type: "deviceEvent",
+  subType: "reservoirChange",
   pump: { manufacturer: [DEFAULT_MANUFACTURER]}
 };
 
 const normalCartridge = {
-  type: 'deviceEvent',
-  subType: 'reservoirChange',
-  pump: { manufacturer: 'Roche'}
+  type: "deviceEvent",
+  subType: "reservoirChange",
+  pump: { manufacturer: "Roche"}
 };
 
 const props = {
@@ -42,25 +42,24 @@ const props = {
   timePrefs: { timezoneAware: false },
 };
 
-describe('reservoirTooltip', () => {
-  it('should render without issue when all properties provided for Default manufacturer', () => {
+describe("reservoirTooltip", () => {
+  it("should render without issue when all properties provided for Default manufacturer", () => {
     const wrapper = mount(<ReservoirTooltip {...props} reservoir={normal} />);
     expect(wrapper.find(formatClassesAsSelector(styles.pa))).to.have.length(1);
     expect(wrapper
       .find(formatClassesAsSelector(styles.pa))
       .at(0)
       .find(formatClassesAsSelector(styles.label))
-      .text()).to.equal('Infusion site change');
-    });
+      .text()).to.equal("Infusion site change");
+  });
 
-  it('should render without issue when all properties provided for Roche manufacturer', () => {
+  it("should render without issue when all properties provided for Roche manufacturer", () => {
     const wrapper = mount(<ReservoirTooltip {...props} reservoir={normalCartridge} />);
     expect(wrapper.find(formatClassesAsSelector(styles.pa))).to.have.length(1);
     expect(wrapper
       .find(formatClassesAsSelector(styles.pa))
       .at(0)
       .find(formatClassesAsSelector(styles.label))
-      .text()).to.equal('Reservoir Change');
-    });
-  
+      .text()).to.equal("Reservoir Change");
   });
+});

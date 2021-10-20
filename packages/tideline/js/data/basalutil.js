@@ -15,17 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import format from './util/format';
-import dt from './util/datetime';
-import { MS_IN_DAY, MS_IN_HOUR } from './util/constants';
+import format from "./util/format";
+import dt from "./util/datetime";
+import { MS_IN_DAY, MS_IN_HOUR } from "./util/constants";
 
 function BasalUtil(data) {
 
   this.scheduleTotal = function(schedule) {
     if ((! (schedule && Array.isArray(schedule) && schedule.length > 0))) {
-      return NaN;
+      return Number.NaN;
     }
     var total = 0, duration;
     schedule.push({
@@ -99,9 +99,8 @@ function BasalUtil(data) {
       }
       return endpoints;
     }
-    else {
-      return false;
-    }
+
+    return false;
   };
 
   /**
@@ -110,9 +109,9 @@ function BasalUtil(data) {
    * @return {String} the path group type
    */
   this.getBasalPathGroupType = function(datum) {
-    var deliveryType = _.get(datum, 'deliveryType');
-    var suppressedDeliveryType = _.get(datum, 'suppressed.deliveryType');
-    return _.includes([deliveryType, suppressedDeliveryType], 'automated') ? 'automated' : 'manual';
+    var deliveryType = _.get(datum, "deliveryType");
+    var suppressedDeliveryType = _.get(datum, "suppressed.deliveryType");
+    return _.includes([deliveryType, suppressedDeliveryType], "automated") ? "automated" : "manual";
   };
 
   /**

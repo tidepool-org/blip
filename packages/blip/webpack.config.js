@@ -1,21 +1,21 @@
 /* eslint-disable lodash/prefer-lodash-typecheck */
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const buildConfig = require('../../server/config.app');
+const path = require("path");
+const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const buildConfig = require("../../server/config.app");
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
 // but that will sometimes happen with the base64 hashes
 // so we leave them off in the test env
-const localIdentName = '[name]--[local]';
+const localIdentName = "[name]--[local]";
 
 const lessLoaderConfiguration = {
   test: /\.less$/,
   use: [
-    'style-loader',
+    "style-loader",
     {
-      loader: 'css-loader',
+      loader: "css-loader",
       options: {
         importLoaders: 2,
         sourceMap: true,
@@ -27,7 +27,7 @@ const lessLoaderConfiguration = {
       },
     },
     {
-      loader: 'postcss-loader',
+      loader: "postcss-loader",
       options: {
         sourceMap: true,
         postcssOptions: {
@@ -36,7 +36,7 @@ const lessLoaderConfiguration = {
       },
     },
     {
-      loader: 'less-loader',
+      loader: "less-loader",
       options: {
         sourceMap: true,
         lessOptions: {
@@ -51,9 +51,9 @@ const lessLoaderConfiguration = {
 const cssLoaderConfiguration = {
   test: /\.css$/,
   use: [
-    'style-loader',
+    "style-loader",
     {
-      loader: 'css-loader',
+      loader: "css-loader",
       options: {
         importLoaders: 1,
         sourceMap: true,
@@ -63,7 +63,7 @@ const cssLoaderConfiguration = {
       },
     },
     {
-      loader: 'postcss-loader',
+      loader: "postcss-loader",
       options: {
         sourceMap: true,
         postcssOptions: {
@@ -81,7 +81,7 @@ const babelLoaderConfiguration = [
       return /node_modules/.test(modulePath) && !/(tideline|tidepool-viz)/.test(modulePath);
     },
     use: {
-      loader: 'babel-loader',
+      loader: "babel-loader",
       options: {
         rootMode: "upward",
         configFile: path.resolve(__dirname, "../../babel.config.json"),
@@ -92,7 +92,7 @@ const babelLoaderConfiguration = [
   {
     test: /\.js?$/,
     use: {
-      loader: 'source-map-loader',
+      loader: "source-map-loader",
     },
   },
 ];
@@ -111,7 +111,7 @@ const fontLoaderConfiguration = {
 const localesLoader = {
   test: /locales\/languages\.json$/,
   use: {
-    loader: '../../webpack.locales-loader.js'
+    loader: "../../webpack.locales-loader.js"
   }
 };
 
@@ -126,11 +126,11 @@ const plugins = [
     __TEST__: true,
   }),
   new HtmlWebpackPlugin({
-    template: '../../templates/index.html',
+    template: "../../templates/index.html",
     favicon:  `../../branding/${buildConfig.BRANDING}/favicon.ico`,
     minify: false,
-    scriptLoading: 'defer',
-    inject: 'body',
+    scriptLoading: "defer",
+    inject: "body",
     showErrors: true,
     title: buildConfig.BRANDING,
   }),
@@ -139,17 +139,17 @@ const plugins = [
 const resolve = {
   symlinks: false,
   modules: [
-    path.join(__dirname, 'node_modules'),
-    'node_modules',
+    path.join(__dirname, "node_modules"),
+    "node_modules",
   ],
   alias: {
-    pdfkit: 'pdfkit/js/pdfkit.standalone.js',
-    'lock.svg': path.resolve(__dirname, `../../branding/lock.svg`),
+    "pdfkit": "pdfkit/js/pdfkit.standalone.js",
+    "lock.svg": path.resolve(__dirname, "../../branding/lock.svg"),
     "branding/logo.png": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/logo.png`),
-    'cartridge.png': path.resolve(__dirname, '../../branding/sitechange/cartridge.png'),
-    'infusion.png': path.resolve(__dirname, '../../branding/sitechange/infusion.png'),
-    'cartridge-vicentra.png': path.resolve(__dirname, '../../branding/sitechange/cartridge-vicentra.png'),
-    'warmup-dexcom.svg': path.resolve(__dirname, '../../branding/warmup/warmup-dexcom.svg'),
+    "cartridge.png": path.resolve(__dirname, "../../branding/sitechange/cartridge.png"),
+    "infusion.png": path.resolve(__dirname, "../../branding/sitechange/infusion.png"),
+    "cartridge-vicentra.png": path.resolve(__dirname, "../../branding/sitechange/cartridge-vicentra.png"),
+    "warmup-dexcom.svg": path.resolve(__dirname, "../../branding/warmup/warmup-dexcom.svg"),
   },
   fallback: {
     stream: require.resolve("stream-browserify"),
@@ -158,9 +158,9 @@ const resolve = {
 };
 
 const webpackConfig = {
-  devtool: 'inline-source-map',
+  devtool: "inline-source-map",
   stats: "minimal", // See https://webpack.js.org/configuration/stats/
-  mode: 'development',
+  mode: "development",
   module: {
     rules: [
       ...babelLoaderConfiguration,

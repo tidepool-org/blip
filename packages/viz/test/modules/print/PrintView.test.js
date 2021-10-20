@@ -17,18 +17,18 @@
 
 /* eslint-disable max-len */
 
-import _ from 'lodash';
-import sinon from 'sinon';
-import { expect } from 'chai';
+import _ from "lodash";
+import * as sinon from "sinon";
+import { expect } from "chai";
 
-import PrintView from '../../../src/modules/print/PrintView';
-import * as patients from '../../../data/patient/profiles';
+import PrintView from "../../../src/modules/print/PrintView";
+import * as patients from "../../../data/patient/profiles";
 
 import {
   getTimezoneFromTimePrefs,
   formatBirthdate,
   formatCurrentDate,
-} from '../../../src/utils/datetime';
+} from "../../../src/utils/datetime";
 
 import {
   DEFAULT_FONT_SIZE,
@@ -37,12 +37,12 @@ import {
   LARGE_FONT_SIZE,
   SMALL_FONT_SIZE,
   EXTRA_SMALL_FONT_SIZE,
-} from '../../../src/modules/print/utils/constants';
+} from "../../../src/modules/print/utils/constants";
 
-import Doc from '../../helpers/pdfDoc';
-import { getPatientFullName } from '../../../src/utils/misc';
+import Doc from "../../helpers/pdfDoc";
+import { getPatientFullName } from "../../../src/utils/misc";
 
-describe('PrintView', () => {
+describe("PrintView", () => {
   let Renderer;
 
   const data = {};
@@ -60,7 +60,7 @@ describe('PrintView', () => {
         targetLowerBound: 70,
         veryLowThreshold: 54,
       },
-      bgUnits: 'mg/dL',
+      bgUnits: "mg/dL",
     },
     debug: false,
     dpi: DPI,
@@ -80,10 +80,10 @@ describe('PrintView', () => {
     patient: patients.standard,
     timePrefs: {
       timezoneAware: true,
-      timezoneName: 'US/Pacific',
+      timezoneName: "US/Pacific",
     },
     width: 8.5 * DPI - (2 * MARGIN),
-    title: 'Print View',
+    title: "Print View",
   };
 
   beforeEach(() => {
@@ -91,31 +91,31 @@ describe('PrintView', () => {
     Renderer = new PrintView(doc, data, opts);
   });
 
-  describe('class constructor', () => {
-    it('should instantiate without errors', () => {
-      expect(Renderer).to.be.an('object');
+  describe("class constructor", () => {
+    it("should instantiate without errors", () => {
+      expect(Renderer).to.be.an("object");
     });
 
-    it('should set default properties as provided by constructor args', () => {
+    it("should set default properties as provided by constructor args", () => {
       expect(Renderer.doc).to.eql(doc);
       expect(Renderer.data).to.eql(data);
 
       const overrideOpts = [
-        'title',
-        'debug',
-        'dpi',
-        'margins',
-        'defaultFontSize',
-        'footerFontSize',
-        'headerFontSize',
-        'largeFontSize',
-        'smallFontSize',
-        'extraSmallFontSize',
-        'bgPrefs',
-        'timePrefs',
-        'width',
-        'height',
-        'patient',
+        "title",
+        "debug",
+        "dpi",
+        "margins",
+        "defaultFontSize",
+        "footerFontSize",
+        "headerFontSize",
+        "largeFontSize",
+        "smallFontSize",
+        "extraSmallFontSize",
+        "bgPrefs",
+        "timePrefs",
+        "width",
+        "height",
+        "patient",
       ];
 
       _.forEach(overrideOpts, opt => {
@@ -127,19 +127,19 @@ describe('PrintView', () => {
       expect(Renderer.timezone).to.equal(getTimezoneFromTimePrefs(opts.timePrefs));
     });
 
-    it('should set fallback default properties when not provided by constructor args', () => {
+    it("should set fallback default properties when not provided by constructor args", () => {
       const fallbackOpts = [
-        'debug',
-        'dpi',
-        'margins',
-        'defaultFontSize',
-        'footerFontSize',
-        'headerFontSize',
-        'largeFontSize',
-        'smallFontSize',
-        'extraSmallFontSize',
-        'width',
-        'height',
+        "debug",
+        "dpi",
+        "margins",
+        "defaultFontSize",
+        "footerFontSize",
+        "headerFontSize",
+        "largeFontSize",
+        "smallFontSize",
+        "extraSmallFontSize",
+        "width",
+        "height",
       ];
 
       const strippedOpts = _.cloneDeep(opts);
@@ -155,62 +155,62 @@ describe('PrintView', () => {
       });
     });
 
-    it('should set data to an empty object when not provided to constructor', () => {
+    it("should set data to an empty object when not provided to constructor", () => {
       const noDataRenderer = new PrintView(doc, undefined, opts);
       expect(noDataRenderer.data).to.eql({});
     });
 
-    it('should set it\'s own required initial instance properties', () => {
+    it("should set it's own required initial instance properties", () => {
       const requiredProps = [
-        { prop: 'font', type: 'string' },
-        { prop: 'boldFont', type: 'string' },
-        { prop: 'colors', type: 'object' },
-        { prop: 'tableSettings', type: 'object' },
-        { prop: 'leftEdge', type: 'number', value: Renderer.margins.left },
-        { prop: 'rightEdge', type: 'number', value: Renderer.margins.left + Renderer.width },
-        { prop: 'bottomEdge', type: 'number', value: Renderer.margins.top + Renderer.height },
-        { prop: 'patientInfoBox', type: 'object', value: {
+        { prop: "font", type: "string" },
+        { prop: "boldFont", type: "string" },
+        { prop: "colors", type: "object" },
+        { prop: "tableSettings", type: "object" },
+        { prop: "leftEdge", type: "number", value: Renderer.margins.left },
+        { prop: "rightEdge", type: "number", value: Renderer.margins.left + Renderer.width },
+        { prop: "bottomEdge", type: "number", value: Renderer.margins.top + Renderer.height },
+        { prop: "patientInfoBox", type: "object", value: {
           width: 0,
           height: 0,
         } },
-        { prop: 'chartArea', type: 'object' },
-        { prop: 'initialChartArea', type: 'object' },
-        { prop: 'totalPages', type: 'number', value: 0 },
-        { prop: 'initialTotalPages', type: 'number', value: 0 },
-        { prop: 'currentPageIndex', type: 'number', value: -1 },
+        { prop: "chartArea", type: "object" },
+        { prop: "initialChartArea", type: "object" },
+        { prop: "totalPages", type: "number", value: 0 },
+        { prop: "initialTotalPages", type: "number", value: 0 },
+        { prop: "currentPageIndex", type: "number", value: -1 },
       ];
 
       _.forEach(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
-        item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
+        _.has(item, "value") && expect(Renderer[item.prop]).to.eql(item.value);
       });
     });
 
-    it('should remove any existing listeners assigned to the doc\'s pageAdded event', () => {
-      sinon.assert.calledWith(Renderer.doc.removeAllListeners, 'pageAdded');
+    it("should remove any existing listeners assigned to the doc's pageAdded event", () => {
+      sinon.assert.calledWith(Renderer.doc.removeAllListeners, "pageAdded");
     });
 
-    it('should assign the newPage function as a callback to the doc\'s pageAdded event', () => {
-      sinon.assert.calledWith(Renderer.doc.on, 'pageAdded', Renderer.newPage);
+    it("should assign the newPage function as a callback to the doc's pageAdded event", () => {
+      sinon.assert.calledWith(Renderer.doc.on, "pageAdded", Renderer.newPage);
     });
 
-    it('should subtract the header and footer size from the chart area', () => {
+    it("should subtract the header and footer size from the chart area", () => {
       expect(Renderer.chartArea.topEdge).to.be.above(Renderer.initialChartArea.topEdge);
       expect(Renderer.chartArea.bottomEdge).to.be.below(Renderer.initialChartArea.bottomEdge);
     });
   });
 
-  describe('newPage', () => {
-    it('should render a header and footer', () => {
-      sinon.stub(Renderer, 'renderHeader').returns(Renderer);
-      sinon.stub(Renderer, 'renderFooter');
+  describe("newPage", () => {
+    it("should render a header and footer", () => {
+      sinon.stub(Renderer, "renderHeader").returns(Renderer);
+      sinon.stub(Renderer, "renderFooter");
 
       Renderer.newPage();
       sinon.assert.called(Renderer.renderHeader);
       sinon.assert.called(Renderer.renderFooter);
     });
 
-    it('should increment `currentPageIndex` each time it\'s called', () => {
+    it("should increment `currentPageIndex` each time it's called", () => {
       expect(Renderer.currentPageIndex).to.equal(-1);
       Renderer.newPage();
       expect(Renderer.currentPageIndex).to.equal(0);
@@ -218,7 +218,7 @@ describe('PrintView', () => {
       expect(Renderer.currentPageIndex).to.equal(1);
     });
 
-    it('should increment `totalPages` each time it\'s called', () => {
+    it("should increment `totalPages` each time it's called", () => {
       expect(Renderer.totalPages).to.equal(0);
       Renderer.newPage();
       expect(Renderer.totalPages).to.equal(1);
@@ -226,9 +226,9 @@ describe('PrintView', () => {
       expect(Renderer.totalPages).to.equal(2);
     });
 
-    it('should reset the font styles after rendering the footer', () => {
-      sinon.stub(Renderer, 'renderHeader').returns(Renderer);
-      sinon.stub(Renderer, 'renderFooter');
+    it("should reset the font styles after rendering the footer", () => {
+      sinon.stub(Renderer, "renderHeader").returns(Renderer);
+      sinon.stub(Renderer, "renderFooter");
       Renderer.doc.font.resetHistory();
       Renderer.doc.fontSize.resetHistory();
       Renderer.newPage();
@@ -243,7 +243,7 @@ describe('PrintView', () => {
       );
     });
 
-    it('should maintain the previous page\'s column layout and position', () => {
+    it("should maintain the previous page's column layout and position", () => {
       expect(Renderer.layoutColumns).to.be.undefined;
 
       Renderer.setLayoutColumns({ width: Renderer.width, count: 3 });
@@ -258,8 +258,8 @@ describe('PrintView', () => {
       expect(Renderer.layoutColumns.count).to.equal(3);
     });
 
-    it('should call `setNewPageTablePosition` when rendering a table', () => {
-      const setNewPageTablePositionSpy = sinon.spy(Renderer, 'setNewPageTablePosition');
+    it("should call `setNewPageTablePosition` when rendering a table", () => {
+      const setNewPageTablePositionSpy = sinon.spy(Renderer, "setNewPageTablePosition");
 
       Renderer.table = undefined;
       Renderer.newPage();
@@ -279,8 +279,8 @@ describe('PrintView', () => {
     });
   });
 
-  describe('setNewPageTablePosition', () => {
-    it('should maintain the previous page\'s table x position when in a layout column', () => {
+  describe("setNewPageTablePosition", () => {
+    it("should maintain the previous page's table x position when in a layout column", () => {
       Renderer.setLayoutColumns({ width: 100, count: 3, gutter: 10 });
       Renderer.goToLayoutColumnPosition(1);
 
@@ -307,7 +307,7 @@ describe('PrintView', () => {
       expect(Renderer.table.pos.x).to.equal(xPos);
     });
 
-    it('should use the left edge as the x position when not in a layout column', () => {
+    it("should use the left edge as the x position when not in a layout column", () => {
       Renderer.layoutColumns = undefined;
 
       Renderer.doc.x = 200;
@@ -331,40 +331,40 @@ describe('PrintView', () => {
     });
   });
 
-  describe('setLayoutColumns', () => {
-    it('should define an equal spaced column layout when type is unspecified', () => {
+  describe("setLayoutColumns", () => {
+    it("should define an equal spaced column layout when type is unspecified", () => {
       Renderer.setLayoutColumns({ count: 3 });
-      expect(Renderer.layoutColumns.type).to.equal('equal');
+      expect(Renderer.layoutColumns.type).to.equal("equal");
     });
 
-    it('should define an equal spaced column layout with correct count and gutters', () => {
+    it("should define an equal spaced column layout with correct count and gutters", () => {
       const colCount = 3;
 
       Renderer.setLayoutColumns({
-        type: 'equal',
+        type: "equal",
         count: colCount,
         gutter: 10,
         width: 120,
       });
 
-      expect(Renderer.layoutColumns.type).to.equal('equal');
+      expect(Renderer.layoutColumns.type).to.equal("equal");
       expect(Renderer.layoutColumns.columns.length).to.equal(colCount);
       expect(Renderer.layoutColumns.columns[0].width).to.equal(100 / colCount);
       expect(Renderer.layoutColumns.columns[1].width).to.equal(100 / colCount);
       expect(Renderer.layoutColumns.columns[2].width).to.equal(100 / colCount);
     });
 
-    it('should define a percentage-based column layout with correct count and gutters', () => {
+    it("should define a percentage-based column layout with correct count and gutters", () => {
       const colCount = 3;
 
       Renderer.setLayoutColumns({
-        type: 'percentage',
+        type: "percentage",
         gutter: 10,
         width: 1020,
         widths: [30, 40, 30],
       });
 
-      expect(Renderer.layoutColumns.type).to.equal('percentage');
+      expect(Renderer.layoutColumns.type).to.equal("percentage");
       expect(Renderer.layoutColumns.columns.length).to.equal(colCount);
       expect(Renderer.layoutColumns.columns[0].width).to.equal(300);
       expect(Renderer.layoutColumns.columns[1].width).to.equal(400);
@@ -372,8 +372,8 @@ describe('PrintView', () => {
     });
   });
 
-  describe('updateLayoutColumnPosition', () => {
-    it('should update the position of a layout column to the current doc cursor position', () => {
+  describe("updateLayoutColumnPosition", () => {
+    it("should update the position of a layout column to the current doc cursor position", () => {
       Renderer.doc.y = Renderer.chartArea.topEdge;
 
       const activeColumn = 0;
@@ -392,8 +392,8 @@ describe('PrintView', () => {
     });
   });
 
-  describe('goToLayoutColumnPosition', () => {
-    it('should move the doc cursor to a layout column position', () => {
+  describe("goToLayoutColumnPosition", () => {
+    it("should move the doc cursor to a layout column position", () => {
       Renderer.doc.x = Renderer.chartArea.leftEdge;
       Renderer.doc.y = Renderer.chartArea.topEdge;
 
@@ -410,8 +410,8 @@ describe('PrintView', () => {
     });
   });
 
-  describe('getShortestLayoutColumn', () => {
-    it('should return the index of the column with the top-most y position', () => {
+  describe("getShortestLayoutColumn", () => {
+    it("should return the index of the column with the top-most y position", () => {
       Renderer.doc.y = 100;
       Renderer.setLayoutColumns({ count: 3, width: 900 });
 
@@ -429,8 +429,8 @@ describe('PrintView', () => {
     });
   });
 
-  describe('getLongestLayoutColumn', () => {
-    it('should return the index of the column with the bottom-most y position', () => {
+  describe("getLongestLayoutColumn", () => {
+    it("should return the index of the column with the bottom-most y position", () => {
       Renderer.doc.y = 100;
       Renderer.setLayoutColumns({ count: 3, width: 900 });
 
@@ -452,10 +452,10 @@ describe('PrintView', () => {
     });
   });
 
-  describe('getActiveColumnWidth', () => {
-    it('should return the width of the active column', () => {
+  describe("getActiveColumnWidth", () => {
+    it("should return the width of the active column", () => {
       Renderer.setLayoutColumns({
-        type: 'percentage',
+        type: "percentage",
         gutter: 10,
         width: 1020,
         widths: [30, 40, 30],
@@ -466,45 +466,45 @@ describe('PrintView', () => {
     });
   });
 
-  describe('getDateRange', () => {
-    it('should return the formatted date range', () => {
-      const result = Renderer.getDateRange('2017-12-01', '2017-12-10', 'YYYY-MM-DD');
+  describe("getDateRange", () => {
+    it("should return the formatted date range", () => {
+      const result = Renderer.getDateRange("2017-12-01", "2017-12-10", "YYYY-MM-DD");
 
-      expect(result).to.equal('Date range: Dec 1 - Dec 10, 2017');
+      expect(result).to.equal("Date range: Dec 1 - Dec 10, 2017");
     });
   });
 
-  describe('setFill', () => {
-    it('should call doc fill methods with default args', () => {
+  describe("setFill", () => {
+    it("should call doc fill methods with default args", () => {
       Renderer.setFill();
-      sinon.assert.calledWith(Renderer.doc.fillColor, 'black');
+      sinon.assert.calledWith(Renderer.doc.fillColor, "black");
       sinon.assert.calledWith(Renderer.doc.fillOpacity, 1);
     });
 
-    it('should call doc fill methods with provided args', () => {
-      Renderer.setFill('blue', 0.5);
-      sinon.assert.calledWith(Renderer.doc.fillColor, 'blue');
+    it("should call doc fill methods with provided args", () => {
+      Renderer.setFill("blue", 0.5);
+      sinon.assert.calledWith(Renderer.doc.fillColor, "blue");
       sinon.assert.calledWith(Renderer.doc.fillOpacity, 0.5);
     });
   });
 
-  describe('setStroke', () => {
-    it('should call doc stroke methods with default args', () => {
+  describe("setStroke", () => {
+    it("should call doc stroke methods with default args", () => {
       Renderer.setStroke();
-      sinon.assert.calledWith(Renderer.doc.strokeColor, 'black');
+      sinon.assert.calledWith(Renderer.doc.strokeColor, "black");
       sinon.assert.calledWith(Renderer.doc.strokeOpacity, 1);
     });
 
-    it('should call doc stroke methods with provided args', () => {
-      Renderer.setStroke('blue', 0.5);
-      sinon.assert.calledWith(Renderer.doc.strokeColor, 'blue');
+    it("should call doc stroke methods with provided args", () => {
+      Renderer.setStroke("blue", 0.5);
+      sinon.assert.calledWith(Renderer.doc.strokeColor, "blue");
       sinon.assert.calledWith(Renderer.doc.strokeOpacity, 0.5);
     });
   });
 
-  describe('resetText', () => {
-    it('should reset the doc text style', () => {
-      sinon.spy(Renderer, 'setFill');
+  describe("resetText", () => {
+    it("should reset the doc text style", () => {
+      sinon.spy(Renderer, "setFill");
 
       Renderer.resetText();
       sinon.assert.calledOnce(Renderer.setFill);
@@ -514,26 +514,26 @@ describe('PrintView', () => {
     });
   });
 
-  describe('renderSectionHeading', () => {
-    it('should render a section heading provided as a string', () => {
-      Renderer.renderSectionHeading('hello');
-      sinon.assert.calledWith(Renderer.doc.text, 'hello');
+  describe("renderSectionHeading", () => {
+    it("should render a section heading provided as a string", () => {
+      Renderer.renderSectionHeading("hello");
+      sinon.assert.calledWith(Renderer.doc.text, "hello");
     });
 
-    it('should render a section heading provided as an object with text and subText keys', () => {
+    it("should render a section heading provided as an object with text and subText keys", () => {
       Renderer.renderSectionHeading({
-        text: 'hello',
-        subText: 'there',
+        text: "hello",
+        subText: "there",
       });
 
-      sinon.assert.calledWith(Renderer.doc.text, 'hello');
-      sinon.assert.calledWith(Renderer.doc.text, ' there');
+      sinon.assert.calledWith(Renderer.doc.text, "hello");
+      sinon.assert.calledWith(Renderer.doc.text, " there");
     });
 
-    it('should set default font and font sizes for the text and subText', () => {
+    it("should set default font and font sizes for the text and subText", () => {
       Renderer.renderSectionHeading({
-        text: 'hello',
-        subText: 'there',
+        text: "hello",
+        subText: "there",
       });
 
       sinon.assert.calledWith(Renderer.doc.fontSize, Renderer.headerFontSize);
@@ -542,65 +542,65 @@ describe('PrintView', () => {
       sinon.assert.calledWith(Renderer.doc.fontSize, Renderer.defaultFontSize);
     });
 
-    it('should override default font sizes for the text and subText', () => {
+    it("should override default font sizes for the text and subText", () => {
       Renderer.renderSectionHeading({
-        text: 'hello',
-        subText: 'there',
+        text: "hello",
+        subText: "there",
       }, {
-        font: 'mainFont',
+        font: "mainFont",
         fontSize: 16,
-        subTextFont: 'otherFont',
+        subTextFont: "otherFont",
         subTextFontSize: 18,
       });
 
       sinon.assert.calledWith(Renderer.doc.fontSize, 16);
-      sinon.assert.calledWith(Renderer.doc.font, 'mainFont');
+      sinon.assert.calledWith(Renderer.doc.font, "mainFont");
 
       sinon.assert.calledWith(Renderer.doc.fontSize, 18);
-      sinon.assert.calledWith(Renderer.doc.font, 'otherFont');
+      sinon.assert.calledWith(Renderer.doc.font, "otherFont");
     });
 
-    it('should default to the current doc position', () => {
+    it("should default to the current doc position", () => {
       Renderer.doc.x = Renderer.chartArea.leftEdge;
       Renderer.doc.y = Renderer.chartArea.topEdge;
 
       const xPos = Renderer.doc.x;
       const yPos = Renderer.doc.y;
-      Renderer.renderSectionHeading('hello');
+      Renderer.renderSectionHeading("hello");
 
-      sinon.assert.calledWithMatch(Renderer.doc.text, 'hello', xPos, yPos);
+      sinon.assert.calledWithMatch(Renderer.doc.text, "hello", xPos, yPos);
     });
 
-    it('should override the current doc position with provided args', () => {
+    it("should override the current doc position with provided args", () => {
       Renderer.doc.x = Renderer.chartArea.leftEdge;
       Renderer.doc.y = Renderer.chartArea.topEdge;
 
-      Renderer.renderSectionHeading('hello', {
+      Renderer.renderSectionHeading("hello", {
         xPos: 100,
         yPos: 300,
       });
 
-      sinon.assert.calledWithMatch(Renderer.doc.text, 'hello', 100, 300);
+      sinon.assert.calledWithMatch(Renderer.doc.text, "hello", 100, 300);
     });
 
-    it('should reset the text style when done', () => {
-      sinon.spy(Renderer, 'resetText');
-      Renderer.renderSectionHeading('hello');
+    it("should reset the text style when done", () => {
+      sinon.spy(Renderer, "resetText");
+      Renderer.renderSectionHeading("hello");
 
       sinon.assert.calledOnce(Renderer.resetText);
     });
 
-    it('should move the cursor down a default or specified amount when done', () => {
-      Renderer.renderSectionHeading('hello');
+    it("should move the cursor down a default or specified amount when done", () => {
+      Renderer.renderSectionHeading("hello");
       sinon.assert.calledOnce(Renderer.doc.moveDown);
       sinon.assert.calledWith(Renderer.doc.moveDown, 1);
 
-      Renderer.renderSectionHeading('hello', { moveDown: 3.5 });
+      Renderer.renderSectionHeading("hello", { moveDown: 3.5 });
       sinon.assert.calledWith(Renderer.doc.moveDown, 3.5);
     });
   });
 
-  describe('renderCellStripe', () => {
+  describe("renderCellStripe", () => {
     const pos = {
       x: 100,
       y: 200,
@@ -608,12 +608,12 @@ describe('PrintView', () => {
 
     const column = {
       fillStripe: {
-        color: 'blue',
+        color: "blue",
         opacity: 0.6,
         width: 8,
       },
       headerFillStripe: {
-        color: 'green',
+        color: "green",
         opacity: 0.7,
         width: 10,
       },
@@ -622,14 +622,14 @@ describe('PrintView', () => {
     };
 
     beforeEach(() => {
-      sinon.spy(Renderer, 'setFill');
+      sinon.spy(Renderer, "setFill");
     });
 
     afterEach(() => {
       Renderer.setFill.resetHistory();
     });
 
-    it('should not render a fill stripe when missing column fill stripe definition', () => {
+    it("should not render a fill stripe when missing column fill stripe definition", () => {
       const stripe = Renderer.renderCellStripe({}, {}, pos);
 
       expect(stripe).to.eql({
@@ -646,7 +646,7 @@ describe('PrintView', () => {
       sinon.assert.notCalled(Renderer.doc.fill);
     });
 
-    it('should render a fill stripe with default styles in a table cell', () => {
+    it("should render a fill stripe with default styles in a table cell", () => {
       const stripe = Renderer.renderCellStripe({}, { fillStripe: true, height: 20 }, pos);
 
       sinon.assert.calledWith(Renderer.setFill, Renderer.colors.grey, 1);
@@ -663,7 +663,7 @@ describe('PrintView', () => {
       });
     });
 
-    it('should render a fill stripe with custom styles from column def in a standard cell', () => {
+    it("should render a fill stripe with custom styles from column def in a standard cell", () => {
       const paddedColumn = _.assign({}, column, {
         fillStripe: _.assign({}, column.fillStripe, {
           padding: 5,
@@ -675,24 +675,24 @@ describe('PrintView', () => {
       const xPos = pos.x + 0.25 + paddedColumn.fillStripe.padding;
       const yPos = pos.y + 0.25 + paddedColumn.fillStripe.padding;
 
-      sinon.assert.calledWith(Renderer.setFill, 'blue', 0.6);
+      sinon.assert.calledWith(Renderer.setFill, "blue", 0.6);
       sinon.assert.calledWith(Renderer.doc.rect, xPos, yPos, 8, height);
       sinon.assert.calledOnce(Renderer.doc.fill);
 
       expect(stripe).to.eql({
         width: 8,
         height: 30,
-        color: 'blue',
+        color: "blue",
         opacity: 0.6,
         background: false,
         padding: 5,
       });
     });
 
-    it('should render a fill stripe with custom styles from data def in a standard cell', () => {
+    it("should render a fill stripe with custom styles from data def in a standard cell", () => {
       const colData = {
         _fillStripe: {
-          color: 'orange',
+          color: "orange",
           opacity: 0.9,
           width: 100,
         },
@@ -706,33 +706,33 @@ describe('PrintView', () => {
       const xPos = pos.x + 0.25;
       const yPos = pos.y + 0.25;
 
-      sinon.assert.calledWith(Renderer.setFill, 'orange', 0.9);
+      sinon.assert.calledWith(Renderer.setFill, "orange", 0.9);
       sinon.assert.calledWith(Renderer.doc.rect, xPos, yPos, 100, height);
       sinon.assert.calledOnce(Renderer.doc.fill);
 
       expect(stripe).to.eql({
         width: 100,
         height: 80,
-        color: 'orange',
+        color: "orange",
         opacity: 0.9,
         background: false,
         padding: 0,
       });
     });
 
-    it('should render a fill stripe with custom styles from column def in a header cell', () => {
+    it("should render a fill stripe with custom styles from column def in a header cell", () => {
       const isHeader = true;
       const stripe = Renderer.renderCellStripe({}, column, pos, isHeader);
       const height = stripe.height - 0.5;
 
-      sinon.assert.calledWith(Renderer.setFill, 'green', 0.7);
+      sinon.assert.calledWith(Renderer.setFill, "green", 0.7);
       sinon.assert.calledWith(Renderer.doc.rect, pos.x + 0.25, pos.y + 0.25, 10, height);
       sinon.assert.calledOnce(Renderer.doc.fill);
 
       expect(stripe).to.eql({
         width: 10,
         height: 40,
-        color: 'green',
+        color: "green",
         opacity: 0.7,
         background: false,
         padding: 0,
@@ -740,32 +740,32 @@ describe('PrintView', () => {
     });
   });
 
-  describe('renderCustomTextCell', () => {
+  describe("renderCustomTextCell", () => {
     const table = {};
 
     const cellData = {
       cell: {
-        text: 'foo',
-        subText: 'bar',
-        note: 'baz',
+        text: "foo",
+        subText: "bar",
+        note: "baz",
       },
       header: {
-        text: 'dog',
-        subText: 'cat',
-        note: 'mouse',
+        text: "dog",
+        subText: "cat",
+        note: "mouse",
       },
-      stringCell: 'pow',
+      stringCell: "pow",
     };
 
     const draw = true;
 
     const column = {
-      id: 'cell',
+      id: "cell",
       width: 100,
     };
 
     const headerColumn = {
-      id: 'header',
+      id: "header",
       width: 200,
     };
 
@@ -782,7 +782,7 @@ describe('PrintView', () => {
     };
 
     beforeEach(() => {
-      sinon.spy(Renderer, 'renderCellStripe');
+      sinon.spy(Renderer, "renderCellStripe");
       Renderer.doc.font.resetHistory();
       Renderer.doc.fontSize.resetHistory();
     });
@@ -791,49 +791,49 @@ describe('PrintView', () => {
       Renderer.renderCellStripe.resetHistory();
     });
 
-    it('should make the call to render a cell stripe', () => {
+    it("should make the call to render a cell stripe", () => {
       Renderer.renderCustomTextCell(table, cellData, draw, column, pos, padding);
 
       sinon.assert.calledOnce(Renderer.renderCellStripe);
     });
 
-    it('should render a standard cell with a text string provided', () => {
+    it("should render a standard cell with a text string provided", () => {
       const stringColumn = _.assign({}, column, {
-        id: 'stringCell',
+        id: "stringCell",
       });
 
       Renderer.renderCustomTextCell(table, cellData, draw, stringColumn, pos, padding);
 
-      sinon.assert.calledWith(Renderer.doc.text, 'pow');
+      sinon.assert.calledWith(Renderer.doc.text, "pow");
     });
 
-    it('should render a header cell with a text string provided', () => {
+    it("should render a header cell with a text string provided", () => {
       const stringColumn = _.assign({}, headerColumn, {
-        header: 'chicken',
+        header: "chicken",
       });
 
       Renderer.renderCustomTextCell(table, cellData, draw, stringColumn, pos, padding, true);
 
-      sinon.assert.calledWith(Renderer.doc.text, 'chicken');
+      sinon.assert.calledWith(Renderer.doc.text, "chicken");
     });
 
-    it('should render a standard cell with a text, subtext, and note object provided', () => {
+    it("should render a standard cell with a text, subtext, and note object provided", () => {
       Renderer.renderCustomTextCell(table, cellData, draw, column, pos, padding);
 
-      sinon.assert.calledWith(Renderer.doc.text, 'foo');
-      sinon.assert.calledWith(Renderer.doc.text, ' bar');
-      sinon.assert.calledWith(Renderer.doc.text, 'baz');
+      sinon.assert.calledWith(Renderer.doc.text, "foo");
+      sinon.assert.calledWith(Renderer.doc.text, " bar");
+      sinon.assert.calledWith(Renderer.doc.text, "baz");
     });
 
-    it('should render a standard cell with a text, subtext, and note object provided', () => {
+    it("should render a standard cell with a text, subtext, and note object provided", () => {
       Renderer.renderCustomTextCell(table, cellData, draw, headerColumn, pos, padding, true);
 
-      sinon.assert.calledWith(Renderer.doc.text, 'dog');
-      sinon.assert.calledWith(Renderer.doc.text, ' cat');
-      sinon.assert.calledWith(Renderer.doc.text, 'mouse');
+      sinon.assert.calledWith(Renderer.doc.text, "dog");
+      sinon.assert.calledWith(Renderer.doc.text, " cat");
+      sinon.assert.calledWith(Renderer.doc.text, "mouse");
     });
 
-    it('should use proper default font styles in a standard cell', () => {
+    it("should use proper default font styles in a standard cell", () => {
       Renderer.renderCustomTextCell(table, cellData, draw, column, pos, padding);
 
       sinon.assert.alwaysCalledWith(Renderer.doc.font, Renderer.font);
@@ -841,7 +841,7 @@ describe('PrintView', () => {
       sinon.assert.alwaysCalledWith(Renderer.doc.fontSize, Renderer.defaultFontSize);
     });
 
-    it('should use proper default font styles in a header cell', () => {
+    it("should use proper default font styles in a header cell", () => {
       Renderer.renderCustomTextCell(table, cellData, draw, headerColumn, pos, padding, true);
 
       sinon.assert.calledWith(Renderer.doc.font, Renderer.boldFont);
@@ -849,133 +849,133 @@ describe('PrintView', () => {
       sinon.assert.alwaysCalledWith(Renderer.doc.fontSize, Renderer.defaultFontSize);
     });
 
-    it('should use left alignment by default in a standard cell', () => {
+    it("should use left alignment by default in a standard cell", () => {
       Renderer.renderCustomTextCell(table, cellData, draw, column, pos, padding);
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        'foo',
+        "foo",
         pos.x,
         pos.y,
         {
           continued: true,
-          align: 'left',
+          align: "left",
           width: 100,
         }
       );
     });
 
-    it('should use left alignment by default in a header cell', () => {
+    it("should use left alignment by default in a header cell", () => {
       Renderer.renderCustomTextCell(table, cellData, draw, headerColumn, pos, padding, true);
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        'dog',
+        "dog",
         pos.x,
         pos.y,
         {
           continued: true,
-          align: 'left',
+          align: "left",
           width: 200,
         }
       );
     });
 
-    it('should allow custom font styles and alignment in a standard cell', () => {
+    it("should allow custom font styles and alignment in a standard cell", () => {
       const customColumn = _.assign({}, column, {
-        align: 'right',
-        font: 'comic sans',
+        align: "right",
+        font: "comic sans",
         fontSize: 13,
         noteFontSize: 9,
       });
 
       Renderer.renderCustomTextCell(table, cellData, draw, customColumn, pos, padding);
 
-      sinon.assert.calledWith(Renderer.doc.font, 'comic sans');
+      sinon.assert.calledWith(Renderer.doc.font, "comic sans");
       sinon.assert.calledWith(Renderer.doc.fontSize, 13);
       sinon.assert.calledWith(Renderer.doc.fontSize, 9);
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        'foo',
+        "foo",
         pos.x,
         pos.y,
         {
           continued: true,
-          align: 'right',
+          align: "right",
           width: 100,
         }
       );
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        ' bar',
+        " bar",
         pos.x,
         pos.y,
         {
-          align: 'right',
+          align: "right",
           width: 100,
         }
       );
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        'baz',
+        "baz",
         {
-          align: 'right',
+          align: "right",
           width: 100,
         }
       );
     });
 
-    it('should allow custom font styles and alignment in a header cell', () => {
+    it("should allow custom font styles and alignment in a header cell", () => {
       const customColumn = _.assign({}, headerColumn, {
-        headerAlign: 'center',
-        headerFont: 'courrier new',
+        headerAlign: "center",
+        headerFont: "courrier new",
         fontSize: 15,
         noteFontSize: 11,
       });
 
       Renderer.renderCustomTextCell(table, cellData, draw, customColumn, pos, padding, true);
 
-      sinon.assert.calledWith(Renderer.doc.font, 'courrier new');
+      sinon.assert.calledWith(Renderer.doc.font, "courrier new");
       sinon.assert.calledWith(Renderer.doc.fontSize, 15);
       sinon.assert.calledWith(Renderer.doc.fontSize, 11);
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        'dog',
+        "dog",
         pos.x,
         pos.y,
         {
           continued: true,
-          align: 'center',
+          align: "center",
           width: 200,
         }
       );
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        ' cat',
+        " cat",
         pos.x,
         pos.y,
         {
-          align: 'center',
+          align: "center",
           width: 200,
         }
       );
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        'mouse',
+        "mouse",
         {
-          align: 'center',
+          align: "center",
           width: 200,
         }
       );
     });
 
-    it('should allow rendering a specified row in bold', () => {
+    it("should allow rendering a specified row in bold", () => {
       const customData = _.assign({}, cellData, {
         _bold: true,
       });
@@ -985,14 +985,14 @@ describe('PrintView', () => {
     });
   });
 
-  describe('renderTableHeading', () => {
+  describe("renderTableHeading", () => {
     let renderTable;
     let resetText;
 
     const defaultColumns = [
       {
-        id: 'heading',
-        align: 'left',
+        id: "heading",
+        align: "left",
         height: 24,
         cache: false,
       },
@@ -1007,15 +1007,15 @@ describe('PrintView', () => {
 
     const defaultOpts = {
       columnDefaults: {
-        headerBorder: '',
+        headerBorder: "",
       },
       bottomMargin: 0,
       showHeaders: false,
     };
 
     beforeEach(() => {
-      renderTable = sinon.stub(Renderer, 'renderTable');
-      resetText = sinon.stub(Renderer, 'resetText');
+      renderTable = sinon.stub(Renderer, "renderTable");
+      resetText = sinon.stub(Renderer, "resetText");
       defaultColumns[0].renderer = Renderer.renderCustomTextCell;
       defaultColumns[0].font = Renderer.boldFont;
       defaultColumns[0].fontSize = Renderer.largeFontSize;
@@ -1026,7 +1026,7 @@ describe('PrintView', () => {
       resetText.restore();
     });
 
-    it('should render a table heading with default settings when no args provided', () => {
+    it("should render a table heading with default settings when no args provided", () => {
       Renderer.renderTableHeading();
 
       sinon.assert.calledWith(
@@ -1037,16 +1037,16 @@ describe('PrintView', () => {
       );
     });
 
-    it('should render a table heading with custom settings when args provided', () => {
+    it("should render a table heading with custom settings when args provided", () => {
       const heading = {
-        text: 'foo',
-        note: 'bar',
+        text: "foo",
+        note: "bar",
       };
 
       const customOpts = {
         height: 60,
-        align: 'right',
-        font: 'comic sans',
+        align: "right",
+        font: "comic sans",
         fontSize: 22,
       };
 
@@ -1066,28 +1066,28 @@ describe('PrintView', () => {
     });
   });
 
-  describe('renderTable', () => {
+  describe("renderTable", () => {
     const columns = [
       {
-        id: 'name',
-        fill: 'blue',
+        id: "name",
+        fill: "blue",
       },
       {
-        id: 'value',
+        id: "value",
       },
     ];
 
     const rows = [
-      { name: 'one', value: 1 },
-      { name: 'two', value: 2 },
-      { name: 'three', value: 3 },
+      { name: "one", value: 1 },
+      { name: "two", value: 2 },
+      { name: "three", value: 3 },
     ];
 
     const defaultOpts = {
       columnDefaults: {
-        headerBorder: 'TBLR',
-        border: 'TBLR',
-        align: 'left',
+        headerBorder: "TBLR",
+        border: "TBLR",
+        align: "left",
         padding: [7, 5, 3, 5],
         headerPadding: [7, 5, 3, 5],
         fill: false,
@@ -1127,8 +1127,8 @@ describe('PrintView', () => {
 
     beforeEach(() => {
       /* eslint-disable new-cap */
-      TableStub = new sinon.stub().returns(new Table());
-      FitColumnStub = new sinon.stub().resolves(true);
+      TableStub = sinon.stub().returns(new Table());
+      FitColumnStub = sinon.stub().resolves(true);
       /* eslint-enable new-cap */
 
       defaultOpts.columnDefaults.borderColor = Renderer.tableSettings.colors.border;
@@ -1139,9 +1139,9 @@ describe('PrintView', () => {
       TableStub.resetHistory();
       FitColumnStub.resetHistory();
 
-      setFill = sinon.spy(Renderer, 'setFill');
-      setStroke = sinon.spy(Renderer, 'setStroke');
-      resetText = sinon.spy(Renderer, 'resetText');
+      setFill = sinon.spy(Renderer, "setFill");
+      setStroke = sinon.spy(Renderer, "setStroke");
+      resetText = sinon.spy(Renderer, "resetText");
     });
 
     afterEach(() => {
@@ -1150,7 +1150,7 @@ describe('PrintView', () => {
       resetText.resetHistory();
     });
 
-    it('should render a table with default settings when no args provided', () => {
+    it("should render a table with default settings when no args provided", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
 
       sinon.assert.calledWithNew(TableStub);
@@ -1160,7 +1160,7 @@ describe('PrintView', () => {
       sinon.assert.calledWith(Renderer.table.addBody, []);
     });
 
-    it('should render a table with custom rows, columns, and opts extending defaults', () => {
+    it("should render a table with custom rows, columns, and opts extending defaults", () => {
       const customOpts = {
         bottomMargin: 80,
       };
@@ -1173,63 +1173,63 @@ describe('PrintView', () => {
       sinon.assert.calledWith(Renderer.table.addBody, rows);
     });
 
-    it('should initialize the FitColumn table plugin when required', () => {
-      Renderer.renderTable([], [], { flexColumn: 'test' }, TableStub, FitColumnStub);
+    it("should initialize the FitColumn table plugin when required", () => {
+      Renderer.renderTable([], [], { flexColumn: "test" }, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.addPlugin);
-      expect(Renderer.table.addPlugin.firstCall.args).to.be.an('array').of.length(1);
+      expect(Renderer.table.addPlugin.firstCall.args).to.be.an("array").of.length(1);
       expect(Renderer.table.addPlugin.firstCall.args[0]).to.be.instanceOf(Promise);
-      sinon.assert.calledWith(FitColumnStub, { column: 'test' });
+      sinon.assert.calledWith(FitColumnStub, { column: "test" });
     });
 
-    it('should add a listener for the `onPageAdd` table event', () => {
+    it("should add a listener for the `onPageAdd` table event", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onPageAdd);
     });
 
-    it('should add a listener for the `onPageAdded` table event', () => {
+    it("should add a listener for the `onPageAdded` table event", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onPageAdded);
     });
 
-    it('should add a listener for the `onCellBackgroundAdd` table event', () => {
+    it("should add a listener for the `onCellBackgroundAdd` table event", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onCellBackgroundAdd);
     });
 
-    it('should add a listener for the `onCellBackgroundAdded` table event', () => {
+    it("should add a listener for the `onCellBackgroundAdded` table event", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onCellBackgroundAdded);
     });
 
-    it('should add a listener for the `onCellBorderAdd` table event', () => {
+    it("should add a listener for the `onCellBorderAdd` table event", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onCellBorderAdd);
     });
 
-    it('should add a listener for the `onCellBorderAdded` table event', () => {
+    it("should add a listener for the `onCellBorderAdded` table event", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onCellBorderAdded);
     });
 
-    it('should add a listener for the `onRowAdd` table event', () => {
+    it("should add a listener for the `onRowAdd` table event", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onRowAdd);
     });
 
-    it('should add a listener for the `onRowAdded` table event', () => {
+    it("should add a listener for the `onRowAdded` table event", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onRowAdded);
     });
 
-    it('should add a listener for the `onBodyAdded` table event', () => {
+    it("should add a listener for the `onBodyAdded` table event", () => {
       Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.onBodyAdded);
     });
 
-    describe('onPageAdd', () => {
-      it('should call `addPage` and not `switchToPage` or `setNewPageTablePosition` when we are on the last page in the document', () => {
+    describe("onPageAdd", () => {
+      it("should call `addPage` and not `switchToPage` or `setNewPageTablePosition` when we are on the last page in the document", () => {
         Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
-        sinon.spy(Renderer, 'setNewPageTablePosition');
+        sinon.spy(Renderer, "setNewPageTablePosition");
 
         Renderer.initialTotalPages = 2;
         Renderer.totalPages = 4; // 2 pages have been added to the initial count
@@ -1243,9 +1243,9 @@ describe('PrintView', () => {
         sinon.assert.notCalled(Renderer.setNewPageTablePosition);
       });
 
-      it('should call `switchToPage` and `setNewPageTablePosition` and not `addPage` when we are not on the last page in the document', () => {
+      it("should call `switchToPage` and `setNewPageTablePosition` and not `addPage` when we are not on the last page in the document", () => {
         Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
-        sinon.spy(Renderer, 'setNewPageTablePosition');
+        sinon.spy(Renderer, "setNewPageTablePosition");
 
         Renderer.table.pos = {
           x: 100,
@@ -1268,8 +1268,8 @@ describe('PrintView', () => {
       });
     });
 
-    describe('onPageAdded', () => {
-      it('should add a table header', () => {
+    describe("onPageAdded", () => {
+      it("should add a table header", () => {
         Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
         sinon.assert.notCalled(Renderer.table.addHeader);
 
@@ -1278,8 +1278,8 @@ describe('PrintView', () => {
       });
     });
 
-    describe('onCellBackgroundAdd', () => {
-      it('should set the standard cell fill color when defined as a string', () => {
+    describe("onCellBackgroundAdd", () => {
+      it("should set the standard cell fill color when defined as a string", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           columns[0],
@@ -1289,15 +1289,15 @@ describe('PrintView', () => {
         );
 
         sinon.assert.calledOnce(Renderer.setFill);
-        sinon.assert.calledWith(Renderer.setFill, 'blue', 1);
+        sinon.assert.calledWith(Renderer.setFill, "blue", 1);
       });
 
-      it('should set the standard cell fill color and opacity when defined as an object', () => {
+      it("should set the standard cell fill color and opacity when defined as an object", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           {
             fill: {
-              color: 'yellow',
+              color: "yellow",
               opacity: 0.4,
             },
           },
@@ -1307,14 +1307,14 @@ describe('PrintView', () => {
         );
 
         sinon.assert.calledOnce(Renderer.setFill);
-        sinon.assert.calledWith(Renderer.setFill, 'yellow', 0.4);
+        sinon.assert.calledWith(Renderer.setFill, "yellow", 0.4);
       });
 
-      it('should set the header cell fill color when defined as a string', () => {
+      it("should set the header cell fill color when defined as a string", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           {
-            headerFill: 'magenta',
+            headerFill: "magenta",
           },
           rows[0],
           0,
@@ -1322,15 +1322,15 @@ describe('PrintView', () => {
         );
 
         sinon.assert.calledOnce(Renderer.setFill);
-        sinon.assert.calledWith(Renderer.setFill, 'magenta', 1);
+        sinon.assert.calledWith(Renderer.setFill, "magenta", 1);
       });
 
-      it('should set the header cell fill color and opacity when defined as an object', () => {
+      it("should set the header cell fill color and opacity when defined as an object", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           {
             headerFill: {
-              color: 'red',
+              color: "red",
               opacity: 0.5,
             },
           },
@@ -1340,10 +1340,10 @@ describe('PrintView', () => {
         );
 
         sinon.assert.calledOnce(Renderer.setFill);
-        sinon.assert.calledWith(Renderer.setFill, 'red', 0.5);
+        sinon.assert.calledWith(Renderer.setFill, "red", 0.5);
       });
 
-      it('should not set the fill styles when not defined', () => {
+      it("should not set the fill styles when not defined", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           columns[1],
@@ -1355,7 +1355,7 @@ describe('PrintView', () => {
         sinon.assert.notCalled(Renderer.setFill);
       });
 
-      it('should set even zebra fill style when defined but fill color not set', () => {
+      it("should set even zebra fill style when defined but fill color not set", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           { zebra: true, fill: true },
@@ -1372,7 +1372,7 @@ describe('PrintView', () => {
         );
       });
 
-      it('should set odd zebra fill style when defined but fill color not set', () => {
+      it("should set odd zebra fill style when defined but fill color not set", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           { zebra: true, fill: true },
@@ -1389,13 +1389,13 @@ describe('PrintView', () => {
         );
       });
 
-      it('should set even zebra fill style at full opacity when fill color set as object', () => {
+      it("should set even zebra fill style at full opacity when fill color set as object", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           {
             zebra: true,
             fill: {
-              color: 'yellow',
+              color: "yellow",
               opacity: 0.4,
             },
           },
@@ -1407,18 +1407,18 @@ describe('PrintView', () => {
         sinon.assert.calledOnce(Renderer.setFill);
         sinon.assert.calledWithExactly(
           Renderer.setFill,
-          'yellow',
+          "yellow",
           0.4
         );
       });
 
-      it('should set odd zebra fill style at half opacity when fill color set as object', () => {
+      it("should set odd zebra fill style at half opacity when fill color set as object", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           {
             zebra: true,
             fill: {
-              color: 'yellow',
+              color: "yellow",
               opacity: 0.4,
             },
           },
@@ -1430,12 +1430,12 @@ describe('PrintView', () => {
         sinon.assert.calledOnce(Renderer.setFill);
         sinon.assert.calledWithExactly(
           Renderer.setFill,
-          'yellow',
+          "yellow",
           0.2
         );
       });
 
-      it('should set zebra header fill style when defined but fill color not set', () => {
+      it("should set zebra header fill style when defined but fill color not set", () => {
         Renderer.onCellBackgroundAdd(
           Renderer.table,
           { zebra: true, headerFill: true },
@@ -1453,8 +1453,8 @@ describe('PrintView', () => {
       });
     });
 
-    describe('onCellBackgroundAdded', () => {
-      it('should reset to the default fill styles', () => {
+    describe("onCellBackgroundAdded", () => {
+      it("should reset to the default fill styles", () => {
         Renderer.onCellBackgroundAdded();
 
         sinon.assert.calledOnce(Renderer.setFill);
@@ -1462,24 +1462,24 @@ describe('PrintView', () => {
       });
     });
 
-    describe('onCellBorderAdd', () => {
-      it('should set the border width', () => {
+    describe("onCellBorderAdd", () => {
+      it("should set the border width", () => {
         Renderer.onCellBorderAdd(Renderer.table, {});
 
         sinon.assert.calledOnce(Renderer.doc.lineWidth);
         sinon.assert.calledWithExactly(Renderer.doc.lineWidth, Renderer.tableSettings.borderWidth);
       });
 
-      it('should set the border color to black by default', () => {
+      it("should set the border color to black by default", () => {
         Renderer.onCellBorderAdd(Renderer.table, {});
 
         sinon.assert.calledOnce(Renderer.setStroke);
-        sinon.assert.calledWithExactly(Renderer.setStroke, 'black', 1);
+        sinon.assert.calledWithExactly(Renderer.setStroke, "black", 1);
       });
     });
 
-    describe('onCellBorderAdded', () => {
-      it('should reset to the default stroke styles', () => {
+    describe("onCellBorderAdded", () => {
+      it("should reset to the default stroke styles", () => {
         Renderer.onCellBorderAdded();
 
         sinon.assert.calledOnce(Renderer.setStroke);
@@ -1487,23 +1487,23 @@ describe('PrintView', () => {
       });
     });
 
-    describe('onRowAdd', () => {
-      it('should set the font to bold if required', () => {
+    describe("onRowAdd", () => {
+      it("should set the font to bold if required", () => {
         Renderer.onRowAdd(Renderer.table, { _bold: true });
 
         sinon.assert.calledOnce(Renderer.doc.font);
         sinon.assert.calledWithExactly(Renderer.doc.font, Renderer.boldFont);
       });
 
-      it('should not set the font to bold if not required', () => {
+      it("should not set the font to bold if not required", () => {
         Renderer.onRowAdd(Renderer.table, {});
 
         sinon.assert.notCalled(Renderer.doc.font);
       });
     });
 
-    describe('onRowAdded', () => {
-      it('should reset to the default text styles', () => {
+    describe("onRowAdded", () => {
+      it("should reset to the default text styles", () => {
         Renderer.onRowAdded();
 
         sinon.assert.calledOnce(Renderer.resetText);
@@ -1511,8 +1511,8 @@ describe('PrintView', () => {
       });
     });
 
-    describe('onBodyAdded', () => {
-      it('should properly update the pdf cursor position after rendering', () => {
+    describe("onBodyAdded", () => {
+      it("should properly update the pdf cursor position after rendering", () => {
         Renderer.doc.x = 150;
         Renderer.doc.y = 200;
 
@@ -1525,7 +1525,7 @@ describe('PrintView', () => {
         expect(Renderer.doc.y).to.equal(250);
       });
 
-      it('should default to the page\'s left margin when the table position isn\'t set', () => {
+      it("should default to the page's left margin when the table position isn't set", () => {
         Renderer.doc.x = 150;
 
         Renderer.onBodyAdded(new Table());
@@ -1535,86 +1535,86 @@ describe('PrintView', () => {
     });
   });
 
-  describe('renderPatientInfo', () => {
-    it('should render patient information', () => {
+  describe("renderPatientInfo", () => {
+    it("should render patient information", () => {
       Renderer.doc.y = 32;
       Renderer.renderPatientInfo();
       sinon.assert.calledWith(Renderer.doc.text, getPatientFullName(opts.patient));
       sinon.assert.calledWith(Renderer.doc.text, `DOB: ${formatBirthdate(opts.patient)}`);
 
-      expect(Renderer.patientInfoBox.width).to.be.a('number');
+      expect(Renderer.patientInfoBox.width).to.be.a("number");
       expect(Renderer.patientInfoBox.width > 0).to.be.true;
 
-      expect(Renderer.patientInfoBox.height).to.be.a('number');
+      expect(Renderer.patientInfoBox.height).to.be.a("number");
       expect(Renderer.patientInfoBox.height > 0).to.be.true;
     });
   });
 
-  describe('renderTitle', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderTitle).to.be.a('function');
+  describe("renderTitle", () => {
+    it("should be a function", () => {
+      expect(Renderer.renderTitle).to.be.a("function");
     });
 
-    it('should render the page title as is for the first rendered page', () => {
+    it("should render the page title as is for the first rendered page", () => {
       Renderer.doc.text.reset();
       Renderer.currentPageIndex = 0;
       Renderer.renderTitle();
-      sinon.assert.calledWith(Renderer.doc.text, 'Print View');
+      sinon.assert.calledWith(Renderer.doc.text, "Print View");
     });
 
-    it('should render the page title with (cont.)` for subsequent pages', () => {
+    it("should render the page title with (cont.)` for subsequent pages", () => {
       Renderer.doc.text.reset();
       Renderer.currentPageIndex = 1;
       Renderer.renderTitle();
-      sinon.assert.calledWith(Renderer.doc.text, 'Print View (cont.)');
+      sinon.assert.calledWith(Renderer.doc.text, "Print View (cont.)");
     });
 
-    it('should calculate the width of the title', () => {
+    it("should calculate the width of the title", () => {
       Renderer.renderTitle();
-      expect(Renderer.titleWidth).to.be.a('number');
+      expect(Renderer.titleWidth).to.be.a("number");
       expect(Renderer.titleWidth > 0).to.be.true;
     });
   });
 
-  describe('renderDateText', () => {
-    it('should render the provided date text', () => {
-      const text = 'Date range';
+  describe("renderDateText", () => {
+    it("should render the provided date text", () => {
+      const text = "Date range";
 
       Renderer.renderDateText(text);
       sinon.assert.calledWith(Renderer.doc.text, text);
     });
   });
 
-  describe('renderLogo', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderLogo).to.be.a('function');
+  describe("renderLogo", () => {
+    it("should be a function", () => {
+      expect(Renderer.renderLogo).to.be.a("function");
     });
 
-    it('should render the Tidepool logo', () => {
+    it("should render the Tidepool logo", () => {
       Renderer.renderLogo();
       sinon.assert.calledOnce(Renderer.doc.image);
     });
   });
 
-  describe('renderDebugGrid', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderDebugGrid).to.be.a('function');
+  describe("renderDebugGrid", () => {
+    it("should be a function", () => {
+      expect(Renderer.renderDebugGrid).to.be.a("function");
     });
 
     // Not really used for anything except local debugging,
     // so no need to test deeply
   });
 
-  describe('renderHeader', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderHeader).to.be.a('function');
+  describe("renderHeader", () => {
+    it("should be a function", () => {
+      expect(Renderer.renderHeader).to.be.a("function");
     });
 
-    it('should render the header', () => {
-      sinon.spy(Renderer, 'renderPatientInfo');
-      sinon.spy(Renderer, 'renderTitle');
-      sinon.spy(Renderer, 'renderLogo');
-      sinon.spy(Renderer, 'renderDateText');
+    it("should render the header", () => {
+      sinon.spy(Renderer, "renderPatientInfo");
+      sinon.spy(Renderer, "renderTitle");
+      sinon.spy(Renderer, "renderLogo");
+      sinon.spy(Renderer, "renderDateText");
 
       Renderer.renderHeader();
 
@@ -1625,32 +1625,32 @@ describe('PrintView', () => {
     });
   });
 
-  describe('renderFooter', () => {
-    it('should be a function', () => {
-      expect(Renderer.renderFooter).to.be.a('function');
+  describe("renderFooter", () => {
+    it("should be a function", () => {
+      expect(Renderer.renderFooter).to.be.a("function");
     });
 
-    it('should render the footer help text', () => {
+    it("should render the footer help text", () => {
       Renderer.renderFooter();
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        'pdf-footer-center-text'
+        "pdf-footer-center-text"
       );
     });
 
-    it('should render the date printed', () => {
+    it("should render the date printed", () => {
       Renderer.renderFooter();
       sinon.assert.calledWith(Renderer.doc.text, `Printed on: ${formatCurrentDate()}`);
     });
   });
 
-  describe('setFooterSize', () => {
-    it('should be a function', () => {
-      expect(Renderer.setFooterSize).to.be.a('function');
+  describe("setFooterSize", () => {
+    it("should be a function", () => {
+      expect(Renderer.setFooterSize).to.be.a("function");
     });
 
-    it('should set the footer size', () => {
+    it("should set the footer size", () => {
       const bottomEdge = Renderer.chartArea.bottomEdge - Renderer.doc.currentLineHeight() * 9;
 
       Renderer.setFooterSize();
@@ -1658,12 +1658,12 @@ describe('PrintView', () => {
     });
   });
 
-  describe('setHeaderSize', () => {
-    it('should be a function', () => {
-      expect(Renderer.setHeaderSize).to.be.a('function');
+  describe("setHeaderSize", () => {
+    it("should be a function", () => {
+      expect(Renderer.setHeaderSize).to.be.a("function");
     });
 
-    it('should set the footer size', () => {
+    it("should set the footer size", () => {
       const topEdge = Renderer.chartArea.topEdge + Renderer.doc.currentLineHeight() * 4;
 
       Renderer.setHeaderSize();

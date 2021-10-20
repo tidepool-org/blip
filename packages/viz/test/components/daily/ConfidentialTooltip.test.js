@@ -15,21 +15,22 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import i18next from 'i18next';
-import { mount } from 'enzyme';
+import React from "react";
+import i18next from "i18next";
+import { mount } from "enzyme";
+import { expect } from "chai";
 
-import { formatClassesAsSelector } from '../../helpers/cssmodules';
+import { formatClassesAsSelector } from "../../helpers/cssmodules";
 
-import ConfidentialToolTip from '../../../src/components/daily/confidentialtooltip/ConfidentialTooltip';
-import styles from '../../../src/components/daily/confidentialtooltip/ConfidentialTooltip.css';
-import tooltipStyles from '../../../src/components/common/tooltips/Tooltip.css';
+import ConfidentialToolTip from "../../../src/components/daily/confidentialtooltip/ConfidentialTooltip";
+import styles from "../../../src/components/daily/confidentialtooltip/ConfidentialTooltip.css";
+import tooltipStyles from "../../../src/components/common/tooltips/Tooltip.css";
 
 const ToolTip = {
-  type: 'deviceEvent',
-  subType: 'confidential',
+  type: "deviceEvent",
+  subType: "confidential",
   duration: {
-    units: 'hours',
+    units: "hours",
     value: 3,
   },
 };
@@ -39,8 +40,8 @@ const props = {
   timePrefs: { timezoneAware: false },
 };
 
-describe('ConfidentialTooltip', () => {
-  it('should render without issue with 2 items and 1 icon', () => {
+describe("ConfidentialTooltip", () => {
+  it("should render without issue with 2 items and 1 icon", () => {
     const t = i18next.t.bind(i18next);
 
     const wrapper = mount(<ConfidentialToolTip {...props} confidential={ToolTip} />);
@@ -48,18 +49,17 @@ describe('ConfidentialTooltip', () => {
       find(formatClassesAsSelector(tooltipStyles.content)))
       .to.have.length(1);
     expect(wrapper.
-      find(formatClassesAsSelector('MuiGrid-item')))
+      find(formatClassesAsSelector("MuiGrid-item")))
       .to.have.length(2);
     expect(wrapper
-      .find(formatClassesAsSelector('MuiSvgIcon-root'))
+      .find(formatClassesAsSelector("MuiSvgIcon-root"))
       .at(0)
       .find(formatClassesAsSelector(styles.icon)))
       .to.have.length(1);
     expect(wrapper
-      .find(formatClassesAsSelector('MuiGrid-item'))
+      .find(formatClassesAsSelector("MuiGrid-item"))
       .at(1)
       .text())
-      .to.equal(t('Confidential mode'));
-    });
-
+      .to.equal(t("Confidential mode"));
+  });
 });

@@ -1,6 +1,3 @@
-import _ from 'lodash';
-import cx from 'classnames';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017, Tidepool Project
@@ -18,17 +15,18 @@ import cx from 'classnames';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import _ from "lodash";
+import cx from "classnames";
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { TransitionMotion, spring } from "react-motion";
 
-import React, { PureComponent } from 'react';
-import { TransitionMotion, spring } from 'react-motion';
+import { springConfig } from "../../../utils/constants";
+import withDefaultYPosition from "../common/withDefaultYPosition";
 
-import { springConfig } from '../../../utils/constants';
-import withDefaultYPosition from '../common/withDefaultYPosition';
+import CBGSliceSegment from "./CBGSliceSegment";
 
-import CBGSliceSegment from './CBGSliceSegment';
-
-import styles from './CBGSliceAnimated.css';
+import styles from "./CBGSliceAnimated.css";
 
 export class CBGSliceAnimated extends PureComponent {
   static defaultProps = {
@@ -82,9 +80,9 @@ export class CBGSliceAnimated extends PureComponent {
     const { defaultY } = this.props;
 
     return _.mapValues(style, (val, key) => {
-      if (key === 'opacity') {
+      if (key === "opacity") {
         return 0;
-      } else if (key.search('Height') !== -1) {
+      } else if (key.search("Height") !== -1) {
         return 0;
       }
       return defaultY;
@@ -96,9 +94,9 @@ export class CBGSliceAnimated extends PureComponent {
     const { defaultY } = this.props;
     const shrinkOut = spring(0, springConfig);
     return _.mapValues(style, (val, key) => {
-      if (key === 'opacity') {
+      if (key === "opacity") {
         return shrinkOut;
-      } else if (key.search('Height') !== -1) {
+      } else if (key.search("Height") !== -1) {
         return shrinkOut;
       }
       return spring(defaultY, springConfig);
@@ -120,44 +118,44 @@ export class CBGSliceAnimated extends PureComponent {
 
     const renderPieces = {
       top10: {
-        classKey: 'rangeSegment',
-        displayFlag: 'cbg100Enabled',
-        height: 'top10Height',
-        heightKeys: ['ninetiethQuantile', 'max'],
-        key: 'top10',
-        y: 'max',
+        classKey: "rangeSegment",
+        displayFlag: "cbg100Enabled",
+        height: "top10Height",
+        heightKeys: ["ninetiethQuantile", "max"],
+        key: "top10",
+        y: "max",
       },
       bottom10: {
-        classKey: 'rangeSegment',
-        displayFlag: 'cbg100Enabled',
-        height: 'bottom10Height',
-        heightKeys: ['min', 'tenthQuantile'],
-        key: 'bottom10',
-        y: 'tenthQuantile',
+        classKey: "rangeSegment",
+        displayFlag: "cbg100Enabled",
+        height: "bottom10Height",
+        heightKeys: ["min", "tenthQuantile"],
+        key: "bottom10",
+        y: "tenthQuantile",
       },
       upper15: {
-        classKey: 'outerSegment',
-        displayFlag: 'cbg80Enabled',
-        height: 'upper15Height',
-        heightKeys: ['thirdQuartile', 'ninetiethQuantile'],
-        key: 'upper15',
-        y: 'ninetiethQuantile',
+        classKey: "outerSegment",
+        displayFlag: "cbg80Enabled",
+        height: "upper15Height",
+        heightKeys: ["thirdQuartile", "ninetiethQuantile"],
+        key: "upper15",
+        y: "ninetiethQuantile",
       },
       lower15: {
-        classKey: 'outerSegment',
-        displayFlag: 'cbg80Enabled',
-        height: 'lower15Height',
-        heightKeys: ['tenthQuantile', 'firstQuartile'],
-        key: 'lower15',
-        y: 'firstQuartile',
+        classKey: "outerSegment",
+        displayFlag: "cbg80Enabled",
+        height: "lower15Height",
+        heightKeys: ["tenthQuantile", "firstQuartile"],
+        key: "lower15",
+        y: "firstQuartile",
       },
       innerQuartiles: {
-        classKey: 'innerQuartilesSegment',
-        displayFlag: 'cbg50Enabled',
-        height: 'innerQuartilesHeight',
-        heightKeys: ['firstQuartile', 'thirdQuartile'],
-        key: 'innerQuartiles',
-        y: 'thirdQuartile',
+        classKey: "innerQuartilesSegment",
+        displayFlag: "cbg50Enabled",
+        height: "innerQuartilesHeight",
+        heightKeys: ["firstQuartile", "thirdQuartile"],
+        key: "innerQuartiles",
+        y: "thirdQuartile",
       },
     };
     const toRender = _.filter(renderPieces, (piece) => (displayFlags[piece.displayFlag]));
@@ -178,7 +176,7 @@ export class CBGSliceAnimated extends PureComponent {
 
     return (
       <TransitionMotion
-        defaultStyles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => ({
+        defaultStyles={_.get(datum, "min") !== undefined ? _.map(toRender, (segment) => ({
           key: segment.key,
           style: {
             [segment.y]: defaultY,
@@ -186,7 +184,7 @@ export class CBGSliceAnimated extends PureComponent {
             opacity: 0,
           },
         })) : []}
-        styles={_.get(datum, 'min') !== undefined ? _.map(toRender, (segment) => ({
+        styles={_.get(datum, "min") !== undefined ? _.map(toRender, (segment) => ({
           key: segment.key,
           style: {
             [segment.y]: spring(yScale(datum[segment.y]), springConfig),

@@ -1,12 +1,12 @@
-import i18next from 'i18next';
-import _ from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import * as datetime from '../../utils/datetime';
-import styles from './Diabeloop.css';
+import i18next from "i18next";
+import _ from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
+import * as datetime from "../../utils/datetime";
+import styles from "./Diabeloop.css";
 
 const t = i18next.t.bind(i18next);
-const DEFAULT_VALUE = '-';
+const DEFAULT_VALUE = "-";
 
 class CgmTable extends React.Component {
   constructor(props) {
@@ -26,31 +26,31 @@ class CgmTable extends React.Component {
     return (
       <table id="settings-table-cgm" className={styles.cgmTable}>
         <caption id="settings-table-cgm-title" className={styles.bdlgSettingsHeader}>
-          {t('CGM')}
+          {t("CGM")}
         </caption>
         <tbody>
           <tr>
-            <td id="settings-table-cgm-manufacturer">{t('Manufacturer')}</td>
+            <td id="settings-table-cgm-manufacturer">{t("Manufacturer")}</td>
             <td id="settings-table-cgm-manufacturer-value">{cgm.manufacturer}</td>
           </tr>
           <tr>
-            <td id="settings-table-cgm-product">{t('Product')}</td>
+            <td id="settings-table-cgm-product">{t("Product")}</td>
             <td id="settings-table-cgm-product-value">{cgm.name}</td>
           </tr>
           <tr>
-            <td id="settings-table-cgm-expdate">{t('Cgm sensor expiration date')}</td>
+            <td id="settings-table-cgm-expdate">{t("Cgm sensor expiration date")}</td>
             <td id="settings-table-cgm-expdate-value" data-isodate={cgm.expirationDate}>{cgmSensorExpirationDate}</td>
           </tr>
           <tr>
-            <td id="settings-table-cgm-swversion">{t('Cgm transmitter software version')}</td>
+            <td id="settings-table-cgm-swversion">{t("Cgm transmitter software version")}</td>
             <td id="settings-table-cgm-swversion-value">{cgm.swVersionTransmitter}</td>
           </tr>
           <tr>
-            <td id="settings-table-cgm-transmitterid">{t('Cgm transmitter id')}</td>
+            <td id="settings-table-cgm-transmitterid">{t("Cgm transmitter id")}</td>
             <td id="settings-table-cgm-transmitterid-value">{cgm.transmitterId}</td>
           </tr>
           <tr>
-            <td id="settings-table-cgm-eoldate">{t('Cgm transmitter end of life')}</td>
+            <td id="settings-table-cgm-eoldate">{t("Cgm transmitter end of life")}</td>
             <td id="settings-table-cgm-eoldate-value" data-isodate={cgm.endOfLifeTransmitterDate}>{cgmEndOfLife}</td>
           </tr>
         </tbody>
@@ -64,7 +64,7 @@ class CgmTable extends React.Component {
       return DEFAULT_VALUE;
     }
 
-    return datetime.formatLocalizedFromUTC(value, timePrefs, t('MMM D, YYYY'));
+    return datetime.formatLocalizedFromUTC(value, timePrefs, t("MMM D, YYYY"));
   }
 }
 

@@ -1,5 +1,6 @@
-/* Stonly widget */
-function loadStonlyWidget() {
+// @ts-nocheck
+/**Stonly widget loader */
+function loadStonlyWidget() { // eslint-disable-line no-unused-vars
   window.STONLY_WID = "__STONLY_WID__";
   !(function (s, t, o, n, l, y, w, g) {
     s.StonlyWidget ||

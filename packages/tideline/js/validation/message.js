@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import schema from './validator/schematron.js';
+import schema from "./validator/schematron.js";
 
 const message = (common) => {
   return schema(
     common,
     {
       parentMessage: schema().oneOf(
-          schema(schema().isNull()),
-          schema(schema().isId())
+        schema(schema().isNull()),
+        schema(schema().isId())
       ),
     }
   );

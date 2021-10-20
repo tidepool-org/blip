@@ -15,24 +15,24 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import guid from './guid';
-import dt from '../../js/data/util/datetime';
+import guid from "./guid";
+import dt from "../../js/data/util/datetime";
 
 // constants
-import { MGDL_UNITS, MS_IN_DAY } from '../../js/data/util/constants';
-const APPEND = '.000Z';
-const timezone = 'Europe/Paris';
+import { MGDL_UNITS, MS_IN_DAY } from "../../js/data/util/constants";
+const APPEND = ".000Z";
+const timezone = "Europe/Paris";
 
 const common = {
-  deviceId: 'Test Page Data - 123',
-  source: 'testpage',
+  deviceId: "Test Page Data - 123",
+  source: "testpage",
   conversionOffset: 0,
   asObject: function() {
     var clone = {}, key;
     for (key in this) {
-      if (typeof this[key] !== 'function') {
+      if (typeof this[key] !== "function") {
         clone[key] = this[key];
       }
     }
@@ -61,16 +61,16 @@ const common = {
 var Basal = function(opts) {
   opts = opts || {};
   var defaults = {
-    deliveryType: 'scheduled',
+    deliveryType: "scheduled",
     deviceTime: this.makeDeviceTime(),
     duration: MS_IN_DAY/12,
     rate: 0.5,
-    scheduleName: 'standard',
+    scheduleName: "standard",
     timezone,
   };
   _.defaults(opts, defaults);
 
-  this.type = 'basal';
+  this.type = "basal";
 
   this.deliveryType = opts.deliveryType;
   this.deviceTime = opts.deviceTime;
@@ -92,17 +92,17 @@ var Bolus = function(opts) {
   opts = opts || {};
   var defaults = {
     deviceTime: this.makeDeviceTime(),
-    subType: 'normal',
+    subType: "normal",
     value: 5.0,
     timezone,
   };
   _.defaults(opts, defaults);
 
-  this.type = 'bolus';
+  this.type = "bolus";
   this.deviceTime = opts.deviceTime;
   this.subType = opts.subType;
 
-  if (this.subType === 'normal') {
+  if (this.subType === "normal") {
     this.normal = opts.value;
   }
 
@@ -118,7 +118,7 @@ Bolus.prototype = common;
 var CBG = function(opts) {
   opts = opts || {};
   var defaults = {
-    deviceId: 'DexG4Rec_XXXXXXXXX',
+    deviceId: "DexG4Rec_XXXXXXXXX",
     deviceTime: this.makeDeviceTime(),
     units: MGDL_UNITS,
     value: 100,
@@ -126,7 +126,7 @@ var CBG = function(opts) {
   };
   _.defaults(opts, defaults);
 
-  this.type = 'cbg';
+  this.type = "cbg";
 
   this.deviceId = opts.deviceId;
   this.deviceTime = opts.deviceTime;
@@ -145,14 +145,14 @@ CBG.prototype = common;
 var Message = function(opts) {
   opts = opts || {};
   var defaults = {
-    messageText: 'This is a note.',
+    messageText: "This is a note.",
     parentMessage: null,
     time: new Date().toISOString(),
     timezone,
   };
   _.defaults(opts, defaults);
 
-  this.type = 'message';
+  this.type = "message";
 
   this.time = opts.time;
   var dt = new Date(this.time);
@@ -162,7 +162,7 @@ var Message = function(opts) {
 
   this.messageText = opts.messageText;
   this.parentMessage = opts.parentMessage;
-  this.timezone = 'UTC';
+  this.timezone = "UTC";
 
   this.id = guid();
 };
@@ -170,9 +170,9 @@ var Message = function(opts) {
 var Settings = function(opts) {
   opts = opts || {};
   var defaults = {
-    activeSchedule: 'standard',
+    activeSchedule: "standard",
     basalSchedules: [{
-      name: 'standard',
+      name: "standard",
       value: [{
         start: 0,
         rate: 1.0
@@ -193,15 +193,15 @@ var Settings = function(opts) {
       start: 0
     }],
     units: {
-      carb: 'grams',
+      carb: "grams",
       bg: MGDL_UNITS
     },
-    source: 'Medtronic',
+    source: "Medtronic",
     timezone,
   };
   _.defaults(opts, defaults);
 
-  this.type = 'pumpSettings';
+  this.type = "pumpSettings";
 
   this.activeSchedule = opts.activeSchedule;
   this.basalSchedules = opts.basalSchedules;
@@ -234,7 +234,7 @@ var SMBG = function(opts) {
   };
   _.defaults(opts, defaults);
 
-  this.type = 'smbg';
+  this.type = "smbg";
 
   this.deviceTime = opts.deviceTime;
   this.units = opts.units;
@@ -253,13 +253,13 @@ var DeviceEvent = function(opts) {
   opts = opts || {};
   var defaults = {
     deviceTime: this.makeDeviceTime(),
-    units: 'mg/dL',
+    units: "mg/dL",
     value: 100,
     timezone,
   };
   _.defaults(opts, defaults);
 
-  this.type = 'deviceEvent';
+  this.type = "deviceEvent";
   this.subType = opts.subType;
 
   this.deviceTime = opts.deviceTime;
@@ -287,7 +287,7 @@ var Upload = function(opts) {
   };
   _.defaults(opts, defaults);
 
-  this.type = 'upload';
+  this.type = "upload";
   this.deviceTags = opts.deviceTags;
   this.deviceTime = opts.deviceTime;
   this.deviceModel = opts.deviceModel;
@@ -323,7 +323,7 @@ var Wizard = function(opts) {
   };
   _.defaults(opts, defaults);
 
-  this.type = 'wizard';
+  this.type = "wizard";
 
   this.bgTarget = opts.bgTarget;
   this.bolus = opts.bolus ? opts.bolus : new Bolus({value: opts.value, deviceTime: this.deviceTime});
@@ -345,16 +345,16 @@ var PhysicalActivity = function(opts) {
   opts = opts || {};
   var defaults = {
     deviceTime: this.makeDeviceTime(),
-    reportedIntensity: 'medium',
+    reportedIntensity: "medium",
     duration: {
-      units: 'minutes',
+      units: "minutes",
       value: 30.0
     },
     timezone,
   };
   _.defaults(opts, defaults);
 
-  this.type = 'physicalActivity';
+  this.type = "physicalActivity";
 
   this.deviceTime = opts.deviceTime;
   this.duration = opts.duration;

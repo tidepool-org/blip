@@ -1,9 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { VictoryLabel, VictoryTooltip, TextSize } from 'victory';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import { VictoryLabel, VictoryTooltip, TextSize } from "victory";
 
-import colors from '../../../styles/colors.css';
+import colors from "../../../styles/colors.css";
 
 const HoverBarLabel = props => {
   const {
@@ -28,13 +28,13 @@ const HoverBarLabel = props => {
 
   const tooltipStyle = _.assign({}, style, {
     fontSize: tooltipFontSize,
-    display: disabled ? 'none' : 'inherit',
+    display: disabled ? "none" : "inherit",
   });
 
   const tooltipTextSize = TextSize.approximateTextSize(tooltipText(datum), tooltipStyle);
 
   const labelStyle = _.assign({}, style, {
-    pointerEvents: 'none',
+    pointerEvents: "none",
   });
 
   const labelUnitsStyle = _.assign({}, labelStyle, {
@@ -44,7 +44,7 @@ const HoverBarLabel = props => {
   });
 
   const labelText = text(datum);
-  const labelUnitsTextSize = TextSize.approximateTextSize(labelText[1] || '', labelUnitsStyle);
+  const labelUnitsTextSize = TextSize.approximateTextSize(labelText[1] || "", labelUnitsStyle);
 
   // Ensure that the datum y value isn't below zero, or the tooltip will be incorrectly positioned
   const tooltipDatum = {
@@ -81,7 +81,7 @@ const HoverBarLabel = props => {
           datum={tooltipDatum}
           x={scale.y(domain.x[1]) - style.paddingLeft - tooltipTextSize.width - (tooltipRadius * 2)}
           flyoutStyle={{
-            display: disabled ? 'none' : 'inherit',
+            display: disabled ? "none" : "inherit",
             stroke: colors.axis,
             strokeWidth: 2,
             fill: colors.white,
@@ -112,6 +112,6 @@ HoverBarLabel.propTypes = {
   y: PropTypes.number,
 };
 
-HoverBarLabel.displayName = 'HoverBarLabel';
+HoverBarLabel.displayName = "HoverBarLabel";
 
 export default HoverBarLabel;

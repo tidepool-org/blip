@@ -15,50 +15,50 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import { expect } from 'chai';
-import { mount } from 'enzyme';
+import React from "react";
+import { expect } from "chai";
+import { mount } from "enzyme";
 
-import { formatClassesAsSelector } from '../../helpers/cssmodules';
+import { formatClassesAsSelector } from "../../helpers/cssmodules";
 
-import PhysicalTooltip from '../../../src/components/daily/physicaltooltip/PhysicalTooltip';
-import styles from '../../../src/components/daily/physicaltooltip/PhysicalTooltip.css';
+import PhysicalTooltip from "../../../src/components/daily/physicaltooltip/PhysicalTooltip";
+import styles from "../../../src/components/daily/physicaltooltip/PhysicalTooltip.css";
 
 const normal = {
-  type: 'physicalActivity',
+  type: "physicalActivity",
   duration: {
-    units: 'seconds',
+    units: "seconds",
     value: 600.0,
   },
-  reportedIntensity: 'medium',
+  reportedIntensity: "medium",
 };
 
 const normalMinutes = {
-  type: 'physicalActivity',
+  type: "physicalActivity",
   duration: {
-    units: 'minutes',
+    units: "minutes",
     value: 60,
   },
-  reportedIntensity: 'medium',
+  reportedIntensity: "medium",
 };
 
 const normalHours = {
-  type: 'physicalActivity',
+  type: "physicalActivity",
   duration: {
-    units: 'hours',
+    units: "hours",
     value: 1.5,
   },
-  reportedIntensity: 'medium',
+  reportedIntensity: "medium",
 };
 
 const withInputTime = {
-  type: 'physicalActivity',
+  type: "physicalActivity",
   duration: {
-    units: 'minutes',
+    units: "minutes",
     value: 60,
   },
-  reportedIntensity: 'medium',
-  inputTime: '2020-07-31T15:40:00.000Z',
+  reportedIntensity: "medium",
+  inputTime: "2020-07-31T15:40:00.000Z",
 };
 
 const props = {
@@ -72,20 +72,20 @@ const timePrefsUtc = {
   timezoneOffset: 0
 };
 
-describe('PhysicalTooltip', () => {
-  it('should render without issue when all properties provided', () => {
+describe("PhysicalTooltip", () => {
+  it("should render without issue when all properties provided", () => {
     const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normal} />);
     expect(wrapper.find(formatClassesAsSelector(styles.pa))).to.have.length(3);
     expect(wrapper
       .find(formatClassesAsSelector(styles.pa))
       .at(0)
-      .find('#tooltip-physical-activity-title')
-      .text()).to.equal('Physical Activity');
+      .find("#tooltip-physical-activity-title")
+      .text()).to.equal("Physical Activity");
     expect(wrapper
       .find(formatClassesAsSelector(styles.pa))
       .at(1)
       .find(formatClassesAsSelector(styles.label))
-      .text()).to.equal('Intensity');
+      .text()).to.equal("Intensity");
     expect(wrapper
       .find(formatClassesAsSelector(styles.pa))
       .at(1)
@@ -94,19 +94,19 @@ describe('PhysicalTooltip', () => {
       .find(formatClassesAsSelector(styles.pa))
       .at(2)
       .find(formatClassesAsSelector(styles.label))
-      .text()).to.equal('Duration');
+      .text()).to.equal("Duration");
     expect(wrapper
       .find(formatClassesAsSelector(styles.pa))
       .at(2)
       .children()).to.have.length(2);
-    });
+  });
 
-  describe('Get PhysicalTooltip Duration', () => {
+  describe("Get PhysicalTooltip Duration", () => {
     // eslint-disable-next-line max-len
-    it('should return 10 for a 600 seconds physical activity', () => {
+    it("should return 10 for a 600 seconds physical activity", () => {
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normal} />);
       const d = {
-        units: 'minutes',
+        units: "minutes",
         value: 10
       };
       expect(wrapper.instance().getDurationInMinutes(normal)).to.deep.equal(d);
@@ -116,10 +116,10 @@ describe('PhysicalTooltip', () => {
         .find(formatClassesAsSelector(styles.value))
         .text()).to.equal(`${d.value} ${d.units}`);
     });
-    it('should return 60 for a 60 minutes physical activity', () => {
+    it("should return 60 for a 60 minutes physical activity", () => {
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normalMinutes} />);
       const d = {
-        units: 'minutes',
+        units: "minutes",
         value: 60
       };
       expect(wrapper.instance().getDurationInMinutes(normalMinutes)).to.deep.equal(d);
@@ -129,10 +129,10 @@ describe('PhysicalTooltip', () => {
         .find(formatClassesAsSelector(styles.value))
         .text()).to.equal(`${d.value} ${d.units}`);
     });
-    it('should return 90 for a 1.5 hours physical activity', () => {
+    it("should return 90 for a 1.5 hours physical activity", () => {
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normalHours} />);
       const d = {
-        units: 'minutes',
+        units: "minutes",
         value: 90
       };
       expect(wrapper.instance().getDurationInMinutes(normalHours)).to.deep.equal(d);
@@ -143,33 +143,33 @@ describe('PhysicalTooltip', () => {
         .text()).to.equal(`${d.value} ${d.units}`);
     });
   });
-  describe('Get PhysicalTooltip intensity', () => {
-    it('should return medium-pa for a medium intensity physical activity', () => {
-    const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normal} />);
-    const d = 'medium-pa';
-    expect(wrapper
-      .find(formatClassesAsSelector(styles.pa))
-      .at(1)
-      .find(formatClassesAsSelector(styles.value))
-      .text()).to.equal(`${d}`);
+  describe("Get PhysicalTooltip intensity", () => {
+    it("should return medium-pa for a medium intensity physical activity", () => {
+      const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normal} />);
+      const d = "medium-pa";
+      expect(wrapper
+        .find(formatClassesAsSelector(styles.pa))
+        .at(1)
+        .find(formatClassesAsSelector(styles.value))
+        .text()).to.equal(`${d}`);
     });
   });
-  describe('Get PhysicalTooltip inpuTime when property is available', () => {
-    it('should contain the InputTime', () => {
+  describe("Get PhysicalTooltip inpuTime when property is available", () => {
+    it("should contain the InputTime", () => {
       props.timePrefs = timePrefsUtc;
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={withInputTime} />);
-      const formattedInputTime = '3:40 pm';
+      const formattedInputTime = "3:40 pm";
       expect(wrapper.find(formatClassesAsSelector(styles.pa))).to.have.length(4);
       expect(wrapper
         .find(formatClassesAsSelector(styles.pa))
         .at(3)
         .find(formatClassesAsSelector(styles.label))
-        .text()).to.equal('Entered at');
+        .text()).to.equal("Entered at");
       expect(wrapper
         .find(formatClassesAsSelector(styles.pa))
         .at(3)
         .find(formatClassesAsSelector(styles.value))
         .text()).to.equal(`${formattedInputTime}`);
-      });
+    });
   });
 });

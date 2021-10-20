@@ -14,10 +14,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import textTable from 'text-table';
-import i18next from 'i18next';
+import textTable from "text-table";
+import i18next from "i18next";
 
-import { formatParameterValue } from '../format';
+import { formatParameterValue } from "../format";
 
 const t = i18next.t.bind(i18next);
 
@@ -59,25 +59,25 @@ export function getParametersByLevel(parameters) {
  */
 export function diabeloopText(device, parametersByLevel, displayDeviceDate) {
   const deviceRows = [
-    [t('Manufacturer'), device.manufacturer],
-    [t('Identifier'), device.deviceId],
-    [t('IMEI'), device.imei],
-    [t('Software version'), device.swVersion],
+    [t("Manufacturer"), device.manufacturer],
+    [t("Identifier"), device.deviceId],
+    [t("IMEI"), device.imei],
+    [t("Software version"), device.swVersion],
   ];
 
-  let deviceText = `-= ${t('Device')} =-\n`;
+  let deviceText = `-= ${t("Device")} =-\n`;
 
   deviceText += textTable(deviceRows);
 
-  let parametersText = '';
+  let parametersText = "";
   // eslint-disable-next-line lodash/prefer-lodash-method
   parametersByLevel.forEach((parameters, level) => {
-    let pLevelText = `-= ${t('Parameters level')} ${level} =-\n`;
+    let pLevelText = `-= ${t("Parameters level")} ${level} =-\n`;
 
     const tableRows = [[
-      t('Name'),
-      t('Value'),
-      t('Unit')
+      t("Name"),
+      t("Value"),
+      t("Unit")
     ]];
 
     // eslint-disable-next-line lodash/prefer-lodash-method
@@ -85,7 +85,7 @@ export function diabeloopText(device, parametersByLevel, displayDeviceDate) {
       tableRows.push([parameter.name, parameter.value, parameter.unit]);
     });
 
-    pLevelText += textTable(tableRows, { align: ['l', 'r', 'l'] });
+    pLevelText += textTable(tableRows, { align: ["l", "r", "l"] });
 
     parametersText = `${parametersText}\n${pLevelText}\n`;
   });
@@ -99,35 +99,35 @@ export function diabeloopText(device, parametersByLevel, displayDeviceDate) {
  */
 export function getDeviceInfosData(device) {
   const heading = {
-    text: t('Device'),
+    text: t("Device"),
     subText: device.name,
   };
 
   const columns = [{
-    id: 'label',
+    id: "label",
     headerFill: false,
     cache: false,
-    align: 'left',
+    align: "left",
     width: 150,
   }, {
-    id: 'value',
+    id: "value",
     headerFill: false,
     cache: false,
-    align: 'right',
+    align: "right",
     width: 150,
   }];
 
   const rows = [{
-    label: t('Manufacturer'),
+    label: t("Manufacturer"),
     value: device.manufacturer,
   }, {
-    label: t('Identifier'),
+    label: t("Identifier"),
     value: device.deviceId,
   }, {
-    label: t('IMEI'),
+    label: t("IMEI"),
     value: device.imei,
   }, {
-    label: t('Software version'),
+    label: t("Software version"),
     value: device.swVersion,
   }];
 
@@ -151,27 +151,27 @@ export function getDeviceParametersData(parameters, opts) {
   } = opts;
 
   const heading = {
-    text: t('Parameters'),
-    subText: t('level {{level}}', { level }),
+    text: t("Parameters"),
+    subText: t("level {{level}}", { level }),
   };
 
   const columns = [{
-    id: 'name',
-    header: t('Name'),
+    id: "name",
+    header: t("Name"),
     cache: false,
-    align: 'left',
+    align: "left",
     width: (width * 0.7),
   }, {
-    id: 'value',
-    header: t('Value'),
+    id: "value",
+    header: t("Value"),
     cache: false,
-    align: 'right',
+    align: "right",
     width: (width * 0.2),
   }, {
-    id: 'unit',
-    header: t('Unit'),
+    id: "unit",
+    header: t("Unit"),
     cache: false,
-    align: 'left',
+    align: "left",
     width: (width * 0.1),
   }];
 

@@ -28,7 +28,7 @@
 
 import i18n from "i18next";
 import moment from "moment-timezone";
-import sinon from "sinon";
+import * as sinon from "sinon";
 import { expect } from "chai";
 
 import config from "../../lib/config";

@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import i18next from 'i18next';
-import PrintView from './PrintView';
+import _ from "lodash";
+import i18next from "i18next";
+import PrintView from "./PrintView";
 
 import {
   deviceName,
   getDeviceMeta,
   startTimeAndValue,
-} from '../../utils/settings/data';
+} from "../../utils/settings/data";
 
 import {
   basal,
@@ -31,14 +31,14 @@ import {
   ratio,
   sensitivity,
   target,
-} from '../../utils/settings/nonTandemData';
+} from "../../utils/settings/nonTandemData";
 
-import * as dblData from '../../utils/settings/diabeloopData';
+import * as dblData from "../../utils/settings/diabeloopData";
 
 import {
   basalSchedules as profileSchedules,
   basal as tandemBasal,
-} from '../../utils/settings/tandemData';
+} from "../../utils/settings/tandemData";
 
 const t = i18next.t.bind(i18next);
 
@@ -46,8 +46,8 @@ class SettingsPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
-    this.source = _.get(data, 'source', '').toLowerCase();
-    this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
+    this.source = _.get(data, "source", "").toLowerCase();
+    this.manufacturer = this.source === "carelink" ? "medtronic" : this.source;
 
     this.deviceMeta = getDeviceMeta(data, opts.timePrefs);
 
@@ -62,27 +62,27 @@ class SettingsPrintView extends PrintView {
     this.renderDeviceMeta();
 
     switch (this.manufacturer) {
-      case 'tandem':
-        this.renderTandemProfiles();
-        break;
-      case 'diabeloop':
-        this.renderDiabeloopProfiles();
-        break;
-      default:
-        this.renderBasalSchedules();
-        this.renderWizardSettings();
-        break;
+    case "tandem":
+      this.renderTandemProfiles();
+      break;
+    case "diabeloop":
+      this.renderDiabeloopProfiles();
+      break;
+    default:
+      this.renderBasalSchedules();
+      this.renderWizardSettings();
+      break;
     }
   }
 
   renderDeviceMeta() {
-    const device = deviceName(this.manufacturer) || t('Unknown');
+    const device = deviceName(this.manufacturer) || t("Unknown");
     this.doc
       .font(this.boldFont)
       .fontSize(this.defaultFontSize)
       .text(device, { continued: true })
       .font(this.font)
-      .text(` › ${t('Serial Number')}: ${this.deviceMeta.serial}`)
+      .text(` › ${t("Serial Number")}: ${this.deviceMeta.serial}`)
       .moveDown();
 
     this.resetText();
@@ -90,16 +90,16 @@ class SettingsPrintView extends PrintView {
   }
 
   renderTandemProfiles() {
-    this.renderSectionHeading(t('Profile Settings'));
+    this.renderSectionHeading(t("Profile Settings"));
 
     const basalSchedules = profileSchedules(this.data);
 
     const sortedSchedules = _.orderBy(basalSchedules,
       [
         schedule => (schedule.name === this.data.activeSchedule ? 1 : 0),
-        'position',
+        "position",
       ],
-      ['desc', 'asc']
+      ["desc", "asc"]
     );
 
     _.forEach(sortedSchedules, schedule => {
@@ -160,7 +160,7 @@ class SettingsPrintView extends PrintView {
         const columnDef = {
           id: column.key,
           header: label,
-          align: isFirst ? 'left' : 'center',
+          align: isFirst ? "left" : "center",
           headerFill: headerFills[column.key],
           cache: false,
           headerRenderer: this.renderCustomTextCell,
@@ -169,7 +169,7 @@ class SettingsPrintView extends PrintView {
         if (!isFirst) {
           columnDef.width = widths[column.key];
 
-          if (columnDef.id === 'rate') {
+          if (columnDef.id === "rate") {
             columnDef.renderer = this.renderCustomTextCell;
           }
         } else {
@@ -196,17 +196,17 @@ class SettingsPrintView extends PrintView {
           zebra: true,
           headerFill: true,
         },
-        flexColumn: 'start',
+        flexColumn: "start",
       });
     });
   }
 
   renderDiabeloopProfiles() {
     // Device informations:
-    const device = _.get(this.data, 'payload.device', null);
+    const device = _.get(this.data, "payload.device", null);
 
     // Device parameters:
-    const parameters = _.get(this.data, 'payload.parameters', null);
+    const parameters = _.get(this.data, "payload.parameters", null);
 
     // Render the device informations table:
     if (device !== null) {
@@ -231,13 +231,13 @@ class SettingsPrintView extends PrintView {
         columnDefaults: {
           zebra: false,
           headerFill: false,
-          headerBorder: '',
+          headerBorder: "",
         },
-        flexColumn: 'start',
+        flexColumn: "start",
         showHeaders: false,
       });
     } else {
-      this.renderSectionHeading(t('No diabeloop device informations available'));
+      this.renderSectionHeading(t("No diabeloop device informations available"));
     }
 
     // Render the device parameters tables:
@@ -264,19 +264,19 @@ class SettingsPrintView extends PrintView {
             zebra: true,
             headerFill: false,
           },
-          flexColumn: 'start',
+          flexColumn: "start",
           showHeaders: true,
         });
       });
     } else {
-      this.renderSectionHeading(t('No diabeloop device parameters available'));
+      this.renderSectionHeading(t("No diabeloop device parameters available"));
     }
 
     this.resetText();
   }
 
   renderBasalSchedules() {
-    this.renderSectionHeading(t('Basal Rates'));
+    this.renderSectionHeading(t("Basal Rates"));
 
     this.setLayoutColumns({
       width: this.chartArea.width,
@@ -292,14 +292,14 @@ class SettingsPrintView extends PrintView {
 
     const columnWidth = this.getActiveColumnWidth();
 
-    const tableColumns = _.map(startTimeAndValue('rate'), (column, index) => {
+    const tableColumns = _.map(startTimeAndValue("rate"), (column, index) => {
       const isValue = index === 1;
       const valueWidth = 50;
 
       return {
         id: column.key,
         header: column.label,
-        align: isValue ? 'right' : 'left',
+        align: isValue ? "right" : "left",
         width: isValue ? valueWidth : columnWidth - valueWidth,
       };
     });
@@ -320,9 +320,9 @@ class SettingsPrintView extends PrintView {
         schedule => (schedule.scheduleName === lastManualBasalSchedule ? 1 : 0),
         schedule => (schedule.scheduleName === activeSchedule ? 1 : 0),
         schedule => schedule.rows.length,
-        'name',
+        "name",
       ],
-      ['desc', 'desc', 'desc', 'desc', 'asc']
+      ["desc", "desc", "desc", "desc", "asc"]
     );
 
     const automatedScheduleShowing = _.some(sortedSchedules, { isAutomated: true });
@@ -335,7 +335,7 @@ class SettingsPrintView extends PrintView {
 
       this.goToLayoutColumnPosition(activeColumn);
 
-      const scheduleLabel = _.get(schedule, 'title', {});
+      const scheduleLabel = _.get(schedule, "title", {});
 
       const heading = {
         text: scheduleLabel.main,
@@ -385,7 +385,7 @@ class SettingsPrintView extends PrintView {
 
   renderWizardSettings() {
     this.doc.x = this.chartArea.leftEdge;
-    this.doc.y = _.get(this.layoutColumns, ['columns', this.getLongestLayoutColumn(), 'y']);
+    this.doc.y = _.get(this.layoutColumns, `columns.${this.getLongestLayoutColumn()}.y`);
     this.doc.moveDown();
 
     this.renderSectionHeading(bolusTitle(this.manufacturer));
@@ -405,7 +405,7 @@ class SettingsPrintView extends PrintView {
     this.resetText();
   }
 
-  renderWizardSetting(settings, units = '') {
+  renderWizardSetting(settings, units = "") {
     this.goToLayoutColumnPosition(this.getShortestLayoutColumn());
 
     const columnWidth = this.getActiveColumnWidth();
@@ -417,7 +417,7 @@ class SettingsPrintView extends PrintView {
       return {
         id: column.key,
         header: column.label,
-        align: isValue ? 'right' : 'left',
+        align: isValue ? "right" : "left",
         width: isValue ? valueWidth : columnWidth - (valueWidth * (settings.columns.length - 1)),
       };
     });
@@ -460,7 +460,7 @@ class SettingsPrintView extends PrintView {
   }
 
   renderRatio() {
-    const units = 'g/U';
+    const units = "g/U";
     this.renderWizardSetting(ratio(this.data, this.manufacturer), units);
   }
 }

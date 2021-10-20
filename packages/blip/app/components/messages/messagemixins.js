@@ -15,21 +15,21 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
 
-import _ from 'lodash';
-import i18next from 'i18next';
-import moment from 'moment-timezone';
+import _ from "lodash";
+import i18next from "i18next";
+import moment from "moment-timezone";
 
 const t = i18next.t.bind(i18next);
 
 export function isTimezoneAware() {
-  const timezoneAware = _.get(this.props, 'timePrefs.timezoneAware', false);
-  const timezoneName = _.get(this.props, 'timePrefs.timezoneName', null);
+  const timezoneAware = _.get(this.props, "timePrefs.timezoneAware", false);
+  const timezoneName = _.get(this.props, "timePrefs.timezoneName", null);
   return timezoneAware && timezoneName !== null;
 }
 
 export function getDisplayTimestamp(/** @type {moment.Moment | string} */ ts) {
-  const format = t('MMMM D [at] h:mm a');
-  const timezone = _.get(this.props, 'timePrefs.timezoneName', 'UTC');
+  const format = t("MMMM D [at] h:mm a");
+  const timezone = _.get(this.props, "timePrefs.timezoneName", "UTC");
   let m = ts;
   if (!moment.isMoment(ts)) {
     m = moment.utc(ts);

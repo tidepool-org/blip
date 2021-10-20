@@ -20,20 +20,20 @@
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import utils from './util/utils';
-import bgBoundaryClass from './util/bgboundary';
-import categorizer from '../data/util/categorize';
-import { MGDL_UNITS, DEFAULT_BG_BOUNDS } from '../data/util/constants';
+import utils from "./util/utils";
+import bgBoundaryClass from "./util/bgboundary";
+import categorizer from "../data/util/categorize";
+import { MGDL_UNITS, DEFAULT_BG_BOUNDS } from "../data/util/constants";
 
 const defaults = {
   bgUnits: MGDL_UNITS,
   classes: {
-    'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
-    low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
-    target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
-    high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
+    "very-low": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+    "low": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+    "target": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+    "high": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
   },
   size: 16,
   timezoneAware: false,
@@ -58,36 +58,36 @@ function plotSmbg(pool, opts = defaults) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
 
-      smbg.addAnnotations(_.filter(currentData, 'annotations'));
+      smbg.addAnnotations(_.filter(currentData, "annotations"));
 
       var circles = d3.select(this)
-        .selectAll('circle.d3-smbg')
+        .selectAll("circle.d3-smbg")
         .data(currentData, function(d) {
           return d.id;
         });
       circles.enter()
-        .append('circle')
+        .append("circle")
         .attr({
           cx: smbg.xPosition,
           cy: smbg.yPosition,
           r: smbg.radius,
           id: smbg.id,
-          'class': getBgBoundaryClass
+          class: getBgBoundaryClass
         })
-        .classed({'d3-smbg': true, 'd3-circle-smbg': true});
+        .classed({"d3-smbg": true, "d3-circle-smbg": true});
 
       circles.exit().remove();
 
       var highlight = pool.highlight(circles);
 
       // tooltips
-      selection.selectAll('.d3-circle-smbg').on('mouseover', function() {
+      selection.selectAll(".d3-circle-smbg").on("mouseover", function() {
         highlight.on(d3.select(this));
         smbg.addTooltip(d3.select(this).datum(), utils.getTooltipContainer(this));
       });
-      selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
+      selection.selectAll(".d3-circle-smbg").on("mouseout", function() {
         highlight.off();
-        if (_.get(opts, 'onSMBGOut', false)){
+        if (_.get(opts, "onSMBGOut", false)){
           opts.onSMBGOut();
         }
       });
@@ -110,11 +110,11 @@ function plotSmbg(pool, opts = defaults) {
   };
 
   smbg.id = function(d) {
-    return 'smbg_' + d.id;
+    return "smbg_" + d.id;
   };
 
   smbg.addTooltip = function(d, rect) {
-    if (_.get(opts, 'onSMBGHover', false)) {
+    if (_.get(opts, "onSMBGHover", false)) {
       opts.onSMBGHover({
         data: d,
         rect: rect,
@@ -137,8 +137,8 @@ function plotSmbg(pool, opts = defaults) {
         },
         d: d
       };
-      if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
-        mainGroup.select('#tidelineAnnotations_smbg')
+      if (_.isNil(mainGroup.select("#annotation_for_" + d.id)[0][0])) {
+        mainGroup.select("#tidelineAnnotations_smbg")
           .call(pool.annotations(), annotationOpts);
       }
     }

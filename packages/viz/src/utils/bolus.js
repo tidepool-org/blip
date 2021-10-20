@@ -18,18 +18,18 @@
 /* the logic here (and the tests) are a port of tideline's
    js/plot/util/commonbolus.js */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import { formatDecimalNumber, formatPercentage } from './format';
+import { formatDecimalNumber, formatPercentage } from "./format";
 
 /**
  * fixFloatingPoint
- * @param {Number} numeric value
+ * @param {number} n value
  *
- * @return {Number} numeric value rounded to 3 decimal places
+ * @return {number} numeric value rounded to 3 decimal places
  */
 function fixFloatingPoint(n) {
-  return parseFloat(formatDecimalNumber(n, 3));
+  return Number.parseFloat(formatDecimalNumber(n, 3));
 }
 
 /**
@@ -57,14 +57,14 @@ export const BolusTypes = {
  * @param {object} b bolus or wizard
  */
 export function getBolusType(b) {
-  if (b.type === 'wizard') {
+  if (b.type === "wizard") {
     return BolusTypes.meal;
   }
   const bolus = getBolusFromInsulinEvent(b);
-  if (bolus.subType === 'pen' || bolus.prescriptor === 'manual') {
+  if (bolus.subType === "pen" || bolus.prescriptor === "manual") {
     return BolusTypes.manual;
   }
-  if (bolus.subType === 'biphasic') {
+  if (bolus.subType === "biphasic") {
     return BolusTypes.meal;
   }
   return BolusTypes.micro;
@@ -78,40 +78,40 @@ export function getBolusType(b) {
  *                  Number.NaN if bolus calculator not used; null if no carbInput
  */
 export function getCarbs(insulinEvent) {
-  if (insulinEvent.type !== 'wizard') {
+  if (insulinEvent.type !== "wizard") {
     return Number.NaN;
   }
-  return _.get(insulinEvent, 'carbInput', null);
+  return _.get(insulinEvent, "carbInput", null);
 }
 
 /**
  * getProgrammed
- * @param {Object} insulinEvent - a Tidepool bolus or wizard object
+ * @param {object} insulinEvent - a Tidepool bolus or wizard object
  *
  * @return {number} value of insulin programmed for delivery in the given insulinEvent
  */
 export function getProgrammed(insulinEvent) {
   let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
+  if (_.get(insulinEvent, "type") === "wizard") {
     bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!(_.isFinite(bolus.normal) || _.isFinite(bolus.extended))) {
+    if (!(Number.isFinite(bolus.normal) || Number.isFinite(bolus.extended))) {
       return Number.NaN;
     }
   }
-  if (bolus.extended != null && bolus.expectedExtended != null) {
-    if (bolus.normal != null) {
-      if (bolus.expectedNormal != null) {
+  if (Number.isFinite(bolus.extended) && Number.isFinite(bolus.expectedExtended)) {
+    if (Number.isFinite(bolus.normal)) {
+      if (Number.isFinite(bolus.expectedNormal)) {
         return fixFloatingPoint(bolus.expectedNormal + bolus.expectedExtended);
       }
       return fixFloatingPoint(bolus.normal + bolus.expectedExtended);
     }
     return bolus.expectedExtended;
-  } else if (bolus.extended != null) {
-    if (bolus.normal != null) {
-      if (bolus.expectedNormal != null) {
+  } else if (Number.isFinite(bolus.extended)) {
+    if (Number.isFinite(bolus.normal)) {
+      if (Number.isFinite(bolus.expectedNormal)) {
         // this situation should not exist!
         throw new Error(
-          'Combo bolus found with a cancelled `normal` portion and non-cancelled `extended`!'
+          "Combo bolus found with a cancelled `normal` portion and non-cancelled `extended`!"
         );
       }
       return fixFloatingPoint(bolus.normal + bolus.extended);
@@ -132,13 +132,13 @@ export function getRecommended(insulinEvent) {
   if (_.isEmpty(insulinEvent.recommended)) {
     return Number.NaN;
   }
-  const netRecommendation = _.get(insulinEvent, 'recommended.net', null);
+  const netRecommendation = _.get(insulinEvent, "recommended.net", null);
   if (netRecommendation !== null) {
     return netRecommendation;
   }
   let rec = 0;
-  rec += _.get(insulinEvent, 'recommended.carb', 0);
-  rec += _.get(insulinEvent, 'recommended.correction', 0);
+  rec += _.get(insulinEvent, "recommended.carb", 0);
+  rec += _.get(insulinEvent, "recommended.correction", 0);
 
   return fixFloatingPoint(rec);
 }
@@ -151,7 +151,7 @@ export function getRecommended(insulinEvent) {
  */
 export function getDelivered(insulinEvent) {
   let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
+  if (_.get(insulinEvent, "type") === "wizard") {
     bolus = getBolusFromInsulinEvent(insulinEvent);
     if (!_.inRange(bolus.normal, Infinity) && !_.inRange(bolus.extended, Infinity)) {
       return Number.NaN;
@@ -174,7 +174,7 @@ export function getDelivered(insulinEvent) {
  */
 export function getDuration(insulinEvent) {
   let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
+  if (_.get(insulinEvent, "type") === "wizard") {
     bolus = getBolusFromInsulinEvent(insulinEvent);
   }
   // don't want truthiness here because want to return duration
@@ -211,7 +211,7 @@ export function getExtended(insulinEvent) {
  */
 export function getExtendedPercentage(insulinEvent) {
   let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
+  if (_.get(insulinEvent, "type") === "wizard") {
     bolus = getBolusFromInsulinEvent(insulinEvent);
   }
   if (!bolus.normal || !(bolus.extended || bolus.expectedExtended)) {
@@ -230,7 +230,7 @@ export function getExtendedPercentage(insulinEvent) {
  */
 export function getMaxDuration(insulinEvent) {
   let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
+  if (_.get(insulinEvent, "type") === "wizard") {
     bolus = getBolusFromInsulinEvent(insulinEvent);
   }
   // don't want truthiness here because want to return expectedDuration
@@ -249,7 +249,7 @@ export function getMaxDuration(insulinEvent) {
  */
 export function getMaxValue(insulinEvent) {
   let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
+  if (_.get(insulinEvent, "type") === "wizard") {
     bolus = getBolusFromInsulinEvent(insulinEvent);
     if (!bolus.normal && !bolus.extended) {
       return Number.NaN;
@@ -268,7 +268,7 @@ export function getMaxValue(insulinEvent) {
  */
 export function getNormalPercentage(insulinEvent) {
   let bolus = insulinEvent;
-  if (_.get(insulinEvent, 'type') === 'wizard') {
+  if (_.get(insulinEvent, "type") === "wizard") {
     bolus = getBolusFromInsulinEvent(insulinEvent);
   }
   if (!(bolus.normal || bolus.expectedNormal) || !(bolus.extended || bolus.expectedExtended)) {
@@ -315,14 +315,14 @@ export function isInterruptedBolus(insulinEvent) {
   const bolus = getBolusFromInsulinEvent(insulinEvent);
 
   const cancelledDuringNormal = Boolean(
-    bolus.normal != null &&
-    bolus.expectedNormal &&
+    Number.isFinite(bolus.normal) &&
+    Number.isFinite(bolus.expectedNormal) &&
     bolus.normal !== bolus.expectedNormal
   );
 
   const cancelledDuringExtended = Boolean(
-    bolus.extended != null &&
-    bolus.expectedExtended &&
+    Number.isFinite(bolus.extended) &&
+    Number.isFinite(bolus.expectedExtended) &&
     bolus.extended !== bolus.expectedExtended
   );
 
@@ -363,6 +363,6 @@ export function isUnderride(insulinEvent) {
  */
 export function getAnnotations(insulinEvent) {
   const bolus = getBolusFromInsulinEvent(insulinEvent);
-  const annotations = _.get(bolus, 'annotations', []);
+  const annotations = _.get(bolus, "annotations", []);
   return annotations;
 }

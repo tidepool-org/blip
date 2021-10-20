@@ -70,10 +70,10 @@ function plotWarmUp(pool, opts) {
         });
 
       warmUpGroup.append("image").attr({
-        x: (d) => xScale(d.epoch),
-        y: _.constant(0),
+        "x": (d) => xScale(d.epoch),
+        "y": _.constant(0),
         width,
-        height: offset,
+        "height": offset,
         "xlink:href": warmUpDexcom,
       });
 

@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -52,7 +52,7 @@ const pageBarStyles = makeStyles(
   (theme: Theme) => {
     return {
       toolBarLeft: {
-        [theme.breakpoints.down('sm')]: {
+        [theme.breakpoints.down("sm")]: {
           order: 1,
           marginTop: theme.spacing(1),
           marginBottom: theme.spacing(1),
@@ -60,11 +60,11 @@ const pageBarStyles = makeStyles(
       },
       toolBarRight: {
         display: "flex",
-        [theme.breakpoints.down('sm')]: {
+        [theme.breakpoints.down("sm")]: {
           order: 2,
           marginLeft: "auto",
         },
-        [theme.breakpoints.down('xs')]: {
+        [theme.breakpoints.down("xs")]: {
           marginTop: theme.spacing(1),
           marginBottom: theme.spacing(1),
         },
@@ -85,7 +85,7 @@ const pageBarStyles = makeStyles(
         marginLeft: "auto",
       },
       buttonAddCaregiverText: {
-        [theme.breakpoints.down('xs')]: {
+        [theme.breakpoints.down("xs")]: {
           display: "none",
         },
       },

@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import picto from '../../img/parameter.png';
-import utils from './util/utils';
+import picto from "../../img/parameter.png";
+import utils from "./util/utils";
 
 /**
  * @typedef {import("../tidelinedata").default} TidelineData
@@ -57,39 +57,39 @@ function plotDeviceParameterChange(pool, opts) {
 
       const allParameters = d3
         .select(this)
-        .selectAll('circle.d3-param-only')
+        .selectAll("circle.d3-param-only")
         .data(deviceParameters, (d) => d.id);
 
-        const parameterGroup = allParameters.enter()
-        .append('g')
+      const parameterGroup = allParameters.enter()
+        .append("g")
         .attr({
-          'class': 'd3-param-group',
+          class: "d3-param-group",
           id: function(d) {
-            return 'param_group_' + d.id;
+            return "param_group_" + d.id;
           }
         });
 
-      parameterGroup.append('image')
+      parameterGroup.append("image")
         .attr({
-          x: xPos,
-          y: _.constant(0),
+          "x": xPos,
+          "y": _.constant(0),
           width,
-          height: function() {
+          "height": function() {
             return offset;
           },
-          'xlink:href': picto,
+          "xlink:href": picto,
         });
 
 
       allParameters.exit().remove();
 
       // tooltips
-      selection.selectAll('.d3-param-group').on('mouseover', function() {
+      selection.selectAll(".d3-param-group").on("mouseover", function() {
         parameter.addTooltip(d3.select(this).datum(), utils.getTooltipContainer(this));
       });
 
-      selection.selectAll('.d3-param-group').on('mouseout', function() {
-        if (_.get(opts, 'onParameterOut', false)) {
+      selection.selectAll(".d3-param-group").on("mouseout", function() {
+        if (_.get(opts, "onParameterOut", false)) {
           opts.onParameterOut();
         }
       });
@@ -97,7 +97,7 @@ function plotDeviceParameterChange(pool, opts) {
   }
 
   parameter.addTooltip = function(d, rect) {
-    if (_.get(opts, 'onParameterHover', false)) {
+    if (_.get(opts, "onParameterHover", false)) {
       opts.onParameterHover({
         data: d,
         rect: rect

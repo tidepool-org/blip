@@ -15,20 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import cx from 'classnames';
-import moment from 'moment-timezone';
-import PropTypes from 'prop-types';
-import React from 'react';
+import _ from "lodash";
+import cx from "classnames";
+import moment from "moment-timezone";
+import PropTypes from "prop-types";
+import React from "react";
 
-import { dateTimeFormats } from '../../../../js/data/util/constants';
+import { dateTimeFormats } from "../../../../js/data/util/constants";
 
-import basicsActions from '../logic/actions';
-import { getOptionValue, getPathToSelected } from './BasicsUtils';
-import ADay from './day/ADay';
-import HoverDay from './day/HoverDay';
-import * as constants from '../logic/constants';
-import togglableState from '../TogglableState';
+import basicsActions from "../logic/actions";
+import { getOptionValue, getPathToSelected } from "./BasicsUtils";
+import ADay from "./day/ADay";
+import HoverDay from "./day/HoverDay";
+import * as constants from "../logic/constants";
+import togglableState from "../TogglableState";
 
 class CalendarContainer extends React.Component {
   constructor(props) {
@@ -54,7 +54,7 @@ class CalendarContainer extends React.Component {
     var options = this.props.selectorOptions;
 
     if (options) {
-      return _.get(_.find(_.flatten(options.rows), {selected: true}), 'key', options.primary.key);
+      return _.get(_.find(_.flatten(options.rows), {selected: true}), "key", options.primary.key);
     }
     return null;
   }
@@ -72,15 +72,15 @@ class CalendarContainer extends React.Component {
         selectedOption = _.find(_.reject(_.union(options.primary, rows), { key: selected }), (option) => {
           return this.getOptionValue(option, data) > 0;
         });
-        var selected = _.get(selectedOption, 'key', null);
+        var selected = _.get(selectedOption, "key", null);
         this.actions.selectSubtotal(this.props.sectionId, selected);
       }
     }
   }
 
   render() {
-    var containerClass = cx('Calendar-container-' + this.props.type, {
-      'Calendar-container': true
+    var containerClass = cx("Calendar-container-" + this.props.type, {
+      "Calendar-container": true
     });
 
     var days = this.renderDays();
@@ -93,10 +93,10 @@ class CalendarContainer extends React.Component {
     }
 
     return (
-      <div className='Container'>
+      <div className="Container">
         <div className={containerClass}>
           {selector}
-          <div className='Calendar'>
+          <div className="Calendar">
             <div className="weekdays">
               {dayLabels}
             </div>
@@ -131,10 +131,10 @@ class CalendarContainer extends React.Component {
     var firstDay = moment.utc(this.props.days[0].date).day();
     const daysRange = _.range(firstDay, firstDay + 7);
     return daysRange.map((dow) => {
-      var day = moment.utc().day(dow).format(dateTimeFormats.DDD_FORMAT);
+      const day = moment.utc().day(dow).format(dateTimeFormats.DDD_FORMAT);
       return (
-        <div key={moment.utc().day(dow)} className='Calendar-day-label'>
-          <div className='Calendar-dayofweek'>
+        <div key={day} className="Calendar-day-label">
+          <div className="Calendar-dayofweek">
             {day}
           </div>
         </div>
@@ -163,22 +163,22 @@ class CalendarContainer extends React.Component {
             trackMetric={this.props.trackMetric}
           />
         );
-      } else {
-        return (
-          <ADay key={day.date}
-            chart={this.props.chart}
-            chartWidth={this.props.chartWidth}
-            data={path ? this.props.data[this.props.type][path] :
-              this.props.data[this.props.type]}
-            date={day.date}
-            future={day.type === 'future'}
-            isFirst={id === 0}
-            mostRecent={day.type === 'mostRecent'}
-            onHover={this.onHover}
-            subtotalType={this.getSelectedSubtotal()}
-            type={this.props.type} />
-        );
       }
+
+      return (
+        <ADay key={day.date}
+          chart={this.props.chart}
+          chartWidth={this.props.chartWidth}
+          data={path ? this.props.data[this.props.type][path] :
+            this.props.data[this.props.type]}
+          date={day.date}
+          future={day.type === "future"}
+          isFirst={id === 0}
+          mostRecent={day.type === "mostRecent"}
+          onHover={this.onHover}
+          subtotalType={this.getSelectedSubtotal()}
+          type={this.props.type} />
+      );
     });
   }
 }
@@ -207,7 +207,8 @@ CalendarContainer.propTypes = {
   timezone: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   trackMetric: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired,
+  updateBasicsSettings: PropTypes.func,
 };
 
 export default CalendarContainer;

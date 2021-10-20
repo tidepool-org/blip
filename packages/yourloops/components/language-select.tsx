@@ -25,7 +25,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React, { useState } from "react";
+import React from "react";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
@@ -34,7 +34,7 @@ import { useTranslation } from "react-i18next";
 
 function LanguageSelect(): JSX.Element {
   const { i18n } = useTranslation();
-  const [val, setVal] = useState(i18n.language);
+  const [val, setVal] = React.useState(i18n.language);
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const lang = event.target.value as string;

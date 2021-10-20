@@ -27,7 +27,7 @@
  */
 
 import _ from "lodash";
-import * as React from "react";
+import React from "react";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";

@@ -33,13 +33,13 @@
  */
 
 /* eslint-disable max-len */
-import _ from 'lodash';
-import i18next from 'i18next';
+import _ from "lodash";
+import i18next from "i18next";
 
 const t = i18next.t.bind(i18next);
 
 const simpleAnnotationMessages = {
-  'animas/bolus/extended-equal-split':
+  "animas/bolus/extended-equal-split":
     t("* Animas pumps don't capture the details of how combo boluses are split between the normal and extended amounts."),
 };
 
@@ -51,7 +51,7 @@ const simpleAnnotationMessages = {
  * @returns {Array} array of annotation objects or empty array
  */
 export function getAnnotations(datum) {
-  return _.get(datum, 'annotations', []);
+  return _.get(datum, "annotations", []);
 }
 
 /**
@@ -62,7 +62,7 @@ export function getAnnotations(datum) {
  * @returns {Array} array of annotation codes or empty array
  */
 export function getAnnotationCodes(datum) {
-  return _.map(getAnnotations(datum), 'code');
+  return _.map(getAnnotations(datum), "code");
 }
 
 /**
@@ -76,13 +76,13 @@ export function getOutOfRangeAnnotationMessage(datum) {
   const annotations = getAnnotations(datum);
   const messages = [];
   _.forEach(annotations, annotation => {
-    if (_.get(annotation, 'code', '') === 'bg/out-of-range') {
+    if (_.get(annotation, "code", "") === "bg/out-of-range") {
       const value = annotation.value;
       let message;
-      if (value === 'low') {
-        message = t('* This BG value was lower than your device could record. Your actual BG value is lower than it appears here.');
+      if (value === "low") {
+        message = t("* This BG value was lower than your device could record. Your actual BG value is lower than it appears here.");
       } else {
-        message = t('* This BG value was higher than your device could record. Your actual BG value is higher than it appears here.');
+        message = t("* This BG value was higher than your device could record. Your actual BG value is higher than it appears here.");
       }
       messages.push(
         _.assign({}, annotation, {
@@ -111,7 +111,7 @@ export function getAnnotationMessages(datum) {
   );
 
   _.forEach(annotations, annotation => {
-    const code = _.get(annotation, 'code');
+    const code = _.get(annotation, "code");
     if (_.has(simpleAnnotationMessages, code)) {
       messages.push(
         _.assign({}, annotation, {

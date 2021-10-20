@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import * as actionTypes from '../constants/actionTypes';
+import * as actionTypes from "../constants/actionTypes";
 
 export function focusTrendsCbgDateTrace(userId, cbgDatum, cbgPosition) {
   return {

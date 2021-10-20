@@ -16,5 +16,5 @@
  */
 
 export function formatClassesAsSelector(classesStr) {
-  return `.${classesStr}`.replace(/\s/g, '.');
+  return `.${classesStr}`.replace(/\s/g, ".");
 }

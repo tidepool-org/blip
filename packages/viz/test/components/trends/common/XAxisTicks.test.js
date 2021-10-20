@@ -15,23 +15,23 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
+import React from "react";
+import { expect } from "chai";
+import { mount } from "enzyme";
 
-import { mount } from 'enzyme';
-
-import * as scales from '../../../helpers/scales';
+import * as scales from "../../../helpers/scales";
 const {
   trendsHeight,
   trendsWidth,
   trendsXScale: xScale,
 } = scales.trends;
-import SVGContainer from '../../../helpers/SVGContainer';
+import SVGContainer from "../../../helpers/SVGContainer";
 
-import { TWENTY_FOUR_HRS } from '../../../../src/utils/datetime';
+import { TWENTY_FOUR_HRS } from "../../../../src/utils/datetime";
 
-import XAxisTicks from '../../../../src/components/trends/common/XAxisTicks';
+import XAxisTicks from "../../../../src/components/trends/common/XAxisTicks";
 
-describe('XAxisTicks', () => {
+describe("XAxisTicks", () => {
   let wrapper;
   const props = {
     margins: {
@@ -52,14 +52,14 @@ describe('XAxisTicks', () => {
     );
   });
 
-  it('should render nine tick lines at three hour intervals', () => {
-    const ticks = wrapper.find('line');
+  it("should render nine tick lines at three hour intervals", () => {
+    const ticks = wrapper.find("line");
     expect(ticks).to.have.length(9);
     // Enzyme forEach cannot be replaced by _.forEach
     // eslint-disable-next-line lodash/prefer-lodash-method
     ticks.forEach((tick, i) => {
-      expect(tick.prop('x1')).to.equal(xScale(i * (TWENTY_FOUR_HRS / 8)));
-      expect(tick.prop('x2')).to.equal(xScale(i * (TWENTY_FOUR_HRS / 8)));
+      expect(tick.prop("x1")).to.equal(xScale(i * (TWENTY_FOUR_HRS / 8)));
+      expect(tick.prop("x2")).to.equal(xScale(i * (TWENTY_FOUR_HRS / 8)));
     });
   });
 });

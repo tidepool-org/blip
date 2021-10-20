@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import * as bolusUtils from '../../../utils/bolus';
-import { formatInsulin, formatInputTime } from '../../../utils/format';
-import Tooltip from '../../common/tooltips/Tooltip';
-import colors from '../../../styles/colors.css';
-import styles from './BolusTooltip.css';
-import i18next from 'i18next';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import * as bolusUtils from "../../../utils/bolus";
+import { formatInsulin, formatInputTime } from "../../../utils/format";
+import Tooltip from "../../common/tooltips/Tooltip";
+import colors from "../../../styles/colors.css";
+import styles from "./BolusTooltip.css";
+import i18next from "i18next";
 
 const t = i18next.t.bind(i18next);
 
@@ -32,7 +32,7 @@ class BolusTooltip extends React.Component {
     if (bolusType !== null) {
       return (
         <div className={styles.bolus} id="bolus-tooltip-line-type">
-          <div className={styles.label} id="bolus-tooltip-line-type-label">{t('bolus_type')}</div>
+          <div className={styles.label} id="bolus-tooltip-line-type-label">{t("bolus_type")}</div>
           <div className={styles.value} id="bolus-tooltip-line-type-value">{t(`bolus_${bolusType}`)}</div>
         </div>
       );
@@ -44,9 +44,9 @@ class BolusTooltip extends React.Component {
     if (iob !== null) {
       return (
         <div className={styles.iob} id="bolus-tooltip-line-iob">
-          <div className={styles.label} id="bolus-tooltip-line-iob-label">{t('IOB')}</div>
+          <div className={styles.label} id="bolus-tooltip-line-iob-label">{t("IOB")}</div>
           <div className={styles.value} id="bolus-tooltip-line-iob-value">{formatInsulin(iob)}</div>
-          <div className={styles.units} id="bolus-tooltip-line-iob-units">{t('U')}</div>
+          <div className={styles.units} id="bolus-tooltip-line-iob-units">{t("U")}</div>
         </div>
       );
     }
@@ -54,10 +54,10 @@ class BolusTooltip extends React.Component {
   }
 
   getPrescriptorLine(prescriptor) {
-    if (_.isString(prescriptor) && prescriptor !== 'manual') {
+    if (_.isString(prescriptor) && prescriptor !== "manual") {
       return (
         <div className={styles.prescriptor} id="bolus-tooltip-line-prescriptor">
-          <div className={styles.label} id="bolus-tooltip-line-prescriptor-label">{t('Prescribed by Loop Mode')}</div>
+          <div className={styles.label} id="bolus-tooltip-line-prescriptor-label">{t("Prescribed by Loop Mode")}</div>
         </div>
       );
     }
@@ -68,9 +68,9 @@ class BolusTooltip extends React.Component {
     if (_.isFinite(delivered)) {
       return (
         <div className={styles.delivered} id="bolus-tooltip-line-delivered">
-          <div className={styles.label} id="bolus-tooltip-line-delivered-label">{t('Delivered')}</div>
+          <div className={styles.label} id="bolus-tooltip-line-delivered-label">{t("Delivered")}</div>
           <div className={styles.value} id="bolus-tooltip-line-delivered-value">{`${formatInsulin(delivered)}`}</div>
-          <div className={styles.units} id="bolus-tooltip-line-delivered-units">{t('U')}</div>
+          <div className={styles.units} id="bolus-tooltip-line-delivered-units">{t("U")}</div>
         </div>
       );
     }
@@ -81,9 +81,9 @@ class BolusTooltip extends React.Component {
     const value = undelivered > 0 ? `-${formatInsulin(undelivered)}` : `+${(-undelivered).toFixed(2)}`;
     return (
       <div className={styles.undelivered} id="bolus-tooltip-line-undelivered">
-        <div className={styles.label} id="bolus-tooltip-line-undelivered-label">{t('Undelivered')}</div>
+        <div className={styles.label} id="bolus-tooltip-line-undelivered-label">{t("Undelivered")}</div>
         <div className={styles.value} id="bolus-tooltip-line-undelivered-value">{value}</div>
-        <div className={styles.units} id="bolus-tooltip-line-undelivered-units">{t('U')}</div>
+        <div className={styles.units} id="bolus-tooltip-line-undelivered-units">{t("U")}</div>
       </div>
     );
   }
@@ -91,9 +91,9 @@ class BolusTooltip extends React.Component {
   getRecommendedLine(recommended) {
     return (
       <div className={styles.suggested} id="bolus-tooltip-line-recommended">
-        <div className={styles.label} id="bolus-tooltip-line-recommended-label">{t('Recommended')}</div>
+        <div className={styles.label} id="bolus-tooltip-line-recommended-label">{t("Recommended")}</div>
         <div className={styles.value} id="bolus-tooltip-line-recommended-value">{formatInsulin(recommended)}</div>
-        <div className={styles.units} id="bolus-tooltip-line-recommended-units">{t('U')}</div>
+        <div className={styles.units} id="bolus-tooltip-line-recommended-units">{t("U")}</div>
       </div>
     );
   }
@@ -105,9 +105,9 @@ class BolusTooltip extends React.Component {
       value = programmed > recommended ? `+${value}` : `-${value}`;
       overrideLine = (
         <div className={styles.override} id="bolus-tooltip-line-override">
-          <div className={styles.label} id="bolus-tooltip-line-override-label">{t('Override')}</div>
+          <div className={styles.label} id="bolus-tooltip-line-override-label">{t("Override")}</div>
           <div className={styles.value} id="bolus-tooltip-line-override-value">{value}</div>
-          <div className={styles.units} id="bolus-tooltip-line-override-units">{t('U')}</div>
+          <div className={styles.units} id="bolus-tooltip-line-override-units">{t("U")}</div>
         </div>
       );
     }
@@ -118,9 +118,9 @@ class BolusTooltip extends React.Component {
     if (carbs !== null) {
       return (
         <div className={styles.carbs} id="bolus-tooltip-line-carbs">
-          <div className={styles.label} id="bolus-tooltip-line-carbs-label">{t('Carbs')}</div>
+          <div className={styles.label} id="bolus-tooltip-line-carbs-label">{t("Carbs")}</div>
           <div className={styles.value} id="bolus-tooltip-line-carbs-value">{carbs}</div>
-          <div className={styles.units} id="bolus-tooltip-line-carbs-units">{t('g')}</div>
+          <div className={styles.units} id="bolus-tooltip-line-carbs-units">{t("g")}</div>
         </div>
       );
     }
@@ -128,10 +128,10 @@ class BolusTooltip extends React.Component {
   }
 
   getMealLine(fatMeal) {
-    if (fatMeal === 'yes') {
+    if (fatMeal === "yes") {
       return (
         <div className={styles.fat} id="bolus-tooltip-line-fat">
-          <div className={styles.label} id="bolus-tooltip-line-fat-label">{t('High fat meal')}</div>
+          <div className={styles.label} id="bolus-tooltip-line-fat-label">{t("High fat meal")}</div>
         </div>
       );
     }
@@ -143,7 +143,7 @@ class BolusTooltip extends React.Component {
       return (
         <div className={styles.input} id="bolus-tooltip-line-input">
           <div className={styles.label} id="bolus-tooltip-line-input-label">
-            {t('Entered at')} {formatInputTime(inputTime, timePrefs)}
+            {t("Entered at")} {formatInputTime(inputTime, timePrefs)}
           </div>
         </div>
       );
@@ -156,11 +156,11 @@ class BolusTooltip extends React.Component {
 
     const recommended = bolusUtils.getRecommended(wizard);
     const suggested = _.isFinite(recommended) ? recommended : null;
-    const prescriptor = _.get(wizard, 'bolus.prescriptor', null);
-    const inputTime = _.get(wizard, 'inputTime', null);
-    const bolusType = _.get(wizard, 'bolus.subType', null);
-    const fatMeal = _.get(wizard, 'inputMeal.fat', 'no');
-    const iob = _.get(wizard, 'insulinOnBoard', null);
+    const prescriptor = _.get(wizard, "bolus.prescriptor", null);
+    const inputTime = _.get(wizard, "inputTime", null);
+    const bolusType = _.get(wizard, "bolus.subType", null);
+    const fatMeal = _.get(wizard, "inputMeal.fat", "no");
+    const iob = _.get(wizard, "insulinOnBoard", null);
     const carbs = bolusUtils.getCarbs(wizard);
     const delivered = bolusUtils.getDelivered(wizard);
     const isInterrupted = bolusUtils.isInterruptedBolus(wizard);
@@ -200,9 +200,9 @@ class BolusTooltip extends React.Component {
   renderNormal() {
     const { bolus } = this.props;
 
-    const prescriptor = _.get(bolus, 'prescriptor', null);
-    const bolusType = _.get(bolus, 'subType', null);
-    const iob = _.get(bolus, 'insulinOnBoard', null);
+    const prescriptor = _.get(bolus, "prescriptor", null);
+    const bolusType = _.get(bolus, "subType", null);
+    const iob = _.get(bolus, "insulinOnBoard", null);
     const delivered = bolusUtils.getDelivered(bolus);
     const isInterrupted = bolusUtils.isInterruptedBolus(bolus);
     const programmed = bolusUtils.getProgrammed(bolus);
@@ -226,7 +226,7 @@ class BolusTooltip extends React.Component {
 
   renderBolus() {
     let content;
-    if (this.props.bolus.type === 'wizard') {
+    if (this.props.bolus.type === "wizard") {
       content = this.renderWizard();
     } else {
       content = this.renderNormal();
@@ -238,32 +238,32 @@ class BolusTooltip extends React.Component {
     const { bolus, timePrefs } = this.props;
 
     const dateTitle = {
-      source: _.get(bolus, 'source', 'Diabeloop'),
+      source: _.get(bolus, "source", "Diabeloop"),
       normalTime: bolus.normalTime,
-      timezone: _.get(bolus, 'timezone', 'UTC'),
+      timezone: _.get(bolus, "timezone", "UTC"),
       timePrefs,
     };
 
     let tailColor = this.props.tailColor;
     let borderColor = this.props.borderColor;
-    let bolusTypeTitle = '';
+    let bolusTypeTitle = "";
     const bolusType = bolusUtils.getBolusType(bolus);
 
     switch (bolusType) {
     case bolusUtils.BolusTypes.meal:
       tailColor = colors.bolusMeal;
       borderColor = colors.bolusMeal;
-      bolusTypeTitle = t('Meal Bolus');
+      bolusTypeTitle = t("Meal Bolus");
       break;
     case bolusUtils.BolusTypes.manual:
       tailColor = colors.bolusManual;
       borderColor = colors.bolusManual;
-      bolusTypeTitle = t('Manual Bolus');
+      bolusTypeTitle = t("Manual Bolus");
       break;
     case bolusUtils.BolusTypes.micro:
       tailColor = colors.bolusMicro;
       borderColor = colors.bolusMicro;
-      bolusTypeTitle = t('Micro Bolus');
+      bolusTypeTitle = t("Micro Bolus");
       break;
     }
 
@@ -291,7 +291,7 @@ BolusTooltip.propTypes = {
     horizontal: PropTypes.number,
   }),
   tail: PropTypes.bool.isRequired,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]).isRequired,
   tailColor: PropTypes.string,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
@@ -309,7 +309,7 @@ BolusTooltip.propTypes = {
 
 BolusTooltip.defaultProps = {
   tail: true,
-  side: 'right',
+  side: "right",
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.bolus,

@@ -20,11 +20,11 @@
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import utils from './util/utils';
-import commonbolus from './util/commonbolus';
-import drawbolus from './util/drawbolus';
+import utils from "./util/utils";
+import commonbolus from "./util/commonbolus";
+import drawbolus from "./util/drawbolus";
 
 const defaults = {
   width: 12
@@ -56,17 +56,17 @@ function plotWizard(pool, opts = defaults) {
       drawBolus.annotations(withAnnotations);
 
       var wizards = d3.select(this)
-        .selectAll('g.d3-wizard-group')
+        .selectAll("g.d3-wizard-group")
         .data(currentData, function(d) {
           return d.id;
         });
 
       var wizardGroups = wizards.enter()
-        .append('g')
+        .append("g")
         .attr({
-          'class': 'd3-wizard-group',
+          class: "d3-wizard-group",
           id: function(d) {
-            return 'wizard_group_' + d.id;
+            return "wizard_group_" + d.id;
           }
         });
 
@@ -128,17 +128,17 @@ function plotWizard(pool, opts = defaults) {
 
       wizards.exit().remove();
 
-      var highlight = pool.highlight('.d3-wizard-group, .d3-bolus-group', opts);
+      var highlight = pool.highlight(".d3-wizard-group, .d3-bolus-group", opts);
 
       // tooltips
-      selection.selectAll('.d3-wizard-group').on('mouseover', function(d) {
+      selection.selectAll(".d3-wizard-group").on("mouseover", function(d) {
         if (d.bolus) {
           drawBolus.tooltip.add(d, utils.getTooltipContainer(this));
         }
 
         highlight.on(d3.select(this));
       });
-      selection.selectAll('.d3-wizard-group').on('mouseout', function(d) {
+      selection.selectAll(".d3-wizard-group").on("mouseout", function(d) {
         if (d.bolus) {
           drawBolus.tooltip.remove(d);
         }

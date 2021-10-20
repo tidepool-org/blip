@@ -19,17 +19,17 @@
  * @typedef { import("tideline").TidelineData } TidelineData
  */
 
-import _ from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import i18next from 'i18next';
-import { Trans } from 'react-i18next';
-import bows from 'bows';
+import _ from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
+import i18next from "i18next";
+import { Trans } from "react-i18next";
+import bows from "bows";
 
-import * as viz from 'tidepool-viz';
+import * as viz from "tidepool-viz";
 
-import Header from './header';
-import Footer from './footer';
+import Header from "./header";
+import Footer from "./footer";
 
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
@@ -59,12 +59,12 @@ class Settings extends React.Component {
     this.state = {
       atMostRecent: true,
       inTransition: false,
-      title: ''
+      title: ""
     };
-    this.chartType = 'settings';
+    this.chartType = "settings";
 
     /** @type {Console} */
-    this.log = bows('ChartSettings');
+    this.log = bows("ChartSettings");
   }
 
   render() {
@@ -95,27 +95,27 @@ class Settings extends React.Component {
           </div>
         </div>
         <Footer
-         chartType={this.chartType}
-         onClickRefresh={this.props.onClickRefresh}
-         onClickSettings={this.props.onSwitchToSettings} />
+          chartType={this.chartType}
+          onClickRefresh={this.props.onClickRefresh}
+          onClickSettings={this.props.onSwitchToSettings} />
       </div>
-      );
+    );
   }
 
   renderChart() {
     /** @type {{patientData: TidelineData}} */
     const { patientData } = this.props;
     const mostRecentSettings = _.last(patientData.grouped.pumpSettings);
-    this.log.debug('Settings.renderChart()', mostRecentSettings);
+    this.log.debug("Settings.renderChart()", mostRecentSettings);
     const handleCopySettings = (success, useClipboardAPI, error ) => {
-      this.log.info('handleCopySettings', { success, useClipboardAPI, error });
-      this.props.trackMetric('export_data', 'copy_as_text', 'settings');
+      this.log.info("handleCopySettings", { success, useClipboardAPI, error });
+      this.props.trackMetric("export_data", "copy_as_text", "settings");
     };
 
     return (
       <PumpSettingsContainer
         copySettingsClicked={handleCopySettings}
-        manufacturerKey={_.get(mostRecentSettings, 'source', patientData.opts.defaultSource).toLowerCase()}
+        manufacturerKey={_.get(mostRecentSettings, "source", patientData.opts.defaultSource).toLowerCase()}
         pumpSettings={mostRecentSettings}
         timePrefs={this.props.timePrefs}
         onSwitchToDaily={this.props.onSwitchToDaily}
@@ -139,7 +139,7 @@ class Settings extends React.Component {
   }
 
   isMissingSettings() {
-    const pumpSettings = _.get(this.props, 'patientData.grouped.pumpSettings', []);
+    const pumpSettings = _.get(this.props, "patientData.grouped.pumpSettings", []);
     return _.isEmpty(pumpSettings);
   }
 

@@ -15,19 +15,19 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import crossfilter from 'crossfilter2';
+import _ from "lodash";
+import crossfilter from "crossfilter2";
 
-import sundial from 'sundial';
+import sundial from "sundial";
 
-import { MGDL_UNITS } from '../../../../js/data/util/constants';
-import { getLatestPumpUpload } from '../../../../js/data/util/device';
-import BasalUtil from '../../../../js/data/basalutil';
+import { MGDL_UNITS } from "../../../../js/data/util/constants";
+import { getLatestPumpUpload } from "../../../../js/data/util/device";
+import BasalUtil from "../../../../js/data/basalutil";
 
-import classifiersMkr from './classifiers';
-import * as constants from './constants';
-import basicsActions from './actions';
-import togglableState from '../TogglableState';
+import classifiersMkr from "./classifiers";
+import * as constants from "./constants";
+import basicsActions from "./actions";
+import togglableState from "../TogglableState";
 
 function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
   const basalUtil = new BasalUtil();
@@ -36,7 +36,7 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
   return {
     getLatestPumpUploaded: function(patientData) {
       const lastUploadDatum = getLatestPumpUpload(patientData.grouped.upload);
-      return _.get(lastUploadDatum, 'source', null);
+      return _.get(lastUploadDatum, "source", null);
     },
 
     processInfusionSiteHistory: function(basicsData, latestPump, patient, permissions) {
@@ -48,19 +48,19 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
         return null;
       }
 
-      const settings = _.get(patient, 'settings', {});
-      const hasSiteChangeSourceSettings = _.get(patient, 'settings.siteChangeSource', false) !== false;
-      const fullName = _.get(patient, 'profile.fullName', null);
+      const settings = _.get(patient, "settings", {});
+      const hasSiteChangeSourceSettings = _.get(patient, "settings.siteChangeSource", false) !== false;
+      const fullName = _.get(patient, "profile.fullName", null);
 
       basicsData.sections.siteChanges.selectorMetaData = {
         latestPump: latestPump,
-        canUpdateSettings: _.has(permissions, 'custodian') || _.has(permissions, 'root'),
+        canUpdateSettings: _.has(permissions, "custodian") || _.has(permissions, "root"),
         hasSiteChangeSourceSettings,
         patientName: fullName,
       };
 
       if (latestPump === constants.DIABELOOP) {
-        if (_.isEmpty(_.get(basicsData, 'data.reservoirChange'))) {
+        if (_.isEmpty(_.get(basicsData, "data.reservoirChange"))) {
           basicsData.data.reservoirChange = {
             infusionSiteHistory: {},
             data: [],
@@ -112,8 +112,8 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
       });
       var daysSince = (Date.parse(allDays[0].date) - Date.parse(priorSiteChange))/constants.MS_IN_DAY - 1;
       _.forEach(allDays, function(day) {
-        if (day.type === 'future') {
-          infusionSiteHistory[day.date] = {type: 'future'};
+        if (day.type === "future") {
+          infusionSiteHistory[day.date] = {type: "future"};
         }
         else {
           daysSince += 1;
@@ -160,13 +160,12 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
             return p;
           };
         }
-        else {
-          return function reduceAdd(p, v) {
-            ++p.count;
-            p.data.push(v);
-            return p;
-          };
-        }
+
+        return function reduceAdd(p, v) {
+          ++p.count;
+          p.data.push(v);
+          return p;
+        };
       }
 
       function reduceRemoveMaker(classifier) {
@@ -185,15 +184,14 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
             return p;
           };
         }
-        else {
-          return function reduceRemove(p, v) {
-            --p.count;
-            _.remove(p.data, function(d) {
-              return d.id === v.id;
-            });
-            return p;
-          };
-        }
+
+        return function reduceRemove(p, v) {
+          --p.count;
+          _.remove(p.data, function(d) {
+            return d.id === v.id;
+          });
+          return p;
+        };
       }
 
       function reduceInitialMaker(classifier) {
@@ -206,14 +204,13 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
             };
           };
         }
-        else {
-          return function reduceInitial() {
-            return {
-              count: 0,
-              data: []
-            };
+
+        return function reduceInitial() {
+          return {
+            count: 0,
+            data: []
           };
-        }
+        };
       }
 
       dataObj.byLocalDate = dataObj.cf.dimension(getLocalDate);
@@ -240,7 +237,7 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
       };
     },
     _getRowKey: function(row) {
-      return _.map(row, 'key');
+      return _.map(row, "key");
     },
     _averageExcludingMostRecentDay: function(dataObj, total, mostRecentDay) {
       var mostRecentTotal = dataObj.dataByDate[mostRecentDay] ?
@@ -255,7 +252,7 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
 
       function findSectionContainingType(type) {
         return function(section) {
-          if (section.column === 'left') {
+          if (section.column === "left") {
             return false;
           }
           return section.type === type;
@@ -280,7 +277,7 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
         };
 
         _.reduce(basalPathGroups, (acc, group) => {
-          const event = group[0].deliveryType === 'automated' ? 'automatedStart' : 'automatedStop';
+          const event = group[0].deliveryType === "automated" ? "automatedStart" : "automatedStop";
           acc[event]++;
           return acc;
         }, events);
@@ -291,7 +288,7 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
       }
 
       function countDistinctSuspendsForDay(dataForDate) {
-        const suspends = _.filter(dataForDate.data, d => d.deliveryType === 'suspend');
+        const suspends = _.filter(dataForDate.data, d => d.deliveryType === "suspend");
 
         const result = {
           prev: {},
@@ -301,7 +298,7 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
 
         _.reduce(suspends, (acc, datum) => {
           // We only want to track non-contiguous suspends as distinct
-          if (_.get(acc.prev, 'normalEnd') === datum.normalTime) {
+          if (_.get(acc.prev, "normalEnd") === datum.normalTime) {
             acc.skipped++;
           } else {
             acc.distinct++;
@@ -314,7 +311,7 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
         dataForDate.total -= result.skipped;
       }
 
-      const mostRecent = _.find(basicsData.days, { type: 'mostRecent' });
+      const mostRecent = _.find(basicsData.days, { type: "mostRecent" });
       let mostRecentDay = null;
       if (!_.isEmpty(mostRecent)) {
         mostRecentDay = mostRecent.date;
@@ -325,12 +322,12 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
         if (_.isEmpty(typeObj)) {
           continue;
         }
-        if (_.includes(['basal', 'bolus', constants.SITE_CHANGE_RESERVOIR, constants.SITE_CHANGE_TUBING, constants.SITE_CHANGE_CANNULA], type)) {
+        if (_.includes(["basal", "bolus", constants.SITE_CHANGE_RESERVOIR, constants.SITE_CHANGE_TUBING, constants.SITE_CHANGE_CANNULA], type)) {
           typeObj.cf = crossfilter(typeObj.data);
           this._buildCrossfilterUtils(typeObj, type);
         }
 
-        if (_.includes(['calibration', 'smbg'], type)) {
+        if (_.includes(["calibration", "smbg"], type)) {
           if (!basicsData.data.fingerstick) {
             basicsData.data.fingerstick = {};
           }
@@ -340,13 +337,13 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
           this._buildCrossfilterUtils(basicsData.data.fingerstick[type], type);
         }
 
-        if (type === 'basal') {
+        if (type === "basal") {
           _.forEach(typeObj.dataByDate, countAutomatedBasalEventsForDay);
           _.forEach(typeObj.dataByDate, countDistinctSuspendsForDay);
         }
 
         // for basal and boluses, summarize tags and find avg events per day
-        if (_.includes(['basal', 'bolus'], type)) {
+        if (_.includes(["basal", "bolus"], type)) {
           // NB: for basals, the totals and avgPerDay are basal *events*
           // that is, temps, suspends, & (not now, but someday) schedule changes
           var section = _.find(basicsData.sections, findSectionContainingType(type));
@@ -367,14 +364,14 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
         }
       }
 
-      var fsSection = _.find(basicsData.sections, findSectionContainingType('fingerstick'));
+      var fsSection = _.find(basicsData.sections, findSectionContainingType("fingerstick"));
       // wrap this in an if mostly for testing convenience
       if (fsSection) {
         var fingerstickData = basicsData.data.fingerstick;
         var fsSummary = {total: 0};
         // calculate the total events for each type that participates in the fingerstick section
         // as well as an overall total
-        _.forEach(['calibration', 'smbg'], function(fsCategory) {
+        _.forEach(["calibration", "smbg"], function(fsCategory) {
           fsSummary[fsCategory] = {total: Object.keys(fingerstickData[fsCategory].dataByDate)
             .reduce(function(p, date) {
               var dateData = fingerstickData[fsCategory].dataByDate[date];
@@ -386,8 +383,8 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
 
         var fsTags = _.flatten(fsSection.selectorOptions.rows.map(function(row) {
           return _.map(_.filter(row, function(opt) {
-            return opt.path === 'smbg';
-          }), 'key');
+            return opt.path === "smbg";
+          }), "key");
         }));
 
         _.forEach(fsTags, this._summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));

@@ -15,26 +15,25 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import React from 'react';
-import sinon from 'sinon';
-import { expect } from 'chai';
-import { shallow, mount } from 'enzyme';
+import _ from "lodash";
+import React from "react";
+import * as sinon from "sinon";
+import { expect } from "chai";
+import { shallow, mount } from "enzyme";
 
-import basicsState from '../plugins/blip/basics/logic/state';
-import { BasicsChartNoSize as BasicsChart } from '../plugins/blip/basics/chartbasicsfactory';
-import TidelineData from '../js/tidelinedata';
-import * as types from '../dev/testpage/types';
+import basicsState from "../plugins/blip/basics/logic/state";
+import { BasicsChartNoSize as BasicsChart } from "../plugins/blip/basics/chartbasicsfactory";
+import TidelineData from "../js/tidelinedata";
+import * as types from "../dev/testpage/types";
 
-import { MGDL_UNITS } from '../js/data/util/constants';
-import { CARTRIDGE_CHANGE, INFUSION_SITE_CHANGE } from '../plugins/blip/basics/logic/constants';
+import { CARTRIDGE_CHANGE, INFUSION_SITE_CHANGE } from "../plugins/blip/basics/logic/constants";
 
-describe('BasicsChart', function() {
+describe("BasicsChart", function() {
   /** @type {import('enzyme').ReactWrapper} */
   let wrapper = null;
 
   before(() => {
-    sinon.stub(console, 'error').returns(console.warn.bind(console));
+    sinon.stub(console, "error").returns(console.warn.bind(console));
   });
   after(() => {
     sinon.restore();
@@ -55,7 +54,7 @@ describe('BasicsChart', function() {
     return td;
   }
 
-  it('should render', async() => {
+  it("should render", async() => {
     const td = await newTidelineData([new types.Bolus(), new types.Basal()]);
     const props = {
       bgUnits: td.opts.bgUnits,
@@ -63,7 +62,7 @@ describe('BasicsChart', function() {
       onSelectDay: sinon.stub(),
       patient: {
         profile: {
-          fullName: 'John Doe',
+          fullName: "John Doe",
         },
       },
       tidelineData: td,
@@ -72,18 +71,18 @@ describe('BasicsChart', function() {
       },
       timePrefs: {
         timezoneAware: true,
-        timezoneName: 'UTC',
+        timezoneName: "UTC",
       },
       trackMetric: sinon.stub(),
       size: { width: 1000 }
     };
     wrapper = mount(<BasicsChart {...props} />);
     wrapper.update();
-    expect(wrapper.exists('#chart-basics-factory')).to.be.true;
+    expect(wrapper.exists("#chart-basics-factory")).to.be.true;
     expect(console.error.callCount, JSON.stringify(console.error.getCalls(), null, 2)).to.equal(0);
   });
 
-  it('should console.error when required props are missing', () => {
+  it("should console.error when required props are missing", () => {
     const props = {};
     try {
       shallow(<BasicsChart {...props} />);
@@ -93,7 +92,7 @@ describe('BasicsChart', function() {
     expect(console.error.callCount).to.be.equals(9);
   });
 
-  it('should not mutate basics state', async () => {
+  it("should not mutate basics state", async () => {
     const td = await newTidelineData([new types.Bolus(), new types.Basal()]);
     const props = {
       bgUnits: td.opts.bgUnits,
@@ -102,7 +101,7 @@ describe('BasicsChart', function() {
       tidelineData: td,
       timePrefs: {
         timezoneAware: true,
-        timezoneName: 'UTC',
+        timezoneName: "UTC",
       },
       trackMetric: sinon.stub(),
       size: { width: 1000 }
@@ -112,8 +111,8 @@ describe('BasicsChart', function() {
     expect(wrapper.state().sections === basicsState().sections).to.be.false;
   });
 
-  describe('insulinDataAvailable', function() {
-    it('should return false if insulin pump data is empty', async () => {
+  describe("insulinDataAvailable", function() {
+    it("should return false if insulin pump data is empty", async () => {
       const td = await newTidelineData([new types.CBG()]);
       const props = {
         bgUnits: td.opts.bgUnits,
@@ -122,7 +121,7 @@ describe('BasicsChart', function() {
         tidelineData: td,
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }
@@ -134,7 +133,7 @@ describe('BasicsChart', function() {
       expect(wrapper.instance().insulinDataAvailable()).to.be.false;
     });
 
-    it('should return true if bolus data is present', async () => {
+    it("should return true if bolus data is present", async () => {
       const td = await newTidelineData([new types.Bolus()]);
       const props = {
         bgUnits: td.opts.bgUnits,
@@ -143,7 +142,7 @@ describe('BasicsChart', function() {
         tidelineData: td,
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }
@@ -153,7 +152,7 @@ describe('BasicsChart', function() {
       expect(wrapper.instance().insulinDataAvailable(wrapper.state().basicsData)).to.be.true;
     });
 
-    it('should return true if basal data is present', async () => {
+    it("should return true if basal data is present", async () => {
       const td = await newTidelineData([new types.Basal()]);
       const props = {
         bgUnits: td.opts.bgUnits,
@@ -162,7 +161,7 @@ describe('BasicsChart', function() {
         tidelineData: td,
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }
@@ -172,7 +171,7 @@ describe('BasicsChart', function() {
       expect(wrapper.instance().insulinDataAvailable(wrapper.state().basicsData)).to.be.true;
     });
 
-    it('should return true if wizard data is present', async () => {
+    it("should return true if wizard data is present", async () => {
       const td = await newTidelineData([new types.Wizard()]);
       const props = {
         bgUnits: td.opts.bgUnits,
@@ -181,7 +180,7 @@ describe('BasicsChart', function() {
         tidelineData: td,
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }
@@ -192,10 +191,10 @@ describe('BasicsChart', function() {
     });
   });
 
-  describe('automatedBasalEventsAvailable', function() {
-    it('should return `false` if there are no `automatedStop` events available', async () => {
+  describe("automatedBasalEventsAvailable", function() {
+    it("should return `false` if there are no `automatedStop` events available", async () => {
       const td = await newTidelineData([
-        new types.Basal({ deliveryType: 'automated', deviceTime: '2018-03-03T00:00:00' }),
+        new types.Basal({ deliveryType: "automated", deviceTime: "2018-03-03T00:00:00" }),
       ]);
       const props = {
         bgUnits: td.opts.bgUnits,
@@ -204,7 +203,7 @@ describe('BasicsChart', function() {
         tidelineData: td,
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }
@@ -214,10 +213,10 @@ describe('BasicsChart', function() {
       expect(wrapper.instance().automatedBasalEventsAvailable(wrapper.state().basicsData)).to.be.false;
     });
 
-    it('should return `true` if there are any `automatedStop` events available', async () => {
+    it("should return `true` if there are any `automatedStop` events available", async () => {
       const td = await newTidelineData([
-        new types.Basal({ deliveryType: 'automated', deviceTime: '2018-03-03T00:00:00' }),
-        new types.Basal({ deliveryType: 'scheduled', deviceTime: '2018-03-03T00:00:00' }),
+        new types.Basal({ deliveryType: "automated", deviceTime: "2018-03-03T00:00:00" }),
+        new types.Basal({ deliveryType: "scheduled", deviceTime: "2018-03-03T00:00:00" }),
       ]);
       const props = {
         bgUnits: td.opts.bgUnits,
@@ -226,7 +225,7 @@ describe('BasicsChart', function() {
         tidelineData: td,
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }
@@ -237,8 +236,8 @@ describe('BasicsChart', function() {
     });
   });
 
-  describe('adjustSectionsBasedOnAvailableData', function() {
-    it('should deactivate sections for which there is no data available', async () => {
+  describe("adjustSectionsBasedOnAvailableData", function() {
+    it("should deactivate sections for which there is no data available", async () => {
       const td = await newTidelineData([new types.CBG()]);
       const props = {
         bgUnits: td.opts.bgUnits,
@@ -247,7 +246,7 @@ describe('BasicsChart', function() {
         tidelineData: td,
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }
@@ -274,12 +273,12 @@ describe('BasicsChart', function() {
       expect(basicsState().sections.siteChanges.active).to.be.true;
     });
 
-    it('should activate sections for which there is data present', async () => {
+    it("should activate sections for which there is data present", async () => {
       const td = await newTidelineData([
         new types.SMBG(),
         new types.Bolus(),
         new types.Basal(),
-        new types.DeviceEvent({ subType: 'reservoirChange' }),
+        new types.DeviceEvent({ subType: "reservoirChange" }),
       ]);
 
       const props = {
@@ -288,18 +287,18 @@ describe('BasicsChart', function() {
         onSelectDay: sinon.stub(),
         patient: {
           profile: {
-            fullName: 'John Doe',
+            fullName: "John Doe",
           },
         },
         permsOfLoggedInUser: { root: true },
         tidelineData: _.assign({}, td, {
           grouped: {
-            upload: [new types.Upload({ deviceTags: ['insulin-pump'], source: 'Insulet' })],
+            upload: [new types.Upload({ deviceTags: ["insulin-pump"], source: "Insulet" })],
           },
         }),
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }
@@ -323,15 +322,15 @@ describe('BasicsChart', function() {
       expect(basicsState().sections.siteChanges.active).to.be.true;
     });
 
-    it('should use Cartridge title for some manufacturers', async () => {
-      const pumpManufacturer = { pump: { manufacturer: 'Roche'} };
+    it("should use Cartridge title for some manufacturers", async () => {
+      const pumpManufacturer = { pump: { manufacturer: "Roche"} };
 
       const td = await newTidelineData([
         new types.CBG(),
         new types.Bolus(),
         new types.Basal(),
-        new types.DeviceEvent({ subType: 'reservoirChange' }),
-        new types.Settings({source: 'Diabeloop', payload: { ...pumpManufacturer }}),
+        new types.DeviceEvent({ subType: "reservoirChange" }),
+        new types.Settings({source: "Diabeloop", payload: { ...pumpManufacturer }}),
       ]);
 
       const props = {
@@ -340,18 +339,18 @@ describe('BasicsChart', function() {
         onSelectDay: sinon.stub(),
         patient: {
           profile: {
-            fullName: 'John Doe',
+            fullName: "John Doe",
           },
         },
         permsOfLoggedInUser: { root: true },
         tidelineData: _.assign({}, td, {
           grouped: {
-            upload: [new types.Upload({ deviceTags: ['insulin-pump'], source: 'Diabeloop' })],
+            upload: [new types.Upload({ deviceTags: ["insulin-pump"], source: "Diabeloop" })],
           },
         }),
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }
@@ -368,15 +367,15 @@ describe('BasicsChart', function() {
       expect(basics.sections.siteChanges.title).to.eql(CARTRIDGE_CHANGE.label);
     });
 
-    it('should use Infusion Sites title for any other manufacturers', async () => {
-      const pumpManufacturer = { pump: { manufacturer: 'any'} };
+    it("should use Infusion Sites title for any other manufacturers", async () => {
+      const pumpManufacturer = { pump: { manufacturer: "any"} };
 
       const td = await newTidelineData([
         new types.CBG(),
         new types.Bolus(),
         new types.Basal(),
-        new types.DeviceEvent({ subType: 'reservoirChange' }),
-        new types.Settings({source: 'Diabeloop', payload: { ...pumpManufacturer }}),
+        new types.DeviceEvent({ subType: "reservoirChange" }),
+        new types.Settings({source: "Diabeloop", payload: { ...pumpManufacturer }}),
       ]);
 
       const props = {
@@ -385,18 +384,18 @@ describe('BasicsChart', function() {
         onSelectDay: sinon.stub(),
         patient: {
           profile: {
-            fullName: 'John Doe',
+            fullName: "John Doe",
           },
         },
         permsOfLoggedInUser: { root: true },
         tidelineData: _.assign({}, td, {
           grouped: {
-            upload: [new types.Upload({ deviceTags: ['insulin-pump'], source: 'Diabeloop' })],
+            upload: [new types.Upload({ deviceTags: ["insulin-pump"], source: "Diabeloop" })],
           },
         }),
         timePrefs: {
           timezoneAware: true,
-          timezoneName: 'UTC',
+          timezoneName: "UTC",
         },
         trackMetric: sinon.stub(),
         size: { width: 1000 }

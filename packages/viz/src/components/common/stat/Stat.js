@@ -1,35 +1,35 @@
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import bows from 'bows';
-import cx from 'classnames';
-import i18next from 'i18next';
-import { SizeMe } from 'react-sizeme';
-import { VictoryBar, VictoryContainer } from 'victory';
-import { Collapse } from 'react-collapse';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import bows from "bows";
+import cx from "classnames";
+import i18next from "i18next";
+import { SizeMe } from "react-sizeme";
+import { VictoryBar, VictoryContainer } from "victory";
+import { Collapse } from "react-collapse";
 
-import { MGDL_UNITS } from 'tideline';
-import { formatPercentage, formatDecimalNumber, formatBgValue } from '../../../utils/format';
-import { formatDuration } from '../../../utils/datetime';
-import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from '../../../utils/bloodglucose';
-import { LBS_PER_KG, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from '../../../utils/constants';
-import { statFormats, statTypes } from '../../../utils/stat';
-import styles from './Stat.css';
-import colors from '../../../styles/colors.css';
-import { bgPrefsPropType } from '../../../propTypes';
-import HoverBar from './HoverBar';
-import HoverBarLabel from './HoverBarLabel';
-import BgBar from './BgBar';
-import BgBarLabel from './BgBarLabel';
-import Lines from './Lines';
-import NoBar from './NoBar';
-import WheelPercent from './Wheel';
-import StatTooltip from '../tooltips/StatTooltip';
-import StatLegend from './StatLegend';
-import CollapseIconOpen from './assets/expand-more-24-px.svg';
-import CollapseIconClose from './assets/chevron-right-24-px.svg';
-import InfoIcon from './assets/info-outline-24-px.svg';
+import { MGDL_UNITS } from "tideline";
+import { formatPercentage, formatDecimalNumber, formatBgValue } from "../../../utils/format";
+import { formatDuration } from "../../../utils/datetime";
+import { generateBgRangeLabels, classifyBgValue, classifyCvValue } from "../../../utils/bloodglucose";
+import { LBS_PER_KG, MGDL_CLAMP_TOP, MMOLL_CLAMP_TOP } from "../../../utils/constants";
+import { statFormats, statTypes } from "../../../utils/stat";
+import styles from "./Stat.css";
+import colors from "../../../styles/colors.css";
+import { bgPrefsPropType } from "../../../propTypes";
+import HoverBar from "./HoverBar";
+import HoverBarLabel from "./HoverBarLabel";
+import BgBar from "./BgBar";
+import BgBarLabel from "./BgBarLabel";
+import Lines from "./Lines";
+import NoBar from "./NoBar";
+import WheelPercent from "./Wheel";
+import StatTooltip from "../tooltips/StatTooltip";
+import StatLegend from "./StatLegend";
+import CollapseIconOpen from "./assets/expand-more-24-px.svg";
+import CollapseIconClose from "./assets/chevron-right-24-px.svg";
+import InfoIcon from "./assets/info-outline-24-px.svg";
 
 const t = i18next.t.bind(i18next);
 
@@ -91,7 +91,7 @@ class Stat extends React.Component {
     categories: {},
     chartHeight: 0,
     collapsible: false,
-    emptyDataPlaceholder: '--',
+    emptyDataPlaceholder: "--",
     isDisabled: false,
     isOpened: true,
     legend: false,
@@ -100,11 +100,11 @@ class Stat extends React.Component {
     units: false,
   };
 
-  static displayName = 'Stat';
+  static displayName = "Stat";
 
   constructor(props) {
     super(props);
-    this.log = bows('Stat');
+    this.log = bows("Stat");
 
     this.state = this.getStateByType(props);
     this.chartProps = this.getChartPropsByType(props);
@@ -129,9 +129,9 @@ class Stat extends React.Component {
 
     const titleData = isDatumHovered
       ? this.state.tooltipTitleData
-      : this.getFormattedDataByKey('title');
+      : this.getFormattedDataByKey("title");
 
-    const titleDataValue = _.get(titleData, 'value');
+    const titleDataValue = _.get(titleData, "value");
 
     return (
       <div className={styles.chartTitle}>
@@ -158,7 +158,7 @@ class Stat extends React.Component {
           >
             <img
               src={InfoIcon}
-              alt={t('img-alt-hover-for-more-info')}
+              alt={t("img-alt-hover-for-more-info")}
               ref={this.setTooltipIconRef}
               onMouseOver={this.handleTooltipIconMouseOver}
               onMouseOut={this.handleTooltipIconMouseOut}
@@ -170,9 +170,9 @@ class Stat extends React.Component {
   }
 
   renderChartSummary = () => {
-    const summaryData = this.getFormattedDataByKey('summary');
+    const summaryData = this.getFormattedDataByKey("summary");
     const showSummary = this.props.alwaysShowSummary || !this.state.isOpened;
-    const summaryDataValue = _.get(summaryData, 'value');
+    const summaryDataValue = _.get(summaryData, "value");
 
     return (
       <div className={styles.chartSummary}>
@@ -232,7 +232,7 @@ class Stat extends React.Component {
   renderStatLegend = () => {
     const items = _.map(
       this.props.data.data,
-      datum => _.pick(datum, ['id', 'legendTitle'])
+      datum => _.pick(datum, ["id", "legendTitle"])
     );
 
     if (!this.props.reverseLegendOrder) {
@@ -282,8 +282,8 @@ class Stat extends React.Component {
   };
 
   renderCalculatedOutput = () => {
-    const outputPath = _.get(this.props.data, 'dataPaths.output');
-    const format = _.get(this.props.dataFormat, 'output');
+    const outputPath = _.get(this.props.data, "dataPaths.output");
+    const format = _.get(this.props.dataFormat, "output");
     const output = _.get(this.props.data, outputPath);
 
     const calc = {
@@ -292,24 +292,24 @@ class Stat extends React.Component {
       },
     };
 
-    const label = _.get(output, 'label');
+    const label = _.get(output, "label");
 
     const datum = {
       value: this.state.inputValue,
-      suffix: _.get(this.state, 'inputSuffix.value.label', this.state.inputSuffix),
+      suffix: _.get(this.state, "inputSuffix.value.label", this.state.inputSuffix),
     };
 
     if (outputPath && output) {
       switch (output.type) {
-        case 'divisor':
-          calc.dividend = _.get(this.props.data, _.get(output, 'dataPaths.dividend'), {}).value;
-          datum.value = calc.dividend / datum.value;
-          calc.result = this.formatDatum(datum, format);
-          break;
+      case "divisor":
+        calc.dividend = _.get(this.props.data, _.get(output, "dataPaths.dividend"), {}).value;
+        datum.value = calc.dividend / datum.value;
+        calc.result = this.formatDatum(datum, format);
+        break;
 
-        default:
-          calc.result = this.formatDatum(datum, format);
-          break;
+      default:
+        calc.result = this.formatDatum(datum, format);
+        break;
       }
     }
 
@@ -381,38 +381,38 @@ class Stat extends React.Component {
       isCollapsible: false,
       isOpened: true,
       chartTitle: props.title,
-      isDisabled: _.sum(_.map(data.data, d => _.get(d, 'deviation.value', d.value))) <= 0,
+      isDisabled: _.sum(_.map(data.data, d => _.get(d, "deviation.value", d.value))) <= 0,
     };
 
     switch (props.type) {
-      case 'input':
-        input = _.get(props.data, props.data.dataPaths.input, {});
-        isOpened = _.get(this.state, 'isOpened', props.isOpened);
-        state.inputSuffix = _.get(this.state, 'inputSuffix', input.suffix);
-        state.inputValue = input.value;
-        state.isCollapsible = props.collapsible;
-        state.isOpened = isOpened;
-        state.showFooter = isOpened;
-        break;
+    case "input":
+      input = _.get(props.data, props.data.dataPaths.input, {});
+      isOpened = _.get(this.state, "isOpened", props.isOpened);
+      state.inputSuffix = _.get(this.state, "inputSuffix", input.suffix);
+      state.inputValue = input.value;
+      state.isCollapsible = props.collapsible;
+      state.isOpened = isOpened;
+      state.showFooter = isOpened;
+      break;
 
-      case 'barHorizontal':
-        isOpened = _.get(this.state, 'isOpened', props.isOpened);
-        state.isCollapsible = props.collapsible;
-        state.isOpened = isOpened;
-        state.hoveredDatumIndex = -1;
-        state.showFooter = legend && isOpened;
-        break;
+    case "barHorizontal":
+      isOpened = _.get(this.state, "isOpened", props.isOpened);
+      state.isCollapsible = props.collapsible;
+      state.isOpened = isOpened;
+      state.hoveredDatumIndex = -1;
+      state.showFooter = legend && isOpened;
+      break;
 
-      case 'barBg':
-        isOpened = _.get(this.state, 'isOpened', props.isOpened);
-        state.isCollapsible = props.collapsible;
-        state.isOpened = isOpened;
-        break;
+    case "barBg":
+      isOpened = _.get(this.state, "isOpened", props.isOpened);
+      state.isCollapsible = props.collapsible;
+      state.isOpened = isOpened;
+      break;
 
-      case 'simple':
-        state.isOpened = false;
-        state.showFooter = false;
-        break;
+    case "simple":
+      state.isOpened = false;
+      state.showFooter = false;
+      break;
     }
 
     return state;
@@ -450,240 +450,240 @@ class Stat extends React.Component {
     const chartProps = this.getDefaultChartProps(props);
 
     switch (type) {
-      case 'barBg':
-        barWidth = 4;
-        height = chartProps.height || barWidth * 6;
+    case "barBg":
+      barWidth = 4;
+      height = chartProps.height || barWidth * 6;
 
-        domain = {
-          x: [0, bgUnits === MGDL_UNITS ? MGDL_CLAMP_TOP : MMOLL_CLAMP_TOP],
-          y: [0, 1],
-        };
+      domain = {
+        x: [0, bgUnits === MGDL_UNITS ? MGDL_CLAMP_TOP : MMOLL_CLAMP_TOP],
+        y: [0, 1],
+      };
 
-        padding = {
-          top: 10,
-          bottom: 10,
-        };
+      padding = {
+        top: 10,
+        bottom: 10,
+      };
 
-        _.assign(chartProps, {
-          alignment: 'middle',
-          containerComponent: <VictoryContainer responsive={false} />,
-          cornerRadius: { topLeft: 2, bottomLeft: 2, topRight: 2, bottomRight: 2 },
-          data: _.map(data.data, (d, i) => ({
-            x: i + 1,
-            y: d.value,
-            deviation: d.deviation,
-            eventKey: i,
-          })),
-          dataComponent: (
-            <BgBar
-              barWidth={barWidth}
-              bgPrefs={props.bgPrefs}
-              chartLabelWidth={chartLabelWidth}
-              domain={domain}
-            />
-          ),
-          domain,
-          height,
-          horizontal: true,
-          labelComponent: (
-            <BgBarLabel
-              barWidth={barWidth}
-              bgPrefs={props.bgPrefs}
-              domain={domain}
-              text={(datum = {}) => {
-                const datumRef = _.get(props.data, ['data', datum.eventKey]);
-                const { value } = this.formatDatum(
-                  _.get(datumRef, 'deviation', datumRef),
-                  props.dataFormat.label
-                );
-                return `${value}`;
-              }}
-              tooltipText={(datum = {}) => {
-                const { value, suffix } = this.formatDatum(
-                  _.get(props.data, ['data', datum.eventKey]),
-                  props.dataFormat.tooltip,
-                );
-                return `${value}${suffix}`;
-              }}
-            />
-          ),
-          padding,
-          renderer: VictoryBar,
-          style: {
-            data: {
-              fill: datum => this.getDatumColor(datum),
-              width: () => barWidth,
-            },
-            labels: {
-              fill: datum => this.getDatumColor(_.assign({}, datum, this.formatDatum(
-                _.get(props.data, ['data', datum.eventKey]),
-                props.dataFormat.label,
-              ))),
-              fontSize: labelFontSize,
-              fontWeight: 500,
-              paddingLeft: chartLabelWidth,
-            },
+      _.assign(chartProps, {
+        alignment: "middle",
+        containerComponent: <VictoryContainer responsive={false} />,
+        cornerRadius: { topLeft: 2, bottomLeft: 2, topRight: 2, bottomRight: 2 },
+        data: _.map(data.data, (d, i) => ({
+          x: i + 1,
+          y: d.value,
+          deviation: d.deviation,
+          eventKey: i,
+        })),
+        dataComponent: (
+          <BgBar
+            barWidth={barWidth}
+            bgPrefs={props.bgPrefs}
+            chartLabelWidth={chartLabelWidth}
+            domain={domain}
+          />
+        ),
+        domain,
+        height,
+        horizontal: true,
+        labelComponent: (
+          <BgBarLabel
+            barWidth={barWidth}
+            bgPrefs={props.bgPrefs}
+            domain={domain}
+            text={(datum = {}) => {
+              const datumRef = _.get(props.data, `data.${datum.eventKey}`);
+              const { value } = this.formatDatum(
+                _.get(datumRef, "deviation", datumRef),
+                props.dataFormat.label
+              );
+              return `${value}`;
+            }}
+            tooltipText={(datum = {}) => {
+              const { value, suffix } = this.formatDatum(
+                _.get(props.data, `data.${datum.eventKey}`),
+                props.dataFormat.tooltip,
+              );
+              return `${value}${suffix}`;
+            }}
+          />
+        ),
+        padding,
+        renderer: VictoryBar,
+        style: {
+          data: {
+            fill: datum => this.getDatumColor(datum),
+            width: () => barWidth,
           },
-        });
-        break;
+          labels: {
+            fill: datum => this.getDatumColor(_.assign({}, datum, this.formatDatum(
+              _.get(props.data, `data.${datum.eventKey}`),
+              props.dataFormat.label,
+            ))),
+            fontSize: labelFontSize,
+            fontWeight: 500,
+            paddingLeft: chartLabelWidth,
+          },
+        },
+      });
+      break;
 
-      case 'barHorizontal':
-        barSpacing = 6;
-        height = chartProps.height;
-        total = _.get(data, 'total.value');
+    case "barHorizontal":
+      barSpacing = 6;
+      height = chartProps.height;
+      total = _.get(data, "total.value");
 
-        if (height > 0) {
-          barWidth = ((height - barSpacing) / props.data.data.length) - (barSpacing / 2);
-          labelFontSize = _.min([barWidth * 0.833, labelFontSize]);
-          chartLabelWidth = labelFontSize * 2.75;
-        } else {
-          barWidth = 30;
-          height = (barWidth + barSpacing) * props.data.data.length;
-        }
+      if (height > 0) {
+        barWidth = ((height - barSpacing) / props.data.data.length) - (barSpacing / 2);
+        labelFontSize = _.min([barWidth * 0.833, labelFontSize]);
+        chartLabelWidth = labelFontSize * 2.75;
+      } else {
+        barWidth = 30;
+        height = (barWidth + barSpacing) * props.data.data.length;
+      }
 
-        domain = {
-          x: [0, 1],
-          y: [0, props.data.data.length],
-        };
+      domain = {
+        x: [0, 1],
+        y: [0, props.data.data.length],
+      };
 
-        padding = {
-          top: barWidth / 2,
-          bottom: barWidth / 2 * -1,
-        };
+      padding = {
+        top: barWidth / 2,
+        bottom: barWidth / 2 * -1,
+      };
 
-        _.assign(chartProps, {
-          alignment: 'middle',
-          containerComponent: <VictoryContainer responsive={false} />,
-          cornerRadius: { topLeft: 2, bottomLeft: 2, topRight: 2, bottomRight: 2 },
-          data: _.map(data.data, (d, i) => ({
-            x: i + 1,
-            y: total > 0 ? d.value / total : d.value,
-            id: d.id,
-            eventKey: i,
-          })),
-          dataComponent: (
-            <HoverBar
-              barWidth={barWidth}
-              barSpacing={barSpacing}
-              chartLabelWidth={chartLabelWidth}
-              domain={domain}
-            />
-          ),
-          domain,
-          events: [
-            {
-              target: 'data',
-              eventHandlers: {
-                onMouseOver: (event, target) => {
-                  if (this.state.isDisabled || !props.dataFormat.tooltip) {
-                    return {};
-                  }
+      _.assign(chartProps, {
+        alignment: "middle",
+        containerComponent: <VictoryContainer responsive={false} />,
+        cornerRadius: { topLeft: 2, bottomLeft: 2, topRight: 2, bottomRight: 2 },
+        data: _.map(data.data, (d, i) => ({
+          x: i + 1,
+          y: total > 0 ? d.value / total : d.value,
+          id: d.id,
+          eventKey: i,
+        })),
+        dataComponent: (
+          <HoverBar
+            barWidth={barWidth}
+            barSpacing={barSpacing}
+            chartLabelWidth={chartLabelWidth}
+            domain={domain}
+          />
+        ),
+        domain,
+        events: [
+          {
+            target: "data",
+            eventHandlers: {
+              onMouseOver: (event, target) => {
+                if (this.state.isDisabled || !props.dataFormat.tooltip) {
+                  return {};
+                }
 
-                  const datum = _.get(props.data, ['data', target.index], {});
-                  datum.index = target.index;
-                  this.setChartTitle(datum);
-                  this.setState({ hoveredDatumIndex: target.index });
+                const datum = _.get(props.data, `data.${target.index}`, {});
+                datum.index = target.index;
+                this.setChartTitle(datum);
+                this.setState({ hoveredDatumIndex: target.index });
 
-                  return {
-                    target: 'labels',
-                    mutation: () => ({
-                      active: true,
-                    }),
-                  };
-                },
-                onMouseOut: () => {
-                  this.setChartTitle();
-                  this.setState({ hoveredDatumIndex: -1 });
-                  return {
-                    target: 'labels',
-                    mutation: () => ({ active: props.alwaysShowTooltips }),
-                  };
-                },
+                return {
+                  target: "labels",
+                  mutation: () => ({
+                    active: true,
+                  }),
+                };
+              },
+              onMouseOut: () => {
+                this.setChartTitle();
+                this.setState({ hoveredDatumIndex: -1 });
+                return {
+                  target: "labels",
+                  mutation: () => ({ active: props.alwaysShowTooltips }),
+                };
               },
             },
-          ],
-          height,
-          horizontal: true,
-          labelComponent: (
-            <HoverBarLabel
-              active={props.alwaysShowTooltips}
-              barWidth={barWidth}
-              isDisabled={() => this.state.isDisabled}
-              domain={domain}
-              text={(datum = {}) => {
-                const { value, suffix } = this.formatDatum(
-                  _.get(props.data, ['data', datum.eventKey]),
-                  props.dataFormat.label,
-                );
-                return [value, suffix];
-              }}
-              tooltipText={(datum = {}) => {
-                const { value, suffix } = this.formatDatum(
-                  _.get(props.data, ['data', datum.eventKey]),
-                  props.dataFormat.tooltip,
-                );
-                return `${value}${suffix}`;
-              }}
-            />
-          ),
-          padding,
-          renderer: VictoryBar,
-          style: {
-            data: {
-              fill: datum => (datum.y === 0 ? 'transparent' : this.getDatumColor(datum)),
-              width: () => barWidth,
-            },
-            labels: {
-              fill: datum => this.getDatumColor(_.assign({}, datum, this.formatDatum(
-                _.get(props.data, ['data', datum.eventKey]),
-                props.dataFormat.label,
-              ))),
-              fontSize: labelFontSize,
-              fontWeight: 500,
-              paddingLeft: chartLabelWidth,
-            },
           },
-        });
-        break;
+        ],
+        height,
+        horizontal: true,
+        labelComponent: (
+          <HoverBarLabel
+            active={props.alwaysShowTooltips}
+            barWidth={barWidth}
+            isDisabled={() => this.state.isDisabled}
+            domain={domain}
+            text={(datum = {}) => {
+              const { value, suffix } = this.formatDatum(
+                _.get(props.data, `data.${datum.eventKey}`),
+                props.dataFormat.label,
+              );
+              return [value, suffix];
+            }}
+            tooltipText={(datum = {}) => {
+              const { value, suffix } = this.formatDatum(
+                _.get(props.data, `data.${datum.eventKey}`),
+                props.dataFormat.tooltip,
+              );
+              return `${value}${suffix}`;
+            }}
+          />
+        ),
+        padding,
+        renderer: VictoryBar,
+        style: {
+          data: {
+            fill: datum => (datum.y === 0 ? "transparent" : this.getDatumColor(datum)),
+            width: () => barWidth,
+          },
+          labels: {
+            fill: datum => this.getDatumColor(_.assign({}, datum, this.formatDatum(
+              _.get(props.data, `data.${datum.eventKey}`),
+              props.dataFormat.label,
+            ))),
+            fontSize: labelFontSize,
+            fontWeight: 500,
+            paddingLeft: chartLabelWidth,
+          },
+        },
+      });
+      break;
 
-      case 'wheel':
-        total = _.get(data, 'total.value', 0);
-        value = _.get(data, 'data[1].value', 0);
-        chartProps.renderer = WheelPercent;
-        chartProps.className = styles.statWheelTimeInAuto;
-        chartProps.values = {
-          on: Math.round(100 * value / total),
-          off: 100 - Math.round(100 * value / total),
-        };
-        chartProps.rawValues = {
-          on: this.formatDatum(data.data[1], props.dataFormat.summary).value,
-          off: this.formatDatum(data.data[0], props.dataFormat.summary).value,
-        };
-        break;
+    case "wheel":
+      total = _.get(data, "total.value", 0);
+      value = _.get(data, "data[1].value", 0);
+      chartProps.renderer = WheelPercent;
+      chartProps.className = styles.statWheelTimeInAuto;
+      chartProps.values = {
+        on: Math.round(100 * value / total),
+        off: 100 - Math.round(100 * value / total),
+      };
+      chartProps.rawValues = {
+        on: this.formatDatum(data.data[1], props.dataFormat.summary).value,
+        off: this.formatDatum(data.data[0], props.dataFormat.summary).value,
+      };
+      break;
 
-      case 'noBar':
-        chartProps.renderer = NoBar;
-        chartProps.data = data.data;
-        chartProps.id = props.id;
-        chartProps.animate = false;
-        break;
+    case "noBar":
+      chartProps.renderer = NoBar;
+      chartProps.data = data.data;
+      chartProps.id = props.id;
+      chartProps.animate = false;
+      break;
 
-      case 'lines':
-        chartProps.renderer = Lines;
-        chartProps.data = data.data;
-        chartProps.id = props.id;
-        chartProps.animate = false;
-        break;
+    case "lines":
+      chartProps.renderer = Lines;
+      chartProps.data = data.data;
+      chartProps.id = props.id;
+      chartProps.animate = false;
+      break;
 
-      case 'simple':
-      case 'input':
-        break;
+    case "simple":
+    case "input":
+      break;
 
-      default:
-        this.log.error(`Invalid chart type ${type}`);
-        chartProps.height = 20;
-        chartProps.renderer = () => <div>{`Invalid chart type ${type}`}</div>;
-        break;
+    default:
+      this.log.error(`Invalid chart type ${type}`);
+      chartProps.height = 20;
+      chartProps.renderer = () => <div>{`Invalid chart type ${type}`}</div>;
+      break;
     }
 
     return chartProps;
@@ -692,10 +692,10 @@ class Stat extends React.Component {
   setChartTitle = (datum = {}) => {
     let tooltipTitleData;
     const { title = this.props.title } = datum;
-    const tooltipTitleFormat = _.get(this.props, 'dataFormat.tooltipTitle');
+    const tooltipTitleFormat = _.get(this.props, "dataFormat.tooltipTitle");
 
     if (tooltipTitleFormat && datum.index >= 0) {
-      tooltipTitleData = this.getFormattedDataByDataPath(['data', datum.index], tooltipTitleFormat);
+      tooltipTitleData = this.getFormattedDataByDataPath(["data", datum.index], tooltipTitleFormat);
     }
 
     this.setState({
@@ -710,7 +710,7 @@ class Stat extends React.Component {
   };
 
   getFormattedDataByKey = key => {
-    const path = _.get(this.props.data, ['dataPaths', key]);
+    const path = _.get(this.props.data, `dataPaths.${key}`);
     const format = this.props.dataFormat[key];
     return this.getFormattedDataByDataPath(path, format);
   };
@@ -733,162 +733,162 @@ class Stat extends React.Component {
   formatDatum = (datum = {}, format) => {
     let id = datum.id;
     let value = datum.value;
-    let suffix = datum.suffix || '';
+    let suffix = datum.suffix || "";
     let deviation;
     let lowerValue;
     let lowerColorId;
     let upperValue;
     let upperColorId;
 
-    const total = _.get(this.props.data, 'total.value');
+    const total = _.get(this.props.data, "total.value");
     const { bgPrefs, emptyDataPlaceholder } = this.props;
     const { bgBounds } = bgPrefs;
 
     function disableStat() {
-      id = 'statDisabled';
+      id = "statDisabled";
       value = emptyDataPlaceholder;
     }
 
     switch (format) {
-      case statFormats.bgCount:
-        if (value >= 0) {
-          const precision = value < 0.05 ? 2 : 1;
-          // Note: the + converts the rounded, fixed string back to a number
-          // This allows 2.67777777 to render as 2.7 and 3.0000001 to render as 3 (not 3.0)
-          value = +value.toFixed(precision);
-        } else {
-          disableStat();
+    case statFormats.bgCount:
+      if (value >= 0) {
+        const precision = value < 0.05 ? 2 : 1;
+        // Note: the + converts the rounded, fixed string back to a number
+        // This allows 2.67777777 to render as 2.7 and 3.0000001 to render as 3 (not 3.0)
+        value = +value.toFixed(precision);
+      } else {
+        disableStat();
+      }
+      break;
+
+    case statFormats.bgRange:
+      value = generateBgRangeLabels(bgPrefs, { condensed: true })[id];
+      break;
+
+    case statFormats.bgValue:
+      if (value >= 0) {
+        id = classifyBgValue(bgBounds, value);
+        value = formatBgValue(value, bgPrefs);
+      } else {
+        disableStat();
+      }
+      break;
+
+    case statFormats.carbs:
+      if (value >= 0) {
+        value = datum.valueString;
+        suffix = datum.units;
+      } else {
+        disableStat();
+      }
+      break;
+
+    case statFormats.cv:
+      if (value >= 0) {
+        id = classifyCvValue(value);
+        value = formatDecimalNumber(value);
+        suffix = "%";
+      } else {
+        disableStat();
+      }
+      break;
+
+    case statFormats.duration:
+      if (value >= 0) {
+        value = formatDuration(value, { condensed: true });
+      } else {
+        disableStat();
+      }
+      break;
+
+    case statFormats.gmi:
+      if (value >= 0) {
+        value = formatDecimalNumber(value, 1);
+        suffix = "%";
+      } else {
+        disableStat();
+      }
+      break;
+
+    case statFormats.percentage:
+      if (total && total >= 0) {
+        value = _.max([value, 0]);
+        const percentage = (value / total) * 100;
+        let precision = 0;
+        // We want to show extra precision on very small percentages so that we avoid showing 0%
+        // when there is some data there.
+        if (percentage > 0 && percentage < 0.5) {
+          precision = percentage < 0.05 ? 2 : 1;
         }
-        break;
+        value = formatDecimalNumber(percentage, precision);
+        suffix = "%";
+      } else {
+        disableStat();
+      }
+      break;
 
-      case statFormats.bgRange:
-        value = generateBgRangeLabels(bgPrefs, { condensed: true })[id];
-        break;
+    case statFormats.standardDevRange:
+      deviation = _.get(datum, "deviation.value", -1);
+      if (value >= 0 && deviation >= 0) {
+        lowerValue = value - deviation;
+        lowerColorId = lowerValue >= 0
+          ? classifyBgValue(bgBounds, lowerValue)
+          : "low";
 
-      case statFormats.bgValue:
-        if (value >= 0) {
-          id = classifyBgValue(bgBounds, value);
-          value = formatBgValue(value, bgPrefs);
-        } else {
-          disableStat();
-        }
-        break;
+        upperValue = value + deviation;
+        upperColorId = classifyBgValue(bgBounds, upperValue);
 
-      case statFormats.carbs:
-        if (value >= 0) {
-          value = datum.valueString;
-          suffix = datum.units;
-        } else {
-          disableStat();
-        }
-        break;
-
-      case statFormats.cv:
-        if (value >= 0) {
-          id = classifyCvValue(value);
-          value = formatDecimalNumber(value);
-          suffix = '%';
-        } else {
-          disableStat();
-        }
-        break;
-
-      case statFormats.duration:
-        if (value >= 0) {
-          value = formatDuration(value, { condensed: true });
-        } else {
-          disableStat();
-        }
-        break;
-
-      case statFormats.gmi:
-        if (value >= 0) {
-          value = formatDecimalNumber(value, 1);
-          suffix = '%';
-        } else {
-          disableStat();
-        }
-        break;
-
-      case statFormats.percentage:
-        if (total && total >= 0) {
-          value = _.max([value, 0]);
-          const percentage = (value / total) * 100;
-          let precision = 0;
-          // We want to show extra precision on very small percentages so that we avoid showing 0%
-          // when there is some data there.
-          if (percentage > 0 && percentage < 0.5) {
-            precision = percentage < 0.05 ? 2 : 1;
-          }
-          value = formatDecimalNumber(percentage, precision);
-          suffix = '%';
-        } else {
-          disableStat();
-        }
-        break;
-
-      case statFormats.standardDevRange:
-        deviation = _.get(datum, 'deviation.value', -1);
-        if (value >= 0 && deviation >= 0) {
-          lowerValue = value - deviation;
-          lowerColorId = lowerValue >= 0
-            ? classifyBgValue(bgBounds, lowerValue)
-            : 'low';
-
-          upperValue = value + deviation;
-          upperColorId = classifyBgValue(bgBounds, upperValue);
-
-          value = (
-            <span>
-              <span style={{
-                color: colors[lowerColorId],
-              }}>
-                {formatBgValue(value - deviation, bgPrefs)}
-              </span>
-              &nbsp;-&nbsp;
-              <span style={{
-                color: colors[upperColorId],
-              }}>
-                {formatBgValue(value + deviation, bgPrefs)}
-              </span>
+        value = (
+          <span>
+            <span style={{
+              color: colors[lowerColorId],
+            }}>
+              {formatBgValue(value - deviation, bgPrefs)}
             </span>
-          );
-        } else {
-          disableStat();
-        }
-        break;
+              &nbsp;-&nbsp;
+            <span style={{
+              color: colors[upperColorId],
+            }}>
+              {formatBgValue(value + deviation, bgPrefs)}
+            </span>
+          </span>
+        );
+      } else {
+        disableStat();
+      }
+      break;
 
-      case statFormats.standardDevValue:
-        if (value >= 0) {
-          value = formatBgValue(value, bgPrefs);
-        } else {
-          disableStat();
-        }
-        break;
+    case statFormats.standardDevValue:
+      if (value >= 0) {
+        value = formatBgValue(value, bgPrefs);
+      } else {
+        disableStat();
+      }
+      break;
 
-      case statFormats.units:
-        if (value >= 0) {
-          value = formatDecimalNumber(value, 1);
-          suffix = t('U');
-        } else {
-          disableStat();
-        }
-        break;
+    case statFormats.units:
+      if (value >= 0) {
+        value = formatDecimalNumber(value, 1);
+        suffix = t("U");
+      } else {
+        disableStat();
+      }
+      break;
 
-      case statFormats.unitsPerKg:
-        if (suffix === t('lb')) {
-          value = value * LBS_PER_KG;
-        }
-        suffix = t('U/kg');
-        if (value > 0 && _.isFinite(value)) {
-          value = formatDecimalNumber(value, 2);
-        } else {
-          disableStat();
-        }
-        break;
+    case statFormats.unitsPerKg:
+      if (suffix === t("lb")) {
+        value = value * LBS_PER_KG;
+      }
+      suffix = t("U/kg");
+      if (value > 0 && _.isFinite(value)) {
+        value = formatDecimalNumber(value, 2);
+      } else {
+        disableStat();
+      }
+      break;
 
-      default:
-        break;
+    default:
+      break;
     }
 
     return {
@@ -922,7 +922,7 @@ class Stat extends React.Component {
       top: -parentHeight,
     };
 
-    const side = (_.get(document, 'body.clientWidth', 0) - left < 225) ? 'left' : 'right';
+    const side = (_.get(document, "body.clientWidth", 0) - left < 225) ? "left" : "right";
 
     this.setState({
       showMessages: true,

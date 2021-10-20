@@ -84,11 +84,11 @@ function plotMessage(pool, opts = {}) {
       .append("image")
       .attr({
         "xlink:href": postItImage,
-        cursor: "pointer",
-        x: message.xPosition,
-        y: message.yPosition,
-        width: opts.size,
-        height: opts.size,
+        "cursor": "pointer",
+        "x": message.xPosition,
+        "y": message.yPosition,
+        "width": opts.size,
+        "height": opts.size,
       })
       .classed({ "d3-image": true, "d3-message": true });
 
@@ -197,13 +197,13 @@ function plotMessage(pool, opts = {}) {
     }
 
     var newNote = d3.select("#tidelineLabels").append("image").attr({
-      class: "newNoteIcon",
+      "class": "newNoteIcon",
       "xlink:href": newNoteImg,
-      cursor: "pointer",
-      x: NEW_NOTE_X,
-      y: NEW_NOTE_Y,
-      width: NEW_NOTE_WIDTH,
-      height: NEW_NOTE_HEIGHT,
+      "cursor": "pointer",
+      "x": NEW_NOTE_X,
+      "y": NEW_NOTE_Y,
+      "width": NEW_NOTE_WIDTH,
+      "height": NEW_NOTE_HEIGHT,
     });
 
     newNote.on("mouseover", function () {

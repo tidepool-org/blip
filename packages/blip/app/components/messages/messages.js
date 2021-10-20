@@ -20,7 +20,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import _ from "lodash";
 import i18next from "i18next";
-import bows from 'bows';
+import bows from "bows";
 
 import Message from "./message";
 import MessageForm from "./messageform";
@@ -34,7 +34,7 @@ class Messages extends React.Component {
       messages: Array.isArray(props.messages) ? props.messages : [],
       errorMessage: null,
     };
-    this.log = bows('Messages UI');
+    this.log = bows("Messages UI");
   }
 
   /**
@@ -113,7 +113,7 @@ class Messages extends React.Component {
     return (
       <div className="messages-form">
         <MessageForm
-          formFields={{ editableTimestamp: this.props.createDatetime, editableText: '' }}
+          formFields={{ editableTimestamp: this.props.createDatetime, editableText: "" }}
           messagePrompt={t("Type a new note here ...")}
           saveBtnText={submitButtonText}
           onSubmit={this.handleCreateNote}
@@ -125,7 +125,7 @@ class Messages extends React.Component {
   }
 
   renderClose() {
-    return <a className="messages-close" onClick={this.handleClose}>{t('Close')}</a>;
+    return <a className="messages-close" onClick={this.handleClose}>{t("Close")}</a>;
   }
 
   render() {
@@ -169,7 +169,7 @@ class Messages extends React.Component {
   }
 
   handleAddComment = async (formValues) => {
-    this.log.debug('handleAddComment', formValues);
+    this.log.debug("handleAddComment", formValues);
     const { onSave: addComment, user } = this.props;
     const { messages } = this.state;
 
@@ -192,11 +192,11 @@ class Messages extends React.Component {
         this.setState({
           messages: messages.concat([comment]),
         }, () => {
-          this.log.debug('handleAddComment done', { messages: this.state.messages });
+          this.log.debug("handleAddComment done", { messages: this.state.messages });
         });
       } catch (reason) {
-        this.log.error('handleAddComment', reason);
-        this.setState({ errorMessage: t('An unknown error occurred') });
+        this.log.error("handleAddComment", reason);
+        this.setState({ errorMessage: t("An unknown error occurred") });
       }
     }
   };
@@ -222,8 +222,8 @@ class Messages extends React.Component {
         // Close the modal
         onClose();
       } catch (reason) {
-        this.log.error('handleCreateNote', reason);
-        this.setState({ errorMessage: t('An unknown error occurred') });
+        this.log.error("handleCreateNote", reason);
+        this.setState({ errorMessage: t("An unknown error occurred") });
       }
     }
   };
@@ -233,8 +233,8 @@ class Messages extends React.Component {
       try {
         await this.props.onEdit(updated);
       } catch (reason) {
-        this.log.error('handleEditNote', reason);
-        this.setState({ errorMessage: t('An unknown error occurred') });
+        this.log.error("handleEditNote", reason);
+        this.setState({ errorMessage: t("An unknown error occurred") });
       }
     }
   };

@@ -15,17 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import React from 'react';
-import { mount } from 'enzyme';
+import _ from "lodash";
+import React from "react";
+import { mount } from "enzyme";
+import { expect } from "chai";
 
-import { MGDL_UNITS } from 'tideline';
+import { MGDL_UNITS } from "tideline";
 
-import { formatClassesAsSelector } from '../../../helpers/cssmodules';
-import FocusedRangeLabels from '../../../../src/components/trends/common/FocusedRangeLabels';
-import styles from '../../../../src/components/trends/common/FocusedRangeLabels.css';
+import { formatClassesAsSelector } from "../../../helpers/cssmodules";
+import FocusedRangeLabels from "../../../../src/components/trends/common/FocusedRangeLabels";
+import styles from "../../../../src/components/trends/common/FocusedRangeLabels.css";
 
-describe('FocusedRangeLabels', () => {
+describe("FocusedRangeLabels", () => {
   const props = {
     bgPrefs: {
       bgUnits: MGDL_UNITS,
@@ -35,21 +36,21 @@ describe('FocusedRangeLabels', () => {
     focusedSlice: null,
     timePrefs: {
       timezoneAware: true,
-      timezoneName: 'US/Central',
+      timezoneName: "US/Central",
     },
   };
-  describe('with no smbg range or cbg slice segment focused', () => {
+  describe("with no smbg range or cbg slice segment focused", () => {
     let wrapper;
-    it('[cbg data] should render nothing', () => {
-      const noFocusProps = _.assign({}, props, { dataType: 'cbg' });
+    it("[cbg data] should render nothing", () => {
+      const noFocusProps = _.assign({}, props, { dataType: "cbg" });
       wrapper = mount(
         <FocusedRangeLabels {...noFocusProps} />
       );
       expect(wrapper.html()).to.be.null;
     });
 
-    it('[smbg data] should render nothing', () => {
-      const noFocusProps = _.assign({}, props, { dataType: 'smbg' });
+    it("[smbg data] should render nothing", () => {
+      const noFocusProps = _.assign({}, props, { dataType: "smbg" });
       wrapper = mount(
         <FocusedRangeLabels {...noFocusProps} />
       );
@@ -57,11 +58,11 @@ describe('FocusedRangeLabels', () => {
     });
   });
 
-  describe('when a cbg slice segment is focused', () => {
+  describe("when a cbg slice segment is focused", () => {
     const focusedSlice = {
       data: {
         firstQuartile: 25,
-        id: 'a1b2c3',
+        id: "a1b2c3",
         max: 421,
         median: 100,
         min: 28,
@@ -88,11 +89,11 @@ describe('FocusedRangeLabels', () => {
       },
     };
 
-    describe('when median is focused', () => {
-      it('should render nothing', () => {
+    describe("when median is focused", () => {
+      it("should render nothing", () => {
         const medianFocusProps = _.assign({}, props, {
-          dataType: 'cbg',
-          focusedKeys: ['median'],
+          dataType: "cbg",
+          focusedKeys: ["median"],
           focusedSlice,
         });
         const medianFocusWrapper = mount(
@@ -102,12 +103,12 @@ describe('FocusedRangeLabels', () => {
       });
     });
 
-    describe('when bottom 10% focused', () => {
+    describe("when bottom 10% focused", () => {
       let wrapper;
       before(() => {
         const bottom10Props = _.assign({}, props, {
-          dataType: 'cbg',
-          focusedKeys: ['min', 'tenthQuantile'],
+          dataType: "cbg",
+          focusedKeys: ["min", "tenthQuantile"],
           focusedSlice,
         });
         wrapper = mount(
@@ -115,8 +116,8 @@ describe('FocusedRangeLabels', () => {
         );
       });
 
-      it('should render a min and a tenthQuantile label', () => {
-        const keys = ['tenthQuantile', 'min'];
+      it("should render a min and a tenthQuantile label", () => {
+        const keys = ["tenthQuantile", "min"];
         const labels = wrapper.find(formatClassesAsSelector(styles.number));
         expect(labels).to.have.length(2);
         labels.forEach((label, i) => { // eslint-disable-line lodash/prefer-lodash-method
@@ -124,19 +125,19 @@ describe('FocusedRangeLabels', () => {
         });
       });
 
-      it('should render a time range label', () => {
+      it("should render a time range label", () => {
         const timeLabel = wrapper.find(formatClassesAsSelector(styles.timeLabel));
         expect(timeLabel).to.have.length(1);
-        expect(timeLabel.text()).to.equal('12:00 am - 12:30 am');
+        expect(timeLabel.text()).to.equal("12:00 am - 12:30 am");
       });
     });
 
-    describe('when lower 15% focused', () => {
+    describe("when lower 15% focused", () => {
       let wrapper;
       before(() => {
         const lower15Props = _.assign({}, props, {
-          dataType: 'cbg',
-          focusedKeys: ['tenthQuantile', 'firstQuartile'],
+          dataType: "cbg",
+          focusedKeys: ["tenthQuantile", "firstQuartile"],
           focusedSlice,
         });
         wrapper = mount(
@@ -144,8 +145,8 @@ describe('FocusedRangeLabels', () => {
         );
       });
 
-      it('should render a tenthQuantile and a firstQuartile label', () => {
-        const keys = ['firstQuartile', 'tenthQuantile'];
+      it("should render a tenthQuantile and a firstQuartile label", () => {
+        const keys = ["firstQuartile", "tenthQuantile"];
         const labels = wrapper.find(formatClassesAsSelector(styles.number));
         expect(labels).to.have.length(2);
         labels.forEach((label, i) => { // eslint-disable-line lodash/prefer-lodash-method
@@ -153,19 +154,19 @@ describe('FocusedRangeLabels', () => {
         });
       });
 
-      it('should render a time range label', () => {
+      it("should render a time range label", () => {
         const timeLabel = wrapper.find(formatClassesAsSelector(styles.timeLabel));
         expect(timeLabel).to.have.length(1);
-        expect(timeLabel.text()).to.equal('12:00 am - 12:30 am');
+        expect(timeLabel.text()).to.equal("12:00 am - 12:30 am");
       });
     });
 
-    describe('when interquartile range is focused', () => {
+    describe("when interquartile range is focused", () => {
       let wrapper;
       before(() => {
         const interquartileProps = _.assign({}, props, {
-          dataType: 'cbg',
-          focusedKeys: ['firstQuartile', 'thirdQuartile'],
+          dataType: "cbg",
+          focusedKeys: ["firstQuartile", "thirdQuartile"],
           focusedSlice,
         });
         wrapper = mount(
@@ -173,8 +174,8 @@ describe('FocusedRangeLabels', () => {
         );
       });
 
-      it('should render a firstQuartile and a thirdQuartile label', () => {
-        const keys = ['thirdQuartile', 'firstQuartile'];
+      it("should render a firstQuartile and a thirdQuartile label", () => {
+        const keys = ["thirdQuartile", "firstQuartile"];
         const labels = wrapper.find(formatClassesAsSelector(styles.number));
         expect(labels).to.have.length(2);
         labels.forEach((label, i) => { // eslint-disable-line lodash/prefer-lodash-method
@@ -182,19 +183,19 @@ describe('FocusedRangeLabels', () => {
         });
       });
 
-      it('should render a time range label', () => {
+      it("should render a time range label", () => {
         const timeLabel = wrapper.find(formatClassesAsSelector(styles.timeLabel));
         expect(timeLabel).to.have.length(1);
-        expect(timeLabel.text()).to.equal('12:00 am - 12:30 am');
+        expect(timeLabel.text()).to.equal("12:00 am - 12:30 am");
       });
     });
 
-    describe('when lower 15% focused', () => {
+    describe("when lower 15% focused", () => {
       let wrapper;
       before(() => {
         const upper15Props = _.assign({}, props, {
-          dataType: 'cbg',
-          focusedKeys: ['thirdQuartile', 'ninetiethQuantile'],
+          dataType: "cbg",
+          focusedKeys: ["thirdQuartile", "ninetiethQuantile"],
           focusedSlice,
         });
         wrapper = mount(
@@ -202,8 +203,8 @@ describe('FocusedRangeLabels', () => {
         );
       });
 
-      it('should render a thirdQuartile and a ninetiethQuantile label', () => {
-        const keys = ['ninetiethQuantile', 'thirdQuartile'];
+      it("should render a thirdQuartile and a ninetiethQuantile label", () => {
+        const keys = ["ninetiethQuantile", "thirdQuartile"];
         const labels = wrapper.find(formatClassesAsSelector(styles.number));
         expect(labels).to.have.length(2);
         labels.forEach((label, i) => { // eslint-disable-line lodash/prefer-lodash-method
@@ -211,19 +212,19 @@ describe('FocusedRangeLabels', () => {
         });
       });
 
-      it('should render a time range label', () => {
+      it("should render a time range label", () => {
         const timeLabel = wrapper.find(formatClassesAsSelector(styles.timeLabel));
         expect(timeLabel).to.have.length(1);
-        expect(timeLabel.text()).to.equal('12:00 am - 12:30 am');
+        expect(timeLabel.text()).to.equal("12:00 am - 12:30 am");
       });
     });
 
-    describe('when top 10% focused', () => {
+    describe("when top 10% focused", () => {
       let wrapper;
       before(() => {
         const lower15 = _.assign({}, props, {
-          dataType: 'cbg',
-          focusedKeys: ['ninetiethQuantile', 'max'],
+          dataType: "cbg",
+          focusedKeys: ["ninetiethQuantile", "max"],
           focusedSlice,
         });
         wrapper = mount(
@@ -231,8 +232,8 @@ describe('FocusedRangeLabels', () => {
         );
       });
 
-      it('should render a ninetiethQuantile and a max label', () => {
-        const keys = ['max', 'ninetiethQuantile'];
+      it("should render a ninetiethQuantile and a max label", () => {
+        const keys = ["max", "ninetiethQuantile"];
         const labels = wrapper.find(formatClassesAsSelector(styles.number));
         expect(labels).to.have.length(2);
         labels.forEach((label, i) => { // eslint-disable-line lodash/prefer-lodash-method
@@ -240,18 +241,18 @@ describe('FocusedRangeLabels', () => {
         });
       });
 
-      it('should render a time range label', () => {
+      it("should render a time range label", () => {
         const timeLabel = wrapper.find(formatClassesAsSelector(styles.timeLabel));
         expect(timeLabel).to.have.length(1);
-        expect(timeLabel.text()).to.equal('12:00 am - 12:30 am');
+        expect(timeLabel.text()).to.equal("12:00 am - 12:30 am");
       });
     });
   });
 
-  describe('when an smbg range is focused', () => {
+  describe("when an smbg range is focused", () => {
     const focusedRange = {
       data: {
-        id: '81000000',
+        id: "81000000",
         max: 300,
         mean: 180,
         min: 70,
@@ -270,7 +271,7 @@ describe('FocusedRangeLabels', () => {
       },
     };
     const smbgProps = _.assign({}, props, {
-      dataType: 'smbg',
+      dataType: "smbg",
       focusedRange,
     });
     let wrapper;
@@ -280,8 +281,8 @@ describe('FocusedRangeLabels', () => {
       );
     });
 
-    it('should render min, mean, and max labels', () => {
-      const keys = ['max', 'mean', 'min'];
+    it("should render min, mean, and max labels", () => {
+      const keys = ["max", "mean", "min"];
       const labels = wrapper.find(formatClassesAsSelector(styles.number));
       expect(labels).to.have.length(3);
       labels.forEach((label, i) => { // eslint-disable-line lodash/prefer-lodash-method
@@ -289,15 +290,15 @@ describe('FocusedRangeLabels', () => {
       });
     });
 
-    it('should *not* render a separate time range label', () => {
+    it("should *not* render a separate time range label", () => {
       const separateTimeLabel = wrapper.find(formatClassesAsSelector(styles.separateTimeLabel));
       expect(separateTimeLabel).to.have.length(0);
     });
 
-    it('should render the time range in tooltip title text', () => {
+    it("should render the time range in tooltip title text", () => {
       const timeTooltipHeader = wrapper.find(formatClassesAsSelector(styles.explainerText));
       expect(timeTooltipHeader).to.have.length(1);
-      expect(timeTooltipHeader.text()).to.equal('9:00 pm - 12:00 am');
+      expect(timeTooltipHeader.text()).to.equal("9:00 pm - 12:00 am");
     });
   });
 });

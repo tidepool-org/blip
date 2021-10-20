@@ -27,7 +27,7 @@
  */
 
 import moment from "moment-timezone";
-import React, { FunctionComponent } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import Button from "@material-ui/core/Button";
@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.primary.main,
     },
     textField: {
-      marginTop: "1em",
+      "marginTop": "1em",
       "& input:disabled": {
         backgroundColor: "white",
         color: theme.palette.grey[800], // eslint-disable-line no-magic-numbers
@@ -71,7 +71,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, handleClose }: ProfileDialogProps) => {
+const ProfileDialog: React.FunctionComponent<ProfileDialogProps> = ({ user, isOpen, handleClose }: ProfileDialogProps) => {
   const { t } = useTranslation("yourloops");
   const { textField, title, disabled } = useStyles();
 

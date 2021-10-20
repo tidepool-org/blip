@@ -80,7 +80,7 @@ export function zendeskAllowCookies(allow: boolean): void {
   allowCookies = allow;
   if (isZendeskActive()) {
     log.info("Allow cookies");
-    window.zE('webWidget', 'updateSettings', { cookies: allow });
+    window.zE("webWidget", "updateSettings", { cookies: allow });
 
     if (!allowCookies) {
       zendeskLogout();
@@ -103,7 +103,7 @@ export function zendeskLocale(lang: string): void {
  */
 export function zendeskTrackWidgetOpen(): void {
   if (isZendeskActive()) {
-    window.zE('webWidget:on', 'open', () => {
+    window.zE("webWidget:on", "open", () => {
       throttleMetricsOpenWidget("support", "open_zendesk_widget");
     });
   }

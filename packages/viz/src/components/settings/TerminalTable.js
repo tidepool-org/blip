@@ -1,14 +1,14 @@
-import i18next from 'i18next';
-import PropTypes from 'prop-types';
-import React from 'react';
-import styles from './Diabeloop.css';
+import i18next from "i18next";
+import PropTypes from "prop-types";
+import React from "react";
+import styles from "./Diabeloop.css";
 
 const t = i18next.t.bind(i18next);
-const DEFAULT_VALUE = '-';
+const DEFAULT_VALUE = "-";
 
 class TerminalTable extends React.Component {
   constructor(props) {
-      super(props);
+    super(props);
   }
 
   render() {
@@ -25,19 +25,19 @@ class TerminalTable extends React.Component {
         </caption>
         <tbody>
           <tr>
-            <td id="settings-table-terminal-manufacturer">{t('Manufacturer')}</td>
+            <td id="settings-table-terminal-manufacturer">{t("Manufacturer")}</td>
             <td id="settings-table-terminal-manufacturer-value">{device.manufacturer}</td>
           </tr>
           <tr>
-            <td id="settings-table-terminal-deviceid">{t('Identifier')}</td>
+            <td id="settings-table-terminal-deviceid">{t("Identifier")}</td>
             <td id="settings-table-terminal-deviceid-value">{device.deviceId}</td>
           </tr>
           <tr>
-            <td id="settings-table-terminal-imei">{t('IMEI')}</td>
+            <td id="settings-table-terminal-imei">{t("IMEI")}</td>
             <td id="settings-table-terminal-imei-value">{device.imei}</td>
           </tr>
           <tr>
-            <td id="settings-table-terminal-swversion">{t('Software version')}</td>
+            <td id="settings-table-terminal-swversion">{t("Software version")}</td>
             <td id="settings-table-terminal-swversion-value">{device.swVersion}</td>
           </tr>
         </tbody>

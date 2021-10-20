@@ -14,16 +14,16 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import i18next from 'i18next';
+import i18next from "i18next";
 
-import React from 'react';
-import annotations from '../../../../../js/plot/util/annotations/annotationdefinitions';
+import React from "react";
+import annotations from "../../../../../js/plot/util/annotations/annotationdefinitions";
 
 class UnknownStatistic extends React.Component {
   render() {
     return (
       <p className="UnknownStatistic">
-        <span className="UnknownStatistic-lead">{annotations.LEAD_TEXT['stats-insufficient-data']()} </span>
+        <span className="UnknownStatistic-lead">{annotations.LEAD_TEXT["stats-insufficient-data"]()} </span>
         {i18next.t("At least three days do not have boluses, so this statistic might not be right")}.
       </p>
     );

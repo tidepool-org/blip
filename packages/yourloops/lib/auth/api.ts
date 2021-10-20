@@ -380,7 +380,7 @@ async function resetPassword(key: string, username: string, password: string, tr
     throw new Error("error-http-40x");
   }
 
-  const confirmURL = new URL(`/confirm/accept/forgot`, appConfig.API_HOST);
+  const confirmURL = new URL("/confirm/accept/forgot", appConfig.API_HOST);
   const response = await fetch(confirmURL.toString(), {
     method: "PUT",
     cache: "no-store",

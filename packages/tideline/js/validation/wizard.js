@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import schema from './validator/schematron.js';
+import schema from "./validator/schematron.js";
 
 const wizard = (common) => {
   return schema(
@@ -34,39 +34,39 @@ const wizard = (common) => {
       bgTarget: schema().ifExists().oneOf(
         // Medtronic
         schema(
-            {
-              low: schema().number(),
-              high: schema().number(),
-              range: schema().banned(),
-              target: schema().banned()
-            }
+          {
+            low: schema().number(),
+            high: schema().number(),
+            range: schema().banned(),
+            target: schema().banned()
+          }
         ),
         // Animas
         schema(
-            {
-              target: schema().number(),
-              range: schema().number(),
-              low: schema().banned(),
-              high: schema().banned()
-            }
+          {
+            target: schema().number(),
+            range: schema().number(),
+            low: schema().banned(),
+            high: schema().banned()
+          }
         ),
         // OmniPod
         schema(
-            {
-              target: schema().number(),
-              high: schema().number(),
-              low: schema().banned(),
-              range: schema().banned()
-            }
+          {
+            target: schema().number(),
+            high: schema().number(),
+            low: schema().banned(),
+            range: schema().banned()
+          }
         ),
         // Tandem
         schema(
-            {
-              target: schema().number(),
-              low: schema().banned(),
-              high: schema().banned(),
-              range: schema().banned()
-            }
+          {
+            target: schema().number(),
+            low: schema().banned(),
+            high: schema().banned(),
+            range: schema().banned()
+          }
         )
       ),
       bolus: schema().ifExists().object()

@@ -15,14 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import _ from 'lodash';
+import PropTypes from "prop-types";
+import React from "react";
+import ReactMarkdown from "react-markdown";
+import _ from "lodash";
 
-import Tooltip from '../../common/tooltips/Tooltip';
-import colors from '../../../styles/colors.css';
-import styles from './StatTooltip.css';
+import Tooltip from "../../common/tooltips/Tooltip";
+import colors from "../../../styles/colors.css";
+import styles from "./StatTooltip.css";
 
 function StatTooltip(props) {
   const { annotations } = props;
@@ -65,7 +65,7 @@ StatTooltip.propTypes = {
   }),
   title: PropTypes.node,
   tail: PropTypes.bool.isRequired,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]).isRequired,
   tailColor: PropTypes.string.isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
@@ -77,7 +77,7 @@ StatTooltip.propTypes = {
 StatTooltip.defaultProps = {
   annotations: [],
   tail: true,
-  side: 'right',
+  side: "right",
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.statDefault,

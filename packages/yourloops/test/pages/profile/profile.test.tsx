@@ -26,9 +26,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-import { render, unmountComponentAtNode } from 'react-dom';
-import { act, Simulate, SyntheticEventData } from 'react-dom/test-utils';
+import React from "react";
+import { render, unmountComponentAtNode } from "react-dom";
+import { act, Simulate, SyntheticEventData } from "react-dom/test-utils";
 import { BrowserRouter } from "react-router-dom";
 import { expect } from "chai";
 

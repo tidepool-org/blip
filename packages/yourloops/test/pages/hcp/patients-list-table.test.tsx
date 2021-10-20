@@ -26,10 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { expect } from "chai";
 import { shallow } from "enzyme";
-import sinon from "sinon";
+import * as sinon from "sinon";
 
 import { SortDirection, SortFields } from "../../../models/generic";
 import { PatientListProps } from "../../../pages/hcp/patients/models";

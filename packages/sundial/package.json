@@ -31,8 +31,7 @@
     }
   ],
   "files": [
-    "sundial.js",
-    "lib"
+    "sundial.js"
   ],
   "main": "sundial.js",
   "repository": {

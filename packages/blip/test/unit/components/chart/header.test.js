@@ -1,29 +1,29 @@
 
-import React from 'react';
-import TestUtils from 'react-dom/test-utils';
-import { expect } from 'chai';
-import sinon from 'sinon';
+import React from "react";
+import TestUtils from "react-dom/test-utils";
+import { expect } from "chai";
+import * as sinon from "sinon";
 
-import Header from '../../../../app/components/chart/header';
+import Header from "../../../../app/components/chart/header";
 
-describe('Header', function () {
-  describe('render', function () {
-    it('should render without problems', function () {
-      sinon.stub(console, 'error');
+describe("Header", function () {
+  describe("render", function () {
+    it("should render without problems", function () {
+      sinon.stub(console, "error");
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: false,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -39,21 +39,21 @@ describe('Header', function () {
       console.error.restore();
     });
 
-    it('should trigger onClickBack when inTransition is false and back button is clicked', function () {
+    it("should trigger onClickBack when inTransition is false and back button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: false,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -67,28 +67,28 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var backButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-back');
+      var backButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-back");
 
       expect(props.onClickBack.callCount).to.equal(0);
       TestUtils.Simulate.click(backButton);
       expect(props.onClickBack.callCount).to.equal(1);
     });
 
-    it('should not trigger onClickBack when inTransition is true and back button is clicked', function () {
+    it("should not trigger onClickBack when inTransition is true and back button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: true,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -102,28 +102,28 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var backButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-back');
+      var backButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-back");
 
       expect(props.onClickBack.callCount).to.equal(0);
       TestUtils.Simulate.click(backButton);
       expect(props.onClickBack.callCount).to.equal(0);
     });
 
-    it('should trigger onClickTrends when trends button is clicked', function () {
+    it("should trigger onClickTrends when trends button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: false,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -137,28 +137,28 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var trendsButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-trends');
+      var trendsButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-trends");
 
       expect(props.onClickTrends.callCount).to.equal(0);
       TestUtils.Simulate.click(trendsButton);
       expect(props.onClickTrends.callCount).to.equal(1);
     });
 
-    it('should trigger onClickMostRecent when inTransition is false and mostRecent button is clicked', function () {
+    it("should trigger onClickMostRecent when inTransition is false and mostRecent button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: false,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -172,28 +172,28 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var mostRecentButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-most-recent');
+      var mostRecentButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-most-recent");
 
       expect(props.onClickMostRecent.callCount).to.equal(0);
       TestUtils.Simulate.click(mostRecentButton);
       expect(props.onClickMostRecent.callCount).to.equal(1);
     });
 
-    it('should not trigger onClickMostRecent when inTransition is true and mostRecent button is clicked', function () {
+    it("should not trigger onClickMostRecent when inTransition is true and mostRecent button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: true,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -207,28 +207,28 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var mostRecentButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-most-recent');
+      var mostRecentButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-most-recent");
 
       expect(props.onClickMostRecent.callCount).to.equal(0);
       TestUtils.Simulate.click(mostRecentButton);
       expect(props.onClickMostRecent.callCount).to.equal(0);
     });
 
-    it('should trigger onClickNext when inTransition is false and next button is clicked', function () {
+    it("should trigger onClickNext when inTransition is false and next button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: false,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -242,28 +242,28 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var nextButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-next');
+      var nextButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-next");
 
       expect(props.onClickNext.callCount).to.equal(0);
       TestUtils.Simulate.click(nextButton);
       expect(props.onClickNext.callCount).to.equal(1);
     });
 
-    it('should not trigger onClickNext when inTransition is true and next button is clicked', function () {
+    it("should not trigger onClickNext when inTransition is true and next button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: true,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -277,28 +277,28 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var nextButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-next');
+      var nextButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-next");
 
       expect(props.onClickNext.callCount).to.equal(0);
       TestUtils.Simulate.click(nextButton);
       expect(props.onClickNext.callCount).to.equal(0);
     });
 
-    it('should trigger onClickBasics when basics button is clicked', function () {
+    it("should trigger onClickBasics when basics button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: false,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -312,28 +312,28 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var basicsButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-basics');
+      var basicsButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-basics");
 
       expect(props.onClickBasics.callCount).to.equal(0);
       TestUtils.Simulate.click(basicsButton);
       expect(props.onClickBasics.callCount).to.equal(1);
     });
 
-    it('should trigger onClickOneDay when daily button is clicked', function () {
+    it("should trigger onClickOneDay when daily button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: false,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -347,28 +347,28 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var dayButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-daily');
+      var dayButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-daily");
 
       expect(props.onClickOneDay.callCount).to.equal(0);
       TestUtils.Simulate.click(dayButton);
       expect(props.onClickOneDay.callCount).to.equal(1);
     });
 
-    it('should trigger onClickSettings when settings button is clicked', function () {
+    it("should trigger onClickSettings when settings button is clicked", function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe',
+            fullName: "Jane Doe",
           },
           permissions: {
             note: {},
             view: {},
           },
         },
-        chartType: 'Awesome',
+        chartType: "Awesome",
         inTransition: false,
         atMostRecent: false,
-        title: 'Most Awesome',
+        title: "Most Awesome",
         onClickBack: sinon.stub(),
         onClickBasics: sinon.stub(),
         onClickTrends: sinon.stub(),
@@ -382,7 +382,7 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
 
-      var settingsButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-settings');
+      var settingsButton = TestUtils.findRenderedDOMComponentWithClass(elem, "js-settings");
 
       expect(props.onClickSettings.callCount).to.equal(0);
       TestUtils.Simulate.click(settingsButton);

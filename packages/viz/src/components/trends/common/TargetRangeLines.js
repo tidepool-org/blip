@@ -15,11 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React from "react";
 
-import React from 'react';
-
-import styles from './TargetRangeLines.css';
+import styles from "./TargetRangeLines.css";
 
 const TargetRangeLines = (props) => {
   const { bgBounds, smbgOpts, xScale, yScale } = props;
@@ -62,6 +61,6 @@ TargetRangeLines.propTypes = {
   yScale: PropTypes.func.isRequired,
 };
 
-TargetRangeLines.displayName = 'TargetRangeLines';
+TargetRangeLines.displayName = "TargetRangeLines";
 
 export default TargetRangeLines;

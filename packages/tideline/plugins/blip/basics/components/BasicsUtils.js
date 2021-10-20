@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import i18next from 'i18next';
+import _ from "lodash";
+import i18next from "i18next";
 
-import format from '../../../../js/data/util/format';
+import format from "../../../../js/data/util/format";
 
 /**
  * Get the count value associated with this day
@@ -34,15 +34,14 @@ export function getCount(subtotalType) {
   }
   var dateData = this.props.data.dataByDate[this.props.date];
   if (subtotalType) {
-    if (subtotalType === 'total') {
+    if (subtotalType === "total") {
       return dateData.total;
     }
     if (dateData.subtotals) {
       return dateData.subtotals[subtotalType] || 0;
     }
-    else {
-      return dateData.count;
-    }
+
+    return dateData.count;
   }
   return dateData.total || 0;
 }
@@ -60,24 +59,18 @@ export function getOptionValue(option, data) {
   var value = 0;
 
   if (data) {
-    if (option.key === 'total') {
+    if (option.key === "total") {
       if (path) {
         value = data[path].total;
-      }
-      else {
+      } else {
         value = data[option.key];
       }
-    }
-    else {
-      if (path && path === option.key) {
-        value = data[path].total;
-      }
-      else if (path) {
-        value = data[path][option.key].count;
-      }
-      else {
-        value = data[option.key].count || 0;
-      }
+    } else if (path && path === option.key) {
+      value = data[path].total;
+    } else if (path) {
+      value = data[path][option.key].count;
+    } else {
+      value = data[option.key].count || 0;
     }
   }
 
@@ -118,15 +111,15 @@ export function getPathToSelected() {
 export function labelGenerator(opts) {
   const t = i18next.t.bind(i18next);
   var bgClasses = opts.bgClasses;
-  var bgUnits = ' ' + opts.bgUnits;
+  var bgUnits = " " + opts.bgUnits;
 
   return {
     bg: {
-      verylow: t('below') + " " + format.tooltipBGValue(bgClasses['very-low'].boundary, opts.bgUnits) + bgUnits,
-      low: t('between') + " " + format.tooltipBGValue(bgClasses['very-low'].boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + bgUnits,
-      target: t('between') + " " + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + bgUnits,
-      high: t('between') + " " + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + ' - ' + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits,
-      veryhigh: t('above') + " " + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits
+      verylow: t("below") + " " + format.tooltipBGValue(bgClasses["very-low"].boundary, opts.bgUnits) + bgUnits,
+      low: t("between") + " " + format.tooltipBGValue(bgClasses["very-low"].boundary, opts.bgUnits) + " - " + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + bgUnits,
+      target: t("between") + " " + format.tooltipBGValue(bgClasses.low.boundary, opts.bgUnits) + " - " + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + bgUnits,
+      high: t("between") + " " + format.tooltipBGValue(bgClasses.target.boundary, opts.bgUnits) + " - " + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits,
+      veryhigh: t("above") + " " + format.tooltipBGValue(bgClasses.high.boundary, opts.bgUnits) + bgUnits
     }
   };
 }

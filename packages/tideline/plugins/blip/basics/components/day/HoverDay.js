@@ -66,7 +66,7 @@ HoverDay.propTypes = {
 };
 
 HoverDay.defaultProps = {
-  dayAbbrevMask: 'MMM D',
+  dayAbbrevMask: "MMM D",
 };
 
 export default HoverDay;

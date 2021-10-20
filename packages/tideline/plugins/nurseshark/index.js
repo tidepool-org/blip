@@ -15,27 +15,25 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import crossfilter from 'crossfilter2';
-import bows from 'bows';
+import _ from "lodash";
+import crossfilter from "crossfilter2";
+import bows from "bows";
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../js/data/util/constants';
-import dt from '../../js/data/util/datetime';
-import format from '../../js/data/util/format';
+import { MGDL_UNITS, MMOLL_UNITS } from "../../js/data/util/constants";
+import dt from "../../js/data/util/datetime";
+import format from "../../js/data/util/format";
 
-var log = bows('Nurseshark');
+const log = bows("Nurseshark");
 
 function isBadStatus(d) {
-  if (d.annotations == null) {
+  if (_.isNil(d.annotations)) {
     return false;
   }
-  else {
-    var numAnnotations = d.annotations.length;
-    for (var i = 0; i < numAnnotations; ++i) {
-      var code = d.annotations[i].code;
-      if (code === 'status/unknown-previous') {
-        return true;
-      }
+  const numAnnotations = d.annotations.length;
+  for (let i = 0; i < numAnnotations; ++i) {
+    let code = d.annotations[i].code;
+    if (code === "status/unknown-previous") {
+      return true;
     }
   }
 }
@@ -43,7 +41,7 @@ function isBadStatus(d) {
 function basalSchedulesToArray(basalSchedules) {
   var standard = [], schedules = [];
   for (var key in basalSchedules) {
-    if (key === 'standard') {
+    if (key === "standard") {
       standard.push({
         name: key,
         value: basalSchedules[key]
@@ -64,7 +62,7 @@ function cloneDeep(d) {
   var numKeys = keys.length;
   for (var i = 0; i < numKeys; ++i) {
     var key = keys[i];
-    if (typeof d[key] === 'object') {
+    if (typeof d[key] === "object") {
       newObj[key] = _.cloneDeep(d[key]);
     }
     else {
@@ -74,7 +72,7 @@ function cloneDeep(d) {
   return newObj;
 }
 
-const timeIt = _.get(window, 'config.DEV', false) ? (fn, name) => {
+const timeIt = _.get(window, "config.DEV", false) ? (fn, name) => {
   console.time(name);
   fn();
   console.timeEnd(name);
@@ -84,12 +82,12 @@ var nurseshark = {
   annotateBasals: function(basals, incompleteSuspends) {
     var crossBasals = crossfilter(basals);
     var basalsByTime = crossBasals.dimension(function(d) {
-      return d.time + '/' + dt.addDuration(d.time, d.duration);
+      return d.time + "/" + dt.addDuration(d.time, d.duration);
     });
     var numSuspends = incompleteSuspends.length;
     function findIntersecting(suspendStart) {
       return function(d) {
-        var interval = d.split('/');
+        var interval = d.split("/");
         var basalStart = interval[0], basalEnd = interval[1];
         if (basalStart <= suspendStart && suspendStart <= basalEnd) {
           return true;
@@ -102,7 +100,7 @@ var nurseshark = {
         match.annotations = [];
       }
       match.annotations.push({
-        'code': 'basal/intersects-incomplete-suspend'
+        code: "basal/intersects-incomplete-suspend"
       });
     }
 
@@ -125,9 +123,9 @@ var nurseshark = {
     for (var i = 0; i < numWizards; ++i) {
       var wizard = wizards[i];
       var bolusId = wizard.bolus;
-      if (bolusId != null && allBoluses[bolusId]) {
+      if (!_.isNil(bolusId) && allBoluses[bolusId]) {
         wizard.bolus = allBoluses[bolusId];
-        allBoluses[bolusId].wizard = _.omit(wizard, 'bolus');
+        allBoluses[bolusId].wizard = _.omit(wizard, "bolus");
         joinedWizards[bolusId] = wizard;
       }
     }
@@ -137,18 +135,18 @@ var nurseshark = {
       time: d.timestamp,
       messageText: d.messagetext,
       parentMessage: d.parentmessage || null,
-      type: 'message',
+      type: "message",
       user: d.user,
       id: d.id
     };
-    if (typeof d.timezone === 'string') {
+    if (typeof d.timezone === "string") {
       msg.timezone = d.timezone;
     }
     return msg;
   },
   processData: function(data, bgUnits) {
     if (!Array.isArray(data)) {
-      throw new Error('An array is required.');
+      throw new Error("An array is required.");
     }
     // data from the old-old data model (pre-v1 docs) doesn't have a `time` field
     function removeNoTime() {
@@ -157,16 +155,14 @@ var nurseshark = {
         if (_.isString(d.timestamp) || _.isString(d.time)) {
           return true;
         }
-        else {
-          noTimeData.push(d);
-          return false;
-        }
+        noTimeData.push(d);
+        return false;
       });
       if (noTimeData.length > 0) {
         log.warn(`${noTimeData.length} records removed due to not having a 'time or 'timestamp field.`, noTimeData);
       }
     }
-    timeIt(removeNoTime, 'Remove No Time');
+    timeIt(removeNoTime, "Remove No Time");
 
     function sortByTime() {
       data = _.sortBy(data, function(d) {
@@ -174,7 +170,7 @@ var nurseshark = {
       });
     }
 
-    timeIt(sortByTime, 'Sort');
+    timeIt(sortByTime, "Sort");
 
     var uploadIDSources = {};
     var uploadIDSerials = {};
@@ -187,17 +183,17 @@ var nurseshark = {
 
     function createUploadIDsMap() {
       const defaultSource = "Diabeloop"; // FIXME same as in TidelineData
-      var uploads = _.filter(data, {type: 'upload'});
+      var uploads = _.filter(data, {type: "upload"});
       _.forEach(uploads, function(upload) {
         let source = defaultSource;
-        if ('source' in upload && _.isString(upload.source)) {
+        if ("source" in upload && _.isString(upload.source)) {
           source = upload.source;
         } else if (Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length > 0) {
           source = upload.deviceManufacturers[0];
         }
 
         uploadIDSources[upload.uploadId] = source;
-        uploadIDSerials[upload.uploadId] = _.isString(upload.deviceSerialNumber) ? upload.deviceSerialNumber : 'Unknown';
+        uploadIDSerials[upload.uploadId] = _.isString(upload.deviceSerialNumber) ? upload.deviceSerialNumber : "Unknown";
       });
     }
 
@@ -216,7 +212,7 @@ var nurseshark = {
     function process(d) {
       if (overlappingUploads[d.deviceId] && d.deviceId !== mostRecentFromOverlapping) {
         d = cloneDeep(d);
-        d.errorMessage = 'Overlapping CareLink upload.';
+        d.errorMessage = "Overlapping CareLink upload.";
       }
       else {
         d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
@@ -229,7 +225,7 @@ var nurseshark = {
           }
           // probably doesn't exist: for data too old to have uploadId but also without `source`
           else {
-            d.source = 'Unspecified Data Source';
+            d.source = "Unspecified Data Source";
           }
         }
       }
@@ -239,15 +235,15 @@ var nurseshark = {
       // chose year 2008 because tidline's datetime has a validation step that rejects POSIX timestamps
       // that evaluate to year < 2008
       if (new Date(d.time).getUTCFullYear() < 2008) {
-        d.errorMessage = 'Invalid datetime (before 2008).';
+        d.errorMessage = "Invalid datetime (before 2008).";
       }
-      if (d.errorMessage != null) {
+      if (!_.isNil(d.errorMessage)) {
         erroredData.push(d);
       }
       else {
         processedData.push(d);
         // group data
-        if (typeGroups[d.type] == null) {
+        if (_.isNil(typeGroups[d.type])) {
           typeGroups[d.type] = [d];
         }
         else {
@@ -260,11 +256,11 @@ var nurseshark = {
       for (var i = 0; i < data.length; ++i) {
         process(data[i]);
       }
-    }, 'Process');
+    }, "Process");
 
     timeIt(function() {
       nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], typeGroups.bolus || [], collections);
-    }, 'Join Wizards and Boluses');
+    }, "Join Wizards and Boluses");
 
     if (typeGroups.deviceEvent && typeGroups.deviceEvent.length > 0) {
       timeIt(function() {
@@ -272,19 +268,19 @@ var nurseshark = {
           if (d.annotations && d.annotations.length > 0) {
             for (var i = 0; i < d.annotations.length; ++i) {
               var annotation = d.annotations[i];
-              if (annotation.code === 'status/incomplete-tuple') {
+              if (annotation.code === "status/incomplete-tuple") {
                 return true;
               }
             }
           }
           return false;
         }));
-      }, 'Annotate Basals');
+      }, "Annotate Basals");
     }
 
-    var emoticon = erroredData.length ? ':(' : ':)';
-    log(erroredData.length, 'items in the erroredData.', emoticon, _.countBy(erroredData, 'type'));
-    log('Unique error messages:', _.uniq(_.map(erroredData, 'errorMessage')));
+    var emoticon = erroredData.length ? ":(" : ":)";
+    log(erroredData.length, "items in the erroredData.", emoticon, _.countBy(erroredData, "type"));
+    log("Unique error messages:", _.uniq(_.map(erroredData, "errorMessage")));
     return {erroredData: erroredData, processedData: processedData};
   }
 };
@@ -300,12 +296,12 @@ function getHandlers(bgUnits) {
       // NB: truthiness warranted here
       // basals with duration of 0 are *not* legitimate targets for visualization
       if (!d.duration) {
-        var err2 = new Error('Basal with null/zero duration.');
+        var err2 = new Error("Basal with null/zero duration.");
         d.errorMessage = err2.message;
         return d;
       }
       lastEnd = dt.addDuration(d.time, d.duration);
-      if (!d.rate && d.deliveryType === 'suspend') {
+      if (!d.rate && d.deliveryType === "suspend") {
         d.rate = 0.0;
       }
       if (d.suppressed) {
@@ -329,7 +325,7 @@ function getHandlers(bgUnits) {
     deviceEvent: function(d) {
       d = cloneDeep(d);
       if (isBadStatus(d)) {
-        var err = new Error('Bad pump status deviceEvent.');
+        var err = new Error("Bad pump status deviceEvent.");
         d.errorMessage = err.message;
       }
       return d;
@@ -359,7 +355,7 @@ function getHandlers(bgUnits) {
           for (var j = 0; j < d.bgTarget.length; ++j) {
             var current = d.bgTarget[j];
             for (var key in current) {
-              if (key !== 'start') {
+              if (key !== "start") {
                 current[key] = format.convertBG(current[key], MMOLL_UNITS);
               }
             }
@@ -370,7 +366,7 @@ function getHandlers(bgUnits) {
             for (var j = 0; j < d.bgTargets[bgTargetName].length; ++j) {
               var current = d.bgTargets[bgTargetName][j];
               for (var key in current) {
-                if (key !== 'range' && key !== 'start') {
+                if (key !== "range" && key !== "start") {
                   current[key] = format.convertBG(current[key], MMOLL_UNITS);
                 }
               }
@@ -398,10 +394,10 @@ function getHandlers(bgUnits) {
       return d;
     },
     suppressed: function(d) {
-      if (d.suppressed.deliveryType === 'temp' && !d.suppressed.rate) {
+      if (d.suppressed.deliveryType === "temp" && !d.suppressed.rate) {
         if (d.suppressed.percent && d.suppressed.suppressed &&
-          d.suppressed.suppressed.deliveryType === 'scheduled' && d.suppressed.suppressed.rate >= 0) {
-            d.suppressed.rate = d.suppressed.percent * d.suppressed.suppressed.rate;
+          d.suppressed.suppressed.deliveryType === "scheduled" && d.suppressed.suppressed.rate >= 0) {
+          d.suppressed.rate = d.suppressed.percent * d.suppressed.suppressed.rate;
         }
       }
       // a suppressed should share these attributes with its parent

@@ -1,14 +1,14 @@
-import crossfilter from 'crossfilter2';
-import moment from 'moment-timezone';
-import _ from 'lodash';
-import bows from 'bows';
+import crossfilter from "crossfilter2";
+import moment from "moment-timezone";
+import _ from "lodash";
+import bows from "bows";
 
 import { convertBG, MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from "tideline";
-import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
-import { getTotalBolus } from './bolus';
-import { cgmSampleFrequency, classifyBgValue, reshapeBgClassesToBgBounds } from './bloodglucose';
-import { addDuration } from './datetime';
-import { getLatestPumpUpload } from './device';
+import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from "./basal";
+import { getTotalBolus } from "./bolus";
+import { cgmSampleFrequency, classifyBgValue, reshapeBgClassesToBgBounds } from "./bloodglucose";
+import { addDuration } from "./datetime";
+import { getLatestPumpUpload } from "./device";
 
 
 /* eslint-disable lodash/prefer-lodash-method, no-underscore-dangle, no-param-reassign */
@@ -20,14 +20,14 @@ class DataUtil {
    * @param {Array} endpoints Array ISO strings [start, end]
    */
   constructor(data, opts = {}) {
-    this.log = bows('DataUtil');
+    this.log = bows("DataUtil");
 
     this.data = crossfilter(data);
     this._endpoints = opts.endpoints || [];
     this._chartPrefs = opts.chartPrefs || {};
     this.bgBounds = reshapeBgClassesToBgBounds(opts.bgPrefs);
-    this.timeZoneName = _.get(opts, 'timePrefs.timezoneName', 'UTC');
-    this.bgUnits = _.get(opts, 'bgPrefs.bgUnits');
+    this.timeZoneName = _.get(opts, "timePrefs.timezoneName", "UTC");
+    this.bgUnits = _.get(opts, "bgPrefs.bgUnits");
     this.days = this.getDayCountFromEndpoints();
     this.dimension = {};
     this.filter = {};
@@ -43,7 +43,7 @@ class DataUtil {
   }
 
   get bgSource() {
-    return _.get(this._chartPrefs, 'bgSource', this.defaultBgSource);
+    return _.get(this._chartPrefs, "bgSource", this.defaultBgSource);
   }
 
   set chartPrefs(chartPrefs = {}) {
@@ -59,7 +59,7 @@ class DataUtil {
     this.bgUnits = bgPrefs.bgUnits;
     this.bgBounds = reshapeBgClassesToBgBounds(bgPrefs);
 
-    this.log('bgPrefs', { bgBounds: this.bgBounds, bgUnits: this.bgUnits });
+    this.log("bgPrefs", { bgBounds: this.bgBounds, bgUnits: this.bgUnits });
   }
 
   addData = data => {
@@ -82,7 +82,7 @@ class DataUtil {
       ]);
 
       const previousBasalDatum = this.sort
-        .byDate(this.filter.byType('basal').top(Infinity))
+        .byDate(this.filter.byType("basal").top(Infinity))
         .reverse()[0];
 
       // Add to top of basal data array if it overlaps the start endpoint
@@ -155,7 +155,7 @@ class DataUtil {
     const bgData = this.filter.byType(this.bgSource).top(Infinity);
 
     const data = {
-      averageGlucose: _.meanBy(bgData, 'value'),
+      averageGlucose: _.meanBy(bgData, "value"),
       total: bgData.length,
     };
 
@@ -173,7 +173,7 @@ class DataUtil {
   getGlucoseDataByDate = () => {
     const data = this.getAverageGlucoseData(true);
 
-    const bgDataByDate = _.groupBy(data.bgData, 'localDate');
+    const bgDataByDate = _.groupBy(data.bgData, "localDate");
 
     data.bgDataByDate = bgDataByDate;
 
@@ -189,7 +189,7 @@ class DataUtil {
     const uDays = []; // Array of unique days (in string...)
 
     if (!(_.isArray(bolus) && _.isArray(basal))) {
-      this.log.warn('bolus or basal is not an array', bolus, basal);
+      this.log.warn("bolus or basal is not an array", bolus, basal);
       return this.days;
     }
 
@@ -210,15 +210,15 @@ class DataUtil {
   getBasalBolusData = () => {
     this.applyDateFilters();
 
-    const bolusData = this.filter.byType('bolus').top(Infinity);
-    let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity).reverse());
+    const bolusData = this.filter.byType("bolus").top(Infinity);
+    let basalData = this.sort.byDate(this.filter.byType("basal").top(Infinity).reverse());
     basalData = this.addBasalOverlappingStart(basalData);
 
     const basalBolusData = {
       basal: basalData.length
-        ? parseFloat(getTotalBasalFromEndpoints(basalData, this._endpoints))
-        : NaN,
-      bolus: bolusData.length ? getTotalBolus(bolusData) : NaN,
+        ? Number.parseFloat(getTotalBasalFromEndpoints(basalData, this._endpoints))
+        : Number.NaN,
+      bolus: bolusData.length ? getTotalBolus(bolusData) : Number.NaN,
     };
 
     if (this.days > 1) {
@@ -233,26 +233,26 @@ class DataUtil {
   getBgSources = () => {
     this.clearFilters();
     return {
-      cbg: this.filter.byType('cbg').top(Infinity).length > 0,
-      smbg: this.filter.byType('smbg').top(Infinity).length > 0,
+      cbg: this.filter.byType("cbg").top(Infinity).length > 0,
+      smbg: this.filter.byType("smbg").top(Infinity).length > 0,
     };
   };
 
   getCarbsData = () => {
     this.applyDateFilters();
 
-    const wizardData = this.filter.byType('wizard').top(Infinity);
-    const foodData = this.filter.byType('food').top(Infinity);
+    const wizardData = this.filter.byType("wizard").top(Infinity);
+    const foodData = this.filter.byType("food").top(Infinity);
 
     const wizardCarbs = _.reduce(
       wizardData,
-      (result, datum) => result + _.get(datum, 'carbInput', 0),
+      (result, datum) => result + _.get(datum, "carbInput", 0),
       0
     );
 
     const foodCarbs = _.reduce(
       foodData,
-      (result, datum) => result + _.get(datum, 'nutrition.carbohydrate.net', 0),
+      (result, datum) => result + _.get(datum, "nutrition.carbohydrate.net", 0),
       0
     );
 
@@ -294,7 +294,7 @@ class DataUtil {
     const clone = _.clone(data);
 
     _.forEach(clone, (value, key) => {
-      if (key !== 'total') {
+      if (key !== "total") {
         clone[key] = value / this.days;
       }
     });
@@ -307,7 +307,7 @@ class DataUtil {
     const total = data.total || _.sum(_.values(data));
 
     _.forEach(clone, (value, key) => {
-      if (key !== 'total') {
+      if (key !== "total") {
         clone[key] = (value / total) * MS_IN_DAY;
       }
     });
@@ -318,9 +318,9 @@ class DataUtil {
   getDefaultBgSource = () => {
     let source;
     if (this.bgSources.cbg) {
-      source = 'cbg';
+      source = "cbg";
     } else if (this.bgSources.smbg) {
-      source = 'smbg';
+      source = "smbg";
     }
     return source;
   };
@@ -354,13 +354,13 @@ class DataUtil {
       0
     );
 
-    const insufficientData = this.bgSource === 'smbg'
+    const insufficientData = this.bgSource === "smbg"
       || this.getDayCountFromEndpoints() < 14
       || getTotalCbgDuration() < 14 * MS_IN_DAY * 0.7;
 
     if (insufficientData) {
       return {
-        glucoseManagementIndicator: NaN,
+        glucoseManagementIndicator: Number.NaN,
         insufficientData: true,
       };
     }
@@ -378,12 +378,12 @@ class DataUtil {
   };
 
   getLatestPump = () => {
-    const uploadData = this.sort.byDate(this.filter.byType('upload').top(Infinity));
+    const uploadData = this.sort.byDate(this.filter.byType("upload").top(Infinity));
     const latestPumpUpload = getLatestPumpUpload(uploadData);
-    const latestUploadSource = _.get(latestPumpUpload, 'source', '').toLowerCase();
+    const latestUploadSource = _.get(latestPumpUpload, "source", "").toLowerCase();
     return {
-      deviceModel: _.get(latestPumpUpload, 'deviceModel', ''),
-      manufacturer: latestUploadSource === 'carelink' ? 'medtronic' : latestUploadSource,
+      deviceModel: _.get(latestPumpUpload, "deviceModel", ""),
+      manufacturer: latestUploadSource === "carelink" ? "medtronic" : latestUploadSource,
     };
   };
 
@@ -391,9 +391,9 @@ class DataUtil {
     this.applyDateFilters();
 
     let smbgData = _.reduce(
-      this.filter.byType('smbg').top(Infinity),
+      this.filter.byType("smbg").top(Infinity),
       (result, datum) => {
-        const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
+        const classification = classifyBgValue(this.bgBounds, datum.value, "fiveWay");
         result[classification]++;
         result.total++;
         return result;
@@ -417,7 +417,7 @@ class DataUtil {
 
   getSensorUsage = () => {
     this.applyDateFilters();
-    const cbgData = this.filter.byType('cbg').top(Infinity);
+    const cbgData = this.filter.byType("cbg").top(Infinity);
 
     const duration = _.reduce(
       cbgData,
@@ -455,7 +455,7 @@ class DataUtil {
       _.forEach(bgDataByDate, (value, key) => {
         // ignore days having less than 3 glycemia values
         if (value.length >= 3) {
-          const avgGlucose = _.meanBy(value, 'value');
+          const avgGlucose = _.meanBy(value, "value");
           const squaredDiffs = _.map(value, d => (d.value - avgGlucose) ** 2);
           const standardDeviation = Math.sqrt(_.sum(squaredDiffs) / (value.length - 1));
           coefficientOfVariationByDate[key] = standardDeviation / avgGlucose * 100;
@@ -475,7 +475,7 @@ class DataUtil {
   getTimeInAutoData = () => {
     this.applyDateFilters();
 
-    let basalData = this.sort.byDate(this.filter.byType('basal').top(Infinity));
+    let basalData = this.sort.byDate(this.filter.byType("basal").top(Infinity));
     basalData = this.addBasalOverlappingStart(basalData);
 
     let durations = basalData.length
@@ -487,7 +487,7 @@ class DataUtil {
         },
         {},
       )
-      : NaN;
+      : Number.NaN;
 
     if (this.days > 1 && !_.isNaN(durations)) {
       durations = this.getDailyAverageDurations(durations);
@@ -498,12 +498,12 @@ class DataUtil {
 
   getTimeInRangeData = () => {
     this.applyDateFilters();
-    const cbgData = this.filter.byType('cbg').top(Infinity);
+    const cbgData = this.filter.byType("cbg").top(Infinity);
 
     let durations = _.reduce(
       cbgData,
       (result, datum) => {
-        const classification = classifyBgValue(this.bgBounds, datum.value, 'fiveWay');
+        const classification = classifyBgValue(this.bgBounds, datum.value, "fiveWay");
         const duration = cgmSampleFrequency(datum);
         result[classification] += duration;
         result.total += duration;
@@ -543,13 +543,13 @@ class DataUtil {
 
   /**
    * Retreive the patient weight from the pump settings, null if not present
-   * @returns {{ name: 'WEIGHT', value: string, unit: string, level: number }}
+   * @returns {{ name: 'WEIGHT', value: string, unit: string, level: number } | null}
    */
   getWeight = () => {
     // retrieve lastest pump settings
-    const pumpSettings = _.last(this.filter.byType('pumpSettings').top(Infinity));
-    const parameters = _.get(pumpSettings, 'payload.parameters');
-    const weight = _.find(parameters, { 'name': 'WEIGHT' });
+    const pumpSettings = _.last(this.filter.byType("pumpSettings").top(Infinity));
+    const parameters = _.get(pumpSettings, "payload.parameters");
+    const weight = _.find(parameters, { name: "WEIGHT" });
 
     if (_.isEmpty(weight)) {
       return null;

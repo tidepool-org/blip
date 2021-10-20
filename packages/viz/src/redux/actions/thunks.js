@@ -15,20 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import { focusTrendsCbgSlice, showCbgDateTraces } from './trends';
+import { focusTrendsCbgSlice, showCbgDateTraces } from "./trends";
 
 export function delayShowCbgTracesOnFocus(userId, sliceData, slicePosition, focusedKeys) {
   return (dispatch, getState) => {
     dispatch(focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKeys));
     setTimeout(() => {
-      const currentTrendsStateForUser = _.get(getState(), ['viz', 'trends', userId], {});
+      const currentTrendsStateForUser = _.get(getState(), `viz.trends.${userId}`, {});
       const {
         focusedCbgSlice: currentFocusedSlice, focusedCbgSliceKeys: currentFocusedKeys,
       } = currentTrendsStateForUser;
       const { id: sliceId } = sliceData;
-      if (sliceId === _.get(currentFocusedSlice, ['data', 'id']) &&
+      if (sliceId === _.get(currentFocusedSlice, "data.id") &&
           _.isEqual(focusedKeys, currentFocusedKeys)) {
         dispatch(showCbgDateTraces(userId));
       }

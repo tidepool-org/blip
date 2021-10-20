@@ -15,37 +15,37 @@
  * == BSD2 LICENSE ==
  */
 
-import { expect } from 'chai';
+import { expect } from "chai";
 
-import * as constants from '../plugins/blip/basics/logic/constants';
-import { getLatestPumpUpload, isAutomatedBasalDevice } from '../js/data/util/device';
+import * as constants from "../plugins/blip/basics/logic/constants";
+import { getLatestPumpUpload, isAutomatedBasalDevice } from "../js/data/util/device";
 
-describe('device utility functions', function() {
-  describe('getLatestPumpUpload', function() {
-    it('should return a pump with proper data', function() {
+describe("device utility functions", function() {
+  describe("getLatestPumpUpload", function() {
+    it("should return a pump with proper data", function() {
       var data = [
         {
-          deviceTags: ['bgm'],
-          source: 'BGM',
+          deviceTags: ["bgm"],
+          source: "BGM",
         },
         {
-          deviceTags: ['insulin-pump'],
+          deviceTags: ["insulin-pump"],
           source: constants.TANDEM,
         },
         {
-          deviceTags: ['insulin-pump', 'bgm'],
+          deviceTags: ["insulin-pump", "bgm"],
           source: constants.INSULET,
         },
         {
-          deviceTags: ['cgm'],
-          source: 'CGM',
+          deviceTags: ["cgm"],
+          source: "CGM",
         },
       ];
 
       expect(getLatestPumpUpload(data)).to.eql(data[2]);
     });
 
-    it('should return `undefined` without proper data', function() {
+    it("should return `undefined` without proper data", function() {
       var patientData = {
         grouped: {
           pumpSettings: [],
@@ -57,19 +57,19 @@ describe('device utility functions', function() {
     });
   });
 
-  describe('isAutomatedBasalDevice', function() {
-    it('should return `true` for an upload record for a pump with automated basal delivery capabilities', function() {
+  describe("isAutomatedBasalDevice", function() {
+    it("should return `true` for an upload record for a pump with automated basal delivery capabilities", function() {
       var upload = {
-        deviceModel: '1780',
+        deviceModel: "1780",
         source: constants.MEDTRONIC,
       };
 
       expect(isAutomatedBasalDevice(upload)).to.be.true;
     });
 
-    it('should return `false` for an upload record for a pump without automated basal delivery capabilities', function() {
+    it("should return `false` for an upload record for a pump without automated basal delivery capabilities", function() {
       var upload = {
-        deviceModel: '723',
+        deviceModel: "723",
         source: constants.MEDTRONIC,
       };
 

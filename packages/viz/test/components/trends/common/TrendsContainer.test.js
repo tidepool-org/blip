@@ -15,17 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import Chance from 'chance';
-import { range } from 'd3-array';
-import moment from 'moment-timezone';
-import React from 'react';
-import { shallow } from 'enzyme';
-import sinon from 'sinon';
-import { assert, expect } from 'chai';
+import _ from "lodash";
+import React from "react";
+import Chance from "chance";
+import { range } from "d3-array";
+import moment from "moment-timezone";
+import { shallow } from "enzyme";
+import * as sinon from "sinon";
+import { assert, expect } from "chai";
 
-import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
-import DummyComponent from '../../../helpers/DummyComponent';
+import { MGDL_UNITS, MMOLL_UNITS } from "tideline";
+import DummyComponent from "../../../helpers/DummyComponent";
 
 import {
   TrendsContainer,
@@ -34,96 +34,96 @@ import {
   getLocalizedOffset,
   mapStateToProps,
   mapDispatchToProps,
-} from '../../../../src/components/trends/common/TrendsContainer';
-import TrendsSVGContainer from '../../../../src/components/trends/common/TrendsSVGContainer';
+} from "../../../../src/components/trends/common/TrendsContainer";
+import TrendsSVGContainer from "../../../../src/components/trends/common/TrendsSVGContainer";
 
 const chance = new Chance();
 
-describe('TrendsContainer', () => {
+describe("TrendsContainer", () => {
   // stubbing console.warn gets rid of the annoying warnings from react-dimensions
   // due to not rendering TrendsContainer within a real app like blip
   // eslint-disable-next-line no-console
   console.warn = sinon.stub();
 
-  describe('getAllDatesInRange', () => {
-    it('should be a function', () => {
+  describe("getAllDatesInRange", () => {
+    it("should be a function", () => {
       assert.isFunction(getAllDatesInRange);
     });
 
-    it('should return an array containing the date `2016-11-06`', () => {
-      const start = '2016-11-06T05:00:00.000Z';
-      const end = '2016-11-07T06:00:00.000Z';
+    it("should return an array containing the date `2016-11-06`", () => {
+      const start = "2016-11-06T05:00:00.000Z";
+      const end = "2016-11-07T06:00:00.000Z";
       expect(getAllDatesInRange(start, end, {
         timezoneAware: true,
-        timezoneName: 'US/Central',
-      })).to.deep.equal(['2016-11-06']);
+        timezoneName: "US/Central",
+      })).to.deep.equal(["2016-11-06"]);
     });
   });
 
-  describe('getLocalizedNoonBeforeUTC', () => {
-    it('should be a function', () => {
+  describe("getLocalizedNoonBeforeUTC", () => {
+    it("should be a function", () => {
       assert.isFunction(getLocalizedNoonBeforeUTC);
     });
 
-    it('should error if passed a JavaScript Date for the `utc` param', () => {
+    it("should error if passed a JavaScript Date for the `utc` param", () => {
       const fn = () => { getLocalizedNoonBeforeUTC(new Date()); };
       expect(fn)
-        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+        .to.throw("`utc` must be a ISO-formatted String timestamp or integer hammertime!");
     });
 
-    it('[UTC, midnight input] should return the timestamp for the noon prior', () => {
-      const dt = '2016-03-15T00:00:00.000Z';
+    it("[UTC, midnight input] should return the timestamp for the noon prior", () => {
+      const dt = "2016-03-15T00:00:00.000Z";
       expect(getLocalizedNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
-        .to.equal('2016-03-14T12:00:00.000Z');
+        .to.equal("2016-03-14T12:00:00.000Z");
       const asInteger = Date.parse(dt);
       expect(getLocalizedNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
-        .to.equal('2016-03-14T12:00:00.000Z');
+        .to.equal("2016-03-14T12:00:00.000Z");
     });
 
-    it('[UTC, anytime input] should return the timestamp for the noon prior', () => {
-      const dt = '2016-03-14T02:36:25.342Z';
+    it("[UTC, anytime input] should return the timestamp for the noon prior", () => {
+      const dt = "2016-03-14T02:36:25.342Z";
       expect(getLocalizedNoonBeforeUTC(dt, { timezoneAware: false }).toISOString())
-        .to.equal('2016-03-14T12:00:00.000Z');
+        .to.equal("2016-03-14T12:00:00.000Z");
       const asInteger = Date.parse(dt);
       expect(getLocalizedNoonBeforeUTC(asInteger, { timezoneAware: false }).toISOString())
-        .to.equal('2016-03-14T12:00:00.000Z');
+        .to.equal("2016-03-14T12:00:00.000Z");
     });
 
-    it('[across DST] should return the timestamp for the noon prior', () => {
-      const dt = '2016-03-14T05:00:00.000Z';
-      const timePrefs = { timezoneAware: true, timezoneName: 'US/Central' };
+    it("[across DST] should return the timestamp for the noon prior", () => {
+      const dt = "2016-03-14T05:00:00.000Z";
+      const timePrefs = { timezoneAware: true, timezoneName: "US/Central" };
       expect(getLocalizedNoonBeforeUTC(dt, timePrefs).toISOString())
-        .to.equal('2016-03-13T17:00:00.000Z');
+        .to.equal("2016-03-13T17:00:00.000Z");
       const asInteger = Date.parse(dt);
       expect(getLocalizedNoonBeforeUTC(asInteger, timePrefs).toISOString())
-        .to.equal('2016-03-13T17:00:00.000Z');
+        .to.equal("2016-03-13T17:00:00.000Z");
     });
   });
 
-  describe('getLocalizedOffset', () => {
-    it('should be a function', () => {
+  describe("getLocalizedOffset", () => {
+    it("should be a function", () => {
       assert.isFunction(getLocalizedOffset);
     });
 
-    it('should error if passed a JavaScript Date for the `utc` param', () => {
+    it("should error if passed a JavaScript Date for the `utc` param", () => {
       const fn = () => { getLocalizedOffset(new Date()); };
       expect(fn)
-        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+        .to.throw("`utc` must be a ISO-formatted String timestamp or integer hammertime!");
     });
 
-    it('should offset from noon to noon across DST', () => {
-      const dt = '2016-03-13T17:00:00.000Z';
+    it("should offset from noon to noon across DST", () => {
+      const dt = "2016-03-13T17:00:00.000Z";
       expect(getLocalizedOffset(dt, {
         amount: -10,
-        units: 'days',
+        units: "days",
       }, {
         timezoneAware: true,
-        timezoneName: 'US/Central',
-      }).toISOString()).to.equal('2016-03-03T18:00:00.000Z');
+        timezoneName: "US/Central",
+      }).toISOString()).to.equal("2016-03-03T18:00:00.000Z");
     });
   });
 
-  describe('TrendsContainer (w/o redux connect()ion)', () => {
+  describe("TrendsContainer (w/o redux connect()ion)", () => {
     let minimalData;
     let enoughCbgData;
 
@@ -131,20 +131,20 @@ describe('TrendsContainer', () => {
     let enoughCbgDataMmol;
 
     const extentSize = 7;
-    const timezone = 'US/Pacific';
+    const timezone = "US/Pacific";
 
     const devices = {
       dexcom: {
-        id: 'DexG4Rec_XXXXXXXXX',
+        id: "DexG4Rec_XXXXXXXXX",
         cgmInDay: 288,
       },
       libre: {
-        id: 'AbbottFreeStyleLibre_XXXXXXXXX',
+        id: "AbbottFreeStyleLibre_XXXXXXXXX",
         cgmInDay: 96,
       },
     };
 
-    const justOneDatum = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns([{
+    const justOneDatum = (device = devices.dexcom, type = "cbg") => sinon.stub().returns([{
       id: chance.hash({ length: 6 }),
       deviceId: device.id,
       msPer24: chance.integer({ min: 0, max: 864e5 }),
@@ -152,7 +152,7 @@ describe('TrendsContainer', () => {
       value: 100,
     }]);
     const lowestBg = 25;
-    const sevenDaysData = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns(
+    const sevenDaysData = (device = devices.dexcom, type = "cbg") => sinon.stub().returns(
       _.map(range(0, device.cgmInDay * extentSize), () => ({
         id: chance.hash({ length: 6 }),
         deviceId: device.id,
@@ -162,23 +162,7 @@ describe('TrendsContainer', () => {
       }))
     );
 
-    const sevenDaysDataMixedMinimum = (type = 'cbg') => sinon.stub().returns(
-      _.map(range(0, (devices.dexcom.cgmInDay / 4) * extentSize), () => ({
-        id: chance.hash({ length: 6 }),
-        deviceId: devices.dexcom.id,
-        msPer24: chance.integer({ min: 0, max: 864e5 }),
-        type,
-        value: chance.pickone([lowestBg, 525]),
-      })).concat(_.map(range(0, (devices.libre.cgmInDay / 4) * extentSize), () => ({
-        id: chance.hash({ length: 6 }),
-        deviceId: devices.libre.id,
-        msPer24: chance.integer({ min: 0, max: 864e5 }),
-        type,
-        value: chance.pickone([lowestBg, 525]),
-      })))
-    );
-
-    const justOneDatumMmol = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns([{
+    const justOneDatumMmol = (device = devices.dexcom, type = "cbg") => sinon.stub().returns([{
       id: chance.hash({ length: 6 }),
       deviceId: device.id,
       msPer24: chance.integer({ min: 0, max: 864e5 }),
@@ -186,7 +170,7 @@ describe('TrendsContainer', () => {
       value: 5.2,
     }]);
     const lowestBgMmol = 3.1;
-    const sevenDaysDataMmol = (device = devices.dexcom, type = 'cbg') => sinon.stub().returns(
+    const sevenDaysDataMmol = (device = devices.dexcom, type = "cbg") => sinon.stub().returns(
       _.map(range(0, device.cgmInDay * extentSize), () => ({
         id: chance.hash({ length: 6 }),
         deviceId: device.id,
@@ -233,7 +217,7 @@ describe('TrendsContainer', () => {
         saturday: false,
         sunday: false,
       },
-      currentPatientInViewId: 'a1b2c3',
+      currentPatientInViewId: "a1b2c3",
       extentSize,
       loading: false,
       showingSmbg: false,
@@ -253,7 +237,7 @@ describe('TrendsContainer', () => {
       tidelineData: {
         endpoints: [
           moment.utc("2016-03-01T00:00:00.000Z").toISOString(),
-          moment.utc().endOf('day').add(1, 'millisecond').toISOString(),
+          moment.utc().endOf("day").add(1, "millisecond").toISOString(),
         ]
       },
       onDatetimeLocationChange,
@@ -308,7 +292,7 @@ describe('TrendsContainer', () => {
       markTrendsViewed.resetHistory();
     });
 
-    describe('mountData', () => {
+    describe("mountData", () => {
       let withInitialDatetimeLocation;
 
       before(() => {
@@ -325,23 +309,23 @@ describe('TrendsContainer', () => {
         // minimalData.instance().mountData();
       });
 
-      it('should set dateDomain based on tidelinedata last date if no initialDatetimeLocation', () => {
-        const ceil = moment.utc(props.tidelineData.endpoints[1]).subtract(1, 'millisecond').toISOString();
+      it("should set dateDomain based on tidelinedata last date if no initialDatetimeLocation", () => {
+        const ceil = moment.utc(props.tidelineData.endpoints[1]).subtract(1, "millisecond").toISOString();
         const { dateDomain } = minimalData.state();
         expect(dateDomain.end).to.equal(ceil);
       });
 
-      it('should set dateDomain based on initialDatetimeLocation if provided', () => {
+      it("should set dateDomain based on initialDatetimeLocation if provided", () => {
         const { dateDomain } = withInitialDatetimeLocation.state();
-        expect(dateDomain.end).to.equal('2016-03-19T23:59:59.999Z');
+        expect(dateDomain.end).to.equal("2016-03-19T23:59:59.999Z");
       });
 
-      it('should set dateDomain.start based on initialDatetimeLocation and extentSize', () => {
+      it("should set dateDomain.start based on initialDatetimeLocation and extentSize", () => {
         const { dateDomain } = withInitialDatetimeLocation.state();
-        expect(dateDomain.start).to.equal('2016-03-13T00:00:00.000Z');
+        expect(dateDomain.start).to.equal("2016-03-13T00:00:00.000Z");
       });
 
-      it('should mark trends viewed as `touched` if not already touched', () => {
+      it("should mark trends viewed as `touched` if not already touched", () => {
         expect(markTrendsViewed.callCount).to.equal(0);
         shallow(
           <TrendsContainer
@@ -353,7 +337,7 @@ describe('TrendsContainer', () => {
         expect(markTrendsViewed.callCount).to.equal(1);
       });
 
-      it('should not mark trends view `touched` if already touched', () => {
+      it("should not mark trends view `touched` if already touched", () => {
         expect(markTrendsViewed.callCount).to.equal(0);
         shallow(
           <TrendsContainer
@@ -366,18 +350,18 @@ describe('TrendsContainer', () => {
       });
     });
 
-    describe('componentWillMount', () => {
+    describe("componentWillMount", () => {
       let mountDataSpy;
 
       before(() => {
-        mountDataSpy = sinon.spy(TrendsContainer.prototype, 'mountData');
+        mountDataSpy = sinon.spy(TrendsContainer.prototype, "mountData");
       });
 
       after(() => {
         mountDataSpy.restore();
       });
 
-      it('should call the `mountData` method', () => {
+      it("should call the `mountData` method", () => {
         shallow(
           <TrendsContainer
             {...props}
@@ -389,11 +373,11 @@ describe('TrendsContainer', () => {
       });
     });
 
-    describe('componentWillReceiveProps', () => {
+    describe("componentWillReceiveProps", () => {
       let mountDataSpy;
 
       before(() => {
-        mountDataSpy = sinon.spy(TrendsContainer.prototype, 'mountData');
+        mountDataSpy = sinon.spy(TrendsContainer.prototype, "mountData");
       });
 
       afterEach(() => {
@@ -404,7 +388,7 @@ describe('TrendsContainer', () => {
         mountDataSpy.restore();
       });
 
-      it('should call `mountData` if `loading` prop changes from true to false', () => {
+      it("should call `mountData` if `loading` prop changes from true to false", () => {
         const container = shallow(
           <TrendsContainer
             {...props}
@@ -422,7 +406,7 @@ describe('TrendsContainer', () => {
         sinon.assert.callCount(mountDataSpy, 1);
       });
 
-      it('should not call `mountData` if `loading` prop does not change from true to false', () => {
+      it("should not call `mountData` if `loading` prop does not change from true to false", () => {
         const container = shallow(
           <TrendsContainer
             {...props}
@@ -437,11 +421,11 @@ describe('TrendsContainer', () => {
         sinon.assert.callCount(mountDataSpy, 0);
       });
 
-      it('should perform data refiltering if `activeDays` changes', () => {
+      it("should perform data refiltering if `activeDays` changes", () => {
         const instance = minimalData.instance();
-        const byDateSpy = sinon.spy(instance.props.smbgByDate, 'top');
-        const refilterSpy = sinon.spy(instance, 'refilterByDayOfWeek');
-        const stateSpy = sinon.spy(instance, 'setState');
+        const byDateSpy = sinon.spy(instance.props.smbgByDate, "top");
+        const refilterSpy = sinon.spy(instance, "refilterByDayOfWeek");
+        const stateSpy = sinon.spy(instance, "setState");
         expect(refilterSpy.callCount).to.equal(0);
         expect(stateSpy.callCount).to.equal(0);
         minimalData.setProps({
@@ -462,10 +446,10 @@ describe('TrendsContainer', () => {
         instance.setState.restore();
       });
 
-      it('should not perform data refiltering if `activeDays` does not change', () => {
+      it("should not perform data refiltering if `activeDays` does not change", () => {
         const instance = minimalData.instance();
-        const spy = sinon.spy(instance, 'refilterByDayOfWeek');
-        const stateSpy = sinon.spy(instance, 'setState');
+        const spy = sinon.spy(instance, "refilterByDayOfWeek");
+        const stateSpy = sinon.spy(instance, "setState");
         expect(spy.callCount).to.equal(0);
         expect(stateSpy.callCount).to.equal(0);
         minimalData.setProps({
@@ -478,7 +462,7 @@ describe('TrendsContainer', () => {
       });
     });
 
-    describe('componentWillUnmount', () => {
+    describe("componentWillUnmount", () => {
       let toBeUnmounted;
 
       beforeEach(() => {
@@ -494,8 +478,8 @@ describe('TrendsContainer', () => {
         unfocusSmbgRangeAvg.resetHistory();
       });
 
-      describe('when a cbg slice segment is focused', () => {
-        it('should fire unfocusCbgSlice', () => {
+      describe("when a cbg slice segment is focused", () => {
+        it("should fire unfocusCbgSlice", () => {
           expect(unfocusCbgSlice.callCount).to.equal(0);
           toBeUnmounted.setProps({ trendsState: _.assign(
             {}, props.trendsState, { focusedCbgSlice: {} }
@@ -506,8 +490,8 @@ describe('TrendsContainer', () => {
         });
       });
 
-      describe('when an smbg is focused', () => {
-        it('should fire unfocusSmbg', () => {
+      describe("when an smbg is focused", () => {
+        it("should fire unfocusSmbg", () => {
           expect(unfocusSmbg.callCount).to.equal(0);
           toBeUnmounted.setProps({ trendsState: _.assign(
             {}, props.trendsState, { focusedSmbg: {} }
@@ -518,8 +502,8 @@ describe('TrendsContainer', () => {
         });
       });
 
-      describe('when an smbg range+avg is focused', () => {
-        it('should fire unfocusSmbgRangeAvg', () => {
+      describe("when an smbg range+avg is focused", () => {
+        it("should fire unfocusSmbgRangeAvg", () => {
           expect(unfocusSmbgRangeAvg.callCount).to.equal(0);
           toBeUnmounted.setProps({ trendsState: _.assign(
             {}, props.trendsState, { focusedSmbgRangeAvg: {} }
@@ -531,8 +515,8 @@ describe('TrendsContainer', () => {
       });
     });
 
-    describe('yScale', () => {
-      describe('mg/dL blood glucose units', () => {
+    describe("yScale", () => {
+      describe("mg/dL blood glucose units", () => {
         before(() => {
           enoughCbgData = shallow(
             <TrendsContainer {...props} {...mgdl} {...makeDataStubs(sevenDaysData())} />,
@@ -540,12 +524,12 @@ describe('TrendsContainer', () => {
           );
         });
 
-        it('should have `clamp` set to true', () => {
+        it("should have `clamp` set to true", () => {
           const { yScale } = minimalData.state();
           expect(yScale.clamp()).to.be.true;
         });
 
-        it('should have a minimum yScale domain: [veryLowThreshold, yScaleClampTop]', () => {
+        it("should have a minimum yScale domain: [veryLowThreshold, yScaleClampTop]", () => {
           const { yScale } = minimalData.state();
           expect(yScale.domain())
             .to.deep.equal(
@@ -553,14 +537,14 @@ describe('TrendsContainer', () => {
             );
         });
 
-        it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
+        it("should have a maximum yScale domain: [lowest generated value, yScaleClampTop]", () => {
           const { yScale } = enoughCbgData.state();
           expect(yScale.domain())
             .to.deep.equal([lowestBg, props.yScaleClampTop[MGDL_UNITS]]);
         });
       });
 
-      describe('mmol/L blood glucose units', () => {
+      describe("mmol/L blood glucose units", () => {
         before(() => {
           enoughCbgDataMmol = shallow(
             <TrendsContainer {...props} {...mmoll} {...makeDataStubs(sevenDaysDataMmol())} />,
@@ -572,12 +556,12 @@ describe('TrendsContainer', () => {
           );
         });
 
-        it('should have `clamp` set to true', () => {
+        it("should have `clamp` set to true", () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.clamp()).to.be.true;
         });
 
-        it('should have a minimum yScale domain: [veryLowThreshold, yScaleClampTop]', () => {
+        it("should have a minimum yScale domain: [veryLowThreshold, yScaleClampTop]", () => {
           const { yScale } = minimalDataMmol.state();
           expect(yScale.domain())
             .to.deep.equal(
@@ -585,7 +569,7 @@ describe('TrendsContainer', () => {
             );
         });
 
-        it('should have a maximum yScale domain: [lowest generated value, yScaleClampTop]', () => {
+        it("should have a maximum yScale domain: [lowest generated value, yScaleClampTop]", () => {
           const { yScale } = enoughCbgDataMmol.state();
           expect(yScale.domain())
             .to.deep.equal([lowestBgMmol, props.yScaleClampTop[MMOLL_UNITS]]);
@@ -596,8 +580,8 @@ describe('TrendsContainer', () => {
     // NB: these exposed component functions are a compatibility interface layer
     // with the <Modal /> component in blip, so it's actually useful and
     // important to just validate through tests that the functions exist!
-    describe('exposed component functions (called by parent <Modal /> in blip)', () => {
-      describe('getCurrentDay', () => {
+    describe("exposed component functions (called by parent <Modal /> in blip)", () => {
+      describe("getCurrentDay", () => {
         let withInitialDatetimeLocation;
 
         before(() => {
@@ -611,27 +595,27 @@ describe('TrendsContainer', () => {
           );
         });
 
-        it('should exist and be a function', () => {
+        it("should exist and be a function", () => {
           assert.isFunction(minimalData.instance().getCurrentDay);
         });
 
-        it('should return local noon prior to now if no initialDatetimeLocation', () => {
+        it("should return local noon prior to now if no initialDatetimeLocation", () => {
           const instance = minimalData.instance();
           const expectedRes = moment.utc()
-            .startOf('day')
+            .startOf("day")
             .hours(12)
             .toISOString();
           expect(instance.getCurrentDay()).to.equal(expectedRes);
         });
 
-        it('should return local noon prior to initialDatetimeLocation', () => {
+        it("should return local noon prior to initialDatetimeLocation", () => {
           const instance = withInitialDatetimeLocation.instance();
           expect(instance.getCurrentDay())
-            .to.equal('2016-03-19T12:00:00.000Z');
+            .to.equal("2016-03-19T12:00:00.000Z");
         });
       });
 
-      describe('for navigation along time dimension', () => {
+      describe("for navigation along time dimension", () => {
         // prior to this we used fixtures with timezoneAware: false for simplicity
         // now we set it to true to test proper time navigation with DST
         before(() => {
@@ -647,18 +631,18 @@ describe('TrendsContainer', () => {
           sinon.restore();
         });
 
-        describe('setExtent', () => {
-          it('should exist and be a function', () => {
+        describe("setExtent", () => {
+          it("should exist and be a function", () => {
             assert.isFunction(minimalData.instance().setExtent);
           });
 
-          it('should call refilterByDate for cbg and smbg, then setState', () => {
+          it("should call refilterByDate for cbg and smbg, then setState", () => {
             const instance = minimalData.instance();
-            const refilterSpy = sinon.spy(instance, 'refilterByDate');
-            const stateSpy = sinon.spy(instance, 'setState');
+            const refilterSpy = sinon.spy(instance, "refilterByDate");
+            const stateSpy = sinon.spy(instance, "setState");
             expect(refilterSpy.callCount).to.equal(0);
             expect(stateSpy.callCount).to.equal(0);
-            const domain = ['2016-03-15T07:00:00.000Z', '2016-03-22T07:00:00.000Z'];
+            const domain = ["2016-03-15T07:00:00.000Z", "2016-03-22T07:00:00.000Z"];
             instance.setExtent(domain);
             expect(refilterSpy.callCount).to.equal(2);
             expect(refilterSpy.args[0][1]).to.deep.equal(domain);
@@ -670,14 +654,14 @@ describe('TrendsContainer', () => {
           });
         });
 
-        describe('goBack', () => {
-          it('should exist and be a function', () => {
+        describe("goBack", () => {
+          it("should exist and be a function", () => {
             assert.isFunction(minimalData.instance().goBack);
           });
 
-          it('should call setExtent and onDatetimeLocationChange', () => {
+          it("should call setExtent and onDatetimeLocationChange", () => {
             const instance = minimalData.instance();
-            const setExtentSpy = sinon.spy(instance, 'setExtent');
+            const setExtentSpy = sinon.spy(instance, "setExtent");
 
             expect(setExtentSpy.callCount).to.equal(0);
             expect(onDatetimeLocationChange.callCount).to.equal(0);
@@ -691,23 +675,23 @@ describe('TrendsContainer', () => {
 
             const { dateDomain: newDomain } = minimalData.state();
 
-            expect(newDomain.start).to.equal('2016-03-08T08:00:00.000Z');
-            expect(newDomain.end).to.equal('2016-03-15T06:59:59.999Z');
+            expect(newDomain.start).to.equal("2016-03-08T08:00:00.000Z");
+            expect(newDomain.end).to.equal("2016-03-15T06:59:59.999Z");
           });
         });
 
-        describe('goForward', () => {
-          it('should exist and be a function', () => {
+        describe("goForward", () => {
+          it("should exist and be a function", () => {
             assert.isFunction(minimalData.instance().goForward);
           });
 
-          it('should call setExtent & onDatetimeLocationChange', () => {
+          it("should call setExtent & onDatetimeLocationChange", () => {
             const instance = minimalData.instance();
-            const setExtentSpy = sinon.spy(instance, 'setExtent');
+            const setExtentSpy = sinon.spy(instance, "setExtent");
 
             const expectedDomain = [
-              '2016-03-15T07:00:00.000Z',
-              '2016-03-22T06:59:59.999Z',
+              "2016-03-15T07:00:00.000Z",
+              "2016-03-22T06:59:59.999Z",
             ];
 
             expect(setExtentSpy.callCount).to.equal(0);
@@ -728,8 +712,8 @@ describe('TrendsContainer', () => {
             expect(newDomain.end).to.equal(expectedDomain[1]);
           });
 
-          it('should call onDatetimeLocationChange w/2nd arg true when domain > mostRecent', () => {
-            minimalData.setState({ mostRecent: '2016-03-29T06:59:59.999Z' });
+          it("should call onDatetimeLocationChange w/2nd arg true when domain > mostRecent", () => {
+            minimalData.setState({ mostRecent: "2016-03-29T06:59:59.999Z" });
             const instance = minimalData.instance();
 
             expect(onDatetimeLocationChange.callCount).to.equal(0);
@@ -742,14 +726,14 @@ describe('TrendsContainer', () => {
           });
         });
 
-        describe('goToMostRecent', () => {
-          it('should exist and be a function', () => {
+        describe("goToMostRecent", () => {
+          it("should exist and be a function", () => {
             assert.isFunction(minimalData.instance().goToMostRecent);
           });
 
-          it('should call setExtent and onDatetimeLocationChange', () => {
+          it("should call setExtent and onDatetimeLocationChange", () => {
             const instance = minimalData.instance();
-            const setExtentSpy = sinon.spy(instance, 'setExtent');
+            const setExtentSpy = sinon.spy(instance, "setExtent");
 
             expect(setExtentSpy.callCount).to.equal(0);
             expect(onDatetimeLocationChange.callCount).to.equal(0);
@@ -766,41 +750,41 @@ describe('TrendsContainer', () => {
           });
         });
 
-        describe('selectDate', () => {
+        describe("selectDate", () => {
           afterEach(() => {
             props.onSelectDate.resetHistory();
           });
 
-          it('should exist and be a function', () => {
+          it("should exist and be a function", () => {
             assert.isFunction(minimalData.instance().selectDate);
           });
-          const localDate = '2016-09-23';
-          const dstBegin = '2016-03-13';
-          const dstEnd = '2016-11-06';
+          const localDate = "2016-09-23";
+          const dstBegin = "2016-03-13";
+          const dstEnd = "2016-11-06";
 
-          it('should call `onSelectDate` with `2016-09-23T19:00:00.000Z` on `2016-09-23`', () => {
+          it("should call `onSelectDate` with `2016-09-23T19:00:00.000Z` on `2016-09-23`", () => {
             const midDayForDate = minimalData.instance().selectDate();
             midDayForDate(localDate);
-            expect(props.onSelectDate.firstCall.args[0]).to.equal('2016-09-23T19:00:00.000Z');
+            expect(props.onSelectDate.firstCall.args[0]).to.equal("2016-09-23T19:00:00.000Z");
           });
 
-          it('should call `onSelectDate` with `2016-03-13T20:00:00.000Z` on `2016-03-13`', () => {
+          it("should call `onSelectDate` with `2016-03-13T20:00:00.000Z` on `2016-03-13`", () => {
             const midDayForDate = minimalData.instance().selectDate();
             midDayForDate(dstBegin);
-            expect(props.onSelectDate.firstCall.args[0]).to.equal('2016-03-13T20:00:00.000Z');
+            expect(props.onSelectDate.firstCall.args[0]).to.equal("2016-03-13T20:00:00.000Z");
           });
 
-          it('should call `onSelectDate` with `2016-11-06T19:00:00.000Z` on `2016-11-06`', () => {
+          it("should call `onSelectDate` with `2016-11-06T19:00:00.000Z` on `2016-11-06`", () => {
             const midDayForDate = minimalData.instance().selectDate();
             midDayForDate(dstEnd);
-            expect(props.onSelectDate.firstCall.args[0]).to.equal('2016-11-06T19:00:00.000Z');
+            expect(props.onSelectDate.firstCall.args[0]).to.equal("2016-11-06T19:00:00.000Z");
           });
         });
       });
     });
 
-    describe('render', () => {
-      it('should render `TrendsSVGContainer`', () => {
+    describe("render", () => {
+      it("should render `TrendsSVGContainer`", () => {
         const wrapper = shallow(
           <TrendsContainer {...props} {...mgdl} {...makeDataStubs(justOneDatum())} />,
           { disableLifecycleMethods: false }
@@ -810,8 +794,8 @@ describe('TrendsContainer', () => {
     });
   });
 
-  describe('mapStateToProps', () => {
-    const userId = 'a1b2c3';
+  describe("mapStateToProps", () => {
+    const userId = "a1b2c3";
     const state = {
       viz: {
         trends: {
@@ -823,15 +807,15 @@ describe('TrendsContainer', () => {
       },
     };
 
-    it('should map state.viz.trends[currentPatientInViewId] to `trendsState`', () => {
+    it("should map state.viz.trends[currentPatientInViewId] to `trendsState`", () => {
       expect(mapStateToProps(state, { currentPatientInViewId: userId }).trendsState)
         .to.deep.equal(state.viz.trends[userId]);
     });
   });
 
-  describe('mapDispatchToProps', () => {
-    it('should return an object with a `markTrendsViewed` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('markTrendsViewed');
+  describe("mapDispatchToProps", () => {
+    it("should return an object with a `markTrendsViewed` key", () => {
+      expect(mapDispatchToProps(sinon.stub())).to.have.property("markTrendsViewed");
     });
   });
 });

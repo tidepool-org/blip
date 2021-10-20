@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import sinon from "sinon";
+import * as sinon from "sinon";
 import { TeamAPI } from "../../../lib/team";
 import {
   teams,

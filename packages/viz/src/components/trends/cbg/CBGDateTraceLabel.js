@@ -15,28 +15,28 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import i18next from 'i18next';
-import moment from 'moment-timezone';
+import React from "react";
+import PropTypes from "prop-types";
+import i18next from "i18next";
+import moment from "moment-timezone";
 
-import Tooltip from '../../common/tooltips/Tooltip';
+import Tooltip from "../../common/tooltips/Tooltip";
 
-import styles from './CBGDateTraceLabel.css';
+import styles from "./CBGDateTraceLabel.css";
 
 const CBGDateTraceLabel = (props) => {
   if (!props.focusedDateTrace) {
     return null;
   }
   const { focusedDateTrace: { data: { localDate: date }, position } } = props;
-  const formattedDate = moment.utc(date).format(i18next.t('dddd, MMMM D'));
+  const formattedDate = moment.utc(date).format(i18next.t("dddd, MMMM D"));
   return (
     <div className={styles.container}>
       <Tooltip
         title={<span className={styles.dateLabel}>{formattedDate}</span>}
         borderWidth={0}
         position={{ left: position.left, top: 2.25 * position.yPositions.topMargin }}
-        side={'bottom'}
+        side={"bottom"}
         tail={false}
       />
     </div>

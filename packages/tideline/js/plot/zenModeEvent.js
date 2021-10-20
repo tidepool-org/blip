@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import utils from './util/utils';
+import utils from "./util/utils";
 
 /**
  * @typedef {import("../tidelinedata").default} TidelineData
@@ -54,43 +54,43 @@ function plotZenMode(pool, opts = {}) {
       }
 
       const zenModeEvent = d3.select(this)
-        .selectAll('g.d3-event-group')
+        .selectAll("g.d3-event-group")
         .data(zenEvents, (d) => d.id);
 
       const zenGroup = zenModeEvent.enter()
-        .append('g')
+        .append("g")
         .attr({
-          'class': 'd3-event-group',
+          class: "d3-event-group",
           id: (d) => `event_group_${d.id}`,
         });
 
-      zenGroup.append('rect')
-      .attr({
-        x: xPos,
-        y: 0,
-        width: calculateWidth,
-        height,
-        class: 'd3-rect-zen d3-zen',
-        id: (d) => `zen_${d.id}`,
+      zenGroup.append("rect")
+        .attr({
+          x: xPos,
+          y: 0,
+          width: calculateWidth,
+          height,
+          class: "d3-rect-zen d3-zen",
+          id: (d) => `zen_${d.id}`,
+        });
+      zenGroup.append("circle").attr({
+        "cx": (d) => xPos(d) + calculateWidth(d)/2,
+        "cy": offset,
+        "r": opts.r,
+        "stroke-width": 0,
+        "class": "d3-circle-zen",
+        "id": (d) => `zen_circle_${d.id}`,
       });
-      zenGroup.append('circle').attr({
-        cx: (d) => xPos(d) + calculateWidth(d)/2,
-        cy: offset,
-        r: opts.r,
-        'stroke-width': 0,
-        class: 'd3-circle-zen',
-        id: (d) => `zen_circle_${d.id}`,
-      });
-      zenGroup.append('text')
-        .text('ZEN')
+      zenGroup.append("text")
+        .text("ZEN")
         .attr({
           x: (d) => xPos(d) + calculateWidth(d)/2,
           y: offset,
-          class: 'd3-zen-text',
+          class: "d3-zen-text",
           id: (d) => `zen_text_${d.id}`,
         });
 
-        zenModeEvent.exit().remove();
+      zenModeEvent.exit().remove();
     });
   }
 

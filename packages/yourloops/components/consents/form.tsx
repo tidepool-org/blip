@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 
 import { Theme, makeStyles } from "@material-ui/core/styles";

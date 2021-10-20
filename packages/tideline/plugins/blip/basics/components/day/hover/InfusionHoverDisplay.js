@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
-import React from 'react';
+import PropTypes from "prop-types";
+import React from "react";
 
-import format from '../../../../../../js/data/util/format';
+import format from "../../../../../../js/data/util/format";
 
 function InfusionHoverDisplay(props) {
   var times = props.data.dataByDate[props.date].data;
@@ -27,7 +27,7 @@ function InfusionHoverDisplay(props) {
   });
 
   return (
-    <ul className='Calendar-day-reservoirChange-times'>
+    <ul className="Calendar-day-reservoirChange-times">
       {timesList}
     </ul>
   );

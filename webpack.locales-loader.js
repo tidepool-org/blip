@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const buildConfig = require('./server/config.app');
+const buildConfig = require("./server/config.app");
 
 function localesLoader(source) {
   if (buildConfig.TEST) {

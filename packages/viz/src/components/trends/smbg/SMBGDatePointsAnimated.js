@@ -15,22 +15,21 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { TransitionMotion, spring } from "react-motion";
+import _ from "lodash";
 
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { TransitionMotion, spring } from 'react-motion';
-import _ from 'lodash';
+import { classifyBgValue } from "../../../utils/bloodglucose";
+import { springConfig } from "../../../utils/constants";
+import { THREE_HRS } from "../../../utils/datetime";
+import { findBinForTimeOfDay } from "../../../utils/trends/data";
 
-import { classifyBgValue } from '../../../utils/bloodglucose';
-import { springConfig } from '../../../utils/constants';
-import { THREE_HRS } from '../../../utils/datetime';
-import { findBinForTimeOfDay } from '../../../utils/trends/data';
+import { focusTrendsSmbg, unfocusTrendsSmbg } from "../../../redux/actions/trends";
 
-import { focusTrendsSmbg, unfocusTrendsSmbg } from '../../../redux/actions/trends';
-
-import styles from './SMBGDatePointsAnimated.css';
+import styles from "./SMBGDatePointsAnimated.css";
 
 export class SMBGDatePointsAnimated extends PureComponent {
   static propTypes = {
@@ -159,7 +158,7 @@ export class SMBGDatePointsAnimated extends PureComponent {
           return {
             key: smbg.id,
             data: {
-              classes: styles[classifyBgValue(bgBounds, smbg.value, 'fiveWay')],
+              classes: styles[classifyBgValue(bgBounds, smbg.value, "fiveWay")],
               position,
               smbg,
             },
@@ -196,7 +195,7 @@ export class SMBGDatePointsAnimated extends PureComponent {
                     cy={smbg.data.position.top}
                     r={style.r}
                     fillOpacity={style.opacity}
-                    pointerEvents={nonInteractive ? 'none' : 'all'}
+                    pointerEvents={nonInteractive ? "none" : "all"}
                   />
                 );
               })}

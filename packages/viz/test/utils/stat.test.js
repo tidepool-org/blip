@@ -1,11 +1,11 @@
-import _ from 'lodash';
-import chai from 'chai';
-import { MGDL_UNITS } from 'tideline';
-import * as stat from '../../src/utils/stat';
+import _ from "lodash";
+import { expect } from "chai";
+import { MGDL_UNITS } from "tideline";
+import * as stat from "../../src/utils/stat";
 
 /* eslint-disable max-len */
 
-describe('stat', () => {
+describe("stat", () => {
   const {
     commonStats,
     dailyDoseUnitOptions,
@@ -13,104 +13,102 @@ describe('stat', () => {
     statTypes,
   } = stat;
 
-  const { expect } = chai;
-
-  describe('dailyDoseUnitOptions', () => {
-    it('should export the `dailyDoseUnitOptions`', () => {
-      expect(stat.dailyDoseUnitOptions).to.be.an('array').and.have.length(2);
+  describe("dailyDoseUnitOptions", () => {
+    it("should export the `dailyDoseUnitOptions`", () => {
+      expect(stat.dailyDoseUnitOptions).to.be.an("array").and.have.length(2);
 
       expect(stat.dailyDoseUnitOptions[0]).to.eql({
-        label: 'kg',
-        value: 'kg',
+        label: "kg",
+        value: "kg",
       });
 
       expect(stat.dailyDoseUnitOptions[1]).to.eql({
-        label: 'lb',
-        value: 'lb',
+        label: "lb",
+        value: "lb",
       });
     });
   });
 
-  describe('statTypes', () => {
-    it('should export the `statTypes`', () => {
+  describe("statTypes", () => {
+    it("should export the `statTypes`", () => {
       expect(stat.statTypes).to.eql({
-        barHorizontal: 'barHorizontal',
-        barBg: 'barBg',
-        noBar: 'noBar',
-        lines: 'lines',
-        wheel: 'wheel',
-        input: 'input',
-        simple: 'simple',
+        barHorizontal: "barHorizontal",
+        barBg: "barBg",
+        noBar: "noBar",
+        lines: "lines",
+        wheel: "wheel",
+        input: "input",
+        simple: "simple",
       });
     });
   });
 
-  describe('statBgSourceLabels', () => {
-    it('should export the `statBgSourceLabels`', () => {
+  describe("statBgSourceLabels", () => {
+    it("should export the `statBgSourceLabels`", () => {
       expect(stat.statBgSourceLabels).to.eql({
-        cbg: 'CGM',
-        smbg: 'BGM',
+        cbg: "CGM",
+        smbg: "BGM",
       });
     });
   });
 
-  describe('statFormats', () => {
-    it('should export the `statFormats`', () => {
+  describe("statFormats", () => {
+    it("should export the `statFormats`", () => {
       expect(stat.statFormats).to.eql({
-        bgCount: 'bgCount',
-        bgRange: 'bgRange',
-        bgValue: 'bgValue',
-        cv: 'cv',
-        carbs: 'carbs',
-        duration: 'duration',
-        gmi: 'gmi',
-        percentage: 'percentage',
-        standardDevRange: 'standardDevRange',
-        standardDevValue: 'standardDevValue',
-        units: 'units',
-        unitsPerKg: 'unitsPerKg',
+        bgCount: "bgCount",
+        bgRange: "bgRange",
+        bgValue: "bgValue",
+        cv: "cv",
+        carbs: "carbs",
+        duration: "duration",
+        gmi: "gmi",
+        percentage: "percentage",
+        standardDevRange: "standardDevRange",
+        standardDevValue: "standardDevValue",
+        units: "units",
+        unitsPerKg: "unitsPerKg",
       });
     });
   });
 
-  describe('commonStats', () => {
-    it('should export the `commonStats`', () => {
+  describe("commonStats", () => {
+    it("should export the `commonStats`", () => {
       expect(stat.commonStats).to.eql({
-        averageGlucose: 'averageGlucose',
-        averageDailyDose: 'averageDailyDose',
-        carbs: 'carbs',
-        coefficientOfVariation: 'coefficientOfVariation',
-        glucoseManagementIndicator: 'glucoseManagementIndicator',
-        readingsInRange: 'readingsInRange',
-        sensorUsage: 'sensorUsage',
-        standardDev: 'standardDev',
-        timeInAuto: 'timeInAuto',
-        timeInRange: 'timeInRange',
-        totalInsulin: 'totalInsulin',
+        averageGlucose: "averageGlucose",
+        averageDailyDose: "averageDailyDose",
+        carbs: "carbs",
+        coefficientOfVariation: "coefficientOfVariation",
+        glucoseManagementIndicator: "glucoseManagementIndicator",
+        readingsInRange: "readingsInRange",
+        sensorUsage: "sensorUsage",
+        standardDev: "standardDev",
+        timeInAuto: "timeInAuto",
+        timeInRange: "timeInRange",
+        totalInsulin: "totalInsulin",
       });
     });
   });
 
-  describe('statFetchMethods', () => {
-    it('should export the common `statFetchMethods`', () => {
+  describe("statFetchMethods", () => {
+    it("should export the common `statFetchMethods`", () => {
       expect(stat.statFetchMethods).to.eql({
-        averageGlucose: 'getAverageGlucoseData',
-        averageDailyDose: 'getTotalInsulinAndWeightData',
-        carbs: 'getCarbsData',
-        coefficientOfVariation: 'getCoefficientOfVariationData',
-        glucoseManagementIndicator: 'getGlucoseManagementIndicatorData',
-        readingsInRange: 'getReadingsInRangeData',
-        sensorUsage: 'getSensorUsage',
-        standardDev: 'getStandardDevData',
-        timeInAuto: 'getTimeInAutoData',
-        timeInRange: 'getTimeInRangeData',
-        totalInsulin: 'getBasalBolusData',
+        averageGlucose: "getAverageGlucoseData",
+        averageDailyDose: "getTotalInsulinAndWeightData",
+        carbs: "getCarbsData",
+        coefficientOfVariation: "getCoefficientOfVariationData",
+        glucoseManagementIndicator: "getGlucoseManagementIndicatorData",
+        readingsInRange: "getReadingsInRangeData",
+        sensorUsage: "getSensorUsage",
+        standardDev: "getStandardDevData",
+        timeInAuto: "getTimeInAutoData",
+        timeInRange: "getTimeInRangeData",
+        totalInsulin: "getBasalBolusData",
       });
     });
   });
 
-  describe('getSum', () => {
-    it('should sum up datum values by their `value` key', () => {
+  describe("getSum", () => {
+    it("should sum up datum values by their `value` key", () => {
       const data = [
         {
           value: 1,
@@ -126,230 +124,230 @@ describe('stat', () => {
     });
   });
 
-  describe('ensureNumeric', () => {
-    it('should parse incoming values as floats', () => {
-      expect(stat.ensureNumeric('6.5')).to.equal(6.5);
+  describe("ensureNumeric", () => {
+    it("should parse incoming values as floats", () => {
+      expect(stat.ensureNumeric("6.5")).to.equal(6.5);
       expect(stat.ensureNumeric(6.0)).to.equal(6);
     });
 
-    it('should convert `NaN`, `null`, or `undefined` to `-1`', () => {
-      expect(stat.ensureNumeric(NaN)).to.equal(-1);
+    it("should convert `NaN`, `null`, or `undefined` to `-1`", () => {
+      expect(stat.ensureNumeric(Number.NaN)).to.equal(-1);
       expect(stat.ensureNumeric(null)).to.equal(-1);
       expect(stat.ensureNumeric(undefined)).to.equal(-1);
     });
   });
 
-  describe('getStatAnnotations', () => {
+  describe("getStatAnnotations", () => {
     const defaultOpts = {
-      manufacturer: 'medtronic',
+      manufacturer: "medtronic",
     };
 
     const opts = overrides => _.assign({}, defaultOpts, overrides);
 
-    const cbgOpts = opts({ bgSource: 'cbg' });
-    const smbgOpts = opts({ bgSource: 'smbg' });
+    const cbgOpts = opts({ bgSource: "cbg" });
+    const smbgOpts = opts({ bgSource: "smbg" });
     const singleDayOpts = opts({ days: 1 });
     const multiDayOpts = opts({ days: 14 });
 
     const data = { total: 10 };
 
-    describe('averageGlucose', () => {
-      it('should return annotations for `averageGlucose` stat when bgSource is `smgb`', () => {
+    describe("averageGlucose", () => {
+      it("should return annotations for `averageGlucose` stat when bgSource is `smgb`", () => {
         expect(stat.getStatAnnotations(data, commonStats.averageGlucose, smbgOpts)).to.have.ordered.members([
-          '**Avg. Glucose (BGM):** All BGM glucose values added together, divided by the number of readings.',
-          'Derived from _**10**_ BGM readings.',
+          "**Avg. Glucose (BGM):** All BGM glucose values added together, divided by the number of readings.",
+          "Derived from _**10**_ BGM readings.",
         ]);
       });
 
-      it('should return annotations for `averageGlucose` stat when bgSource is `cbg`', () => {
+      it("should return annotations for `averageGlucose` stat when bgSource is `cbg`", () => {
         expect(stat.getStatAnnotations(data, commonStats.averageGlucose, cbgOpts)).to.have.ordered.members([
-          '**Avg. Glucose (CGM):** All CGM glucose values added together, divided by the number of readings.',
+          "**Avg. Glucose (CGM):** All CGM glucose values added together, divided by the number of readings.",
         ]);
       });
     });
 
-    describe('averageDailyDose', () => {
-      it('should return annotations for `averageDailyDose` stat when viewing a single day of data', () => {
+    describe("averageDailyDose", () => {
+      it("should return annotations for `averageDailyDose` stat when viewing a single day of data", () => {
         expect(stat.getStatAnnotations(data, commonStats.averageDailyDose, singleDayOpts)).to.have.ordered.members([
-          '**Daily Insulin:** All basal and bolus insulin delivery (in Units) added together.',
+          "**Daily Insulin:** All basal and bolus insulin delivery (in Units) added together.",
         ]);
       });
 
-      it('should return annotations for `averageDailyDose` stat when viewing multiple days of data', () => {
+      it("should return annotations for `averageDailyDose` stat when viewing multiple days of data", () => {
         expect(stat.getStatAnnotations(data, commonStats.averageDailyDose, multiDayOpts)).to.have.ordered.members([
-          '**Avg. Daily Insulin:** All basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view.',
+          "**Avg. Daily Insulin:** All basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view.",
         ]);
       });
     });
 
-    describe('carbs', () => {
-      it('should return annotations for `carbs` stat when viewing a single day of data', () => {
+    describe("carbs", () => {
+      it("should return annotations for `carbs` stat when viewing a single day of data", () => {
         expect(stat.getStatAnnotations(data, commonStats.carbs, singleDayOpts)).to.have.ordered.members([
-          '**Total Carbs**: All carb entries from bolus wizard events or Apple Health records added together.',
-          'Derived from _**10**_ carb entries.',
+          "**Total Carbs**: All carb entries from bolus wizard events or Apple Health records added together.",
+          "Derived from _**10**_ carb entries.",
         ]);
       });
 
-      it('should return annotations for `carbs` stat when viewing multiple days of data', () => {
+      it("should return annotations for `carbs` stat when viewing multiple days of data", () => {
         expect(stat.getStatAnnotations(data, commonStats.carbs, multiDayOpts)).to.have.ordered.members([
-          '**Avg. Daily Carbs**: All carb entries added together, then divided by the number of days in this view. Note, these entries come from either bolus wizard events, or Apple Health records.',
-          'Derived from _**10**_ carb entries.',
+          "**Avg. Daily Carbs**: All carb entries added together, then divided by the number of days in this view. Note, these entries come from either bolus wizard events, or Apple Health records.",
+          "Derived from _**10**_ carb entries.",
         ]);
       });
     });
 
-    describe('coefficientOfVariation', () => {
-      it('should return annotations for `coefficientOfVariation` stat when bgSource is `smgb`', () => {
+    describe("coefficientOfVariation", () => {
+      it("should return annotations for `coefficientOfVariation` stat when bgSource is `smgb`", () => {
         expect(stat.getStatAnnotations(data, commonStats.coefficientOfVariation, smbgOpts)).to.have.ordered.members([
-          '**CV (Coefficient of Variation):** How far apart (wide) glucose values are; research suggests a target of 36% or lower.',
-          'Derived from _**10**_ BGM readings.',
+          "**CV (Coefficient of Variation):** How far apart (wide) glucose values are; research suggests a target of 36% or lower.",
+          "Derived from _**10**_ BGM readings.",
         ]);
       });
 
-      it('should return annotations for `coefficientOfVariation` stat when bgSource is `cbg`', () => {
+      it("should return annotations for `coefficientOfVariation` stat when bgSource is `cbg`", () => {
         expect(stat.getStatAnnotations(data, commonStats.coefficientOfVariation, cbgOpts)).to.have.ordered.members([
-          '**CV (Coefficient of Variation):** How far apart (wide) glucose values are; research suggests a target of 36% or lower.',
+          "**CV (Coefficient of Variation):** How far apart (wide) glucose values are; research suggests a target of 36% or lower.",
         ]);
       });
 
-      it('should return insufficient dataannotation for `standardDev` stat when not enough data was present for a calculation', () => {
+      it("should return insufficient dataannotation for `standardDev` stat when not enough data was present for a calculation", () => {
         const insufficientData = {
           ...data,
           insufficientData: true,
         };
 
         expect(stat.getStatAnnotations(insufficientData, commonStats.coefficientOfVariation, cbgOpts)).to.have.include.members([
-          'insufficient-data',
+          "insufficient-data",
         ]);
       });
     });
 
-    describe('glucoseManagementIndicator', () => {
-      it('should return annotations for `glucoseManagementIndicator` stat when bgSource is `cbg`', () => {
+    describe("glucoseManagementIndicator", () => {
+      it("should return annotations for `glucoseManagementIndicator` stat when bgSource is `cbg`", () => {
         expect(stat.getStatAnnotations(data, commonStats.glucoseManagementIndicator, cbgOpts)).to.have.ordered.members([
-          '**GMI (Glucose Management Indicator):** Tells you what your approximate A1C level is likely to be, based on the average glucose level from your CGM readings.',
+          "**GMI (Glucose Management Indicator):** Tells you what your approximate A1C level is likely to be, based on the average glucose level from your CGM readings.",
         ]);
       });
 
-      it('should return insufficient dataannotation for `standardDev` stat when not enough data was present for a calculation', () => {
+      it("should return insufficient dataannotation for `standardDev` stat when not enough data was present for a calculation", () => {
         const insufficientData = {
           ...data,
           insufficientData: true,
         };
 
         expect(stat.getStatAnnotations(insufficientData, commonStats.glucoseManagementIndicator, cbgOpts)).to.have.include.members([
-          'insufficient-data',
+          "insufficient-data",
         ]);
       });
     });
 
-    describe('readingsInRange', () => {
-      it('should return annotations for `readingsInRange` stat', () => {
+    describe("readingsInRange", () => {
+      it("should return annotations for `readingsInRange` stat", () => {
         expect(stat.getStatAnnotations(data, commonStats.readingsInRange, smbgOpts)).to.have.ordered.members([
-          '**Readings In Range:** Daily average of the number of BGM readings.',
-          'Derived from _**10**_ BGM readings.',
+          "**Readings In Range:** Daily average of the number of BGM readings.",
+          "Derived from _**10**_ BGM readings.",
         ]);
       });
     });
 
-    describe('sensorUsage', () => {
-      it('should return annotations for `sensorUsage` stat', () => {
+    describe("sensorUsage", () => {
+      it("should return annotations for `sensorUsage` stat", () => {
         expect(stat.getStatAnnotations(data, commonStats.sensorUsage)).to.have.ordered.members([
-          '**Sensor Usage:** Time the CGM collected data, divided by the total time represented in this view.',
+          "**Sensor Usage:** Time the CGM collected data, divided by the total time represented in this view.",
         ]);
       });
     });
 
-    describe('standardDev', () => {
-      it('should return annotations for `standardDev` stat when bgSource is `smgb`', () => {
+    describe("standardDev", () => {
+      it("should return annotations for `standardDev` stat when bgSource is `smgb`", () => {
         expect(stat.getStatAnnotations(data, commonStats.standardDev, smbgOpts)).to.have.ordered.members([
-          '**SD (Standard Deviation):** How far values are from the average.',
-          'Derived from _**10**_ BGM readings.',
+          "**SD (Standard Deviation):** How far values are from the average.",
+          "Derived from _**10**_ BGM readings.",
         ]);
       });
 
-      it('should return annotations for `standardDev` stat when bgSource is `cbg`', () => {
+      it("should return annotations for `standardDev` stat when bgSource is `cbg`", () => {
         expect(stat.getStatAnnotations(data, commonStats.standardDev, cbgOpts)).to.have.ordered.members([
-          '**SD (Standard Deviation):** How far values are from the average.',
+          "**SD (Standard Deviation):** How far values are from the average.",
         ]);
       });
 
-      it('should return insufficient dataannotation for `standardDev` stat when not enough data was present for a calculation', () => {
+      it("should return insufficient dataannotation for `standardDev` stat when not enough data was present for a calculation", () => {
         const insufficientData = {
           ...data,
           insufficientData: true,
         };
 
         expect(stat.getStatAnnotations(insufficientData, commonStats.standardDev, cbgOpts)).to.have.include.members([
-          'insufficient-data',
+          "insufficient-data",
         ]);
       });
     });
 
-    describe('timeInAuto', () => {
-      it('should return annotations for `timeInAuto` stat when viewing a single day of data', () => {
+    describe("timeInAuto", () => {
+      it("should return annotations for `timeInAuto` stat when viewing a single day of data", () => {
         const result = stat.getStatAnnotations(data, commonStats.timeInAuto, singleDayOpts);
         expect(result, JSON.stringify(result)).to.have.ordered.members([
-          '**Time In Loop Mode:** Time spent in automated basal delivery.',
-          'compute-oneday-time-in-auto',
+          "**Time In Loop Mode:** Time spent in automated basal delivery.",
+          "compute-oneday-time-in-auto",
         ]);
       });
 
-      it('should return annotations for `timeInAuto` stat when viewing multiple days of data', () => {
+      it("should return annotations for `timeInAuto` stat when viewing multiple days of data", () => {
         const result = stat.getStatAnnotations(data, commonStats.timeInAuto, multiDayOpts);
         expect(result, JSON.stringify(result)).to.have.ordered.members([
-          '**Time In Loop Mode:** Daily average of the time spent in automated basal delivery.',
-          'compute-ndays-time-in-auto',
+          "**Time In Loop Mode:** Daily average of the time spent in automated basal delivery.",
+          "compute-ndays-time-in-auto",
         ]);
       });
     });
 
-    describe('timeInRange', () => {
-      it('should return annotations for `timeInRange` stat when viewing a single day of data', () => {
+    describe("timeInRange", () => {
+      it("should return annotations for `timeInRange` stat when viewing a single day of data", () => {
         const result = stat.getStatAnnotations(data, commonStats.timeInRange, singleDayOpts);
         expect(result, JSON.stringify(result)).to.have.ordered.members([
-          '**Time In Range:** Time spent in range, based on CGM readings.',
-          'compute-oneday-time-in-range',
+          "**Time In Range:** Time spent in range, based on CGM readings.",
+          "compute-oneday-time-in-range",
         ]);
       });
 
-      it('should return annotations for `timeInRange` stat when viewing multiple days of data', () => {
+      it("should return annotations for `timeInRange` stat when viewing multiple days of data", () => {
         const result = stat.getStatAnnotations(data, commonStats.timeInRange, multiDayOpts);
         expect(result, JSON.stringify(result)).to.have.ordered.members([
-          '**Time In Range:** Daily average of the time spent in range, based on CGM readings.',
-          'compute-ndays-time-in-range',
+          "**Time In Range:** Daily average of the time spent in range, based on CGM readings.",
+          "compute-ndays-time-in-range",
         ]);
       });
     });
 
-    describe('totalInsulin', () => {
-      it('should return annotations for `totalInsulin` stat when viewing a single day of data', () => {
+    describe("totalInsulin", () => {
+      it("should return annotations for `totalInsulin` stat when viewing a single day of data", () => {
         expect(stat.getStatAnnotations(data, commonStats.totalInsulin, singleDayOpts)).to.have.ordered.members([
-          '**Total Insulin:** All basal and bolus insulin delivery (in Units) added together',
-          'compute-total-insulin',
+          "**Total Insulin:** All basal and bolus insulin delivery (in Units) added together",
+          "compute-total-insulin",
         ]);
       });
 
-      it('should return annotations for `totalInsulin` stat when viewing multiple days of data', () => {
+      it("should return annotations for `totalInsulin` stat when viewing multiple days of data", () => {
         expect(stat.getStatAnnotations(data, commonStats.totalInsulin, multiDayOpts)).to.have.ordered.members([
-          '**Total Insulin:** All basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view',
-          'compute-total-insulin',
+          "**Total Insulin:** All basal and bolus insulin delivery (in Units) added together, divided by the number of days in this view",
+          "compute-total-insulin",
         ]);
       });
     });
 
-    describe('insufficientData', () => {
-      it('should return annotation for `insufficientData` stat when insufficient data was present', () => {
+    describe("insufficientData", () => {
+      it("should return annotation for `insufficientData` stat when insufficient data was present", () => {
         expect(stat.getStatAnnotations({ insufficientData: true }, null, singleDayOpts)).to.have.ordered.members([
-          'insufficient-data',
+          "insufficient-data",
         ]);
       });
     });
   });
 
-  describe('getStatData', () => {
+  describe("getStatData", () => {
     const opts = {
-      manufacturer: 'medtronic',
+      manufacturer: "medtronic",
       bgPrefs: {
         bgBounds: {
           veryHighThreshold: 250,
@@ -361,7 +359,7 @@ describe('stat', () => {
       },
     };
 
-    it('should return the raw stat data as provided', () => {
+    it("should return the raw stat data as provided", () => {
       const data = {
         averageGlucose: 100,
       };
@@ -371,7 +369,7 @@ describe('stat', () => {
       expect(statData.raw.averageGlucose).to.eql(100);
     });
 
-    it('should return the raw days option as provided', () => {
+    it("should return the raw days option as provided", () => {
       const data = {
         averageGlucose: 100,
       };
@@ -381,7 +379,7 @@ describe('stat', () => {
       expect(statData.raw.days).to.eql(123);
     });
 
-    it('should format and return `averageGlucose` data', () => {
+    it("should format and return `averageGlucose` data", () => {
       const data = {
         averageGlucose: 100,
       };
@@ -395,16 +393,16 @@ describe('stat', () => {
       ]);
 
       expect(statData.dataPaths).to.eql({
-        summary: 'data.0',
+        summary: "data.0",
       });
     });
 
-    it('should format and return default `averageDailyDose` data', () => {
+    it("should format and return default `averageDailyDose` data", () => {
       const data = {
         totalInsulin: 80,
         weight: {
           value: 154,
-          unit: 'lb'
+          unit: "lb"
         }
       };
 
@@ -412,19 +410,19 @@ describe('stat', () => {
 
       expect(statData.data).to.eql([
         {
-          id: 'insulin',
+          id: "insulin",
           input: {
-            id: 'weight',
-            label: 'Weight',
-            suffix: 'lb',
-            type: 'number',
+            id: "weight",
+            label: "Weight",
+            suffix: "lb",
+            type: "number",
             value: 154,
           },
           output: {
-            label: 'Daily Dose ÷ Weight',
-            type: 'divisor',
+            label: "Daily Dose ÷ Weight",
+            type: "divisor",
             dataPaths: {
-              dividend: 'data.0',
+              dividend: "data.0",
             },
           },
           value: 80,
@@ -432,36 +430,36 @@ describe('stat', () => {
       ]);
     });
 
-    it('should format and return `averageDailyDose` data with provided input value', () => {
+    it("should format and return `averageDailyDose` data with provided input value", () => {
       const data = {
         totalInsulin: 80,
         weight: {
           value: 70,
-          unit: 'kg'
+          unit: "kg"
         }
       };
 
       const valueOpts = _.assign({}, opts, {
-        inputValue: '300',
+        inputValue: "300",
       });
 
       const statData = stat.getStatData(data, commonStats.averageDailyDose, valueOpts);
 
       expect(statData.data).to.eql([
         {
-          id: 'insulin',
+          id: "insulin",
           input: {
-            id: 'weight',
-            label: 'Weight',
-            suffix: 'kg',
-            type: 'number',
+            id: "weight",
+            label: "Weight",
+            suffix: "kg",
+            type: "number",
             value: 70,
           },
           output: {
-            label: 'Daily Dose ÷ Weight',
-            type: 'divisor',
+            label: "Daily Dose ÷ Weight",
+            type: "divisor",
             dataPaths: {
-              dividend: 'data.0',
+              dividend: "data.0",
             },
           },
           value: 80,
@@ -469,12 +467,12 @@ describe('stat', () => {
       ]);
     });
 
-    it('should format and return `averageDailyDose` data with provided suffix value', () => {
+    it("should format and return `averageDailyDose` data with provided suffix value", () => {
       const data = {
         totalInsulin: 80,
         weight: {
           value: 70,
-          unit: 'kg'
+          unit: "kg"
         }
       };
 
@@ -486,19 +484,19 @@ describe('stat', () => {
 
       expect(statData.data).to.eql([
         {
-          id: 'insulin',
+          id: "insulin",
           input: {
-            id: 'weight',
-            label: 'Weight',
-            suffix: 'kg',
-            type: 'number',
+            id: "weight",
+            label: "Weight",
+            suffix: "kg",
+            type: "number",
             value: 70,
           },
           output: {
-            label: 'Daily Dose ÷ Weight',
-            type: 'divisor',
+            label: "Daily Dose ÷ Weight",
+            type: "divisor",
             dataPaths: {
-              dividend: 'data.0',
+              dividend: "data.0",
             },
           },
           value: 80,
@@ -506,7 +504,7 @@ describe('stat', () => {
       ]);
     });
 
-    it('should format and return `carbs` data', () => {
+    it("should format and return `carbs` data", () => {
       const data = {
         nDays: 1,
         wizardCarbs: 6,
@@ -521,30 +519,30 @@ describe('stat', () => {
       const statData = stat.getStatData(data, commonStats.carbs, opts);
       const expected = [
         {
-          id: 'total-carbs',
+          id: "total-carbs",
           value: 22,
-          valueString: '22',
-          units: 'g',
-          name: 'title',
+          valueString: "22",
+          units: "g",
+          name: "title",
           displayLine: false,
         },
         {
-          id: 'food',
+          id: "food",
           value: 16,
-          valueString: '16',
-          units: 'g',
-          name: 'Rescuecarbs',
+          valueString: "16",
+          units: "g",
+          name: "Rescuecarbs",
           displayLine: true,
         },
       ];
       expect(statData.data, JSON.stringify({ value: statData.data, expected })).to.eql(expected);
 
       expect(statData.dataPaths).to.eql({
-        summary: 'data.0',
+        summary: "data.0",
       });
     });
 
-    it('should format and return `coefficientOfVariation` data', () => {
+    it("should format and return `coefficientOfVariation` data", () => {
       const data = {
         coefficientOfVariation: 40,
       };
@@ -553,17 +551,17 @@ describe('stat', () => {
 
       expect(statData.data).to.eql([
         {
-          id: 'cv',
+          id: "cv",
           value: 40,
         },
       ]);
 
       expect(statData.dataPaths).to.eql({
-        summary: 'data.0',
+        summary: "data.0",
       });
     });
 
-    it('should format and return `glucoseManagementIndicator` data', () => {
+    it("should format and return `glucoseManagementIndicator` data", () => {
       const data = {
         glucoseManagementIndicator: 36,
       };
@@ -572,17 +570,17 @@ describe('stat', () => {
 
       expect(statData.data).to.eql([
         {
-          id: 'gmi',
+          id: "gmi",
           value: 36,
         },
       ]);
 
       expect(statData.dataPaths).to.eql({
-        summary: 'data.0',
+        summary: "data.0",
       });
     });
 
-    it('should format and return `readingsInRange` data', () => {
+    it("should format and return `readingsInRange` data", () => {
       const data = {
         veryLow: 10,
         low: 20,
@@ -595,45 +593,45 @@ describe('stat', () => {
 
       expect(statData.data).to.eql([
         {
-          id: 'veryLow',
+          id: "veryLow",
           value: 10,
-          title: 'Readings Below Range',
-          legendTitle: '<54',
+          title: "Readings Below Range",
+          legendTitle: "<54",
         },
         {
-          id: 'low',
+          id: "low",
           value: 20,
-          title: 'Readings Below Range',
-          legendTitle: '54-70',
+          title: "Readings Below Range",
+          legendTitle: "54-70",
         },
         {
-          id: 'target',
+          id: "target",
           value: 30,
-          title: 'Readings In Range',
-          legendTitle: '70-180',
+          title: "Readings In Range",
+          legendTitle: "70-180",
         },
         {
-          id: 'high',
+          id: "high",
           value: 40,
-          title: 'Readings Above Range',
-          legendTitle: '180-250',
+          title: "Readings Above Range",
+          legendTitle: "180-250",
         },
         {
-          id: 'veryHigh',
+          id: "veryHigh",
           value: 50,
-          title: 'Readings Above Range',
-          legendTitle: '>250',
+          title: "Readings Above Range",
+          legendTitle: ">250",
         },
       ]);
 
       expect(statData.total).to.eql({ value: 150 });
 
       expect(statData.dataPaths).to.eql({
-        summary: ['data', 2],
+        summary: ["data", 2],
       });
     });
 
-    it('should format and return `sensorUsage` data', () => {
+    it("should format and return `sensorUsage` data", () => {
       const data = {
         sensorUsage: 80,
         total: 200,
@@ -650,11 +648,11 @@ describe('stat', () => {
       expect(statData.total).to.eql({ value: 200 });
 
       expect(statData.dataPaths).to.eql({
-        summary: 'data.0',
+        summary: "data.0",
       });
     });
 
-    it('should format and return `standardDev` data', () => {
+    it("should format and return `standardDev` data", () => {
       const data = {
         averageGlucose: 120,
         standardDeviation: 32,
@@ -672,12 +670,12 @@ describe('stat', () => {
       ]);
 
       expect(statData.dataPaths).to.eql({
-        summary: 'data.0.deviation',
-        title: 'data.0',
+        summary: "data.0.deviation",
+        title: "data.0",
       });
     });
 
-    it('should format and return `timeInAuto` data', () => {
+    it("should format and return `timeInAuto` data", () => {
       const data = {
         automated: 100000,
         manual: 20000,
@@ -687,27 +685,27 @@ describe('stat', () => {
 
       expect(statData.data).to.eql([
         {
-          id: 'basalManual',
+          id: "basalManual",
           value: 20000,
-          title: 'Time In Loop Mode OFF',
-          legendTitle: 'Manual',
+          title: "Time In Loop Mode OFF",
+          legendTitle: "Manual",
         },
         {
-          id: 'basal',
+          id: "basal",
           value: 100000,
-          title: 'Time In Loop Mode ON',
-          legendTitle: 'Auto Mode',
+          title: "Time In Loop Mode ON",
+          legendTitle: "Auto Mode",
         },
       ]);
 
       expect(statData.total).to.eql({ value: 120000 });
 
       expect(statData.dataPaths).to.eql({
-        summary: ['data', 1],
+        summary: ["data", 1],
       });
     });
 
-    it('should format and return `timeInRange` data', () => {
+    it("should format and return `timeInRange` data", () => {
       const data = {
         veryLow: 10000,
         low: 20000,
@@ -720,45 +718,45 @@ describe('stat', () => {
 
       expect(statData.data).to.eql([
         {
-          id: 'veryLow',
+          id: "veryLow",
           value: 10000,
-          title: 'Time Below Range',
-          legendTitle: '<54',
+          title: "Time Below Range",
+          legendTitle: "<54",
         },
         {
-          id: 'low',
+          id: "low",
           value: 20000,
-          title: 'Time Below Range',
-          legendTitle: '54-70',
+          title: "Time Below Range",
+          legendTitle: "54-70",
         },
         {
-          id: 'target',
+          id: "target",
           value: 30000,
-          title: 'Time In Range',
-          legendTitle: '70-180',
+          title: "Time In Range",
+          legendTitle: "70-180",
         },
         {
-          id: 'high',
+          id: "high",
           value: 40000,
-          title: 'Time Above Range',
-          legendTitle: '180-250',
+          title: "Time Above Range",
+          legendTitle: "180-250",
         },
         {
-          id: 'veryHigh',
+          id: "veryHigh",
           value: 50000,
-          title: 'Time Above Range',
-          legendTitle: '>250',
+          title: "Time Above Range",
+          legendTitle: ">250",
         },
       ]);
 
       expect(statData.total).to.eql({ value: 150000 });
 
       expect(statData.dataPaths).to.eql({
-        summary: ['data', 2],
+        summary: ["data", 2],
       });
     });
 
-    it('should format and return `totalInsulin` data', () => {
+    it("should format and return `totalInsulin` data", () => {
       const data = {
         bolus: 9.123,
         basal: 6.892,
@@ -768,155 +766,155 @@ describe('stat', () => {
 
       const expectStatDataData = [
         {
-          id: 'bolus',
+          id: "bolus",
           value: 9.123,
-          valueString: '9.1',
-          units: 'U',
-          title: 'Bolus',
+          valueString: "9.1",
+          units: "U",
+          title: "Bolus",
         },
         {
-          id: 'basal',
+          id: "basal",
           value: 6.892,
-          valueString: '6.9',
-          units: 'U',
-          title: 'Basal',
+          valueString: "6.9",
+          units: "U",
+          title: "Basal",
         },
       ];
       expect(statData.data, JSON.stringify({having: statData.data, expected: expectStatDataData})).to.eql(expectStatDataData);
 
-      expect(statData.total).to.eql({ id: 'insulin', value: 16.015 });
+      expect(statData.total).to.eql({ id: "insulin", value: 16.015 });
 
       expect(statData.dataPaths).to.eql({
-        summary: 'total',
-        title: 'total',
+        summary: "total",
+        title: "total",
       });
     });
   });
 
-  describe('getStatTitle', () => {
+  describe("getStatTitle", () => {
     const defaultOpts = {
-      manufacturer: 'medtronic',
+      manufacturer: "medtronic",
     };
 
     const opts = overrides => _.assign({}, defaultOpts, overrides);
 
-    const cbgOpts = opts({ bgSource: 'cbg' });
-    const smbgOpts = opts({ bgSource: 'smbg' });
+    const cbgOpts = opts({ bgSource: "cbg" });
+    const smbgOpts = opts({ bgSource: "smbg" });
     const singleDayOpts = opts({ days: 1 });
     const multiDayOpts = opts({ days: 14 });
 
-    describe('averageGlucose', () => {
-      it('should return title for `averageGlucose` stat when bgSource is `smgb`', () => {
-        expect(stat.getStatTitle(commonStats.averageGlucose, smbgOpts)).to.equal('Avg. Glucose (BGM)');
+    describe("averageGlucose", () => {
+      it("should return title for `averageGlucose` stat when bgSource is `smgb`", () => {
+        expect(stat.getStatTitle(commonStats.averageGlucose, smbgOpts)).to.equal("Avg. Glucose (BGM)");
       });
 
-      it('should return title for `averageGlucose` stat when bgSource is `cbg`', () => {
-        expect(stat.getStatTitle(commonStats.averageGlucose, cbgOpts)).to.equal('Avg. Glucose (CGM)');
-      });
-    });
-
-    describe('averageDailyDose', () => {
-      it('should return title for `averageDailyDose` stat when viewing a single day of data', () => {
-        expect(stat.getStatTitle(commonStats.averageDailyDose, singleDayOpts)).to.equal('Total Insulin');
-      });
-
-      it('should return title for `averageDailyDose` stat when viewing multiple days of data', () => {
-        expect(stat.getStatTitle(commonStats.averageDailyDose, multiDayOpts)).to.equal('Avg. Daily Insulin');
+      it("should return title for `averageGlucose` stat when bgSource is `cbg`", () => {
+        expect(stat.getStatTitle(commonStats.averageGlucose, cbgOpts)).to.equal("Avg. Glucose (CGM)");
       });
     });
 
-    describe('carbs', () => {
-      it('should return title for `carbs` stat when viewing a single day of data', () => {
-        expect(stat.getStatTitle(commonStats.carbs, singleDayOpts)).to.equal('Total Carbs');
+    describe("averageDailyDose", () => {
+      it("should return title for `averageDailyDose` stat when viewing a single day of data", () => {
+        expect(stat.getStatTitle(commonStats.averageDailyDose, singleDayOpts)).to.equal("Total Insulin");
       });
 
-      it('should return title for `carbs` stat when viewing multiple days of data', () => {
-        expect(stat.getStatTitle(commonStats.carbs, multiDayOpts)).to.equal('Avg. Daily Carbs');
-      });
-    });
-
-    describe('coefficientOfVariation', () => {
-      it('should return title for `coefficientOfVariation` stat when bgSource is `smgb`', () => {
-        expect(stat.getStatTitle(commonStats.coefficientOfVariation, smbgOpts)).to.equal('CV (BGM)');
-      });
-
-      it('should return title for `coefficientOfVariation` stat when bgSource is `cbg`', () => {
-        expect(stat.getStatTitle(commonStats.coefficientOfVariation, cbgOpts)).to.equal('CV (CGM)');
+      it("should return title for `averageDailyDose` stat when viewing multiple days of data", () => {
+        expect(stat.getStatTitle(commonStats.averageDailyDose, multiDayOpts)).to.equal("Avg. Daily Insulin");
       });
     });
 
-    describe('glucoseManagementIndicator', () => {
-      it('should return title for `glucoseManagementIndicator` stat when bgSource is `smgb`', () => {
-        expect(stat.getStatTitle(commonStats.glucoseManagementIndicator, smbgOpts)).to.equal('GMI (BGM)');
+    describe("carbs", () => {
+      it("should return title for `carbs` stat when viewing a single day of data", () => {
+        expect(stat.getStatTitle(commonStats.carbs, singleDayOpts)).to.equal("Total Carbs");
       });
 
-      it('should return title for `glucoseManagementIndicator` stat when bgSource is `cbg`', () => {
-        expect(stat.getStatTitle(commonStats.glucoseManagementIndicator, cbgOpts)).to.equal('GMI (CGM)');
-      });
-    });
-
-    describe('readingsInRange', () => {
-      it('should return title for `readingsInRange` stat when viewing a single day of data', () => {
-        expect(stat.getStatTitle(commonStats.readingsInRange, singleDayOpts)).to.equal('Readings In Range');
-      });
-
-      it('should return title for `readingsInRange` stat when viewing multiple days of data', () => {
-        expect(stat.getStatTitle(commonStats.readingsInRange, multiDayOpts)).to.equal('Avg. Daily Readings In Range');
+      it("should return title for `carbs` stat when viewing multiple days of data", () => {
+        expect(stat.getStatTitle(commonStats.carbs, multiDayOpts)).to.equal("Avg. Daily Carbs");
       });
     });
 
-    describe('sensorUsage', () => {
-      it('should return title for `sensorUsage` stat', () => {
-        expect(stat.getStatTitle(commonStats.sensorUsage)).to.equal('Sensor Usage');
+    describe("coefficientOfVariation", () => {
+      it("should return title for `coefficientOfVariation` stat when bgSource is `smgb`", () => {
+        expect(stat.getStatTitle(commonStats.coefficientOfVariation, smbgOpts)).to.equal("CV (BGM)");
+      });
+
+      it("should return title for `coefficientOfVariation` stat when bgSource is `cbg`", () => {
+        expect(stat.getStatTitle(commonStats.coefficientOfVariation, cbgOpts)).to.equal("CV (CGM)");
       });
     });
 
-    describe('standardDev', () => {
-      it('should return title for `standardDev` stat when bgSource is `smgb`', () => {
-        expect(stat.getStatTitle(commonStats.standardDev, smbgOpts)).to.equal('Std. Deviation (BGM)');
+    describe("glucoseManagementIndicator", () => {
+      it("should return title for `glucoseManagementIndicator` stat when bgSource is `smgb`", () => {
+        expect(stat.getStatTitle(commonStats.glucoseManagementIndicator, smbgOpts)).to.equal("GMI (BGM)");
       });
 
-      it('should return title for `standardDev` stat when bgSource is `cbg`', () => {
-        expect(stat.getStatTitle(commonStats.standardDev, cbgOpts)).to.equal('Std. Deviation (CGM)');
-      });
-    });
-
-    describe('timeInAuto', () => {
-      it('should return title for `timeInAuto` stat when viewing a single day of data', () => {
-        expect(stat.getStatTitle(commonStats.timeInAuto, singleDayOpts)).to.equal('Time In Loop Mode');
-      });
-
-      it('should return title for `timeInAuto` stat when viewing multiple days of data', () => {
-        expect(stat.getStatTitle(commonStats.timeInAuto, multiDayOpts)).to.equal('Avg. Daily Time In Loop Mode');
+      it("should return title for `glucoseManagementIndicator` stat when bgSource is `cbg`", () => {
+        expect(stat.getStatTitle(commonStats.glucoseManagementIndicator, cbgOpts)).to.equal("GMI (CGM)");
       });
     });
 
-    describe('timeInRange', () => {
-      it('should return title for `timeInRange` stat when viewing a single day of data', () => {
-        expect(stat.getStatTitle(commonStats.timeInRange, singleDayOpts)).to.equal('Time In Range');
+    describe("readingsInRange", () => {
+      it("should return title for `readingsInRange` stat when viewing a single day of data", () => {
+        expect(stat.getStatTitle(commonStats.readingsInRange, singleDayOpts)).to.equal("Readings In Range");
       });
 
-      it('should return title for `timeInRange` stat when viewing multiple days of data', () => {
-        expect(stat.getStatTitle(commonStats.timeInRange, multiDayOpts)).to.equal('Avg. Daily Time In Range');
+      it("should return title for `readingsInRange` stat when viewing multiple days of data", () => {
+        expect(stat.getStatTitle(commonStats.readingsInRange, multiDayOpts)).to.equal("Avg. Daily Readings In Range");
       });
     });
 
-    describe('totalInsulin', () => {
-      it('should return title for `totalInsulin` stat when viewing a single day of data', () => {
-        expect(stat.getStatTitle(commonStats.totalInsulin, singleDayOpts)).to.equal('Total Insulin');
+    describe("sensorUsage", () => {
+      it("should return title for `sensorUsage` stat", () => {
+        expect(stat.getStatTitle(commonStats.sensorUsage)).to.equal("Sensor Usage");
+      });
+    });
+
+    describe("standardDev", () => {
+      it("should return title for `standardDev` stat when bgSource is `smgb`", () => {
+        expect(stat.getStatTitle(commonStats.standardDev, smbgOpts)).to.equal("Std. Deviation (BGM)");
       });
 
-      it('should return title for `totalInsulin` stat when viewing multiple days of data', () => {
-        expect(stat.getStatTitle(commonStats.totalInsulin, multiDayOpts)).to.equal('Avg. Daily Total Insulin');
+      it("should return title for `standardDev` stat when bgSource is `cbg`", () => {
+        expect(stat.getStatTitle(commonStats.standardDev, cbgOpts)).to.equal("Std. Deviation (CGM)");
+      });
+    });
+
+    describe("timeInAuto", () => {
+      it("should return title for `timeInAuto` stat when viewing a single day of data", () => {
+        expect(stat.getStatTitle(commonStats.timeInAuto, singleDayOpts)).to.equal("Time In Loop Mode");
+      });
+
+      it("should return title for `timeInAuto` stat when viewing multiple days of data", () => {
+        expect(stat.getStatTitle(commonStats.timeInAuto, multiDayOpts)).to.equal("Avg. Daily Time In Loop Mode");
+      });
+    });
+
+    describe("timeInRange", () => {
+      it("should return title for `timeInRange` stat when viewing a single day of data", () => {
+        expect(stat.getStatTitle(commonStats.timeInRange, singleDayOpts)).to.equal("Time In Range");
+      });
+
+      it("should return title for `timeInRange` stat when viewing multiple days of data", () => {
+        expect(stat.getStatTitle(commonStats.timeInRange, multiDayOpts)).to.equal("Avg. Daily Time In Range");
+      });
+    });
+
+    describe("totalInsulin", () => {
+      it("should return title for `totalInsulin` stat when viewing a single day of data", () => {
+        expect(stat.getStatTitle(commonStats.totalInsulin, singleDayOpts)).to.equal("Total Insulin");
+      });
+
+      it("should return title for `totalInsulin` stat when viewing multiple days of data", () => {
+        expect(stat.getStatTitle(commonStats.totalInsulin, multiDayOpts)).to.equal("Avg. Daily Total Insulin");
       });
     });
   });
 
-  describe('getStatDefinition', () => {
+  describe("getStatDefinition", () => {
     const data = { total: 10 };
 
     const opts = {
-      manufacturer: 'medtronic',
+      manufacturer: "medtronic",
       bgPrefs: {
         bgBounds: {
           veryHighThreshold: 250,
@@ -929,16 +927,16 @@ describe('stat', () => {
     };
 
     const commonStatProperties = [
-      'annotations',
-      'collapsible',
-      'data',
-      'dataFormat',
-      'id',
-      'title',
-      'type',
+      "annotations",
+      "collapsible",
+      "data",
+      "dataFormat",
+      "id",
+      "title",
+      "type",
     ];
 
-    it('should define the `averageGlucose` stat', () => {
+    it("should define the `averageGlucose` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.averageGlucose, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.averageGlucose);
@@ -949,7 +947,7 @@ describe('stat', () => {
       });
     });
 
-    it('should define the `carbs` stat', () => {
+    it("should define the `carbs` stat", () => {
       const data = {
         nDays: 1,
         wizardCarbs: 6,
@@ -969,7 +967,7 @@ describe('stat', () => {
       });
     });
 
-    it('should define the `averageDailyDose` stat', () => {
+    it("should define the `averageDailyDose` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.averageDailyDose, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.averageDailyDose);
@@ -981,7 +979,7 @@ describe('stat', () => {
       });
     });
 
-    it('should define the `coefficientOfVariation` stat', () => {
+    it("should define the `coefficientOfVariation` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.coefficientOfVariation, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.coefficientOfVariation);
@@ -991,7 +989,7 @@ describe('stat', () => {
       });
     });
 
-    it('should define the `glucoseManagementIndicator` stat', () => {
+    it("should define the `glucoseManagementIndicator` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.glucoseManagementIndicator, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.glucoseManagementIndicator);
@@ -1001,7 +999,7 @@ describe('stat', () => {
       });
     });
 
-    it('should define the `readingsInRange` stat', () => {
+    it("should define the `readingsInRange` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.readingsInRange, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.readingsInRange);
@@ -1015,7 +1013,7 @@ describe('stat', () => {
       expect(def.alwaysShowTooltips).to.be.true;
     });
 
-    it('should define the `sensorUsage` stat', () => {
+    it("should define the `sensorUsage` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.sensorUsage, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.sensorUsage);
@@ -1025,7 +1023,7 @@ describe('stat', () => {
       });
     });
 
-    it('should define the `standardDev` stat', () => {
+    it("should define the `standardDev` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.standardDev, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.standardDev);
@@ -1037,7 +1035,7 @@ describe('stat', () => {
       });
     });
 
-    it('should define the `timeInAuto` stat', () => {
+    it("should define the `timeInAuto` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.timeInAuto, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.timeInAuto);
@@ -1049,7 +1047,7 @@ describe('stat', () => {
       expect(def.alwaysShowTooltips).to.be.true;
     });
 
-    it('should define the `timeInRange` stat', () => {
+    it("should define the `timeInRange` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.timeInRange, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.timeInRange);
@@ -1063,7 +1061,7 @@ describe('stat', () => {
       expect(def.alwaysShowTooltips).to.be.true;
     });
 
-    it('should define the `totalInsulin` stat', () => {
+    it("should define the `totalInsulin` stat", () => {
       const def = stat.getStatDefinition(data, commonStats.totalInsulin, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.totalInsulin);

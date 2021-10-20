@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear } from "d3-scale";
 
 const trendsWidth = 864;
 const trendsHeight = 360;

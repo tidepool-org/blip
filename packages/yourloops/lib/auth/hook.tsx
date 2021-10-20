@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import bows from "bows";
 import _ from "lodash";
 import jwtDecode, { JwtPayload } from "jwt-decode";
@@ -156,7 +156,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     const tokenInfos = jwtDecode<JwtShorelinePayload>(auth.sessionToken);
     if (!_.isString(tokenInfos.role)) {
       // old API support
-      let role = _.get(auth.user, 'roles[0]', UserRoles.patient);
+      let role = _.get(auth.user, "roles[0]", UserRoles.patient);
       if (role === "clinic") {
         role = UserRoles.caregiver;
       }
@@ -322,7 +322,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
       log.error("logout", reason);
     }
 
-    if (typeof window.cleanBlipReduxStore === 'function') {
+    if (typeof window.cleanBlipReduxStore === "function") {
       window.cleanBlipReduxStore();
     }
     sessionStorage.removeItem(STORAGE_KEY_SESSION_TOKEN);

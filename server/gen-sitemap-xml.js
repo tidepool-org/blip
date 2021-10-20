@@ -12,8 +12,8 @@
  *
  */
 
-const blipConfig = require('./config.app');
-const { genFromTemplate } = require('./gen-utils');
+const blipConfig = require("./config.app");
+const { genFromTemplate } = require("./gen-utils");
 
 const templateFilename = "sitemap.xml";
 const outputFilename = "static/sitemap.xml";

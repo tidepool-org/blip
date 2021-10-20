@@ -15,19 +15,21 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import { shallow } from 'enzyme';
+import React from "react";
+import { shallow } from "enzyme";
+import { expect } from "chai";
+import * as sinon from "sinon";
 
 import {
   SMBGRange, mapDispatchToProps, mapStateToProps,
-} from '../../../../src/components/trends/smbg/SMBGRange';
+} from "../../../../src/components/trends/smbg/SMBGRange";
 
-describe('SMBGRange', () => {
+describe("SMBGRange", () => {
   let wrapper;
   const props = {
-    classes: 'foo bar baz',
+    classes: "foo bar baz",
     datum: {
-      id: '5400000',
+      id: "5400000",
       max: 521,
       mean: 140,
       min: 22,
@@ -35,7 +37,7 @@ describe('SMBGRange', () => {
     },
     focusRange: sinon.spy(),
     interpolated: {
-      key: '5400000',
+      key: "5400000",
       style: {
         height: 120,
         opacity: 0.5,
@@ -54,28 +56,28 @@ describe('SMBGRange', () => {
       },
     },
     unfocusRange: sinon.spy(),
-    userId: 'a1b2c3',
+    userId: "a1b2c3",
   };
 
   before(() => {
     wrapper = shallow(<SMBGRange {...props} />);
   });
 
-  it('should render a single <rect>', () => {
-    expect(wrapper.find('rect').length).to.equal(1);
+  it("should render a single <rect>", () => {
+    expect(wrapper.find("rect").length).to.equal(1);
   });
 
-  describe('interactions', () => {
+  describe("interactions", () => {
     afterEach(() => {
       props.focusRange.resetHistory();
       props.unfocusRange.resetHistory();
     });
 
-    describe('onMouseOver', () => {
-      it('should fire the `focusRange` function', () => {
-        const rect = wrapper.find('rect');
+    describe("onMouseOver", () => {
+      it("should fire the `focusRange` function", () => {
+        const rect = wrapper.find("rect");
         expect(props.focusRange.callCount).to.equal(0);
-        rect.simulate('mouseover');
+        rect.simulate("mouseover");
         expect(props.focusRange.callCount).to.equal(1);
         expect(props.focusRange.args[0][0]).to.equal(props.userId);
         expect(props.focusRange.args[0][1]).to.deep.equal(props.datum);
@@ -83,34 +85,34 @@ describe('SMBGRange', () => {
       });
     });
 
-    describe('onMouseOut', () => {
-      it('should fire the `unfocusRange` function', () => {
-        const rect = wrapper.find('rect');
+    describe("onMouseOut", () => {
+      it("should fire the `unfocusRange` function", () => {
+        const rect = wrapper.find("rect");
         expect(props.unfocusRange.callCount).to.equal(0);
-        rect.simulate('mouseout');
+        rect.simulate("mouseout");
         expect(props.unfocusRange.callCount).to.equal(1);
         expect(props.unfocusRange.args[0][0]).to.equal(props.userId);
       });
     });
   });
 
-  describe('mapStateToProps', () => {
+  describe("mapStateToProps", () => {
     const state = {
-      blip: { currentPatientInViewId: 'a1b2c3' },
+      blip: { currentPatientInViewId: "a1b2c3" },
     };
 
-    it('should map blip.currentPatientInViewId to `userId`', () => {
+    it("should map blip.currentPatientInViewId to `userId`", () => {
       expect(mapStateToProps(state).userId).to.equal(state.blip.currentPatientInViewId);
     });
   });
 
-  describe('mapDispatchToProps', () => {
-    it('should return an object with a `focusRange` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('focusRange');
+  describe("mapDispatchToProps", () => {
+    it("should return an object with a `focusRange` key", () => {
+      expect(mapDispatchToProps(sinon.stub())).to.have.property("focusRange");
     });
 
-    it('should return an object with a `unfocusRange` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('unfocusRange');
+    it("should return an object with a `unfocusRange` key", () => {
+      expect(mapDispatchToProps(sinon.stub())).to.have.property("unfocusRange");
     });
   });
 });

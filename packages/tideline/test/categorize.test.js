@@ -15,29 +15,29 @@
  * == BSD2 LICENSE ==
  */
 
-import { assert, expect } from 'chai';
-import { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } from '../js/data/util/constants';
+import { assert, expect } from "chai";
+import { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } from "../js/data/util/constants";
 
-import categorizer from '../js/data/util/categorize';
+import categorizer from "../js/data/util/categorize";
 
-describe('Categorize', function() {
+describe("Categorize", function() {
   var defaultBgClasses = {
-    'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
-    low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
-    target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
-    high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
+    "very-low": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+    "low": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+    "target": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+    "high": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
   };
   var alternateBgClasses = {
-    'very-low': { boundary: 60 },
-    low: { boundary: 80 },
-    target: { boundary: 150 },
-    high: { boundary: 250 },
+    "very-low": { boundary: 60 },
+    "low": { boundary: 80 },
+    "target": { boundary: 150 },
+    "high": { boundary: 250 },
   };
   var mmollBgClasses = {
-    'very-low': { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryLow },
-    low: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetLower },
-    target: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetUpper },
-    high: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryHigh },
+    "very-low": { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryLow },
+    "low": { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetLower },
+    "target": { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetUpper },
+    "high": { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryHigh },
   };
 
   var defaultCategorizer = categorizer(defaultBgClasses);
@@ -45,12 +45,12 @@ describe('Categorize', function() {
   var noConfigCategorizer = categorizer({});
   var mmollCategorizer = categorizer(mmollBgClasses);
 
-  it('should be a function', function() {
+  it("should be a function", function() {
     assert.isFunction(categorizer);
   });
 
-  describe('categorization', function(){
-    describe('with default classes', function(){
+  describe("categorization", function(){
+    describe("with default classes", function(){
       it('should categorize 53 as "verylow"', function(){
         expect(defaultCategorizer({value:53})).to.equal("verylow");
       });
@@ -76,7 +76,7 @@ describe('Categorize', function() {
         expect(defaultCategorizer({value:251})).to.equal("veryhigh");
       });
     });
-    describe('with alternate classes', function(){
+    describe("with alternate classes", function(){
       it('should categorize 59 as "verylow"', function(){
         expect(alternateCategorizer({value:59})).to.equal("verylow");
       });
@@ -102,7 +102,7 @@ describe('Categorize', function() {
         expect(alternateCategorizer({value:251})).to.equal("veryhigh");
       });
     });
-    describe('with no classes', function(){
+    describe("with no classes", function(){
       it('should categorize 53 as "verylow"', function(){
         expect(noConfigCategorizer({value:53})).to.equal("verylow");
       });
@@ -128,7 +128,7 @@ describe('Categorize', function() {
         expect(noConfigCategorizer({value:251})).to.equal("veryhigh");
       });
     });
-    describe('with mmoll values', function(){
+    describe("with mmoll values", function(){
       it('should categorize 2.9 as "verylow"', function(){
         expect(mmollCategorizer({value:2.9})).to.equal("verylow");
       });

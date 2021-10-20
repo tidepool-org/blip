@@ -26,17 +26,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- const { updateDefaultConfig, setKarmaConfig } = require("../../karma.common.conf");
- const webpack = require("./webpack.config.js");
+const { updateDefaultConfig, setKarmaConfig } = require("../../karma.common.conf");
+const webpack = require("./webpack.config.js");
 
- const config = {
+const config = {
   files: [
-    'test/index.js',
+    "test/index.js",
   ],
   preprocessors: {
-    'test/index.js': ['webpack', 'sourcemap'],
+    "test/index.js": ["webpack", "sourcemap"],
   },
- };
- updateDefaultConfig("tideline", config, webpack);
+};
+updateDefaultConfig("tideline", config, webpack);
 
- module.exports = setKarmaConfig;
+module.exports = setKarmaConfig;

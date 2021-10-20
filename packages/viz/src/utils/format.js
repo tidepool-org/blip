@@ -36,12 +36,12 @@
  *
  */
 
-import _ from 'lodash';
-import { format } from 'd3-format';
-import i18next from 'i18next';
-import { convertBG, MGDL_UNITS, MMOLL_UNITS } from 'tideline';
-import { formatLocalizedFromUTC, getHourMinuteFormat } from './datetime';
-import { BG_HIGH, BG_LOW } from './constants';
+import _ from "lodash";
+import { format } from "d3-format";
+import i18next from "i18next";
+import { convertBG, MGDL_UNITS, MMOLL_UNITS } from "tideline";
+import { formatLocalizedFromUTC, getHourMinuteFormat } from "./datetime";
+import { BG_HIGH, BG_LOW } from "./constants";
 
 /**
  * formatBgValue
@@ -53,7 +53,7 @@ import { BG_HIGH, BG_LOW } from './constants';
  * @return {String} formatted blood glucose value
  */
 export function formatBgValue(val, bgPrefs, outOfRangeThresholds) {
-  const units = _.get(bgPrefs, 'bgUnits', MGDL_UNITS);
+  const units = _.get(bgPrefs, "bgUnits", MGDL_UNITS);
   if (!_.isEmpty(outOfRangeThresholds)) {
     let lowThreshold = outOfRangeThresholds.low;
     let highThreshold = outOfRangeThresholds.high;
@@ -73,9 +73,9 @@ export function formatBgValue(val, bgPrefs, outOfRangeThresholds) {
     }
   }
   if (units === MMOLL_UNITS) {
-    return format('.1f')(val);
+    return format(".1f")(val);
   }
-  return format('d')(val);
+  return format("d")(val);
 }
 
 /**
@@ -88,7 +88,7 @@ export function formatBgValue(val, bgPrefs, outOfRangeThresholds) {
  */
 export function formatDecimalNumber(val, places) {
   if (_.isNil(places)) {
-    return format('d')(val);
+    return format("d")(val);
   }
   return format(`.${places}f`)(val);
 }
@@ -104,8 +104,8 @@ export function formatDecimalNumber(val, places) {
 export function formatInsulin(val) {
   let decimalLength = 1;
   const qtyString = val.toString();
-  if (qtyString.indexOf('.') !== -1) {
-    const length = qtyString.split('.')[1].length;
+  if (qtyString.indexOf(".") !== -1) {
+    const length = qtyString.split(".")[1].length;
     decimalLength = _.min([length, 2]);
   }
   return formatDecimalNumber(val, decimalLength);
@@ -119,7 +119,7 @@ export function formatInsulin(val) {
  */
 export function formatPercentage(val, precision = 0) {
   if (Number.isNaN(val)) {
-    return '--%';
+    return "--%";
   }
   return format(`.${precision}%`)(val);
 }
@@ -141,7 +141,7 @@ export function formatInputTime(utcTime, timePrefs) {
  * @return {string} formatted decimal value w/o trailing zero-indexes
  */
 export function removeTrailingZeroes(val) {
-  return val.replace(/\.0+$/, '');
+  return val.replace(/\.0+$/, "");
 }
 
 /**
@@ -155,39 +155,39 @@ export function formatParameterValue(value, units) {
   let nValue;
   /** @type {string} */
   let ret;
-  if (typeof value === 'string') {
-    if (_.includes(value, '.')) {
+  if (typeof value === "string") {
+    if (_.includes(value, ".")) {
       nValue = Number.parseFloat(value);
     } else {
       nValue = Number.parseInt(value, 10);
     }
-  } else if (typeof value === 'number') {
+  } else if (typeof value === "number") {
     nValue = value;
   }
 
   let nDecimals = 0;
   switch (units) {
-    case '%': // Percent, thanks captain obvious.
-    case 'min': // Minutes
-      break;
-    case 'g': // Grams
-    case 'kg':
-    case 'U': // Insulin dose
-    case MMOLL_UNITS:
-    case MGDL_UNITS:
-      nDecimals = 1;
-      break;
-    case 'U/g':
-      nDecimals = 3;
-      break;
-    default:
-      nDecimals = 2;
-      break;
+  case "%": // Percent, thanks captain obvious.
+  case "min": // Minutes
+    break;
+  case "g": // Grams
+  case "kg":
+  case "U": // Insulin dose
+  case MMOLL_UNITS:
+  case MGDL_UNITS:
+    nDecimals = 1;
+    break;
+  case "U/g":
+    nDecimals = 3;
+    break;
+  default:
+    nDecimals = 2;
+    break;
   }
 
   if (Number.isNaN(nValue)) {
     // Like formatPercentage() but we do not want to pad the '%' character.
-    ret = '--';
+    ret = "--";
   } else if (Number.isInteger(nValue) && nDecimals === 0) {
     ret = nValue.toString(10);
   } else {

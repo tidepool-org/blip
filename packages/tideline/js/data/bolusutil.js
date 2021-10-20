@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import crossfilter from 'crossfilter2';
+import _ from "lodash";
+import crossfilter from "crossfilter2";
 
-import commonbolus from '../plot/util/commonbolus';
-import format from './util/format';
+import commonbolus from "../plot/util/commonbolus";
+import format from "./util/format";
 
 function BolusUtil(data) {
   var dataByDate;

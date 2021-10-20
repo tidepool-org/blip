@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
-import React, { PureComponent } from 'react';
-import _ from 'lodash';
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import _ from "lodash";
 
-import colors from '../../../styles/colors.css';
-import styles from './StatLegend.css';
+import colors from "../../../styles/colors.css";
+import styles from "./StatLegend.css";
 
 class StatLegend extends PureComponent {
   static propTypes = {
@@ -13,7 +13,7 @@ class StatLegend extends PureComponent {
     })).isRequired,
   };
 
-  static displayName = 'StatLegend';
+  static displayName = "StatLegend";
 
   renderLegendItems = (items) => (
     _.map(items, (item) => (

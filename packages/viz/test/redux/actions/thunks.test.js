@@ -15,18 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import configureStore from "redux-mock-store";
+import thunk from "redux-thunk";
+import { expect } from "chai";
+import * as sinon from "sinon";
 
 const mockStore = configureStore([thunk]);
 
-import * as actionTypes from '../../../src/redux/constants/actionTypes';
-import { delayShowCbgTracesOnFocus } from '../../../src/redux/actions/thunks';
+import * as actionTypes from "../../../src/redux/constants/actionTypes";
+import { delayShowCbgTracesOnFocus } from "../../../src/redux/actions/thunks";
 
-describe('thunk action creators', () => {
-  const userId = 'a1b2c3';
+describe("thunk action creators", () => {
+  const userId = "a1b2c3";
 
-  describe('delayShowCbgTracesOnFocus', () => {
+  describe("delayShowCbgTracesOnFocus", () => {
     let clock;
     beforeEach(() => {
       clock = sinon.useFakeTimers();
@@ -36,11 +38,11 @@ describe('thunk action creators', () => {
       clock.restore();
     });
 
-    describe('when same cbg slice segment is focused after delay', () => {
-      it('should fire FOCUS_TRENDS_CBG_SLICE then SHOW_CBG_DATE_TRACES after a delay', () => {
-        const sliceData = { id: 'foo' };
+    describe("when same cbg slice segment is focused after delay", () => {
+      it("should fire FOCUS_TRENDS_CBG_SLICE then SHOW_CBG_DATE_TRACES after a delay", () => {
+        const sliceData = { id: "foo" };
         const slicePosition = {};
-        const focusedKeys = ['bar', 'baz'];
+        const focusedKeys = ["bar", "baz"];
         const store = mockStore({
           viz: {
             trends: {
@@ -63,15 +65,15 @@ describe('thunk action creators', () => {
       });
     });
 
-    describe('when original focused cbg slice segment no longer focused after delay', () => {
-      it('should fire FOCUS_TRENDS_CBG_SLICE then SHOW_CBG_DATE_TRACES after a delay', () => {
-        const sliceData = { data: { id: 'foo' } };
+    describe("when original focused cbg slice segment no longer focused after delay", () => {
+      it("should fire FOCUS_TRENDS_CBG_SLICE then SHOW_CBG_DATE_TRACES after a delay", () => {
+        const sliceData = { data: { id: "foo" } };
         const slicePosition = {};
-        const focusedKeys = ['bar', 'baz'];
+        const focusedKeys = ["bar", "baz"];
         const store = mockStore({
           viz: {
             trends: {
-              [userId]: { focusedCbgSlice: sliceData, focusedCbgSliceKeys: ['one', 'two'] },
+              [userId]: { focusedCbgSlice: sliceData, focusedCbgSliceKeys: ["one", "two"] },
             },
           },
         });

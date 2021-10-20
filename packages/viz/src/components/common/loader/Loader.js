@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import i18next from 'i18next';
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import i18next from "i18next";
 
-import styles from './Loader.css';
+import styles from "./Loader.css";
 
 const Loader = (props) => {
   const t = i18next.t.bind(i18next);
@@ -60,7 +60,7 @@ const Loader = (props) => {
 Loader.defaultProps = {
   overlay: false,
   show: true,
-  text: 'Loading...',
+  text: "Loading...",
 };
 
 Loader.propTypes = {

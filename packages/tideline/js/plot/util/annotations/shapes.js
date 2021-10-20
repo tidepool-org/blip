@@ -15,18 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-import bows from 'bows';
+import bows from "bows";
 
-import shapeutil from '../shapeutil';
+import shapeutil from "../shapeutil";
 
-const log = bows('AnnotationShapes');
-function tooltipPolygon(opts) {
-  opts = opts || {};
-  if (!((opts.w != null) && (opts.h != null) && (opts.t != null) && (opts.k != null))) {
-    log.warn('Sorry, I need w, h, t, and k variables to generate a tooltip polygon.');
+const log = bows("AnnotationShapes");
+function tooltipPolygon(opts = {}) {
+  const { w, h, t, k } = opts;
+  if (!(Number.isFinite(w) && Number.isFinite(h) && Number.isFinite(t) && Number.isFinite(k))) {
+    log.warn("Sorry, I need w, h, t, and k variables to generate a tooltip polygon.");
   }
-
-  var w = opts.w, h = opts.h, t = opts.t, k = opts.k;
 
   return shapeutil.pointString(0,0) +
     shapeutil.pointString((t/2), k) +
@@ -34,7 +32,7 @@ function tooltipPolygon(opts) {
     shapeutil.pointString((w-(3/2*t)), (k+h)) +
     shapeutil.pointString((0-(3/2*t)), (k+h)) +
     shapeutil.pointString((0-(3/2*t)), k) +
-    shapeutil.pointString((0-(t/2)), k) + '0,0';
+    shapeutil.pointString((0-(t/2)), k) + "0,0";
 }
 
 export default tooltipPolygon;

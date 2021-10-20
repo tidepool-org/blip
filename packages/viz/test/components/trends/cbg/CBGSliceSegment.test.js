@@ -15,24 +15,26 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import { shallow } from 'enzyme';
+import React from "react";
+import { shallow } from "enzyme";
+import { expect } from "chai";
+import * as sinon from "sinon";
 
 import {
   CBGSliceSegment, mapDispatchToProps, mapStateToProps,
-} from '../../../../src/components/trends/cbg/CBGSliceSegment';
+} from "../../../../src/components/trends/cbg/CBGSliceSegment";
 
-describe('CBGSliceSegment', () => {
+describe("CBGSliceSegment", () => {
   let wrapper;
   const props = {
-    classes: 'foo bar baz',
+    classes: "foo bar baz",
     datum: {
-      id: 'foo',
+      id: "foo",
       msX: 0,
     },
     focusSlice: sinon.spy(),
     interpolated: {
-      key: 'innerQuratiles',
+      key: "innerQuratiles",
       style: {
 
       },
@@ -53,11 +55,11 @@ describe('CBGSliceSegment', () => {
     },
     segment: {
       height: 12,
-      heightKeys: ['firstQuartile', 'thirdQuartile'],
+      heightKeys: ["firstQuartile", "thirdQuartile"],
       y: 60,
     },
     unfocusSlice: sinon.spy(),
-    userId: 'a1b2c3',
+    userId: "a1b2c3",
     width: 20,
     x: 5,
   };
@@ -66,21 +68,21 @@ describe('CBGSliceSegment', () => {
     wrapper = shallow(<CBGSliceSegment {...props} />);
   });
 
-  it('should render a single <rect>', () => {
-    expect(wrapper.find('rect').length).to.equal(1);
+  it("should render a single <rect>", () => {
+    expect(wrapper.find("rect").length).to.equal(1);
   });
 
-  describe('interactions', () => {
+  describe("interactions", () => {
     afterEach(() => {
       props.focusSlice.resetHistory();
       props.unfocusSlice.resetHistory();
     });
 
-    describe('onMouseOver', () => {
-      it('should fire the `focusSlice` function', () => {
-        const rect = wrapper.find('rect');
+    describe("onMouseOver", () => {
+      it("should fire the `focusSlice` function", () => {
+        const rect = wrapper.find("rect");
         expect(props.focusSlice.callCount).to.equal(0);
-        rect.simulate('mouseover');
+        rect.simulate("mouseover");
         expect(props.focusSlice.callCount).to.equal(1);
         expect(props.focusSlice.args[0][0]).to.equal(props.userId);
         expect(props.focusSlice.args[0][1]).to.deep.equal(props.datum);
@@ -89,23 +91,23 @@ describe('CBGSliceSegment', () => {
       });
     });
 
-    describe('onMouseOut', () => {
-      describe('mouse event related target is *not* a cbg circle', () => {
-        it('should fire the `unfocusSlice` function', () => {
-          const rect = wrapper.find('rect');
+    describe("onMouseOut", () => {
+      describe("mouse event related target is *not* a cbg circle", () => {
+        it("should fire the `unfocusSlice` function", () => {
+          const rect = wrapper.find("rect");
           expect(props.unfocusSlice.callCount).to.equal(0);
-          rect.simulate('mouseout', {});
+          rect.simulate("mouseout", {});
           expect(props.unfocusSlice.callCount).to.equal(1);
           expect(props.unfocusSlice.args[0][0]).to.equal(props.userId);
         });
       });
 
-      describe('mouse event related target *is* a cbg circle', () => {
-        it('should NOT fire the `unfocusSlice` function', () => {
-          const rect = wrapper.find('rect');
+      describe("mouse event related target *is* a cbg circle", () => {
+        it("should NOT fire the `unfocusSlice` function", () => {
+          const rect = wrapper.find("rect");
           expect(props.unfocusSlice.callCount).to.equal(0);
-          rect.simulate('mouseout', {
-            relatedTarget: { id: 'cbgCircle-foo-25' },
+          rect.simulate("mouseout", {
+            relatedTarget: { id: "cbgCircle-foo-25" },
           });
           expect(props.unfocusSlice.callCount).to.equal(0);
         });
@@ -113,23 +115,23 @@ describe('CBGSliceSegment', () => {
     });
   });
 
-  describe('mapStateToProps', () => {
+  describe("mapStateToProps", () => {
     const state = {
-      blip: { currentPatientInViewId: 'a1b2c3' },
+      blip: { currentPatientInViewId: "a1b2c3" },
     };
 
-    it('should map blip.currentPatientInViewId to `userId`', () => {
+    it("should map blip.currentPatientInViewId to `userId`", () => {
       expect(mapStateToProps(state).userId).to.equal(state.blip.currentPatientInViewId);
     });
   });
 
-  describe('mapDispatchToProps', () => {
-    it('should return an object with a `focusSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('focusSlice');
+  describe("mapDispatchToProps", () => {
+    it("should return an object with a `focusSlice` key", () => {
+      expect(mapDispatchToProps(sinon.stub())).to.have.property("focusSlice");
     });
 
-    it('should return an object with a `unfocusSlice` key', () => {
-      expect(mapDispatchToProps(sinon.stub())).to.have.property('unfocusSlice');
+    it("should return an object with a `unfocusSlice` key", () => {
+      expect(mapDispatchToProps(sinon.stub())).to.have.property("unfocusSlice");
     });
   });
 });

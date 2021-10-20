@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import sinon from 'sinon';
-import { expect } from 'chai';
-import { mount } from 'enzyme';
-import { MGDL_UNITS } from 'tideline';
+import React from "react";
+import * as sinon from "sinon";
+import { expect } from "chai";
+import { mount } from "enzyme";
+import { MGDL_UNITS } from "tideline";
 
-import PumpSettingsContainer from '../../../../src/components/settings/common/PumpSettingsContainer';
+import PumpSettingsContainer from "../../../../src/components/settings/common/PumpSettingsContainer";
 
-describe('PumpSettingsContainer', () => {
+describe("PumpSettingsContainer", () => {
   const defaultProps = {
     copySettingsClicked: sinon.spy(),
     onSwitchToDaily: sinon.spy(),
@@ -115,7 +115,7 @@ describe('PumpSettingsContainer', () => {
   };
 
   before(async () => {
-    sinon.stub(console, 'error').callsFake(console.log.bind(console));
+    sinon.stub(console, "error").callsFake(console.log.bind(console));
     mountOptions.attachTo = document.getElementById("app");
     if (mountOptions.attachTo === null) {
       mountOptions.attachTo = document.createElement("div");
@@ -143,16 +143,16 @@ describe('PumpSettingsContainer', () => {
     }
   });
 
-  it('should render with no error', () => {
+  it("should render with no error", () => {
     component = mount(<PumpSettingsContainer {...defaultProps } />, mountOptions);
     expect(console.error.callCount).to.equal(0);
-    expect(component.exists('#button-settings-copy-as-text')).to.be.true;
+    expect(component.exists("#button-settings-copy-as-text")).to.be.true;
   });
 
-  it('should call copySettingsClicked() when copy setting is pressed', (done) => {
+  it("should call copySettingsClicked() when copy setting is pressed", (done) => {
     component = mount(<PumpSettingsContainer {...defaultProps } />, mountOptions);
     expect(console.error.callCount).to.equal(0);
-    component.find('#button-settings-copy-as-text').simulate('click');
+    component.find("#button-settings-copy-as-text").simulate("click");
     setTimeout(() => {
       try {
         expect(defaultProps.copySettingsClicked.callCount).to.be.equal(1);

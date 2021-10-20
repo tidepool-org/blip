@@ -15,27 +15,27 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
 
-import Tooltip from '../../common/tooltips/Tooltip';
-import colors from '../../../styles/colors.css';
-import styles from './FoodTooltip.css';
-import i18next from 'i18next';
-import { PRESCRIPTOR_MODIFIED, PRESCRIPTOR_NONE} from '../../../utils/constants';
+import Tooltip from "../../common/tooltips/Tooltip";
+import colors from "../../../styles/colors.css";
+import styles from "./FoodTooltip.css";
+import i18next from "i18next";
+import { PRESCRIPTOR_MODIFIED, PRESCRIPTOR_NONE} from "../../../utils/constants";
 
 class FoodTooltip extends React.Component {
   getCarbs(food) {
-    return _.get(food, 'nutrition.carbohydrate.net', 0);
+    return _.get(food, "nutrition.carbohydrate.net", 0);
   }
 
   getPrescribedCarbs(food) {
-    return _.get(food, 'prescribedNutrition.carbohydrate.net');
+    return _.get(food, "prescribedNutrition.carbohydrate.net");
   }
 
   getPrescriptor(food) {
-    return _.get(food, 'prescriptor');
+    return _.get(food, "prescriptor");
   }
 
   isPrescribed(food) {
@@ -54,18 +54,18 @@ class FoodTooltip extends React.Component {
     if (this.isPrescribed(food) && (prescriptor !== PRESCRIPTOR_NONE) ) {
       const prescribedValue = (prescriptor === PRESCRIPTOR_MODIFIED) ? this.getPrescribedCarbs(food) : this.getCarbs(food);
       rows.push(
-        <div key={'prescribed'} className={styles.prescribed}>
-        <div className={styles.label}>{i18next.t('Recommended')}</div>
-        <div className={styles.value}>
-          {prescribedValue}
+        <div key={"prescribed"} className={styles.prescribed}>
+          <div className={styles.label}>{i18next.t("Recommended")}</div>
+          <div className={styles.value}>
+            {prescribedValue}
+          </div>
+          <div className={styles.units}>g</div>
         </div>
-        <div className={styles.units}>g</div>
-        </div>
-      )
+      );
     }
     rows.push(
-      <div key={'carb'} className={styles.carb}>
-        <div className={styles.label}>{i18next.t('Confirmed')}</div>
+      <div key={"carb"} className={styles.carb}>
+        <div className={styles.label}>{i18next.t("Confirmed")}</div>
         <div className={styles.value}>
           {actualValue}
         </div>
@@ -82,9 +82,9 @@ class FoodTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(food, 'source', 'Diabeloop'),
+        source: _.get(food, "source", "Diabeloop"),
         normalTime: food.normalTime,
-        timezone: _.get(food, 'timezone', 'UTC'),
+        timezone: _.get(food, "timezone", "UTC"),
         timePrefs,
       };
     }
@@ -112,7 +112,7 @@ FoodTooltip.propTypes = {
   }),
   title: PropTypes.node,
   tail: PropTypes.bool.isRequired,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]).isRequired,
   tailColor: PropTypes.string.isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
@@ -138,7 +138,7 @@ FoodTooltip.propTypes = {
 
 FoodTooltip.defaultProps = {
   tail: true,
-  side: 'right',
+  side: "right",
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.rescuecarbs,

@@ -25,7 +25,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import * as React from "react";
+import React from "react";
 import Link from "@material-ui/core/Link";
 
 import config from "./config";

@@ -26,20 +26,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import _ from 'lodash';
-import bows from 'bows';
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import thunkMiddleware from 'redux-thunk';
+import _ from "lodash";
+import bows from "bows";
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import thunkMiddleware from "redux-thunk";
 
-import { reducers as vizReducers } from 'tidepool-viz';
+import { reducers as vizReducers } from "tidepool-viz";
 
 /** Redux action used by viz: Init viz data */
-export const FETCH_PATIENT_DATA_SUCCESS = 'FETCH_PATIENT_DATA_SUCCESS';
+export const FETCH_PATIENT_DATA_SUCCESS = "FETCH_PATIENT_DATA_SUCCESS";
 /** Redux action used by viz: Clean data */
-export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
+export const LOGOUT_REQUEST = "LOGOUT_REQUEST";
 
 
-const log = bows('BlipRedux');
+const log = bows("BlipRedux");
 /** @type {Store} */
 let store = null;
 
@@ -82,7 +82,7 @@ export function cleanStore() {
  */
 export function initStore() {
   if (store === null) {
-    log.info('Init Redux store');
+    log.info("Init Redux store");
     // I love redux
     store = applyMiddleware(thunkMiddleware)(createStore)(combineReducers({ viz: vizReducers, blip: blipReducer }), {
       viz: {

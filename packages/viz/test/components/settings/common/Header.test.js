@@ -15,24 +15,25 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import { shallow } from 'enzyme';
+import React from "react";
+import { shallow } from "enzyme";
+import { expect } from "chai";
 
-import Header from '../../../../src/components/settings/common/Header';
+import Header from "../../../../src/components/settings/common/Header";
 
-describe('Header', () => {
-  it('should expand to show serial number on click of device name', () => {
+describe("Header", () => {
+  it("should expand to show serial number on click of device name", () => {
     const wrapper = shallow(
       <Header
         deviceDisplayName="Testing"
-        deviceMeta={{ name: 'SN123', uploaded: 'Jul 12th 2016' }}
+        deviceMeta={{ name: "SN123", uploaded: "Jul 12th 2016" }}
         printView={false}
       />
     );
     expect(wrapper.state().serialNumberExpanded).to.be.false;
-    wrapper.find('ul').at(0).simulate('click');
+    wrapper.find("ul").at(0).simulate("click");
     expect(wrapper.state().serialNumberExpanded).to.be.true;
-    wrapper.find('ul').at(0).simulate('click');
+    wrapper.find("ul").at(0).simulate("click");
     expect(wrapper.state().serialNumberExpanded).to.be.false;
   });
 });

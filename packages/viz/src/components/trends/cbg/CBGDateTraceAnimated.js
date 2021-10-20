@@ -1,6 +1,3 @@
-import _ from 'lodash';
-import { TweenMax } from 'gsap';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017, Tidepool Project
@@ -18,25 +15,27 @@ import { TweenMax } from 'gsap';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import _ from "lodash";
+import { TweenMax } from "gsap";
 
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import connectWithTransitionGroup from "../../common/connectWithTransitionGroup";
+import { focusTrendsCbgDateTrace, unfocusTrendsCbgDateTrace } from "../../../redux/actions/trends";
+import { classifyBgValue } from "../../../utils/bloodglucose";
 
-import connectWithTransitionGroup from '../../common/connectWithTransitionGroup';
-import { focusTrendsCbgDateTrace, unfocusTrendsCbgDateTrace } from '../../../redux/actions/trends';
-import { classifyBgValue } from '../../../utils/bloodglucose';
+import styles from "./CBGDateTraceAnimated.css";
 
-import styles from './CBGDateTraceAnimated.css';
-
-export class CBGDateTraceAnimated extends PureComponent {
+export class CBGDateTraceAnimated extends React.PureComponent {
   static defaultProps = {
     animationDuration: 0.2,
     cbgRadius: 2.5,
   };
 
   static propTypes = {
+    userId: PropTypes.string.isRequired,
     animationDuration: PropTypes.number.isRequired,
     bgBounds: PropTypes.shape({
       veryHighThreshold: PropTypes.number.isRequired,
@@ -99,7 +98,7 @@ export class CBGDateTraceAnimated extends PureComponent {
       <g id={`cbgDateTrace-${date}`}>
         {_.map(data, (d) => (
           <circle
-            className={styles[classifyBgValue(bgBounds, d.value, 'fiveWay')]}
+            className={styles[classifyBgValue(bgBounds, d.value, "fiveWay")]}
             cx={xScale(d.msPer24)}
             cy={yScale(d.value)}
             id={`cbgCircle-${d.id}`}

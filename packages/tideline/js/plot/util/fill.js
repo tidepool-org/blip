@@ -20,23 +20,23 @@
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
 const defaults = {
   classes: {
-    0: 'darkest',
-    3: 'dark',
-    6: 'lighter',
-    9: 'light',
-    12: 'lightest',
-    15: 'lighter',
-    18: 'dark',
-    21: 'darker'
+    0: "darkest",
+    3: "dark",
+    6: "lighter",
+    9: "light",
+    12: "lightest",
+    15: "lighter",
+    18: "dark",
+    21: "darker"
   },
   duration: 3,
   midnightWidth: 3,
   gutter: 0,
-  fillClass: '',
+  fillClass: "",
   isDaily: false,
   /** @type {ScaleContinuousNumeric} */
   xScale: null,
@@ -58,7 +58,7 @@ function drawFill(pool, opts = defaults) {
 
     // fillClass is used to control opacity of weekend day pools in two-week view
     if(opts.fillClass) {
-      selection.attr('class', opts.fillClass);
+      selection.attr("class", opts.fillClass);
     }
 
     if (opts.guidelines) {
@@ -68,16 +68,16 @@ function drawFill(pool, opts = defaults) {
     selection.each(function(currentData) {
       currentData.reverse();
 
-      var fills = selection.selectAll('rect.d3-fill')
+      var fills = selection.selectAll("rect.d3-fill")
         .data(currentData, function(d) {
           return d.id;
         });
 
 
       fills.enter()
-        .append('rect')
+        .append("rect")
         .attr({
-          cursor: opts.cursor ? opts.cursor : 'auto',
+          cursor: opts.cursor ? opts.cursor : "auto",
           x: function(d, i) {
             // dataGutter is the extra space on the right & left edges
             // of each "pool" in weekly view
@@ -92,9 +92,8 @@ function drawFill(pool, opts = defaults) {
             if (opts.gutter.top) {
               return opts.gutter.top;
             }
-            else {
-              return opts.gutter;
-            }
+
+            return opts.gutter;
           },
           width: function(d, i) {
             // dataGutter is the extra space on the right & left edges
@@ -110,22 +109,22 @@ function drawFill(pool, opts = defaults) {
             if (opts.gutter.top) {
               return pool.height() - opts.gutter.top - opts.gutter.bottom;
             }
-            else {
-              return pool.height() - 2 * opts.gutter;
-            }
+
+            return pool.height() - 2 * opts.gutter;
+
           },
           id: function(d) {
             return d.id;
           },
-          'class': function(d) {
-            return 'd3-fill d3-rect-fill d3-fill-' + d.fillColor;
+          class: function(d) {
+            return "d3-fill d3-rect-fill d3-fill-" + d.fillColor;
           }
         })
-        .on('click', function(fillRect) {
+        .on("click", function(fillRect) {
           if (opts.emitter) {
-            const parentContainer = document.getElementById('tidelineMain').getBoundingClientRect();
+            const parentContainer = document.getElementById("tidelineMain").getBoundingClientRect();
             const offsetX = d3.event.clientX - parentContainer.left;
-            opts.emitter.emit('clickInPool', { offsetX, datum: fillRect });
+            opts.emitter.emit("clickInPool", { offsetX, datum: fillRect });
           }
         });
 
@@ -133,40 +132,40 @@ function drawFill(pool, opts = defaults) {
 
       // Add midnight markers
       if (opts.isDaily) {
-        selection.selectAll('rect.d3-fill-midnight')
-        .data(_.filter(currentData, {startsAtMidnight: true}), function(d) {
-          return d.id;
-        })
-        .enter()
-        .append('rect')
-        .attr({
-          x: function(d) {
-            var pos;
-            pos = fill.xPosition(d);
-            return pos - (opts.midnightWidth/2);
-          },
-          y: function() {
-            if (opts.gutter.top) {
-              return opts.gutter.top;
-            }
-            else {
-              return opts.gutter;
-            }
-          },
-          width: opts.midnightWidth,
-          height: function() {
-            if (opts.gutter.top) {
-              return pool.height() - opts.gutter.top - opts.gutter.bottom;
-            }
-            else {
-              return pool.height() - 2 * opts.gutter;
-            }
-          },
-          id: function(d) {
+        selection.selectAll("rect.d3-fill-midnight")
+          .data(_.filter(currentData, {startsAtMidnight: true}), function(d) {
             return d.id;
-          },
-          'class': 'd3-fill d3-rect-fill d3-fill-midnight',
-        });
+          })
+          .enter()
+          .append("rect")
+          .attr({
+            x: function(d) {
+              var pos;
+              pos = fill.xPosition(d);
+              return pos - (opts.midnightWidth/2);
+            },
+            y: function() {
+              if (opts.gutter.top) {
+                return opts.gutter.top;
+              }
+
+              return opts.gutter;
+
+            },
+            width: opts.midnightWidth,
+            height: function() {
+              if (opts.gutter.top) {
+                return pool.height() - opts.gutter.top - opts.gutter.bottom;
+              }
+
+              return pool.height() - 2 * opts.gutter;
+
+            },
+            id: function(d) {
+              return d.id;
+            },
+            class: "d3-fill d3-rect-fill d3-fill-midnight",
+          });
       }
     });
   }
@@ -181,14 +180,14 @@ function drawFill(pool, opts = defaults) {
 
   fill.drawGuidelines = function() {
     const yScale = pool.yScale();
-    var linesGroup = pool.group().selectAll('#' + pool.id() + '_guidelines').data([opts.guidelines]);
-    linesGroup.enter().append('g').attr('id', pool.id() + '_guidelines');
-    linesGroup.selectAll('line')
+    var linesGroup = pool.group().selectAll("#" + pool.id() + "_guidelines").data([opts.guidelines]);
+    linesGroup.enter().append("g").attr("id", pool.id() + "_guidelines");
+    linesGroup.selectAll("line")
       .data(opts.guidelines)
       .enter()
-      .append('line')
+      .append("line")
       .attr({
-        'class': function(d) { return 'd3-line-guide ' + d['class']; },
+        class: function(d) { return "d3-line-guide " + d["class"]; },
         x1: opts.xScale.range()[0],
         x2: opts.xScale.range()[1],
         y1: (d) => yScale(d.height),

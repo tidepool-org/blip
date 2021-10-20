@@ -16,17 +16,17 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import moment from 'moment-timezone';
+import _ from "lodash";
+import moment from "moment-timezone";
 
-import { MS_IN_DAY } from './constants';
+import { MS_IN_DAY } from "./constants";
 
 const datetime = {
-  APPEND: 'T00:00:00.000Z',
+  APPEND: "T00:00:00.000Z",
 
   addDays: function(s, n) {
     var d = moment.utc(s);
-    d.add(n, 'days');
+    d.add(n, "days");
     return d.toISOString();
   },
 
@@ -48,9 +48,8 @@ const datetime = {
     else if (end > thisTypeEnd) {
       return [start, thisTypeEnd];
     }
-    else {
-      return [start, end];
-    }
+
+    return [start, end];
   },
 
   applyOffset: function(d, offset) {
@@ -66,32 +65,28 @@ const datetime = {
     if ((d.valueOf() >= start.valueOf()) && (d.valueOf() <= end.valueOf())) {
       return true;
     }
-    else {
-      return false;
-    }
+
+    return false;
   },
 
   checkIfUTCDate: function(s) {
     var d = new Date(s);
-    if (typeof s === 'number') {
+    if (typeof s === "number") {
       if (d.getUTCFullYear() < 2008) {
         return false;
       }
-      else {
-        return true;
-      }
+
+      return true;
     }
-    else if (s.slice(s.length - 1, s.length) !== 'Z') {
+    else if (s.slice(s.length - 1, s.length) !== "Z") {
       return false;
     }
-    else {
-      if (s === d.toISOString()) {
-        return true;
-      }
-      else {
-        return false;
-      }
+
+    if (s === d.toISOString()) {
+      return true;
     }
+
+    return false;
   },
 
   composeMsAndDateString: function(ms, d) {
@@ -102,30 +97,30 @@ const datetime = {
     return new Date(d2) - new Date(d1);
   },
 
-  findBasicsDays: function(/** @type {string[]} */ range, timezone = 'UTC') {
+  findBasicsDays: function(/** @type {string[]} */ range, timezone = "UTC") {
     const currentDate = moment.utc(range[0]).tz(timezone);
     const dateOfUpload = moment.utc(range[1]).tz(timezone);
-    const endOfWeek = moment.utc(dateOfUpload).tz(timezone).endOf('isoWeek');
+    const endOfWeek = moment.utc(dateOfUpload).tz(timezone).endOf("isoWeek");
 
     const days = [];
     while (currentDate.isBefore(endOfWeek)) {
-      const date = currentDate.format('YYYY-MM-DD');
-      const dateObj = { date, type: 'past' };
-      if (currentDate.isSame(dateOfUpload, 'day')) {
-        dateObj.type = 'mostRecent';
-      } else if (currentDate.isAfter(dateOfUpload, 'day')) {
-        dateObj.type = 'future';
+      const date = currentDate.format("YYYY-MM-DD");
+      const dateObj = { date, type: "past" };
+      if (currentDate.isSame(dateOfUpload, "day")) {
+        dateObj.type = "mostRecent";
+      } else if (currentDate.isAfter(dateOfUpload, "day")) {
+        dateObj.type = "future";
       }
       days.push(dateObj);
-      currentDate.add(1, 'day');
+      currentDate.add(1, "day");
     }
     return days;
   },
 
-  findBasicsStart: function(/** @type {string} */ timestamp, timezone = 'UTC') {
+  findBasicsStart: function(/** @type {string} */ timestamp, timezone = "UTC") {
     return moment.utc(timestamp).tz(timezone)
-      .startOf('isoWeek')
-      .subtract(14, 'days')
+      .startOf("isoWeek")
+      .subtract(14, "days")
       .toDate().toISOString();
   },
 
@@ -138,12 +133,12 @@ const datetime = {
   },
 
   getLocalDate: function(d, timezoneName) {
-    timezoneName = timezoneName || 'UTC';
-    return moment.utc(d).tz(timezoneName).format('YYYY-MM-DD');
+    timezoneName = timezoneName || "UTC";
+    return moment.utc(d).tz(timezoneName).format("YYYY-MM-DD");
   },
 
   getLocalDayOfWeek: function(d, timezoneName) {
-    timezoneName = timezoneName || 'UTC';
+    timezoneName = timezoneName || "UTC";
     return this.weekdayLookup(moment.utc(d).tz(timezoneName).day());
   },
 
@@ -151,9 +146,8 @@ const datetime = {
     if (next) {
       return this.getMidnight(this.addDays(d, 1));
     }
-    else {
-      return this.toISODateString(d) + this.APPEND;
-    }
+
+    return this.toISODateString(d) + this.APPEND;
   },
 
   /**
@@ -176,7 +170,7 @@ const datetime = {
   // but I don't want to take the time right now to consolidate them
   // and make sure all uses of former are covered by latter
   getMsPer24: function(d, timezoneName) {
-    timezoneName = timezoneName || 'UTC';
+    timezoneName = timezoneName || "UTC";
     var localized = moment.utc(d).tz(timezoneName);
     var hrsToMs = localized.hours() * 1000 * 60 * 60;
     var minToMs = localized.minutes() * 1000 * 60;
@@ -195,24 +189,23 @@ const datetime = {
   },
 
   getUTCOfLocalPriorMidnight: function(d, timezoneName) {
-    timezoneName = timezoneName || 'UTC';
+    timezoneName = timezoneName || "UTC";
     var local = moment.utc(d).tz(timezoneName);
-    return local.startOf('day').toDate().toISOString();
+    return local.startOf("day").toDate().toISOString();
   },
 
   getUTCOfLocalNextMidnight: function(d, timezoneName) {
-    timezoneName = timezoneName || 'UTC';
+    timezoneName = timezoneName || "UTC";
     var local = moment.utc(d).tz(timezoneName);
-    return new Date(local.endOf('day').valueOf() + 1).toISOString();
+    return new Date(local.endOf("day").valueOf() + 1).toISOString();
   },
 
   isATimestamp: function(s) {
-    if (isNaN(Date.parse(s))) {
+    if (Number.isNaN(Date.parse(s))) {
       return false;
     }
-    else {
-      return true;
-    }
+
+    return true;
   },
 
   isLessThanTwentyFourHours: function(s, e) {
@@ -220,7 +213,7 @@ const datetime = {
     if (end - start < MS_IN_DAY) {
       return true;
     }
-    else { return false; }
+    return false;
   },
 
   isNearRightEdge: function(d, edge) {
@@ -238,17 +231,15 @@ const datetime = {
     if (startDate === endDate) {
       return false;
     }
-    else {
-      if (end.getUTCDate() === start.getUTCDate() + 1) {
-        if (this.getMidnight(e) === e) {
-          return false;
-        }
-        return true;
-      }
-      else {
+
+    if (end.getUTCDate() === start.getUTCDate() + 1) {
+      if (this.getMidnight(e) === e) {
         return false;
       }
+      return true;
     }
+
+    return false;
   },
 
   isTwentyFourHours: function(s, e) {
@@ -256,7 +247,7 @@ const datetime = {
     if (end - start === MS_IN_DAY) {
       return true;
     }
-    else { return false; }
+    return false;
   },
 
   roundToNearestMinutes: function(d, resolution) {
@@ -289,14 +280,12 @@ const datetime = {
   smbgEdge: function(d, offset) {
     var date = offset ? new Date(this.applyOffset(d, offset)) : new Date(d);
     if (date.getUTCHours() <= 2) {
-      return 'left';
+      return "left";
+    } else if (date.getUTCHours() >= 21) {
+      return "right";
     }
-    else if (date.getUTCHours() >= 21) {
-      return 'right';
-    }
-    else {
-      return null;
-    }
+
+    return null;
   },
 
   verifyEndpoints: function(s, e, endpoints) {
@@ -310,28 +299,26 @@ const datetime = {
       if (this.checkIfDateInRange(s, endpoints) && this.checkIfDateInRange(e, endpoints)) {
         return true;
       }
-      else {
-        return false;
-      }
-    }
-    else {
+
       return false;
     }
+
+    return false;
   },
 
   weekdayLookup: function(n) {
     if (n < 0 || n > 6) {
-      console.error('weekdayLookup: invalid day', n);
+      console.error("weekdayLookup: invalid day", n);
       return null;
     }
     var weekdays = {
-      0: 'sunday',
-      1: 'monday',
-      2: 'tuesday',
-      3: 'wednesday',
-      4: 'thursday',
-      5: 'friday',
-      6: 'saturday'
+      0: "sunday",
+      1: "monday",
+      2: "tuesday",
+      3: "wednesday",
+      4: "thursday",
+      5: "friday",
+      6: "saturday"
     };
     return weekdays[n];
   },

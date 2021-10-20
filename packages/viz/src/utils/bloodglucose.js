@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import { MS_IN_MIN } from './constants';
+import { MS_IN_MIN } from "./constants";
 
-import { formatBgValue } from './format.js';
+import { formatBgValue } from "./format.js";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 const t = i18next.t.bind(i18next);
 
 /**
@@ -32,36 +32,36 @@ const t = i18next.t.bind(i18next);
  *
  * @return {String} bgClassification - low, target, high
  */
-export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWay') {
+export function classifyBgValue(bgBounds, bgValue, classificationType = "threeWay") {
   if (_.isEmpty(bgBounds) ||
-  !_.isNumber(_.get(bgBounds, 'targetLowerBound')) ||
-  !_.isNumber(_.get(bgBounds, 'targetUpperBound'))) {
+  !_.isNumber(_.get(bgBounds, "targetLowerBound")) ||
+  !_.isNumber(_.get(bgBounds, "targetUpperBound"))) {
     throw new Error(
-      'You must provide a `bgBounds` object with a `targetLowerBound` and a `targetUpperBound`!'
+      "You must provide a `bgBounds` object with a `targetLowerBound` and a `targetUpperBound`!"
     );
   }
   if (!_.isNumber(bgValue) || !_.gt(bgValue, 0)) {
-    throw new Error('You must provide a positive, numerical blood glucose value to categorize!');
+    throw new Error("You must provide a positive, numerical blood glucose value to categorize!");
   }
   const { veryLowThreshold, targetLowerBound, targetUpperBound, veryHighThreshold } = bgBounds;
-  if (classificationType === 'fiveWay') {
+  if (classificationType === "fiveWay") {
     if (bgValue < veryLowThreshold) {
-      return 'veryLow';
+      return "veryLow";
     } else if (bgValue >= veryLowThreshold && bgValue < targetLowerBound) {
-      return 'low';
+      return "low";
     } else if (bgValue > targetUpperBound && bgValue <= veryHighThreshold) {
-      return 'high';
+      return "high";
     } else if (bgValue > veryHighThreshold) {
-      return 'veryHigh';
+      return "veryHigh";
     }
-    return 'target';
+    return "target";
   }
   if (bgValue < targetLowerBound) {
-    return 'low';
+    return "low";
   } else if (bgValue > targetUpperBound) {
-    return 'high';
+    return "high";
   }
-  return 'target';
+  return "target";
 }
 
 /**
@@ -71,10 +71,9 @@ export function classifyBgValue(bgBounds, bgValue, classificationType = 'threeWa
  */
 export function classifyCvValue(value) {
   if (value <= 36) {
-    return 'target';
-  } else {
-    return 'high';
+    return "target";
   }
+  return "high";
 }
 
 /**
@@ -89,7 +88,7 @@ export function reshapeBgClassesToBgBounds(bgPrefs) {
     veryHighThreshold: bgClasses.high.boundary,
     targetUpperBound: bgClasses.target.boundary,
     targetLowerBound: bgClasses.low.boundary,
-    veryLowThreshold: bgClasses['very-low'].boundary,
+    veryLowThreshold: bgClasses["very-low"].boundary,
   };
 
   return bgBounds;
@@ -117,11 +116,11 @@ export function generateBgRangeLabels(bgPrefs, opts = {}) {
   }
 
   return {
-    veryLow: t('below {{value}} {{- units}}', { value: thresholds.veryLowThreshold, units: bgUnits }),
-    low: t('between {{low}} - {{high}} {{- units}}', { low: thresholds.veryLowThreshold, high: thresholds.targetLowerBound, units: bgUnits }),
-    target: t('between {{low}} - {{high}} {{- units}}', { low: thresholds.targetLowerBound, high: thresholds.targetUpperBound, units: bgUnits }),
-    high: t('between {{low}} - {{high}} {{- units}}', { low: thresholds.targetUpperBound, high: thresholds.veryHighThreshold, units: bgUnits }),
-    veryHigh: t('above {{value}} {{- units}}', { value: thresholds.veryHighThreshold, units: bgUnits }),
+    veryLow: t("below {{value}} {{- units}}", { value: thresholds.veryLowThreshold, units: bgUnits }),
+    low: t("between {{low}} - {{high}} {{- units}}", { low: thresholds.veryLowThreshold, high: thresholds.targetLowerBound, units: bgUnits }),
+    target: t("between {{low}} - {{high}} {{- units}}", { low: thresholds.targetLowerBound, high: thresholds.targetUpperBound, units: bgUnits }),
+    high: t("between {{low}} - {{high}} {{- units}}", { low: thresholds.targetUpperBound, high: thresholds.veryHighThreshold, units: bgUnits }),
+    veryHigh: t("above {{value}} {{- units}}", { value: thresholds.veryHighThreshold, units: bgUnits }),
   };
 }
 
@@ -132,7 +131,7 @@ export function generateBgRangeLabels(bgPrefs, opts = {}) {
  */
 export function getOutOfRangeThreshold(bgDatum) {
   const outOfRangeAnnotation = _.find(
-    bgDatum.annotations || [], (annotation) => (annotation.code === 'bg/out-of-range')
+    bgDatum.annotations || [], (annotation) => (annotation.code === "bg/out-of-range")
   );
   return outOfRangeAnnotation ?
     { [outOfRangeAnnotation.value]: outOfRangeAnnotation.threshold } : null;
@@ -148,13 +147,13 @@ export function getOutOfRangeThreshold(bgDatum) {
 export function weightedCGMCount(data) {
   return _.reduce(data, (total, datum) => {
     let datumWeight = 1;
-    const deviceId = _.get(datum, 'deviceId', '');
+    const deviceId = _.get(datum, "deviceId", "");
 
     // Because our decision as to whether or not there's enough cgm data to warrant using
     // it to calculate average BGs is based on the expected number of readings in a day,
     // we need to adjust the weight of a for the Freestyle Libre datum, as it only
     // collects BG samples every 15 minutes as opposed the default 5 minutes from dexcom.
-    if (datum.type === 'cbg' && deviceId.indexOf('AbbottFreeStyleLibre') === 0) {
+    if (datum.type === "cbg" && deviceId.indexOf("AbbottFreeStyleLibre") === 0) {
       datumWeight = 3;
     }
 
@@ -169,6 +168,6 @@ export function weightedCGMCount(data) {
  * @param {Array} datum - a cgm data point
  */
 export function cgmSampleFrequency(datum) {
-  const deviceId = _.get(datum, 'deviceId', '');
-  return deviceId.indexOf('AbbottFreeStyleLibre') === 0 ? 15 * MS_IN_MIN : 5 * MS_IN_MIN;
+  const deviceId = _.get(datum, "deviceId", "");
+  return deviceId.indexOf("AbbottFreeStyleLibre") === 0 ? 15 * MS_IN_MIN : 5 * MS_IN_MIN;
 }

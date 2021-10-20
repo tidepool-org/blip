@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { Theme, makeStyles } from "@material-ui/core/styles";
@@ -56,7 +56,7 @@ export interface PatientListBarProps {
 const pageBarStyles = makeStyles((theme: Theme) => {
   return {
     toolBarLeft: {
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         order: 1,
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
@@ -67,14 +67,14 @@ const pageBarStyles = makeStyles((theme: Theme) => {
       flexDirection: "row",
       marginRight: "auto",
       marginLeft: "auto",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         width: "50%",
         order: 3,
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
         marginRight: theme.spacing(2),
       },
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         width: "100%",
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
@@ -82,11 +82,11 @@ const pageBarStyles = makeStyles((theme: Theme) => {
     },
     toolBarRight: {
       display: "flex",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         order: 2,
         marginLeft: "auto",
       },
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
       },
@@ -106,7 +106,7 @@ const pageBarStyles = makeStyles((theme: Theme) => {
       display: "none", // For now caregivers can't invite a patient
     },
     buttonAddPatientText: {
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down("xs")]: {
         display: "none",
       },
     },

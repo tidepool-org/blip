@@ -15,37 +15,37 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import React from 'react';
+import _ from "lodash";
+import React from "react";
+import { expect } from "chai";
+import { shallow } from "enzyme";
 
-import { shallow } from 'enzyme';
+import { THREE_HRS } from "../../../../src/utils/datetime";
 
-import { THREE_HRS } from '../../../../src/utils/datetime';
-
-import bgBounds from '../../../helpers/bgBounds';
-import * as scales from '../../../helpers/scales';
+import bgBounds from "../../../helpers/bgBounds";
+import * as scales from "../../../helpers/scales";
 const {
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
 
-import SMBGDateLineAnimated from '../../../../src/components/trends/smbg/SMBGDateLineAnimated';
-import SMBGDatePointsAnimated from '../../../../src/components/trends/smbg/SMBGDatePointsAnimated';
+import SMBGDateLineAnimated from "../../../../src/components/trends/smbg/SMBGDateLineAnimated";
+import SMBGDatePointsAnimated from "../../../../src/components/trends/smbg/SMBGDatePointsAnimated";
 
 import SMBGsByDateContainer
-  from '../../../../src/components/trends/smbg/SMBGsByDateContainer';
+  from "../../../../src/components/trends/smbg/SMBGsByDateContainer";
 
-describe('SMBGsByDateContainer', () => {
+describe("SMBGsByDateContainer", () => {
   let wrapper;
 
   const props = {
     bgBounds,
     data: [
-      { id: '0', value: 120, msPer24: 0, localDate: '2016-08-28' },
-      { id: '1', value: 90, msPer24: 9000000, localDate: '2016-08-28' },
-      { id: '2', value: 180, msPer24: 21600000, localDate: '2016-08-28' },
+      { id: "0", value: 120, msPer24: 0, localDate: "2016-08-28" },
+      { id: "1", value: 90, msPer24: 9000000, localDate: "2016-08-28" },
+      { id: "2", value: 180, msPer24: 21600000, localDate: "2016-08-28" },
     ],
-    dates: ['2016-08-28'],
+    dates: ["2016-08-28"],
     focusedSmbg: {},
     grouped: true,
     lines: true,
@@ -62,28 +62,28 @@ describe('SMBGsByDateContainer', () => {
     wrapper = shallow(<SMBGsByDateContainer {...props} />);
   });
 
-  describe('when data is provided', () => {
-    it('should render an SMBGLineAnimated for each date in dates', () => {
+  describe("when data is provided", () => {
+    it("should render an SMBGLineAnimated for each date in dates", () => {
       expect(wrapper.find(SMBGDateLineAnimated).length).to.equal(props.dates.length);
     });
 
-    it('should render an SMBGDatePointsAnimated for each date in dates', () => {
+    it("should render an SMBGDatePointsAnimated for each date in dates", () => {
       expect(wrapper.find(SMBGDatePointsAnimated).length).to.equal(props.dates.length);
     });
   });
 
-  describe('when no data is provided', () => {
+  describe("when no data is provided", () => {
     let noDataWrapper;
     before(() => {
       const noDataProps = _.assign({}, props, { data: [] });
       noDataWrapper = shallow(<SMBGsByDateContainer {...noDataProps} />);
     });
 
-    it('should (still) render an SMBGLineAnimated for each date in dates', () => {
+    it("should (still) render an SMBGLineAnimated for each date in dates", () => {
       expect(noDataWrapper.find(SMBGDateLineAnimated).length).to.equal(props.dates.length);
     });
 
-    it('should (still) render an SMBGDatePointsAnimated for each date in dates', () => {
+    it("should (still) render an SMBGDatePointsAnimated for each date in dates", () => {
       expect(noDataWrapper.find(SMBGDatePointsAnimated).length).to.equal(props.dates.length);
     });
   });

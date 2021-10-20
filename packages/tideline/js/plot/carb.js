@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import utils from './util/utils';
+import utils from "./util/utils";
 
 function plotCarb(pool, opts) {
   const d3 = window.d3;
@@ -37,55 +37,55 @@ function plotCarb(pool, opts) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       var filteredData = _.filter(currentData, (data) => {
-        return _.get(data, 'nutrition.carbohydrate.net', false);
+        return _.get(data, "nutrition.carbohydrate.net", false);
       });
       var allCarbs = d3
         .select(this)
-        .selectAll('circle.d3-carbs-only')
+        .selectAll("circle.d3-carbs-only")
         .data(filteredData, function(d) {
           return d.id;
         });
       var carbGroup = allCarbs.enter()
-        .append('g')
+        .append("g")
         .attr({
-          'class': 'd3-carb-group',
+          class: "d3-carb-group",
           id: function(d) {
-            return 'carb_group_' + d.id;
+            return "carb_group_" + d.id;
           }
         });
 
-      carbGroup.append('circle').attr({
-        cx: xPos,
-        cy: yPos,
-        r: function(d) {
+      carbGroup.append("circle").attr({
+        "cx": xPos,
+        "cy": yPos,
+        "r": function(/* d */) {
           return opts.r;
         },
-        'stroke-width': 0,
-        class: 'd3-circle-rescuecarbs',
-        id: (d) => `carbs_circle_${d.id}`,
+        "stroke-width": 0,
+        "class": "d3-circle-rescuecarbs",
+        "id": (d) => `carbs_circle_${d.id}`,
       });
 
       carbGroup
-        .append('text')
+        .append("text")
         .text(function(d) {
           return d.nutrition.carbohydrate.net;
         })
         .attr({
           x: xPos,
           y: yPos,
-          class: 'd3-carbs-text',
+          class: "d3-carbs-text",
           id: (d) => `carbs_text_${d.id}`,
         });
 
       allCarbs.exit().remove();
 
       // tooltips
-      selection.selectAll('.d3-carb-group').on('mouseover', function() {
+      selection.selectAll(".d3-carb-group").on("mouseover", function() {
         carb.addTooltip(d3.select(this).datum(), utils.getTooltipContainer(this));
       });
 
-      selection.selectAll('.d3-carb-group').on('mouseout', function() {
-        if (_.get(opts, 'onCarbOut', false)) {
+      selection.selectAll(".d3-carb-group").on("mouseout", function() {
+        if (_.get(opts, "onCarbOut", false)) {
           opts.onCarbOut();
         }
       });
@@ -93,7 +93,7 @@ function plotCarb(pool, opts) {
   }
 
   carb.addTooltip = function(d, rect) {
-    if (_.get(opts, 'onCarbHover', false)) {
+    if (_.get(opts, "onCarbHover", false)) {
       opts.onCarbHover({
         data: d,
         rect: rect

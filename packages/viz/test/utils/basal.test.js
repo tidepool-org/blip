@@ -17,27 +17,29 @@
 
 /* eslint-disable max-len */
 
-import _ from 'lodash';
-import * as basals from '../../data/basal/fixtures';
-import * as basalUtils from '../../src/utils/basal';
-import { Basal } from '../../data/types';
-import { addDuration } from '../../src/utils/datetime';
+import _ from "lodash";
+import { assert, expect } from "chai";
+
+import * as basals from "../../data/basal/fixtures";
+import * as basalUtils from "../../src/utils/basal";
+import { Basal } from "../../data/types";
+import { addDuration } from "../../src/utils/datetime";
 
 const MS_IN_HOUR = 3600000;
 const MS_IN_DAY = 86400000;
 
-describe('basal utilties', () => {
-  describe('getBasalSequences', () => {
-    it('should be a function', () => {
+describe("basal utilties", () => {
+  describe("getBasalSequences", () => {
+    it("should be a function", () => {
       assert.isFunction(basalUtils.getBasalSequences);
     });
 
-    it('should return one sequence for scheduled flat-rate basals across midnight', () => {
+    it("should return one sequence for scheduled flat-rate basals across midnight", () => {
       expect(basalUtils.getBasalSequences(basals.scheduledFlat))
         .to.deep.equal([basals.scheduledFlat]);
     });
 
-    it('should return one sequence for uninterrupted scheduled basals', () => {
+    it("should return one sequence for uninterrupted scheduled basals", () => {
       expect(basalUtils.getBasalSequences(basals.scheduledNonFlat))
         .to.deep.equal([basals.scheduledNonFlat]);
     });
@@ -64,77 +66,77 @@ describe('basal utilties', () => {
     });
   });
 
-  describe('getBasalPathGroupType', () => {
-    it('should be a function', () => {
+  describe("getBasalPathGroupType", () => {
+    it("should be a function", () => {
       assert.isFunction(basalUtils.getBasalPathGroupType);
     });
 
-    it('should return the path group type `automated` for an automated basal', () => {
-      expect(basalUtils.getBasalPathGroupType({ subType: 'automated' })).to.equal('automated');
+    it("should return the path group type `automated` for an automated basal", () => {
+      expect(basalUtils.getBasalPathGroupType({ subType: "automated" })).to.equal("automated");
     });
 
-    it('should return the path group type `manual` for a non-automated basal', () => {
-      expect(basalUtils.getBasalPathGroupType({ subType: 'scheduled' })).to.equal('manual');
-      expect(basalUtils.getBasalPathGroupType({ subType: 'temp' })).to.equal('manual');
-      expect(basalUtils.getBasalPathGroupType({ subType: 'suspend' })).to.equal('manual');
+    it("should return the path group type `manual` for a non-automated basal", () => {
+      expect(basalUtils.getBasalPathGroupType({ subType: "scheduled" })).to.equal("manual");
+      expect(basalUtils.getBasalPathGroupType({ subType: "temp" })).to.equal("manual");
+      expect(basalUtils.getBasalPathGroupType({ subType: "suspend" })).to.equal("manual");
     });
 
-    it('should work with old `deliveryType` basal prop if `subType` is not set', () => {
-      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'scheduled' })).to.equal('manual');
-      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'automated' })).to.equal('automated');
+    it("should work with old `deliveryType` basal prop if `subType` is not set", () => {
+      expect(basalUtils.getBasalPathGroupType({ deliveryType: "scheduled" })).to.equal("manual");
+      expect(basalUtils.getBasalPathGroupType({ deliveryType: "automated" })).to.equal("automated");
       expect(basalUtils.getBasalPathGroupType({
-        subType: 'automated',
-        deliveryType: 'scheduled',
-      })).to.equal('automated');
+        subType: "automated",
+        deliveryType: "scheduled",
+      })).to.equal("automated");
     });
 
-    it('should return the path group type `regular` for a suspend suppressing non-automated delivery', () => {
-      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { subType: 'scheduled' } })).to.equal('manual');
-      expect(basalUtils.getBasalPathGroupType({ subType: 'suspend', suppressed: { deliveryType: 'temp' } })).to.equal('manual');
+    it("should return the path group type `regular` for a suspend suppressing non-automated delivery", () => {
+      expect(basalUtils.getBasalPathGroupType({ deliveryType: "suspend", suppressed: { subType: "scheduled" } })).to.equal("manual");
+      expect(basalUtils.getBasalPathGroupType({ subType: "suspend", suppressed: { deliveryType: "temp" } })).to.equal("manual");
     });
 
-    it('should return the path group type `automated` for a suspend suppressing automated delivery', () => {
-      expect(basalUtils.getBasalPathGroupType({ deliveryType: 'suspend', suppressed: { subType: 'automated' } })).to.equal('automated');
-      expect(basalUtils.getBasalPathGroupType({ subType: 'suspend', suppressed: { deliveryType: 'automated' } })).to.equal('automated');
+    it("should return the path group type `automated` for a suspend suppressing automated delivery", () => {
+      expect(basalUtils.getBasalPathGroupType({ deliveryType: "suspend", suppressed: { subType: "automated" } })).to.equal("automated");
+      expect(basalUtils.getBasalPathGroupType({ subType: "suspend", suppressed: { deliveryType: "automated" } })).to.equal("automated");
     });
   });
 
-  describe('getBasalPathGroups', () => {
-    it('should be a function', () => {
+  describe("getBasalPathGroups", () => {
+    it("should be a function", () => {
       assert.isFunction(basalUtils.getBasalPathGroups);
     });
 
-    it('should return an array of groupings of automated and manual data', () => {
+    it("should return an array of groupings of automated and manual data", () => {
       const mixedBasals = basals.automatedAndScheduled;
       const result = basalUtils.getBasalPathGroups(mixedBasals);
-      expect(result).to.be.an('array');
+      expect(result).to.be.an("array");
       expect(result.length).to.equal(3);
 
-      _.each(result, (group, groupIndex) => {
-        expect(group).to.be.an('array');
+      _.forEach(result, (group, groupIndex) => {
+        expect(group).to.be.an("array");
 
-        const expectedSubType = groupIndex === 1 ? 'scheduled' : 'automated';
-        _.each(group, datum => {
+        const expectedSubType = groupIndex === 1 ? "scheduled" : "automated";
+        _.forEach(group, datum => {
           expect(datum.subType).to.equal(expectedSubType);
         });
       });
     });
   });
 
-  describe('getEndpoints', () => {
+  describe("getEndpoints", () => {
     const sixHours = MS_IN_HOUR * 6;
     let data;
 
     beforeEach(() => {
       data = [
-        new Basal({ deviceTime: '2018-01-01T00:00:00', duration: sixHours }),
-        new Basal({ deviceTime: '2018-01-01T06:00:00', duration: sixHours }),
-        new Basal({ deviceTime: '2018-01-01T12:00:00', duration: sixHours }),
-        new Basal({ deviceTime: '2018-01-01T18:00:00', duration: sixHours }),
+        new Basal({ deviceTime: "2018-01-01T00:00:00", duration: sixHours }),
+        new Basal({ deviceTime: "2018-01-01T06:00:00", duration: sixHours }),
+        new Basal({ deviceTime: "2018-01-01T12:00:00", duration: sixHours }),
+        new Basal({ deviceTime: "2018-01-01T18:00:00", duration: sixHours }),
       ];
     });
 
-    it('should return an endpoints object given a start and end time', () => {
+    it("should return an endpoints object given a start and end time", () => {
       const start = data[0].normalTime;
       const end = addDuration(start, MS_IN_DAY);
 
@@ -153,8 +155,8 @@ describe('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should return an endpoints object when a single basal segment contains (is a superset of) the given 24-hour period', () => {
-      const basalStart = '2017-12-23T00:00:00';
+    it("should return an endpoints object when a single basal segment contains (is a superset of) the given 24-hour period", () => {
+      const basalStart = "2017-12-23T00:00:00";
       data = [
         new Basal({
           deviceTime: basalStart,
@@ -180,7 +182,7 @@ describe('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should return an endpoints object with a start and end index when basal segments overlap the start and end times', () => {
+    it("should return an endpoints object with a start and end index when basal segments overlap the start and end times", () => {
       const start = data[0].normalTime;
       const end = addDuration(start, MS_IN_DAY);
       data[0].normalTime = addDuration(start, -MS_IN_HOUR);
@@ -204,7 +206,7 @@ describe('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should return an endpoints object with a start and end index when basal segments overlap the only the start time and `optionalExtents` arg is `true`', () => {
+    it("should return an endpoints object with a start and end index when basal segments overlap the only the start time and `optionalExtents` arg is `true`", () => {
       const start = data[0].normalTime;
       const end = addDuration(start, MS_IN_DAY);
       data[0].normalTime = addDuration(start, -MS_IN_HOUR);
@@ -228,7 +230,7 @@ describe('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should return an endpoints object with a `-1` end index when basal segments overlap the only the start time and `optionalExtents` arg is `false`', () => {
+    it("should return an endpoints object with a `-1` end index when basal segments overlap the only the start time and `optionalExtents` arg is `false`", () => {
       const start = data[0].normalTime;
       const end = addDuration(start, MS_IN_DAY);
       data[0].normalTime = addDuration(start, -MS_IN_HOUR);
@@ -252,7 +254,7 @@ describe('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should return an endpoints object with a `-1` end index when basal segments overlap the only the start time and `optionalExtents` arg is omitted', () => {
+    it("should return an endpoints object with a `-1` end index when basal segments overlap the only the start time and `optionalExtents` arg is omitted", () => {
       const start = data[0].normalTime;
       const end = addDuration(start, MS_IN_DAY);
       data[0].normalTime = addDuration(start, -MS_IN_HOUR);
@@ -276,7 +278,7 @@ describe('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should return an endpoints object with a start and end index when basal segments overlap only the end time and `optionalExtents` arg is `true`', () => {
+    it("should return an endpoints object with a start and end index when basal segments overlap only the end time and `optionalExtents` arg is `true`", () => {
       const start = addDuration(data[0].normalTime, -MS_IN_HOUR);
       const end = addDuration(start, MS_IN_DAY);
 
@@ -298,7 +300,7 @@ describe('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should return an endpoints object with a `-1` start index when basal segments overlap only the end time and `optionalExtents` arg is `false`', () => {
+    it("should return an endpoints object with a `-1` start index when basal segments overlap only the end time and `optionalExtents` arg is `false`", () => {
       const start = addDuration(data[0].normalTime, -MS_IN_HOUR);
       const end = addDuration(start, MS_IN_DAY);
 
@@ -320,31 +322,31 @@ describe('basal utilties', () => {
     });
   });
 
-  describe('getGroupDurations', () => {
+  describe("getGroupDurations", () => {
     const sixHours = MS_IN_HOUR * 6;
     let data;
 
     beforeEach(() => {
       data = [
-        new Basal({ deviceTime: '2018-01-01T00:00:00', duration: sixHours }),
-        new Basal({ deviceTime: '2018-01-01T06:00:00', duration: sixHours }),
-        new Basal({ deviceTime: '2018-01-01T12:00:00', duration: sixHours }),
-        new Basal({ deviceTime: '2018-01-01T18:00:00', duration: sixHours }),
+        new Basal({ deviceTime: "2018-01-01T00:00:00", duration: sixHours }),
+        new Basal({ deviceTime: "2018-01-01T06:00:00", duration: sixHours }),
+        new Basal({ deviceTime: "2018-01-01T12:00:00", duration: sixHours }),
+        new Basal({ deviceTime: "2018-01-01T18:00:00", duration: sixHours }),
       ];
     });
 
-    it('should return an object with `automated` and `manual` keys', () => {
+    it("should return an object with `automated` and `manual` keys", () => {
       const start = data[0].normalTime;
       const end = addDuration(start, MS_IN_DAY);
       const result = basalUtils.getGroupDurations(data, start, end);
 
-      expect(_.keysIn(result)).to.eql(['automated', 'manual']);
+      expect(_.keysIn(result)).to.eql(["automated", "manual"]);
     });
 
-    it('should return durations for `automated` and `manual` basal delivery', () => {
+    it("should return durations for `automated` and `manual` basal delivery", () => {
       const halfAutomatedData = _.map(data, (d, i) => (
         _.assign({}, d, {
-          deliveryType: (i % 2 === 0) ? 'automated' : 'scheduled',
+          deliveryType: (i % 2 === 0) ? "automated" : "scheduled",
         })
       ));
 
@@ -357,9 +359,9 @@ describe('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should handle partial durations for `automated` and `manual` basals that fall partially outside the start of range', () => {
+    it("should handle partial durations for `automated` and `manual` basals that fall partially outside the start of range", () => {
       const firstDatum = data[0];
-      firstDatum.deliveryType = 'automated';
+      firstDatum.deliveryType = "automated";
       const start = addDuration(firstDatum.normalTime, MS_IN_HOUR);
       const end = addDuration(start, MS_IN_DAY);
       const result = basalUtils.getGroupDurations(data, start, end);
@@ -368,10 +370,10 @@ describe('basal utilties', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should handle partial durations for `automated` and `manual` basals that fall partially outside the end of range', () => {
+    it("should handle partial durations for `automated` and `manual` basals that fall partially outside the end of range", () => {
       const firstDatum = data[0];
       const lastDatum = data[data.length - 1];
-      lastDatum.deliveryType = 'automated';
+      lastDatum.deliveryType = "automated";
       const start = addDuration(firstDatum.normalTime, -MS_IN_HOUR);
       const end = addDuration(start, MS_IN_DAY);
       const result = basalUtils.getGroupDurations(data, start, end);
@@ -380,109 +382,109 @@ describe('basal utilties', () => {
     });
   });
 
-  describe('getSegmentDose', () => {
-    it('should return the total insulin dose delivered in a given basal segment', () => {
+  describe("getSegmentDose", () => {
+    it("should return the total insulin dose delivered in a given basal segment", () => {
       expect(basalUtils.getSegmentDose(MS_IN_HOUR * 3, 0.25)).to.equal(0.75);
     });
   });
 
-  describe('getTotalBasalFromEndpoints', () => {
-    it('should return total basal delivered for a given time range, even when endpoints overlap a basal segment', () => {
+  describe("getTotalBasalFromEndpoints", () => {
+    it("should return total basal delivered for a given time range, even when endpoints overlap a basal segment", () => {
       const data = [
         {
           duration: MS_IN_HOUR * 3,
           rate: 0.25,
-          normalTime: '2018-01-01T00:00:00.000Z',
-          normalEnd: '2018-01-01T03:00:00.000Z',
+          normalTime: "2018-01-01T00:00:00.000Z",
+          normalEnd: "2018-01-01T03:00:00.000Z",
         },
         {
           duration: MS_IN_HOUR * 2,
           rate: 0.75,
-          normalTime: '2018-01-01T03:00:00.000Z',
-          normalEnd: '2018-01-01T05:00:00.000Z',
+          normalTime: "2018-01-01T03:00:00.000Z",
+          normalEnd: "2018-01-01T05:00:00.000Z",
         },
         {
           duration: MS_IN_HOUR * 7,
           rate: 0.5,
-          normalTime: '2018-01-01T05:00:00.000Z',
-          normalEnd: '2018-01-02T00:00:00.000Z',
+          normalTime: "2018-01-01T05:00:00.000Z",
+          normalEnd: "2018-01-02T00:00:00.000Z",
         },
         {
           duration: MS_IN_HOUR * 3,
           rate: 0.25,
-          normalTime: '2018-01-02T00:00:00.000Z',
-          normalEnd: '2018-01-02T03:00:00.000Z',
+          normalTime: "2018-01-02T00:00:00.000Z",
+          normalEnd: "2018-01-02T03:00:00.000Z",
         },
       ];
 
       // endpoints coincide with start and end times of basal segments
       let endpoints = [
-        '2018-01-01T00:00:00.000Z',
-        '2018-01-02T00:00:00.000Z',
+        "2018-01-01T00:00:00.000Z",
+        "2018-01-02T00:00:00.000Z",
       ];
-      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal('5.75');
+      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal("5.75");
 
       // endpoints shifted to an hour after basal delivery begins
       endpoints = [
-        '2018-01-01T01:00:00.000Z',
-        '2018-01-02T01:00:00.000Z',
+        "2018-01-01T01:00:00.000Z",
+        "2018-01-02T01:00:00.000Z",
       ];
-      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal('5.75');
+      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal("5.75");
 
 
       // endpoints shifted to an hour before basal delivery begins
       endpoints = [
-        '2017-12-31T23:00:00.000Z',
-        '2018-01-01T23:00:00.000Z',
+        "2017-12-31T23:00:00.000Z",
+        "2018-01-01T23:00:00.000Z",
       ];
-      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal('5.5');
+      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal("5.5");
 
       // endpoints shifted to two hours after basal delivery ends
       endpoints = [
-        '2018-01-01T05:00:00.000Z',
-        '2018-01-02T05:00:00.000Z',
+        "2018-01-01T05:00:00.000Z",
+        "2018-01-02T05:00:00.000Z",
       ];
-      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal('5.25');
+      expect(basalUtils.getTotalBasalFromEndpoints(data, endpoints)).to.equal("5.25");
     });
   });
 
-  describe('getBasalGroupDurationsFromEndpoints', () => {
-    it('should return the automated and manual basal delivery time for a given time range', () => {
+  describe("getBasalGroupDurationsFromEndpoints", () => {
+    it("should return the automated and manual basal delivery time for a given time range", () => {
       const data = [
         {
           duration: MS_IN_HOUR * 3,
           rate: 0.25,
-          normalTime: '2018-01-01T00:00:00.000Z',
-          normalEnd: '2018-01-01T03:00:00.000Z',
-          subType: 'scheduled',
+          normalTime: "2018-01-01T00:00:00.000Z",
+          normalEnd: "2018-01-01T03:00:00.000Z",
+          subType: "scheduled",
         },
         {
           duration: MS_IN_HOUR * 2,
           rate: 0.75,
-          normalTime: '2018-01-01T03:00:00.000Z',
-          normalEnd: '2018-01-01T05:00:00.000Z',
-          subType: 'automated',
+          normalTime: "2018-01-01T03:00:00.000Z",
+          normalEnd: "2018-01-01T05:00:00.000Z",
+          subType: "automated",
         },
         {
           duration: MS_IN_HOUR * 7,
           rate: 0.5,
-          normalTime: '2018-01-01T05:00:00.000Z',
-          normalEnd: '2018-01-02T00:00:00.000Z',
-          subType: 'scheduled',
+          normalTime: "2018-01-01T05:00:00.000Z",
+          normalEnd: "2018-01-02T00:00:00.000Z",
+          subType: "scheduled",
         },
         {
           duration: MS_IN_HOUR * 3,
           rate: 0.25,
-          normalTime: '2018-01-02T00:00:00.000Z',
-          normalEnd: '2018-01-02T03:00:00.000Z',
-          subType: 'scheduled',
+          normalTime: "2018-01-02T00:00:00.000Z",
+          normalEnd: "2018-01-02T03:00:00.000Z",
+          subType: "scheduled",
         },
       ];
 
       // endpoints coincide with start and end times of basal segments
       let endpoints = [
-        '2018-01-01T00:00:00.000Z',
-        '2018-01-02T00:00:00.000Z',
+        "2018-01-01T00:00:00.000Z",
+        "2018-01-02T00:00:00.000Z",
       ];
       expect(basalUtils.getBasalGroupDurationsFromEndpoints(data, endpoints)).to.eql({
         automated: MS_IN_HOUR * 2,
@@ -491,8 +493,8 @@ describe('basal utilties', () => {
 
       // endpoints shifted to an hour after basal delivery begins
       endpoints = [
-        '2018-01-01T01:00:00.000Z',
-        '2018-01-02T01:00:00.000Z',
+        "2018-01-01T01:00:00.000Z",
+        "2018-01-02T01:00:00.000Z",
       ];
       expect(basalUtils.getBasalGroupDurationsFromEndpoints(data, endpoints)).to.eql({
         automated: MS_IN_HOUR * 2,
@@ -502,8 +504,8 @@ describe('basal utilties', () => {
 
       // endpoints shifted to an hour before basal delivery begins
       endpoints = [
-        '2017-12-31T23:00:00.000Z',
-        '2018-01-01T23:00:00.000Z',
+        "2017-12-31T23:00:00.000Z",
+        "2018-01-01T23:00:00.000Z",
       ];
       expect(basalUtils.getBasalGroupDurationsFromEndpoints(data, endpoints)).to.eql({
         automated: MS_IN_HOUR * 2,
@@ -512,8 +514,8 @@ describe('basal utilties', () => {
 
       // endpoints shifted to two hours after basal delivery ends
       endpoints = [
-        '2018-01-01T05:00:00.000Z',
-        '2018-01-02T05:00:00.000Z',
+        "2018-01-01T05:00:00.000Z",
+        "2018-01-02T05:00:00.000Z",
       ];
       expect(basalUtils.getBasalGroupDurationsFromEndpoints(data, endpoints)).to.eql({
         automated: MS_IN_HOUR * 2,

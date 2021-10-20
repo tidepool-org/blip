@@ -15,13 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-
-import { focusTrendsSmbgRangeAvg, unfocusTrendsSmbgRangeAvg } from '../../../redux/actions/trends';
+import { focusTrendsSmbgRangeAvg, unfocusTrendsSmbgRangeAvg } from "../../../redux/actions/trends";
 
 export class SMBGMean extends PureComponent {
   static propTypes = {

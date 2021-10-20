@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
 import bows from "bows";
 import { useTranslation } from "react-i18next";

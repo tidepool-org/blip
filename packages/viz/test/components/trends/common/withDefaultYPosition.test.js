@@ -15,23 +15,24 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import { shallow } from 'enzyme';
+import React from "react";
+import { shallow } from "enzyme";
+import { expect } from "chai";
 
-import bgBounds from '../../../helpers/bgBounds';
-import DummyComponent from '../../../helpers/DummyComponent';
-import * as scales from '../../../helpers/scales';
+import bgBounds from "../../../helpers/bgBounds";
+import DummyComponent from "../../../helpers/DummyComponent";
+import * as scales from "../../../helpers/scales";
 const {
   trendsYScale: yScale,
 } = scales.trends;
 
-import withDefaultYPosition from '../../../../src/components/trends/common/withDefaultYPosition';
+import withDefaultYPosition from "../../../../src/components/trends/common/withDefaultYPosition";
 
-describe('withDefaultYPosition', () => {
+describe("withDefaultYPosition", () => {
   const props = {
     bgBounds,
     yScale,
-    foo: 'bar',
+    foo: "bar",
   };
   const ToRender = withDefaultYPosition(DummyComponent);
   let wrapper;
@@ -39,18 +40,18 @@ describe('withDefaultYPosition', () => {
     wrapper = shallow(<ToRender {...props} />);
   });
 
-  it('should render the DummyComponent with an additional defaultY prop', () => {
+  it("should render the DummyComponent with an additional defaultY prop", () => {
     const dummy = wrapper.find(DummyComponent);
     expect(dummy.length).to.equal(1);
     const { targetLowerBound, targetUpperBound } = bgBounds;
-    expect(dummy.prop('defaultY'))
+    expect(dummy.prop("defaultY"))
       .to.equal(yScale(targetUpperBound - (targetUpperBound - targetLowerBound) / 2));
   });
 
-  it('should also pass through all other props', () => {
+  it("should also pass through all other props", () => {
     const dummy = wrapper.find(DummyComponent);
-    expect(dummy.prop('bgBounds')).to.deep.equal(bgBounds);
-    expect(dummy.prop('yScale')).to.equal(yScale);
-    expect(dummy.prop('foo')).to.equal('bar');
+    expect(dummy.prop("bgBounds")).to.deep.equal(bgBounds);
+    expect(dummy.prop("yScale")).to.equal(yScale);
+    expect(dummy.prop("foo")).to.equal("bar");
   });
 });

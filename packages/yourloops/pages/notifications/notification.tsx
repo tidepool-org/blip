@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import _ from "lodash";
 import { TFunction, useTranslation, Trans } from "react-i18next";
 import moment from "moment-timezone";
@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       alignItems: "center",
       width: "100%",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         flexWrap: "wrap",
         padding: theme.spacing(1),
       },
@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         width: "100%",
         marginTop: theme.spacing(1),
       },
@@ -86,7 +86,7 @@ const useStyles = makeStyles((theme: Theme) =>
     notificationSpan: { marginLeft: "1em", flex: "1" },
     buttonAccept: {
       marginLeft: "1em",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         marginLeft: "auto",
       },
     },

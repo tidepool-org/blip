@@ -45,12 +45,12 @@ function plotPhysicalActivity(pool, opts) {
 
       const physicalActivty = d3
         .select(this)
-        .selectAll('g.d3-pa-group')
+        .selectAll("g.d3-pa-group")
         .data(physicalActivities, (d) => d.id);
 
       const paGroups = physicalActivty
         .enter()
-        .append('g')
+        .append("g")
         .attr({
           class: "d3-pa-group",
           id: (d) => `pa_group_${d.id}`,
@@ -66,14 +66,14 @@ function plotPhysicalActivity(pool, opts) {
       // var highlight = pool.highlight('.d3-pa-group', opts);
 
       // tooltips
-      selection.selectAll('.d3-pa-group').on('mouseover', function(d) {
+      selection.selectAll(".d3-pa-group").on("mouseover", function(d) {
         if (d.reportedIntensity) {
           drawPa.tooltip.add(d, utils.getTooltipContainer(this));
         }
         // highlight is disabled for now but we may decide to use it later one
         // highlight.on(d3.select(this));
       });
-      selection.selectAll('.d3-pa-group').on('mouseout', function(d) {
+      selection.selectAll(".d3-pa-group").on("mouseout", function(d) {
         if (d.reportedIntensity) {
           drawPa.tooltip.remove(d);
         }

@@ -14,27 +14,27 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import _ from 'lodash';
-import bows from 'bows';
-import moment from 'moment-timezone';
-import i18next from 'i18next';
-import React from 'react';
-import PropTypes from 'prop-types';
-import sundial from 'sundial';
-import WindowSizeListener from 'react-window-size-listener';
+import _ from "lodash";
+import bows from "bows";
+import moment from "moment-timezone";
+import i18next from "i18next";
+import React from "react";
+import PropTypes from "prop-types";
+import sundial from "sundial";
+import WindowSizeListener from "react-window-size-listener";
 import {
   components as vizComponents,
   containers as vizContainers,
   utils as vizUtils
-} from 'tidepool-viz';
+} from "tidepool-viz";
 
-import Header from './header';
-import SubNav from './trendssubnav';
-import Stats from './stats';
-import BgSourceToggle from './bgSourceToggle';
-import Footer from './footer';
-import { RangeDatePicker } from '../datepicker';
-import { BG_DATA_TYPES } from '../../core/constants';
+import Header from "./header";
+import SubNav from "./trendssubnav";
+import Stats from "./stats";
+import BgSourceToggle from "./bgSourceToggle";
+import Footer from "./footer";
+import { RangeDatePicker } from "../datepicker";
+import { BG_DATA_TYPES } from "../../core/constants";
 
 const t = i18next.t.bind(i18next);
 const CBGDateTraceLabel = vizComponents.CBGDateTraceLabel;
@@ -81,8 +81,8 @@ class Trends extends React.Component {
     super(props);
 
     this.bgBounds = reshapeBgClassesToBgBounds(props.bgPrefs);
-    this.chartType = 'trends';
-    this.log = bows('Trends');
+    this.chartType = "trends";
+    this.log = bows("Trends");
 
     this.state = {
       atMostRecent: true,
@@ -112,11 +112,11 @@ class Trends extends React.Component {
   }
 
   componentDidMount() {
-    this.log.debug('Mounting...');
+    this.log.debug("Mounting...");
   }
 
   componentWillUnmount() {
-    this.log('Unmounting...');
+    this.log("Unmounting...");
   }
 
   getChart() {
@@ -128,7 +128,7 @@ class Trends extends React.Component {
 
   formatDate(datetime) {
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
-    return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
+    return sundial.formatInTimezone(datetime, timezone, t("MMM D, YYYY"));
   }
 
   /**
@@ -160,7 +160,7 @@ class Trends extends React.Component {
   getInitialDatetimeLocation() {
     /** @type {{ epochLocation: number }} */
     const { epochLocation, timePrefs } = this.props;
-    const m = moment.tz(epochLocation, timePrefs.timezoneName ?? 'UTC');
+    const m = moment.tz(epochLocation, timePrefs.timezoneName ?? "UTC");
     return m.toISOString();
   }
 
@@ -168,7 +168,7 @@ class Trends extends React.Component {
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
     const startDate = moment.tz(domain[0], timezone);
     const endDate = moment.tz(domain[1], timezone);
-    return Math.round(endDate.diff(startDate, 'days', true));
+    return Math.round(endDate.diff(startDate, "days", true));
   }
 
   getTitle() {
@@ -176,13 +176,13 @@ class Trends extends React.Component {
     const { displayCalendar } = this.state;
 
     if (loading) {
-      return t('Loading...');
+      return t("Loading...");
     }
 
     /** @type {[moment.Moment, moment.Moment]} */
     const [startDate, endDate] = this.getEndpoints(true);
 
-    const mFormat = t('MMM D, YYYY');
+    const mFormat = t("MMM D, YYYY");
     const displayStartDate = startDate.format(mFormat);
     const displayEndDate = endDate.format(mFormat);
 
@@ -192,12 +192,12 @@ class Trends extends React.Component {
     };
     const handleKeyboard = (/** @type {React.KeyboardEvent<HTMLDivElement>} */ e) => {
       e.stopPropagation();
-      if (e.key === 'Enter' || e.key === ' ') {
+      if (e.key === "Enter" || e.key === " ") {
         this.setState({ displayCalendar: true });
       }
     };
     const handleChange = (/** @type {moment.Moment} */ begin, /** @type {moment.Moment} */ end) => {
-      const newDomain = [begin.toISOString(), end.add(1, 'days').subtract(1, 'millisecond').toISOString()];
+      const newDomain = [begin.toISOString(), end.add(1, "days").subtract(1, "millisecond").toISOString()];
       this.log.debug("Calendar newDomain", newDomain);
       this.setState({ displayCalendar: false }, () => {
         const prefs = _.cloneDeep(this.props.chartPrefs);
@@ -206,7 +206,7 @@ class Trends extends React.Component {
         this.props.updateChartPrefs(prefs, () => {
           const chart = this.getChart();
           chart?.setExtent(newDomain);
-          this.props.trackMetric("data_visualization", "select_period", "range_date_picker", end.diff(begin, 'days'));
+          this.props.trackMetric("data_visualization", "select_period", "range_date_picker", end.diff(begin, "days"));
         });
       });
     };
@@ -216,7 +216,7 @@ class Trends extends React.Component {
     };
 
     let calendar = null;
-    let divClass = 'chart-title-clickable';
+    let divClass = "chart-title-clickable";
     if (displayCalendar) {
       const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
       const minDate = moment.tz(tidelineData.endpoints[0], timezone);
@@ -230,7 +230,7 @@ class Trends extends React.Component {
           max={maxDate}
           minDuration={1}
           maxDuration={90}
-          aboveMaxDurationMessage={t('The period must be less than {{days}} days', { days: 90 })}
+          aboveMaxDurationMessage={t("The period must be less than {{days}} days", { days: 90 })}
           allowSelectDateOutsideDuration={true}
           onChange={handleChange}
           onCancel={handleCancel}
@@ -267,7 +267,7 @@ class Trends extends React.Component {
       e.preventDefault();
     }
     const extentSize = this.props.chartPrefs.trends.extentSize;
-    const m = moment.tz(epochLocation, timePrefs.timezoneName ?? 'UTC').add(Math.round(extentSize / 2), 'days');
+    const m = moment.tz(epochLocation, timePrefs.timezoneName ?? "UTC").add(Math.round(extentSize / 2), "days");
     this.props.onSwitchToDaily(m);
   }
 
@@ -305,14 +305,14 @@ class Trends extends React.Component {
 
       // Use the endDate as a reference point in time
       const endDate = moment.tz(chart.state.dateDomain.end, timezone);
-      let startDate = moment.tz(endDate.valueOf(), timezone).subtract(extentSize, 'days').add(1, 'millisecond');
+      let startDate = moment.tz(endDate.valueOf(), timezone).subtract(extentSize, "days").add(1, "millisecond");
       const minDate = moment.tz(tidelineData.endpoints[0], timezone);
       if (startDate.isBefore(minDate)) {
         startDate = minDate;
-        this.log.info(`Require more days than available changing from ${extentSize} to ${endDate.diff(startDate, 'days')}`);
+        this.log.info(`Require more days than available changing from ${extentSize} to ${endDate.diff(startDate, "days")}`);
       }
 
-      prefs.trends.extentSize = Math.round(endDate.diff(startDate, 'days', true));
+      prefs.trends.extentSize = Math.round(endDate.diff(startDate, "days", true));
       const oldDomain = [chart.state.dateDomain.start, chart.state.dateDomain.end];
       const newDomain = [startDate.toISOString(), endDate.toISOString()];
 
@@ -346,12 +346,12 @@ class Trends extends React.Component {
    * @return Promise<boolean>
    */
   handleDatetimeLocationChange(endpoints, atMostRecent) {
-    if (typeof atMostRecent !== 'boolean') {
-      this.log.error('handleDatetimeLocationChange: Invalid parameter atMostRecent');
+    if (typeof atMostRecent !== "boolean") {
+      this.log.error("handleDatetimeLocationChange: Invalid parameter atMostRecent");
       atMostRecent = false;
     }
 
-    this.log.debug('handleDatetimeLocationChange', { endpoints, atMostRecent });
+    this.log.debug("handleDatetimeLocationChange", { endpoints, atMostRecent });
 
     this.setState({ atMostRecent });
     const start = moment.utc(endpoints[0]).valueOf();
@@ -451,19 +451,19 @@ class Trends extends React.Component {
           <label htmlFor="overlayCheckbox">
             <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
               checked={trendsChartPrefs.smbgRangeOverlay}
-              onChange={this.toggleBoxOverlay} />{t('Range & Average')}
+              onChange={this.toggleBoxOverlay} />{t("Range & Average")}
           </label>
 
           <label htmlFor="groupCheckbox">
             <input type="checkbox" name="groupCheckbox" id="groupCheckbox"
               checked={trendsChartPrefs.smbgGrouped}
-              onChange={this.toggleGrouping} />{t('Group')}
+              onChange={this.toggleGrouping} />{t("Group")}
           </label>
 
           <label htmlFor="linesCheckbox">
             <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
               checked={trendsChartPrefs.smbgLines}
-              onChange={this.toggleLines} />{t('Lines')}
+              onChange={this.toggleLines} />{t("Lines")}
           </label>
         </div>
       );
@@ -476,14 +476,14 @@ class Trends extends React.Component {
     }
 
     return (
-      <div id='tidelineMain' className='trends grid'>
+      <div id="tidelineMain" className="trends grid">
         {this.renderHeader()}
-        <div className='container-box-outer patient-data-content-outer'>
-          <div className='container-box-inner patient-data-content-inner'>
+        <div className="container-box-outer patient-data-content-outer">
+          <div className="container-box-inner patient-data-content-inner">
             {this.renderSubNav()}
-            <div className='patient-data-content'>
+            <div className="patient-data-content">
               <Loader show={loading} overlay={true} />
-              <div id='tidelineContainer' className='patient-data-chart-trends'>
+              <div id="tidelineContainer" className="patient-data-chart-trends">
                 {this.renderChart()}
               </div>
               {this.renderFocusedCbgDateTraceLabel()}
@@ -491,8 +491,8 @@ class Trends extends React.Component {
               {this.renderFocusedRangeLabels()}
             </div>
           </div>
-          <div className='container-box-inner patient-data-sidebar'>
-            <div className='patient-data-sidebar-inner'>
+          <div className="container-box-inner patient-data-sidebar">
+            <div className="patient-data-sidebar-inner">
               <BgSourceToggle
                 bgSource={this.props.dataUtil.bgSource}
                 bgSources={this.props.dataUtil.bgSources}
@@ -534,9 +534,9 @@ class Trends extends React.Component {
         prefixURL={this.props.prefixURL}
         canPrint={this.props.canPrint}
         trackMetric={this.props.trackMetric}
-        iconBack={'icon-back'}
-        iconNext={'icon-next'}
-        iconMostRecent={'icon-most-recent'}
+        iconBack={"icon-back"}
+        iconNext={"icon-next"}
+        iconMostRecent={"icon-most-recent"}
         permsOfLoggedInUser={this.props.permsOfLoggedInUser}
         onClickBack={this.handleClickBack}
         onClickBasics={this.props.onSwitchToBasics}
@@ -555,10 +555,10 @@ class Trends extends React.Component {
         activeDays={this.props.chartPrefs.trends.activeDays}
         extentSize={this.props.chartPrefs.trends.extentSize}
         domainClickHandlers={{
-          '1 week': (e) => this.handleClickPresetWeeks(e, 7),
-          '2 weeks': (e) => this.handleClickPresetWeeks(e, 14),
-          '4 weeks': (e) => this.handleClickPresetWeeks(e, 28),
-          '3 months': (e) => this.handleClickPresetWeeks(e, 90),
+          "1 week": (e) => this.handleClickPresetWeeks(e, 7),
+          "2 weeks": (e) => this.handleClickPresetWeeks(e, 14),
+          "4 weeks": (e) => this.handleClickPresetWeeks(e, 28),
+          "3 months": (e) => this.handleClickPresetWeeks(e, 90),
         }}
         onClickDay={this.toggleDay}
         toggleWeekdays={this.toggleWeekdays}
@@ -624,7 +624,7 @@ class Trends extends React.Component {
       return (
         <FocusedRangeLabels
           bgPrefs={this.props.bgPrefs}
-          dataType={'cbg'}
+          dataType={"cbg"}
           focusedKeys={userTrendsState.focusedCbgSliceKeys}
           focusedSlice={userTrendsState.focusedCbgSlice}
           timePrefs={this.props.timePrefs}
@@ -634,7 +634,7 @@ class Trends extends React.Component {
       return (
         <FocusedRangeLabels
           bgPrefs={this.props.bgPrefs}
-          dataType={'smbg'}
+          dataType={"smbg"}
           focusedRange={userTrendsState.focusedSmbgRangeAvg}
           timePrefs={this.props.timePrefs}
         />

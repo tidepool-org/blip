@@ -1,20 +1,3 @@
-const BUMPERS = {
-  top: 50,
-  bottom: 30,
-};
-
-const MARGINS = {
-  top: 30,
-  right: 10,
-  bottom: 10,
-  left: 40,
-};
-
-const SMBG_OPTS = {
-  maxR: 7.5,
-  r: 6,
-};
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -39,29 +22,45 @@ const SMBG_OPTS = {
  * in child components as well are assigned to default props, but those that are only used
  * in this parent/container component are just used directly as constants.
  */
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import sizeMe from "react-sizeme";
+import _ from "lodash";
+import { MGDL_UNITS, MMOLL_UNITS } from "tideline";
 
-import React, { PureComponent } from 'react';
-import sizeMe from 'react-sizeme';
-import _ from 'lodash';
-import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
+import { THREE_HRS } from "../../../utils/datetime";
+import { findDatesIntersectingWithCbgSliceSegment } from "../../../utils/trends/data";
+import Background from "./Background";
+import CBGDateTracesAnimationContainer from "../cbg/CBGDateTracesAnimationContainer";
+import CBGSlicesContainer from "../cbg/CBGSlicesContainer";
+import FocusedCBGSliceSegment from "../cbg/FocusedCBGSliceSegment";
+import SMBGsByDateContainer from "../smbg/SMBGsByDateContainer";
+import SMBGRangeAvgContainer from "../smbg/SMBGRangeAvgContainer";
+import SMBGRangeAnimated from "../smbg/SMBGRangeAnimated";
+import SMBGMeanAnimated from "../smbg/SMBGMeanAnimated";
 
-import { THREE_HRS } from '../../../utils/datetime';
-import { findDatesIntersectingWithCbgSliceSegment } from '../../../utils/trends/data';
-import Background from './Background';
-import CBGDateTracesAnimationContainer from '../cbg/CBGDateTracesAnimationContainer';
-import CBGSlicesContainer from '../cbg/CBGSlicesContainer';
-import FocusedCBGSliceSegment from '../cbg/FocusedCBGSliceSegment';
-import SMBGsByDateContainer from '../smbg/SMBGsByDateContainer';
-import SMBGRangeAvgContainer from '../smbg/SMBGRangeAvgContainer';
-import SMBGRangeAnimated from '../smbg/SMBGRangeAnimated';
-import SMBGMeanAnimated from '../smbg/SMBGMeanAnimated';
+import NoData from "./NoData";
+import TargetRangeLines from "./TargetRangeLines";
+import XAxisLabels from "./XAxisLabels";
+import XAxisTicks from "./XAxisTicks";
+import YAxisLabelsAndTicks from "./YAxisLabelsAndTicks";
 
-import NoData from './NoData';
-import TargetRangeLines from './TargetRangeLines';
-import XAxisLabels from './XAxisLabels';
-import XAxisTicks from './XAxisTicks';
-import YAxisLabelsAndTicks from './YAxisLabelsAndTicks';
+const BUMPERS = {
+  top: 50,
+  bottom: 30,
+};
+
+const MARGINS = {
+  top: 30,
+  right: 10,
+  bottom: 10,
+  left: 40,
+};
+
+const SMBG_OPTS = {
+  maxR: 7.5,
+  r: 6,
+};
 
 export class TrendsSVGContainer extends PureComponent {
   constructor(props) {
@@ -277,9 +276,9 @@ export class TrendsSVGContainer extends PureComponent {
 
       return (
         <g id="smbgTrends">
-          {this.renderOverlay(SMBGRangeAnimated, 'SMBGRangeContainer')}
+          {this.renderOverlay(SMBGRangeAnimated, "SMBGRangeContainer")}
           {allSmbgsByDate}
-          {this.renderOverlay(SMBGMeanAnimated, 'SMBGMeanContainer')}
+          {this.renderOverlay(SMBGMeanAnimated, "SMBGMeanContainer")}
           {focusedSmbgDate}
         </g>
       );
@@ -323,7 +322,7 @@ export class TrendsSVGContainer extends PureComponent {
             xScale={this.props.xScale}
             yScale={this.props.yScale}
           />
-          {this.renderNoDataMessage(this.props.showingCbg ? 'cbg' : 'smbg')}
+          {this.renderNoDataMessage(this.props.showingCbg ? "cbg" : "smbg")}
         </svg>
       </div>
     );
@@ -356,6 +355,7 @@ TrendsSVGContainer.propTypes = {
     }).isRequired,
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   }).isRequired,
+  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   size: PropTypes.shape({
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
@@ -406,13 +406,13 @@ TrendsSVGContainer.propTypes = {
     }).isRequired,
   }),
   focusedSliceKeys: PropTypes.arrayOf(PropTypes.oneOf([
-    'firstQuartile',
-    'max',
-    'median',
-    'min',
-    'ninetiethQuantile',
-    'tenthQuantile',
-    'thirdQuartile',
+    "firstQuartile",
+    "max",
+    "median",
+    "min",
+    "ninetiethQuantile",
+    "tenthQuantile",
+    "thirdQuartile",
   ])),
   focusedSmbg: PropTypes.shape({
     allPositions: PropTypes.arrayOf(PropTypes.shape({

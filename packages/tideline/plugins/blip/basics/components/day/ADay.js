@@ -1,12 +1,12 @@
 
-import i18next from 'i18next';
+import i18next from "i18next";
 
-import PropTypes from 'prop-types';
-import React from 'react';
-import moment from 'moment-timezone';
-import cx from 'classnames';
+import PropTypes from "prop-types";
+import React from "react";
+import moment from "moment-timezone";
+import cx from "classnames";
 
-import * as constants from '../../logic/constants';
+import * as constants from "../../logic/constants";
 
 class ADay extends React.Component {
   static propTypes = {
@@ -25,8 +25,8 @@ class ADay extends React.Component {
   };
 
   static defaultProps = {
-    dayAbbrevMask: 'D',
-    monthAbbrevMask: 'MMM D'
+    dayAbbrevMask: "D",
+    monthAbbrevMask: "MMM D"
   };
 
   /**
@@ -82,11 +82,11 @@ class ADay extends React.Component {
 
     var isDisabled = (this.props.type === constants.SECTION_TYPE_UNDECLARED);
 
-    var containerClass = cx('Calendar-day--' + type, {
-      'Calendar-day': !this.props.future,
-      'Calendar-day-future': this.props.future,
-      'Calendar-day-most-recent': this.props.mostRecent,
-      'Calendar-day--disabled': isDisabled,
+    var containerClass = cx("Calendar-day--" + type, {
+      "Calendar-day": !this.props.future,
+      "Calendar-day-future": this.props.future,
+      "Calendar-day-most-recent": this.props.mostRecent,
+      "Calendar-day--disabled": isDisabled,
     });
 
     var drawMonthLabel = (mDate.date() === 1 || this.props.isFirst);
@@ -94,7 +94,7 @@ class ADay extends React.Component {
 
     if (drawMonthLabel) {
       monthLabel = (
-        <span className='Calendar-monthlabel'>{mDate.format(t(this.props.monthAbbrevMask))}</span>
+        <span className="Calendar-monthlabel">{mDate.format(t(this.props.monthAbbrevMask))}</span>
       );
     }
 
@@ -110,7 +110,7 @@ class ADay extends React.Component {
 
     return (
       <div id={`calendar-day-${type}-${date}`} className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
-        <p className='Calendar-weekday'>
+        <p className="Calendar-weekday">
           {(monthLabel) ? monthLabel : mDate.format(t(this.props.dayAbbrevMask))}
         </p>
         {this.props.future ? null: chart}

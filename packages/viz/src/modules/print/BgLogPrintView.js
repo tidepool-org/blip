@@ -17,17 +17,17 @@
 
 /* eslint-disable lodash/prefer-lodash-method */
 
-import _ from 'lodash';
-import i18next from 'i18next';
-import { range } from 'd3-array';
-import { scaleLinear } from 'd3-scale';
-import moment from 'moment-timezone';
+import _ from "lodash";
+import i18next from "i18next";
+import { range } from "d3-array";
+import { scaleLinear } from "d3-scale";
+import moment from "moment-timezone";
 
-import PrintView from './PrintView';
-import { formatBgValue } from '../../utils/format';
-import { classifyBgValue, getOutOfRangeThreshold } from '../../utils/bloodglucose';
-import { formatClocktimeFromMsPer24, THREE_HRS, getSimpleHourFormatSpace } from '../../utils/datetime';
-import { MS_IN_HOUR } from '../../utils/constants';
+import PrintView from "./PrintView";
+import { formatBgValue } from "../../utils/format";
+import { classifyBgValue, getOutOfRangeThreshold } from "../../utils/bloodglucose";
+import { formatClocktimeFromMsPer24, THREE_HRS, getSimpleHourFormatSpace } from "../../utils/datetime";
+import { MS_IN_HOUR } from "../../utils/constants";
 
 const t = i18next.t.bind(i18next);
 
@@ -56,15 +56,15 @@ class BgLogPrintView extends PrintView {
   }
 
   getBGLabelYOffset() {
-    return _.get(this.bgChart, 'datumsRendered', 0) % 2 === 0 ? -12 : 5;
+    return _.get(this.bgChart, "datumsRendered", 0) % 2 === 0 ? -12 : 5;
   }
 
   getBgChartColumns(opts = {}) {
     return _.map(this.bgChart.headers, ({ id, text }, index) => ({
       cache: false,
-      border: index === 0 || opts.border === false ? '' : 'TBLR',
+      border: index === 0 || opts.border === false ? "" : "TBLR",
       header: text,
-      headerBorder: index === 0 || opts.headerBorder === false ? '' : 'BL',
+      headerBorder: index === 0 || opts.headerBorder === false ? "" : "BL",
       headerFill: index === 0 || opts.headerFill === false ? false : {
         color: this.colors.smbgHeader,
         opacity: 1,
@@ -81,8 +81,8 @@ class BgLogPrintView extends PrintView {
   getBgChartRow(date) {
     const data = this.data.dataByDate[date];
     const dateMoment = moment(date);
-    const isWeekend = _.includes(['0', '6'], dateMoment.format('d'));
-    const timeSlots = _.filter(_.map(_.sortBy(this.bgChart.columns, 'id'), 'id'), _.isNumber);
+    const isWeekend = _.includes(["0", "6"], dateMoment.format("d"));
+    const timeSlots = _.filter(_.map(_.sortBy(this.bgChart.columns, "id"), "id"), _.isNumber);
 
     const smbgByTimeSlot = _.groupBy(
       data.data.smbg,
@@ -92,9 +92,9 @@ class BgLogPrintView extends PrintView {
     const row = {};
 
     _.forEach(this.bgChart.columns, ({ id }) => {
-      if (id === 'date') {
+      if (id === "date") {
         row[id] = {
-          text: dateMoment.format(t('ddd, MMM D')),
+          text: dateMoment.format(t("ddd, MMM D")),
         };
       } else {
         row[id] = {
@@ -104,7 +104,7 @@ class BgLogPrintView extends PrintView {
     });
 
     row._fill = { // eslint-disable-line no-underscore-dangle
-      color: isWeekend ? this.tableSettings.colors.zebraEven : 'white',
+      color: isWeekend ? this.tableSettings.colors.zebraEven : "white",
       opacity: 1,
     };
 
@@ -132,8 +132,8 @@ class BgLogPrintView extends PrintView {
     );
 
     this.bgChart.headers.unshift({
-      id: 'date',
-      text: '',
+      id: "date",
+      text: "",
     });
 
     this.bgChart.columnWidth = this.chartArea.width / this.bgChart.headers.length;
@@ -180,7 +180,7 @@ class BgLogPrintView extends PrintView {
     this.resetText();
 
     const { stats = {} } = this.data;
-    const { total, days, averageGlucose } = _.get(stats, 'averageGlucose.data.raw', {});
+    const { total, days, averageGlucose } = _.get(stats, "averageGlucose.data.raw", {});
 
     const totalDays = Math.ceil(days || this.numDays || 0);
     const totalReadings = total || 0;
@@ -188,7 +188,7 @@ class BgLogPrintView extends PrintView {
 
     const averageGlucoseText = averageGlucose
       ? formatBgValue(averageGlucose, this.bgPrefs)
-      : '--';
+      : "--";
 
     this.summaryTable = {};
 
@@ -198,20 +198,20 @@ class BgLogPrintView extends PrintView {
 
     this.summaryTable.columns = [
       {
-        id: 'totalDays',
-        header: t('Days In Report'),
+        id: "totalDays",
+        header: t("Days In Report"),
       },
       {
-        id: 'totalReadings',
-        header: t('Total BG Readings'),
+        id: "totalReadings",
+        header: t("Total BG Readings"),
       },
       {
-        id: 'avgReadingsPerDay',
-        header: t('Avg. BG Readings / Day'),
+        id: "avgReadingsPerDay",
+        header: t("Avg. BG Readings / Day"),
       },
       {
-        id: 'avgBg',
-        header: t('Avg. BG ({{- units}})', { units: this.bgUnits }),
+        id: "avgBg",
+        header: t("Avg. BG ({{- units}})", { units: this.bgUnits }),
       },
     ];
 
@@ -227,8 +227,8 @@ class BgLogPrintView extends PrintView {
     this.renderTable(this.summaryTable.columns, this.summaryTable.rows, {
       bottomMargin: 20,
       columnDefaults: {
-        align: 'center',
-        headerAlign: 'center',
+        align: "center",
+        headerAlign: "center",
         headerFill: {
           color: this.colors.smbgHeader,
           opacity: 1,
@@ -255,12 +255,12 @@ class BgLogPrintView extends PrintView {
         const xPos = pos.x + padding.left;
         const yPos = pos.y + padding.top;
 
-        this.setFill('black', 1);
+        this.setFill("black", 1);
 
         this.doc
           .fontSize(this.defaultFontSize)
           .text(text, xPos, yPos, {
-            align: 'right',
+            align: "right",
             width: width - padding.left - padding.right,
           });
       } else if (smbg.length) {
@@ -274,7 +274,7 @@ class BgLogPrintView extends PrintView {
 
           this.doc
             .circle(xPos, yPos, this.smbgRadius)
-            .fill(this.colors[classifyBgValue(this.bgBounds, datum.value, 'fiveWay')]);
+            .fill(this.colors[classifyBgValue(this.bgBounds, datum.value, "fiveWay")]);
 
           const smbgLabel = formatBgValue(datum.value, this.bgPrefs, getOutOfRangeThreshold(datum));
           const labelWidth = this.doc.widthOfString(smbgLabel);
@@ -304,18 +304,18 @@ class BgLogPrintView extends PrintView {
               yPos + labelOffsetY - 1,
               labelWidth + 2,
               this.doc.currentLineHeight())
-            .fill('white');
+            .fill("white");
 
           this.doc
             .fontSize(this.smallFontSize)
-            .fillColor('black')
+            .fillColor("black")
             .text(
               smbgLabel,
               labelStartX,
               yPos + labelOffsetY, {
                 lineBreak: false,
                 width: labelWidth,
-                align: 'center',
+                align: "center",
               },
             );
 
@@ -326,7 +326,7 @@ class BgLogPrintView extends PrintView {
       this.resetText();
     }
 
-    return ' ';
+    return " ";
   }
 }
 

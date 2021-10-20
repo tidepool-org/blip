@@ -15,29 +15,30 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import React from 'react';
-import { TransitionMotion } from 'react-motion';
+import _ from "lodash";
+import React from "react";
+import { TransitionMotion } from "react-motion";
+import { expect } from "chai";
+import * as sinon from "sinon";
+import { shallow } from "enzyme";
 
-import { shallow } from 'enzyme';
-
-import * as scales from '../../../helpers/scales';
+import * as scales from "../../../helpers/scales";
 const {
   trendsHeight,
   trendsXScale: xScale,
   trendsYScale: yScale,
 } = scales.trends;
-import bgBounds from '../../../helpers/bgBounds';
+import bgBounds from "../../../helpers/bgBounds";
 
-import { THREE_HRS } from '../../../../src/utils/datetime';
-import { SMBGRangeAnimated } from '../../../../src/components/trends/smbg/SMBGRangeAnimated';
+import { THREE_HRS } from "../../../../src/utils/datetime";
+import { SMBGRangeAnimated } from "../../../../src/components/trends/smbg/SMBGRangeAnimated";
 
-describe('SMBGRangeAnimated', () => {
+describe("SMBGRangeAnimated", () => {
   let wrapper;
   const focus = sinon.spy();
   const unfocus = sinon.spy();
   const datum = {
-    id: '5400000',
+    id: "5400000",
     max: 521,
     mean: 140,
     min: 22,
@@ -58,25 +59,25 @@ describe('SMBGRangeAnimated', () => {
     wrapper = shallow(<SMBGRangeAnimated {...props} />);
   });
 
-  describe('when a datum (overlay data) is provided', () => {
-    it('should create an array of 1 `styles` to render on the TransitionMotion', () => {
-      const styles = wrapper.find(TransitionMotion).prop('styles');
+  describe("when a datum (overlay data) is provided", () => {
+    it("should create an array of 1 `styles` to render on the TransitionMotion", () => {
+      const styles = wrapper.find(TransitionMotion).prop("styles");
       expect(styles.length).to.equal(1);
     });
 
-    it('should create `styles` for a <rect> covering the whole yScale range', () => {
-      const { style } = wrapper.find(TransitionMotion).prop('styles')[0];
+    it("should create `styles` for a <rect> covering the whole yScale range", () => {
+      const { style } = wrapper.find(TransitionMotion).prop("styles")[0];
       expect(style.height.val).to.equal(trendsHeight);
       expect(style.y.val).to.equal(0);
     });
   });
 
-  describe('when datum with `undefined` statistics (i.e., gap in data)', () => {
+  describe("when datum with `undefined` statistics (i.e., gap in data)", () => {
     let noDatumWrapper;
     before(() => {
       const noDatumProps = _.assign({}, props, {
         datum: {
-          id: '5400000',
+          id: "5400000",
           max: undefined,
           mean: undefined,
           min: undefined,
@@ -87,9 +88,9 @@ describe('SMBGRangeAnimated', () => {
       noDatumWrapper = shallow(<SMBGRangeAnimated {...noDatumProps} />);
     });
 
-    it('should create an array of 0 `styles` to render on the TransitionMotion', () => {
+    it("should create an array of 0 `styles` to render on the TransitionMotion", () => {
       expect(noDatumWrapper.find(TransitionMotion).length).to.equal(1);
-      const styles = noDatumWrapper.find(TransitionMotion).prop('styles');
+      const styles = noDatumWrapper.find(TransitionMotion).prop("styles");
       expect(styles.length).to.equal(0);
     });
   });

@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import bows from 'bows';
-import { utils as vizUtils, components as vizComponents } from 'tidepool-viz';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import bows from "bows";
+import { utils as vizUtils, components as vizComponents } from "tidepool-viz";
 
-import { BG_DATA_TYPES } from '../../core/constants';
+import { BG_DATA_TYPES } from "../../core/constants";
 
 const { Stat } = vizComponents;
 
@@ -13,7 +13,7 @@ class Stats extends React.Component {
     bgPrefs: PropTypes.object.isRequired,
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object,
-    chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
+    chartType: PropTypes.oneOf(["basics", "daily", "bgLog", "trends"]).isRequired,
     dataUtil: PropTypes.object.isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
     loading: PropTypes.bool.isRequired,
@@ -21,7 +21,7 @@ class Stats extends React.Component {
 
   constructor(props) {
     super(props);
-    this.log = bows('Stats');
+    this.log = bows("Stats");
 
     this.bgPrefs = {
       bgUnits: this.props.bgPrefs.bgUnits,
@@ -132,42 +132,42 @@ class Stats extends React.Component {
       stats.push(stat);
     };
 
-    const cbgSelected = bgSource === 'cbg';
-    const smbgSelected = bgSource === 'smbg';
+    const cbgSelected = bgSource === "cbg";
+    const smbgSelected = bgSource === "smbg";
 
     switch (chartType) {
-      case 'basics':
-        cbgSelected && addStat(commonStats.timeInRange);
-        smbgSelected && addStat(commonStats.readingsInRange);
-        addStat(commonStats.averageGlucose);
-        cbgSelected && addStat(commonStats.sensorUsage);
-        addStat(commonStats.totalInsulin);
-        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
-        addStat(commonStats.carbs);
-        addStat(commonStats.averageDailyDose);
-        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
-        break;
+    case "basics":
+      cbgSelected && addStat(commonStats.timeInRange);
+      smbgSelected && addStat(commonStats.readingsInRange);
+      addStat(commonStats.averageGlucose);
+      cbgSelected && addStat(commonStats.sensorUsage);
+      addStat(commonStats.totalInsulin);
+      isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
+      addStat(commonStats.carbs);
+      addStat(commonStats.averageDailyDose);
+      cbgSelected && addStat(commonStats.glucoseManagementIndicator);
+      break;
 
-      case 'daily':
-        cbgSelected && addStat(commonStats.timeInRange);
-        smbgSelected && addStat(commonStats.readingsInRange);
-        addStat(commonStats.averageGlucose);
-        addStat(commonStats.totalInsulin);
-        isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
-        addStat(commonStats.carbs);
-        cbgSelected && addStat(commonStats.standardDev);
-        cbgSelected && addStat(commonStats.coefficientOfVariation);
-        break;
+    case "daily":
+      cbgSelected && addStat(commonStats.timeInRange);
+      smbgSelected && addStat(commonStats.readingsInRange);
+      addStat(commonStats.averageGlucose);
+      addStat(commonStats.totalInsulin);
+      isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
+      addStat(commonStats.carbs);
+      cbgSelected && addStat(commonStats.standardDev);
+      cbgSelected && addStat(commonStats.coefficientOfVariation);
+      break;
 
-      case 'trends':
-        cbgSelected && addStat(commonStats.timeInRange);
-        smbgSelected && addStat(commonStats.readingsInRange);
-        addStat(commonStats.averageGlucose);
-        cbgSelected && addStat(commonStats.sensorUsage);
-        cbgSelected && addStat(commonStats.glucoseManagementIndicator);
-        addStat(commonStats.standardDev);
-        addStat(commonStats.coefficientOfVariation);
-        break;
+    case "trends":
+      cbgSelected && addStat(commonStats.timeInRange);
+      smbgSelected && addStat(commonStats.readingsInRange);
+      addStat(commonStats.averageGlucose);
+      cbgSelected && addStat(commonStats.sensorUsage);
+      cbgSelected && addStat(commonStats.glucoseManagementIndicator);
+      addStat(commonStats.standardDev);
+      addStat(commonStats.coefficientOfVariation);
+      break;
     }
 
     return stats;

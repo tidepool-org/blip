@@ -1,15 +1,15 @@
-import PropTypes from 'prop-types';
-import React from 'react';
-import _ from 'lodash';
-import { Point, Rect } from 'victory';
-import { Arc } from 'victory-core';
-import colors from '../../../styles/colors.css';
-import { classifyBgValue } from '../../../utils/bloodglucose';
+import PropTypes from "prop-types";
+import React from "react";
+import _ from "lodash";
+import { Point, Rect } from "victory";
+import { Arc } from "victory-core";
+import colors from "../../../styles/colors.css";
+import { classifyBgValue } from "../../../utils/bloodglucose";
 
-const BgBar = props => {
+function BgBar(props) {
   const {
     barWidth,
-    bgPrefs: { bgBounds } = {},
+    bgPrefs,
     chartLabelWidth,
     datum = {},
     domain,
@@ -21,10 +21,11 @@ const BgBar = props => {
     width,
   } = props;
 
+  const { bgBounds } = bgPrefs;
   const renderDeviation = _.isObject(datum.deviation);
   const renderMean = !renderDeviation;
 
-  const deviation = _.get(datum, 'deviation.value', 0);
+  const deviation = _.get(datum, "deviation.value", 0);
 
   const widthCorrection = (width - chartLabelWidth) / width;
   const widths = {
@@ -57,7 +58,7 @@ const BgBar = props => {
           startAngle={90}
           endAngle={270}
           style={{
-            stroke: 'transparent',
+            stroke: "transparent",
             fill: isEnabled ? colors.low : colors.statDisabled,
             fillOpacity: isEnabled ? 0.5 : 1,
           }}
@@ -69,7 +70,7 @@ const BgBar = props => {
           width={widths.low - barRadius}
           height={barWidth}
           style={{
-            stroke: 'transparent',
+            stroke: "transparent",
             fill: isEnabled ? colors.low : colors.statDisabled,
             fillOpacity: isEnabled ? 0.5 : 1,
           }}
@@ -81,7 +82,7 @@ const BgBar = props => {
           width={widths.target}
           height={barWidth}
           style={{
-            stroke: 'transparent',
+            stroke: "transparent",
             fill: isEnabled ? colors.target : colors.statDisabled,
             fillOpacity: isEnabled ? 0.5 : 1,
           }}
@@ -93,7 +94,7 @@ const BgBar = props => {
           width={widths.high - barRadius}
           height={barWidth}
           style={{
-            stroke: 'transparent',
+            stroke: "transparent",
             fill: isEnabled ? colors.high : colors.statDisabled,
             fillOpacity: isEnabled ? 0.5 : 1,
           }}
@@ -105,7 +106,7 @@ const BgBar = props => {
           startAngle={270}
           endAngle={90}
           style={{
-            stroke: 'transparent',
+            stroke: "transparent",
             fill: isEnabled ? colors.high : colors.statDisabled,
             fillOpacity: isEnabled ? 0.5 : 1,
           }}
@@ -136,7 +137,7 @@ const BgBar = props => {
             width={4}
             height={barWidth * 4 + 2}
             style={{
-              stroke: 'white',
+              stroke: "white",
               strokeWidth: 2,
               fill: colors[classifyBgValue(bgBounds, _.max([dev1Value, 0.1]))],
             }}
@@ -149,7 +150,7 @@ const BgBar = props => {
             width={4}
             height={barWidth * 4 + 2}
             style={{
-              stroke: 'white',
+              stroke: "white",
               strokeWidth: 2,
               fill: colors[classifyBgValue(bgBounds, dev2Value)],
             }}
@@ -158,12 +159,22 @@ const BgBar = props => {
       )}
     </g>
   );
-};
+}
 
 BgBar.propTypes = {
-  bgPrefs: PropTypes.object.isRequired,
+  barWidth: PropTypes.number.isRequired,
+  bgPrefs: PropTypes.shape({
+    bgBounds: PropTypes.object.isRequired,
+  }).isRequired,
+  chartLabelWidth: PropTypes.number.isRequired,
+  datum: PropTypes.object,
+  domain: PropTypes.object.isRequired,
+  index: PropTypes.number,
+  scale: PropTypes.shape({
+    x: PropTypes.func,
+    y: PropTypes.func,
+  }),
+  width: PropTypes.number,
 };
-
-BgBar.displayName = 'BgBar';
 
 export default BgBar;

@@ -15,157 +15,157 @@
  * == BSD2 LICENSE ==
  */
 
-import { assert, expect } from 'chai';
-import { MMOLL_UNITS } from '../js/data/util/constants';
+import { assert, expect } from "chai";
+import { MMOLL_UNITS } from "../js/data/util/constants";
 
-import classifiers from '../plugins/blip/basics/logic/classifiers';
+import classifiers from "../plugins/blip/basics/logic/classifiers";
 
-describe('basics classifiers', function() {
+describe("basics classifiers", function() {
   var bgClasses = {
-    'very-low': {boundary: 10},
-    low: {boundary: 20},
-    target: {boundary: 30},
-    high: {boundary: 40},
-    'very-high': {boundary: 50}
+    "very-low": {boundary: 10},
+    "low": {boundary: 20},
+    "target": {boundary: 30},
+    "high": {boundary: 40},
+    "very-high": {boundary: 50}
   };
 
   var bgClassesMmoll = {
-    'very-low': {boundary: 2},
-    low: {boundary: 3},
-    target: {boundary: 4},
-    high: {boundary: 10},
-    'very-high': {boundary: 20}
+    "very-low": {boundary: 2},
+    "low": {boundary: 3},
+    "target": {boundary: 4},
+    "high": {boundary: 10},
+    "very-high": {boundary: 20}
   };
 
-  it('should be a function', function() {
+  it("should be a function", function() {
     assert.isFunction(classifiers);
   });
 
-  it('should return an object', function() {
+  it("should return an object", function() {
     assert.isObject(classifiers());
   });
 
-  describe('basal', function() {
+  describe("basal", function() {
     var classifier = classifiers().basal;
-    it('should return no tags for a scheduled basal', function() {
-      expect(classifier({deliveryType: 'scheduled'})).to.deep.equal([]);
+    it("should return no tags for a scheduled basal", function() {
+      expect(classifier({deliveryType: "scheduled"})).to.deep.equal([]);
     });
 
-    it('should return no tags for an automated basal', function() {
-      expect(classifier({deliveryType: 'automated'})).to.deep.equal([]);
+    it("should return no tags for an automated basal", function() {
+      expect(classifier({deliveryType: "automated"})).to.deep.equal([]);
     });
 
-    it('should return `temp` for a temp basal', function() {
-      expect(classifier({deliveryType: 'temp'})).to.deep.equal(['temp']);
+    it("should return `temp` for a temp basal", function() {
+      expect(classifier({deliveryType: "temp"})).to.deep.equal(["temp"]);
     });
 
-    it('should return `suspended` for a temp basal', function() {
-      expect(classifier({deliveryType: 'suspended'})).to.deep.equal(['suspended']);
+    it("should return `suspended` for a temp basal", function() {
+      expect(classifier({deliveryType: "suspended"})).to.deep.equal(["suspended"]);
     });
   });
 
-  describe('bolus', function() {
+  describe("bolus", function() {
     var classifier = classifiers().bolus;
 
-    it('should return `wizard` and `correction` tags for a correction-only bolus from wizard', function() {
+    it("should return `wizard` and `correction` tags for a correction-only bolus from wizard", function() {
       expect(classifier({
-        type: 'bolus',
-        wizard: {type: 'wizard', recommended: {correction: 1.0, carb: 0, net: 1.0}},
+        type: "bolus",
+        wizard: {type: "wizard", recommended: {correction: 1.0, carb: 0, net: 1.0}},
         normal: 1.0
-      })).to.deep.equal(['wizard', 'correction']);
+      })).to.deep.equal(["wizard", "correction"]);
     });
 
-    it('should return `wizard` and `override` for an underridden bolus', function() {
+    it("should return `wizard` and `override` for an underridden bolus", function() {
       expect(classifier({
-        type: 'bolus',
-        wizard: {type: 'wizard', recommended: {correction: 1.0, carb: 2.0, net: 3.0}},
+        type: "bolus",
+        wizard: {type: "wizard", recommended: {correction: 1.0, carb: 2.0, net: 3.0}},
         normal: 1.5
-      })).to.deep.equal(['wizard', 'underride']);
+      })).to.deep.equal(["wizard", "underride"]);
     });
 
-    it('should return `manual`, `extended`, and `interrupted` for an interrupted non-wizard extended bolus', function() {
+    it("should return `manual`, `extended`, and `interrupted` for an interrupted non-wizard extended bolus", function() {
       expect(classifier({
-        type: 'bolus',
+        type: "bolus",
         extended: 5.0,
         expectedExtended: 5.5
-      })).to.deep.equal(['manual', 'interrupted', 'extended']);
+      })).to.deep.equal(["manual", "interrupted", "extended"]);
     });
 
-    it('net recommendation is what counts for determining override', function() {
+    it("net recommendation is what counts for determining override", function() {
       expect(classifier({
-        type: 'bolus',
-        wizard: {type: 'wizard', recommended: {correction: 2.5, carb: 0, net: 2.2}},
+        type: "bolus",
+        wizard: {type: "wizard", recommended: {correction: 2.5, carb: 0, net: 2.2}},
         normal: 2.5
-      })).to.deep.equal(['wizard', 'override', 'correction']);
+      })).to.deep.equal(["wizard", "override", "correction"]);
     });
 
-    it('corner case: interrupted correction zero bolus', function() {
+    it("corner case: interrupted correction zero bolus", function() {
       expect(classifier({
-        type: 'bolus',
-        wizard: {type: 'wizard', recommended: {correction: 1.0, carb: 0, net: 1.0}},
+        type: "bolus",
+        wizard: {type: "wizard", recommended: {correction: 1.0, carb: 0, net: 1.0}},
         normal: 0.0,
         expectedNormal: 1.0
-      })).to.deep.equal(['wizard', 'correction', 'interrupted']);
+      })).to.deep.equal(["wizard", "correction", "interrupted"]);
     });
 
-    it('corner case: interrupt an override to recommended amount', function() {
+    it("corner case: interrupt an override to recommended amount", function() {
       expect(classifier({
-        type: 'bolus',
-        wizard: {type: 'wizard', recommended: {correction: 3.0, carb: 5.0, net: 7.5}},
+        type: "bolus",
+        wizard: {type: "wizard", recommended: {correction: 3.0, carb: 5.0, net: 7.5}},
         normal: 7.5,
         expectedNormal: 8.5
-      })).to.deep.equal(['wizard', 'override', 'interrupted']);
+      })).to.deep.equal(["wizard", "override", "interrupted"]);
     });
 
-    it('corner case: good intentions count! (interrupted bolus does not automatically = override)', function() {
+    it("corner case: good intentions count! (interrupted bolus does not automatically = override)", function() {
       expect(classifier({
-        type: 'bolus',
-        wizard: {type: 'wizard', recommended: {correction: 2.5, carb: 0, net: 2.2}},
+        type: "bolus",
+        wizard: {type: "wizard", recommended: {correction: 2.5, carb: 0, net: 2.2}},
         normal: 1.0,
         expectedNormal: 2.2
-      })).to.deep.equal(['wizard', 'correction', 'interrupted']);
+      })).to.deep.equal(["wizard", "correction", "interrupted"]);
     });
   });
 
-  describe('smbg', function() {
+  describe("smbg", function() {
     var classifier = classifiers(bgClasses).smbg;
     var classifierMmoll = classifiers(bgClassesMmoll, MMOLL_UNITS).smbg;
-    it('should classify a non-subTyped smbg as `meter`', function() {
-      expect(classifier({value: 25})).to.deep.equal(['meter']);
+    it("should classify a non-subTyped smbg as `meter`", function() {
+      expect(classifier({value: 25})).to.deep.equal(["meter"]);
     });
 
-    it('should classify a `linked` smbg as `meter`', function() {
-      expect(classifier({value: 25, subType: 'linked'})).to.deep.equal(['meter']);
+    it("should classify a `linked` smbg as `meter`", function() {
+      expect(classifier({value: 25, subType: "linked"})).to.deep.equal(["meter"]);
     });
 
-    it('should classify a `manual` smbg as `manual`', function() {
-      expect(classifier({value: 25, subType: 'manual'})).to.deep.equal(['manual']);
+    it("should classify a `manual` smbg as `manual`", function() {
+      expect(classifier({value: 25, subType: "manual"})).to.deep.equal(["manual"]);
     });
 
-    it('should classify an smbg below the very-low threshold as `verylow`', function() {
-      expect(classifier({value: 5})).to.deep.equal(['meter', 'verylow']);
+    it("should classify an smbg below the very-low threshold as `verylow`", function() {
+      expect(classifier({value: 5})).to.deep.equal(["meter", "verylow"]);
     });
 
-    it('should classify an mmol/L smbg below the very-low threshold as `verylow`', function() {
-      expect(classifierMmoll({value: 1.3})).to.deep.equal(['meter', 'verylow']);
+    it("should classify an mmol/L smbg below the very-low threshold as `verylow`", function() {
+      expect(classifierMmoll({value: 1.3})).to.deep.equal(["meter", "verylow"]);
     });
 
-    it('should not return any category tags for an in-target value', function() {
-      expect(classifier({value: 25})).to.deep.equal(['meter']);
+    it("should not return any category tags for an in-target value", function() {
+      expect(classifier({value: 25})).to.deep.equal(["meter"]);
     });
 
-    it('should not return any category tags for an in-target mmol/L value', function() {
-      expect(classifierMmoll({value: 7.2})).to.deep.equal(['meter']);
+    it("should not return any category tags for an in-target mmol/L value", function() {
+      expect(classifierMmoll({value: 7.2})).to.deep.equal(["meter"]);
     });
 
-    it('should classify an smbg above the high threshold as `veryhigh`', function() {
-      expect(classifier({value: 35})).to.deep.equal(['meter']);
-      expect(classifier({value: 55})).to.deep.equal(['meter', 'veryhigh']);
+    it("should classify an smbg above the high threshold as `veryhigh`", function() {
+      expect(classifier({value: 35})).to.deep.equal(["meter"]);
+      expect(classifier({value: 55})).to.deep.equal(["meter", "veryhigh"]);
     });
 
-    it('should classify an mmol/L smbg above the high threshold as `veryhigh`', function() {
-      expect(classifierMmoll({value: 8})).to.deep.equal(['meter']);
-      expect(classifierMmoll({value: 22})).to.deep.equal(['meter', 'veryhigh']);
+    it("should classify an mmol/L smbg above the high threshold as `veryhigh`", function() {
+      expect(classifierMmoll({value: 8})).to.deep.equal(["meter"]);
+      expect(classifierMmoll({value: 22})).to.deep.equal(["meter", "veryhigh"]);
     });
   });
 });

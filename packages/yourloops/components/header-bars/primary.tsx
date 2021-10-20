@@ -27,7 +27,7 @@
  */
 
 import _ from "lodash";
-import * as React from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -85,16 +85,16 @@ const toolbarStyles = makeStyles((theme: Theme) => ({
     paddingTop: "0.7em",
     justifyItems: "stretch",
     alignItems: "center",
-    [theme.breakpoints.down('lg')]: {
+    [theme.breakpoints.down("lg")]: {
       paddingLeft: theme.spacing(4),
       paddingRight: theme.spacing(4),
     },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       gridTemplateColumns: (props: HeaderProps) => _.isEmpty(props.children) ? "auto auto" : "auto auto auto",
       paddingLeft: theme.spacing(2),
       paddingRight: theme.spacing(2),
     },
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down("xs")]: {
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
       display: "flex",
@@ -103,13 +103,13 @@ const toolbarStyles = makeStyles((theme: Theme) => ({
   },
   toolbarLeft: {
     height: "100%",
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down("xs")]: {
       order: 1,
       width: "3em",
     },
   },
   toolbarMiddle: {
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down("xs")]: {
       order: 3,
       width: "100%",
     },
@@ -117,7 +117,7 @@ const toolbarStyles = makeStyles((theme: Theme) => ({
   toolbarRight: {
     display: "flex",
     justifyContent: "flex-end",
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down("xs")]: {
       order: 2,
       marginLeft: "auto",
     },
@@ -129,7 +129,7 @@ const toolbarStyles = makeStyles((theme: Theme) => ({
     height: "100%",
     cursor: "pointer",
     outline: "none",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down("sm")]: {
       display: "none",
     },
   },
@@ -137,7 +137,7 @@ const toolbarStyles = makeStyles((theme: Theme) => ({
     height: "100%",
     cursor: "pointer",
     outline: "none",
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up("md")]: {
       display: "none",
     },
   },

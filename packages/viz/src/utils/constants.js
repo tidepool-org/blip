@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-import i18next from 'i18next';
+import i18next from "i18next";
 const t = i18next.t.bind(i18next);
 
-export const BG_HIGH = 'High';
-export const BG_LOW = 'Low';
+export const BG_HIGH = "High";
+export const BG_LOW = "Low";
 
 const STIFFNESS = 180;
 const DAMPING = 40;
@@ -37,88 +37,88 @@ export const MS_IN_HOUR = 864e5 / 24;
 export const MS_IN_MIN = MS_IN_HOUR / 60;
 
 export const CGM_READINGS_ONE_DAY = 288;
-export const CGM_DATA_KEY = 'cbg';
-export const BGM_DATA_KEY = 'smbg';
-export const NO_CGM = 'noCGM';
-export const CGM_CALCULATED = 'calculatedCGM';
-export const NOT_ENOUGH_CGM = 'notEnoughCGM';
+export const CGM_DATA_KEY = "cbg";
+export const BGM_DATA_KEY = "smbg";
+export const NO_CGM = "noCGM";
+export const CGM_CALCULATED = "calculatedCGM";
+export const NOT_ENOUGH_CGM = "notEnoughCGM";
 
-export const NO_SITE_CHANGE = 'noSiteChange';
-export const SITE_CHANGE = 'siteChange';
-export const SITE_CHANGE_RESERVOIR = 'reservoirChange';
-export const SITE_CHANGE_TUBING = 'tubingPrime';
-export const SITE_CHANGE_CANNULA = 'cannulaPrime';
+export const NO_SITE_CHANGE = "noSiteChange";
+export const SITE_CHANGE = "siteChange";
+export const SITE_CHANGE_RESERVOIR = "reservoirChange";
+export const SITE_CHANGE_TUBING = "tubingPrime";
+export const SITE_CHANGE_CANNULA = "cannulaPrime";
 
-export const AUTOMATED_DELIVERY = 'automatedDelivery';
-export const SCHEDULED_DELIVERY = 'scheduledDelivery';
+export const AUTOMATED_DELIVERY = "automatedDelivery";
+export const SCHEDULED_DELIVERY = "scheduledDelivery";
 
-export const SECTION_TYPE_UNDECLARED = 'undeclared';
+export const SECTION_TYPE_UNDECLARED = "undeclared";
 
-export const INSULET = 'Insulet';
-export const TANDEM = 'Tandem';
-export const ANIMAS = 'Animas';
-export const MEDTRONIC = 'Medtronic';
-export const DIABELOOP = 'Diabeloop';
-export const ROCHE = 'Roche';
-export const VICENTRA = 'Vicentra';
-export const DEFAULT_MANUFACTURER = 'default';
+export const INSULET = "Insulet";
+export const TANDEM = "Tandem";
+export const ANIMAS = "Animas";
+export const MEDTRONIC = "Medtronic";
+export const DIABELOOP = "Diabeloop";
+export const ROCHE = "Roche";
+export const VICENTRA = "Vicentra";
+export const DEFAULT_MANUFACTURER = "default";
 
 export const getPumpVocabularies = () => ({
   [ANIMAS]: {
-    [SITE_CHANGE_RESERVOIR]: t('Go Rewind'),
-    [SITE_CHANGE_TUBING]: t('Go Prime'),
-    [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
-    [AUTOMATED_DELIVERY]: t('Automated'),
-    [SCHEDULED_DELIVERY]: t('Manual'),
+    [SITE_CHANGE_RESERVOIR]: t("Go Rewind"),
+    [SITE_CHANGE_TUBING]: t("Go Prime"),
+    [SITE_CHANGE_CANNULA]: t("Fill Cannula"),
+    [AUTOMATED_DELIVERY]: t("Automated"),
+    [SCHEDULED_DELIVERY]: t("Manual"),
   },
   [INSULET]: {
-    [SITE_CHANGE_RESERVOIR]: t('Change Pod'),
-    [SITE_CHANGE_TUBING]: t('Activate Pod'),
-    [SITE_CHANGE_CANNULA]: t('Prime'),
-    [AUTOMATED_DELIVERY]: t('Automated'),
-    [SCHEDULED_DELIVERY]: t('Manual'),
+    [SITE_CHANGE_RESERVOIR]: t("Change Pod"),
+    [SITE_CHANGE_TUBING]: t("Activate Pod"),
+    [SITE_CHANGE_CANNULA]: t("Prime"),
+    [AUTOMATED_DELIVERY]: t("Automated"),
+    [SCHEDULED_DELIVERY]: t("Manual"),
   },
   [MEDTRONIC]: {
-    [SITE_CHANGE_RESERVOIR]: t('Rewind'),
-    [SITE_CHANGE_TUBING]: t('Prime'),
-    [SITE_CHANGE_CANNULA]: t('Prime Cannula'),
-    [AUTOMATED_DELIVERY]: t('Auto Mode'),
-    [SCHEDULED_DELIVERY]: t('Manual'),
+    [SITE_CHANGE_RESERVOIR]: t("Rewind"),
+    [SITE_CHANGE_TUBING]: t("Prime"),
+    [SITE_CHANGE_CANNULA]: t("Prime Cannula"),
+    [AUTOMATED_DELIVERY]: t("Auto Mode"),
+    [SCHEDULED_DELIVERY]: t("Manual"),
   },
   [TANDEM]: {
-    [SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
-    [SITE_CHANGE_TUBING]: t('Fill Tubing'),
-    [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
-    [AUTOMATED_DELIVERY]: t('Automated'),
-    [SCHEDULED_DELIVERY]: t('Manual'),
+    [SITE_CHANGE_RESERVOIR]: t("Change Cartridge"),
+    [SITE_CHANGE_TUBING]: t("Fill Tubing"),
+    [SITE_CHANGE_CANNULA]: t("Fill Cannula"),
+    [AUTOMATED_DELIVERY]: t("Automated"),
+    [SCHEDULED_DELIVERY]: t("Manual"),
   },
   [DIABELOOP]: {
-    [SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
-    [SITE_CHANGE_TUBING]: t('Fill Tubing'),
-    [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
-    [AUTOMATED_DELIVERY]: t('Loop mode'),
-    [SCHEDULED_DELIVERY]: t('Loop mode off'),
+    [SITE_CHANGE_RESERVOIR]: t("Change Cartridge"),
+    [SITE_CHANGE_TUBING]: t("Fill Tubing"),
+    [SITE_CHANGE_CANNULA]: t("Fill Cannula"),
+    [AUTOMATED_DELIVERY]: t("Loop mode"),
+    [SCHEDULED_DELIVERY]: t("Loop mode off"),
   },
   default: {
-    [SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
-    [SITE_CHANGE_TUBING]: t('Fill Tubing'),
-    [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
-    [AUTOMATED_DELIVERY]: t('Automated'),
-    [SCHEDULED_DELIVERY]: t('Manual'),
+    [SITE_CHANGE_RESERVOIR]: t("Change Cartridge"),
+    [SITE_CHANGE_TUBING]: t("Fill Tubing"),
+    [SITE_CHANGE_CANNULA]: t("Fill Cannula"),
+    [AUTOMATED_DELIVERY]: t("Automated"),
+    [SCHEDULED_DELIVERY]: t("Manual"),
   },
 });
 
 export const AUTOMATED_BASAL_DEVICE_MODELS = {
-  [MEDTRONIC]: ['1580', '1581', '1582', '1780', '1781', '1782'],
+  [MEDTRONIC]: ["1580", "1581", "1582", "1780", "1781", "1782"],
   [DIABELOOP]: true,
 };
 
-export const PRESCRIPTOR_AUTO = 'auto';
-export const PRESCRIPTOR_MODIFIED = 'hybrid';
-export const PRESCRIPTOR_NONE = 'manual';
+export const PRESCRIPTOR_AUTO = "auto";
+export const PRESCRIPTOR_MODIFIED = "hybrid";
+export const PRESCRIPTOR_NONE = "manual";
 
-export const RESERVOIR_CHANGE = 'reservoir';
-export const INFUSION_SITE_CHANGE = 'site';
+export const RESERVOIR_CHANGE = "reservoir";
+export const INFUSION_SITE_CHANGE = "site";
 
 export const SITE_CHANGE_BY_MANUFACTURER = {
   [DEFAULT_MANUFACTURER]: INFUSION_SITE_CHANGE,

@@ -31,10 +31,10 @@ const webpack = require("./webpack.config.js");
 
 const config = {
   files: [
-    'test/run-tests.js',
+    "test/run-tests.js",
   ],
   preprocessors: {
-    'test/run-tests.js': ['webpack', 'sourcemap'],
+    "test/run-tests.js": ["webpack", "sourcemap"],
   },
 };
 updateDefaultConfig("blip", config, webpack);

@@ -15,65 +15,67 @@
  * == BSD2 LICENSE ==
  */
 
-import * as nonTandemData from '../../../src/utils/settings/nonTandemData';
+import { expect } from "chai";
 
-const medtronicAutomatedData = require('../../../data/pumpSettings/medtronic/automated.json');
+import * as nonTandemData from "../../../src/utils/settings/nonTandemData";
 
-describe('[settings] non-Tandem data utils', () => {
-  describe('basal', () => {
-    it('should generate and return a basal schedule object', () => {
-      expect(nonTandemData.basal(0, medtronicAutomatedData, 'medtronic')).to.be.an('object');
+const medtronicAutomatedData = require("../../../data/pumpSettings/medtronic/automated.json");
+
+describe("[settings] non-Tandem data utils", () => {
+  describe("basal", () => {
+    it("should generate and return a basal schedule object", () => {
+      expect(nonTandemData.basal(0, medtronicAutomatedData, "medtronic")).to.be.an("object");
     });
 
-    it('should set the `scheduleName` property', () => {
-      const automated = nonTandemData.basal(0, medtronicAutomatedData, 'medtronic');
-      const nonAutomated = nonTandemData.basal(1, medtronicAutomatedData, 'medtronic');
+    it("should set the `scheduleName` property", () => {
+      const automated = nonTandemData.basal(0, medtronicAutomatedData, "medtronic");
+      const nonAutomated = nonTandemData.basal(1, medtronicAutomatedData, "medtronic");
 
-      expect(automated.scheduleName).to.equal('Auto Mode');
-      expect(nonAutomated.scheduleName).to.equal('Standard');
+      expect(automated.scheduleName).to.equal("Auto Mode");
+      expect(nonAutomated.scheduleName).to.equal("Standard");
     });
 
-    it('should set the `activeAtUpload` property', () => {
-      const active = nonTandemData.basal(0, medtronicAutomatedData, 'medtronic');
-      const nonActive = nonTandemData.basal(1, medtronicAutomatedData, 'medtronic');
+    it("should set the `activeAtUpload` property", () => {
+      const active = nonTandemData.basal(0, medtronicAutomatedData, "medtronic");
+      const nonActive = nonTandemData.basal(1, medtronicAutomatedData, "medtronic");
 
       expect(active.activeAtUpload).to.be.true;
       expect(nonActive.activeAtUpload).to.be.false;
     });
 
-    it('should set the `isAutomated` property', () => {
-      const automated = nonTandemData.basal(0, medtronicAutomatedData, 'medtronic');
-      const nonAutomated = nonTandemData.basal(1, medtronicAutomatedData, 'medtronic');
+    it("should set the `isAutomated` property", () => {
+      const automated = nonTandemData.basal(0, medtronicAutomatedData, "medtronic");
+      const nonAutomated = nonTandemData.basal(1, medtronicAutomatedData, "medtronic");
 
       expect(automated.isAutomated).to.be.true;
       expect(nonAutomated.isAutomated).to.be.false;
     });
 
-    it('should set the `columns` and `rows` to empty arrays for automated schedules', () => {
-      const automated = nonTandemData.basal(0, medtronicAutomatedData, 'medtronic');
-      const nonAutomated = nonTandemData.basal(1, medtronicAutomatedData, 'medtronic');
+    it("should set the `columns` and `rows` to empty arrays for automated schedules", () => {
+      const automated = nonTandemData.basal(0, medtronicAutomatedData, "medtronic");
+      const nonAutomated = nonTandemData.basal(1, medtronicAutomatedData, "medtronic");
 
-      expect(automated.rows).to.be.an('array').that.is.empty;
-      expect(automated.columns).to.be.an('array').that.is.empty;
+      expect(automated.rows).to.be.an("array").that.is.empty;
+      expect(automated.columns).to.be.an("array").that.is.empty;
 
-      expect(nonAutomated.rows).to.be.an('array').that.is.not.empty;
-      expect(nonAutomated.columns).to.be.an('array').that.is.not.empty;
+      expect(nonAutomated.rows).to.be.an("array").that.is.not.empty;
+      expect(nonAutomated.columns).to.be.an("array").that.is.not.empty;
     });
 
-    it('should set the `title` without units for automated schedules', () => {
-      const automated = nonTandemData.basal(0, medtronicAutomatedData, 'medtronic');
-      const nonAutomated = nonTandemData.basal(1, medtronicAutomatedData, 'medtronic');
+    it("should set the `title` without units for automated schedules", () => {
+      const automated = nonTandemData.basal(0, medtronicAutomatedData, "medtronic");
+      const nonAutomated = nonTandemData.basal(1, medtronicAutomatedData, "medtronic");
 
       expect(automated.title).to.eql({
-        main: 'Auto Mode',
-        secondary: 'Active at upload',
-        units: '',
+        main: "Auto Mode",
+        secondary: "Active at upload",
+        units: "",
       });
 
       expect(nonAutomated.title).to.eql({
-        main: 'Standard',
-        secondary: '',
-        units: 'U/hr',
+        main: "Standard",
+        secondary: "",
+        units: "U/hr",
       });
     });
   });

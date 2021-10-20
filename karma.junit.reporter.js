@@ -50,7 +50,7 @@ function JUnitReporter(config, logger) {
   /** @type {JUnitConfig} */
   this.config = config.junitReporter;
   /** @type {Console} */
-  this.log = logger.create('reporter.junit');
+  this.log = logger.create("reporter.junit");
 
   this.log.debug(`Starting JUnit reporter for ${this.config.name}`);
 
@@ -136,13 +136,13 @@ JUnitReporter.prototype.fileReport = async function() {
       if (failure) {
         await handle.write(`   <failure message="${failure.message}" type="${failure.type}">\n`);
         await handle.write(failure.log);
-        await handle.write(`\n   </failure>\n`);
+        await handle.write("\n   </failure>\n");
       }
-      await handle.write(`  </testcase>\n`);
+      await handle.write("  </testcase>\n");
     }
-    await handle.write(` </testsuite>\n`);
+    await handle.write(" </testsuite>\n");
   }
-  await handle.write(`</testsuites>\n`);
+  await handle.write("</testsuites>\n");
   await handle.close();
 };
 
@@ -188,8 +188,8 @@ JUnitReporter.prototype.onSpecComplete = function(browser, result) {
   }
 };
 
-JUnitReporter.$inject = ['config', 'logger'];
+JUnitReporter.$inject = ["config", "logger"];
 
 module.exports = {
-  'reporter:junit': ['type', JUnitReporter]
+  "reporter:junit": ["type", JUnitReporter]
 };

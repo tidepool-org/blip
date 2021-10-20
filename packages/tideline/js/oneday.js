@@ -21,14 +21,14 @@
  * @typedef {import('./pool').default} Pool
  */
 
-import _ from 'lodash';
-import bows from 'bows';
-import moment from 'moment-timezone';
+import _ from "lodash";
+import bows from "bows";
+import moment from "moment-timezone";
 
-import { MS_IN_DAY } from './data/util/constants';
-import mkAnnotation from './plot/util/annotations/annotation';
-import Tooltips from './plot/util/tooltips/tooltip';
-import TidelineData from './tidelinedata';
+import { MS_IN_DAY } from "./data/util/constants";
+import mkAnnotation from "./plot/util/annotations/annotation";
+import Tooltips from "./plot/util/tooltips/tooltip";
+import TidelineData from "./tidelinedata";
 
 /**
  *
@@ -39,7 +39,7 @@ import TidelineData from './tidelinedata';
 function oneDay(emitter, options = {}) {
   const d3 = window.d3;
   /** @type {Console} */
-  const log = bows('OneDay');
+  const log = bows("OneDay");
 
   _.defaults(options, { trackMetric: _.noop });
 
@@ -89,38 +89,38 @@ function oneDay(emitter, options = {}) {
   let height = minHeight;
   let poolScaleHeight = 0;
   let gutter = 40;
-  let id = 'tidelineSVGOneDay';
+  let id = "tidelineSVGOneDay";
   let scrollHandleTrigger = true;
 
   function container(selection) {
-    container.mainSVG = selection.append('svg');
-    container.mainGroup = container.mainSVG.append('g').attr('id', 'tidelineMainSVG');
+    container.mainSVG = selection.append("svg");
+    container.mainGroup = container.mainSVG.append("g").attr("id", "tidelineMainSVG");
     // update SVG dimensions and ID
     container.mainSVG.attr({
-      'id': id,
-      'width': width,
-      'height': height
+      id: id,
+      width: width,
+      height: height
     });
 
-    container.poolGroup = container.mainGroup.append('g').attr('id', 'tidelinePools').attr('clip-path', 'url(#mainClipPath)');
-    container.mainGroup.append('g').attr('id', 'tidelineLabels');
-    container.mainGroup.append('g').attr('id', 'tidelineYAxes');
+    container.poolGroup = container.mainGroup.append("g").attr("id", "tidelinePools").attr("clip-path", "url(#mainClipPath)");
+    container.mainGroup.append("g").attr("id", "tidelineLabels");
+    container.mainGroup.append("g").attr("id", "tidelineYAxes");
 
     if (nav.scrollNav) {
-      container.scrollNav = container.mainGroup.append('g')
-        .attr('class', 'x scroll')
-        .attr('id', 'tidelineScrollNav');
+      container.scrollNav = container.mainGroup.append("g")
+        .attr("class", "x scroll")
+        .attr("id", "tidelineScrollNav");
     }
-    container.mainSVG.insert('clipPath', '#tidelineMainSVG')
-      .attr('id', 'mainClipPath')
-      .append('rect')
+    container.mainSVG.insert("clipPath", "#tidelineMainSVG")
+      .attr("id", "mainClipPath")
+      .append("rect")
       .attr({
-        'x': axisGutter,
-        'y': 0,
-        'width': container.width() - axisGutter,
-        'height': container.height()
+        x: axisGutter,
+        y: 0,
+        width: container.width() - axisGutter,
+        height: container.height()
       });
-    log.debug('Container initialized');
+    log.debug("Container initialized");
   }
 
   /** @type {Pool[]} */
@@ -133,7 +133,7 @@ function oneDay(emitter, options = {}) {
   container.dataFill = {};
   container.emitter = emitter;
   container.options = options;
-  container.type = 'daily';
+  container.type = "daily";
   // container.axisGutter = axisGutter;
   /** @type {SVGElement} */
   container.mainSVG = null;
@@ -159,15 +159,15 @@ function oneDay(emitter, options = {}) {
    */
   container.loadingInProgress = false;
 
-  container.emitter.on('clickInPool', ({ offsetX /*, datum */ }) => {
+  container.emitter.on("clickInPool", ({ offsetX /*, datum */ }) => {
     // Event use when we want to add a message (note)
     /** @type {Date} */
     const date = container.xScale.invert(offsetX - axisGutter);
     // For some reason, d3 seems to apply the current locale date offset
     // to this date, so we need to substract it.
     const now = new Date();
-    const m = moment.utc(date).subtract(now.getTimezoneOffset(), 'minutes');
-    container.emitter.emit('clickToDate', m);
+    const m = moment.utc(date).subtract(now.getTimezoneOffset(), "minutes");
+    container.emitter.emit("clickToDate", m);
   });
 
   /**
@@ -177,7 +177,7 @@ function oneDay(emitter, options = {}) {
    */
   container.throttleNavigated = _.debounce(() => {
     const { center } = container.getCurrentDomain();
-    container.emitter.emit('navigated', center.valueOf());
+    container.emitter.emit("navigated", center.valueOf());
   }, navigatedDelay);
 
   /**
@@ -188,7 +188,7 @@ function oneDay(emitter, options = {}) {
    */
   container.inTransition = (value) => {
     inTransition = value;
-    container.emitter.emit('inTransition', value);
+    container.emitter.emit("inTransition", value);
   };
 
   container.isInTransition = () => inTransition;
@@ -205,7 +205,7 @@ function oneDay(emitter, options = {}) {
 
     const domain = container.getCurrentDomain();
     const nDays = Math.round(10 * (date.valueOf() - domain.center.valueOf()) / MS_IN_DAY) / 10.0;
-    options.trackMetric('data_visualization', 'daily_pan_date', nDays > 0 ? 'forward': 'back', Math.abs(nDays));
+    options.trackMetric("data_visualization", "daily_pan_date", nDays > 0 ? "forward": "back", Math.abs(nDays));
 
     const currentPosition = container.xScale(domain.center);
     const wantedPosition = container.xScale(date);
@@ -221,7 +221,7 @@ function oneDay(emitter, options = {}) {
     container.inTransition(true);
     container.mainGroup.transition()
       .duration(transitionDelay)
-      .tween('zoom', () => {
+      .tween("zoom", () => {
         const ix = d3.interpolate(nav.currentTranslation + translationAmount, nav.currentTranslation);
         return (t) => {
           if (nav.pan !== null) {
@@ -232,11 +232,11 @@ function oneDay(emitter, options = {}) {
         };
       })
       .each(() => ++nUgly)
-      .each('end', () => {
+      .each("end", () => {
         if (container.mainSVG === null) {
           // Callback after destroy
           // we must do nothing
-          log.debug('transition ends: destroyed, nothing to do');
+          log.debug("transition ends: destroyed, nothing to do");
           return;
         }
         // this ugly solution courtesy of the man himself:
@@ -295,9 +295,9 @@ function oneDay(emitter, options = {}) {
       currentYPosition += gutter * pool.gutterWeight();
       pool.yPosition(currentYPosition);
       currentYPosition += pool.height();
-      pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      pool.group().attr("transform", "translate(0," + pool.yPosition() + ")");
       if (pool.hidden()) {
-        pool.group().attr('display', 'none');
+        pool.group().attr("display", "none");
       }
     });
   };
@@ -320,15 +320,15 @@ function oneDay(emitter, options = {}) {
     const domain = container.getCurrentDomain();
 
     if (force) {
-      container.emitter.emit('navigated', domain.center.valueOf());
+      container.emitter.emit("navigated", domain.center.valueOf());
     } else if (!inTransition) {
       container.throttleNavigated();
     }
     // else {
-      // - Pan back/forward in progress
-      // - Manual scrolling with the bar
-      // If true, it will be done at the transition end, we do not want
-      // to do it now, because is slow the scrolling too much
+    // - Pan back/forward in progress
+    // - Manual scrolling with the bar
+    // If true, it will be done at the transition end, we do not want
+    // to do it now, because is slow the scrolling too much
     // }
   };
 
@@ -400,7 +400,7 @@ function oneDay(emitter, options = {}) {
    * 'zoomstart' & 'zoomend' events used by dailyX to change the transparency
    * of the sticky date.
    */
-  container.onZoomStart = () => container.emitter.emit('zoomstart');
+  container.onZoomStart = () => container.emitter.emit("zoomstart");
 
   container.onZoom = () => {
     const { xScale, pools, mainGroup, loadingInProgress } = container;
@@ -430,15 +430,15 @@ function oneDay(emitter, options = {}) {
     /** @type {[Date, Date]} Get the new domain (scroll date position) */
     const domain = xScale.domain();
 
-    mainGroup.select('#tidelineTooltips').attr('transform', `translate(${translateX},0)`);
-    mainGroup.select('#tidelineAnnotations').attr('transform', `translate(${translateX},0)`);
+    mainGroup.select("#tidelineTooltips").attr("transform", `translate(${translateX},0)`);
+    mainGroup.select("#tidelineAnnotations").attr("transform", `translate(${translateX},0)`);
     if (scrollHandleTrigger) {
-      mainGroup.select('.scrollThumb').transition().ease('linear').attr('x', (d) => {
+      mainGroup.select(".scrollThumb").transition().ease("linear").attr("x", (d) => {
         d.x = nav.scrollScale(domain[0]);
         return d.x - nav.scrollThumbRadius;
       });
     } else {
-      mainGroup.select('.scrollThumb').attr('x', (d) => {
+      mainGroup.select(".scrollThumb").attr("x", (d) => {
         d.x = nav.scrollScale(domain[0]);
         return d.x - nav.scrollThumbRadius;
       });
@@ -447,18 +447,18 @@ function oneDay(emitter, options = {}) {
     container.renderPoolsData();
 
     // Update the dailyX sticky label
-    container.emitter.emit('dailyx-navigated', domain[0].valueOf());
+    container.emitter.emit("dailyx-navigated", domain[0].valueOf());
   };
 
   container.onZoomEnd = () => {
     const { xScale, emitter } = container;
-    emitter.emit('zoomend');
+    emitter.emit("zoomend");
     nav.currentTranslation = nav.latestTranslation;
 
     container.navString();
 
     if (!scrollHandleTrigger) {
-      container.mainGroup.select('.scrollThumb').attr('x', (/* d */) => {
+      container.mainGroup.select(".scrollThumb").attr("x", (/* d */) => {
         return nav.scrollScale(xScale.domain()[0]) - nav.scrollThumbRadius;
       });
     }
@@ -470,9 +470,9 @@ function oneDay(emitter, options = {}) {
     nav.pan = d3.behavior.zoom();
     nav.pan.scaleExtent([1, 1]);
     nav.pan.x(xScale);
-    nav.pan.on('zoomstart', container.onZoomStart);
-    nav.pan.on('zoom', container.onZoom);
-    nav.pan.on('zoomend', container.onZoomEnd);
+    nav.pan.on("zoomstart", container.onZoomStart);
+    nav.pan.on("zoom", container.onZoom);
+    nav.pan.on("zoomend", container.onZoomEnd);
     container.mainGroup.call(nav.pan);
 
     return container;
@@ -502,7 +502,7 @@ function oneDay(emitter, options = {}) {
     }
     // Here 'this' is the scrollThumb (<rect class="scrollThumb" />)
     // The drag 'line' on the scrollbar
-    d3.select(this).attr('x', (d) => d.x - nav.scrollThumbRadius);
+    d3.select(this).attr("x", (d) => d.x - nav.scrollThumbRadius);
     const date = nav.scrollScale.invert(dragValues.x);
     nav.currentTranslation += -container.xScale(date) + axisGutter;
     scrollHandleTrigger = false;
@@ -513,39 +513,39 @@ function oneDay(emitter, options = {}) {
   container.onDragEnd = () => {
     container.navString(true);
     container.inTransition(false);
-    container.throttleTrackMetric('data_visualization', 'daily_drag_view');
+    container.throttleTrackMetric("data_visualization", "daily_drag_view");
   };
 
   container.setScrollNav = function() {
-    container.scrollNav.selectAll('line').remove();
-    container.scrollNav.attr('transform', 'translate(0,' + (height - (nav.scrollNavHeight * 2/5)) + ')')
-      .insert('line', '.scrollThumb')
+    container.scrollNav.selectAll("line").remove();
+    container.scrollNav.attr("transform", "translate(0," + (height - (nav.scrollNavHeight * 2/5)) + ")")
+      .insert("line", ".scrollThumb")
       .attr({
-        'stroke-width': nav.scrollGutterHeight,
+        "stroke-width": nav.scrollGutterHeight,
         // add and subtract 1/2 of scrollGutterHeight because radius of linecap is 1/2 of stroke-width
-        'x1': axisGutter + nav.scrollGutterHeight/2,
-        'x2': width - nav.scrollGutterHeight/2,
-        'y1': 0,
-        'y2': 0
+        "x1": axisGutter + nav.scrollGutterHeight/2,
+        "x2": width - nav.scrollGutterHeight/2,
+        "y1": 0,
+        "y2": 0
       });
 
     nav.drag = d3.behavior.drag()
       .origin((d) => d)
-      .on('dragstart', container.onDragStart)
-      .on('drag', container.onDrag)
-      .on('dragend', container.onDragEnd);
+      .on("dragstart", container.onDragStart)
+      .on("drag", container.onDrag)
+      .on("dragend", container.onDragEnd);
 
-    container.scrollNav.selectAll('rect')
-      .data([{'x': nav.scrollScale(container.initialEndpoints[0]), 'y': 0}])
+    container.scrollNav.selectAll("rect")
+      .data([{x: nav.scrollScale(container.initialEndpoints[0]), y: 0}])
       .enter()
-      .append('rect')
+      .append("rect")
       .attr({
-        'x': (d) => d.x - nav.scrollThumbRadius,
-        'y': -nav.scrollThumbRadius/3,
-        'width': nav.scrollThumbRadius * 2,
-        'height': nav.scrollThumbRadius/3 * 2,
-        'rx': nav.scrollThumbRadius/3,
-        'class': 'scrollThumb'
+        x: (d) => d.x - nav.scrollThumbRadius,
+        y: -nav.scrollThumbRadius/3,
+        width: nav.scrollThumbRadius * 2,
+        height: nav.scrollThumbRadius/3 * 2,
+        rx: nav.scrollThumbRadius/3,
+        class: "scrollThumb"
       })
       .call(nav.drag);
 
@@ -553,23 +553,23 @@ function oneDay(emitter, options = {}) {
   };
 
   container.setAnnotation = function() {
-    const annotationGroup = container.mainGroup.append('g')
+    const annotationGroup = container.mainGroup.append("g")
       .attr({
-        id: 'tidelineAnnotationsOuter',
-        'clip-path': 'url(#mainClipPath)'
+        "id": "tidelineAnnotationsOuter",
+        "clip-path": "url(#mainClipPath)"
       })
-      .append('g')
-      .attr('id', 'tidelineAnnotations');
+      .append("g")
+      .attr("id", "tidelineAnnotations");
 
-    container.annotations = mkAnnotation(container, annotationGroup).id(annotationGroup.attr('id'));
+    container.annotations = mkAnnotation(container, annotationGroup).id(annotationGroup.attr("id"));
     container.pools.forEach((pool) => pool.annotations(container.annotations));
     return container;
   };
 
   container.setTooltip = function() {
-    const tooltipGroup = container.mainGroup.append('g');
-    tooltipGroup.attr('id', 'tidelineTooltips');
-    container.tooltips = new Tooltips(container, tooltipGroup).id(tooltipGroup.attr('id'));
+    const tooltipGroup = container.mainGroup.append("g");
+    tooltipGroup.attr("id", "tidelineTooltips");
+    container.tooltips = new Tooltips(container, tooltipGroup).id(tooltipGroup.attr("id"));
     return container;
   };
 
@@ -612,7 +612,7 @@ function oneDay(emitter, options = {}) {
   };
 
   container.destroy = function() {
-    log.info('Destroying chart container...');
+    log.info("Destroying chart container...");
     container.mainSVG.attr({ display: "none", id: "tidelineMainSVGDeleted" });
     // Cancel any navigated in progress
     container.throttleNavigated.cancel();
@@ -620,14 +620,14 @@ function oneDay(emitter, options = {}) {
     container.throttleTrackMetric.cancel();
     if (nav.pan !== null) {
       // d3 has no function to un-subsribe to an event
-      nav.pan.on('zoomstart', _.noop);
-      nav.pan.on('zoom', _.noop);
-      nav.pan.on('zoomend', _.noop);
+      nav.pan.on("zoomstart", _.noop);
+      nav.pan.on("zoom", _.noop);
+      nav.pan.on("zoomend", _.noop);
     }
     if (nav.drag !== null) {
-      nav.drag.on('dragstart', _.noop);
-      nav.drag.on('drag', _.noop);
-      nav.drag.on('dragend', _.noop);
+      nav.drag.on("dragstart", _.noop);
+      nav.drag.on("drag", _.noop);
+      nav.drag.on("dragend", _.noop);
     }
     container.emitter.removeAllListeners();
     container.mainSVG.remove();
@@ -661,10 +661,10 @@ function oneDay(emitter, options = {}) {
   // getters and setters
   container.id = function(x) {
     if (!arguments.length) return id;
-    if (x.search('tideline') !== -1) {
-      id = x.replace('tideline', 'tidelineSVGOneDay');
+    if (x.search("tideline") !== -1) {
+      id = x.replace("tideline", "tidelineSVGOneDay");
     } else {
-      id = 'tidelineSVGOneDay';
+      id = "tidelineSVGOneDay";
     }
     return container;
   };
@@ -694,7 +694,7 @@ function oneDay(emitter, options = {}) {
   };
 
   container.latestTranslation = function(x) {
-    log.debug('latestTranslation', { x, latestTranslation: nav.latestTranslation });
+    log.debug("latestTranslation", { x, latestTranslation: nav.latestTranslation });
     if (!arguments.length) return nav.latestTranslation;
     nav.latestTranslation = x;
     return container;
@@ -734,7 +734,7 @@ function oneDay(emitter, options = {}) {
     }
 
     const minusOne = moment.utc(last).tz(lastTimezone);
-    minusOne.subtract(1, 'day');
+    minusOne.subtract(1, "day");
     // initialEndpoints ~= set the zoom (time axis) value of the displayed chart
     container.initialEndpoints = [minusOne.toDate(), last.toDate()];
     container.endpoints = [first.toDate(), last.toDate()];
@@ -746,18 +746,18 @@ function oneDay(emitter, options = {}) {
     if (container.tidelineData.dataByDate === null) {
       // FIXME: We may have some nasty callback here
       // We are currently fetching&processing data from the API
-      log.warn('FIXME: updateRenderedData: tidelineData.dataByDate is null');
+      log.warn("FIXME: updateRenderedData: tidelineData.dataByDate is null");
       renderedData = [];
       renderedDataRange.start = Number.MAX_SAFE_INTEGER;
       renderedDataRange.end = Number.MIN_SAFE_INTEGER;
     } else {
       const domain = container.xScale.domain();
-      const start = moment.utc(domain[0]).subtract(renderDaysBuffer, 'day');
-      const end = moment.utc(domain[1]).add(renderDaysBuffer, 'day');
+      const start = moment.utc(domain[0]).subtract(renderDaysBuffer, "day");
+      const end = moment.utc(domain[1]).add(renderDaysBuffer, "day");
       renderedDataRange.start = start.valueOf();
       renderedDataRange.end = end.valueOf();
-      start.subtract(this.tidelineData.maxDuration + 1, 'milliseconds');
-      end.add(1, 'millisecond'); // +1ms to be sure we have them
+      start.subtract(this.tidelineData.maxDuration + 1, "milliseconds");
+      end.add(1, "millisecond"); // +1ms to be sure we have them
       const filtered = container.tidelineData.dataByDate.filter([start.toISOString(), end.toISOString()]);
       renderedData = filtered.top(Infinity).reverse();
       const rangeStart = renderedDataRange.start - 1; // -1ms to be sure we have them
@@ -789,8 +789,8 @@ function oneDay(emitter, options = {}) {
     if (nAdded > 0) {
       // We can assume chart.tidelineData.grouped.message is an array
       const tdMessage = container.tidelineData.grouped.message.find((d) => d.id === message.id);
-      if (typeof tdMessage === 'object') {
-        container.emitter.emit('messageCreated', tdMessage);
+      if (typeof tdMessage === "object") {
+        container.emitter.emit("messageCreated", tdMessage);
         return true;
       }
     }
@@ -800,7 +800,7 @@ function oneDay(emitter, options = {}) {
   container.editMessage = (message) => {
     const updateMessage = container.tidelineData.editMessage(message);
     if (updateMessage !== null) {
-      container.emitter.emit('messageEdited', updateMessage);
+      container.emitter.emit("messageEdited", updateMessage);
       return true;
     }
     return false;

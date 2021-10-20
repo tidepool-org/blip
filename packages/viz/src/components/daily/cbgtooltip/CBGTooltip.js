@@ -15,29 +15,29 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import i18next from 'i18next';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import i18next from "i18next";
 
 import {
   classifyBgValue,
   reshapeBgClassesToBgBounds,
   getOutOfRangeThreshold,
-} from '../../../utils/bloodglucose';
-import { formatBgValue } from '../../../utils/format';
-import { getOutOfRangeAnnotationMessage } from '../../../utils/annotations';
-import Tooltip from '../../common/tooltips/Tooltip';
-import colors from '../../../styles/colors.css';
-import styles from './CBGTooltip.css';
+} from "../../../utils/bloodglucose";
+import { formatBgValue } from "../../../utils/format";
+import { getOutOfRangeAnnotationMessage } from "../../../utils/annotations";
+import Tooltip from "../../common/tooltips/Tooltip";
+import colors from "../../../styles/colors.css";
+import styles from "./CBGTooltip.css";
 
 class CBGTooltip extends React.Component {
   renderCBG() {
     const { cbg, bgPrefs } = this.props;
     const outOfRangeMessage = getOutOfRangeAnnotationMessage(cbg);
     const rows = [
-      <div key={'bg'} className={styles.bg}>
-        <div className={styles.label}>{i18next.t('BG')}</div>
+      <div key={"bg"} className={styles.bg}>
+        <div className={styles.label}>{i18next.t("BG")}</div>
         <div className={styles.value}>
           {`${formatBgValue(cbg.value, bgPrefs, getOutOfRangeThreshold(cbg))}`}
         </div>
@@ -47,17 +47,17 @@ class CBGTooltip extends React.Component {
       const bgClass = classifyBgValue(
         reshapeBgClassesToBgBounds(bgPrefs),
         cbg.value,
-        'fiveWay'
+        "fiveWay"
       );
       rows.push(
         <div
-          key={'divider'}
+          key={"divider"}
           className={styles.dividerLarge}
           style={{ backgroundColor: colors[bgClass] }}
         />
       );
       rows.push(
-        <div key={'outOfRange'} className={styles.annotation}>
+        <div key={"outOfRange"} className={styles.annotation}>
           {outOfRangeMessage[0].message.value}
         </div>
       );
@@ -71,15 +71,15 @@ class CBGTooltip extends React.Component {
     const bgClass = classifyBgValue(
       reshapeBgClassesToBgBounds(bgPrefs),
       cbg.value,
-      'fiveWay'
+      "fiveWay"
     );
 
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(cbg, 'source', 'Diabeloop'),
+        source: _.get(cbg, "source", "Diabeloop"),
         normalTime: cbg.normalTime,
-        timezone: _.get(cbg, 'timezone', 'UTC'),
+        timezone: _.get(cbg, "timezone", "UTC"),
         timePrefs,
       };
     }
@@ -109,7 +109,7 @@ CBGTooltip.propTypes = {
   }),
   title: PropTypes.node,
   tail: PropTypes.bool,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]).isRequired,
   tailColor: PropTypes.string.isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
@@ -131,7 +131,7 @@ CBGTooltip.propTypes = {
 
 CBGTooltip.defaultProps = {
   tail: true,
-  side: 'right',
+  side: "right",
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.bolus,

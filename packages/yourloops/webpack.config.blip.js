@@ -115,8 +115,8 @@ const resolve = {
     "node_modules"
   ],
   alias: {
-    pdfkit: "pdfkit/js/pdfkit.standalone.js",
-    "lock.svg": path.resolve(__dirname, `../../branding/lock.svg`),
+    "pdfkit": "pdfkit/js/pdfkit.standalone.js",
+    "lock.svg": path.resolve(__dirname, "../../branding/lock.svg"),
   },
 };
 

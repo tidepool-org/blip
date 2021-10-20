@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import dt from '../data/util/datetime';
+import _ from "lodash";
+import dt from "../data/util/datetime";
 
 function plotSuspend(pool, opts) {
   const defaults = {
@@ -33,10 +33,10 @@ function plotSuspend(pool, opts) {
 
     selection.each(function(currentData) {
       let filteredData = _.filter(currentData, {
-        type: 'deviceEvent',
-        subType: 'status',
-        status: 'suspended',
-        reason: { suspended: 'automatic' }
+        type: "deviceEvent",
+        subType: "status",
+        status: "suspended",
+        reason: { suspended: "automatic" }
       });
 
       filteredData = _.filter(filteredData, (data) => {
@@ -48,13 +48,13 @@ function plotSuspend(pool, opts) {
       }
 
       var deviceEventGroup = selection
-        .selectAll('.d3-deviceevent-group')
-        .data(['d3-deviceevent-group']);
+        .selectAll(".d3-deviceevent-group")
+        .data(["d3-deviceevent-group"]);
 
       deviceEventGroup
         .enter()
-        .append('g')
-        .attr('class', 'd3-basal-path-group');
+        .append("g")
+        .attr("class", "d3-basal-path-group");
 
       _.forEach(filteredData, (data) => {
         var id = data.id;
@@ -69,34 +69,34 @@ function plotSuspend(pool, opts) {
 
         var markersGroups = markers
           .enter()
-          .append('g')
-          .attr('class', function(d) {
+          .append("g")
+          .attr("class", function(d) {
             return d;
           });
 
-        markersGroups.append('line').attr({
+        markersGroups.append("line").attr({
           x1: xPosition,
           y1: yPosition,
           x2: xPosition,
           y2: pool.height(),
-          class: 'd3-basal-group-line'
+          class: "d3-basal-group-line"
         });
 
-        markersGroups.append('circle').attr({
-          class: 'd3-basal-group-circle',
+        markersGroups.append("circle").attr({
+          class: "d3-basal-group-circle",
           cx: xPosition,
           cy: yPosition,
           r: radius
         });
 
         markersGroups
-          .append('text')
+          .append("text")
           .attr({
             x: xPosition,
             y: yPosition,
-            class: 'd3-basal-group-label'
+            class: "d3-basal-group-label"
           })
-          .text('S');
+          .text("S");
 
         markers.exit().remove();
 
@@ -106,34 +106,34 @@ function plotSuspend(pool, opts) {
 
         markersGroups = markers
           .enter()
-          .append('g')
-          .attr('class', function(d) {
+          .append("g")
+          .attr("class", function(d) {
             return d;
           });
 
-        markersGroups.append('line').attr({
+        markersGroups.append("line").attr({
           x1: endXPosition,
           y1: yPosition,
           x2: endXPosition,
           y2: pool.height(),
-          class: 'd3-basal-group-line'
+          class: "d3-basal-group-line"
         });
 
-        markersGroups.append('circle').attr({
-          class: 'd3-basal-group-circle',
+        markersGroups.append("circle").attr({
+          class: "d3-basal-group-circle",
           cx: endXPosition,
           cy: yPosition,
           r: radius
         });
 
         markersGroups
-          .append('text')
+          .append("text")
           .attr({
             x: endXPosition,
             y: yPosition,
-            class: 'd3-basal-group-label'
+            class: "d3-basal-group-label"
           })
-          .text('R');
+          .text("R");
 
         markers.exit().remove();
       });

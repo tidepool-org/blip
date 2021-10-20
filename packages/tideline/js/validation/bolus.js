@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import schema from './validator/schematron.js';
+import schema from "./validator/schematron.js";
 
 const bolus = (common) => {
   const bolusCommon = schema(
@@ -26,52 +26,52 @@ const bolus = (common) => {
 
   return schema(schema().oneOf(
     schema(
-        common,
-        bolusCommon,
-        {
-          normal: schema().number().min(0),
-          expectedNormal: schema().ifExists().number().min(0),
-          duration: schema().banned(),
-          extended: schema().banned(),
-          expectedExtended: schema().banned(),
-          subType: schema().string().in(['normal'])
-        },
-        schema.with('expectedNormal', 'normal')
-      ),
+      common,
+      bolusCommon,
+      {
+        normal: schema().number().min(0),
+        expectedNormal: schema().ifExists().number().min(0),
+        duration: schema().banned(),
+        extended: schema().banned(),
+        expectedExtended: schema().banned(),
+        subType: schema().string().in(["normal"])
+      },
+      schema.with("expectedNormal", "normal")
+    ),
     schema(
-        common,
-        bolusCommon,
-        {
-          duration: schema().number().min(0),
-          expectedDuration: schema().ifExists().number().min(0),
-          extended: schema().number().min(0),
-          expectedExtended: schema().ifExists().number().min(0),
-          normal: schema().ifExists().number().min(0),
-          expectedNormal: schema().ifExists().number().min(0),
-          subType: schema().string().in(['square', 'dual/square'])
-        },
-        schema.with('expectedNormal', 'normal'),
-        schema.with('expectedExtended', ['extended', 'duration', 'expectedDuration'])
-      ),
+      common,
+      bolusCommon,
+      {
+        duration: schema().number().min(0),
+        expectedDuration: schema().ifExists().number().min(0),
+        extended: schema().number().min(0),
+        expectedExtended: schema().ifExists().number().min(0),
+        normal: schema().ifExists().number().min(0),
+        expectedNormal: schema().ifExists().number().min(0),
+        subType: schema().string().in(["square", "dual/square"])
+      },
+      schema.with("expectedNormal", "normal"),
+      schema.with("expectedExtended", ["extended", "duration", "expectedDuration"])
+    ),
     schema(
-        common,
-        bolusCommon,
-        {
-          normal: schema().number().min(0),
-          subType: schema().string().in(['pen'])
-        }
-      ),
+      common,
+      bolusCommon,
+      {
+        normal: schema().number().min(0),
+        subType: schema().string().in(["pen"])
+      }
+    ),
     schema(
-        common,
-        bolusCommon,
-        {
-          normal: schema().number().min(0),
-          expectedNormal: schema().ifExists().number().min(0),
-          subType: schema().string().in(['biphasic'])
-        },
-        schema.with('expectedNormal', 'normal')
-      )
+      common,
+      bolusCommon,
+      {
+        normal: schema().number().min(0),
+        expectedNormal: schema().ifExists().number().min(0),
+        subType: schema().string().in(["biphasic"])
+      },
+      schema.with("expectedNormal", "normal")
     )
+  )
   );
 };
 

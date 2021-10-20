@@ -123,7 +123,7 @@ function acceptInvitation(session: Readonly<Session>, notification: INotificatio
     return updateInvitation(session, confirmURL, notification.id);
   case NotificationType.careTeamProInvitation:
   case NotificationType.careTeamPatientInvitation:
-    confirmURL = new URL(`/confirm/accept/team/invite`, appConfig.API_HOST);
+    confirmURL = new URL("/confirm/accept/team/invite", appConfig.API_HOST);
     return updateInvitation(session, confirmURL, notification.id);
   default:
     log.info("TODO accept", notification);

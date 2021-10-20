@@ -1,5 +1,3 @@
-import cx from 'classnames';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -17,18 +15,18 @@ import cx from 'classnames';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import cx from "classnames";
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { TransitionMotion, spring } from "react-motion";
 
-import React, { PureComponent } from 'react';
-import { TransitionMotion, spring } from 'react-motion';
+import { classifyBgValue } from "../../../utils/bloodglucose";
+import { springConfig } from "../../../utils/constants";
+import withDefaultYPosition from "../common/withDefaultYPosition";
 
-import { classifyBgValue } from '../../../utils/bloodglucose';
-import { springConfig } from '../../../utils/constants';
-import withDefaultYPosition from '../common/withDefaultYPosition';
+import SMBGMean from "./SMBGMean";
 
-import SMBGMean from './SMBGMean';
-
-import styles from './SMBGMeanAnimated.css';
+import styles from "./SMBGMeanAnimated.css";
 
 export class SMBGMeanAnimated extends PureComponent {
   static defaultProps = {
@@ -101,8 +99,8 @@ export class SMBGMeanAnimated extends PureComponent {
     const meanClasses = datum.mean ?
       cx({
         [styles.smbgMean]: true,
-        [styles[`${classifyBgValue(bgBounds, datum.mean, 'fiveWay')}FadeIn`]]: !someSmbgDataIsFocused,
-        [styles[`${classifyBgValue(bgBounds, datum.mean, 'fiveWay')}FadeOut`]]: someSmbgDataIsFocused,
+        [styles[`${classifyBgValue(bgBounds, datum.mean, "fiveWay")}FadeIn`]]: !someSmbgDataIsFocused,
+        [styles[`${classifyBgValue(bgBounds, datum.mean, "fiveWay")}FadeOut`]]: someSmbgDataIsFocused,
       }) :
       cx({
         [styles.smbgMean]: true,

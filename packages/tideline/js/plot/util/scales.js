@@ -24,11 +24,11 @@
  * @typedef { import('../../pool').default} Pool
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import commonbolus from './commonbolus';
-import { MGDL_UNITS, DEFAULT_BG_BOUNDS } from '../../data/util/constants';
-import format from '../../data/util/format';
+import commonbolus from "./commonbolus";
+import { MGDL_UNITS, DEFAULT_BG_BOUNDS } from "../../data/util/constants";
+import format from "../../data/util/format";
 
 /**
  * @param {TidelineData} tidelineData
@@ -37,7 +37,7 @@ import format from '../../data/util/format';
  */
 function getTargetBoundary(tidelineData, bgUnits = MGDL_UNITS) {
   const defaultTarget = DEFAULT_BG_BOUNDS[bgUnits].targetUpper;
-  return _.get(tidelineData, 'opts.bgClasses.target.boundary', defaultTarget);
+  return _.get(tidelineData, "opts.bgClasses.target.boundary", defaultTarget);
 }
 
 /**
@@ -54,7 +54,7 @@ function createScaleBG(tidelineData, pool, extent, pad) {
 
   const d3 = window.d3;
   /** @type {"mg/dL" | "mmol/L"} */
-  const bgUnits = _.get(tidelineData, 'opts.bgUnits', MGDL_UNITS);
+  const bgUnits = _.get(tidelineData, "opts.bgUnits", MGDL_UNITS);
   /** @type {number} */
   const targetBoundary = getTargetBoundary(tidelineData, bgUnits);
   const maxCBG = bgUnits === MGDL_UNITS ? MAX_CBG_MGDL : MAX_CBG_MMOLL;
@@ -74,7 +74,7 @@ function createScaleBG(tidelineData, pool, extent, pad) {
   }
 
   if (!Number.isFinite(scale(70))) {
-    console.warn('createScaleBG: scale is not well initialized', { extent, maxCBG, bgUnits, range, domain });
+    console.warn("createScaleBG: scale is not well initialized", { extent, maxCBG, bgUnits, range, domain });
   }
 
   return scale;
@@ -87,9 +87,9 @@ function createScaleBG(tidelineData, pool, extent, pad) {
  */
 function createTicksBG(tidelineData, extent) {
   /** @type {"mg/dL" | "mmol/L"} */
-  const bgUnits = _.get(tidelineData, 'opts.bgUnits', MGDL_UNITS);
-  const bgValues = _.values(_.omit(tidelineData.opts.bgClasses, ['very-high', 'very-low']));
-  const ticks = _.map(bgValues, (n) => format.tooltipBGValue(_.get(n, 'boundary'), bgUnits));
+  const bgUnits = _.get(tidelineData, "opts.bgUnits", MGDL_UNITS);
+  const bgValues = _.values(_.omit(tidelineData.opts.bgClasses, ["very-high", "very-low"]));
+  const ticks = _.map(bgValues, (n) => format.tooltipBGValue(_.get(n, "boundary"), bgUnits));
   ticks.sort((a, b) => a - b);
   const targetBoundary = getTargetBoundary(tidelineData, bgUnits);
 
@@ -111,7 +111,7 @@ function createTicksBG(tidelineData, extent) {
  * @param {Pool} pool Parent pool
  * @returns {{ axis: Axis, scale: ScaleLinear }}
  */
- export function createYAxisBG(tidelineData, pool) {
+export function createYAxisBG(tidelineData, pool) {
   const d3 = window.d3;
   const SMBG_SIZE = 16;
 
@@ -120,11 +120,11 @@ function createTicksBG(tidelineData, extent) {
   const extent = d3.extent(allBG, (d) => d.value);
   const scale = createScaleBG(tidelineData, pool, Array.from(extent), SMBG_SIZE/2);
   const ticks = createTicksBG(tidelineData, Array.from(extent));
-  const bgTickFormat = tidelineData.opts.bgUnits === MGDL_UNITS ? 'd' : '.1f';
+  const bgTickFormat = tidelineData.opts.bgUnits === MGDL_UNITS ? "d" : ".1f";
 
   const axis = d3.svg.axis()
     .scale(scale)
-    .orient('left')
+    .orient("left")
     .outerTickSize(0)
     .tickValues(ticks)
     .tickFormat(d3.format(bgTickFormat));
@@ -176,7 +176,7 @@ export function createYAxisBolus(tidelineData, pool) {
 
   const axis = d3.svg.axis()
     .scale(scale)
-    .orient('left')
+    .orient("left")
     .outerTickSize(0)
     .ticks(2)
     .tickValues(bolusTickValues);
@@ -208,7 +208,7 @@ export function createYAxisBasal(tidelineData, pool) {
   const scale = createScaleBasal(tidelineData.grouped.basal, pool);
   const axis = d3.svg.axis()
     .scale(scale)
-    .orient('left')
+    .orient("left")
     .outerTickSize(0)
     .ticks(2);
 

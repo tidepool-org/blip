@@ -54,7 +54,7 @@ export {
   MessageNote,
   GetPatientDataOptions,
   GetPatientDataOptionsV0,
-  cleanStore
+  cleanStore,
 };
 
 declare function Blip(props: BlipProperties): JSX.Element;

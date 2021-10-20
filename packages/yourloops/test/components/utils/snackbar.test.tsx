@@ -26,8 +26,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-import sinon from "sinon";
+import React from "react";
+import * as sinon from "sinon";
 import { expect } from "chai";
 import { shallow } from "enzyme";
 
@@ -82,7 +82,7 @@ function testSnackbar(): void {
     expect(hook.result.current.alerts).to.be.an("array");
   });
 
-  it("shoud render the alert if any", () => {
+  it("should render the alert if any", () => {
     // eslint-disable-next-line new-cap
     const hook = renderHook(DefaultSnackbarContext);
     act(() => {

@@ -15,29 +15,29 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import moment from 'moment-timezone';
-import i18next from 'i18next';
-import bows from 'bows';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import moment from "moment-timezone";
+import i18next from "i18next";
+import bows from "bows";
 
-import Header from './common/Header';
-import Table from './common/Table';
-import HistoryTable from './DiabeloopHistoryParameters';
+import Header from "./common/Header";
+import Table from "./common/Table";
+import HistoryTable from "./DiabeloopHistoryParameters";
 
-import * as datetime from '../../utils/datetime';
-import * as dblData from '../../utils/settings/diabeloopData';
-import PumpTable from './PumpTable';
-import CgmTable from './CgmTable';
-import TerminalTable from './TerminalTable';
+import * as datetime from "../../utils/datetime";
+import * as dblData from "../../utils/settings/diabeloopData";
+import PumpTable from "./PumpTable";
+import CgmTable from "./CgmTable";
+import TerminalTable from "./TerminalTable";
 
-import { deviceName, getDeviceMeta } from '../../utils/settings/data';
+import { deviceName, getDeviceMeta } from "../../utils/settings/data";
 
-import styles from './Diabeloop.css';
+import styles from "./Diabeloop.css";
 
 const t = i18next.t.bind(i18next);
-const log = bows('DblSettings');
+const log = bows("DblSettings");
 
 /**
  * Return the <div><table /></div> objects
@@ -49,17 +49,17 @@ function renderDiabeloopParameters(parametersByLevel) {
   const tableStyle = styles.settingsTable;
   const columns = [
     {
-      key: 'name',
-      label: t('Parameter'),
-      className: 'table-diabeloop-parameters-name',
+      key: "name",
+      label: t("Parameter"),
+      className: "table-diabeloop-parameters-name",
     }, {
-      key: 'value',
-      label: t('Value'),
-      className: 'table-diabeloop-parameters-value',
+      key: "value",
+      label: t("Value"),
+      className: "table-diabeloop-parameters-value",
     }, {
-      key: 'unit',
-      label: t('Unit'),
-      className: 'table-diabeloop-parameters-unit',
+      key: "unit",
+      label: t("Unit"),
+      className: "table-diabeloop-parameters-unit",
     },
   ];
 
@@ -67,7 +67,7 @@ function renderDiabeloopParameters(parametersByLevel) {
   parametersByLevel.forEach((parameters, level) => {
     const title = {
       label: {
-        main: level === 1 ? '' : `${t('Advanced')}`,
+        main: level === 1 ? "" : t("Advanced"),
       },
       className: styles.bdlgSettingsHeader,
     };
@@ -85,7 +85,7 @@ function renderDiabeloopParameters(parametersByLevel) {
 
   return (
     <div className={styles.categoryContainer}>
-      <div className={styles.categoryTitle}>{`${t('Parameters')}`}</div>
+      <div className={styles.categoryTitle}>{t("Parameters")}</div>
       {tables}
     </div>
   );
@@ -100,33 +100,33 @@ const Diabeloop = (props) => {
   } = props;
 
   const deviceDateISO =
-    moment.tz(pumpSettings.deviceTime, 'UTC').tz(datetime.getBrowserTimezone()).format();
+    moment.tz(pumpSettings.deviceTime, "UTC").tz(datetime.getBrowserTimezone()).format();
   const deviceDate = new Date(deviceDateISO);
   const displayDeviceDate = deviceDate.toLocaleString();
-  const [copyText, setCopyText] = React.useState('');
+  const [copyText, setCopyText] = React.useState("");
 
-  const parameters = _.get(pumpSettings, 'payload.parameters', null);
-  const device = _.get(pumpSettings, 'payload.device', null);
-  const pump = _.get(pumpSettings, 'payload.pump', null);
-  const cgm = _.get(pumpSettings, 'payload.cgm', null);
-  const history = _.sortBy(_.cloneDeep(_.get(pumpSettings, 'payload.history', null)), ['changeDate']);
+  const parameters = _.get(pumpSettings, "payload.parameters", null);
+  const device = _.get(pumpSettings, "payload.device", null);
+  const pump = _.get(pumpSettings, "payload.pump", null);
+  const cgm = _.get(pumpSettings, "payload.cgm", null);
+  const history = _.sortBy(_.cloneDeep(_.get(pumpSettings, "payload.history", null)), ["changeDate"]);
 
   const parametersByLevel = dblData.getParametersByLevel(parameters);
 
   const handleCopyToClipboard = () => {
-    if (_.isFunction(_.get(navigator, 'clipboard.writeText')) && !_.get(window, 'config.TEST', false)) {
+    if (_.isFunction(_.get(navigator, "clipboard.writeText")) && !_.get(window, "config.TEST", false)) {
       // Available on HTTPS connection only
       // Does not seems to work well during unit tests (promise not always resolved)
       navigator.clipboard.writeText(copyText).then(() => {
         copySettingsClicked(true, true);
       }).catch((reason) => {
-        log.error('Copy failed', reason);
+        log.error("Copy failed", reason);
         copySettingsClicked(false, true, reason.message);
       });
     } else {
-      log.info('Using old clipboard API');
+      log.info("Using old clipboard API");
       window.getSelection().removeAllRanges();
-      const pre = document.createElement('pre');
+      const pre = document.createElement("pre");
       pre.appendChild(document.createTextNode(copyText));
       document.body.appendChild(pre);
       pre.focus();
@@ -134,10 +134,10 @@ const Diabeloop = (props) => {
       range.selectNodeContents(pre);
       window.getSelection().addRange(range);
       try {
-        document.execCommand('copy');
+        document.execCommand("copy");
         copySettingsClicked(true, false);
       } catch (err) {
-        log.error('Copy failed', err);
+        log.error("Copy failed", err);
         copySettingsClicked(false, false, err.message);
       }
       window.getSelection().removeAllRanges();
@@ -156,7 +156,7 @@ const Diabeloop = (props) => {
         className={styles.copyButton}
         title={t("For email or notes")}
         onClick={handleCopyToClipboard}>
-        {t('Copy as text')}
+        {t("Copy as text")}
       </button>
       <Header
         deviceDisplayName={deviceName(props.deviceKey)}
@@ -165,7 +165,7 @@ const Diabeloop = (props) => {
       />
       <div className={styles.settingsContainer}>
         <div className={styles.categoryContainer}>
-          <div className={styles.categoryTitle}>{t('Device')}</div>
+          <div className={styles.categoryTitle}>{t("Device")}</div>
           <TerminalTable device={device} />
           <PumpTable pump={pump} timePrefs={timePrefs} />
           <CgmTable cgm={cgm} timePrefs={timePrefs} />
@@ -187,7 +187,7 @@ const Diabeloop = (props) => {
             updatedParameterIcon={<i className="icon-refresh" />}
             changeValueArrowIcon={<i className="icon-next" key="icon-next" />}
             switchToDailyIconClass="icon-chart-line"
-            />
+          />
         </div>
       </div>
     </div>
@@ -196,7 +196,7 @@ const Diabeloop = (props) => {
 
 Diabeloop.propTypes = {
   copySettingsClicked: PropTypes.func.isRequired,
-  deviceKey: PropTypes.oneOf(['diabeloop']).isRequired,
+  deviceKey: PropTypes.oneOf(["diabeloop"]).isRequired,
   pumpSettings: PropTypes.shape({
     deviceId: PropTypes.string.isRequired,
     deviceTime: PropTypes.string.isRequired,

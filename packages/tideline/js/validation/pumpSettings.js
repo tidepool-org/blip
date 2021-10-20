@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import schema from './validator/schematron.js';
+import schema from "./validator/schematron.js";
 
 const pumpSettings = (common) => schema(
   common,
   {
-    type: schema().string().in(['pumpSettings']),
+    type: schema().string().in(["pumpSettings"]),
     deviceTime: schema().ifExists().isDeviceTime(),
     source: schema().string(),
   }

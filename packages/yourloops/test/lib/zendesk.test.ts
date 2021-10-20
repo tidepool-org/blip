@@ -27,7 +27,7 @@
  */
 
 import { expect } from "chai";
-import sinon from "sinon";
+import * as sinon from "sinon";
 
 import { isZendeskActive, zendeskLogin, zendeskLogout, zendeskAllowCookies } from "../../lib/zendesk";
 
@@ -80,7 +80,7 @@ function testZendesk(): void {
     window.zE = s;
     zendeskAllowCookies(true);
     expect(s.callCount, "callCount").to.be.equals(1);
-    expect(s.getCall(0).args).to.be.deep.equals(['webWidget', 'updateSettings', { cookies: true }]);
+    expect(s.getCall(0).args).to.be.deep.equals(["webWidget", "updateSettings", { cookies: true }]);
   });
 
   it("should notice zendesk about the cookies policy: decline", () => {
@@ -88,7 +88,7 @@ function testZendesk(): void {
     window.zE = s;
     zendeskAllowCookies(false);
     expect(s.callCount, "callCount").to.be.equals(4);
-    expect(s.getCall(0).args, "updateSettings").to.be.deep.equals(['webWidget', 'updateSettings', { cookies: false }]);
+    expect(s.getCall(0).args, "updateSettings").to.be.deep.equals(["webWidget", "updateSettings", { cookies: false }]);
     expect(s.getCall(1).args, "logout call 1").to.be.deep.equals(["webWidget", "logout"]);
     expect(s.getCall(2).args, "logout call 2").to.be.deep.equals(["webWidget", "clear"]);
     expect(s.getCall(3).args, "logout call 3").to.be.deep.equals(["webWidget", "reset"]);

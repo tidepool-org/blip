@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-import React, { PureComponent } from 'react';
+import React, { PureComponent } from "react";
 
-import styles from './Header.css';
+import styles from "./Header.css";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 const t = i18next.t.bind(i18next);
 
 
@@ -41,7 +41,7 @@ class Header extends PureComponent {
     const headerClass = this.state.serialNumberExpanded ?
       styles.headerExpanded : styles.headerClosed;
 
-    const title = typeof this.props.title === 'string' ? this.props.title : null;
+    const title = typeof this.props.title === "string" ? this.props.title : null;
 
     return (
       <div id={id}>
@@ -51,12 +51,12 @@ class Header extends PureComponent {
           </li>
           <li className={styles.headerOuter}>
             <span className={styles.headerInner}>
-              {t('Uploaded on')} {this.props.deviceMeta.uploaded}
+              {t("Uploaded on")} {this.props.deviceMeta.uploaded}
             </span>
           </li>
           <li className={styles.headerOuter}>
             <span className={styles.headerInner}>
-              {t('Serial Number')}: {this.props.deviceMeta.serial}
+              {t("Serial Number")}: {this.props.deviceMeta.serial}
             </span>
           </li>
         </ul>

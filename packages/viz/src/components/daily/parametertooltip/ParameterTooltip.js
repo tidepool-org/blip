@@ -15,16 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import i18next from 'i18next';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import i18next from "i18next";
 
-import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
-import { formatParameterValue } from '../../../utils/format';
-import Tooltip from '../../common/tooltips/Tooltip';
-import colors from '../../../styles/colors.css';
-import styles from './ParameterTooltip.css';
+import { formatLocalizedFromUTC, getHourMinuteFormat } from "../../../utils/datetime";
+import { formatParameterValue } from "../../../utils/format";
+import Tooltip from "../../common/tooltips/Tooltip";
+import colors from "../../../styles/colors.css";
+import styles from "./ParameterTooltip.css";
 
 class ParameterTooltip extends React.Component {
   constructor(props) {
@@ -37,12 +37,12 @@ class ParameterTooltip extends React.Component {
     let previousValue = null;
     let prevToNext = null;
     let valueClassName = styles.value;
-    if (typeof parameter.previousValue === 'string') {
+    if (typeof parameter.previousValue === "string") {
       const previous = formatParameterValue(parameter.previousValue, parameter.units);
       previousValue = <span className={styles.previous} key={`${parameter.id}-prev`}>{previous}</span>;
       prevToNext = <span key={`${parameter.id}-arrow`}>&rarr;</span>;
     } else {
-      valueClassName = `${valueClassName} ${styles['value-no-prev']}`;
+      valueClassName = `${valueClassName} ${styles["value-no-prev"]}`;
     }
 
     const displayHour = formatLocalizedFromUTC(
@@ -79,9 +79,9 @@ class ParameterTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(parameter, 'source', 'Diabeloop'),
+        source: _.get(parameter, "source", "Diabeloop"),
         normalTime: parameter.normalTime,
-        timezone: _.get(parameter, 'timezone', 'UTC'),
+        timezone: _.get(parameter, "timezone", "UTC"),
         timePrefs,
       };
     }
@@ -110,7 +110,7 @@ ParameterTooltip.propTypes = {
   }),
   title: PropTypes.node,
   tail: PropTypes.bool,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']),
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]),
   tailColor: PropTypes.string,
   tailWidth: PropTypes.number,
   tailHeight: PropTypes.number,
@@ -135,7 +135,7 @@ ParameterTooltip.propTypes = {
 
 ParameterTooltip.defaultProps = {
   tail: true,
-  side: 'right',
+  side: "right",
   tailWidth: 9,
   tailHeight: 17,
   tailColor: colors.deviceEvent,

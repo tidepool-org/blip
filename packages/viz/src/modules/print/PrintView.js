@@ -15,23 +15,21 @@
  * == BSD2 LICENSE ==
  */
 
-/* eslint-disable lodash/prefer-lodash-method */
-
-import _ from 'lodash';
-import PdfTable from 'voilab-pdf-table';
-import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
-import i18next from 'i18next';
-import moment from 'moment-timezone';
-import colors from '../../styles/colors.css';
+import _ from "lodash";
+import PdfTable from "voilab-pdf-table";
+import PdfTableFitColumn from "voilab-pdf-table/plugins/fitcolumn";
+import i18next from "i18next";
+import moment from "moment-timezone";
+import colors from "../../styles/colors.css";
 
 import {
   getTimezoneFromTimePrefs,
   formatBirthdate,
   formatCurrentDate,
   formatDateRange,
-} from '../../utils/datetime';
+} from "../../utils/datetime";
 
-import { getPatientFullName } from '../../utils/misc';
+import { getPatientFullName } from "../../utils/misc";
 import {
   DPI,
   MARGINS,
@@ -44,7 +42,7 @@ import {
   LARGE_FONT_SIZE,
   SMALL_FONT_SIZE,
   Images,
-} from './utils/constants';
+} from "./utils/constants";
 
 const t = i18next.t.bind(i18next);
 
@@ -61,8 +59,8 @@ class PrintView {
     this.dpi = opts.dpi || DPI;
     this.margins = opts.margins || MARGINS;
 
-    this.font = 'Helvetica';
-    this.boldFont = 'Helvetica-Bold';
+    this.font = "Helvetica";
+    this.boldFont = "Helvetica-Bold";
 
     this.defaultFontSize = opts.defaultFontSize || DEFAULT_FONT_SIZE;
     this.footerFontSize = opts.footerFontSize || FOOTER_FONT_SIZE;
@@ -92,9 +90,9 @@ class PrintView {
       colors: {
         border: this.colors.grey,
         tableHeader: this.colors.basal,
-        zebraHeader: '#FAFAFA',
-        zebraEven: '#FAFAFA',
-        zebraOdd: '#FFFFFF',
+        zebraHeader: "#FAFAFA",
+        zebraEven: "#FAFAFA",
+        zebraOdd: "#FFFFFF",
       },
       borderWidth: 0.5,
     };
@@ -125,8 +123,8 @@ class PrintView {
     this.renderCustomTextCell = this.renderCustomTextCell.bind(this);
 
     // Clear previous and set up pageAdded listeners :/
-    this.doc.removeAllListeners('pageAdded');
-    this.doc.on('pageAdded', this.newPage);
+    this.doc.removeAllListeners("pageAdded");
+    this.doc.on("pageAdded", this.newPage);
   }
 
   newPage(dateText) {
@@ -135,8 +133,8 @@ class PrintView {
     }
 
     const currentFont = {
-      name: _.get(this.doc, '_font.name', this.font),
-      size: _.get(this.doc, '_fontSize', this.defaultFontSize),
+      name: _.get(this.doc, "_font.name", this.font),
+      size: _.get(this.doc, "_fontSize", this.defaultFontSize),
     };
 
     this.currentPageIndex++;
@@ -186,9 +184,9 @@ class PrintView {
     const {
       activeIndex = 0,
       columns = [],
-      count = _.get(opts, 'widths.length', 0),
+      count = _.get(opts, "widths.length", 0),
       gutter = 0,
-      type = 'equal',
+      type = "equal",
       width = this.chartArea.width,
       widths = [],
     } = opts;
@@ -196,42 +194,42 @@ class PrintView {
     const availableWidth = width - (gutter * (count - 1));
 
     switch (type) {
-      case 'percentage': {
-        let combinedWidths = 0;
-        let i = 0;
+    case "percentage": {
+      let combinedWidths = 0;
+      let i = 0;
 
-        do {
-          const columnWidth = availableWidth * widths[i] / 100;
+      do {
+        const columnWidth = availableWidth * widths[i] / 100;
 
-          columns.push({
-            x: this.chartArea.leftEdge + (gutter * i) + combinedWidths,
-            y: this.doc.y,
-            width: columnWidth,
-          });
+        columns.push({
+          x: this.chartArea.leftEdge + (gutter * i) + combinedWidths,
+          y: this.doc.y,
+          width: columnWidth,
+        });
 
-          i++;
-          combinedWidths += columnWidth;
-        } while (i < count);
+        i++;
+        combinedWidths += columnWidth;
+      } while (i < count);
 
-        break;
-      }
+      break;
+    }
 
-      case 'equal':
-      default: {
-        const columnWidth = availableWidth / count;
-        let i = 0;
+    case "equal":
+    default: {
+      const columnWidth = availableWidth / count;
+      let i = 0;
 
-        do {
-          columns.push({
-            x: this.chartArea.leftEdge + (gutter * i) + (columnWidth * i),
-            y: this.doc.y,
-            width: columnWidth,
-          });
-          i++;
-        } while (i < count);
+      do {
+        columns.push({
+          x: this.chartArea.leftEdge + (gutter * i) + (columnWidth * i),
+          y: this.doc.y,
+          width: columnWidth,
+        });
+        i++;
+      } while (i < count);
 
-        break;
-      }
+      break;
+    }
     }
 
     this.layoutColumns = {
@@ -259,7 +257,7 @@ class PrintView {
   getShortestLayoutColumn() {
     let shortest;
     let shortestIndex;
-    _.each(this.layoutColumns.columns, (column, colIndex) => {
+    _.forEach(this.layoutColumns.columns, (column, colIndex) => {
       if (!shortest || (shortest > column.y)) {
         shortest = column.y;
         shortestIndex = colIndex;
@@ -272,7 +270,7 @@ class PrintView {
   getLongestLayoutColumn() {
     let longest;
     let longestIndex;
-    _.each(_.get(this, 'layoutColumns.columns', []), (column, colIndex) => {
+    _.forEach(_.get(this, "layoutColumns.columns", []), (column, colIndex) => {
       if (!longest || (longest < column.y)) {
         longest = column.y;
         longestIndex = colIndex;
@@ -287,16 +285,16 @@ class PrintView {
   }
 
   getDateRange(startDate, endDate, format) {
-    return t('Date range: ') + formatDateRange(startDate, endDate, format);
+    return t("Date range: ") + formatDateRange(startDate, endDate, format);
   }
 
-  setFill(color = 'black', opacity = 1) {
+  setFill(color = "black", opacity = 1) {
     this.doc
       .fillColor(color)
       .fillOpacity(opacity);
   }
 
-  setStroke(color = 'black', opacity = 1) {
+  setStroke(color = "black", opacity = 1) {
     this.doc
       .strokeColor(color)
       .strokeOpacity(opacity);
@@ -314,25 +312,25 @@ class PrintView {
     const {
       xPos = this.doc.x,
       yPos = this.doc.y,
-      font = _.get(opts, 'font', this.font),
-      fontSize = _.get(opts, 'fontSize', this.headerFontSize),
-      subTextFont = _.get(opts, 'subTextFont', this.font),
-      subTextFontSize = _.get(opts, 'subTextFontSize', this.defaultFontSize),
+      font = _.get(opts, "font", this.font),
+      fontSize = _.get(opts, "fontSize", this.headerFontSize),
+      subTextFont = _.get(opts, "subTextFont", this.font),
+      subTextFontSize = _.get(opts, "subTextFontSize", this.defaultFontSize),
       moveDown = 1,
     } = opts;
 
     const text = _.isString(heading) ? heading : heading.text;
-    const subText = _.get(heading, 'subText', false);
+    const subText = _.get(heading, "subText", false);
 
     const textHeight = this.doc
       .font(font)
       .fontSize(fontSize)
-      .heightOfString(' ');
+      .heightOfString(" ");
 
     const subTextHeight = this.doc
       .font(subTextFont)
       .fontSize(subTextFontSize)
-      .heightOfString(' ');
+      .heightOfString(" ");
 
     const subTextYOffset = (textHeight - subTextHeight) / 1.75;
 
@@ -340,7 +338,7 @@ class PrintView {
       .font(font)
       .fontSize(fontSize)
       .text(text, xPos, yPos, _.defaults(opts, {
-        align: 'left',
+        align: "left",
         continued: !!subText,
       }));
 
@@ -356,12 +354,12 @@ class PrintView {
   }
 
   renderCellStripe(data = {}, column = {}, pos = {}, isHeader = false) {
-    const fillStripeKey = isHeader ? 'headerFillStripe' : 'fillStripe';
-    const fillKey = isHeader ? 'headerFill' : 'fill';
-    const heightKey = isHeader ? 'headerHeight' : 'height';
+    const fillStripeKey = isHeader ? "headerFillStripe" : "fillStripe";
+    const fillKey = isHeader ? "headerFill" : "fill";
+    const heightKey = isHeader ? "headerHeight" : "height";
 
     const height = _.get(column, heightKey, column.height)
-                || _.get(data, '_renderedContent.height', 0);
+                || _.get(data, "_renderedContent.height", 0);
 
     const stripe = {
       width: 0,
@@ -379,13 +377,13 @@ class PrintView {
       const stripeDefined = _.isPlainObject(fillStripe);
 
       stripe.color = stripeDefined
-        ? _.get(fillStripe, 'color', this.colors.grey)
-        : _.get(fill, 'color', this.colors.grey);
+        ? _.get(fillStripe, "color", this.colors.grey)
+        : _.get(fill, "color", this.colors.grey);
 
-      stripe.opacity = stripeDefined ? _.get(fillStripe, 'opacity', 1) : 1;
-      stripe.width = stripeDefined ? _.get(fillStripe, 'width', 6) : 6;
-      stripe.background = _.get(fillStripe, 'background', false);
-      stripe.padding = _.get(fillStripe, 'padding', 0);
+      stripe.opacity = stripeDefined ? _.get(fillStripe, "opacity", 1) : 1;
+      stripe.width = stripeDefined ? _.get(fillStripe, "width", 6) : 6;
+      stripe.background = _.get(fillStripe, "background", false);
+      stripe.padding = _.get(fillStripe, "padding", 0);
 
       this.setFill(stripe.color, stripe.opacity);
 
@@ -409,8 +407,8 @@ class PrintView {
   renderCustomTextCell(tb, data, draw, column, pos, padding, isHeader) {
     if (draw) {
       let {
-        text = '',
-        subText = '',
+        text = "",
+        subText = "",
         note,
       } = _.get(data, column.id, column.header || {});
 
@@ -419,32 +417,32 @@ class PrintView {
         subText = note = null;
       }
 
-      const alignKey = isHeader ? 'headerAlign' : 'align';
-      const align = _.get(column, alignKey, 'left');
+      const alignKey = isHeader ? "headerAlign" : "align";
+      const align = _.get(column, alignKey, "left");
 
       const stripe = this.renderCellStripe(data, column, pos, isHeader);
       const stripeOffset = stripe.background ? 0 : stripe.width;
 
-      const xPos = pos.x + _.get(padding, 'left', 0) + stripeOffset;
+      const xPos = pos.x + _.get(padding, "left", 0) + stripeOffset;
       let yPos = pos.y + padding.top;
 
       // eslint-disable-next-line no-underscore-dangle
       const boldRow = data._bold || isHeader;
 
-      const width = column.width - _.get(padding, 'left', 0) - _.get(padding, 'right', 0);
+      const width = column.width - _.get(padding, "left", 0) - _.get(padding, "right", 0);
 
-      const heightKey = isHeader ? 'headerHeight' : 'height';
+      const heightKey = isHeader ? "headerHeight" : "height";
 
       const height = _.get(column, heightKey, column.height)
-                  || _.get(data, '_renderedContent.height', 0);
+                  || _.get(data, "_renderedContent.height", 0);
 
-      const fontKey = isHeader ? 'headerFont' : 'font';
+      const fontKey = isHeader ? "headerFont" : "font";
 
       this.doc
         .font(_.get(column, fontKey, boldRow ? this.boldFont : this.font))
-        .fontSize(_.get(column, 'fontSize', this.defaultFontSize));
+        .fontSize(_.get(column, "fontSize", this.defaultFontSize));
 
-      if (column.valign === 'center') {
+      if (column.valign === "center") {
         const textHeight = this.doc.heightOfString(text, { width });
         yPos += (height - textHeight) / 2 + 1;
       }
@@ -466,7 +464,7 @@ class PrintView {
 
       if (note) {
         this.doc
-          .fontSize(_.get(column, 'noteFontSize', this.defaultFontSize))
+          .fontSize(_.get(column, "noteFontSize", this.defaultFontSize))
           .text(note, {
             align,
             width,
@@ -474,7 +472,7 @@ class PrintView {
       }
     }
 
-    return ' ';
+    return " ";
   }
 
   renderTableHeading(heading = {}, opts = {}) {
@@ -484,13 +482,13 @@ class PrintView {
 
     const columns = [
       {
-        id: 'heading',
-        align: _.get(opts, 'align', 'left'),
-        height: _.get(opts, 'height', heading.note ? 37 : 24),
+        id: "heading",
+        align: _.get(opts, "align", "left"),
+        height: _.get(opts, "height", heading.note ? 37 : 24),
         cache: false,
         renderer: this.renderCustomTextCell,
-        font: _.get(opts, 'font', this.boldFont),
-        fontSize: _.get(opts, 'fontSize', this.largeFontSize),
+        font: _.get(opts, "font", this.boldFont),
+        fontSize: _.get(opts, "fontSize", this.largeFontSize),
       },
     ];
 
@@ -503,7 +501,7 @@ class PrintView {
 
     this.renderTable(columns, rows, _.defaultsDeep(opts, {
       columnDefaults: {
-        headerBorder: '',
+        headerBorder: "",
       },
       bottomMargin: 0,
       showHeaders: false,
@@ -518,12 +516,12 @@ class PrintView {
     _.defaultsDeep(opts, {
       columnDefaults: {
         borderColor: this.tableSettings.colors.border,
-        headerBorder: 'TBLR',
-        border: 'TBLR',
-        align: 'left',
+        headerBorder: "TBLR",
+        border: "TBLR",
+        align: "left",
         padding: [7, 5, 3, 5],
         headerPadding: [7, 5, 3, 5],
-        fill: _.get(opts, 'columnDefaults.fill', _.get(opts, 'columnDefaults.zebra', false)),
+        fill: _.get(opts, "columnDefaults.fill", _.get(opts, "columnDefaults.zebra", false)),
       },
       bottomMargin: 20,
       pos: {
@@ -588,7 +586,7 @@ class PrintView {
 
   onBodyAdded(tb) {
     // Restore x position after table is drawn
-    this.doc.x = _.get(tb, 'pos.x', this.doc.page.margins.left);
+    this.doc.x = _.get(tb, "pos.x", this.doc.page.margins.left);
 
     // Add margin to the bottom of the table
     this.doc.y += tb.bottomMargin;
@@ -622,12 +620,12 @@ class PrintView {
               : this.tableSettings.colors.zebraOdd;
           }
         } else {
-          color = fillKey || 'white';
+          color = fillKey || "white";
         }
       } else {
-        const defaultOpacity = _.get(fillKey, 'opacity', 1);
+        const defaultOpacity = _.get(fillKey, "opacity", 1);
 
-        color = _.get(fillKey, 'color', 'white');
+        color = _.get(fillKey, "color", "white");
         opacity = zebra && !isEven ? defaultOpacity / 2 : defaultOpacity;
       }
 
@@ -652,7 +650,7 @@ class PrintView {
 
   onCellBorderAdd(tb, column) {
     this.doc.lineWidth(this.tableSettings.borderWidth);
-    this.setStroke(_.get(column, 'borderColor', 'black'), 1);
+    this.setStroke(_.get(column, "borderColor", "black"), 1);
   }
 
   onCellBorderAdded() {
@@ -684,7 +682,7 @@ class PrintView {
       });
 
     const patientNameWidth = this.patientInfoBox.width = this.doc.widthOfString(patientName);
-    const patientDOB = t('DOB: {{birthdate}}', { birthdate: patientBirthdate });
+    const patientDOB = t("DOB: {{birthdate}}", { birthdate: patientBirthdate });
 
     this.doc
       .fontSize(10)
@@ -703,7 +701,7 @@ class PrintView {
     this.doc
       .moveTo(this.margins.left + this.patientInfoBox.width + padding, this.margins.top)
       .lineTo(this.margins.left + this.patientInfoBox.width + padding, this.patientInfoBox.height)
-      .stroke('black');
+      .stroke("black");
 
     this.dividerWidth = padding * 2 + 1;
   }
@@ -717,13 +715,13 @@ class PrintView {
 
     const title = this.currentPageIndex === 0
       ? this.title
-      : t('{{title}} (cont.)', { title: this.title });
+      : t("{{title}} (cont.)", { title: this.title });
 
     this.doc.text(title, xOffset, yOffset);
     this.titleWidth = this.doc.widthOfString(title);
   }
 
-  renderDateText(dateText = '') {
+  renderDateText(dateText = "") {
     const lineHeight = this.doc.fontSize(14).currentLineHeight();
 
     // Calculate the remaining available width so we can
@@ -748,7 +746,7 @@ class PrintView {
       .fontSize(10)
       .text(dateText, xOffset, yOffset + 2.5, {
         width: availableWidth,
-        align: 'center',
+        align: "center",
       });
   }
 
@@ -761,14 +759,14 @@ class PrintView {
   }
 
   renderDebugGrid() {
-    const minorLineColor = '#B8B8B8';
+    const minorLineColor = "#B8B8B8";
     const numMinorLines = 5;
     let thisLineYPos = this.margins.top;
     while (thisLineYPos <= (this.bottomEdge)) {
       this.doc.moveTo(this.margins.left, thisLineYPos)
         .lineTo(this.rightEdge, thisLineYPos)
         .lineWidth(0.25)
-        .stroke('red');
+        .stroke("red");
       if (thisLineYPos !== this.bottomEdge) {
         for (let i = 1; i < numMinorLines + 1; ++i) {
           const innerLinePos = thisLineYPos + this.dpi * (i / (numMinorLines + 1));
@@ -786,7 +784,7 @@ class PrintView {
       this.doc.moveTo(thisLineXPos, this.margins.top)
         .lineTo(thisLineXPos, this.bottomEdge)
         .lineWidth(0.25)
-        .stroke('red');
+        .stroke("red");
       for (let i = 1; i < numMinorLines + 1; ++i) {
         const innerLinePos = thisLineXPos + this.dpi * (i / (numMinorLines + 1));
         if (innerLinePos <= this.rightEdge) {
@@ -818,12 +816,12 @@ class PrintView {
     this.doc
       .moveTo(this.margins.left, height)
       .lineTo(this.margins.left + this.width, height)
-      .stroke('black');
+      .stroke("black");
 
     // TODO: remove this; it is just for exposing/debugging the chartArea.topEdge adjustment
     if (this.debug) {
       this.doc
-        .fillColor('#E8E8E8', 0.3333333333)
+        .fillColor("#E8E8E8", 0.3333333333)
         .rect(this.margins.left, this.margins.top, this.width, lineHeight * 4)
         .fill();
     }
@@ -834,12 +832,12 @@ class PrintView {
   renderFooter() {
     this.doc.fontSize(this.footerFontSize);
 
-    const helpText = t('pdf-footer-center-text', { appURL: `${window.location.protocol}//${window.location.hostname}/` });
+    const helpText = t("pdf-footer-center-text", { appURL: `${window.location.protocol}//${window.location.hostname}/` });
 
-    const printDateText = t('Printed on: ') + formatCurrentDate();
+    const printDateText = t("Printed on: ") + formatCurrentDate();
     const printDateWidth = this.doc.widthOfString(printDateText);
 
-    const pageCountWidth = this.doc.widthOfString('Page 1 of 1');
+    const pageCountWidth = this.doc.widthOfString("Page 1 of 1");
 
     const xPos = this.margins.left;
     const yPos = (this.height + this.margins.top) - this.doc.currentLineHeight() * 1.5;
@@ -851,7 +849,7 @@ class PrintView {
       .text(printDateText, xPos, yPos)
       .text(helpText, xPos + printDateWidth, yPos, {
         width: innerWidth,
-        align: 'center',
+        align: "center",
       });
 
     this.setFill();
@@ -865,12 +863,12 @@ class PrintView {
     while (page < pageCount) {
       page++;
       doc.switchToPage(page - 1);
-      doc.fontSize(FOOTER_FONT_SIZE).fillColor('#979797').fillOpacity(1);
+      doc.fontSize(FOOTER_FONT_SIZE).fillColor("#979797").fillOpacity(1);
       doc.text(
-        t('Page {{page}} of {{pageCount}}', { page, pageCount }),
+        t("Page {{page}} of {{pageCount}}", { page, pageCount }),
         MARGINS.left,
         (HEIGHT + MARGINS.top) - doc.currentLineHeight() * 1.5,
-        { align: 'right' }
+        { align: "right" }
       );
     }
   }

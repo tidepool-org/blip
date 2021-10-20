@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-import React from 'react';
-import cx from 'classnames';
+import React from "react";
+import cx from "classnames";
 
-import styles from './TwoOptionToggle.css';
+import styles from "./TwoOptionToggle.css";
 
 const TwoOptionToggle = (props) => {
   const { disabled, left, right, toggleFn } = props;
@@ -62,7 +62,7 @@ TwoOptionToggle.propTypes = {
 };
 
 
-TwoOptionToggle.displayName = 'TwoOptionToggle';
+TwoOptionToggle.displayName = "TwoOptionToggle";
 
 export const Toggle = (props) => {
   const { disabled, leftOptionActive, toggleFn } = props;
@@ -83,6 +83,6 @@ Toggle.propTypes = {
   toggleFn: PropTypes.func.isRequired,
 };
 
-Toggle.displayName = 'Toggle';
+Toggle.displayName = "Toggle";
 
 export default TwoOptionToggle;

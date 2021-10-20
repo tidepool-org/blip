@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -17,18 +15,18 @@ import _ from 'lodash';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import _ from "lodash";
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
+import { range } from "d3-array";
 
-import React, { PureComponent } from 'react';
-import { range } from 'd3-array';
-
-import { THIRTY_MINS, TWENTY_FOUR_HRS } from '../../../utils/datetime';
+import { THIRTY_MINS, TWENTY_FOUR_HRS } from "../../../utils/datetime";
 import {
   findBinForTimeOfDay, findOutOfRangeAnnotations, calculateCbgStatsForBin,
-} from '../../../utils/trends/data';
+} from "../../../utils/trends/data";
 
-import CBGMedianAnimated from './CBGMedianAnimated';
-import CBGSliceAnimated from './CBGSliceAnimated';
+import CBGMedianAnimated from "./CBGMedianAnimated";
+import CBGSliceAnimated from "./CBGSliceAnimated";
 
 export default class CBGSlicesContainer extends PureComponent {
   static propTypes = {
@@ -57,6 +55,8 @@ export default class CBGSlicesContainer extends PureComponent {
     topMargin: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
+    focusSlice: PropTypes.func.isRequired,
+    unfocusSlice: PropTypes.func.isRequired,
   };
 
   static defaultProps = {

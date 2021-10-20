@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import { AUTOMATED_BASAL_DEVICE_MODELS } from './constants';
+import { AUTOMATED_BASAL_DEVICE_MODELS } from "./constants";
 
 export const getLatestPumpUpload = (uploadData = []) => {
-  return _.findLast(uploadData, { deviceTags: ['insulin-pump'] });
+  return _.findLast(uploadData, { deviceTags: ["insulin-pump"] });
 };
 
 export const isAutomatedBasalDevice = (pumpUpload = {}) => {

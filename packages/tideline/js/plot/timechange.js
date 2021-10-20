@@ -49,7 +49,7 @@ function plotTimeChange(pool, opts = {}) {
         .selectAll("g.d3-timechange-group")
         .data(filteredData, (d) => d.id);
 
-        const timechangeGroup = timechanges
+      const timechangeGroup = timechanges
         .enter()
         .append("g")
         .attr({
@@ -69,10 +69,10 @@ function plotTimeChange(pool, opts = {}) {
       .append("image")
       .attr({
         "xlink:href": timeChangeImage,
-        x: timechange.xPositionCorner,
-        y: timechange.yPositionCorner,
-        width: opts.size,
-        height: opts.size,
+        "x": timechange.xPositionCorner,
+        "y": timechange.yPositionCorner,
+        "width": opts.size,
+        "height": opts.size,
       })
       .classed({ "d3-image": true, "d3-timechange": true });
 

@@ -13,9 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
-const allowedKeys = ['type', 'error', 'payload', 'meta'];
+const allowedKeys = ["type", "error", "payload", "meta"];
 
 function isAllowedKey(key) {
   return allowedKeys.indexOf(key) !== -1;

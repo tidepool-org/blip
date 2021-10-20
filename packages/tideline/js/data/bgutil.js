@@ -15,30 +15,30 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import crossfilter from 'crossfilter2';
+import _ from "lodash";
+import crossfilter from "crossfilter2";
 
-import datetime from './util/datetime';
-import categorizer from './util/categorize';
+import datetime from "./util/datetime";
+import categorizer from "./util/categorize";
 
-import { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, MS_IN_DAY } from '../data/util/constants';
+import { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, MS_IN_DAY } from "../data/util/constants";
 
 function BGUtil(data, opts) {
 
   opts = opts || {};
   var defaults = {
     bgClasses: {
-      'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
-      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
-      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
-      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
+      "very-low": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+      "low": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+      "target": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+      "high": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
     },
     bgUnits: MGDL_UNITS
   };
   _.defaults(opts, defaults);
 
-  if (opts.DAILY_MIN == null) {
-    throw new Error('BGUtil needs a daily minimum readings (`opts.DAILY_MIN`) in order to calculate a statistic.');
+  if (_.isNil(opts.DAILY_MIN)) {
+    throw new Error("BGUtil needs a daily minimum readings (`opts.DAILY_MIN`) in order to calculate a statistic.");
   }
 
   var currentData;
@@ -51,10 +51,10 @@ function BGUtil(data, opts) {
   };
 
   var breakdownNaN = {
-    low: NaN,
-    target: NaN,
-    high: NaN,
-    total: NaN
+    low: Number.NaN,
+    target: Number.NaN,
+    high: Number.NaN,
+    total: Number.NaN
   };
 
   var categorize = categorizer(opts.bgClasses, opts.bgUnits);
@@ -63,26 +63,24 @@ function BGUtil(data, opts) {
     var datum = {value:n};
     var category = categorize(datum);
     if (category === "verylow" || category === "low") {
-      return 'low';
+      return "low";
     }
     else if (category === "target") {
-      return 'target';
+      return "target";
     }
-    else {
-      return 'high';
-    }
+    return "high";
   }
 
   this.weightedCGMCount = function(data) {
     return _.reduce(data, (total, datum) => {
       let datumWeight = 1;
-      const deviceId = _.get(datum, 'deviceId', '');
+      const deviceId = _.get(datum, "deviceId", "");
 
       // Because our decision as to whether or not there's enough cgm data to warrant using
       // it to calculate average BGs is based on the expected number of readings in a day,
       // we need to adjust the weight of a for the Freestyle Libre datum, as it only
       // collects BG samples every 15 minutes as opposed the default 5 minutes from dexcom.
-      if (datum.type === 'cbg' && deviceId.indexOf('AbbottFreeStyleLibre') === 0) {
+      if (datum.type === "cbg" && deviceId.indexOf("AbbottFreeStyleLibre") === 0) {
         datumWeight = 3;
       }
 
@@ -95,7 +93,7 @@ function BGUtil(data, opts) {
       currentData = dataByDate.top(Infinity).reverse();
     }
     var start, end;
-    if (typeof(s) === 'number') {
+    if (typeof(s) === "number") {
       start = new Date(s).toISOString();
       end = new Date(e).toISOString();
     }
@@ -117,42 +115,39 @@ function BGUtil(data, opts) {
       filteredObj.data = [];
       return filteredObj;
     }
-    else {
-      return filteredObj;
-    }
+
+    return filteredObj;
   };
 
   this.filter = function(s, e, exclusionThreshold) {
     if (datetime.verifyEndpoints(s, e, this.endpoints)) {
       if (datetime.isTwentyFourHours(s, e)) {
         return this.filtered(s, e);
-      }
-      else if (datetime.isLessThanTwentyFourHours(s, e)) {
+      } else if (datetime.isLessThanTwentyFourHours(s, e)) {
         return {data: [], excluded: []};
       }
-      else {
-        var time = new Date(s).valueOf(), end = new Date(e).valueOf();
-        var result = [], excluded = [], next;
-        while (time < end) {
-          next = new Date(datetime.addDays(time, 1)).valueOf();
-          if (datetime.isTwentyFourHours(time, next)) {
-            var filtered = this.filtered(time, next);
-            result = result.concat(filtered.data);
-            excluded = excluded.concat(filtered.excluded);
-          }
-          time = new Date(next).valueOf();
+
+      var time = new Date(s).valueOf(), end = new Date(e).valueOf();
+      var result = [], excluded = [], next;
+      while (time < end) {
+        next = new Date(datetime.addDays(time, 1)).valueOf();
+        if (datetime.isTwentyFourHours(time, next)) {
+          var filtered = this.filtered(time, next);
+          result = result.concat(filtered.data);
+          excluded = excluded.concat(filtered.excluded);
         }
-        if (excluded.length > exclusionThreshold) {
-          return {data: [], excluded: excluded};
-        }
-        else {
-          return {data: result, excluded: excluded};
-        }
+        time = new Date(next).valueOf();
       }
+      if (excluded.length > exclusionThreshold) {
+        return {data: [], excluded: excluded};
+      }
+
+      return {data: result, excluded: excluded};
+
+
     }
-    else {
-      return {data: [], excluded: []};
-    }
+
+    return {data: [], excluded: []};
   };
 
   this.rangeBreakdown = function(filtered) {
@@ -170,24 +165,21 @@ function BGUtil(data, opts) {
     return _.defaults(breakdown, breakdownNaN);
   };
 
-  this.average = function(filtered) {
+  this.average = function(/** @type {{ value: number }[]} */ filtered) {
     if (filtered.length > 0) {
       var sum = _.reduce(filtered, function(memo, d) {
         return memo + d.value;
       }, 0);
-      var average;
+      let average;
       if (opts.bgUnits === MMOLL_UNITS) {
-        average = parseFloat((sum/filtered.length)).toFixed(1);
-      }
-      else {
-        average = parseInt((sum/filtered.length).toFixed(0), 10);
+        average = Number.parseFloat((sum/filtered.length)).toFixed(1);
+      } else {
+        average = Number.parseInt((sum/filtered.length).toFixed(0), 10);
       }
 
       return {value: average, category: getCategory(average)};
     }
-    else {
-      return {value: NaN, category: '', excluded: filtered.excluded};
-    }
+    return {value: Number.NaN, category: "", excluded: filtered.excluded};
   };
 
   this.threshold = function(s, e) {
@@ -195,8 +187,7 @@ function BGUtil(data, opts) {
     return Math.floor(opts.DAILY_MIN * (difference/MS_IN_DAY));
   };
 
-  this.getStats = function(s, e, opts) {
-    opts = opts || {};
+  this.getStats = function(s, e, opts = {}) {
     var start = new Date(s).toISOString(), end = new Date(e).toISOString();
     dataByDate.filter([start, end]);
     currentData = dataByDate.top(Infinity).reverse();

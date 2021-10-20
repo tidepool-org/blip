@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
-import React from 'react';
+import PropTypes from "prop-types";
+import React from "react";
 
 class BasicContainer extends React.Component {
   static propTypes = {
@@ -26,13 +26,14 @@ class BasicContainer extends React.Component {
     data: PropTypes.object.isRequired,
     labels: PropTypes.object.isRequired,
     title: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.func ]).isRequired
+      PropTypes.string,
+      PropTypes.func,
+    ]).isRequired
   };
 
   render() {
     return (
-      <div className='BasicContainer'>
+      <div className="BasicContainer">
         {this.props.chart({
           bgClasses: this.props.bgClasses,
           bgUnits: this.props.bgUnits,

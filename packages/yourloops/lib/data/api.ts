@@ -49,7 +49,7 @@ const log = bows("data-api");
 let routeV1Available = true;
 
 export async function getPatientsDataSummary(session: Session, userId: string, options?: GetPatientDataOptionsV0): Promise<ComputedTIR> {
-  const dataURL = new URL(`/compute/tir` , appConfig.API_HOST);
+  const dataURL = new URL("/compute/tir" , appConfig.API_HOST);
   dataURL.searchParams.set("userIds", userId);
 
   if (options) {
@@ -89,7 +89,7 @@ function getPatientDataRouteV0(session: Session, patient: IUser, options?: GetPa
       dataURL.searchParams.set("latest", "true");
     }
     if (Array.isArray(options.types) && options.types.length > 0) {
-      dataURL.searchParams.append("type", options.types.join(','));
+      dataURL.searchParams.append("type", options.types.join(","));
     }
     if (options.startDate) {
       dataURL.searchParams.set("startDate", options.startDate);

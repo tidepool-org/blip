@@ -26,11 +26,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-import ReactDOM from 'react-dom';
-import { act } from 'react-dom/test-utils';
+import React from "react";
+import ReactDOM from "react-dom";
+import { act } from "react-dom/test-utils";
 import { BrowserRouter } from "react-router-dom";
-import sinon from "sinon";
+import * as sinon from "sinon";
 import { expect } from "chai";
 import { v4 as uuidv4 } from "uuid";
 
@@ -94,7 +94,7 @@ function testHook(): void {
   };
 
   beforeEach(() => {
-    container = document.createElement('div');
+    container = document.createElement("div");
     document.body.appendChild(container);
   });
   afterEach(() => {

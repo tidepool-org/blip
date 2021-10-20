@@ -38,7 +38,7 @@ import BGUtil from "./data/bgutil";
 import dt from "./data/util/datetime";
 
 const RE_ISO_TIME = /^(?:[1-9]\d{3}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\d|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[1-9]\d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29)T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+|.{0})(?:Z|[+-][01]\d:[0-5]\d)$/;
-const INVALID_TIMEZONES = ['UTC', 'GMT', 'Etc/GMT'];
+const INVALID_TIMEZONES = ["UTC", "GMT", "Etc/GMT"];
 const REQUIRED_TYPES = ["basal", "bolus", "wizard", "cbg", "message", "smbg", "pumpSettings", "physicalActivity", "deviceEvent", "upload"];
 const DIABETES_DATA_TYPES = ["basal", "bolus", "cbg", "smbg", "wizard"];
 const BASICS_TYPE = ["basal", "bolus", "cbg", "smbg", "deviceEvent", "wizard", "upload"];
@@ -53,9 +53,9 @@ const defaults = {
   bgUnits: MGDL_UNITS,
   bgClasses: {
     "very-low": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
-    low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
-    target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
-    high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
+    "low": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+    "target": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+    "high": { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
     "very-high": { boundary: BG_CLAMP_THRESHOLD[MGDL_UNITS] },
   },
   fillOpts: {
@@ -98,9 +98,9 @@ function TidelineData(opts = defaults) {
     const { bgUnits } = opts;
     this.opts.bgClasses = {
       "very-low": { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow },
-      low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
-      target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
-      high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
+      "low": { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower },
+      "target": { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper },
+      "high": { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh },
       "very-high": { boundary: BG_CLAMP_THRESHOLD[bgUnits] },
     };
     this.log.info(`Using units ${bgUnits}: Updating bgClasses`, { bgClasses: this.opts.bgClasses });
@@ -193,11 +193,11 @@ const isWanted = (d) => {
     return false;
   }
   if (_.isEmpty(d)) {
-    d.unwanted = 'empty';
+    d.unwanted = "empty";
     return false;
   }
   if (!_.isString(d.type)) {
-    d.unwanted = 'no type';
+    d.unwanted = "no type";
     return false;
   }
   if (typeof d.epoch === "number") {
@@ -214,11 +214,11 @@ const isWanted = (d) => {
       return false; // We display only the parent message, we do not care for the others
     }
     if (!_.isString(d.time)) {
-      d.unwanted = 'time: not a string';
+      d.unwanted = "time: not a string";
       return false;
     }
     if (!RE_ISO_TIME.test(d.time)) {
-      d.unwanted = 'time: not valid';
+      d.unwanted = "time: not valid";
       return false;
     }
   }
@@ -449,7 +449,7 @@ TidelineData.prototype.setTimezones = function setTimezones() {
       if (startPoint < timeChange.epoch && timeChange.epoch < lastPoint) {
         timezoneChanges.push(timeChange);
       } else {
-        this.log.warn('Ignoring timechange', { timeChange, d, startPoint, lastPoint, first: this.data[0], last: this.data[nData - 1] });
+        this.log.warn("Ignoring timechange", { timeChange, d, startPoint, lastPoint, first: this.data[0], last: this.data[nData - 1] });
       }
       displayOffset = d.displayOffset;
     }
@@ -462,7 +462,7 @@ TidelineData.prototype.setTimezones = function setTimezones() {
   }
 
   if (timezoneChanges.length > 0) {
-    this.log.info('Guessed timezone changes (some may be stripped away)', timezoneChanges);
+    this.log.info("Guessed timezone changes (some may be stripped away)", timezoneChanges);
     // Concat the timezone change events:
     const isChartType = (d) => DAILY_TYPES.includes(d.type);
     const startDatum = _.find(this.data, isChartType) ?? false;
@@ -549,7 +549,7 @@ TidelineData.prototype.setEndPoints = function setEndPoints() {
     const lastTime = typeof last.epochEnd === "number" ? last.epochEnd : last.epoch;
     // FIXME moment startOf/endOf works only with current browser timezone -> it use the Date() object
     start = moment.tz(first.epoch, first.timezone).startOf("day");
-    end = moment.tz(lastTime, last.timezone).endOf("day").add(1, 'millisecond');
+    end = moment.tz(lastTime, last.timezone).endOf("day").add(1, "millisecond");
   } else {
     // Be sure to have something, we do not want to crash
     // in some other code, and do not want to check this
@@ -568,7 +568,7 @@ TidelineData.prototype.setEndPoints = function setEndPoints() {
     }
     if (this.opts.dataRange[1].isAfter(end)) {
       const ms = this.opts.dataRange[1].valueOf();
-      end = moment.tz(ms, this.getTimezoneAt(ms)).endOf('day').add(1, 'millisecond');
+      end = moment.tz(ms, this.getTimezoneAt(ms)).endOf("day").add(1, "millisecond");
     }
 
   } else {
@@ -756,7 +756,7 @@ TidelineData.prototype.getLastestManufacturer = function getLastestManufacturer(
     payload: { pump: { manufacturer: this.opts.defaultPumpManufacturer } },
   };
 
-  this.checkRequired(['pumpSettings']);
+  this.checkRequired(["pumpSettings"]);
 
   // get latest pump manufacturer
   const lastPump = _.maxBy(this.grouped.pumpSettings, "epoch");
@@ -777,21 +777,21 @@ TidelineData.prototype.updateCrossFilters = function updateCrossFilters() {
   const createCrossFilter = (dim) => {
     let newDim = null;
     switch (dim) {
-      case "datetime":
-        newDim = this.filterData.dimension((d) => d.normalTime);
-        break;
-      case "smbgByDatetime":
-        newDim = this.smbgData.dimension((d) => d.normalTime);
-        break;
-      case "smbgByDayOfWeek":
-        newDim = this.smbgData.dimension((d) => dt.weekdayLookup(moment.utc(d.epoch).tz(d.timezone).day()));
-        break;
-      case "cbgByDatetime":
-        newDim = this.cbgData.dimension((d) => d.normalTime);
-        break;
-      case "cbgByDayOfWeek":
-        newDim = this.cbgData.dimension((d) => dt.weekdayLookup(moment.utc(d.epoch).tz(d.timezone).day()));
-        break;
+    case "datetime":
+      newDim = this.filterData.dimension((d) => d.normalTime);
+      break;
+    case "smbgByDatetime":
+      newDim = this.smbgData.dimension((d) => d.normalTime);
+      break;
+    case "smbgByDayOfWeek":
+      newDim = this.smbgData.dimension((d) => dt.weekdayLookup(moment.utc(d.epoch).tz(d.timezone).day()));
+      break;
+    case "cbgByDatetime":
+      newDim = this.cbgData.dimension((d) => d.normalTime);
+      break;
+    case "cbgByDayOfWeek":
+      newDim = this.cbgData.dimension((d) => dt.weekdayLookup(moment.utc(d.epoch).tz(d.timezone).day()));
+      break;
     }
     return newDim;
   };
@@ -904,21 +904,21 @@ TidelineData.prototype.generateFillData = function generateFillData() {
 TidelineData.prototype.setBasicsData = function setBasicsData() {
   const last = _.findLast(this.data, (d) => {
     switch (d.type) {
-      case "basal":
-      case "wizard":
-      case "bolus":
-      case "cbg":
-      case "smbg":
-      case "physicalActivity":
+    case "basal":
+    case "wizard":
+    case "bolus":
+    case "cbg":
+    case "smbg":
+    case "physicalActivity":
+      return true;
+    case "deviceEvent":
+      var includedSubtypes = ["reservoirChange", "prime", "calibration", "deviceParameter", "zen"];
+      if (_.includes(includedSubtypes, d.subType)) {
         return true;
-      case "deviceEvent":
-        var includedSubtypes = ["reservoirChange", "prime", "calibration", "deviceParameter", "zen"];
-        if (_.includes(includedSubtypes, d.subType)) {
-          return true;
-        }
-        return false;
-      default:
-        return false;
+      }
+      return false;
+    default:
+      return false;
     }
   });
 
@@ -1035,12 +1035,12 @@ TidelineData.prototype.addData = async function addData(newData) {
     // Dev only: display unwanted data received to the console
     const unwantedData = newData.filter(d => !isWanted(d));
     if (unwantedData.length > 0) {
-      this.log.warn('Unwanted data:', unwantedData);
+      this.log.warn("Unwanted data:", unwantedData);
     }
   }
   newData = newData.filter(isWanted);
   if (newData.length < 1) {
-    this.log.info('Nothing interested in theses new data');
+    this.log.info("Nothing interested in theses new data");
     endTimer("filterUnwanted");
     endTimer("addData");
     return 0;
@@ -1213,11 +1213,11 @@ TidelineData.prototype.editMessage = function editMessage(editedMessage) {
 
       this.updateCrossFilters();
     } else {
-      this.log.warn('editMessage: Message not found', editedMessage);
+      this.log.warn("editMessage: Message not found", editedMessage);
     }
 
   } else {
-    this.log.warn('editMessage: Unwanted message:', editedMessage);
+    this.log.warn("editMessage: Unwanted message:", editedMessage);
   }
 
   endTimer("editMessage");

@@ -15,35 +15,35 @@
  * == BSD2 LICENSE ==
  */
 
-import './styles/colors.css';
+import "./styles/colors.css";
 
-import CBGDateTraceLabel from './components/trends/cbg/CBGDateTraceLabel';
-import FocusedRangeLabels from './components/trends/common/FocusedRangeLabels';
-import FocusedSMBGPointLabel from './components/trends/smbg/FocusedSMBGPointLabel';
-import Loader from './components/common/loader/Loader';
-import RangeSelect from './components/trends/cbg/RangeSelect';
-import TwoOptionToggle from './components/common/controls/TwoOptionToggle';
-import PumpSettingsContainer from './components/settings/common/PumpSettingsContainer';
-import TrendsContainer from './components/trends/common/TrendsContainer';
-import Tooltip from './components/common/tooltips/Tooltip';
-import BolusTooltip from './components/daily/bolustooltip/BolusTooltip';
-import SMBGTooltip from './components/daily/smbgtooltip/SMBGTooltip';
-import Stat from './components/common/stat/Stat';
-import CBGTooltip from './components/daily/cbgtooltip/CBGTooltip';
-import FoodTooltip from './components/daily/foodtooltip/FoodTooltip';
-import PhysicalTooltip from './components/daily/physicaltooltip/PhysicalTooltip';
-import ReservoirTooltip from './components/daily/reservoirtooltip/ReservoirTooltip';
-import ParameterTooltip from './components/daily/parametertooltip/ParameterTooltip';
-import ConfidentialTooltip from './components/daily/confidentialtooltip/ConfidentialTooltip';
-import WarmUpTooltip from './components/daily/warmuptooltip/WarmUpTooltip';
+import CBGDateTraceLabel from "./components/trends/cbg/CBGDateTraceLabel";
+import FocusedRangeLabels from "./components/trends/common/FocusedRangeLabels";
+import FocusedSMBGPointLabel from "./components/trends/smbg/FocusedSMBGPointLabel";
+import Loader from "./components/common/loader/Loader";
+import RangeSelect from "./components/trends/cbg/RangeSelect";
+import TwoOptionToggle from "./components/common/controls/TwoOptionToggle";
+import PumpSettingsContainer from "./components/settings/common/PumpSettingsContainer";
+import TrendsContainer from "./components/trends/common/TrendsContainer";
+import Tooltip from "./components/common/tooltips/Tooltip";
+import BolusTooltip from "./components/daily/bolustooltip/BolusTooltip";
+import SMBGTooltip from "./components/daily/smbgtooltip/SMBGTooltip";
+import Stat from "./components/common/stat/Stat";
+import CBGTooltip from "./components/daily/cbgtooltip/CBGTooltip";
+import FoodTooltip from "./components/daily/foodtooltip/FoodTooltip";
+import PhysicalTooltip from "./components/daily/physicaltooltip/PhysicalTooltip";
+import ReservoirTooltip from "./components/daily/reservoirtooltip/ReservoirTooltip";
+import ParameterTooltip from "./components/daily/parametertooltip/ParameterTooltip";
+import ConfidentialTooltip from "./components/daily/confidentialtooltip/ConfidentialTooltip";
+import WarmUpTooltip from "./components/daily/warmuptooltip/WarmUpTooltip";
 
-import reducers from './redux/reducers/';
+import reducers from "./redux/reducers/";
 
-import { formatBgValue } from './utils/format';
-import { reshapeBgClassesToBgBounds } from './utils/bloodglucose';
-import { getTotalBasalFromEndpoints, getGroupDurations } from './utils/basal';
-import { isAutomatedBasalDevice } from './utils/device';
-import { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } from './utils/datetime';
+import { formatBgValue } from "./utils/format";
+import { reshapeBgClassesToBgBounds } from "./utils/bloodglucose";
+import { getTotalBasalFromEndpoints, getGroupDurations } from "./utils/basal";
+import { isAutomatedBasalDevice } from "./utils/device";
+import { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } from "./utils/datetime";
 import {
   commonStats,
   getStatAnnotations,
@@ -52,10 +52,10 @@ import {
   getStatTitle,
   statBgSourceLabels,
   statFetchMethods,
-} from './utils/stat';
-import DataUtil from './utils/data';
-import createPrintPDFPackage from './modules/print';
-import { selectDailyViewData, selectBgLogViewData } from './utils/print/data';
+} from "./utils/stat";
+import DataUtil from "./utils/data";
+import createPrintPDFPackage from "./modules/print";
+import { selectDailyViewData, selectBgLogViewData } from "./utils/print/data";
 
 const components = {
   CBGDateTraceLabel,

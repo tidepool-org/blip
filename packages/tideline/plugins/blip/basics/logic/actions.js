@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import togglableState from '../TogglableState';
+import _ from "lodash";
+import togglableState from "../TogglableState";
 
 const basicsActions = {
   app: null,
@@ -31,10 +31,10 @@ basicsActions.toggleSection = function(sectionName, metricsFunc) {
   var sections = _.cloneDeep(this.app.state.sections);
   if (sections[sectionName].togglable === togglableState.closed) {
     sections[sectionName].togglable = togglableState.open;
-    metricsFunc(sections[sectionName].id + ' was opened');
+    metricsFunc(sections[sectionName].id + " was opened");
   } else {
     sections[sectionName].togglable = togglableState.closed;
-    metricsFunc(sections[sectionName].id + ' was closed');
+    metricsFunc(sections[sectionName].id + " was closed");
   }
   this.app.setState({sections: sections});
 };
@@ -43,11 +43,11 @@ basicsActions.toggleSectionSettings = function(sectionName, metricsFunc) {
   var sections = _.cloneDeep(this.app.state.sections);
   if (sections[sectionName].settingsTogglable === togglableState.closed) {
     sections[sectionName].settingsTogglable = togglableState.open;
-    metricsFunc(sections[sectionName].id + ' settings was opened');
+    metricsFunc(sections[sectionName].id + " settings was opened");
   }
   else {
     sections[sectionName].settingsTogglable = togglableState.closed;
-    metricsFunc(sections[sectionName].id + ' settings was closed');
+    metricsFunc(sections[sectionName].id + " settings was closed");
   }
   this.app.setState({sections: sections});
 };
@@ -60,10 +60,10 @@ basicsActions.setSiteChangeEvent = function(sectionName, selectedKey, selectedLa
   sections.siteChanges.type = selectedKey;
   sections.siteChanges.hasHover = true;
 
-  var canUpdateSettings = _.get(sections, 'siteChanges.selectorMetaData.canUpdateSettings');
+  var canUpdateSettings = _.get(sections, "siteChanges.selectorMetaData.canUpdateSettings");
 
-  metricsFunc('Selected ' + selectedLabel, {
-    initiatedBy: canUpdateSettings ? 'User' : 'Care Team',
+  metricsFunc("Selected " + selectedLabel, {
+    initiatedBy: canUpdateSettings ? "User" : "Care Team",
   });
 
   var newSettings = _.assign({}, this.app.props.patient.settings, {
@@ -80,7 +80,7 @@ basicsActions.selectSubtotal = function(sectionName, selectedKey, metricsFunc) {
   var selectorOptions = sections[sectionName].selectorOptions;
 
   if (metricsFunc) {
-    metricsFunc('filtered on ' + selectedKey);
+    metricsFunc("filtered on " + selectedKey);
   }
 
   selectorOptions = clearSelected(selectorOptions);
@@ -95,10 +95,10 @@ basicsActions.addToBasicsData = function(key, value) {
 };
 
 function clearSelected(opts) {
-  opts.primary = _.omit(opts.primary, 'selected');
+  opts.primary = _.omit(opts.primary, "selected");
   opts.rows = opts.rows.map(function(row) {
     return row.map(function(opt) {
-      return _.omit(opt, 'selected');
+      return _.omit(opt, "selected");
     });
   });
 

@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import * as actionTypes from '../constants/actionTypes';
+import * as actionTypes from "../constants/actionTypes";
 
 export function markSettingsViewed(userId) {
   return {

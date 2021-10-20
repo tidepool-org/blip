@@ -29,7 +29,7 @@
 // Polyfills for compatibility with older browsers:
 import "core-js/stable";
 
-import * as React from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import Yourloops from "./app";
 import OnError from "./error";

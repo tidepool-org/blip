@@ -14,22 +14,22 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import PropTypes from 'prop-types';
-import React from 'react';
-import _ from 'lodash';
-import bows from 'bows';
-import moment from 'moment-timezone';
-import WindowSizeListener from 'react-window-size-listener';
-import i18next from 'i18next';
+import PropTypes from "prop-types";
+import React from "react";
+import _ from "lodash";
+import bows from "bows";
+import moment from "moment-timezone";
+import WindowSizeListener from "react-window-size-listener";
+import i18next from "i18next";
 
-import { chartDailyFactory, MS_IN_DAY, MS_IN_HOUR } from 'tideline';
-import { components as vizComponents } from 'tidepool-viz';
+import { chartDailyFactory, MS_IN_DAY, MS_IN_HOUR } from "tideline";
+import { components as vizComponents } from "tidepool-viz";
 
-import { BG_DATA_TYPES } from '../../core/constants';
-import Stats from './stats';
-import BgSourceToggle from './bgSourceToggle';
-import Header from './header';
-import Footer from './footer';
+import { BG_DATA_TYPES } from "../../core/constants";
+import Stats from "./stats";
+import BgSourceToggle from "./bgSourceToggle";
+import Header from "./header";
+import Footer from "./footer";
 
 /** @typedef {import('tideline').TidelineData} TidelineData */
 
@@ -77,23 +77,23 @@ class DailyChart extends React.Component {
     super(props);
 
     this.chartOpts = [
-      'bgClasses',
-      'bgUnits',
-      'timePrefs',
-      'onBolusHover',
-      'onSMBGHover',
-      'onCBGHover',
-      'onCarbHover',
-      'onReservoirHover',
-      'onPhysicalHover',
-      'onParameterHover',
-      'onConfidentialHover',
-      'onWarmUpHover',
-      'onTooltipOut',
-      'trackMetric',
+      "bgClasses",
+      "bgUnits",
+      "timePrefs",
+      "onBolusHover",
+      "onSMBGHover",
+      "onCBGHover",
+      "onCarbHover",
+      "onReservoirHover",
+      "onPhysicalHover",
+      "onParameterHover",
+      "onConfidentialHover",
+      "onWarmUpHover",
+      "onTooltipOut",
+      "trackMetric",
     ];
 
-    this.log = bows('DailyChart');
+    this.log = bows("DailyChart");
     this.state = {
       /** @type {function | null} */
       chart: null,
@@ -127,7 +127,7 @@ class DailyChart extends React.Component {
   mountChart(cb = _.noop) {
     if (this.state.chart === null) {
       const { tidelineData, epochLocation } = this.props;
-      this.log.debug('Mounting...');
+      this.log.debug("Mounting...");
       const chart = chartDailyFactory(this.refNode.current, tidelineData, _.pick(this.props, this.chartOpts));
       this.setState({ chart }, () => {
         chart.setAtDate(epochLocation);
@@ -142,7 +142,7 @@ class DailyChart extends React.Component {
   unmountChart(cb = _.noop) {
     const { chart } = this.state;
     if (chart !== null) {
-      this.log('Unmounting...');
+      this.log("Unmounting...");
       this.unbindEvents();
       chart.destroy();
       this.setState({ chart: null }, cb);
@@ -153,18 +153,18 @@ class DailyChart extends React.Component {
 
   bindEvents() {
     const { chart } = this.state;
-    chart.emitter.on('createMessage', this.props.onCreateMessage);
-    chart.emitter.on('inTransition', this.props.onTransition);
-    chart.emitter.on('messageThread', this.props.onShowMessageThread);
-    chart.emitter.on('navigated', this.props.onDatetimeLocationChange);
+    chart.emitter.on("createMessage", this.props.onCreateMessage);
+    chart.emitter.on("inTransition", this.props.onTransition);
+    chart.emitter.on("messageThread", this.props.onShowMessageThread);
+    chart.emitter.on("navigated", this.props.onDatetimeLocationChange);
   }
 
   unbindEvents() {
     const { chart } = this.state;
-    chart.emitter.off('createMessage', this.props.onCreateMessage);
-    chart.emitter.off('inTransition', this.props.onTransition);
-    chart.emitter.off('messageThread', this.props.onShowMessageThread);
-    chart.emitter.off('navigated', this.props.onDatetimeLocationChange);
+    chart.emitter.off("createMessage", this.props.onCreateMessage);
+    chart.emitter.off("inTransition", this.props.onTransition);
+    chart.emitter.off("messageThread", this.props.onShowMessageThread);
+    chart.emitter.off("navigated", this.props.onDatetimeLocationChange);
   }
 
   render() {
@@ -179,14 +179,14 @@ class DailyChart extends React.Component {
   handleWindowResize = ({windowHeight: height, windowWidth: width}) => {
     const { loading } = this.props;
     const { windowHeight, windowWidth, chart } = this.state;
-    this.log.debug('handleWindowResize', { windowHeight, windowWidth }, '=>', { height, width });
+    this.log.debug("handleWindowResize", { windowHeight, windowWidth }, "=>", { height, width });
     if (windowHeight !== height || width !== windowWidth) {
       const needRecreate = loading || chart?.isInTransition() === true;
       this.setState({ windowHeight: height, windowWidth: width, needRecreate }, () => {
         if (!needRecreate) {
           this.reCreateChart();
         } else {
-          this.log.info('Delaying chart re-creation: loading or transition in progress');
+          this.log.info("Delaying chart re-creation: loading or transition in progress");
         }
       });
     }
@@ -194,14 +194,14 @@ class DailyChart extends React.Component {
 
   reCreateChart() {
     const { chart } = this.state;
-    this.log.info(chart === null ? 'Creating chart...' : 'Recreating chart...');
+    this.log.info(chart === null ? "Creating chart..." : "Recreating chart...");
     this.unmountChart(this.mountChart.bind(this));
   }
 
   rerenderChartData() {
     const { chart } = this.state;
     if (chart !== null) {
-      this.log.info('Rerendering chart data...');
+      this.log.info("Rerendering chart data...");
       chart.renderPoolsData(true);
     }
   }
@@ -266,8 +266,8 @@ class Daily extends React.Component {
     super(props);
 
     this.chartRef = React.createRef();
-    this.chartType = 'daily';
-    this.log = bows('DailyView');
+    this.chartType = "daily";
+    this.log = bows("DailyView");
     this.state = {
       atMostRecent: this.isAtMostRecent(),
       inTransition: false,
@@ -305,9 +305,9 @@ class Daily extends React.Component {
           loading={loading}
           title={title}
           prefixURL={this.props.prefixURL}
-          iconBack={'icon-back'}
-          iconNext={'icon-next'}
-          iconMostRecent={'icon-most-recent'}
+          iconBack="icon-back"
+          iconNext="icon-next"
+          iconMostRecent="icon-most-recent"
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           canPrint={this.props.canPrint}
           trackMetric={trackMetric}
@@ -411,7 +411,7 @@ class Daily extends React.Component {
   getTitle(datetime) {
     /** @type {{tidelineData: TidelineData}} */
     const { tidelineData } = this.props;
-    return moment.tz(datetime, tidelineData.getTimezoneAt(datetime)).format(i18next.t('ddd, MMM D, YYYY'));
+    return moment.tz(datetime, tidelineData.getTimezoneAt(datetime)).format(i18next.t("ddd, MMM D, YYYY"));
   }
 
   // handlers
@@ -491,10 +491,10 @@ class Daily extends React.Component {
     const hoursOffset = (datum.data.epoch - epochLocation) / MS_IN_HOUR;
     datum.top = rect.top + rect.height / 2;
     if (hoursOffset > 5) {
-      datum.side = 'left';
+      datum.side = "left";
       datum.left = rect.left;
     } else {
-      datum.side = 'right';
+      datum.side = "right";
       datum.left = rect.left + rect.width;
     }
     datum.bgPrefs = bgPrefs;
@@ -636,7 +636,7 @@ class Daily extends React.Component {
     this.updateDatumHoverForTooltip(datum);
     const tooltip = (
       <ConfidentialTooltip
-      confidential={datum.data}
+        confidential={datum.data}
         position={{
           top: datum.top,
           left: datum.left

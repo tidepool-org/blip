@@ -24,9 +24,9 @@
  * with a range of 0 to 5, so new fixtures should be limited to a max rate of no more than 5
  */
 
-const TEN_PM = Date.parse('1969-12-31T22:00:00.000Z');
-const MIDNIGHT = Date.parse('1970-01-01T00:00:00.000Z');
-const ONE_AM = Date.parse('1970-01-01T01:00:00.000Z');
+const TEN_PM = Date.parse("1969-12-31T22:00:00.000Z");
+const MIDNIGHT = Date.parse("1970-01-01T00:00:00.000Z");
+const ONE_AM = Date.parse("1970-01-01T01:00:00.000Z");
 
 const ONE_HR = 36e5;
 const FIVE_MINS = 5 * 60 * 1000;
@@ -34,56 +34,56 @@ const TWENTY_MINS = 20 * 60 * 1000;
 
 export const singleSuspend = [
   {
-    type: 'deviceEvent',
-    subType: 'status',
-    status: 'suspended',
+    type: "deviceEvent",
+    subType: "status",
+    status: "suspended",
     duration: FIVE_MINS,
     utc: MIDNIGHT,
-    id: 'p2nt1v2fbnolg91sivpj8me7fvv96v7u',
+    id: "p2nt1v2fbnolg91sivpj8me7fvv96v7u",
   },
 ];
 
 export const multipleSuspends = [
   {
-    type: 'deviceEvent',
-    subType: 'status',
-    status: 'suspended',
+    type: "deviceEvent",
+    subType: "status",
+    status: "suspended",
     duration: FIVE_MINS,
     utc: TEN_PM,
-    id: 'p2nt1v2fbnolg91sivpj8me7fvv96v7u',
+    id: "p2nt1v2fbnolg91sivpj8me7fvv96v7u",
   },
   {
-    type: 'deviceEvent',
-    subType: 'status',
-    status: 'suspended',
+    type: "deviceEvent",
+    subType: "status",
+    status: "suspended",
     duration: TWENTY_MINS,
     utc: MIDNIGHT,
-    id: 'c2conf8pvuahc30rhtqdqnth9u2smef3',
+    id: "c2conf8pvuahc30rhtqdqnth9u2smef3",
   },
   {
-    type: 'deviceEvent',
-    subType: 'status',
-    status: 'suspended',
+    type: "deviceEvent",
+    subType: "status",
+    status: "suspended",
     duration: ONE_HR,
     utc: ONE_AM,
-    id: '505fos0locslfpj0ps3g598p961cugs3',
+    id: "505fos0locslfpj0ps3g598p961cugs3",
   },
 ];
 
 export const suspendsWithoutDuration = [
   {
-    type: 'deviceEvent',
-    subType: 'status',
-    status: 'suspended',
+    type: "deviceEvent",
+    subType: "status",
+    status: "suspended",
     utc: MIDNIGHT,
-    id: 'p2nt1v2fbnolg91sivpj8me7fvv96v7u',
+    id: "p2nt1v2fbnolg91sivpj8me7fvv96v7u",
   },
   {
-    type: 'deviceEvent',
-    subType: 'status',
-    status: 'suspended',
+    type: "deviceEvent",
+    subType: "status",
+    status: "suspended",
     duration: TWENTY_MINS,
     utc: MIDNIGHT,
-    id: 'c2conf8pvuahc30rhtqdqnth9u2smef3',
+    id: "c2conf8pvuahc30rhtqdqnth9u2smef3",
   },
 ];

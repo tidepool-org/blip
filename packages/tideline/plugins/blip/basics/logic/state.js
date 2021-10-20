@@ -62,19 +62,19 @@ function basicsState(source, manufacturer) {
           rows:
             source === "Diabeloop"
               ? [
-                  [
-                    // { key: 'temp', label: t('Temp Basals') },
-                    { key: "automatedStart", label: automatedLabel },
-                    { key: "automatedStop", label: t("{{automatedLabel}} Exited", { automatedLabel }) },
-                  ],
-                ]
-              : [
-                  [
-                    { key: "temp", label: t("Temp Basals") },
-                    { key: "suspend", label: t("Suspends") },
-                    { key: "automatedStop", label: t("{{automatedLabel}} Exited", { automatedLabel }) },
-                  ],
+                [
+                  // { key: 'temp', label: t('Temp Basals') },
+                  { key: "automatedStart", label: automatedLabel },
+                  { key: "automatedStop", label: t("{{automatedLabel}} Exited", { automatedLabel }) },
                 ],
+              ]
+              : [
+                [
+                  { key: "temp", label: t("Temp Basals") },
+                  { key: "suspend", label: t("Suspends") },
+                  { key: "automatedStop", label: t("{{automatedLabel}} Exited", { automatedLabel }) },
+                ],
+              ],
         },
         settingsTogglable: togglableState.off,
         title: t("Basals"),
@@ -95,24 +95,24 @@ function basicsState(source, manufacturer) {
           rows:
             source === "Diabeloop"
               ? [
-                  [
-                    { key: "wizard", label: t("Calculator"), percentage: true },
-                    { key: "manual", label: t("micro-bolus"), percentage: true },
-                    { key: "interrupted", label: t("Interrupted"), percentage: true },
-                  ],
-                ]
-              : [
-                  [
-                    { key: "wizard", label: t("Calculator"), percentage: true },
-                    { key: "correction", label: t("Correction"), percentage: true },
-                    { key: "override", label: t("Override"), percentage: true },
-                  ],
-                  [
-                    { key: "extended", label: t("Extended"), percentage: true },
-                    { key: "interrupted", label: t("Interrupted"), percentage: true },
-                    { key: "underride", label: t("Underride"), percentage: true },
-                  ],
+                [
+                  { key: "wizard", label: t("Calculator"), percentage: true },
+                  { key: "manual", label: t("micro-bolus"), percentage: true },
+                  { key: "interrupted", label: t("Interrupted"), percentage: true },
                 ],
+              ]
+              : [
+                [
+                  { key: "wizard", label: t("Calculator"), percentage: true },
+                  { key: "correction", label: t("Correction"), percentage: true },
+                  { key: "override", label: t("Override"), percentage: true },
+                ],
+                [
+                  { key: "extended", label: t("Extended"), percentage: true },
+                  { key: "interrupted", label: t("Interrupted"), percentage: true },
+                  { key: "underride", label: t("Underride"), percentage: true },
+                ],
+              ],
         },
         settingsTogglable: togglableState.off,
         title: t("Bolusing"),

@@ -26,13 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-import ReactDOM from 'react-dom';
-import { act } from 'react-dom/test-utils';
+import React from "react";
+import ReactDOM from "react-dom";
+import { act } from "react-dom/test-utils";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
 import { BrowserRouter } from "react-router-dom";
-import sinon from "sinon";
+import * as sinon from "sinon";
 import { expect } from "chai";
 
 import { Preferences, Profile, Settings, UserRoles } from "../../../models/shoreline";
@@ -175,7 +175,7 @@ function testHook(): void {
   };
 
   beforeEach(() => {
-    container = document.createElement('div');
+    container = document.createElement("div");
     document.body.appendChild(container);
     sessionStorage.removeItem(STORAGE_KEY_SESSION_TOKEN);
     sessionStorage.removeItem(STORAGE_KEY_TRACE_TOKEN);
@@ -311,7 +311,7 @@ function testHook(): void {
       expect(sessionStorage.getItem(STORAGE_KEY_USER), "STORAGE_KEY_SESSION_TOKEN").to.be.null;
       // The first entry is for the "fake" login at the init
       expect(window._paq, "_paq").to.be.lengthOf(4);
-      expect(window._paq[0], "_paq[0]").to.be.deep.equals(['trackEvent', 'registration', 'logout']);
+      expect(window._paq[0], "_paq[0]").to.be.deep.equals(["trackEvent", "registration", "logout"]);
       expect(window._paq[1], "_paq[1]").to.be.deep.equals(["deleteCustomVariable", 1, "page"]);
       expect(window._paq[2], "_paq[2]").to.be.deep.equals(["resetUserId"]);
       expect(window._paq[3], "_paq[3]").to.be.deep.equals(["deleteCookies"]);

@@ -15,39 +15,39 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import { expect } from 'chai';
+import _ from "lodash";
+import { expect } from "chai";
 
-import { ANIMAS, TANDEM, INSULET, MEDTRONIC, DIABELOOP, getPumpVocabularies } from '../../src/utils/constants';
+import { ANIMAS, TANDEM, INSULET, MEDTRONIC, DIABELOOP, getPumpVocabularies } from "../../src/utils/constants";
 
-import * as device from '../../src/utils/device';
+import * as device from "../../src/utils/device";
 
-describe('device utility functions', () => {
-  describe('getLatestPumpUpload', () => {
-    it('should return a pump with proper data', () => {
+describe("device utility functions", () => {
+  describe("getLatestPumpUpload", () => {
+    it("should return a pump with proper data", () => {
       const data = [
         {
-          deviceTags: ['bgm'],
-          source: 'BGM',
+          deviceTags: ["bgm"],
+          source: "BGM",
         },
         {
-          deviceTags: ['insulin-pump'],
+          deviceTags: ["insulin-pump"],
           source: TANDEM,
         },
         {
-          deviceTags: ['insulin-pump', 'bgm'],
+          deviceTags: ["insulin-pump", "bgm"],
           source: INSULET,
         },
         {
-          deviceTags: ['cgm'],
-          source: 'CGM',
+          deviceTags: ["cgm"],
+          source: "CGM",
         },
       ];
 
       expect(device.getLatestPumpUpload(data)).to.eql(data[2]);
     });
 
-    it('should return `undefined` without proper data', () => {
+    it("should return `undefined` without proper data", () => {
       const patientData = {
         grouped: {
           pumpSettings: [],
@@ -59,29 +59,29 @@ describe('device utility functions', () => {
     });
   });
 
-  describe('isAutomatedBasalDevice', () => {
-    it('should return `true` for an upload record for a pump with automated basal delivery capabilities', () => {
-      expect(device.isAutomatedBasalDevice(MEDTRONIC, '1780')).to.be.true;
+  describe("isAutomatedBasalDevice", () => {
+    it("should return `true` for an upload record for a pump with automated basal delivery capabilities", () => {
+      expect(device.isAutomatedBasalDevice(MEDTRONIC, "1780")).to.be.true;
     });
 
-    it('should return `true` for an upload record for a DBLG1 system with automated basal delivery capabilities', () => {
-      expect(device.isAutomatedBasalDevice(DIABELOOP, 'DBLG1')).to.be.true;
+    it("should return `true` for an upload record for a DBLG1 system with automated basal delivery capabilities", () => {
+      expect(device.isAutomatedBasalDevice(DIABELOOP, "DBLG1")).to.be.true;
     });
 
-    it('should return `false` for an upload record for a pump without automated basal delivery capabilities', () => {
-      expect(device.isAutomatedBasalDevice(MEDTRONIC, '723')).to.be.false;
+    it("should return `false` for an upload record for a pump without automated basal delivery capabilities", () => {
+      expect(device.isAutomatedBasalDevice(MEDTRONIC, "723")).to.be.false;
     });
   });
 
-  describe('getPumpVocabulary', () => {
-    it('should return a pump terminology vocabulary, with default fallbacks for missing keys', () => {
+  describe("getPumpVocabulary", () => {
+    it("should return a pump terminology vocabulary, with default fallbacks for missing keys", () => {
       const manufacturers = [
         ANIMAS,
         INSULET,
         MEDTRONIC,
         TANDEM,
         DIABELOOP,
-        'default',
+        "default",
       ];
 
       const pumpVocabularies = getPumpVocabularies();
@@ -89,11 +89,11 @@ describe('device utility functions', () => {
       _.forEach(manufacturers, manufacturer => {
         const pumpVocabulary = device.getPumpVocabulary(manufacturer);
         expect(pumpVocabulary, manufacturer).to.have.all.keys([
-          'reservoirChange',
-          'tubingPrime',
-          'cannulaPrime',
-          'automatedDelivery',
-          'scheduledDelivery',
+          "reservoirChange",
+          "tubingPrime",
+          "cannulaPrime",
+          "automatedDelivery",
+          "scheduledDelivery",
         ]);
       });
 

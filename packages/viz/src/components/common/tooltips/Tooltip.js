@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import moment from 'moment-timezone';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import moment from "moment-timezone";
 
-import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
-import styles from './Tooltip.css';
+import { formatLocalizedFromUTC, getHourMinuteFormat } from "../../../utils/datetime";
+import styles from "./Tooltip.css";
 
 class Tooltip extends React.PureComponent {
   constructor(props) {
@@ -64,7 +64,7 @@ class Tooltip extends React.PureComponent {
         ? propOffset.left
         : (propOffset.horizontal || 0);
 
-      if (side === 'left') {
+      if (side === "left") {
         horizontalOffset = -horizontalOffset;
       }
 
@@ -80,22 +80,22 @@ class Tooltip extends React.PureComponent {
         let leftOffset;
         let topOffset;
         switch (side) {
-          case 'top':
-            leftOffset = -tooltipRect.width / 2;
-            topOffset = -tooltipRect.height;
-            break;
-          case 'bottom':
-            leftOffset = -tooltipRect.width / 2;
-            topOffset = 0;
-            break;
-          case 'right':
-            leftOffset = 0;
-            topOffset = -tooltipRect.height / 2;
-            break;
-          case 'left':
-          default:
-            leftOffset = -tooltipRect.width;
-            topOffset = -tooltipRect.height / 2;
+        case "top":
+          leftOffset = -tooltipRect.width / 2;
+          topOffset = -tooltipRect.height;
+          break;
+        case "bottom":
+          leftOffset = -tooltipRect.width / 2;
+          topOffset = 0;
+          break;
+        case "right":
+          leftOffset = 0;
+          topOffset = -tooltipRect.height / 2;
+          break;
+        case "left":
+        default:
+          leftOffset = -tooltipRect.width;
+          topOffset = -tooltipRect.height / 2;
         }
         offset.top = topOffset + propOffset.top;
         offset.left = leftOffset + horizontalOffset;
@@ -105,20 +105,20 @@ class Tooltip extends React.PureComponent {
     }
   }
 
-  renderTail(backgroundColor = 'white') {
+  renderTail(backgroundColor = "white") {
     const { tailWidth, tailHeight, borderWidth, borderColor, side } = this.props;
-    const tailSide = (side === 'left') ? 'right' : 'left';
+    const tailSide = (side === "left") ? "right" : "left";
     const padding = 10;
     let marginOuterValue;
     let marginInnerValue;
-    if (tailSide === 'left') {
+    if (tailSide === "left") {
       marginOuterValue = `calc(-100% - (4 * ${tailWidth}px - ${padding}px)`;
       marginInnerValue = `calc(-100% - (4 * ${tailWidth}px - ${padding}px - ${borderWidth + 1}px))`;
     } else {
       marginOuterValue = `calc(${padding}px + ${borderWidth}px)`;
       marginInnerValue = `${padding - 1}px`;
     }
-    const borderSide = (tailSide === 'left') ? 'right' : 'left';
+    const borderSide = (tailSide === "left") ? "right" : "left";
     const tailInnerColor = this.props.tailColor || this.props.backgroundColor || backgroundColor;
     // The two child divs form the solid color tail and the border around it by layering
     // on one another offset by the border width adjusted slightly for the angle
@@ -163,11 +163,11 @@ class Tooltip extends React.PureComponent {
     }
     if (dateTitle) {
       let dateValue = null;
-      if (dateTitle.source === 'Diabeloop') {
+      if (dateTitle.source === "Diabeloop") {
         // For diabeloop device, use the timezone of the object
         const { timezoneName } = dateTitle.timePrefs;
         const { timezone: datumTimezone } = dateTitle;
-        const mNormalTime = moment.tz(dateTitle.normalTime, datumTimezone === 'UTC' ? timezoneName : datumTimezone);
+        const mNormalTime = moment.tz(dateTitle.normalTime, datumTimezone === "UTC" ? timezoneName : datumTimezone);
         dateValue = mNormalTime.format(getHourMinuteFormat());
       } else {
         // eslint-disable-next-line max-len
@@ -229,7 +229,7 @@ class Tooltip extends React.PureComponent {
   }
 }
 
-Tooltip.displayName = 'Tooltip';
+Tooltip.displayName = "Tooltip";
 
 Tooltip.propTypes = {
   title: PropTypes.node,
@@ -254,7 +254,7 @@ Tooltip.propTypes = {
     horizontal: PropTypes.number,
   }).isRequired,
   tail: PropTypes.bool,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+  side: PropTypes.oneOf(["top", "right", "bottom", "left"]).isRequired,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
   tailColor: PropTypes.string,
@@ -266,10 +266,10 @@ Tooltip.propTypes = {
 Tooltip.defaultProps = {
   content: null,
   tail: true,
-  side: 'left',
+  side: "left",
   tailWidth: 7,
   tailHeight: 8,
-  borderColor: 'black',
+  borderColor: "black",
   borderWidth: 2,
   offset: { top: 0, left: 0 },
   title: null,

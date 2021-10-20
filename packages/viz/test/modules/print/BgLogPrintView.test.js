@@ -17,18 +17,18 @@
 
 /* eslint-disable max-len, no-underscore-dangle */
 
-import _ from 'lodash';
-import sinon from 'sinon';
-import { expect, assert } from 'chai';
+import _ from "lodash";
+import * as sinon from "sinon";
+import { expect, assert } from "chai";
 
-import { MMOLL_UNITS } from 'tideline';
+import { MMOLL_UNITS } from "tideline";
 
-import BgLogPrintView from '../../../src/modules/print/BgLogPrintView';
-import PrintView from '../../../src/modules/print/PrintView';
-import * as patients from '../../../data/patient/profiles';
-import * as settings from '../../../data/patient/settings';
+import BgLogPrintView from "../../../src/modules/print/BgLogPrintView";
+import PrintView from "../../../src/modules/print/PrintView";
+import * as patients from "../../../data/patient/profiles";
+import * as settings from "../../../data/patient/settings";
 
-import { bgLogData as data } from '../../../data/print/fixtures';
+import { bgLogData as data } from "../../../data/print/fixtures";
 
 import {
   DEFAULT_FONT_SIZE,
@@ -37,13 +37,13 @@ import {
   LARGE_FONT_SIZE,
   SMALL_FONT_SIZE,
   EXTRA_SMALL_FONT_SIZE,
-} from '../../../src/modules/print/utils/constants';
+} from "../../../src/modules/print/utils/constants";
 
-import { THREE_HRS } from '../../../src/utils/datetime';
+import { THREE_HRS } from "../../../src/utils/datetime";
 
-import Doc from '../../helpers/pdfDoc';
+import Doc from "../../helpers/pdfDoc";
 
-describe('BgLogPrintView', () => {
+describe("BgLogPrintView", () => {
   let Renderer;
 
   const DPI = 72;
@@ -59,7 +59,7 @@ describe('BgLogPrintView', () => {
         targetLowerBound: 70,
         veryLowThreshold: 54,
       },
-      bgUnits: 'mg/dL',
+      bgUnits: "mg/dL",
     },
     debug: false,
     dpi: DPI,
@@ -83,48 +83,48 @@ describe('BgLogPrintView', () => {
     },
     timePrefs: {
       timezoneAware: true,
-      timezoneName: 'US/Pacific',
+      timezoneName: "US/Pacific",
     },
     width: 8.5 * DPI - (2 * MARGIN),
-    title: 'Bg Readings',
+    title: "Bg Readings",
   };
 
   const defaultBgChartHeaders = [
     {
-      id: 'date',
-      text: '',
+      id: "date",
+      text: "",
     },
     {
       id: 0,
-      text: '12 am',
+      text: "12 am",
     },
     {
       id: THREE_HRS * 1,
-      text: '3 am',
+      text: "3 am",
     },
     {
       id: THREE_HRS * 2,
-      text: '6 am',
+      text: "6 am",
     },
     {
       id: THREE_HRS * 3,
-      text: '9 am',
+      text: "9 am",
     },
     {
       id: THREE_HRS * 4,
-      text: '12 pm',
+      text: "12 pm",
     },
     {
       id: THREE_HRS * 5,
-      text: '3 pm',
+      text: "3 pm",
     },
     {
       id: THREE_HRS * 6,
-      text: '6 pm',
+      text: "6 pm",
     },
     {
       id: THREE_HRS * 7,
-      text: '9 pm',
+      text: "9 pm",
     },
   ];
 
@@ -137,58 +137,58 @@ describe('BgLogPrintView', () => {
     Renderer = createRenderer();
   });
 
-  describe('class constructor', () => {
-    it('should instantiate without errors', () => {
-      expect(Renderer).to.be.an('object');
+  describe("class constructor", () => {
+    it("should instantiate without errors", () => {
+      expect(Renderer).to.be.an("object");
     });
 
-    it('should extend the `PrintView` class', () => {
+    it("should extend the `PrintView` class", () => {
       expect(Renderer instanceof PrintView).to.be.true;
     });
 
-    it('should set it\'s own required initial instance properties', () => {
+    it("should set it's own required initial instance properties", () => {
       const requiredProps = [
-        { prop: 'smbgRadius', type: 'number' },
-        { prop: 'numDays', type: 'number' },
-        { prop: 'chartDates', type: 'array' },
+        { prop: "smbgRadius", type: "number" },
+        { prop: "numDays", type: "number" },
+        { prop: "chartDates", type: "array" },
       ];
 
       _.forEach(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
-        item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
+        _.has(item, "value") && expect(Renderer[item.prop]).to.eql(item.value);
       });
     });
 
-    it('should set the `chartDates` property to the dataByDate keys in reverse chronological order', () => {
-      expect(Renderer.chartDates).to.be.an('array').and.have.length(30);
-      expect(Renderer.chartDates[0]).to.equal('2018-01-29');
-      expect(Renderer.chartDates[29]).to.equal('2017-12-31');
+    it("should set the `chartDates` property to the dataByDate keys in reverse chronological order", () => {
+      expect(Renderer.chartDates).to.be.an("array").and.have.length(30);
+      expect(Renderer.chartDates[0]).to.equal("2018-01-29");
+      expect(Renderer.chartDates[29]).to.equal("2017-12-31");
     });
 
-    it('should add the first pdf page', () => {
+    it("should add the first pdf page", () => {
       sinon.assert.calledOnce(Renderer.doc.addPage);
     });
   });
 
-  describe('newPage', () => {
+  describe("newPage", () => {
     let newPageSpy;
 
     beforeEach(() => {
-      newPageSpy = sinon.spy(PrintView.prototype, 'newPage');
+      newPageSpy = sinon.spy(PrintView.prototype, "newPage");
     });
 
     afterEach(() => {
       newPageSpy.restore();
     });
 
-    it('should call the newPage method of the parent class with a date range string', () => {
+    it("should call the newPage method of the parent class with a date range string", () => {
       Renderer.newPage();
-      sinon.assert.calledWith(PrintView.prototype.newPage, 'Date range: Dec 31, 2017 - Jan 29, 2018');
+      sinon.assert.calledWith(PrintView.prototype.newPage, "Date range: Dec 31, 2017 - Jan 29, 2018");
     });
   });
 
-  describe('getBGLabelYOffset', () => {
-    it('should return `-12` if `bgChart.datumsRendered` is an even number or undefined', () => {
+  describe("getBGLabelYOffset", () => {
+    it("should return `-12` if `bgChart.datumsRendered` is an even number or undefined", () => {
       Renderer.bgChart = {
         datumsRendered: undefined,
       };
@@ -201,7 +201,7 @@ describe('BgLogPrintView', () => {
       expect(Renderer.getBGLabelYOffset()).to.equal(-12);
     });
 
-    it('should return `5` if `bgChart.datumsRendered` is an odd number', () => {
+    it("should return `5` if `bgChart.datumsRendered` is an odd number", () => {
       Renderer.bgChart = {
         datumsRendered: 1,
       };
@@ -215,7 +215,7 @@ describe('BgLogPrintView', () => {
     });
   });
 
-  describe('getBgChartColumns', () => {
+  describe("getBgChartColumns", () => {
     beforeEach(() => {
       Renderer.bgChart = {
         headers: defaultBgChartHeaders,
@@ -223,54 +223,54 @@ describe('BgLogPrintView', () => {
       };
     });
 
-    it('should return default column definitions from a map of headers', () => {
+    it("should return default column definitions from a map of headers", () => {
       const result = Renderer.getBgChartColumns();
 
-      expect(result).to.be.an('array').and.have.length(9);
+      expect(result).to.be.an("array").and.have.length(9);
 
       _.forEach(result, (column, i) => {
         expect(column.header).to.equal(defaultBgChartHeaders[i].text);
         expect(column.id).to.equal(defaultBgChartHeaders[i].id);
         expect(column.cache).to.be.false;
-        expect(column.headerPadding).to.be.an('array');
-        expect(column.height).to.be.a('number');
-        expect(column.padding).to.be.an('array');
-        expect(column.renderer).to.be.a('function');
-        expect(column.renderer.name).to.contain('renderBgCell');
+        expect(column.headerPadding).to.be.an("array");
+        expect(column.height).to.be.a("number");
+        expect(column.padding).to.be.an("array");
+        expect(column.renderer).to.be.a("function");
+        expect(column.renderer.name).to.contain("renderBgCell");
         expect(column.width).to.equal(100);
       });
     });
 
-    it('should return empty column `border`, `headerBorder`, and `headerFill` properties for first column', () => {
+    it("should return empty column `border`, `headerBorder`, and `headerFill` properties for first column", () => {
       const result = Renderer.getBgChartColumns();
 
-      expect(result[0].border).to.equal('');
-      expect(result[0].headerBorder).to.equal('');
+      expect(result[0].border).to.equal("");
+      expect(result[0].headerBorder).to.equal("");
       expect(result[0].headerFill).to.be.false;
     });
 
-    it('should return non-empty column `border`, `headerBorder`, and `headerFill` properties for subsequent columns', () => {
+    it("should return non-empty column `border`, `headerBorder`, and `headerFill` properties for subsequent columns", () => {
       const result = Renderer.getBgChartColumns();
 
-      expect(result[1].border).to.equal('TBLR');
-      expect(result[1].headerBorder).to.equal('BL');
-      expect(result[1].headerFill).to.be.an('object').and.have.keys(['color', 'opacity']);
+      expect(result[1].border).to.equal("TBLR");
+      expect(result[1].headerBorder).to.equal("BL");
+      expect(result[1].headerFill).to.be.an("object").and.have.keys(["color", "opacity"]);
     });
 
-    it('should return empty column `border`, `headerBorder`, and `headerFill` properties for subsequent columns when disabled via `opts` arg', () => {
+    it("should return empty column `border`, `headerBorder`, and `headerFill` properties for subsequent columns when disabled via `opts` arg", () => {
       const result = Renderer.getBgChartColumns({
         border: false,
         headerBorder: false,
         headerFill: false,
       });
 
-      expect(result[1].border).to.equal('');
-      expect(result[1].headerBorder).to.equal('');
+      expect(result[1].border).to.equal("");
+      expect(result[1].headerBorder).to.equal("");
       expect(result[1].headerFill).to.be.false;
     });
   });
 
-  describe('getBgChartRow', () => {
+  describe("getBgChartRow", () => {
     beforeEach(() => {
       Renderer.bgChart = {
         headers: defaultBgChartHeaders,
@@ -280,14 +280,14 @@ describe('BgLogPrintView', () => {
       Renderer.bgChart.columns = Renderer.getBgChartColumns();
     });
 
-    it('should return formatted date text for each row', () => {
-      const result = Renderer.getBgChartRow('2017-12-31');
+    it("should return formatted date text for each row", () => {
+      const result = Renderer.getBgChartRow("2017-12-31");
 
-      expect(result.date.text).to.equal('Sun, Dec 31');
+      expect(result.date.text).to.equal("Sun, Dec 31");
     });
 
-    it('should return the row smbg data for a given date, grouped by 3 hr time slot', () => {
-      const result = Renderer.getBgChartRow('2017-12-31');
+    it("should return the row smbg data for a given date, grouped by 3 hr time slot", () => {
+      const result = Renderer.getBgChartRow("2017-12-31");
 
       expect(result[THREE_HRS * 0].smbg[0].value).to.equal(50);
       expect(result[THREE_HRS * 1].smbg[0].value).to.equal(70);
@@ -299,26 +299,26 @@ describe('BgLogPrintView', () => {
       expect(result[THREE_HRS * 7].smbg[0].value).to.equal(260);
     });
 
-    it('should return a darker fill color for weekend rows', () => {
-      const weekendResult = Renderer.getBgChartRow('2017-12-31');
-      expect(weekendResult.date.text).to.equal('Sun, Dec 31');
-      expect(weekendResult._fill.color).to.equal('#FAFAFA');
+    it("should return a darker fill color for weekend rows", () => {
+      const weekendResult = Renderer.getBgChartRow("2017-12-31");
+      expect(weekendResult.date.text).to.equal("Sun, Dec 31");
+      expect(weekendResult._fill.color).to.equal("#FAFAFA");
 
-      const weekdayResult = Renderer.getBgChartRow('2018-01-01');
-      expect(weekdayResult.date.text).to.equal('Mon, Jan 1');
-      expect(weekdayResult._fill.color).to.equal('white');
+      const weekdayResult = Renderer.getBgChartRow("2018-01-01");
+      expect(weekdayResult.date.text).to.equal("Mon, Jan 1");
+      expect(weekdayResult._fill.color).to.equal("white");
     });
   });
 
-  describe('render', () => {
+  describe("render", () => {
     before(() => {
-      sinon.stub(BgLogPrintView.prototype, 'renderBGChart');
-      sinon.stub(BgLogPrintView.prototype, 'renderSummaryTable');
+      sinon.stub(BgLogPrintView.prototype, "renderBGChart");
+      sinon.stub(BgLogPrintView.prototype, "renderSummaryTable");
     });
     after(() => {
       sinon.restore();
     });
-    it('should call all the appropriate render methods', () => {
+    it("should call all the appropriate render methods", () => {
       Renderer.render();
 
       sinon.assert.calledOnce(Renderer.renderBGChart);
@@ -326,55 +326,55 @@ describe('BgLogPrintView', () => {
     });
   });
 
-  describe('renderBGChart', () => {
+  describe("renderBGChart", () => {
     beforeEach(() => {
       sinon.resetHistory();
       sinon.stub(BgLogPrintView.prototype, "renderTable");
-      Renderer.getBgChartColumns = sinon.stub().returns('stubbed columns');
-      Renderer.getBgChartRow = sinon.stub().returns('stubbed row');
+      Renderer.getBgChartColumns = sinon.stub().returns("stubbed columns");
+      Renderer.getBgChartRow = sinon.stub().returns("stubbed row");
     });
     afterEach(() => {
       sinon.restore();
     });
 
-    it('should define a bgChart class property', () => {
+    it("should define a bgChart class property", () => {
       expect(Renderer.bgChart).to.be.undefined;
       Renderer.renderBGChart();
-      expect(Renderer.bgChart).to.be.an('object');
+      expect(Renderer.bgChart).to.be.an("object");
     });
 
-    it('should define the bg chart headers', () => {
+    it("should define the bg chart headers", () => {
       Renderer.renderBGChart();
       expect(Renderer.bgChart.headers).to.eql(defaultBgChartHeaders);
     });
 
-    it('should set the chart to use equal column widths based on the number of headers', () => {
+    it("should set the chart to use equal column widths based on the number of headers", () => {
       Renderer.renderBGChart();
       assert(Renderer.chartArea.width === 540);
       assert(Renderer.bgChart.headers.length === 9);
       expect(Renderer.bgChart.columnWidth).to.eql(60);
     });
 
-    it('should define the bg chart columns', () => {
+    it("should define the bg chart columns", () => {
       Renderer.renderBGChart();
 
       sinon.assert.called(Renderer.getBgChartColumns);
-      expect(Renderer.bgChart.columns).to.eql('stubbed columns');
+      expect(Renderer.bgChart.columns).to.eql("stubbed columns");
     });
 
-    it('should create the bg chart rows - one for each chart date', () => {
+    it("should create the bg chart rows - one for each chart date", () => {
       Renderer.renderBGChart();
       assert(Renderer.chartDates.length === 30);
-      expect(Renderer.bgChart.rows).to.be.an('array').and.have.length(30);
+      expect(Renderer.bgChart.rows).to.be.an("array").and.have.length(30);
 
       sinon.assert.callCount(Renderer.getBgChartRow, 30);
 
       Renderer.chartDates.pop();
       Renderer.renderBGChart();
-      expect(Renderer.bgChart.rows).to.be.an('array').and.have.length(29);
+      expect(Renderer.bgChart.rows).to.be.an("array").and.have.length(29);
     });
 
-    it('should define the bg chart initial render position', () => {
+    it("should define the bg chart initial render position", () => {
       Renderer.doc.x = 260;
       Renderer.doc.y = 80;
       Renderer.initialTotalPages = 2;
@@ -389,7 +389,7 @@ describe('BgLogPrintView', () => {
       });
     });
 
-    it('should render a first pass of the table, skipping the cell data rendering', () => {
+    it("should render a first pass of the table, skipping the cell data rendering", () => {
       Renderer.renderBGChart();
 
       sinon.assert.callCount(Renderer.renderTable, 2);
@@ -406,7 +406,7 @@ describe('BgLogPrintView', () => {
       ));
     });
 
-    it('should render a second pass of the table, skipping the table fills and borders', () => {
+    it("should render a second pass of the table, skipping the table fills and borders", () => {
       Renderer.renderBGChart();
 
       sinon.assert.callCount(Renderer.renderTable, 2);
@@ -417,7 +417,7 @@ describe('BgLogPrintView', () => {
       });
 
       expect(Renderer.renderTable.secondCall.calledWith(
-        'stubbed columns',
+        "stubbed columns",
         Renderer.bgChart.rows,
         sinon.match({
           columnDefaults: {
@@ -427,7 +427,7 @@ describe('BgLogPrintView', () => {
       ));
     });
 
-    it('should switch back to the original chart position between render passes', () => {
+    it("should switch back to the original chart position between render passes", () => {
       Renderer.initialTotalPages = 2;
       Renderer.currentPageIndex = 1;
 
@@ -440,7 +440,7 @@ describe('BgLogPrintView', () => {
     });
   });
 
-  describe('renderSummaryTable', () => {
+  describe("renderSummaryTable", () => {
     beforeEach(() => {
       Renderer.renderTable = sinon.stub();
       Renderer.bgChart = {
@@ -448,61 +448,61 @@ describe('BgLogPrintView', () => {
       };
     });
 
-    it('should reset text styles', () => {
-      const resetTextSpy = sinon.spy(Renderer, 'resetText');
+    it("should reset text styles", () => {
+      const resetTextSpy = sinon.spy(Renderer, "resetText");
       sinon.assert.callCount(resetTextSpy, 0);
       Renderer.renderSummaryTable();
       sinon.assert.callCount(resetTextSpy, 1);
     });
 
-    it('should define the summary table columns for mg/dL units', () => {
+    it("should define the summary table columns for mg/dL units", () => {
       Renderer.renderSummaryTable();
 
       expect(Renderer.summaryTable.columns).to.eql([
         {
-          id: 'totalDays',
-          header: 'Days In Report',
+          id: "totalDays",
+          header: "Days In Report",
         },
         {
-          id: 'totalReadings',
-          header: 'Total BG Readings',
+          id: "totalReadings",
+          header: "Total BG Readings",
         },
         {
-          id: 'avgReadingsPerDay',
-          header: 'Avg. BG Readings / Day',
+          id: "avgReadingsPerDay",
+          header: "Avg. BG Readings / Day",
         },
         {
-          id: 'avgBg',
-          header: 'Avg. BG (mg/dL)',
+          id: "avgBg",
+          header: "Avg. BG (mg/dL)",
         },
       ]);
     });
 
-    it('should define the summary table columns for mmol/L units', () => {
+    it("should define the summary table columns for mmol/L units", () => {
       Renderer.bgUnits = MMOLL_UNITS;
       Renderer.renderSummaryTable();
 
       expect(Renderer.summaryTable.columns).to.eql([
         {
-          id: 'totalDays',
-          header: 'Days In Report',
+          id: "totalDays",
+          header: "Days In Report",
         },
         {
-          id: 'totalReadings',
-          header: 'Total BG Readings',
+          id: "totalReadings",
+          header: "Total BG Readings",
         },
         {
-          id: 'avgReadingsPerDay',
-          header: 'Avg. BG Readings / Day',
+          id: "avgReadingsPerDay",
+          header: "Avg. BG Readings / Day",
         },
         {
-          id: 'avgBg',
-          header: 'Avg. BG (mmol/L)',
+          id: "avgBg",
+          header: "Avg. BG (mmol/L)",
         },
       ]);
     });
 
-    it('should define the summary table rows with results when all required stat data is provided', () => {
+    it("should define the summary table rows with results when all required stat data is provided", () => {
       Renderer = createRenderer(_.assign({}, data, {
         stats: { averageGlucose: { data: { raw: {
           averageGlucose: 120,
@@ -520,15 +520,15 @@ describe('BgLogPrintView', () => {
 
       expect(Renderer.summaryTable.rows).to.eql([
         {
-          totalDays: '30',
-          totalReadings: '90',
-          avgReadingsPerDay: '3',
-          avgBg: '120',
+          totalDays: "30",
+          totalReadings: "90",
+          avgReadingsPerDay: "3",
+          avgBg: "120",
         },
       ]);
     });
 
-    it('should define the summary table rows with empty results when no stat data is provided', () => {
+    it("should define the summary table rows with empty results when no stat data is provided", () => {
       Renderer = createRenderer(_.assign({}, data, {
         stats: undefined,
       }), _.assign({}, opts, {
@@ -544,15 +544,15 @@ describe('BgLogPrintView', () => {
 
       expect(Renderer.summaryTable.rows).to.eql([
         {
-          totalDays: '30',
-          totalReadings: '0',
-          avgReadingsPerDay: '0',
-          avgBg: '--',
+          totalDays: "30",
+          totalReadings: "0",
+          avgReadingsPerDay: "0",
+          avgBg: "--",
         },
       ]);
     });
 
-    it('should render the summary table with the defined columns and rows', () => {
+    it("should render the summary table with the defined columns and rows", () => {
       Renderer.renderSummaryTable();
 
       sinon.assert.callCount(Renderer.renderTable, 1);
@@ -564,7 +564,7 @@ describe('BgLogPrintView', () => {
     });
   });
 
-  describe('renderBgCell', () => {
+  describe("renderBgCell", () => {
     beforeEach(() => {
       Renderer.doc.circle.resetHistory();
       Renderer.doc.text.resetHistory();
@@ -574,26 +574,26 @@ describe('BgLogPrintView', () => {
       };
     });
 
-    it('should return a non-empty string to ensure it performs a second render pass', () => {
+    it("should return a non-empty string to ensure it performs a second render pass", () => {
       const result = Renderer.renderBgCell();
-      expect(result).to.equal(' ');
+      expect(result).to.equal(" ");
     });
 
-    it('should render the date text when `text` data property is available', () => {
+    it("should render the date text when `text` data property is available", () => {
       const draw = true;
-      const column = { id: 'myCol' };
+      const column = { id: "myCol" };
       const pos = { x: 100, y: 100 };
       const padding = { top: 2, left: 2, bottom: 2 };
 
-      const cellData = { myCol: { text: 'Tues, Jan 9' } };
+      const cellData = { myCol: { text: "Tues, Jan 9" } };
 
       Renderer.renderBgCell(doc.table, cellData, draw, column, pos, padding);
-      sinon.assert.calledWith(Renderer.doc.text, 'Tues, Jan 9');
+      sinon.assert.calledWith(Renderer.doc.text, "Tues, Jan 9");
     });
 
-    it('should render a circle and text for an smbg value when `smbg` data property is available', () => {
+    it("should render a circle and text for an smbg value when `smbg` data property is available", () => {
       const draw = true;
-      const column = { id: 'myCol' };
+      const column = { id: "myCol" };
       const pos = { x: 100, y: 100 };
       const padding = { top: 2, left: 2, bottom: 2 };
 
@@ -603,13 +603,13 @@ describe('BgLogPrintView', () => {
       }] } };
 
       Renderer.renderBgCell(doc.table, cellData, draw, column, pos, padding);
-      sinon.assert.calledWith(Renderer.doc.text, '90');
+      sinon.assert.calledWith(Renderer.doc.text, "90");
       sinon.assert.callCount(Renderer.doc.circle, 1);
     });
 
-    it('should render smbg circles in the appropriate bg range colors', () => {
+    it("should render smbg circles in the appropriate bg range colors", () => {
       const draw = true;
-      const column = { id: 'myCol' };
+      const column = { id: "myCol" };
       const pos = { x: 100, y: 100 };
       const padding = { top: 2, left: 2, bottom: 2 };
 
@@ -654,11 +654,11 @@ describe('BgLogPrintView', () => {
       expect(fillCall5.calledWith(Renderer.colors.veryHigh)).to.be.true;
     });
 
-    it('should call `getBGLabelYOffset` instance method during each smbg render to stagger the labels for legibility', () => {
-      sinon.spy(Renderer, 'getBGLabelYOffset');
+    it("should call `getBGLabelYOffset` instance method during each smbg render to stagger the labels for legibility", () => {
+      sinon.spy(Renderer, "getBGLabelYOffset");
 
       const draw = true;
-      const column = { id: 'myCol' };
+      const column = { id: "myCol" };
       const pos = { x: 100, y: 100 };
       const padding = { top: 2, left: 2, bottom: 2 };
 
@@ -690,9 +690,9 @@ describe('BgLogPrintView', () => {
       sinon.assert.callCount(Renderer.getBGLabelYOffset, 5);
     });
 
-    it('should increment `bgChart.datumsRendered` after each smbg render', () => {
+    it("should increment `bgChart.datumsRendered` after each smbg render", () => {
       const draw = true;
-      const column = { id: 'myCol' };
+      const column = { id: "myCol" };
       const pos = { x: 100, y: 100 };
       const padding = { top: 2, left: 2, bottom: 2 };
 
@@ -710,7 +710,7 @@ describe('BgLogPrintView', () => {
       expect(Renderer.bgChart.datumsRendered).to.equal(2);
     });
 
-    it('should not draw a cell when `draw` arg is false', () => {
+    it("should not draw a cell when `draw` arg is false", () => {
       const draw = false;
       Renderer.renderBgCell(doc.table, {}, draw);
 
@@ -718,7 +718,7 @@ describe('BgLogPrintView', () => {
       sinon.assert.callCount(Renderer.doc.text, 0);
     });
 
-    it('should not draw a cell when `skipDraw` property of the `column` arg is true', () => {
+    it("should not draw a cell when `skipDraw` property of the `column` arg is true", () => {
       const draw = true;
       const column = { skipDraw: true };
       Renderer.renderBgCell(doc.table, {}, draw, column);

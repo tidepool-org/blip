@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-import classnames from 'classnames';
-import PropTypes from 'prop-types';
-import React from 'react';
+import classnames from "classnames";
+import PropTypes from "prop-types";
+import React from "react";
 
-import basicsActions from '../../logic/actions';
-import { getOptionValue, labelGenerator } from '../BasicsUtils';
-import format from '../../../../../js/data/util/format';
+import basicsActions from "../../logic/actions";
+import { getOptionValue, labelGenerator } from "../BasicsUtils";
+import format from "../../../../../js/data/util/format";
 
 class SummaryGroup extends React.Component {
   constructor(props) {
@@ -47,7 +47,7 @@ class SummaryGroup extends React.Component {
     var others = optionRows.map((row, id) => {
       var options = row.map(this.renderOption);
       return (
-        <div key={'row-'+id} className="SummaryGroup-row">
+        <div key={"row-"+id} className="SummaryGroup-row">
           {options}
         </div>
       );
@@ -64,17 +64,17 @@ class SummaryGroup extends React.Component {
   }
 
   renderOption = (option) => {
-    if (typeof option.active !== 'undefined' && !option.active) {
+    if (typeof option.active !== "undefined" && !option.active) {
       return null; //(<div key={option.key} className='SummaryGroup-info SummaryGroup-info-blank'></div>);
     }
 
     var classes = classnames({
-      'SummaryGroup-info--selected': (option.key === this.props.selectedSubtotal),
-      'SummaryGroup-info-primary': option.primary,
-      'SummaryGroup-info-primary--average': option.primary && option.average,
-      'SummaryGroup-info': !option.primary,
-      'SummaryGroup-info-tall': (!option.primary && this.props.selectorOptions.length <= 4),
-      'SummaryGroup-no-percentage': (!option.primary && !option.percentage)
+      "SummaryGroup-info--selected": (option.key === this.props.selectedSubtotal),
+      "SummaryGroup-info-primary": option.primary,
+      "SummaryGroup-info-primary--average": option.primary && option.average,
+      "SummaryGroup-info": !option.primary,
+      "SummaryGroup-info-tall": (!option.primary && this.props.selectorOptions.length <= 4),
+      "SummaryGroup-no-percentage": (!option.primary && !option.percentage)
     });
 
     var path = option.path;
@@ -83,7 +83,7 @@ class SummaryGroup extends React.Component {
     option.disabled = false;
     if (value === 0) {
       option.disabled = true;
-      classes += ' SummaryGroup-info--disabled';
+      classes += " SummaryGroup-info--disabled";
     }
 
     if (option.primary && option.average) {
@@ -94,7 +94,7 @@ class SummaryGroup extends React.Component {
       else {
         average = this.props.data.avgPerDay;
       }
-      if (isNaN(average)) {
+      if (Number.isNaN(average)) {
         average = 0;
       }
       // currently rounding average to an integer
@@ -120,52 +120,51 @@ class SummaryGroup extends React.Component {
         </div>
       );
     }
-    else {
-      var percentage;
-      if (option.percentage) {
-        if (path) {
-          percentage = this.props.data[path][option.key].percentage;
-        }
-        else {
-          percentage = this.props.data[option.key].percentage;
-        }
+
+    var percentage;
+    if (option.percentage) {
+      if (path) {
+        percentage = this.props.data[path][option.key].percentage;
       }
-
-      var percentageElem = (option.percentage) ? (
-        <span className="SummaryGroup-option-percentage">
-          ({format.percentage(percentage)})
-        </span>
-      ) : null;
-
-      var valueElem = (
-        <span className="SummaryGroup-option-count">
-          {value}
-          {percentageElem}
-        </span>
-      );
-
-      var labels = this.labelGenerator({
-        bgClasses: this.props.bgClasses,
-        bgUnits: this.props.bgUnits
-      });
-
-      var labelOpts = option.labelOpts;
-
-      var labelText = option.label ? option.label :
-        labels[labelOpts.type][labelOpts.key];
-
-      var labelElem = (
-        <span className="SummaryGroup-option-label">{labelText}</span>
-      );
-
-      return (
-        <div key={option.key} className={classes}
-          onClick={this.handleSelectSubtotal.bind(this, option)}>
-          {labelElem}
-          {valueElem}
-        </div>
-      );
+      else {
+        percentage = this.props.data[option.key].percentage;
+      }
     }
+
+    var percentageElem = (option.percentage) ? (
+      <span className="SummaryGroup-option-percentage">
+          ({format.percentage(percentage)})
+      </span>
+    ) : null;
+
+    var valueElem = (
+      <span className="SummaryGroup-option-count">
+        {value}
+        {percentageElem}
+      </span>
+    );
+
+    var labels = this.labelGenerator({
+      bgClasses: this.props.bgClasses,
+      bgUnits: this.props.bgUnits
+    });
+
+    var labelOpts = option.labelOpts;
+
+    var labelText = option.label ? option.label :
+      labels[labelOpts.type][labelOpts.key];
+
+    var labelElem = (
+      <span className="SummaryGroup-option-label">{labelText}</span>
+    );
+
+    return (
+      <div key={option.key} className={classes}
+        onClick={this.handleSelectSubtotal.bind(this, option)}>
+        {labelElem}
+        {valueElem}
+      </div>
+    );
   }
 
   handleSelectSubtotal(selected) {

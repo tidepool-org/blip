@@ -1,7 +1,7 @@
-import _ from 'lodash';
+import _ from "lodash";
 
-import { AUTOMATED_BASAL_DEVICE_MODELS, getPumpVocabularies } from './constants';
-import { deviceName as getDeviceName } from './settings/data';
+import { AUTOMATED_BASAL_DEVICE_MODELS, getPumpVocabularies } from "./constants";
+import { deviceName as getDeviceName } from "./settings/data";
 
 /**
  * Get the latest upload datum
@@ -9,7 +9,7 @@ import { deviceName as getDeviceName } from './settings/data';
  * @returns {Object} The latest upload datum
  */
 export function getLatestPumpUpload(uploadData = []) {
-  return _.findLast(uploadData, { deviceTags: ['insulin-pump'] });
+  return _.findLast(uploadData, { deviceTags: ["insulin-pump"] });
 }
 
 /**

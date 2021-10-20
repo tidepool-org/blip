@@ -1,6 +1,7 @@
-import sinon from 'sinon';
+import * as sinon from "sinon";
 
 export default class DataUtil {
+  // eslint-disable-next-line no-unused-vars
   constructor(data = [], opts = {}) {
     this.bgSources = opts.bgSources || {
       cbg: true,
@@ -10,35 +11,35 @@ export default class DataUtil {
     this._endpoints = opts.endpoints || [];
     this._chartPrefs = opts.chartPrefs || {};
 
-    this.defaultBgSource = 'cbg';
+    this.defaultBgSource = "cbg";
     this.bgBounds = {};
-    this.bgUnits = 'mg/dL';
+    this.bgUnits = "mg/dL";
     this.days = {};
 
     this.latestPump = opts.latestPump || {
-      deviceModel: 'Ping',
-      manufacturer: 'Animas',
+      deviceModel: "Ping",
+      manufacturer: "Animas",
     };
 
     this.addData = sinon.stub();
 
     this.getAverageGlucoseData = sinon.stub().returns({
-      averageGlucose: NaN,
+      averageGlucose: Number.NaN,
       total: 0,
     });
 
     this.getCarbsData = sinon.stub().returns({
-      carbs: NaN,
+      carbs: Number.NaN,
       total: 0,
     });
 
     this.getCoefficientOfVariationData = sinon.stub().returns({
-      coefficientOfVariation: NaN,
+      coefficientOfVariation: Number.NaN,
       total: 0,
     });
 
     this.getGlucoseManagementIndicatorData = sinon.stub().returns({
-      glucoseManagementIndicator: NaN,
+      glucoseManagementIndicator: Number.NaN,
       total: 0,
     });
 
@@ -52,19 +53,19 @@ export default class DataUtil {
     });
 
     this.getSensorUsage = sinon.stub().returns({
-      sensorUsage: NaN,
+      sensorUsage: Number.NaN,
       total: 0,
     });
 
     this.getStandardDevData = sinon.stub().returns({
-      averageGlucose: NaN,
-      standardDeviation: NaN,
+      averageGlucose: Number.NaN,
+      standardDeviation: Number.NaN,
       total: 0,
     });
 
     this.getTimeInAutoData = sinon.stub().returns({
-      manual: NaN,
-      automated: NaN,
+      manual: Number.NaN,
+      automated: Number.NaN,
     });
 
     this.getTimeInRangeData = sinon.stub().returns({
@@ -77,13 +78,13 @@ export default class DataUtil {
     });
 
     this.getBasalBolusData = sinon.stub().returns({
-      basal: NaN,
-      bolus: NaN,
+      basal: Number.NaN,
+      bolus: Number.NaN,
     });
 
     this.getTotalInsulinAndWeightData = sinon.stub().returns({
-      totalInsulin: NaN,
-      weight: NaN
+      totalInsulin: Number.NaN,
+      weight: Number.NaN
     });
   }
 

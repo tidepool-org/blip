@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -17,18 +15,18 @@ import _ from 'lodash';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import _ from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import i18next from "i18next";
 
-import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import * as actions from "../../../redux/actions/";
+import LabeledCheckbox from "../../common/controls/LabeledCheckbox";
 
-import * as actions from '../../../redux/actions/';
-import LabeledCheckbox from '../../common/controls/LabeledCheckbox';
+import styles from "./RangeSelect.css";
 
-import styles from './RangeSelect.css';
-
-import i18next from 'i18next';
 const t = i18next.t.bind(i18next);
 
 export const RangeSelect = (props) => (
@@ -36,30 +34,30 @@ export const RangeSelect = (props) => (
     <LabeledCheckbox
       checked={props.displayFlags.cbg100Enabled}
       name="hundred"
-      label={t('100% of Readings')}
-      onFn={_.partial(props.turnOnCbgRange, '100')}
-      offFn={_.partial(props.turnOffCbgRange, '100')}
+      label={t("100% of Readings")}
+      onFn={_.partial(props.turnOnCbgRange, "100")}
+      offFn={_.partial(props.turnOffCbgRange, "100")}
     />
     <LabeledCheckbox
       checked={props.displayFlags.cbg80Enabled}
       name="eighty"
-      label={t('80% of Readings')}
-      onFn={_.partial(props.turnOnCbgRange, '80')}
-      offFn={_.partial(props.turnOffCbgRange, '80')}
+      label={t("80% of Readings")}
+      onFn={_.partial(props.turnOnCbgRange, "80")}
+      offFn={_.partial(props.turnOffCbgRange, "80")}
     />
     <LabeledCheckbox
       checked={props.displayFlags.cbg50Enabled}
       name="fifty"
-      label={t('50% of Readings')}
-      onFn={_.partial(props.turnOnCbgRange, '50')}
-      offFn={_.partial(props.turnOffCbgRange, '50')}
+      label={t("50% of Readings")}
+      onFn={_.partial(props.turnOnCbgRange, "50")}
+      offFn={_.partial(props.turnOffCbgRange, "50")}
     />
     <LabeledCheckbox
       checked={props.displayFlags.cbgMedianEnabled}
       name="median"
-      label={t('Median')}
-      onFn={_.partial(props.turnOnCbgRange, 'median')}
-      offFn={_.partial(props.turnOffCbgRange, 'median')}
+      label={t("Median")}
+      onFn={_.partial(props.turnOnCbgRange, "median")}
+      offFn={_.partial(props.turnOffCbgRange, "median")}
     />
   </div>
 );

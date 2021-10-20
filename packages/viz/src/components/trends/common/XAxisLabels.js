@@ -1,6 +1,3 @@
-import _ from 'lodash';
-import { range } from 'd3-array';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -18,17 +15,18 @@ import { range } from 'd3-array';
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
-
-import React from 'react';
+import PropTypes from "prop-types";
+import React from "react";
+import _ from "lodash";
+import { range } from "d3-array";
 
 import {
   formatClocktimeFromMsPer24,
   THREE_HRS,
   getSimpleHourFormatSpace,
-} from '../../../utils/datetime';
+} from "../../../utils/datetime";
 
-import styles from './XAxisLabels.css';
+import styles from "./XAxisLabels.css";
 
 const XAxisLabels = (props) => {
   const { data, margins, xOffset, xScale, yOffset } = props;

@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import _ from "lodash";
 import bows from "bows";
 import { useHistory } from "react-router-dom";
@@ -95,7 +95,7 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingRight: "6em",
     },
     textField: {
-      marginTop: "1em",
+      "marginTop": "1em",
       "& input:disabled": {
         backgroundColor: "white",
       },
@@ -114,7 +114,7 @@ const useStyles = makeStyles((theme: Theme) =>
       borderColor: theme.palette.grey[300],
       borderWidth: "1px",
       padding: "0 64px",
-      [theme.breakpoints.only('xs')]: {
+      [theme.breakpoints.only("xs")]: {
         padding: 0,
       },
     },
@@ -122,7 +122,7 @@ const useStyles = makeStyles((theme: Theme) =>
       textTransform: "uppercase",
     },
     halfWide: {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up("sm")]: {
         width: "calc(50% - 16px)",
       },
     },
@@ -130,7 +130,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       flexDirection: "row",
       justifyContent: "space-between",
-      [theme.breakpoints.only('xs')]: {
+      [theme.breakpoints.only("xs")]: {
         flexDirection: "column",
       },
     },

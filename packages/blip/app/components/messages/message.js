@@ -19,7 +19,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
 import i18next from "i18next";
-import bows from 'bows';
+import bows from "bows";
 
 import MessageForm from "./messageform";
 
@@ -34,7 +34,7 @@ class Message extends React.Component {
   constructor(props) {
     super(props);
 
-    this.log = bows('Message UI');
+    this.log = bows("Message UI");
     this.getDisplayTimestamp = getDisplayTimestamp.bind(this);
 
     this.state = {
@@ -48,7 +48,7 @@ class Message extends React.Component {
   }
 
   getUserDisplayName(user) {
-    let result = t('Anonymous user');
+    let result = t("Anonymous user");
     if (user && user.fullName) {
       result = user.fullName;
     }
@@ -81,14 +81,14 @@ class Message extends React.Component {
           newState.when = this.getDisplayTimestamp(edits.timestamp);
         }
 
-        this.log.info('handleEditSave', newNote, newState);
+        this.log.info("handleEditSave", newNote, newState);
         await saveEdit(newNote);
       } else {
-        this.log.info('handleEditSave: Nothing changed');
+        this.log.info("handleEditSave: Nothing changed");
       }
 
     } else {
-      this.log.warn('handleEditSave: onSaveEdit is missing');
+      this.log.warn("handleEditSave: onSaveEdit is missing");
     }
 
     this.setState(newState);
@@ -118,7 +118,7 @@ class Message extends React.Component {
     if (this.state.editing === false && this.props.onSaveEdit) {
       return (
         <a className="message-edit" href="" onClick={this.handleAllowEdit}>
-          {t('Edit')}
+          {t("Edit")}
         </a>
       );
     }
@@ -135,7 +135,7 @@ class Message extends React.Component {
       imageSource = profileSmallSrc;
     }
 
-    return <img className={`message-picture message-picture-${imageSize}`} src={imageSource} alt={t('Profile')} />;
+    return <img className={`message-picture message-picture-${imageSize}`} src={imageSource} alt={t("Profile")} />;
   }
 
   renderNoteEdit() {
@@ -143,7 +143,7 @@ class Message extends React.Component {
     const { note } = this.state;
 
     const formFields = {
-      editableText: note ?? theNote.messagetext ?? '',
+      editableText: note ?? theNote.messagetext ?? "",
     };
 
     if (this.isComment()) {
@@ -158,13 +158,13 @@ class Message extends React.Component {
       <div>
         <div className="message-body">
           <div className="message-header">{title}</div>
-            <MessageForm
-              formFields={formFields}
-              onSubmit={this.handleEditSave}
-              onCancel={this.handleCancelEdit}
-              saveBtnText={t('Save')}
-              timePrefs={timePrefs}
-            />
+          <MessageForm
+            formFields={formFields}
+            onSubmit={this.handleEditSave}
+            onCancel={this.handleCancelEdit}
+            saveBtnText={t("Save")}
+            timePrefs={timePrefs}
+          />
         </div>
       </div>
     );

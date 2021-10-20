@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -62,13 +62,13 @@ export interface PasswordProps {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     textField: {
-      marginTop: "1em",
+      "marginTop": "1em",
       "& input:disabled": {
         backgroundColor: "white",
       },
     },
     adornment: {
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down("sm")]: {
         padding: 0,
       },
     },

@@ -15,22 +15,22 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
-import React from 'react';
-import _ from 'lodash';
-import { MGDL_UNITS, MMOLL_UNITS } from 'tideline';
+import PropTypes from "prop-types";
+import React from "react";
+import _ from "lodash";
+import { MGDL_UNITS, MMOLL_UNITS } from "tideline";
 
-import Tooltip from '../../common/tooltips/Tooltip';
-import SMBGToolTip from '../../daily/smbgtooltip/SMBGTooltip';
-import { formatBgValue } from '../../../utils/format';
-import { getOutOfRangeThreshold } from '../../../utils/bloodglucose';
+import Tooltip from "../../common/tooltips/Tooltip";
+import SMBGToolTip from "../../daily/smbgtooltip/SMBGTooltip";
+import { formatBgValue } from "../../../utils/format";
+import { getOutOfRangeThreshold } from "../../../utils/bloodglucose";
 import {
   formatClocktimeFromMsPer24,
   formatLocalizedFromUTC,
   getHammertimeFromDatumWithTimePrefs,
-} from '../../../utils/datetime';
+} from "../../../utils/datetime";
 
-import styles from './FocusedSMBGPointLabel.css';
+import styles from "./FocusedSMBGPointLabel.css";
 
 // tooltip offsets
 const SIMPLE_VALUE_TOP_OFFSET = 10;
@@ -53,8 +53,8 @@ const FocusedSMBGPointLabel = (props) => {
 
   const hammertime = getHammertimeFromDatumWithTimePrefs(datum, timePrefs);
   const lineDate = formatLocalizedFromUTC(hammertime, timePrefs);
-  const shortDate = formatLocalizedFromUTC(hammertime, timePrefs, 'MMM D');
-  const side = position.tooltipLeft ? 'left' : 'right';
+  const shortDate = formatLocalizedFromUTC(hammertime, timePrefs, "MMM D");
+  const side = position.tooltipLeft ? "left" : "right";
   const smbgsOnDate = allSmbgsOnDate.slice();
   const positions = allPositions.slice();
   if (!lines) {
@@ -71,7 +71,7 @@ const FocusedSMBGPointLabel = (props) => {
         </span>
       }
       position={positions[i]}
-      side={'bottom'}
+      side={"bottom"}
       tail={false}
       offset={{ top: SIMPLE_VALUE_TOP_OFFSET, left: 0 }}
     />
@@ -145,6 +145,7 @@ FocusedSMBGPointLabel.propTypes = {
     position: PropTypes.shape({
       top: PropTypes.number.isRequired,
       left: PropTypes.number.isRequired,
+      tooltipLeft: PropTypes.bool.isRequired,
     }),
   }),
   grouped: PropTypes.bool.isRequired,

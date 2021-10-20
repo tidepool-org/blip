@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-import React from 'react';
+import React from "react";
 
-import styles from './LabeledCheckbox.css';
+import styles from "./LabeledCheckbox.css";
 
 const LabeledCheckbox = (props) => {
   const { name, checked, onFn, offFn, label } = props;

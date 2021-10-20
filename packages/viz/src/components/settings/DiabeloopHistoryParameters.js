@@ -1,17 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import i18next from 'i18next';
-import _ from 'lodash';
-import bows from 'bows';
-import moment from 'moment-timezone';
+import React from "react";
+import PropTypes from "prop-types";
+import i18next from "i18next";
+import _ from "lodash";
+import bows from "bows";
+import moment from "moment-timezone";
 
-import { formatParameterValue } from '../../utils/format';
-import Table from './common/Table';
+import { formatParameterValue } from "../../utils/format";
+import Table from "./common/Table";
 
-import { getLongDayHourFormat } from '../../utils/datetime';
+import { getLongDayHourFormat } from "../../utils/datetime";
 
 // @ts-ignore
-import styles from './Diabeloop.css';
+import styles from "./Diabeloop.css";
 
 const t = i18next.t.bind(i18next);
 
@@ -19,13 +19,13 @@ export default class HistoryTable extends Table {
   constructor(props) {
     super(props);
 
-    this.log = bows('HistoryTable');
+    this.log = bows("HistoryTable");
   }
 
   static get title() {
     return {
       label: {
-        main: `${t('Parameters History')}`,
+        main: `${t("Parameters History")}`,
       },
       className: styles.bdlgSettingsHeader,
     };
@@ -34,22 +34,22 @@ export default class HistoryTable extends Table {
   static get columns() {
     return [
       {
-        key: 'level',
-        label: t('Level'),
+        key: "level",
+        label: t("Level"),
       },
       {
-        key: 'parameterChange',
-        label: t('Parameter'),
+        key: "parameterChange",
+        label: t("Parameter"),
 
       },
       {
-        key: 'valueChange',
-        label: t('Value'),
+        key: "valueChange",
+        label: t("Value"),
 
       },
       {
-        key: 'parameterDate',
-        label: t('Date'),
+        key: "parameterDate",
+        label: t("Date"),
       },
     ];
   }
@@ -58,10 +58,10 @@ export default class HistoryTable extends Table {
     const { switchToDailyIconClass, onSwitchToDaily } = this.props;
     let content = rowData.spannedContent;
     if (!content) {
-      content = '&nbsp;';
+      content = "&nbsp;";
     }
     const handleSwitchToDaily = () => {
-      onSwitchToDaily(rowData.mLatestDate, 'Diabeloop parameters history');
+      onSwitchToDaily(rowData.mLatestDate, "Diabeloop parameters history");
     };
     const dateString = rowData.mLatestDate.toISOString();
     return (
@@ -86,9 +86,8 @@ export default class HistoryTable extends Table {
     const rowData = _.map(rows, (row, key) => {
       if (row.isSpanned) {
         return this.renderSpannedRow(normalizedColumns, key, row);
-      } else {
-        return this.renderRow(normalizedColumns, key, row);
       }
+      return this.renderRow(normalizedColumns, key, row);
     });
     return (<tbody key={`tbody_${rowData.length}`}>{rowData}</tbody>);
   }
@@ -98,17 +97,17 @@ export default class HistoryTable extends Table {
       deletedParameterIcon, updatedParameterIcon } = this.props;
     let icon = unknownParameterIcon;
     switch (parameter.changeType) {
-      case 'added':
-        icon = addedParameterIcon;
-        break;
-      case 'deleted':
-        icon = deletedParameterIcon;
-        break;
-      case 'updated':
-        icon = updatedParameterIcon;
-        break;
-      default:
-        break;
+    case "added":
+      icon = addedParameterIcon;
+      break;
+    case "deleted":
+      icon = deletedParameterIcon;
+      break;
+    case "updated":
+      icon = updatedParameterIcon;
+      break;
+    default:
+      break;
     }
     return (
       <span>
@@ -132,23 +131,23 @@ export default class HistoryTable extends Table {
 
     const elements = [];
     switch (param.changeType) {
-      case 'added':
-        spanClass = `${spanClass} ${styles.valueAdded}`;
-        break;
-      case 'deleted':
-        spanClass = `${spanClass} ${styles.valueDeleted}`;
-        break;
-      case 'updated': {
-        const { changeValueArrowIcon } = this.props;
-        const fPreviousValue = formatParameterValue(param.previousValue, param.previousUnit);
-        spanClass = `${spanClass} ${styles.valueUpdated}`;
-        const previousValue = <span key="previousValue">{`${fPreviousValue} ${param.previousUnit}`}</span>;
-        elements.push(previousValue);
-        elements.push(changeValueArrowIcon);
-        break;
-      }
-      default:
-        break;
+    case "added":
+      spanClass = `${spanClass} ${styles.valueAdded}`;
+      break;
+    case "deleted":
+      spanClass = `${spanClass} ${styles.valueDeleted}`;
+      break;
+    case "updated": {
+      const { changeValueArrowIcon } = this.props;
+      const fPreviousValue = formatParameterValue(param.previousValue, param.previousUnit);
+      spanClass = `${spanClass} ${styles.valueUpdated}`;
+      const previousValue = <span key="previousValue">{`${fPreviousValue} ${param.previousUnit}`}</span>;
+      elements.push(previousValue);
+      elements.push(changeValueArrowIcon);
+      break;
+    }
+    default:
+      break;
     }
 
     elements.push(value);
@@ -198,43 +197,43 @@ export default class HistoryTable extends Table {
             }
 
             switch (row.changeType) {
-              case 'added':
-                if (currentParameters.has(parameter.name)) {
-                  // eslint-disable-next-line max-len
-                  this.log.warn(`History: Parameter ${parameter.name} was added, but present in current parameters`);
-                }
-                currentParameters.set(parameter.name, {
-                  value: parameter.value,
-                  unit: parameter.unit,
-                });
-                break;
-              case 'deleted':
-                if (currentParameters.has(parameter.name)) {
-                  currentParameters.delete(parameter.name);
-                } else {
-                  // eslint-disable-next-line max-len
-                  this.log.warn(`History: Parameter ${parameter.name} was removed, but not present in current parameters`);
-                }
-                break;
-              case 'updated':
-                if (currentParameters.has(parameter.name)) {
-                  const currParam = currentParameters.get(parameter.name);
-                  row.previousUnit = currParam.unit;
-                  row.previousValue = currParam.value;
-                } else {
-                  // eslint-disable-next-line max-len
-                  this.log.warn(`History: Parameter ${parameter.name} was updated, but not present in current parameters`);
-                  row.changeType = 'added';
-                }
+            case "added":
+              if (currentParameters.has(parameter.name)) {
+                // eslint-disable-next-line max-len
+                this.log.warn(`History: Parameter ${parameter.name} was added, but present in current parameters`);
+              }
+              currentParameters.set(parameter.name, {
+                value: parameter.value,
+                unit: parameter.unit,
+              });
+              break;
+            case "deleted":
+              if (currentParameters.has(parameter.name)) {
+                currentParameters.delete(parameter.name);
+              } else {
+                // eslint-disable-next-line max-len
+                this.log.warn(`History: Parameter ${parameter.name} was removed, but not present in current parameters`);
+              }
+              break;
+            case "updated":
+              if (currentParameters.has(parameter.name)) {
+                const currParam = currentParameters.get(parameter.name);
+                row.previousUnit = currParam.unit;
+                row.previousValue = currParam.value;
+              } else {
+                // eslint-disable-next-line max-len
+                this.log.warn(`History: Parameter ${parameter.name} was updated, but not present in current parameters`);
+                row.changeType = "added";
+              }
 
-                currentParameters.set(parameter.name, {
-                  value: parameter.value,
-                  unit: parameter.unit,
-                });
-                break;
-              default:
-                this.log.warn(`Unknown change type ${row.changeType}:`, row);
-                break;
+              currentParameters.set(parameter.name, {
+                value: parameter.value,
+                unit: parameter.unit,
+              });
+              break;
+            default:
+              this.log.warn(`Unknown change type ${row.changeType}:`, row);
+              break;
             }
 
             row.parameterChange = this.getParameterChange(row);
