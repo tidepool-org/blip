@@ -514,7 +514,7 @@ function testAPI(): void {
     it("should throw an error if no username", async () => {
       let error: Error | null = null;
       try {
-        await api.requestPasswordReset("", "abcd", "fr", false);
+        await api.requestPasswordReset("", "abcd", "fr");
       } catch (e) {
         error = e;
       }
@@ -533,7 +533,7 @@ function testAPI(): void {
       fetchMock.resolves(resolveError);
       let error: Error | null = null;
       try {
-        await api.requestPasswordReset("abcd", "trace-token", "fr", false);
+        await api.requestPasswordReset("abcd", "trace-token", "fr");
       } catch (e) {
         error = e;
       }
@@ -571,7 +571,7 @@ function testAPI(): void {
       expect(error).to.be.null;
       expect(fetchMock.callCount).to.be.equals(1);
       expect(fetchMock.getCall(0).args).to.be.deep.equals([
-        "http://localhost:8009/confirm/send/forgot/abcd?info=ok",
+        "http://localhost:8009/confirm/send/forgot/abcd",
         {
           method: "POST",
           cache: "no-store",

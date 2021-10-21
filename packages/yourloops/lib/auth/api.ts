@@ -307,14 +307,14 @@ async function login(username: string, password: string, traceToken: string): Pr
   return auth;
 }
 
-async function requestPasswordReset(username: string, traceToken: string, language = "en", info = true): Promise<void> {
+async function requestPasswordReset(username: string, traceToken: string, language = "en"): Promise<void> {
   if (_.isEmpty(username)) {
     log.error("forbidden call to request password api, username is missing");
     throw new Error("error-http-40x");
   }
 
   const confirmURL = new URL(
-    `/confirm/send/forgot/${username}${info ? "?info=ok" : ""}`,
+    `/confirm/send/forgot/${username}`,
     appConfig.API_HOST
   );
   const response = await fetch(confirmURL.toString(), {

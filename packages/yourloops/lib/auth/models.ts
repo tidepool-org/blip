@@ -60,7 +60,7 @@ export interface SignupUser {
 
 export interface AuthAPI {
   login: (username: string, password: string, traceToken: string) => Promise<Session>;
-  requestPasswordReset: (username: string, traceToken: string, language?: string, info?: boolean) => Promise<void>;
+  requestPasswordReset: (username: string, traceToken: string, language?: string) => Promise<void>;
   resetPassword: (key: string, username: string, password: string, traceToken: string) => Promise<boolean>;
   signup: (username: string, password: string, role: UserRoles, traceToken: string) => Promise<Session>;
   resendSignup: (username: string, traceToken: string, language?: string) => Promise<boolean>;
