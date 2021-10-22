@@ -2,6 +2,14 @@
 /** @typedef {import("eslint").Linter.ConfigOverride } ConfigOverride */
 
 const path = require("path");
+const fs = require("fs");
+const _ = require("lodash");
+
+// Typescript files excluding the test files
+const yourloopsDir = path.resolve(__dirname, "packages/yourloops/");
+let yourloopsFiles = fs.readdirSync(yourloopsDir);
+yourloopsFiles = yourloopsFiles.filter((v) => v !== "test" && v !== "node_modules" && v.indexOf(".") < 0);
+yourloopsFiles = yourloopsFiles.map((dirname) => `packages/yourloops/${dirname}/**/*.{ts,tsx}`);
 
 /** @type {ConfigOverride} */
 const eslintTSConfig = {
@@ -11,7 +19,7 @@ const eslintTSConfig = {
   },
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: path.resolve(__dirname, "packages/yourloops", "tsconfig.test.json"),
+    project: path.resolve(__dirname, "packages/yourloops/", "tsconfig.json"),
   },
   plugins: ["@typescript-eslint", "moment-utc", "react", "react-hooks"],
   extends: [
@@ -21,7 +29,7 @@ const eslintTSConfig = {
     "plugin:react/recommended",
   ],
 
-  files: ["**/*.{ts,tsx}"],
+  files: yourloopsFiles,
   rules: {
     "quotes": ["error", "double", { avoidEscape: true }],
     "quote-props": ["error", "consistent-as-needed"],
@@ -92,10 +100,15 @@ const eslintTSConfig = {
   },
 };
 
+// Test files have another configuration, we have to specify it
+const eslintTSConfigTest = _.cloneDeep(eslintTSConfig);
+_.set(eslintTSConfigTest, "parserOptions.project", path.resolve(__dirname, "packages/yourloops/test/", "tsconfig.json"));
+eslintTSConfigTest.files = [ "packages/yourloops/test/**/*.{ts,tsx}" ];
+
 /** @type {Options} */
 const eslintConfig = {
   root: true,
-  overrides: [ eslintTSConfig ],
+  overrides: [ eslintTSConfigTest, eslintTSConfig ],
   parser: "@babel/eslint-parser",
   parserOptions: {
     sourceType: "module",
@@ -220,6 +233,5 @@ const eslintConfig = {
     },
   },
 };
-
 
 module.exports = eslintConfig;

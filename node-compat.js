@@ -26,7 +26,7 @@ class Item {
 }
 
 // Uncomment to activate bows login during tests
-// localStorage.setItem('debug', 'true');
+// localStorage.setItem("debug", "true");
 
 // shim for using process in browser
 if (typeof window.process === "undefined") {

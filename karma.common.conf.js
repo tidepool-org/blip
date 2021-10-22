@@ -143,7 +143,7 @@ function updateDefaultConfig(projectName, karmaConfig, webpackConfig, typescript
   delete webpackConfig.entry;
   webpackConfig.devtool = "inline-source-map";
   if (typescriptProject) {
-    webpackConfig.module.rules[0].options = { configFile: "tsconfig.test.json" };
+    webpackConfig.module.rules[0].options = { configFile: "test/tsconfig.json" };
   }
 
   webpackConfig.module.rules.push({

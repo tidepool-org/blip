@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "newLine": "lf",
-    "alwaysStrict": false,
+    "alwaysStrict": true,
     "allowSyntheticDefaultImports": true,
     "noEmitHelpers": true,
     "noEmitOnError": true,
@@ -22,7 +22,7 @@
     "noImplicitAny": true,
     "noImplicitReturns": false,
     "noImplicitThis": true,
-    "noImplicitUseStrict": true,
+    "noImplicitUseStrict": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
