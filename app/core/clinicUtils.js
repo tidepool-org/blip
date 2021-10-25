@@ -72,7 +72,7 @@ export const validationSchema = yup.object().shape({
       number: yup
         .string()
         .matches(phoneRegex, t('Please enter a valid phone number'))
-        .required(t('Patient phone number is required')),
+        .required(t('Clinic phone number is required')),
     }),
   ),
   clinicType: yup
