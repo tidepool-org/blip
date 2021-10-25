@@ -46,8 +46,8 @@ function integerFromText(value, defaultValue) {
 /**
  *
  * @param {string | undefined} value env var value
- * @param {string} defaultValue returned value if value is undefined
- * @returns {string}
+ * @param {string | null} defaultValue returned value if value is undefined
+ * @returns {string | null}
  */
 function stringOption(value, defaultValue) {
   if (typeof value === "string" && value !== "disabled") {
@@ -79,6 +79,7 @@ const config = {
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: integerFromText(process.env.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT, 10),
   COOKIE_BANNER_CLIENT_ID: stringOption(process.env.COOKIE_BANNER_CLIENT_ID, "disabled"),
   YLP820_BASAL_TIME: integerFromText(process.env.YLP820_BASAL_TIME, 5000),
+  SESSION_TIMEOUT: integerFromText(process.env.SESSION_TIMEOUT, 30 * 60 * 1000), // default: 30min
   DEV: isDev || isTest,
   TEST: isTest,
 };

@@ -29,11 +29,13 @@
 import testAPI from "./api.test";
 import testUser from "./user.test";
 import testHook from "./hook.test";
+import testSessionTimeout from "./session-timeout.test";
 
 function testAuth(): void {
   describe("API", testAPI);
   describe("User", testUser);
   describe("Hook", testHook);
+  describe("SessionTimeout", testSessionTimeout);
 }
 
 export default testAuth;

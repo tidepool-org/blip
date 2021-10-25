@@ -47,10 +47,8 @@ export function DefaultDataContext(): DataContext {
   const authHook = useAuth();
   const [blipApi, setBlipApi] = React.useState<BlipApi | null>(null);
 
-  const hooksInitialized = authHook.initialized();
-
   React.useEffect(() => {
-    if (hooksInitialized) {
+    if (authHook.isAuthHookInitialized) {
       if (blipApi === null) {
         log.debug("Creating BlipApi");
         setBlipApi(new BlipApi(authHook));
@@ -59,7 +57,7 @@ export function DefaultDataContext(): DataContext {
         blipApi.authContext = authHook;
       }
     }
-  }, [hooksInitialized, blipApi, authHook]);
+  }, [blipApi, authHook]);
 
   return { blipApi };
 }

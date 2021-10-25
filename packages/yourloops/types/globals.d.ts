@@ -45,6 +45,8 @@ declare global {
     startLoadingTime?: number;
     _jipt: any; // Zendesk
     _paq?: (string|number)[][]; // Matomo
+    process: any;
+    config?: AppConfig;
     _axcb?: { // Axeptio
       push: (f: (a: AxeptIO) => void) => void;
     };
@@ -52,9 +54,9 @@ declare global {
     openAxeptioCookies?: () => void;
     loadStonlyWidget?: () => void;
     zE: (...args: any) => void; // Zendesk API
-    config?: AppConfig;
     cleanBlipReduxStore?: () => void;
-    process: any;
+    /** If the application crash, stop the session timeout timers */
+    clearSessionTimeout?: () => void;
   }
   interface Navigator {
     userLanguage?: string;

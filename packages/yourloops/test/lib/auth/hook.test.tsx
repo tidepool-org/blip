@@ -31,147 +31,150 @@ import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
-import { BrowserRouter } from "react-router-dom";
+import { MemoryRouter, Route } from "react-router-dom";
+import * as H from "history";
 import * as sinon from "sinon";
 import { expect } from "chai";
 
 import { Preferences, Profile, Settings, UserRoles } from "../../../models/shoreline";
 import config from "../../../lib/config";
 import { waitTimeout } from "../../../lib/utils";
-import { User, AuthAPI, Session, AuthContext, SignupUser } from "../../../lib/auth";
+import { AuthAPI, User, Session, AuthContext, SignupUser } from "../../../lib/auth";
 import { AuthContextImpl, STORAGE_KEY_SESSION_TOKEN, STORAGE_KEY_TRACE_TOKEN, STORAGE_KEY_USER } from "../../../lib/auth/hook";
 import { loggedInUsers } from "../../common";
+import { AuthAPIStubs, createAuthAPIStubs, resetAuthAPIStubs } from "./api.test";
 
+/**
+ * Auth hook stubs definitions
+ */
+export interface AuthContextStubs {
+  user: Readonly<User> | null;
+  sessionToken: string | null;
+  traceToken: string | null;
+  isLoggedIn: boolean;
+  isAuthInProgress: boolean;
+  isAuthHookInitialized: boolean;
+  session: sinon.SinonStub<[], Session|null>;
+  setUser: sinon.SinonStub<[User], void>;
+  login: sinon.SinonStub<[string, string, string|null], Promise<User>>;
+  logout: sinon.SinonStub<[boolean|undefined], Promise<void>>;
+  updatePreferences: sinon.SinonStub<[Preferences,boolean|undefined], Promise<Preferences>>;
+  updateProfile: sinon.SinonStub<[Profile,boolean|undefined], Promise<Profile>>;
+  updateSettings: sinon.SinonStub<[Settings,boolean|undefined], Promise<Settings>>;
+  updatePassword: sinon.SinonStub<[string,string], Promise<void>>;
+  signup: sinon.SinonStub<[SignupUser], Promise<void>>;
+  resendSignup: sinon.SinonStub<[string], Promise<boolean>>;
+  sendPasswordResetEmail: sinon.SinonStub<[string,string], Promise<void>>;
+  resetPassword: sinon.SinonStub<[string,string,string], Promise<boolean>>;
+  flagPatient: sinon.SinonStub<[string], Promise<void>>;
+  setFlagPatients: sinon.SinonStub<[string[]], Promise<void>>;
+  getFlagPatients: sinon.SinonStub<[], string[]>;
+  switchRoleToHCP: sinon.SinonStub<[boolean], Promise<void>>;
+}
+
+/**
+ * Hook Stubs
+ */
+export const createAuthHookStubs = (session?: Session): AuthContextStubs => ({
+  user: session?.user ?? null,
+  sessionToken: session.sessionToken,
+  traceToken: session.traceToken,
+  isLoggedIn: true,
+  isAuthInProgress: false,
+  isAuthHookInitialized: true,
+  session: sinon.stub<[], Session | null>().returns(session),
+  setUser: sinon.stub<[User], void>(),
+  login: sinon.stub<[string, string, string|null], Promise<User>>().resolves(session.user),
+  logout: sinon.stub<[boolean|undefined], Promise<void>>().resolves(),
+  updatePreferences: sinon.stub<[Preferences,boolean|undefined], Promise<Preferences>>().resolves(session.user.preferences),
+  updateProfile: sinon.stub<[Profile,boolean|undefined], Promise<Profile>>().resolves(session.user.profile),
+  updateSettings: sinon.stub<[Settings,boolean|undefined], Promise<Settings>>().resolves(session.user.settings),
+  updatePassword: sinon.stub<[string,string], Promise<void>>().resolves(),
+  signup: sinon.stub<[SignupUser], Promise<void>>().resolves(),
+  resendSignup: sinon.stub<[string], Promise<boolean>>().resolves(true),
+  sendPasswordResetEmail: sinon.stub<[string,string], Promise<void>>().resolves(),
+  resetPassword: sinon.stub<[string,string,string], Promise<boolean>>().resolves(true),
+  flagPatient: sinon.stub<[string], Promise<void>>().resolves(),
+  setFlagPatients: sinon.stub<[string[]], Promise<void>>().resolves(),
+  getFlagPatients: sinon.stub<[], string[]>().returns([]),
+  switchRoleToHCP: sinon.stub<[boolean], Promise<void>>().resolves(),
+});
+
+/**
+ * Reset stubs history & behavior
+ *
+ * TODO complete me
+ */
+export const resetAuthHookStubs = (hookStubs: AuthContextStubs, session?: Session): void => {
+  hookStubs.user = session?.user ?? null;
+  hookStubs.sessionToken = session.sessionToken;
+  hookStubs.traceToken = session.traceToken;
+  hookStubs.isLoggedIn = typeof session === "object";
+  hookStubs.isAuthInProgress = false;
+  hookStubs.isAuthHookInitialized = true;
+
+  hookStubs.logout.resetHistory();
+  hookStubs.logout.resetBehavior();
+  hookStubs.logout.resolves();
+
+  hookStubs.session.resetHistory();
+  hookStubs.session.resetBehavior();
+  hookStubs.session.returns(session);
+};
+
+// TODO Delete me: should be defined by in tests files
 export const authCaregiver = loggedInUsers.caregiverSession;
 export const authHcp = loggedInUsers.hcpSession;
 export const authPatient = loggedInUsers.patientSession;
-
-/***** API Stubs *****/
-/*********************/
-interface AuthAPIStubs {
-  login: sinon.SinonStub<string[], Promise<Session>>;
-  requestPasswordReset: sinon.SinonStub<unknown[], Promise<void>>;
-  resetPassword: sinon.SinonStub<string[], Promise<boolean>>;
-  signup: sinon.SinonStub<string[], Promise<Session>>;
-  resendSignup: sinon.SinonStub<string[], Promise<boolean>>;
-  sendAccountValidation: sinon.SinonStub<unknown[], Promise<boolean>>;
-  accountConfirmed: sinon.SinonStub<string[], Promise<boolean>>;
-  updatePreferences: sinon.SinonStub<Session[], Promise<Preferences>>;
-  updateProfile: sinon.SinonStub<Session[], Promise<Profile>>;
-  updateSettings: sinon.SinonStub<Session[], Promise<Settings>>;
-  updateUser: sinon.SinonStub<unknown[], Promise<void>>;
-  refreshToken: sinon.SinonStub<Session[], Promise<string>>;
-  logout: sinon.SinonStub<Session[], Promise<void>>;
-}
-
-export const createAuthApiStubs = (session: Session): AuthAPIStubs => ({
-  login: sinon.stub().resolves(session),
-  requestPasswordReset: sinon.stub().resolves(),
-  resetPassword: sinon.stub().resolves(false),
-  signup: sinon.stub().resolves(session),
-  resendSignup: sinon.stub().resolves(true),
-  sendAccountValidation: sinon.stub().resolves(false),
-  accountConfirmed: sinon.stub().resolves(false),
-  updatePreferences: sinon.stub().resolves(session.user.preferences),
-  updateProfile: sinon.stub().resolves(session.user.profile),
-  updateSettings: sinon.stub().resolves(session.user.settings),
-  updateUser: sinon.stub().resolves(),
-  refreshToken: sinon.stub().resolves(""),
-  logout: sinon.stub().resolves(),
-});
-
-export const authApiHcpStubs = createAuthApiStubs(authHcp);
-
-/***** Hook Stubs *****/
-/*********************/
-export const createAuthHookStubs = (authSession: Session): AuthContext => ({
-  user: authSession.user,
-  sessionToken: authSession.sessionToken,
-  traceToken: authSession.traceToken,
-  session: sinon.stub().returns(authSession),
-  initialized: sinon.stub().returns(true),
-  setUser: sinon.stub(),
-  login: sinon.stub().resolves(authSession.user),
-  logout: sinon.stub(),
-  updateProfile: sinon.stub().resolves(authSession.user.profile),
-  updatePreferences: sinon.stub().resolves(authSession.user.profile),
-  updateSettings: sinon.stub().resolves(authSession.user.profile),
-  updatePassword: sinon.stub().resolves(),
-  signup: sinon.stub(),
-  resendSignup: sinon.stub().resolves(true),
-  isLoggedIn: sinon.stub().returns(true),
-  sendPasswordResetEmail: sinon.stub().returns(true),
-  resetPassword: sinon.stub().returns(true),
-  flagPatient: sinon.stub().resolves(),
-  setFlagPatients: sinon.stub().resolves(),
-  getFlagPatients: sinon.stub().returns([]),
-  switchRoleToHCP: sinon.stub().resolves(),
-});
-
 export const authHookHcp: AuthContext = createAuthHookStubs(authHcp);
 export const authHookPatient: AuthContext = createAuthHookStubs(authPatient);
 export const authHookCaregiver: AuthContext = createAuthHookStubs(authCaregiver);
 
-export function resetStubs(user: Readonly<User>, api: AuthAPI | null = null, context: AuthContext | null = null): void {
-  let stub: sinon.SinonStub;
-  authHcp.user = _.cloneDeep(user);
-  if (api !== null) {
-    stub = api.login as sinon.SinonStub;
-    stub.resetHistory();
-    stub.resetBehavior();
-    stub.resolves(authHcp);
-
-    stub = api.updatePreferences as sinon.SinonStub;
-    stub.resetHistory();
-    stub.resetBehavior();
-    stub.resolves(authHcp.user.preferences);
-
-    stub = api.updateProfile as sinon.SinonStub;
-    stub.resetHistory();
-    stub.resetBehavior();
-    stub.resolves(authHcp.user.profile);
-
-    stub = api.updateSettings as sinon.SinonStub;
-    stub.resetHistory();
-    stub.resetBehavior();
-    stub.resolves(authHcp.user.settings);
-
-    stub = api.logout as sinon.SinonStub;
-    stub.resetHistory();
-    stub.resetBehavior();
-    stub.resolves();
-  }
-  if (context !== null) {
-    context.user = authHcp.user;
-    stub = context.initialized as sinon.SinonStub;
-    stub.resetHistory();
-    stub.resetBehavior();
-    stub.returns(true);
-    // TODO the rest when needed
-  }
-}
-
 function testHook(): void {
   /* eslint-disable new-cap */
   const ReactAuthContext = React.createContext({} as AuthContext);
+  const authCaregiver = loggedInUsers.caregiverSession;
+  const authHcp = loggedInUsers.hcpSession;
+  const authPatient = loggedInUsers.patientSession;
+  const authApiHcpStubs = createAuthAPIStubs(authHcp);
   let container: HTMLDivElement | null = null;
   let authContext: AuthContext | null = null;
+  let testHistory: H.History<unknown> | null = null;
+  let testLocation: H.Location<unknown> | null = null;
 
-  const initAuthContext = (session: Session | null, stubApi: typeof authApiHcpStubs) => {
+  const initAuthContext = async (session: Session | null, stubApi: AuthAPI | AuthAPIStubs): Promise<void> => {
+    let initialRoute = "/";
     if (session !== null) {
       sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, session.sessionToken);
       sessionStorage.setItem(STORAGE_KEY_TRACE_TOKEN, session.traceToken);
       sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(session.user));
+      initialRoute = session.user.getHomePage();
     }
     const AuthContextProvider = (): JSX.Element => {
-      authContext = AuthContextImpl(stubApi);
+      authContext = AuthContextImpl(stubApi as AuthAPI);
       return <ReactAuthContext.Provider value={authContext} />;
     };
-    act(() => {
-      ReactDOM.render(<BrowserRouter><AuthContextProvider /></BrowserRouter>, container);
+    await act(() => {
+      return new Promise((resolve) => {
+        ReactDOM.render(
+          <MemoryRouter initialEntries={[initialRoute]}>
+            <AuthContextProvider />
+            <Route
+              path="*"
+              render={({ history, location }) => {
+                testHistory = history;
+                testLocation = location;
+                return null;
+              }}
+            />
+          </MemoryRouter>,
+          container,
+          resolve
+        );
+      });
     });
     expect(authContext, "authContext").to.be.not.null;
-    expect(authContext.initialized(), "initialized").to.be.true;
+    expect(authContext.isAuthHookInitialized, "initialized").to.be.true;
   };
 
   beforeEach(() => {
@@ -184,7 +187,7 @@ function testHook(): void {
   afterEach(() => {
     document.body.removeChild(container);
     container = null;
-    resetStubs(loggedInUsers.hcp, authApiHcpStubs);
+    resetAuthAPIStubs(authApiHcpStubs, loggedInUsers.hcpSession);
     authContext = null;
   });
 
@@ -195,30 +198,30 @@ function testHook(): void {
   });
 
   describe("Initialization", () => {
-    it("should initialize as logout state when no auth storage exists", () => {
-      initAuthContext(null, authApiHcpStubs);
+    it("should initialize as logout state when no auth storage exists", async () => {
+      await initAuthContext(null, authApiHcpStubs);
       expect(authContext.traceToken, "traceToken").to.be.a("string").not.empty;
       expect(authContext.sessionToken, "sessionToken").to.be.null;
       expect(authContext.user, "user").to.be.null;
     });
 
-    it("should initialized as logout state when trace token is not valid", () => {
-      initAuthContext({ sessionToken: authHcp.sessionToken, traceToken: "abcd", user: authHcp.user }, authApiHcpStubs);
+    it("should initialized as logout state when trace token is not valid", async () => {
+      await initAuthContext({ sessionToken: authHcp.sessionToken, traceToken: "abcd", user: authHcp.user }, authApiHcpStubs);
       expect(authContext.traceToken, "traceToken").to.be.a("string").not.empty;
       expect(authContext.sessionToken, "sessionToken").to.be.null;
       expect(authContext.user, "user").to.be.null;
     });
 
-    it("should initialized as logout state when session token has expired", () => {
+    it("should initialized as logout state when session token has expired", async () => {
       const expiredToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNyIjoiYTAwMDAwMDAiLCJuYW1lIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwic3ZyIjoibm8iLCJyb2xlIjoiaGNwIiwiaWF0IjoxNjI0OTU2MzA3LCJleHAiOjE2MjQ5NTYzMDZ9.fEaJHx1E53fh9m4DwNNXFm--iD6gEWJ0YmlsRVCOmog";
-      initAuthContext({ sessionToken: expiredToken, traceToken: authHcp.traceToken, user: authHcp.user }, authApiHcpStubs);
+      await initAuthContext({ sessionToken: expiredToken, traceToken: authHcp.traceToken, user: authHcp.user }, authApiHcpStubs);
       expect(authContext.traceToken, "traceToken").to.be.a("string").not.empty;
       expect(authContext.sessionToken, "sessionToken").to.be.null;
       expect(authContext.user, "user").to.be.null;
     });
 
-    it("should initialized as login state when auth storage exists", () => {
-      initAuthContext(authHcp, authApiHcpStubs);
+    it("should initialized as login state when auth storage exists", async () => {
+      await initAuthContext(authHcp, authApiHcpStubs);
       expect(authContext.traceToken, "traceToken").to.be.equals(authHcp.traceToken);
       expect(authContext.sessionToken, "sessionToken").to.be.equals(authHcp.sessionToken);
       expect(authContext.user, "user").to.be.not.null;
@@ -237,31 +240,34 @@ function testHook(): void {
     });
 
     it("should call the login api function and set the context values", async () => {
-      initAuthContext(null, authApiHcpStubs);
-      expect(authContext.session()).to.be.null;
-      expect(authContext.isLoggedIn()).to.be.false;
+      const session = loggedInUsers.hcpSession;
+      const stubs = createAuthAPIStubs(session);
+      await initAuthContext(null, stubs);
+      expect(authContext.session(), "authContext.session()").to.be.null;
+      expect(authContext.isLoggedIn, "isLoggedIn false").to.be.false;
 
       const user = await authContext.login("abc", "abc", "abc");
-      expect(authApiHcpStubs.login.calledOnce, "calledOnce").to.be.true;
-      expect(user).to.be.deep.equals(authHcp.user);
-      expect(authContext.traceToken, "traceToken").to.be.equals(authHcp.traceToken);
-      expect(authContext.sessionToken, "sessionToken").to.be.equals(authHcp.sessionToken);
+      expect(stubs.login.calledOnce, "calledOnce").to.be.true;
+      // session.user.settings.country = "FR";
+      expect(user, JSON.stringify({ having: user, expected: session.user }, null, 2)).to.be.deep.equals(session.user);
+      expect(authContext.traceToken, "traceToken").to.be.equals(session.traceToken);
+      expect(authContext.sessionToken, "sessionToken").to.be.equals(session.sessionToken);
       expect(authContext.user, "user").to.be.not.null;
-      expect(authContext.user.userid, "userid").to.be.equals(authHcp.user.userid);
-      expect(sessionStorage.getItem(STORAGE_KEY_SESSION_TOKEN), "STORAGE_KEY_SESSION_TOKEN").to.be.equals(authHcp.sessionToken);
-      expect(sessionStorage.getItem(STORAGE_KEY_TRACE_TOKEN), "STORAGE_KEY_SESSION_TOKEN").to.be.equals(authHcp.traceToken);
-      expect(sessionStorage.getItem(STORAGE_KEY_USER), "STORAGE_KEY_SESSION_TOKEN").to.be.equals(JSON.stringify(authHcp.user));
+      expect(authContext.user.userid, "userid").to.be.equals(session.user.userid);
+      expect(sessionStorage.getItem(STORAGE_KEY_SESSION_TOKEN), "STORAGE_KEY_SESSION_TOKEN").to.be.equals(session.sessionToken);
+      expect(sessionStorage.getItem(STORAGE_KEY_TRACE_TOKEN), "STORAGE_KEY_SESSION_TOKEN").to.be.equals(session.traceToken);
+      expect(sessionStorage.getItem(STORAGE_KEY_USER), "STORAGE_KEY_SESSION_TOKEN").to.be.equals(JSON.stringify(session.user));
       expect(window._paq, JSON.stringify(window._paq)).to.be.deep.equals([
-        ["setUserId", authHcp.user.userid],
+        ["setUserId", session.user.userid],
         ["setCustomVariable", 1, "UserRole", "hcp", "page"],
         ["trackEvent", "registration", "login", "hcp"],
       ]);
-      expect(authContext.session()).to.be.deep.equals(authHcp);
-      expect(authContext.isLoggedIn()).to.be.true;
+      expect(authContext.session(), "authContext.session()").to.be.deep.equals(session);
+      expect(authContext.isLoggedIn, "isLoggedIn true").to.be.true;
     });
 
     it("should throw an exception if the api call failed", async () => {
-      initAuthContext(null, authApiHcpStubs);
+      await initAuthContext(null, authApiHcpStubs);
       authApiHcpStubs.login.rejects(new Error("wrong"));
 
       let user: User | null = null;
@@ -278,7 +284,7 @@ function testHook(): void {
       expect(authContext.sessionToken, "sessionToken").to.be.null;
       expect(authContext.user, "user").to.be.null;
       expect(authContext.session()).to.be.null;
-      expect(authContext.isLoggedIn()).to.be.false;
+      expect(authContext.isLoggedIn).to.be.false;
     });
   });
 
@@ -295,9 +301,9 @@ function testHook(): void {
       config.METRICS_SERVICE = "disabled";
     });
     it("should logout the logged-in user", async () => {
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       expect(authContext.session()).to.be.not.null;
-      expect(authContext.isLoggedIn()).to.be.true;
+      expect(authContext.isLoggedIn).to.be.true;
 
       window._paq = []; // Clear the login part
       await authContext.logout();
@@ -317,16 +323,34 @@ function testHook(): void {
       expect(window._paq[3], "_paq[3]").to.be.deep.equals(["deleteCookies"]);
       expect(cleanBlipReduxStore.calledOnce, "cleanBlipReduxStore").to.be.true;
       expect(authContext.session()).to.be.null;
-      expect(authContext.isLoggedIn()).to.be.false;
+      expect(authContext.isLoggedIn).to.be.false;
+      expect(testLocation.pathname).to.be.equals("/");
+      expect(testLocation.search).to.be.equals("");
+      expect(testLocation.state).to.be.undefined;
+      expect(testHistory.length).to.be.equals(2);
     });
     it("should not crash if the api call crash", async () => {
       authApiHcpStubs.logout.rejects();
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       await authContext.logout();
       await waitTimeout(10);
       expect(authApiHcpStubs.logout.calledOnce, "logout calledOnce").to.be.true;
       expect(authContext.session()).to.be.null;
-      expect(authContext.isLoggedIn()).to.be.false;
+      expect(authContext.isLoggedIn).to.be.false;
+    });
+    it("should correctly set the URL parameters when logout with session timeout set to true", async () => {
+      const authApiCaregiverStubs = createAuthAPIStubs(authCaregiver);
+      await initAuthContext(authCaregiver, authApiCaregiverStubs);
+      expect(authContext.session()).to.be.not.null;
+      expect(authContext.isLoggedIn).to.be.true;
+
+      await authContext.logout(true);
+      await waitTimeout(10);
+
+      expect(testLocation.pathname).to.be.equals("/");
+      expect(testLocation.search).to.be.equals("?login=caregiver%40example.com&sessionExpired=true");
+      expect(testLocation.state).to.be.deep.equals({ from: { pathname: authCaregiver.user.getHomePage() } });
+      expect(testHistory.length).to.be.equals(2);
     });
   });
 
@@ -337,7 +361,7 @@ function testHook(): void {
 
     it("updatePreferences should not call the API if the user is not logged in", async () => {
       authApiHcpStubs.updatePreferences.resolves(updatedPreferences);
-      initAuthContext(null, authApiHcpStubs);
+      await initAuthContext(null, authApiHcpStubs);
       expect(authContext.user).to.be.null;
 
       let error: Error | null = null;
@@ -354,7 +378,7 @@ function testHook(): void {
     });
     it("updatePreferences should call the API with the good parameters", async () => {
       authApiHcpStubs.updatePreferences.resolves(updatedPreferences);
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       expect(authContext.user.preferences).to.be.deep.equals({ displayLanguageCode: "en" });
 
       const result = await authContext.updatePreferences({ ...updatedPreferences });
@@ -365,7 +389,7 @@ function testHook(): void {
 
     it("updateProfile should not call the API if the user is not logged in", async () => {
       authApiHcpStubs.updateProfile.resolves(updatedProfile);
-      initAuthContext(null, authApiHcpStubs);
+      await initAuthContext(null, authApiHcpStubs);
       expect(authContext.user).to.be.null;
 
       let error: Error | null = null;
@@ -382,7 +406,7 @@ function testHook(): void {
     });
     it("updateProfile should call the API with the good parameters", async () => {
       authApiHcpStubs.updateProfile.resolves(updatedProfile);
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       expect(authContext.user.profile).to.be.deep.equals(loggedInUsers.hcp.profile);
 
       const result = await authContext.updateProfile({ ...updatedProfile });
@@ -393,7 +417,7 @@ function testHook(): void {
 
     it("updateSettings should not call the API if the user is not logged in", async () => {
       authApiHcpStubs.updateSettings.resolves(updatedSettings);
-      initAuthContext(null, authApiHcpStubs);
+      await initAuthContext(null, authApiHcpStubs);
       expect(authContext.user).to.be.null;
 
       let error: Error | null = null;
@@ -410,7 +434,7 @@ function testHook(): void {
     });
     it("updateSettings should call the API with the good parameters", async () => {
       authApiHcpStubs.updateSettings.resolves(updatedSettings);
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       expect(authContext.user.settings).to.be.deep.equals(loggedInUsers.hcp.settings);
 
       const result = await authContext.updateSettings({ ...updatedSettings });
@@ -421,7 +445,7 @@ function testHook(): void {
 
     it("updatePassword should not call the API if the user is not logged in", async () => {
       authApiHcpStubs.updateUser.resolves();
-      initAuthContext(null, authApiHcpStubs);
+      await initAuthContext(null, authApiHcpStubs);
       expect(authContext.user).to.be.null;
 
       let error: Error | null = null;
@@ -435,9 +459,9 @@ function testHook(): void {
       expect(authContext.user).to.be.null;
     });
     it("updatePassword should not call the API if the user is a patient", async () => {
-      const authApiStubs = createAuthApiStubs(authPatient);
+      const authApiStubs = createAuthAPIStubs(authPatient);
       authApiStubs.updateUser.resolves();
-      initAuthContext(authPatient, authApiStubs);
+      await initAuthContext(authPatient, authApiStubs);
       expect(authContext.user).to.be.not.null;
 
       let error: Error | null = null;
@@ -452,7 +476,7 @@ function testHook(): void {
     });
     it("updatePassword should call the API with the good parameters", async () => {
       authApiHcpStubs.updateUser.resolves();
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       expect(authContext.user.settings).to.be.deep.equals(loggedInUsers.hcp.settings);
 
       await authContext.updatePassword("abcd", "1234");
@@ -460,7 +484,7 @@ function testHook(): void {
     });
 
     it("switchRoleToHCP should failed for hcp users", async () => {
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       let error: Error | null = null;
       try {
         await authContext.switchRoleToHCP(false);
@@ -471,8 +495,8 @@ function testHook(): void {
       expect(error.message).to.be.equals("invalid-user-role");
     });
     it("switchRoleToHCP should failed for patient users", async () => {
-      const authApiStubs = createAuthApiStubs(authPatient);
-      initAuthContext(authPatient, authApiStubs);
+      const authApiStubs = createAuthAPIStubs(authPatient);
+      await initAuthContext(authPatient, authApiStubs);
       let error: Error | null = null;
       try {
         await authContext.switchRoleToHCP(false);
@@ -483,9 +507,9 @@ function testHook(): void {
       expect(error.message).to.be.equals("invalid-user-role");
     });
     it("switchRoleToHCP should not call updateProfile if updateUser failed", async () => {
-      const authApiStubs = createAuthApiStubs(authCaregiver);
+      const authApiStubs = createAuthAPIStubs(authCaregiver);
       authApiStubs.updateUser.rejects();
-      initAuthContext(authCaregiver, authApiStubs);
+      await initAuthContext(authCaregiver, authApiStubs);
       let error: Error | null = null;
       try {
         await authContext.switchRoleToHCP(false);
@@ -501,9 +525,9 @@ function testHook(): void {
     });
     it("switchRoleToHCP should call updateProfile after updateUser", async () => {
       const now = Date.now();
-      const authApiStubs = createAuthApiStubs(authCaregiver);
+      const authApiStubs = createAuthAPIStubs(authCaregiver);
       authApiStubs.updateProfile.rejects();
-      initAuthContext(authCaregiver, authApiStubs);
+      await initAuthContext(authCaregiver, authApiStubs);
       let error: Error | null = null;
       try {
         await authContext.switchRoleToHCP(false);
@@ -512,13 +536,13 @@ function testHook(): void {
       }
       expect(error).to.be.instanceOf(Error);
       expect(authApiStubs.updateUser.calledOnce, "updateUser.calledOnce").to.be.true;
-      let updateArgs = authApiStubs.updateUser.firstCall.args;
-      expect(updateArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
-      expect(updateArgs[1]).to.be.an("object").deep.equals({ roles: [UserRoles.hcp] });
+      const updateUserArgs = authApiStubs.updateUser.firstCall.args;
+      expect(updateUserArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
+      expect(updateUserArgs[1]).to.be.an("object").deep.equals({ roles: [UserRoles.hcp] });
       expect(authApiStubs.updateProfile.calledOnce, "updateProfile.calledOnce").to.be.true;
-      updateArgs = authApiStubs.updateProfile.firstCall.args;
-      expect(updateArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
-      const profile = (updateArgs[0] as Session).user.profile;
+      const updateProfileArgs = authApiStubs.updateProfile.firstCall.args;
+      expect(updateProfileArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
+      const profile = updateProfileArgs[0].user.profile;
       expect(profile, JSON.stringify(profile)).to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy");
       expect(profile.termsOfUse.isAccepted, "termsOfUse.isAccepted").to.be.true;
       expect(profile.privacyPolicy.isAccepted, "privacyPolicy.isAccepted").to.be.true;
@@ -529,14 +553,14 @@ function testHook(): void {
     it("switchRoleToHCP should call refreshToken after updateUser, and verify the received token", async () => {
       const invalidUpdatedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNyIjoiYTBhMGEwYjAiLCJuYW1lIjoiY2FyZWdpdmVyQGV4YW1wbGUuY29tIiwiZW1haWwiOiJjYXJlZ2l2ZXJAZXhhbXBsZS5jb20iLCJzdnIiOiJubyIsInJvbGUiOiJjYXJlZ2l2ZXIiLCJpYXQiOjE2MjUwNjQxNTgsImV4cCI6NTYyNDk1NjMwNn0.MlWX87m5QdZSi2gYO22hfSvR3wZaoFZlTTLlU6dk_FY";
       const now = new Date();
-      const authApiStubs = createAuthApiStubs(authCaregiver);
+      const authApiStubs = createAuthAPIStubs(authCaregiver);
       const accepts = {
         acceptanceTimestamp: now.toISOString(),
         isAccepted: true,
       };
       authApiStubs.updateProfile.resolves({ ...authCaregiver.user.profile, termsOfUse: accepts, privacyPolicy: accepts });
       authApiStubs.refreshToken.resolves(invalidUpdatedToken);
-      initAuthContext(authCaregiver, authApiStubs);
+      await initAuthContext(authCaregiver, authApiStubs);
       let error: Error | null = null;
       try {
         await authContext.switchRoleToHCP(false);
@@ -546,13 +570,13 @@ function testHook(): void {
       expect(error).to.be.instanceOf(Error);
       expect(error.message).to.be.equals("Role change is not effective");
       expect(authApiStubs.updateUser.calledOnce, "updateUser.calledOnce").to.be.true;
-      let updateArgs = authApiStubs.updateUser.firstCall.args;
-      expect(updateArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
-      expect(updateArgs[1]).to.be.an("object").deep.equals({ roles: [UserRoles.hcp] });
+      const updateUserArgs = authApiStubs.updateUser.firstCall.args;
+      expect(updateUserArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
+      expect(updateUserArgs[1]).to.be.an("object").deep.equals({ roles: [UserRoles.hcp] });
       expect(authApiStubs.updateProfile.calledOnce, "updateProfile.calledOnce").to.be.true;
-      updateArgs = authApiStubs.updateProfile.firstCall.args;
-      expect(updateArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
-      const profile = (updateArgs[0] as Session).user.profile;
+      const updateProfileArgs = authApiStubs.updateProfile.firstCall.args;
+      expect(updateProfileArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
+      const profile = updateProfileArgs[0].user.profile;
       expect(profile, JSON.stringify(profile)).to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy");
       expect(profile.termsOfUse.isAccepted, "termsOfUse.isAccepted").to.be.true;
       expect(profile.privacyPolicy.isAccepted, "privacyPolicy.isAccepted").to.be.true;
@@ -563,24 +587,24 @@ function testHook(): void {
     it("switchRoleToHCP should succeed (accept feedback)", async () => {
       const updatedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNyIjoiYTBhMGEwYjAiLCJuYW1lIjoiY2FyZWdpdmVyQGV4YW1wbGUuY29tIiwiZW1haWwiOiJjYXJlZ2l2ZXJAZXhhbXBsZS5jb20iLCJzdnIiOiJubyIsInJvbGUiOiJoY3AiLCJpYXQiOjE2MjUwNjQxNTgsImV4cCI6NTYyNDk1NjMwNn0._PK65sdZ_o11nZtJBTILxcS9f9HhRLfAmYsn3Us4s7o";
       const now = new Date();
-      const authApiStubs = createAuthApiStubs(authCaregiver);
+      const authApiStubs = createAuthAPIStubs(authCaregiver);
       const accepts = {
         acceptanceTimestamp: now.toISOString(),
         isAccepted: true,
       };
       authApiStubs.updateProfile.resolves({ ...authCaregiver.user.profile, termsOfUse: accepts, privacyPolicy: accepts, contactConsent: accepts });
       authApiStubs.refreshToken.resolves(updatedToken);
-      initAuthContext(authCaregiver, authApiStubs);
+      await initAuthContext(authCaregiver, authApiStubs);
 
       await authContext.switchRoleToHCP(true);
       expect(authApiStubs.updateUser.calledOnce, "updateUser.calledOnce").to.be.true;
-      let updateArgs = authApiStubs.updateUser.firstCall.args;
-      expect(updateArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
-      expect(updateArgs[1]).to.be.an("object").deep.equals({ roles: [UserRoles.hcp] });
+      const updateUserArgs = authApiStubs.updateUser.firstCall.args;
+      expect(updateUserArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
+      expect(updateUserArgs[1]).to.be.an("object").deep.equals({ roles: [UserRoles.hcp] });
       expect(authApiStubs.updateProfile.calledOnce, "updateProfile.calledOnce").to.be.true;
-      updateArgs = authApiStubs.updateProfile.firstCall.args;
-      expect(updateArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
-      const profile = (updateArgs[0] as Session).user.profile;
+      const updateProfileArgs = authApiStubs.updateProfile.firstCall.args;
+      expect(updateProfileArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
+      const profile = updateProfileArgs[0].user.profile;
       expect(profile, JSON.stringify(profile)).to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy", "contactConsent");
       expect(profile.termsOfUse.isAccepted, "termsOfUse.isAccepted").to.be.true;
       expect(profile.privacyPolicy.isAccepted, "privacyPolicy.isAccepted").to.be.true;
@@ -602,7 +626,7 @@ function testHook(): void {
     it("switchRoleToHCP should succeed (decline feedback)", async () => {
       const updatedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNyIjoiYTBhMGEwYjAiLCJuYW1lIjoiY2FyZWdpdmVyQGV4YW1wbGUuY29tIiwiZW1haWwiOiJjYXJlZ2l2ZXJAZXhhbXBsZS5jb20iLCJzdnIiOiJubyIsInJvbGUiOiJoY3AiLCJpYXQiOjE2MjUwNjQxNTgsImV4cCI6NTYyNDk1NjMwNn0._PK65sdZ_o11nZtJBTILxcS9f9HhRLfAmYsn3Us4s7o";
       const now = new Date();
-      const authApiStubs = createAuthApiStubs(authCaregiver);
+      const authApiStubs = createAuthAPIStubs(authCaregiver);
       const accepts = {
         acceptanceTimestamp: now.toISOString(),
         isAccepted: true,
@@ -613,17 +637,17 @@ function testHook(): void {
       };
       authApiStubs.updateProfile.resolves({ ...authCaregiver.user.profile, termsOfUse: accepts, privacyPolicy: accepts, contactConsent: decline });
       authApiStubs.refreshToken.resolves(updatedToken);
-      initAuthContext(authCaregiver, authApiStubs);
+      await initAuthContext(authCaregiver, authApiStubs);
 
       await authContext.switchRoleToHCP(false);
       expect(authApiStubs.updateUser.calledOnce, "updateUser.calledOnce").to.be.true;
-      let updateArgs = authApiStubs.updateUser.firstCall.args;
-      expect(updateArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
-      expect(updateArgs[1]).to.be.an("object").deep.equals({ roles: [UserRoles.hcp] });
+      const updateUserArgs = authApiStubs.updateUser.firstCall.args;
+      expect(updateUserArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
+      expect(updateUserArgs[1]).to.be.an("object").deep.equals({ roles: [UserRoles.hcp] });
       expect(authApiStubs.updateProfile.calledOnce, "updateProfile.calledOnce").to.be.true;
-      updateArgs = authApiStubs.updateProfile.firstCall.args;
-      expect(updateArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
-      const profile = (updateArgs[0] as Session).user.profile;
+      const updateProfileArgs = authApiStubs.updateProfile.firstCall.args;
+      expect(updateProfileArgs[0]).to.have.all.keys("user", "sessionToken", "traceToken");
+      const profile = updateProfileArgs[0].user.profile;
       expect(profile, JSON.stringify(profile)).to.be.an("object").and.have.any.keys("termsOfUse", "privacyPolicy", "contactConsent");
       expect(profile.termsOfUse.isAccepted, "termsOfUse.isAccepted").to.be.true;
       expect(profile.privacyPolicy.isAccepted, "privacyPolicy.isAccepted").to.be.true;
@@ -659,7 +683,7 @@ function testHook(): void {
         terms: true,
         feedback: false,
       };
-      initAuthContext(null, authApiHcpStubs);
+      await initAuthContext(null, authApiHcpStubs);
       const signupResolve: Session = {
         user: _.cloneDeep(authCaregiver.user),
         sessionToken: authCaregiver.sessionToken,
@@ -701,7 +725,7 @@ function testHook(): void {
 
   describe("Resend sign-up", () => {
     it("should call the resend sign-up api", async () => {
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       const result = await authContext.resendSignup("abcd");
       expect(authApiHcpStubs.resendSignup.calledOnce, "resendSignup.calledOnce").to.be.true;
       expect(authApiHcpStubs.resendSignup.firstCall.args, "resendSignup args").to.be.deep.equals(["abcd", authHcp.traceToken, "en"]);
@@ -714,7 +738,7 @@ function testHook(): void {
       const userId = uuidv4();
       authApiHcpStubs.updatePreferences.resolves({ patientsStarred: [userId] });
       delete authHcp.user.preferences;
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       await authContext.flagPatient(userId);
       expect(authApiHcpStubs.updatePreferences.calledOnce, "updatePreferences calledOnce").to.be.true;
       const apiCall = authApiHcpStubs.updatePreferences.getCall(0).args;
@@ -726,7 +750,7 @@ function testHook(): void {
       const otherUserId = uuidv4();
       authHcp.user.preferences = { displayLanguageCode: "fr", patientsStarred: [userId, otherUserId] };
       authApiHcpStubs.updatePreferences.resolves({ displayLanguageCode: "fr", patientsStarred: [otherUserId] });
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       await authContext.flagPatient(userId);
       expect(authApiHcpStubs.updatePreferences.calledOnce, "updatePreferences calledOnce").to.be.true;
       const apiCall = authApiHcpStubs.updatePreferences.getCall(0).args;
@@ -736,20 +760,23 @@ function testHook(): void {
     it("should add another user to an existing list", async () => {
       const userId1 = uuidv4();
       const userId2 = uuidv4();
-      authApiHcpStubs.updatePreferences.onFirstCall().resolves({ patientsStarred: [userId1] });
-      authApiHcpStubs.updatePreferences.onSecondCall().resolves({ patientsStarred: [userId1, userId2] });
-      initAuthContext(authHcp, authApiHcpStubs);
+      const session = loggedInUsers.hcpSession;
+      const stubs = createAuthAPIStubs(session);
+
+      stubs.updatePreferences.onFirstCall().resolves({ patientsStarred: [userId1] });
+      stubs.updatePreferences.onSecondCall().resolves({ patientsStarred: [userId1, userId2] });
+      await initAuthContext(session, stubs);
       expect(authContext.getFlagPatients(), "authContext getFlagPatients()").to.be.an("array").empty;
 
       await authContext.flagPatient(userId1);
-      expect(authApiHcpStubs.updatePreferences.calledOnce, "updatePreferences calledOnce (0)").to.be.true;
-      let apiCall = authApiHcpStubs.updatePreferences.getCall(0).args[0] as Session;
+      expect(stubs.updatePreferences.calledOnce, "updatePreferences calledOnce (0)").to.be.true;
+      let apiCall = stubs.updatePreferences.getCall(0).args[0] as Session;
       expect(apiCall.user.preferences.patientsStarred, "apiCall patientsStarred (0)").deep.equals([userId1]);
       expect(authContext.user.preferences.patientsStarred, "authContext patientsStarred (0)").to.be.an("array").deep.equals([userId1]);
 
       await authContext.flagPatient(userId2);
-      expect(authApiHcpStubs.updatePreferences.calledTwice, "updatePreferences calledTwice (1)").to.be.true;
-      apiCall = authApiHcpStubs.updatePreferences.getCall(1).args[0] as Session;
+      expect(stubs.updatePreferences.calledTwice, "updatePreferences calledTwice (1)").to.be.true;
+      apiCall = stubs.updatePreferences.getCall(1).args[0] as Session;
       expect(apiCall.user.preferences.patientsStarred, "apiCall patientsStarred (1)").deep.equals([userId1, userId2]);
       expect(authContext.getFlagPatients(), "authContext getFlagPatients()").to.be.an("array").deep.equals([userId1, userId2]);
     });
@@ -757,7 +784,7 @@ function testHook(): void {
       const userId = uuidv4();
       authApiHcpStubs.updatePreferences.resolves({ displayLanguageCode: "fr", patientsStarred: [userId] });
       authHcp.user.preferences.patientsStarred = ["old"];
-      initAuthContext(authHcp, authApiHcpStubs);
+      await initAuthContext(authHcp, authApiHcpStubs);
       expect(authContext.getFlagPatients(), "authContext getFlagPatients() before").to.be.an("array").deep.equals(["old"]);
       await authContext.setFlagPatients([userId]);
       const after = authContext.getFlagPatients();
@@ -770,7 +797,7 @@ function testHook(): void {
 
   describe("Password", () => {
     it("sendPasswordResetEmail should call the API", async () => {
-      initAuthContext(null, authApiHcpStubs);
+      await initAuthContext(null, authApiHcpStubs);
       const username = loggedInUsers.caregiver.username;
       const language = loggedInUsers.caregiver.preferences.displayLanguageCode;
       await authContext.sendPasswordResetEmail(username, language);
@@ -779,7 +806,7 @@ function testHook(): void {
     });
     it("resetPassword should call the API", async () => {
       authApiHcpStubs.resetPassword.resolves(true);
-      initAuthContext(null, authApiHcpStubs);
+      await initAuthContext(null, authApiHcpStubs);
       const key = uuidv4();
       const username = loggedInUsers.caregiver.username;
       const password = "abcd";

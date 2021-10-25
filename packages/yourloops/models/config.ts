@@ -45,5 +45,6 @@ export interface AppConfig {
   TERMS_PRIVACY_DATE?: string;
   STONLY_WID: string;
   COOKIE_BANNER_CLIENT_ID: string;
+  SESSION_TIMEOUT: number;
   YLP820_BASAL_TIME: number;
 }

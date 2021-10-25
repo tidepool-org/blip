@@ -42,8 +42,9 @@ import brandingLogo from "branding/logo.png";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 
-import { useAuth } from "../../lib/auth";
+import { HistoryState } from "../../models/generic";
 import { Profile, UserRoles } from "../../models/shoreline";
+import { useAuth } from "../../lib/auth";
 import ConsentForm from "./form";
 
 interface ConsentProps {
@@ -101,7 +102,7 @@ const style = makeStyles((theme: Theme) => {
  */
 function Page(props: ConsentProps): JSX.Element {
   const { t } = useTranslation("yourloops");
-  const historyHook = useHistory<{ from?: { pathname?: string; }; }>();
+  const historyHook = useHistory<HistoryState>();
   const auth = useAuth();
   const classes = style();
   const [policyAccepted, setPolicyAccepted] = React.useState(false);

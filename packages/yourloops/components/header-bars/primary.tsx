@@ -216,7 +216,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   }
 
   let accountMenu = null;
-  if (auth.isLoggedIn()) {
+  if (auth.isLoggedIn) {
     const user = auth.user as User;
     const name = t("user-name", { firstName: user.getFirstName(), lastName: user.getLastName() });
     const { menuItems } = props;

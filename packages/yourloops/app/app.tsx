@@ -46,12 +46,12 @@ import PatientConsentPage from "../pages/patient/patient-consent";
 import CaregiverPage from "../pages/caregiver";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 
-/** Tell matomo the page is changed, but with a little delay, because of some async stuff  */
+/** Tell matomo the page is changed, but with a little delay, because of some async stuff */
 const trackPageView = _.debounce(() => { metrics.send("metrics", "trackPageView"); }, 1000);
 const RE_PATIENT_URL = /^\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_CAREGIVER_URL = /^\/caregiver\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_HCP_URL = /^\/professional\/patient\/[0-9a-f]+\/?(.*)/;
-const CONFIDENTIALS_PARAMS = ["signupEmail", "signupKey", "resetKey"];
+const CONFIDENTIALS_PARAMS = ["signupEmail", "signupKey", "resetKey", "login"];
 function MetricsLocationListener(): null {
   const location = useLocation();
   const locPathname = location.pathname;
@@ -78,13 +78,14 @@ function MetricsLocationListener(): null {
 
     const searchParams = new URLSearchParams(locSearch);
     let nParams = 0;
-    for (let i=0; i<CONFIDENTIALS_PARAMS.length; i++) {
-      const paramName = CONFIDENTIALS_PARAMS[i];
-      if (searchParams.has(paramName)) {
-        pathname = `${pathname}${nParams > 0 ? "&" : "?"}${paramName}=confidential`;
-        nParams++;
+    searchParams.forEach((value: string, key: string) => {
+      if (CONFIDENTIALS_PARAMS.includes(key)) {
+        pathname = `${pathname}${nParams > 0 ? "&" : "?"}${key}=confidential`;
+      } else {
+        pathname = `${pathname}${nParams > 0 ? "&" : "?"}${key}=${value}`;
       }
-    }
+      nParams++;
+    });
 
     metrics.send("metrics", "setCustomUrl", pathname);
     trackPageView();

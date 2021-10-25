@@ -37,20 +37,16 @@ import { SnackbarContext, Snackbar, DefaultSnackbarContext } from "../../../comp
 
 function testSnackbar(): void {
   const spies = {
-    error: sinon.spy(),
-    warning: sinon.spy(),
-    info: sinon.spy(),
-    success: sinon.spy(),
-    clearAlerts: sinon.spy(),
-    removeAlert: sinon.spy(),
+    error: sinon.stub(),
+    warning: sinon.stub(),
+    info: sinon.stub(),
+    success: sinon.stub(),
+    clear: sinon.stub(),
+    remove: sinon.stub(),
+    has: sinon.stub().returns(false),
   };
   const context: SnackbarContext = {
-    error: spies.error,
-    warning: spies.warning,
-    info: spies.info,
-    success: spies.success,
-    clearAlerts: spies.clearAlerts,
-    removeAlert: spies.removeAlert,
+    ...spies,
     alerts: [],
   };
 
@@ -59,8 +55,9 @@ function testSnackbar(): void {
     spies.warning.resetHistory();
     spies.info.resetHistory();
     spies.success.resetHistory();
-    spies.clearAlerts.resetHistory();
-    spies.removeAlert.resetHistory();
+    spies.clear.resetHistory();
+    spies.remove.resetHistory();
+    spies.has.resetHistory();
     context.alerts = [];
   });
 
@@ -77,8 +74,9 @@ function testSnackbar(): void {
     expect(hook.result.current.warning).to.be.a("function");
     expect(hook.result.current.info).to.be.a("function");
     expect(hook.result.current.success).to.be.a("function");
-    expect(hook.result.current.clearAlerts).to.be.a("function");
-    expect(hook.result.current.removeAlert).to.be.a("function");
+    expect(hook.result.current.clear).to.be.a("function");
+    expect(hook.result.current.remove).to.be.a("function");
+    expect(hook.result.current.has).to.be.a("function");
     expect(hook.result.current.alerts).to.be.an("array");
   });
 

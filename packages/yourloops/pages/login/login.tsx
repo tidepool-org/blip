@@ -28,7 +28,7 @@
 
 import _ from "lodash";
 import React from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useHistory } from "react-router-dom";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
 
@@ -45,6 +45,7 @@ import TextField from "@material-ui/core/TextField";
 
 import brandingLogo from "branding/logo.png";
 
+import { HistoryState } from "../../models/generic";
 import appConfig from "../../lib/config";
 import metrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
@@ -96,9 +97,13 @@ function Login(): JSX.Element {
   const auth = useAuth();
   const alert = useAlert();
   const classes = loginStyle();
+  const historyHook = useHistory<HistoryState>();
 
   const log = React.useMemo(() => bows("Login"), []);
-  const signupEmail = React.useMemo(() => new URLSearchParams(location.search).get("signupEmail"), []);
+  const urlParams = React.useMemo(() => new URLSearchParams(historyHook.location.search), [historyHook.location.search]);
+  const signupEmail = React.useMemo(() => urlParams.get("signupEmail"), [urlParams]);
+  const loginEmail = React.useMemo(() => urlParams.get("login"), [urlParams]);
+  const sessionHasExpired = React.useMemo(() => urlParams.get("sessionExpired") === "true", [urlParams]);
 
   const [username, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -113,8 +118,33 @@ function Login(): JSX.Element {
     setUserName(event.target.value);
   };
 
+  // Manage URL parameter: "sessionExpired"
   React.useEffect(() => {
-    if (signupEmail !== null && username !== signupEmail) {
+    // Add the alert only is we should display it and it is not currently displayed
+    if (sessionHasExpired && !alert.has("session-timeout")) {
+      const handleClose = () => {
+        // Remove the sessionExpired parameter
+        urlParams.delete("sessionExpired");
+        const params = urlParams.toString();
+        historyHook.push(`${historyHook.location.pathname}${params.length > 0 ? "?" : ""}${params}`, historyHook.location.state);
+      };
+
+      alert.warning(t("login-message-session-timeout"), { infiniteTimeout: true, id: "session-timeout", onClose: handleClose });
+    }
+  }, [sessionHasExpired, urlParams, historyHook, alert, t]);
+
+  // Manage URL parameter: "login"
+  React.useEffect(() => {
+    if (typeof loginEmail === "string" && username === "") {
+      setUserName(loginEmail);
+    }
+    // Don't depends on a change here, so the user can re-login with another user
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Manage URL parameter: "signupEmail"
+  React.useEffect(() => {
+    if (typeof signupEmail === "string" && username !== signupEmail) {
       setUserName(signupEmail);
     }
   }, [signupEmail, username]);
@@ -156,7 +186,7 @@ function Login(): JSX.Element {
         translatedErrorMessage = t(errorMessage);
       }
 
-      alert.error(translatedErrorMessage as string, action);
+      alert.error(translatedErrorMessage as string, { action });
       metrics.send("error", "login", errorMessage);
     }
   };
@@ -208,7 +238,7 @@ function Login(): JSX.Element {
                   label={t("email")}
                   variant="outlined"
                   value={username}
-                  disabled={signupEmail !== null || resendActivationLinkInProgress}
+                  disabled={typeof signupEmail === "string" || resendActivationLinkInProgress}
                   required
                   error={validateError && emptyUsername}
                   onChange={onUsernameChange}

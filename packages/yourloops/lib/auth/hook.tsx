@@ -34,6 +34,7 @@ import { v4 as uuidv4, validate as validateUuid } from "uuid";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
+import { HistoryState } from "../../models/generic";
 import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
 import { defer, fixYLP878Settings, numberPrecision } from "../utils";
 import { availableLanguageCodes, getCurrentLang, changeLanguage } from "../language";
@@ -87,7 +88,7 @@ const updateLanguageForUser = (user: User) => {
  * Provider hook that creates auth object and handles state
  */
 export function AuthContextImpl(api: AuthAPI): AuthContext {
-  const historyHook = useHistory<{ from?: { pathname?: string; }; }>();
+  const historyHook = useHistory<HistoryState>();
   const { t } = useTranslation("yourloops");
   // Trace token is used to trace the calls betweens different microservices API calls for debug purpose.
   const [traceToken, setTraceToken] = React.useState<string | null>(null);
@@ -95,13 +96,16 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
   const [sessionToken, setSessionToken] = React.useState<string | null>(null);
   // Current authenticated user
   const [user, setUserPrivate] = React.useState<User | null>(null);
+  const [isAuthInProgress, setAuthInProgress] = React.useState<boolean>(false);
 
   // Get the current location path, needed to redirect on refresh the page
   const pathname = historyHook.location.pathname;
-
-  const initialized = (): boolean => traceToken !== null;
-  const isLoggedIn = (): boolean => sessionToken !== null && traceToken !== null && user !== null;
-  const session = (): Session | null => sessionToken !== null && traceToken !== null && user !== null ? { sessionToken, traceToken, user } : null;
+  const isAuthHookInitialized = traceToken !== null;
+  const isLoggedIn = sessionToken !== null && traceToken !== null && user !== null;
+  const session = React.useCallback(
+    (): Session | null => sessionToken !== null && traceToken !== null && user !== null ? { sessionToken, traceToken, user } : null,
+    [sessionToken, traceToken, user]
+  );
 
   const getAuthInfos = (): Promise<Session> => {
     const s = session();
@@ -140,11 +144,8 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(u.toJSON()));
   };
 
-  // Wrap any methods we want to use making sure
-  // to save the user to state.
-  const login = async (username: string, password: string, key: string | null): Promise<User> => {
-    log.info("login", username);
-    if (traceToken === null) {
+  const loginPrivate = async (username: string, password: string, key: string | null): Promise<User> => {
+    if (!isAuthHookInitialized) {
       throw new Error("not-yet-initialized");
     }
 
@@ -182,6 +183,15 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
 
     setAuthInfos(auth.sessionToken, auth.traceToken, auth.user);
     return auth.user;
+  };
+
+  const login = (username: string, password: string, key: string | null): Promise<User> => {
+    log.info("login", username);
+    setAuthInProgress(true);
+    return loginPrivate(username, password, key).finally(() => {
+      setAuthInProgress(false);
+      log.info("login done");
+    });
   };
 
   const updatePreferences = async (preferences: Preferences, refresh = true): Promise<Preferences> => {
@@ -313,8 +323,10 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     return [];
   };
 
-  const logout = async (): Promise<void> => {
-    log.info("logout");
+  const logout = async (sessionExpired = false): Promise<void> => {
+    log.info("logout", { sessionExpired });
+    setAuthInProgress(true);
+
     try {
       const authInfo = await getAuthInfos();
       await api.logout(authInfo);
@@ -336,7 +348,14 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     setTraceToken(null);
 
     // Push the new location (this reset the state.from.pathname value)
-    historyHook.push("/");
+    if (sessionExpired && user !== null) {
+      const pathname = historyHook.location.pathname;
+      historyHook.push(`/?login=${encodeURIComponent(user.username)}&sessionExpired=true`, { from: { pathname } });
+    } else {
+      historyHook.push("/");
+    }
+    setAuthInProgress(false);
+    log.info("logout done", { sessionExpired });
   };
 
   /**
@@ -391,7 +410,9 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
   };
 
   const initHook = () => {
-    log.info("init");
+    if (isAuthInProgress) {
+      return;
+    }
 
     // TODO: Do not delete me yet
     // const onStorageChange = (ev: StorageEvent) => {
@@ -412,6 +433,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
 
     // Use traceToken to know if the API hook is initialized
     if (traceToken === null) {
+      log.info("Initializing hook from storage");
 
       const sessionTokenStored = sessionStorage.getItem(STORAGE_KEY_SESSION_TOKEN);
       const traceTokenStored = sessionStorage.getItem(STORAGE_KEY_TRACE_TOKEN);
@@ -481,14 +503,16 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     // return unmount;
   };
 
-  React.useEffect(initHook, [historyHook, pathname, traceToken, setAuthInfos]);
+  React.useEffect(initHook, [historyHook, pathname, traceToken, isAuthInProgress, setAuthInfos]);
 
   // Return the user object and auth methods
   return {
     user,
     sessionToken,
     traceToken,
-    initialized,
+    isLoggedIn,
+    isAuthInProgress,
+    isAuthHookInitialized,
     session,
     setUser,
     login,
@@ -499,7 +523,6 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     logout,
     signup,
     resendSignup,
-    isLoggedIn,
     sendPasswordResetEmail,
     resetPassword,
     flagPatient,
@@ -522,5 +545,6 @@ export function useAuth(): AuthContext {
 export function AuthContextProvider(props: AuthProvider): JSX.Element {
   const { children, api, value } = props;
   const authValue = value ?? AuthContextImpl(api ?? AuthAPIImpl); // eslint-disable-line new-cap
+
   return <ReactAuthContext.Provider value={authValue}>{children}</ReactAuthContext.Provider>;
 }

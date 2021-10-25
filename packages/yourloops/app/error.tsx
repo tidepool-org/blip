@@ -61,13 +61,18 @@ function OnError(props: OnErrorProps): JSX.Element {
   const [showMore, setShowMore] = React.useState(false);
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
+  const errorMessage = props.error?.message ?? "n/a";
+
   React.useEffect(() => {
     try {
-      metrics.send("error", "app-crash", props.error?.message ?? "n/a");
+      metrics.send("error", "app-crash", errorMessage);
     } catch (err) {
       console.error(err);
     }
-  }, [props]);
+    if (typeof window.clearSessionTimeout === "function") {
+      window.clearSessionTimeout();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleOK = () => {
     // Logout the user
@@ -84,7 +89,7 @@ function OnError(props: OnErrorProps): JSX.Element {
 
   let moreInfos: JSX.Element | null = null;
   if (showMore) {
-    const error = props.error ? `Error: ${props.error.message}\nStack: ${props.error.stack}` : "N/A";
+    const error = props.error ? `Error: ${errorMessage}\nStack: ${props.error.stack}` : "N/A";
     const info = `${props.event.toString()}\nSource: ${props.source}:${props.lineno}:${props.colno}\n${error}`;
     moreInfos = (
       <React.Fragment>

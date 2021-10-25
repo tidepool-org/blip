@@ -53,10 +53,17 @@ interface PostalAddress {
   country: string;
 }
 
+interface HistoryState {
+  from?: {
+    pathname?: string;
+  };
+}
+
 /** Number of miliseconds per 24h */
 const MS_IN_DAY = 86400000;
 
 export {
+  HistoryState,
   PostalAddress,
   Units,
   FilterType,

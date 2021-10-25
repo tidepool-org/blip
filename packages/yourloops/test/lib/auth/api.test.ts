@@ -35,9 +35,102 @@ import HttpStatus from "../../../lib/http-status-codes";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../../models/api";
 import { IUser, UserRoles, Profile, Settings, Preferences } from "../../../models/shoreline";
 import config from "../../../lib/config";
-import { Session } from "../../../lib/auth/models";
+import { Session, UpdateUser } from "../../../lib/auth/models";
 import api from "../../../lib/auth/api";
 import User from "../../../lib/auth/user";
+
+/**
+ * API Stubs
+ */
+export interface AuthAPIStubs {
+  login: sinon.SinonStub<[string, string, string], Promise<Session>>;
+  requestPasswordReset: sinon.SinonStub<[string, string, string|undefined, boolean|undefined], Promise<void>>;
+  resetPassword: sinon.SinonStub<[string, string, string, string], Promise<boolean>>;
+  signup: sinon.SinonStub<[string, string, UserRoles, string], Promise<Session>>;
+  resendSignup: sinon.SinonStub<[string, string, string|undefined], Promise<boolean>>;
+  sendAccountValidation: sinon.SinonStub<[Readonly<Session>, string|undefined], Promise<boolean>>;
+  accountConfirmed: sinon.SinonStub<string[], Promise<boolean>>;
+  updatePreferences: sinon.SinonStub<[Readonly<Session>], Promise<Preferences>>;
+  updateProfile: sinon.SinonStub<[Readonly<Session>], Promise<Profile>>;
+  updateSettings: sinon.SinonStub<[Readonly<Session>], Promise<Settings>>;
+  updateUser: sinon.SinonStub<[Readonly<Session>, UpdateUser], Promise<void>>;
+  refreshToken: sinon.SinonStub<[Readonly<Session>], Promise<string>>;
+  logout: sinon.SinonStub<[Readonly<Session>], Promise<void>>;
+}
+
+export const createAuthAPIStubs = (session: Session): AuthAPIStubs => ({
+  login: sinon.stub<[string, string, string], Promise<Session>>().resolves(session),
+  requestPasswordReset: sinon.stub<[string, string, string|undefined, boolean|undefined], Promise<void>>().resolves(),
+  resetPassword: sinon.stub<[string, string, string, string], Promise<boolean>>().resolves(true),
+  signup: sinon.stub<[string, string, UserRoles, string], Promise<Session>>().resolves(session),
+  resendSignup: sinon.stub<[string, string, string|undefined], Promise<boolean>>().resolves(true),
+  sendAccountValidation: sinon.stub<[Readonly<Session>, string|undefined], Promise<boolean>>().resolves(true),
+  accountConfirmed: sinon.stub().resolves(true),
+  updatePreferences: sinon.stub<[Session], Promise<Preferences>>().resolves(session.user.preferences),
+  updateProfile: sinon.stub<[Session], Promise<Profile>>().resolves(session.user.profile),
+  updateSettings: sinon.stub<[Session], Promise<Settings>>().resolves(session.user.settings),
+  updateUser: sinon.stub<[Readonly<Session>, UpdateUser], Promise<void>>().resolves(),
+  refreshToken: sinon.stub<[Readonly<Session>], Promise<string>>().resolves(""),
+  logout: sinon.stub<[Readonly<Session>], Promise<void>>().resolves(),
+});
+
+export const resetAuthAPIStubs = (apiStubs: AuthAPIStubs, session: Session): void => {
+  apiStubs.accountConfirmed.resetHistory();
+  apiStubs.accountConfirmed.resetBehavior();
+  apiStubs.accountConfirmed.resolves(true);
+
+  apiStubs.login.resetHistory();
+  apiStubs.login.resetBehavior();
+  apiStubs.login.resolves(session);
+
+  apiStubs.logout.resetHistory();
+  apiStubs.logout.resetBehavior();
+  apiStubs.logout.resolves();
+
+  apiStubs.refreshToken.resetHistory();
+  apiStubs.refreshToken.resetBehavior();
+  apiStubs.refreshToken.resolves("");
+
+  apiStubs.requestPasswordReset.resetHistory();
+  apiStubs.requestPasswordReset.resetBehavior();
+  apiStubs.requestPasswordReset.resolves();
+
+  apiStubs.resendSignup.resetHistory();
+  apiStubs.resendSignup.resetBehavior();
+  apiStubs.resendSignup.resolves(true);
+
+  apiStubs.resetPassword.resetHistory();
+  apiStubs.resetPassword.resetBehavior();
+  apiStubs.resetPassword.resolves(true);
+
+  apiStubs.sendAccountValidation.resetHistory();
+  apiStubs.sendAccountValidation.resetBehavior();
+  apiStubs.sendAccountValidation.resolves(true);
+
+  apiStubs.signup.resetHistory();
+  apiStubs.signup.resetBehavior();
+  apiStubs.signup.resolves(session);
+
+  apiStubs.signup.resetHistory();
+  apiStubs.signup.resetBehavior();
+  apiStubs.signup.resolves(session);
+
+  apiStubs.updatePreferences.resetHistory();
+  apiStubs.updatePreferences.resetBehavior();
+  apiStubs.updatePreferences.resolves(session.user.preferences);
+
+  apiStubs.updateProfile.resetHistory();
+  apiStubs.updateProfile.resetBehavior();
+  apiStubs.updateProfile.resolves(session.user.profile);
+
+  apiStubs.updateUser.resetHistory();
+  apiStubs.updateUser.resetBehavior();
+  apiStubs.updateUser.resolves();
+
+  apiStubs.updateSettings.resetHistory();
+  apiStubs.updateSettings.resetBehavior();
+  apiStubs.updateSettings.resolves(session.user.settings);
+};
 
 function testAPI(): void {
   let fetchMock: sinon.SinonStub<[input: RequestInfo, init?: RequestInit], Promise<Response>>;

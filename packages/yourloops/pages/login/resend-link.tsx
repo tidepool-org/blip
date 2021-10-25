@@ -77,9 +77,9 @@ function ButtonResendActivationLink(props: ButtonResendActivationLinkProps): JSX
       .finally(() => {
         setResendActivationLinkInProgress(false);
         if (resendResult) {
-          alert.success(t("success-resent-activation-link"), null, true);
+          alert.success(t("success-resent-activation-link"), { replace: true });
         } else {
-          alert.error(t("error-resent-activation-link"), null, true);
+          alert.error(t("error-resent-activation-link"), { replace: true });
         }
       });
   };

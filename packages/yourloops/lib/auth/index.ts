@@ -39,6 +39,7 @@ import {
 } from "./hook";
 
 import User from "./user";
+import SessionTimeout from "./session-timeout";
 
 export {
   AuthAPI,
@@ -47,5 +48,6 @@ export {
   User,
   SignupUser,
   AuthContextProvider,
+  SessionTimeout,
   useAuth,
 };

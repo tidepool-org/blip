@@ -40,22 +40,36 @@ export enum AlertSeverity {
   success = "success",
 }
 
+interface AlertOptions {
+  /** Custom action (usually a button) */
+  action?: JSX.Element | null;
+  /** Replace previous alerts */
+  replace?: boolean;
+  /** Alter id */
+  id?: string;
+  /** Infinite timeout: Prevent this alert to automatically disappear */
+  infiniteTimeout?: boolean;
+  /** Close alert callback */
+  onClose?: () => void;
+}
+
 export interface ApiAlert {
   message: string;
   severity: AlertSeverity;
-  id?: string;
-  action?: JSX.Element | null;
+  options: AlertOptions;
 }
 
 export interface SnackbarContext {
   /** Add a new snackbar alert, return the alert id */
-  error: (message: string, action?: JSX.Element | null, replace?: boolean, id?: string) => string;
-  warning: (message: string, action?: JSX.Element | null, replace?: boolean, id?: string) => string;
-  info: (message: string, action?: JSX.Element | null, replace?: boolean, id?: string) => string;
-  success: (message: string, action?: JSX.Element | null, replace?: boolean, id?: string) => string;
+  error: (message: string, options?: AlertOptions) => string;
+  warning: (message: string, options?: AlertOptions) => string;
+  info: (message: string, options?: AlertOptions) => string;
+  success: (message: string, options?: AlertOptions) => string;
+  /** Return true if the alert id exists */
+  has: (id: string) => boolean;
   /** Remove an alert with it's id */
-  removeAlert: (id: string) => void;
-  clearAlerts: () => void;
+  remove: (id: string) => void;
+  clear: () => void;
   alerts: Readonly<ApiAlert[]>;
 }
 
@@ -64,13 +78,37 @@ export interface SnackbarProvider {
   context: () => SnackbarContext;
 }
 
+const defaultAlertTimeout = 6000;
+const defaultAlertTimeoutWithMoreThanOneAlert = 1000;
+const alterTimeoutWithAction = 12000;
 const log = bows("Snackbar");
+
+function getAlertTimeout(numAlerts: number, options?: AlertOptions): number | null {
+  if (options?.infiniteTimeout) {
+    return null;
+  }
+  if (numAlerts > 1) {
+    return defaultAlertTimeoutWithMoreThanOneAlert;
+  }
+  if (_.isNil(options?.action)) {
+    return defaultAlertTimeout;
+  }
+  return alterTimeoutWithAction;
+}
+
 export function DefaultSnackbarContext(): SnackbarContext {
   const [alerts, setAlerts] = React.useState<ApiAlert[]>([]);
 
-  const addAlert = (severity: AlertSeverity, message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
-    const alert = { severity, message, id: id ?? _.uniqueId(), action };
-    if (replace) {
+  const addAlert = (severity: AlertSeverity, message: string, options?: AlertOptions): string => {
+    const opts: AlertOptions = {
+      action: options?.action,
+      id: options?.id ?? _.uniqueId(),
+      replace: options?.replace,
+      infiniteTimeout: options?.infiniteTimeout,
+      onClose: options?.onClose,
+    };
+    const alert: ApiAlert = { severity, message, options: opts };
+    if (options?.replace) {
       setAlerts([alert]);
     } else {
       const a = Array.from(alerts);
@@ -78,61 +116,57 @@ export function DefaultSnackbarContext(): SnackbarContext {
       setAlerts(a);
     }
     log.debug("addAlert", alert);
-    return alert.id;
+    return opts.id as string;
   };
-  const error = (message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
-    return addAlert(AlertSeverity.error, message, action, replace, id);
+  const error = (message: string, options?: AlertOptions): string => {
+    return addAlert(AlertSeverity.error, message, options);
   };
-  const warning = (message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
-    return addAlert(AlertSeverity.warning, message, action, replace, id);
+  const warning = (message: string, options?: AlertOptions): string => {
+    return addAlert(AlertSeverity.warning, message, options);
   };
-  const info = (message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
-    return addAlert(AlertSeverity.info, message, action, replace, id);
+  const info = (message: string, options?: AlertOptions): string => {
+    return addAlert(AlertSeverity.info, message, options);
   };
-  const success = (message: string, action?: JSX.Element | null, replace?: boolean, id?: string): string => {
-    return addAlert(AlertSeverity.success, message, action, replace, id);
+  const success = (message: string, options?: AlertOptions): string => {
+    return addAlert(AlertSeverity.success, message, options);
   };
-  const removeAlert = (id: string): void => {
+  const has = (id: string): boolean => {
+    return alerts.find((alert) => alert.options.id === id) !== undefined;
+  };
+  const remove = (id: string): void => {
     log.debug("removeAlert", id);
-    setAlerts(alerts.filter((a) => a.id !== id));
+    setAlerts(alerts.filter((a) => a.options?.id !== id));
   };
-  const clearAlerts = (): void => {
+  const clear = (): void => {
     log.debug("clearAlerts", alerts);
     setAlerts([]);
   };
 
-  return { error, warning, info, success, removeAlert, clearAlerts, alerts };
-}
-
-function getAlertTimeout(numAlerts: number, haveAction: boolean): number {
-  if (numAlerts > 1) {
-    return 1000;
-  }
-  if (haveAction) {
-    return 12000; // eslint-disable-line no-magic-numbers
-  }
-  return 6000; // eslint-disable-line no-magic-numbers
+  return { error, warning, info, success, remove, clear, has, alerts };
 }
 
 export const Snackbar = (props: SnackbarContext): JSX.Element => {
-  const { alerts, removeAlert } = props;
+  const { alerts, remove } = props;
   const [currentAlert, onCloseAlert] = React.useMemo(() => {
     if (alerts.length > 0) {
       const currentAlert = alerts[0];
       const onCloseAlert = () => {
-        if (typeof currentAlert.id === "string") {
-          removeAlert(currentAlert.id);
+        if (typeof currentAlert.options.onClose === "function") {
+          currentAlert.options.onClose();
+        }
+        if (typeof currentAlert.options.id === "string") {
+          remove(currentAlert.options.id);
         }
       };
       return [currentAlert, onCloseAlert];
     }
     return [null, _.noop];
-  }, [alerts, removeAlert]);
+  }, [alerts, remove]);
 
   const alertUI = React.useMemo(() => {
     if (currentAlert !== null) {
       return (
-        <Alert id="alert-message" onClose={onCloseAlert} severity={currentAlert.severity} action={currentAlert.action}>
+        <Alert id="alert-message" onClose={onCloseAlert} severity={currentAlert.severity} action={currentAlert.options.action}>
           {currentAlert.message}
         </Alert>
       );
@@ -142,9 +176,9 @@ export const Snackbar = (props: SnackbarContext): JSX.Element => {
 
   return (
     <SnackbarUI open={currentAlert !== null}
-      autoHideDuration={getAlertTimeout(alerts.length, Boolean(currentAlert?.action))}
+      autoHideDuration={getAlertTimeout(alerts.length, currentAlert?.options)}
       onClose={onCloseAlert}
-      key={currentAlert?.id ?? Number.MAX_SAFE_INTEGER}
+      key={currentAlert?.options.id ?? Number.MAX_SAFE_INTEGER}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}>
       {alertUI}
     </SnackbarUI>
@@ -156,8 +190,9 @@ const ReactSnackbarContext = React.createContext<SnackbarContext>({
   warning: _.constant(""),
   info: _.constant(""),
   success: _.constant(""),
-  clearAlerts: _.noop,
-  removeAlert: _.noop,
+  has: _.constant(false),
+  clear: _.noop,
+  remove: _.noop,
   alerts: [],
 });
 

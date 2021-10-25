@@ -33,6 +33,8 @@ declare const BUILD_CONFIG: string;
 
 const DUMMY_DOMAIN = "example.com";
 const DUMMY_URL = `https://${DUMMY_DOMAIN}/`;
+/** default to 30 min */
+const defaultSessionTimeout = 1800000;
 
 const defaultConfig: AppConfig = {
   VERSION: "0.0.0",
@@ -52,6 +54,7 @@ const defaultConfig: AppConfig = {
   STONLY_WID: "disabled",
   COOKIE_BANNER_CLIENT_ID: "disabled",
   YLP820_BASAL_TIME: 5000,
+  SESSION_TIMEOUT: defaultSessionTimeout,
   DEV: true,
   TEST: false,
 };

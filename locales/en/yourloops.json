@@ -100,6 +100,7 @@
   "list-patient-tir": "% in range",
   "list-patient-upload": "Data upload status",
   "login": "Login",
+  "login-message-session-timeout": "Your session has expired due to inactivity. Please login again",
   "menu-caregivers": "Caregivers",
   "menu-contact-support": "Customer support",
   "menu-logout": "Logout",

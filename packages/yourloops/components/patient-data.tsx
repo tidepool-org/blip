@@ -84,7 +84,7 @@ function PatientDataPage(props: PatientDataPageProps): JSX.Element | null {
   const userIsPatient = authHook.user?.role === UserRoles.patient;
   const prefixURL = userIsPatient ? props.prefixURL : `${props.prefixURL}/${paramPatientId}`;
 
-  const initialized = authHook.initialized() && teamHook.initialized && blipApi !== null;
+  const initialized = authHook.isAuthHookInitialized && teamHook.initialized && blipApi !== null;
 
   React.useEffect(() => {
     if (!initialized) {

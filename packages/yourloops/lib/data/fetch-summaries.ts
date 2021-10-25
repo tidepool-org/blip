@@ -57,6 +57,7 @@ const sendTimerMetrics = _.throttle(() => {
     const m = avgMetrics[i];
     totalTime += m.duration;
   }
+  // FIXME: don't send me if logout (or send me just before)
   metrics.send("performance", "fetch_summaries", "/professional/patients", numberPrecision(totalTime / (nMetrics * 1000)));
   avgMetrics.splice(0);
 }, 30000, { trailing: true, leading: false }); // eslint-disable-line no-magic-numbers
