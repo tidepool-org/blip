@@ -48,6 +48,7 @@ describe('api', () => {
       getPatientFromClinic: sinon.stub(),
       updateClinicPatient: sinon.stub(),
       inviteClinician: sinon.stub(),
+      getClinicianInvite: sinon.stub(),
       resendClinicianInvite: sinon.stub(),
       deleteClinicianInvite: sinon.stub(),
       getPatientInvites: sinon.stub(),
@@ -106,6 +107,7 @@ describe('api', () => {
     tidepool.getPatientFromClinic.resetHistory();
     tidepool.updateClinicPatient.resetHistory();
     tidepool.inviteClinician.resetHistory();
+    tidepool.getClinicianInvite.resetHistory();
     tidepool.resendClinicianInvite.resetHistory();
     tidepool.deleteClinicianInvite.resetHistory();
     tidepool.getPatientInvites.resetHistory();
@@ -712,6 +714,15 @@ describe('api', () => {
         const clinician = 'clinician';
         api.clinics.inviteClinician(clinicId, clinician, cb);
         sinon.assert.calledWith(tidepool.inviteClinician, clinicId, clinician, cb);
+      });
+    });
+    describe('getClinicianInvite', () => {
+      it('should call tidepool.getClinicianInvite with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId';
+        const inviteId = 'inviteId';
+        api.clinics.getClinicianInvite(clinicId, inviteId, cb);
+        sinon.assert.calledWith(tidepool.getClinicianInvite, clinicId, inviteId, cb);
       });
     });
     describe('resendClinicianInvite', () => {

@@ -866,6 +866,26 @@ export const selectedClinicId = (state = initialState.selectedClinicId, action) 
   }
 };
 
+export const pendingSentClinicianInvites = (state = initialState.pendingSentClinicianInvites, action) => {
+  switch (action.type) {
+    case types.FETCH_CLINICIAN_INVITE_SUCCESS:
+    case types.RESEND_CLINICIAN_INVITE_SUCCESS: {
+      const { invite } = action.payload;
+      const updateAction = state[invite.key] ? '$merge' : '$set';
+      return update(state, {
+        [invite.key]: { [updateAction]: invite },
+      });
+    }
+    case types.DELETE_CLINICIAN_INVITE_SUCCESS:
+      const { inviteId } = action.payload;
+      return update(state, { $set: _.omit(state, inviteId) });
+    case types.LOGOUT_REQUEST:
+      return initialState.pendingSentClinicianInvites;
+    default:
+      return state;
+  }
+};
+
 export const pendingReceivedClinicianInvites = (state = initialState.pendingReceivedClinicianInvites, action) => {
   switch(action.type) {
     case types.FETCH_CLINICIAN_INVITES_SUCCESS:

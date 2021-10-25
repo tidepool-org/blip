@@ -2985,6 +2985,49 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchClinicianInviteRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicianInviteRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINICIAN_INVITE_REQUEST', () => {
+        let action = sync.fetchClinicianInviteRequest();
+        expect(action.type).to.equal('FETCH_CLINICIAN_INVITE_REQUEST');
+      });
+    });
+
+    describe('fetchClinicianInviteSuccess', () => {
+      let invite = {key:'inviteId1'};
+      let clinicId = 'clinicId123';
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicianInviteSuccess(invite);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINICIAN_INVITE_SUCCESS', () => {
+        let action = sync.fetchClinicianInviteSuccess(invite, clinicId);
+        expect(action.type).to.equal('FETCH_CLINICIAN_INVITE_SUCCESS');
+        expect(action.payload.invite).to.equal(invite);
+        expect(action.payload.clinicId).to.equal(clinicId);
+      });
+    });
+
+    describe('fetchClinicianInviteFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching clinician invite failed :(');
+        let action = sync.fetchClinicianInviteFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINICIAN_INVITE_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchClinicianInviteFailure(error);
+        expect(action.type).to.equal('FETCH_CLINICIAN_INVITE_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('sendClinicianInviteRequest', () => {
       it('should be a TSA', () => {
         let action = sync.sendClinicianInviteRequest();
@@ -3051,7 +3094,7 @@ describe('Actions', () => {
       it('type should equal RESEND_CLINICIAN_INVITE_SUCCESS', () => {
         let action = sync.resendClinicianInviteSuccess(result);
         expect(action.type).to.equal('RESEND_CLINICIAN_INVITE_SUCCESS');
-        expect(action.payload.result).to.equal(result);
+        expect(action.payload.invite).to.equal(result);
       });
     });
 

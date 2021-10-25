@@ -1567,6 +1567,32 @@ export function updateClinicPatientFailure(error, apiError) {
   };
 }
 
+export function fetchClinicianInviteRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINICIAN_INVITE_REQUEST,
+  };
+}
+
+export function fetchClinicianInviteSuccess(invite, clinicId) {
+  return {
+    type: ActionTypes.FETCH_CLINICIAN_INVITE_SUCCESS,
+    payload: {
+      invite,
+      clinicId
+    },
+  };
+}
+
+export function fetchClinicianInviteFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINICIAN_INVITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function sendClinicianInviteRequest() {
   return {
     type: ActionTypes.SEND_CLINICIAN_INVITE_REQUEST,
@@ -1599,11 +1625,11 @@ export function resendClinicianInviteRequest() {
   };
 }
 
-export function resendClinicianInviteSuccess(result) {
+export function resendClinicianInviteSuccess(invite) {
   return {
     type: ActionTypes.RESEND_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      result: result,
+      invite,
     },
   };
 }

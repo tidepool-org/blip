@@ -2120,6 +2120,29 @@ export function sendClinicianInvite(api, clinicId, clinician) {
 }
 
 /**
+ * Fetch Clinician Invite Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - clinic ID
+ * @param {Object} inviteId - clinician Invite object
+ */
+ export function fetchClinicianInvite(api, clinicId, inviteId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicianInviteRequest());
+
+    api.clinics.getClinicianInvite(clinicId, inviteId, (err, invite) => {
+      if (err) {
+        dispatch(sync.fetchClinicianInviteFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicianInviteSuccess(invite, clinicId));
+      }
+    });
+  };
+}
+
+/**
  * Resend Clinician Invite Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper

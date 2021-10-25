@@ -94,7 +94,6 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_CLINIC_REQUEST:
     case types.FETCH_CLINICS_BY_IDS_REQUEST:
     case types.UPDATE_CLINIC_REQUEST:
-    case types._REQUEST:
     case types.FETCH_CLINICIANS_FROM_CLINIC_REQUEST:
     case types.FETCH_CLINICIAN_REQUEST:
     case types.UPDATE_CLINICIAN_REQUEST:
@@ -105,6 +104,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_REQUEST:
     case types.SEND_CLINICIAN_INVITE_REQUEST:
+    case types.FETCH_CLINICIAN_INVITE_REQUEST:
     case types.RESEND_CLINICIAN_INVITE_REQUEST:
     case types.DELETE_CLINICIAN_INVITE_REQUEST:
     case types.FETCH_PATIENT_INVITES_REQUEST:
@@ -149,6 +149,7 @@ export default (state = initialWorkingState, action) => {
           types.DELETE_PATIENT_FROM_CLINIC_REQUEST,
           types.CREATE_CUSTODIAL_ACCOUNT_REQUEST,
           types.SEND_CLINICIAN_INVITE_REQUEST,
+          types.FETCH_CLINICIAN_INVITE_REQUEST,
           types.SEND_INVITE_REQUEST,
           types.SEND_CLINIC_INVITE_REQUEST,
           types.RESEND_INVITE_REQUEST,
@@ -252,6 +253,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_SUCCESS:
     case types.SEND_CLINICIAN_INVITE_SUCCESS:
+    case types.FETCH_CLINICIAN_INVITE_SUCCESS:
     case types.RESEND_CLINICIAN_INVITE_SUCCESS:
     case types.DELETE_CLINICIAN_INVITE_SUCCESS:
     case types.FETCH_PATIENT_INVITES_SUCCESS:
@@ -400,6 +402,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_FAILURE:
     case types.SEND_CLINICIAN_INVITE_FAILURE:
+    case types.FETCH_CLINICIAN_INVITE_FAILURE:
     case types.RESEND_CLINICIAN_INVITE_FAILURE:
     case types.DELETE_CLINICIAN_INVITE_FAILURE:
     case types.FETCH_PATIENT_INVITES_FAILURE:
