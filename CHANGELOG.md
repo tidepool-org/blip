@@ -4,7 +4,7 @@ It is based on Tidepool Blip 1.27.
 
 ## Unreleased
 ### Added
-- YLP-68 Implement session timeout
+- YLP-62 Implement session timeout
 ### Changed
 - YLP-662 Rework events tagging for Matomo
 - YLP-996 Restructure account preferences page
