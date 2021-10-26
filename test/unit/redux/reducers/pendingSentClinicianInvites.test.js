@@ -138,7 +138,7 @@ describe('pendingSentClinicianInvites', () => {
   });
 
   describe('logoutRequest', () => {
-    it('should set to an empty array', () => {
+    it('should set to an empty object', () => {
       let initialStateForTest = {
         xyz123zyx: { key: 'xyz123zyx', email: 'g@g.com' },
         abc987cba: { key: 'abc987cba', email: 'a@a.com' }
