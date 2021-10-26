@@ -247,7 +247,7 @@ export const ClinicAdmin = (props) => {
   }
 
   function handleResendInvite(invite) {
-    trackMetric('Clinic - Resend clinic team invite');
+    trackMetric('Clinic - Resend clinic team invite', { clinicId: selectedClinicId });
     setSelectedInvite(invite);
     if(!has(pendingSentClinicianInvites, invite.inviteId)){
       dispatch(
