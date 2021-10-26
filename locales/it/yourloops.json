@@ -100,6 +100,7 @@
   "list-patient-tir": "% nell’intervallo",
   "list-patient-upload": "Stato caricamento dei dati",
   "login": "Accedi",
+  "login-message-session-timeout": "La Sua sessione è scaduta per inattività. Per favore acceda di nuovo",
   "menu-caregivers": "Caregiver",
   "menu-contact-support": "Servizio Clienti",
   "menu-logout": "Esci",

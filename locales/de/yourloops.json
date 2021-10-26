@@ -100,6 +100,7 @@
   "list-patient-tir": "% innerhalb des Zielbereichs",
   "list-patient-upload": "Status Datenübertragung",
   "login": "Anmelden",
+  "login-message-session-timeout": "Ihre Sitzung ist aufgrund von Inaktivität abgelaufen. Bitte melden Sie sich erneut an",
   "menu-caregivers": "Hilfspersonen",
   "menu-contact-support": "Kundendienst",
   "menu-logout": "Abmeldung",
