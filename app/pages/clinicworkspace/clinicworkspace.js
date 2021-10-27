@@ -38,7 +38,8 @@ export const ClinicWorkspace = (props) => {
   const patientInvites = filter(values(clinic?.patients), patient => patient.status === 'pending');
   const [selectedPatient, setSelectedPatient] = useState();
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
-
+  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: 'tidepool.org', offset: 2 });
+  console.log('patientFetchOptions', patientFetchOptions);
   const tabIndices = {
     patients: 0,
     invites: 1,
@@ -84,7 +85,7 @@ export const ClinicWorkspace = (props) => {
         },
         {
           workingState: fetchingPatientsForClinic,
-          action: actions.async.fetchPatientsForClinic.bind(null, api, clinic.id),
+          action: actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, patientFetchOptions),
         },
       ], ({ workingState, action }) => {
         if (
