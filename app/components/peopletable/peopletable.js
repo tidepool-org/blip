@@ -105,7 +105,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   renderHeader() {
     const { t } = this.props;
-    const toggleLabel = this.state.showNames ? t('Hide All') : t('Show All');
+    const hiddenStyles = { visibility: 'hidden', height: 0 };
 
     return (
       <Flex mb={4} alignItems="center" justifyContent="space-between">
@@ -120,20 +120,11 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
           flexGrow={0}
           pt={4}
         >
-          <Button
-            id="patients-view-toggle"
-            variant="textSecondary"
-            disabled={!_.isEmpty(this.state.search)}
-            onClick={this.handleToggleShowNames}
-            mr={2}
-          >
-            {toggleLabel}
-          </Button>
-
           <TextInput
             themeProps={{
               width: 'auto',
               minWidth: '250px',
+              mr: 2,
             }}
             id="patients-search"
             placeholder={t('Search by Name')}
@@ -145,6 +136,16 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
             value={this.state.search}
             variant="condensed"
           />
+
+          <Button
+            id="patients-view-toggle"
+            variant="textSecondary"
+            disabled={!_.isEmpty(this.state.search)}
+            onClick={this.handleToggleShowNames}
+          >
+            <Text sx={this.state.showNames ? hiddenStyles : undefined}>{t('Show All')}</Text>
+            <Text sx={this.state.showNames ? undefined : hiddenStyles}>{t('Hide All')}</Text>
+          </Button>
         </Flex>
       </Flex>
     );
