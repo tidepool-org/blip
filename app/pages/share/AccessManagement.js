@@ -71,7 +71,7 @@ export const AccessManagement = (props) => {
   const membersOfTargetCareTeam = useSelector((state) => state.blip.membersOfTargetCareTeam);
   const pendingSentInvites = useSelector((state) => state.blip.pendingSentInvites);
   const permissionsOfMembersInTargetCareTeam = useSelector((state) => state.blip.permissionsOfMembersInTargetCareTeam);
-  const timePrefs = useSelector((state) => state.timePrefs);
+  const timePrefs = useSelector((state) => state.blip.timePrefs);
 
   const {
     cancellingSentInvite,

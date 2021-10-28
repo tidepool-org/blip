@@ -309,6 +309,11 @@ export default (type) => {
     case types.SEND_CLINICIAN_INVITE_FAILURE:
       return 'sendingClinicianInvite';
 
+    case types.FETCH_CLINICIAN_INVITE_REQUEST:
+    case types.FETCH_CLINICIAN_INVITE_SUCCESS:
+    case types.FETCH_CLINICIAN_INVITE_FAILURE:
+      return 'fetchingClinicianInvite';
+
     case types.RESEND_CLINICIAN_INVITE_REQUEST:
     case types.RESEND_CLINICIAN_INVITE_SUCCESS:
     case types.RESEND_CLINICIAN_INVITE_FAILURE:
