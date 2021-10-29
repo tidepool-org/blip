@@ -428,10 +428,10 @@ describe('AccessManagement', () => {
 
       // Click revoke invitation button to open confirmation modal
       expect(popoverActionButtons.at(0).text()).contains('Revoke invitation');
-      expect(wrapper.find(Dialog).props().open).to.be.false;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(0).props().onClick();
       wrapper.update();
-      expect(wrapper.find(Dialog).props().open).to.be.true;
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
 
       // Confirm delete in modal
       const deleteButton = wrapper.find('button.remove-account-access');
