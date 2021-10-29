@@ -71,7 +71,7 @@ export const AccessManagement = (props) => {
   const membersOfTargetCareTeam = useSelector((state) => state.blip.membersOfTargetCareTeam);
   const pendingSentInvites = useSelector((state) => state.blip.pendingSentInvites);
   const permissionsOfMembersInTargetCareTeam = useSelector((state) => state.blip.permissionsOfMembersInTargetCareTeam);
-  const timePrefs = useSelector((state) => state.timePrefs);
+  const timePrefs = useSelector((state) => state.blip.timePrefs);
 
   const {
     cancellingSentInvite,
@@ -454,7 +454,7 @@ export const AccessManagement = (props) => {
     }
 
     if (member.type === 'careteam_invitation') {
-      if (member.role === 'member') items.push({
+      if (member.role === 'member' && member.status !== 'declined') items.push({
         disabled: resendingInvite.inProgress,
         icon: InputIcon,
         iconLabel: t('Resend invitation'),

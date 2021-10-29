@@ -91,6 +91,7 @@ export const ERR_CREATING_CUSTODIAL_ACCOUNT = t('Something went wrong while addi
 export const ERR_FETCHING_PATIENT_FROM_CLINIC = t('Something went wrong while fetching patient from clinic.');
 export const ERR_UPDATING_CLINIC_PATIENT = t('Something went wrong while updating clinic patient.');
 export const ERR_SENDING_CLINICIAN_INVITE = t('Something went wrong while sending clinician invite.');
+export const ERR_FETCHING_CLINICIAN_INVITE = t('Something went wrong while fetching clinician invite.');
 export const ERR_RESENDING_CLINICIAN_INVITE = t('Something went wrong while resending clinician invite.');
 export const ERR_DELETING_CLINICIAN_INVITE = t('Something went wrong while deleting clinician invite.');
 export const ERR_FETCHING_PATIENT_INVITES = t('Something went wrong while fetching patient invites.');

@@ -933,6 +933,10 @@ api.clinics.inviteClinician = function(clinicId, clinician, cb) {
   return tidepool.inviteClinician(clinicId, clinician, cb);
 };
 
+api.clinics.getClinicianInvite = function(clinicId, inviteId, cb) {
+  return tidepool.getClinicianInvite(clinicId, inviteId, cb);
+};
+
 api.clinics.resendClinicianInvite = function(clinicId, inviteId, cb) {
   return tidepool.resendClinicianInvite(clinicId, inviteId, cb);
 };
