@@ -5738,6 +5738,69 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchClinicianInvite', () => {
+      it('should trigger FETCH_CLINICIAN_INVITE_SUCCESS and it should call clinics.getClinicianInvite once for a successful request', () => {
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let inviteId = 'inviteId123';
+        let invite = {
+          key: inviteId
+        }
+
+        let api = {
+          clinics: {
+            getClinicianInvite: sinon.stub().callsArgWith(2, null, invite),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_CLINICIAN_INVITE_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITE_SUCCESS', payload: {
+            clinicId,
+            invite
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicianInvite(api, clinicId, inviteId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getClinicianInvite.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_CLINICIAN_INVITE_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let inviteId = 'inviteId123';
+        let api = {
+          clinics: {
+            getClinicianInvite: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_CLINICIAN_INVITE_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicianInvite(api, clinicId, inviteId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getClinicianInvite.callCount).to.equal(1);
+      });
+    });
+
     describe('resendClinicianInvite', () => {
       it('should trigger RESEND_CLINICIAN_INVITE_SUCCESS and it should call clinics.resendClinicianInvite once for a successful request', () => {
         let inviteId = 'resendinvite'
@@ -5752,7 +5815,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'RESEND_CLINICIAN_INVITE_REQUEST' },
           { type: 'RESEND_CLINICIAN_INVITE_SUCCESS', payload: {
-            result:{},
+            invite:{},
           } }
         ];
         _.each(expectedActions, (action) => {

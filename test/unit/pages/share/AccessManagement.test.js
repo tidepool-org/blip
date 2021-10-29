@@ -185,6 +185,13 @@ describe('AccessManagement', () => {
           status: 'declined',
           type: 'careteam_invitation',
         },
+        {
+          email: 'pendingpatient@example.com',
+          key: '789',
+          context: { view: {}, upload: {} },
+          status: 'pending',
+          type: 'careteam_invitation',
+        },
       ],
     },
   });
@@ -269,8 +276,8 @@ describe('AccessManagement', () => {
     it('should render a Table when data is available', () => {
       const table = wrapper.find(Table);
       expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(5); // data (member + clinic share, member + clinic invite) + header
-      expect(table.find('td')).to.have.length(16);
+      expect(table.find('tr')).to.have.length(6); // data (member + clinic share, 2 member + clinic invites) + header
+      expect(table.find('td')).to.have.length(20);
     });
 
     it('should render a "More" icon that opens a popover menu', () => {
@@ -341,11 +348,11 @@ describe('AccessManagement', () => {
       );
     });
 
-    it('should render appropriate popover actions for a care team invitation', () => {
+    it('should render appropriate popover actions for a pending care team invitation', () => {
       const table = wrapper.find(Table)
 
       const accountRow = table.find('tr').at(4);
-      expect(accountRow.text()).contains('yetanotherpatient@example.com').and.contains('invite declined').and.contains('member');
+      expect(accountRow.text()).contains('pendingpatient@example.com').and.contains('invite sent').and.contains('member');
 
       const popoverMenu = accountRow.find('PopoverMenu');
       expect(popoverMenu).to.have.length(1);
@@ -378,7 +385,7 @@ describe('AccessManagement', () => {
 
       sinon.assert.calledWith(
         defaultProps.api.invitation.resend,
-        '456'
+        '789'
       );
 
       // Click revoke invitation button to open confirmation modal
@@ -393,6 +400,44 @@ describe('AccessManagement', () => {
       expect(deleteButton).to.have.length(1);
       deleteButton.props().onClick();
       expect(actions()[1]).to.eql(expectedActions[1]);
+
+      sinon.assert.calledWith(
+        defaultProps.api.invitation.cancel,
+        'pendingpatient@example.com',
+      );
+    });
+
+    it('should render appropriate popover actions for a declined care team invitation', () => {
+      const table = wrapper.find(Table)
+
+      const accountRow = table.find('tr').at(5);
+      expect(accountRow.text()).contains('yetanotherpatient@example.com').and.contains('invite declined').and.contains('member');
+
+      const popoverMenu = accountRow.find('PopoverMenu');
+      expect(popoverMenu).to.have.length(1);
+      const popoverActionButtons = popoverMenu.find('button.action-list-item');
+      expect(popoverActionButtons).to.have.length(1)
+
+      const expectedActions = [
+        {
+          type: 'CANCEL_SENT_INVITE_REQUEST',
+        },
+      ];
+
+      const actions = () => store.getActions();
+
+      // Click revoke invitation button to open confirmation modal
+      expect(popoverActionButtons.at(0).text()).contains('Revoke invitation');
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
+      popoverActionButtons.at(0).props().onClick();
+      wrapper.update();
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
+
+      // Confirm delete in modal
+      const deleteButton = wrapper.find('button.remove-account-access');
+      expect(deleteButton).to.have.length(1);
+      deleteButton.props().onClick();
+      expect(actions()[0]).to.eql(expectedActions[0]);
 
       sinon.assert.calledWith(
         defaultProps.api.invitation.cancel,
