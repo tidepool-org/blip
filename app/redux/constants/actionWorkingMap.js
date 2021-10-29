@@ -32,10 +32,10 @@ export default (type) => {
     case types.FETCH_PATIENT_DATA_FAILURE:
       return 'fetchingPatientData';
 
-    case types.FETCH_PRESCRIPTIONS_REQUEST:
-    case types.FETCH_PRESCRIPTIONS_SUCCESS:
-    case types.FETCH_PRESCRIPTIONS_FAILURE:
-      return 'fetchingPrescriptions';
+    case types.FETCH_CLINIC_PRESCRIPTIONS_REQUEST:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_FAILURE:
+      return 'fetchingClinicPrescriptions';
 
     case types.CREATE_PRESCRIPTION_REQUEST:
     case types.CREATE_PRESCRIPTION_SUCCESS:
@@ -309,6 +309,11 @@ export default (type) => {
     case types.SEND_CLINICIAN_INVITE_FAILURE:
       return 'sendingClinicianInvite';
 
+    case types.FETCH_CLINICIAN_INVITE_REQUEST:
+    case types.FETCH_CLINICIAN_INVITE_SUCCESS:
+    case types.FETCH_CLINICIAN_INVITE_FAILURE:
+      return 'fetchingClinicianInvite';
+
     case types.RESEND_CLINICIAN_INVITE_REQUEST:
     case types.RESEND_CLINICIAN_INVITE_SUCCESS:
     case types.RESEND_CLINICIAN_INVITE_FAILURE:
@@ -363,6 +368,11 @@ export default (type) => {
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
       return 'fetchingClinicsForClinician';
+
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
+      return 'triggeringInitialClinicMigration';
 
     default:
       return null;

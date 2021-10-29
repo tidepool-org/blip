@@ -836,20 +836,20 @@ api.metrics.track = function(eventName, properties, cb) {
 
 api.prescription = {};
 
-api.prescription.getAll = function(cb) {
-  return tidepool.getPrescriptions(cb);
+api.prescription.getAllForClinic = function(clinicId, cb) {
+  return tidepool.getPrescriptionsForClinic(clinicId, cb);
 };
 
-api.prescription.create = function(prescription, cb) {
-  return tidepool.createPrescription(prescription, cb);
+api.prescription.create = function(clinicId, prescription, cb) {
+  return tidepool.createPrescription(clinicId, prescription, cb);
 };
 
-api.prescription.createRevision = function(revision, prescriptionId, cb) {
-  return tidepool.createPrescriptionRevision(revision, prescriptionId, cb);
+api.prescription.createRevision = function(clinicId, revision, prescriptionId, cb) {
+  return tidepool.createPrescriptionRevision(clinicId, revision, prescriptionId, cb);
 };
 
-api.prescription.delete = function(prescriptionId, cb) {
-  return tidepool.deletePrescription(prescriptionId, cb);
+api.prescription.delete = function(clinicId, prescriptionId, cb) {
+  return tidepool.deletePrescription(clinicId, prescriptionId, cb);
 };
 
 // ----- Devices -----
@@ -933,6 +933,10 @@ api.clinics.inviteClinician = function(clinicId, clinician, cb) {
   return tidepool.inviteClinician(clinicId, clinician, cb);
 };
 
+api.clinics.getClinicianInvite = function(clinicId, inviteId, cb) {
+  return tidepool.getClinicianInvite(clinicId, inviteId, cb);
+};
+
 api.clinics.resendClinicianInvite = function(clinicId, inviteId, cb) {
   return tidepool.resendClinicianInvite(clinicId, inviteId, cb);
 };
@@ -983,6 +987,10 @@ api.clinics.inviteClinic = function(shareCode, permissions, patientId, cb) {
 
 api.clinics.getClinicByShareCode = function(shareCode, cb) {
   return tidepool.getClinicByShareCode(shareCode, cb);
+};
+
+api.clinics.triggerInitialClinicMigration = function(clinicId, cb) {
+  return tidepool.triggerInitialClinicMigration(clinicId, cb);
 };
 
 // ----- Errors -----

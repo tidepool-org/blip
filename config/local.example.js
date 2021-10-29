@@ -21,6 +21,7 @@ const linkedPackages = {
 
 const featureFlags = {
   i18nEnabled: false,
+  pendoEnabled: true,
   rxEnabled: false,
   clinicsEnabled: false,
 };
@@ -40,4 +41,4 @@ module.exports = {
   linkedPackages,
   featureFlags,
   apiHost,
-}
+};

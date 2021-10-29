@@ -1763,53 +1763,53 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPrescriptionsRequest', () => {
+    describe('fetchClinicPrescriptionsRequest', () => {
       it('should be a TSA', () => {
-        let action = sync.fetchPrescriptionsRequest();
+        let action = sync.fetchClinicPrescriptionsRequest();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PRESCRIPTIONS_REQUEST', () => {
-        let action = sync.fetchPrescriptionsRequest();
-        expect(action.type).to.equal('FETCH_PRESCRIPTIONS_REQUEST');
+      it('type should equal FETCH_CLINIC_PRESCRIPTIONS_REQUEST', () => {
+        let action = sync.fetchClinicPrescriptionsRequest();
+        expect(action.type).to.equal('FETCH_CLINIC_PRESCRIPTIONS_REQUEST');
       });
     });
 
-    describe('fetchPrescriptionsSuccess', () => {
+    describe('fetchClinicPrescriptionsSuccess', () => {
       it('should be a TSA', () => {
         let prescriptions = [
           { id: 'one' }
         ];
-        let action = sync.fetchPrescriptionsSuccess(prescriptions);
+        let action = sync.fetchClinicPrescriptionsSuccess(prescriptions);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PRESCRIPTIONS_SUCCESS', () => {
+      it('type should equal FETCH_CLINIC_PRESCRIPTIONS_SUCCESS', () => {
         let prescriptions = [
           { id: 'one' }
         ];
-        let action = sync.fetchPrescriptionsSuccess(prescriptions);
+        let action = sync.fetchClinicPrescriptionsSuccess(prescriptions);
 
-        expect(action.type).to.equal('FETCH_PRESCRIPTIONS_SUCCESS');
+        expect(action.type).to.equal('FETCH_CLINIC_PRESCRIPTIONS_SUCCESS');
         expect(action.payload.prescriptions).to.equal(prescriptions);
       });
     });
 
-    describe('fetchPrescriptionsFailure', () => {
+    describe('fetchClinicPrescriptionsFailure', () => {
       it('should be a TSA', () => {
         let error = new Error(':(');
-        let action = sync.fetchPrescriptionsFailure(error);
+        let action = sync.fetchClinicPrescriptionsFailure(error);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PRESCRIPTIONS_FAILURE and error should equal passed error', () => {
+      it('type should equal FETCH_CLINIC_PRESCRIPTIONS_FAILURE and error should equal passed error', () => {
         let error = new Error(':(');
-        let action = sync.fetchPrescriptionsFailure(error);
+        let action = sync.fetchClinicPrescriptionsFailure(error);
 
-        expect(action.type).to.equal('FETCH_PRESCRIPTIONS_FAILURE');
+        expect(action.type).to.equal('FETCH_CLINIC_PRESCRIPTIONS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
@@ -2823,16 +2823,18 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientsForClinicSuccess', () => {
-      let patients = [{clinicId: 'clinicId', patientId: 'patientId'}];
+      let clinicId = 'clinicId';
+      let patients = [{clinicId, patientId: 'patientId'}];
       it('should be a TSA', () => {
-        let action = sync.fetchPatientsForClinicSuccess(patients);
+        let action = sync.fetchPatientsForClinicSuccess(clinicId, patients);
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENTS_FOR_CLINIC_SUCCESS', () => {
-        let action = sync.fetchPatientsForClinicSuccess(patients);
+        let action = sync.fetchPatientsForClinicSuccess(clinicId, patients);
         expect(action.type).to.equal('FETCH_PATIENTS_FOR_CLINIC_SUCCESS');
         expect(action.payload.patients).to.equal(patients);
+        expect(action.payload.clinicId).to.equal(clinicId);
       });
     });
 
@@ -2983,6 +2985,49 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchClinicianInviteRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicianInviteRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINICIAN_INVITE_REQUEST', () => {
+        let action = sync.fetchClinicianInviteRequest();
+        expect(action.type).to.equal('FETCH_CLINICIAN_INVITE_REQUEST');
+      });
+    });
+
+    describe('fetchClinicianInviteSuccess', () => {
+      let invite = {key:'inviteId1'};
+      let clinicId = 'clinicId123';
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicianInviteSuccess(invite);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINICIAN_INVITE_SUCCESS', () => {
+        let action = sync.fetchClinicianInviteSuccess(invite, clinicId);
+        expect(action.type).to.equal('FETCH_CLINICIAN_INVITE_SUCCESS');
+        expect(action.payload.invite).to.equal(invite);
+        expect(action.payload.clinicId).to.equal(clinicId);
+      });
+    });
+
+    describe('fetchClinicianInviteFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching clinician invite failed :(');
+        let action = sync.fetchClinicianInviteFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINICIAN_INVITE_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchClinicianInviteFailure(error);
+        expect(action.type).to.equal('FETCH_CLINICIAN_INVITE_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('sendClinicianInviteRequest', () => {
       it('should be a TSA', () => {
         let action = sync.sendClinicianInviteRequest();
@@ -3049,7 +3094,7 @@ describe('Actions', () => {
       it('type should equal RESEND_CLINICIAN_INVITE_SUCCESS', () => {
         let action = sync.resendClinicianInviteSuccess(result);
         expect(action.type).to.equal('RESEND_CLINICIAN_INVITE_SUCCESS');
-        expect(action.payload.result).to.equal(result);
+        expect(action.payload.invite).to.equal(result);
       });
     });
 
@@ -3167,16 +3212,18 @@ describe('Actions', () => {
     });
 
     describe('acceptPatientInvitationSuccess', () => {
-      let result = {}
+      const clinicId = 'clinicId';
+      const inviteId = 'inviteId';
       it('should be a TSA', () => {
-        let action = sync.acceptPatientInvitationSuccess(result);
+        let action = sync.acceptPatientInvitationSuccess(clinicId, inviteId);
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_PATIENT_INVITATION_SUCCESS', () => {
-        let action = sync.acceptPatientInvitationSuccess(result);
+        let action = sync.acceptPatientInvitationSuccess(clinicId, inviteId);
         expect(action.type).to.equal('ACCEPT_PATIENT_INVITATION_SUCCESS');
-        expect(action.payload.result).to.equal(result);
+        expect(action.payload.clinicId).to.equal(clinicId);
+        expect(action.payload.inviteId).to.equal(inviteId);
       });
     });
 
@@ -3209,24 +3256,20 @@ describe('Actions', () => {
     });
 
     describe('deletePatientInvitationSuccess', () => {
+      const clinicId = 'clinicId';
+      const inviteId = 'inviteId';
       it('should be a TSA', () => {
-        let invite = {
-          email: 'joe@google.com',
-          permissions: {
-            view: true,
-            clear: true
-          }
-        };
-        let action = sync.deletePatientInvitationSuccess(invite);
+        let action = sync.deletePatientInvitationSuccess(clinicId, inviteId);
 
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal DELETE_PATIENT_INVITATION_SUCCESS', () => {
         let inviteId = 'inviteId';
-        let action = sync.deletePatientInvitationSuccess(inviteId);
+        let action = sync.deletePatientInvitationSuccess(clinicId, inviteId);
 
         expect(action.type).to.equal('DELETE_PATIENT_INVITATION_SUCCESS');
+        expect(action.payload.clinicId).to.equal(clinicId);
         expect(action.payload.inviteId).to.equal(inviteId);
       });
     });
@@ -3388,16 +3431,16 @@ describe('Actions', () => {
     });
 
     describe('acceptClinicianInviteSuccess', () => {
-      let result = {};
+      let inviteId = 'inviteId';
       it('should be a TSA', () => {
-        let action = sync.acceptClinicianInviteSuccess(result);
+        let action = sync.acceptClinicianInviteSuccess(inviteId);
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_CLINICIAN_INVITE_SUCCESS', () => {
-        let action = sync.acceptClinicianInviteSuccess(result);
+        let action = sync.acceptClinicianInviteSuccess(inviteId);
         expect(action.type).to.equal('ACCEPT_CLINICIAN_INVITE_SUCCESS');
-        expect(action.payload.result).to.equal(result);
+        expect(action.payload.inviteId).to.equal(inviteId);
       });
     });
 
@@ -3429,16 +3472,16 @@ describe('Actions', () => {
     });
 
     describe('dismissClinicianInviteSuccess', () => {
-      let result = {};
+      let inviteId = 'inviteId';
       it('should be a TSA', () => {
-        let action = sync.dismissClinicianInviteSuccess(result);
+        let action = sync.dismissClinicianInviteSuccess(inviteId);
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal DISMISS_CLINICIAN_INVITE_SUCCESS', () => {
-        let action = sync.dismissClinicianInviteSuccess(result);
+        let action = sync.dismissClinicianInviteSuccess(inviteId);
         expect(action.type).to.equal('DISMISS_CLINICIAN_INVITE_SUCCESS');
-        expect(action.payload.result).to.equal(result);
+        expect(action.payload.inviteId).to.equal(inviteId);
       });
     });
 
@@ -3500,6 +3543,61 @@ describe('Actions', () => {
         expect(action.error).to.equal(error);
       });
     });
+  });
 
+  describe('selectClinic', () => {
+    it('should be a TSA', () => {
+      let action = sync.selectClinic();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SELECT_CLINIC', () => {
+      let clinicId = 'clinicId'
+      let action = sync.selectClinic(clinicId);
+      expect(action.type).to.equal('SELECT_CLINIC');
+      expect(action.payload.clinicId).to.equal(clinicId);
+    });
+  });
+
+  describe('triggerInitialClinicMigrationRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.triggerInitialClinicMigrationRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST', () => {
+      let action = sync.triggerInitialClinicMigrationRequest();
+      expect(action.type).to.equal('TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST');
+    });
+  });
+
+  describe('triggerInitialClinicMigrationSuccess', () => {
+    const clinicId = 'clinicId';
+
+    it('should be a TSA', () => {
+      let action = sync.triggerInitialClinicMigrationSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS', () => {
+      let action = sync.triggerInitialClinicMigrationSuccess(clinicId);
+      expect(action.type).to.equal('TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId');
+    });
+  });
+
+  describe('triggerInitialClinicMigrationFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('clinic migration failed :(');
+      let action = sync.triggerInitialClinicMigrationFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.triggerInitialClinicMigrationFailure(error);
+      expect(action.type).to.equal('TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE');
+      expect(action.error).to.equal(error);
+    });
   });
 });

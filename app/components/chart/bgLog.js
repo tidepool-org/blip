@@ -52,7 +52,7 @@ class BgLogChart extends Component {
     onClickValues: PropTypes.func.isRequired,
     onSelectSMBG: PropTypes.func.isRequired,
     onTransition: PropTypes.func.isRequired,
-    isClinicAccount: PropTypes.bool.isRequired,
+    isClinicianAccount: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -127,7 +127,7 @@ class BgLogChart extends Component {
       this.chart.load(data);
     }
 
-    if (this.props.isClinicAccount || showingValues) {
+    if (this.props.isClinicianAccount || showingValues) {
       this.chart.showValues();
     }
   };
@@ -177,7 +177,7 @@ class BgLog extends Component {
     chartPrefs: PropTypes.object.isRequired,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
-    isClinicAccount: PropTypes.bool.isRequired,
+    isClinicianAccount: PropTypes.bool.isRequired,
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
     onClickNoDataRefresh: PropTypes.func.isRequired,
@@ -207,7 +207,7 @@ class BgLog extends Component {
     return {
       atMostRecent: false,
       inTransition: false,
-      showingValues: this.props.isClinicAccount,
+      showingValues: this.props.isClinicianAccount,
       title: '',
     };
   };
@@ -292,7 +292,7 @@ class BgLog extends Component {
         onSelectSMBG={this.handleSelectSMBG}
         onTransition={this.handleInTransition}
         ref="chart"
-        isClinicAccount={this.props.isClinicAccount} />
+        isClinicianAccount={this.props.isClinicianAccount} />
     );
   };
 

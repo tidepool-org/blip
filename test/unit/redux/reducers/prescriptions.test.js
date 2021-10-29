@@ -13,13 +13,13 @@ import * as actions from '../../../../app/redux/actions/index';
 var expect = chai.expect;
 
 describe('prescriptions', () => {
-  describe('fetchPrescriptionsSuccess', () => {
+  describe('fetchClinicPrescriptionsSuccess', () => {
     it('should set prescriptions to state', () => {
       let initialStateForTest = [];
 
       let prescriptions = [{ id: 'one' }];
 
-      let action = actions.sync.fetchPrescriptionsSuccess(prescriptions);
+      let action = actions.sync.fetchClinicPrescriptionsSuccess(prescriptions);
 
       let state = reducer(initialStateForTest, action);
 

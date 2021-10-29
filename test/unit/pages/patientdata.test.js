@@ -1730,6 +1730,7 @@ describe('PatientData', function () {
           'carbs',
           'averageDailyDose',
           'glucoseManagementIndicator',
+          'standardDev',
           'coefficientOfVariation',
           'bgExtents',
         ]);
@@ -1743,6 +1744,7 @@ describe('PatientData', function () {
           'totalInsulin',
           'carbs',
           'averageDailyDose',
+          'standardDev',
           'coefficientOfVariation',
           'bgExtents',
         ]);
@@ -1758,6 +1760,7 @@ describe('PatientData', function () {
           'timeInAuto',
           'carbs',
           'averageDailyDose',
+          'standardDev',
           'coefficientOfVariation',
           'bgExtents',
         ]);
@@ -1773,6 +1776,7 @@ describe('PatientData', function () {
           'timeInOverride',
           'carbs',
           'averageDailyDose',
+          'standardDev',
           'coefficientOfVariation',
           'bgExtents',
         ]);

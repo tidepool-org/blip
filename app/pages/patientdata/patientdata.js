@@ -446,7 +446,7 @@ export const PatientDataClass = createReactClass({
         chartPrefs: this.state.chartPrefs[this.state.chartType],
         data: this.props.data,
         aggregations,
-        stats,
+        stats: _.map(stats, stat => _.omit(stat, 'children')),
       }, `data-${this.state.chartType}.json`);
     };
 
@@ -540,7 +540,7 @@ export const PatientDataClass = createReactClass({
             chartPrefs={this.state.chartPrefs}
             data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
-            isClinicAccount={personUtils.isClinic(this.props.user)}
+            isClinicianAccount={personUtils.isClinicianAccount(this.props.user)}
             loading={this.state.loading}
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
@@ -1189,6 +1189,7 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.standardDev);
         stats.push(commonStats.coefficientOfVariation);
         stats.push(commonStats.bgExtents);
         break;

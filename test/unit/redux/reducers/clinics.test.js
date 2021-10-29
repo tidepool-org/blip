@@ -48,6 +48,18 @@ describe('clinics', () => {
     });
   });
 
+  describe('fetchPatientsForClinicSuccess', () => {
+    it('should add patients to a clinic', () => {
+      let initialStateForTest = {};
+      let clinicId = 'clinicId123';
+      let clinic = { id: clinicId };
+      let patients = [{ id: 'patientId123' }];
+      let action = actions.sync.fetchPatientsForClinicSuccess(clinicId, patients);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinic.id].patients.patientId123).to.eql({ id: 'patientId123' });
+    });
+  });
+
   describe('createClinicSuccess', () => {
     it('should add clinic to state', () => {
       let initialStateForTest = {};
@@ -337,6 +349,21 @@ describe('clinics', () => {
       let action = actions.sync.updatePatientPermissionsSuccess(clinicId, patientId, updatePermissions);
       let state = reducer(initialStateForTest, action);
       expect(state.clinicId123.patients.patientId1234.permissions).to.eql(updatePermissions);
+    });
+  });
+
+  describe('triggerInitialClinicMigrationSuccess', () => {
+    it('should set the `canMigrate` state of the clinic to `false`', () => {
+      let clinicId = 'clinicId123';
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          canMigrate: true,
+        },
+      };
+      let action = actions.sync.triggerInitialClinicMigrationSuccess(clinicId);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.canMigrate).to.be.false;
     });
   });
 
