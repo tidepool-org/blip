@@ -55,6 +55,11 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     '&:last-child': {
       borderBottom: 'none',
     },
+    '.icon, .MuiCircularProgress-root': {
+      color: 'inherit !important',
+      width: '1.125em !important',
+      height: '1.125em !important',
+    },
   };
 
   return {
@@ -81,7 +86,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       color: colors.text.primary,
       border: borders.input,
       borderRadius: radii.default,
-      '&:hover,&:active': {
+      '&:hover,&:active,&.active': {
         color: colors.white,
         backgroundColor: colors.blueGreyDark,
         borderColor: colors.blueGreyDark,
