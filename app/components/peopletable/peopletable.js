@@ -104,31 +104,28 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   }
 
   renderHeader() {
-    const { t, layout } = this.props;
+    const { t } = this.props;
     const toggleLabel = this.state.showNames ? t('Hide All') : t('Show All');
-    const isTabLayout = layout === 'tab';
 
     return (
       <Flex mb={4} alignItems="center" justifyContent="space-between">
-        {!isTabLayout && (
-          <Title pt={4} pr={4}>
-            {t('Patients')}
-          </Title>
-        )}
+        <Title pt={4} pr={4}>
+          {t('Patients')}
+        </Title>
 
         <Flex
           alignItems="center"
-          flexDirection={isTabLayout ? 'row-reverse' : 'row'}
+          flexDirection="row"
           justifyContent="space-between"
-          flexGrow={isTabLayout ? 1 : 0}
-          pt={isTabLayout ? 0 : 4}
+          flexGrow={0}
+          pt={4}
         >
           <Button
             id="patients-view-toggle"
-            variant={isTabLayout ? 'primary' : 'textSecondary'}
+            variant="textSecondary"
             disabled={!_.isEmpty(this.state.search)}
             onClick={this.handleToggleShowNames}
-            mr={isTabLayout ? 0 : 2}
+            mr={2}
           >
             {toggleLabel}
           </Button>
@@ -219,20 +216,12 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         this.handleCloseOverlay();
       });
 
-      const metric = this.props.selectedClinicId
-        ? ['Blip - Clinic - Remove patient confirmed', { clinicId: this.props.selectedClinicId }]
-        : ['Web - clinician removed patient account'];
-
-      this.props.trackMetric(...metric);
+      this.props.trackMetric('Web - clinician removed patient account');
     };
   }
 
   handleRemove(patient) {
     return () => {
-      if (this.props.selectedClinicId) {
-        this.props.trackMetric('Clinic - Remove patient', { clinicId: this.props.selectedClinicId });
-      }
-
       this.setState({
         showModalOverlay: true,
         selectedPatient: patient,
@@ -255,11 +244,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   handleClickEdit(patient) {
     return () => {
-      const metric = this.props.selectedClinicId
-        ? ['Clinic - Edit patient info', { clinicId: this.props.selectedClinicId }]
-        : ['Clicked Edit PwD'];
-
-      this.props.trackMetric(...metric);
+      this.props.trackMetric('Clicked Edit PwD');
       this.props.push(`/patients/${patient.userid}/profile#edit`);
     }
   }
@@ -398,8 +383,6 @@ PeopleTable.propTypes = {
   people: PropTypes.array,
   trackMetric: PropTypes.func.isRequired,
   onRemovePatient: PropTypes.func,
-  selectedClinicId: PropTypes.string,
-  layout: PropTypes.oneOf(['page', 'tab']).isRequired,
 };
 
 export default connect(null, { push })(PeopleTable);
