@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
+import debounce from 'lodash/debounce';
 import filter from 'lodash/filter';
-import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
@@ -16,9 +16,9 @@ import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
+import { components as vizComponents } from '@tidepool/viz';
 
 import {
-  Title,
   MediumTitle,
   Body1,
 } from '../../components/elements/FontStyles';
@@ -26,6 +26,7 @@ import {
 import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 
 import {
@@ -38,6 +39,8 @@ import {
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
+
+const { Loader } = vizComponents;
 
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric } = props;
@@ -53,7 +56,15 @@ export const ClinicPatients = (props) => {
   const [showNames, setShowNames] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(false);
-  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: 'tidepool.org', offset: 0 });
+  const [loading, setLoading] = useState(false);
+  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0 });
+
+  const debounceSearch = useCallback(debounce(search => {
+    setPatientFetchOptions({
+      ...patientFetchOptions,
+      search,
+    });
+  }, 1000), []);
 
   const {
     fetchingPatientsForClinic,
@@ -81,6 +92,8 @@ export const ClinicPatients = (props) => {
           variant: 'danger',
         });
       }
+
+      setLoading(false);
     }
   }
 
@@ -90,25 +103,25 @@ export const ClinicPatients = (props) => {
     }));
   }, [deletingPatientFromClinic]);
 
+  useEffect(() => {
+    setLoading(fetchingPatientsForClinic.inProgress);
+  }, [fetchingPatientsForClinic.inProgress]);
+
   // Fetchers
   useEffect(() => {
-    if (loggedInUserId && clinic) {
-      forEach([
-        {
-          workingState: fetchingPatientsForClinic,
-          action: actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, patientFetchOptions),
-        },
-      ], ({ workingState, action }) => {
-        if (
-          !workingState.inProgress &&
-          !workingState.completed &&
-          !workingState.notification
-        ) {
-          dispatch(action());
-        }
-      });
+    if (
+      loggedInUserId
+      && clinic?.id
+      && !fetchingPatientsForClinic.inProgress
+      && !fetchingPatientsForClinic.notification
+    ) {
+      const fetchOptions = { ...patientFetchOptions };
+      if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
+      dispatch(actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, fetchOptions)());
     }
-  }, [loggedInUserId, clinic]);
+  }, [loggedInUserId, clinic?.id, patientFetchOptions]);
+
+
 
   function clinicPatients() {
     const filteredPatients = filter(values(clinic?.patients), patient => !isEmpty(patient.id));
@@ -270,22 +283,23 @@ export const ClinicPatients = (props) => {
   }
 
   function handleSearchChange(event) {
-    if (props.onSearchChange) return props.onSearchChange(event.target.value);
     setSearch(event.target.value);
+    setLoading(true);
+    debounceSearch(event.target.value);
   }
 
-
-  function handleSearchChange(search) {
-    setPatientFetchOptions({
-      limit: patientFetchOptions.limit,
-      offset: 0,
-      search,
-    });
-  }
 
   function handleClearSearch(event) {
-    if (props.onSearchChange) return props.onSearchChange('');
     setSearch('');
+    setLoading(true);
+    debounceSearch('');
+  }
+
+  function handlePageChange(event, page) {
+    setPatientFetchOptions({
+      ...patientFetchOptions,
+      offset: (page - 1) * patientFetchOptions.limit,
+    });
   }
 
   const renderPatient = ({fullName, email, link}) => (
@@ -350,18 +364,27 @@ export const ClinicPatients = (props) => {
     });
 
     return (
-      <Table
-        id={'peopleTable'}
-        label={'peopletablelabel'}
-        columns={columns}
-        data={clinicPatients()}
-        orderBy="fullNameOrderable"
-        order="asc"
-        searchText={search}
-        rowsPerPage={8}
-        pagination={true}
-        style={{fontSize:'14px'}}
-      />
+      <Box sx={{ position: 'relative' }}>
+        <Loader show={loading} overlay={true} />
+        <Table
+          id={'peopleTable'}
+          label={'peopletablelabel'}
+          columns={columns}
+          data={clinicPatients()}
+          style={{fontSize:'14px'}}
+        />
+
+        {clinic?.patientCount > patientFetchOptions.limit && (
+          <Pagination
+            mt={4}
+            id="clinic-patients-pagination"
+            count={Math.ceil(clinic.patientCount / patientFetchOptions.limit)}
+            onChange={handlePageChange}
+            showFirstButton={false}
+            showLastButton={false}
+          />
+        )}
+      </Box>
     );
   }
 

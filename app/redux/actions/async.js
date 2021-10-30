@@ -2004,12 +2004,16 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
     dispatch(sync.fetchPatientsForClinicRequest());
 
     api.clinics.getPatientsForClinic(clinicId, options, (err, patients) => {
+    // api.clinics.getPatientsForClinic(clinicId, options, (err, { patients, count }) => {
+      // TODO: get from updated backend when completed.
+      const count = 100;
+
       if (err) {
         dispatch(sync.fetchPatientsForClinicFailure(
           createActionError(ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, patients));
+        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, patients, count));
       }
     });
   };

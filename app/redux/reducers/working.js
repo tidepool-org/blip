@@ -147,6 +147,7 @@ export default (state = initialWorkingState, action) => {
           types.UPDATE_CLINICIAN_REQUEST,
           types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST,
           types.DELETE_PATIENT_FROM_CLINIC_REQUEST,
+          types.FETCH_PATIENTS_FOR_CLINIC_REQUEST,
           types.CREATE_CUSTODIAL_ACCOUNT_REQUEST,
           types.SEND_CLINICIAN_INVITE_REQUEST,
           types.FETCH_CLINICIAN_INVITE_REQUEST,
