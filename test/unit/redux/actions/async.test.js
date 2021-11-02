@@ -5433,7 +5433,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
-          { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patients } }
+          { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', count: 100, patients } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
