@@ -330,8 +330,8 @@ export const ClinicPatients = (props) => {
         title: t('Patient'),
         field: 'profile',
         align: 'left',
-        sortable: true,
-        sortBy: 'fullNameOrderable',
+        // sortable: true, // Sort disabled until backend functionality is ready
+        // sortBy: 'fullNameOrderable', // Sort disabled until backend functionality is ready
         render: renderPatient,
         searchable: true,
         searchBy: ['fullName', 'email'],
@@ -340,8 +340,8 @@ export const ClinicPatients = (props) => {
         title: t('Birthday'),
         field: 'birthday',
         align: 'left',
-        sortable: true,
-        sortBy: 'birthdayOrderable',
+        // sortable: true, // Sort disabled until backend functionality is ready
+        // sortBy: 'birthdayOrderable',  // Sort disabled until backend functionality is ready
         render: renderBirthday,
       },
       {
