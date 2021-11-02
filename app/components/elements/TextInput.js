@@ -3,9 +3,12 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Flex, Box, Text, BoxProps } from 'rebass/styled-components';
 import { Label, Input as Base, InputProps } from '@rebass/forms/styled-components';
+import cx from 'classnames';
+
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
-import cx from 'classnames';
+import { shadows } from '../../themes/baseTheme';
+
 
 const StyledWrapper = styled(Flex)`
   position: relative;
@@ -71,6 +74,7 @@ export const TextInput = (props) => {
             cursor={onClickIcon ? 'pointer' : 'auto'}
             tabIndex={onClickIcon ? 0 : -1}
             onClick={onClickIcon}
+            sx={{ '&:focus': { boxShadow: onClickIcon ? shadows.focus : 'none' } }}
           />
         )}
         {suffix && <Text className="suffix">{suffix}</Text>}

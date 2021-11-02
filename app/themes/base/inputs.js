@@ -132,10 +132,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           },
         },
         '.prefix': {
-          paddingLeft: `${space[2] * 1.5}px`,
+          marginLeft: `${space[2] * 1.5}px`,
         },
         '.suffix, .icon': {
-          paddingRight: `${space[2] * 1.5}px`,
+          marginRight: `${space[2] * 1.5}px`,
         },
       },
       condensed: {
@@ -154,10 +154,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           },
         },
         '.prefix': {
-          paddingLeft: `${space[2]}px`,
+          marginLeft: `${space[2]}px`,
         },
         '.suffix, .icon': {
-          paddingRight: `${space[2]}px`,
+          marginRight: `${space[2]}px`,
         },
       },
     },
