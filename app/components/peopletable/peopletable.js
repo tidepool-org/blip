@@ -362,7 +362,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         order="asc"
         searchText={this.state.search}
         rowsPerPage={8}
-        pagination={true}
+        pagination={this.state.dataList.length > 8}
         style={{fontSize:'14px'}}
       />
     );
