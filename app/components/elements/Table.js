@@ -202,7 +202,7 @@ export const Table = props => {
         </TableBody>
       </Box>
 
-      {pagedData.length === 0 && emptyText && <Text p={3} fontSize={1} color="text.primary" textAlign="center">{emptyText}</Text>}
+      {pagedData.length === 0 && emptyText && <Text p={3} fontSize={1} color="text.primary" className="table-empty-text" textAlign="center">{emptyText}</Text>}
 
       {pagination && <Pagination
         id={`${id}-pagination`}

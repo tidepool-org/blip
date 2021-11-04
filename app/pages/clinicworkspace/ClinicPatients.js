@@ -43,7 +43,7 @@ import { useIsFirstRender } from '../../core/hooks';
 const { Loader } = vizComponents;
 
 export const ClinicPatients = (props) => {
-  const { t, api, trackMetric } = props;
+  const { t, api, trackMetric, searchDebounceMs } = props;
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
@@ -64,7 +64,7 @@ export const ClinicPatients = (props) => {
       ...patientFetchOptions,
       search,
     });
-  }, 1000), []);
+  }, searchDebounceMs), []);
 
   const {
     fetchingPatientsForClinic,
@@ -164,7 +164,7 @@ export const ClinicPatients = (props) => {
             icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
             iconLabel={t('Search by Name')}
             onClickIcon={!isEmpty(search) ? handleClearSearch : null}
-            name="search-prescriptions"
+            name="search-patients"
             onChange={handleSearchChange}
             value={search}
             variant="condensed"
@@ -316,11 +316,11 @@ export const ClinicPatients = (props) => {
   );
 
   const renderEdit = patient => (
-    <Icon icon={EditIcon} label={'Edit'} variant={'button'} onClick={handleClickEdit(patient)} />
+    <Icon className="edit-clinic-patient" icon={EditIcon} label={'Edit'} variant={'button'} onClick={handleClickEdit(patient)} />
   );
 
   const renderRemove = patient => (
-    <Icon icon={DeleteIcon} label={'Remove'} variant={'button'} onClick={handleRemove(patient)} />
+    <Icon className="remove-clinic-patient" icon={DeleteIcon} label={'Remove'} variant={'button'} onClick={handleRemove(patient)} />
   );
 
   const renderPeopleTable = () => {
@@ -408,6 +408,11 @@ export const ClinicPatients = (props) => {
 ClinicPatients.propTypes = {
   api: PropTypes.object.isRequired,
   trackMetric: PropTypes.func.isRequired,
+  searchDebounceMs: PropTypes.number.isRequired,
+};
+
+ClinicPatients.defaultProps = {
+  searchDebounceMs: 1000,
 };
 
 export default translate()(ClinicPatients);
