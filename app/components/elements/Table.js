@@ -146,6 +146,11 @@ export const Table = props => {
     setPage(1);
   }, [searchText, filteredData.length, rowsPerPage]);
 
+  useEffect(() => {
+    setOrder(props.order);
+    setOrderBy(props.orderBy);
+  }, [props.order, props.orderBy]);
+
   return (
     <TableContainer>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
