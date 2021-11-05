@@ -57,11 +57,12 @@ export const ClinicPatients = (props) => {
   const [search, setSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0 });
+  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
 
   const debounceSearch = useCallback(debounce(search => {
     setPatientFetchOptions({
       ...patientFetchOptions,
+      offset: 0,
       search,
     });
   }, searchDebounceMs), []);
@@ -121,26 +122,16 @@ export const ClinicPatients = (props) => {
     }
   }, [loggedInUserId, clinic?.id, patientFetchOptions]);
 
-
-
   function clinicPatients() {
     const filteredPatients = filter(values(clinic?.patients), patient => !isEmpty(patient.id));
 
-    return map(filteredPatients, patient => {
-      const birthday = (patient.birthDate)
-        ? ` ${sundial.translateMask(patient.birthDate, 'YYYY-MM-DD', t('M/D/YYYY'))}`
-        : undefined;
-
-      return {
+    return map(filteredPatients, patient => ({
         fullName: patient.fullName,
-        fullNameOrderable: (patient.fullName || '').toLowerCase(),
         link: `/patients/${patient.id}/data`,
-        birthday,
-        birthdayOrderable: new Date(birthday),
+        birthDate: patient.birthDate,
         id: patient.id,
         email: patient.email,
-      };
-    });
+    }));
   }
 
   const renderHeader = () => {
@@ -288,6 +279,17 @@ export const ClinicPatients = (props) => {
     debounceSearch(event.target.value);
   }
 
+  function handleSortChange(newOrderBy) {
+    const currentOrder = patientFetchOptions.sort[0];
+    const currentOrderBy = patientFetchOptions.sort.substring(1);
+    const newOrder = newOrderBy === currentOrderBy && currentOrder === '+' ? '-' : '+';
+
+    setPatientFetchOptions({
+      ...patientFetchOptions,
+      offSet: 0,
+      sort: `${newOrder}${newOrderBy}`,
+    });
+  }
 
   function handleClearSearch(event) {
     setSearch('');
@@ -309,9 +311,9 @@ export const ClinicPatients = (props) => {
     </Box>
   );
 
-  const renderBirthday = ({birthday, link}) => (
+  const renderBirthdate = ({birthDate, link}) => (
     <Box onClick={handleClickPatient(link)} sx={{ cursor: 'pointer' }}>
-      <Text fontWeight="medium">{birthday}</Text>
+      <Text fontWeight="medium">{birthDate}</Text>
     </Box>
   );
 
@@ -328,21 +330,17 @@ export const ClinicPatients = (props) => {
     const columns = [
       {
         title: t('Patient'),
-        field: 'profile',
+        field: 'fullName',
         align: 'left',
-        // sortable: true, // Sort disabled until backend functionality is ready
-        // sortBy: 'fullNameOrderable', // Sort disabled until backend functionality is ready
+        sortable: true,
         render: renderPatient,
-        searchable: true,
-        searchBy: ['fullName', 'email'],
       },
       {
         title: t('Birthday'),
-        field: 'birthday',
+        field: 'birthDate',
         align: 'left',
-        // sortable: true, // Sort disabled until backend functionality is ready
-        // sortBy: 'birthdayOrderable',  // Sort disabled until backend functionality is ready
-        render: renderBirthday,
+        sortable: true,
+        render: renderBirthdate,
       },
       {
         title: t('Edit'),
@@ -372,6 +370,9 @@ export const ClinicPatients = (props) => {
           columns={columns}
           data={clinicPatients()}
           style={{fontSize:'14px'}}
+          onSort={handleSortChange}
+          order={patientFetchOptions.sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
+          orderBy={patientFetchOptions.sort.substring(1)}
         />
 
         {clinic?.patientCount > patientFetchOptions.limit && (
