@@ -97,6 +97,7 @@ export const Table = props => {
     rowHover,
     rowsPerPage,
     searchText,
+    onSort,
     variant,
     pagination,
     paginationProps,
@@ -107,15 +108,13 @@ export const Table = props => {
   const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
   const [page, setPage] = React.useState(1);
 
-  const handleRequestSort = (event, property) => {
+  const handleRequestSort = property => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const createSortHandler = (property) => (event) => {
-    handleRequestSort(event, property);
-  };
+  const createSortHandler = property => () => (onSort || handleRequestSort)(property);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
@@ -125,7 +124,7 @@ export const Table = props => {
     if (isFunction(tableProps.onClickRow)) tableProps.onClickRow(datum);
   };
 
-  const sortedData = stableSort(data, getComparator(order, orderBy));
+  const sortedData = isFunction(onSort) ? data : stableSort(data, getComparator(order, orderBy));
 
   const searchFields = filter(
     flatten(map(columns, col => col.searchable && (col.searchBy || col.field))),
@@ -247,6 +246,7 @@ Table.propTypes = {
   rowHover: PropTypes.bool,
   rowsPerPage: PropTypes.number,
   searchText: PropTypes.string,
+  onSort: PropTypes.func,
   stickyHeader: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'condensed']),
 };
