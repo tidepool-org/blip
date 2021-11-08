@@ -222,9 +222,9 @@ describe('ClinicPatients', () => {
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
         expect(table.find('tr').at(1).text()).contains('Patient One')
-        expect(table.find('tr').at(1).text()).contains('1/1/1999')
+        expect(table.find('tr').at(1).text()).contains('1999-01-01')
         expect(table.find('tr').at(2).text()).contains('Patient Two')
-        expect(table.find('tr').at(2).text()).contains('2/2/1999')
+        expect(table.find('tr').at(2).text()).contains('1999-02-02')
       });
 
       it('should allow searching patients', (done) => {
@@ -248,7 +248,7 @@ describe('ClinicPatients', () => {
             { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
           ]);
 
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { limit: 8, offset: 0, search: 'Two' });
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { limit: 8, offset: 0, search: 'Two', sort: '+fullName' });
           done();
         }, 100);
       });
@@ -276,7 +276,7 @@ describe('ClinicPatients', () => {
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
         const firstPatientBirthday = table.find('tr').at(1).find('td').at(0).find('div').at(1).hostNodes();
-        expect(firstPatientBirthday.text()).contains('1/1/1999');
+        expect(firstPatientBirthday.text()).contains('1999-01-01');
 
         store.clearActions();
         firstPatientBirthday.simulate('click');
@@ -330,6 +330,33 @@ describe('ClinicPatients', () => {
         ]);
 
         sinon.assert.calledWith(defaultProps.api.clinics.deletePatientFromClinic, 'clinicID123', 'patient1');
+      });
+
+      it('should refetch patients with updated sort parameter when name or birthday headers are clicked', () => {
+        const table = wrapper.find(Table);
+        expect(table).to.have.length(1);
+
+        const patientHeader = table.find('#peopleTable-header-fullName .MuiTableSortLabel-root').at(0);
+        expect(patientHeader.text()).to.equal('Patient');
+
+        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+        patientHeader.simulate('click');
+        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
+
+        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+        patientHeader.simulate('click');
+        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
+
+        const birthdayHeader = table.find('#peopleTable-header-birthDate .MuiTableSortLabel-root').at(0);
+        expect(birthdayHeader.text()).to.equal('Birthday');
+
+        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+        birthdayHeader.simulate('click');
+        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+birthDate' }));
+
+        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+        birthdayHeader.simulate('click');
+        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-birthDate' }));
       });
 
       context('non-admin clinician', () => {

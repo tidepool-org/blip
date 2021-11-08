@@ -2004,12 +2004,13 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
   return (dispatch) => {
     dispatch(sync.fetchPatientsForClinicRequest());
 
-    api.clinics.getPatientsForClinic(clinicId, options, (err, { data, meta }) => {
+    api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
       if (err) {
         dispatch(sync.fetchPatientsForClinicFailure(
           createActionError(ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC, err), err
         ));
       } else {
+        const { data, meta } = results;
         dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, meta.count));
       }
     });

@@ -168,6 +168,7 @@ export const Table = props => {
                   sortDirection={orderBy === colSortBy ? order : false}
                 >
                   <Box
+                    className="table-header-inner-cell"
                     as={InnerCell}
                     active={orderBy === colSortBy}
                     direction={orderBy.split('.')[0] === colSortBy ? order : 'asc'}
