@@ -31,23 +31,21 @@ import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import Button from "@material-ui/core/Button";
 
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
-import appConfig from "../../lib/config";
+import { checkPasswordStrength } from "../../lib/auth/helpers";
 import metrics from "../../lib/metrics";
 import SignUpFormProps from "./signup-form-props";
 import { useAuth } from "../../lib/auth";
 import { getCurrentLang } from "../../lib/language";
 import { useAlert } from "../../components/utils/snackbar";
-import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
+import { useSignUpFormState } from "./signup-formstate-context";
+import { PasswordStrengthMeter } from "../../components/utils/password-strength-meter";
+import Password from "../../components/utils/password";
 
 interface Errors {
-  userName: boolean;
+  username: boolean;
   newPassword: boolean;
   confirmNewPassword: boolean;
 }
@@ -86,63 +84,31 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
   const { state, dispatch } = useSignUpFormState();
   const alert = useAlert();
   const { handleBack, handleNext } = props;
-  const defaultErr = {
-    userName: false,
-    newPassword: false,
-    confirmNewPassword: false,
-  };
-  const [errors, setErrors] = React.useState<Errors>(defaultErr);
+
+  const [username, setUsername] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
-  const [showNewPassword, setShowNewPassword] = React.useState(false);
-  const [showConfirmNewPassword, setShowConfirmNewPassword] = React.useState(false);
+  const [confirmNewPassword, setConfirmNewPassword] = React.useState("");
   const [inProgress, setInProgress] = React.useState(false);
+  const [usernameTextFieldFocused, setUsernameTextFieldFocused] = React.useState(false);
 
-  const onChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, keyField: FormValuesType): void => {
-    dispatch({
-      type: "EDIT_FORMVALUE",
-      key: keyField,
-      value: event.target.value,
-    });
-  };
+  const passwordCheck = checkPasswordStrength(newPassword);
 
-  const onClick = (
-    _event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    showPassword: boolean,
-    setState: React.Dispatch<React.SetStateAction<boolean>>
-  ): void => {
-    setState(!showPassword);
-  };
+  const errors: Errors = React.useMemo(
+    () => ({
+      username: _.isEmpty(username.trim()) || !REGEX_EMAIL.test(username),
+      newPassword: passwordCheck.onError,
+      confirmNewPassword: _.isEmpty(confirmNewPassword.trim()) || confirmNewPassword !== newPassword,
+    }), [confirmNewPassword, newPassword, passwordCheck.onError, username]
+  );
 
-  const validateUserName = (): boolean => {
-    const err =
-      _.isEmpty(state.formValues?.accountUsername.trim()) ||
-        !REGEX_EMAIL.test(state.formValues?.accountUsername);
-
-    setErrors({ ...errors, userName: err });
-    return !err;
-  };
-
-  const validatePassword = (): boolean => {
-    const err =
-      _.isEmpty(newPassword?.trim()) ||
-      newPassword?.length < appConfig.PWD_MIN_LENGTH;
-    setErrors({ ...errors, newPassword: err });
-    return !err;
-  };
-
-  const validateConfirmNewPassword = (): boolean => {
-    const err =
-      _.isEmpty(state.formValues?.accountPassword.trim()) ||
-      state.formValues?.accountPassword !== newPassword;
-    setErrors({ ...errors, confirmNewPassword: err });
-    return !err;
-  };
-
-  const isErrorSeen: boolean = React.useMemo(() => _.some(errors), [errors]);
+  React.useEffect(() => {
+    dispatch({ type: "EDIT_FORMVALUE", key: "accountPassword", value: newPassword });
+    dispatch({ type: "EDIT_FORMVALUE", key: "accountUsername", value: username });
+  }, [dispatch, newPassword, username]);
 
   const onNext = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    if (validateUserName() && validatePassword() && validateConfirmNewPassword()) {
+    if (!errors.username && !errors.newPassword && !errors.confirmNewPassword) {
       // submit to api
       try {
         setInProgress(true);
@@ -172,77 +138,48 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
       <TextField
         id="username"
         autoComplete="username"
-        className={classes.TextField}
         margin="normal"
         label={t("email")}
         variant="outlined"
-        value={state.formValues.accountUsername}
+        value={username}
         required
-        error={errors.userName}
-        onBlur={() => validateUserName()}
-        onChange={(e) => onChange(e, "accountUsername")}
-        helperText={errors.userName && t("invalid-email")}
+        error={errors.username && username.length > 0 && !usernameTextFieldFocused}
+        onBlur={() => setUsernameTextFieldFocused(false)}
+        onFocus={() => setUsernameTextFieldFocused(true)}
+        onChange={(e) => setUsername(e.target.value)}
+        helperText={errors.username && username.length > 0 && !usernameTextFieldFocused && t("invalid-email")}
       />
-      <TextField
+      <Password
         id="password"
-        autoComplete="new-password"
-        className={classes.TextField}
-        margin="normal"
         label={t("new-password")}
-        variant="outlined"
-        type={showNewPassword ? "text" : "password"}
         value={newPassword}
-        required
-        error={errors.newPassword}
-        onBlur={() => validatePassword()}
-        onChange={(e) => setNewPassword(e.target.value)}
-        helperText={
-          errors.newPassword &&
-          t("password-too-weak", {
-            minLength: appConfig.PWD_MIN_LENGTH,
-          })
-        }
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                aria-label={t("aria-toggle-password-visibility")}
-                onClick={(e) => onClick(e, showNewPassword, setShowNewPassword)}
-              >
-                {showNewPassword ? <Visibility /> : <VisibilityOff />}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
-      <TextField
-        id="confirm-password"
+        onChange={(password) => setNewPassword(password)}
+        error={errors.newPassword && newPassword.length > 0}
         autoComplete="new-password"
-        className={classes.TextField}
-        margin="normal"
-        label={t("confirm-new-password")}
         variant="outlined"
-        type={showConfirmNewPassword ? "text" : "password"}
-        value={state.formValues.accountPassword}
+        margin="normal"
+        checkStrength
         required
-        error={errors.confirmNewPassword}
-        onBlur={() => validateConfirmNewPassword()}
-        onChange={(e) => onChange(e, "accountPassword")}
+        helperText={
+          newPassword.length > 0 &&
+          <PasswordStrengthMeter
+            force={passwordCheck.score}
+            error={errors.newPassword}
+            helperText={passwordCheck.helperText}
+          />
+        }
+      />
+      <Password
+        id="confirm-password"
+        label={t("confirm-new-password")}
+        value={confirmNewPassword}
+        onChange={(password) => setConfirmNewPassword(password)}
+        error={errors.confirmNewPassword && confirmNewPassword.length > 0}
         helperText={errors.confirmNewPassword && t("password-dont-match")}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                aria-label={t("aria-toggle-password-visibility")}
-                onClick={(e) =>
-                  onClick(e, showConfirmNewPassword, setShowConfirmNewPassword)
-                }
-              >
-                {showConfirmNewPassword ? <Visibility /> : <VisibilityOff />}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
+        autoComplete="new-password"
+        variant="outlined"
+        margin="normal"
+        required
       />
       <div id="signup-accountform-button-group" className={classes.Buttons}>
         <Button
@@ -259,7 +196,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
           id="button-signup-steppers-create"
           variant="contained"
           color="primary"
-          disabled={isErrorSeen || inProgress}
+          disabled={_.some(errors) || inProgress}
           className={classes.Button}
           onClick={onNext}
           classes={{ label: "button-signup-steppers-create-account-label" }}

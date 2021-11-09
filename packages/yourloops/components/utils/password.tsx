@@ -26,10 +26,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { FormHelperTextProps } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import TextField from "@material-ui/core/TextField";
@@ -46,10 +47,10 @@ export interface PasswordProps {
   id: string;
   label: string;
   value: string;
-  setState: React.Dispatch<string>;
+  onChange: (eventPayload: string) => void;
   onValidate?: () => void;
   error: boolean;
-  helperText: string;
+  helperText: React.ReactNode | string;
   required?: boolean;
   disabled?: boolean;
   autoComplete: "current-password" | "new-password";
@@ -57,6 +58,7 @@ export interface PasswordProps {
   margin?: "none" | "dense" | "normal";
   className?: string;
   style?: React.CSSProperties;
+  checkStrength?: boolean; // If true must be used with the password strength meter as helper text
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -89,7 +91,8 @@ const Password: React.FunctionComponent<PasswordProps> = ({
   margin,
   autoComplete,
   onValidate,
-  setState,
+  onChange,
+  checkStrength,
 }: PasswordProps) => {
   const classes = useStyles();
   const { t } = useTranslation("yourloops");
@@ -100,7 +103,7 @@ const Password: React.FunctionComponent<PasswordProps> = ({
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    setState(event.target.value);
+    onChange(event.target.value);
   };
   const handleValidate = typeof onValidate !== "function" ? undefined : (event: React.KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === "Enter") {
@@ -111,6 +114,25 @@ const Password: React.FunctionComponent<PasswordProps> = ({
   };
 
   const tip = t("aria-toggle-password-visibility");
+
+  const helperTextContent = useMemo(() => {
+    if (checkStrength) {
+      return (helperText) as React.ReactNode;
+    }
+    if (error) {
+      return helperText as string;
+    }
+    return null;
+  }, [checkStrength, error, helperText]);
+
+
+  // Here we have to force typing of helperText because it generates a render error on html
+  // "div cannot be a child of p". By default helperText is wrapped into <p>
+  // Needs to type it as a <div> component
+  let helperTextProps: Partial<FormHelperTextProps<"div">> | undefined;
+  if (typeof helperText !== "string") {
+    helperTextProps = { component: "div" } as Partial<FormHelperTextProps<"div">>;
+  }
 
   return (
     <TextField
@@ -125,7 +147,8 @@ const Password: React.FunctionComponent<PasswordProps> = ({
       type={showPassword ? PasswordVisibility.text : PasswordVisibility.hidden}
       onChange={handleChange}
       onKeyPress={handleValidate}
-      helperText={error && helperText}
+      helperText={helperTextContent}
+      FormHelperTextProps={helperTextProps}
       style={style}
       margin={margin}
       className={className ?? classes.textField}
@@ -133,7 +156,12 @@ const Password: React.FunctionComponent<PasswordProps> = ({
         endAdornment: (
           <InputAdornment position="end">
             <Tooltip title={tip} aria-label={tip} placement="bottom">
-              <IconButton id={`${id}-btn-show-pwd`} className={classes.adornment} aria-label={tip} onClick={handleShowPasswordChange}>
+              <IconButton
+                id={`${id}-btn-show-pwd`}
+                className={classes.adornment}
+                aria-label={tip}
+                onClick={handleShowPasswordChange}
+              >
                 {showPassword ? <Visibility /> : <VisibilityOff />}
               </IconButton>
             </Tooltip>

@@ -251,7 +251,7 @@ function Login(): JSX.Element {
                   margin="normal"
                   className={classes.textField}
                   label={t("password")}
-                  setState={setPassword}
+                  onChange={setPassword}
                   onValidate={onClickLoginButton}
                   value={password}
                   required={true}

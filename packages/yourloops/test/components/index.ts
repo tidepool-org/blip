@@ -29,10 +29,12 @@
 import _ from "lodash";
 
 import testSnackbar from "./utils/snackbar.test";
+import TestPasswordStrengthMeter from "./password-strength-meter.test";
 
 function testComponents(): void {
   describe.skip("Components", _.noop);
   describe("Snackbar", testSnackbar);
+  describe("Password strength meter", TestPasswordStrengthMeter);
 }
 
 export default testComponents;

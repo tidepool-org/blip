@@ -56,6 +56,7 @@ import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, setPageTitle } from
 import { User, useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import metrics from "../../lib/metrics";
+import { checkPasswordStrength, CheckPasswordStrengthResults } from "../../lib/auth/helpers";
 import { useAlert } from "../../components/utils/snackbar";
 import { ConsentFeedback } from "../../components/consents";
 import SecondaryHeaderBar from "./secondary-bar";
@@ -163,6 +164,13 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const [lang, setLang] = React.useState<LanguageCodes>(user.preferences?.displayLanguageCode ?? getCurrentLang());
   const [feedbackAccepted, setFeedbackAccepted] = React.useState(Boolean(user?.profile?.contactConsent?.isAccepted));
 
+  let passwordCheckResults: CheckPasswordStrengthResults;
+  if (password.length > 0) {
+    passwordCheckResults = checkPasswordStrength(password);
+  } else {
+    passwordCheckResults = { onError: false, helperText: "", score: -1 };
+  }
+
   React.useEffect(() => {
     // To be sure we have the locale:
     if (!availableLanguageCodes.includes(lang)) {
@@ -242,11 +250,11 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
       firstName: _.isEmpty(firstName),
       lastName: _.isEmpty(lastName),
       currentPassword: password.length > 0 && currentPassword.length < appConfig.PWD_MIN_LENGTH,
-      password: password.length > 0 && password.length < appConfig.PWD_MIN_LENGTH,
+      password: passwordCheckResults.onError,
       passwordConfirmation: passwordConfirmation !== password,
       birthDate: role === UserRoles.patient && !REGEX_BIRTHDATE.test(birthDate),
     }),
-    [firstName, lastName, currentPassword, password, passwordConfirmation, birthDate, role]
+    [firstName, lastName, password, currentPassword.length, passwordCheckResults.onError, passwordConfirmation, role, birthDate]
   );
 
   const isAnyError = React.useMemo(() => _.some(errors), [errors]);
@@ -345,6 +353,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           setPassword={setPassword}
           passwordConfirmation={passwordConfirmation}
           setPasswordConfirmation={setPasswordConfirmation}
+          passwordCheckResults={passwordCheckResults}
         />
       </React.Fragment>
     );

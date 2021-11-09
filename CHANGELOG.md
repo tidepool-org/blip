@@ -8,6 +8,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1002 Allow patients to receive the email "forgot password" from yourloops
 ### Security Update
 - YLP-62 Implement session timeout
+- YLP-1058 Implement a password strength meter
 ### Fixed
 - YLP-1012 Translation missing in Loop mode widget
 - YLP-1041 Fix potential crash in YourLoops when rendering the PDF

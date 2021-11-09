@@ -36,6 +36,8 @@ import { getUserEmail } from "../../lib/utils";
 import { User } from "../../lib/auth";
 import Password from "../../components/utils/password";
 import { Errors } from "./models";
+import { PasswordStrengthMeter } from "../../components/utils/password-strength-meter";
+import { CheckPasswordStrengthResults } from "../../lib/auth/helpers";
 
 interface AuthenticationFormProps {
   user: User;
@@ -47,6 +49,7 @@ interface AuthenticationFormProps {
   setPassword: React.Dispatch<string>;
   passwordConfirmation: string;
   setPasswordConfirmation: React.Dispatch<string>;
+  passwordCheckResults: CheckPasswordStrengthResults;
 }
 
 function AuthenticationForm(props: AuthenticationFormProps): JSX.Element {
@@ -61,6 +64,7 @@ function AuthenticationForm(props: AuthenticationFormProps): JSX.Element {
     setPassword,
     passwordConfirmation,
     setPasswordConfirmation,
+    passwordCheckResults,
   } = props;
 
   return (
@@ -80,7 +84,7 @@ function AuthenticationForm(props: AuthenticationFormProps): JSX.Element {
         value={currentPassword}
         error={errors.currentPassword}
         helperText={t("no-password")}
-        setState={setCurrentPassword}
+        onChange={setCurrentPassword}
       />
       <Password
         id="profile-textfield-password"
@@ -88,9 +92,16 @@ function AuthenticationForm(props: AuthenticationFormProps): JSX.Element {
         variant="standard"
         label={t("new-password")}
         value={password}
-        error={errors.password}
-        helperText={t("password-too-weak")}
-        setState={setPassword}
+        error={errors.password && password.length > 0}
+        checkStrength
+        helperText={
+          <PasswordStrengthMeter
+            force={passwordCheckResults.score}
+            error={errors.password}
+            helperText={passwordCheckResults.helperText}
+          />
+        }
+        onChange={setPassword}
       />
       <Password
         id="profile-textfield-password-confirmation"
@@ -100,7 +111,7 @@ function AuthenticationForm(props: AuthenticationFormProps): JSX.Element {
         value={passwordConfirmation}
         error={errors.passwordConfirmation}
         helperText={t("not-matching-password")}
-        setState={setPasswordConfirmation}
+        onChange={setPasswordConfirmation}
       />
     </React.Fragment>
   );
