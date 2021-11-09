@@ -6,6 +6,7 @@ import map from 'lodash/map';
 import countries from 'i18n-iso-countries';
 
 import states from './validation/states';
+import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { phoneRegex } from '../pages/prescription/prescriptionFormConstants';
 
@@ -62,7 +63,6 @@ export const validationSchema = yup.object().shape({
   name: yup.string().required(t('Please enter an organization name')),
   address: yup.string().required(t('Please enter an address')),
   city: yup.string().required(t('Please enter a city')),
-  postalCode: yup.string().required(t('Please enter a zip code')),
   country: yup
     .string()
     .oneOf(keys(countries.getAlpha2Codes()))
@@ -73,6 +73,13 @@ export const validationSchema = yup.object().shape({
     .when('country', (country, schema) => !includes(keys(states), country)
       ? schema.required(t('Please enter a state'))
       : schema.oneOf(keys(states[country]), t('Please enter a valid state'))
+    ),
+  postalCode: yup
+    .string()
+    .required(t('Please enter a zip/postal code'))
+    .when('country', (country, schema) => !includes(keys(postalCodes), country)
+      ? schema.required(t('Please enter a zip/postal code'))
+      : schema.matches(postalCodes[country], t('Please enter a valid zip/postal code'))
     ),
   phoneNumbers: yup.array().of(
     yup.object().shape({
