@@ -192,7 +192,7 @@ describe('WorkspaceSwitcher', () => {
       wrapper = mountWrapper(mockStore(fetchedDataState));
     });
 
-    it('should render a switcher component with a selected clinic and personal workspace options', () => {
+    it('should render a switcher component with a selected clinic and private workspace options', () => {
       const popupTrigger = wrapper.find('#workspace-switcher-current').hostNodes();
       expect(popupTrigger).to.have.lengthOf(1);
       expect(popupTrigger.text()).to.equal('new_clinic_name Workspace');
@@ -201,7 +201,7 @@ describe('WorkspaceSwitcher', () => {
       expect(workspaceButtons).to.have.lengthOf(2);
       expect(workspaceButtons.at(0).text()).to.equal('new_clinic_name Workspace');
       expect(workspaceButtons.at(0).find('Icon').props().label).to.equal('Selected');
-      expect(workspaceButtons.at(1).text()).to.equal('Personal Workspace');
+      expect(workspaceButtons.at(1).text()).to.equal('Private Workspace');
       expect(workspaceButtons.at(1).find('Icon')).to.have.lengthOf(0);
     });
 
@@ -212,9 +212,9 @@ describe('WorkspaceSwitcher', () => {
 
       const workspaceButtons = wrapper.find('Button.workspace-option');
       expect(workspaceButtons.at(0).text()).to.equal('new_clinic_name Workspace');
-      expect(workspaceButtons.at(1).text()).to.equal('Personal Workspace');
+      expect(workspaceButtons.at(1).text()).to.equal('Private Workspace');
 
-      // Click personal workspace option
+      // Click private workspace option
       store.clearActions();
       workspaceButtons.at(1).simulate('click');
 
@@ -222,7 +222,7 @@ describe('WorkspaceSwitcher', () => {
         {
           type: 'SELECT_CLINIC',
           payload: {
-            clinicId: null, // null is appropriate for switch to personal workspace
+            clinicId: null, // null is appropriate for switch to private workspace
           },
         },
         {
@@ -255,14 +255,14 @@ describe('WorkspaceSwitcher', () => {
       ]);
     });
 
-    it('should hide the personal workspace options under the appropriate conditions', () => {
+    it('should hide the private workspace options under the appropriate conditions', () => {
       wrapper = mountWrapper(mockStore(multiClinicState));
 
       const workspaceButtons = () => wrapper.find('Button.workspace-option');
       expect(workspaceButtons()).to.have.lengthOf(3);
       expect(workspaceButtons().at(0).text()).to.equal('new_clinic_name Workspace');
       expect(workspaceButtons().at(1).text()).to.equal('other_clinic_name Workspace');
-      expect(workspaceButtons().at(2).text()).to.equal('Personal Workspace');
+      expect(workspaceButtons().at(2).text()).to.equal('Private Workspace');
 
       wrapper = mountWrapper(mockStore({
         blip: {

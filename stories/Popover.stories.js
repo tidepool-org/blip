@@ -178,7 +178,7 @@ export const JumpMenu = () => {
   });
 
   const menuOptions = [
-    { id: null, label: 'Personal Workspace' },
+    { id: null, label: 'Private Workspace' },
     { id: 'clinicXYZ', label: 'XYZ Health\'s Workspace' },
   ];
 

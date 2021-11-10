@@ -340,15 +340,15 @@ describe('Workspaces', () => {
       ]);
     });
 
-    it('should render a button to navigate to a personal workspace', () => {
-      const personalWorkspace = wrapper.find('#personal-workspace').hostNodes();
-      expect(personalWorkspace).to.have.lengthOf(1);
-      const personalWorkspaceCTA = personalWorkspace.find('button');
-      expect(personalWorkspaceCTA).to.have.lengthOf(1);
-      expect(personalWorkspaceCTA.text()).to.equal('Go To Personal Workspace');
+    it('should render a button to navigate to a private workspace', () => {
+      const privateWorkspace = wrapper.find('#private-workspace').hostNodes();
+      expect(privateWorkspace).to.have.lengthOf(1);
+      const privateWorkspaceCTA = privateWorkspace.find('button');
+      expect(privateWorkspaceCTA).to.have.lengthOf(1);
+      expect(privateWorkspaceCTA.text()).to.equal('Go To Private Workspace');
 
       store.clearActions();
-      personalWorkspaceCTA.simulate('click');
+      privateWorkspaceCTA.simulate('click');
 
       expect(store.getActions()).to.eql([
         {
