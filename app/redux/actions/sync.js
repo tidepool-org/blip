@@ -1468,10 +1468,11 @@ export function fetchPatientsForClinicRequest() {
   };
 }
 
-export function fetchPatientsForClinicSuccess(clinicId, patients) {
+export function fetchPatientsForClinicSuccess(clinicId, patients, count) {
   return {
     type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS,
     payload: {
+      count: count,
       patients: patients,
       clinicId: clinicId,
     },

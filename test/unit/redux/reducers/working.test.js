@@ -5415,7 +5415,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('fetchPatientsForClinic', () => {
     describe('request', () => {
-      it('should leave fetchingPatientsForClinic.completed unchanged', () => {
+      it('should set fetchingPatientsForClinic.completed to be null', () => {
         expect(initialState.fetchingPatientsForClinic.completed).to.be.null;
 
         let requestAction = actions.sync.fetchPatientsForClinicRequest();
@@ -5423,13 +5423,13 @@ describe('dataWorkerQueryData', () => {
 
         expect(requestState.fetchingPatientsForClinic.completed).to.be.null;
 
-        let successAction = actions.sync.fetchPatientsForClinicSuccess('foo', 'bar');
+        let successAction = actions.sync.fetchPatientsForClinicSuccess('foo', 'bar', 100);
         let successState = reducer(requestState, successAction);
 
         expect(successState.fetchingPatientsForClinic.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.fetchingPatientsForClinic.completed).to.be.true;
+        expect(state.fetchingPatientsForClinic.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 

@@ -93,6 +93,7 @@ export const shadows = {
   small: '0px 0px 1px rgba(67, 90, 111, 0.47)',
   medium: '0px 0px 4px rgba(67, 90, 111, 0.4)',
   large: '0px 3px 6px rgba(67, 90, 111, 0.301);',
+  focus: `0px 0px 0px 2px ${colors.border.focus}`,
 };
 
 export const space = [0, 4, 8, 16, 24, 32, 48, 64, 96, 128];
@@ -108,7 +109,7 @@ const linkVariants = links({ colors, fonts });
 const variants = {
   avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
   banners: banners({ colors, fonts, fontSizes, fontWeights }),
-  icons: icons({ colors, fontSizes, radii, space }),
+  icons: icons({ colors, fontSizes, radii, space, shadows }),
   inputs: inputs({ borders, colors, fonts, radii, fontSizes, fontWeights, space }),
   link: linkVariants.default,
   links: linkVariants,
@@ -122,7 +123,17 @@ const variants = {
 
 export default {
   breakpoints,
-  buttons: buttons({ colors, borders, fontSizes, radii, fonts, space, fontWeights, lineHeights }),
+  buttons: buttons({
+    colors,
+    borders,
+    fontSizes,
+    radii,
+    fonts,
+    space,
+    fontWeights,
+    lineHeights,
+    shadows,
+  }),
   variants,
   borders,
   colors,

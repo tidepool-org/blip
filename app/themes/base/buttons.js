@@ -1,4 +1,4 @@
-export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }) => {
+export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, shadows }) => {
   const defaultStyles = {
     fontSize: `${fontSizes[1]}px`,
     fontWeight: fontWeights.regular,
@@ -14,11 +14,11 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
 
     ':focus': {
       outline: 'none',
-      boxShadow: `0px 0px 0px 2px ${colors.border.focus}`,
+      boxShadow: shadows.focus,
     },
     '@media (-webkit-min-device-pixel-ratio:0)': {
       ':focus': {
-        boxShadow: `0px 0px 0px 2px ${colors.border.focus}`,
+        boxShadow: shadows.focus,
       },
     },
   };
