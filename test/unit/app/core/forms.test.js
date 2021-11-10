@@ -139,11 +139,14 @@ describe('forms', function() {
         values: { [fieldpath]: 'Fooey McBear' },
       };
 
-      expect(formUtils.getCommonFormikFieldProps(fieldpath, formikContext)).to.eql({
+      const props = formUtils.getCommonFormikFieldProps(fieldpath, formikContext);
+      props.onBlur();
+      sinon.assert.calledOnce(formikContext.handleBlur);
+
+      expect(props).to.deep.include({
         id: 'user.name',
         name: 'user.name',
         onChange: formikContext.handleChange,
-        onBlur: formikContext.handleBlur,
         error: 'name is silly',
         value: 'Fooey McBear',
       })
@@ -159,11 +162,14 @@ describe('forms', function() {
         values: { [fieldpath]: 'Fooey McBear' },
       };
 
-      expect(formUtils.getCommonFormikFieldProps(fieldpath, formikContext, 'myValue')).to.eql({
+      const props = formUtils.getCommonFormikFieldProps(fieldpath, formikContext, 'myValue');
+      props.onBlur();
+      sinon.assert.calledOnce(formikContext.handleBlur);
+
+      expect(props).to.deep.include({
         id: 'user.name',
         name: 'user.name',
         onChange: formikContext.handleChange,
-        onBlur: formikContext.handleBlur,
         error: 'name is silly',
         myValue: 'Fooey McBear',
       })

@@ -17,6 +17,7 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
 import { addEmptyOption, getCommonFormikFieldProps } from '../../core/forms';
 import { clinicSizes, clinicTypes } from '../../core/clinicUtils';
+import states from '../../core/validation/states';
 
 export const ClinicProfileFields = (props) => {
   const { t, formikContext, ...BoxProps } = props;
@@ -32,6 +33,14 @@ export const ClinicProfileFields = (props) => {
   const {
     values,
   } = formikContext;
+
+  const selectStates = sortBy(
+    map(get(states, values.country, []), (val, key) => ({
+      value: key,
+      label: t(val),
+    })),
+    'label'
+  );
 
   return (
     <Box {...BoxProps}>
@@ -82,13 +91,26 @@ export const ClinicProfileFields = (props) => {
         </Box>
 
         <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-          <TextInput
-            {...getCommonFormikFieldProps('address', formikContext)}
-            label={t('Clinic Address')}
-            placeholder={t('Clinic Address')}
-            variant="condensed"
-            width="100%"
-          />
+          { selectStates.length ? (
+            <Select
+              {...getCommonFormikFieldProps('state', formikContext)}
+              options={addEmptyOption(selectStates)}
+              label={t('State/Province')}
+              placeholder={t('State/Province')}
+              variant="condensed"
+              themeProps={{
+                width: '100%',
+              }}
+            />
+          ) : (
+            <TextInput
+              {...getCommonFormikFieldProps('state', formikContext)}
+              label={t('State/Province')}
+              placeholder={t('State/Province')}
+              variant="condensed"
+              width="100%"
+            />
+          )}
         </Box>
 
         <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
@@ -103,9 +125,9 @@ export const ClinicProfileFields = (props) => {
 
         <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
           <TextInput
-            {...getCommonFormikFieldProps('state', formikContext)}
-            label={t('State')}
-            placeholder={t('State')}
+            {...getCommonFormikFieldProps('address', formikContext)}
+            label={t('Clinic Address')}
+            placeholder={t('Clinic Address')}
             variant="condensed"
             width="100%"
           />
@@ -114,8 +136,8 @@ export const ClinicProfileFields = (props) => {
         <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
           <TextInput
             {...getCommonFormikFieldProps('postalCode', formikContext)}
-            label={t('Zip Code')}
-            placeholder={t('Zip Code')}
+            label={t('Zip/Postal Code')}
+            placeholder={t('Zip/Postal Code')}
             variant="condensed"
             width="100%"
           />
