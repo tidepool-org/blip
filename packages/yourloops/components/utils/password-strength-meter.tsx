@@ -76,8 +76,8 @@ export function PasswordStrengthMeter({ force, error, helperText }: PasswordStre
       <Box id="password-strength-meter" display="flex" justifyContent="space-between" my={1}>
         <div className={`${gauge} ${force >= 0 ? gaugeColor : ""}`} />
         <div className={`${gauge} ${force > 1 ? gaugeColor : ""}`} />
-        <div className={`${gauge} ${force > 2 && !error ? gaugeColor : ""}`} />
-        <div className={`${gauge} ${force > 3 && !error ? gaugeColor : ""}`} />
+        <div className={`${gauge} ${force > 2 && !error ? `${gaugeColor} strong-color` : ""}`} />
+        <div className={`${gauge} ${force > 3 && !error ? `${gaugeColor} strong-color` : ""}`} />
       </Box>
       <div className={textColor}>
         {helperText}
