@@ -171,11 +171,11 @@ describe('NavigationMenu', () => {
 
       const menuOptions = wrapper.find('Button.navigation-menu-option');
       expect(menuOptions).to.have.lengthOf(3);
-      expect(menuOptions.at(0).text()).to.equal('Personal Workspace');
+      expect(menuOptions.at(0).text()).to.equal('Private Workspace');
       expect(menuOptions.at(1).text()).to.equal('Account Settings');
       expect(menuOptions.at(2).text()).to.equal('Logout');
 
-      // Click personal workspace option
+      // Click private workspace option
       store.clearActions();
       menuOptions.at(0).simulate('click');
 
@@ -183,7 +183,7 @@ describe('NavigationMenu', () => {
         {
           type: 'SELECT_CLINIC',
           payload: {
-            clinicId: null, // null is appropriate for switch to personal workspace
+            clinicId: null, // null is appropriate for switch to private workspace
           },
         },
         {
@@ -321,7 +321,7 @@ describe('NavigationMenu', () => {
       ]);
     });
 
-    context('clinician has a data storage account for personal data', () => {
+    context('clinician has a data storage account for private data', () => {
       beforeEach(() => {
         wrapper = mountWrapper(mockStore({
           blip: {
@@ -347,7 +347,7 @@ describe('NavigationMenu', () => {
         }));
       });
 
-      it('should render a `Personal Workspace` option in a addition to the standard options', () => {
+      it('should render a `Private Workspace` option in a addition to the standard options', () => {
         const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
         expect(menuTrigger).to.have.lengthOf(1);
         expect(menuTrigger.text()).to.equal('Example Clinic');
@@ -356,11 +356,11 @@ describe('NavigationMenu', () => {
         expect(menuOptions).to.have.lengthOf(5);
         expect(menuOptions.at(0).text()).to.equal('new_clinic_name Workspace');
         expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
-        expect(menuOptions.at(2).text()).to.equal('Personal Workspace');
+        expect(menuOptions.at(2).text()).to.equal('Private Workspace');
         expect(menuOptions.at(3).text()).to.equal('Account Settings');
         expect(menuOptions.at(4).text()).to.equal('Logout');
 
-        // Click personal workspace option
+        // Click private workspace option
         store.clearActions();
         menuOptions.at(2).simulate('click');
 
@@ -368,7 +368,7 @@ describe('NavigationMenu', () => {
           {
             type: 'SELECT_CLINIC',
             payload: {
-              clinicId: null, // null is appropriate for switch to personal workspace
+              clinicId: null, // null is appropriate for switch to private workspace
             },
           },
           {
@@ -394,7 +394,7 @@ describe('NavigationMenu', () => {
         }));
       });
 
-      it('should render a `Personal Workspace` option in a addition to the standard options', () => {
+      it('should render a `Private Workspace` option in a addition to the standard options', () => {
         const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
         expect(menuTrigger).to.have.lengthOf(1);
         expect(menuTrigger.text()).to.equal('Example Clinic');
@@ -403,11 +403,11 @@ describe('NavigationMenu', () => {
         expect(menuOptions).to.have.lengthOf(5);
         expect(menuOptions.at(0).text()).to.equal('new_clinic_name Workspace');
         expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
-        expect(menuOptions.at(2).text()).to.equal('Personal Workspace');
+        expect(menuOptions.at(2).text()).to.equal('Private Workspace');
         expect(menuOptions.at(3).text()).to.equal('Account Settings');
         expect(menuOptions.at(4).text()).to.equal('Logout');
 
-        // Click personal workspace option
+        // Click private workspace option
         store.clearActions();
         menuOptions.at(2).simulate('click');
 
@@ -415,7 +415,7 @@ describe('NavigationMenu', () => {
           {
             type: 'SELECT_CLINIC',
             payload: {
-              clinicId: null, // null is appropriate for switch to personal workspace
+              clinicId: null, // null is appropriate for switch to private workspace
             },
           },
           {
