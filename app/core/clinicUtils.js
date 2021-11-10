@@ -1,9 +1,12 @@
 import * as yup from 'yup';
 import get from 'lodash/get';
+import includes from 'lodash/includes';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import countries from 'i18n-iso-countries';
 
+import states from './validation/states';
+import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { phoneRegex } from '../pages/prescription/prescriptionFormConstants';
 
@@ -60,12 +63,24 @@ export const validationSchema = yup.object().shape({
   name: yup.string().required(t('Please enter an organization name')),
   address: yup.string().required(t('Please enter an address')),
   city: yup.string().required(t('Please enter a city')),
-  state: yup.string().required(t('Please enter a state')),
-  postalCode: yup.string().required(t('Please enter a zip code')),
   country: yup
     .string()
     .oneOf(keys(countries.getAlpha2Codes()))
     .required(t('Please enter a country')),
+  state: yup
+    .string()
+    .required(t('Please enter a state'))
+    .when('country', (country, schema) => !includes(keys(states), country)
+      ? schema.required(t('Please enter a state'))
+      : schema.oneOf(keys(states[country]), t('Please enter a valid state'))
+    ),
+  postalCode: yup
+    .string()
+    .required(t('Please enter a zip/postal code'))
+    .when('country', (country, schema) => !includes(keys(postalCodes), country)
+      ? schema.required(t('Please enter a zip/postal code'))
+      : schema.matches(postalCodes[country], t('Please enter a valid zip/postal code'))
+    ),
   phoneNumbers: yup.array().of(
     yup.object().shape({
       type: yup.string().required(),
@@ -83,5 +98,5 @@ export const validationSchema = yup.object().shape({
     .string()
     .oneOf(map(clinicSizes, 'value'))
     .required(t('Please select an organization size')),
-  website: yup.string(),
+  website: yup.string().url(t('Please enter a valid website address')),
 });

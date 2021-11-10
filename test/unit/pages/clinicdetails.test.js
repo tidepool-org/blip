@@ -328,11 +328,11 @@ describe('ClinicDetails', () => {
         wrapper.find('input[name="city"]').simulate('change', { persist: noop, target: { name: 'city', value: 'Gotham' } });
         expect(wrapper.find('input[name="city"]').prop('value')).to.equal('Gotham');
 
-        wrapper.find('input[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'New Jersey' } });
-        expect(wrapper.find('input[name="state"]').prop('value')).to.equal('New Jersey');
+        wrapper.find('select[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'NJ' } });
+        expect(wrapper.find('select[name="state"]').prop('value')).to.equal('NJ');
 
-        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: '65432' } });
-        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('65432');
+        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: '90210' } });
+        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('90210');
 
         wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic.com' } });
         expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
@@ -378,8 +378,8 @@ describe('ClinicDetails', () => {
               country: 'US',
               name: 'My Clinic',
               phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
-              postalCode: '65432',
-              state: 'New Jersey',
+              postalCode: '90210',
+              state: 'NJ',
               website: 'http://clinic.com',
             }
           );
