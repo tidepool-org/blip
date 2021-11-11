@@ -339,32 +339,5 @@ describe('Workspaces', () => {
         },
       ]);
     });
-
-    it('should render a button to navigate to a private workspace', () => {
-      const privateWorkspace = wrapper.find('#private-workspace').hostNodes();
-      expect(privateWorkspace).to.have.lengthOf(1);
-      const privateWorkspaceCTA = privateWorkspace.find('button');
-      expect(privateWorkspaceCTA).to.have.lengthOf(1);
-      expect(privateWorkspaceCTA.text()).to.equal('Go To Private Workspace');
-
-      store.clearActions();
-      privateWorkspaceCTA.simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: 'SELECT_CLINIC',
-          payload: {
-            clinicId: null,
-          },
-        },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/patients'],
-            method: 'push',
-          },
-        },
-      ]);
-    });
   });
 });
