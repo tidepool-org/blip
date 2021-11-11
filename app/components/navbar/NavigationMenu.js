@@ -84,8 +84,6 @@ export const NavigationMenu = props => {
     if (isClinicProfileFormPath) {
       setMenuOptions([logoutOption]);
     } else if (userClinics.length) {
-      const hidePrivateWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
-
       const options = [
         ...map(userClinics, clinic => ({
           action: handleSelectWorkspace.bind(null, clinic.id),
@@ -94,14 +92,10 @@ export const NavigationMenu = props => {
           metric: ['Clinic - Menu - Go to clinic workspace', { clinicId: clinic.id }],
         })),
         manageWorkspacesOption,
-      ];
-
-      if (!hidePrivateWorkspaceOption) options.push(privateWorkspaceOption);
-
-      options.push(...[
+        privateWorkspaceOption,
         accountSettingsOption,
         logoutOption,
-      ]);
+      ];
 
       setMenuOptions(options);
     }
