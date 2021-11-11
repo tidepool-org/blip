@@ -64,6 +64,7 @@ export default translate()(class extends React.Component {
                 clinicId: this.props.selectedClinicId,
                 source: 'Patient data',
               })}
+              sx={{ display: 'inline-flex !important' }}
             >
               {t('Back to Patient List')}
             </Button>
