@@ -2230,7 +2230,7 @@ export function fetchPatientInvites(api, clinicId) {
           createActionError(ErrorMessages.ERR_FETCHING_PATIENT_INVITES, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientInvitesSuccess(invites));
+        dispatch(sync.fetchPatientInvitesSuccess(clinicId, invites));
       }
     });
   };

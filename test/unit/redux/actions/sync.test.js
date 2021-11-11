@@ -3172,14 +3172,16 @@ describe('Actions', () => {
 
     describe('fetchPatientInvitesSuccess', () => {
       let invites = ['inviteid', 'inviteid2']
+      let clinicId = 'clinic123';
       it('should be a TSA', () => {
-        let action = sync.fetchPatientInvitesSuccess(invites);
+        let action = sync.fetchPatientInvitesSuccess(clinicId, invites);
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_INVITES_SUCCESS', () => {
-        let action = sync.fetchPatientInvitesSuccess(invites);
+        let action = sync.fetchPatientInvitesSuccess(clinicId, invites);
         expect(action.type).to.equal('FETCH_PATIENT_INVITES_SUCCESS');
+        expect(action.payload.clinicId).to.equal(clinicId);
         expect(action.payload.invites).to.equal(invites);
       });
     });

@@ -28,7 +28,7 @@ export const ClinicWorkspace = (props) => {
   const { fetchingPatientInvites } = useSelector((state) => state.blip.working);
   const clinics = useSelector((state) => state.blip.clinics);
   const clinic = get(clinics, selectedClinicId);
-  const patientInvites = filter(values(clinic?.patients), patient => patient.status === 'pending');
+  const patientInvites = values(clinic?.patientInvites);
 
   const tabIndices = {
     patients: 0,

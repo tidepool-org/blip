@@ -1678,10 +1678,11 @@ export function fetchPatientInvitesRequest() {
   };
 }
 
-export function fetchPatientInvitesSuccess(invites) {
+export function fetchPatientInvitesSuccess(clinicId, invites) {
   return {
     type: ActionTypes.FETCH_PATIENT_INVITES_SUCCESS,
     payload: {
+      clinicId: clinicId,
       invites: invites,
     },
   };
