@@ -82,9 +82,6 @@ export const PatientInvites = (props) => {
     handleAsyncResult(acceptingPatientInvitation, t('Patient invitation for {{name}} has been accepted.', {
       name: selectedInvitation?.name,
     }));
-
-    // Refetch clinic patients to include newly-accepeted invitation
-    if (acceptingPatientInvitation.completed) dispatch(actions.async.fetchPatientsForClinic(api, clinic?.id));
   }, [acceptingPatientInvitation]);
 
   useEffect(() => {
