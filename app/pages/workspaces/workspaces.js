@@ -230,7 +230,7 @@ export const Workspaces = (props) => {
   function handleGoToWorkspace(workspace) {
     const metric = workspace?.id
       ? ['Clinic - Workspaces - Go to clinic workspace', { clinicId: workspace.id }]
-      : ['Clinic - Workspaces - Go to personal workspace'];
+      : ['Clinic - Workspaces - Go to private workspace'];
 
     trackMetric(...metric);
     dispatch(actions.sync.selectClinic(workspace?.id || null));
@@ -328,13 +328,13 @@ export const Workspaces = (props) => {
             </Box>
           </Box>
 
-          <Flex id="personal-workspace" justifyContent={['center', 'left']} flexWrap={['wrap']}>
+          <Flex id="private-workspace" justifyContent={['center', 'left']} flexWrap={['wrap']}>
             <Body1
               width={['100%', '100%', 'auto']}
               textAlign={['center', 'center', 'auto']}
               pb={[2, 3, 0]}
             >
-              {t('Want to use Tidepool for your personal data?')}
+              {t('Want to use Tidepool for your private data?')}
             </Body1>
             <Button
               width={['100%', '100%', 'auto']}
@@ -343,7 +343,7 @@ export const Workspaces = (props) => {
               py={0}
               onClick={handleGoToWorkspace}
             >
-              {t('Go To Personal Workspace')}
+              {t('Go To Private Workspace')}
             </Button>
           </Flex>
         </Box>

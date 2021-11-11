@@ -491,7 +491,7 @@ export const ClinicAdmin = (props) => {
             rowHover={false}
             rowsPerPage={8}
             searchText={searchText}
-            pagination={true}
+            pagination={clinicianArray.length > 8}
             style={{ fontSize: '14px' }}
           />
         </Box>

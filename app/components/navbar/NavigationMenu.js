@@ -46,11 +46,11 @@ export const NavigationMenu = props => {
     popupId: 'navigationMenu',
   });
 
-  const personalWorkspaceOption = {
+  const privateWorkspaceOption = {
     action: handleSelectWorkspace.bind(null, null),
     icon: SupervisedUserCircleRoundedIcon,
-    label: t('Personal Workspace'),
-    metric: ['Clinic - Menu - Go to personal workspace'],
+    label: t('Private Workspace'),
+    metric: ['Clinic - Menu - Go to private workspace'],
   };
 
   const accountSettingsOption = {
@@ -73,7 +73,7 @@ export const NavigationMenu = props => {
   };
 
   const [menuOptions, setMenuOptions] = useState([
-    personalWorkspaceOption,
+    privateWorkspaceOption,
     accountSettingsOption,
     logoutOption,
   ]);
@@ -84,7 +84,7 @@ export const NavigationMenu = props => {
     if (isClinicProfileFormPath) {
       setMenuOptions([logoutOption]);
     } else if (userClinics.length) {
-      const hidePersonalWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
+      const hidePrivateWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
 
       const options = [
         ...map(userClinics, clinic => ({
@@ -96,7 +96,7 @@ export const NavigationMenu = props => {
         manageWorkspacesOption,
       ];
 
-      if (!hidePersonalWorkspaceOption) options.push(personalWorkspaceOption);
+      if (!hidePrivateWorkspaceOption) options.push(privateWorkspaceOption);
 
       options.push(...[
         accountSettingsOption,
