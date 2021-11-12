@@ -120,7 +120,7 @@ describe('PatientInvites', () => {
           clinicians:{
             clinicianUserId123,
           },
-          patients: {
+          patientInvites: {
             invite1: {
               key: 'invite1',
               status: 'pending',

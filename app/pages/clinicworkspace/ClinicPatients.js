@@ -123,9 +123,7 @@ export const ClinicPatients = (props) => {
   }, [loggedInUserId, clinic?.id, patientFetchOptions]);
 
   function clinicPatients() {
-    const filteredPatients = filter(values(clinic?.patients), patient => !isEmpty(patient.id));
-
-    return map(filteredPatients, patient => ({
+    return map(values(clinic?.patients), patient => ({
         fullName: patient.fullName,
         link: `/patients/${patient.id}/data`,
         birthDate: patient.birthDate,
