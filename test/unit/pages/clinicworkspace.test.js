@@ -31,7 +31,6 @@ describe('ClinicWorkspace', () => {
     api: {
       clinics: {
         getPatientInvites: sinon.stub().callsArgWith(1, null, { invitesReturn: 'success' }),
-        getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
       },
     },
   };
@@ -40,8 +39,8 @@ describe('ClinicWorkspace', () => {
     mount = createMount();
     ClinicWorkspace.__Rewire__('ClinicProfile', sinon.stub().returns('stubbed clinic profile'));
     ClinicWorkspace.__Rewire__('PatientInvites', () => (<div>stubbed patient invites</div>));
-    ClinicWorkspace.__Rewire__('PeopleTable', sinon.stub().returns('stubbed patient invites'));
-    ClinicWorkspace.__Rewire__('Prescriptions', sinon.stub().returns('stubbed patient invites'));
+    ClinicWorkspace.__Rewire__('ClinicPatients', () => (<div>stubbed clinic patients</div>));
+    ClinicWorkspace.__Rewire__('Prescriptions', sinon.stub().returns('stubbed patient prescriptions'));
     ClinicWorkspace.__Rewire__('config', { RX_ENABLED: true });
   });
 
@@ -49,14 +48,13 @@ describe('ClinicWorkspace', () => {
     mount.cleanUp();
     ClinicWorkspace.__ResetDependency__('ClinicProfile');
     ClinicWorkspace.__ResetDependency__('PatientInvites');
-    ClinicWorkspace.__ResetDependency__('PeopleTable');
+    ClinicWorkspace.__ResetDependency__('ClinicPatients');
     ClinicWorkspace.__ResetDependency__('Prescriptions');
     ClinicWorkspace.__ResetDependency__('config');
   });
 
   afterEach(() => {
     defaultProps.api.clinics.getPatientInvites.resetHistory();
-    defaultProps.api.clinics.getPatientsForClinic.resetHistory();
   });
 
   const defaultWorkingState = {
@@ -69,8 +67,6 @@ describe('ClinicWorkspace', () => {
     blip: {
       working: {
         fetchingPatientInvites: defaultWorkingState,
-        fetchingPatientsForClinic: defaultWorkingState,
-        deletingPatientFromClinic: defaultWorkingState,
       },
     },
   };
@@ -83,12 +79,6 @@ describe('ClinicWorkspace', () => {
           completed: true,
           notification: null,
         },
-        fetchingPatientsForClinic: {
-          inProgress: false,
-          completed: true,
-          notification: null,
-        },
-        deletingPatientFromClinic: defaultWorkingState,
       },
     },
   };
@@ -172,11 +162,6 @@ describe('ClinicWorkspace', () => {
     it('should fetch patient invites', () => {
       sinon.assert.callCount(defaultProps.api.clinics.getPatientInvites, 1);
       sinon.assert.calledWith(defaultProps.api.clinics.getPatientInvites, 'clinicID456');
-    });
-
-    it('should fetch clinic patients', () => {
-      sinon.assert.callCount(defaultProps.api.clinics.getPatientsForClinic, 1);
-      sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID456');
     });
   });
 
