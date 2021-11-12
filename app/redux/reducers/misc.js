@@ -666,21 +666,10 @@ export const clinics = (state = initialState.clinics, action) => {
   switch (action.type) {
     case types.GET_CLINICS_SUCCESS: {
       let clinics = _.get(action.payload, 'clinics', []);
-      const options = _.get(action.payload, 'options', {});
-      const clinicians = {
-        clinicians: !_.isUndefined(options.clinicianId)
-          ? { [options.clinicianId]: {} }
-          : {},
-      };
-      const patients = {
-        patients: !_.isUndefined(options.patientId)
-          ? { [options.patientId]: {} }
-          : {},
-      };
       const newClinics = _.reduce(
         clinics,
         (newSet, clinic) => {
-          newSet[clinic.id] = { ...clinicians, ...patients, ...clinic };
+          newSet[clinic.id] = { clinicians: {}, patients: {}, patientInvites: {}, ...clinic };
           return newSet;
         },
         {}
@@ -699,12 +688,12 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.FETCH_PATIENT_INVITES_SUCCESS: {
       const invites = _.get(action.payload, 'invites', []);
-      const clinicId = _.get(action.payload, 'invites.0.clinicId', '');
+      const clinicId = _.get(action.payload, 'clinicId');
       const newClinics = _.cloneDeep(state);
       _.forEach(invites, (invite) => {
         _.set(
           newClinics,
-          [clinicId, 'patients', invite.key],
+          [clinicId, 'patientInvites', invite.key],
           invite
         );
       });
@@ -714,26 +703,26 @@ export const clinics = (state = initialState.clinics, action) => {
       let inviteId = _.get(action.payload, 'inviteId');
       let clinicId = _.get(action.payload, 'clinicId');
       let newState = _.cloneDeep(state);
-      delete newState[clinicId]?.patients?.[inviteId];
+      delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
     case types.DELETE_PATIENT_INVITATION_SUCCESS: {
       let inviteId = _.get(action.payload, 'inviteId');
       let clinicId = _.get(action.payload, 'clinicId');
       let newState = _.cloneDeep(state);
-      delete newState[clinicId]?.patients?.[inviteId];
+      delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
     case types.CREATE_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic', {});
       return update(state, {
-        [clinic.id]: { $set: { clinicians: {}, patients: {} } },
+        [clinic.id]: { $set: { clinicians: {}, patients: {}, patientInvites: {} } },
       });
     }
     case types.FETCH_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic', {});
       return update(state, {
-        [clinic.id]: { $set: { clinicians: {}, patients: {}, ...clinic } },
+        [clinic.id]: { $set: { clinicians: {}, patients: {}, patientInvites: {}, ...clinic } },
       });
     }
     case types.FETCH_CLINICS_BY_IDS_SUCCESS: {
