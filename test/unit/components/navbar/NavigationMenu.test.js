@@ -64,6 +64,7 @@ describe('NavigationMenu', () => {
         fetchingClinicsForClinician: defaultWorkingState,
       },
       membershipInOtherCareTeams: [],
+      pendingReceivedClinicianInvites: [],
       loggedInUserId: 'clinicianUserId123',
     },
   };
@@ -427,6 +428,30 @@ describe('NavigationMenu', () => {
           },
         ]);
       });
+    });
+  });
+
+  context('clinician has pending clinic invites', () => {
+    beforeEach(() => {
+      wrapper = mountWrapper(mockStore({
+        blip: {
+          ...clinicWorkflowState.blip,
+          pendingReceivedClinicianInvites: [
+            'clinicInvite123',
+          ],
+        },
+      }));
+    });
+
+    it('should render a notification icon next to the navigation menu trigger and the `Manage Workspaces` option', () => {
+      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
+      expect(menuTrigger).to.have.lengthOf(1);
+      expect(menuTrigger.text()).to.equal('Example Clinic');
+      expect(menuTrigger.find('.notification-icon').hostNodes()).to.have.lengthOf(1);
+
+      const menuOptions = wrapper.find('Button.navigation-menu-option');
+      expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
+      expect(menuOptions.at(1).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
     });
   });
 

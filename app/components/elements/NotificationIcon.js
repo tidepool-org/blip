@@ -4,6 +4,7 @@ import { colors, radii } from '../../themes/baseTheme';
 
 const NotificationIcon = props => (
   <Box
+    className="notification-icon"
     ml={2}
     bg={colors.pinks[5]}
     width="8px"
