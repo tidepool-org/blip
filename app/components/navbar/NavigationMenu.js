@@ -27,6 +27,7 @@ import {
 import * as actions from '../../redux/actions';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
+import NotificationIcon from '../elements/NotificationIcon';
 import personUtils from '../../core/personutils';
 import { borders, colors, space } from '../../themes/baseTheme';
 
@@ -39,6 +40,7 @@ export const NavigationMenu = props => {
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
   const membershipInOtherCareTeams = useSelector((state) => state.blip.membershipInOtherCareTeams);
+  const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
   const hasPatientProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'patient'], false);
 
   const popupState = usePopupState({
@@ -59,12 +61,13 @@ export const NavigationMenu = props => {
     label: t('Account Settings'),
   };
 
-  const manageWorkspacesOption = {
+  const manageWorkspacesOption = () => ({
     action: () => dispatch(push('/workspaces')),
     icon: ViewListRoundedIcon,
     label: t('Manage Workspaces'),
     metric: ['Clinic - Menu - Manage workspaces'],
-  };
+    notification: pendingReceivedClinicianInvites.length > 0,
+  });
 
   const logoutOption = {
     action: () => dispatch(actions.async.logout(api)),
@@ -93,7 +96,7 @@ export const NavigationMenu = props => {
           label: t('{{name}} Workspace', { name: clinic.name }),
           metric: ['Clinic - Menu - Go to clinic workspace', { clinicId: clinic.id }],
         })),
-        manageWorkspacesOption,
+        manageWorkspacesOption(),
       ];
 
       if (!hidePrivateWorkspaceOption) options.push(privateWorkspaceOption);
@@ -105,7 +108,7 @@ export const NavigationMenu = props => {
 
       setMenuOptions(options);
     }
-  }, [clinics]);
+  }, [clinics, pendingReceivedClinicianInvites]);
 
   function handleSelectWorkspace(clinicId) {
     dispatch(actions.sync.selectClinic(clinicId));
@@ -134,7 +137,10 @@ export const NavigationMenu = props => {
           },
         }}
       >
-        {personUtils.fullName(allUsersMap?.[loggedInUserId]) || t('Account')}
+        <Flex alignItems="center">
+          {personUtils.fullName(allUsersMap?.[loggedInUserId]) || t('Account')}
+          {pendingReceivedClinicianInvites.length > 0 && <NotificationIcon />}
+        </Flex>
       </Button>
 
       <Popover
@@ -179,7 +185,10 @@ export const NavigationMenu = props => {
                 },
               }}
             >
-              {option.label}
+              <Flex alignItems="center">
+                {option.label}
+                {option.notification && <NotificationIcon />}
+              </Flex>
             </Button>
           ))}
         </Box>

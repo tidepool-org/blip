@@ -20,6 +20,7 @@ import {
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
+import NotificationIcon from '../../components/elements/NotificationIcon';
 
 import {
   Dialog,
@@ -267,9 +268,10 @@ export const Workspaces = (props) => {
           }
         }}
       >
-        <Box className='workspace-details' pb={[2,4]} mr={2}>
+        <Flex className='workspace-details' alignItems="center" pb={[2,4]} mr={2}>
           <Subheading>{workspace.name}</Subheading>
-        </Box>
+          {workspace.type === 'clinician_invitation' && <NotificationIcon />}
+        </Flex>
         <Flex
           className='workspace-actions'
           justifyContent="flex-start"
