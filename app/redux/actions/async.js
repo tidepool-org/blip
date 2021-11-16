@@ -1998,18 +1998,20 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
  * @param {String} [options.search] - search query string
  * @param {Number} [options.offset] - search page offset
  * @param {Number} [options.limit] - results per page
+ * @param {Number} [options.sort] - directionally prefixed field to sort by (e.g. +name or -name)
  */
 export function fetchPatientsForClinic(api, clinicId, options = {}) {
   return (dispatch) => {
     dispatch(sync.fetchPatientsForClinicRequest());
 
-    api.clinics.getPatientsForClinic(clinicId, options, (err, patients) => {
+    api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
       if (err) {
         dispatch(sync.fetchPatientsForClinicFailure(
           createActionError(ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, patients));
+        const { data, meta } = results;
+        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, meta.count));
       }
     });
   };
@@ -2228,7 +2230,7 @@ export function fetchPatientInvites(api, clinicId) {
           createActionError(ErrorMessages.ERR_FETCHING_PATIENT_INVITES, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientInvitesSuccess(invites));
+        dispatch(sync.fetchPatientInvitesSuccess(clinicId, invites));
       }
     });
   };

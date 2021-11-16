@@ -82,9 +82,6 @@ export const PatientInvites = (props) => {
     handleAsyncResult(acceptingPatientInvitation, t('Patient invitation for {{name}} has been accepted.', {
       name: selectedInvitation?.name,
     }));
-
-    // Refetch clinic patients to include newly-accepeted invitation
-    if (acceptingPatientInvitation.completed) dispatch(actions.async.fetchPatientsForClinic(api, clinic?.id));
   }, [acceptingPatientInvitation]);
 
   useEffect(() => {
@@ -115,16 +112,12 @@ export const PatientInvites = (props) => {
 
   useEffect(() => {
     if (clinic) {
-      const patientInvites = filter(values(clinic?.patients), patient => patient.status === 'pending');
-
-      const invites = map(patientInvites, invite => ({
+      setPendingInvites(map(values(clinic?.patientInvites), invite => ({
         key: invite.key,
         name: get(invite, 'creator.profile.fullName', ''),
         nameOrderable: get(invite, 'creator.profile.fullName', '').toLowerCase(),
         birthday: get(invite, 'creator.profile.patient.birthday', ''),
-      }));
-
-      setPendingInvites(invites);
+      })));
     }
   }, [clinic]);
 
@@ -184,7 +177,7 @@ export const PatientInvites = (props) => {
       <Button
         className="decline-invite"
         onClick={() => handleDecline(member)}
-        processing={deletingPatientInvitation.inProgress}
+        processing={deletingPatientInvitation.inProgress && member.key === selectedInvitation.key}
         variant="secondary"
       >
         {t('Decline')}
@@ -196,7 +189,7 @@ export const PatientInvites = (props) => {
           setSelectedInvitation(member);
           handleAccept(member);
         }}
-        processing={acceptingPatientInvitation.inProgress}
+        processing={acceptingPatientInvitation.inProgress && member.key === selectedInvitation.key}
         variant="primary"
         color="purpleMedium"
         bg="white"
