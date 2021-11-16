@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Lib tests
+ * Regex tests
  *
  * All rights reserved.
  *
@@ -26,24 +26,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testsSoup from "./soup";
-import testCookiesManager from "./cookies-manager.test";
-import testLanguage from "./language.test";
-import testMetrics from "./metrics.test";
-import testZendesk from "./zendesk.test";
-import testAuth from "./auth";
-import testNotifications from "./notifications";
-import testRegex from "./regex.test";
+import { REGEX_EMAIL } from "../../lib/utils";
+import { expect } from "chai";
 
-function testLib(): void {
-  describe("SOUP", testsSoup);
-  describe("CookiesManager", testCookiesManager);
-  describe("Language", testLanguage);
-  describe("Metrics", testMetrics);
-  describe("Zendesk", testZendesk);
-  describe("Auth", testAuth);
-  describe("Notifications", testNotifications);
-  describe("Regex", testRegex);
+const validEmails = [
+  "foobar@domain.de",
+  "hello.world@example.com",
+  "compte.aidant+1@example.fr",
+  "hcp-test@example.com",
+  "my123account@domain.fr",
+  "abc@sub.domain.org",
+];
+
+const invalidEmails = [
+  "abcd",
+  "<hello>",
+  "mañana.es",
+  "aaa-ß@example.de",
+  " @example.com",
+  "+@example.com",
+  "+str@example.com",
+  "hello\nworld@test.org",
+  "world@test.org\nworld@test.org",
+  "name@☃-⌘.com",
+  "☃-⌘@domain.com",
+  "pine🍍pple@fruit.com",
+  "toto@ggrd.fr@aaa.de",
+  "<toto@ggrd.fr> v@aaa.de",
+  "a@g",
+  "er y@example.it",
+  "mañana@domain.es",
+  "<name> name@example.com",
+  "name@invalid-dômain.fr",
+  "almost@good.email.es ",
+];
+
+function testRegex(): void {
+  it("email regex should accept a list of valid emails", () => {
+    validEmails.forEach((email: string) => {
+      expect(REGEX_EMAIL.test(email), `email ${email} should be valid`).to.be.true;
+    });
+  });
+
+  it("email regex should refuse a list of invalid emails", () => {
+    invalidEmails.forEach((email: string) => {
+      expect(REGEX_EMAIL.test(email), `email ${email} should be invalid`).to.be.false;
+    });
+  });
 }
 
-export default testLib;
+export default testRegex;

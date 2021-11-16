@@ -93,7 +93,7 @@
   "hcp-tab-patients": "Patients",
   "hcp-tab-teams": "Care teams",
   "intended-use": "Intended Use",
-  "invalid-email": "Invalid email address.",
+  "invalid-email": "Invalid email address (special characters are not allowed).",
   "language": "Language",
   "lastname": "Last Name",
   "list-patient-tbr": "% below range",
