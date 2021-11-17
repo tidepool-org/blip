@@ -148,9 +148,9 @@ export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
     // profile, or a clinician profile, navigates to the root url with the browser back button
     if (isClinicianAccount && (firstEmptyClinic || !hasClinicProfile)) {
       if (firstEmptyClinic) dispatch(actions.sync.selectClinic(firstEmptyClinic.id));
-      dispatch(push(state.clinicFlowActive ? '/clinic-details' : '/clinician-details'));
+      dispatch(push(state.clinicFlowActive || state.selectedClinicId ? '/clinic-details' : '/clinician-details'));
     } else {
-      dispatch(push(state.clinicFlowActive ? '/workspaces' : '/patients'));
+      dispatch(push(state.clinicFlowActive || state.selectedClinicId ? '/workspaces' : '/patients'));
     }
   }
   cb();
@@ -227,6 +227,7 @@ export const onUploaderPasswordReset = (api, cb = _.noop) => (dispatch) => {
 export const getRoutes = (appContext) => {
   let props = appContext.props;
   let api = props.api;
+  const { blip: state } = appContext.store.getState();
 
   const boundRequireNoAuth = requireNoAuth.bind(null, api);
   const boundRequireAuth = requireAuth.bind(null, api);
@@ -235,6 +236,7 @@ export const getRoutes = (appContext) => {
   const boundRequireChrome = requireChrome.bind(null, boundRequireAuth);
   const boundEnsureNoAuth = ensureNoAuth.bind(null, api);
   const boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
+  const authenticatedFallbackRoute = state.selectedClinicId ? '/workspaces' : '/patients';
 
   return (
     <Route path='/' {...props} render={routeProps => (
@@ -268,7 +270,7 @@ export const getRoutes = (appContext) => {
           <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
           <Route>
-            { api.user.isAuthenticated() ? <Redirect to='/patients' /> : <Redirect to='/login' /> }
+            { api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to='/login' /> }
           </Route>
         </Switch>
       </AppComponent>

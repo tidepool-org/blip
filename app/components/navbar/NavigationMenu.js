@@ -5,7 +5,6 @@ import { useLocation } from 'react-router-dom';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
-import get from 'lodash/get';
 import has from 'lodash/has';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
@@ -27,6 +26,7 @@ import {
 import * as actions from '../../redux/actions';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
+import NotificationIcon from '../elements/NotificationIcon';
 import personUtils from '../../core/personutils';
 import { borders, colors, space } from '../../themes/baseTheme';
 
@@ -38,8 +38,7 @@ export const NavigationMenu = props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
-  const membershipInOtherCareTeams = useSelector((state) => state.blip.membershipInOtherCareTeams);
-  const hasPatientProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'patient'], false);
+  const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -59,12 +58,13 @@ export const NavigationMenu = props => {
     label: t('Account Settings'),
   };
 
-  const manageWorkspacesOption = {
+  const manageWorkspacesOption = () => ({
     action: () => dispatch(push('/workspaces')),
     icon: ViewListRoundedIcon,
     label: t('Manage Workspaces'),
     metric: ['Clinic - Menu - Manage workspaces'],
-  };
+    notification: pendingReceivedClinicianInvites.length > 0,
+  });
 
   const logoutOption = {
     action: () => dispatch(actions.async.logout(api)),
@@ -84,8 +84,6 @@ export const NavigationMenu = props => {
     if (isClinicProfileFormPath) {
       setMenuOptions([logoutOption]);
     } else if (userClinics.length) {
-      const hidePrivateWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
-
       const options = [
         ...map(userClinics, clinic => ({
           action: handleSelectWorkspace.bind(null, clinic.id),
@@ -93,19 +91,15 @@ export const NavigationMenu = props => {
           label: t('{{name}} Workspace', { name: clinic.name }),
           metric: ['Clinic - Menu - Go to clinic workspace', { clinicId: clinic.id }],
         })),
-        manageWorkspacesOption,
-      ];
-
-      if (!hidePrivateWorkspaceOption) options.push(privateWorkspaceOption);
-
-      options.push(...[
+        manageWorkspacesOption(),
+        privateWorkspaceOption,
         accountSettingsOption,
         logoutOption,
-      ]);
+      ];
 
       setMenuOptions(options);
     }
-  }, [clinics]);
+  }, [clinics, pendingReceivedClinicianInvites]);
 
   function handleSelectWorkspace(clinicId) {
     dispatch(actions.sync.selectClinic(clinicId));
@@ -134,7 +128,10 @@ export const NavigationMenu = props => {
           },
         }}
       >
-        {personUtils.fullName(allUsersMap?.[loggedInUserId]) || t('Account')}
+        <Flex alignItems="center">
+          {personUtils.fullName(allUsersMap?.[loggedInUserId]) || t('Account')}
+          {pendingReceivedClinicianInvites.length > 0 && <NotificationIcon />}
+        </Flex>
       </Button>
 
       <Popover
@@ -179,7 +176,10 @@ export const NavigationMenu = props => {
                 },
               }}
             >
-              {option.label}
+              <Flex alignItems="center">
+                {option.label}
+                {option.notification && <NotificationIcon />}
+              </Flex>
             </Button>
           ))}
         </Box>

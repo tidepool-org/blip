@@ -64,6 +64,7 @@ describe('NavigationMenu', () => {
         fetchingClinicsForClinician: defaultWorkingState,
       },
       membershipInOtherCareTeams: [],
+      pendingReceivedClinicianInvites: [],
       loggedInUserId: 'clinicianUserId123',
     },
   };
@@ -244,11 +245,12 @@ describe('NavigationMenu', () => {
       expect(menuTrigger.text()).to.equal('Example Clinic');
 
       const menuOptions = wrapper.find('Button.navigation-menu-option');
-      expect(menuOptions).to.have.lengthOf(4);
+      expect(menuOptions).to.have.lengthOf(5);
       expect(menuOptions.at(0).text()).to.equal('new_clinic_name Workspace');
       expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
-      expect(menuOptions.at(2).text()).to.equal('Account Settings');
-      expect(menuOptions.at(3).text()).to.equal('Logout');
+      expect(menuOptions.at(2).text()).to.equal('Private Workspace');
+      expect(menuOptions.at(3).text()).to.equal('Account Settings');
+      expect(menuOptions.at(4).text()).to.equal('Logout');
 
       // Click clinic workspace option
       store.clearActions();
@@ -284,9 +286,29 @@ describe('NavigationMenu', () => {
         },
       ]);
 
-      // Click account settings option
+      // Click private workspace option
       store.clearActions();
       menuOptions.at(2).simulate('click');
+
+      expect(store.getActions()).to.eql([
+        {
+          type: 'SELECT_CLINIC',
+          payload: {
+            clinicId: null,
+          },
+        },
+        {
+          type: '@@router/CALL_HISTORY_METHOD',
+          payload: {
+            args: ['/patients'],
+            method: 'push',
+          },
+        },
+      ]);
+
+      // Click account settings option
+      store.clearActions();
+      menuOptions.at(3).simulate('click');
 
       expect(store.getActions()).to.eql([
         {
@@ -300,7 +322,7 @@ describe('NavigationMenu', () => {
 
       // Click logout option
       store.clearActions();
-      menuOptions.at(3).simulate('click');
+      menuOptions.at(4).simulate('click');
 
       expect(store.getActions()).to.eql([
         {
@@ -427,6 +449,30 @@ describe('NavigationMenu', () => {
           },
         ]);
       });
+    });
+  });
+
+  context('clinician has pending clinic invites', () => {
+    beforeEach(() => {
+      wrapper = mountWrapper(mockStore({
+        blip: {
+          ...clinicWorkflowState.blip,
+          pendingReceivedClinicianInvites: [
+            'clinicInvite123',
+          ],
+        },
+      }));
+    });
+
+    it('should render a notification icon next to the navigation menu trigger and the `Manage Workspaces` option', () => {
+      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
+      expect(menuTrigger).to.have.lengthOf(1);
+      expect(menuTrigger.text()).to.equal('Example Clinic');
+      expect(menuTrigger.find('.notification-icon').hostNodes()).to.have.lengthOf(1);
+
+      const menuOptions = wrapper.find('Button.navigation-menu-option');
+      expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
+      expect(menuOptions.at(1).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
     });
   });
 

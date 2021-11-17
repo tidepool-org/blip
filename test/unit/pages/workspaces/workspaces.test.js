@@ -213,10 +213,12 @@ describe('Workspaces', () => {
       const clinics = workspaceList.find('div.workspace-item-clinic');
       expect(clinics).to.have.lengthOf(1);
       expect(clinics.at(0).text()).contains('new_clinic_name');
+      expect(clinics.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(0);
 
       const invites = workspaceList.find('div.workspace-item-clinician_invitation');
       expect(invites).to.have.lengthOf(1);
       expect(invites.at(0).text()).contains('Example Health');
+      expect(invites.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
     });
 
     it('should allow a clinician to navigate to a clinic workspace', () => {
@@ -335,33 +337,6 @@ describe('Workspaces', () => {
           type: 'DISMISS_CLINICIAN_INVITE_SUCCESS',
           payload: {
             inviteId: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
-          },
-        },
-      ]);
-    });
-
-    it('should render a button to navigate to a private workspace', () => {
-      const privateWorkspace = wrapper.find('#private-workspace').hostNodes();
-      expect(privateWorkspace).to.have.lengthOf(1);
-      const privateWorkspaceCTA = privateWorkspace.find('button');
-      expect(privateWorkspaceCTA).to.have.lengthOf(1);
-      expect(privateWorkspaceCTA.text()).to.equal('Go To Private Workspace');
-
-      store.clearActions();
-      privateWorkspaceCTA.simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: 'SELECT_CLINIC',
-          payload: {
-            clinicId: null,
-          },
-        },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/patients'],
-            method: 'push',
           },
         },
       ]);

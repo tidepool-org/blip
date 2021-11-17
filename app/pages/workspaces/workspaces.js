@@ -20,6 +20,7 @@ import {
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
+import NotificationIcon from '../../components/elements/NotificationIcon';
 
 import {
   Dialog,
@@ -267,9 +268,10 @@ export const Workspaces = (props) => {
           }
         }}
       >
-        <Box className='workspace-details' pb={[2,4]} mr={2}>
+        <Flex className='workspace-details' alignItems="center" pb={[2,4]} mr={2}>
           <Subheading>{workspace.name}</Subheading>
-        </Box>
+          {workspace.type === 'clinician_invitation' && <NotificationIcon />}
+        </Flex>
         <Flex
           className='workspace-actions'
           justifyContent="flex-start"
@@ -327,25 +329,6 @@ export const Workspaces = (props) => {
               {map(workspaces, RenderClinicWorkspace)}
             </Box>
           </Box>
-
-          <Flex id="private-workspace" justifyContent={['center', 'left']} flexWrap={['wrap']}>
-            <Body1
-              width={['100%', '100%', 'auto']}
-              textAlign={['center', 'center', 'auto']}
-              pb={[2, 3, 0]}
-            >
-              {t('Want to use Tidepool for your private data?')}
-            </Body1>
-            <Button
-              width={['100%', '100%', 'auto']}
-              variant='textPrimary'
-              fontSize={'1'}
-              py={0}
-              onClick={handleGoToWorkspace}
-            >
-              {t('Go To Private Workspace')}
-            </Button>
-          </Flex>
         </Box>
       </Box>
       <Dialog
