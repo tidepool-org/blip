@@ -135,7 +135,7 @@ export const NavigationMenu = props => {
       </Button>
 
       <Popover
-        width="15em"
+        minWwidth="15em"
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'center',

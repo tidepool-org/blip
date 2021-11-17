@@ -103,7 +103,7 @@ export const WorkspaceSwitcher = props => {
           </Button>
 
           <Popover
-            width="15em"
+            minWidth="15em"
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'center',
