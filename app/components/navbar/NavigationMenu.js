@@ -5,7 +5,6 @@ import { useLocation } from 'react-router-dom';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
-import get from 'lodash/get';
 import has from 'lodash/has';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
@@ -39,9 +38,7 @@ export const NavigationMenu = props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
-  const membershipInOtherCareTeams = useSelector((state) => state.blip.membershipInOtherCareTeams);
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
-  const hasPatientProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'patient'], false);
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -94,7 +91,7 @@ export const NavigationMenu = props => {
           label: t('{{name}} Workspace', { name: clinic.name }),
           metric: ['Clinic - Menu - Go to clinic workspace', { clinicId: clinic.id }],
         })),
-        manageWorkspacesOption,
+        manageWorkspacesOption(),
         privateWorkspaceOption,
         accountSettingsOption,
         logoutOption,
