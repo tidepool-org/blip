@@ -22,9 +22,8 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
 
   if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
     // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
-    if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'match.params.id') ) {
-      fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
-    }
+    // and permissions for the patients in a care team
+    fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
   return fetchers;
