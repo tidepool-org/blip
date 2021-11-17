@@ -85,6 +85,10 @@ class DiabeloopUrl {
     this.intendedUseUrL = `${this.rootPathName}intended-use.${currentLangue}.pdf`;
     return this.intendedUseUrL;
   }
+
+  getReleaseNotesURL(): string {
+    return `${config.ASSETS_URL}yourloops-release-notes.pdf`;
+  }
 }
 
 const diabeloopUrl = new DiabeloopUrl();

@@ -32,9 +32,9 @@ import { useTranslation } from "react-i18next";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Link from "@material-ui/core/Link";
+import Tooltip from "@material-ui/core/Tooltip";
 
 import diabeloopUrls from "../lib/diabeloop-url";
 import config from "../lib/config";
@@ -48,6 +48,7 @@ const footerStyle = makeStyles((theme: Theme) => {
   return {
     container: {
       display: "flex",
+      fontSize: "small",
     },
     containerAtBottom: {
       marginTop: "auto",
@@ -57,33 +58,29 @@ const footerStyle = makeStyles((theme: Theme) => {
     rightLink: {
       padding: theme.spacing(0.5), // eslint-disable-line no-magic-numbers
       textAlign: "start",
-      fontSize: "small",
       marginBottom: "auto",
       marginTop: "auto",
     },
     centeredLink: {
       padding: theme.spacing(0.5), // eslint-disable-line no-magic-numbers
       textAlign: "center",
-      color: "#109182",
       marginBottom: "auto",
       marginTop: "auto",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
     },
     leftLink: {
       padding: theme.spacing(0.5), // eslint-disable-line no-magic-numbers
       textAlign: "end",
-      fontSize: "small",
       marginBottom: "auto",
       marginTop: "auto",
     },
     selection: {
       padding: theme.spacing(2),
       textAlign: "center",
-      fontSize: "small",
     },
     cookiesButton: {
       textTransform: "initial",
-    },
-    appVersion: {
       fontSize: "small",
     },
   };
@@ -110,10 +107,12 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
         <Grid item xs={4} className={classes.rightLink}>
           <Link id="footer-link-url-privacy-policy" target="_blank" href={diabeloopUrls.getPrivacyPolicyUrL(i18n.language)} rel="nofollow" onClick={metricsPdfDocument("privacy_policy")}>{t("privacy-policy")}</Link>
         </Grid>
-        <Grid item xs={4} className={classes.centeredLink}>
-          <Typography id="footer-link-app-name" className={classes.appVersion}>
-            {`${t("brand-name")} ${config.VERSION}`}
-          </Typography>
+        <Grid id="footer-link-app-name" item xs={4} className={classes.centeredLink}>
+          <Tooltip id="footer-link-tooltip-app-release-notes" title={t("tooltip-release-notes") as string} aria-label={t("tooltip-release-notes")} placement="right-start">
+            <Link id="footer-link-url-release-notes" target="_blank" href={diabeloopUrls.getReleaseNotesURL()} rel="nofollow" onClick={metricsPdfDocument("release_notes")}>
+              {`${t("brand-name")} ${config.VERSION}`}
+            </Link>
+          </Tooltip>
         </Grid>
         <Grid item xs={4} className={classes.leftLink}>
           <Link id="footer-link-url-support" target="_blank" href={diabeloopUrls.SupportUrl} rel="nofollow" onClick={() => metrics.send("support", "click_url_support")}>{t("footer-link-url-support")}</Link>
@@ -123,7 +122,7 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
         </Grid>
         <Grid item xs={4} className={classes.centeredLink}>
           {/* TODO: Add tooltip + aria label */}
-          <Button id="footer-link-cookies" color="primary" variant="text" size="small" className={classes.cookiesButton} onClick={handleShowCookieBanner}>{t("cookies")}</Button>
+          <Button id="footer-link-cookies" color="primary" variant="text" className={classes.cookiesButton} onClick={handleShowCookieBanner}>{t("cookies")}</Button>
         </Grid>
         <Grid item xs={4} className={classes.leftLink}>
           <Link id="footer-link-url-intended-use" target="_blank" href={diabeloopUrls.getIntendedUseUrL(i18n.language)} rel="nofollow" onClick={metricsPdfDocument("intended_use")}>{t("intended-use")}</Link>
