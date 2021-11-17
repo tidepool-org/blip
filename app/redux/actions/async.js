@@ -271,8 +271,8 @@ export function login(api, credentials, options, postLoginAction) {
                   } else if (values.clinics?.length) {
                     const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
-                    if (!clinicMigration && values.clinics.length === 1 && !userHasPatientProfile && !values.associatedAccounts?.patients?.length) {
-                      // Go to the clinic workspace if only one clinic and no dsa/data-sharing
+                    if (!clinicMigration && values.clinics.length === 1) {
+                      // Go to the clinic workspace if only one clinic
                       setRedirectRoute(routes.clinicWorkspace);
                     } else {
                       // If we have an empty clinic object, go to clinic details, otherwise workspaces
