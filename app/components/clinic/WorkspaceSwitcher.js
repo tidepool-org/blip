@@ -72,7 +72,7 @@ export const WorkspaceSwitcher = props => {
 
       setMenuOptions(options);
     }
-  }, [clinics]);
+  }, [clinics, membershipInOtherCareTeams, hasPatientProfile]);
 
   const handleSelect = option => {
     trackMetric(...option.metric);
