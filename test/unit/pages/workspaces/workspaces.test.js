@@ -213,10 +213,12 @@ describe('Workspaces', () => {
       const clinics = workspaceList.find('div.workspace-item-clinic');
       expect(clinics).to.have.lengthOf(1);
       expect(clinics.at(0).text()).contains('new_clinic_name');
+      expect(clinics.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(0);
 
       const invites = workspaceList.find('div.workspace-item-clinician_invitation');
       expect(invites).to.have.lengthOf(1);
       expect(invites.at(0).text()).contains('Example Health');
+      expect(invites.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
     });
 
     it('should allow a clinician to navigate to a clinic workspace', () => {
