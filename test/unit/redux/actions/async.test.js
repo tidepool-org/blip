@@ -5546,7 +5546,6 @@ describe('Actions', () => {
         let clinicId = '5f85fbe6686e6bb9170ab5d0';
         let patientId = 'patient_clinic_relationship_id';
         let patient = {
-          clinicId,
           id: patientId,
           patientId: patientUserId,
         }
@@ -5560,7 +5559,8 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'FETCH_PATIENT_FROM_CLINIC_REQUEST' },
           { type: 'FETCH_PATIENT_FROM_CLINIC_SUCCESS', payload: {
-            patient
+            patient,
+            clinicId,
           } }
         ];
         _.each(expectedActions, (action) => {
