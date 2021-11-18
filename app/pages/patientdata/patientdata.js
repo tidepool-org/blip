@@ -1855,9 +1855,21 @@ export function mapStateToProps(state, props) {
       }
       // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
       else {
-        if (!_.isEmpty(state.blip.membershipPermissionsInOtherCareTeams)) {
-          permsOfLoggedInUser = state.blip.membershipPermissionsInOtherCareTeams[state.blip.currentPatientInViewId];
-        }
+        permsOfLoggedInUser = state.blip.selectedClinicId
+        ? _.get(
+          state.blip.clinics,
+          [
+            state.blip.selectedClinicId,
+            'patients',
+            state.blip.currentPatientInViewId,
+            'permissions',
+          ],
+          {}
+        ) : _.get(
+          state.blip.membershipPermissionsInOtherCareTeams,
+          state.blip.currentPatientInViewId,
+          {}
+        );
       }
     }
   }

@@ -72,7 +72,7 @@ export const WorkspaceSwitcher = props => {
 
       setMenuOptions(options);
     }
-  }, [clinics]);
+  }, [clinics, membershipInOtherCareTeams, hasPatientProfile]);
 
   const handleSelect = option => {
     trackMetric(...option.metric);
@@ -103,7 +103,7 @@ export const WorkspaceSwitcher = props => {
           </Button>
 
           <Popover
-            width="15em"
+            minWidth="15em"
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'center',

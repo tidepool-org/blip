@@ -686,6 +686,15 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, patientCount: count } },
       });
     }
+    case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS: {
+      let { clinicId, patient } = action.payload;
+      return update(state, {
+        [clinicId]: { patients: { $set: {
+          ...state[clinicId].patients,
+          [patient.id]: patient
+        } } }
+      });
+    }
     case types.FETCH_PATIENT_INVITES_SUCCESS: {
       const invites = _.get(action.payload, 'invites', []);
       const clinicId = _.get(action.payload, 'clinicId');
