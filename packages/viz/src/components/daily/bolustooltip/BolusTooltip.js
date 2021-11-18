@@ -40,6 +40,10 @@ class BolusTooltip extends React.Component {
     return null;
   }
 
+  /**
+   * Return the IOB tooltip line or null
+   * @param {number | null} iob Insulin on board
+   */
   getIobLine(iob) {
     if (iob !== null) {
       return (
@@ -53,6 +57,9 @@ class BolusTooltip extends React.Component {
     return null;
   }
 
+  /**
+   * @param {"auto" | "manual" | "hybrid" | undefined} prescriptor
+   */
   getPrescriptorLine(prescriptor) {
     if (_.isString(prescriptor) && prescriptor !== "manual") {
       return (
@@ -160,7 +167,7 @@ class BolusTooltip extends React.Component {
     const inputTime = _.get(wizard, "inputTime", null);
     const bolusType = _.get(wizard, "bolus.subType", null);
     const fatMeal = _.get(wizard, "inputMeal.fat", "no");
-    const iob = _.get(wizard, "insulinOnBoard", null);
+    const iob = _.get(wizard, "insulinOnBoard", _.get(wizard, "bolus.insulinOnBoard", null));
     const carbs = bolusUtils.getCarbs(wizard);
     const delivered = bolusUtils.getDelivered(wizard);
     const isInterrupted = bolusUtils.isInterruptedBolus(wizard);

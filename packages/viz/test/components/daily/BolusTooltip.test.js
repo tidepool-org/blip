@@ -68,6 +68,7 @@ const underride = {
     carb: 1,
     correction: 0.5,
   },
+  normalTime: "2017-11-11T05:45:52.000Z",
 };
 
 const withdblFull = {
@@ -84,6 +85,50 @@ const withdblFull = {
     net: 5,
   },
   inputTime: "2017-11-11T05:40:00.000Z",
+  normalTime: "2017-11-11T05:40:00.000Z",
+  carbInput: 75,
+  inputMeal: {
+    fat: "yes"
+  },
+};
+
+const wizardIobBolus = {
+  type: "wizard",
+  bolus: {
+    type: "bolus",
+    normal: 5,
+    subType: "normal",
+    normalTime: "2017-11-11T05:45:52.000Z",
+    prescriptor: "auto",
+    insulinOnBoard: 7.1441917,
+  },
+  recommended: {
+    carb: 5,
+    net: 5,
+  },
+  insulinOnBoard: 6.918507,
+  normalTime: "2017-11-11T05:40:00.000Z",
+  carbInput: 75,
+  inputMeal: {
+    fat: "yes"
+  },
+};
+
+const wizardBolusIob = {
+  type: "wizard",
+  bolus: {
+    type: "bolus",
+    normal: 5,
+    subType: "normal",
+    normalTime: "2017-11-11T05:45:52.000Z",
+    prescriptor: "hybrid",
+    insulinOnBoard: 7.1441917,
+  },
+  recommended: {
+    carb: 5,
+    net: 5,
+  },
+  normalTime: "2017-11-11T05:40:00.000Z",
   carbInput: 75,
   inputMeal: {
     fat: "yes"
@@ -195,5 +240,21 @@ describe("BolusTooltip", () => {
     expect(wrapper.find(formatClassesAsSelector(styles.input))).to.have.length(1);
     expect(wrapper.find(formatClassesAsSelector(styles.prescriptor))).to.have.length(1);
     expect(wrapper.find(formatClassesAsSelector(styles.fat))).to.have.length(1);
+  });
+
+  it("should render a wizard with IOB", () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={wizardIobBolus} />);
+    expect(wrapper.find("#bolus-tooltip-line-iob"), "#bolus-tooltip-line-iob").to.have.length(1);
+    const iobValue = wrapper.find("#bolus-tooltip-line-iob-value");
+    expect(iobValue, "#bolus-tooltip-line-iob-value").to.have.length(1);
+    expect(iobValue.first().text()).to.eq("6.92");
+  });
+
+  it("should render a wizard with IOB on the bolus", () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={wizardBolusIob} />);
+    expect(wrapper.find("#bolus-tooltip-line-iob"), "#bolus-tooltip-line-iob").to.have.length(1);
+    const iobValue = wrapper.find("#bolus-tooltip-line-iob-value");
+    expect(iobValue, "#bolus-tooltip-line-iob-value").to.have.length(1);
+    expect(iobValue.first().text()).to.eq("7.14");
   });
 });

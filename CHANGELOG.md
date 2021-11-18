@@ -14,6 +14,7 @@ It is based on Tidepool Blip 1.27.
 ### Fixed
 - YLP-1012 Translation missing in Loop mode widget
 - YLP-1041 Fix potential crash in YourLoops when rendering the PDF
+- YLP-1083 Missing IOB on wizard (meal) bolus
 ### Engineering Use
 - YLP-662 Rework events tagging for Matomo
 - YLP-1029 Add a build step to verify translations

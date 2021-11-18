@@ -95,11 +95,10 @@ export function formatDecimalNumber(val, places) {
 
 
 /**
- * formatInsulin
+ * Format insulin value
  *
- * @export
- * @param {Number} val - numeric value to format
- * @returns {String} numeric value formatted for the precision of insulin dosing
+ * @param {number} val - numeric value to format
+ * @returns {string} numeric value formatted for the precision of insulin dosing
  */
 export function formatInsulin(val) {
   let decimalLength = 1;

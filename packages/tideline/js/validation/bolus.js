@@ -34,6 +34,8 @@ const bolus = (common) => {
         duration: schema().banned(),
         extended: schema().banned(),
         expectedExtended: schema().banned(),
+        insulinOnBoard: schema().ifExists().number().min(0),
+        prescriptor: schema().ifExists().string().in(["auto", "manual", "hybrid"]),
         subType: schema().string().in(["normal"])
       },
       schema.with("expectedNormal", "normal")
