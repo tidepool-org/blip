@@ -7,6 +7,7 @@ import * as actions from '../../redux/actions';
 import _ from 'lodash';
 
 import Patient from '../patient/';
+import { selectedClinicId } from '../../redux/reducers/misc';
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -24,6 +25,19 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
     // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
     // and permissions for the patients in a care team
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
+  }
+
+  if (stateProps.selectedClinicId && !_.get(stateProps, [
+    'clinics',
+    stateProps.selectedClinicId,
+    'patients',
+    ownProps.match.params.id,
+    'permissions',
+  ])) {
+    // Need to fetch the patient for the clinic in order to have the permissions provided. Normally
+    // these would be here after navigating from the patients list, but they will not upon reload.
+    // We need to search for the patient via the current patient id.
+    fetchers.push(dispatchProps.fetchPatientFromClinic.bind(null, api, stateProps.selectedClinicId, ownProps.match.params.id));
   }
 
   return fetchers;
@@ -103,6 +117,7 @@ export function mapStateToProps(state) {
     updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,
+    selectedClinicId: state.blip.selectedClinicId,
   };
 }
 
@@ -117,6 +132,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   updatePatientSettings: actions.async.updateSettings,
   connectDataSource: actions.async.connectDataSource,
   disconnectDataSource: actions.async.disconnectDataSource,
+  fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

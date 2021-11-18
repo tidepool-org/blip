@@ -1522,10 +1522,11 @@ export function fetchPatientFromClinicRequest() {
   };
 }
 
-export function fetchPatientFromClinicSuccess(patient) {
+export function fetchPatientFromClinicSuccess(clinicId, patient) {
   return {
     type: ActionTypes.FETCH_PATIENT_FROM_CLINIC_SUCCESS,
     payload: {
+      clinicId: clinicId,
       patient: patient,
     },
   };

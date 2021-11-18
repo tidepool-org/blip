@@ -2061,7 +2061,7 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
           createActionError(ErrorMessages.ERR_FETCHING_PATIENT_FROM_CLINIC, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientFromClinicSuccess(patient));
+        dispatch(sync.fetchPatientFromClinicSuccess(clinicId, patient));
       }
     });
   };
