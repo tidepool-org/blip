@@ -36,6 +36,7 @@ describe('PatientProfile', () => {
       fetchPatient: sinon.stub().returns('fetchPatient'),
       fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
+      fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
     };
 
     const api = {};
@@ -106,24 +107,37 @@ describe('PatientProfile', () => {
       }, dispatchProps, api);
 
       expect(loggedInUserResult.length).to.equal(3);
+    });
 
-      const otherUserResult = getFetchers(dispatchProps, {
+    it('should only fetch the clinic patient if selectedClinicId is set, and the patient permissions are unavailable', () => {
+      const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(standardResult.length).to.equal(3);
+
+      const clinicUserResult = getFetchers(dispatchProps, {
         match: {
-          params: { id: '56789' }
+          params: { id: '12345' }
         }
       }, {
-        user: { userid: '12345' },
-        fetchingPendingSentInvites: {
-          inProgress: false,
-          completed: null,
-        },
-        fetchingAssociatedAccounts: {
-          inProgress: false,
-          completed: null,
-        },
+        ...stateProps,
+        selectedClinicId: 'clinic123',
+        clinics: { clinic123: { patients: { '12345': { name: 'Jackie', permissions: { foo: 'bar' } } } } }
       }, dispatchProps, api);
 
-      expect(otherUserResult.length).to.equal(2);
+      expect(clinicUserResult.length).to.equal(3);
+
+      const clinicUserMissingPermissionsResult = getFetchers(dispatchProps, {
+        match: {
+          params: { id: '12345' }
+        }
+      }, {
+        ...stateProps,
+        selectedClinicId: 'clinic123',
+        clinics: { clinic123: { patients: { '12345': { name: 'Jackie' } } } }
+      }, dispatchProps, api);
+
+      expect(clinicUserMissingPermissionsResult.length).to.equal(4);
+      expect(clinicUserMissingPermissionsResult[3]).to.be.a('function');
+      expect(clinicUserMissingPermissionsResult[3]()).to.equal('fetchPatientFromClinic');
     });
   });
 
