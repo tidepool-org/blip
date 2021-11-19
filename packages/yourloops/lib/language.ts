@@ -29,6 +29,7 @@
 import _ from "lodash";
 import bows from "bows";
 import i18n, { InitOptions, TOptions } from "i18next";
+import dayjs from "dayjs";
 import moment from "moment-timezone";
 import { initReactI18next } from "react-i18next";
 
@@ -59,6 +60,7 @@ async function init(): Promise<void> {
   log.info(`Initializing with language ${language}...`);
 
   zendeskLocale(language);
+  dayjs.locale(language);
   moment.locale(language);
   metrics.setLanguage(language);
 
@@ -100,6 +102,7 @@ async function init(): Promise<void> {
     if (typeof lng === "string" && language !== lng && availableLanguageCodes.includes(lng)) {
       log.debug(`languageChanged from ${language} to ${lng}`);
       language = lng;
+      dayjs.locale(language);
       moment.locale(language);
       zendeskLocale(language);
       metrics.setLanguage(language);

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Components tests
+ * Date picker common definitions
  *
  * All rights reserved.
  *
@@ -26,14 +26,54 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testDatePickers from "./date-pickers";
-import testSnackbar from "./utils/snackbar.test";
-import TestPasswordStrengthMeter from "./password-strength-meter.test";
+import { Dayjs } from "dayjs";
+import { makeStyles } from "@material-ui/core/styles";
 
-function testComponents(): void {
-  describe("DatePickers", testDatePickers);
-  describe("Snackbar", testSnackbar);
-  describe("Password strength meter", TestPasswordStrengthMeter);
+export interface CalendarChangeMonth {
+  newMonth: Dayjs;
+  direction: "left" | "right";
+  onAnimationEnd: () => void;
 }
 
-export default testComponents;
+export const DAY_SIZE = 36;
+export const TRANSITION_DURATION = 300;
+export const MIN_YEAR = 1900;
+export const MAX_YEAR = 2100;
+
+export const animationStyle = makeStyles(() => {
+  const keyFrames = {
+    "@keyframes calendar-translate-ltr": {
+      from: {
+        transform: "translateX(0%)",
+      },
+      to: {
+        transform: "translateX(100%)",
+      },
+    },
+    "@keyframes calendar-translate-rtl": {
+      from: {
+        transform: "translateX(0%)",
+      },
+      to: {
+        transform: "translateX(-100%)",
+      },
+    },
+  };
+  return {
+    ...keyFrames,
+    animatedMonthLTR: {
+      animationName: "$calendar-translate-ltr",
+      animationDuration: `${TRANSITION_DURATION}ms`,
+      animationTimingFunction: "ease-out",
+      animationFillMode: "forwards",
+      animationDelay: "50ms",
+    },
+    animatedMonthRTL: {
+      animationName: "$calendar-translate-rtl",
+      animationDuration: `${TRANSITION_DURATION}ms`,
+      animationTimingFunction: "ease-out",
+      animationFillMode: "forwards",
+      animationDelay: "50ms",
+    },
+  };
+}, { name: "date-pickers-calendar-animation" });

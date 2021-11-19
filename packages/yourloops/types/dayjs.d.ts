@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Components tests
+ * Day.js custom plugins
  *
  * All rights reserved.
  *
@@ -26,14 +26,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testDatePickers from "./date-pickers";
-import testSnackbar from "./utils/snackbar.test";
-import TestPasswordStrengthMeter from "./password-strength-meter.test";
+import { PluginFunc } from "dayjs";
 
-function testComponents(): void {
-  describe("DatePickers", testDatePickers);
-  describe("Snackbar", testSnackbar);
-  describe("Password strength meter", TestPasswordStrengthMeter);
+declare module "dayjs" {
+  interface Dayjs {
+    /**
+     * Return all the days in a month for a calendar
+     */
+    getNestedWeekArray: () => Dayjs[][];
+    /**
+     * Return all the days in a month for a calendar
+     */
+    getWeekArray: () => Dayjs[];
+    /**
+     * Return the weekdays in an array
+     * @example ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+     */
+    getWeekdays: (format?: string) => string[];
+  }
 }
 
-export default testComponents;
+declare const plugin: PluginFunc;
+export = plugin;

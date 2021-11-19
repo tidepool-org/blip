@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 // @ts-check
+const _ = require("lodash");
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -9,6 +10,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const blipWebpack = require("./webpack.config.blip");
 const buildConfig = require("../../server/config.app");
+const languages = require("../../locales/languages.json");
 const pkg = require("./package.json");
 
 /** Match files ending with .js | .jsx | .ts | .tsx */
@@ -77,9 +79,19 @@ if (isTest) {
   );
 }
 
+// Dynamically import dayjs locales from our declared locales
+const dayJSLocales = _.map(_.keysIn(languages.resources), (lang) => `dayjs/locale/${lang}`);
+if (!isProduction) {
+  dayJSLocales.push("dayjs/plugin/devHelper");
+}
+
 /** @type {webpack.Configuration & { devServer: { [index: string]: any; }}} */
 const webpackConfig = {
-  entry: ["../../node-compat.js", "./app/index.tsx"],
+  entry: {
+    nodeCompat: "../../node-compat.js",
+    dayjs: { import: dayJSLocales },
+    yourLoops: { import: "./app/index.tsx", dependOn: ["nodeCompat", "dayjs"] },
+  },
   output: {
     path: path.resolve(__dirname, "dist"),
     chunkFilename: "[id].[chunkhash].js",
@@ -139,6 +151,8 @@ const webpackConfig = {
       stream: require.resolve("stream-browserify"),
       buffer: require.resolve("buffer"),
     },
+    cache: true,
+    symlinks: true,
   },
 
   resolveLoader: {
@@ -169,7 +183,7 @@ const webpackConfig = {
           },
         },
       }),
-      new CssMinimizerPlugin({}),
+      new CssMinimizerPlugin(),
     ],
     splitChunks: {
       chunks: "all",

@@ -29,6 +29,7 @@
 import enzyme from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 import { init as i18nInit } from "../lib/language";
+import initDayJS from "../lib/dayjs";
 import testLib from "./lib";
 import testComponents from "./components";
 import testPages from "./pages";
@@ -39,6 +40,7 @@ enzyme.configure({
 });
 
 i18nInit().then(() => {
+  initDayJS();
   describe("Lib", testLib);
   describe("Components", testComponents);
   describe("Pages", testPages);

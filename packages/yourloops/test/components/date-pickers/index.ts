@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Components tests
+ * Date-pickers tests
  *
  * All rights reserved.
  *
@@ -26,14 +26,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testDatePickers from "./date-pickers";
-import testSnackbar from "./utils/snackbar.test";
-import TestPasswordStrengthMeter from "./password-strength-meter.test";
+import i18n from "../../../lib/language";
 
-function testComponents(): void {
-  describe("DatePickers", testDatePickers);
-  describe("Snackbar", testSnackbar);
-  describe("Password strength meter", TestPasswordStrengthMeter);
+import testCalendarHeader from "./calendar-header.test";
+import testMonthDayElements from "./month-days-elements.test";
+import testCalendar from "./calendar.test";
+import testYearSelector from "./year-selector.test";
+import testCalendarView from "./calendar-view.test";
+import testDatePicker from "./date-picker.test";
+
+function testDatePickers() {
+  before(() => {
+    i18n.addResourceBundle("en", "yourloops", {
+      "date-picker-header-date-format": "MMMM YYYY",
+      "date-picker-toolbar-date-format": "ddd, MMM D",
+    });
+  });
+
+  describe("CalendarHeader", testCalendarHeader);
+  describe("MonthDayElements", testMonthDayElements);
+  describe("Calendar", testCalendar);
+  describe("YearSelector", testYearSelector);
+  describe("CalendarView", testCalendarView);
+  describe("DatePicker", testDatePicker);
 }
 
-export default testComponents;
+export default testDatePickers;

@@ -21,7 +21,7 @@
     "prebuild-dev": "npm run clean",
     "build-dev": "NODE_ENV=development webpack --mode=development",
     "start-dev": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096' USE_WEBPACK_DEV_SERVER=true webpack-dev-server --cache --color --port 3001 --host 0.0.0.0",
-    "test": "NODE_ENV='test' NODE_OPTIONS='--max-old-space-size=4096' karma --single-run --log-level debug start"
+    "test": "TZ=UTC NODE_ENV='test' NODE_OPTIONS='--max-old-space-size=4096' karma --single-run --log-level debug start"
   },
   "dependencies": {
     "@fontsource/roboto": "^4.1.0",
@@ -29,9 +29,11 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/styles": "^4.11.4",
     "@material-ui/lab": "latest",
-    "core-js": "^3.9.1",
     "blip": "file:../blip",
     "bows": "^1.7.2",
+    "clsx": "^1.1.1",
+    "core-js": "^3.9.1",
+    "dayjs": "^1.10.7",
     "i18next": "^19.8.4",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",

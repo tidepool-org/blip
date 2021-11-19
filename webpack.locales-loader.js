@@ -36,6 +36,7 @@ function localesLoader(source) {
   const localesParams = JSON.parse(source);
   for (const locale in localesParams.resources) {
     if (Object.prototype.hasOwnProperty.call(localesParams.resources, locale)) {
+      console.log(`Loading locale ${locale}`);
       const main = require(`./locales/${locale}/translation.json`);
       const params = require(`./locales/${locale}/parameter.json`);
       const yourloops = require(`./locales/${locale}/yourloops.json`);

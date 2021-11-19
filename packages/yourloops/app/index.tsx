@@ -31,11 +31,14 @@ import "core-js/stable";
 
 import React from "react";
 import ReactDOM from "react-dom";
-import Yourloops from "./app";
-import OnError from "./error";
 
+import config from "../lib/config";
 import { init as i18nInit } from "../lib/language";
 import initCookiesConcentListener from "../lib/cookies-manager";
+import initDayJS from "../lib/dayjs";
+
+import Yourloops from "./app";
+import OnError from "./error";
 
 i18nInit().then(() => {
   window.onerror = (event, source, lineno, colno, error) => {
@@ -51,7 +54,8 @@ i18nInit().then(() => {
     document.body.appendChild(div);
   }
 
+  initDayJS();
   initCookiesConcentListener();
 
-  ReactDOM.render(<Yourloops />, div);
+  ReactDOM.render(config.DEV ? <React.StrictMode><Yourloops /></React.StrictMode> : <Yourloops />, div);
 });

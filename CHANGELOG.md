@@ -23,6 +23,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1051 Allow to verify with eslint js files outside main packages
 - YLP-1053 Remove lolcat language and Crowdin build
 - YLP-1054 Harmonize ESLint configuration (ts/js) and fix source files
+- YLP-1067 Create a material-ui simple date picker
 - YLP-1085 Bump cloudfront distribution script deps
 
 ## 2.0.4 - 2021-09-27

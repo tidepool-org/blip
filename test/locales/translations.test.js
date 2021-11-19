@@ -257,7 +257,7 @@ describe("Locales tests", () => {
       }
     }
 
-    expect(unusedTranslations, "Unused translations").to.be.empty;
-    expect(missingTranslations, "Missing translations").to.be.empty;
+    expect(unusedTranslations, `Unused translations: ${JSON.stringify(unusedTranslations)}`).to.be.empty;
+    expect(missingTranslations, `Missing translations: ${JSON.stringify(missingTranslations)}`).to.be.empty;
   });
 });
