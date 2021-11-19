@@ -55,7 +55,15 @@ function ReduxProvider(props) {
   return (
     // @ts-ignore
     <Provider store={store}>
-      <PatientData api={props.api} store={store} patient={props.patient} profileDialog={props.profileDialog} prefixURL={props.prefixURL} history={historyHook} />
+      <PatientData
+        api={props.api}
+        store={store}
+        patient={props.patient}
+        profileDialog={props.profileDialog}
+        prefixURL={props.prefixURL}
+        history={historyHook}
+        datePicker={props.datePicker}
+      />
     </Provider>
   );
 }
@@ -65,6 +73,7 @@ ReduxProvider.propTypes = {
   patient: PropTypes.object.isRequired,
   profileDialog: PropTypes.func.isRequired,
   prefixURL: PropTypes.string.isRequired,
+  datePicker: PropTypes.func.isRequired,
 };
 
 /**
@@ -73,10 +82,18 @@ ReduxProvider.propTypes = {
 function Blip(props) {
   if (typeof props === "object") {
     try {
-      const { config, api, patient, profileDialog, prefixURL } = props;
+      const { config, api, patient, profileDialog, prefixURL, datePicker } = props;
       updateConfig(config);
 
-      return <ReduxProvider api={api} patient={patient} profileDialog={profileDialog} prefixURL={prefixURL} />;
+      return (
+        <ReduxProvider
+          api={api}
+          patient={patient}
+          profileDialog={profileDialog}
+          prefixURL={prefixURL}
+          datePicker={datePicker}
+        />
+      );
     } catch (err) {
       log.error(err);
     }
@@ -92,6 +109,7 @@ Blip.propTypes = {
   patient: PropTypes.object.isRequired,
   profileDialog: PropTypes.func.isRequired,
   prefixURL: PropTypes.string.isRequired,
+  datePicker: PropTypes.func.isRequired,
 };
 
 export { cleanStore };

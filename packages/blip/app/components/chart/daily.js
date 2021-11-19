@@ -31,7 +31,10 @@ import BgSourceToggle from "./bgSourceToggle";
 import Header from "./header";
 import Footer from "./footer";
 
-/** @typedef {import('tideline').TidelineData} TidelineData */
+/**
+ * @typedef {import("tideline").TidelineData} TidelineData *
+ * @typedef { import("../../index").DatePicker } DatePicker
+*/
 
 const Loader = vizComponents.Loader;
 const BolusTooltip = vizComponents.BolusTooltip;
@@ -176,7 +179,7 @@ class DailyChart extends React.Component {
     );
   }
 
-  handleWindowResize = ({windowHeight: height, windowWidth: width}) => {
+  handleWindowResize = ({ windowHeight: height, windowWidth: width }) => {
     const { loading } = this.props;
     const { windowHeight, windowWidth, chart } = this.state;
     this.log.debug("handleWindowResize", { windowHeight, windowWidth }, "=>", { height, width });
@@ -206,27 +209,36 @@ class DailyChart extends React.Component {
     }
   }
 
-  goToMostRecent = () => {
+  goToDate(/** @type {Date} */ date) {
+    this.state.chart.panToDate(date);
+  }
+
+  goToMostRecent() {
     this.state.chart.setAtDate(null, true);
-  };
+  }
 
-  panBack = () => {
+  panBack() {
     this.state.chart.panBack();
-  };
+  }
 
-  panForward = () => {
+  panForward() {
     this.state.chart.panForward();
-  };
+  }
 
-  createMessage = (message) => {
+  createMessage(message) {
     return this.state.chart.createMessage(message);
-  };
+  }
 
-  editMessage = (message) => {
+  editMessage(message) {
     return this.state.chart.editMessage(message);
-  };
+  }
 }
 
+/**
+ * @typedef {{tidelineData: TidelineData; epochLocation: number; bgPrefs: any; msRange: number; loading: boolean; trackMetric: ()=>void; datePicker?: DatePicker}} DailyProps
+ */
+
+/** @augments React.Component<DailyProps> */
 class Daily extends React.Component {
   static propTypes = {
     patient: PropTypes.object.isRequired,
@@ -256,6 +268,7 @@ class Daily extends React.Component {
     updateChartPrefs: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     profileDialog: PropTypes.func,
+    datePicker: PropTypes.func.isRequired,
     prefixURL: PropTypes.string,
   };
   static defaultProps = {
@@ -265,6 +278,7 @@ class Daily extends React.Component {
   constructor(props) {
     super(props);
 
+    /** @type {React.RefObject<DailyChart>} */
     this.chartRef = React.createRef();
     this.chartType = "daily";
     this.log = bows("DailyView");
@@ -274,6 +288,16 @@ class Daily extends React.Component {
       title: this.getTitle(props.epochLocation),
       tooltip: null,
     };
+
+    // Start / End date for the calendar
+    const { tidelineData } = props;
+    let timezone = tidelineData.getTimezoneAt(tidelineData.endpoints[0]);
+    this.startDate = moment.tz(tidelineData.endpoints[0], timezone).toDate();
+
+    timezone = tidelineData.getTimezoneAt(tidelineData.endpoints[1]);
+    // endpoints end date is exclusive, but the DatePicker is inclusive
+    // remove 1ms to the endDate
+    this.endDate = moment.tz(tidelineData.endpoints[1], timezone).subtract(1, "millisecond").toDate();
   }
 
   componentDidUpdate(prevProps) {
@@ -289,10 +313,43 @@ class Daily extends React.Component {
   }
 
   render() {
-    const { tidelineData, epochLocation, msRange, trackMetric, loading } = this.props;
+    const { tidelineData, epochLocation, msRange, trackMetric, loading, datePicker: DatePicker } = this.props;
     const { inTransition, atMostRecent, tooltip, title } = this.state;
     const { timePrefs } = tidelineData.opts;
     const endpoints = this.getEndpoints();
+
+    /** @type {JSX.Element} */
+    let headerTitleContent;
+    if (!loading && !inTransition) {
+      const onSelectedDateChange = (/** @type {string|undefined} */ date) => {
+        if (typeof date === "string" && this.chartRef.current !== null) {
+          const timezone = tidelineData.getTimezoneAt(date);
+          const mDate = moment.tz(date, timezone).add(MS_IN_DAY / 2, "milliseconds");
+          this.log.debug("DatePicker", date, timezone, mDate.toISOString());
+          this.chartRef.current.goToDate(mDate.toDate());
+        }
+      };
+
+      headerTitleContent = (
+        <DatePicker
+          id="daily-chart-title-date"
+          date={epochLocation}
+          minDate={this.startDate}
+          maxDate={this.endDate}
+          onResult={onSelectedDateChange}
+          className="patient-data-subnav-text patient-data-subnav-dates-daily chart-title-clickable"
+          activeClassName="active"
+        >
+          {title}
+        </DatePicker>
+      );
+    } else {
+      headerTitleContent = (
+        <span id="daily-chart-title-date" className="patient-data-subnav-text patient-data-subnav-dates-daily patient-data-subnav-disabled">
+          {title}
+        </span>
+      );
+    }
 
     return (
       <div id="tidelineMain" className="daily">
@@ -303,7 +360,6 @@ class Daily extends React.Component {
           inTransition={inTransition}
           atMostRecent={atMostRecent}
           loading={loading}
-          title={title}
           prefixURL={this.props.prefixURL}
           iconBack="icon-back"
           iconNext="icon-next"
@@ -318,7 +374,10 @@ class Daily extends React.Component {
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
           onClickSettings={this.props.onSwitchToSettings}
-          onClickPrint={this.props.onClickPrint} />
+          onClickPrint={this.props.onClickPrint}
+        >
+          {headerTitleContent}
+        </Header>
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -399,8 +458,8 @@ class Daily extends React.Component {
 
   getEndpoints() {
     const { epochLocation, msRange } = this.props;
-    const start = moment.utc(epochLocation - msRange/2).toISOString();
-    const end = moment.utc(epochLocation + msRange/2).toISOString();
+    const start = moment.utc(epochLocation - msRange / 2).toISOString();
+    const end = moment.utc(epochLocation + msRange / 2).toISOString();
     return [start, end];
   }
 
@@ -437,7 +496,7 @@ class Daily extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    if (!loading) {
+    if (!loading && this.chartRef.current !== null) {
       this.chartRef.current.panBack();
     }
   };
@@ -447,7 +506,7 @@ class Daily extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    if (!loading) {
+    if (!loading && this.chartRef.current !== null) {
       this.chartRef.current.panForward();
     }
   };
@@ -457,7 +516,7 @@ class Daily extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    if (!loading) {
+    if (!loading && this.chartRef.current !== null) {
       this.chartRef.current.goToMostRecent();
     }
   };

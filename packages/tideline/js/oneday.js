@@ -592,7 +592,7 @@ function oneDay(emitter, options = {}) {
         nav.pan.translate([0,0]);
         nav.pan.event(container.mainGroup);
       }
-    } else {
+    } else if (typeof epochLocation === "number") {
       // This may look counter intuitive at first
       // But it is needed in the following case:
       // We have scroll far enough in the past

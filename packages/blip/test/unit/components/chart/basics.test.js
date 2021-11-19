@@ -84,7 +84,7 @@ describe("Basics", () => {
     profileDialog: sinon.stub().returns(null),
   };
 
-  /** @type {import('enzyme').ReactWrapper} */
+  /** @type {import('enzyme').ReactWrapper | null} */
   let wrapper = null;
 
   beforeEach(() => {
@@ -198,10 +198,9 @@ describe("Basics", () => {
 
   describe("getInitialState", () => {
     it("should set the initial state", () => {
-      expect(wrapper.state("atMostRecent")).to.be.true;
-      expect(wrapper.state("inTransition")).to.be.false;
-      expect(wrapper.state("title")).to.be.a("string");
-      expect(_.isEmpty(wrapper.state("endpoints"))).to.be.true;
+      expect(wrapper.state("atMostRecent"), "atMostRecent").to.be.true;
+      expect(wrapper.state("title"), "title").to.be.a("string");
+      expect(_.isEmpty(wrapper.state("endpoints")), "endpoints").to.be.true;
     });
   });
 

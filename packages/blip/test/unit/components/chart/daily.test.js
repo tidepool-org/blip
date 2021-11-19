@@ -4,6 +4,7 @@
  * @typedef {import("enzyme").ReactWrapper} ReactWrapper
  */
 import _ from "lodash";
+import PropTypes from "prop-types";
 import React from "react";
 import * as sinon from "sinon";
 import { expect } from "chai";
@@ -52,6 +53,7 @@ describe("Daily", () => {
     permsOfLoggedInUser: {
       root: true,
     },
+    datePicker: (props) => <div id="date-picker" className={props?.className}>{props.children}</div>,
     dataUtil: new DataUtilStub(),
     profileDialog: sinon.stub().returns(<div id="profile-dialog" />),
     epochLocation: moment.utc("2014-03-13T12:00:00.000Z").valueOf(),
@@ -96,10 +98,12 @@ describe("Daily", () => {
     },
   };
 
-  /** @type {ShallowWrapper | ReactWrapper} */
+  /** @type {ShallowWrapper | ReactWrapper | null} */
   let wrapper = null;
-  /** @type {Daily} */
+  /** @type {Daily | null | undefined} */
   let instance = null;
+  /** @type {sinon.SinonStub<[date: Date], void>} */
+  let dailyChartGoToDate;
 
   before(() => {
     sinon.stub(DailyChart.prototype, "reCreateChart");
@@ -107,12 +111,13 @@ describe("Daily", () => {
     sinon.stub(DailyChart.prototype, "mountChart");
     sinon.stub(DailyChart.prototype, "unmountChart");
     sinon.stub(DailyChart.prototype, "render").returns(<div className="fake-daily-chart" />);
+    dailyChartGoToDate = sinon.stub(DailyChart.prototype, "goToDate");
   });
 
   beforeEach(() => {
     wrapper = mount(<Daily {...baseProps} />);
     wrapper.update();
-    instance = wrapper.instance();
+    instance = wrapper?.instance();
   });
 
   afterEach(() => {
@@ -121,6 +126,7 @@ describe("Daily", () => {
     baseProps.updateChartPrefs.reset();
     baseProps.onDatetimeLocationChange.resetHistory();
     baseProps.tidelineData.getTimezoneAt.resetHistory();
+    dailyChartGoToDate.reset();
     if (wrapper) {
       wrapper.unmount();
       wrapper = null;
@@ -173,12 +179,6 @@ describe("Daily", () => {
     });
 
     it("should show a loader when loading prop is true", () => {
-      var props = _.assign({}, baseProps, {
-        loading: false,
-      });
-
-      wrapper.setProps(props);
-
       const loader = () => wrapper.find(Loader).last();
 
       expect(loader().length).to.equal(1);
@@ -197,14 +197,75 @@ describe("Daily", () => {
       const stats = wrapper.find("Stats");
       expect(stats.length).to.equal(1);
     });
+
+    it("should render the date-picker", () => {
+      let titleElem = wrapper?.find("#date-picker");
+      expect(titleElem?.length).to.be.eq(1);
+      // enzyme see the "id" set in the component, so filter it more
+      titleElem = wrapper?.find("#daily-chart-title-date").find(".patient-data-subnav-disabled");
+      expect(titleElem?.length).to.be.eq(0);
+    });
+
+    it("should render the date title as disabled when loading", () => {
+      const props = {...baseProps, loading: true };
+      wrapper?.setProps(props);
+      let titleElem = wrapper?.find("#date-picker");
+      expect(titleElem?.length).to.be.eq(0);
+      titleElem = wrapper?.find("#daily-chart-title-date");
+      expect(titleElem?.length).to.be.eq(1);
+    });
+
+    it("should render the date title as disabled when in transition", () => {
+      instance?.handleInTransition(true);
+      wrapper?.update();
+      let titleElem = wrapper?.find("#date-picker");
+      expect(titleElem?.length).to.be.eq(0);
+      titleElem = wrapper?.find("#daily-chart-title-date");
+      expect(titleElem?.length).to.be.eq(1);
+    });
+
+    it("should set the new displayed date after a return of the date-picker", () => {
+      /** @type {null | ((s: string) => void)} */
+      let onResult = null;
+      let id = "";
+      let className = "";
+      let children = null;
+      const DatePicker = (props) => {
+        onResult = props.onResult;
+        id = props.id;
+        className = props.className;
+        children = props.children;
+        return <div id="date-picker-with-result" className={props?.className}>{props.children}</div>;
+      };
+      DatePicker.propTypes = {
+        id: PropTypes.string,
+        onResult: PropTypes.func.isRequired,
+        className: PropTypes.string,
+        children: PropTypes.node,
+      };
+      const props = {...baseProps, datePicker: DatePicker };
+      wrapper?.setProps(props);
+      let titleElem = wrapper?.find("#date-picker-with-result");
+      expect(titleElem?.length).to.be.eq(1);
+      expect(id).to.be.eq("daily-chart-title-date");
+      expect(className).to.be.eq("patient-data-subnav-text patient-data-subnav-dates-daily chart-title-clickable");
+      expect(children).to.be.not.null;
+      expect(onResult).to.be.a("function");
+      onResult("2021-11-01");
+      expect(dailyChartGoToDate.calledOnce).to.be.true;
+      expect(dailyChartGoToDate.firstCall.args[0]).to.be.instanceOf(Date);
+      // Timezone "America/Los_Angeles" @ 12h -> "2021-11-01" +7h -> 12 + 7 = 19
+      expect(dailyChartGoToDate.firstCall.args[0].toISOString()).to.be.eq("2021-11-01T19:00:00.000Z");
+    });
   });
 
   describe("handleDatetimeLocationChange", () => {
     const epoch = Date.parse("2018-01-15T12:00:00.000Z");
 
     it("should update the base props `datetimeLocation` & `dateRange` state", () => {
+      baseProps.tidelineData.getTimezoneAt.resetHistory();
       instance.handleDatetimeLocationChange(epoch);
-      sinon.assert.calledTwice(baseProps.tidelineData.getTimezoneAt);
+      sinon.assert.calledOnce(baseProps.tidelineData.getTimezoneAt);
       sinon.assert.calledOnce(baseProps.onDatetimeLocationChange);
       sinon.assert.calledWith(baseProps.onDatetimeLocationChange, moment.utc("2018-01-15T12:00:00.000Z").valueOf());
     });

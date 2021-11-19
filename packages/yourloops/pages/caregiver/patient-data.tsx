@@ -43,6 +43,7 @@ import { useSharedUser, ShareUser } from "../../lib/share";
 
 import InvalidRoute from "../../components/invalid-route";
 import ProfileDialog from "../../components/profile-dialog";
+import DatePicker from "../../components/date-pickers/date-picker";
 
 interface PatientDataParam {
   patientId?: string;
@@ -114,7 +115,14 @@ function PatientDataPage(): JSX.Element | null {
 
   return (
     <Container maxWidth="lg">
-      <Blip config={appConfig} api={blipApi} patient={patient.user} profileDialog={ProfileDialog} prefixURL={`/caregiver/patient/${paramPatientId}`} />
+      <Blip
+        config={appConfig}
+        api={blipApi}
+        patient={patient.user}
+        profileDialog={ProfileDialog}
+        prefixURL={`/caregiver/patient/${paramPatientId}`}
+        datePicker={DatePicker}
+      />
     </Container>
   );
 }

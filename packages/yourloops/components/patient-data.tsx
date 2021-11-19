@@ -44,6 +44,7 @@ import { useData } from "../lib/data";
 import { getUserFirstLastName, setPageTitle } from "../lib/utils";
 
 import ProfileDialog from "./profile-dialog";
+import DatePicker from "./date-pickers/date-picker";
 
 interface PatientDataPageProps {
   prefixURL: string;
@@ -131,7 +132,14 @@ function PatientDataPage(props: PatientDataPageProps): JSX.Element | null {
 
   return (
     <Container maxWidth="lg">
-      <Blip config={appConfig} api={blipApi} patient={patient} profileDialog={ProfileDialog} prefixURL={prefixURL} />
+      <Blip
+        config={appConfig}
+        api={blipApi}
+        patient={patient}
+        profileDialog={ProfileDialog}
+        prefixURL={prefixURL}
+        datePicker={DatePicker}
+      />
     </Container>
   );
 }

@@ -196,8 +196,8 @@ describe("Trends", () => {
       };
 
       wrapper.setProps(timezoneAwareProps);
-      let title = instance.getTitle();
-      expect(title).to.be.equal("Loading...");
+      let title = shallow(instance.getTitle());
+      expect(title.text()).to.be.equal("Loading...");
 
       wrapper.setProps({ epochLocation, msRange, loading: false }).update();
       title = shallow(instance.getTitle());

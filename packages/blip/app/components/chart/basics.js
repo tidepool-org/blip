@@ -4,6 +4,7 @@ import _ from "lodash";
 import bows from "bows";
 import sundial from "sundial";
 import i18next from "i18next";
+import cx from "classnames";
 
 import { BasicsChart } from "tideline";
 import { components as vizComponents, utils as vizUtils } from "tidepool-viz";
@@ -25,7 +26,6 @@ class Basics extends React.Component {
 
     this.state = {
       atMostRecent: true,
-      inTransition: false,
       title: this.getTitle(),
       endpoints: [],
     };
@@ -48,7 +48,7 @@ class Basics extends React.Component {
 
   render() {
     const { loading } = this.props;
-    const { endpoints, title, inTransition } = this.state;
+    const { endpoints, title } = this.state;
     return (
       <div id="tidelineMain" className="basics">
         <Header
@@ -56,8 +56,6 @@ class Basics extends React.Component {
           chartType={this.chartType}
           patient={this.props.patient}
           atMostRecent={true}
-          inTransition={inTransition}
-          title={title}
           prefixURL={this.props.prefixURL}
           canPrint={this.props.canPrint}
           trackMetric={this.props.trackMetric}
@@ -67,7 +65,10 @@ class Basics extends React.Component {
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.props.onSwitchToSettings}
-          onClickPrint={this.props.onClickPrint} />
+          onClickPrint={this.props.onClickPrint}
+        >
+          {title}
+        </Header>
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -120,7 +121,7 @@ class Basics extends React.Component {
   }
 
   getTitle() {
-    const { timePrefs } = this.props;
+    const { timePrefs, loading } = this.props;
     if (this.isMissingBasics()) {
       return "";
     }
@@ -128,10 +129,15 @@ class Basics extends React.Component {
     const basicsData = this.props.tidelineData.basicsData;
     const dtMask = i18next.t("MMM D, YYYY");
 
+    const fromDate = sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask);
+    const toDate = sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
     return (
-      sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
-      " - " +
-      sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask)
+      <span
+        id="basics-chart-title-date"
+        className={cx("patient-data-subnav-text", "patient-data-subnav-dates-basics", { "patient-data-subnav-disabled": loading })}
+      >
+        {`${fromDate} - ${toDate}`}
+      </span>
     );
   }
 

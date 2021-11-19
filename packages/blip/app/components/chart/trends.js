@@ -176,7 +176,9 @@ class Trends extends React.Component {
     const { displayCalendar } = this.state;
 
     if (loading) {
-      return t("Loading...");
+      return (
+        <span id="trends-chart-title-dates">{t("Loading...")}</span>
+      );
     }
 
     /** @type {[moment.Moment, moment.Moment]} */
@@ -216,7 +218,7 @@ class Trends extends React.Component {
     };
 
     let calendar = null;
-    let divClass = "chart-title-clickable";
+    let divClass = "patient-data-subnav-text patient-data-subnav-dates-trends chart-title-clickable";
     if (displayCalendar) {
       const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
       const minDate = moment.tz(tidelineData.endpoints[0], timezone);
@@ -241,8 +243,8 @@ class Trends extends React.Component {
     }
 
     return (
-      <div className={divClass} onClick={handleClickTitle} onKeyPress={handleKeyboard} role="button" tabIndex={0}>
-        <span>
+      <div id="date-picker-button-show-calendar" className={divClass} onClick={handleClickTitle} onKeyPress={handleKeyboard} role="button" tabIndex={0}>
+        <span id="trends-chart-title-dates">
           {displayStartDate}&nbsp;-&nbsp;{displayEndDate}
         </span>
         {calendar}
@@ -530,7 +532,6 @@ class Trends extends React.Component {
         patient={this.props.patient}
         inTransition={this.state.inTransition}
         atMostRecent={this.state.atMostRecent}
-        title={title}
         prefixURL={this.props.prefixURL}
         canPrint={this.props.canPrint}
         trackMetric={this.props.trackMetric}
@@ -544,7 +545,10 @@ class Trends extends React.Component {
         onClickMostRecent={this.handleClickMostRecent}
         onClickNext={this.handleClickForward}
         onClickOneDay={this.handleClickDaily}
-        onClickSettings={this.handleClickSettings} />
+        onClickSettings={this.handleClickSettings}
+      >
+        {title}
+      </Header>
     );
   }
 
