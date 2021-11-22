@@ -8,11 +8,12 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
+import noop from 'lodash/noop';
 import pick from 'lodash/pick';
 import { Formik, Form, FastField } from 'formik';
 import { Box, Flex } from 'rebass/styled-components';
 import countries from 'i18n-iso-countries';
-import { Body1, Headline } from '../../components/elements/FontStyles';
+import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
 import Select from '../../components/elements/Select';
 import Checkbox from '../../components/elements/Checkbox';
@@ -27,6 +28,13 @@ import { push } from 'connected-react-router';
 import { components as vizComponents } from '@tidepool/viz';
 import { clinicValuesFromClinic, roles, validationSchema } from '../../core/clinicUtils';
 import { addEmptyOption } from '../../core/forms';
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '../../components/elements/Dialog';
 
 const { Loader } = vizComponents;
 const t = i18next.t.bind(i18next);
@@ -69,6 +77,8 @@ export const ClinicDetails = (props) => {
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const [submitting, setSubmitting] = useState(false);
+  const [showMigrationDialog, setShowMigrationDialog] = useState(false);
+  const [logoutPending, setLogoutPending] = useState(false);
 
   const clinicValues = () => ({
     firstName: '',
@@ -165,10 +175,10 @@ export const ClinicDetails = (props) => {
           variant: 'danger',
         });
       } else {
-        // If the account is flagged for migration, we trigger that now.
+        // If the account is flagged for migration, we open the migration confirmation modal.
         // Otherwise redirect to the clinic workspaces tab.
         if (clinic.canMigrate) {
-          dispatch(actions.async.triggerInitialClinicMigration(api, clinic.id));
+          openMigrationConfirmationModal();
         } else {
           setSubmitting(false);
 
@@ -204,6 +214,8 @@ export const ClinicDetails = (props) => {
           variant: 'danger',
         });
       } else {
+        setLogoutPending(true);
+
         setToast({
           message: t('Clinic migration in progress. You will be automatically logged out.'),
           variant: 'success',
@@ -217,6 +229,21 @@ export const ClinicDetails = (props) => {
 
     return () => clearTimeout(messageDelayTimer);
   }, [working.triggeringInitialClinicMigration]);
+
+
+  function openMigrationConfirmationModal() {
+    setShowMigrationDialog(true);
+  }
+
+  function closeMigrationConfirmationModal() {
+    setSubmitting(false);
+    setShowMigrationDialog(false);
+  }
+
+  function handleConfirmClinicMigration() {
+    trackMetric('Clinic - Migration confirmed', { clinicId: selectedClinicId });
+    dispatch(actions.async.triggerInitialClinicMigration(api, selectedClinicId));
+  }
 
   return (
     <Box
@@ -345,6 +372,37 @@ export const ClinicDetails = (props) => {
               </Form>
             )}
           </Formik>
+          <Dialog
+            id="migrateClinic"
+            aria-labelledBy="dialog-title"
+            open={showMigrationDialog}
+            onClose={logoutPending ? noop : closeMigrationConfirmationModal}
+          >
+            <DialogTitle closeIcon={!logoutPending} onClose={closeMigrationConfirmationModal}>
+              <MediumTitle id="dialog-title">{t('Confirm Clinic Migration')}</MediumTitle>
+            </DialogTitle>
+            <DialogContent>
+              <Body1>
+                {t('You will be logged out of the system upon confirming. You need to login again into your Tidepool account to continue to the new clinic workspace.')}
+              </Body1>
+            </DialogContent>
+            <DialogActions>
+              <Button variant="secondary" disabled={logoutPending} onClick={closeMigrationConfirmationModal}>
+                {t('Cancel')}
+              </Button>
+              <Button
+                className="confirm-clinic-migration"
+                variant="primary"
+                disabled={logoutPending}
+                processing={working.triggeringInitialClinicMigration.inProgress}
+                onClick={() => {
+                  handleConfirmClinicMigration();
+                }}
+              >
+                {t('Confirm')}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       ) : <Loader />}
     </Box>
