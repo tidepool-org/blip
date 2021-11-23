@@ -56,7 +56,7 @@ export const PrintDateRangeModal = (props) => {
     });
   };
 
-  const basicsDaysOptions = [14, 21, 30];
+  const basicsDaysOptions = [14, 21, 30, 90];
   const bgLogDaysOptions = [14, 21,30];
   const dailyDaysOptions = [14, 21, 30];
 
