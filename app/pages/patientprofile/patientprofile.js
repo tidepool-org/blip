@@ -46,7 +46,7 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
 export function mapStateToProps(state) {
   let user = null;
   let patient = null;
-  let clinicPatient = null;
+  let clinicPatient;
   let permissions = {};
   let permsOfLoggedInUser = {};
 
@@ -80,7 +80,7 @@ export function mapStateToProps(state) {
     if (currentPatientInViewId) {
 
       patient = allUsersMap[currentPatientInViewId];
-      clinicPatient = _.get(clinics, [selectedClinicId, 'patients', currentPatientInViewId], {});
+      if (selectedClinicId) clinicPatient = _.get(clinics, [selectedClinicId, 'patients', currentPatientInViewId]);
 
       permissions = _.get(
         permissionsOfMembersInTargetCareTeam,

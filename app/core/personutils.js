@@ -208,10 +208,9 @@ personUtils.clinicPatientFromAccountInfo = patient => ({
   mrn: _.get(patient, 'profile.patient.mrn'),
 });
 
-personUtils.combinedAccountAndClinicPatient = (patient, clinicPatient) => {
-  return clinicPatient
-    ? _.defaultsDeep(personUtils.accountInfoFromClinicPatient(clinicPatient), patient)
-    : patient;
-};
+personUtils.combinedAccountAndClinicPatient = (
+  patient,
+  clinicPatient = {}
+) => _.defaultsDeep(personUtils.accountInfoFromClinicPatient(clinicPatient), patient);
 
 module.exports = personUtils;
