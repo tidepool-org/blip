@@ -185,4 +185,33 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
   return validationErrors;
 };
 
+personUtils.accountInfoFromClinicPatient = clinicPatient => ({
+  permissions: clinicPatient.permissions,
+  profile: {
+    emails: [clinicPatient.email],
+    fullName: clinicPatient.fullName,
+    patient: {
+      birthday: clinicPatient.birthDate,
+      mrn: clinicPatient.mrn,
+    },
+  },
+  userid: clinicPatient.id,
+  username: clinicPatient.email,
+});
+
+personUtils.clinicPatientFromAccountInfo = patient => ({
+  permissions: patient.permissions,
+  id: patient.userid,
+  email: patient.username,
+  fullName: personUtils.patientFullName(patient),
+  birthDate: _.get(patient, 'profile.patient.birthday'),
+  mrn: _.get(patient, 'profile.patient.mrn'),
+});
+
+personUtils.combinedAccountAndClinicPatient = (patient, clinicPatient) => {
+  return clinicPatient
+    ? _.defaultsDeep(personUtils.accountInfoFromClinicPatient(clinicPatient), patient)
+    : patient;
+};
+
 module.exports = personUtils;
