@@ -81,7 +81,7 @@ export interface TeamAPI {
   leaveTeam: (session: Session, teamId: string) => Promise<void>;
   removeMember: (session: Session, teamId: string, userId: string, email: string) => Promise<void>;
   removePatient: (session: Session, teamId: string, userId: string) => Promise<void>;
-  changeMemberRole: (session: Session, teamId: string, userId: string, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<void>;
+  changeMemberRole: (session: Session, teamId: string, userId: string, email: string, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<void>;
   getTeamFromCode: (session: Session, code: string) => Promise<ITeam | null>;
   joinTeam: (session: Session, teamId: string) => Promise<void>;
 }

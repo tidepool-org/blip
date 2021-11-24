@@ -269,9 +269,9 @@ async function removePatient(session: Session, teamId: string, userId: string): 
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function changeMemberRole(session: Session, teamId: string, userId: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void> {
+async function changeMemberRole(session: Session, teamId: string, userId: string, email: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void> {
   const { sessionToken, traceToken } = session;
-  log.info("changeMemberRole()", teamId, userId, role);
+  log.info("changeMemberRole()", teamId, userId, email, role);
 
   try {
     const apiURL = new URL(`/confirm/send/team/role/${userId}`, appConfig.API_HOST);
@@ -285,7 +285,7 @@ async function changeMemberRole(session: Session, teamId: string, userId: string
       },
       body: JSON.stringify({
         teamId,
-        userId,
+        email,
         role,
       }),
     });

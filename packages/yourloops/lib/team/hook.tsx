@@ -434,7 +434,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const changeMemberRole = async (member: TeamMember, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void> => {
-    await api.changeMemberRole(session, member.team.id, member.user.userid, role);
+    await api.changeMemberRole(session, member.team.id, member.user.userid, member.user.username, role);
     member.role = role as TeamMemberRole;
     setTeams(teams);
     metrics.send("team_management", "manage_admin_permission", role === "admin" ? "grant" : "revoke");
