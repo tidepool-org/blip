@@ -137,7 +137,7 @@
   "modal-patient-team-warning": "Please verify that the above details match the information provided by your healthcare professional before accepting the invitation.",
   "modal-remove-caregiver-question": "Are you sure you want to remove caregiver {{name}}?",
   "modal-remove-patient-info-2": "You will no longer have access to their data.",
-  "modal-remove-patient-question": "Are you sure you want to remove patient {{patientName}}?",
+  "modal-remove-patient-question": "Are you sure you want to remove patient {{name}}?",
   "modal-remove-team-question": "Are you sure you want to remove team {{teamName}}?",
   "modal-switch-hcp-action": "Switch to Professional",
   "modal-switch-hcp-failure": "Impossible to switch account. Please try again later.",

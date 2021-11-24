@@ -137,7 +137,7 @@
   "modal-patient-team-warning": "Controleer of de bovenstaande gegevens overeenkomen met de informatie die door je zorgverlener is verstrekt voordat je de uitnodiging accepteert.",
   "modal-remove-caregiver-question": "Weet je zeker dat je verzorger {{name}} wilt verwijderen?",
   "modal-remove-patient-info-2": "Je zult geen toegang meer hebben tot zijn/haar gegevens.",
-  "modal-remove-patient-question": "Weet je zeker dat je patiënt {{name}} wilt verwijderen?{{name}}",
+  "modal-remove-patient-question": "Weet je zeker dat je patiënt {{name}} wilt verwijderen?",
   "modal-remove-team-question": "Weet je zeker dat je team {{teamName}} wilt verwijderen?",
   "modal-switch-hcp-action": "Overschakelen naar Professioneel",
   "modal-switch-hcp-failure": "Account kan niet worden overgeschakeld. Probeer het later opnieuw.",

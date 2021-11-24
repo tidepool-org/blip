@@ -17,6 +17,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1041 Fix potential crash in YourLoops when rendering the PDF
 - YLP-1083 Missing IOB on wizard (meal) bolus
 - YLP-1087 Missing notification when switch team member role to admin
+- YLP-1095 Patient name not displayed into remove dialog
 ### Engineering Use
 - YLP-662 Rework events tagging for Matomo
 - YLP-1029 Add a build step to verify translations
