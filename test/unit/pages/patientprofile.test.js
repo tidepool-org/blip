@@ -37,6 +37,7 @@ describe('PatientProfile', () => {
       fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
+      fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
     };
 
     const api = {};
@@ -156,6 +157,8 @@ describe('PatientProfile', () => {
           fetchingAssociatedAccounts: { inProgress: false, completed: null },
           updatingDataDonationAccounts: { inProgress: false },
           updatingPatientBgUnits: { inProgress: false },
+          updatingPatient: { inProgress: false },
+          updatingClinicPatient: { inProgress: false },
         },
       };
 
@@ -206,6 +209,8 @@ describe('PatientProfile', () => {
           fetchingAssociatedAccounts: { inProgress: false, completed: null },
           updatingDataDonationAccounts: { inProgress: false },
           updatingPatientBgUnits: { inProgress: false },
+          updatingPatient: { inProgress: false },
+          updatingClinicPatient: { inProgress: false },
         },
       };
 

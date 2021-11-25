@@ -93,7 +93,7 @@ export function mapStateToProps(state) {
       }
       // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
       else {
-        permsOfLoggedInUser = clinicPatient.permissions || _.get(
+        permsOfLoggedInUser = clinicPatient?.permissions || _.get(
           membershipPermissionsInOtherCareTeams,
           currentPatientInViewId,
           {}
@@ -115,6 +115,7 @@ export function mapStateToProps(state) {
     dataDonationAccountsFetched: fetchingPendingSentInvites.completed && fetchingAssociatedAccounts.completed,
     updatingDataDonationAccounts: updatingDataDonationAccounts.inProgress,
     updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
+    updatingPatient: updatingPatient.inProgress,
     updatingPatient: updatingPatient.inProgress || updatingClinicPatient.inProgress,
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,

@@ -468,13 +468,14 @@ export class AppComponent extends React.Component {
       resentEmailVerification,
     } = this.props;
     if (_.has(permsOfLoggedInUser, 'custodian')) {
-      if (!_.has(personUtils.combinedAccountAndClinicPatient(patient, clinicPatient), 'username')) {
+      const combinedPatient = personUtils.combinedAccountAndClinicPatient(patient, clinicPatient);
+      if (_.isNil(combinedPatient.username)) {
         this.props.context.trackMetric('Banner displayed Add Email');
         return (
           <div className="App-addemailbanner">
             <AddEmailBanner
               trackMetric={this.props.context.trackMetric}
-              patient={patient}
+              patient={combinedPatient}
             />
           </div>
         );
@@ -484,7 +485,7 @@ export class AppComponent extends React.Component {
           <div className="App-sendverificationbanner">
             <SendVerificationBanner
               trackMetric={this.props.context.trackMetric}
-              patient={patient}
+              patient={combinedPatient}
               resendVerification={onResendEmailVerification}
               resendEmailVerificationInProgress={resendEmailVerificationInProgress}
               resentEmailVerification={resentEmailVerification}

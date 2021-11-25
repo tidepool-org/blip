@@ -209,7 +209,7 @@ personUtils.clinicPatientFromAccountInfo = patient => ({
 });
 
 personUtils.combinedAccountAndClinicPatient = (
-  patient,
+  patient = {},
   clinicPatient = {}
 ) => _.defaultsDeep(personUtils.accountInfoFromClinicPatient(clinicPatient), patient);
 
