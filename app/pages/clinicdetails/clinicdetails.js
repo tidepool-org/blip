@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
@@ -11,7 +11,7 @@ import map from 'lodash/map';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
 import { Formik, Form, FastField } from 'formik';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'rebass/styled-components';
 import countries from 'i18n-iso-countries';
 import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
@@ -78,7 +78,9 @@ export const ClinicDetails = (props) => {
   const previousWorking = usePrevious(working);
   const [submitting, setSubmitting] = useState(false);
   const [showMigrationDialog, setShowMigrationDialog] = useState(false);
+  const [showDeclineDialog, setShowDeclineDialog] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
+  const [clinicInvite, setClinicInvite] = useState();
 
   const clinicValues = () => ({
     firstName: '',
@@ -92,6 +94,16 @@ export const ClinicDetails = (props) => {
     const redirectPath = isEmpty(pendingReceivedClinicianInvites) ? '/clinic-workspace' : '/workspaces';
     dispatch(push(redirectPath));
   }
+
+  function redirectToPatients() {
+    dispatch(push('/patients?justLoggedIn=true'));
+  }
+
+  useEffect(() => {
+    if (pendingReceivedClinicianInvites.length) {
+      setClinicInvite(pendingReceivedClinicianInvites?.[0]);
+    }
+  }, [pendingReceivedClinicianInvites]);
 
   useEffect(() => {
     if (clinic && !submitting) {
@@ -230,6 +242,34 @@ export const ClinicDetails = (props) => {
     return () => clearTimeout(messageDelayTimer);
   }, [working.triggeringInitialClinicMigration]);
 
+  useEffect(() => {
+    const { inProgress, completed, notification } = working.dismissingClinicianInvite;
+
+    const successMessage = t('Invitation to {{name}} has been declined.', {
+      name: clinicInvite?.creator?.clinicName,
+    });
+
+    if (!inProgress) {
+      if (completed) {
+        setShowDeclineDialog(false);
+
+        setToast({
+          message: successMessage,
+          variant: 'success',
+        });
+
+        redirectToPatients();
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+    }
+  }, [working.dismissingClinicianInvite]);
+
 
   function openMigrationConfirmationModal() {
     setShowMigrationDialog(true);
@@ -245,6 +285,23 @@ export const ClinicDetails = (props) => {
     dispatch(actions.async.triggerInitialClinicMigration(api, selectedClinicId));
   }
 
+  function handleDeclineInvite(workspace) {
+    trackMetric('Clinic - Details Form - Ignore clinic invite', { clinicId: selectedClinicId });
+    setShowDeclineDialog(true);
+  }
+
+  function handleConfirmDeclineInvite() {
+    trackMetric('Clinic - Details Form - Ignore clinic invite confirmed', { clinicId: selectedClinicId });
+
+    dispatch(
+      actions.async.dismissClinicianInvite(
+        api,
+        loggedInUserId,
+        clinicInvite.key
+      )
+    );
+  }
+
   return (
     <Box
       variant="containers.mediumBordered"
@@ -253,6 +310,28 @@ export const ClinicDetails = (props) => {
       {working.fetchingClinicianInvites.completed ? (
         <>
           <Headline mb={2}>{t('Update your account')}</Headline>
+
+          <Body1 mb={2}>
+            <Trans>
+              You have been invited to become a clinic team member at&nbsp;
+
+              <Text as='span' fontWeight='bold'>
+                {{ clinicName: clinicInvite?.creator?.clinicName }}
+              </Text>.
+
+              <Text
+                as="span"
+                className="decline-invite"
+                ml={2}
+                color="text.link"
+                sx={{ cursor: 'pointer' }}
+                onClick={handleDeclineInvite}
+              >
+                Decline Invitation
+              </Text>
+            </Trans>
+          </Body1>
+
           <Body1 mb={4}>
             {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
           </Body1>
@@ -400,6 +479,37 @@ export const ClinicDetails = (props) => {
                 }}
               >
                 {t('Confirm')}
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+            id="declineInvite"
+            aria-labelledBy="dialog-title"
+            open={showDeclineDialog}
+            onClose={() => setShowDeclineDialog(false)}
+          >
+            <DialogTitle onClose={() => setShowDeclineDialog(false)}>
+              <MediumTitle id="dialog-title">{t('Decline {{name}}', { name: clinicInvite?.creator?.clinicName })}</MediumTitle>
+            </DialogTitle>
+            <DialogContent>
+              <Body1>
+                {t('If you decline this invitation you will need to ask your Clinic Admin to send a new one. Are you sure you want to decline the invitation to the {{name}} clinic workspace? ', { name: clinicInvite?.creator?.clinicName })}
+              </Body1>
+            </DialogContent>
+            <DialogActions>
+              <Button variant="secondary" onClick={() => setShowDeclineDialog(false)}>
+                {t('Cancel')}
+              </Button>
+              <Button
+                className="confirm-decline-invite"
+                variant="danger"
+                processing={working.dismissingClinicianInvite.inProgress}
+                onClick={() => {
+                  handleConfirmDeclineInvite();
+                }}
+              >
+                {t('Decline Invite')}
               </Button>
             </DialogActions>
           </Dialog>

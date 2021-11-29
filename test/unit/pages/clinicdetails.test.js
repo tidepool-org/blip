@@ -31,6 +31,7 @@ describe('ClinicDetails', () => {
     api: {
       clinics: {
         getClinicianInvites: sinon.stub().callsArgWith(1, null, { invitesReturn: 'success' }),
+        dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
         update: sinon.stub().callsArgWith(2, null, { canMigrate: true }),
         triggerInitialClinicMigration: sinon.stub().callsArgWith(1, null, { triggerMigrationReturn: 'success' }),
       },
@@ -61,6 +62,7 @@ describe('ClinicDetails', () => {
         updatingClinic: defaultWorkingState,
         updatingUser: defaultWorkingState,
         triggeringInitialClinicMigration: defaultWorkingState,
+        dismissingClinicianInvite: defaultWorkingState,
       },
     },
   };
@@ -108,7 +110,12 @@ describe('ClinicDetails', () => {
   const newClinicianUserInviteState = {
     blip: {
       ...defaultState.blip,
-      pendingReceivedClinicianInvites: [ { key: 'invite123' } ],
+      pendingReceivedClinicianInvites: [
+        {
+          key: 'invite123',
+          creator: { clinicName: 'Example Health' },
+        },
+      ],
     },
   };
 
@@ -173,6 +180,7 @@ describe('ClinicDetails', () => {
   afterEach(() => {
     defaultProps.api.clinics.triggerInitialClinicMigration.resetHistory();
     defaultProps.api.clinics.getClinicianInvites.resetHistory();
+    defaultProps.api.clinics.dismissClinicianInvite.resetHistory();
     defaultProps.api.clinics.update.resetHistory();
     defaultProps.api.user.put.resetHistory();
   });
@@ -198,6 +206,55 @@ describe('ClinicDetails', () => {
     it('should fetch clinician invites', () => {
       sinon.assert.callCount(defaultProps.api.clinics.getClinicianInvites, 1);
       sinon.assert.calledWith(defaultProps.api.clinics.getClinicianInvites, 'clinicianUserId123');
+    });
+  });
+
+  describe('dismiss invitation', () => {
+    beforeEach(() => {
+      store = mockStore(newClinicianUserInviteState);
+
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicDetails {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+    });
+
+    it('should allow a clinician to decline a clinic invite', () => {
+      const declineDialog = () => wrapper.find('Dialog#declineInvite');
+      expect(declineDialog()).to.have.lengthOf(1);
+      expect(declineDialog().props().open).to.be.false;
+
+      const declineButton = wrapper.find('span.decline-invite');
+      expect(declineButton).to.have.lengthOf(1);
+      expect(declineButton.text()).to.equal('Decline Invitation');
+
+      declineButton.simulate('click');
+      expect(declineDialog().props().open).to.be.true;
+
+      const dialogTitle = declineDialog().find('#dialog-title').hostNodes();
+      expect(dialogTitle).to.have.lengthOf(1);
+      expect(dialogTitle.text()).to.equal('Decline Example Health');
+
+      const confirmDeclineButton = declineDialog().find('Button[variant="danger"]');
+      expect(confirmDeclineButton).to.have.lengthOf(1);
+      expect(confirmDeclineButton.text()).to.equal('Decline Invite');
+
+      store.clearActions();
+      confirmDeclineButton.simulate('click');
+      expect(store.getActions()).to.eql([
+        {
+          type: 'DISMISS_CLINICIAN_INVITE_REQUEST',
+        },
+        {
+          type: 'DISMISS_CLINICIAN_INVITE_SUCCESS',
+          payload: {
+            inviteId: 'invite123',
+          },
+        },
+      ]);
     });
   });
 
