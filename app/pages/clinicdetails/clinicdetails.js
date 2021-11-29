@@ -18,6 +18,7 @@ import TextInput from '../../components/elements/TextInput';
 import Select from '../../components/elements/Select';
 import Checkbox from '../../components/elements/Checkbox';
 import Button from '../../components/elements/Button';
+import NotificationIcon from '../../components/elements/NotificationIcon';
 import ClinicProfileFields from '../../components/clinic/ClinicProfileFields';
 import * as actions from '../../redux/actions';
 import i18next from '../../core/language';
@@ -312,24 +313,27 @@ export const ClinicDetails = (props) => {
           <Headline mb={2}>{t('Update your account')}</Headline>
 
           <Body1 mb={2}>
-            <Trans>
-              You have been invited to become a clinic team member at&nbsp;
+            <Flex alignItems="center">
+              <NotificationIcon ml={0} mr={2} flexShrink={0} />
+              <Trans>
+                You have been invited to become a clinic team member at&nbsp;
 
-              <Text as='span' fontWeight='bold'>
-                {{ clinicName: clinicInvite?.creator?.clinicName }}
-              </Text>.
+                <Text as='span' fontWeight='bold'>
+                  {{ clinicName: clinicInvite?.creator?.clinicName }}
+                </Text>.
 
-              <Text
-                as="span"
-                className="decline-invite"
-                ml={2}
-                color="text.link"
-                sx={{ cursor: 'pointer' }}
-                onClick={handleDeclineInvite}
-              >
-                Decline Invitation
-              </Text>
-            </Trans>
+                <Text
+                  as="span"
+                  className="decline-invite"
+                  ml={2}
+                  color="text.link"
+                  sx={{ cursor: 'pointer' }}
+                  onClick={handleDeclineInvite}
+                >
+                  Decline Invitation
+                </Text>
+              </Trans>
+            </Flex>
           </Body1>
 
           <Body1 mb={4}>
