@@ -461,19 +461,21 @@ export class AppComponent extends React.Component {
 
     const {
       patient,
+      clinicPatient,
       permsOfLoggedInUser,
       onResendEmailVerification,
       resendEmailVerificationInProgress,
       resentEmailVerification,
     } = this.props;
     if (_.has(permsOfLoggedInUser, 'custodian')) {
-      if (!_.has(patient, 'username')) {
+      const combinedPatient = personUtils.combinedAccountAndClinicPatient(patient, clinicPatient);
+      if (_.isNil(combinedPatient.username)) {
         this.props.context.trackMetric('Banner displayed Add Email');
         return (
           <div className="App-addemailbanner">
             <AddEmailBanner
               trackMetric={this.props.context.trackMetric}
-              patient={patient}
+              patient={combinedPatient}
             />
           </div>
         );
@@ -483,7 +485,7 @@ export class AppComponent extends React.Component {
           <div className="App-sendverificationbanner">
             <SendVerificationBanner
               trackMetric={this.props.context.trackMetric}
-              patient={patient}
+              patient={combinedPatient}
               resendVerification={onResendEmailVerification}
               resendEmailVerificationInProgress={resendEmailVerificationInProgress}
               resentEmailVerification={resentEmailVerification}
@@ -613,6 +615,7 @@ export function getFetchers(stateProps, dispatchProps, api) {
 export function mapStateToProps(state) {
   let user = null;
   let patient = null;
+  let clinicPatient;
   let permissions = null;
   let permsOfLoggedInUser = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
@@ -656,6 +659,7 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         null
       );
+      clinicPatient = _.get(state.blip.clinics, [state.blip.selectedClinicId, 'patients', state.blip.currentPatientInViewId]);
       permissions = _.get(
         state.blip.permissionsOfMembersInTargetCareTeam,
         state.blip.currentPatientInViewId,
@@ -732,6 +736,7 @@ export function mapStateToProps(state) {
     authenticated: state.blip.isLoggedIn,
     clinics: state.blip.clinics,
     clinicFlowActive: state.blip.clinicFlowActive,
+    clinicPatient,
     fetchingUser: state.blip.working.fetchingUser,
     fetchingDataSources: state.blip.working.fetchingDataSources,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,

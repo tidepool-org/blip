@@ -293,19 +293,27 @@ describe('App', () => {
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {custodian:{}} });
+      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: { custodian: {} } });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
 
-      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {custodian:{}} });
+      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: { custodian: {} } });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
+
+      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: { custodian:{}} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(1);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {} });
+      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {} });
+      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: {} });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
+
+      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
     });
