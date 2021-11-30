@@ -371,7 +371,7 @@ export const ClinicianEdit = (props) => {
 
             <DialogContent>
               <Body1>
-                {t('You have a unsaved changes to this clinician which will be lost if you navigate away. Are you sure you wish to discard these changes?')}
+                {t('There are unsaved changes to this clinician’s permissions which will be lost if you navigate away. Are you sure you want to discard these changes?')}
               </Body1>
             </DialogContent>
 
@@ -389,7 +389,7 @@ export const ClinicianEdit = (props) => {
                 variant="danger"
                 onClick={handleExitConfirmDialog}
               >
-                {t('Exit')}
+                {t('Discard Changes')}
               </Button>
             </DialogActions>
           </Dialog>
