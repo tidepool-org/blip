@@ -130,7 +130,7 @@ export const NavigationMenu = props => {
       >
         <Flex alignItems="center">
           {personUtils.fullName(allUsersMap?.[loggedInUserId]) || t('Account')}
-          {pendingReceivedClinicianInvites.length > 0 && <NotificationIcon />}
+          {pendingReceivedClinicianInvites.length > 0 && <NotificationIcon flexShrink={0} />}
         </Flex>
       </Button>
 
@@ -178,7 +178,7 @@ export const NavigationMenu = props => {
             >
               <Flex alignItems="center">
                 {option.label}
-                {option.notification && <NotificationIcon />}
+                {option.notification && <NotificationIcon flexShrink={0} />}
               </Flex>
             </Button>
           ))}
