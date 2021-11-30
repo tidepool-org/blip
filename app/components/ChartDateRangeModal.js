@@ -77,7 +77,7 @@ export const ChartDateRangeModal = (props) => {
   const [submitted, setSubmitted] = useState(defaults.submitted);
   const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
 
-  const presetDateRanges = useMemo(() => map(presetDaysOptions, days => getLastNDays(days, 'basics')), [open]);
+  const presetDateRanges = useMemo(() => map(presetDaysOptions, days => getLastNDays(days, 'basics')), [open, presetDaysOptions]);
 
   const datesMatchPreset = (dates, presetDates) => {
     return moment(dates.startDate).isSame(presetDates.startDate) && moment(dates.endDate).isSame(presetDates.endDate);
@@ -234,7 +234,7 @@ ChartDateRangeModal.defaultProps = {
   onClose: noop,
   onDatesChange: noop,
   onSubmit: noop,
-  presetDaysOptions: [14, 21, 30],
+  presetDaysOptions: [14, 21, 30, 90],
   title: t('Chart Date Range'),
   trackMetric: noop,
 };
