@@ -115,7 +115,6 @@ export function mapStateToProps(state) {
     dataDonationAccountsFetched: fetchingPendingSentInvites.completed && fetchingAssociatedAccounts.completed,
     updatingDataDonationAccounts: updatingDataDonationAccounts.inProgress,
     updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
-    updatingPatient: updatingPatient.inProgress,
     updatingPatient: updatingPatient.inProgress || updatingClinicPatient.inProgress,
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,
