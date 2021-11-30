@@ -758,12 +758,21 @@ export const clinics = (state = initialState.clinics, action) => {
       });
       return newClinics;
     }
-    case types.UPDATE_CLINICIAN_SUCCESS:
+    case types.UPDATE_CLINICIAN_SUCCESS: {
       let clinician = _.get(action.payload, 'clinician');
       let clinicId = _.get(action.payload, 'clinicId');
       return update(state, {
         [clinicId]: { clinicians: { [clinician.id]: { $set: clinician } } },
       });
+    }
+    case types.UPDATE_CLINIC_PATIENT_SUCCESS: {
+      const patient = _.get(action.payload, 'patient');
+      const patientId = _.get(action.payload, 'patientId');
+      const clinicId = _.get(action.payload, 'clinicId');
+      return update(state, {
+        [clinicId]: { patients: { [patientId]: { $set: patient } } },
+      });
+    }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
       let clinicId = _.get(action.payload, 'clinicId');
       let clinicianId = _.get(action.payload, 'clinicianId');
