@@ -7,7 +7,7 @@ import * as actions from '../../redux/actions';
 import _ from 'lodash';
 
 import Patient from '../patient/';
-import { selectedClinicId } from '../../redux/reducers/misc';
+import { clinicPatientFromAccountInfo } from '../../core/personutils';
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -46,13 +46,18 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
 export function mapStateToProps(state) {
   let user = null;
   let patient = null;
+  let clinicPatient;
   let permissions = {};
   let permsOfLoggedInUser = {};
 
   const {
     allUsersMap,
-    loggedInUserId,
+    clinics,
     currentPatientInViewId,
+    loggedInUserId,
+    membershipPermissionsInOtherCareTeams,
+    permissionsOfMembersInTargetCareTeam,
+    selectedClinicId,
     working,
   } = state.blip;
 
@@ -63,6 +68,8 @@ export function mapStateToProps(state) {
     fetchingAssociatedAccounts,
     updatingDataDonationAccounts,
     updatingPatientBgUnits,
+    updatingPatient,
+    updatingClinicPatient,
   } = working;
 
   if (allUsersMap){
@@ -70,33 +77,25 @@ export function mapStateToProps(state) {
       user = allUsersMap[loggedInUserId];
     }
 
-    if (currentPatientInViewId){
+    if (currentPatientInViewId) {
+
       patient = allUsersMap[currentPatientInViewId];
+      if (selectedClinicId) clinicPatient = _.get(clinics, [selectedClinicId, 'patients', currentPatientInViewId]);
 
       permissions = _.get(
-        state.blip.permissionsOfMembersInTargetCareTeam,
-        state.blip.currentPatientInViewId,
+        permissionsOfMembersInTargetCareTeam,
+        currentPatientInViewId,
         {}
       );
       // if the logged-in user is viewing own data, we pass through their own permissions as permsOfLoggedInUser
-      if (state.blip.currentPatientInViewId === state.blip.loggedInUserId) {
+      if (currentPatientInViewId === loggedInUserId) {
         permsOfLoggedInUser = permissions;
       }
       // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
       else {
-        permsOfLoggedInUser = state.blip.selectedClinicId
-        ? _.get(
-          state.blip.clinics,
-          [
-            state.blip.selectedClinicId,
-            'patients',
-            state.blip.currentPatientInViewId,
-            'permissions',
-          ],
-          {}
-        ) : _.get(
-          state.blip.membershipPermissionsInOtherCareTeams,
-          state.blip.currentPatientInViewId,
+        permsOfLoggedInUser = clinicPatient?.permissions || _.get(
+          membershipPermissionsInOtherCareTeams,
+          currentPatientInViewId,
           {}
         );
       }
@@ -107,6 +106,7 @@ export function mapStateToProps(state) {
     user: user,
     fetchingUser: fetchingUser.inProgress,
     patient: { permissions, ...patient },
+    clinicPatient,
     permsOfLoggedInUser: permsOfLoggedInUser,
     fetchingPatient: fetchingPatient.inProgress,
     fetchingPendingSentInvites: fetchingPendingSentInvites,
@@ -115,9 +115,10 @@ export function mapStateToProps(state) {
     dataDonationAccountsFetched: fetchingPendingSentInvites.completed && fetchingAssociatedAccounts.completed,
     updatingDataDonationAccounts: updatingDataDonationAccounts.inProgress,
     updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
+    updatingPatient: updatingPatient.inProgress || updatingClinicPatient.inProgress,
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,
-    selectedClinicId: state.blip.selectedClinicId,
+    selectedClinicId,
   };
 }
 
@@ -133,14 +134,23 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   connectDataSource: actions.async.connectDataSource,
   disconnectDataSource: actions.async.disconnectDataSource,
   fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
+  updateClinicPatient: actions.async.updateClinicPatient,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.api;
+
+  const patientUpdateAction = patient => {
+    dispatchProps.updatePatient(api, patient);
+    if (stateProps.selectedClinicId) {
+      dispatchProps.updateClinicPatient(api, stateProps.selectedClinicId, patient.userid, clinicPatientFromAccountInfo(patient));
+    }
+  }
+
   return Object.assign({}, stateProps, _.pick(dispatchProps, 'acknowledgeNotification'), {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
-    onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
+    onUpdatePatient: patientUpdateAction,
     onUpdatePatientSettings: dispatchProps.updatePatientSettings.bind(null, api),
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     connectDataSource: dispatchProps.connectDataSource.bind(null, api),
