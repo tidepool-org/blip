@@ -43,6 +43,7 @@ import { AuthAPI, User, Session, AuthContext, SignupUser } from "../../../lib/au
 import { AuthContextImpl, STORAGE_KEY_SESSION_TOKEN, STORAGE_KEY_TRACE_TOKEN, STORAGE_KEY_USER } from "../../../lib/auth/hook";
 import { loggedInUsers } from "../../common";
 import { AuthAPIStubs, createAuthAPIStubs, resetAuthAPIStubs } from "./api.test";
+import { HcpProfession } from "../../../models/hcp-profession";
 
 /**
  * Auth hook stubs definitions
@@ -680,6 +681,7 @@ function testHook(): void {
         profileFirstname: loggedInUsers.caregiver.profile.firstName,
         profileLastname: loggedInUsers.caregiver.profile.lastName,
         profilePhone: "+0000000",
+        hcpProfession: HcpProfession.empty,
         terms: true,
         feedback: false,
       };
@@ -712,6 +714,7 @@ function testHook(): void {
       expect(sentProfile).to.be.an("object").not.null;
       expect(sentProfile.contactConsent.isAccepted).to.be.false;
       expect(sentProfile.contactConsent.acceptanceTimestamp).to.be.a("string");
+      expect(sentProfile.hcpProfession).to.be.equal("");
       expect(authApiHcpStubs.updateSettings.calledOnce, "updateSettings calledOnce").to.be.true;
       expect(authApiHcpStubs.updateSettings.calledAfter(authApiHcpStubs.updateProfile), "settings after profile").to.be.true;
       expect(authApiHcpStubs.updatePreferences.calledOnce, "updatePreferences calledOnce").to.be.true;

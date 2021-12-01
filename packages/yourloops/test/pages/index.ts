@@ -30,12 +30,14 @@ import testCaregiverPage from "./caregiver";
 import testHCPPage from "./hcp";
 import testNotificationsPage from "./notifications";
 import testProfilePage from "./profile";
+import testSignupProfilePage from "./stepper";
 
 function testPages(): void {
   describe("HCP", testHCPPage);
   describe("Notifications Page", testNotificationsPage);
   describe("Caregiver", testCaregiverPage);
   describe("Profile", testProfilePage);
+  describe("Stepper", testSignupProfilePage);
 }
 
 export default testPages;

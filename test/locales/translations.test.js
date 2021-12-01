@@ -81,6 +81,11 @@ const ignoredTransKeyForYourLoops = [
   "Spain",
   "Switzerland",
   "United Kingdom",
+  // HcpProfessions
+  "hcp-profession-nurse",
+  "hcp-profession-diabeto",
+  "hcp-profession-other",
+  "hcp-profession-dietitian",
   // <Trans /> keys
   "consent-renew-message",
   "consent-welcome-message",

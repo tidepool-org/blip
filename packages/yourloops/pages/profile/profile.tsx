@@ -42,6 +42,7 @@ import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import FormControl from "@material-ui/core/FormControl";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import InputLabel from "@material-ui/core/InputLabel";
 import Link from "@material-ui/core/Link";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -64,6 +65,7 @@ import SwitchRoleDialogs from "../../components/switch-role";
 import { Errors } from "./models";
 import PatientProfileForm from "./patient-form";
 import AuthenticationForm from "./auth-form";
+import { HcpProfession, HcpProfessionList } from "../../models/hcp-profession";
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 type TextChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
@@ -162,6 +164,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const [birthDate, setBirthDate] = React.useState<string>(user.profile?.patient?.birthday ?? "");
   const [switchRoleOpen, setSwitchRoleOpen] = React.useState<boolean>(false);
   const [lang, setLang] = React.useState<LanguageCodes>(user.preferences?.displayLanguageCode ?? getCurrentLang());
+  const [hcpProfession, setHcpProfession] = React.useState<HcpProfession>(user.profile?.hcpProfession ?? HcpProfession.empty);
   const [feedbackAccepted, setFeedbackAccepted] = React.useState(Boolean(user?.profile?.contactConsent?.isAccepted));
 
   let passwordCheckResults: CheckPasswordStrengthResults;
@@ -213,6 +216,9 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     if (user.role === UserRoles.patient) {
       _.set(updatedProfile, "patient.birthday", birthDate);
     }
+    if (user.role === UserRoles.hcp) {
+      updatedProfile.hcpProfession = hcpProfession;
+    }
     if (showFeedback && Boolean(user?.profile?.contactConsent?.isAccepted) !== feedbackAccepted) {
       updatedProfile.contactConsent = {
         isAccepted: feedbackAccepted,
@@ -235,7 +241,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const passwordChanged = password !== "" || passwordConfirmation !== "";
 
   const createHandleTextChange: CreateHandleChange<string, TextChangeEvent> = (setState) => (event) => setState(event.target.value);
-  const createHandleSelectChange = <T extends Units | LanguageCodes>(setState: SetState<T>): HandleChange<SelectChangeEvent> => (event) => setState(event.target.value as T);
+  const createHandleSelectChange = <T extends Units | LanguageCodes | HcpProfession >(setState: SetState<T>): HandleChange<SelectChangeEvent> => (event) => setState(event.target.value as T);
 
   const handleSwitchRoleOpen = () => {
     setSwitchRoleOpen(true);
@@ -249,12 +255,13 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     () => ({
       firstName: _.isEmpty(firstName),
       lastName: _.isEmpty(lastName),
+      hcpProfession: role === UserRoles.hcp && hcpProfession === HcpProfession.empty,
       currentPassword: password.length > 0 && currentPassword.length < appConfig.PWD_MIN_LENGTH,
       password: passwordCheckResults.onError,
       passwordConfirmation: passwordConfirmation !== password,
       birthDate: role === UserRoles.patient && !REGEX_BIRTHDATE.test(birthDate),
     }),
-    [firstName, lastName, password, currentPassword.length, passwordCheckResults.onError, passwordConfirmation, role, birthDate]
+    [firstName, lastName, hcpProfession, password, currentPassword.length, passwordCheckResults.onError, passwordConfirmation, role, birthDate]
   );
 
   const isAnyError = React.useMemo(() => _.some(errors), [errors]);
@@ -408,6 +415,28 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
               className={`${classes.textField} ${classes.halfWide}`}
             />
           </Box>
+          { role === UserRoles.hcp &&
+            <Box className={classes.inputContainer}>
+              <FormControl className={`${classes.formControl} ${classes.halfWide}`}>
+                <InputLabel id="profile-hcp-profession-input-label">{t("hcp-profession-input-label")}</InputLabel>
+                <Select
+                  labelId="locale-selector"
+                  id="profile-hcp-profession-selector"
+                  value={hcpProfession}
+                  error={errors.hcpProfession}
+                  onChange={createHandleSelectChange(setHcpProfession)}>
+                  {HcpProfessionList.filter(item => item !== HcpProfession.empty).map(item => (
+                    <MenuItem id={`profile-hcp-profession-menuitem-${item}`} key={item} value={item}>
+                      {t(item)}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.hcpProfession &&
+                  <FormHelperText error>{t("profile-hcp-profession-helper-text")}</FormHelperText>
+                }
+              </FormControl>
+            </Box>
+          }
 
           {roleDependantPart}
 

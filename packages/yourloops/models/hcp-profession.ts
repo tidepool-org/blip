@@ -1,6 +1,5 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Profile page - interfaces
  *
  * All rights reserved.
  *
@@ -26,12 +25,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-export interface Errors {
-  firstName: boolean;
-  lastName: boolean;
-  currentPassword: boolean;
-  password: boolean;
-  passwordConfirmation: boolean;
-  birthDate: boolean;
-  hcpProfession: boolean;
+export enum HcpProfession {
+  empty = "",
+  diabeto = "hcp-profession-diabeto",
+  nurse = "hcp-profession-nurse",
+  dietitian = "hcp-profession-dietitian",
+  other = "hcp-profession-other"
 }
+
+export const HcpProfessionList = Object.values(HcpProfession);

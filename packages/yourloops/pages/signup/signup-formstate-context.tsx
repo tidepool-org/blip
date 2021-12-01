@@ -31,6 +31,7 @@ import _ from "lodash";
 import { UserRoles } from "../../models/shoreline";
 import { getCurrentLang } from "../../lib/language";
 import { SignupUser as IFormValues } from "../../lib/auth";
+import { HcpProfession } from "../../models/hcp-profession";
 
 export type FormValuesType = keyof IFormValues;
 
@@ -65,7 +66,7 @@ export const initialState: SignUpFormState = {
     profileLastname: "",
     profileCountry: "", // how to do better ?
     profilePhone: "",
-    // profileJob: "",
+    hcpProfession: HcpProfession.empty,
     preferencesLanguage: getCurrentLang(),
     terms: false,
     privacyPolicy: false,

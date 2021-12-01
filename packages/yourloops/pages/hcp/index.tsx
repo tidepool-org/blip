@@ -45,6 +45,7 @@ import PatientListPage from "./patients/page";
 import TeamsPage from "./teams-page";
 
 const defaultURL = "/professional/patients";
+const preferencesUrl = "/professional/preferences";
 const log = bows("HcpPage");
 
 /**
@@ -68,6 +69,8 @@ function HcpPage(): JSX.Element {
       setPageTitle();
       log.info("Wrong page for current user");
       historyHook.replace(user.getHomePage());
+    } else if (!/^\/professional\/preferences$/.test(pathname) && user.role === UserRoles.hcp && user.shouldUpdateHcpProfession()) {
+      historyHook.replace(preferencesUrl);
     } else if (/^\/professional\/?$/.test(pathname)) {
       // We are on the home page (getHomePage) -> redirect to the correct default route
       // for this user

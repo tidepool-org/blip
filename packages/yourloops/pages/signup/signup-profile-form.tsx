@@ -41,12 +41,13 @@ import metrics from "../../lib/metrics";
 import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
 import { availableCountries } from "../../lib/language";
 import SignUpFormProps from "./signup-form-props";
+import { HcpProfessionList } from "../../models/hcp-profession";
 
 interface Errors {
   firstName: boolean;
   lastName: boolean;
   country: boolean;
-  job: boolean;
+  hcpProfession: boolean;
   phone: boolean;
 }
 
@@ -86,7 +87,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
     firstName: false,
     lastName: false,
     country: false,
-    job: false,
+    hcpProfession: false,
     phone: false,
   };
   const [errors, setErrors] = React.useState<Errors>(defaultErr);
@@ -136,12 +137,22 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
     return !err;
   };
 
+  const validateHcpProfession = (): boolean => {
+    let err = false;
+    if (state.formValues?.accountRole === "hcp") {
+      err = _.isEmpty(state.formValues?.hcpProfession);
+      setErrors({ ...errors, hcpProfession: err });
+    }
+    return !err;
+  };
+
   const onNext = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     if (
       validateFirstName() &&
       validateLastName() &&
-      validateCountry()
+      validateCountry() &&
+      validateHcpProfession()
     ) {
       handleNext();
       metrics.send("registration", "create_profile", state.formValues.accountRole);
@@ -210,6 +221,34 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
           ))}
         </Select>
       </FormControl>
+      {state.formValues?.accountRole === "hcp" &&
+        <FormControl
+          variant="outlined"
+          className={classes.TextField}
+          margin="normal"
+          required
+          error={errors.hcpProfession}
+        >
+          <InputLabel id="hcp-profession-selector-input-label">
+            {t("hcp-profession-input-label")}
+          </InputLabel>
+          <Select
+            labelId="hcp-profession-selector-label"
+            label={t("signup-hcp-profession")}
+            id="hcp-profession-selector"
+            value={state.formValues?.hcpProfession}
+            onBlur={validateHcpProfession}
+            onChange={(e) => onSelectChange(e, "hcpProfession")}
+          >
+            {HcpProfessionList.map((item) => (
+              <MenuItem id={`signup-hcp-profession-menuitem-${item}`} key={item} value={item}>
+                {t(item)}
+              </MenuItem>
+            ))}
+
+          </Select>
+        </FormControl>
+      }
       <div id="signup-profileform-button-group" className={classes.Buttons}>
         <Button
           id="button-signup-steppers-back"

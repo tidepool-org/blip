@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Profile page - interfaces
+ * Profile page tests
  *
  * All rights reserved.
  *
@@ -26,12 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-export interface Errors {
-  firstName: boolean;
-  lastName: boolean;
-  currentPassword: boolean;
-  password: boolean;
-  passwordConfirmation: boolean;
-  birthDate: boolean;
-  hcpProfession: boolean;
+import TestSignupProfileForm from "./signup-profile-form.test";
+
+function testSignupProfilePage(): void {
+  describe("Profile form", TestSignupProfileForm);
 }
+
+export default testSignupProfilePage;

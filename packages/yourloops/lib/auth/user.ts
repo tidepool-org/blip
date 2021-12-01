@@ -119,6 +119,14 @@ class User implements IUser {
   }
 
   /**
+   * Check If the user should update their Hcp Profession at login.
+   * @description the first login is determined by null consents object
+   */
+  shouldUpdateHcpProfession(): boolean {
+    return this.role === UserRoles.hcp && this.profile?.hcpProfession === undefined;
+  }
+
+  /**
    * Check If the user should renew is consent.
    */
   shouldRenewConsent(): boolean {

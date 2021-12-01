@@ -77,6 +77,7 @@ export const PrivateRoute = (props: RouteProps): JSX.Element | null => {
   const { isAuthInProgress, isLoggedIn, user, isAuthHookInitialized } = useAuth();
 
   const renewConsentPath = props.path === "/renew-consent" || props.path === "/new-consent";
+  // const hcpPreferencesPath = props.path === "/professional/preferences";
   const theme = renewConsentPath ? externalTheme : mainTheme;
 
   // Put the redirect under the contexts here because of the mount/unmount component logic
@@ -100,7 +101,6 @@ export const PrivateRoute = (props: RouteProps): JSX.Element | null => {
     const homePage = user.getHomePage();
     log.warn("PrivateRoute: Wrong path prefix for user, redirecting to ", homePage);
     component = <Redirect to={{ pathname: homePage }} />;
-
   } else {
     component = (
       <NotificationContextProvider>
