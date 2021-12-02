@@ -230,11 +230,11 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
           error={errors.hcpProfession}
         >
           <InputLabel id="hcp-profession-selector-input-label">
-            {t("hcp-profession-input-label")}
+            {t("hcp-profession")}
           </InputLabel>
           <Select
             labelId="hcp-profession-selector-label"
-            label={t("signup-hcp-profession")}
+            label={t("hcp-profession")}
             id="hcp-profession-selector"
             value={state.formValues?.hcpProfession}
             onBlur={validateHcpProfession}
