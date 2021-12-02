@@ -98,5 +98,10 @@ export const validationSchema = yup.object().shape({
     .string()
     .oneOf(map(clinicSizes, 'value'))
     .required(t('Please select an organization size')),
-  website: yup.string().url(t('Please enter a valid website address')),
+  website: yup
+    .string()
+    .url(({ value }) => /^https?:\/\//.test(value)
+      ? t('Please enter a valid website address')
+      : t('Please enter a valid website address with https:// at the beginning')
+    ),
 });
