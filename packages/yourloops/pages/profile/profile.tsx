@@ -418,7 +418,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           { role === UserRoles.hcp &&
             <Box className={classes.inputContainer}>
               <FormControl className={`${classes.formControl} ${classes.halfWide}`}>
-                <InputLabel id="profile-hcp-profession-input-label">{t("hcp-profession-input-label")}</InputLabel>
+                <InputLabel id="profile-hcp-profession-input-label">{t("hcp-profession")}</InputLabel>
                 <Select
                   labelId="locale-selector"
                   id="profile-hcp-profession-selector"
