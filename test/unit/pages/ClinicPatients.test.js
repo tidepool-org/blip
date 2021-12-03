@@ -215,6 +215,7 @@ describe('ClinicPatients', () => {
     context('show names clicked', () => {
       beforeEach(() => {
         wrapper.find('button#patients-view-toggle').simulate('click');
+        defaultProps.trackMetric.resetHistory();
       });
 
       it('should render a list of patients', () => {
@@ -319,6 +320,9 @@ describe('ClinicPatients', () => {
         wrapper.update();
         expect(wrapper.find(Dialog).props().open).to.be.true;
 
+        expect(defaultProps.trackMetric.calledWith('Clinic - Remove patient')).to.be.true;
+        expect(defaultProps.trackMetric.callCount).to.equal(1);
+
         const confirmRemoveButton = wrapper.find(Dialog).find('Button#patientRemoveConfirm');
         expect(confirmRemoveButton.text()).to.equal('Remove');
 
@@ -330,6 +334,9 @@ describe('ClinicPatients', () => {
         ]);
 
         sinon.assert.calledWith(defaultProps.api.clinics.deletePatientFromClinic, 'clinicID123', 'patient1');
+
+        expect(defaultProps.trackMetric.calledWith('Clinic - Remove patient confirmed')).to.be.true;
+        expect(defaultProps.trackMetric.callCount).to.equal(2);
       });
 
       it('should refetch patients with updated sort parameter when name or birthday headers are clicked', () => {
