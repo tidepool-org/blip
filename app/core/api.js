@@ -410,18 +410,21 @@ api.user.getAssociatedAccounts = function(cb) {
           email: user.username,
           status: 'confirmed',
         });
-      } else if (!_.isEmpty(user.trustorPermissions)) {
-        // These are the accounts that have shared their data
-        // with a given set of permissions.
-        user.permissions = user.trustorPermissions
-        delete user.trustorPermissions
-        viewableUsers.push(user);
-      } else if (!_.isEmpty(user.trusteePermissions)) {
-        // These are accounts with which the user has shared access to their data, exluding the
-        // data donation accounts
-        user.permissions = user.trusteePermissions
-        delete user.trusteePermissions
-        careTeam.push(user);
+      } else {
+        // An associated user can be both a trustor and trustee, so we want to include them in all
+        // applicable groups.
+        if (!_.isEmpty(user.trustorPermissions)) {
+          // These are the accounts that have shared their data
+          // with a given set of permissions.
+          user.permissions = user.trustorPermissions
+          viewableUsers.push(_.omit(user, 'trustorPermissions', 'trusteePermissions'));
+        }
+        if (!_.isEmpty(user.trusteePermissions)) {
+          // These are accounts with which the user has shared access to their data, exluding the
+          // data donation accounts
+          user.permissions = user.trusteePermissions
+          careTeam.push(_.omit(user, 'trustorPermissions', 'trusteePermissions'));
+        }
       }
     });
 
@@ -757,6 +760,11 @@ api.invitation.send = function(emailAddress, permissions, callback) {
   return tidepool.inviteUser(emailAddress, permissions, loggedInUser, callback);
 };
 
+api.invitation.resend = function(inviteId, callback) {
+  api.log('PATCH /confirm/resend/invite/' + inviteId);
+  return tidepool.resendInvite(inviteId, callback);
+};
+
 api.invitation.getReceived = function(callback) {
   api.log('GET /confirm/invitations');
   return tidepool.invitesReceived(tidepool.getUserId(),callback);
@@ -828,20 +836,20 @@ api.metrics.track = function(eventName, properties, cb) {
 
 api.prescription = {};
 
-api.prescription.getAll = function(cb) {
-  return tidepool.getPrescriptions(cb);
+api.prescription.getAllForClinic = function(clinicId, cb) {
+  return tidepool.getPrescriptionsForClinic(clinicId, cb);
 };
 
-api.prescription.create = function(prescription, cb) {
-  return tidepool.createPrescription(prescription, cb);
+api.prescription.create = function(clinicId, prescription, cb) {
+  return tidepool.createPrescription(clinicId, prescription, cb);
 };
 
-api.prescription.createRevision = function(revision, prescriptionId, cb) {
-  return tidepool.createPrescriptionRevision(revision, prescriptionId, cb);
+api.prescription.createRevision = function(clinicId, revision, prescriptionId, cb) {
+  return tidepool.createPrescriptionRevision(clinicId, revision, prescriptionId, cb);
 };
 
-api.prescription.delete = function(prescriptionId, cb) {
-  return tidepool.deletePrescription(prescriptionId, cb);
+api.prescription.delete = function(clinicId, prescriptionId, cb) {
+  return tidepool.deletePrescription(clinicId, prescriptionId, cb);
 };
 
 // ----- Devices -----
@@ -901,6 +909,10 @@ api.clinics.deleteClinicianFromClinic = function(clinicId, clinicianId, cb) {
   return tidepool.deleteClinicianFromClinic(clinicId, clinicianId, cb);
 };
 
+api.clinics.deletePatientFromClinic = function(clinicId, patientId, cb) {
+  return tidepool.deletePatientFromClinic(clinicId, patientId, cb);
+};
+
 api.clinics.getPatientsForClinic = function(clinicId, options, cb) {
   return tidepool.getPatientsForClinic(clinicId, options, cb);
 };
@@ -921,6 +933,10 @@ api.clinics.inviteClinician = function(clinicId, clinician, cb) {
   return tidepool.inviteClinician(clinicId, clinician, cb);
 };
 
+api.clinics.getClinicianInvite = function(clinicId, inviteId, cb) {
+  return tidepool.getClinicianInvite(clinicId, inviteId, cb);
+};
+
 api.clinics.resendClinicianInvite = function(clinicId, inviteId, cb) {
   return tidepool.resendClinicianInvite(clinicId, inviteId, cb);
 };
@@ -935,6 +951,10 @@ api.clinics.getPatientInvites = function(clinicId, cb) {
 
 api.clinics.acceptPatientInvitation = function(clinicId, inviteId, cb) {
   return tidepool.acceptPatientInvitation(clinicId, inviteId, cb);
+};
+
+api.clinics.deletePatientInvitation = function(clinicId, inviteId, cb) {
+  return tidepool.deletePatientInvitation(clinicId, inviteId, cb);
 };
 
 api.clinics.updatePatientPermissions = function(clinicId, patientId, permissions, cb) {
@@ -959,6 +979,18 @@ api.clinics.dismissClinicianInvite = function(userId, inviteId, cb) {
 
 api.clinics.getClinicsForClinician = function(clinicianId, options, cb) {
   return tidepool.getClinicsForClinician(clinicianId, options, cb);
+};
+
+api.clinics.inviteClinic = function(shareCode, permissions, patientId, cb) {
+  return tidepool.inviteClinic(shareCode, permissions, patientId, cb);
+};
+
+api.clinics.getClinicByShareCode = function(shareCode, cb) {
+  return tidepool.getClinicByShareCode(shareCode, cb);
+};
+
+api.clinics.triggerInitialClinicMigration = function(clinicId, cb) {
+  return tidepool.triggerInitialClinicMigration(clinicId, cb);
 };
 
 // ----- Errors -----

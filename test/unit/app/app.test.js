@@ -293,19 +293,27 @@ describe('App', () => {
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {custodian:{}} });
+      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: { custodian: {} } });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
 
-      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {custodian:{}} });
+      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: { custodian: {} } });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
+
+      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: { custodian:{}} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(1);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {} });
+      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {} });
+      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: {} });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
+
+      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
     });
@@ -932,6 +940,18 @@ describe('App', () => {
           resendingEmailVerification: {inProgress: false},
         },
         resentEmailVerification: false,
+        selectedClinicId: null,
+        clinicFlowActive: true,
+        clinics: {
+          clinic123: {
+            id: 'clinic123',
+            patients: {
+              d4e5f6: {
+                permissions: { view: {}, upload: {} },
+              },
+            },
+          },
+        },
       };
       const result = mapStateToProps({blip: loggedIn});
 
@@ -941,6 +961,18 @@ describe('App', () => {
 
       it('should map isLoggedIn to authenticated', () => {
         expect(result.authenticated).to.equal(loggedIn.isLoggedIn);
+      });
+
+      it('should map clinicFlowActive to clinicFlowActive', () => {
+        expect(result.clinicFlowActive).to.equal(loggedIn.clinicFlowActive);
+      });
+
+      it('should map clinics to clinics', () => {
+        expect(result.clinics).to.equal(loggedIn.clinics);
+      });
+
+      it('should map selectedClinicId to selectedClinicId', () => {
+        expect(result.selectedClinicId).to.equal(loggedIn.selectedClinicId);
       });
 
       it('should map working.fetchingUser to fetchingUser', () => {
@@ -1024,6 +1056,68 @@ describe('App', () => {
 
         it('should return correct permsOfLoggedInUser permissions', () => {
           expect(careTeamMemberUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
+        });
+      });
+
+      context('Clinic team member with upload permissions', () => {
+        const clinicTeamMemberUpload = {
+          allUsersMap: {
+            a1b2c3: {
+              termsAccepted: 'today'
+            },
+            d4e5f6: {},
+          },
+          currentPatientInViewId: 'd4e5f6',
+          loggedIn: true,
+          loggedInUserId: 'a1b2c3',
+          notification: {
+            key: 'fetchingPatient',
+            link: {
+              to: '/patients/foo',
+              text: 'Sorry!'
+            },
+            status: 405
+          },
+          permissionsOfMembersInTargetCareTeam: {},
+          membershipPermissionsInOtherCareTeams: {
+            d4e5f6: {
+              view: {},
+            }
+          },
+          dataDonationAccounts: [],
+          datasources: [],
+          showingDonateBanner: null,
+          showingDexcomConnectBanner: null,
+          working: {
+            fetchingUser: {inProgress: false},
+            fetchingPendingSentInvites: {inProgress: false},
+            updatingDataDonationAccounts: {inProgress: false},
+            fetchingPatient: {inProgress: false, notification: {type: 'error'}},
+            loggingOut: {inProgress: false},
+            resendingEmailVerification: {inProgress: false},
+          },
+          selectedClinicId: 'clinic123',
+          clinicFlowActive: true,
+          clinics: {
+            clinic123: {
+              id: 'clinic123',
+              patients: {
+                d4e5f6: {
+                  permissions: { view: {}, upload: {} },
+                },
+              },
+            },
+          },
+        };
+
+        it('should return correct permsOfLoggedInUser permissions when viewing in clinic context', () => {
+          const clinicTeamMemberUploadResult = mapStateToProps({blip: clinicTeamMemberUpload});
+          expect(clinicTeamMemberUploadResult.permsOfLoggedInUser).to.eql({ view: {}, upload: {} });
+        });
+
+        it('should return correct permsOfLoggedInUser permissions when viewing in legacy clinician account context', () => {
+          const clinicTeamMemberUploadResult = mapStateToProps({ blip: { ...clinicTeamMemberUpload, selectedClinicId: null } });
+          expect(clinicTeamMemberUploadResult.permsOfLoggedInUser).to.eql({ view: {} });
         });
       });
 

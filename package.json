@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.46.1-web-1240-square-bolus-pdf-fix.1",
+  "version": "1.48.0-web-1240-square-bolus-pdf-fix.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -66,6 +66,7 @@
     "babel-preset-react-app": "4.0.0-next.2150693d",
     "bows": "1.7.0",
     "browser-locale": "1.0.3",
+    "canonicalize": "1.0.5",
     "chai": "4.1.2",
     "chromedriver": "79.0.0",
     "classnames": "2.2.6",
@@ -73,6 +74,7 @@
     "connected-react-router": "6.8.0",
     "copy-webpack-plugin": "4.5.2",
     "create-react-class": "15.6.3",
+    "crypto-hash": "1.3.0",
     "css-loader": "1.0.0",
     "custom-protocol-detection": "1.0.1",
     "enzyme": "3.11.0",
@@ -107,12 +109,12 @@
     "karma-webpack": "4.0.2",
     "less": "3.12.2",
     "less-loader": "4.1.0",
-    "lodash": "4.17.19",
+    "lodash": "4.17.21",
     "material-ui-popup-state": "1.6.1",
     "mini-css-extract-plugin": "0.5.0",
     "mocha": "5.2.0",
     "moment": "2.22.2",
-    "moment-timezone": "0.5.21",
+    "moment-timezone": "0.5.31",
     "ms": "2.1.1",
     "object-invariant-test-helper": "0.1.1",
     "optimize-css-assets-webpack-plugin": "5.0.3",
@@ -164,15 +166,15 @@
     "sundial": "1.6.0",
     "terser": "4.8.0",
     "terser-webpack-plugin": "2.2.1",
-    "tideline": "1.24.0",
-    "tidepool-platform-client": "0.46.0",
+    "tideline": "1.25.0-web-880-clinic-signup.1",
+    "tidepool-platform-client": "0.47.0-web-1242-clinian-invite.1",
     "tidepool-standard-action": "0.1.1",
     "url-loader": "1.1.1",
     "webpack": "4.44.1",
     "webpack-cli": "3.3.6",
     "webpack-dev-server": "3.8.0",
     "worker-loader": "2.0.0",
-    "yup": "0.29.0"
+    "yup": "0.32.9"
   },
   "peerDependencies": {
     "babel-core": "6.x || 7.0.0-bridge.0"

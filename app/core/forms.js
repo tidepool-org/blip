@@ -1,7 +1,13 @@
 import includes from 'lodash/includes';
 import map from 'lodash/map';
 import get from 'lodash/get';
+import isString from 'lodash/isString';
 import isNumber from 'lodash/isNumber';
+import trim from 'lodash/trim';
+
+import i18next from './language';
+
+const t = i18next.t.bind(i18next);
 
 /**
  * Checks array of field names and returns whether or not all are valid
@@ -48,3 +54,38 @@ export const getThresholdWarning = (value, threshold) => {
   }
   return null;
 };
+
+/**
+ * Get props commonly used for Formik fields
+ * @param {String} fieldPath path to the field in dot notation
+ * @param {Object} formikContext context provided by useFormikContext()
+ * @param {String} valueProp prop name to use for field value
+ * @returns {Object}
+ */
+export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 'value', trimStrings = true) => ({
+  id: fieldpath,
+  name: fieldpath,
+  onChange: formikContext.handleChange,
+  onBlur: e => {
+    formikContext.handleBlur(e);
+
+    if (trimStrings && isString(e?.target?.value)) {
+        formikContext.setFieldTouched(fieldpath, true);
+        formikContext.setFieldValue(fieldpath, trim(e.target.value));
+    }
+  },
+  error: getFieldError(fieldpath, formikContext),
+  [valueProp]: formikContext.values[fieldpath],
+});
+
+/**
+ * Add an empty option to a list of select or radio options
+ * @param {Array} options - Array of options
+ * @param {String} label - Display text to use for empty option
+ * @param {*} value - Default empty value
+ * @returns a new options array
+ */
+export const addEmptyOption = (options = [], label = t('Select one'), value = '') => ([
+  { value, label },
+  ...options,
+]);

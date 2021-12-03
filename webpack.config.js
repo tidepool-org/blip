@@ -23,6 +23,7 @@ const apiHost = _.get(optional('./config/local'), 'apiHost', process.env.API_HOS
 const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
   i18nEnabled: process.env.I18N_ENABLED || false,
   rxEnabled: process.env.RX_ENABLED || false,
+  pendoEnabled: process.env.PENDO_ENABLED || true,
   clinicsEnabled: process.env.CLINICS_ENABLED || false,
 });
 
@@ -154,6 +155,7 @@ const plugins = [
     __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
     __I18N_ENABLED__: JSON.stringify(featureFlags.i18nEnabled),
     __RX_ENABLED__: JSON.stringify(featureFlags.rxEnabled),
+    __PENDO_ENABLED__: JSON.stringify(featureFlags.pendoEnabled),
     __CLINICS_ENABLED__: JSON.stringify(featureFlags.clinicsEnabled),
     __VERSION__: JSON.stringify(VERSION),
     __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),

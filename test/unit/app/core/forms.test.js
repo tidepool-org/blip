@@ -37,7 +37,7 @@ describe('forms', function() {
     notInitiallySetAndError: undefined,
   };
 
-  const formikContext = {
+  let formikContext = {
     errors,
     touched,
     initialValues,
@@ -125,6 +125,80 @@ describe('forms', function() {
     it('should return `null` if non-numeric value is passed in', () => {
       expect(formUtils.getThresholdWarning('', threshold)).to.equal(null);
       expect(formUtils.getThresholdWarning('6', threshold)).to.equal(null);
+    });
+  });
+
+  describe('getCommonFormikFieldProps', () => {
+    it('should return appropriate props for a given fieldpath from formikContext', () => {
+      const fieldpath = 'user.name';
+      formikContext = {
+        handleChange: sinon.stub(),
+        handleBlur: sinon.stub(),
+        errors: { [fieldpath]: 'name is silly'},
+        touched: { [fieldpath]: true },
+        values: { [fieldpath]: 'Fooey McBear' },
+      };
+
+      const props = formUtils.getCommonFormikFieldProps(fieldpath, formikContext);
+      props.onBlur();
+      sinon.assert.calledOnce(formikContext.handleBlur);
+
+      expect(props).to.deep.include({
+        id: 'user.name',
+        name: 'user.name',
+        onChange: formikContext.handleChange,
+        error: 'name is silly',
+        value: 'Fooey McBear',
+      })
+    });
+
+    it('should allow setting a custom value prop', () => {
+      const fieldpath = 'user.name';
+      formikContext = {
+        handleChange: sinon.stub(),
+        handleBlur: sinon.stub(),
+        errors: { [fieldpath]: 'name is silly'},
+        touched: { [fieldpath]: true },
+        values: { [fieldpath]: 'Fooey McBear' },
+      };
+
+      const props = formUtils.getCommonFormikFieldProps(fieldpath, formikContext, 'myValue');
+      props.onBlur();
+      sinon.assert.calledOnce(formikContext.handleBlur);
+
+      expect(props).to.deep.include({
+        id: 'user.name',
+        name: 'user.name',
+        onChange: formikContext.handleChange,
+        error: 'name is silly',
+        myValue: 'Fooey McBear',
+      })
+    });
+  });
+
+  describe('addEmptyOption', () => {
+    it('should prepend an empty option value with default label', () => {
+      const options = [{ label: 'One', value: '1' }];
+      expect(formUtils.addEmptyOption(options)).to.eql([
+        { label: 'Select one', value: '' },
+        { label: 'One', value: '1' },
+      ]);
+    });
+
+    it('should prepend an empty option value with custom label', () => {
+      const options = [{ label: 'One', value: '1' }];
+      expect(formUtils.addEmptyOption(options, 'Gotta pick one!')).to.eql([
+        { label: 'Gotta pick one!', value: '' },
+        { label: 'One', value: '1' },
+      ]);
+    });
+
+    it('should prepend an empty option value with custom value', () => {
+      const options = [{ label: 'One', value: '1' }];
+      expect(formUtils.addEmptyOption(options, undefined, null)).to.eql([
+        { label: 'Select one', value: null },
+        { label: 'One', value: '1' },
+      ]);
     });
   });
 });

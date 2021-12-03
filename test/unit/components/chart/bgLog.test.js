@@ -59,7 +59,7 @@ describe('BG Log', () => {
   };
 
   let baseProps = {
-    isClinicAccount: false,
+    isClinicianAccount: false,
     onClickRefresh: sinon.stub(),
     onClickNoDataRefresh: sinon.stub(),
     onSwitchToBasics: sinon.stub(),

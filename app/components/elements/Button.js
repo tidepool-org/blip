@@ -20,6 +20,7 @@ const StyledButton = styled(Base)`
     pointer-events: none;
 
     > div:first-child, .icon {
+      transition: none;
       visibility: hidden;
     }
   }
@@ -52,13 +53,13 @@ export const Button = props => {
     <Flex as={StyledButton} flexDirection={flexDirection} alignItems="center" justifyContent={justifyContent} {...buttonProps} className={`${classNames} ${className}`}>
       <Box>{children}</Box>
       {icon && (
-        <Icon className="icon" mr={iconMargins.right} ml={iconMargins.left} theme={baseTheme} variant="static" icon={icon} label={iconLabel} />
+        <Icon tabIndex={-1} className="icon" mr={iconMargins.right} ml={iconMargins.left} theme={baseTheme} variant="static" icon={icon} label={iconLabel} />
       )}
       {processing && (
         <StyledCircularProgress>
           <CircularProgress
             color="inherit"
-            size={themeContext.fontSizes[3]}
+            size={themeContext?.fontSizes[3]}
             thickness={5}
           />
         </StyledCircularProgress>
@@ -81,6 +82,7 @@ Button.propTypes = {
     'danger',
     'textPrimary',
     'textSecondary',
+    'textTertiary',
     'actionListItem',
     'actionListItemDanger',
     'pagination',

@@ -393,6 +393,57 @@ export function sendInviteFailure(error, apiError) {
   };
 }
 
+export function sendClinicInviteRequest() {
+  return {
+    type: ActionTypes.SEND_CLINIC_INVITE_REQUEST,
+  };
+}
+
+export function sendClinicInviteSuccess(invite) {
+  return {
+    type: ActionTypes.SEND_CLINIC_INVITE_SUCCESS,
+    payload: {
+      invite: invite,
+    },
+  };
+}
+
+export function sendClinicInviteFailure(error, apiError) {
+  return {
+    type: ActionTypes.SEND_CLINIC_INVITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function resendInviteRequest() {
+  return {
+    type: ActionTypes.RESEND_INVITE_REQUEST,
+  };
+}
+
+export function resendInviteSuccess(invite, removedInviteId) {
+  return {
+    type: ActionTypes.RESEND_INVITE_SUCCESS,
+    payload: {
+      invite: invite,
+      removedInviteId: removedInviteId,
+    },
+  };
+}
+
+export function resendInviteFailure(error, apiError) {
+  return {
+    type: ActionTypes.RESEND_INVITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function cancelSentInviteRequest() {
   return {
     type: ActionTypes.CANCEL_SENT_INVITE_REQUEST,
@@ -825,24 +876,24 @@ export function fetchPatientDataFailure(error, apiError) {
   };
 }
 
-export function fetchPrescriptionsRequest() {
+export function fetchClinicPrescriptionsRequest() {
   return {
-    type: ActionTypes.FETCH_PRESCRIPTIONS_REQUEST,
+    type: ActionTypes.FETCH_CLINIC_PRESCRIPTIONS_REQUEST,
   };
 }
 
-export function fetchPrescriptionsSuccess(prescriptions) {
+export function fetchClinicPrescriptionsSuccess(prescriptions) {
   return {
-    type: ActionTypes.FETCH_PRESCRIPTIONS_SUCCESS,
+    type: ActionTypes.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS,
     payload: {
       prescriptions: prescriptions,
     },
   };
 }
 
-export function fetchPrescriptionsFailure(error, apiError) {
+export function fetchClinicPrescriptionsFailure(error, apiError) {
   return {
-    type: ActionTypes.FETCH_PRESCRIPTIONS_FAILURE,
+    type: ActionTypes.FETCH_CLINIC_PRESCRIPTIONS_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
@@ -1230,6 +1281,31 @@ export function fetchClinicFailure(error, apiError) {
   };
 }
 
+export function fetchClinicsByIdsRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINICS_BY_IDS_REQUEST,
+  };
+}
+
+export function fetchClinicsByIdsSuccess(clinics) {
+  return {
+    type: ActionTypes.FETCH_CLINICS_BY_IDS_SUCCESS,
+    payload: {
+      clinics: clinics,
+    },
+  };
+}
+
+export function fetchClinicsByIdsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINICS_BY_IDS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function updateClinicRequest() {
   return {
     type: ActionTypes.UPDATE_CLINIC_REQUEST,
@@ -1360,17 +1436,45 @@ export function deleteClinicianFromClinicFailure(error, apiError) {
   };
 }
 
+export function deletePatientFromClinicRequest() {
+  return {
+    type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_REQUEST,
+  };
+}
+
+export function deletePatientFromClinicSuccess(clinicId, patientId) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_SUCCESS,
+    payload: {
+      clinicId,
+      patientId,
+    },
+  };
+}
+
+export function deletePatientFromClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function fetchPatientsForClinicRequest() {
   return {
     type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_REQUEST,
   };
 }
 
-export function fetchPatientsForClinicSuccess(patients) {
+export function fetchPatientsForClinicSuccess(clinicId, patients, count) {
   return {
     type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS,
     payload: {
+      count: count,
       patients: patients,
+      clinicId: clinicId,
     },
   };
 }
@@ -1418,10 +1522,11 @@ export function fetchPatientFromClinicRequest() {
   };
 }
 
-export function fetchPatientFromClinicSuccess(patient) {
+export function fetchPatientFromClinicSuccess(clinicId, patient) {
   return {
     type: ActionTypes.FETCH_PATIENT_FROM_CLINIC_SUCCESS,
     payload: {
+      clinicId: clinicId,
       patient: patient,
     },
   };
@@ -1464,6 +1569,32 @@ export function updateClinicPatientFailure(error, apiError) {
   };
 }
 
+export function fetchClinicianInviteRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINICIAN_INVITE_REQUEST,
+  };
+}
+
+export function fetchClinicianInviteSuccess(invite, clinicId) {
+  return {
+    type: ActionTypes.FETCH_CLINICIAN_INVITE_SUCCESS,
+    payload: {
+      invite,
+      clinicId
+    },
+  };
+}
+
+export function fetchClinicianInviteFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINICIAN_INVITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function sendClinicianInviteRequest() {
   return {
     type: ActionTypes.SEND_CLINICIAN_INVITE_REQUEST,
@@ -1496,11 +1627,11 @@ export function resendClinicianInviteRequest() {
   };
 }
 
-export function resendClinicianInviteSuccess(result) {
+export function resendClinicianInviteSuccess(invite) {
   return {
     type: ActionTypes.RESEND_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      result: result,
+      invite,
     },
   };
 }
@@ -1548,10 +1679,11 @@ export function fetchPatientInvitesRequest() {
   };
 }
 
-export function fetchPatientInvitesSuccess(invites) {
+export function fetchPatientInvitesSuccess(clinicId, invites) {
   return {
     type: ActionTypes.FETCH_PATIENT_INVITES_SUCCESS,
     payload: {
+      clinicId: clinicId,
       invites: invites,
     },
   };
@@ -1573,11 +1705,12 @@ export function acceptPatientInvitationRequest() {
   };
 }
 
-export function acceptPatientInvitationSuccess(result) {
+export function acceptPatientInvitationSuccess(clinicId, inviteId) {
   return {
     type: ActionTypes.ACCEPT_PATIENT_INVITATION_SUCCESS,
     payload: {
-      result: result,
+      inviteId: inviteId,
+      clinicId: clinicId,
     },
   };
 }
@@ -1592,16 +1725,44 @@ export function acceptPatientInvitationFailure(error, apiError) {
   };
 }
 
+export function deletePatientInvitationRequest() {
+  return {
+    type: ActionTypes.DELETE_PATIENT_INVITATION_REQUEST,
+  };
+}
+
+export function deletePatientInvitationSuccess(clinicId, inviteId) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_INVITATION_SUCCESS,
+    payload: {
+      inviteId: inviteId,
+      clinicId: clinicId,
+    },
+  };
+}
+
+export function deletePatientInvitationFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_INVITATION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function updatePatientPermissionsRequest() {
   return {
     type: ActionTypes.UPDATE_PATIENT_PERMISSIONS_REQUEST,
   };
 }
 
-export function updatePatientPermissionsSuccess(permissions) {
+export function updatePatientPermissionsSuccess(clinicId, patientId, permissions) {
   return {
     type: ActionTypes.UPDATE_PATIENT_PERMISSIONS_SUCCESS,
     payload: {
+      clinicId: clinicId,
+      patientId: patientId,
       permissions: permissions,
     },
   };
@@ -1673,11 +1834,11 @@ export function acceptClinicianInviteRequest() {
   };
 }
 
-export function acceptClinicianInviteSuccess(result) {
+export function acceptClinicianInviteSuccess(inviteId) {
   return {
     type: ActionTypes.ACCEPT_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      result: result,
+      inviteId,
     },
   };
 }
@@ -1698,11 +1859,11 @@ export function dismissClinicianInviteRequest() {
   };
 }
 
-export function dismissClinicianInviteSuccess(result) {
+export function dismissClinicianInviteSuccess(inviteId) {
   return {
     type: ActionTypes.DISMISS_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      result: result,
+      inviteId,
     },
   };
 }
@@ -1723,11 +1884,12 @@ export function getClinicsForClinicianRequest() {
   };
 }
 
-export function getClinicsForClinicianSuccess(clinics) {
+export function getClinicsForClinicianSuccess(clinics, clinicianId) {
   return {
     type: ActionTypes.GET_CLINICS_FOR_CLINICIAN_SUCCESS,
     payload: {
       clinics: clinics,
+      clinicianId: clinicianId,
     },
   };
 }
@@ -1735,6 +1897,40 @@ export function getClinicsForClinicianSuccess(clinics) {
 export function getClinicsForClinicianFailure(error, apiError) {
   return {
     type: ActionTypes.GET_CLINICS_FOR_CLINICIAN_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function selectClinic(clinicId) {
+  return {
+    type: ActionTypes.SELECT_CLINIC,
+    payload: {
+      clinicId
+    },
+  };
+}
+
+export function triggerInitialClinicMigrationRequest() {
+  return {
+    type: ActionTypes.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST,
+  };
+}
+
+export function triggerInitialClinicMigrationSuccess(clinicId) {
+  return {
+    type: ActionTypes.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+    },
+  };
+}
+
+export function triggerInitialClinicMigrationFailure(error, apiError) {
+  return {
+    type: ActionTypes.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,

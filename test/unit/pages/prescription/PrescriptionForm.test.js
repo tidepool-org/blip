@@ -1,6 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import moment from 'moment';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+import { withFormik } from 'formik';
 
 import {
   clearCalculator,
@@ -13,9 +17,6 @@ import {
 
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
-import { withFormik } from 'formik';
-import { set } from 'lodash';
-
 /* global chai */
 /* global sinon */
 /* global describe */
@@ -23,6 +24,7 @@ import { set } from 'lodash';
 /* global beforeEach */
 
 const expect = chai.expect;
+const mockStore = configureStore([thunk]);
 
 describe('PrescriptionForm', () => {
   let wrapper;
@@ -34,16 +36,41 @@ describe('PrescriptionForm', () => {
     creatingPrescriptionRevision: { inProgress: false, completed: false },
     devices: {},
     trackMetric: sinon.stub(),
-  }
+  };
+
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: false,
+    notification: null,
+  };
+
+  const completedState = {
+    ...defaultWorkingState,
+    completed: true,
+  };
+
+  const defaultState = mockStore({
+    blip: {
+      loggedInUserId: 'clinician123',
+      working: {
+        fetchingDevices: completedState,
+        fetchingClinicPrescriptions: completedState,
+        creatingPrescription: defaultWorkingState,
+        creatingPrescriptionRevision: defaultWorkingState,
+      },
+    },
+  });
 
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
 
     const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...defaultProps} {...formikProps} />);
     wrapper = mount(
-      <ToastProvider>
-        <Element {...defaultProps} />
-      </ToastProvider>
+      <Provider store={defaultState}>
+        <ToastProvider>
+          <Element {...defaultProps} />
+        </ToastProvider>
+      </Provider>
     );
   });
 
@@ -216,9 +243,11 @@ describe('PrescriptionForm', () => {
     beforeEach(() => {
       const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...reviewStepProps} {...formikProps} />);
       wrapper = mount(
-        <ToastProvider>
-          <Element {...reviewStepProps} />
-        </ToastProvider>
+        <Provider store={defaultState}>
+          <ToastProvider>
+            <Element {...reviewStepProps} />
+          </ToastProvider>
+        </Provider>
       );
     });
 

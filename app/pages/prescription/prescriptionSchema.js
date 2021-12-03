@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 import i18next from '../../core/language';
-import get from 'lodash/get';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
 import moment from 'moment';
@@ -26,6 +25,20 @@ import {
 } from './prescriptionFormConstants';
 
 const t = i18next.t.bind(i18next);
+
+yup.setLocale({
+  mixed: {
+    notType: ({ type }) => {
+      let msg = t(`Please enter a valid ${type}`);
+
+      if (type === 'date') {
+        msg += t(' in the requested format');
+      }
+
+      return msg;
+    },
+  },
+});
 
 export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) => {
   const pump = find(devices.pumps, { id: pumpId });
@@ -60,9 +73,9 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       is: 'caregiver',
       then: yup.string().required(t('Last name is required')),
     }),
-    birthday: yup.string()
-      .test('matchesDateFormat', t('Please enter a valid date in the requested format'), value => moment(value, dateFormat, true).isValid())
-      .test('isPastDate', t('Please enter a date prior to today'), value => value < moment().format(dateFormat))
+    birthday: yup.date()
+      .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
+      .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
       .required(t('Patient\'s birthday is required')),
     email: yup.string()
       .email(t('Please enter a valid email address'))
