@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.22.0-storybook-blip-raw-data.1":
-  version "1.22.0-storybook-blip-raw-data.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.22.0-storybook-blip-raw-data.1.tgz#42415059b4fab7a7eaf2adf61583a7204ecab6db"
-  integrity sha512-RAGDM/lf8lfJwx+QVucWVCxdkigcfz2FiEyePhBJyyW62LVDZtcqIOpDMKjeF8iHWZYyZ7I/e23SA2nlMZNPCg==
+"@tidepool/viz@1.22.0-web-1240-square-bolus-pdf-fix.2":
+  version "1.22.0-web-1240-square-bolus-pdf-fix.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.22.0-web-1240-square-bolus-pdf-fix.2.tgz#dc9929f8d11e8026756a183c55cdacccba3adf66"
+  integrity sha512-PCKeTLgc0h4Fz6TdIk7Jti+QTSbo1lMuaeaQ5ze15gwDwAmoXOs9wSIm5T9r87CT4+7eJh13L8UBbZG8EacApw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
