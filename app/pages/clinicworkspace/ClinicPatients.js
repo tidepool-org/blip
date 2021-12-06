@@ -229,16 +229,14 @@ export const ClinicPatients = (props) => {
 
   function handleRemove(patient) {
     return () => {
-      if (props.selectedClinicId) {
-        trackMetric('Clinic - Remove patient', { clinicId: props.selectedClinicId });
-      }
-
+      trackMetric('Clinic - Remove patient', { clinicId: selectedClinicId });
       setSelectedPatient(patient);
       setShowDeleteDialog(true);
     };
   }
 
   function handleRemovePatient() {
+    trackMetric('Clinic - Remove patient confirmed', { clinicId: selectedClinicId });
     dispatch(actions.async.deletePatientFromClinic(api, selectedClinicId, selectedPatient?.id));
   }
 
