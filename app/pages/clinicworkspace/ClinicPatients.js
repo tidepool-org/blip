@@ -123,13 +123,7 @@ export const ClinicPatients = (props) => {
   }, [loggedInUserId, clinic?.id, patientFetchOptions]);
 
   function clinicPatients() {
-    return map(values(clinic?.patients), patient => ({
-        fullName: patient.fullName,
-        link: `/patients/${patient.id}/data`,
-        birthDate: patient.birthDate,
-        id: patient.id,
-        email: patient.email,
-    }));
+    return values(clinic?.patients);
   }
 
   const renderHeader = () => {
@@ -149,9 +143,9 @@ export const ClinicPatients = (props) => {
               minWidth: '250px',
             }}
             id="patients-search"
-            placeholder={t('Search by Name')}
+            placeholder={t('Search')}
             icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
-            iconLabel={t('Search by Name')}
+            iconLabel={t('Search')}
             onClickIcon={!isEmpty(search) ? handleClearSearch : null}
             name="search-patients"
             onChange={handleSearchChange}
@@ -250,11 +244,10 @@ export const ClinicPatients = (props) => {
     setShowDeleteDialog(false);
   }
 
-  function handleClickPatient(link) {
+  function handleClickPatient(patient) {
     return () => {
       trackMetric('Selected PwD');
-
-      dispatch(push(link));
+      dispatch(push(`/patients/${patient.id}/data`));
     }
   }
 
@@ -300,16 +293,16 @@ export const ClinicPatients = (props) => {
     });
   }
 
-  const renderPatient = ({fullName, email, link}) => (
-    <Box onClick={handleClickPatient(link)} sx={{ cursor: 'pointer' }}>
-      <Text fontWeight="medium">{fullName}</Text>
-      <Text>{email || '\u00A0'}</Text>
+  const renderPatient = patient => (
+    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+      <Text fontWeight="medium">{patient.fullName}</Text>
+      <Text>{patient.email || '\u00A0'}</Text>
     </Box>
   );
 
-  const renderBirthdate = ({birthDate, link}) => (
-    <Box onClick={handleClickPatient(link)} sx={{ cursor: 'pointer' }}>
-      <Text fontWeight="medium">{birthDate}</Text>
+  const renderLinkedField = (field, patient) => (
+    <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+      <Text fontWeight="medium">{patient[field]}</Text>
     </Box>
   );
 
@@ -336,7 +329,13 @@ export const ClinicPatients = (props) => {
         field: 'birthDate',
         align: 'left',
         sortable: true,
-        render: renderBirthdate,
+        render: renderLinkedField.bind(null, 'birthDate'),
+      },
+      {
+        title: t('MRN'),
+        field: 'mrn',
+        align: 'left',
+        render: renderLinkedField.bind(null, 'mrn'),
       },
       {
         title: t('Edit'),
