@@ -123,6 +123,7 @@ describe('ClinicPatients', () => {
               email: 'patient2@test.ca',
               fullName: 'Patient Two',
               birthDate: '1999-02-02',
+              mrn: 'mrn123'
             },
           },
           id: 'clinicID123',
@@ -222,18 +223,19 @@ describe('ClinicPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        expect(table.find('tr').at(1).text()).contains('Patient One')
-        expect(table.find('tr').at(1).text()).contains('1999-01-01')
-        expect(table.find('tr').at(2).text()).contains('Patient Two')
-        expect(table.find('tr').at(2).text()).contains('1999-02-02')
+        expect(table.find('tr').at(1).text()).contains('Patient One');
+        expect(table.find('tr').at(1).text()).contains('1999-01-01');
+        expect(table.find('tr').at(2).text()).contains('Patient Two');
+        expect(table.find('tr').at(2).text()).contains('1999-02-02');
+        expect(table.find('tr').at(2).text()).contains('mrn123');
       });
 
       it('should allow searching patients', (done) => {
         const table = () => wrapper.find(Table);
         expect(table()).to.have.length(1);
         expect(table().find('tr')).to.have.length(3); // header row + 2 invites
-        expect(table().find('tr').at(1).text()).contains('Patient One')
-        expect(table().find('tr').at(2).text()).contains('Patient Two')
+        expect(table().find('tr').at(1).text()).contains('Patient One');
+        expect(table().find('tr').at(2).text()).contains('Patient Two');
 
         const searchInput = wrapper.find('input[name="search-patients"]');
         expect(searchInput).to.have.lengthOf(1);

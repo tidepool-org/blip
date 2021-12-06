@@ -123,7 +123,7 @@ export const ClinicPatients = (props) => {
   }, [loggedInUserId, clinic?.id, patientFetchOptions]);
 
   function clinicPatients() {
-    return clinic?.patients || [];
+    return values(clinic?.patients);
   }
 
   const renderHeader = () => {
