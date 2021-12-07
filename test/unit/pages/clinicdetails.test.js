@@ -227,7 +227,7 @@ describe('ClinicDetails', () => {
       expect(declineDialog()).to.have.lengthOf(1);
       expect(declineDialog().props().open).to.be.false;
 
-      const declineButton = wrapper.find('span.decline-invite');
+      const declineButton = wrapper.find('button.decline-invite');
       expect(declineButton).to.have.lengthOf(1);
       expect(declineButton.text()).to.equal('Decline Invitation');
 
