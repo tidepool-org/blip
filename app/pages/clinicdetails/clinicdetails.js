@@ -321,17 +321,6 @@ export const ClinicDetails = (props) => {
                 <Text as='span' fontWeight='bold'>
                   {{ clinicName: clinicInvite?.creator?.clinicName }}
                 </Text>.
-
-                <Text
-                  as="span"
-                  className="decline-invite"
-                  ml={2}
-                  color="text.link"
-                  sx={{ cursor: 'pointer' }}
-                  onClick={handleDeclineInvite}
-                >
-                  Decline Invitation
-                </Text>
               </Trans>
             </Flex>
           </Body1>
@@ -437,11 +426,26 @@ export const ClinicDetails = (props) => {
                   </>
                 )}
 
-                <Flex justifyContent={['center', 'flex-end']}>
+                <Flex
+                  justifyContent={['center', 'flex-end']}
+                  id="clinic-profile-footer"
+                  alignItems={'center'}
+                  py={3}
+                >
+                  {!displayFullForm && (
+                    <Button
+                      variant="secondary"
+                      className="decline-invite"
+                      mr={2}
+                      onClick={handleDeclineInvite}
+                    >
+                      Decline Invitation
+                    </Button>
+                  )}
+
                   <Button
                     id="submit"
                     type="submit"
-                    mt={3}
                     processing={!!submitting}
                     disabled={!fieldsAreValid(
                       keys(schema.fields),
@@ -498,7 +502,7 @@ export const ClinicDetails = (props) => {
             </DialogTitle>
             <DialogContent>
               <Body1>
-                {t('If you decline this invitation you will need to ask your Clinic Admin to send a new one. Are you sure you want to decline the invitation to the {{name}} clinic workspace? ', { name: clinicInvite?.creator?.clinicName })}
+                {t('If you decline this invitation, you will need to ask your Clinic Admin to send a new one. Are you sure you want to decline the invitation to the {{name}} clinic workspace? ', { name: clinicInvite?.creator?.clinicName })}
               </Body1>
             </DialogContent>
             <DialogActions>
