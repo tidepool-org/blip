@@ -24,7 +24,7 @@ import Icon from '../../components/elements/Icon';
 import baseTheme from '../../themes/baseTheme';
 import { fieldsAreValid } from '../../core/forms';
 import { useIsFirstRender } from '../../core/hooks';
-import { clinicValuesFromClinic, validationSchema } from '../../core/clinicUtils';
+import { clinicValuesFromClinic, clinicSchema as validationSchema } from '../../core/clinicUtils';
 import { useToasts } from '../../providers/ToastProvider';
 import ClinicProfileFields from './ClinicProfileFields';
 

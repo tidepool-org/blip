@@ -59,7 +59,7 @@ export const clinicValuesFromClinic = (clinic) => ({
   website: get(clinic, 'website', ''),
 });
 
-export const validationSchema = yup.object().shape({
+export const clinicSchema = yup.object().shape({
   name: yup.string().required(t('Please enter an organization name')),
   address: yup.string().required(t('Please enter an address')),
   city: yup.string().required(t('Please enter a city')),
