@@ -1542,6 +1542,33 @@ export function fetchPatientFromClinicFailure(error, apiError) {
   };
 }
 
+export function createClinicCustodialAccountRequest() {
+  return {
+    type: ActionTypes.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST,
+  };
+}
+
+export function createClinicCustodialAccountSuccess(clinicId, patient, patientId) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS,
+    payload: {
+      clinicId,
+      patient,
+      patientId,
+    },
+  };
+}
+
+export function createClinicCustodialAccountFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function updateClinicPatientRequest() {
   return {
     type: ActionTypes.UPDATE_CLINIC_PATIENT_REQUEST,
