@@ -53,7 +53,7 @@ export const ClinicProfile = (props) => {
 
   const formikContext = useFormik({
     initialValues: clinicValuesFromClinic(clinic),
-    onSubmit: (values, ctx) => {
+    onSubmit: values => {
       trackMetric('Clinic - Edit clinic profile saved', { clinicId: selectedClinicId });
       dispatch(actions.async.updateClinic(api, clinic.id, values));
     },

@@ -78,7 +78,7 @@ export const PatientInfo = translate()(props => {
         as={({ innerRef }) => (
           <InputMask
             mask={maskFormat}
-            maskPlaceholder={dateInputFormat}
+            maskPlaceholder={dateInputFormat.toLowerCase()}
             alwaysShowMask
             defaultValue={get(values, 'birthday', '').replace(dateRegex, '$2/$3/$1')}
             onBlur={e => {

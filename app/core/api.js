@@ -926,7 +926,7 @@ api.clinics.getPatientFromClinic = function(clinicId, patientId, cb) {
 };
 
 api.clinics.createClinicCustodialAccount = function(clinicId, patient, cb) {
-  tidepool.createClinicCustodialAccount(clinicId, patient, cb);
+  return tidepool.createClinicCustodialAccount(clinicId, patient, cb);
 }
 
 api.clinics.updateClinicPatient = function(clinicId, patientId, patient, cb) {
