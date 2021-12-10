@@ -1754,8 +1754,9 @@ export const PatientDataClass = createReactClass({
 
     this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
 
-    const patientID = this.props.currentPatientInViewId;
-    this.props.trackMetric('Fetched earlier patient data', { patientID, count, clinicId: this.props.selectedClinicId });
+    const properties = { patientID: this.props.currentPatientInViewId, count };
+    if (this.props.selectedClinicId) properties.clinicId = this.props.selectedClinicId;
+    this.props.trackMetric('Fetched earlier patient data', properties);
   },
 
   hideLoading: function(timeout = 0) {
@@ -1784,8 +1785,9 @@ export const PatientDataClass = createReactClass({
         this.props.trackMetric('Web - Medtronic Import URL Param', { medtronic });
       }
 
-      const patientID = nextProps.currentPatientInViewId;
-      this.props.trackMetric('Fetched initial patient data', { patientID, clinicId: this.props.selectedClinicId });
+      const properties = { patientID: nextProps.currentPatientInViewId };
+      if (this.props.selectedClinicId) properties.clinicId = this.props.selectedClinicId;
+      this.props.trackMetric('Fetched initial patient data', properties);
       this.props.trackMetric('Viewed Data');
     }
 
