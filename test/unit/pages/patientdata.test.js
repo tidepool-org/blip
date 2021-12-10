@@ -3808,19 +3808,37 @@ describe('PatientData', function () {
       it('should track the `Fetched earlier patient data` metric', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
+        // Should not include `clinicId` if `props.selectedClinicId` is not set
         wrapper.setProps({
           data: {
             fetchedUntil,
           },
+          selectedClinicId: undefined,
         });
 
         expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
 
         instance.fetchEarlierData();
 
-        sinon.assert.calledWith(props.trackMetric, 'Fetched earlier patient data', {
+        sinon.assert.calledWithExactly(props.trackMetric, 'Fetched earlier patient data', {
           count: 1,
-          patientID: 'otherPatientId' ,
+          patientID: 'otherPatientId',
+        });
+
+        // Should include `clinicId` if `props.selectedClinicId` is set
+        wrapper.setProps({
+          data: {
+            fetchedUntil,
+          },
+          selectedClinicId: 'clinic123',
+        });
+
+        instance.fetchEarlierData();
+
+        sinon.assert.calledWithExactly(props.trackMetric, 'Fetched earlier patient data', {
+          count: 2,
+          patientID: 'otherPatientId',
+          clinicId: 'clinic123',
         });
       });
     });
