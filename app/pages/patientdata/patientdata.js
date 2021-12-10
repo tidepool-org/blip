@@ -1755,7 +1755,7 @@ export const PatientDataClass = createReactClass({
     this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
 
     const patientID = this.props.currentPatientInViewId;
-    this.props.trackMetric('Fetched earlier patient data', { patientID, count });
+    this.props.trackMetric('Fetched earlier patient data', { patientID, count, clinicId: this.props.selectedClinicId });
   },
 
   hideLoading: function(timeout = 0) {
@@ -1785,7 +1785,7 @@ export const PatientDataClass = createReactClass({
       }
 
       const patientID = nextProps.currentPatientInViewId;
-      this.props.trackMetric('Fetched initial patient data', { patientID });
+      this.props.trackMetric('Fetched initial patient data', { patientID, clinicId: this.props.selectedClinicId });
       this.props.trackMetric('Viewed Data');
     }
 
@@ -1891,6 +1891,7 @@ export function mapStateToProps(state, props) {
     generatingPDF: state.blip.working.generatingPDF,
     pdf: state.blip.pdf,
     data: state.blip.data,
+    selectedClinicId: state.blip.selectedClinicId,
   };
 }
 

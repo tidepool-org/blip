@@ -3812,6 +3812,7 @@ describe('PatientData', function () {
           data: {
             fetchedUntil,
           },
+          selectedClinicId: 'clinic123',
         });
 
         expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
@@ -3820,7 +3821,8 @@ describe('PatientData', function () {
 
         sinon.assert.calledWith(props.trackMetric, 'Fetched earlier patient data', {
           count: 1,
-          patientID: 'otherPatientId' ,
+          patientID: 'otherPatientId',
+          clinicId: 'clinic123',
         });
       });
     });
