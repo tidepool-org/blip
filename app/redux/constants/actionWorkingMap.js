@@ -299,6 +299,11 @@ export default (type) => {
     case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
       return 'fetchingPatientFromClinic';
 
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE:
+      return 'creatingClinicCustodialAccount';
+
     case types.UPDATE_CLINIC_PATIENT_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_FAILURE:
