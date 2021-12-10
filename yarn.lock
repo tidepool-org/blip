@@ -18447,10 +18447,10 @@ tideline@1.25.0-web-880-clinic-signup.1:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.47.0-web-1242-clinian-invite.1:
-  version "0.47.0-web-1242-clinian-invite.1"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.47.0-web-1242-clinian-invite.1.tgz#e624e183ddaf5ad5eac362812a93f4baaa6cae8a"
-  integrity sha512-QSwycz6sE1/Xwhiv9cO3OstQDIdR99eiQUouO/I6GTMd0Jq8XiKucE7GL73XTx6BMTOHEClD1OcISpoNzAEF4g==
+tidepool-platform-client@0.48.0-web-1302-patient-list-create-edit.1:
+  version "0.48.0-web-1302-patient-list-create-edit.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.48.0-web-1302-patient-list-create-edit.1.tgz#0c91d5ff08c9177ac88e54a0debcfbec02ff3faf"
+  integrity sha512-RLaQF40Qorvb21pVmip9Jw7ZDddDDf1IE9AQYfo9+POTvCrJ2YvdNkqIZgSG78MRnBlr8UmLXPDfHrcknr8vFA==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"

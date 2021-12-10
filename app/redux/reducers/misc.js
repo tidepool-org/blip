@@ -765,6 +765,7 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { clinicians: { [clinician.id]: { $set: clinician } } },
       });
     }
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_SUCCESS: {
       const patient = _.get(action.payload, 'patient');
       const patientId = _.get(action.payload, 'patientId');

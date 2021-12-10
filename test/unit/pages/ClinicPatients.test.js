@@ -4,10 +4,10 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
+import noop from 'lodash/noop';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
-import { Dialog } from '../../../app/components/elements/Dialog';
 
 /* global chai */
 /* global sinon */
@@ -33,6 +33,8 @@ describe('ClinicPatients', () => {
       clinics: {
         getPatientsForClinic: sinon.stub(),
         deletePatientFromClinic: sinon.stub(),
+        createClinicCustodialAccount: sinon.stub().callsArgWith(2, null, { id: 'stubbedId' }),
+        updateClinicPatient: sinon.stub().callsArgWith(3, null, { id: 'stubbedId', stubbedUpdates: 'foo' }),
       },
     },
   };
@@ -45,6 +47,8 @@ describe('ClinicPatients', () => {
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.getPatientsForClinic.resetHistory();
     defaultProps.api.clinics.deletePatientFromClinic.resetHistory();
+    defaultProps.api.clinics.createClinicCustodialAccount.resetHistory();
+    defaultProps.api.clinics.updateClinicPatient.resetHistory();
   });
 
   after(() => {
@@ -95,6 +99,8 @@ describe('ClinicPatients', () => {
       working: {
         fetchingPatientsForClinic: completedState,
         deletingPatientFromClinic: defaultWorkingState,
+        updatingClinicPatient: defaultWorkingState,
+        creatingClinicCustodialAccount: defaultWorkingState,
       },
     },
   };
@@ -161,7 +167,6 @@ describe('ClinicPatients', () => {
   context('no patients', () => {
     beforeEach(() => {
       store = mockStore(noPatientsState);
-      defaultProps.trackMetric.resetHistory();
       wrapper = mount(
         <Provider store={store}>
           <ToastProvider>
@@ -171,6 +176,7 @@ describe('ClinicPatients', () => {
       );
 
       wrapper.find('button#patients-view-toggle').simulate('click');
+      defaultProps.trackMetric.resetHistory();
     });
 
     it('should render an empty table', () => {
@@ -178,6 +184,72 @@ describe('ClinicPatients', () => {
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(1); // header row only
       expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show.');
+    });
+
+    it('should open a modal for adding a new patient', done => {
+      const addButton = wrapper.find('button#add-patient');
+      expect(addButton.text()).to.equal('Add a New Patient');
+
+      const dialog = () => wrapper.find('Dialog#addPatient');
+
+      expect(dialog().props().open).to.be.false;
+      addButton.simulate('click');
+      wrapper.update();
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '123456' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('123456');
+
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
+
+      store.clearActions();
+      dialog().find('Button#addPatientConfirm').simulate('click');
+
+      setTimeout(() => {
+        expect(defaultProps.api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
+
+        sinon.assert.calledWith(
+          defaultProps.api.clinics.createClinicCustodialAccount,
+          'clinicID123',
+          {
+            fullName: 'Patient Name',
+            birthDate: '1999-11-21',
+            mrn: '123456',
+            email: 'patient@test.ca',
+          }
+        );
+
+        expect(store.getActions()).to.eql([
+          { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
+          {
+            type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS',
+            payload: {
+              clinicId: 'clinicID123',
+              patientId: 'stubbedId',
+              patient: { id: 'stubbedId' },
+            },
+          },
+        ]);
+
+        done();
+      }, 0);
     });
   });
 
@@ -292,22 +364,75 @@ describe('ClinicPatients', () => {
         ]);
       });
 
-      it('should link to a patient profile view when edit link is clicked', () => {
+      it('should open a modal for patient editing when edit link is clicked', done => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const editButton = table.find('tr').at(1).find('.edit-clinic-patient').hostNodes();
+        const editButton = table.find('tr').at(2).find('.edit-clinic-patient').hostNodes();
         expect(editButton.props()['aria-label']).to.equal('Edit');
 
-        store.clearActions();
-        editButton.simulate('click');
+        const dialog = () => wrapper.find('Dialog#editPatient');
 
-        expect(store.getActions()).to.eql([
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: { method: 'push', args: ['/patients/patient1/profile#edit']}
-          },
-        ]);
+        expect(dialog().props().open).to.be.false;
+        editButton.simulate('click');
+        wrapper.update();
+        expect(dialog().props().open).to.be.true;
+
+        expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
+        expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+        const patientForm = () => dialog().find('form#clinic-patient-form');
+        expect(patientForm()).to.have.lengthOf(1);
+
+        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Two');
+        patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
+        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient 2');
+
+        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('02/02/1999');
+        patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '01/01/1999' } });
+        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
+
+        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn123');
+        patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
+        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn456');
+
+        expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient2@test.ca');
+        patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
+        expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
+
+        store.clearActions();
+        dialog().find('Button#editPatientConfirm').simulate('click');
+
+        setTimeout(() => {
+          expect(defaultProps.api.clinics.updateClinicPatient.callCount).to.equal(1);
+
+          sinon.assert.calledWith(
+            defaultProps.api.clinics.updateClinicPatient,
+            'clinicID123',
+            'patient2',
+            {
+              fullName: 'Patient 2',
+              birthDate: '1999-01-01',
+              mrn: 'mrn456',
+              id: 'patient2',
+              email: 'patient-two@test.ca',
+            }
+          );
+
+          expect(store.getActions()).to.eql([
+            { type: 'UPDATE_CLINIC_PATIENT_REQUEST' },
+            {
+              type: 'UPDATE_CLINIC_PATIENT_SUCCESS',
+              payload: {
+                clinicId: 'clinicID123',
+                patientId: 'stubbedId',
+                patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
+              },
+            },
+          ]);
+
+          done();
+        }, 0);
       });
 
       it('should remove a patient', () => {
@@ -317,15 +442,15 @@ describe('ClinicPatients', () => {
         const removeButton = table.find('tr').at(1).find('.remove-clinic-patient').hostNodes();
         expect(removeButton.props()['aria-label']).to.equal('Remove');
 
-        expect(wrapper.find(Dialog).props().open).to.be.false;
+        expect(wrapper.find('Dialog#deleteUser').props().open).to.be.false;
         removeButton.simulate('click');
         wrapper.update();
-        expect(wrapper.find(Dialog).props().open).to.be.true;
+        expect(wrapper.find('Dialog#deleteUser').props().open).to.be.true;
 
         expect(defaultProps.trackMetric.calledWith('Clinic - Remove patient')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-        const confirmRemoveButton = wrapper.find(Dialog).find('Button#patientRemoveConfirm');
+        const confirmRemoveButton = wrapper.find('Dialog#deleteUser').find('Button#patientRemoveConfirm');
         expect(confirmRemoveButton.text()).to.equal('Remove');
 
         store.clearActions();

@@ -221,6 +221,53 @@ describe('clinics', () => {
     });
   });
 
+  describe('updateClinicPatientSuccess', () => {
+    it('should update clinic patient', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          clinicians: {
+            clinicianId123: {}
+          },
+          patients: {
+            patient123: {
+              id: 'patient123',
+              name: 'Patient OneTwoThree',
+            },
+          },
+        },
+      };
+      let patient = {
+        id: 'patient123',
+        name: 'Patient 123',
+      };
+      let action = actions.sync.updateClinicPatientSuccess('clinicId123', 'patient123', patient);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients.patient123.name).to.eql('Patient 123');
+    });
+  });
+
+  describe('createClinicCustodialAccountSuccess', () => {
+    it('should add clinic patient', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          clinicians: {
+            clinicianId123: {}
+          },
+          patients: {},
+        },
+      };
+      let patient = {
+        id: 'patient123',
+        name: 'Patient 123',
+      };
+      let action = actions.sync.createClinicCustodialAccountSuccess('clinicId123', 'patient123', patient);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients.patient123.name).to.eql('Patient 123');
+    });
+  });
+
   describe('deleteClinicianFromClinicSuccess', () => {
     it('should remove clinician', () => {
       let initialStateForTest = {

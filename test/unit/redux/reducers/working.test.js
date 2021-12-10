@@ -5707,6 +5707,104 @@ describe('dataWorkerQueryData', () => {
     });
   });
 
+  describe('createClinicCustodialAccount', () => {
+    describe('request', () => {
+      it('should set creatingClinicCustodialAccount.completed to null', () => {
+        expect(initialState.creatingClinicCustodialAccount.completed).to.be.null;
+
+        let requestAction = actions.sync.createClinicCustodialAccountRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.creatingClinicCustodialAccount.completed).to.be.null;
+
+        let successAction = actions.sync.createClinicCustodialAccountSuccess('foo', 'bar', 'baz');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.creatingClinicCustodialAccount.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.creatingClinicCustodialAccount.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingClinicCustodialAccount.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.createClinicCustodialAccountRequest();
+
+        expect(initialStateForTest.creatingClinicCustodialAccount.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.creatingClinicCustodialAccount.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set creatingClinicCustodialAccount.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.creatingClinicCustodialAccount.completed).to.be.null;
+
+        let failureAction = actions.sync.createClinicCustodialAccountFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.creatingClinicCustodialAccount.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingClinicCustodialAccount.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingClinicCustodialAccount: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.createClinicCustodialAccountFailure(error);
+
+        expect(initialStateForTest.creatingClinicCustodialAccount.inProgress).to.be.true;
+        expect(initialStateForTest.creatingClinicCustodialAccount.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingClinicCustodialAccount.inProgress).to.be.false;
+        expect(state.creatingClinicCustodialAccount.notification.type).to.equal('error');
+        expect(state.creatingClinicCustodialAccount.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set creatingClinicCustodialAccount.completed to be true', () => {
+        expect(initialState.creatingClinicCustodialAccount.completed).to.be.null;
+
+        let successAction = actions.sync.createClinicCustodialAccountSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.creatingClinicCustodialAccount.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingClinicCustodialAccount.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingClinicCustodialAccount: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.createClinicCustodialAccountSuccess('clinicId','patientId',{id:'patientId', name:'newName'});
+
+        expect(initialStateForTest.creatingClinicCustodialAccount.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingClinicCustodialAccount.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
   describe('updateClinicPatient', () => {
     describe('request', () => {
       it('should leave updatingClinicPatient.completed unchanged', () => {
