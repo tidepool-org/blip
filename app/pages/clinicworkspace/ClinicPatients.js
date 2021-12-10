@@ -4,13 +4,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
 import debounce from 'lodash/debounce';
-import filter from 'lodash/filter';
 import get from 'lodash/get'
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
-import map from 'lodash/map';
+import keys from 'lodash/keys';
 import values from 'lodash/values';
-import sundial from 'sundial';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
@@ -28,6 +26,7 @@ import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
+import PatientForm from '../../components/clinic/PatientForm';
 
 import {
   Dialog,
@@ -39,6 +38,8 @@ import {
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
+import { fieldsAreValid } from '../../core/forms';
+import { patientSchema as validationSchema } from '../../core/clinicUtils';
 
 const { Loader } = vizComponents;
 
@@ -53,10 +54,13 @@ export const ClinicPatients = (props) => {
   const clinic = get(clinics, selectedClinicId);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
+  const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
   const [search, setSearch] = useState('');
-  const [selectedPatient, setSelectedPatient] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [patientFormContext, setPatientFormContext] = useState();
   const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
 
   const debounceSearch = useCallback(debounce(search => {
@@ -70,6 +74,8 @@ export const ClinicPatients = (props) => {
   const {
     fetchingPatientsForClinic,
     deletingPatientFromClinic,
+    updatingClinicPatient,
+    creatingClinicCustodialAccount,
   } = useSelector((state) => state.blip.working);
 
   function handleAsyncResult(workingState, successMessage) {
@@ -77,14 +83,12 @@ export const ClinicPatients = (props) => {
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
-        setShowDeleteDialog(false);
+        handleCloseOverlay();
 
         setToast({
           message: successMessage,
           variant: 'success',
         });
-
-        setSelectedPatient(null);
       }
 
       if (completed === false) {
@@ -97,6 +101,14 @@ export const ClinicPatients = (props) => {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    handleAsyncResult(updatingClinicPatient, t('You have successfully updated a patient.'));
+  }, [updatingClinicPatient]);
+
+  useEffect(() => {
+    handleAsyncResult(creatingClinicCustodialAccount, t('You have successfully added a new patient.'));
+  }, [creatingClinicCustodialAccount]);
 
   useEffect(() => {
     handleAsyncResult(deletingPatientFromClinic, t('{{name}} has been removed from the clinic.', {
@@ -137,30 +149,44 @@ export const ClinicPatients = (props) => {
           flexGrow={1}
           pt={0}
         >
-          <TextInput
-            themeProps={{
-              width: 'auto',
-              minWidth: '250px',
-            }}
-            id="patients-search"
-            placeholder={t('Search')}
-            icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
-            iconLabel={t('Search')}
-            onClickIcon={!isEmpty(search) ? handleClearSearch : null}
-            name="search-patients"
-            onChange={handleSearchChange}
-            value={search}
-            variant="condensed"
-          />
+          <Flex
+            alignItems="center"
+            justifyContent="flex-start"
+          >
+            <TextInput
+              themeProps={{
+                width: 'auto',
+                minWidth: '250px',
+              }}
+              id="patients-search"
+              placeholder={t('Search')}
+              icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
+              iconLabel={t('Search')}
+              onClickIcon={!isEmpty(search) ? handleClearSearch : null}
+              name="search-patients"
+              onChange={handleSearchChange}
+              value={search}
+              variant="condensed"
+            />
+            <Button
+              id="patients-view-toggle"
+              variant="textSecondary"
+              disabled={!isEmpty(search)}
+              onClick={handleToggleShowNames}
+              mr={0}
+              ml={2}
+            >
+              {toggleLabel}
+            </Button>
+          </Flex>
 
           <Button
-            id="patients-view-toggle"
+            id="add-patient"
             variant="primary"
-            disabled={!isEmpty(search)}
-            onClick={handleToggleShowNames}
+            onClick={handleAddPatient}
             mr={0}
           >
-            {toggleLabel}
+            {t('Add a New Patient')}
           </Button>
         </Flex>
       </Flex>
@@ -186,7 +212,6 @@ export const ClinicPatients = (props) => {
   };
 
   const renderRemoveDialog = () => {
-    const { t } = props;
     const fullName = selectedPatient?.fullName;
 
     return (
@@ -227,6 +252,75 @@ export const ClinicPatients = (props) => {
     );
   };
 
+  const renderAddPatientDialog = () => {
+    return (
+      <Dialog
+        id="addPatient"
+        aria-labelledBy="dialog-title"
+        open={showAddPatientDialog}
+        onClose={handleCloseOverlay}
+      >
+        <DialogTitle onClose={handleCloseOverlay}>
+          <MediumTitle id="dialog-title">{t('Add New Patient Account')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <PatientForm api={api} onFormChange={handlePatientFormChange} />
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="addPatientCancel" variant="secondary" onClick={handleCloseOverlay}>
+            {t('Cancel')}
+          </Button>
+          <Button
+            id="addPatientConfirm"
+            variant="primary"
+            onClick={handleAddPatientConfirm}
+            processing={creatingClinicCustodialAccount.inProgress}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+          >
+            {t('Add Patient')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
+  const renderEditPatientDialog = () => {
+    return (
+      <Dialog
+        id="editPatient"
+        aria-labelledBy="dialog-title"
+        open={showEditPatientDialog}
+        onClose={handleCloseOverlay}
+      >
+        <DialogTitle onClose={handleCloseOverlay}>
+          <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <PatientForm api={api} onFormChange={handlePatientFormChange} patient={selectedPatient} />
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="editPatientCancel" variant="secondary" onClick={handleCloseOverlay}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="editPatientConfirm"
+            variant="primary"
+            onClick={handleEditPatientConfirm}
+            processing={updatingClinicPatient.inProgress}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+          >
+            {t('Save Changes')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
   function handleRemove(patient) {
     return () => {
       trackMetric('Clinic - Remove patient', { clinicId: selectedClinicId });
@@ -242,6 +336,11 @@ export const ClinicPatients = (props) => {
 
   function handleCloseOverlay() {
     setShowDeleteDialog(false);
+    setShowAddPatientDialog(false);
+    setShowEditPatientDialog(false);
+    setTimeout(() => {
+      setSelectedPatient(null);
+    })
   }
 
   function handleClickPatient(patient) {
@@ -251,15 +350,31 @@ export const ClinicPatients = (props) => {
     }
   }
 
-  function handleClickEdit(patient) {
-    return () => {
-      const metric = selectedClinicId
-        ? ['Clinic - Edit patient info', { clinicId: selectedClinicId }]
-        : ['Clicked Edit PwD'];
+  function handleAddPatient() {
+    trackMetric('Clinic - Add patient', { clinicId: selectedClinicId });
+    setShowAddPatientDialog(true);
+  }
 
-      trackMetric(...metric);
-      dispatch(push(`/patients/${patient.id}/profile#edit`));
-    }
+  function handleAddPatientConfirm() {
+    trackMetric('Clinic - Add patient confirmed', { clinicId: selectedClinicId });
+    patientFormContext?.handleSubmit();
+  }
+
+  function handleEditPatient(patient) {
+    return () => {
+      trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId });
+      setSelectedPatient(patient);
+      setShowEditPatientDialog(true);
+    };
+  }
+
+  function handleEditPatientConfirm() {
+    trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
+    patientFormContext?.handleSubmit();
+  }
+
+  function handlePatientFormChange(formikContext) {
+    setPatientFormContext({...formikContext});
   }
 
   function handleSearchChange(event) {
@@ -307,7 +422,7 @@ export const ClinicPatients = (props) => {
   );
 
   const renderEdit = patient => (
-    <Icon className="edit-clinic-patient" icon={EditIcon} label={'Edit'} variant={'button'} onClick={handleClickEdit(patient)} />
+    <Icon className="edit-clinic-patient" icon={EditIcon} label={'Edit'} variant={'button'} onClick={handleEditPatient(patient)} />
   );
 
   const renderRemove = patient => (
@@ -397,6 +512,8 @@ export const ClinicPatients = (props) => {
       {renderHeader()}
       {renderPeopleArea()}
       {renderRemoveDialog()}
+      {renderAddPatientDialog()}
+      {renderEditPatientDialog()}
     </div>
   );
 };

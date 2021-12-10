@@ -2068,17 +2068,42 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
 }
 
 /**
+ * Create custodial Patient for Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} patient
+ * @param {String} patient.fullName - The full name of the patient
+ * @param {String} patient.birthDate - YYYY-MM-DD
+ * @param {String} [patient.mrn] - The medical record number of the patient
+ * @param {String} [patient.email] - The email address of the patient
+ */
+ export function createClinicCustodialAccount(api, clinicId, patient) {
+  return (dispatch) => {
+    dispatch(sync.createClinicCustodialAccountRequest());
+    api.clinics.createClinicCustodialAccount(clinicId, patient, (err, result) => {
+      if (err) {
+        dispatch(sync.createClinicCustodialAccountFailure(
+          createActionError(ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT, err), err
+        ));
+      } else {
+        dispatch(sync.createClinicCustodialAccountSuccess(clinicId, result.id, result));
+      }
+    });
+  };
+}
+
+/**
  * Update Clinic Patient Action Creator
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
  * @param {String} patientId - Id of the patient
  * @param {Object} patient - new patient
- * @param {String} patient.email - The email address of the patient
  * @param {String} patient.fullName - The full name of the patient
  * @param {String} patient.birthDate - YYYY-MM-DD
  * @param {String} [patient.mrn] - The medical record number of the patient
- * @param {String[]} [patient.targetDevices] - Array of string target devices
+ * @param {String} [patient.email] - The email address of the patient
  */
 export function updateClinicPatient(api, clinicId, patientId, patient) {
   return (dispatch) => {
@@ -2090,7 +2115,7 @@ export function updateClinicPatient(api, clinicId, patientId, patient) {
           createActionError(ErrorMessages.ERR_UPDATING_CLINIC_PATIENT, err), err
         ));
       } else {
-        dispatch(sync.updateClinicPatientSuccess(clinicId, patientId, patient));
+        dispatch(sync.updateClinicPatientSuccess(clinicId, patient.id, patient));
       }
     });
   };

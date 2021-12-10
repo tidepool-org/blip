@@ -2942,6 +2942,51 @@ describe('Actions', () => {
       });
     });
 
+    describe('createClinicCustodialAccountRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.createClinicCustodialAccountRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST', () => {
+        let action = sync.createClinicCustodialAccountRequest();
+        expect(action.type).to.equal('CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST');
+      });
+    });
+
+    describe('createClinicCustodialAccountSuccess', () => {
+      let clinicId = 'clinicId';
+      let patientId = 'patientId';
+      let patient = { permissions: ['VIEW'] };
+      it('should be a TSA', () => {
+        let action = sync.createClinicCustodialAccountSuccess(clinicId, patientId, patient);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS', () => {
+        let action = sync.createClinicCustodialAccountSuccess(clinicId, patientId, patient);
+        expect(action.type).to.equal('CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS');
+        expect(action.payload.clinicId).to.equal(clinicId);
+        expect(action.payload.patientId).to.equal(patientId);
+        expect(action.payload.patient).to.equal(patient);
+      });
+    });
+
+    describe('createClinicCustodialAccountFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('updating clinic patient failed :(');
+        let action = sync.createClinicCustodialAccountFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.createClinicCustodialAccountFailure(error);
+        expect(action.type).to.equal('CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('updateClinicPatientRequest', () => {
       it('should be a TSA', () => {
         let action = sync.updateClinicPatientRequest();

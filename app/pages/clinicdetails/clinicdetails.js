@@ -27,7 +27,7 @@ import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useToasts } from '../../providers/ToastProvider';
 import { push } from 'connected-react-router';
 import { components as vizComponents } from '@tidepool/viz';
-import { clinicValuesFromClinic, roles, validationSchema } from '../../core/clinicUtils';
+import { clinicValuesFromClinic, roles, clinicSchema as validationSchema } from '../../core/clinicUtils';
 import { addEmptyOption } from '../../core/forms';
 
 import {
