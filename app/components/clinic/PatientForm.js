@@ -63,7 +63,7 @@ export const PatientForm = (props) => {
   return (
     <Box
       as="form"
-      id="clinic-profile-update"
+      id="clinic-patient-form"
     >
       <Box mb={4}>
         <TextInput

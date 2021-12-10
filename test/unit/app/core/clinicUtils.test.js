@@ -26,6 +26,14 @@ describe('clinicUtils', function() {
     ]);
   });
 
+  it('should export the `dateFormat`', function() {
+    expect(clinicUtils.dateFormat).to.equal('YYYY-MM-DD');
+  });
+
+  it('should export the `dateRegex`', function() {
+    expect(clinicUtils.dateRegex).to.eql(/^(.*)[-|/](.*)[-|/](.*)$/);
+  });
+
   it('should return all clinicTypes options', () => {
     expect(clinicUtils.clinicTypes).to.eql([
       { value: 'provider_practice', label: 'Provider Practice' },
@@ -89,11 +97,11 @@ describe('clinicUtils', function() {
     });
   });
 
-  describe('validationSchema', () => {
+  describe('clinicSchema', () => {
     it('should return a yup schema for clinic fields', () => {
-      expect(clinicUtils.validationSchema).to.be.an('object');
+      expect(clinicUtils.clinicSchema).to.be.an('object');
 
-      expect(clinicUtils.validationSchema._nodes).to.be.an('array').and.have.members([
+      expect(clinicUtils.clinicSchema._nodes).to.be.an('array').and.have.members([
         'name',
         'address',
         'city',
@@ -106,9 +114,22 @@ describe('clinicUtils', function() {
         'website',
       ]);
 
-      expect(clinicUtils.validationSchema.fields.phoneNumbers.innerType._nodes).to.be.an('array').and.have.members([
+      expect(clinicUtils.clinicSchema.fields.phoneNumbers.innerType._nodes).to.be.an('array').and.have.members([
         'type',
         'number',
+      ]);
+    });
+  });
+
+  describe('patientSchema', () => {
+    it('should return a yup schema for clinic fields', () => {
+      expect(clinicUtils.patientSchema).to.be.an('object');
+
+      expect(clinicUtils.patientSchema._nodes).to.be.an('array').and.have.members([
+        'fullName',
+        'birthDate',
+        'email',
+        'mrn',
       ]);
     });
   });

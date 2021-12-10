@@ -1548,7 +1548,7 @@ export function createClinicCustodialAccountRequest() {
   };
 }
 
-export function createClinicCustodialAccountSuccess(clinicId, patient, patientId) {
+export function createClinicCustodialAccountSuccess(clinicId, patientId, patient) {
   return {
     type: ActionTypes.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS,
     payload: {

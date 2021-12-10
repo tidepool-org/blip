@@ -58,7 +58,7 @@ export const ClinicPatients = (props) => {
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
   const [search, setSearch] = useState('');
-  const [selectedPatient, setSelectedPatient] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
@@ -181,7 +181,7 @@ export const ClinicPatients = (props) => {
           </Flex>
 
           <Button
-            id="patients-view-toggle"
+            id="add-patient"
             variant="primary"
             onClick={handleAddPatient}
             mr={0}
