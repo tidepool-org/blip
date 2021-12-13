@@ -344,13 +344,13 @@ describe('ClinicAdmin', () => {
       );
     });
 
-    it('should display dialog when "Resend Invitation" is clicked', () => {
+    it('should display dialog when "Resend Invite" is clicked', () => {
       const expectedActions = [
         {
           type: 'RESEND_CLINICIAN_INVITE_REQUEST'
         }
       ];
-      const resendButton = wrapper.find('Button[iconLabel="Resend Invitation"]');
+      const resendButton = wrapper.find('Button[iconLabel="Resend Invite"]');
       const resendDialog = () => wrapper.find(Dialog).at(1);
       expect(resendDialog().props().open).to.be.false;
       resendButton.simulate('click');
