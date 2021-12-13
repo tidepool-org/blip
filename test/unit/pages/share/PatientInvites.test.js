@@ -260,7 +260,7 @@ describe('PatientInvites', () => {
       expect(wrapper.find(Dialog).props().open).to.be.true;
 
       const confirmDeclineButton = wrapper.find(Dialog).find('Button.decline-invite');
-      expect(confirmDeclineButton.text()).to.equal('Decline Invitation');
+      expect(confirmDeclineButton.text()).to.equal('Decline Invite');
 
       confirmDeclineButton.simulate('click');
 

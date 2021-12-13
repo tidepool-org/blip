@@ -98,7 +98,7 @@ export const Workspaces = (props) => {
   }, [acceptingClinicianInvite]);
 
   useEffect(() => {
-    handleAsyncResult(dismissingClinicianInvite, t('Invitation to {{name}} has been declined.', {
+    handleAsyncResult(dismissingClinicianInvite, t('Invite to {{name}} has been declined.', {
       name: selectedWorkspace?.name,
     }));
   }, [dismissingClinicianInvite]);
@@ -168,7 +168,7 @@ export const Workspaces = (props) => {
       } else if (selectedWorkspace.type === 'clinician_invitation') {
         title = t('Decline {{name}}', { name: selectedWorkspace.name });
         submitText = t('Decline Invite');
-        body = t('If you decline this invitation you will need to ask your Clinic Admin to send a new one. Are you sure you want to decline the invitation to the {{name}} clinic workspace? ', { name: selectedWorkspace.name });
+        body = t('If you decline this invite you will need to ask your Clinic Admin to send a new one. Are you sure you want to decline the invite to the {{name}} clinic workspace? ', { name: selectedWorkspace.name });
       }
 
       setDeleteDialogContent({
