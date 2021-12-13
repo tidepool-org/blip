@@ -82,10 +82,13 @@ export const ClinicAdmin = (props) => {
         });
       } else {
         setToast({
-          message: t('Clinician invite resent.'),
+          message: t('Clinician invite resent to {{email}}.', { email: selectedInvite?.email }),
           variant: 'success',
         });
       }
+
+      closeResendInviteDialog();
+      setTimeout(clearSelectedInvite, 0);
     }
   }, [working.resendingClinicianInvite]);
 
@@ -341,7 +344,7 @@ export const ClinicAdmin = (props) => {
       items.push(...[
         {
           icon: InputIcon,
-          iconLabel: t('Resend Invitation'),
+          iconLabel: t('Resend Invite'),
           iconPosition: 'left',
           id: `resendInvite-${props.inviteId}`,
           variant: 'actionListItem',
@@ -349,11 +352,11 @@ export const ClinicAdmin = (props) => {
             _popupState.close();
             handleResendInvite(props);
           },
-          text: t('Resend Invitation'),
+          text: t('Resend Invite'),
         },
         {
           icon: DeleteForeverIcon,
-          iconLabel: t('Delete Invitation'),
+          iconLabel: t('Revoke Invite'),
           iconPosition: 'left',
           id: `deleteInvite-${props.inviteId}`,
           variant: 'actionListItemDanger',
@@ -361,7 +364,7 @@ export const ClinicAdmin = (props) => {
             _popupState.close();
             handleDeleteInvite(props.inviteId);
           },
-          text: t('Delete item'),
+          text: t('Revoke Invite'),
         },
       ]);
     }
@@ -560,10 +563,8 @@ export const ClinicAdmin = (props) => {
 
           <Button
             variant="primary"
-            onClick={() => {
-              handleConfirmResendInvite(selectedInvite.inviteId);
-              closeResendInviteDialog();
-            }}
+            processing={working.resendingClinicianInvite.inProgress}
+            onClick={() => handleConfirmResendInvite(selectedInvite.inviteId)}
           >
             {t('Resend Invite')}
           </Button>

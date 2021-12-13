@@ -130,7 +130,7 @@ export const AccessManagement = (props) => {
   }, [updatingPatientPermissions]);
 
   useEffect(() => {
-    handleAsyncResult(resendingInvite, t('Share invitation to {{email}} has been re-sent.', {
+    handleAsyncResult(resendingInvite, t('Share invitation to {{email}} has been resent.', {
       email: selectedSharedAccount?.email,
     }));
   }, [resendingInvite]);
@@ -293,8 +293,8 @@ export const AccessManagement = (props) => {
       }
 
       if (selectedSharedAccount.type === 'careteam_invitation') {
-        title = t('Revoke invitation?');
-        submitText = t('Revoke Invitation');
+        title = t('Revoke Invite?');
+        submitText = t('Revoke Invite');
         body = (<Trans>
           Are you sure you want to revoke this share invitation to <Text as='span' fontWeight='bold'>{{member: selectedSharedAccount.email || selectedSharedAccount.name }}</Text>?
         </Trans>)
@@ -457,7 +457,7 @@ export const AccessManagement = (props) => {
       if (member.role === 'member' && member.status !== 'declined') items.push({
         disabled: resendingInvite.inProgress,
         icon: InputIcon,
-        iconLabel: t('Resend invitation'),
+        iconLabel: t('Resend Invite'),
         iconPosition: 'left',
         id: `resendInvite-${member.inviteId}`,
         onClick: _popupState => {
@@ -466,13 +466,13 @@ export const AccessManagement = (props) => {
           setShowResendInviteDialog(true);
         },
         processing: resendingInvite.inProgress,
-        text: t('Resend invitation'),
+        text: t('Resend Invite'),
         variant: 'actionListItem',
       });
 
       items.push({
         icon: DeleteForeverIcon,
-        iconLabel: t('Revoke invitation'),
+        iconLabel: t('Revoke Invite'),
         iconPosition: 'left',
         id: `deleteInvite-${member.inviteId}`,
         onClick: _popupState => {
@@ -480,7 +480,7 @@ export const AccessManagement = (props) => {
           setSelectedSharedAccount(member);
           setShowDeleteDialog(true);
         },
-        text: t('Revoke invitation'),
+        text: t('Revoke Invite'),
         variant: 'actionListItemDanger',
       });
     }
@@ -672,7 +672,7 @@ export const AccessManagement = (props) => {
               handleResendInvite(selectedSharedAccount);
             }}
           >
-            {t('Resend Invitation')}
+            {t('Resend Invite')}
           </Button>
         </DialogActions>
       </Dialog>
