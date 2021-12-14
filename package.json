@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.48.0-clinic-ui-staging.22",
+  "version": "1.48.0-clinic-ui-staging.23",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
