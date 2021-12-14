@@ -130,13 +130,13 @@ export const AccessManagement = (props) => {
   }, [updatingPatientPermissions]);
 
   useEffect(() => {
-    handleAsyncResult(resendingInvite, t('Share invitation to {{email}} has been resent.', {
+    handleAsyncResult(resendingInvite, t('Share invite to {{email}} has been resent.', {
       email: selectedSharedAccount?.email,
     }));
   }, [resendingInvite]);
 
   useEffect(() => {
-    handleAsyncResult(cancellingSentInvite, t('Share invitation to {{email}} has been revoked.', {
+    handleAsyncResult(cancellingSentInvite, t('Share invite to {{email}} has been revoked.', {
       email: selectedSharedAccount?.email,
     }));
   }, [cancellingSentInvite]);
@@ -154,7 +154,7 @@ export const AccessManagement = (props) => {
   }, [deletingPatientFromClinic]);
 
   useEffect(() => {
-    handleAsyncResult(deletingPatientInvitation, t('Share invitation to {{name}} has been revoked.', {
+    handleAsyncResult(deletingPatientInvitation, t('Share invite to {{name}} has been revoked.', {
       name: selectedSharedAccount?.name,
     }));
   }, [deletingPatientInvitation]);
@@ -296,7 +296,7 @@ export const AccessManagement = (props) => {
         title = t('Revoke Invite?');
         submitText = t('Revoke Invite');
         body = (<Trans>
-          Are you sure you want to revoke this share invitation to <Text as='span' fontWeight='bold'>{{member: selectedSharedAccount.email || selectedSharedAccount.name }}</Text>?
+          Are you sure you want to revoke this share invite to <Text as='span' fontWeight='bold'>{{member: selectedSharedAccount.email || selectedSharedAccount.name }}</Text>?
         </Trans>)
       }
 
@@ -646,7 +646,7 @@ export const AccessManagement = (props) => {
         onClose={() => setShowResendInviteDialog(false)}
       >
         <DialogTitle onClose={() => setShowResendInviteDialog(false)}>
-          <MediumTitle id="dialog-title">{t('Confirm Resending Invitation')}</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Confirm Resending Invite')}</MediumTitle>
         </DialogTitle>
         <DialogContent>
           <Body1>
@@ -655,7 +655,7 @@ export const AccessManagement = (props) => {
                 You invited <Text as='span' fontWeight='bold'>{{inviteName: selectedSharedAccount?.name || selectedSharedAccount?.email}}</Text> to view your data on <Text as='span' fontWeight='bold'>{{inviteDate: formattedInviteDate}}</Text>.
               </Text>
               <Text>
-                Are you sure you want to resend this invitation?
+                Are you sure you want to resend this invite?
               </Text>
             </Trans>
           </Body1>

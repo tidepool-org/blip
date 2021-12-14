@@ -79,13 +79,13 @@ export const PatientInvites = (props) => {
   }
 
   useEffect(() => {
-    handleAsyncResult(acceptingPatientInvitation, t('Patient invitation for {{name}} has been accepted.', {
+    handleAsyncResult(acceptingPatientInvitation, t('Patient invite for {{name}} has been accepted.', {
       name: selectedInvitation?.name,
     }));
   }, [acceptingPatientInvitation]);
 
   useEffect(() => {
-    handleAsyncResult(deletingPatientInvitation, t('Patient invitation for {{name}} has been declined.', {
+    handleAsyncResult(deletingPatientInvitation, t('Patient invite for {{name}} has been declined.', {
       name: selectedInvitation?.name,
     }));
   }, [deletingPatientInvitation]);
@@ -124,9 +124,9 @@ export const PatientInvites = (props) => {
   useEffect(() => {
     if (selectedInvitation) {
       setDeleteDialogContent({
-        title: t('Decline invitation?'),
-        submitText: t('Decline Invitation'),
-        body: t('Are you sure you want to decline this share invitation from {{patient}}?', { patient: selectedInvitation.name }),
+        title: t('Decline invite?'),
+        submitText: t('Decline Invite'),
+        body: t('Are you sure you want to decline this share invite from {{patient}}?', { patient: selectedInvitation.name }),
       })
     }
   }, [selectedInvitation]);

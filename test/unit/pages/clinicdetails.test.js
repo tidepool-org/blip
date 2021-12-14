@@ -229,7 +229,7 @@ describe('ClinicDetails', () => {
 
       const declineButton = wrapper.find('button.decline-invite');
       expect(declineButton).to.have.lengthOf(1);
-      expect(declineButton.text()).to.equal('Decline Invitation');
+      expect(declineButton.text()).to.equal('Decline Invite');
 
       declineButton.simulate('click');
       expect(declineDialog().props().open).to.be.true;
