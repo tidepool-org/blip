@@ -29,6 +29,7 @@ import { push } from 'connected-react-router';
 import { components as vizComponents } from '@tidepool/viz';
 import { clinicValuesFromClinic, roles, clinicSchema as validationSchema } from '../../core/clinicUtils';
 import { addEmptyOption } from '../../core/forms';
+import personUtils from '../../core/personutils';
 
 import {
   Dialog,
@@ -71,7 +72,8 @@ export const ClinicDetails = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
-  const userHasClinicProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'clinic'], false);
+  const user = get(allUsersMap, loggedInUserId);
+  const userHasClinicProfile = !!get(user, ['profile', 'clinic'], false);
   const clinic = get(clinics, selectedClinicId);
   const [displayFullForm, setDisplayFullForm] = useState(false);
   const schema = displayFullForm ? clinicSchema : clinicianSchema;
@@ -94,6 +96,10 @@ export const ClinicDetails = (props) => {
   function redirectToWorkspace() {
     const redirectPath = isEmpty(pendingReceivedClinicianInvites) ? '/clinic-workspace' : '/workspaces';
     dispatch(push(redirectPath));
+  }
+
+  function redirectToClinicianDetails() {
+    dispatch(push('/clinician-details'));
   }
 
   function redirectToPatients() {
@@ -259,7 +265,14 @@ export const ClinicDetails = (props) => {
           variant: 'success',
         });
 
-        redirectToPatients();
+        if (personUtils.isClinicianAccount(user) && !userHasClinicProfile) {
+          // If the clinician is a newly created account, and thus has no clinician profile, we send
+          // them to the clinician profile form.
+          redirectToClinicianDetails();
+        } else {
+          // Otherwise, we redirect them to the patients view as would have been the login default
+          redirectToPatients();
+        }
       }
 
       if (completed === false) {
