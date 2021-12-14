@@ -52,6 +52,7 @@ export const ClinicAdmin = (props) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
+  const [showRevokeInviteDialog, setShowRevokeInviteDialog] = useState(false);
   const [selectedInvite, setSelectedInvite] = useState(null);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
@@ -59,7 +60,6 @@ export const ClinicAdmin = (props) => {
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const fetchingCliniciansFromClinic = working.fetchingCliniciansFromClinic;
-  const allUsers = useSelector((state) => state.blip.allUsersMap);
   const clinic = get(clinics, selectedClinicId);
   const pendingSentClinicianInvites = useSelector((state) => state.blip.pendingSentClinicianInvites);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
@@ -82,10 +82,12 @@ export const ClinicAdmin = (props) => {
         });
       } else {
         setToast({
-          message: t('Clinician invite resent.'),
+          message: t('Clinician invite resent to {{email}}.', { email: selectedInvite?.email }),
           variant: 'success',
         });
       }
+
+      closeResendInviteDialog();
     }
   }, [working.resendingClinicianInvite]);
 
@@ -107,10 +109,14 @@ export const ClinicAdmin = (props) => {
         });
       } else {
         setToast({
-          message: t('Clinician invite deleted.'),
+          message: t('Clinician invite to {{email}} has been revoked.', {
+            email: selectedInvite?.email
+          }),
           variant: 'success',
         });
       }
+
+      closeRevokeInviteDialog();
     }
   }, [working.deletingClinicianInvite]);
 
@@ -160,7 +166,6 @@ export const ClinicAdmin = (props) => {
     get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
       const { roles, email, id: clinicianId, inviteId, name = '' } = clinician;
-      const user = get(allUsers, clinicianId, {});
       let role = '';
 
       if (includes(roles, 'CLINIC_ADMIN')) {
@@ -202,6 +207,10 @@ export const ClinicAdmin = (props) => {
 
   function closeResendInviteDialog() {
     setShowResendInviteDialog(false);
+  }
+
+  function closeRevokeInviteDialog() {
+    setShowRevokeInviteDialog(false);
   }
 
   function clearSelectedInvite() {
@@ -249,6 +258,7 @@ export const ClinicAdmin = (props) => {
   function handleResendInvite(invite) {
     trackMetric('Clinic - Resend clinic team invite', { clinicId: selectedClinicId });
     setSelectedInvite(invite);
+
     if(!has(pendingSentClinicianInvites, invite.inviteId)){
       dispatch(
         actions.async.fetchClinicianInvite(
@@ -256,25 +266,26 @@ export const ClinicAdmin = (props) => {
           selectedClinicId,
           invite.inviteId
         )
-      )
+      );
     }
+
     setShowResendInviteDialog(true);
   }
 
   function handleConfirmResendInvite(inviteId) {
     trackMetric('Clinic - Resend clinic team invite confirmed', { clinicId: selectedClinicId });
-
-    dispatch(
-      actions.async.resendClinicianInvite(api, selectedClinicId, inviteId)
-    );
+    dispatch(actions.async.resendClinicianInvite(api, selectedClinicId, inviteId));
   }
 
-  function handleDeleteInvite(inviteId) {
+  function handleRevokeInvite(invite) {
     trackMetric('Clinic - Remove clinic team invite', { clinicId: selectedClinicId });
+    setSelectedInvite(invite);
+    setShowRevokeInviteDialog(true);
+  }
 
-    dispatch(
-      actions.async.deleteClinicianInvite(api, selectedClinicId, inviteId)
-    );
+  function handleConfirmRevokeInvite(inviteId) {
+    trackMetric('Clinic - Remove clinic team invite confirmed', { clinicId: selectedClinicId });
+    dispatch(actions.async.deleteClinicianInvite(api, selectedClinicId, inviteId));
   }
 
   const renderClinician = ({ fullName, email }) => (
@@ -341,7 +352,7 @@ export const ClinicAdmin = (props) => {
       items.push(...[
         {
           icon: InputIcon,
-          iconLabel: t('Resend Invitation'),
+          iconLabel: t('Resend Invite'),
           iconPosition: 'left',
           id: `resendInvite-${props.inviteId}`,
           variant: 'actionListItem',
@@ -349,19 +360,19 @@ export const ClinicAdmin = (props) => {
             _popupState.close();
             handleResendInvite(props);
           },
-          text: t('Resend Invitation'),
+          text: t('Resend Invite'),
         },
         {
           icon: DeleteForeverIcon,
-          iconLabel: t('Delete Invitation'),
+          iconLabel: t('Revoke Invite'),
           iconPosition: 'left',
           id: `deleteInvite-${props.inviteId}`,
           variant: 'actionListItemDanger',
           onClick: _popupState => {
             _popupState.close();
-            handleDeleteInvite(props.inviteId);
+            handleRevokeInvite(props);
           },
-          text: t('Delete item'),
+          text: t('Revoke Invite'),
         },
       ]);
     }
@@ -496,6 +507,7 @@ export const ClinicAdmin = (props) => {
           />
         </Box>
       </Box>
+
       <Dialog
         id="deleteUser"
         aria-labelledBy="dialog-title"
@@ -529,6 +541,7 @@ export const ClinicAdmin = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
+
       <Dialog
         id="resendInvite"
         aria-labelledBy="dialog-title"
@@ -537,7 +550,7 @@ export const ClinicAdmin = (props) => {
         TransitionProps={{onExited:clearSelectedInvite}}
       >
         <DialogTitle onClose={closeResendInviteDialog}>
-          <MediumTitle id="dialog-title">{t('Confirm Resending Invitation')}</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Confirm Resending Invite')}</MediumTitle>
         </DialogTitle>
 
         <DialogContent>
@@ -547,7 +560,7 @@ export const ClinicAdmin = (props) => {
               You invited <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text> to your clinic on <Text as='span' fontWeight='bold'>{{inviteDate: formattedInviteDate}}</Text>.
             </Text>
             <Text>
-              Are you sure you want to resend this invitation?
+              Are you sure you want to resend this invite?
             </Text>
           </Trans>
           </Body1>
@@ -560,12 +573,46 @@ export const ClinicAdmin = (props) => {
 
           <Button
             variant="primary"
-            onClick={() => {
-              handleConfirmResendInvite(selectedInvite.inviteId);
-              closeResendInviteDialog();
-            }}
+            processing={working.resendingClinicianInvite.inProgress}
+            onClick={() => handleConfirmResendInvite(selectedInvite.inviteId)}
           >
             {t('Resend Invite')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        id="revokeInvite"
+        aria-labelledBy="dialog-title"
+        open={showRevokeInviteDialog}
+        onClose={closeRevokeInviteDialog}
+        TransitionProps={{onExited:clearSelectedInvite}}
+      >
+        <DialogTitle onClose={closeRevokeInviteDialog}>
+          <MediumTitle id="dialog-title">{t('Confirm Revoking Invite')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Body1>
+          <Trans>
+            <Text>
+              Are you sure you want to revoke this invite to <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text>?
+            </Text>
+          </Trans>
+          </Body1>
+        </DialogContent>
+
+        <DialogActions>
+          <Button variant="secondary" onClick={closeRevokeInviteDialog}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            variant="danger"
+            processing={working.deletingClinicianInvite.inProgress}
+            onClick={() => handleConfirmRevokeInvite(selectedInvite.inviteId)}
+          >
+            {t('Revoke Invite')}
           </Button>
         </DialogActions>
       </Dialog>

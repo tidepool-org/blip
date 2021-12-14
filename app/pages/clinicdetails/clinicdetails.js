@@ -246,7 +246,7 @@ export const ClinicDetails = (props) => {
   useEffect(() => {
     const { inProgress, completed, notification } = working.dismissingClinicianInvite;
 
-    const successMessage = t('Invitation to {{name}} has been declined.', {
+    const successMessage = t('Invite to {{name}} has been declined.', {
       name: clinicInvite?.creator?.clinicName,
     });
 
@@ -441,7 +441,7 @@ export const ClinicDetails = (props) => {
                       mr={2}
                       onClick={handleDeclineInvite}
                     >
-                      Decline Invitation
+                      Decline Invite
                     </Button>
                   )}
 
@@ -504,7 +504,7 @@ export const ClinicDetails = (props) => {
             </DialogTitle>
             <DialogContent>
               <Body1>
-                {t('If you decline this invitation, you will need to ask your Clinic Admin to send a new one. Are you sure you want to decline the invitation to the {{name}} clinic workspace? ', { name: clinicInvite?.creator?.clinicName })}
+                {t('If you decline this invite, you will need to ask your Clinic Admin to send a new one. Are you sure you want to decline the invite to the {{name}} clinic workspace? ', { name: clinicInvite?.creator?.clinicName })}
               </Body1>
             </DialogContent>
             <DialogActions>

@@ -257,12 +257,12 @@ export const ClinicInvite = (props) => {
         onClose={handleDialogClose}
       >
         <DialogTitle onClose={handleDialogClose}>
-          <MediumTitle id="dialog-title">{t('Unsaved Invitation')}</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Unsaved Invite')}</MediumTitle>
         </DialogTitle>
 
         <DialogContent>
           <Body1>
-            {t('There are unsaved changes to this clinician invitation which will be lost if you navigate away. Are you sure you want to discard this invitation?')}
+            {t('There are unsaved changes to this clinician invite which will be lost if you navigate away. Are you sure you want to discard this invite?')}
           </Body1>
         </DialogContent>
 
@@ -280,7 +280,7 @@ export const ClinicInvite = (props) => {
             variant="danger"
             onClick={handleDialogConfirm}
           >
-            {t('Discard Invitation')}
+            {t('Discard Invite')}
           </Button>
         </DialogActions>
       </Dialog>

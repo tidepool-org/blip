@@ -34,6 +34,7 @@ describe('ClinicAdmin', () => {
       clinics: {
         deleteClinicianFromClinic: sinon.stub(),
         resendClinicianInvite: sinon.stub(),
+        deleteClinicianInvite: sinon.stub(),
       },
     },
   };
@@ -344,13 +345,13 @@ describe('ClinicAdmin', () => {
       );
     });
 
-    it('should display dialog when "Resend Invitation" is clicked', () => {
+    it('should display dialog when "Resend Invite" is clicked', () => {
       const expectedActions = [
         {
           type: 'RESEND_CLINICIAN_INVITE_REQUEST'
         }
       ];
-      const resendButton = wrapper.find('Button[iconLabel="Resend Invitation"]');
+      const resendButton = wrapper.find('Button[iconLabel="Resend Invite"]');
       const resendDialog = () => wrapper.find(Dialog).at(1);
       expect(resendDialog().props().open).to.be.false;
       resendButton.simulate('click');
@@ -365,7 +366,29 @@ describe('ClinicAdmin', () => {
         'clinicID456',
         'clinicianUserId789InviteId'
       );
-    })
+    });
 
+    it('should display dialog when "Revoke Invite" is clicked', () => {
+      const expectedActions = [
+        {
+          type: 'DELETE_CLINICIAN_INVITE_REQUEST'
+        }
+      ];
+      const revokeButton = wrapper.find('Button[iconLabel="Revoke Invite"]');
+      const revokeDialog = () => wrapper.find(Dialog).at(2);
+      expect(revokeDialog().props().open).to.be.false;
+      revokeButton.simulate('click');
+      expect(revokeDialog().props().open).to.be.true;
+
+      const revokeInvite = revokeDialog().find(Button).filter({variant: 'danger'});
+      expect(revokeInvite).to.have.length(1);
+      revokeInvite.props().onClick();
+      expect(store.getActions()).to.eql(expectedActions);
+      sinon.assert.calledWith(
+        defaultProps.api.clinics.deleteClinicianInvite,
+        'clinicID456',
+        'clinicianUserId789InviteId'
+      );
+    });
   });
 });

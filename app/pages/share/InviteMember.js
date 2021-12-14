@@ -77,7 +77,7 @@ const InviteMember = props => {
     if (!isFirstRender && !inProgress) {
       if (completed) {
         setToast({
-          message: t('Share invitation to {{email}} has been sent.', {
+          message: t('Share invite to {{email}} has been sent.', {
             email: values.email,
           }),
           variant: 'success',

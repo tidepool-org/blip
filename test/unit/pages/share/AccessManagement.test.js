@@ -371,7 +371,7 @@ describe('AccessManagement', () => {
       const actions = () => store.getActions();
 
       // Click resent invitation button to open confirmation modal
-      expect(popoverActionButtons.at(0).text()).contains('Resend invitation');
+      expect(popoverActionButtons.at(0).text()).contains('Resend Invite');
       expect(wrapper.find(Dialog).at(1).props().open).to.be.false;
       popoverActionButtons.at(0).props().onClick();
       wrapper.update()
@@ -388,8 +388,8 @@ describe('AccessManagement', () => {
         '789'
       );
 
-      // Click revoke invitation button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Revoke invitation');
+      // Click Revoke Invite button to open confirmation modal
+      expect(popoverActionButtons.at(1).text()).contains('Revoke Invite');
       expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();
@@ -426,8 +426,8 @@ describe('AccessManagement', () => {
 
       const actions = () => store.getActions();
 
-      // Click revoke invitation button to open confirmation modal
-      expect(popoverActionButtons.at(0).text()).contains('Revoke invitation');
+      // Click Revoke Invite button to open confirmation modal
+      expect(popoverActionButtons.at(0).text()).contains('Revoke Invite');
       expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(0).props().onClick();
       wrapper.update();
@@ -518,8 +518,8 @@ describe('AccessManagement', () => {
 
       const actions = () => store.getActions();
 
-      // Click revoke invitation button to open confirmation modal
-      expect(popoverActionButtons.at(0).text()).contains('Revoke invitation');
+      // Click Revoke Invite button to open confirmation modal
+      expect(popoverActionButtons.at(0).text()).contains('Revoke Invite');
       expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(0).props().onClick();
       wrapper.update();
