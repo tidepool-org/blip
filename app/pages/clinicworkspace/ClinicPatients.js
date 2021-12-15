@@ -447,7 +447,7 @@ export const ClinicPatients = (props) => {
       text: t('Remove Patient')
     });
 
-    return <PopoverMenu id="action-menu" items={items} />
+    return <PopoverMenu id={`action-menu-${patient.id}`} items={items} />
   };
 
   const renderPeopleTable = () => {
