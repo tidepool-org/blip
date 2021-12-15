@@ -27,6 +27,7 @@ import Table from '../../components/elements/Table';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import PatientForm from '../../components/clinic/PatientForm';
+import PopoverMenu from '../../components/elements/PopoverMenu';
 
 import {
   Dialog,
@@ -322,11 +323,9 @@ export const ClinicPatients = (props) => {
   };
 
   function handleRemove(patient) {
-    return () => {
-      trackMetric('Clinic - Remove patient', { clinicId: selectedClinicId });
-      setSelectedPatient(patient);
-      setShowDeleteDialog(true);
-    };
+    trackMetric('Clinic - Remove patient', { clinicId: selectedClinicId });
+    setSelectedPatient(patient);
+    setShowDeleteDialog(true);
   }
 
   function handleRemovePatient() {
@@ -361,11 +360,9 @@ export const ClinicPatients = (props) => {
   }
 
   function handleEditPatient(patient) {
-    return () => {
-      trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId });
-      setSelectedPatient(patient);
-      setShowEditPatientDialog(true);
-    };
+    trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId });
+    setSelectedPatient(patient);
+    setShowEditPatientDialog(true);
   }
 
   function handleEditPatientConfirm() {
@@ -421,13 +418,37 @@ export const ClinicPatients = (props) => {
     </Box>
   );
 
-  const renderEdit = patient => (
-    <Icon className="edit-clinic-patient" icon={EditIcon} label={'Edit'} variant={'button'} onClick={handleEditPatient(patient)} />
-  );
+  const renderMore = patient => {
+    const items = [];
 
-  const renderRemove = patient => (
-    <Icon className="remove-clinic-patient" icon={DeleteIcon} label={'Remove'} variant={'button'} onClick={handleRemove(patient)} />
-  );
+    items.push({
+      icon: EditIcon,
+      iconLabel: t('Edit Patient Information'),
+      iconPosition: 'left',
+      id: `edit-${patient.id}`,
+      variant: 'actionListItem',
+      onClick: _popupState => {
+        _popupState.close();
+        handleEditPatient(patient);
+      },
+      text: t('Edit Patient Information'),
+    });
+
+    if (isClinicAdmin) items.push({
+      icon: DeleteIcon,
+      iconLabel: t('Remove Patient'),
+      iconPosition: 'left',
+      id: `delete-${patient.id}`,
+      variant: 'actionListItemDanger',
+      onClick: _popupState => {
+        _popupState.close();
+        handleRemove(patient);
+      },
+      text: t('Remove Patient')
+    });
+
+    return <PopoverMenu id="action-menu" items={items} />
+  };
 
   const renderPeopleTable = () => {
     const { t } = props;
@@ -452,23 +473,13 @@ export const ClinicPatients = (props) => {
         align: 'left',
         render: renderLinkedField.bind(null, 'mrn'),
       },
-      {
-        title: t('Edit'),
-        field: 'edit',
-        render: renderEdit,
-        align: 'center',
-        size: 'small',
-        padding: 'checkbox',
-      },
     ];
 
-    if (isClinicAdmin) columns.push({
-      title: t('Remove'),
-      field: 'remove',
-      render: renderRemove,
-      align: 'center',
-      size: 'small',
-      padding: 'checkbox',
+    columns.push({
+      title: '',
+      field: 'more',
+      render: renderMore,
+      align: 'left',
     });
 
     return (
