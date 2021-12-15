@@ -682,6 +682,7 @@ export const PatientDataClass = createReactClass({
     _.forOwn(statsData, (data, statType) => {
       const stat = getStatDefinition(data, statType, {
         bgSource,
+        collapsible: !_.includes(['averageGlucose', 'standardDev'], statType),
         days: endpoints.activeDays || endpoints.days,
         bgPrefs,
         manufacturer,
