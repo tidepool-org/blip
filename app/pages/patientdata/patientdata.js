@@ -722,7 +722,12 @@ export const PatientDataClass = createReactClass({
               }
             }}
           >
-            <Stats stats={[ averageDailyDoseStat ]} chartPrefs={state.chartPrefs} bgPrefs={bgPrefs} />
+            <Stats
+              stats={[ averageDailyDoseStat ]}
+              chartPrefs={state.chartPrefs}
+              bgPrefs={bgPrefs}
+              persistState={false}
+            />
           </Box>
         );
 

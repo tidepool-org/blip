@@ -320,6 +320,7 @@ class Daily extends Component {
               <Stats
                 bgPrefs={bgPrefs}
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 stats={this.props.stats}
               />
               <DeviceSelection

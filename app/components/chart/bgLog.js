@@ -253,6 +253,7 @@ class BgLog extends Component {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 stats={this.props.stats}
               />
               <DeviceSelection

@@ -462,6 +462,7 @@ const Trends = translate()(class Trends extends PureComponent {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 stats={statsToRender}
               />
               <DeviceSelection
