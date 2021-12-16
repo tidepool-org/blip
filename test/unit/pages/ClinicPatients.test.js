@@ -8,6 +8,7 @@ import noop from 'lodash/noop';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
+import Popover from '../../../app/components/elements/Popover';
 
 /* global chai */
 /* global sinon */
@@ -364,12 +365,18 @@ describe('ClinicPatients', () => {
         ]);
       });
 
+      it('should display menu when "More" icon is clicked', () => {
+        const moreMenuIcon = wrapper.find('PopoverMenu').find('Icon').at(0);
+        expect(wrapper.find(Popover).at(0).props().open).to.be.false;
+        moreMenuIcon.simulate('click');
+        expect(wrapper.find(Popover).at(0).props().open).to.be.true;
+      });
+
       it('should open a modal for patient editing when edit link is clicked', done => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const editButton = table.find('tr').at(2).find('.edit-clinic-patient').hostNodes();
-        expect(editButton.props()['aria-label']).to.equal('Edit');
+        const editButton = table.find('tr').at(2).find('Button[iconLabel="Edit Patient Information"]');
 
         const dialog = () => wrapper.find('Dialog#editPatient');
 
@@ -439,8 +446,7 @@ describe('ClinicPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const removeButton = table.find('tr').at(1).find('.remove-clinic-patient').hostNodes();
-        expect(removeButton.props()['aria-label']).to.equal('Remove');
+        const removeButton = table.find('tr').at(1).find('Button[iconLabel="Remove Patient"]');
 
         expect(wrapper.find('Dialog#deleteUser').props().open).to.be.false;
         removeButton.simulate('click');
