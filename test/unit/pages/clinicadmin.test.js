@@ -151,8 +151,9 @@ describe('ClinicAdmin', () => {
       pendingSentClinicianInvites: {
         'clinicianUserId789InviteId': {
           inviteId: 'clinicianUserId789InviteId',
-          created: '2021-10-19T16:27:59.504Z',
-          email: 'clinicianUserId789@example.com'
+          created: '2021-9-19T16:27:59.504Z',
+          modified: '2021-10-19T16:27:59.504Z',
+          email: 'clinicianUserId789@example.com',
         }
       },
       timePrefs: {
@@ -356,6 +357,8 @@ describe('ClinicAdmin', () => {
       expect(resendDialog().props().open).to.be.false;
       resendButton.simulate('click');
       expect(resendDialog().props().open).to.be.true;
+
+      expect(resendDialog().text()).to.have.string('10/19/2021 at 4:27 pm');
 
       const resendInvite = resendDialog().find(Button).filter({variant: 'primary'});
       expect(resendInvite).to.have.length(1);
