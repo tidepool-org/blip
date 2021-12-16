@@ -441,9 +441,9 @@ export const ClinicAdmin = (props) => {
   }
 
   const formattedInviteDate =
-    pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.created &&
+    pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.modified &&
     sundial.formatInTimezone(
-      pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.created,
+      pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.modified,
       timePrefs?.timezoneName ||
         new Intl.DateTimeFormat().resolvedOptions().timeZone,
       'MM/DD/YYYY [at] h:mm a'
