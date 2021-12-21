@@ -679,7 +679,6 @@ export const PatientDataClass = createReactClass({
     const bgSource = this.getMetaData('bgSources.current');
     const endpoints = this.getCurrentData('endpoints');
     const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
-
     const stats = [];
 
     _.forOwn(statsData, (data, statType) => {
@@ -694,6 +693,8 @@ export const PatientDataClass = createReactClass({
       if (statType === 'totalInsulin' && _.includes(['basics', 'trends'], chartType)) {
         // We nest the averageDailyDose stat within the totalInsulin stat
         stat.title = props.t('Avg. Daily Insulin Ratio');
+        stat.collapsedTitle = props.t('Avg. Daily Insulin');
+
         delete stat.dataFormat.title;
         delete stat.data.dataPaths.title;
 
@@ -733,9 +734,6 @@ export const PatientDataClass = createReactClass({
             />
           </Box>
         );
-
-        console.log('daysWithBoluses', daysWithBoluses);
-        console.log('activeDays', activeDays);
 
         if (daysWithBoluses > 0 && daysWithBoluses < activeDays) {
           // If any of the calendar dates within the range are missing boluses,
@@ -1167,8 +1165,6 @@ export const PatientDataClass = createReactClass({
 
   getAggregationsByChartType: function(chartType = this.state.chartType) {
     let aggregations;
-
-    console.log('chartType', chartType);
 
     switch (chartType) {
       case 'basics':

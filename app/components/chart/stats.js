@@ -35,6 +35,10 @@ const Stats = (props) => {
         onCollapse={handleCollapse.bind(null, stat.id)}
         isOpened={stat.collapsible ? !statsCollapsedState[chartType]?.[stat.id] : true}
         {...stat}
+        title={stat.collapsible && statsCollapsedState[chartType]?.[stat.id]
+          ? _.get(stat, 'collapsedTitle', stat.title)
+          : stat.title
+        }
       />
     </div>
   )));
