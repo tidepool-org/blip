@@ -325,18 +325,20 @@ export const ClinicDetails = (props) => {
         <>
           <Headline mb={2}>{t('Update your account')}</Headline>
 
-          <Body1 mb={2}>
-            <Flex alignItems="center">
-              <NotificationIcon ml={0} mr={2} flexShrink={0} />
-              <Trans>
-                You have been invited to become a clinic team member at&nbsp;
+          {!displayFullForm && (
+            <Body1 mb={2}>
+              <Flex alignItems="center">
+                <NotificationIcon ml={0} mr={2} flexShrink={0} />
+                <Trans>
+                  You have been invited to become a clinic team member at&nbsp;
 
-                <Text as='span' fontWeight='bold'>
-                  {{ clinicName: clinicInvite?.creator?.clinicName }}
-                </Text>.
-              </Trans>
-            </Flex>
-          </Body1>
+                  <Text as='span' fontWeight='bold'>
+                    {{ clinicName: clinicInvite?.creator?.clinicName }}
+                  </Text>.
+                </Trans>
+              </Flex>
+            </Body1>
+          )}
 
           <Body1 mb={4}>
             {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
