@@ -54,8 +54,10 @@ const formStyle = makeStyles((theme: Theme) => {
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
-      textAlign: "center",
-      padding: theme.spacing(4),
+      padding: theme.spacing(2),
+      [theme.breakpoints.up("sm")]: {
+        padding: theme.spacing(4),
+      },
     },
   };
 });

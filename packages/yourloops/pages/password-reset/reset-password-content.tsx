@@ -1,3 +1,30 @@
+/**
+ * Copyright (c) 2021, Diabeloop
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 import _ from "lodash";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -7,113 +34,74 @@ import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-import IconButton from "@material-ui/core/IconButton";
-import InputAdornment from "@material-ui/core/InputAdornment";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
-import appConfig from "../../lib/config";
+import { checkPasswordStrength } from "../../lib/auth/helpers";
 import { useAuth } from "../../lib/auth";
 import { useAlert } from "../../components/utils/snackbar";
-import RequestPassordMessage from "./request-password-message";
+import { PasswordStrengthMeter } from "../../components/utils/password-strength-meter";
+import Password from "../../components/utils/password";
+import RequestPasswordMessage from "./request-password-message";
+import ProgressIconButtonWrapper from "../../components/buttons/progress-icon-button-wrapper";
+
+interface Errors {
+  username: boolean;
+  newPassword: boolean;
+  confirmNewPassword: boolean;
+}
 
 const formStyle = makeStyles((theme: Theme) => {
   return {
     CardContent: {
       textAlign: "start",
-      marginLeft: theme.spacing(4),
-      marginRight: theme.spacing(4),
+      display: "flex",
+      flexDirection: "column",
+      [theme.breakpoints.up("sm")]: {
+        marginLeft: theme.spacing(4),
+        marginRight: theme.spacing(4),
+      },
     },
     CardActions: {
-      marginLeft: theme.spacing(4),
-      marginRight: theme.spacing(4),
-      padding: theme.spacing(2),
+      [theme.breakpoints.up("sm")]: {
+        marginRight: theme.spacing(4),
+      },
       justifyContent: "flex-end",
     },
-    TextField: {
-      marginLeft: theme.spacing(0),
-      marginRight: theme.spacing(1),
+    fontWeightBold: {
+      fontWeight: 600,
     },
   };
 });
 
 export default function ResetPasswordContent(): JSX.Element {
-  const defaultErr = {
-    username: false,
-    newPassword: false,
-    confirmNewPassword: false,
-  };
   const { t } = useTranslation("yourloops");
   const classes = formStyle();
   const auth = useAuth();
   const history = useHistory();
   const alert = useAlert();
-  const [username, setUserName] = React.useState("");
+
+  const [username, setUsername] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmNewPassword, setConfirmNewPassword] = React.useState("");
-  const [errors, setErrors] = React.useState(defaultErr);
-  const [showNewPassword, setShowNewPassword] = React.useState(false);
-  const [showConfirmNewPassword, setShowConfirmNewPassword] = React.useState(
-    false
-  );
   const [success, setSuccess] = React.useState(false);
   const [inProgress, setInProgress] = React.useState(false);
-  const emptyUsername = _.isEmpty(username);
+  const [usernameTextFieldFocused, setUsernameTextFieldFocused] = React.useState(false);
+
+  const passwordCheck = checkPasswordStrength(newPassword);
   const resetKey = React.useMemo(() => new URLSearchParams(location.search).get("resetKey"), []);
-
-  const onBack = (): void => {
-    history.push("/");
-  };
-
-  const onChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-    setState: React.Dispatch<React.SetStateAction<string>>
-  ): void => {
-    setState(event.target.value);
-  };
-
-  const onClick = (
-    _event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    showPassword: boolean,
-    setState: React.Dispatch<React.SetStateAction<boolean>>
-  ): void => {
-    setState(!showPassword);
-  };
-
-  const resetFormState = (): void => {
-    setErrors(defaultErr);
-  };
-
-  const validateUserName = (): boolean => {
-    const err = _.isEmpty(username.trim()) || !REGEX_EMAIL.test(username);
-    setErrors({ ...errors, username: err });
-    return !err;
-  };
-
-  const validatePassword = (): boolean => {
-    const err =
-      _.isEmpty(newPassword?.trim()) ||
-      newPassword?.length < appConfig.PWD_MIN_LENGTH;
-    setErrors({ ...errors, newPassword: err });
-    return !err;
-  };
-
-  const validateConfirmNewPassword = (): boolean => {
-    const err =
-      _.isEmpty(confirmNewPassword.trim()) ||
-      confirmNewPassword !== newPassword;
-    setErrors({ ...errors, confirmNewPassword: err });
-    return !err;
-  };
-
-  const validateForm = () => validateUserName() && validatePassword() && validateConfirmNewPassword();
+  const errors: Errors = React.useMemo(
+    () => ({
+      username: _.isEmpty(username.trim()) || !REGEX_EMAIL.test(username),
+      newPassword: passwordCheck.onError,
+      confirmNewPassword: _.isEmpty(confirmNewPassword.trim()) || confirmNewPassword !== newPassword,
+      resetKey: !resetKey,
+    }), [confirmNewPassword, newPassword, passwordCheck.onError, resetKey, username]
+  );
 
   const onSendResetPassword = async (): Promise<void> => {
-    resetFormState();
-    if (validateForm() && resetKey !== null) {
+    if (!errors.username && !errors.newPassword && !errors.confirmNewPassword && resetKey) {
       try {
         setInProgress(true);
         const success = await auth.resetPassword(
@@ -122,10 +110,11 @@ export default function ResetPasswordContent(): JSX.Element {
           confirmNewPassword
         );
         setSuccess(success);
-        setInProgress(false);
       } catch (reason: unknown) {
         const errorMessage = errorTextFromException(reason);
         alert.error(t(errorMessage));
+      } finally {
+        setInProgress(false);
       }
     }
   };
@@ -133,7 +122,7 @@ export default function ResetPasswordContent(): JSX.Element {
   return (
     <React.Fragment>
       {success ? (
-        <RequestPassordMessage
+        <RequestPasswordMessage
           header="password-reset-success-title"
           body="password-reset-success"
         />
@@ -143,110 +132,77 @@ export default function ResetPasswordContent(): JSX.Element {
             <Typography variant="h6" gutterBottom>
               {t("password-reset-title")}
             </Typography>
-            <form
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-              }}
-              noValidate
-              autoComplete="off">
-              {_.isEmpty(resetKey) ? <Typography>{t("reset-key-is-missing")}</Typography> : null}
-              <TextField
-                id="username"
-                className={classes.TextField}
-                margin="normal"
-                label={t("email")}
-                variant="outlined"
-                value={username}
-                required
-                error={errors.username}
-                onBlur={() => validateUserName()}
-                onChange={(e) => onChange(e, setUserName)}
-                helperText={errors.username && t("invalid-email")}
-              />
-              <TextField
-                id="password"
-                className={classes.TextField}
-                margin="normal"
-                label={t("new-password")}
-                variant="outlined"
-                type={showNewPassword ? "text" : "password"}
-                value={newPassword}
-                required
-                error={errors.newPassword}
-                onBlur={() => validatePassword()}
-                onChange={(e) => onChange(e, setNewPassword)}
-                helperText={
-                  errors.newPassword &&
-                  t("password-too-weak", {
-                    minLength: appConfig.PWD_MIN_LENGTH,
-                  })
-                }
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label={t("aria-toggle-password-visibility")}
-                        onClick={(e) =>
-                          onClick(e, showNewPassword, setShowNewPassword)
-                        }>
-                        {showNewPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                id="confirm-password"
-                className={classes.TextField}
-                margin="normal"
-                label={t("confirm-new-password")}
-                variant="outlined"
-                type={showConfirmNewPassword ? "text" : "password"}
-                value={confirmNewPassword}
-                required
-                error={errors.confirmNewPassword}
-                onBlur={() => validateConfirmNewPassword()}
-                onChange={(e) => onChange(e, setConfirmNewPassword)}
-                helperText={
-                  errors.confirmNewPassword && t("password-dont-match")
-                }
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label={t("aria-toggle-password-visibility")}
-                        onClick={(e) =>
-                          onClick(
-                            e,
-                            showConfirmNewPassword,
-                            setShowConfirmNewPassword
-                          )
-                        }>
-                        {showConfirmNewPassword ? (
-                          <Visibility />
-                        ) : (
-                          <VisibilityOff />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </form>
+
+            {_.isEmpty(resetKey) &&
+              <Typography color="error" className={classes.fontWeightBold}>
+                {t("reset-key-is-missing")}
+              </Typography>
+            }
+
+            <TextField
+              id="username"
+              margin="normal"
+              label={t("email")}
+              variant="outlined"
+              value={username}
+              required
+              error={errors.username && username.length > 0 && !usernameTextFieldFocused}
+              onBlur={() => setUsernameTextFieldFocused(false)}
+              onFocus={() => setUsernameTextFieldFocused(true)}
+              onChange={(e) => setUsername(e.target.value)}
+              helperText={errors.username && username.length > 0 && !usernameTextFieldFocused && t("invalid-email")}
+            />
+            <Password
+              id="password"
+              label={t("new-password")}
+              autoComplete="new-password"
+              margin="normal"
+              variant="outlined"
+              value={newPassword}
+              error={errors.newPassword && newPassword.length > 0}
+              checkStrength
+              required
+              helperText={
+                newPassword.length > 0 &&
+                <PasswordStrengthMeter
+                  force={passwordCheck.score}
+                  error={errors.newPassword}
+                  helperText={passwordCheck.helperText}
+                />
+              }
+              onChange={(password) => setNewPassword(password)}
+            />
+            <Password
+              id="confirm-password"
+              label={t("confirm-new-password")}
+              value={confirmNewPassword}
+              error={errors.confirmNewPassword && confirmNewPassword.length > 0}
+              helperText={errors.confirmNewPassword && t("password-dont-match")}
+              autoComplete="new-password"
+              variant="outlined"
+              margin="normal"
+              required
+              onChange={(password) => setConfirmNewPassword(password)}
+            />
           </CardContent>
           <CardActions className={classes.CardActions}>
-            <Button variant="contained" color="secondary" onClick={onBack}>
-              {t("button-cancel")}
-            </Button>
             <Button
               variant="contained"
-              color="primary"
-              onClick={onSendResetPassword}
-              disabled={emptyUsername || inProgress}>
-              {inProgress ? t("button-saving") : t("button-save")}
+              color="secondary"
+              onClick={() => history.push("/")}
+            >
+              {t("button-cancel")}
             </Button>
+            <ProgressIconButtonWrapper inProgress={inProgress}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={onSendResetPassword}
+                disabled={_.some(errors) || inProgress}
+              >
+                {t("button-save")}
+              </Button>
+            </ProgressIconButtonWrapper>
           </CardActions>
         </>
       )}

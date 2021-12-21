@@ -58,7 +58,7 @@ interface RequestPassordMessageProps {
 
 }
 
-export default function RequestPassordMessage(props: RequestPassordMessageProps): JSX.Element {
+export default function RequestPasswordMessage(props: RequestPassordMessageProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const classes = requestStyle();
   const history = useHistory();
