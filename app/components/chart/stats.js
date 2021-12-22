@@ -27,25 +27,23 @@ const Stats = (props) => {
     });
   }
 
-  const renderStats = (stats, animate) => (_.map(stats, stat => (
-    <div id={`Stat--${stat.id}`} key={stat.id}>
-      <Stat
-        animate={animate}
-        bgPrefs={bgPrefs}
-        onCollapse={handleCollapse.bind(null, stat.id)}
-        isOpened={stat.collapsible ? !statsCollapsedState[chartType]?.[stat.id] : true}
-        {...stat}
-        title={stat.collapsible && statsCollapsedState[chartType]?.[stat.id]
-          ? _.get(stat, 'collapsedTitle', stat.title)
-          : stat.title
-        }
-      />
-    </div>
-  )));
-
   return (
     <div className="Stats">
-      {renderStats(stats, chartPrefs.animateStats)}
+      {_.map(stats, stat => (
+        <div id={`Stat--${stat.id}`} key={stat.id}>
+          <Stat
+            animate={chartPrefs.animateStats}
+            bgPrefs={bgPrefs}
+            onCollapse={handleCollapse.bind(null, stat.id)}
+            isOpened={stat.collapsible ? !statsCollapsedState[chartType]?.[stat.id] : true}
+            {...stat}
+            title={stat.collapsible && statsCollapsedState[chartType]?.[stat.id]
+              ? _.get(stat, 'collapsedTitle', stat.title)
+              : stat.title
+            }
+          />
+        </div>
+      ))}
     </div>
   );
 }
