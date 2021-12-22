@@ -1863,9 +1863,9 @@ describe('PatientData', function () {
         expect(instance.getStatsByChartType()).to.eql([
           'timeInRange',
           'averageGlucose',
+          'sensorUsage',
           'totalInsulin',
           'averageDailyDose',
-          'sensorUsage',
           'glucoseManagementIndicator',
           'standardDev',
           'coefficientOfVariation',
