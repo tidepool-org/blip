@@ -41,11 +41,4 @@ interface MessageNote {
   }
 }
 
-/**
- * An array of messages
- */
-interface MessagesThread {
-  messages?: MessageNote[];
-}
-
-export { MessageNote, MessagesThread };
+export default MessageNote;

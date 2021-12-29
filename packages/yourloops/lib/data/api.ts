@@ -26,12 +26,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { v4 as uuidv4 } from "uuid";
 import bows from "bows";
 import _ from "lodash";
 
 import { PatientData } from "models/device-data";
-import { MessageNote, MessagesThread } from "models/message";
+import MessageNote from "models/message";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../models/api";
 import { APITideWhispererErrorResponse } from "../../models/error";
 import { ComputedTIR } from "../../models/device-data";
@@ -267,7 +266,7 @@ export async function getPatientData(session: Session, patient: IUser, options?:
  */
 export async function getMessages(session: Session, patient: IUser, options?: GetPatientDataOptions): Promise<MessageNote[]> {
   const { sessionToken, traceToken } = session;
-  const messagesURL = new URL(`/message/notes/${patient.userid}`, appConfig.API_HOST);
+  const messagesURL = new URL(`/message/v1/notes/${patient.userid}`, appConfig.API_HOST);
 
   if (options) {
     if (options.startDate) {
@@ -288,11 +287,7 @@ export async function getMessages(session: Session, patient: IUser, options?: Ge
   });
 
   if (response.ok) {
-    const result = (await response.json()) as MessagesThread;
-    if (Array.isArray(result.messages)) {
-      return result.messages;
-    }
-    return [];
+    return (await response.json()) as MessageNote[];
   } else if (response.status === HttpStatus.StatusNotFound) {
     // When the user has no message the api return a 404
     // We don't want to crash in that case
@@ -308,7 +303,7 @@ export async function getMessages(session: Session, patient: IUser, options?: Ge
  */
 export async function getMessageThread(session: Session, messageId: string): Promise<MessageNote[]> {
   const { sessionToken, traceToken } = session;
-  const messageURL = new URL(`/message/thread/${messageId}`, appConfig.API_HOST);
+  const messageURL = new URL(`/message/v1/thread/${messageId}`, appConfig.API_HOST);
   const response = await fetch(messageURL.toString(), {
     method: "GET",
     headers: {
@@ -319,18 +314,13 @@ export async function getMessageThread(session: Session, messageId: string): Pro
   });
 
   if (response.ok) {
-    const out = (await response.json()) as MessagesThread | undefined;
-    const messages: MessageNote[] = out?.messages ?? [];
+    const messages = (await response.json()) as MessageNote[] | undefined;
     if (!Array.isArray(messages)) {
       log.error("Expected an array of messages", { messages });
       Promise.reject(new Error("Invalid response"));
     }
     // Sort messages, so they are displayed in the right order.
-    const sortedMessages = _.sortBy(messages, (message: MessageNote) => Date.parse(message.timestamp));
-    // const sortedMessages = _.sortBy(messages, (message: MessageNote) => {
-    //   return _.isEmpty(message.parentmessage) ? -1 : Date.parse(message.timestamp);
-    // });
-    return sortedMessages;
+    return _.sortBy(messages, (message: MessageNote) => Date.parse(message.timestamp));
   }
 
   return Promise.reject(errorFromHttpStatus(response, log));
@@ -342,7 +332,7 @@ export async function getMessageThread(session: Session, messageId: string): Pro
  */
 export async function startMessageThread(session: Session, message: MessageNote): Promise<string> {
   const { sessionToken, traceToken } = session;
-  const messageURL = new URL(`/message/send/${message.groupid}`, appConfig.API_HOST);
+  const messageURL = new URL("/message/v1/send", appConfig.API_HOST);
   const response = await fetch(messageURL.toString(), {
     method: "POST",
     headers: {
@@ -350,12 +340,7 @@ export async function startMessageThread(session: Session, message: MessageNote)
       [HttpHeaderKeys.traceToken]: traceToken,
       [HttpHeaderKeys.sessionToken]: sessionToken,
     },
-    body: JSON.stringify({
-      message: {
-        ...message,
-        guid: uuidv4(),
-      },
-    }),
+    body: JSON.stringify(message),
   });
 
   if (response.ok) {
@@ -372,29 +357,7 @@ export async function startMessageThread(session: Session, message: MessageNote)
  * @returns The id of the new message
  */
 export async function replyMessageThread(session: Session, message: MessageNote): Promise<string> {
-  const { sessionToken, traceToken } = session;
-  const messageURL = new URL(`/message/reply/${message.parentmessage}`, appConfig.API_HOST);
-  const response = await fetch(messageURL.toString(), {
-    method: "POST",
-    headers: {
-      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
-      [HttpHeaderKeys.traceToken]: traceToken,
-      [HttpHeaderKeys.sessionToken]: sessionToken,
-    },
-    body: JSON.stringify({
-      message: {
-        ...message,
-        guid: uuidv4(),
-      },
-    }),
-  });
-
-  if (response.ok) {
-    const result = (await response.json()) as { id: string };
-    return result.id;
-  }
-
-  return Promise.reject(errorFromHttpStatus(response, log));
+  return startMessageThread(session, message);
 }
 
 /**
@@ -403,7 +366,7 @@ export async function replyMessageThread(session: Session, message: MessageNote)
  */
 export async function editMessage(session: Session, message: MessageNote): Promise<void> {
   const { sessionToken, traceToken } = session;
-  const messageURL = new URL(`/message/edit/${message.id}`, appConfig.API_HOST);
+  const messageURL = new URL("/message/v1/edit", appConfig.API_HOST);
   const response = await fetch(messageURL.toString(), {
     method: "PUT",
     headers: {
@@ -411,7 +374,7 @@ export async function editMessage(session: Session, message: MessageNote): Promi
       [HttpHeaderKeys.traceToken]: traceToken,
       [HttpHeaderKeys.sessionToken]: sessionToken,
     },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify(message),
   });
 
   if (response.ok) {
