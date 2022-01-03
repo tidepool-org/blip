@@ -209,7 +209,9 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     auth.logout().catch((reason) => console.error("logout", reason));
   };
 
-  if (_.isObject(props.actions) && props.actions.current === null) {
+  if (_.isObject(props.actions)) {
+    // We must refresh this callback at every render
+    // or we end up calling a function from a previous render
     props.actions.current = {
       closeMenu: handleCloseAccountMenu,
     };
