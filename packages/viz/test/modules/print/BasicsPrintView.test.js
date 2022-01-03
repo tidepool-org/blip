@@ -16,7 +16,6 @@
  */
 
 import _ from "lodash";
-import i18next from "i18next";
 import * as sinon from "sinon";
 import { expect, assert } from "chai";
 
@@ -288,13 +287,11 @@ describe("BasicsPrintView", () => {
     it("should call all the appropriate render methods", () => {
       sinon.stub(Renderer, "renderLeftColumn");
       sinon.stub(Renderer, "renderCenterColumn");
-      sinon.stub(Renderer, "renderRightColumn");
 
       Renderer.render();
 
       sinon.assert.calledOnce(Renderer.renderLeftColumn);
       sinon.assert.calledOnce(Renderer.renderCenterColumn);
-      sinon.assert.calledOnce(Renderer.renderRightColumn);
     });
   });
 
@@ -335,114 +332,18 @@ describe("BasicsPrintView", () => {
       sinon.assert.calledOnce(Renderer.initCalendar);
     });
 
-    it("should render the smbg calendar section with the appropriate data", () => {
-      sinon.stub(Renderer, "renderCalendarSection");
-
-      Renderer.renderCenterColumn();
-
-      sinon.assert.calledWithMatch(Renderer.renderCalendarSection, {
-        title: Renderer.data.sections.fingersticks.title,
-        data: Renderer.data.data.fingerstick.smbg.dataByDate,
-        type: "smbg",
-        disabled: Renderer.data.sections.fingersticks.disabled,
-        emptyText: Renderer.data.sections.fingersticks.emptyText,
-      });
-    });
-
-    it("should render the bolus calendar section with the appropriate data", () => {
-      sinon.stub(Renderer, "renderCalendarSection");
-
-      Renderer.renderCenterColumn();
-
-      sinon.assert.calledWithMatch(Renderer.renderCalendarSection, {
-        title: Renderer.data.sections.boluses.title,
-        data: Renderer.data.data.bolus.dataByDate,
-        type: "bolus",
-        disabled: Renderer.data.sections.boluses.disabled,
-        emptyText: Renderer.data.sections.boluses.emptyText,
-      });
-    });
-
     it("should render the sitechange calendar section with the appropriate data", () => {
       sinon.stub(Renderer, "renderCalendarSection");
-      const t = i18next.t.bind(i18next);
 
       Renderer.renderCenterColumn();
       sinon.assert.calledWithMatch(Renderer.renderCalendarSection, {
         title: {
-          text: Renderer.data.sections.siteChanges.title,
-          subText: `${t("from ")}${Renderer.data.sections.siteChanges.subTitle}`,
+          text: Renderer.data.sections.siteChanges.title
         },
         data: Renderer.data.data.cannulaPrime.infusionSiteHistory,
         type: "siteChange",
         disabled: Renderer.data.sections.siteChanges.disabled,
         emptyText: Renderer.data.sections.siteChanges.emptyText,
-      });
-    });
-
-    it("should render the basal calendar section with the appropriate data", () => {
-      sinon.stub(Renderer, "renderCalendarSection");
-
-      Renderer.renderCenterColumn();
-
-      sinon.assert.calledWithMatch(Renderer.renderCalendarSection, {
-        title: Renderer.data.sections.basals.title,
-        data: Renderer.data.data.basal.dataByDate,
-        type: "basal",
-        disabled: Renderer.data.sections.basals.disabled,
-        emptyText: Renderer.data.sections.basals.emptyText,
-      });
-    });
-  });
-
-  describe("renderRightColumn", () => {
-    it("should set the pdf cursor in the right column", () => {
-      sinon.stub(Renderer, "goToLayoutColumnPosition");
-
-      Renderer.renderRightColumn();
-
-      sinon.assert.calledWith(Renderer.goToLayoutColumnPosition, 2);
-    });
-
-    it("should render the smbg calendar summary with the appropriate data", () => {
-      sinon.stub(Renderer, "renderCalendarSummary");
-
-      Renderer.renderRightColumn();
-
-      sinon.assert.calledWithMatch(Renderer.renderCalendarSummary, {
-        filters: Renderer.data.sections.fingersticks.filters,
-        header: Renderer.data.sections.fingersticks.summaryTitle,
-        data: Renderer.data.data.fingerstick.summary,
-        type: "smbg",
-        disabled: Renderer.data.sections.fingersticks.disabled,
-      });
-    });
-
-    it("should render the bolus calendar summary with the appropriate data", () => {
-      sinon.stub(Renderer, "renderCalendarSummary");
-
-      Renderer.renderRightColumn();
-
-      sinon.assert.calledWithMatch(Renderer.renderCalendarSummary, {
-        filters: Renderer.data.sections.boluses.filters,
-        header: Renderer.data.sections.boluses.summaryTitle,
-        data: Renderer.data.data.bolus.summary,
-        type: "bolus",
-        disabled: Renderer.data.sections.boluses.disabled,
-      });
-    });
-
-    it("should render the basal calendar summary with the appropriate data", () => {
-      sinon.stub(Renderer, "renderCalendarSummary");
-
-      Renderer.renderRightColumn();
-
-      sinon.assert.calledWithMatch(Renderer.renderCalendarSummary, {
-        filters: Renderer.data.sections.basals.filters,
-        header: Renderer.data.sections.basals.summaryTitle,
-        data: Renderer.data.data.basal.summary,
-        type: "basal",
-        disabled: Renderer.data.sections.basals.disabled,
       });
     });
   });
@@ -453,7 +354,7 @@ describe("BasicsPrintView", () => {
 
       Renderer.renderBgDistribution();
 
-      sinon.assert.calledWith(Renderer.renderSectionHeading, "BG Distribution");
+      sinon.assert.calledWith(Renderer.renderSectionHeading, "Time In Range");
     });
 
     it("should render the BG source", () => {
@@ -500,10 +401,20 @@ describe("BasicsPrintView", () => {
       sinon.assert.calledWith(Renderer.renderSimpleStat, "Avg daily carbs");
     });
 
+    it("should render the total daily dose stat", () => {
+      sinon.stub(Renderer, "renderSimpleStat");
+
+      Renderer.renderAggregatedStats();
+
+      sinon.assert.calledWith(Renderer.renderSimpleStat, "Avg total daily dose");
+    });
+  });
+
+  describe("renderRatio", () => {
     it("should render the basal to bolus ratio", () => {
       sinon.stub(Renderer, "renderRatio");
 
-      Renderer.renderAggregatedStats();
+      Renderer.renderCenterColumn();
 
       expect(Renderer.data.data.averageDailyDose.basal).to.be.a("number");
       expect(Renderer.data.data.averageDailyDose.bolus).to.be.a("number");
@@ -521,16 +432,6 @@ describe("BasicsPrintView", () => {
       );
     });
 
-    it("should render the total daily dose stat", () => {
-      sinon.stub(Renderer, "renderSimpleStat");
-
-      Renderer.renderAggregatedStats();
-
-      sinon.assert.calledWith(Renderer.renderSimpleStat, "Avg total daily dose");
-    });
-  });
-
-  describe("renderRatio", () => {
     it("should render a simple disabled stat when disabled", () => {
       sinon.stub(Renderer, "renderSimpleStat");
 

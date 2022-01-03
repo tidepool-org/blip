@@ -532,6 +532,8 @@ class PatientDataPage extends React.Component {
         [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
         [commonStats.carbs]: getStat(commonStats.carbs),
         [commonStats.averageDailyDose]: getStat(commonStats.averageDailyDose),
+        [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
+        [commonStats.glucoseManagementIndicator]: getStat(commonStats.glucoseManagementIndicator)
       };
     }
 

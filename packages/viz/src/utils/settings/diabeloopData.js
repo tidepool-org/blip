@@ -18,9 +18,11 @@ import textTable from "text-table";
 import i18next from "i18next";
 
 import { formatParameterValue } from "../format";
+import * as datetime from "../datetime";
 
 const t = i18next.t.bind(i18next);
-
+const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+const timePrefs = { timezoneAware: true, timezoneName: browserTimezone };
 /**
  *
  * @param {Array} parameters Diabeloop patient device parameters
@@ -70,7 +72,6 @@ export function diabeloopText(device, parametersByLevel, displayDeviceDate) {
   deviceText += textTable(deviceRows);
 
   let parametersText = "";
-  // eslint-disable-next-line lodash/prefer-lodash-method
   parametersByLevel.forEach((parameters, level) => {
     let pLevelText = `-= ${t("Parameters level")} ${level} =-\n`;
 
@@ -100,7 +101,7 @@ export function diabeloopText(device, parametersByLevel, displayDeviceDate) {
 export function getDeviceInfosData(device) {
   const heading = {
     text: t("Device"),
-    subText: device.name,
+    subText: `- ${device.name}`,
   };
 
   const columns = [{
@@ -144,15 +145,10 @@ export function getDeviceInfosData(device) {
  * @param {number} level Level of the parameter
  * @param {number} width Width of the table
  */
-export function getDeviceParametersData(parameters, opts) {
-  const {
-    level,
-    width,
-  } = opts;
-
+export function getDeviceParametersData(parameters, { level, width }) {
   const heading = {
     text: t("Parameters"),
-    subText: t("level {{level}}", { level }),
+    subText: level !== 1 ? `- ${t("Advanced")}` : "",
   };
 
   const columns = [{
@@ -179,5 +175,100 @@ export function getDeviceParametersData(parameters, opts) {
     heading,
     columns,
     rows: parameters,
+  };
+}
+
+/**
+ * Returns Pump information for PDF
+ * @param pump
+ */
+export function getPumpParametersData(pump) {
+  const heading = {
+    text: t("Pump"),
+    subText: `- ${pump.name}`,
+  };
+
+  const columns = [{
+    id: "label",
+    headerFill: false,
+    cache: false,
+    align: "left",
+    width: 150,
+  }, {
+    id: "value",
+    headerFill: false,
+    cache: false,
+    align: "right",
+    width: 150,
+  }];
+
+  const rows = [{
+    label: t("Manufacturer"),
+    value: pump.manufacturer,
+  }, {
+    label: t("Serial Number"),
+    value: pump.serialNumber,
+  }, {
+    label: t("Pump version"),
+    value: pump.swVersion,
+  }, {
+    label: t("Pump cartridge expiration date"),
+    value: datetime.formatLocalizedFromUTC(pump.expirationDate, timePrefs, t("MMM D, YYYY"))
+  }];
+
+  return {
+    heading,
+    columns,
+    rows,
+  };
+}
+
+/**
+ * Returns CGM information for PDF
+ * @param cgm {Object}
+ */
+export function getCGMParametersData(cgm) {
+  const heading = {
+    text: t("CGM")
+  };
+
+  const columns = [{
+    id: "label",
+    headerFill: false,
+    cache: false,
+    align: "left",
+    width: 150,
+  }, {
+    id: "value",
+    headerFill: false,
+    cache: false,
+    align: "right",
+    width: 150,
+  }];
+
+  const rows = [{
+    label: t("Manufacturer"),
+    value: cgm.manufacturer,
+  }, {
+    label: t("Product"),
+    value: cgm.name,
+  }, {
+    label: t("Cgm sensor expiration date"),
+    value: datetime.formatLocalizedFromUTC(cgm.expirationDate, timePrefs, t("MMM D, YYYY")),
+  }, {
+    label: t("Cgm transmitter software version"),
+    value: cgm.swVersionTransmitter,
+  }, {
+    label: t("Cgm transmitter id"),
+    value: cgm.transmitterId,
+  }, {
+    label: t("Cgm transmitter end of life"),
+    value: datetime.formatLocalizedFromUTC(cgm.endOfLifeTransmitterDate, timePrefs, t("MMM D, YYYY"))
+  }];
+
+  return {
+    heading,
+    columns,
+    rows,
   };
 }

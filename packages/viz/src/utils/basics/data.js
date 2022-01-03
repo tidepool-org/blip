@@ -57,7 +57,7 @@ import { getBasalPathGroups } from "../basal";
 const t = i18next.t.bind(i18next);
 
 /**
- * Get the BG distribution source and status
+ * Get the Time in Range source and status
  * source will be one of [cbg | smbg | null]
  * status refers the the availability of cgm data [NO_CGM | NOT_ENOUGH_CGM | CGM_CALCULATED]
  *
@@ -467,7 +467,7 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
       break;
 
     case "bgDistribution":
-      title = t("BG distribution");
+      title = t("Time In Range");
       break;
 
     case "totalDailyDose":

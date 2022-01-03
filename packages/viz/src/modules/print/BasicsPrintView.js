@@ -25,31 +25,31 @@ import PrintView from "./PrintView";
 
 import {
   cgmStatusMessage,
-  determineBgDistributionSource,
   defineBasicsSections,
+  determineBgDistributionSource,
+  disableEmptySections,
   generateCalendarDayLabels,
   processInfusionSiteHistory,
-  disableEmptySections,
   reduceByDay,
 } from "../../utils/basics/data";
 
 import { generateBgRangeLabels } from "../../utils/bloodglucose";
-import { formatPercentage, formatDecimalNumber } from "../../utils/format";
+import { formatDecimalNumber, formatPercentage } from "../../utils/format";
 import { getLatestPumpUpload } from "../../utils/device";
 
-import { pie, arc } from "d3-shape";
+import { arc, pie } from "d3-shape";
 import parse from "parse-svg-path";
 import translate from "translate-svg-path";
 import serialize from "serialize-svg-path";
 
 import {
   CGM_DATA_KEY,
+  DIABELOOP,
   NO_SITE_CHANGE,
   SITE_CHANGE,
   SITE_CHANGE_CANNULA,
   SITE_CHANGE_RESERVOIR,
   SITE_CHANGE_TUBING,
-  DIABELOOP,
 } from "../../utils/constants";
 
 import { Images } from "./utils/constants";
@@ -160,14 +160,13 @@ class BasicsPrintView extends PrintView {
       width: this.chartArea.width,
       gutter: 15,
       type: "percentage",
-      widths: [25.5, 49, 25.5],
+      widths: [28, 72],
     });
   }
 
   render() {
     this.renderLeftColumn();
     this.renderCenterColumn();
-    this.renderRightColumn();
   }
 
   renderLeftColumn() {
@@ -178,32 +177,15 @@ class BasicsPrintView extends PrintView {
   }
 
   renderCenterColumn() {
+    const { averageDailyDose, basalBolusRatio, timeInAutoRatio, } = this.data.data;
+
     this.goToLayoutColumnPosition(1);
 
     this.initCalendar();
 
     this.renderCalendarSection({
-      title: this.data.sections.fingersticks.title,
-      data: this.data.data.fingerstick.smbg.dataByDate,
-      type: "smbg",
-      disabled: this.data.sections.fingersticks.disabled,
-      emptyText: this.data.sections.fingersticks.emptyText,
-    });
-
-    this.renderCalendarSection({
-      title: this.data.sections.boluses.title,
-      data: this.data.data.bolus.dataByDate,
-      type: "bolus",
-      disabled: this.data.sections.boluses.disabled,
-      emptyText: this.data.sections.boluses.emptyText,
-    });
-
-    const siteChangesSubTitle = this.data.sections.siteChanges.subTitle;
-
-    this.renderCalendarSection({
       title: {
-        text: this.data.sections.siteChanges.title,
-        subText: siteChangesSubTitle ? `${t("from ")}${this.data.sections.siteChanges.subTitle}` : false,
+        text: this.data.sections.siteChanges.title
       },
       data: _.get(
         this.data.data,
@@ -215,48 +197,20 @@ class BasicsPrintView extends PrintView {
       emptyText: this.data.sections.siteChanges.emptyText,
     });
 
-    this.renderCalendarSection({
-      title: this.data.sections.basals.title,
-      data: this.data.data.basal.dataByDate,
-      type: "basal",
-      disabled: this.data.sections.basals.disabled,
-      emptyText: this.data.sections.basals.emptyText,
-      bottomMargin: 0,
-    });
-  }
-
-  renderRightColumn() {
-    this.goToLayoutColumnPosition(2);
-
-    this.renderCalendarSummary({
-      dimensions: this.data.sections.fingersticks.dimensions,
-      header: this.data.sections.fingersticks.summaryTitle,
-      data: this.data.data.fingerstick.summary,
-      type: "smbg",
-      disabled: this.data.sections.fingersticks.disabled,
+    this.renderRatio("basalBolusRatio", {
+      primary: basalBolusRatio,
+      secondary: averageDailyDose,
     });
 
-    this.renderCalendarSummary({
-      dimensions: this.data.sections.boluses.dimensions,
-      header: this.data.sections.boluses.summaryTitle,
-      data: this.data.data.bolus.summary,
-      type: "bolus",
-      disabled: this.data.sections.boluses.disabled,
-    });
-
-    this.renderCalendarSummary({
-      dimensions: this.data.sections.basals.dimensions,
-      header: this.data.sections.basals.summaryTitle,
-      data: this.data.data.basal.summary,
-      type: "basal",
-      disabled: this.data.sections.basals.disabled,
+    this.renderRatio("timeInAutoRatio", {
+      primary: timeInAutoRatio,
     });
   }
 
   renderBgDistribution() {
     const columnWidth = this.getActiveColumnWidth();
 
-    this.renderSectionHeading(t("BG Distribution"), {
+    this.renderSectionHeading(t("Time In Range"), {
       width: columnWidth,
       fontSize: this.largeFontSize,
       moveDown: 0.435,
@@ -339,13 +293,7 @@ class BasicsPrintView extends PrintView {
   }
 
   renderAggregatedStats() {
-    const {
-      averageDailyCarbs,
-      averageDailyDose,
-      basalBolusRatio,
-      timeInAutoRatio,
-      totalDailyDose,
-    } = this.data.data;
+    const { averageDailyCarbs, totalDailyDose, } = this.data.data;
 
     this.renderSimpleStat(
       this.data.sections.averageDailyCarbs.title,
@@ -354,24 +302,21 @@ class BasicsPrintView extends PrintView {
       !averageDailyCarbs,
     );
 
-    this.renderRatio("basalBolusRatio", {
-      primary: basalBolusRatio,
-      secondary: averageDailyDose,
-    });
-
-    this.renderRatio("timeInAutoRatio", {
-      primary: timeInAutoRatio,
-    });
-
     this.renderSimpleStat(this.data.sections.totalDailyDose.title,
       totalDailyDose ? formatDecimalNumber(totalDailyDose, 1) : "--",
       " U",
       !totalDailyDose,
     );
+
+    const { averageGlucose } = _.get(this.data.stats, "averageGlucose.data.raw", {});
+    this.renderSimpleStat(t("Average BG"), formatDecimalNumber(averageGlucose), "\nmg/dL");
+
+    const { glucoseManagementIndicator } = _.get(this.data.stats, "glucoseManagementIndicator.data.raw", {});
+    this.renderSimpleStat(t("GMI ({{bgSourceLabel}})"), formatDecimalNumber(glucoseManagementIndicator, 1), "%");
   }
 
   renderRatio(sectionKey, sectionData) {
-    const columnWidth = this.getActiveColumnWidth();
+    const columnWidth = this.getActiveColumnWidth() / 2;
 
     const {
       [sectionKey]: section,
@@ -406,7 +351,7 @@ class BasicsPrintView extends PrintView {
             id: key1,
             align: "left",
             width: columnWidth * 0.35,
-            height: 50,
+            height: 55,
             cache: false,
             renderer: this.renderStackedStat,
             border: "LB",
@@ -416,7 +361,7 @@ class BasicsPrintView extends PrintView {
             id: "chart",
             align: "center",
             width: columnWidth * 0.3,
-            height: 50,
+            height: 70,
             cache: false,
             renderer: this.renderPieChart,
             padding: [0, 0, 0, 0],
@@ -427,7 +372,7 @@ class BasicsPrintView extends PrintView {
             id: key2,
             align: "right",
             width: columnWidth * 0.35,
-            height: 50,
+            height: 55,
             cache: false,
             renderer: this.renderStackedStat,
             border: "RB",
@@ -605,7 +550,7 @@ class BasicsPrintView extends PrintView {
       valueHeader = false,
     } = opts;
 
-    const columns = [
+    return [
       {
         id: "stat",
         cache: false,
@@ -637,8 +582,6 @@ class BasicsPrintView extends PrintView {
         header: valueHeader,
       },
     ];
-
-    return columns;
   }
 
   renderSimpleStat(stat, value, units, disabled) {
@@ -767,7 +710,7 @@ class BasicsPrintView extends PrintView {
       const siteChangeTypes = [NO_SITE_CHANGE, SITE_CHANGE];
       const isSiteChange = _.includes(siteChangeTypes, type) ? type === SITE_CHANGE : null;
 
-      if (isSiteChange !== null) {
+      if (isSiteChange) {
         this.setStroke(this.colors.grey);
         this.doc.lineWidth(1);
 
@@ -792,8 +735,8 @@ class BasicsPrintView extends PrintView {
           const daysSinceLabel = daysSince === 1 ? t("day") : t("days");
 
           const siteChangeType = this.data.sections.siteChanges.type;
-          const imageWidth = width / 2.5;
-          const imagePadding = (width - imageWidth) / 2;
+          const imageWidth = width / 3;
+          const imagePadding = (width - imageWidth) / 1.3;
 
           this.setStroke("white");
           this.doc.lineWidth(2);
@@ -813,7 +756,7 @@ class BasicsPrintView extends PrintView {
 
           this.setFill();
 
-          this.doc.image(this.siteChangeImages[siteChangeType], xPos + imagePadding, this.doc.y, {
+          this.doc.image(this.siteChangeImages[siteChangeType], xPos + imagePadding, this.doc.y + imageWidth / 2, {
             width: imageWidth,
           });
 

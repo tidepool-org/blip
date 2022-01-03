@@ -31,11 +31,11 @@ import { arrayBufferToBase64 } from "./utils/functions";
 
 // TO_DO have a configuration variable to support specific branding or not like done e.g. in Blip
 // branding should make use of artifact.sh to download specific branding artifacts such as images
-import logo from "./images/diabeloop/ylp_logo_small.png";
+import logo from "./images/diabeloop/Logo-YourLoops-Blue.png";
 import siteChangeCannulaImage from "./images/sitechange-cannula.png";
 import siteChangeReservoirImage from "./images/sitechange-reservoir.png";
 import siteChangeTubingImage from "./images/sitechange-tubing.png";
-import siteChangeReservoirDiabeloopImage from "./images/diabeloop/sitechange-diabeloop.png";
+import siteChangeReservoirDiabeloopImage from "./images/diabeloop/sitechange-cartridge.png";
 
 const t = i18next.t.bind(i18next);
 
@@ -226,7 +226,7 @@ export function createPrintPDFPackage(data, opts) {
 
       if (data.basics) createPrintView("basics", data.basics, pdfOpts, doc).render();
       if (data.daily) createPrintView("daily", data.daily, pdfOpts, doc).render();
-      if (data.bgLog) createPrintView("bgLog", data.bgLog, pdfOpts, doc).render();
+      // if (data.bgLog) createPrintView("bgLog", data.bgLog, pdfOpts, doc).render();
       if (data.settings) createPrintView("settings", data.settings, pdfOpts, doc).render();
 
       PrintView.renderPageNumbers(doc);

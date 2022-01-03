@@ -753,7 +753,7 @@ class PrintView {
   renderLogo() {
     this.logoWidth = 80;
     const xOffset = this.doc.page.width - this.logoWidth - this.margins.right;
-    const yOffset = this.margins.top + 5;
+    const yOffset = this.margins.top;
 
     this.doc.image(Images.logo, xOffset, yOffset, { width: this.logoWidth });
   }

@@ -202,71 +202,50 @@ class SettingsPrintView extends PrintView {
   }
 
   renderDiabeloopProfiles() {
-    // Device informations:
-    const device = _.get(this.data, "payload.device", null);
+    const device = _.get(this.data, "payload.device", null); // Device information
+    const parameters = _.get(this.data, "payload.parameters", null); // Device parameters
+    const pump = _.get(this.data, "payload.pump", null); // Pump information
+    const cgm = _.get(this.data, "payload.cgm", null); // CGM information
 
-    // Device parameters:
-    const parameters = _.get(this.data, "payload.parameters", null);
-
-    // Render the device informations table:
-    if (device !== null) {
+    // Render the device information table:
+    if (device) {
       const deviceTableData = dblData.getDeviceInfosData(device);
-
       const deviceTableDataWidth = (this.chartArea.width * 0.6);
+      deviceTableData.columns[0].width = (deviceTableDataWidth * 0.5);
+      deviceTableData.columns[1].width = (deviceTableDataWidth * 0.5);
 
-      this.renderTableHeading(deviceTableData.heading, {
-        columnDefaults: {
-          fill: {
-            color: this.tableSettings.colors.zebraHeader,
-            opacity: 1,
-          },
-          width: deviceTableDataWidth,
-        },
-      });
-
-      deviceTableData.columns[0].width = (deviceTableDataWidth * 0.4);
-      deviceTableData.columns[1].width = (deviceTableDataWidth * 0.6);
-
-      this.renderTable(deviceTableData.columns, deviceTableData.rows, {
-        columnDefaults: {
-          zebra: false,
-          headerFill: false,
-          headerBorder: "",
-        },
-        flexColumn: "start",
-        showHeaders: false,
-      });
+      this.renderSettingsSection(deviceTableData, deviceTableDataWidth);
     } else {
       this.renderSectionHeading(t("No diabeloop device informations available"));
     }
 
+    // Render the pump parameters table:
+    if (pump) {
+      const pumpData = dblData.getPumpParametersData(pump);
+      const customWidth = (this.chartArea.width * 0.6);
+      pumpData.columns[0].width = (customWidth * 0.5);
+      pumpData.columns[1].width = (customWidth * 0.5);
+
+      this.renderSettingsSection(pumpData, customWidth);
+    }
+
+    // Render the CGM parameters table:
+    if (cgm) {
+      const cgmData = dblData.getCGMParametersData(cgm);
+      const customWidth = (this.chartArea.width * 0.6);
+      cgmData.columns[0].width = (customWidth * 0.5);
+      cgmData.columns[1].width = (customWidth * 0.5);
+
+      this.renderSettingsSection(cgmData, customWidth);
+    }
+
     // Render the device parameters tables:
-    if (parameters !== null) {
+    if (parameters) {
       const parametersByLevel = dblData.getParametersByLevel(parameters);
 
-      // eslint-disable-next-line lodash/prefer-lodash-method
       parametersByLevel.forEach((params, level) => {
-        const tableData = dblData.getDeviceParametersData(params,
-          { level, width: this.chartArea.width });
-
-        this.renderTableHeading(tableData.heading, {
-          columnDefaults: {
-            fill: {
-              color: this.tableSettings.colors.zebraHeader,
-              opacity: 1,
-            },
-            width: this.chartArea.width,
-          },
-        });
-
-        this.renderTable(tableData.columns, tableData.rows, {
-          columnDefaults: {
-            zebra: true,
-            headerFill: false,
-          },
-          flexColumn: "start",
-          showHeaders: true,
-        });
+        const tableData = dblData.getDeviceParametersData(params, { level, width: this.chartArea.width });
+        this.renderSettingsSection(tableData, this.chartArea.width, { zebra: true, showHeaders: true });
       });
     } else {
       this.renderSectionHeading(t("No diabeloop device parameters available"));
@@ -463,6 +442,28 @@ class SettingsPrintView extends PrintView {
     const units = "g/U";
     this.renderWizardSetting(ratio(this.data, this.manufacturer), units);
   }
+
+  renderSettingsSection (tableData, width, { zebra, showHeaders } = false) {
+    this.renderTableHeading(tableData.heading, {
+      columnDefaults: {
+        fill: {
+          color: this.tableSettings.colors.zebraHeader,
+          opacity: 1,
+        },
+        width
+      },
+    });
+
+    this.renderTable(tableData.columns, tableData.rows, {
+      columnDefaults: {
+        zebra : zebra ?? false,
+        headerFill: false,
+      },
+      flexColumn: "start",
+      showHeaders : showHeaders ?? false,
+    });
+  }
+
 }
 
 export default SettingsPrintView;
