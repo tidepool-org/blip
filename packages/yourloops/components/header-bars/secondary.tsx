@@ -61,13 +61,6 @@ const pageBarStyles = makeStyles((theme: Theme) => {
         display: "flex",
         flexWrap: "wrap",
         flexDirection: "row",
-
-      },
-      [theme.breakpoints.down("xs")]: {
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
-        paddingTop: theme.spacing(1),
-        paddingBottom: theme.spacing(1),
       },
     },
   };

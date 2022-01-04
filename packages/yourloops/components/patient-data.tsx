@@ -43,7 +43,7 @@ import { useTeam } from "../lib/team";
 import { useData } from "../lib/data";
 import { getUserFirstLastName, setPageTitle } from "../lib/utils";
 
-import ProfileDialog from "./profile-dialog";
+import ProfileDialog from "./dialogs/patient-profile";
 import DatePicker from "./date-pickers/date-picker";
 
 interface PatientDataPageProps {

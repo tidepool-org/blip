@@ -58,7 +58,7 @@ const yearSelectorStyles = makeStyles((theme: Theme) => {
       },
     },
     selectedYear: {
-      fontWeight: theme.typography.fontWeightBold,
+      fontWeight: "bold", // theme.typography.fontWeightBold,
       color: theme.palette.primary.main,
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1),

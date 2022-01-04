@@ -53,6 +53,7 @@ import { getMedicalValues } from "./utils";
 import PatientListTable from "./table";
 import PatientListCards from "./cards";
 import AddPatientDialog from "./add-dialog";
+import RemovePatientDialog from "./remove-dialog";
 import TeamCodeDialog from "./team-code-dialog";
 
 const log = bows("PatientListPage");
@@ -216,7 +217,7 @@ function PatientListPage(): JSX.Element {
   const [sortFlaggedFirst, setSortFlaggedFirst] = React.useState<boolean>(true);
   const [patientToAdd, setPatientToAdd] = React.useState<AddPatientDialogContentProps | null>(null);
   const [teamCodeToDisplay, setTeamCodeToDisplay] = React.useState<Team | null>(null);
-
+  const [patientToRemove, setPatientToRemove] = React.useState<TeamUser | null>(null);
   const flagged = authHook.getFlagPatients();
 
   const handleRefresh = async (force = false) => {
@@ -299,6 +300,10 @@ function PatientListPage(): JSX.Element {
     setTeamCodeToDisplay(null);
   };
 
+  const handleOnClickRemovePatient = (patient: TeamUser): void => setPatientToRemove(patient);
+
+  const handleCloseRemovePatientDialog = (): void => setPatientToRemove(null);
+
   const patients = React.useMemo(() => {
     if (!teamHook.initialized || errorMessage !== null) {
       return [];
@@ -364,6 +369,7 @@ function PatientListPage(): JSX.Element {
           onClickPatient={handleSelectPatient}
           onFlagPatient={handleFlagPatient}
           onSortList={handleSortList}
+          onClickRemovePatient={handleOnClickRemovePatient}
         />
       </Container>
     );
@@ -378,6 +384,7 @@ function PatientListPage(): JSX.Element {
           onClickPatient={handleSelectPatient}
           onFlagPatient={handleFlagPatient}
           onSortList={handleSortList}
+          onClickRemovePatient={handleOnClickRemovePatient}
         />
       </Container>
     );
@@ -401,6 +408,11 @@ function PatientListPage(): JSX.Element {
         onClose={handleCloseTeamCodeDialog}
         code={teamCodeToDisplay?.code ?? ""}
         name={teamCodeToDisplay?.name ?? ""}
+      />
+      <RemovePatientDialog
+        isOpen={!!patientToRemove}
+        onClose={handleCloseRemovePatientDialog}
+        patient={patientToRemove}
       />
     </React.Fragment>
   );

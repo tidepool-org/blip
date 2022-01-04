@@ -162,6 +162,7 @@ async function cancelInvitation(session: Readonly<Session>, notification: INotif
   let id: string | undefined;
   switch (notification.type) {
   case NotificationType.careTeamProInvitation:
+  case NotificationType.careTeamPatientInvitation:
     id = notification.target?.id;
     if (typeof id !== "string") {
       throw new Error("Missing or invalid team ID in notification");
@@ -186,7 +187,7 @@ async function cancelInvitation(session: Readonly<Session>, notification: INotif
     body: JSON.stringify(body),
   });
 
-  if (response.ok) {
+  if (response.ok || response.status === 404) {
     log.info("cancelInvitation response:", await response.text());
     return Promise.resolve();
   }

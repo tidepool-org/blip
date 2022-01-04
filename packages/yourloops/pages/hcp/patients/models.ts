@@ -37,6 +37,7 @@ export interface PatientListProps {
   onClickPatient: (user: TeamUser) => void;
   onFlagPatient: (userId: string) => Promise<void>;
   onSortList: (field: SortFields, direction: SortDirection) => void;
+  onClickRemovePatient: (patient: TeamUser) => void;
 }
 
 export interface PatientElementProps {
@@ -45,6 +46,7 @@ export interface PatientElementProps {
   flagged: string[];
   onClickPatient: (user: TeamUser) => void;
   onFlagPatient: (userId: string) => Promise<void>;
+  onClickRemovePatient: (patient: TeamUser) => void;
 }
 
 export interface PatientElementCardProps extends PatientElementProps {

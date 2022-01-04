@@ -30,14 +30,12 @@ import _ from "lodash";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
+import Box from "@material-ui/core/Box";
 import IconButton from "@material-ui/core/IconButton";
-import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 
-import AccessTimeIcon from "@material-ui/icons/AccessTime";
-import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import FlagIcon from "@material-ui/icons/Flag";
 import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 
@@ -48,49 +46,42 @@ import metrics from "../../../lib/metrics";
 import { useAuth } from "../../../lib/auth";
 import { TeamUser, useTeam } from "../../../lib/team";
 import { addPendingFetch, removePendingFetch } from "../../../lib/data";
-import { PatientListProps, PatientElementCardProps } from "./models";
+import { PatientElementCardProps, PatientListProps } from "./models";
 import { getMedicalValues, translateSortField } from "./utils";
 
-const patientListStyle = makeStyles(
-  (theme: Theme) => {
-    return {
-      patientPaperCard: {
-        marginBottom: theme.spacing(1),
-        display: "flex",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        alignItems: "center",
-        padding: theme.spacing(2),
-      },
-      patientDivPendingIcon: {
-        display: "flex",
-        height: "100%",
-        marginRight: theme.spacing(2),
-      },
-      patientDivIndicators: {
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-      },
-      patientDivIndicator: {
-        display: "flex",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-      },
-      flagButton: {
-        color: theme.palette.primary.main,
-      },
-      showPatientButton: {
-        marginLeft: "auto",
-      },
-    };
+import PendingPatientCard from "./pending-patient-card";
+import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
+import IconActionButton from "../../../components/buttons/icon-action";
+
+const patientListStyle = makeStyles(theme => ({
+  patientPaperCard: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    marginBottom: theme.spacing(2),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
-  { name: "ylp-hcp-patients-cards" }
-);
+  patientDivIndicator: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  flagButton: {
+    color: theme.palette.primary.main,
+    marginRight: theme.spacing(1),
+  },
+  removePatientButton: {
+    marginLeft: theme.spacing(0.5),
+  },
+  fullWidth: {
+    width: "100%",
+  },
+}), { name: "ylp-hcp-patients-cards" });
 
 function PatientCard(props: PatientElementCardProps): JSX.Element {
-  const { trNA, trTIR, trTBR, trUpload, patient, flagged, onFlagPatient, onClickPatient } = props;
+  const { patient, flagged, onFlagPatient, onClickPatient, onClickRemovePatient, trNA, trTIR, trTBR, trUpload } = props;
   const { t } = useTranslation("yourloops");
   const classes = patientListStyle();
   const authHook = useAuth();
@@ -104,6 +95,22 @@ function PatientCard(props: PatientElementCardProps): JSX.Element {
 
   const isPendingInvitation = teamHook.isOnlyPendingInvitation(patient);
   const fullName = t("user-name", getUserFirstLastName(patient));
+
+  const onClickFlag = (e: React.MouseEvent): void => {
+    e.stopPropagation();
+    onFlagPatient(userId);
+    metrics.send("patient_selection", "flag_patient", isFlagged ? "un-flagged" : "flagged");
+  };
+
+  const handleShowPatientData = (): void => {
+    onClickPatient(patient);
+    metrics.send("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
+  };
+
+  const onClickRemoveIcon = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClickRemovePatient(patient);
+  };
 
   React.useEffect(() => {
     // Same code in table.tsx
@@ -151,57 +158,44 @@ function PatientCard(props: PatientElementCardProps): JSX.Element {
     };
   }, [paperRef, isPendingInvitation, authHook, medicalData, patient, teamHook]);
 
-  if (isPendingInvitation) {
-    const email = _.get(patient, "emails[0]", patient.username);
-    return (
-      <Paper id={`patients-list-card-${email}`} className={classes.patientPaperCard} data-userid={email}>
-        <div className={classes.patientDivPendingIcon}>
-          <AccessTimeIcon id={`patients-list-card-${email}-pendingicon`}/>
-        </div>
-        <Link
-          color="textPrimary"
-          id={`patients-list-card-${email}-email-link`}
-          href={`mailto:${email}`}
-          target="_blank"
-          rel="noreferrer">
-          {email}
-        </Link>
-      </Paper>
-    );
-  }
-
-  const onClickFlag = (e: React.MouseEvent): void => {
-    e.stopPropagation();
-    onFlagPatient(userId);
-    metrics.send("patient_selection", "flag_patient", isFlagged ? "un-flagged" : "flagged");
-  };
-  const handleShowPatientData = (/* e: React.MouseEvent */): void => {
-    onClickPatient(patient);
-    metrics.send("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
-  };
-
   return (
-    <Paper id={`patients-list-card-${userId}`} className={classes.patientPaperCard} ref={paperRef} data-userid={userId}>
-      <IconButton
-        id={`patients-list-card-${userId}-flag-btn`}
-        className={classes.flagButton}
-        aria-label={t("aria-flag-patient")}
-        size="small"
-        onClick={onClickFlag}>
-        {isFlagged ? <FlagIcon id={`patients-list-card-${userId}-flagged-icon`} /> : <FlagOutlineIcon id={`patients-list-card-${userId}-un-flagged-icon`} />}
-      </IconButton>
-      <Typography id={`patients-list-card-${userId}-fullname`} component="span">
-        {fullName}
-      </Typography>
-      <IconButton
-        id={`patients-list-card-${userId}-show-btn`}
-        className={classes.showPatientButton}
-        size="small"
-        onClick={handleShowPatientData}>
-        {<ArrowForwardIcon />}
-      </IconButton>
+    <Paper
+      id={`patients-list-card-${userId}`}
+      className={classes.patientPaperCard}
+      ref={paperRef}
+      data-userid={userId}
+      onClick={handleShowPatientData}
+    >
+      <Box display="flex" alignItems="center" px={1} width="100%">
+        <IconButton
+          id={`patients-list-card-${userId}-flag-btn`}
+          className={classes.flagButton}
+          aria-label={t("aria-flag-patient")}
+          size="small"
+          onClick={onClickFlag}>
+          {isFlagged ?
+            <FlagIcon id={`patients-list-card-${userId}-flagged-icon`} />
+            : <FlagOutlineIcon id={`patients-list-card-${userId}-un-flagged-icon`} />
+          }
+        </IconButton>
+        <Typography id={`patients-list-card-${userId}-fullname`} className={classes.fullWidth}>
+          {fullName}
+        </Typography>
+        <IconActionButton
+          icon={<PersonRemoveIcon />}
+          className={classes.removePatientButton}
+          id={`patients-list-card-${userId}-remove-btn`}
+          onClick={onClickRemoveIcon}
+        />
+      </Box>
 
-      <div id={`patients-list-card-${userId}-indicators`} className={classes.patientDivIndicators}>
+      <Box
+        id={`patients-list-card-${userId}-indicators`}
+        display="flex"
+        flexDirection="column"
+        width="100%"
+        px={2}
+      >
         <div id={`patients-list-card-${userId}-indicator-tir`} className={classes.patientDivIndicator}>
           <Typography
             id={`patients-list-card-${userId}-indicator-tir-title`}
@@ -242,35 +236,20 @@ function PatientCard(props: PatientElementCardProps): JSX.Element {
             {lastUpload}
           </Typography>
         </div>
-      </div>
+      </Box>
     </Paper>
   );
 }
 
-function PatientListCards(props: PatientListProps): JSX.Element {
-  const { patients, flagged, onClickPatient, onFlagPatient } = props;
+function Cards(props: PatientListProps): JSX.Element {
+  const { patients, flagged, onClickPatient, onFlagPatient, onClickRemovePatient } = props;
   const { t } = useTranslation("yourloops");
-  // const [anchorMenuEl, setAnchorMenuEl] = React.useState<null | HTMLElement>(null);
+  const teamHook = useTeam();
 
   const trNA = t("N/A");
   const trTIR = translateSortField(t, SortFields.tir);
   const trTBR = translateSortField(t, SortFields.tbr);
   const trUpload = translateSortField(t, SortFields.upload);
-  const cardsElements = patients.map((teamUser: TeamUser): JSX.Element => {
-    return (
-      <PatientCard
-        key={teamUser.userid}
-        patient={teamUser}
-        flagged={flagged}
-        onFlagPatient={onFlagPatient}
-        onClickPatient={onClickPatient}
-        trNA={trNA}
-        trTIR={trTIR}
-        trTBR={trTBR}
-        trUpload={trUpload}
-      />
-    );
-  });
 
   // TODO: Sort is disabled for now, we will see how to do the UI later:
 
@@ -316,7 +295,29 @@ function PatientListCards(props: PatientListProps): JSX.Element {
   //   </div>
   // );
 
-  return <React.Fragment>{cardsElements}</React.Fragment>;
+  return (
+    <React.Fragment>
+      {patients.map((teamUser: TeamUser, index): JSX.Element => (
+        <React.Fragment key={index}>
+          {teamHook.isOnlyPendingInvitation(teamUser) ?
+            <PendingPatientCard patient={teamUser} onClickRemovePatient={() => onClickRemovePatient} />
+            : <PatientCard
+              key={index}
+              trNA={trNA}
+              trTIR={trTIR}
+              trTBR={trTBR}
+              trUpload={trUpload}
+              patient={teamUser}
+              flagged={flagged}
+              onClickPatient={onClickPatient}
+              onFlagPatient={onFlagPatient}
+              onClickRemovePatient={onClickRemovePatient}
+            />
+          }
+        </React.Fragment>
+      ))}
+    </React.Fragment>
+  );
 }
 
-export default PatientListCards;
+export default Cards;

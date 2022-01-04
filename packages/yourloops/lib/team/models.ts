@@ -39,6 +39,7 @@ import {
   TypeTeamMemberRole,
 } from "../../models/team";
 import { Session } from "../auth";
+import { DirectShareAPI } from "../share/models";
 
 export const TEAM_CODE_LENGTH = 9;
 export const REGEX_TEAM_CODE = /^[0-9]{9}$/;
@@ -188,6 +189,14 @@ export interface TeamContext {
    * @param member The member to remove
    */
   removeMember(member: TeamMember): Promise<void>;
+
+  /**
+   * Remove a patient from HCP patient list
+   * @param patient the patient to remove
+   * @param member
+   * @param teamId id of the team ("private" if it's a private practice)
+   */
+  removePatient(patient: TeamUser, member: TeamMember, teamId: string): Promise<void>;
   /**
    * Change a member role
    * @param member The concerned member
@@ -213,7 +222,8 @@ export interface TeamContext {
 
 export interface TeamProvider {
   children: React.ReactNode;
-  api?: TeamAPI;
+  teamAPI?: TeamAPI;
+  directShareAPI?: DirectShareAPI;
 }
 
 export interface LoadTeams {

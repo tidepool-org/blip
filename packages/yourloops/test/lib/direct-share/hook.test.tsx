@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Blip typescript definitions
+ * Direct SHare hook tests
  *
  * All rights reserved.
  *
@@ -26,39 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { AppConfig } from "../../yourloops/models/config";
-import { IUser } from "../../yourloops/models/shoreline";
-import BlipApi from "../../yourloops/lib/data/blip-api";
-import ProfileDialog from "yourloops/components/dialogs/profile-dialog";
-import DatePicker from "../../yourloops/components/date-pickers/date-picker";
-import { PatientDatum, PatientData } from "../../yourloops/models/device-data";
-import { MessageNote } from "../../yourloops/models/message";
-import { GetPatientDataOptions, GetPatientDataOptionsV0 } from "../../yourloops/lib/data/models";
+import * as sinon from "sinon";
+import { DirectShareAPI } from "../../../lib/share/models";
 
-interface BlipProperties {
-  config: AppConfig;
-  api: BlipApi;
-  patient: IUser;
-  prefixURL: string;
-  profileDialog: typeof ProfileDialog;
-  datePicker: typeof DatePicker;
-}
-
-// FIXME: For some reason, the yourloops auth hook
-// don't like this export.
-declare function cleanStore(): void;
-export {
-  BlipProperties,
-  BlipApi,
-  DatePicker,
-  IUser,
-  PatientDatum,
-  PatientData,
-  MessageNote,
-  GetPatientDataOptions,
-  GetPatientDataOptionsV0,
-  cleanStore,
+export const directShareAPI: DirectShareAPI = {
+  removeDirectShare: sinon.stub().resolves(),
 };
 
-declare function Blip(props: BlipProperties): JSX.Element;
-export default Blip;
+export function resetDirectShareAPIStubs(): void {
+  (directShareAPI.removeDirectShare as sinon.SinonStub).resetHistory();
+}

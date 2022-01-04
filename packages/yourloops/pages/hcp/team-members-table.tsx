@@ -39,7 +39,6 @@ import Avatar from "@material-ui/core/Avatar";
 import Checkbox from "@material-ui/core/Checkbox";
 import Chip from "@material-ui/core/Chip";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import IconButton from "@material-ui/core/IconButton";
 import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
@@ -53,6 +52,7 @@ import Typography from "@material-ui/core/Typography";
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PersonRemoveIcon from "../../components/icons/PersonRemoveIcon";
+import IconActionButton from "../../components/buttons/icon-action";
 
 import { UserInvitationStatus } from "../../models/generic";
 import { TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
@@ -207,10 +207,9 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     const firstName = member.status === UserInvitationStatus.pending ? "—" : getUserFirstName(member.user);
     const lastName = member.status === UserInvitationStatus.pending ? "—" : getUserLastName(member.user);
     const isAdmin = member.role === TeamMemberRole.admin;
+    const rowClassName = props.classes?.tableRowPending ?? "";
 
     let checkboxElement: JSX.Element | null = null;
-    let removeMemberButton: JSX.Element | null = null;
-    let rowClassName = "";
     let icon: JSX.Element | null = null;
 
     if (member.status === UserInvitationStatus.accepted) {
@@ -248,36 +247,31 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
         );
       }
     } else {
-      rowClassName = props.classes?.tableRowPending ?? "";
       icon = (
         <Tooltip title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
-          <AccessTimeIcon id={`team-members-list-${team.id}-row-${userId}-pending-icon`} className="team-members-list-row-pending" />
+          <AccessTimeIcon
+            id={`team-members-list-${team.id}-row-${userId}-pending-icon`}
+            className="team-members-list-row-pending"
+          />
         </Tooltip>
       );
     }
 
-    if (userIsAdmin && userId !== currentUserId) {
-      const handleClickRemoveMember = async (): Promise<void> => {
-        await onShowRemoveTeamMemberDialog(member);
-      };
-      const removeText = t("team-member-remove");
-      removeMemberButton = (
-        <Tooltip title={removeText} aria-label={removeText} placement="bottom">
-          <IconButton
-            id={`team-members-list-${team.id}-row-${userId}-action-remove`}
-            className="team-members-list-action-remove"
-            color="primary"
-            aria-label={removeText}
-            component="span"
-            onClick={handleClickRemoveMember}>
-            <PersonRemoveIcon />
-          </IconButton>
-        </Tooltip>
-      );
-    }
+    const handleClickRemoveMember = async (): Promise<void> => {
+      await onShowRemoveTeamMemberDialog(member);
+    };
 
     return (
-      <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={`${rowClassName} team-members-list-row`} key={email} data-email={email} data-userid={userId} data-teamid={team.id} data-role={member.role} data-status={member.status}>
+      <TableRow
+        id={`team-members-list-${team.id}-row-${userId}`}
+        className={`${rowClassName} team-members-list-row`}
+        key={email}
+        data-email={email}
+        data-userid={userId}
+        data-teamid={team.id}
+        data-role={member.role}
+        data-status={member.status}
+      >
         <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>{icon}</TableCell>
         <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-lastname`}>
           {lastName}
@@ -298,7 +292,15 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
         </TableCell>
         <TableCell id={`team-members-list-${team.id}-row-${userId}-role`}>{checkboxElement}</TableCell>
         <TableCell id={`team-members-list-${team.id}-row-${userId}-actions`} align="right">
-          {removeMemberButton}
+          {userIsAdmin && (userId !== currentUserId) &&
+          <IconActionButton
+            tooltip={t("team-member-remove")}
+            icon={<PersonRemoveIcon />}
+            id={`team-members-list-${team.id}-row-${userId}-action-remove`}
+            onClick={handleClickRemoveMember}
+            className="team-members-list-action-remove"
+          />
+          }
         </TableCell>
       </TableRow>
     );
@@ -364,14 +366,12 @@ function TeamMembersCards(props: TeamMembersProps): JSX.Element {
         await onShowRemoveTeamMemberDialog(member);
       };
       removeMemberButton = (
-        <IconButton
+        <IconActionButton
+          icon={<PersonRemoveIcon />}
           id={`team-members-list-${team.id}-paper-${email}-action-remove`}
+          onClick={handleClickRemoveMember}
           className={classes.paperMemberRemove}
-          color="primary"
-          component="span"
-          onClick={handleClickRemoveMember}>
-          <PersonRemoveIcon />
-        </IconButton>
+        />
       );
     } else {
       removeMemberButton = <div id={`team-members-list-${team.id}-paper-${email}-action-remove-empty`} />;
@@ -388,18 +388,23 @@ function TeamMembersCards(props: TeamMembersProps): JSX.Element {
             href={`mailto:${email}`}
             color="textPrimary"
             target="_blank"
-            rel="noreferrer">
+            rel="noreferrer"
+          >
             {email}
           </Link>
           {removeMemberButton}
           <div className={classes.paperMemberBreak} />
-          {member.role === TeamMemberRole.admin ? (
-            <div className={classes.paperMemberChip}>
-              <Chip size="small" label={t("team-member-admin")} />
-            </div>
-          ) : null}
+          {member.role === TeamMemberRole.admin &&
           <div className={classes.paperMemberChip}>
-            <Chip id={`team-members-list-${team.id}-badge-admin-${email}`} size="small" label={t("pending-invitation")} />
+            <Chip size="small" label={t("team-member-admin")} />
+          </div>
+          }
+          <div className={classes.paperMemberChip}>
+            <Chip
+              id={`team-members-list-${team.id}-badge-admin-${email}`}
+              size="small"
+              label={t("pending-invitation")}
+            />
           </div>
         </React.Fragment>
       );
@@ -418,11 +423,15 @@ function TeamMembersCards(props: TeamMembersProps): JSX.Element {
           </Link>
           {removeMemberButton}
           <div className={classes.paperMemberBreak} />
-          {member.role === TeamMemberRole.admin ? (
-            <div className={classes.paperMemberChip}>
-              <Chip id={`team-members-list-${team.id}-badge-admin-${userId}`} size="small" label={t("team-member-admin")} />
-            </div>
-          ) : null}
+          {member.role === TeamMemberRole.admin &&
+          <div className={classes.paperMemberChip}>
+            <Chip
+              id={`team-members-list-${team.id}-badge-admin-${userId}`}
+              size="small"
+              label={t("team-member-admin")}
+            />
+          </div>
+          }
         </React.Fragment>
       );
     } else {
@@ -430,7 +439,11 @@ function TeamMembersCards(props: TeamMembersProps): JSX.Element {
     }
 
     return (
-      <Paper key={email} id={`team-members-list-${team.id}-paper-${userId}`} className={classes.paperMember}>
+      <Paper
+        key={email}
+        id={`team-members-list-${team.id}-paper-${userId}`}
+        className={classes.paperMember}
+      >
         {content}
       </Paper>
     );

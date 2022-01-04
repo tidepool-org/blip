@@ -58,14 +58,11 @@ const dialogStyles = makeStyles(
       dialog: {
         display: "flex",
         flexDirection: "column",
-        width: "25rem",
       },
       textFieldEmail: {
-        flexGrow: 1,
         marginBottom: theme.spacing(2),
       },
       formControlSelectTeam: {
-        flexGrow: 1,
         marginBottom: theme.spacing(2),
       },
       buttonCancel: {
@@ -147,7 +144,12 @@ function AddDialog(props: AddDialogProps): JSX.Element {
     </Link>
   );
   return (
-    <Dialog id="patient-list-dialog-add" aria-labelledby={t("add-patient")} open={dialogIsOpen} onClose={handleClose}>
+    <Dialog
+      id="patient-list-dialog-add"
+      aria-labelledby={t("add-patient")}
+      open={dialogIsOpen}
+      onClose={handleClose}
+    >
       <DialogTitle id="patient-list-dialog-add-title">
         <strong>{t("modal-add-patient")}</strong>
       </DialogTitle>
@@ -166,7 +168,7 @@ function AddDialog(props: AddDialogProps): JSX.Element {
           onChange={handleChangeEmail}
           helperText={errorMessage}
         />
-        <FormControl className={classes.formControlSelectTeam}>
+        <FormControl className={classes.formControlSelectTeam} fullWidth>
           <InputLabel id="patient-list-dialog-add-team-label" htmlFor="patient-list-dialog-add-team-input">
             {t("team")}
           </InputLabel>

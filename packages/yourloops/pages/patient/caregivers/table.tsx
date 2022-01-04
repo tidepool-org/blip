@@ -30,7 +30,6 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
-import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -43,11 +42,12 @@ import Tooltip from "@material-ui/core/Tooltip";
 
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
+import IconActionButton from "../../../components/buttons/icon-action";
 
 import { UserInvitationStatus } from "../../../models/generic";
 import { ShareUser } from "../../../lib/share";
-import { getUserFirstName, getUserLastName } from "../../../lib/utils";
 
+import { getUserFirstName, getUserLastName } from "../../../lib/utils";
 import { SortFields, SortDirection } from "./types";
 
 export interface CaregiverTableProps {
@@ -153,11 +153,12 @@ function CaregiverTable(props: CaregiverTableProps): JSX.Element {
           <TableCell id={`patient-caregivers-table-row-${userId}-lastname`}>-</TableCell>
           <TableCell id={`patient-caregivers-table-row-${userId}-firstname`}>{us.user.username}</TableCell>
           <TableCell id={`patient-caregivers-table-row-${userId}-actions`} className={classes.tableCellActions}>
-            <Tooltip title={removeAction} aria-label={removeAction} placement="bottom">
-              <IconButton id={`patient-caregivers-table-row-${userId}-button-remove`} aria-label={removeAction} size="small" onClick={handleClickDelete}>
-                <PersonRemoveIcon color="primary" />
-              </IconButton>
-            </Tooltip>
+            <IconActionButton
+              icon={<PersonRemoveIcon />}
+              id={`patient-caregivers-table-row-${userId}-button-remove`}
+              onClick={handleClickDelete}
+              tooltip={removeAction}
+            />
           </TableCell>
         </TableRow>
       );
@@ -168,11 +169,12 @@ function CaregiverTable(props: CaregiverTableProps): JSX.Element {
         <TableCell id={`patient-caregivers-table-row-${userId}-lastname`}>{getUserLastName(us.user)}</TableCell>
         <TableCell id={`patient-caregivers-table-row-${userId}-firstname`}>{getUserFirstName(us.user)}</TableCell>
         <TableCell id={`patient-caregivers-table-row-${userId}-actions`} className={classes.tableCellActions}>
-          <Tooltip title={removeAction} aria-label={removeAction} placement="bottom">
-            <IconButton id={`patient-caregivers-table-row-${userId}-button-remove`} aria-label={removeAction} size="small" onClick={handleClickDelete}>
-              <PersonRemoveIcon color="primary" />
-            </IconButton>
-          </Tooltip>
+          <IconActionButton
+            icon={<PersonRemoveIcon />}
+            id={`patient-caregivers-table-row-${userId}-button-remove`}
+            onClick={handleClickDelete}
+            tooltip={removeAction}
+          />
         </TableCell>
       </TableRow>
     );

@@ -29,9 +29,7 @@
 import React from "react";
 import _ from "lodash";
 import { useTranslation } from "react-i18next";
-// import bows from "bows";
 
-import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
 import { makeStyles, Theme } from "@material-ui/core/styles";
@@ -47,6 +45,9 @@ import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import FlagIcon from "@material-ui/icons/Flag";
 import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 
+import IconActionButton from "../../../components/buttons/icon-action";
+import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
+
 import { SortDirection, SortFields } from "../../../models/generic";
 import { MedicalData } from "../../../models/device-data";
 import metrics from "../../../lib/metrics";
@@ -56,8 +57,6 @@ import { TeamUser, useTeam } from "../../../lib/team";
 import { addPendingFetch, removePendingFetch } from "../../../lib/data";
 import { PatientListProps, PatientElementProps } from "./models";
 import { getMedicalValues } from "./utils";
-
-// const log = bows("PatientListTable");
 
 const patientListStyle = makeStyles(
   (theme: Theme) => {
@@ -87,7 +86,7 @@ const patientListStyle = makeStyles(
 );
 
 function PatientRow(props: PatientElementProps): JSX.Element {
-  const { trNA, patient, flagged, onClickPatient, onFlagPatient } = props;
+  const { trNA, patient, flagged, onClickPatient, onFlagPatient, onClickRemovePatient } = props;
   const { t } = useTranslation("yourloops");
   const authHook = useAuth();
   const teamHook = useTeam();
@@ -106,9 +105,15 @@ function PatientRow(props: PatientElementProps): JSX.Element {
     onFlagPatient(userId);
     metrics.send("patient_selection", "flag_patient", isFlagged ? "un-flagged" : "flagged");
   };
+
   const onRowClick = (/* e: React.MouseEvent */): void => {
     onClickPatient(patient);
     metrics.send("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
+  };
+
+  const onClickRemoveIcon = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClickRemovePatient(patient);
   };
 
   const { tir, tbr, lastUpload } = React.useMemo(() => getMedicalValues(medicalData, trNA), [medicalData, trNA]);
@@ -118,6 +123,7 @@ function PatientRow(props: PatientElementProps): JSX.Element {
   const rowId = `patients-list-row-${userId.replace(/@/g, "_")}`;
   const session = authHook.session();
   const isPendingInvitation = teamHook.isOnlyPendingInvitation(patient);
+
   React.useEffect(() => {
     const observedElement = rowRef.current;
     if (session !== null && observedElement !== null && typeof medicalData === "undefined" && !isPendingInvitation) {
@@ -155,44 +161,54 @@ function PatientRow(props: PatientElementProps): JSX.Element {
     return _.noop;
   }, [medicalData, patient, session, isPendingInvitation, teamHook, rowRef]);
 
-  if (isPendingInvitation) {
-    return (
-      <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending} patients-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
-        <TableCell id={`${rowId}-icon`}>
-          <Tooltip id={`${rowId}-tooltip-pending`} title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
-            <AccessTimeIcon id={`${rowId}-pendingicon`} />
-          </Tooltip>
-        </TableCell>
-        <TableCell id={`${rowId}-lastname`}>{lastName}</TableCell>
-        <TableCell id={`${rowId}-firstname`}>{firstName}</TableCell>
-        <TableCell id={`${rowId}-tir`}>{tir}</TableCell>
-        <TableCell id={`${rowId}-tbr`}>{tbr}</TableCell>
-        <TableCell id={`${rowId}-upload`}>{lastUpload}</TableCell>
-      </TableRow>
-    );
-  }
+  const firstRowIcon = isPendingInvitation ?
+    (<Tooltip
+      id={`${rowId}-tooltip-pending`}
+      title={t("pending-invitation") as string}
+      aria-label={t("pending-invitation")}
+      placement="bottom"
+    >
+      <AccessTimeIcon id={`${rowId}-pendingicon`} />
+    </Tooltip>) :
+    (<IconActionButton
+      icon={isFlagged ? <FlagIcon id={`${rowId}-flagged`} /> : <FlagOutlineIcon id={`${rowId}-un-flagged`} />}
+      id={`${rowId}-icon-button-flag`}
+      onClick={onClickFlag}
+      className={`${classes.flag} patient-flag-button`}
+    />);
 
   return (
-    <TableRow id={rowId} tabIndex={-1} hover onClick={onRowClick} className={`${classes.tableRow} patients-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
-      <TableCell id={`${rowId}-icon`}>
-        <IconButton id={`${rowId}-icon-button-flag`} className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
-          {isFlagged ? <FlagIcon id={`${rowId}-flagged`} /> : <FlagOutlineIcon id={`${rowId}-un-flagged`} />}
-        </IconButton>
-      </TableCell>
+    <TableRow
+      id={rowId}
+      tabIndex={-1}
+      hover
+      onClick={isPendingInvitation ? undefined : onRowClick}
+      className={`${classes.tableRow} patients-list-row`}
+      data-userid={userId}
+      data-email={email}
+      ref={rowRef}
+    >
+      <TableCell id={`${rowId}-icon`}>{firstRowIcon}</TableCell>
       <TableCell id={`${rowId}-lastname`}>{lastName}</TableCell>
       <TableCell id={`${rowId}-firstname`}>{firstName}</TableCell>
       <TableCell id={`${rowId}-tir`}>{tir}</TableCell>
       <TableCell id={`${rowId}-tbr`}>{tbr}</TableCell>
       <TableCell id={`${rowId}-upload`}>{lastUpload}</TableCell>
+      <TableCell id={`${rowId}-remove-icon`}>
+        <IconActionButton
+          icon={<PersonRemoveIcon />}
+          className="remove-patient-hcp-view-button"
+          onClick={onClickRemoveIcon}
+        />
+      </TableCell>
     </TableRow>
   );
 }
 
 function PatientListTable(props: PatientListProps): JSX.Element {
-  const { patients, flagged, order, orderBy, onClickPatient, onFlagPatient, onSortList } = props;
+  const { patients, flagged, order, orderBy, onClickPatient, onFlagPatient, onSortList, onClickRemovePatient } = props;
   const { t } = useTranslation("yourloops");
   const classes = patientListStyle();
-
   const trNA = t("N/A");
 
   const patientsRows = patients.map(
@@ -204,6 +220,7 @@ function PatientListTable(props: PatientListProps): JSX.Element {
         flagged={flagged}
         onClickPatient={onClickPatient}
         onFlagPatient={onFlagPatient}
+        onClickRemovePatient={onClickRemovePatient}
       />
     )
   );
@@ -269,6 +286,7 @@ function PatientListTable(props: PatientListProps): JSX.Element {
                 {t("list-patient-upload")}
               </TableSortLabel>
             </TableCell>
+            <TableCell id="patients-list-header-remove-icon" className={classes.tableCellHeader} />
           </TableRow>
         </TableHead>
         <TableBody>{patientsRows}</TableBody>

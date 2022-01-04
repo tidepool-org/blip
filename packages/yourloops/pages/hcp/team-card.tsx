@@ -82,6 +82,8 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   const [buttonsDisabled, setButtonsDisabled] = React.useState(false);
 
   const { id } = team;
+  const isTeamMemberAdmin = memberRole === TeamMemberRole.admin && memberStatus === UserInvitationStatus.accepted;
+
   const handleClickLeaveTeam = async (): Promise<void> => {
     setButtonsDisabled(true);
     const result = await onShowLeaveTeamDialog(team);
@@ -90,51 +92,42 @@ function TeamCard(props: TeamCardProps): JSX.Element {
     }
   };
 
-  if (memberRole === TeamMemberRole.admin && memberStatus === UserInvitationStatus.accepted) {
-    const handleClickEdit = async (): Promise<void> => {
-      setButtonsDisabled(true);
-      await onShowEditTeamDialog(team);
-      setButtonsDisabled(false);
-    };
+  const handleClickEdit = async (): Promise<void> => {
+    setButtonsDisabled(true);
+    await onShowEditTeamDialog(team);
+    setButtonsDisabled(false);
+  };
 
-    const handleClickAddMember = async (): Promise<void> => {
-      setButtonsDisabled(true);
-      await onShowAddMemberDialog(team);
-      setButtonsDisabled(false);
-    };
-
-    return (
-      <GenericTeamCard team={team}>
-        <Button
-          id={`team-card-${id}-button-edit`}
-          className={classes.buttonActionFirstRow}
-          startIcon={<EditIcon color="primary" />}
-          onClick={handleClickEdit}
-          disabled={buttonsDisabled}>
-          <span className={classes.buttonText}>{t("button-team-edit")}</span>
-        </Button>
-        <Button
-          id={`team-card-${id}-button-add-member`}
-          className={classes.buttonActionFirstRow}
-          startIcon={<PersonAddIcon color="primary" />}
-          onClick={handleClickAddMember}
-          disabled={buttonsDisabled}>
-          <span className={classes.buttonText}>{t("button-team-add-member")}</span>
-        </Button>
-        <Button
-          id={`team-card-${id}-button-leave-team`}
-          className={classes.buttonActionFirstRow}
-          startIcon={<ExitToAppIcon color="primary" />}
-          onClick={handleClickLeaveTeam}
-          disabled={buttonsDisabled}>
-          <span className={classes.buttonText}>{t("button-team-leave")}</span>
-        </Button>
-      </GenericTeamCard>
-    );
-  }
+  const handleClickAddMember = async (): Promise<void> => {
+    setButtonsDisabled(true);
+    await onShowAddMemberDialog(team);
+    setButtonsDisabled(false);
+  };
 
   return (
     <GenericTeamCard team={team}>
+      <React.Fragment>
+        {isTeamMemberAdmin &&
+          <React.Fragment>
+            <Button
+              id={`team-card-${id}-button-edit`}
+              className={classes.buttonActionFirstRow}
+              startIcon={<EditIcon color="primary" />}
+              onClick={handleClickEdit}
+              disabled={buttonsDisabled}>
+              <span className={classes.buttonText}>{t("button-team-edit")}</span>
+            </Button>
+            <Button
+              id={`team-card-${id}-button-add-member`}
+              className={classes.buttonActionFirstRow}
+              startIcon={<PersonAddIcon color="primary" />}
+              onClick={handleClickAddMember}
+              disabled={buttonsDisabled}>
+              <span className={classes.buttonText}>{t("button-team-add-member")}</span>
+            </Button>
+          </React.Fragment>
+        }
+      </React.Fragment>
       <Button
         id={`team-card-${id}-button-leave-team`}
         className={classes.buttonActionFirstRow}

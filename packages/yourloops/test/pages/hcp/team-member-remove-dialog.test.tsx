@@ -53,7 +53,7 @@ function testTeamRemoveMemberDialog(): void {
   function TestComponent(props: RemoveMemberDialogProps): JSX.Element {
     return (
       <AuthContextProvider value={authHookHcp} >
-        <TeamContextProvider api={teamAPI} >
+        <TeamContextProvider teamAPI={teamAPI} >
           <RemoveMemberDialog userToBeRemoved={ props.userToBeRemoved } />
         </TeamContextProvider>
       </AuthContextProvider>

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Blip typescript definitions
+ * Patient list table for HCPs
  *
  * All rights reserved.
  *
@@ -26,39 +26,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { AppConfig } from "../../yourloops/models/config";
-import { IUser } from "../../yourloops/models/shoreline";
-import BlipApi from "../../yourloops/lib/data/blip-api";
-import ProfileDialog from "yourloops/components/dialogs/profile-dialog";
-import DatePicker from "../../yourloops/components/date-pickers/date-picker";
-import { PatientDatum, PatientData } from "../../yourloops/models/device-data";
-import { MessageNote } from "../../yourloops/models/message";
-import { GetPatientDataOptions, GetPatientDataOptionsV0 } from "../../yourloops/lib/data/models";
+import React from "react";
+import IconButton from "@material-ui/core/IconButton";
+import Tooltip from "@material-ui/core/Tooltip";
+import { PropTypes } from "@material-ui/core";
 
-interface BlipProperties {
-  config: AppConfig;
-  api: BlipApi;
-  patient: IUser;
-  prefixURL: string;
-  profileDialog: typeof ProfileDialog;
-  datePicker: typeof DatePicker;
+export interface RemoveButtonProps {
+  className?: string;
+  color?: PropTypes.Color;
+  component?: React.ElementType;
+  icon: JSX.Element;
+  id?: string;
+  onClick: (payload: any) => void;
+  size?: "small" | "medium";
+  tooltip?: string;
 }
 
-// FIXME: For some reason, the yourloops auth hook
-// don't like this export.
-declare function cleanStore(): void;
-export {
-  BlipProperties,
-  BlipApi,
-  DatePicker,
-  IUser,
-  PatientDatum,
-  PatientData,
-  MessageNote,
-  GetPatientDataOptions,
-  GetPatientDataOptionsV0,
-  cleanStore,
-};
+function IconActionButton(props: RemoveButtonProps): JSX.Element {
+  const { id, onClick, className, size, icon } = props;
+  const color = props.color ?? "primary";
+  const tooltip = props.tooltip ?? "";
 
-declare function Blip(props: BlipProperties): JSX.Element;
-export default Blip;
+  return (
+    <Tooltip title={tooltip} aria-label={tooltip} placement="bottom">
+      <IconButton
+        id={id}
+        size={size}
+        color={color}
+        onClick={onClick}
+        aria-label={tooltip}
+        className={className}
+      >
+        {icon}
+      </IconButton>
+    </Tooltip>
+  );
+}
+
+export default IconActionButton;

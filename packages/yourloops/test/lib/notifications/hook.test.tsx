@@ -42,7 +42,7 @@ import { loggedInUsers } from "../../common";
 import { authHookHcp } from "../auth/hook.test";
 import { notificationAPIStub, resetNotificationAPIStub } from "./api.test";
 
-const stubNotficationContextValueInternal = {
+const stubNotificationContextValueInternal = {
   accept: sinon.stub().resolves(),
   cancel: sinon.stub().resolves(),
   decline: sinon.stub().resolves(),
@@ -52,16 +52,16 @@ const stubNotficationContextValueInternal = {
   sentInvitations: [] as INotification[],
 };
 
-export const stubNotficationContextValue = stubNotficationContextValueInternal as NotificationContext;
+export const stubNotificationContextValue = stubNotificationContextValueInternal as NotificationContext;
 
-export function resetNotficationContextValueStubs(): void {
-  stubNotficationContextValueInternal.accept.resetHistory();
-  stubNotficationContextValueInternal.cancel.resetHistory();
-  stubNotficationContextValueInternal.decline.resetHistory();
-  stubNotficationContextValueInternal.update.resetHistory();
-  stubNotficationContextValueInternal.initialized = true;
-  stubNotficationContextValueInternal.receivedInvitations = [];
-  stubNotficationContextValueInternal.sentInvitations = [];
+export function resetNotificationContextValueStubs(): void {
+  stubNotificationContextValueInternal.accept.resetHistory();
+  stubNotificationContextValueInternal.cancel.resetHistory();
+  stubNotificationContextValueInternal.decline.resetHistory();
+  stubNotificationContextValueInternal.update.resetHistory();
+  stubNotificationContextValueInternal.initialized = true;
+  stubNotificationContextValueInternal.receivedInvitations = [];
+  stubNotificationContextValueInternal.sentInvitations = [];
 }
 
 function testHook(): void {
@@ -71,7 +71,7 @@ function testHook(): void {
   const initNotificationContext = async (): Promise<void> => {
     const DummyComponent = (): JSX.Element => {
       notifications = useNotification();
-      return (<div></div>);
+      return (<div/>);
     };
     act(() => {
       ReactDOM.render(

@@ -29,7 +29,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
 import { makeStyles, Theme } from "@material-ui/core/styles";
@@ -43,6 +42,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
+import IconActionButton from "../../../components/buttons/icon-action";
 
 import { SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
 import { IUser } from "../../../models/shoreline";
@@ -68,8 +68,6 @@ export interface PatientTableRowProps {
   onFlagPatient: (userId: string, flagged: boolean) => Promise<void>;
   onRemovePatient: (user: IUser, flagged: boolean, isPendingInvitation: boolean) => Promise<void>;
 }
-
-// const log = bows("PatientListTable");
 
 const patientListStyle = makeStyles(
   (theme: Theme) => {
@@ -116,50 +114,42 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
   const rowId = `patients-list-row-${userId.replace(/@/g, "_")}`;
   const isPendingInvitation = shareUser.status === UserInvitationStatus.pending;
 
-  const handleSelectPatient = (/* e: React.MouseEvent */): void => {
-    onClickPatient(patient, isFlagged);
-  };
+  const handleSelectPatient = (/* e: React.MouseEvent */): void => onClickPatient(patient, isFlagged);
+
   const handleClickRemoveMember = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.stopPropagation();
     onRemovePatient(patient, isFlagged, isPendingInvitation);
   };
 
-  const removeText = t("remove-patient");
-  const removeMemberButton = (
-    <Tooltip title={removeText} aria-label={removeText} placement="bottom">
-      <IconButton
-        id={`${rowId}-button-remove`}
-        color="primary"
-        aria-label={removeText}
-        onClick={handleClickRemoveMember}>
-        <PersonRemoveIcon />
-      </IconButton>
-    </Tooltip>
-  );
-
-  if (isPendingInvitation) {
-    return (
-      <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending} patients-list-row`} ref={rowRef} data-userid={userId} data-email={email}>
-        <TableCell id={`${rowId}-icon`}>
-          <Tooltip title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
-            <AccessTimeIcon id={`${rowId}-icon-pending`} />
-          </Tooltip>
-        </TableCell>
-        <TableCell id={`${rowId}-lastname`}>{lastName}</TableCell>
-        <TableCell id={`${rowId}-firstname`}>{firstName}</TableCell>
-        <TableCell id={`${rowId}-email`}>{email}</TableCell>
-        <TableCell id={`${rowId}-actions`}>{removeMemberButton}</TableCell>
-      </TableRow>
-    );
-  }
-
   return (
-    <TableRow id={rowId} tabIndex={-1} hover onClick={handleSelectPatient} className={`${classes.tableRow} patients-list-row`} ref={rowRef} data-userid={userId} data-email={email}>
-      <TableCell id={`${rowId}-icon`}></TableCell>
+    <TableRow
+      id={rowId}
+      tabIndex={-1}
+      hover
+      className={`${classes.tableRow} ${classes.tableRowPending} patients-list-row`}
+      ref={rowRef}
+      onClick={isPendingInvitation ? undefined : handleSelectPatient}
+      data-userid={userId}
+      data-email={email}
+    >
+      <TableCell id={`${rowId}-icon`}>
+        {isPendingInvitation &&
+        <Tooltip title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
+          <AccessTimeIcon id={`${rowId}-icon-pending`} />
+        </Tooltip>
+        }
+      </TableCell>
       <TableCell id={`${rowId}-lastname`}>{lastName}</TableCell>
       <TableCell id={`${rowId}-firstname`}>{firstName}</TableCell>
       <TableCell id={`${rowId}-email`}>{email}</TableCell>
-      <TableCell id={`${rowId}-actions`}>{removeMemberButton}</TableCell>
+      <TableCell id={`${rowId}-actions`}>
+        <IconActionButton
+          icon={<PersonRemoveIcon />}
+          id={`${rowId}-button-remove`}
+          onClick={handleClickRemoveMember}
+          tooltip={t("remove-patient")}
+        />
+      </TableCell>
     </TableRow>
   );
 }

@@ -159,10 +159,6 @@ const webpackConfig = {
     alias,
   },
 
-  experiments: {
-    asset: true,
-  },
-
   optimization: {
     minimizer: [
       new TerserPlugin({

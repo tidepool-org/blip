@@ -33,13 +33,15 @@ import bows from "bows";
 import { UserInvitationStatus } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
 import { UserRoles } from "../../models/shoreline";
-import { ITeam, TeamType, TeamMemberRole, TypeTeamMemberRole, ITeamMember } from "../../models/team";
+import { ITeam, ITeamMember, TeamMemberRole, TeamType, TypeTeamMemberRole } from "../../models/team";
 
 import { errorTextFromException, fixYLP878Settings } from "../utils";
 import metrics from "../metrics";
-import { useAuth, Session } from "../auth";
-import { useNotification, notificationConversion } from "../notifications";
+import { Session, useAuth } from "../auth";
+import { notificationConversion, useNotification } from "../notifications";
 import { LoadTeams, Team, TeamAPI, TeamContext, TeamMember, TeamProvider, TeamUser } from "./models";
+import { DirectShareAPI } from "../share/models";
+import ShareAPIImpl from "../share";
 import TeamAPIImpl from "./api";
 
 const log = bows("TeamHook");
@@ -56,7 +58,7 @@ export function iMemberToMember(iTeamMember: ITeamMember, team: Team, users: Map
       role: iTeamMember.role === TeamMemberRole.patient ? UserRoles.patient : UserRoles.hcp,
       userid: userId,
       username: iTeamMember.email,
-      emails: [ iTeamMember.email ],
+      emails: [iTeamMember.email],
       preferences: iTeamMember.preferences,
       profile: iTeamMember.profile,
       settings: fixYLP878Settings(iTeamMember.settings),
@@ -179,7 +181,7 @@ function getUserByEmail(teams: Team[], email: string): TeamUser | null {
   return null;
 }
 
-function TeamContextImpl(api: TeamAPI): TeamContext {
+function TeamContextImpl(teamAPI: TeamAPI, directShareAPI: DirectShareAPI): TeamContext {
   // hooks (private or public variables)
   // TODO: Transform the React.useState with React.useReducer
   const authHook = useAuth();
@@ -263,7 +265,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const teamHasOnlyOneMember = (team: Team): boolean => {
-    const numMembers = team.members.reduce((p, t) => t.role === TeamMemberRole.patient ? p : p+1, 0);
+    const numMembers = team.members.reduce((p, t) => t.role === TeamMemberRole.patient ? p : p + 1, 0);
     return numMembers < 2;
   };
 
@@ -292,7 +294,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const invitePatient = async (team: Team, username: string): Promise<void> => {
-    const apiInvitation = await api.invitePatient(session, team.id, username);
+    const apiInvitation = await teamAPI.invitePatient(session, team.id, username);
     const invitation = notificationConversion(apiInvitation);
     if (invitation === null) {
       // Should not be possible
@@ -321,7 +323,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const inviteMember = async (team: Team, username: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void> => {
-    const apiInvitation = await api.inviteMember(session, team.id, username, role);
+    const apiInvitation = await teamAPI.inviteMember(session, team.id, username, role);
     const invitation = notificationConversion(apiInvitation);
     if (invitation === null) {
       // Should not be possible
@@ -358,7 +360,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
       phone: team.phone,
       type: team.type,
     };
-    const iTeam = await api.createTeam(session, apiTeam);
+    const iTeam = await teamAPI.createTeam(session, apiTeam);
     const users = getMapUsers();
     const newTeam = iTeamToTeam(iTeam, users);
     teams.push(newTeam);
@@ -372,7 +374,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
       ...team,
       members: [],
     };
-    await api.editTeam(session, apiTeam);
+    await teamAPI.editTeam(session, apiTeam);
     const cachedTeam = teams.find((t: Team) => t.id === team.id);
     if (typeof cachedTeam === "object") {
       cachedTeam.name = team.name;
@@ -396,13 +398,13 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     }
     log.info("leaveTeam", { ourselve, team });
     if (ourselve.role === TeamMemberRole.patient) {
-      await api.removePatient(session, team.id, ourselve.user.userid);
+      await teamAPI.removePatient(session, team.id, ourselve.user.userid);
       metrics.send("team_management", "leave_team");
     } else if (ourselve.role === TeamMemberRole.admin && ourselve.status === UserInvitationStatus.accepted && teamHasOnlyOneMember(team)) {
-      await api.deleteTeam(session, team.id);
+      await teamAPI.deleteTeam(session, team.id);
       metrics.send("team_management", "delete_team");
     } else {
-      await api.leaveTeam(session, team.id);
+      await teamAPI.leaveTeam(session, team.id);
       metrics.send("team_management", "leave_team");
     }
     const idx = teams.findIndex((t: Team) => t.id === team.id);
@@ -421,7 +423,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
       }
       await notificationHook.cancel(member.invitation);
     } else {
-      await api.removeMember(session, member.team.id, member.user.userid, member.user.username);
+      await teamAPI.removeMember(session, member.team.id, member.user.userid, member.user.username);
     }
     const { team } = member;
     const idx = team.members.findIndex((m: TeamMember) => m.user.userid === member.user.userid);
@@ -433,8 +435,35 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     }
   };
 
+  const removePatient = async (patient: TeamUser, member: TeamMember, teamId: string): Promise<void> => {
+    if (member.status === UserInvitationStatus.pending) {
+      if (_.isNil(member.invitation)) {
+        throw new Error("Missing invitation!");
+      }
+      await notificationHook.cancel(member.invitation);
+    }
+    if (teamId === "private") {
+      await directShareAPI.removeDirectShare(session, patient.userid);
+    } else {
+      await teamAPI.removePatient(session, teamId, patient.userid);
+    }
+
+    const { team } = member;
+    const memberIndex = team.members.findIndex(member => member.user.userid === patient.userid);
+    team.members.splice(memberIndex, 1);
+    patient.members = patient.members.filter(member => member.team.id !== teamId);
+    setTeams(teams);
+
+    if (patient.members.length < 1) {
+      const isFlagged = authHook.getFlagPatients().includes(patient.userid);
+      if (isFlagged) {
+        await authHook.flagPatient(patient.userid);
+      }
+    }
+  };
+
   const changeMemberRole = async (member: TeamMember, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void> => {
-    await api.changeMemberRole(session, member.team.id, member.user.userid, member.user.username, role);
+    await teamAPI.changeMemberRole(session, member.team.id, member.user.userid, member.user.username, role);
     member.role = role as TeamMemberRole;
     setTeams(teams);
     metrics.send("team_management", "manage_admin_permission", role === "admin" ? "grant" : "revoke");
@@ -448,7 +477,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const getTeamFromCode = async (code: string): Promise<Readonly<Team> | null> => {
-    const iTeam = await api.getTeamFromCode(session, code);
+    const iTeam = await teamAPI.getTeamFromCode(session, code);
     if (iTeam === null) {
       return null;
     }
@@ -457,7 +486,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const joinTeam = (teamId: string): Promise<void> => {
-    return api.joinTeam(session, teamId);
+    return teamAPI.joinTeam(session, teamId);
   };
 
   const initHook = () => {
@@ -467,7 +496,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     log.info("init");
     lock = true;
 
-    loadTeams(session, api.fetchTeams, api.fetchPatients).then(({ teams, flaggedNotInResult }: LoadTeams) => {
+    loadTeams(session, teamAPI.fetchTeams, teamAPI.fetchPatients).then(({ teams, flaggedNotInResult }: LoadTeams) => {
       log.debug("Loaded teams: ", teams);
       for (const invitation of notificationHook.sentInvitations) {
         const user = getUserByEmail(teams, invitation.email);
@@ -506,7 +535,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
 
   };
 
-  React.useEffect(initHook, [initialized, errorMessage, teams, session, authHook, notificationHook, api]);
+  React.useEffect(initHook, [initialized, errorMessage, teams, session, authHook, notificationHook, teamAPI]);
 
   return {
     teams,
@@ -531,6 +560,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     editTeam,
     leaveTeam,
     removeMember,
+    removePatient,
     changeMemberRole,
     setPatientMedicalData,
     getTeamFromCode,
@@ -539,20 +569,20 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
 }
 
 /**
-* Provider component that wraps your app and makes auth object available to any child component that calls useTeam().
-* @param props for team provider & children
-*/
+ * Provider component that wraps your app and makes auth object available to any child component that calls useTeam().
+ * @param props for team provider & children
+ */
 export function TeamContextProvider(props: TeamProvider): JSX.Element {
-  const { children, api } = props;
-  const context = TeamContextImpl(api ?? TeamAPIImpl); // eslint-disable-line new-cap
+  const { children, teamAPI, directShareAPI } = props;
+  const context = TeamContextImpl(teamAPI ?? TeamAPIImpl, directShareAPI ?? ShareAPIImpl); // eslint-disable-line new-cap
   return <ReactTeamContext.Provider value={context}>{children}</ReactTeamContext.Provider>;
 }
 
 /**
-* Hook for child components to get the teams functionalities
-*
-* Trigger a re-render when it change.
-*/
+ * Hook for child components to get the teams functionalities
+ *
+ * Trigger a re-render when it change.
+ */
 export function useTeam(): TeamContext {
   return React.useContext(ReactTeamContext);
 }

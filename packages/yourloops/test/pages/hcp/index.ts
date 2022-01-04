@@ -28,6 +28,7 @@
 
 import testPatientsSecondaryBar from "./patients-secondary-bar.test";
 import testPatientListTable from "./patients-list-table.test";
+import testPatientRemoveDialog from "./patient-remove-dialog.test";
 import testTeamCard from "./team-card.test";
 import testTeamEditDialog from "./team-edit-dialog.test";
 import testTeamAddMemberDialog from "./team-member-add-dialog.test";
@@ -41,6 +42,7 @@ function testHCPPage(): void {
   describe("Patient List", () => {
     describe("AppBar", testPatientsSecondaryBar);
     describe("Table", testPatientListTable);
+    describe("Remove-dialog", testPatientRemoveDialog);
   });
   describe("Teams", () => {
     describe("Card", testTeamCard);

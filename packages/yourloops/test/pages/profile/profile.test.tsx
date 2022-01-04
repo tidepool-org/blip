@@ -37,7 +37,7 @@ import { AuthContextProvider, Session } from "../../../lib/auth";
 import { loggedInUsers } from "../../common";
 import { createAuthHookStubs } from "../../lib/auth/hook.test";
 import { NotificationContextProvider } from "../../../lib/notifications";
-import { stubNotficationContextValue } from "../../lib/notifications/hook.test";
+import { stubNotificationContextValue } from "../../lib/notifications/hook.test";
 import ProfilePage from "../../../pages/profile";
 
 function testProfile(): void {
@@ -50,7 +50,7 @@ function testProfile(): void {
       render(
         <BrowserRouter>
           <AuthContextProvider value={context}>
-            <NotificationContextProvider value={stubNotficationContextValue}>
+            <NotificationContextProvider value={stubNotificationContextValue}>
               <ProfilePage defaultURL={defaultUrl} />
             </NotificationContextProvider>
           </AuthContextProvider>

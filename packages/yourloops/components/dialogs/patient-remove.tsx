@@ -37,9 +37,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import { IUser } from "../models/shoreline";
-import { getUserFirstLastName } from "../lib/utils";
-import { makeButtonsStyles } from "./theme";
+import { IUser } from "../../models/shoreline";
+import { getUserFirstLastName } from "../../lib/utils";
+import { makeButtonsStyles } from "../theme";
 
 export interface RemovePatientDialogContentProps {
   patient: IUser;

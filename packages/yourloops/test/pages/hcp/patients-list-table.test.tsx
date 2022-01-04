@@ -28,31 +28,111 @@
 
 import React from "react";
 import { expect } from "chai";
-import { shallow } from "enzyme";
 import * as sinon from "sinon";
+import { render, unmountComponentAtNode } from "react-dom";
+import { act, Simulate } from "react-dom/test-utils";
 
 import { SortDirection, SortFields } from "../../../models/generic";
-import { PatientListProps } from "../../../pages/hcp/patients/models";
+import { useTeam, TeamUser, TeamContextProvider } from "../../../lib/team";
+import { NotificationContextProvider } from "../../../lib/notifications";
+import { AuthContextProvider } from "../../../lib/auth";
+
+import { stubNotificationContextValue } from "../../lib/notifications/hook.test";
+import { authHookHcp } from "../../lib/auth/hook.test";
+import { teamAPI } from "../../lib/team/hook.test";
+
 import PatientListTable from "../../../pages/hcp/patients/table";
 
 function testPatientListTable(): void {
-  const defaultProps: PatientListProps = {
-    patients: [],
-    flagged: [],
-    order: SortDirection.asc,
-    orderBy: SortFields.lastname,
-    onClickPatient: sinon.spy(),
-    onFlagPatient: sinon.spy(),
-    onSortList: sinon.spy(),
+  const clickPatientStub = sinon.stub<[user: TeamUser], void>();
+  const clickFlagPatientStub = sinon.stub<[userId: string], Promise<void>>();
+  const clickRemovePatientStub = sinon.stub<[patient: TeamUser], Promise<void>>();
+
+  let container: HTMLElement | null = null;
+
+  const PatientListTableComponent = (): JSX.Element => {
+    const team = useTeam();
+    const patients = team.getPatients();
+
+    return (
+      <PatientListTable
+        patients={patients}
+        flagged={[]}
+        order={SortDirection.asc}
+        orderBy={SortFields.lastname}
+        onClickPatient={clickPatientStub}
+        onFlagPatient={clickFlagPatientStub}
+        onSortList={sinon.spy()}
+        onClickRemovePatient={clickRemovePatientStub}
+      />
+    );
   };
 
-  it("should be exported as a function", () => {
-    expect(PatientListTable).to.be.a("function");
+
+  async function mountComponent(): Promise<void> {
+    await act(() => {
+      return new Promise((resolve) => {
+        render(
+          <AuthContextProvider value={authHookHcp}>
+            <NotificationContextProvider value={stubNotificationContextValue}>
+              <TeamContextProvider teamAPI={teamAPI}>
+                <PatientListTableComponent />
+              </TeamContextProvider>
+            </NotificationContextProvider>
+          </AuthContextProvider>, container, resolve);
+      });
+    });
+  }
+
+  beforeEach(() => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    clickPatientStub.reset();
+    clickFlagPatientStub.reset();
+    clickRemovePatientStub.reset();
   });
 
-  it("should be able to render", () => {
-    const bar = shallow(<PatientListTable {...defaultProps} />);
-    expect(bar.find("#patients-list-table").length).to.be.equal(1);
+  afterEach(() => {
+    if (container) {
+      unmountComponentAtNode(container);
+      container.remove();
+      container = null;
+    }
+  });
+
+  it("should be able to render", async () => {
+    await mountComponent();
+    const table = document.getElementById("patients-list-table");
+    expect(table).to.be.not.null;
+  });
+
+  it("should fetch and display patients", async () => {
+    await mountComponent();
+    const rows = document.querySelectorAll(".patients-list-row");
+    expect(rows.length).to.be.not.null;
+  });
+
+  it("should call onClickPatient method when clicking on a row", async () => {
+    await mountComponent();
+    const firstRow = document.querySelector(".patients-list-row");
+    Simulate.click(firstRow);
+    expect(clickPatientStub.calledOnce).to.be.true;
+  });
+
+  it("should call onFlagPatient method when clicking on a flag", async () => {
+    await mountComponent();
+    const firstRow = document.querySelector(".patients-list-row");
+    const flagButton = firstRow.querySelector(".patient-flag-button");
+    Simulate.click(flagButton);
+    expect(clickFlagPatientStub.calledOnce).to.be.true;
+  });
+
+  it("should call onRemovePatient method when clicking on a remove icon", async () => {
+    await mountComponent();
+    const firstRow = document.querySelector(".patients-list-row");
+    const removeButton = firstRow.querySelector(".remove-patient-hcp-view-button");
+    Simulate.click(removeButton);
+    expect(clickRemovePatientStub.calledOnce).to.be.true;
   });
 }
 

@@ -63,7 +63,7 @@ function testPatientsSecondaryBar(): void {
   it("should be able to render", async () => {
     component = mount(
       <AuthContextProvider value={authHookHcp}>
-        <TeamContextProvider api={teamAPI}>
+        <TeamContextProvider teamAPI={teamAPI}>
           <PatientsSecondaryBar {...defaultProps} />
         </TeamContextProvider>
       </AuthContextProvider>

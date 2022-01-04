@@ -281,6 +281,14 @@ export const patients: ITeamMember[] = [
     profile: { firstName: "Marivone", lastName: "Duplessie", fullName: "Marivone Duplessie" },
   },
   {
+    invitationStatus: UserInvitationStatus.accepted,
+    role: TeamMemberRole.patient,
+    teamId: "team-1",
+    userId: "a0a0a0b2",
+    email: "marivone.duplessie@example.com",
+    profile: { firstName: "Marivone", lastName: "Duplessie", fullName: "Marivone Duplessie" },
+  },
+  {
     invitationStatus: UserInvitationStatus.pending,
     role: TeamMemberRole.patient,
     teamId: "team-0",

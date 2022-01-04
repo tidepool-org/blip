@@ -55,7 +55,7 @@ function testTeamSwitchRoleDialog(): void {
   function TestSwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element {
     return (
       <AuthContextProvider value={authHookHcp}>
-        <TeamContextProvider api={teamAPI}>
+        <TeamContextProvider teamAPI={teamAPI}>
           <SwitchRoleDialog switchAdminRole={props.switchAdminRole} />
         </TeamContextProvider>
       </AuthContextProvider>

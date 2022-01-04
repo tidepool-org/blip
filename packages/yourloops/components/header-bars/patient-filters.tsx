@@ -74,7 +74,7 @@ const filtersStyles = makeStyles((theme: Theme) => {
       [theme.breakpoints.down("xs")]: {
         width: "100%",
         marginRight: 0,
-        marginBottom: theme.spacing(1),
+        marginBottom: theme.spacing(2),
         height: "3em",
       },
     },
@@ -176,27 +176,22 @@ function PatientFilters(props: PatientFiltersProps): JSX.Element {
     onFilterType(e.target.value as string);
   };
 
-  let filterForm = null;
-  if (noFilter !== true) {
-    filterForm = (
-      <FormControl color="primary" className={classes.formControl}>
-        <Select
-          id="select-patient-list-filtertype"
-          value={filterType}
-          onChange={handleFilterCategory}
-          classes={{ root: classes.selectFilterInnerDiv }}
-          className={classes.selectFilter}
-          disableUnderline
-          MenuProps={selectMenuProps}>
-          {optionsFilterElements}
-        </Select>
-      </FormControl>
-    );
-  }
-
   return (
     <React.Fragment>
-      {filterForm}
+      {!noFilter &&
+        <FormControl color="primary" className={classes.formControl}>
+          <Select
+            id="select-patient-list-filtertype"
+            value={filterType}
+            onChange={handleFilterCategory}
+            classes={{ root: classes.selectFilterInnerDiv }}
+            className={classes.selectFilter}
+            disableUnderline
+            MenuProps={selectMenuProps}>
+            {optionsFilterElements}
+          </Select>
+        </FormControl>
+      }
       <div className={classes.search}>
         <div className={classes.searchIcon}>
           <SearchIcon />
@@ -204,10 +199,7 @@ function PatientFilters(props: PatientFiltersProps): JSX.Element {
         <InputBase
           id="input-patient-list-search"
           placeholder={t("placeholder-search")}
-          classes={{
-            root: classes.inputRoot,
-            input: classes.inputInput,
-          }}
+          classes={{ root: classes.inputRoot, input: classes.inputInput }}
           inputProps={{ "aria-label": t("aria-search") }}
           value={filter}
           onChange={handleFilterPatients}

@@ -41,7 +41,7 @@ import metrics from "../../../lib/metrics";
 import { useAuth } from "../../../lib/auth";
 import { useSharedUser, ShareUser, addDirectShare, removeDirectShare } from "../../../lib/share";
 import { useAlert } from "../../../components/utils/snackbar";
-import RemovePatientDialog, { RemovePatientDialogContentProps } from "../../../components/remove-patient-dialog";
+import RemovePatientDialog, { RemovePatientDialogContentProps } from "../../../components/dialogs/patient-remove";
 import { AddPatientDialogContentProps, AddPatientDialogResult } from "./types";
 import PatientsSecondaryBar from "./secondary-bar";
 import PatientListTable from "./table";

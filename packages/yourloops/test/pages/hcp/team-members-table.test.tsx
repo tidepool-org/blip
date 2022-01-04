@@ -57,7 +57,7 @@ function testTeamMembersTable(): void {
   function TestTeamMembersComponent(props: TeamMembersProps): JSX.Element {
     return (
       <AuthContextProvider value={authHookHcp}>
-        <TeamContextProvider api={teamAPI}>
+        <TeamContextProvider teamAPI={teamAPI}>
           <TeamMembers {...props} />
         </TeamContextProvider>
       </AuthContextProvider>
