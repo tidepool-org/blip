@@ -57,13 +57,13 @@ function HcpPage(): JSX.Element {
   const authHook = useAuth();
 
   const user = authHook.user;
+  const { pathname } = historyHook.location;
 
   if (user === null) {
     throw new Error("User must be looged-in");
   }
 
   React.useEffect(() => {
-    const { pathname } = historyHook.location;
     if (user.role !== UserRoles.hcp) {
       // Only allow hcp for this route
       setPageTitle();
@@ -77,7 +77,7 @@ function HcpPage(): JSX.Element {
       log.info("Redirecting to the patients list");
       historyHook.replace(defaultURL);
     }
-  }, [historyHook, user, t]);
+  }, [historyHook, user, t, pathname]);
 
   return (
     <TeamContextProvider>

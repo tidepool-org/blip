@@ -8,6 +8,7 @@ It is based on Tidepool Blip 1.27.
 ### Improvements
 - YLP-22 Print PDF content cleaned and improved (removing useless data)
 ### Fixed
+- YLP-1101 Yourloops logo redirect not working for HCPs
 - YLP-1109 YourLoops main menu sometimes do not disappear as it should
 - YLP-1116 Missing password strength meter into reset password page
 ### Engineering Use

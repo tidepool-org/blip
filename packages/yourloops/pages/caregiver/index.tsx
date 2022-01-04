@@ -98,6 +98,7 @@ const CaregiverPage = (): JSX.Element => {
 
   const session = authHook.session();
   const { errorMessage, sharedUsers } = sharedUsersState;
+  const { pathname } = historyHook.location;
 
   const handleRefresh = (): void => {
     sharedUsersDispatch({ type: "reset" });
@@ -108,7 +109,6 @@ const CaregiverPage = (): JSX.Element => {
       throw new Error("User must be looged-in");
     }
     const userRole = session.user.role;
-    const { pathname } = historyHook.location;
     log.info("useEffect", { pathname, userRole });
     if (userRole !== UserRoles.caregiver) {
       // Only allow caregivers for this route
@@ -136,7 +136,7 @@ const CaregiverPage = (): JSX.Element => {
           setLoading(false);
         });
     }
-  }, [historyHook, session, t, errorMessage, sharedUsers, loading]);
+  }, [historyHook, pathname, session, t, errorMessage, sharedUsers, loading]);
 
   let content: JSX.Element;
   if (errorMessage !== null) {
