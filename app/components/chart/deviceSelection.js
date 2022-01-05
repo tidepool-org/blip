@@ -48,15 +48,17 @@ export const DeviceSelection = (props) => {
         </Flex>
       }
       children={map(devices, ({id, label}) => (
-        <Checkbox
-          checked={!includes(excludedDevices, id)}
-          onChange={toggleDevice}
-          label={label || id}
-          name={`${id}-toggle`}
-          value={id}
-          key={id}
-          themeProps={{ color: colors.stat.text }}
-        />
+        <Box mb={1}>
+          <Checkbox
+            checked={!includes(excludedDevices, id)}
+            onChange={toggleDevice}
+            label={label || id}
+            name={`${id}-toggle`}
+            value={id}
+            key={id}
+            themeProps={{ color: colors.stat.text }}
+          />
+        </Box>
       ))}
       onChange={handleCollapse}
       square={false}
@@ -106,6 +108,8 @@ export const DeviceSelection = (props) => {
         panel: {
           style: {
             flexDirection: 'column',
+            paddingTop: '8px',
+            paddingBottom: '4px',
           },
         },
       }}
