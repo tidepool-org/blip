@@ -127,6 +127,28 @@ describe('InviteClinic', () => {
     expect(actions).to.eql(expectedActions);
   });
 
+  it('should navigate to the email invite form if link is clicked', () => {
+    const emailInviteLink = wrapper.find('button#emailInviteLink');
+    expect(emailInviteLink).to.have.length(1);
+
+    const expectedActions = [
+      {
+        type: '@@router/CALL_HISTORY_METHOD',
+        payload: {
+          args: [
+            '/patients/patient123/share/member',
+          ],
+          method: 'push',
+        },
+      },
+    ];
+
+    emailInviteLink.props().onClick();
+    const store = wrapper.props().store;
+    const actions = store.getActions();
+    expect(actions).to.eql(expectedActions);
+  });
+
   it('should fetch clinic by share code, then submit an invitation', (done) => {
     const submitButton = () => wrapper.find('button#submit');
     expect(submitButton()).to.have.length(1);

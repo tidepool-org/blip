@@ -64,6 +64,7 @@ const initialState = {
   },
   pendingReceivedInvites: [],
   pendingSentInvites: [],
+  pendingSentClinicianInvites: {},
   prescriptions: [],
   devices: {},
   messageThread: null,
@@ -80,7 +81,7 @@ const initialState = {
     fetchingDataDonationAccounts: Object.assign({}, working),
     fetchingDataSources: Object.assign({}, working),
     fetchingServerTime: Object.assign({}, working),
-    fetchingPrescriptions: Object.assign({}, working),
+    fetchingClinicPrescriptions: Object.assign({}, working),
     creatingPrescription: Object.assign({}, working),
     creatingPrescriptionRevision: Object.assign({}, working),
     deletingPrescription: Object.assign({}, working),
@@ -128,8 +129,10 @@ const initialState = {
     fetchingPatientsForClinic: Object.assign({}, working),
     creatingCustodialAccount: Object.assign({}, working),
     fetchingPatientFromClinic: Object.assign({}, working),
+    creatingClinicCustodialAccount: Object.assign({}, working),
     updatingClinicPatient: Object.assign({}, working),
     sendingClinicianInvite: Object.assign({}, working),
+    fetchingClinicianInvite: Object.assign({}, working),
     resendingClinicianInvite: Object.assign({}, working),
     deletingClinicianInvite: Object.assign({}, working),
     fetchingPatientInvites: Object.assign({}, working),
@@ -141,6 +144,7 @@ const initialState = {
     acceptingClinicianInvite: Object.assign({}, working),
     dismissingClinicianInvite: Object.assign({}, working),
     fetchingClinicsForClinician: Object.assign({}, working),
+    triggeringInitialClinicMigration: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {
@@ -154,6 +158,9 @@ const initialState = {
   dataSources: [],
   authorizedDataSource: null,
   clinics: {},
+  selectedClinicId: null,
+  pendingReceivedClinicianInvites: [],
+  clinicFlowActive: false,
 };
 
 export default initialState;

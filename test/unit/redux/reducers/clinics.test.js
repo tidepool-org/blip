@@ -16,16 +16,14 @@ describe('clinics', () => {
     it('should set clinics to state for clinician', () => {
       let initialStateForTest = {};
       let clinics = [{ id: 'clinicId123' }];
-      let options = { clinicianId: 'clinicianId' };
-      let action = actions.sync.getClinicsSuccess(clinics, options);
+      let action = actions.sync.getClinicsSuccess(clinics);
       let state = reducer(initialStateForTest, action);
       expect(state).to.eql({
         clinicId123: {
           id: 'clinicId123',
-          clinicians: {
-            clinicianId: {},
-          },
+          clinicians: {},
           patients: {},
+          patientInvites: {},
         },
       });
     });
@@ -33,18 +31,80 @@ describe('clinics', () => {
     it('should set clinics to state for patient', () => {
       let initialStateForTest = {};
       let clinics = [{ id: 'clinicId123' }];
-      let options = { patientId: 'patientId' };
-      let action = actions.sync.getClinicsSuccess(clinics, options);
+      let action = actions.sync.getClinicsSuccess(clinics);
       let state = reducer(initialStateForTest, action);
       expect(state).to.eql({
         clinicId123: {
           id: 'clinicId123',
           clinicians: {},
-          patients: {
-            patientId: {},
-          },
+          patients: {},
+          patientInvites: {},
         },
       });
+    });
+  });
+
+  describe('fetchPatientsForClinicSuccess', () => {
+    it('should add patients to a clinic', () => {
+      let initialStateForTest = {};
+      let clinicId = 'clinicId123';
+      let clinic = { id: clinicId };
+      let patients = [{ id: 'patientId123' }];
+      let action = actions.sync.fetchPatientsForClinicSuccess(clinicId, patients);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinic.id].patients.patientId123).to.eql({ id: 'patientId123' });
+    });
+  });
+
+  describe('fetchPatientInvitesSuccess', () => {
+    it('should add patient invites to a clinic', () => {
+      let initialStateForTest = {};
+      let clinicId = 'clinicId123';
+      let clinic = { id: clinicId };
+      let patientInvites = [{ key: 'patientId123' }];
+      let action = actions.sync.fetchPatientInvitesSuccess(clinicId, patientInvites);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinic.id].patientInvites.patientId123).to.eql({ key: 'patientId123' });
+    });
+  });
+
+  describe('acceptPatientInvitationSuccess', () => {
+    it('should remove the patient invites from a clinic', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          patientInvites: {
+            patientId123: { key: 'patientId123' },
+            patientId456: { key: 'patientId456' },
+          },
+        },
+      };
+      let clinicId = 'clinicId123';
+      let clinic = { id: clinicId };
+      let inviteId = 'patientId123';
+      let action = actions.sync.acceptPatientInvitationSuccess(clinicId, inviteId);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinic.id].patientInvites.patientId123).to.be.undefined;
+      expect(state[clinic.id].patientInvites.patientId456).to.eql({ key: 'patientId456' });
+    });
+  });
+
+  describe('deletePatientInvitationSuccess', () => {
+    it('should remove the patient invites from a clinic', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          patientInvites: {
+            patientId123: { key: 'patientId123' },
+            patientId456: { key: 'patientId456' },
+          },
+        },
+      };
+      let clinicId = 'clinicId123';
+      let clinic = { id: clinicId };
+      let inviteId = 'patientId123';
+      let action = actions.sync.deletePatientInvitationSuccess(clinicId, inviteId);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinic.id].patientInvites.patientId123).to.be.undefined;
+      expect(state[clinic.id].patientInvites.patientId456).to.eql({ key: 'patientId456' });
     });
   });
 
@@ -158,6 +218,53 @@ describe('clinics', () => {
       let action = actions.sync.updateClinicianSuccess('clinicId123', 'clinicianId123', updates);
       let state = reducer(initialStateForTest, action);
       expect(state.clinicId123.clinicians.clinicianId123.name).to.eql('newClinician123');
+    });
+  });
+
+  describe('updateClinicPatientSuccess', () => {
+    it('should update clinic patient', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          clinicians: {
+            clinicianId123: {}
+          },
+          patients: {
+            patient123: {
+              id: 'patient123',
+              name: 'Patient OneTwoThree',
+            },
+          },
+        },
+      };
+      let patient = {
+        id: 'patient123',
+        name: 'Patient 123',
+      };
+      let action = actions.sync.updateClinicPatientSuccess('clinicId123', 'patient123', patient);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients.patient123.name).to.eql('Patient 123');
+    });
+  });
+
+  describe('createClinicCustodialAccountSuccess', () => {
+    it('should add clinic patient', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          clinicians: {
+            clinicianId123: {}
+          },
+          patients: {},
+        },
+      };
+      let patient = {
+        id: 'patient123',
+        name: 'Patient 123',
+      };
+      let action = actions.sync.createClinicCustodialAccountSuccess('clinicId123', 'patient123', patient);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients.patient123.name).to.eql('Patient 123');
     });
   });
 
@@ -337,6 +444,21 @@ describe('clinics', () => {
       let action = actions.sync.updatePatientPermissionsSuccess(clinicId, patientId, updatePermissions);
       let state = reducer(initialStateForTest, action);
       expect(state.clinicId123.patients.patientId1234.permissions).to.eql(updatePermissions);
+    });
+  });
+
+  describe('triggerInitialClinicMigrationSuccess', () => {
+    it('should set the `canMigrate` state of the clinic to `false`', () => {
+      let clinicId = 'clinicId123';
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          canMigrate: true,
+        },
+      };
+      let action = actions.sync.triggerInitialClinicMigrationSuccess(clinicId);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.canMigrate).to.be.false;
     });
   });
 

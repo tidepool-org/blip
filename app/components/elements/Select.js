@@ -55,7 +55,7 @@ export const Select = props => {
     ...selectProps
   } = props;
 
-  const classNames = cx({ disabled, error });
+  const classNames = cx({ disabled, error, empty: value === '' });
   const inputClasses = cx({
     error,
     required,

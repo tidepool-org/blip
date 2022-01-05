@@ -4,11 +4,13 @@ import { action } from '@storybook/addon-actions';
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
-import { Text, Box } from 'rebass/styled-components';
+import { Text, Box, Flex } from 'rebass/styled-components';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
+import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import find from 'lodash/find';
+import map from 'lodash/map';
 
 import {
   usePopupState,
@@ -161,6 +163,84 @@ export const FilterMenu = () => {
 
 FilterMenu.story = {
   name: 'FilterMenu',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A379',
+    },
+  },
+};
+
+export const JumpMenu = () => {
+  const popupState = usePopupState({
+    variant: 'popover',
+    popupId: 'jumpMenu',
+  });
+
+  const menuOptions = [
+    { id: null, label: 'Private Workspace' },
+    { id: 'clinicXYZ', label: 'XYZ Health\'s Workspace' },
+  ];
+
+  const [selected, setSelected] = useState(menuOptions[0]);
+  const [filterText, setFilterText] = useState(selected.label);
+
+  const handleSelect = option => {
+    setSelected(option);
+    setFilterText(option.label);
+    popupState.close();
+  };
+
+  return (
+    <Flex width="400px" justifyContent="center">
+      <Button
+        variant="textPrimary"
+        color="text.primary"
+        fontSize={2}
+        {...bindTrigger(popupState)}
+        icon={KeyboardArrowDownRoundedIcon}
+        iconLabel="Search By"
+      >
+        {filterText}
+      </Button>
+
+      <Popover
+        width="15em"
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        {...bindPopover(popupState)}
+      >
+        <Box py={2}>
+          {map(menuOptions, (option, key) => (
+            <Button
+              variant="textPrimary"
+              color="text.primary"
+              width="100%"
+              py={2}
+              px={3}
+              justifyContent="space-between"
+              key={key}
+              fontSize={2}
+              icon={option.id === selected.id ? CheckRoundedIcon : null}
+              onClick={() => handleSelect(option)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </Box>
+      </Popover>
+    </Flex>
+  );
+};
+
+JumpMenu.story = {
+  name: 'JumpMenu',
   parameters: {
     design: {
       type: 'figma',

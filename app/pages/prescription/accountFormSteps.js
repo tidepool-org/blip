@@ -78,7 +78,7 @@ export const PatientInfo = translate()(props => {
         as={({ innerRef }) => (
           <InputMask
             mask={maskFormat}
-            maskPlaceholder={dateInputFormat}
+            maskPlaceholder={dateInputFormat.toLowerCase()}
             alwaysShowMask
             defaultValue={get(values, 'birthday', '').replace(dateRegex, '$2/$3/$1')}
             onBlur={e => {
@@ -114,7 +114,7 @@ export const PatientEmail = translate()(props => {
     values,
   } = formikContext;
 
-  const patientName = get(values, 'firstName');
+  const patientName = get(values, 'firstName', t('the patient'));
   const isCaregiverAccount = get(values, 'accountType') === 'caregiver';
 
   const initialFocusedInput = get(props, 'initialFocusedInput', isCaregiverAccount

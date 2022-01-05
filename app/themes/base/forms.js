@@ -23,12 +23,12 @@ export default ({ colors }) => ({
       },
     },
     '&:focus': {
-      boxShadow: '0 0 0 2px Highlight',
+      boxShadow: `0 0 0 2px ${colors.border.focus}`,
       outline: 'none',
     },
     '@media (-webkit-min-device-pixel-ratio:0)': {
       '&:focus': {
-        boxShadow: '0 0 0 2px -webkit-focus-ring-color',
+        boxShadow: `0 0 0 2px ${colors.border.focus}`,
       },
     },
     '&:disabled': {
