@@ -22,7 +22,8 @@ import legendDefs from "./plot/util/legend";
 /**
  * @typedef {import('./tidelinedata').default} TidelineData
  * @typedef {import('./tidelinedata').Datum} Datum
- * @typedef {{ type: string, name: string, plot: function, pan: boolean, data: any[] }} PlotType
+ * @typedef {import("./oneday").OneDay} OneDay
+ * @typedef {{ type: string; name: string; plot: function; pan: boolean; data: Datum[]; }} PlotType
  * @typedef { import('d3').Axis } Axis
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
  *
@@ -33,7 +34,7 @@ import legendDefs from "./plot/util/legend";
 
 /**
  * A pool: An horizontal graph for the daily view
- * @param {function} container OneDay container
+ * @param {OneDay} container OneDay container
  */
 function Pool(container) {
   const d3 = window.d3;
@@ -85,7 +86,12 @@ function Pool(container) {
     container = null;
   };
 
-  this.render = function(_selection, poolData, updateScale = false) {
+  /**
+   * Render the daily view elements
+   * @param {Datum[]} poolData The data to render
+   * @param {boolean} updateScale true to rebuild the scales
+   */
+  this.render = function(poolData, updateScale = false) {
     if (updateScale && _.isFunction(defaultAxisScaleFn)) {
       const axisScale = defaultAxisScaleFn(container.tidelineData, this);
       yScale = axisScale.scale;
@@ -95,12 +101,10 @@ function Pool(container) {
     plotTypes.forEach((plotType) => {
       const { type, name } = plotType;
       if (type in container.dataFill) {
-        plotType.data = _.filter(poolData, { type });
-        const dataGroup = group.selectAll(`#${id}_${name}`).data([plotType.data]);
+        const data = _.filter(poolData, { type });
+        const dataGroup = group.selectAll(`#${id}_${name}`).data([data]);
         dataGroup.enter().append("g").attr("id", `${id}_${name}`);
-        if (plotType.data.length > 0) {
-          dataGroup.call(plotType.plot);
-        }
+        dataGroup.call(plotType.plot);
       } else {
         console.warn(`Pool: ${type} not in dataFill`, { type, name, dataFill: container.dataFill });
       }
@@ -315,7 +319,7 @@ function Pool(container) {
   };
 
   /**
-   * @param {{ type: string, name?: string, dataFill?: boolean, pan?: boolean }} plotOptions
+   * @param {{ type: string; name?: string; dataFill?: boolean; pan?: boolean;}} plotOptions
    * by default the plot name is the data type. pan & dataFill set to true
    * @param { (pool: Pool, opts?: object) => () => void } plotFunction
    */

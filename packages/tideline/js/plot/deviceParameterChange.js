@@ -30,7 +30,7 @@ import utils from "./util/utils";
  *
  * @param {Pool} pool
  * @param {{r: number, padding: number, onParameterHover: (p: any) => void, onParameterOut: () => void, tidelineData: TidelineData, xScale: (d: number) => number }} opts
- * @returns {(data: Data) => void}
+ * @returns {(data: Datum[]) => void}
  */
 function plotDeviceParameterChange(pool, opts) {
   const d3 = window.d3;
@@ -52,6 +52,7 @@ function plotDeviceParameterChange(pool, opts) {
     selection.each(function() {
       const deviceParameters = pool.filterDataForRender(opts.tidelineData.deviceParameters);
       if (deviceParameters.length < 1) {
+        d3.select(this).selectAll("g.d3-param-group").remove();
         return;
       }
 
@@ -64,22 +65,17 @@ function plotDeviceParameterChange(pool, opts) {
         .append("g")
         .attr({
           class: "d3-param-group",
-          id: function(d) {
-            return "param_group_" + d.id;
-          }
+          id: (d) => `param_group_${d.id}`,
         });
 
       parameterGroup.append("image")
         .attr({
           "x": xPos,
-          "y": _.constant(0),
+          "y": 0,
           width,
-          "height": function() {
-            return offset;
-          },
+          "height": offset,
           "xlink:href": picto,
         });
-
 
       allParameters.exit().remove();
 

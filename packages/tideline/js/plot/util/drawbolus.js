@@ -296,7 +296,7 @@ function drawBolus(pool, opts = {}) {
         }
       },
       remove: function(d) {
-        if (_.get(opts, "onBolusOut", false)){
+        if (_.get(opts, "onBolusOut", false)) {
           opts.onBolusOut({
             data: d
           });

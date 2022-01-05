@@ -29,7 +29,6 @@ import drawPhysicalActivity from "./util/drawphysicalactivity";
  *
  * @param {Pool} pool
  * @param {{ tidelineData: TidelineData}} opts
- * @returns
  */
 function plotPhysicalActivity(pool, opts) {
   return function physicalActivityEvent(selection) {
@@ -40,6 +39,8 @@ function plotPhysicalActivity(pool, opts) {
     selection.each(function () {
       const physicalActivities = pool.filterDataForRender(opts.tidelineData.physicalActivities);
       if (physicalActivities.length < 1) {
+        // Remove previous data
+        d3.select(this).selectAll("g.d3-pa-group").remove();
         return;
       }
 

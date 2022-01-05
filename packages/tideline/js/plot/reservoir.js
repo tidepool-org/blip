@@ -39,6 +39,12 @@ function plotReservoirChange(pool, opts) {
         subType: "reservoirChange"
       });
 
+      if (filteredData.length < 1) {
+        // Remove previous data
+        d3.select(this).selectAll("g.d3-reservoir-group").remove();
+        return;
+      }
+
       const allReservoirs = d3
         .select(this)
         .selectAll("circle.d3-reservoir-only")
@@ -48,7 +54,7 @@ function plotReservoirChange(pool, opts) {
         .append("g")
         .attr({
           class: "d3-reservoir-group",
-          id: (d) => "reservoir_group_" + d.id,
+          id: (d) => `reservoir_group_${d.id}`,
         });
       reservoirGroup
         .append("image")

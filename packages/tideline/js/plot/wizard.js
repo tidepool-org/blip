@@ -18,6 +18,7 @@
 /**
  * @typedef { import('../pool').default } Pool
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
+ * @typedef {import("../tidelinedata").Datum} Datum
  */
 
 import _ from "lodash";
@@ -43,41 +44,41 @@ function plotWizard(pool, opts = defaults) {
   function wizard(selection) {
     const drawBolus = drawbolus(pool, { ...opts, yScale: pool.yScale(), xScale: pool.xScale().copy() });
 
-    selection.each(function(currentData) {
-      var withAnnotations = _.filter(currentData, function(d) {
+    selection.each(function(/** @type {Datum[]} */ currentData) {
+      if (currentData.length < 1) {
+        d3.select(this).selectAll("g.d3-wizard-group").remove();
+        return;
+      }
+      const withAnnotations = _.filter(currentData, (d) => {
         if (d.annotations) {
           return true;
+        } else if (d.bolus) {
+          return Boolean(d.bolus.annotations);
         }
-        else if (d.bolus) {
-          return d.bolus.annotations;
-        }
+        return false;
       });
 
       drawBolus.annotations(withAnnotations);
 
-      var wizards = d3.select(this)
+      const wizards = d3.select(this)
         .selectAll("g.d3-wizard-group")
-        .data(currentData, function(d) {
-          return d.id;
-        });
+        .data(currentData, (d) => d.id);
 
-      var wizardGroups = wizards.enter()
+      let wizardGroups = wizards.enter()
         .append("g")
         .attr({
           class: "d3-wizard-group",
-          id: function(d) {
-            return "wizard_group_" + d.id;
-          }
+          id: (d) => `wizard_group_${d.id}`,
         });
 
       // sort by size so smaller boluses are drawn last
-      wizardGroups = wizardGroups.sort(function(a,b){
-        var bolusA = a.bolus ? a.bolus : a;
-        var bolusB = b.bolus ? b.bolus : b;
+      wizardGroups = wizardGroups.sort((/** @type {Datum} */ a, /** @type {Datum} */ b) => {
+        const bolusA = a.bolus ?? a;
+        const bolusB = b.bolus ?? b;
         return d3.descending(commonbolus.getMaxValue(bolusA), commonbolus.getMaxValue(bolusB));
       });
 
-      var carbs = wizardGroups.filter(function(d) {
+      const carbs = wizardGroups.filter((/** @type {Datum} */ d) => {
         // truthiness working for us here
         // don't want carbInputs of 0 included in filter!
         return d.carbInput;
@@ -85,9 +86,7 @@ function plotWizard(pool, opts = defaults) {
 
       drawBolus.carb(carbs);
 
-      const boluses = wizardGroups.filter(function(d) {
-        return _.isObject(d.bolus);
-      });
+      const boluses = wizardGroups.filter((/** @type {Datum} */ d) => _.isObject(d.bolus));
       drawBolus.bolus(boluses);
 
       // boluses where programmed differs from delivered
@@ -114,21 +113,9 @@ function plotWizard(pool, opts = defaults) {
       });
       drawBolus.override(override);
 
-      // var extended = boluses.filter(function(d) {
-      //   return d.bolus.extended || d.bolus.expectedExtended;
-      // });
-      // drawBolus.extended(extended);
-      // var extendedSuspended = boluses.filter(function(d) {
-      //   if (d.bolus.expectedExtended) {
-      //     return d.bolus.extended !== d.bolus.expectedExtended;
-      //   }
-      //   return false;
-      // });
-      // drawBolus.extendedSuspended(extendedSuspended);
-
       wizards.exit().remove();
 
-      var highlight = pool.highlight(".d3-wizard-group, .d3-bolus-group", opts);
+      const highlight = pool.highlight(".d3-wizard-group, .d3-bolus-group", opts);
 
       // tooltips
       selection.selectAll(".d3-wizard-group").on("mouseover", function(d) {

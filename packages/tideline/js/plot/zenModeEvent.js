@@ -50,6 +50,7 @@ function plotZenMode(pool, opts = {}) {
     selection.each(function() {
       const zenEvents = pool.filterDataForRender(opts.tidelineData.zenEvents);
       if (zenEvents.length < 1) {
+        d3.select(this).selectAll("g.d3-event-group").remove();
         return;
       }
 

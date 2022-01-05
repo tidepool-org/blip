@@ -35,31 +35,33 @@ function plotCarb(pool, opts) {
   function carb(selection) {
     var yPos = opts.r + opts.carbPadding;
     opts.xScale = pool.xScale().copy();
+
     selection.each(function(currentData) {
-      var filteredData = _.filter(currentData, (data) => {
+      const filteredData = _.filter(currentData, (data) => {
         return _.get(data, "nutrition.carbohydrate.net", false);
       });
-      var allCarbs = d3
+
+      if (filteredData.length < 1) {
+        // Remove previous data
+        d3.select(this).selectAll("g.d3-carb-group").remove();
+        return;
+      }
+
+      const allCarbs = d3
         .select(this)
         .selectAll("circle.d3-carbs-only")
-        .data(filteredData, function(d) {
-          return d.id;
-        });
-      var carbGroup = allCarbs.enter()
+        .data(filteredData, (d) => d.id);
+      const carbGroup = allCarbs.enter()
         .append("g")
         .attr({
           class: "d3-carb-group",
-          id: function(d) {
-            return "carb_group_" + d.id;
-          }
+          id: (d) => `carb_group_${d.id}`,
         });
 
       carbGroup.append("circle").attr({
         "cx": xPos,
         "cy": yPos,
-        "r": function(/* d */) {
-          return opts.r;
-        },
+        "r": opts.r,
         "stroke-width": 0,
         "class": "d3-circle-rescuecarbs",
         "id": (d) => `carbs_circle_${d.id}`,
@@ -67,9 +69,7 @@ function plotCarb(pool, opts) {
 
       carbGroup
         .append("text")
-        .text(function(d) {
-          return d.nutrition.carbohydrate.net;
-        })
+        .text((d) => d.nutrition.carbohydrate.net)
         .attr({
           x: xPos,
           y: yPos,

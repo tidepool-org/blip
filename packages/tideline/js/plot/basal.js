@@ -68,15 +68,20 @@ function plotBasal(pool, opts = defaults) {
   function basal(selection) {
     opts.xScale = pool.xScale().copy();
 
-    selection.each(function(currentData) {
-      currentData = _.filter(currentData, (d) => d.type === "basal" && d.duration > 0);
+    selection.each(function(data) {
+      const currentData = _.filter(data, (d) => d.type === "basal" && d.duration > 0);
+      d3.select(this).selectAll("g.d3-basal-path-group").remove();
+      if (currentData.length < 1) {
+        // Remove previous data
+        d3.select(this).selectAll("g.d3-basal-group").remove();
+        return;
+      }
+
       basal.addAnnotations(_.filter(currentData, "annotations"));
 
       const basalSegments = d3.select(this)
         .selectAll(".d3-basal-group")
-        .data(currentData, function(d) {
-          return d.id;
-        });
+        .data(currentData, (d) => d.id);
 
       const basalSegmentGroups = basalSegments.enter()
         .append("g")
@@ -169,9 +174,13 @@ function plotBasal(pool, opts = defaults) {
 
     selection.append("rect")
       .attr({
+        id: (d) => `basal_element_${invisible ? "invisible" : "visible"}_${d.id}`,
         x: basal.xPosition,
         y: yPosFn,
-        opacity: function(d) {
+        opacity: (d) => {
+          if (invisible) {
+            return null;
+          }
           if (d.deliveryType === "temp" && d.rate > 0) {
             return opts.opacity - opts.opacityDelta;
           }
@@ -179,9 +188,7 @@ function plotBasal(pool, opts = defaults) {
         },
         width: basal.width,
         height: heightFn,
-        class: function(d) {
-          return invisible ? "d3-basal d3-basal-invisible" : `d3-basal d3-rect-basal d3-basal-${d.deliveryType}`;
-        }
+        class: (d) => invisible ? "d3-basal d3-basal-invisible" : `d3-basal d3-rect-basal d3-basal-${d.deliveryType}`,
       });
   };
 

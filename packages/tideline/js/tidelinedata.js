@@ -736,8 +736,6 @@ TidelineData.prototype.setDiabetesData = function setDiabetesData() {
 };
 
 /**
- *
- * @param {Datum[]} data The data
  * @param {object} filter The filter
  * @param {string[]} order field to order the result
  */

@@ -18,6 +18,7 @@
 /**
  * @typedef { import('../../pool').default } Pool
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
+ * @typedef {import("../../tidelinedata").Datum} Datum
  */
 
 import _ from "lodash";
@@ -57,7 +58,7 @@ function drawFill(pool, opts = defaults) {
     opts.xScale = pool.xScale().copy();
 
     // fillClass is used to control opacity of weekend day pools in two-week view
-    if(opts.fillClass) {
+    if (opts.fillClass) {
       selection.attr("class", opts.fillClass);
     }
 
@@ -65,13 +66,11 @@ function drawFill(pool, opts = defaults) {
       fill.drawGuidelines();
     }
 
-    selection.each(function(currentData) {
+    selection.each(function(/** @type {Datum[]} */ currentData) {
       currentData.reverse();
 
-      var fills = selection.selectAll("rect.d3-fill")
-        .data(currentData, function(d) {
-          return d.id;
-        });
+      const fills = selection.selectAll("rect.d3-fill")
+        .data(currentData, (d) => d.id);
 
 
       fills.enter()

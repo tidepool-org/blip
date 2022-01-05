@@ -38,7 +38,6 @@ import plotWizard from "../../js/plot/wizard";
 import plotCarb from "../../js/plot/carb";
 import plotQuickbolus from "../../js/plot/quickbolus";
 import plotBasal from "../../js/plot/basal";
-import plotSuspend from "../../js/plot/suspend";
 import plotMessage from "../../js/plot/message";
 import plotTimeChange from "../../js/plot/timechange";
 
@@ -347,9 +346,6 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
   poolBasal.addPlotType({ type: "basal" }, plotBasal(poolBasal, {
     defaultSource: tidelineData.opts.defaultSource,
   }));
-
-  // add device suspend data to basal pool
-  poolBasal.addPlotType({ type: "deviceEvent" }, plotSuspend(poolBasal, {}), true, true);
 
   // Add confidential mode to BG pool: Must be the last in the pool to mask stuff below
   poolBasal.addPlotType({ type: "deviceEvent", name: "confidential" }, plotConfidentialModeEvent(poolBasal, {

@@ -52,7 +52,9 @@ function plotConfidentialModeEvent(pool, opts) {
   function confidentialModeEvent(selection) {
     selection.each(function () {
       const confidentialEvents = pool.filterDataForRender(opts.tidelineData.confidentialEvents);
+
       if (confidentialEvents.length < 1) {
+        d3.select(this).selectAll("g.d3-confidential-group").remove();
         return;
       }
 

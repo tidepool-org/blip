@@ -50,54 +50,29 @@ function plotCbg(pool, opts = defaults) {
   _.defaults(opts, defaults);
   opts.classes = _.omit(opts.classes, ["very-low", "very-high"]);
 
-  var categorize = categorizer(opts.classes, opts.bgUnits);
-  var mainGroup = pool.parent();
+  const categorize = categorizer(opts.classes, opts.bgUnits);
+  const mainGroup = pool.parent();
 
   function cbg(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       cbg.addAnnotations(_.filter(currentData, "annotations"));
 
-      var allCBG = d3.select(this).selectAll("circle.d3-cbg")
-        .data(currentData, function(d) {
-          return d.id;
-        });
-      var cbgGroups = allCBG.enter()
+      const allCBG = d3.select(this).selectAll("circle.d3-cbg").data(currentData, (d) => d.id);
+      const cbgGroups = allCBG.enter()
         .append("circle")
         .attr("class", "d3-cbg")
         .attr({
           cx: cbg.xPosition,
           cy: cbg.yPosition,
           r: opts.radius,
-          id: function(d) {
-            return "cbg_" + d.id;
-          }
+          id: (d) => `cbg_${d.id}`,
         });
-      var cbgVeryLow = cbgGroups.filter(function(d) {
-        if (categorize(d) === "verylow") {
-          return d;
-        }
-      });
-      var cbgLow = cbgGroups.filter(function(d) {
-        if (categorize(d) === "low") {
-          return d;
-        }
-      });
-      var cbgTarget = cbgGroups.filter(function(d) {
-        if (categorize(d) === "target") {
-          return d;
-        }
-      });
-      var cbgHigh = cbgGroups.filter(function(d) {
-        if (categorize(d) === "high") {
-          return d;
-        }
-      });
-      var cbgVeryHigh = cbgGroups.filter(function(d) {
-        if (categorize(d) === "veryhigh") {
-          return d;
-        }
-      });
+      const cbgVeryLow = cbgGroups.filter((d) => categorize(d) === "verylow");
+      const cbgLow = cbgGroups.filter((d) => categorize(d) === "low");
+      const cbgTarget = cbgGroups.filter((d) => categorize(d) === "target");
+      const cbgHigh = cbgGroups.filter((d) => categorize(d) === "high");
+      const cbgVeryHigh = cbgGroups.filter((d) => categorize(d) === "veryhigh");
       cbgVeryLow.classed({"d3-circle-cbg": true, "d3-bg-very-low": true});
       cbgLow.classed({"d3-circle-cbg": true, "d3-bg-low": true});
       cbgTarget.classed({"d3-circle-cbg": true, "d3-bg-target": true});

@@ -77,20 +77,6 @@ function plotQuickBolus(pool, opts = defaults) {
       });
       drawBolus.undelivered(undelivered);
 
-      // Not currently in use:
-      // const extended = bolusGroups.filter(function(d) {
-      //   return Number.isFinite(d.extended) || Number.isFinite(d.expectedExtended);
-      // });
-      // drawBolus.extended(extended);
-
-      // const extendedSuspended = bolusGroups.filter((bolus) => {
-      //   if (Number.isFinite(bolus.expectedExtended) && Number.isFinite(bolus.extended)) {
-      //     return Math.abs(bolus.expectedExtended - bolus.extended) > Number.EPSILON;
-      //   }
-      //   return false;
-      // });
-      // drawBolus.extendedSuspended(extendedSuspended);
-
       boluses.exit().remove();
 
       const highlight = pool.highlight(".d3-wizard-group, .d3-bolus-group", opts);

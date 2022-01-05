@@ -41,7 +41,7 @@ import utils from "./util/utils";
  *
  * @param {Pool} pool
  * @param {{ onParameterHover: (p: any) => void, onParameterOut: () => void, tidelineData: TidelineData }} opts
- * @returns {(data: Data) => void}
+ * @returns {(data: Datum[]) => void}
  */
 function plotWarmUp(pool, opts) {
   const d3 = window.d3;
@@ -53,6 +53,7 @@ function plotWarmUp(pool, opts) {
     selection.each(function () {
       const warmUpEvents = pool.filterDataForRender(opts.tidelineData.warmUpEvents);
       if (warmUpEvents.length < 1) {
+        d3.select(this).selectAll("g.d3-warmup-group").remove();
         return;
       }
 

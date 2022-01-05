@@ -19,6 +19,7 @@
  * @typedef {import('./tidelinedata').Datum} Datum
  * @typedef {{ trackMetric: (category: string, action: string, name?: string, value?: number) => void }} OneDayOptions
  * @typedef {import('./pool').default} Pool
+ * @typedef {{poolGroup:SVGGElement;id:(v?:string)=>string|OneDay;options:OneDayOptions;tidelineData:TidelineData;pools:Pool[];width:(v?:number)=>number|OneDay;axisGutter:()=>number;data:(td?:TidelineData)=>Datum[]|OneDay;setAxes:()=>OneDay;filterDataForRender:(d:Datum[])=>Datum[]}} OneDay
  */
 
 import _ from "lodash";
@@ -31,12 +32,11 @@ import Tooltips from "./plot/util/tooltips/tooltip";
 import TidelineData from "./tidelinedata";
 
 /**
- *
  * @param {import('events').EventEmitter} emitter
  * @param {OneDayOptions} options
- * @returns {function} The chart manager displaying one day of diabetes data.
+ * @returns {OneDay} The chart manager displaying one day of diabetes data.
  */
-function oneDay(emitter, options = {}) {
+function oneDay(emitter, options = { trackMetric: _.noop }) {
   const d3 = window.d3;
   /** @type {Console} */
   const log = bows("OneDay");
@@ -387,7 +387,7 @@ function oneDay(emitter, options = {}) {
         const pools = container.pools;
         for (let i = 0; i < pools.length; i++) {
           try {
-            pools[i].render(container.poolGroup, renderedData, force);
+            pools[i].render(renderedData, force);
           } catch (e) {
             log.error(e);
           }
@@ -777,11 +777,14 @@ function oneDay(emitter, options = {}) {
     start -= 1;
     end += 1;
 
-    const isInRange = (/** @type {Datum} */d) => {
+    const isInRange = (/** @type {Datum} */ d) => {
       return (d.epoch > start || (Number.isInteger(d.epochEnd) && d.epochEnd > start)) && d.epoch < end;
     };
 
-    return data.filter(isInRange);
+    if (Array.isArray(data)) {
+      return data.filter(isInRange);
+    }
+    return [];
   };
 
   container.createMessage = async (message) => {
