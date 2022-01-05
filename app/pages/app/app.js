@@ -164,7 +164,10 @@ export class AppComponent extends React.Component {
       authenticated,
     } = nextProps;
 
-    if (!utils.isOnSamePage(this.props, nextProps)) {
+    if (
+      !utils.isOnSamePage(this.props, nextProps) ||
+      this.props.authenticated !== authenticated
+    ) {
       this.doFetching(nextProps);
     }
 

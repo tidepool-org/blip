@@ -5,6 +5,7 @@
 /* global context */
 /* global beforeEach */
 /* global afterEach */
+/* global before */
 
 var React = require('react');
 var _ = require('lodash');
@@ -800,6 +801,35 @@ describe('App', () => {
         sinon.assert.callCount(props.context.trackMetric, 1);
       });
     });
+
+    context('doFetching', () => {
+      let initialProps = _.assign({}, baseProps, {
+        authenticated: false,
+        fetchers: [sinon.stub()],
+        location: 'page1',
+      });
+      let wrapper;
+      before(() => {
+        wrapper = shallow(<App {...initialProps} />);
+        initialProps.fetchers[0].reset();
+      });
+      afterEach(() => {
+        initialProps.fetchers[0].reset();
+      });
+      it('when neither authenticated nor page changes, it should not run fetchers', () => {
+        wrapper.setProps({ test: true });
+        sinon.assert.callCount(initialProps.fetchers[0], 0);
+      });
+      it('when user becomes authenticated, it should run any pending fetchers', () => {
+        wrapper.setProps({ authenticated: true });
+        sinon.assert.callCount(initialProps.fetchers[0], 1);
+      });
+      it('when page transitions, it should run any pending fetchers', () => {
+        wrapper.setProps({ location: 'page2' });
+        sinon.assert.callCount(initialProps.fetchers[0], 1);
+      });
+    });
+
   });
 
   describe('isPatientVisibleInNavbar', () => {
