@@ -4,23 +4,9 @@ import get from 'lodash/get';
 import map from 'lodash/map';
 import { components as vizComponents } from '@tidepool/viz';
 import { useLocalStorage } from '../../core/hooks';
+import utils from '../../core/utils';
 
 const { Stat } = vizComponents;
-
-export const readableStatName = statId => ({
-  readingsInRange: 'Readings in range',
-  timeInAuto: 'Time in automation',
-  timeInOverride: 'Time in activity',
-  timeInRange: 'Time in range',
-  totalInsulin: 'Insulin ratio',
-}[statId] || statId);
-
-export const readableChartName = chartType => ({
-  basics: 'Basics',
-  bgLog: 'BG log',
-  daily: 'Daily',
-  trends: 'Trends',
-}[chartType] || chartType);
 
 const Stats = (props) => {
   const {
@@ -44,7 +30,7 @@ const Stats = (props) => {
         }
       });
 
-      trackMetric(`Click ${collapsed ? 'collapsed' : 'expanded'} - ${readableChartName(chartType)} - ${readableStatName(id)}`);
+      trackMetric(`Click ${collapsed ? 'collapsed' : 'expanded'} - ${utils.readableChartName(chartType)} - ${utils.readableStatName(id)}`);
     }
   }
 
