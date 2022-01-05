@@ -122,6 +122,7 @@ class Basics extends Component {
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
                   stats={statsToRender}
+                  trackMetric={this.props.trackMetric}
                 />
                 <DeviceSelection
                   chartPrefs={this.props.chartPrefs}

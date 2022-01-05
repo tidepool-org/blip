@@ -60,6 +60,7 @@ describe('Stats', () => {
     },
     chartType: 'basics',
     stats: [],
+    trackMetric: sinon.stub(),
   };
 
   let wrapper;

@@ -727,10 +727,11 @@ export const PatientDataClass = createReactClass({
             }}
           >
             <Stats
-              stats={[ averageDailyDoseStat ]}
-              chartPrefs={state.chartPrefs}
               bgPrefs={bgPrefs}
+              chartPrefs={state.chartPrefs}
               persistState={false}
+              stats={[ averageDailyDoseStat ]}
+              trackMetric={this.props.trackMetric}
             />
           </Box>
         );

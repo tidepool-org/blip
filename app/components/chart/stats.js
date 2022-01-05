@@ -1,35 +1,56 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import get from 'lodash/get';
+import map from 'lodash/map';
 import { components as vizComponents } from '@tidepool/viz';
 import { useLocalStorage } from '../../core/hooks';
 
 const { Stat } = vizComponents;
+
+export const readableStatName = statId => ({
+  readingsInRange: 'Readings in range',
+  timeInAuto: 'Time in automation',
+  timeInOverride: 'Time in activity',
+  timeInRange: 'Time in range',
+  totalInsulin: 'Insulin ratio',
+}[statId] || statId);
+
+export const readableChartName = chartType => ({
+  basics: 'Basics',
+  bgLog: 'BG log',
+  daily: 'Daily',
+  trends: 'Trends',
+}[chartType] || chartType);
 
 const Stats = (props) => {
   const {
     bgPrefs,
     chartPrefs,
     chartType,
-    stats,
     persistState,
+    stats,
+    trackMetric,
   } = props;
 
   const [statsCollapsedState, setStatsCollapsedState] = useLocalStorage('statsCollapsedState', {});
 
   function handleCollapse (id, collapsed) {
-    if (persistState) setStatsCollapsedState({
-      ...statsCollapsedState,
-      [chartType]: {
-        ...statsCollapsedState[chartType],
-        [id]: collapsed,
-      }
-    });
+    if (persistState) {
+      setStatsCollapsedState({
+        ...statsCollapsedState,
+        [chartType]: {
+          ...statsCollapsedState[chartType],
+          [id]: collapsed,
+        }
+      });
+
+      trackMetric(`Click ${collapsed ? 'collapsed' : 'expanded'} - ${readableChartName(chartType)} - ${readableStatName(id)}`);
+    }
   }
 
   return (
     <div className="Stats">
-      {_.map(stats, stat => (
+      {map(stats, stat => (
         <div id={`Stat--${stat.id}`} key={stat.id}>
           <Stat
             animate={chartPrefs.animateStats}
@@ -38,7 +59,7 @@ const Stats = (props) => {
             isOpened={stat.collapsible ? !statsCollapsedState[chartType]?.[stat.id] : true}
             {...stat}
             title={stat.collapsible && statsCollapsedState[chartType]?.[stat.id]
-              ? _.get(stat, 'collapsedTitle', stat.title)
+              ? get(stat, 'collapsedTitle', stat.title)
               : stat.title
             }
           />
@@ -54,6 +75,7 @@ Stats.propTypes = {
   chartType: PropTypes.string,
   persistState: PropTypes.bool,
   stats: PropTypes.array.isRequired,
+  trackMetric: PropTypes.func.isRequired,
 };
 
 Stats.defaultProps = {

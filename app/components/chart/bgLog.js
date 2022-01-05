@@ -255,6 +255,7 @@ class BgLog extends Component {
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 stats={this.props.stats}
+                trackMetric={this.props.trackMetric}
               />
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
