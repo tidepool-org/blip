@@ -31,7 +31,7 @@ describe('api', () => {
       destroySession: sinon.stub(),
       isLoggedIn: sinon.stub(),
       logAppError: sinon.stub(),
-      getPrescriptions: sinon.stub(),
+      getPrescriptionsForClinic: sinon.stub(),
       createPrescription: sinon.stub(),
       createPrescriptionRevision: sinon.stub(),
       deletePrescription: sinon.stub(),
@@ -46,8 +46,10 @@ describe('api', () => {
       getPatientsForClinic: sinon.stub(),
       createCustodialAccount: sinon.stub(),
       getPatientFromClinic: sinon.stub(),
+      createClinicCustodialAccount: sinon.stub(),
       updateClinicPatient: sinon.stub(),
       inviteClinician: sinon.stub(),
+      getClinicianInvite: sinon.stub(),
       resendClinicianInvite: sinon.stub(),
       deleteClinicianInvite: sinon.stub(),
       getPatientInvites: sinon.stub(),
@@ -63,6 +65,7 @@ describe('api', () => {
       deletePatientFromClinic: sinon.stub(),
       deletePatientInvitation: sinon.stub(),
       getClinicByShareCode: sinon.stub(),
+      triggerInitialClinicMigration: sinon.stub(),
     };
 
     rollbar = {
@@ -88,7 +91,7 @@ describe('api', () => {
     tidepool.destroySession.resetHistory();
     tidepool.isLoggedIn.resetHistory();
     tidepool.logAppError.resetHistory();
-    tidepool.getPrescriptions.resetHistory();
+    tidepool.getPrescriptionsForClinic.resetHistory();
     tidepool.createPrescription.resetHistory();
     tidepool.createPrescriptionRevision.resetHistory();
     tidepool.deletePrescription.resetHistory();
@@ -103,8 +106,10 @@ describe('api', () => {
     tidepool.getPatientsForClinic.resetHistory();
     tidepool.createCustodialAccount.resetHistory();
     tidepool.getPatientFromClinic.resetHistory();
+    tidepool.createClinicCustodialAccount.resetHistory();
     tidepool.updateClinicPatient.resetHistory();
     tidepool.inviteClinician.resetHistory();
+    tidepool.getClinicianInvite.resetHistory();
     tidepool.resendClinicianInvite.resetHistory();
     tidepool.deleteClinicianInvite.resetHistory();
     tidepool.getPatientInvites.resetHistory();
@@ -119,6 +124,7 @@ describe('api', () => {
     tidepool.deletePatientFromClinic.resetHistory();
     tidepool.deletePatientInvitation.resetHistory();
     tidepool.getClinicByShareCode.resetHistory();
+    tidepool.triggerInitialClinicMigration.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -564,11 +570,11 @@ describe('api', () => {
 
 
   describe('prescription', () => {
-    describe('getAll', () => {
-      it('should call tidepool.getPrescriptions with the appropriate args', () => {
+    describe('getAllForClinic', () => {
+      it('should call tidepool.getPrescriptionsForClinic with the appropriate args', () => {
         const cb = sinon.stub();
-        api.prescription.getAll(cb);
-        sinon.assert.calledWith(tidepool.getPrescriptions, cb);
+        api.prescription.getAllForClinic(cb);
+        sinon.assert.calledWith(tidepool.getPrescriptionsForClinic, cb);
       });
     });
 
@@ -693,6 +699,15 @@ describe('api', () => {
         sinon.assert.calledWith(tidepool.getPatientFromClinic, clinicId, patientId, cb);
       });
     });
+    describe('createClinicCustodialAccount', () => {
+      it('should call tidepool.createClinicCustodialAccount with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId';
+        const patient = { new: 'patient' };
+        api.clinics.createClinicCustodialAccount(clinicId, patient, cb);
+        sinon.assert.calledWith(tidepool.createClinicCustodialAccount, clinicId, patient, cb);
+      });
+    });
     describe('updateClinicPatient', () => {
       it('should call tidepool.updateClinicPatient with the appropriate args', () => {
         const cb = sinon.stub();
@@ -710,6 +725,15 @@ describe('api', () => {
         const clinician = 'clinician';
         api.clinics.inviteClinician(clinicId, clinician, cb);
         sinon.assert.calledWith(tidepool.inviteClinician, clinicId, clinician, cb);
+      });
+    });
+    describe('getClinicianInvite', () => {
+      it('should call tidepool.getClinicianInvite with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId';
+        const inviteId = 'inviteId';
+        api.clinics.getClinicianInvite(clinicId, inviteId, cb);
+        sinon.assert.calledWith(tidepool.getClinicianInvite, clinicId, inviteId, cb);
       });
     });
     describe('resendClinicianInvite', () => {
@@ -843,6 +867,14 @@ describe('api', () => {
         const shareCode = 'shareCode';
         api.clinics.getClinicByShareCode(shareCode, cb);
         sinon.assert.calledWith(tidepool.getClinicByShareCode, shareCode, cb);
+      });
+    });
+    describe('clinics.triggerInitialClinicMigration', () => {
+      it('should call tidepool.triggerInitialClinicMigration with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.triggerInitialClinicMigration(clinicId, cb);
+        sinon.assert.calledWith(tidepool.triggerInitialClinicMigration, clinicId, cb);
       });
     });
   });

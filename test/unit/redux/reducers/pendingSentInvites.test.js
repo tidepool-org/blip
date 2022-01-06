@@ -163,8 +163,9 @@ describe('pendingSentInvites', () => {
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let inviteId = 'xyz123zyx';
+      let clinicId = 'clinicId';
 
-      let action = actions.sync.deletePatientInvitationSuccess(inviteId);
+      let action = actions.sync.deletePatientInvitationSuccess(clinicId, inviteId);
 
       let state = reducer(initialStateForTest, action);
 

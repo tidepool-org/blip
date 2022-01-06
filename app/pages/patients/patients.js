@@ -20,14 +20,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { translate, Trans } from 'react-i18next';
 import update from 'immutability-helper';
+import { Box } from 'rebass/styled-components';
 
 import * as actions from '../../redux/actions';
 import utils from '../../core/utils';
 
 import _ from 'lodash';
 import cx from 'classnames';
-
-import config from '../../config';
 
 import personUtils from '../../core/personutils';
 import PeopleList from '../../components/peoplelist';
@@ -71,12 +70,12 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.renderPatients();
 
     var backgroundClasses = cx({
-      'patients js-patients-page': true,
+      'patients js-patients-page': !personUtils.isClinicianAccount(this.props.user),
       'patients-welcome js-patients-page': this.isShowingWelcomeTitle()
     });
 
     return (
-      <div className="container-box-outer">
+      <Box variant="containers.large" bg="transparent" mb={0}>
         <div className={backgroundClasses}>
           {welcomeTitle}
           {welcomeSetup}
@@ -86,7 +85,7 @@ export let Patients = translate()(class extends React.Component {
           {patients}
           <Loader show={this.props.loading} overlay={true} />
         </div>
-      </div>
+      </Box>
     );
   }
 
@@ -152,16 +151,18 @@ export let Patients = translate()(class extends React.Component {
       return null;
     }
     return (
-      <Trans className="patients-message" i18nKey="html.patients-no-data">
-        Looks like you don’t have access to any data yet.
-        <br />
-        Please ask someone to invite you to see their data.
-      </Trans>
+      <Box textAlign="center">
+        <Trans className="patients-message" i18nKey="html.patients-no-data">
+          Looks like you don’t have access to any data yet.
+          <br />
+          Please ask someone to invite you to see their data.
+        </Trans>
+      </Box>
     );
   };
 
   renderNoPatientsSetupStorageLink = () => {
-    if (this.isShowingWelcomeSetup() || this.hasPatients() || personUtils.isClinic(this.props.user)) {
+    if (this.isShowingWelcomeSetup() || this.hasPatients() || personUtils.isClinicianAccount(this.props.user)) {
       return null;
     }
     return (
@@ -185,17 +186,20 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
-    if (personUtils.isClinic(this.props.user)) {
+    if (personUtils.isClinicianAccount(this.props.user)) {
       return (
-        <div className="container-box-inner patients-section js-patients-shared">
-          <div className="patients-vca-section-content">
-            <PeopleTable
-              people={patients}
-              trackMetric={this.props.trackMetric}
-              onRemovePatient={this.props.onRemovePatient}
-            />
-          </div>
-        </div>
+        <Box
+          variant="containers.largeBordered"
+          px={4}
+          pb={6}
+          width={['100%', '100%']}
+        >
+          <PeopleTable
+            people={patients}
+            trackMetric={this.props.trackMetric}
+            onRemovePatient={this.props.onRemovePatient}
+          />
+        </Box>
       );
     }
 
@@ -227,12 +231,16 @@ export let Patients = translate()(class extends React.Component {
       return null;
     }
 
+    var classNames = cx({
+      'patients-new-account': true,
+    });
+
     return (
       <Link
-        className="patients-new-account"
+        className={classNames}
         to="/patients/new"
         onClick={this.handleClickCreateProfile}>
-        { t('Setup data storage') }
+        { t('Set up data storage') }
         <i className="icon-add"></i>
       </Link>
     );
@@ -323,7 +331,7 @@ export let Patients = translate()(class extends React.Component {
     let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage, user } = nextProps;
 
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
-      if (!personUtils.isClinic(user) && patients.length === 1 && invites.length === 0) {
+      if (!personUtils.isClinicianAccount(user) && patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
         this.props.history.push(`/patients/${patient.userid}/data`);
       } else if (patients.length === 0 && invites.length === 0 && showingWelcomeMessage === null) {
@@ -398,6 +406,7 @@ export function mapStateToProps(state) {
   } = state.blip.working;
 
   return {
+    clinicFlowActive: state.blip.clinicFlowActive,
     currentPatientInViewId: state.blip.currentPatientInViewId,
     invites: state.blip.pendingReceivedInvites,
     fetchingUser: fetchingUser,
@@ -405,17 +414,16 @@ export function mapStateToProps(state) {
     fetchingAssociatedAccounts,
     loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
-    patients: _.keys(patientMap).map((key) => patientMap[key]),
+    patients: _.values(patientMap),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
-    user: user,
+    user,
   }
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   acceptReceivedInvite: actions.async.acceptReceivedInvite,
   rejectReceivedInvite: actions.async.rejectReceivedInvite,
-  removePatient: actions.async.removeMembershipInOtherCareTeam,
-  deletePatientFromClinic: actions.async.deletePatientFromClinic,
+  removeMembershipInOtherCareTeam: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
@@ -441,9 +449,10 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       uploadUrl: api.getUploadUrl(),
       onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
       onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
-      onRemovePatient: dispatchProps.removePatient.bind(null, api),
+      onRemovePatient: dispatchProps.removeMembershipInOtherCareTeam.bind(null, api),
       trackMetric: ownProps.trackMetric,
       history: ownProps.history,
+      api,
     }
   );
 };

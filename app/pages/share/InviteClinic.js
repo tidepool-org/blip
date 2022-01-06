@@ -47,7 +47,7 @@ const InviteClinic = props => {
   const formikContext = useFormik({
     initialValues: {
       shareCode: '',
-      uploadPermission: false,
+      uploadPermission: true,
     },
     onSubmit: (values, { setSubmitting }) => {
       if (clinic) {
@@ -86,9 +86,8 @@ const InviteClinic = props => {
     values,
   } = formikContext;
 
-
   useEffect(() => {
-    const { inProgress, completed, notification } = fetchingClinic;
+    const { inProgress, completed } = fetchingClinic;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
@@ -97,7 +96,7 @@ const InviteClinic = props => {
 
       if (completed === false) {
         setToast({
-          message: get(notification, 'message'),
+          message: t('We were unable to find a clinic with that share code.'),
           variant: 'danger',
         });
       }
@@ -112,13 +111,13 @@ const InviteClinic = props => {
     if (!isFirstRender && !inProgress) {
       if (completed) {
         setToast({
-          message: t('Share invitation to {{clinic}} has been sent.', {
+          message: t('Share invite to {{clinic}} has been sent.', {
             clinic: clinic.name,
           }),
           variant: 'success',
         });
 
-        dispatch(push(`/patients/${loggedInUserId}/share`))
+        dispatch(push(`/patients/${loggedInUserId}/share`));
       }
 
       if (completed === false) {
@@ -136,8 +135,12 @@ const InviteClinic = props => {
     if (clinic) {
       setClinic(null);
     } else {
-      dispatch(push(`/patients/${loggedInUserId}/share`))
+      dispatch(push(`/patients/${loggedInUserId}/share`));
     }
+  };
+
+  const handleSwitchToEmailInvite = () => {
+    dispatch(push(`/patients/${loggedInUserId}/share/member`));
   };
 
   const backButtonText = clinic ? t('Cancel') : t('Back');
@@ -148,25 +151,14 @@ const InviteClinic = props => {
       as="form"
       id="invite-clinic"
       onSubmit={handleSubmit}
-      mx="auto"
-      mt={2}
-      mb={6}
-      bg="white"
-      width={[1, 0.85]}
-      sx={{
-        border: baseTheme.borders.default,
-        borderLeft: ['none', baseTheme.borders.default],
-        borderRight: ['none', baseTheme.borders.default],
-        borderRadius: ['none', baseTheme.radii.default],
-        maxWidth: '640px',
-      }}
+      variant="containers.smallBordered"
     >
       <Box
         px={[3, 4, 5]}
         py={3}
         sx={{ borderBottom: baseTheme.borders.default }}
       >
-        <Title textAlign={['center', 'left']}>{t('Share with a Clinic')}</Title>
+        <Title textAlign={['center', 'left']}>{t('Share With A Clinic')}</Title>
       </Box>
 
       <Box px={5} py={5}>
@@ -204,6 +196,18 @@ const InviteClinic = props => {
                 }}
               />
             </InputMask>
+
+            <Button
+              id="emailInviteLink"
+              variant="textTertiary"
+              mb={5}
+              px={0}
+              py={2}
+              fontSize={0}
+              onClick={handleSwitchToEmailInvite}
+            >
+              {t('Want to share data with a new member? Invite via email address')}
+            </Button>
           </>
         )}
 

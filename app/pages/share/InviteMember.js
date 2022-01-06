@@ -77,13 +77,13 @@ const InviteMember = props => {
     if (!isFirstRender && !inProgress) {
       if (completed) {
         setToast({
-          message: t('Share invitation to {{email}} has been sent.', {
+          message: t('Share invite to {{email}} has been sent.', {
             email: values.email,
           }),
           variant: 'success',
         });
 
-        dispatch(push(`/patients/${loggedInUserId}/share`))
+        dispatch(push(`/patients/${loggedInUserId}/share`));
       }
 
       if (completed === false) {
@@ -97,30 +97,23 @@ const InviteMember = props => {
     }
   }, [sendingInvite]);
 
+  const handleSwitchToShareCodeInvite = () => {
+    dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
+  };
+
   return (
     <Box
       as="form"
       id="invite-member"
       onSubmit={handleSubmit}
-      mx="auto"
-      mt={2}
-      mb={6}
-      bg="white"
-      width={[1, 0.85]}
-      sx={{
-        border: baseTheme.borders.default,
-        borderLeft: ['none', baseTheme.borders.default],
-        borderRight: ['none', baseTheme.borders.default],
-        borderRadius: ['none', baseTheme.radii.default],
-        maxWidth: '640px',
-      }}
+      variant="containers.smallBordered"
     >
       <Box
         px={[3, 4, 5]}
         py={3}
         sx={{ borderBottom: baseTheme.borders.default }}
       >
-        <Title textAlign={['center', 'left']}>{t('Share with a Member')}</Title>
+        <Title textAlign={['center', 'left']}>{t('Share With A Member')}</Title>
       </Box>
 
       <Box px={5} py={5}>
@@ -133,7 +126,7 @@ const InviteMember = props => {
           placeholder={t('Enter email address')}
           variant="condensed"
           themeProps={{
-            mb: 5
+            mb: 3
           }}
         />
 
@@ -146,6 +139,18 @@ const InviteMember = props => {
             mb: 5,
           }}
         />
+
+        <Button
+          id="shareCodeInviteLink"
+          variant="textTertiary"
+          mb={5}
+          px={0}
+          py={2}
+          fontSize={0}
+          onClick={handleSwitchToShareCodeInvite}
+        >
+          {t('Want to share data with a new clinic? Invite via clinic share code')}
+        </Button>
 
         <Flex justifyContent={['center', 'flex-end']}>
           <Button id="cancel" variant="secondary" onClick={() => dispatch(push(`/patients/${loggedInUserId}/share`))}>

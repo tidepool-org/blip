@@ -22,26 +22,42 @@ import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
-import { Flex, Box, Text } from 'rebass/styled-components';
+import { Box, Text, Flex } from 'rebass/styled-components';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import SearchIcon from '@material-ui/icons/Search';
+import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 
 import personUtils from '../../core/personutils';
-import ModalOverlay from '../modaloverlay';
-
-import Table from '../elements/Table';
+import Button from '../elements/Button';
 import Icon from '../elements/Icon';
+import Table from '../elements/Table';
+import TextInput from '../elements/TextInput';
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '../elements/Dialog';
+
+import {
+  Title,
+  MediumTitle,
+  Body1,
+} from '../elements/FontStyles';
 
 export const PeopleTable = translate()(class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleOverlayClick = this.handleOverlayClick.bind(this);
+    this.handleCloseOverlay = this.handleCloseOverlay.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleRemovePatient = this.handleRemovePatient.bind(this);
     this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
     this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
+    this.handleClearSearch = this.handleClearSearch.bind(this);
     this.handleClickPwD = this.handleClickPwD.bind(this);
     this.handleClickEdit = this.handleClickEdit.bind(this);
 
@@ -49,9 +65,9 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
       showNames: false,
       dataList: this.buildDataList(),
       showModalOverlay: false,
-      dialog: '',
       tableHeight: 590,
       search:'',
+      selectedPatient: null,
     };
 
     WindowSizeListener.DEBOUNCE_TIME = 50;
@@ -61,13 +77,14 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   UNSAFE_componentWillReceiveProps(nextProps) {
     //Watches for an update to the user list, if a clinician accepts an invitation then updates the visable user list
     if (nextProps.people !== this.props.people) {
-      this.setState( {dataList: this.buildDataList()} );
+      this.setState( {dataList: this.buildDataList(nextProps)} );
     }
   }
 
-  buildDataList() {
-    const { t } = this.props;
-    const list = _.map(this.props.people, (person) => {
+  buildDataList(props = this.props) {
+    const { t } = props;
+
+    return _.map(props.people, (person) => {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
 
       if (bday) {
@@ -84,24 +101,53 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         email: _.get(person, 'emails[0]'),
       };
     });
-
-    return list;
   }
 
-  renderSearchBar() {
+  renderHeader() {
     const { t } = this.props;
+    const hiddenStyles = { visibility: 'hidden', height: 0 };
+
     return (
-      <div className="peopletable-search">
-        <div className="peopletable-search-label">
-          {t('Patient List')}
-        </div>
-        <input
-          type="search"
-          className="peopletable-search-box form-control-border"
-          onChange={this.handleSearchChange}
-          placeholder={t('Search by Name')}
-        />
-      </div>
+      <Flex mb={4} alignItems="center" justifyContent="space-between">
+        <Title pt={4} pr={4}>
+          {t('Patients')}
+        </Title>
+
+        <Flex
+          alignItems="center"
+          flexDirection="row"
+          justifyContent="space-between"
+          flexGrow={0}
+          pt={4}
+        >
+          <TextInput
+            themeProps={{
+              width: 'auto',
+              minWidth: '250px',
+              mr: 2,
+            }}
+            id="patients-search"
+            placeholder={t('Search by Name')}
+            icon={!_.isEmpty(this.state.search) ? CloseRoundedIcon : SearchIcon}
+            iconLabel={t('Search by Name')}
+            onClickIcon={!_.isEmpty(this.state.search) ? this.handleClearSearch : null}
+            name="search-prescriptions"
+            onChange={this.handleSearchChange}
+            value={this.state.search}
+            variant="condensed"
+          />
+
+          <Button
+            id="patients-view-toggle"
+            variant="textSecondary"
+            disabled={!_.isEmpty(this.state.search)}
+            onClick={this.handleToggleShowNames}
+          >
+            <Text sx={this.state.showNames ? hiddenStyles : undefined}>{t('Show All')}</Text>
+            <Text sx={this.state.showNames ? undefined : hiddenStyles}>{t('Hide All')}</Text>
+          </Button>
+        </Flex>
+      </Flex>
     );
   }
 
@@ -115,23 +161,6 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     this.setState({ showNames: !this.state.showNames });
   }
 
-  renderShowNamesToggle() {
-    const { t } = this.props;
-    let toggleLabel = t('Hide All');
-
-    if (!this.state.showNames) {
-      toggleLabel = t('Show All');
-    }
-
-    return (
-      <div className="peopletable-names-toggle-wrapper">
-        <a className="peopletable-names-toggle" disabled={this.state.search} onClick={this.handleToggleShowNames}>
-          {toggleLabel}
-        </a>
-      </div>
-    );
-  }
-
   renderPeopleInstructions() {
     return (
       <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
@@ -140,46 +169,52 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     );
   }
 
-  renderRemoveDialog(patient) {
+  renderRemoveDialog() {
     const { t } = this.props;
-    const fullName = patient.fullName;
-    return (
-      <div className="patient-remove-dialog">
-        <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
-          <p>
-            Are you sure you want to remove patient: {{fullName}} from your list?
-          </p>
-          <p>
-            You will no longer be able to see or comment on their data.
-          </p>
-        </Trans>
-        <div className="ModalOverlay-controls">
-          <button className="btn-secondary" type="button" onClick={this.handleOverlayClick}>
-            {t('Cancel')}
-          </button>
-          <button className="btn btn-danger" type="submit" onClick={this.handleRemovePatient(patient)}>
-            {t('Remove')}
-          </button>
-        </div>
-      </div>
-    );
-  }
+    const fullName = this.state.selectedPatient?.fullName;
 
-  renderModalOverlay() {
     return (
-      <ModalOverlay
-        show={this.state.showModalOverlay}
-        dialog={this.state.dialog}
-        overlayClickHandler={this.handleOverlayClick} />
+      <Dialog
+        id="deleteUser"
+        aria-labelledBy="dialog-title"
+        open={this.state.showModalOverlay}
+        onClose={this.handleCloseOverlay}
+      >
+        <DialogTitle onClose={this.handleCloseOverlay}>
+          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: fullName })}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
+            <Body1>
+              Are you sure you want to remove patient: {{fullName}} from your list?
+            </Body1>
+            <Body1>
+              You will no longer be able to see or comment on their data.
+            </Body1>
+          </Trans>
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="patientRemoveCancel" variant="secondary" onClick={this.handleCloseOverlay}>
+            {t('Cancel')}
+          </Button>
+          <Button
+            id="patientRemoveConfirm"
+            variant="danger"
+            onClick={this.handleRemovePatient(this.state.selectedPatient)}
+          >
+            {t('Remove')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     );
   }
 
   handleRemovePatient(patient) {
     return () => {
       this.props.onRemovePatient(patient.userid, (err) => {
-        this.setState({
-          showModalOverlay: false,
-        });
+        this.handleCloseOverlay();
       });
 
       this.props.trackMetric('Web - clinician removed patient account');
@@ -190,12 +225,12 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     return () => {
       this.setState({
         showModalOverlay: true,
-        dialog: this.renderRemoveDialog(patient)
+        selectedPatient: patient,
       });
     };
   }
 
-  handleOverlayClick() {
+  handleCloseOverlay() {
     this.setState({
       showModalOverlay: false,
     });
@@ -217,6 +252,10 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   handleSearchChange(event) {
     this.setState({search: event.target.value});
+  }
+
+  handleClearSearch(event) {
+    this.setState({search: ''});
   }
 
   renderPatient = ({fullName, email, link}) => (
@@ -288,15 +327,16 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         size: 'small',
         padding: 'checkbox',
       },
-      {
-        title: t('Remove'),
-        field: 'remove',
-        render: this.renderRemove,
-        align: 'center',
-        size: 'small',
-        padding: 'checkbox',
-      },
     ];
+
+    if (_.isFunction(this.props.onRemovePatient)) columns.push({
+      title: t('Remove'),
+      field: 'remove',
+      render: this.renderRemove,
+      align: 'center',
+      size: 'small',
+      padding: 'checkbox',
+    });
 
     return (
       <Table
@@ -308,7 +348,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         order="asc"
         searchText={this.state.search}
         rowsPerPage={8}
-        pagination={true}
+        pagination={this.state.dataList.length > 8}
         style={{fontSize:'14px'}}
       />
     );
@@ -327,20 +367,23 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   render() {
     return (
       <div>
-        {this.renderSearchBar()}
-        {this.renderShowNamesToggle()}
+        {this.renderHeader()}
         {this.renderPeopleArea()}
-        {this.renderModalOverlay()}
+        {this.renderRemoveDialog()}
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
   }
 });
 
+PeopleTable.defaultProps = {
+  layout: 'page',
+};
+
 PeopleTable.propTypes = {
   people: PropTypes.array,
   trackMetric: PropTypes.func.isRequired,
-  onRemovePatient: PropTypes.func.isRequired,
+  onRemovePatient: PropTypes.func,
 };
 
 export default connect(null, { push })(PeopleTable);

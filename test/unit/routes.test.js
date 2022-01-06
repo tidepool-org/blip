@@ -4,6 +4,7 @@
 /* global it */
 /* global beforeEach */
 /* global afterEach */
+/* global context */
 
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -494,23 +495,106 @@ describe('routes', () => {
   });
 
   describe('requireNoAuth', () => {
-    it('should update route to /patients if user is authenticated', () => {
-      let api = {
-        user: {
-          isAuthenticated: sinon.stub().returns(true),
-        },
-      };
+    context('user is authenticated', () => {
+      context('clinic flow is active', () => {
+        it('should update route to /workspaces if user is not on a clinic/clinician details page', () => {
+          let api = {
+            user: {
+              isAuthenticated: sinon.stub().returns(true),
+            },
+          };
 
-      let store = mockStore({
-        blip: {},
+          let store = mockStore({
+            blip: { clinicFlowActive: true },
+          });
+
+          let expectedActions = [routeAction('/workspaces')];
+
+          store.dispatch(requireNoAuth(api));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+        });
+
+        it('should update route to /clinic-details if user needs to fill in clinic details', () => {
+          let api = {
+            user: {
+              isAuthenticated: sinon.stub().returns(true),
+            },
+          };
+
+          let store = mockStore({
+            blip: {
+              allUsersMap: {
+                clinician123: { isClinicMember: true },
+              },
+              clinicFlowActive: true,
+              clinics: {
+                clinic123: { id: 'clinic123', name: undefined },
+              },
+              loggedInUserId: 'clinician123',
+            },
+          });
+
+          let expectedActions = [
+            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
+            routeAction('/clinic-details'),
+          ];
+
+          store.dispatch(requireNoAuth(api));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+        });
       });
 
-      let expectedActions = [routeAction('/patients')];
+      context('clinic flow is inactive', () => {
+        it('should update route to /patients if user is not on a clinic/clinician details page', () => {
+          let api = {
+            user: {
+              isAuthenticated: sinon.stub().returns(true),
+            },
+          };
 
-      store.dispatch(requireNoAuth(api));
+          let store = mockStore({
+            blip: { clinicFlowActive: false },
+          });
 
-      const actions = store.getActions();
-      expect(actions).to.eql(expectedActions);
+          let expectedActions = [routeAction('/patients')];
+
+          store.dispatch(requireNoAuth(api));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+        });
+
+        it('should update route to /clinician-details if user needs to fill in their clinician profile', () => {
+          let api = {
+            user: {
+              isAuthenticated: sinon.stub().returns(true),
+            },
+          };
+
+          let store = mockStore({
+            blip: {
+              allUsersMap: {
+                clinician123: { roles: ['clinic'], profile: { clinic: undefined } },
+              },
+              clinicFlowActive: false,
+              loggedInUserId: 'clinician123',
+            },
+          });
+
+          let expectedActions = [
+            routeAction('/clinician-details'),
+          ];
+
+          store.dispatch(requireNoAuth(api));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+        });
+      });
     });
 
     it('should not update route if user is not authenticated', () => {

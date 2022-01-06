@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import bows from 'bows';
 import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { PersistFormikValues } from 'formik-persist-values';
 import each from 'lodash/each';
 import find from 'lodash/find';
+import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
@@ -25,6 +27,8 @@ import { default as _values } from 'lodash/values';
 import includes from 'lodash/includes';
 import { utils as vizUtils } from '@tidepool/viz';
 import { Box, Flex, Text } from 'rebass/styled-components';
+import canonicalize from 'canonicalize';
+import { sha512 } from 'crypto-hash';
 
 import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -33,8 +37,6 @@ import profileFormSteps from './profileFormSteps';
 import settingsCalculatorFormSteps from './settingsCalculatorFormSteps';
 import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
-import withPrescriptions from './withPrescriptions';
-import withDevices from './withDevices';
 import Button from '../../components/elements/Button';
 import Pill from '../../components/elements/Pill';
 import Stepper from '../../components/elements/Stepper';
@@ -43,21 +45,67 @@ import { useToasts } from '../../providers/ToastProvider';
 import { Headline } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 import { useIsFirstRender } from '../../core/hooks';
+import * as actions from '../../redux/actions';
+import { components as vizComponents } from '@tidepool/viz';
 
 import {
   defaultUnits,
   deviceIdMap,
-  getPumpGuardrail,
   prescriptionStateOptions,
   stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
 
 const { TextUtil } = vizUtils.text;
+const { Loader } = vizComponents;
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionForm');
 
 let schema;
+
+const prescriptionFormWrapper = Component => props => {
+  const { api } = props;
+  const dispatch = useDispatch();
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const devices = useSelector((state) => state.blip.devices);
+  const prescriptions = useSelector((state) => state.blip.prescriptions);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const prescriptionId = props.match?.params?.id;
+  const prescription = get(keyBy(prescriptions, 'id'), prescriptionId);
+
+  const {
+    fetchingDevices,
+    fetchingClinicPrescriptions,
+  } = useSelector((state) => state.blip.working);
+
+   // Fetchers
+   useEffect(() => {
+    if (loggedInUserId && selectedClinicId) {
+      forEach([
+        {
+          workingState: fetchingDevices,
+          action: actions.async.fetchDevices.bind(null, api),
+        },
+        {
+          workingState: fetchingClinicPrescriptions,
+          action: actions.async.fetchClinicPrescriptions.bind(null, api, selectedClinicId),
+        },
+      ], ({ workingState, action }) => {
+        if (
+          !workingState.inProgress &&
+          !workingState.completed &&
+          !workingState.notification
+        ) {
+          dispatch(action());
+        }
+      });
+    }
+  }, [loggedInUserId, selectedClinicId]);
+
+  return fetchingDevices.completed && fetchingClinicPrescriptions.completed
+    ? <Component prescription={prescription} devices={devices} {...props} />
+    : <Loader />;
+}
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToStatus: props => ({
@@ -66,8 +114,6 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   }),
   mapPropsToValues: props => {
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
-    const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
-    const pump = find(props.devices.pumps, { id: pumpId });
 
     return {
       id: get(props, 'prescription.id'),
@@ -198,10 +244,7 @@ export const clearCalculator = formikContext => {
 export const PrescriptionForm = props => {
   const {
     t,
-    createPrescription,
-    createPrescriptionRevision,
-    creatingPrescription,
-    creatingPrescriptionRevision,
+    api,
     devices,
     history,
     location,
@@ -209,6 +252,7 @@ export const PrescriptionForm = props => {
     trackMetric,
   } = props;
 
+  const dispatch = useDispatch();
   const formikContext = useFormikContext();
 
   const {
@@ -222,7 +266,8 @@ export const PrescriptionForm = props => {
 
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
-
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
@@ -231,7 +276,12 @@ export const PrescriptionForm = props => {
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
   const isEditable = includes(['draft', 'pending'], prescriptionState);
 
-  React.useEffect(() => {
+  const {
+    creatingPrescription,
+    creatingPrescriptionRevision,
+  } = useSelector((state) => state.blip.working);
+
+  useEffect(() => {
     // Schema needs to be recreated to account for conditional mins and maxes as values update
     schema = prescriptionSchema(devices, pumpId, bgUnits, values);
   }, [values]);
@@ -248,18 +298,18 @@ export const PrescriptionForm = props => {
   const activeStepsParam = params().get(activeStepParamKey);
   const storageKey = 'prescriptionForm';
 
-  const [formPersistReady, setFormPersistReady] = React.useState(false);
-  const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
-  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined);
-  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined);
-  const [pendingStep, setPendingStep] = React.useState([]);
-  const [initialFocusedInput, setInitialFocusedInput] = React.useState();
-  const [singleStepEditValues, setSingleStepEditValues] = React.useState(values);
+  const [formPersistReady, setFormPersistReady] = useState(false);
+  const [stepAsyncState, setStepAsyncState] = useState(asyncStates.initial);
+  const [activeStep, setActiveStep] = useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined);
+  const [activeSubStep, setActiveSubStep] = useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined);
+  const [pendingStep, setPendingStep] = useState([]);
+  const [initialFocusedInput, setInitialFocusedInput] = useState();
+  const [singleStepEditValues, setSingleStepEditValues] = useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   const isLastStep = activeStep === stepValidationFields.length - 1;
   const isNewPrescription = isEmpty(get(values, 'id'));
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Determine the latest incomplete step, and default to starting there
     if (isEditable && (isUndefined(activeStep) || isUndefined(activeSubStep))) {
       let firstInvalidStep;
@@ -297,7 +347,7 @@ export const PrescriptionForm = props => {
   }, []);
 
   // Save whether or not we are editing a single step to the formik form status for easy reference
-  React.useEffect(() => {
+  useEffect(() => {
     setStatus({
       ...status,
       isSingleStepEdit,
@@ -305,7 +355,7 @@ export const PrescriptionForm = props => {
   }, [isSingleStepEdit])
 
   // Save the hydrated localStorage values to the formik form status for easy reference
-  React.useEffect(() => {
+  useEffect(() => {
     if (formPersistReady) setStatus({
       ...status,
       hydratedValues: JSON.parse(get(localStorage, storageKey, JSON.stringify(status.hydratedValues))),
@@ -313,7 +363,7 @@ export const PrescriptionForm = props => {
   }, [formPersistReady]);
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
-  React.useEffect(() => {
+  useEffect(() => {
     const isRevision = !!get(values, 'id');
     const isDraft = get(values, 'state') === 'draft';
     const { inProgress, completed, notification, prescriptionId } = isRevision ? creatingPrescriptionRevision : creatingPrescription;
@@ -332,7 +382,7 @@ export const PrescriptionForm = props => {
             variant: 'success',
           });
 
-          history.push('/prescriptions');
+          history.push('/clinic-workspace/prescriptions');
         }
       }
 
@@ -347,7 +397,7 @@ export const PrescriptionForm = props => {
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (stepAsyncState.complete === false) {
       // Allow resubmission of form after a second
       setTimeout(() => {
@@ -384,7 +434,7 @@ export const PrescriptionForm = props => {
       handlers.activeStepUpdate(pendingStep);
     },
 
-    stepSubmit: () => {
+    stepSubmit: async () => {
       setStepAsyncState(asyncStates.pending);
       // Delete fields that we never want to send to the backend
       const fieldsToDelete = [
@@ -431,11 +481,17 @@ export const PrescriptionForm = props => {
 
       const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
       prescriptionAttributes.state = 'draft';
+      prescriptionAttributes.createdUserId = loggedInUserId;
+
+      prescriptionAttributes.revisionHash = await sha512(
+        canonicalize(prescriptionAttributes),
+        { outputFormat: 'hex' }
+      );
 
       if (isNewPrescription) {
-        createPrescription(prescriptionAttributes);
+        dispatch(actions.async.createPrescription(api, selectedClinicId, prescriptionAttributes));
       } else {
-        createPrescriptionRevision(prescriptionAttributes, values.id);
+        dispatch(actions.async.createPrescriptionRevision(api, selectedClinicId, prescriptionAttributes, values.id));
       }
     },
   };
@@ -550,7 +606,7 @@ export const PrescriptionForm = props => {
         <Button
           id="back-to-prescriptions"
           variant="primary"
-          onClick={() => props.history.push('/prescriptions')}
+          onClick={() => props.history.push('/clinic-workspace/prescriptions')}
           mr={5}
         >
           {t('Back To Prescriptions')}
@@ -585,4 +641,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default withPrescriptions(withDevices(withFormik(prescriptionForm())(translate()(PrescriptionForm))));
+export default prescriptionFormWrapper(withFormik(prescriptionForm())(translate()(PrescriptionForm)));
