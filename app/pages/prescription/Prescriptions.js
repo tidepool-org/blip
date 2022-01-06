@@ -256,7 +256,7 @@ const Prescriptions = props => {
     { title: t('MRN'), field: 'mrn', align: 'left', sortable: true, searchable: true },
     { title: t('Date of birth'), field: 'birthday', align: 'left', sortable: true, searchable: true },
     { title: t('Status'), field: 'state', render: renderState, align: 'left', sortable: true },
-    { title: '', field: 'more', render: renderMore, align: 'left' },
+    { title: '', field: 'more', render: renderMore, align: 'right' },
   ];
 
   // Handle successful or failed deletion attempts

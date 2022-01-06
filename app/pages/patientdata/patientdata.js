@@ -1189,6 +1189,7 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.standardDev);
         stats.push(commonStats.coefficientOfVariation);
         stats.push(commonStats.bgExtents);
         break;
@@ -1753,8 +1754,9 @@ export const PatientDataClass = createReactClass({
 
     this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
 
-    const patientID = this.props.currentPatientInViewId;
-    this.props.trackMetric('Fetched earlier patient data', { patientID, count });
+    const properties = { patientID: this.props.currentPatientInViewId, count };
+    if (this.props.selectedClinicId) properties.clinicId = this.props.selectedClinicId;
+    this.props.trackMetric('Fetched earlier patient data', properties);
   },
 
   hideLoading: function(timeout = 0) {
@@ -1783,8 +1785,9 @@ export const PatientDataClass = createReactClass({
         this.props.trackMetric('Web - Medtronic Import URL Param', { medtronic });
       }
 
-      const patientID = nextProps.currentPatientInViewId;
-      this.props.trackMetric('Fetched initial patient data', { patientID });
+      const properties = { patientID: nextProps.currentPatientInViewId };
+      if (this.props.selectedClinicId) properties.clinicId = this.props.selectedClinicId;
+      this.props.trackMetric('Fetched initial patient data', properties);
       this.props.trackMetric('Viewed Data');
     }
 
@@ -1854,9 +1857,21 @@ export function mapStateToProps(state, props) {
       }
       // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
       else {
-        if (!_.isEmpty(state.blip.membershipPermissionsInOtherCareTeams)) {
-          permsOfLoggedInUser = state.blip.membershipPermissionsInOtherCareTeams[state.blip.currentPatientInViewId];
-        }
+        permsOfLoggedInUser = state.blip.selectedClinicId
+        ? _.get(
+          state.blip.clinics,
+          [
+            state.blip.selectedClinicId,
+            'patients',
+            state.blip.currentPatientInViewId,
+            'permissions',
+          ],
+          {}
+        ) : _.get(
+          state.blip.membershipPermissionsInOtherCareTeams,
+          state.blip.currentPatientInViewId,
+          {}
+        );
       }
     }
   }
@@ -1878,6 +1893,7 @@ export function mapStateToProps(state, props) {
     generatingPDF: state.blip.working.generatingPDF,
     pdf: state.blip.pdf,
     data: state.blip.data,
+    selectedClinicId: state.blip.selectedClinicId,
   };
 }
 

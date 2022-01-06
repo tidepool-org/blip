@@ -1,13 +1,34 @@
 import * as yup from 'yup';
 import get from 'lodash/get';
+import includes from 'lodash/includes';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
+import moment from 'moment';
 import countries from 'i18n-iso-countries';
 
+import states from './validation/states';
+import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { phoneRegex } from '../pages/prescription/prescriptionFormConstants';
 
 const t = i18next.t.bind(i18next);
+
+yup.setLocale({
+  mixed: {
+    notType: ({ type }) => {
+      let msg = t(`Please enter a valid ${type}`);
+
+      if (type === 'date') {
+        msg += t(' in the requested format');
+      }
+
+      return msg;
+    },
+  },
+});
+
+export const dateFormat = 'YYYY-MM-DD';
+export const dateRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
 
 export const roles = [
   { value: 'clinic_manager', label: t('Clinic Manager') },
@@ -27,6 +48,7 @@ export const roles = [
 export const clinicTypes = [
   { value: 'provider_practice', label: t('Provider Practice') },
   { value: 'healthcare_system', label: t('Healthcare System') },
+  { value: 'veterinary_clinic', label: t('Veterinary Clinic') },
   { value: 'other', label: t('Other') },
 ];
 
@@ -55,23 +77,35 @@ export const clinicValuesFromClinic = (clinic) => ({
   website: get(clinic, 'website', ''),
 });
 
-export const validationSchema = yup.object().shape({
+export const clinicSchema = yup.object().shape({
   name: yup.string().required(t('Please enter an organization name')),
   address: yup.string().required(t('Please enter an address')),
   city: yup.string().required(t('Please enter a city')),
-  state: yup.string().required(t('Please enter a state')),
-  postalCode: yup.string().required(t('Please enter a zip code')),
   country: yup
     .string()
     .oneOf(keys(countries.getAlpha2Codes()))
     .required(t('Please enter a country')),
+  state: yup
+    .string()
+    .required(t('Please enter a state'))
+    .when('country', (country, schema) => !includes(keys(states), country)
+      ? schema.required(t('Please enter a state'))
+      : schema.oneOf(keys(states[country]), t('Please enter a valid state'))
+    ),
+  postalCode: yup
+    .string()
+    .required(t('Please enter a zip/postal code'))
+    .when('country', (country, schema) => !includes(keys(postalCodes), country)
+      ? schema.required(t('Please enter a zip/postal code'))
+      : schema.matches(postalCodes[country], t('Please enter a valid zip/postal code'))
+    ),
   phoneNumbers: yup.array().of(
     yup.object().shape({
       type: yup.string().required(),
       number: yup
         .string()
         .matches(phoneRegex, t('Please enter a valid phone number'))
-        .required(t('Patient phone number is required')),
+        .required(t('Clinic phone number is required')),
     }),
   ),
   clinicType: yup
@@ -82,5 +116,20 @@ export const validationSchema = yup.object().shape({
     .string()
     .oneOf(map(clinicSizes, 'value'))
     .required(t('Please select an organization size')),
-  website: yup.string(),
+  website: yup
+    .string()
+    .url(({ value }) => /^https?:\/\//.test(value)
+      ? t('Please enter a valid website address')
+      : t('Please enter a valid website address with https:// at the beginning')
+    ),
+});
+
+export const patientSchema = yup.object().shape({
+  fullName: yup.string().required(t('Please enter the patient\'s full name')),
+  birthDate: yup.date()
+    .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
+    .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
+    .required(t('Patient\'s birthday is required')),
+  mrn: yup.string(),
+  email: yup.string().email(),
 });

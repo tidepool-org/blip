@@ -562,4 +562,104 @@ describe('personutils', () => {
       expect(Object.keys(error).length).to.equal(2);
     });
   });
+
+  describe('accountInfoFromClinicPatient', () => {
+    it('should map fields from the clinic patient to a user account object', () => {
+      const clinicPatient = {
+        email: 'someEmail',
+        fullName: 'Joe Jackson',
+        birthDate: '1979-01-01',
+        mrn: 'someMRN',
+        id: 'someID',
+        permissions: { foo: 'bar' },
+      };
+
+      expect(personUtils.accountInfoFromClinicPatient(clinicPatient)).to.eql({
+        username: 'someEmail',
+        userid: 'someID',
+        permissions: { foo: 'bar' },
+        profile: {
+          fullName: 'Joe Jackson',
+          emails: ['someEmail'],
+          patient: {
+            birthday: '1979-01-01',
+            mrn: 'someMRN',
+          },
+        },
+      });
+    });
+  });
+
+  describe('clinicPatientFromAccountInfo', () => {
+    it('should map fields from the clinic patient to a user account object', () => {
+      const patient = {
+        username: 'someEmail',
+        userid: 'someID',
+        permissions: { foo: 'bar' },
+        profile: {
+          fullName: 'Joe Jackson',
+          emails: ['someEmail'],
+          patient: {
+            birthday: '1979-01-01',
+            mrn: 'someMRN',
+          },
+        },
+      };
+
+      expect(personUtils.clinicPatientFromAccountInfo(patient)).to.eql({
+        email: 'someEmail',
+        fullName: 'Joe Jackson',
+        birthDate: '1979-01-01',
+        mrn: 'someMRN',
+        id: 'someID',
+        permissions: { foo: 'bar' },
+      });
+    });
+  });
+
+  describe('combinedAccountAndClinicPatient', () => {
+    it('should provide a deeply-merged user account object, using the clinic patient object for default values, with any additional patient values added', () => {
+      const patient = {
+        username: 'anotherEmail',
+        userid: 'someID',
+        permissions: { bar: 'baz' },
+        profile: {
+          fullName: 'Joe Jackson',
+          emails: ['anotherEmail'],
+          patient: {
+            mrn: 'differentMRN',
+            diagnosisDate: '1985-01-01',
+            diabetesType: 'type1',
+            foo: 'bar',
+          },
+        },
+      };
+
+      const clinicPatient = {
+        email: 'someEmail',
+        fullName: 'Joe Jackson 2',
+        birthDate: '1979-01-01',
+        mrn: 'someMRN',
+        id: 'someID',
+        permissions: { foo: 'bar' },
+      };
+
+      expect(personUtils.combinedAccountAndClinicPatient(patient, clinicPatient)).to.eql({
+        username: 'someEmail',
+        userid: 'someID',
+        permissions: { bar: 'baz', foo: 'bar' },
+        profile: {
+          fullName: 'Joe Jackson 2',
+          emails: ['someEmail'],
+          patient: {
+            birthday: '1979-01-01',
+            mrn: 'someMRN',
+            diagnosisDate: '1985-01-01',
+            diabetesType: 'type1',
+            foo: 'bar',
+          },
+        },
+      });
+    });
+  });
 });

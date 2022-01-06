@@ -1,7 +1,9 @@
 import includes from 'lodash/includes';
 import map from 'lodash/map';
 import get from 'lodash/get';
+import isString from 'lodash/isString';
 import isNumber from 'lodash/isNumber';
+import trim from 'lodash/trim';
 
 import i18next from './language';
 
@@ -60,11 +62,18 @@ export const getThresholdWarning = (value, threshold) => {
  * @param {String} valueProp prop name to use for field value
  * @returns {Object}
  */
-export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 'value') => ({
+export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 'value', trimStrings = true) => ({
   id: fieldpath,
   name: fieldpath,
   onChange: formikContext.handleChange,
-  onBlur: formikContext.handleBlur,
+  onBlur: e => {
+    formikContext.handleBlur(e);
+
+    if (trimStrings && isString(e?.target?.[valueProp])) {
+        formikContext.setFieldTouched(fieldpath, true);
+        formikContext.setFieldValue(fieldpath, trim(e.target[valueProp]));
+    }
+  },
   error: getFieldError(fieldpath, formikContext),
   [valueProp]: formikContext.values[fieldpath],
 });

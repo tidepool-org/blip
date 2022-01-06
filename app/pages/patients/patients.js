@@ -70,7 +70,7 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.renderPatients();
 
     var backgroundClasses = cx({
-      'patients js-patients-page': this.props.clinicFlowActive,
+      'patients js-patients-page': !personUtils.isClinicianAccount(this.props.user),
       'patients-welcome js-patients-page': this.isShowingWelcomeTitle()
     });
 
@@ -157,12 +157,6 @@ export let Patients = translate()(class extends React.Component {
           <br />
           Please ask someone to invite you to see their data.
         </Trans>
-
-        {!personUtils.isPatient(this.props.user) && (
-          <Box mb={6}>
-            {this.renderAddDataStorage({ position: 'relative' })}
-          </Box>
-        )}
       </Box>
     );
   };
@@ -192,11 +186,12 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
-    if (personUtils.isClinicianAccount(this.props.user) && !this.props.clinicFlowActive) {
+    if (personUtils.isClinicianAccount(this.props.user)) {
       return (
         <Box
           variant="containers.largeBordered"
           px={4}
+          pb={6}
           width={['100%', '100%']}
         >
           <PeopleTable
@@ -228,7 +223,7 @@ export let Patients = translate()(class extends React.Component {
     );
   };
 
-  renderAddDataStorage = ({ position } = {}) => {
+  renderAddDataStorage = () => {
     const { t } = this.props;
     // Until the "child accounts" feature,
     // don't allow additional data accounts once the primary one has been setup
@@ -238,7 +233,6 @@ export let Patients = translate()(class extends React.Component {
 
     var classNames = cx({
       'patients-new-account': true,
-      'relative': position === 'relative',
     });
 
     return (

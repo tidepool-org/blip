@@ -299,6 +299,11 @@ export default (type) => {
     case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
       return 'fetchingPatientFromClinic';
 
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE:
+      return 'creatingClinicCustodialAccount';
+
     case types.UPDATE_CLINIC_PATIENT_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_FAILURE:
@@ -308,6 +313,11 @@ export default (type) => {
     case types.SEND_CLINICIAN_INVITE_SUCCESS:
     case types.SEND_CLINICIAN_INVITE_FAILURE:
       return 'sendingClinicianInvite';
+
+    case types.FETCH_CLINICIAN_INVITE_REQUEST:
+    case types.FETCH_CLINICIAN_INVITE_SUCCESS:
+    case types.FETCH_CLINICIAN_INVITE_FAILURE:
+      return 'fetchingClinicianInvite';
 
     case types.RESEND_CLINICIAN_INVITE_REQUEST:
     case types.RESEND_CLINICIAN_INVITE_SUCCESS:

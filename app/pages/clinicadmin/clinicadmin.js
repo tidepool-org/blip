@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import keys from 'lodash/keys';
@@ -10,10 +10,12 @@ import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
+import has from 'lodash/has';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import sundial from 'sundial';
 
 import {
   Title,
@@ -49,14 +51,18 @@ export const ClinicAdmin = (props) => {
   const [searchText, setSearchText] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
+  const [showRevokeInviteDialog, setShowRevokeInviteDialog] = useState(false);
+  const [selectedInvite, setSelectedInvite] = useState(null);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const fetchingCliniciansFromClinic = working.fetchingCliniciansFromClinic;
-  const allUsers = useSelector((state) => state.blip.allUsersMap);
   const clinic = get(clinics, selectedClinicId);
+  const pendingSentClinicianInvites = useSelector((state) => state.blip.pendingSentClinicianInvites);
+  const timePrefs = useSelector((state) => state.blip.timePrefs);
 
   useEffect(() => {
     const {
@@ -76,10 +82,12 @@ export const ClinicAdmin = (props) => {
         });
       } else {
         setToast({
-          message: t('Clinician invite resent.'),
+          message: t('Clinician invite resent to {{email}}.', { email: selectedInvite?.email }),
           variant: 'success',
         });
       }
+
+      closeResendInviteDialog();
     }
   }, [working.resendingClinicianInvite]);
 
@@ -101,10 +109,14 @@ export const ClinicAdmin = (props) => {
         });
       } else {
         setToast({
-          message: t('Clinician invite deleted.'),
+          message: t('Clinician invite to {{email}} has been revoked.', {
+            email: selectedInvite?.email
+          }),
           variant: 'success',
         });
       }
+
+      closeRevokeInviteDialog();
     }
   }, [working.deletingClinicianInvite]);
 
@@ -154,7 +166,6 @@ export const ClinicAdmin = (props) => {
     get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
       const { roles, email, id: clinicianId, inviteId, name = '' } = clinician;
-      const user = get(allUsers, clinicianId, {});
       let role = '';
 
       if (includes(roles, 'CLINIC_ADMIN')) {
@@ -188,7 +199,22 @@ export const ClinicAdmin = (props) => {
 
   function closeDeleteDialog() {
     setShowDeleteDialog(false);
+  }
+
+  function clearSelectedUser() {
     setSelectedUser(null);
+  }
+
+  function closeResendInviteDialog() {
+    setShowResendInviteDialog(false);
+  }
+
+  function closeRevokeInviteDialog() {
+    setShowRevokeInviteDialog(false);
+  }
+
+  function clearSelectedInvite() {
+    setSelectedInvite(null);
   }
 
   function handleSearchChange(event) {
@@ -229,20 +255,37 @@ export const ClinicAdmin = (props) => {
     );
   }
 
-  function handleResendInvite(inviteId) {
+  function handleResendInvite(invite) {
     trackMetric('Clinic - Resend clinic team invite', { clinicId: selectedClinicId });
+    setSelectedInvite(invite);
 
-    dispatch(
-      actions.async.resendClinicianInvite(api, selectedClinicId, inviteId)
-    );
+    if(!has(pendingSentClinicianInvites, invite.inviteId)){
+      dispatch(
+        actions.async.fetchClinicianInvite(
+          api,
+          selectedClinicId,
+          invite.inviteId
+        )
+      );
+    }
+
+    setShowResendInviteDialog(true);
   }
 
-  function handleDeleteInvite(inviteId) {
-    trackMetric('Clinic - Remove clinic team invite', { clinicId: selectedClinicId });
+  function handleConfirmResendInvite(inviteId) {
+    trackMetric('Clinic - Resend clinic team invite confirmed', { clinicId: selectedClinicId });
+    dispatch(actions.async.resendClinicianInvite(api, selectedClinicId, inviteId));
+  }
 
-    dispatch(
-      actions.async.deleteClinicianInvite(api, selectedClinicId, inviteId)
-    );
+  function handleRevokeInvite(invite) {
+    trackMetric('Clinic - Remove clinic team invite', { clinicId: selectedClinicId });
+    setSelectedInvite(invite);
+    setShowRevokeInviteDialog(true);
+  }
+
+  function handleConfirmRevokeInvite(inviteId) {
+    trackMetric('Clinic - Remove clinic team invite confirmed', { clinicId: selectedClinicId });
+    dispatch(actions.async.deleteClinicianInvite(api, selectedClinicId, inviteId));
   }
 
   const renderClinician = ({ fullName, email }) => (
@@ -297,7 +340,10 @@ export const ClinicAdmin = (props) => {
         iconPosition: 'left',
         id: `delete-${props.userId}`,
         variant: 'actionListItemDanger',
-        onClick: () => handleDelete(props),
+        onClick: _popupState => {
+          _popupState.close();
+          handleDelete(props);
+        },
         text: t('Remove User'),
       });
     }
@@ -306,21 +352,27 @@ export const ClinicAdmin = (props) => {
       items.push(...[
         {
           icon: InputIcon,
-          iconLabel: t('Resend Invitation'),
+          iconLabel: t('Resend Invite'),
           iconPosition: 'left',
           id: `resendInvite-${props.inviteId}`,
           variant: 'actionListItem',
-          onClick: () => handleResendInvite(props.inviteId),
-          text: t('Resend Invitation'),
+          onClick: _popupState => {
+            _popupState.close();
+            handleResendInvite(props);
+          },
+          text: t('Resend Invite'),
         },
         {
           icon: DeleteForeverIcon,
-          iconLabel: t('Delete Invitation'),
+          iconLabel: t('Revoke Invite'),
           iconPosition: 'left',
           id: `deleteInvite-${props.inviteId}`,
           variant: 'actionListItemDanger',
-          onClick: () => handleDeleteInvite(props.inviteId),
-          text: t('Delete item'),
+          onClick: _popupState => {
+            _popupState.close();
+            handleRevokeInvite(props);
+          },
+          text: t('Revoke Invite'),
         },
       ]);
     }
@@ -383,10 +435,19 @@ export const ClinicAdmin = (props) => {
         title: '',
         field: 'more',
         render: renderMore,
-        align: 'left',
+        align: 'right',
       }
     );
   }
+
+  const formattedInviteDate =
+    pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.modified &&
+    sundial.formatInTimezone(
+      pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.modified,
+      timePrefs?.timezoneName ||
+        new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      'MM/DD/YYYY [at] h:mm a'
+    );
 
   return (
     <>
@@ -441,24 +502,26 @@ export const ClinicAdmin = (props) => {
             rowHover={false}
             rowsPerPage={8}
             searchText={searchText}
-            pagination={true}
+            pagination={clinicianArray.length > 8}
             style={{ fontSize: '14px' }}
           />
         </Box>
       </Box>
+
       <Dialog
         id="deleteUser"
         aria-labelledBy="dialog-title"
         open={showDeleteDialog}
         onClose={closeDeleteDialog}
+        TransitionProps={{onExited:clearSelectedUser}}
       >
         <DialogTitle onClose={closeDeleteDialog}>
-          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: selectedUser?.fullName })}</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: selectedUser?.fullName || selectedUser?.email })}</MediumTitle>
         </DialogTitle>
 
         <DialogContent>
           <Body1>
-            {t('{{name}} will lose all access to this clinic workspace and patient list. Are you sure you want to remove this user?', { name: selectedUser?.fullName })}
+            {t('{{name}} will lose all access to this clinic workspace and patient list. Are you sure you want to remove this user?', { name: selectedUser?.fullName || selectedUser?.email })}
           </Body1>
         </DialogContent>
 
@@ -475,6 +538,81 @@ export const ClinicAdmin = (props) => {
             }}
           >
             {t('Remove User')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        id="resendInvite"
+        aria-labelledBy="dialog-title"
+        open={showResendInviteDialog && !!pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.created}
+        onClose={closeResendInviteDialog}
+        TransitionProps={{onExited:clearSelectedInvite}}
+      >
+        <DialogTitle onClose={closeResendInviteDialog}>
+          <MediumTitle id="dialog-title">{t('Confirm Resending Invite')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Body1>
+          <Trans>
+            <Text>
+              You invited <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text> to your clinic on <Text as='span' fontWeight='bold'>{{inviteDate: formattedInviteDate}}</Text>.
+            </Text>
+            <Text>
+              Are you sure you want to resend this invite?
+            </Text>
+          </Trans>
+          </Body1>
+        </DialogContent>
+
+        <DialogActions>
+          <Button variant="secondary" onClick={closeResendInviteDialog}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            variant="primary"
+            processing={working.resendingClinicianInvite.inProgress}
+            onClick={() => handleConfirmResendInvite(selectedInvite.inviteId)}
+          >
+            {t('Resend Invite')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        id="revokeInvite"
+        aria-labelledBy="dialog-title"
+        open={showRevokeInviteDialog}
+        onClose={closeRevokeInviteDialog}
+        TransitionProps={{onExited:clearSelectedInvite}}
+      >
+        <DialogTitle onClose={closeRevokeInviteDialog}>
+          <MediumTitle id="dialog-title">{t('Confirm Revoking Invite')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Body1>
+          <Trans>
+            <Text>
+              Are you sure you want to revoke this invite to <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text>?
+            </Text>
+          </Trans>
+          </Body1>
+        </DialogContent>
+
+        <DialogActions>
+          <Button variant="secondary" onClick={closeRevokeInviteDialog}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            variant="danger"
+            processing={working.deletingClinicianInvite.inProgress}
+            onClick={() => handleConfirmRevokeInvite(selectedInvite.inviteId)}
+          >
+            {t('Revoke Invite')}
           </Button>
         </DialogActions>
       </Dialog>

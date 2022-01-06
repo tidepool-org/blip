@@ -1,4 +1,4 @@
-export default ({ colors, fontSizes, radii, space }) => {
+export default ({ colors, fontSizes, radii, space, shadows }) => {
   const disabled = {
     backgroundColor: 'transparent',
     borderColor: colors.lightestGrey,
@@ -11,11 +11,11 @@ export default ({ colors, fontSizes, radii, space }) => {
     minWidth: '1em',
     ':focus': {
       outline: 'none',
-      boxShadow: `0px 0px 0px 2px ${colors.border.focus}`,
+      boxShadow: shadows.focus,
     },
     '@media (-webkit-min-device-pixel-ratio:0)': {
       ':focus': {
-        boxShadow: `0px 0px 0px 2px ${colors.border.focus}`,
+        boxShadow: shadows.focus,
       },
     },
   };

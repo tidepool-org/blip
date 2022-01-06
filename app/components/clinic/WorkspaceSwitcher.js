@@ -52,13 +52,13 @@ export const WorkspaceSwitcher = props => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
 
     if (userClinics.length) {
-      const personalWorkspaceOption = {
+      const privateWorkspaceOption = {
         id: null,
-        label: t('Personal Workspace'),
-        metric: ['Clinic - Workspace Switcher - Go to personal workspace'],
+        label: t('Private Workspace'),
+        metric: ['Clinic - Workspace Switcher - Go to private workspace'],
       };
 
-      const hidePersonalWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
+      const hidePrivateWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
 
       const options = [
         ...map(userClinics, clinic => ({
@@ -68,11 +68,11 @@ export const WorkspaceSwitcher = props => {
         })),
       ];
 
-      if (!hidePersonalWorkspaceOption) options.push(personalWorkspaceOption);
+      if (!hidePrivateWorkspaceOption) options.push(privateWorkspaceOption);
 
       setMenuOptions(options);
     }
-  }, [clinics]);
+  }, [clinics, membershipInOtherCareTeams, hasPatientProfile]);
 
   const handleSelect = option => {
     trackMetric(...option.metric);
@@ -103,7 +103,7 @@ export const WorkspaceSwitcher = props => {
           </Button>
 
           <Popover
-            width="15em"
+            minWidth="15em"
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'center',

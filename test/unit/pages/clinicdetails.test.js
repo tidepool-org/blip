@@ -31,6 +31,7 @@ describe('ClinicDetails', () => {
     api: {
       clinics: {
         getClinicianInvites: sinon.stub().callsArgWith(1, null, { invitesReturn: 'success' }),
+        dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
         update: sinon.stub().callsArgWith(2, null, { canMigrate: true }),
         triggerInitialClinicMigration: sinon.stub().callsArgWith(1, null, { triggerMigrationReturn: 'success' }),
       },
@@ -61,6 +62,7 @@ describe('ClinicDetails', () => {
         updatingClinic: defaultWorkingState,
         updatingUser: defaultWorkingState,
         triggeringInitialClinicMigration: defaultWorkingState,
+        dismissingClinicianInvite: defaultWorkingState,
       },
     },
   };
@@ -108,7 +110,12 @@ describe('ClinicDetails', () => {
   const newClinicianUserInviteState = {
     blip: {
       ...defaultState.blip,
-      pendingReceivedClinicianInvites: [ { key: 'invite123' } ],
+      pendingReceivedClinicianInvites: [
+        {
+          key: 'invite123',
+          creator: { clinicName: 'Example Health' },
+        },
+      ],
     },
   };
 
@@ -173,6 +180,7 @@ describe('ClinicDetails', () => {
   afterEach(() => {
     defaultProps.api.clinics.triggerInitialClinicMigration.resetHistory();
     defaultProps.api.clinics.getClinicianInvites.resetHistory();
+    defaultProps.api.clinics.dismissClinicianInvite.resetHistory();
     defaultProps.api.clinics.update.resetHistory();
     defaultProps.api.user.put.resetHistory();
   });
@@ -198,6 +206,55 @@ describe('ClinicDetails', () => {
     it('should fetch clinician invites', () => {
       sinon.assert.callCount(defaultProps.api.clinics.getClinicianInvites, 1);
       sinon.assert.calledWith(defaultProps.api.clinics.getClinicianInvites, 'clinicianUserId123');
+    });
+  });
+
+  describe('dismiss invitation', () => {
+    beforeEach(() => {
+      store = mockStore(newClinicianUserInviteState);
+
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicDetails {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+    });
+
+    it('should allow a clinician to decline a clinic invite', () => {
+      const declineDialog = () => wrapper.find('Dialog#declineInvite');
+      expect(declineDialog()).to.have.lengthOf(1);
+      expect(declineDialog().props().open).to.be.false;
+
+      const declineButton = wrapper.find('button.decline-invite');
+      expect(declineButton).to.have.lengthOf(1);
+      expect(declineButton.text()).to.equal('Decline Invite');
+
+      declineButton.simulate('click');
+      expect(declineDialog().props().open).to.be.true;
+
+      const dialogTitle = declineDialog().find('#dialog-title').hostNodes();
+      expect(dialogTitle).to.have.lengthOf(1);
+      expect(dialogTitle.text()).to.equal('Decline Example Health');
+
+      const confirmDeclineButton = declineDialog().find('Button[variant="danger"]');
+      expect(confirmDeclineButton).to.have.lengthOf(1);
+      expect(confirmDeclineButton.text()).to.equal('Decline Invite');
+
+      store.clearActions();
+      confirmDeclineButton.simulate('click');
+      expect(store.getActions()).to.eql([
+        {
+          type: 'DISMISS_CLINICIAN_INVITE_REQUEST',
+        },
+        {
+          type: 'DISMISS_CLINICIAN_INVITE_SUCCESS',
+          payload: {
+            inviteId: 'invite123',
+          },
+        },
+      ]);
     });
   });
 
@@ -328,11 +385,11 @@ describe('ClinicDetails', () => {
         wrapper.find('input[name="city"]').simulate('change', { persist: noop, target: { name: 'city', value: 'Gotham' } });
         expect(wrapper.find('input[name="city"]').prop('value')).to.equal('Gotham');
 
-        wrapper.find('input[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'New Jersey' } });
-        expect(wrapper.find('input[name="state"]').prop('value')).to.equal('New Jersey');
+        wrapper.find('select[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'NJ' } });
+        expect(wrapper.find('select[name="state"]').prop('value')).to.equal('NJ');
 
-        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: '65432' } });
-        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('65432');
+        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: '90210' } });
+        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('90210');
 
         wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic.com' } });
         expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
@@ -378,8 +435,8 @@ describe('ClinicDetails', () => {
               country: 'US',
               name: 'My Clinic',
               phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
-              postalCode: '65432',
-              state: 'New Jersey',
+              postalCode: '90210',
+              state: 'NJ',
               website: 'http://clinic.com',
             }
           );

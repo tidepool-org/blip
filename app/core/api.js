@@ -925,12 +925,20 @@ api.clinics.getPatientFromClinic = function(clinicId, patientId, cb) {
   return tidepool.getPatientFromClinic(clinicId, patientId, cb);
 };
 
+api.clinics.createClinicCustodialAccount = function(clinicId, patient, cb) {
+  return tidepool.createClinicCustodialAccount(clinicId, patient, cb);
+}
+
 api.clinics.updateClinicPatient = function(clinicId, patientId, patient, cb) {
   return tidepool.updateClinicPatient(clinicId, patientId, patient, cb);
 };
 
 api.clinics.inviteClinician = function(clinicId, clinician, cb) {
   return tidepool.inviteClinician(clinicId, clinician, cb);
+};
+
+api.clinics.getClinicianInvite = function(clinicId, inviteId, cb) {
+  return tidepool.getClinicianInvite(clinicId, inviteId, cb);
 };
 
 api.clinics.resendClinicianInvite = function(clinicId, inviteId, cb) {

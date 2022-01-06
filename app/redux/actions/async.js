@@ -271,8 +271,8 @@ export function login(api, credentials, options, postLoginAction) {
                   } else if (values.clinics?.length) {
                     const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
-                    if (!clinicMigration && values.clinics.length === 1 && !userHasPatientProfile && !values.associatedAccounts?.patients?.length) {
-                      // Go to the clinic workspace if only one clinic and no dsa/data-sharing
+                    if (!clinicMigration && values.clinics.length === 1) {
+                      // Go to the clinic workspace if only one clinic
                       setRedirectRoute(routes.clinicWorkspace);
                     } else {
                       // If we have an empty clinic object, go to clinic details, otherwise workspaces
@@ -1998,18 +1998,20 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
  * @param {String} [options.search] - search query string
  * @param {Number} [options.offset] - search page offset
  * @param {Number} [options.limit] - results per page
+ * @param {Number} [options.sort] - directionally prefixed field to sort by (e.g. +name or -name)
  */
 export function fetchPatientsForClinic(api, clinicId, options = {}) {
   return (dispatch) => {
     dispatch(sync.fetchPatientsForClinicRequest());
 
-    api.clinics.getPatientsForClinic(clinicId, options, (err, patients) => {
+    api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
       if (err) {
         dispatch(sync.fetchPatientsForClinicFailure(
           createActionError(ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, patients));
+        const { data, meta } = results;
+        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, meta.count));
       }
     });
   };
@@ -2059,7 +2061,33 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
           createActionError(ErrorMessages.ERR_FETCHING_PATIENT_FROM_CLINIC, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientFromClinicSuccess(patient));
+        dispatch(sync.fetchPatientFromClinicSuccess(clinicId, patient));
+      }
+    });
+  };
+}
+
+/**
+ * Create custodial Patient for Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} patient
+ * @param {String} patient.fullName - The full name of the patient
+ * @param {String} patient.birthDate - YYYY-MM-DD
+ * @param {String} [patient.mrn] - The medical record number of the patient
+ * @param {String} [patient.email] - The email address of the patient
+ */
+ export function createClinicCustodialAccount(api, clinicId, patient) {
+  return (dispatch) => {
+    dispatch(sync.createClinicCustodialAccountRequest());
+    api.clinics.createClinicCustodialAccount(clinicId, patient, (err, result) => {
+      if (err) {
+        dispatch(sync.createClinicCustodialAccountFailure(
+          createActionError(ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT, err), err
+        ));
+      } else {
+        dispatch(sync.createClinicCustodialAccountSuccess(clinicId, result.id, result));
       }
     });
   };
@@ -2072,11 +2100,10 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
  * @param {String} clinicId - Id of the clinic
  * @param {String} patientId - Id of the patient
  * @param {Object} patient - new patient
- * @param {String} patient.email - The email address of the patient
  * @param {String} patient.fullName - The full name of the patient
  * @param {String} patient.birthDate - YYYY-MM-DD
  * @param {String} [patient.mrn] - The medical record number of the patient
- * @param {String[]} [patient.targetDevices] - Array of string target devices
+ * @param {String} [patient.email] - The email address of the patient
  */
 export function updateClinicPatient(api, clinicId, patientId, patient) {
   return (dispatch) => {
@@ -2088,7 +2115,7 @@ export function updateClinicPatient(api, clinicId, patientId, patient) {
           createActionError(ErrorMessages.ERR_UPDATING_CLINIC_PATIENT, err), err
         ));
       } else {
-        dispatch(sync.updateClinicPatientSuccess(clinicId, patientId, patient));
+        dispatch(sync.updateClinicPatientSuccess(clinicId, patient.id, patient));
       }
     });
   };
@@ -2114,6 +2141,29 @@ export function sendClinicianInvite(api, clinicId, clinician) {
         ));
       } else {
         dispatch(sync.sendClinicianInviteSuccess(clinician, clinicId));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Clinician Invite Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - clinic ID
+ * @param {Object} inviteId - clinician Invite object
+ */
+ export function fetchClinicianInvite(api, clinicId, inviteId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicianInviteRequest());
+
+    api.clinics.getClinicianInvite(clinicId, inviteId, (err, invite) => {
+      if (err) {
+        dispatch(sync.fetchClinicianInviteFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicianInviteSuccess(invite, clinicId));
       }
     });
   };
@@ -2205,7 +2255,7 @@ export function fetchPatientInvites(api, clinicId) {
           createActionError(ErrorMessages.ERR_FETCHING_PATIENT_INVITES, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientInvitesSuccess(invites));
+        dispatch(sync.fetchPatientInvitesSuccess(clinicId, invites));
       }
     });
   };

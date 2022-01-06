@@ -111,7 +111,7 @@ const InviteClinic = props => {
     if (!isFirstRender && !inProgress) {
       if (completed) {
         setToast({
-          message: t('Share invitation to {{clinic}} has been sent.', {
+          message: t('Share invite to {{clinic}} has been sent.', {
             clinic: clinic.name,
           }),
           variant: 'success',
