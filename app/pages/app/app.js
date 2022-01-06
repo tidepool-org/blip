@@ -167,7 +167,10 @@ export class AppComponent extends React.Component {
       selectedClinicId,
     } = nextProps;
 
-    if (!utils.isOnSamePage(this.props, nextProps)) {
+    if (
+      !utils.isOnSamePage(this.props, nextProps) ||
+      this.props.authenticated !== authenticated
+    ) {
       this.doFetching(nextProps);
     }
 
