@@ -536,7 +536,7 @@ export const AccessManagement = (props) => {
       title: '',
       field: 'more',
       render: renderMore,
-      align: 'left',
+      align: 'right',
     },
   ];
 
