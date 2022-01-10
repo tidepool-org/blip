@@ -146,6 +146,9 @@ export const PatientDataClass = createReactClass({
           focusedSmbgRangeAvg: null,
           showingCbgDateTraces: false,
           touched: false,
+          stats: {
+            excludeDaysWithoutBolus: false,
+          },
         },
         bgLog: {
           bgSource: 'smbg',
@@ -578,7 +581,7 @@ export const PatientDataClass = createReactClass({
           id='exclude-bolus-info'
           label={(
             <Checkbox
-              checked={_.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
+              checked={_.get(state, ['chartPrefs', state.chartType, 'stats', 'excludeDaysWithoutBolus'])}
               label={t('Exclude days with no boluses')}
               onChange={this.toggleDaysWithoutBoluses}
               themeProps={{
@@ -634,8 +637,8 @@ export const PatientDataClass = createReactClass({
     }
 
     const prefs = _.cloneDeep(this.state.chartPrefs);
-    prefs.basics.stats.excludeDaysWithoutBolus = !prefs.basics.stats.excludeDaysWithoutBolus;
-    if (prefs.basics.stats.excludeDaysWithoutBolus) this.props.trackMetric('Basics exclude days without boluses');
+    prefs[this.state.chartType].stats.excludeDaysWithoutBolus = !prefs[this.state.chartType].stats.excludeDaysWithoutBolus;
+    if (prefs[this.state.chartType].stats.excludeDaysWithoutBolus) this.props.trackMetric(`${_.capitalize(this.state.chartType)} exclude days without boluses`);
     this.updateChartPrefs(prefs, false, true, true);
   },
 
@@ -676,20 +679,22 @@ export const PatientDataClass = createReactClass({
     const bgSource = this.getMetaData('bgSources.current');
     const endpoints = this.getCurrentData('endpoints');
     const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
-
     const stats = [];
 
     _.forOwn(statsData, (data, statType) => {
       const stat = getStatDefinition(data, statType, {
         bgSource,
+        collapsible: !_.includes(['averageGlucose', 'standardDev'], statType),
         days: endpoints.activeDays || endpoints.days,
         bgPrefs,
         manufacturer,
       });
 
-      if (statType === 'totalInsulin' && chartType === 'basics') {
+      if (statType === 'totalInsulin' && _.includes(['basics', 'trends'], chartType)) {
         // We nest the averageDailyDose stat within the totalInsulin stat
         stat.title = props.t('Avg. Daily Insulin Ratio');
+        stat.collapsedTitle = props.t('Avg. Daily Insulin');
+
         delete stat.dataFormat.title;
         delete stat.data.dataPaths.title;
 
@@ -721,7 +726,13 @@ export const PatientDataClass = createReactClass({
               }
             }}
           >
-            <Stats stats={[ averageDailyDoseStat ]} chartPrefs={state.chartPrefs} bgPrefs={bgPrefs} />
+            <Stats
+              bgPrefs={bgPrefs}
+              chartPrefs={state.chartPrefs}
+              persistState={false}
+              stats={[ averageDailyDoseStat ]}
+              trackMetric={this.props.trackMetric}
+            />
           </Box>
         );
 
@@ -773,7 +784,7 @@ export const PatientDataClass = createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
-        excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
+        excludeDaysWithoutBolus: _.get(this.state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
         ...commonQueries,
       };
     }
@@ -1161,6 +1172,10 @@ export const PatientDataClass = createReactClass({
         aggregations = 'basals, boluses, fingersticks, siteChanges';
         break;
 
+      case 'trends':
+        aggregations = 'boluses';
+        break;
+
       default:
         aggregations = undefined;
         break;
@@ -1218,6 +1233,8 @@ export const PatientDataClass = createReactClass({
         smbgSelected && stats.push(commonStats.readingsInRange);
         stats.push(commonStats.averageGlucose);
         cbgSelected && stats.push(commonStats.sensorUsage);
+        stats.push(commonStats.totalInsulin);
+        stats.push(commonStats.averageDailyDose);
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
         isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
@@ -1612,6 +1629,8 @@ export const PatientDataClass = createReactClass({
             cbg: {},
             smbg: {},
           };
+
+          chartQuery.aggregationsByDate = 'boluses';
           break;
       }
 

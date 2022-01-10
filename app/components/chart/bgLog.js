@@ -253,14 +253,17 @@ class BgLog extends Component {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 stats={this.props.stats}
+                trackMetric={this.props.trackMetric}
               />
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 devices={_.get(this.props, 'data.metaData.devices', [])}
-                updateChartPrefs={this.props.updateChartPrefs}
                 removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                trackMetric={this.props.trackMetric}
+                updateChartPrefs={this.props.updateChartPrefs}
               />
             </div>
           </div>
