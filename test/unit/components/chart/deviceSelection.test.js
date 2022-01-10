@@ -169,7 +169,6 @@ describe('DeviceSelection', () => {
 
   it('should track a metric when device selection accordion is collapsed or expanded', () => {
     const collapseIcon = wrapper.find('.MuiExpansionPanelSummary-expandIcon').hostNodes();
-    console.log('collapseIcon.debug()', collapseIcon.debug());
     expect(collapseIcon).to.have.lengthOf(1);
 
     sinon.assert.callCount(props.trackMetric, 0);
