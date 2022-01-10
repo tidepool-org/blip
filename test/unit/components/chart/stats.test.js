@@ -171,6 +171,9 @@ describe('Stats', () => {
 
         expect(dailyDoseStat().props().isOpened).to.be.false;
         expect(dailyDoseStat().props().title).to.equal('Daily Dose Collapsed');
+
+        expect(carbStat.props().isOpened).to.be.true;
+        expect(carbStat.props().title).to.equal('Carbs');
       });
 
       it('should track metrics for collapse and expand clicks', () => {
