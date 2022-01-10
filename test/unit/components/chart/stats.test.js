@@ -146,9 +146,9 @@ describe('Stats', () => {
 
         // non-collapsible stats should always be open and use the standard title prop,
         // even if collapsed state in local storage is `true`
-        const carbStat = wrapper.find('#Stat--carbs').childAt(0);
-        expect(carbStat.props().isOpened).to.be.true;
-        expect(carbStat.props().title).to.equal('Carbs');
+        const carbStat = () => wrapper.find('#Stat--carbs').childAt(0);
+        expect(carbStat().props().isOpened).to.be.true;
+        expect(carbStat().props().title).to.equal('Carbs');
 
         // collapsible stat should follow the collapsed state
         const dailyDoseStat = () => wrapper.find('#Stat--averageDailyDose').childAt(0);
@@ -172,8 +172,8 @@ describe('Stats', () => {
         expect(dailyDoseStat().props().isOpened).to.be.false;
         expect(dailyDoseStat().props().title).to.equal('Daily Dose Collapsed');
 
-        expect(carbStat.props().isOpened).to.be.true;
-        expect(carbStat.props().title).to.equal('Carbs');
+        expect(carbStat().props().isOpened).to.be.true;
+        expect(carbStat().props().title).to.equal('Carbs');
       });
 
       it('should track metrics for collapse and expand clicks', () => {
