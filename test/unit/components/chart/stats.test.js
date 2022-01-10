@@ -109,11 +109,12 @@ describe('Stats', () => {
     });
 
     describe('collapse state', () => {
-      after(() => {
+      afterEach(() => {
         Stats.__ResetDependency__('useLocalStorage');
+        baseProps.trackMetric.resetHistory();
       });
 
-      it('should render the stats with correct `isOpened` and `title` props', () => {
+      it('should render the stats with correct `isOpened` and `title` props from localStorage', () => {
         Stats.__Rewire__('useLocalStorage', sinon.stub().returns([
           {
             basics: {
@@ -170,6 +171,41 @@ describe('Stats', () => {
 
         expect(dailyDoseStat().props().isOpened).to.be.false;
         expect(dailyDoseStat().props().title).to.equal('Daily Dose Collapsed');
+      });
+
+      it('should track metrics for collapse and expand clicks', () => {
+        Stats.__Rewire__('useLocalStorage', sinon.stub().returns([
+          {
+            basics: {
+              // collapsed state of stats
+              averageDailyDose: false,
+            },
+          },
+          sinon.stub()
+        ]));
+
+        wrapper.setProps({
+          ...wrapper.props(),
+          stats: [
+            {
+              id: 'averageDailyDose',
+              collapsible: true,
+              title: 'Daily Dose',
+              collapsedTitle: 'Daily Dose Collapsed',
+            },
+          ],
+        });
+
+        const dailyDoseStat = () => wrapper.find('#Stat--averageDailyDose').childAt(0);
+
+        expect(dailyDoseStat().props().isOpened).to.be.true;
+        sinon.assert.callCount(baseProps.trackMetric, 0);
+
+        dailyDoseStat().props().onCollapse(true);
+        sinon.assert.calledWith(baseProps.trackMetric, 'Click collapsed - Basics - averageDailyDose');
+
+        dailyDoseStat().props().onCollapse(false);
+        sinon.assert.calledWith(baseProps.trackMetric, 'Click expanded - Basics - averageDailyDose');
       });
     });
   });
