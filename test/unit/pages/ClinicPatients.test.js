@@ -300,7 +300,7 @@ describe('ClinicPatients', () => {
         expect(table.find('tr').at(1).text()).contains('1999-01-01');
         expect(table.find('tr').at(2).text()).contains('Patient Two');
         expect(table.find('tr').at(2).text()).contains('1999-02-02');
-        // expect(table.find('tr').at(2).text()).contains('mrn123'); // Temporarily disable WEB-1302 for Clinic UI LMR
+        expect(table.find('tr').at(2).text()).contains('mrn123');
       });
 
       it('should allow searching patients', (done) => {
