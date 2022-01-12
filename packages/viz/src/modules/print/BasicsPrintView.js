@@ -86,7 +86,7 @@ class BasicsPrintView extends PrintView {
 
     this.data = reduceByDay(this.data, this.bgPrefs);
 
-    const averageDailyCarbs = _.get(this.data, "stats.carbs.data.raw.carbs");
+    const averageDailyCarbs = _.get(this.data, "stats.carbs.data.raw.foodCarbsPerDay");
     const totalDailyDose = _.get(this.data, "stats.averageDailyDose.data.raw.totalInsulin");
     const { basal, bolus } = _.get(this.data, "stats.totalInsulin.data.raw", {});
     const averageDailyDose = { basal, bolus };

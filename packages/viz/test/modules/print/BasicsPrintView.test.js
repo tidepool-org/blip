@@ -91,7 +91,7 @@ describe("BasicsPrintView", () => {
       averageGlucose: 120,
     } } },
     carbs: { data: { raw: {
-      carbs: 10.2,
+      foodCarbsPerDay: 10.2,
     } } },
     readingsInRange: { data: {
       raw: {
