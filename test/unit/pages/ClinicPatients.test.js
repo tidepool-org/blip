@@ -187,7 +187,7 @@ describe('ClinicPatients', () => {
       expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show.');
     });
 
-    it.skip('should open a modal for adding a new patient', done => {
+    it('should open a modal for adding a new patient', done => {
       const addButton = wrapper.find('button#add-patient');
       expect(addButton.text()).to.equal('Add a New Patient');
 
@@ -372,7 +372,7 @@ describe('ClinicPatients', () => {
         expect(wrapper.find(Popover).at(0).props().open).to.be.true;
       });
 
-      it.skip('should open a modal for patient editing when edit link is clicked', done => {
+      it('should open a modal for patient editing when edit link is clicked', done => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
