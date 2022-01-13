@@ -12,6 +12,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1109 YourLoops main menu sometimes do not disappear as it should
 - YLP-1116 Missing password strength meter into reset password page
 - YLP-1148 Average daily carbs is null in PDF report
+- YLP-1169 Fix German translation of Dietitian
 ### Engineering Use
 - YLP-1082 Improve daily view rendering
 - YLP-1114 Review routes and data structure for message-api
