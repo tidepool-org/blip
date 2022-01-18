@@ -147,6 +147,20 @@ To run the unit tests in watch mode, use:
 $ npm run test-watch
 ```
 
+To debug unit test, use:
+
+```bash
+$ npm run test-yourloops-debug
+```
+Once webpack has built, go to http://localhost:9876 to run the test. Click on the debug button, open devtools, go to "Sources" and open the file to debug. Breakpoints can be used (in devtools).
+
+To run specific test(s), use :
+```javascript
+describe.only('test name')
+//or
+it.only('test name')
+```
+
 ## Independent server for production or docker
 
 For a production ready archive, or an independent docker image, the `server` directory is used.

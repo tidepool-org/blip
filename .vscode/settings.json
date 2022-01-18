@@ -6,5 +6,8 @@
   "typescript.preferences.quoteStyle": "double",
   "eslint.workingDirectories": [{
     "pattern": "./packages/*/"
-  }]
+  }],
+  "[markdown]": {
+    "files.trimTrailingWhitespace": false,
+  }
 }

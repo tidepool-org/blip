@@ -16,6 +16,7 @@ It is based on Tidepool Blip 1.27.
 ### Engineering Use
 - YLP-1082 Improve daily view rendering
 - YLP-1114 Review routes and data structure for message-api
+- YLP-1172 Cannot debug unit test of blip (front)
 
 ## 2.0.5 - 2021-12-06
 ### Improvements

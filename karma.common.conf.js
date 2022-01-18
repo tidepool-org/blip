@@ -139,28 +139,38 @@ let updatedConfig = null;
  * @param {object} webpackConfig Project webpack config
  * @param {boolean} typescriptProject true for typescript project
  */
-function updateDefaultConfig(projectName, karmaConfig, webpackConfig, typescriptProject=false) {
+function updateDefaultConfig(projectName, karmaConfig, webpackConfig, typescriptProject = false) {
   delete webpackConfig.entry;
   delete webpackConfig.output;
   webpackConfig.devtool = "inline-source-map";
   if (typescriptProject) {
     webpackConfig.module.rules[0].options = { configFile: "test/tsconfig.json" };
   }
-
-  webpackConfig.module.rules.push({
-    test: typescriptProject ? /\.tsx?$/ : /\.jsx?$/,
-    exclude: /node_modules/,
-    loader: "@jsdevtools/coverage-istanbul-loader",
-    enforce: "post",
-    options: {
-      esModules: true,
-    },
-  });
-
   updatedConfig = _.defaultsDeep(karmaConfig, defaultConfig);
+
+  // special config for unit test debug
+  if (process.env.DEBUG_UNIT_TEST === "true") {
+    // since we're in debug, we do not want to run tests in headless
+    // we wait for a manual chrome visit to localhost:9876 to start tests
+    updatedConfig.browsers = [];
+    updatedConfig.customLaunchers = {};
+    updatedConfig.port = "9876";
+    updatedConfig.reporters = ["mocha", "junit", "progress"];
+  } else {
+    updatedConfig.coverageIstanbulReporter.dir = path.join(__dirname, `coverage/${projectName}`);
+    webpackConfig.module.rules.push({
+      test: typescriptProject ? /\.tsx?$/ : /\.jsx?$/,
+      exclude: /node_modules/,
+      loader: "@jsdevtools/coverage-istanbul-loader",
+      enforce: "post",
+      options: {
+        esModules: true,
+      },
+    });
+  }
+
   updatedConfig.files.unshift("../../node-compat.js");
   updatedConfig.webpack = webpackConfig;
-  updatedConfig.coverageIstanbulReporter.dir = path.join(__dirname, `coverage/${projectName}`);
   updatedConfig.junitReporter.name = projectName;
   updatedConfig.junitReporter.filename = path.join(__dirname, `reports/${projectName}.junit.xml`);
 }
