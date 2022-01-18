@@ -394,8 +394,8 @@ export const AccessManagement = (props) => {
         />
       ) : (
         <Pill
-          text={t('shared')}
-          label={t('shared')}
+          text={t('sharing')}
+          label={t('sharing')}
           colorPalette="indigos" />
       )}
     </Box>
