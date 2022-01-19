@@ -12,6 +12,7 @@ import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
+import indexOf from 'lodash/indexOf';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
@@ -239,7 +240,7 @@ export const AccessManagement = (props) => {
         name: personUtils.fullName(allUsers[memberId]),
         nameOrderable: (personUtils.fullName(allUsers[memberId]) || '').toLowerCase(),
         permissions: get(permissionsOfMembersInTargetCareTeam, [memberId]),
-        role: 'member',
+        role: hasClinicRole(allUsers[memberId]) ? 'clinician' : 'member',
         type: 'account',
         uploadPermission: !!get(permissionsOfMembersInTargetCareTeam, [memberId, 'upload']),
       }))),
@@ -307,6 +308,10 @@ export const AccessManagement = (props) => {
       })
     }
   }, [selectedSharedAccount]);
+
+  function hasClinicRole(user){
+    return indexOf(get(user, 'roles', []), 'clinic') !== -1
+  }
 
   function handleUploadPermissionsToggle(member) {
     trackMetric(`upload permission turned ${member.uploadPermission ? 'off' : 'on'}`);
