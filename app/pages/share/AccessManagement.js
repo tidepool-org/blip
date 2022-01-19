@@ -397,7 +397,12 @@ export const AccessManagement = (props) => {
           label={status === 'pending' ? t('invite sent') : t('invite declined')}
           colorPalette={status === 'pending' ? colors.status.pending : colors.status.declined}
         />
-      ) : ''}
+      ) : (
+        <Pill
+          text={t('sharing')}
+          label={t('sharing')}
+          colorPalette="indigos" />
+      )}
     </Box>
   );
 

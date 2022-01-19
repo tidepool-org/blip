@@ -354,7 +354,7 @@ describe('AccessManagement', () => {
       const table = wrapper.find(Table)
 
       const accountRow = table.find('tr').at(2);
-      expect(accountRow.text()).contains('Fooey McBear').and.contains('member');
+      expect(accountRow.text()).contains('Fooey McBear').and.contains('member').and.contains('sharing');
 
       const popoverMenu = accountRow.find('PopoverMenu');
       expect(popoverMenu).to.have.length(1);
