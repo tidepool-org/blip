@@ -32,7 +32,7 @@ import Header from "./header";
 import Footer from "./footer";
 
 /**
- * @typedef {import("tideline").TidelineData} TidelineData *
+ * @typedef { import("tideline").TidelineData } TidelineData
  * @typedef { import("../../index").DatePicker } DatePicker
 */
 
@@ -544,7 +544,7 @@ class Daily extends React.Component {
 
   updateDatumHoverForTooltip(datum) {
     /** @type {{ epochLocation: number, bgPrefs: {}, tidelineData: TidelineData }} */
-    const { epochLocation, bgPrefs, tidelineData } = this.props;
+    const { epochLocation, bgPrefs } = this.props;
     const rect = datum.rect;
     // range here is -12 to 12
     const hoursOffset = (datum.data.epoch - epochLocation) / MS_IN_HOUR;
@@ -557,7 +557,7 @@ class Daily extends React.Component {
       datum.left = rect.left + rect.width;
     }
     datum.bgPrefs = bgPrefs;
-    datum.timePrefs = tidelineData.opts.timePrefs;
+    datum.timePrefs = { timezoneAware: true, timezoneName: datum.timezone };
     return datum;
   }
 

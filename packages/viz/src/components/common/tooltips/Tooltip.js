@@ -159,7 +159,7 @@ class Tooltip extends React.PureComponent {
       tailNode = this.renderTail(styles.tooltipTitleBg);
     }
     if (title) {
-      renderedTitle =<span>{title}</span>;
+      renderedTitle =<span id="tooltip-daily-title-text">{title}</span>;
     }
     if (dateTitle) {
       let dateValue = null;
@@ -174,7 +174,7 @@ class Tooltip extends React.PureComponent {
         const time = formatLocalizedFromUTC(dateTitle.normalTime, dateTitle.timePrefs, getHourMinuteFormat());
         dateValue = time;
       }
-      renderedDateTitle = <span className={styles.titleDate}>{dateValue}</span>;
+      renderedDateTitle = <span id="tooltip-daily-title-date" className={styles.titleDate}>{dateValue}</span>;
     }
 
     if (renderedDateTitle === null && renderedTitle === null) {
@@ -201,7 +201,7 @@ class Tooltip extends React.PureComponent {
         tailNode = this.renderTail();
       }
       renderedContent = (
-        <div className={styles.content}>
+        <div id="tooltip-daily-content" className={styles.content}>
           <span>{content}</span>
           {tailNode}
         </div>

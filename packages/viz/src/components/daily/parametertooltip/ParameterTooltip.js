@@ -19,8 +19,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
 import i18next from "i18next";
+import moment from "moment-timezone";
 
-import { formatLocalizedFromUTC, getHourMinuteFormat } from "../../../utils/datetime";
+import { getHourMinuteFormat } from "../../../utils/datetime";
 import { formatParameterValue } from "../../../utils/format";
 import Tooltip from "../../common/tooltips/Tooltip";
 import colors from "../../../styles/colors.css";
@@ -34,29 +35,30 @@ class ParameterTooltip extends React.Component {
   }
 
   renderParameter(parameter) {
+    const parameterId = parameter.id;
     let previousValue = null;
     let prevToNext = null;
     let valueClassName = styles.value;
     if (typeof parameter.previousValue === "string") {
       const previous = formatParameterValue(parameter.previousValue, parameter.units);
-      previousValue = <span className={styles.previous} key={`${parameter.id}-prev`}>{previous}</span>;
-      prevToNext = <span key={`${parameter.id}-arrow`}>&rarr;</span>;
+      previousValue = <span id={`tooltip-daily-parameter-${parameterId}-prev`} className={styles.previous} key={`${parameterId}-prev`}>{previous}</span>;
+      prevToNext = <span id={`tooltip-daily-parameter-${parameterId}-arrow`} key={`${parameterId}-arrow`}>&rarr;</span>;
     } else {
       valueClassName = `${valueClassName} ${styles["value-no-prev"]}`;
     }
 
-    const displayHour = formatLocalizedFromUTC(
-      parameter.normalTime, this.props.timePrefs, this.hourMinuteFormat);
-
+    const displayHour = moment.tz(parameter.epoch, parameter.timezone).format(this.hourMinuteFormat);
     const value = formatParameterValue(parameter.value, parameter.units);
 
     return [
-      <span className={styles.date} key={`${parameter.id}-date`}>{displayHour}</span>,
-      <span className={styles.label} key={`${parameter.id}-name`}>{i18next.t(`params|${parameter.name}`)}</span>,
+      <span id={`tooltip-daily-parameter-${parameterId}-date`} className={styles.date} key={`${parameterId}-date`}>{displayHour}</span>,
+      <span id={`tooltip-daily-parameter-${parameterId}-name`} className={styles.label} key={`${parameterId}-name`}>
+        {i18next.t(`params|${parameter.name}`)}
+      </span>,
       previousValue,
       prevToNext,
-      <span className={valueClassName} key={`${parameter.id}-value`}>{value}</span>,
-      <span className={styles.units} key={`${parameter.id}-units`}>{i18next.t(parameter.units)}</span>,
+      <span id={`tooltip-daily-parameter-${parameterId}-value`} className={valueClassName} key={`${parameterId}-value`}>{value}</span>,
+      <span id={`tooltip-daily-parameter-${parameterId}-units`} className={styles.units} key={`${parameterId}-units`}>{i18next.t(parameter.units)}</span>,
     ];
   }
 
@@ -67,7 +69,7 @@ class ParameterTooltip extends React.Component {
     }
 
     return (
-      <div className={styles.container}>
+      <div id="tooltip-daily-parameters" className={styles.container}>
         {rows}
       </div>
     );
@@ -119,10 +121,12 @@ ParameterTooltip.propTypes = {
   borderWidth: PropTypes.number,
   parameter: PropTypes.shape({
     normalTime: PropTypes.string.isRequired,
+    timezone: PropTypes.string.isRequired,
     params: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string.isRequired,
         normalTime: PropTypes.string.isRequired,
+        timezone: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
         value: PropTypes.string.isRequired,
         previousValue: PropTypes.string,

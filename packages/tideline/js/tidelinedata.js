@@ -593,6 +593,7 @@ TidelineData.prototype.setDeviceParameters = function setDeviceParameters() {
     let group = {
       epoch: first.epoch,
       normalTime: first.normalTime,
+      timezone: this.getTimezoneAt(first.epoch),
       id: first.id,
       params: [first],
     };
@@ -607,6 +608,7 @@ TidelineData.prototype.setDeviceParameters = function setDeviceParameters() {
           group = {
             epoch: item.epoch,
             normalTime: item.normalTime,
+            timezone: this.getTimezoneAt(item.epoch),
             id: item.id,
             params: [item],
           };
