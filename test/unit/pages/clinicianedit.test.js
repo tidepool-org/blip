@@ -16,6 +16,7 @@ import Checkbox from '../../../app/components/elements/Checkbox';
 /* global beforeEach */
 /* global before */
 /* global after */
+/* global context */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -29,6 +30,7 @@ describe('ClinicianEdit', () => {
     t: sinon.stub().callsFake((string) => string),
     api: {
       clinics: {
+        getCliniciansFromClinic: sinon.stub(),
         updateClinician: sinon.stub().callsArgWith(3, null, {}),
       },
     },
@@ -132,6 +134,10 @@ describe('ClinicianEdit', () => {
   });
 
   const noClinicianState = { state: {} };
+
+  const missingClinicianState = {
+    state: { clinicId: 'clinicID456', clinicianId: 'clinicianUserIdMissing' },
+  };
 
   const clinicianState = {
     state: { clinicId: 'clinicID456', clinicianId: 'clinicianUserId123' },
@@ -300,6 +306,36 @@ describe('ClinicianEdit', () => {
       expect(permissionsDialog().props().open).to.be.true;
 
       expect(permissionsDialog().find('#dialog-title').hostNodes().text()).to.equal('Clinician Roles and Permissions');
+    });
+  });
+
+  context('clinicians not fetched', () => {
+    before(() => {
+      ClinicianEdit.__Rewire__(
+        'useLocation',
+        sinon.stub().returns(missingClinicianState)
+      );
+    });
+
+    after(() => {
+      ClinicianEdit.__ResetDependency__('useLocation');
+    });
+
+    it('should fetch clinicians for a clinic if not already fetched', () => {
+      const initialState = { ...fetchedDataState };
+      initialState.blip.working.fetchingCliniciansFromClinic.completed = false;
+      store = mockStore(initialState);
+
+      defaultProps.trackMetric.resetHistory();
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicianEdit {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      sinon.assert.calledWith(defaultProps.api.clinics.getCliniciansFromClinic, 'clinicID456', { limit: 1000, offset: 0 });
     });
   });
 });
