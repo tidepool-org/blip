@@ -103,7 +103,7 @@ const webpackConfig = {
   stats: "minimal", // See https://webpack.js.org/configuration/stats/
 
   // Enable sourcemaps for debugging webpack's output.
-  devtool: isTest ? "inline-source-map" : "source-map",
+  devtool: isTest || isDev ? "inline-source-map" : "source-map",
   // todo: enhance this part
   devServer: {
     allowedHosts: "auto",
