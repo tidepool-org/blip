@@ -112,7 +112,7 @@ function doCompare(a: TeamUser, b: TeamUser, orderBy: SortFields): number {
   return aValue - bValue;
 }
 
-function updatePatientList(
+export function updatePatientList(
   teamHook: TeamContext,
   flagged: string[],
   filter: string,
@@ -122,13 +122,14 @@ function updatePatientList(
   sortFlaggedFirst: boolean
 ): TeamUser[] {
   const allPatients = teamHook.getPatients();
-
   let patients: Readonly<TeamUser>[];
-  if (filterType !== FilterType.pending) {
-    // Do not display pending invitation if not requested
-    patients = allPatients.filter((patient) => !teamHook.isOnlyPendingInvitation(patient));
+  if (!(filterType in FilterType)) {
+    //filterType is a team id, retrieve all patients not pending in given team
+    patients = allPatients.filter((patient) => !teamHook.isUserInvitationPending(patient, filterType));
+  } else if (filterType === FilterType.pending) {
+    patients = allPatients.filter((patient) => teamHook.isInvitationPending(patient));
   } else {
-    patients = allPatients.filter((patient) => teamHook.isOnlyPendingInvitation(patient));
+    patients = allPatients.filter((patient) => !teamHook.isOnlyPendingInvitation(patient));
   }
 
   const searchByName = filter.length > 0;
@@ -381,6 +382,7 @@ function PatientListPage(): JSX.Element {
           flagged={flagged}
           order={order}
           orderBy={orderBy}
+          filter={filterType}
           onClickPatient={handleSelectPatient}
           onFlagPatient={handleFlagPatient}
           onSortList={handleSortList}

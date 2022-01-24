@@ -26,14 +26,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { expect } from "chai";
+import React from "react";
+import { render, unmountComponentAtNode } from "react-dom";
+import { act } from "react-dom/test-utils";
 import * as sinon from "sinon";
-import { TeamAPI } from "../../../lib/team";
+import { AuthContextProvider } from "../../../lib/auth";
+import { Team, TeamAPI, TeamContext, TeamContextProvider, TeamMember, TeamUser, useTeam } from "../../../lib/team";
+import { UserInvitationStatus } from "../../../models/generic";
 import {
-  teams,
-  members,
-  patients,
-  emptyTeam3,
+  emptyTeam3, members,
+  patients, teams
 } from "../../common";
+import { authHookHcp } from "../auth/hook.test";
+import { directShareAPI } from "../direct-share/hook.test";
 
 export const teamAPI: TeamAPI = {
   fetchTeams: sinon.stub().resolves(teams),
@@ -67,3 +73,111 @@ export function resetTeamAPIStubs(): void {
   (teamAPI.fetchTeams as sinon.SinonStub).resolves(teams);
   (teamAPI.fetchPatients as sinon.SinonStub).resolves(patients);
 }
+
+export function testTeamHook(): void {
+  let container: HTMLElement | null = null;
+
+  let teamHook: TeamContext;
+
+  async function mountComponent(): Promise<void> {
+    const DummyComponent = (): JSX.Element => {
+      teamHook = useTeam();
+      return (<div />);
+    };
+    await act(() => {
+      return new Promise(resolve => render(
+        <AuthContextProvider value={authHookHcp}>
+          <TeamContextProvider teamAPI={teamAPI} directShareAPI={directShareAPI}>
+            <DummyComponent />
+          </TeamContextProvider>
+        </AuthContextProvider>,
+        container, resolve)
+      );
+    });
+  }
+
+  beforeEach(async () => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    await mountComponent();
+  });
+
+  afterEach(() => {
+    if (container) {
+      unmountComponentAtNode(container);
+      container.remove();
+      container = null;
+    }
+  });
+
+  describe("isUserInvitationPending", () => {
+    it("should return true when team user has a pending status in given team", () => {
+      const teamId = "fakeTeamId";
+      const teamUser: TeamUser = {
+        members: [
+          {
+            team: { id: teamId } as Team,
+            status: UserInvitationStatus.pending,
+          } as TeamMember,
+        ],
+      } as TeamUser;
+
+      const res = teamHook.isUserInvitationPending(teamUser, teamId);
+      expect(res).to.be.true;
+    });
+
+    it("should return false when team user does not have a pending status in given team", () => {
+      const teamId = "fakeTeamId";
+      const teamUser: TeamUser = {
+        members: [
+          {
+            team: { id: teamId } as Team,
+            status: UserInvitationStatus.accepted,
+          } as TeamMember,
+        ],
+      } as TeamUser;
+
+      const res = teamHook.isUserInvitationPending(teamUser, teamId);
+      expect(res).to.be.false;
+    });
+
+    describe("isInAtLeastATeam", () => {
+      it("should return false when team user does not have an accepted status in any team", () => {
+        const teamUser: TeamUser = {
+          members: [
+            {
+              team: { id: "teamId1" } as Team,
+              status: UserInvitationStatus.pending,
+            } as TeamMember,
+            {
+              team: { id: "teamId2" } as Team,
+              status: UserInvitationStatus.pending,
+            } as TeamMember,
+          ],
+        } as TeamUser;
+
+        const res = teamHook.isInAtLeastATeam(teamUser);
+        expect(res).to.be.false;
+      });
+
+      it("should return true when team user does has an accepted status in a team", () => {
+        const teamUser: TeamUser = {
+          members: [
+            {
+              team: { id: "teamId1" } as Team,
+              status: UserInvitationStatus.pending,
+            } as TeamMember,
+            {
+              team: { id: "teamId2" } as Team,
+              status: UserInvitationStatus.accepted,
+            } as TeamMember,
+          ],
+        } as TeamUser;
+
+        const res = teamHook.isInAtLeastATeam(teamUser);
+        expect(res).to.be.true;
+      });
+    });
+  });
+}
+

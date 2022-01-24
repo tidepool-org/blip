@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { SortDirection, SortFields } from "../../../models/generic";
+import { FilterType, SortDirection, SortFields } from "../../../models/generic";
 import { TeamUser } from "../../../lib/team";
 
 export interface PatientListProps {
@@ -34,6 +34,7 @@ export interface PatientListProps {
   flagged: string[];
   order: SortDirection;
   orderBy: SortFields;
+  filter?: FilterType | string;
   onClickPatient: (user: TeamUser) => void;
   onFlagPatient: (userId: string) => Promise<void>;
   onSortList: (field: SortFields, direction: SortDirection) => void;
@@ -44,6 +45,7 @@ export interface PatientElementProps {
   trNA: string;
   patient: TeamUser;
   flagged: string[];
+  filter?: FilterType | string;
   onClickPatient: (user: TeamUser) => void;
   onFlagPatient: (userId: string) => Promise<void>;
   onClickRemovePatient: (patient: TeamUser) => void;

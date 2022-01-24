@@ -48,7 +48,7 @@ import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 import IconActionButton from "../../../components/buttons/icon-action";
 import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
 
-import { SortDirection, SortFields } from "../../../models/generic";
+import { FilterType, SortDirection, SortFields } from "../../../models/generic";
 import { MedicalData } from "../../../models/device-data";
 import metrics from "../../../lib/metrics";
 import { getUserFirstName, getUserLastName } from "../../../lib/utils";
@@ -86,7 +86,7 @@ const patientListStyle = makeStyles(
 );
 
 function PatientRow(props: PatientElementProps): JSX.Element {
-  const { trNA, patient, flagged, onClickPatient, onFlagPatient, onClickRemovePatient } = props;
+  const { trNA, patient, flagged, filter, onClickPatient, onFlagPatient, onClickRemovePatient } = props;
   const { t } = useTranslation("yourloops");
   const authHook = useAuth();
   const teamHook = useTeam();
@@ -123,6 +123,8 @@ function PatientRow(props: PatientElementProps): JSX.Element {
   const rowId = `patients-list-row-${userId.replace(/@/g, "_")}`;
   const session = authHook.session();
   const isPendingInvitation = teamHook.isOnlyPendingInvitation(patient);
+  const hasPendingInvitation = teamHook.isInvitationPending(patient);
+  const isAlreadyInATeam = teamHook.isInAtLeastATeam(patient);
 
   React.useEffect(() => {
     const observedElement = rowRef.current;
@@ -161,7 +163,7 @@ function PatientRow(props: PatientElementProps): JSX.Element {
     return _.noop;
   }, [medicalData, patient, session, isPendingInvitation, teamHook, rowRef]);
 
-  const firstRowIcon = isPendingInvitation ?
+  const firstRowIcon = filter === FilterType.pending && hasPendingInvitation ?
     (<Tooltip
       id={`${rowId}-tooltip-pending`}
       title={t("pending-invitation") as string}
@@ -182,7 +184,7 @@ function PatientRow(props: PatientElementProps): JSX.Element {
       id={rowId}
       tabIndex={-1}
       hover
-      onClick={isPendingInvitation ? undefined : onRowClick}
+      onClick={hasPendingInvitation && !isAlreadyInATeam ? undefined : onRowClick}
       className={`${classes.tableRow} patients-list-row`}
       data-userid={userId}
       data-email={email}
@@ -206,7 +208,7 @@ function PatientRow(props: PatientElementProps): JSX.Element {
 }
 
 function PatientListTable(props: PatientListProps): JSX.Element {
-  const { patients, flagged, order, orderBy, onClickPatient, onFlagPatient, onSortList, onClickRemovePatient } = props;
+  const { patients, flagged, order, filter, orderBy, onClickPatient, onFlagPatient, onSortList, onClickRemovePatient } = props;
   const { t } = useTranslation("yourloops");
   const classes = patientListStyle();
   const trNA = t("N/A");
@@ -218,6 +220,7 @@ function PatientListTable(props: PatientListProps): JSX.Element {
         trNA={trNA}
         patient={patient}
         flagged={flagged}
+        filter={filter}
         onClickPatient={onClickPatient}
         onFlagPatient={onFlagPatient}
         onClickRemovePatient={onClickRemovePatient}

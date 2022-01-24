@@ -11,6 +11,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1101 Yourloops logo redirect not working for HCPs
 - YLP-1109 YourLoops main menu sometimes do not disappear as it should
 - YLP-1116 Missing password strength meter into reset password page
+- YLP-1129 Pending patient not displayed into HCP view when already in a team or private practice
 - YLP-1148 Average daily carbs is null in PDF report
 - YLP-1164 Daily view device parameters tooltips display wrong hours
 - YLP-1169 Fix German translation of Dietitian

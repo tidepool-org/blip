@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Lib tests
+ * Copyright (c) 2022, Diabeloop
+ * Auth tests
  *
  * All rights reserved.
  *
@@ -26,26 +26,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testsSoup from "./soup";
-import testCookiesManager from "./cookies-manager.test";
-import testLanguage from "./language.test";
-import testMetrics from "./metrics.test";
-import testZendesk from "./zendesk.test";
-import testAuth from "./auth";
-import testNotifications from "./notifications";
-import testRegex from "./regex.test";
-import testTeam from "./team";
+import { testTeamHook } from "./hook.test";
 
-function testLib(): void {
-  describe("SOUP", testsSoup);
-  describe("CookiesManager", testCookiesManager);
-  describe("Language", testLanguage);
-  describe("Metrics", testMetrics);
-  describe("Zendesk", testZendesk);
-  describe("Auth", testAuth);
-  describe("Team", testTeam);
-  describe("Notifications", testNotifications);
-  describe("Regex", testRegex);
+
+function testTeam(): void {
+  describe("Hook", testTeamHook);
 }
 
-export default testLib;
+export default testTeam;
