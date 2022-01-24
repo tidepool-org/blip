@@ -31,9 +31,8 @@ import React from "react";
 import { BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
 
 import "@fontsource/roboto";
-import "branding/theme-base.css";
 import "branding/theme.css";
-
+import "branding/palette.css";
 import metrics from "../lib/metrics";
 import { AuthContextProvider } from "../lib/auth";
 import { PrivateRoute, PublicRoute } from "../components/routes";
@@ -52,6 +51,7 @@ const RE_PATIENT_URL = /^\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_CAREGIVER_URL = /^\/caregiver\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_HCP_URL = /^\/professional\/patient\/[0-9a-f]+\/?(.*)/;
 const CONFIDENTIALS_PARAMS = ["signupEmail", "signupKey", "resetKey", "login"];
+
 function MetricsLocationListener(): null {
   const location = useLocation();
   const locPathname = location.pathname;

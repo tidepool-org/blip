@@ -29,8 +29,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
-
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -46,20 +44,11 @@ export interface SwitchRoleDialogProps {
   switchAdminRole: null | SwitchRoleDialogContentProps;
 }
 
-const dialogClasses = makeStyles((theme: Theme) => {
-  return {
-    buttonCancel: {
-      marginRight: theme.spacing(2),
-    },
-  };
-});
-
 function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
   const { switchAdminRole } = props;
 
   const { t } = useTranslation("yourloops");
   const auth = useAuth();
-  const classes = dialogClasses();
 
   if (switchAdminRole === null) {
     return null;
@@ -85,7 +74,8 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
       open={switchAdminRole !== null}
       aria-labelledby={t("aria-team-members-dialog-switch-role-title", { teamName })}
       aria-describedby={t("team-members-dialog-switch-role-question")}
-      onClose={handleClose}>
+      onClose={handleClose}
+    >
       <DialogTitle id="team-members-dialog-switch-role-title">
         <strong>{t("team-members-dialog-switch-role-title")}</strong>
         <br />
@@ -110,12 +100,15 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
         <Button
           id="team-members-dialog-switch-role-button-cancel"
           onClick={handleClose}
-          className={classes.buttonCancel}
-          color="secondary"
-          variant="contained">
+        >
           {t("button-cancel")}
         </Button>
-        <Button id="team-members-dialog-switch-role-button-ok" onClick={handleClickOK} color="primary" variant="contained">
+        <Button
+          id="team-members-dialog-switch-role-button-ok"
+          onClick={handleClickOK}
+          color="primary"
+          variant="contained"
+        >
           {t("team-members-dialog-switch-role-button-ok")}
         </Button>
       </DialogActions>

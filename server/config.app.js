@@ -72,7 +72,7 @@ const config = {
   HELP_SCRIPT_URL: stringOption(process.env.HELP_SCRIPT_URL, null),
   HELP_PAGE_URL: stringOption(process.env.HELP_PAGE_URL, null),
   ASSETS_URL: stringOption(process.env.ASSETS_URL, "https://example.com/"),
-  BRANDING: stringOption(process.env.BRANDING, "tidepool"),
+  BRANDING: stringOption(process.env.BRANDING, "diabeloop/blue"),
   METRICS_SERVICE: stringOption(process.env.METRICS_SERVICE, "disabled"),
   STONLY_WID: stringOption(process.env.STONLY_WID, "disabled"),
   MAX_FAILED_LOGIN_ATTEMPTS: integerFromText(process.env.MAX_FAILED_LOGIN_ATTEMPTS, 5),

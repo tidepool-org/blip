@@ -28,7 +28,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 
 import metrics from "../../lib/metrics";
@@ -36,25 +36,8 @@ import { ConsentForm } from "../../components/consents";
 import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
 import SignUpFormProps from "./signup-form-props";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  buttons: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: theme.spacing(2),
-    marginLeft: "100px",
-    marginRight: "100px",
-    marginBottom: theme.spacing(2),
-  },
-  button: {
-    marginRight: theme.spacing(1),
-  },
-}),
-{ name: "ylp-signup-consent" },
-);
-
 export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
   const { t } = useTranslation("yourloops");
-  const classes = useStyles();
   const { handleBack, handleNext } = props;
   const { state, dispatch } = useSignUpFormState();
   const consentsChecked = state.formValues.terms && state.formValues.privacyPolicy;
@@ -80,14 +63,10 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
   };
 
   return (
-    <form
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-      }}
-      noValidate
-      autoComplete="off"
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
     >
       <ConsentForm
         id="signup"
@@ -99,13 +78,16 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
         feedbackAccepted={state.formValues.feedback}
         setFeedbackAccepted={setFeedbackAccepted}
       />
-      <div id="signup-consent-button-group" className={classes.buttons}>
+      <Box
+        id="signup-consent-button-group"
+        display="flex"
+        justifyContent="space-evenly"
+        mx={2}
+        mt={4}
+      >
         <Button
           id="button-signup-steppers-back"
-          variant="contained"
-          color="secondary"
           disabled={props.activeStep === 0}
-          className={classes.button}
           classes={{ label: "button-signup-steppers-back-label" }}
           onClick={handleBack}>
           {t("signup-steppers-back")}
@@ -115,12 +97,11 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="primary"
           disabled={!consentsChecked}
-          className={classes.button}
           classes={{ label: "button-signup-steppers-next-label" }}
           onClick={onNext}>
           {t("signup-steppers-next")}
         </Button>
-      </div>
-    </form>
+      </Box>
+    </Box>
   );
 }

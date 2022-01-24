@@ -64,8 +64,6 @@ const pageBarStyles = makeStyles(
       toolBarLeft: {
         [theme.breakpoints.down("sm")]: {
           order: 1,
-          marginTop: theme.spacing(1),
-          marginBottom: theme.spacing(1),
         },
       },
       toolBarMiddle: {
@@ -88,10 +86,6 @@ const pageBarStyles = makeStyles(
         [theme.breakpoints.down("sm")]: {
           order: 2,
           marginLeft: "auto",
-        },
-        [theme.breakpoints.down("xs")]: {
-          marginTop: theme.spacing(1),
-          marginBottom: theme.spacing(1),
         },
       },
       homeIcon: {

@@ -29,8 +29,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
-
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import Dialog from "@material-ui/core/Dialog";
@@ -49,19 +48,6 @@ interface AddMemberDialogProps {
   addMember: null | AddMemberDialogContentProps;
 }
 
-const dialogClasses = makeStyles((theme: Theme) => {
-  return {
-    dialogContent: {
-      display: "flex",
-      flexDirection: "column",
-      minWidth: "25em",
-    },
-    buttonCancel: {
-      marginRight: theme.spacing(2),
-    },
-  };
-});
-
 function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
   const { addMember } = props;
 
@@ -69,7 +55,6 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
   const [email, setEMail] = React.useState("");
   const [role, setRole] = React.useState<Exclude<TypeTeamMemberRole, "patient">>(TeamMemberRole.member);
   const [buttonDisabled, setButtonDisabled] = React.useState(true);
-  const classes = dialogClasses();
 
   const teamName = addMember?.team.name ?? "";
 
@@ -101,46 +86,48 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
       id="team-add-member-dialog"
       open={addMember !== null}
       aria-labelledby={t("aria-team-add-member-dialog-title", { teamName })}
-      onClose={handleClickClose}>
+      onClose={handleClickClose}
+      fullWidth
+    >
       <DialogTitle id="team-add-member-dialog-title">
         <strong>{t("team-add-member-dialog-title")}</strong>
         <br />
         <span id="team-add-member-dialog-title-team-name">{teamName}</span>
       </DialogTitle>
 
-      <DialogContent className={classes.dialogContent}>
-        <TextField
-          id="team-add-member-dialog-field-email"
-          variant="outlined"
-          onChange={handleChangeEMail}
-          name="email"
-          value={email}
-          label={t("email")}
-          required={true}
-          aria-required="true"
-          type="email"
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              id="team-add-member-dialog-checkbox-admin"
-              checked={role === TeamMemberRole.admin}
-              onChange={handleChangeRole}
-              name="role"
-              color="primary"
-            />
-          }
-          label={t("team-add-member-dialog-checkbox-admin")}
-        />
+      <DialogContent>
+        <Box display="flex" flexDirection="column">
+          <TextField
+            id="team-add-member-dialog-field-email"
+            variant="outlined"
+            onChange={handleChangeEMail}
+            name="email"
+            value={email}
+            label={t("email")}
+            required
+            aria-required="true"
+            type="email"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="team-add-member-dialog-checkbox-admin"
+                checked={role === TeamMemberRole.admin}
+                onChange={handleChangeRole}
+                name="role"
+                color="primary"
+              />
+            }
+            label={t("team-add-member-dialog-checkbox-admin")}
+          />
+        </Box>
       </DialogContent>
 
       <DialogActions>
         <Button
           id="team-add-member-dialog-button-cancel"
           onClick={handleClickClose}
-          className={classes.buttonCancel}
-          color="secondary"
-          variant="contained">
+        >
           {t("button-cancel")}
         </Button>
         <Button

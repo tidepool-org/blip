@@ -29,7 +29,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -47,23 +47,12 @@ export interface RemoveDialogProps {
 }
 
 const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-buttons" });
-const removeDialogClasses = makeStyles(
-  (theme: Theme) => {
-    return {
-      buttonCancel: {
-        marginRight: theme.spacing(2),
-      },
-    };
-  },
-  { name: "ylp-patient-remove-caregiver-dialog" }
-);
 
 /**
  * Remove a caregiver dialog / modale
  */
 function RemoveDialog(props: RemoveDialogProps): JSX.Element {
   const { t } = useTranslation("yourloops");
-  const classes = removeDialogClasses();
   const buttonsClasses = makeButtonsClasses();
 
   const handleClose = () => {
@@ -82,7 +71,8 @@ function RemoveDialog(props: RemoveDialogProps): JSX.Element {
       id="patient-remove-caregiver-dialog"
       open={dialogIsOpen}
       aria-labelledby={t("modal-patient-remove-caregiver-title")}
-      onClose={handleClose}>
+      onClose={handleClose}
+    >
       <DialogTitle id="patient-remove-caregiver-dialog-title">
         <strong>{t("modal-patient-remove-caregiver-title")}</strong>
       </DialogTitle>
@@ -96,20 +86,19 @@ function RemoveDialog(props: RemoveDialogProps): JSX.Element {
         </DialogContentText>
       </DialogContent>
 
-      <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
+      <DialogActions>
         <Button
           id="patient-remove-caregiver-dialog-button-cancel"
           onClick={handleClose}
-          className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
-          color="secondary"
-          variant="contained">
+        >
           {t("button-cancel")}
         </Button>
         <Button
           id="patient-remove-caregiver-dialog-button-remove"
           onClick={handleRemoveCaregiver}
-          className={buttonsClasses.buttonRedAction}
-          variant="contained">
+          className={buttonsClasses.alertActionButton}
+          variant="contained"
+        >
           {t("modal-patient-remove-caregiver-remove")}
         </Button>
       </DialogActions>

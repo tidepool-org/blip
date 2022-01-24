@@ -30,12 +30,13 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
+import TextField from "@material-ui/core/TextField";
 
 import metrics from "../../lib/metrics";
 import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
@@ -55,22 +56,9 @@ const formStyle = makeStyles((theme: Theme) => {
   return {
     TextField: {
       textAlign: "start",
-      marginLeft: theme.spacing(0),
-      marginRight: theme.spacing(1),
     },
     Checkbox: {
       marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-    },
-    Buttons: {
-      display: "flex",
-      justifyContent: "space-between",
-      marginTop: theme.spacing(4),
-      marginLeft: "100px",
-      marginRight: "100px",
-      marginBottom: theme.spacing(2),
-    },
-    Button: {
       marginRight: theme.spacing(1),
     },
   };
@@ -160,14 +148,10 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
   };
 
   return (
-    <form
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-      }}
-      noValidate
-      autoComplete="off"
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
     >
       <TextField
         id="firstname"
@@ -249,12 +233,15 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
           </Select>
         </FormControl>
       }
-      <div id="signup-profileform-button-group" className={classes.Buttons}>
+      <Box
+        id="signup-profileform-button-group"
+        display="flex"
+        justifyContent="space-evenly"
+        mx={2}
+        mt={4}
+      >
         <Button
           id="button-signup-steppers-back"
-          variant="contained"
-          color="secondary"
-          className={classes.Button}
           classes={{ label: "button-signup-steppers-back-label" }}
           onClick={handleBack}
         >
@@ -264,14 +251,13 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
           id="button-signup-steppers-next"
           variant="contained"
           color="primary"
-          className={classes.Button}
           classes={{ label: "button-signup-steppers-next-label" }}
           onClick={onNext}
         >
           {t("signup-steppers-next")}
         </Button>
-      </div>
-    </form>
+      </Box>
+    </Box>
   );
 }
 

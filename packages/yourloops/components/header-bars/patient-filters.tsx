@@ -95,7 +95,7 @@ const filtersStyles = makeStyles((theme: Theme) => {
       "display": "flex",
       "position": "relative",
       "borderRadius": theme.shape.borderRadius,
-      "backgroundColor": theme.palette.secondary.light,
+      "backgroundColor": theme.palette.common.white,
       "&:hover": {
         backgroundColor: theme.palette.secondary.dark,
       },
@@ -132,7 +132,7 @@ const filtersStyles = makeStyles((theme: Theme) => {
     selectFilter: {
       flex: "1",
       borderRadius: theme.shape.borderRadius,
-      backgroundColor: theme.palette.secondary.light,
+      backgroundColor: theme.palette.common.white,
       [theme.breakpoints.up("sm")]: {
         width: "15em",
       },
@@ -150,7 +150,7 @@ const filtersStyles = makeStyles((theme: Theme) => {
         backgroundColor: theme.palette.secondary.dark,
       },
       "&:focus": {
-        "backgroundColor": theme.palette.secondary.light,
+        "backgroundColor": theme.palette.common.white,
         "&:hover": {
           backgroundColor: theme.palette.secondary.dark,
         },

@@ -186,11 +186,7 @@ export default function ResetPasswordContent(): JSX.Element {
             />
           </CardContent>
           <CardActions className={classes.CardActions}>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => history.push("/")}
-            >
+            <Button onClick={() => history.push("/")}>
               {t("button-cancel")}
             </Button>
             <ProgressIconButtonWrapper inProgress={inProgress}>

@@ -1,0 +1,16 @@
+:root {
+  --color-primary-main: #109182;
+  --color-primary-light: #F7F7F8;
+  --color-primary-dark: #006356;
+
+  --color-secondary-main: #E5F0F0;
+  --color-secondary-light: #F5F9F9;
+  --color-secondary-dark: #D4E6E6;
+
+  --color-error-main: #F44336;
+  --color-error-dark: #D32F2F;
+
+  --blip-color-primary-light: #6fc3bb;
+  --blip-color-primary-alt: #006c71;
+  --blip-color-secondary-alt: #eef5f9;
+}

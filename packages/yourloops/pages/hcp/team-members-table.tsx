@@ -64,32 +64,25 @@ export interface TeamMembersProps {
   team: Team;
   onSwitchAdminRole: (member: TeamMember, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<void>;
   onShowRemoveTeamMemberDialog: (member: TeamMember) => Promise<void>;
-  classes?: Record<"tableRowPending", string>;
 }
 
 const teamMembersStyles = makeStyles((theme: Theme) => {
   return {
     root: {
       width: "100%",
-      marginTop: theme.spacing(1),
     },
     listTitle: {
-      display: "inline-block",
-      verticalAlign: "text-top",
-      height: "100%",
       textTransform: "uppercase",
       fontWeight: "bold",
       color: theme.palette.primary.main,
     },
     accordionMembersList: {
       flexDirection: "column",
+      padding: 0,
     },
     tableRowHeader: {
       textTransform: "uppercase",
       fontSize: "16px",
-    },
-    tableRowPending: {
-      backgroundColor: theme.palette.primary.light,
     },
     paperMember: {
       display: "flex",
@@ -103,8 +96,8 @@ const teamMembersStyles = makeStyles((theme: Theme) => {
       height: 0,
     },
     paperMemberPending: {
-      width: 40,
-      height: 40,
+      width: 32,
+      height: 32,
       marginLeft: 0,
       marginRight: 0,
     },
@@ -144,11 +137,8 @@ const teamMembersTableStyles = makeStyles(() => ({
 const MembersAccordionSummary = withStyles(
   (theme: Theme) => ({
     root: {
-      "justifyContent": "left",
-      "transition": theme.transitions.create(["background-color", "min-height"]),
-      "&:hover": {
-        backgroundColor: theme.palette.primary.light,
-      },
+      justifyContent: "left",
+      transition: theme.transitions.create(["background-color", "min-height"]),
     },
     content: {
       "flexGrow": 0,
@@ -207,7 +197,6 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     const firstName = member.status === UserInvitationStatus.pending ? "—" : getUserFirstName(member.user);
     const lastName = member.status === UserInvitationStatus.pending ? "—" : getUserLastName(member.user);
     const isAdmin = member.role === TeamMemberRole.admin;
-    const rowClassName = props.classes?.tableRowPending ?? "";
 
     let checkboxElement: JSX.Element | null = null;
     let icon: JSX.Element | null = null;
@@ -264,7 +253,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     return (
       <TableRow
         id={`team-members-list-${team.id}-row-${userId}`}
-        className={`${rowClassName} team-members-list-row`}
+        className={"team-members-list-row"}
         key={email}
         data-email={email}
         data-userid={userId}
@@ -316,7 +305,6 @@ function TeamMemberTable(props: TeamMembersProps): JSX.Element {
 
   return (
     <Table id={`team-members-list-${team.id}-table`}>
-      {/* prettier-ignore */}
       <TableHead className={classes.tableRowHeader}>
         <TableRow>
           <TableCell id={`team-members-list-${team.id}-cellheader-icon`} />
@@ -336,7 +324,7 @@ function TeamMemberTable(props: TeamMembersProps): JSX.Element {
         </TableRow>
       </TableHead>
       <TableBody>
-        <MembersTableBody {...props} classes={classes} />
+        <MembersTableBody {...props} />
       </TableBody>
     </Table>
   );
@@ -469,7 +457,8 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
           id={`team-members-list-${team.id}-header`}
           expandIcon={<ExpandMoreIcon />}
           aria-label={t("aria-expand-team-members")}
-          aria-controls={`team-members-list-${team.id}-content`}>
+          aria-controls={`team-members-list-${team.id}-content`}
+        >
           <Typography className={classes.listTitle}>{t("team-members-list-header", { nMembers })}</Typography>
         </MembersAccordionSummary>
 

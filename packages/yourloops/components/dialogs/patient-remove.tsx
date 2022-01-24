@@ -29,7 +29,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { Theme, makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -51,25 +51,9 @@ export interface RemovePatientDialogProps {
 }
 
 const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-remove-patient-dialog-buttons" });
-const dialogStyles = makeStyles(
-  (theme: Theme) => {
-    return {
-      dialog: {
-        display: "flex",
-        flexDirection: "column",
-        width: "25rem",
-      },
-      buttonCancel: {
-        marginRight: theme.spacing(2),
-      },
-    };
-  },
-  { name: "ylp-dialog-remove-patient-dialog" }
-);
 
 function RemovePatientDialog(props: RemovePatientDialogProps): JSX.Element {
   const buttonsClasses = makeButtonsClasses();
-  const classes = dialogStyles();
   const { t } = useTranslation("yourloops");
 
   const dialogIsOpen = props.actions !== null;
@@ -89,7 +73,7 @@ function RemovePatientDialog(props: RemovePatientDialogProps): JSX.Element {
         <strong>{t("remove-patient")}</strong>
       </DialogTitle>
 
-      <DialogContent id="patient-list-dialog-remove-content" className={classes.dialog}>
+      <DialogContent id="patient-list-dialog-remove-content">
         <DialogContentText id="patient-list-dialog-remove-question">
           {t("modal-remove-patient-question", { name })}
         </DialogContentText>
@@ -98,19 +82,17 @@ function RemovePatientDialog(props: RemovePatientDialogProps): JSX.Element {
         </DialogContentText>
       </DialogContent>
 
-      <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
+      <DialogActions>
         <Button
           id="patient-list-dialog-remove-button-cancel"
           onClick={handleClose}
-          className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
-          color="secondary"
-          variant="contained">
+        >
           {t("button-cancel")}
         </Button>
         <Button
           id="patient-list-dialog-remove-button-remove"
           onClick={handleClickRemove}
-          className={buttonsClasses.buttonRedAction}
+          className={buttonsClasses.alertActionButton}
           variant="contained">
           {t("remove-patient")}
         </Button>

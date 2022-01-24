@@ -41,14 +41,12 @@ import TextField from "@material-ui/core/TextField";
 
 import { REGEX_EMAIL } from "../../../lib/utils";
 import DiabeloopUrl from "../../../lib/diabeloop-url";
-import { makeButtonsStyles } from "../../../components/theme";
 import { AddPatientDialogContentProps } from "./types";
 
 export interface AddDialogProps {
   actions: AddPatientDialogContentProps | null;
 }
 
-const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-add-patient-buttons" });
 const dialogStyles = makeStyles(
   (theme: Theme) => {
     return {
@@ -65,16 +63,17 @@ const dialogStyles = makeStyles(
         flexGrow: 1,
         marginBottom: theme.spacing(2),
       },
-      buttonCancel: {
-        marginRight: theme.spacing(2),
-      },
     };
   },
   { name: "ylp-caregiver-patients-add-dialog" }
 );
 
+
+/*
+* TODO : remove this component
+*  a caregiver can't add a patient
+ */
 function AddDialog(props: AddDialogProps): JSX.Element {
-  const buttonsClasses = makeButtonsClasses();
   const classes = dialogStyles();
   const { t, i18n } = useTranslation("yourloops");
   const [email, setEmail] = React.useState<string>("");
@@ -156,16 +155,13 @@ function AddDialog(props: AddDialogProps): JSX.Element {
         <Button
           id="patient-list-dialog-add-button-cancel"
           onClick={handleClose}
-          className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
-          color="secondary"
-          variant="contained">
+        >
           {t("button-cancel")}
         </Button>
         <Button
           id="patient-list-dialog-add-button-add"
           onClick={handleClickAdd}
           disabled={buttonAddDisabled}
-          className={buttonsClasses.buttonOk}
           variant="contained"
           color="primary">
           {t("button-invite")}

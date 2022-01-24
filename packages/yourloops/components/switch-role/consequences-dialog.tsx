@@ -36,10 +36,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import { makeButtonsStyles } from "../theme";
 import { SwitchRoleConsequencesDialogProps } from "./models";
 
-const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-switch-role-consequences-buttons" });
 const dialogStyles = makeStyles(
   (theme: Theme) => {
     return {
@@ -59,14 +57,7 @@ const dialogStyles = makeStyles(
       },
       dialogButtons: {
         display: "flex",
-        justifyContent: "space-between",
-        marginTop: "16px",
-        marginLeft: "42px",
-        marginRight: "42px",
-        marginBottom: "16px",
-      },
-      buttonCancel: {
-        marginRight: theme.spacing(2),
+        justifyContent: "space-around",
       },
     };
   },
@@ -75,7 +66,6 @@ const dialogStyles = makeStyles(
 
 function SwitchRoleConsequencesDialog(props: SwitchRoleConsequencesDialogProps): JSX.Element {
   const { title, open, onResult } = props;
-  const buttonsClasses = makeButtonsClasses();
   const classes = dialogStyles();
   const { t } = useTranslation("yourloops");
 
@@ -123,21 +113,20 @@ function SwitchRoleConsequencesDialog(props: SwitchRoleConsequencesDialogProps):
 
       <DialogActions
         id="switch-role-consequences-dialog-actions"
-        className={classes.dialogButtons}>
+        className={classes.dialogButtons}
+      >
         <Button
           id="switch-role-consequences-dialog-button-cancel"
           onClick={handleClose}
-          className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
-          color="secondary"
-          variant="contained">
+        >
           {t("button-cancel")}
         </Button>
         <Button
           id="switch-role-consequences-dialog-button-ok"
           onClick={handleAccept}
-          className={buttonsClasses.buttonOk}
           variant="contained"
-          color="primary">
+          color="primary"
+        >
           {t("modal-switch-hcp-action")}
         </Button>
       </DialogActions>

@@ -37,8 +37,6 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import { makeButtonsStyles } from "../../../components/theme";
-
 export interface TeamCodeDialogProps {
   /** Team code */
   code: string;
@@ -49,7 +47,6 @@ export interface TeamCodeDialogProps {
 }
 
 const reCode = /^([0-9]{3})([0-9]{3})([0-9]{3})$/;
-const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-team-code-buttons" });
 const dialogClasses = makeStyles(
   (theme: Theme) => {
     return {
@@ -69,10 +66,6 @@ const dialogClasses = makeStyles(
         borderWidth: "1px",
         borderRadius: theme.shape.borderRadius,
       },
-      dialogActions: {
-        marginBottom: "0.5em",
-        marginRight: " 0.5em",
-      },
     };
   },
   { name: "ylp-dialog-team-code" }
@@ -80,18 +73,17 @@ const dialogClasses = makeStyles(
 
 function TeamCodeDialog(props: TeamCodeDialogProps): JSX.Element {
   const { t } = useTranslation("yourloops");
-  const buttonsClasses = makeButtonsClasses();
   const classes = dialogClasses();
   const { code, name, onClose } = props;
-  const dialogIsOpen = code.match(reCode) !== null;
-
-  let displayCode = "";
-  if (dialogIsOpen) {
-    displayCode = code.replace(reCode, "$1 - $2 - $3");
-  }
+  const dialogIsOpen = !!code.match(reCode);
 
   return (
-    <Dialog id="patient-list-dialog-team-code" aria-labelledby={t("team-card-label-code")} open={dialogIsOpen} onClose={onClose}>
+    <Dialog
+      id="patient-list-dialog-team-code"
+      aria-labelledby={t("team-card-label-code")}
+      open={dialogIsOpen}
+      onClose={onClose}
+    >
       <DialogTitle id="patient-list-dialog-team-code-title">
         <strong>{name}</strong>
       </DialogTitle>
@@ -106,16 +98,18 @@ function TeamCodeDialog(props: TeamCodeDialogProps): JSX.Element {
       </DialogContent>
 
       <DialogContent id="patient-list-dialog-team-code-content-code" className={classes.contentCode}>
-        <div className={classes.divTeamCode}>{displayCode}</div>
+        {dialogIsOpen &&
+          <div className={classes.divTeamCode}>
+            {code.replace(reCode, "$1 - $2 - $3")}
+          </div>
+        }
       </DialogContent>
 
-      <DialogActions className={classes.dialogActions}>
+      <DialogActions>
         <Button
           id="patient-list-dialog-team-code-button-ok"
           onClick={onClose}
-          className={buttonsClasses.buttonCancel}
-          color="primary"
-          variant="contained">
+        >
           {t("button-ok")}
         </Button>
       </DialogActions>

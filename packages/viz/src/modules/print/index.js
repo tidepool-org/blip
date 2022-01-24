@@ -31,7 +31,7 @@ import { arrayBufferToBase64 } from "./utils/functions";
 
 // TO_DO have a configuration variable to support specific branding or not like done e.g. in Blip
 // branding should make use of artifact.sh to download specific branding artifacts such as images
-import logo from "./images/diabeloop/Logo-YourLoops-Blue.png";
+import logo from "branding/pdf-logo.png";
 import siteChangeCannulaImage from "./images/sitechange-cannula.png";
 import siteChangeReservoirImage from "./images/sitechange-reservoir.png";
 import siteChangeTubingImage from "./images/sitechange-tubing.png";

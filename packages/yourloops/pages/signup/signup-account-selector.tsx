@@ -30,6 +30,7 @@ import _ from "lodash";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import FormControl from "@material-ui/core/FormControl";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -46,12 +47,13 @@ import SignUpFormProps from "./signup-form-props";
 
 const useStyles = makeStyles((theme: Theme) => ({
   FormControl: {
-    margin: theme.spacing(3),
+    [theme.breakpoints.up("sm")]: {
+      margin: theme.spacing(3),
+    },
   },
   FormHelperText: {
     textAlign: "center",
   },
-
   Paper: {
     textAlign: "start",
     marginTop: theme.spacing(2),
@@ -61,17 +63,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
     marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-  },
-  Buttons: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: theme.spacing(2),
-    marginLeft: "100px",
-    marginRight: "100px",
-    marginBottom: theme.spacing(2),
-  },
-  Button: {
     marginRight: theme.spacing(1),
   },
 }));
@@ -104,7 +95,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
     resetFormState();
   };
 
-  const valideForm = (): boolean => {
+  const validForm = (): boolean => {
     if (_.isEmpty(state.formValues.accountRole)) {
       setError(true);
       setHelperText(t("signup-account-selection-error"));
@@ -116,28 +107,33 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
   const onNext = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     resetFormState();
-    if (valideForm()) {
+    if (validForm()) {
       handleNext();
       metrics.send("registration", "select_account_type", state.formValues.accountRole);
     }
   };
 
   return (
-    <form
+    <Box
       id="form-signup"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-      }}>
-      <FormControl id="signup-account-selector-form-control" component="fieldset" error={error} className={classes.FormControl}>
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+    >
+      <FormControl
+        id="signup-account-selector-form-control"
+        component="fieldset"
+        error={error}
+        className={classes.FormControl}
+      >
         <FormHelperText className={classes.FormHelperText}>{helperText}</FormHelperText>
         <RadioGroup
           id="signup-account-selector-radio-group"
           aria-label="account-selector"
           name="account-selector"
           value={state.formValues.accountRole}
-          onChange={(e) => handleRadioChange(e, "accountRole")}>
+          onChange={(e) => handleRadioChange(e, "accountRole")}
+        >
           <Paper elevation={3} className={classes.Paper}>
             <FormControlLabel
               className={classes.FormControlLabel}
@@ -173,12 +169,15 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
           {t("signup-account-selection-msg")}
         </Typography>
       </FormControl>
-      <div id="signup-account-selector-button-group" className={classes.Buttons}>
+      <Box
+        id="signup-account-selector-button-group"
+        display="flex"
+        justifyContent="space-evenly"
+        mx={2}
+        mt={4}
+      >
         <Button
           id="button-signup-steppers-back"
-          variant="contained"
-          color="secondary"
-          className={classes.Button}
           classes={{ label: "button-signup-steppers-back-label" }}
           onClick={handleBack}>
           {t("signup-steppers-back")}
@@ -187,13 +186,12 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
           id="button-signup-steppers-next"
           variant="contained"
           color="primary"
-          className={classes.Button}
           classes={{ label: "button-signup-steppers-next-label" }}
           onClick={onNext}>
           {t("signup-steppers-next")}
         </Button>
-      </div>
-    </form>
+      </Box>
+    </Box>
   );
 }
 

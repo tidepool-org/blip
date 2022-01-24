@@ -28,10 +28,9 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -43,6 +42,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 
 import MedicalServiceIcon from "../../../components/icons/MedicalServiceIcon";
+import ProgressIconButtonWrapper from "../../../components/buttons/progress-icon-button-wrapper";
 
 import { Team, TeamMember, TeamUser, useTeam } from "../../../lib/team";
 import { compareValues, getUserFirstLastName } from "../../../lib/utils";
@@ -57,21 +57,6 @@ interface RemoveDialogProps {
 }
 
 const makeButtonClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-remove-patient-dialog-buttons" });
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    wrapper: {
-      margin: theme.spacing(1),
-      position: "relative",
-    },
-    progressButton: {
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      marginTop: -12,
-      marginLeft: -12,
-    },
-  }),
-);
 
 function RemoveDialog(props: RemoveDialogProps): JSX.Element {
   const { isOpen, onClose, patient } = props;
@@ -79,7 +64,6 @@ function RemoveDialog(props: RemoveDialogProps): JSX.Element {
   const alert = useAlert();
   const teamHook = useTeam();
   const buttonClasses = makeButtonClasses();
-  const classes = useStyles();
 
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
@@ -202,25 +186,20 @@ function RemoveDialog(props: RemoveDialogProps): JSX.Element {
       }
 
       <DialogActions>
-        <Button
-          onClick={handleOnClose}
-          color="secondary"
-          variant="contained"
-        >
+        <Button onClick={handleOnClose}>
           {t("button-cancel")}
         </Button>
-        <div className={classes.wrapper}>
+        <ProgressIconButtonWrapper inProgress={processing}>
           <Button
             id="remove-patient-dialog-validate-button"
             onClick={handleOnClickRemove}
-            className={buttonClasses.buttonRedAction}
+            className={buttonClasses.alertActionButton}
             disabled={!selectedTeamId || processing}
             variant="contained"
           >
             {t("remove-patient")}
           </Button>
-          {processing && <CircularProgress size={24} className={classes.progressButton} />}
-        </div>
+        </ProgressIconButtonWrapper>
       </DialogActions>
     </Dialog>
   );

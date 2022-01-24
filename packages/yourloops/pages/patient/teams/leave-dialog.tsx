@@ -28,8 +28,8 @@
 
 import _ from "lodash";
 import React from "react";
-import { /* Trans, */ useTranslation } from "react-i18next";
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { useTranslation } from "react-i18next";
+import { makeStyles } from "@material-ui/core/styles";
 
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -46,20 +46,9 @@ export interface LeaveTeamDialogProps {
 }
 
 const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-buttons" });
-const leaveTeamDialogClasses = makeStyles(
-  (theme: Theme) => {
-    return {
-      buttonCancel: {
-        marginRight: theme.spacing(2),
-      },
-    };
-  },
-  { name: "ylp-patient-remove-team-dialog" }
-);
 
 function LeaveTeamDialog(props: LeaveTeamDialogProps): JSX.Element {
   const { t } = useTranslation("yourloops");
-  const dialogClasses = leaveTeamDialogClasses();
   const buttonsClasses = makeButtonsClasses();
 
   const { teamToLeave } = props;
@@ -79,7 +68,8 @@ function LeaveTeamDialog(props: LeaveTeamDialogProps): JSX.Element {
       open={dialogIsOpen}
       aria-labelledby={t("aria-team-leave-dialog-title")}
       aria-describedby={t("aria-team-leave-dialog-question", { teamName })}
-      onClose={handleClose}>
+      onClose={handleClose}
+    >
       <DialogTitle id="team-leave-dialog-title">
         <strong>{t("modal-patient-remove-team-title")}</strong>
       </DialogTitle>
@@ -93,20 +83,19 @@ function LeaveTeamDialog(props: LeaveTeamDialogProps): JSX.Element {
         </DialogContentText>
       </DialogContent>
 
-      <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
+      <DialogActions>
         <Button
           id="team-leave-dialog-button-cancel"
           onClick={handleClose}
-          className={`${dialogClasses.buttonCancel} ${buttonsClasses.buttonCancel}`}
-          color="secondary"
-          variant="contained">
+        >
           {t("button-cancel")}
         </Button>
         <Button
           id="team-leave-dialog-button-leave"
           onClick={handleLeaveTeam}
-          className={buttonsClasses.buttonRedAction}
-          variant="contained">
+          className={buttonsClasses.alertActionButton}
+          variant="contained"
+        >
           {t("modal-patient-remove-team-remove")}
         </Button>
       </DialogActions>

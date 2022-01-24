@@ -29,9 +29,9 @@ import _ from "lodash";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
 
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
 import { checkPasswordStrength } from "../../lib/auth/helpers";
@@ -44,45 +44,21 @@ import { useSignUpFormState } from "./signup-formstate-context";
 import { PasswordStrengthMeter } from "../../components/utils/password-strength-meter";
 import Password from "../../components/utils/password";
 
+
 interface Errors {
   username: boolean;
   newPassword: boolean;
   confirmNewPassword: boolean;
 }
 
-const formStyle = makeStyles((theme: Theme) => {
-  return {
-    TextField: {
-      marginLeft: theme.spacing(0),
-      marginRight: theme.spacing(1),
-    },
-    Checkbox: {
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-    },
-    Buttons: {
-      display: "flex",
-      justifyContent: "space-between",
-      marginTop: theme.spacing(4),
-      marginLeft: "80px",
-      marginRight: "70px",
-      marginBottom: theme.spacing(2),
-    },
-    Button: {
-      marginRight: theme.spacing(1),
-    },
-  };
-});
-
 /**
  * SignUpAccount Form
  */
 function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
   const { t } = useTranslation("yourloops");
-  const classes = formStyle();
   const auth = useAuth();
-  const { state, dispatch } = useSignUpFormState();
   const alert = useAlert();
+  const { state, dispatch } = useSignUpFormState();
   const { handleBack, handleNext } = props;
 
   const [username, setUsername] = React.useState("");
@@ -126,15 +102,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
   };
 
   return (
-    <form
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-      }}
-      noValidate
-      autoComplete="off"
-    >
+    <Box display="flex" flexDirection="column" justifyContent="center">
       <TextField
         id="username"
         autoComplete="username"
@@ -181,12 +149,15 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
         margin="normal"
         required
       />
-      <div id="signup-accountform-button-group" className={classes.Buttons}>
+      <Box
+        id="signup-accountform-button-group"
+        display="flex"
+        justifyContent="space-evenly"
+        mx={2}
+        mt={4}
+      >
         <Button
           id="button-signup-steppers-back"
-          variant="contained"
-          color="secondary"
-          className={classes.Button}
           onClick={handleBack}
           classes={{ label: "button-signup-steppers-back-label" }}
         >
@@ -197,14 +168,13 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="primary"
           disabled={_.some(errors) || inProgress}
-          className={classes.Button}
           onClick={onNext}
           classes={{ label: "button-signup-steppers-create-account-label" }}
         >
           {t("signup-steppers-create-account")}
         </Button>
-      </div>
-    </form>
+      </Box>
+    </Box>
   );
 }
 

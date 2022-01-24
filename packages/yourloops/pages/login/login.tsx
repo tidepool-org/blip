@@ -32,8 +32,9 @@ import { Link as RouterLink, useHistory } from "react-router-dom";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles, Theme, useTheme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
+import Box from "@material-ui/core/Box";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
@@ -42,6 +43,7 @@ import Container from "@material-ui/core/Container";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import brandingLogo from "branding/logo.png";
 
@@ -71,11 +73,19 @@ const loginStyle = makeStyles((theme: Theme) => {
       textAlign: "start",
       marginLeft: theme.spacing(4),
       marginRight: theme.spacing(4),
+      [theme.breakpoints.only("xs")]: {
+        marginLeft: theme.spacing(0),
+        marginRight: theme.spacing(0),
+        paddingLeft: theme.spacing(0),
+        paddingRight: theme.spacing(0),
+      },
     },
     CardActions: {
-      marginLeft: theme.spacing(4),
-      marginRight: theme.spacing(4),
       padding: theme.spacing(2),
+      [theme.breakpoints.up("sm")]: {
+        marginLeft: theme.spacing(4),
+        marginRight: theme.spacing(4),
+      },
     },
     textField: {
       marginLeft: theme.spacing(0),
@@ -96,8 +106,10 @@ function Login(): JSX.Element {
   const { t } = useTranslation("yourloops");
   const auth = useAuth();
   const alert = useAlert();
+  const theme = useTheme();
   const classes = loginStyle();
   const historyHook = useHistory<HistoryState>();
+  const isXSBreakpoint: boolean = useMediaQuery(theme.breakpoints.only("xs"));
 
   const log = React.useMemo(() => bows("Login"), []);
   const urlParams = React.useMemo(() => new URLSearchParams(historyHook.location.search), [historyHook.location.search]);
@@ -204,32 +216,18 @@ function Login(): JSX.Element {
       <Grid container spacing={0} alignItems="center" justifyContent="center">
         <Grid item xs={12}>
           <Card className={classes.Card}>
-            <CardMedia
-              style={{
-                display: "flex",
-                paddingTop: "1em",
-                paddingBottom: "1em",
-              }}>
-              <img
-                src={brandingLogo}
-                style={{
-                  height: "60px",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                }}
-                alt={t("alt-img-logo")}
-              />
-            </CardMedia>
+            <Box py="1em">
+              <CardMedia>
+                <img src={brandingLogo} height={isXSBreakpoint ? 50 : 60} alt={t("alt-img-logo")} />
+              </CardMedia>
+            </Box>
             <CardContent className={classes.CardContent}>
-              <form
+              <Box
                 id="form-login"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                }}
-                noValidate
-                autoComplete="off">
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+              >
                 <TextField
                   id="login-username"
                   autoComplete="username"
@@ -259,7 +257,7 @@ function Login(): JSX.Element {
                   disabled={resendActivationLinkInProgress}
                   helperText={helperTextValue}
                 />
-              </form>
+              </Box>
               <Link id="link-password-reset" component={RouterLink} to="/request-password-reset" onClick={() => metrics.send("support", "password_reset")}>
                 {t("forgot-password-question")}
               </Link>

@@ -10,6 +10,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const blipWebpack = require("./webpack.config.blip");
 const buildConfig = require("../../server/config.app");
+const brandings = require("../../branding/branding.json");
 const languages = require("../../locales/languages.json");
 const pkg = require("./package.json");
 
@@ -23,7 +24,7 @@ const isTest = process.env.NODE_ENV === "test";
 const isProduction = mode === "production";
 const isDev = !isProduction;
 
-if (buildConfig.BRANDING !== "diabeloop") {
+if (!(buildConfig.BRANDING in brandings)) {
   throw new Error("Invalid branding");
 }
 
@@ -34,12 +35,15 @@ if (process.env.USE_WEBPACK_DEV_SERVER === "true") {
   console.log(buildConfig);
 }
 
+const branding = brandings[buildConfig.BRANDING];
+
 const alias = {
-  "branding/theme-base.css": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/theme-base.css`),
-  "branding/theme.css": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/theme.css`),
-  "branding/logo.png": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/logo.png`),
-  "branding/logo-icon.svg": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/logo-icon.svg`),
-  "branding/logo-full.svg": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/logo-full.svg`),
+  "branding/theme.css": path.resolve(__dirname, "../../branding/theme.css"),
+  "branding/logo.png": path.resolve(__dirname, `../../branding/${branding["branding/logo.png"]}`),
+  "branding/pdf-logo.png": path.resolve(__dirname, `../../branding/${branding["branding/pdf-logo.png"]}`),
+  "branding/logo-icon.svg": path.resolve(__dirname, `../../branding/${branding["branding/logo-icon.svg"]}`),
+  "branding/logo-full.svg": path.resolve(__dirname, `../../branding/${branding["branding/logo-full.svg"]}`),
+  "branding/palette.css": path.resolve(__dirname, `../../branding/${branding["branding/palette.css"]}`),
   "cartridge.png": path.resolve(__dirname, "../../branding/sitechange/cartridge.png"),
   "infusion.png": path.resolve(__dirname, "../../branding/sitechange/infusion.png"),
   "cartridge-vicentra.png": path.resolve(__dirname, "../../branding/sitechange/cartridge-vicentra.png"),
@@ -66,7 +70,7 @@ const plugins = [
     scriptLoading: "defer",
     inject: "body",
     hash: false,
-    favicon: path.resolve(__dirname, "../../branding/diabeloop/favicon.ico"),
+    favicon: path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/favicon.ico`),
     minify: false,
   }),
 ];

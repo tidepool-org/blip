@@ -66,7 +66,7 @@ const tableStyles = makeStyles(
       },
       tableRowPending: {
         cursor: "pointer",
-        backgroundColor: theme.palette.primary.light,
+        backgroundColor: theme.palette.secondary.main,
       },
       tableRowHeader: {
         textTransform: "uppercase",

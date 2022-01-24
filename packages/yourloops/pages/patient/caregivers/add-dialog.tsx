@@ -29,7 +29,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -38,7 +37,6 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 
 import { REGEX_EMAIL } from "../../../lib/utils";
-import { makeButtonsStyles } from "../../../components/theme";
 
 import { AddDialogContentProps } from "./types";
 
@@ -46,31 +44,11 @@ export interface AddDialogProps {
   actions: AddDialogContentProps | null;
 }
 
-const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-buttons" });
-const addDialogClasses = makeStyles(
-  (theme: Theme) => {
-    return {
-      dialog: {
-        minWidth: "25rem",
-      },
-      textFieldEmail: {
-        width: "100%",
-      },
-      buttonCancel: {
-        marginRight: theme.spacing(2),
-      },
-    };
-  },
-  { name: "ylp-patient-add-caregiver-dialog" }
-);
-
 /**
  * Add a caregiver dialog / modale
  */
 function AddDialog(props: AddDialogProps): JSX.Element {
   const { t } = useTranslation("yourloops");
-  const classes = addDialogClasses();
-  const buttonsClasses = makeButtonsClasses();
   const [email, setEmail] = React.useState<string>("");
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
@@ -114,16 +92,17 @@ function AddDialog(props: AddDialogProps): JSX.Element {
       id="patient-add-caregiver-dialog"
       open={dialogIsOpen}
       aria-labelledby={t("modal-add-caregiver")}
-      onClose={handleClose}>
+      onClose={handleClose}
+      maxWidth="xs"
+      fullWidth
+    >
       <DialogTitle id="patient-add-caregiver-dialog-title">
         <strong>{t("modal-add-caregiver")}</strong>
       </DialogTitle>
 
-      <DialogContent className={classes.dialog}>
+      <DialogContent>
         <TextField
           id="patient-add-caregiver-dialog-email"
-          className={classes.textFieldEmail}
-          margin="normal"
           label={t("email")}
           variant="outlined"
           value={email}
@@ -132,25 +111,24 @@ function AddDialog(props: AddDialogProps): JSX.Element {
           onBlur={handleVerifyEmail}
           onChange={handleChangeEmail}
           helperText={errorMessage}
+          fullWidth
         />
       </DialogContent>
 
-      <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
+      <DialogActions>
         <Button
           id="patient-add-caregiver-dialog-button-cancel"
           onClick={handleClose}
-          className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
-          color="secondary"
-          variant="contained">
+        >
           {t("button-cancel")}
         </Button>
         <Button
           id="patient-add-caregiver-dialog-button-add"
           onClick={handleClickAdd}
           disabled={buttonAddDisabled}
-          className={buttonsClasses.buttonOk}
           variant="contained"
-          color="primary">
+          color="primary"
+        >
           {t("button-invite")}
         </Button>
       </DialogActions>

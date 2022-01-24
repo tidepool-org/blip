@@ -36,11 +36,9 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 
 import { UserRoles } from "../../models/shoreline";
-import { makeButtonsStyles } from "../theme";
 import { ConsentForm } from "../consents";
 import { SwitchRoleConsentDialogProps } from "./models";
 
-const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-switch-role-consent-buttons" });
 const dialogStyles = makeStyles(
   (theme: Theme) => {
     return {
@@ -57,26 +55,9 @@ const dialogStyles = makeStyles(
       checkbox: {
         marginBottom: "auto",
       },
-      buttonCancel: {
-        marginRight: theme.spacing(2),
-      },
-      buttons: {
-        display: "flex",
-        flexDirection: "row",
-        marginTop: theme.spacing(2),
-        marginRight: theme.spacing(5), // eslint-disable-line no-magic-numbers
-        marginLeft: theme.spacing(1), // eslint-disable-line no-magic-numbers
-      },
       dialogButtons: {
         display: "flex",
         justifyContent: "space-around",
-        marginTop: "16px",
-        marginLeft: "42px",
-        marginRight: "42px",
-        marginBottom: "16px",
-      },
-      button: {
-        marginLeft: "auto",
       },
     };
   },
@@ -85,7 +66,6 @@ const dialogStyles = makeStyles(
 
 function SwitchRoleConsentDialog(props: SwitchRoleConsentDialogProps): JSX.Element {
   const { open, onResult } = props;
-  const buttonsClasses = makeButtonsClasses();
   const classes = dialogStyles();
   const { t } = useTranslation("yourloops");
   const [policyAccepted, setPolicyAccepted] = React.useState(false);
@@ -125,18 +105,16 @@ function SwitchRoleConsentDialog(props: SwitchRoleConsentDialogProps): JSX.Eleme
         <Button
           id="switch-role-consent-dialog-button-decline"
           onClick={handleClose}
-          className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
-          color="secondary"
-          variant="contained">
+        >
           {t("button-decline")}
         </Button>
         <Button
           id="switch-role-consent-dialog-button-accept"
           onClick={handleAccept}
-          className={buttonsClasses.buttonOk}
           variant="contained"
           color="primary"
-          disabled={!(policyAccepted && termsAccepted)}>
+          disabled={!(policyAccepted && termsAccepted)}
+        >
           {t("button-accept")}
         </Button>
       </DialogActions>

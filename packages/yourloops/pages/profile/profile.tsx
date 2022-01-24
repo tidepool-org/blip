@@ -110,15 +110,14 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     container: {
       backgroundColor: "white",
-      border: "solid",
-      borderRadius: "15px",
       marginTop: "32px",
-      // eslint-disable-next-line no-magic-numbers
-      borderColor: theme.palette.grey[300],
-      borderWidth: "1px",
-      padding: "0 64px",
-      [theme.breakpoints.only("xs")]: {
-        padding: 0,
+      padding: 0,
+      [theme.breakpoints.up("sm")]: {
+        border: "solid",
+        borderRadius: "15px",
+        borderColor: theme.palette.grey[300],
+        borderWidth: "1px",
+        padding: "0 64px",
       },
     },
     uppercase: {
@@ -486,10 +485,9 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           <div style={{ display: "flex", justifyContent: "flex-end", margin: "2em 0em" }}>
             <Button
               id="profile-button-cancel"
-              variant="contained"
-              color="secondary"
               onClick={onCancel}
-              className={classes.button}>
+              className={classes.button}
+            >
               {t("button-cancel")}
             </Button>
             <Button
@@ -498,7 +496,8 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
               disabled={!canSave}
               color="primary"
               onClick={onSave}
-              className={classes.button}>
+              className={classes.button}
+            >
               {t("button-save")}
             </Button>
           </div>

@@ -35,16 +35,16 @@ label,
 
 .form-control-border {
   border: @form-control-border-size solid fade(@form-control-border-color, 50%);
-  border-radius: 0px;
+  border-radius: 0;
 
   &:hover {
-    border-color: @purple;
+    border-color: var(--color-primary-main);
   }
 
   &:focus {
     // Disable default WebKit focus style
     outline: 0;
-    border-color: @purple;
+    border-color: var(--color-primary-main);
   }
 
   &:disabled {
@@ -65,7 +65,7 @@ label,
   padding: ((@form-control-height - @line-height-base)/2 - @form-control-border-size) @spacing-tiny;
 
   border: @form-control-border-size solid @form-control-border-color;
-  border-radius: 0px;
+  border-radius: 0;
   background: #fff;
   color: #000;
 
@@ -73,14 +73,14 @@ label,
   -webkit-appearance: none;
 
   &:hover {
-    border-color: @purple;
+    border-color: var(--color-primary-main);
   }
 
   &:focus {
     // Disable default WebKit focus style
     outline: 0;
 
-    border-color: @purple;
+    border-color: var(--color-primary-main);
   }
 
   &:disabled {

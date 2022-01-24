@@ -39,7 +39,7 @@
 .messages-inner {
   margin: 80px auto;
   padding: @messages-close-height @spacing-base;
-  border: 2px solid @gray-light;
+  border: 2px solid var(--blip-color-primary-light);
   background-color: #fff;
   border-radius: 4px;
 
@@ -63,13 +63,13 @@
 }
 
 a.messages-close {
-  color: @gray-dark;
+  color: var(--blip-color-primary-alt);
   text-decoration: underline;
   // Hack: don't know why, but cursor not showing up as pointer
   cursor: pointer;
 
   &:hover {
-    color: @gray-darkest;
+    color: var(--blip-color-primary-light)
   }
 }
 
@@ -95,7 +95,7 @@ a.messages-close {
 
 .messages-create-datetime-value {
   font-weight: bold;
-  color: @gray-darkest;
+  color: var(--blip-color-primary-light)
 }
 
 .messages textarea {

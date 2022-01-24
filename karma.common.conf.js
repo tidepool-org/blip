@@ -170,6 +170,7 @@ function updateDefaultConfig(projectName, karmaConfig, webpackConfig, typescript
   }
 
   updatedConfig.files.unshift("../../node-compat.js");
+  updatedConfig.files.unshift("../../branding/**/*.css");
   updatedConfig.webpack = webpackConfig;
   updatedConfig.junitReporter.name = projectName;
   updatedConfig.junitReporter.filename = path.join(__dirname, `reports/${projectName}.junit.xml`);

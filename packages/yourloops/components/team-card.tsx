@@ -47,6 +47,7 @@ import { Team, getDisplayTeamCode } from "../lib/team";
 export interface TeamCardProps {
   team: Readonly<Team>;
   children?: JSX.Element | JSX.Element[] | null;
+  teamMembers?: JSX.Element;
 }
 
 export interface TeamInfoProps {
@@ -61,7 +62,6 @@ const teamCardStyles = makeStyles((theme: Theme) => {
     paper: {
       display: "flex",
       flexDirection: "column",
-      backgroundColor: theme.palette.primary.light,
     },
     paperRoot: {
       padding: "1em 3em",
@@ -126,7 +126,7 @@ const teamInfoStyles = makeStyles((theme: Theme) => {
     card: {
       display: "flex",
       flexDirection: "row",
-      marginRight: theme.spacing(3), // eslint-disable-line no-magic-numbers
+      marginRight: theme.spacing(3),
       [theme.breakpoints.down("sm")]: {
         marginRight: 0,
         width: "50%",
@@ -202,7 +202,7 @@ export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
 }
 
 function TeamCard(props: TeamCardProps): JSX.Element {
-  const { team, children } = props;
+  const { team, children, teamMembers } = props;
   const classes = teamCardStyles();
   const { id } = team;
 
@@ -229,7 +229,13 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   const teamCode = getDisplayTeamCode(team.code);
 
   return (
-    <Paper id={`team-card-${id}`} elevation={0} className={`${classes.paper} team-card`} classes={{ root: classes.paperRoot }} data-teamid={id}>
+    <Paper
+      id={`team-card-${id}`}
+      variant="outlined"
+      className={`${classes.paper} team-card`}
+      classes={{ root: classes.paperRoot }}
+      data-teamid={id}
+    >
       <div id={`team-card-${id}-actions`} className={classes.firstRow}>
         <h2 id={`team-card-${id}-name`} className={classes.teamName}>
           {team.name}
@@ -244,6 +250,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
         <TeamInfo id={id} label="address" value={address} icon={<LocationOnIcon className={classes.teamInfoIcon} />} />
         <TeamInfo id={id} label="email" value={team.email} icon={<EmailIcon className={classes.teamInfoIcon} />} />
       </div>
+      {teamMembers}
     </Paper>
   );
 }

@@ -1,25 +1,15 @@
-/* Diabeloop / Yourloops theme */
-
-:root {
-  --mdc-theme-primary: #109182;
-  --mdc-theme-secondary: #575756;
-  --mdc-theme-error: #de514b;
-  --mdc-theme-text-button-on-surface: #006c71;
-  --mdc-theme-text-button-hover-on-surface: #6fc3bb;
-  --logo-primary-color: #009381;
-}
-
 body {
-	height: 100vh;
-	margin: 0px;
+  height: 100vh;
+  margin: 0;
 }
 
 :global(#app) {
-	min-height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
+
 :global(p.loading) {
   text-align: center;
   font-family: "Basis";

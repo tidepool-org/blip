@@ -23,7 +23,7 @@
   --text-on-basal-automated: white;
   --text-basal: #a4a4a4;
   --text-basal-automated: #3a90a4;
-  --bolus: #6FC3BB;
+  --bolus: var(--blip-color-primary-light);
   --bolus-ride: #7E7E7E;
   --bolus-override: #7E7E7E;
   --bolus-underride: #7E7E7E;
@@ -75,7 +75,7 @@
   --bg-history-updated-soft:rgba(255,211,130,0.1);
   --bg-history-deleted-plain:rgba(251,89,81,1);
   --bg-history-deleted-soft:rgba(251,89,81,0.1);
-  --activeValue: #45A39A;
+  --activeValue: var(--blip-color-primary-light);
 }
 
 

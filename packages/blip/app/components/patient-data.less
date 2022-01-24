@@ -39,7 +39,7 @@
 
 .patient-data-subnav-inner {
   color: @black-80;
-  background-color: @green-header;
+  background-color: var(--color-secondary-main);;
   font-size: 16px;
   padding: 0;
 }
@@ -92,7 +92,7 @@
 
   &:hover,
   &:focus {
-    color: @gray-darkest;
+    color: var(--blip-color-primary-light);
     text-decoration: none;
   }
 
@@ -112,7 +112,7 @@
   letter-spacing: 0;
 
   &:hover {
-    color: @gray-darkest;
+    color: var(--blip-color-primary-light);
     text-decoration: none;
   }
 
@@ -147,7 +147,7 @@ a.js-home {
 }
 
 .patient-data-subnav button.patient-data-subnav-button {
-  border-width: 0px;
+  border-width: 0;
   background-color: transparent;
   color: @black-80;
   display: flex;
@@ -155,12 +155,12 @@ a.js-home {
   align-items: center;
   margin-right: 10px;
   margin-left: 10px;
-  padding-right: 0px;
-  padding-left: 0px;
+  padding-right: 0;
+  padding-left: 0;
   outline-style: none;
 
   &:hover {
-    color: @gray-darkest;
+    color: var(--blip-color-primary-light)
   }
   &:active, &:disabled {
     color: @gray;
@@ -318,7 +318,7 @@ a.js-home {
 }
 
 .patient-data-loading-message {
-  margin-top: 0px;
+  margin-top: 0;
   font-weight: bold;
 }
 
@@ -374,7 +374,7 @@ a.js-home {
 }
 
 .patient-data-footer a {
-  color: @gray-darkest;
+  color: var(--blip-color-primary-light);
   display: inline-block;
   padding: @patient-data-footer-vertical-padding
     @patient-data-footer-horizontal-padding;
@@ -383,7 +383,7 @@ a.js-home {
 
   &:hover,
   &:focus {
-    color: @gray-darkest;
+    color: var(--blip-color-primary-light);
     text-decoration: underline;
   }
 

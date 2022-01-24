@@ -26,7 +26,7 @@ a.btn {
   vertical-align: middle;
   background-image: none;
 
-  border: 0px solid @gray-dark;
+  border: 0 solid var(--blip-color-primary-alt);
   border-radius: 4px;
 
   font-size: @font-size-small;
@@ -61,7 +61,7 @@ a.btn {
 // Main action button style
 .btn-primary,
 a.btn-primary {
-  background-color: @purple;
+  background-color: var(--color-primary-main);
   color: @white-color;
 
   &:hover,
@@ -74,7 +74,7 @@ a.btn-primary {
 .btn-secondary,
 a.btn-secondary {
   font-weight: normal;
-  color: @purple;
+  color: var(--color-primary-main);
   background: none;
   border-color: transparent;
 
@@ -129,7 +129,7 @@ a.btn-chart {
 .btn-chart-control,
 a.btn-chart-control {
   font-weight: normal;
-  background-color: @light-blue;
+  background-color: var(--blip-color-secondary-alt);
   color: @purple-highcontrast;
   border: none;
   margin: 0 @spacing-tiny;
@@ -141,7 +141,7 @@ a.btn-chart-control {
   }
 
   &.active {
-    background-color: @gray-dark;
+    background-color: var(--blip-color-primary-alt);
     color: @white-color;
   }
 }

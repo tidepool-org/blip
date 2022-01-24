@@ -28,12 +28,13 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles, Theme, useTheme } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import brandingLogo from "branding/logo.png";
 
@@ -56,17 +57,32 @@ const formStyle = makeStyles((theme: Theme) => {
       flexDirection: "column",
       justifyContent: "center",
       textAlign: "center",
-      // eslint-disable-next-line no-magic-numbers
-      padding: theme.spacing(4),
+      paddingTop: theme.spacing(4),
+      paddingBottom: 0,
+      marginTop: theme.spacing(2),
+      [theme.breakpoints.up("sm")]: {
+        padding: theme.spacing(4),
+      },
     },
     CardContent: {
+      paddingLeft: 0,
+      paddingRight: 0,
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(2),
+      [theme.breakpoints.up("sm")]: {
+        padding: theme.spacing(2),
+      },
     },
     gridLangSelector: {
       padding: theme.spacing(2),
       textAlign: "center",
       fontSize: "small",
+    },
+    logoHeader: {
+      [theme.breakpoints.up("sm")]: {
+        paddingTop: theme.spacing(4),
+        paddingBottom: theme.spacing(4),
+      },
     },
   };
 }, { name: "signup-page-styles" });
@@ -77,6 +93,8 @@ const formStyle = makeStyles((theme: Theme) => {
 function SignUpPage(): JSX.Element {
   const { t } = useTranslation("yourloops");
   const classes = formStyle();
+  const theme = useTheme();
+  const isXSBreakpoint: boolean = useMediaQuery(theme.breakpoints.only("xs"));
 
   return (
     <Container maxWidth="sm" className={classes.mainContainer}>
@@ -84,21 +102,8 @@ function SignUpPage(): JSX.Element {
         <Grid item xs={12}>
           <SignUpFormStateProvider>
             <Card id="card-signup" className={classes.Card}>
-              <CardMedia
-                style={{
-                  display: "flex",
-                  paddingTop: "1em",
-                  paddingBottom: "1em",
-                }}>
-                <img
-                  src={brandingLogo}
-                  style={{
-                    height: "60px",
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                  }}
-                  alt={t("alt-img-logo")}
-                />
+              <CardMedia className={classes.logoHeader}>
+                <img src={brandingLogo} height={isXSBreakpoint ? 50 : 60} alt={t("alt-img-logo")} />
               </CardMedia>
               <CardContent className={classes.CardContent}>
                 <SignUpStepper />

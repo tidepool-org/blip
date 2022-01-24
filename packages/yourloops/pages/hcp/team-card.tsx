@@ -48,6 +48,7 @@ export interface TeamCardProps {
   onShowEditTeamDialog: (team: Team | null) => Promise<void>;
   onShowLeaveTeamDialog: (team: Team) => Promise<boolean>;
   onShowAddMemberDialog: (team: Team) => Promise<void>;
+  teamMembers?: JSX.Element;
 }
 
 export interface TeamInfoProps {
@@ -76,7 +77,15 @@ const teamCardStyles = makeStyles((theme: Theme) => {
 }, { name: "ylp-team-card-hcp" });
 
 function TeamCard(props: TeamCardProps): JSX.Element {
-  const { team, memberRole, memberStatus, onShowEditTeamDialog, onShowLeaveTeamDialog, onShowAddMemberDialog } = props;
+  const {
+    team,
+    memberRole,
+    memberStatus,
+    onShowEditTeamDialog,
+    onShowLeaveTeamDialog,
+    onShowAddMemberDialog,
+    teamMembers,
+  } = props;
   const classes = teamCardStyles();
   const { t } = useTranslation("yourloops");
   const [buttonsDisabled, setButtonsDisabled] = React.useState(false);
@@ -105,7 +114,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   };
 
   return (
-    <GenericTeamCard team={team}>
+    <GenericTeamCard team={team} teamMembers={teamMembers}>
       <React.Fragment>
         {isTeamMemberAdmin &&
           <React.Fragment>

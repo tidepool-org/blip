@@ -29,7 +29,7 @@
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -57,13 +57,6 @@ interface LeaveTeamDialogElementsProps {
   handleLeaveTeam: () => void;
 }
 const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "YlpLeaveTeamDialogButtons" });
-const leaveTeamDialogClasses = makeStyles((theme: Theme) => {
-  return {
-    buttonCancel: {
-      marginRight: theme.spacing(2),
-    },
-  };
-}, { name: "YlpLeaveTeamDialog" });
 
 function LeaveTeamDialogTitle(props: LeaveTeamDialogElementsProps): JSX.Element | null {
   const { team, teamName, onlyMember, userIsTheOnlyAdministrator } = props;
@@ -152,7 +145,6 @@ function LeaveTeamDialogContent(props: LeaveTeamDialogElementsProps): JSX.Elemen
 
 function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Element | null {
   const { team, onlyMember, userIsTheOnlyAdministrator, buttonsDisabled, handleClose, handleLeaveTeam } = props;
-  const classes = leaveTeamDialogClasses();
   const buttonClasses = makeButtonsClasses();
 
   const { t } = useTranslation("yourloops");
@@ -170,8 +162,9 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
         id="team-leave-dialog-button-leave"
         onClick={handleLeaveTeam}
         disabled={buttonsDisabled}
-        className={buttonClasses.buttonRedAction}
-        variant="contained">
+        className={buttonClasses.alertActionButton}
+        variant="contained"
+      >
         {t("team-leave-dialog-button-leave-and-del")}
       </Button>
     );
@@ -180,33 +173,32 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
         id="team-leave-dialog-button-cancel"
         onClick={handleClose}
         disabled={buttonsDisabled}
-        className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
-        color="secondary"
-        variant="contained">
+      >
         {t("button-cancel")}
       </Button>
     );
   } else if (userIsTheOnlyAdministrator) {
     buttonOK = (
       <Button
-        className={buttonClasses.buttonOk}
         id="team-leave-dialog-button-ok"
         onClick={handleClose}
         disabled={buttonsDisabled}
         color="primary"
-        variant="contained">
+        variant="contained"
+      >
         {t("button-ok")}
       </Button>
     );
   } else {
     buttonOK = (
       <Button
-        className={buttonClasses.buttonRedAction}
+        className={buttonClasses.alertActionButton}
         id="team-leave-dialog-button-leave"
         onClick={handleLeaveTeam}
         disabled={buttonsDisabled}
         color="primary"
-        variant="contained">
+        variant="contained"
+      >
         {t("team-leave-dialog-button-leave")}
       </Button>
     );
@@ -215,16 +207,14 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
         id="team-leave-dialog-button-cancel"
         onClick={handleClose}
         disabled={buttonsDisabled}
-        className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
-        color="secondary"
-        variant="contained">
+      >
         {t("button-cancel")}
       </Button>
     );
   }
 
   return (
-    <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
+    <DialogActions>
       {buttonCancel}
       {buttonOK}
     </DialogActions>

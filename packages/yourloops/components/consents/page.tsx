@@ -77,21 +77,10 @@ const style = makeStyles((theme: Theme) => {
     },
     buttons: {
       display: "flex",
-      flexDirection: "row",
+      justifyContent: "space-around",
       marginTop: theme.spacing(2),
-      marginRight: theme.spacing(5), // eslint-disable-line no-magic-numbers
-      marginLeft: theme.spacing(1),
       [theme.breakpoints.down("sm")]: {
-        marginRight: 0,
-        marginLeft: 0,
         justifyContent: "space-between",
-      },
-    },
-    button: {
-      marginLeft: "auto",
-      [theme.breakpoints.down("sm")]: {
-        marginRight: theme.spacing(1), // eslint-disable-line no-magic-numbers
-        marginLeft: theme.spacing(1),
       },
     },
   };
@@ -193,10 +182,8 @@ function Page(props: ConsentProps): JSX.Element {
                 <div id="consent-button-group" className={classes.buttons}>
                   <Button
                     id="consent-button-decline"
-                    variant="contained"
-                    color="secondary"
-                    className={classes.button}
-                    onClick={onDecline}>
+                    onClick={onDecline}
+                  >
                     {t("button-decline")}
                   </Button>
                   <Button
@@ -204,7 +191,6 @@ function Page(props: ConsentProps): JSX.Element {
                     variant="contained"
                     color="primary"
                     disabled={!consentsChecked}
-                    className={classes.button}
                     onClick={onConfirm}>
                     {t("button-accept")}
                   </Button>

@@ -301,11 +301,13 @@ function TeamsPage(): JSX.Element | null {
           onShowEditTeamDialog={handleShowEditTeamDialog}
           onShowLeaveTeamDialog={handleShowLeaveTeamDialog}
           onShowAddMemberDialog={handleShowAddMemberDialog}
-        />
-        <TeamMembers
-          team={team}
-          onSwitchAdminRole={handleSwitchAdminRole}
-          onShowRemoveTeamMemberDialog={handleShowRemoveTeamMemberDialog}
+          teamMembers={
+            <TeamMembers
+              team={team}
+              onSwitchAdminRole={handleSwitchAdminRole}
+              onShowRemoveTeamMemberDialog={handleShowRemoveTeamMemberDialog}
+            />
+          }
         />
       </Grid>
     );
@@ -314,7 +316,7 @@ function TeamsPage(): JSX.Element | null {
   return (
     <React.Fragment>
       <TeamsSecondaryBar onShowEditTeamDialog={handleShowEditTeamDialog} />
-      <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
+      <Container maxWidth="lg" style={{ marginTop: "2em", marginBottom: "2em" }}>
         <Grid id="team-page-grid-list" container spacing={3}>
           {teamsItems}
         </Grid>

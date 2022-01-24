@@ -16,34 +16,28 @@
 // Colors
 // ====================================
 
-@gray-darkest: #6fc3bb; // Hover state for links, buttons, light green
 @gray-darker: #6d6d6d; // Text on white background
-@gray-dark: #006c71; // Nav links, buttons, tabs, dark green
 @gray: #cccccc; // Container on gray background
-@gray-light: #6fc3bb; // Container on white background, light green
 @gray-lighter: #f7f7f8; // Background
 @white-color: #ffffff;
 @black-color: #000;
 
-@green-header: #E5F0F0;
 @green-active: #006C71;
 @black-80: #000000CC;
 
-@purple: #109182; // dark green
 @purple-pale: #dcdff9;
 @purple-dark: #575756;
 @purple-light: rgba(98, 124, 255, 0.2); // button disabled
 
 @purple-highcontrast: @purple-dark;
-@purple-success: #6fc3bb; // light green
 @purple-blip: #4e4490;
 @purple-uploader: @purple-dark;
-@purple-medium: @purple;
+@purple-medium: var(--color-primary-main);
 @orange-alert: #ffa70b;
 @red-error: #de514b;
 
 @blue-green: #0b9eb3;
-@blue-green-light: #6fc3bb;
+@blue-green-light: #4dabf5;
 @owned-account: #b1eaf2;
 @owned-account-hover: #81d7e4;
 
@@ -51,8 +45,6 @@
 @gray-background: #f2f2f2;
 @gray-title: #808080;
 @gray-rule: #d5d5d5;
-
-@light-blue: #eef5f9; // Fill on chart buttons
 
 // Brand Colors
 @brand-blue: #00ebfa;
@@ -116,7 +108,7 @@
 
 @state-success-text: @gray-darker;
 @state-success-bg: #fff;
-@state-success-border: @purple-success;
+@state-success-border: var(--blip-color-primary-light);
 
 @state-alert-text: @gray-darker;
 @state-alert-bg: #fff;

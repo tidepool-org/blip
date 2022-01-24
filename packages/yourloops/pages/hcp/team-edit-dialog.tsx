@@ -30,15 +30,19 @@ import _ from "lodash";
 import React from "react";
 import { useTranslation, Trans } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles, Theme, useTheme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import Fade from "@material-ui/core/Fade";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Link from "@material-ui/core/Link";
-import Modal from "@material-ui/core/Modal";
+import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import locales from "../../../../locales/languages.json";
 import DiabeloopUrl from "../../lib/diabeloop-url";
@@ -46,6 +50,7 @@ import { Team } from "../../lib/team";
 import { REGEX_EMAIL } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import { TeamEditModalContentProps } from "./types";
+import Box from "@material-ui/core/Box";
 
 interface LocalesCountries {
   [code: string]: {
@@ -59,52 +64,11 @@ interface TeamEditModalProps {
 
 const modalStyles = makeStyles((theme: Theme) => {
   return {
-    modal: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    divMain: {
-      display: "block",
-      padding: theme.spacing(2),
-      backgroundColor: theme.palette.background.paper,
-      borderRadius: theme.shape.borderRadius,
-      width: theme.breakpoints.values["sm"],
-    },
-    title: {
-      paddingLeft: theme.spacing(2),
-    },
-    form: {
-      display: "flex",
-      flexDirection: "column",
-      padding: theme.spacing(2),
-      overflowY: "scroll",
-    },
-    formNew: {
-      maxHeight: "24em",
-    },
-    formEdit: {
+    dialogContent: {
       maxHeight: "28em",
     },
     formChild: {
       marginBottom: theme.spacing(2),
-    },
-    divModalButtons: {
-      display: "flex",
-      flexDirection: "row",
-      marginTop: theme.spacing(2),
-      marginRight: theme.spacing(4), // eslint-disable-line no-magic-numbers
-    },
-    divModalButtonCancel: {
-      marginLeft: "auto",
-      marginRight: theme.spacing(1),
-    },
-    pModalInfos: {
-      paddingLeft: theme.spacing(2),
-    },
-    divModalWarnings: {
-      display: "block",
-      paddingLeft: theme.spacing(2),
     },
   };
 });
@@ -131,7 +95,9 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
 
   const classes = modalStyles();
   const auth = useAuth();
+  const theme = useTheme();
   const { t, i18n } = useTranslation("yourloops");
+  const isXSBreakpoint: boolean = useMediaQuery(theme.breakpoints.only("xs"));
 
   const [modalOpened, setModalOpened] = React.useState(false);
   const [teamName, setTeamName] = React.useState("");
@@ -149,9 +115,14 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
     if (Object.prototype.hasOwnProperty.call(countries, entry)) {
       const { name } = countries[entry];
       optionsCountries.push(
-        <option value={entry} key={name} aria-label={name}>
+        <MenuItem
+          id={`team-edit-dialog-select-country-item-${entry}`}
+          value={entry}
+          key={name}
+          aria-label={name}
+        >
           {name}
-        </option>
+        </MenuItem>
       );
     }
   }
@@ -255,7 +226,11 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
     ariaModal = t("button-create-a-team");
     modalTitle = t("team-modal-add-title");
     modalButtonValidate = t("button-create-team");
-    infoLine = <p id="team-edit-dialog-info-line" className={classes.pModalInfos}>{t("team-modal-create-info")}</p>;
+    infoLine = (
+      <Box px={2}>
+        <p id="team-edit-dialog-info-line">{t("team-modal-create-info")}</p>
+      </Box>
+    );
     const termsOfUse = t("terms-of-use");
     const linkTerms = (
       <Link aria-label={termsOfUse} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
@@ -263,15 +238,21 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
       </Link>
     );
     warningLines = (
-      <div className={classes.divModalWarnings}>
+      <Box px={2}>
         <p id="team-edit-dialog-warning-line1">{t("team-modal-create-warning-line1")}</p>
         <p id="team-edit-dialog-warning-line2">
-          <Trans i18nKey="team-modal-create-warning-line2" t={t} components={{ linkTerms }} values={{ terms: termsOfUse }} parent={React.Fragment}>
+          <Trans
+            i18nKey="team-modal-create-warning-line2"
+            t={t}
+            components={{ linkTerms }}
+            values={{ terms: termsOfUse }}
+            parent={React.Fragment}
+          >
             By accepting our {termsOfUse} you confirm you are a registered healthcare professional in your country
             and have the right to create a care team.
           </Trans>
         </p>
-      </div>
+      </Box>
     );
   } else {
     ariaModal = t("aria-modal-team-edit");
@@ -280,133 +261,135 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
   }
 
   return (
-    <Modal
+    <Dialog
       id="team-edit-dialog"
       aria-labelledby={ariaModal}
-      className={classes.modal}
       open={modalOpened}
-      onClose={handleCloseModal}>
-      <Fade in={modalOpened}>
-        <div className={classes.divMain}>
-          <h2 id="team-edit-dialog-title" className={classes.title}>{modalTitle}</h2>
+      scroll="paper"
+      onClose={handleCloseModal}
+      maxWidth="sm"
+      fullWidth
+      fullScreen={isXSBreakpoint}
+    >
+      <DialogTitle id="team-edit-dialog-title">
+        <strong>{modalTitle}</strong>
+      </DialogTitle>
 
-          {infoLine}
+      {infoLine}
 
-          <form noValidate autoComplete="off" className={`${classes.form} ${team === null ? classes.formNew : classes.formEdit}`}>
-            <TextField
-              id="team-edit-dialog-field-name"
-              className={classes.formChild}
-              variant="outlined"
-              onChange={(e) => setTeamName(e.target.value)}
-              name="name"
-              value={teamName}
-              label={t("team-edit-dialog-placeholder-name")}
-              required={true}
-              aria-required="true"
-            />
+      <DialogContent className={classes.dialogContent}>
+        <Box display="flex" flexDirection="column">
+          <TextField
+            id="team-edit-dialog-field-name"
+            className={classes.formChild}
+            variant="outlined"
+            onChange={(e) => setTeamName(e.target.value)}
+            name="name"
+            value={teamName}
+            label={t("team-edit-dialog-placeholder-name")}
+            required
+            aria-required="true"
+          />
+          <TextField
+            id="team-edit-dialog-field-line1"
+            className={classes.formChild}
+            variant="outlined"
+            onChange={(e) => setAddrLine1(e.target.value)}
+            name="addr-line1"
+            value={addrLine1}
+            label={t("team-edit-dialog-placeholder-addr-line1")}
+            required
+            aria-required="true"
+          />
+          <TextField
+            id="team-edit-dialog-field-line2"
+            className={classes.formChild}
+            variant="outlined"
+            onChange={(e) => setAddrLine2(e.target.value)}
+            name="addr-line2"
+            value={addrLine2}
+            label={t("team-edit-dialog-placeholder-addr-line2")}
+            aria-required="false"
+          />
+          <TextField
+            id="team-edit-dialog-field-zip"
+            className={classes.formChild}
+            variant="outlined"
+            onChange={(e) => setAddrZipCode(e.target.value)}
+            name="addr-zip"
+            value={addrZipCode}
+            label={t("team-edit-dialog-placeholder-addr-zip")}
+            required
+            aria-required="true"
+          />
+          <TextField
+            id="team-edit-dialog-field-city"
+            className={classes.formChild}
+            variant="outlined"
+            onChange={(e) => setAddrCity(e.target.value)}
+            name="addr-city"
+            value={addrCity}
+            label={t("team-edit-dialog-placeholder-addr-city")}
+            required
+            aria-required="true"
+          />
+          <FormControl className={classes.formChild} required variant="outlined">
+            <InputLabel
+              htmlFor="team-edit-dialog-select-country">{t("team-edit-dialog-placeholder-addr-country")}</InputLabel>
+            <Select
+              id="team-edit-dialog-select-country"
+              name="country"
+              label={t("team-edit-dialog-placeholder-addr-country")}
+              value={addrCountry}
+              onChange={(e) => setAddrCountry(e.target.value as string)}
+            >
+              {optionsCountries}
+            </Select>
+          </FormControl>
+          <TextField
+            id="team-edit-dialog-field-phone"
+            className={classes.formChild}
+            variant="outlined"
+            onChange={(e) => setTeamPhone(e.target.value)}
+            name="phone"
+            value={teamPhone}
+            label={t("phone-number")}
+            required
+            aria-required="true"
+          />
+          <TextField
+            id="team-edit-dialog-field-email"
+            className={classes.formChild}
+            variant="outlined"
+            onChange={(e) => setTeamEmail(e.target.value)}
+            name="email"
+            value={teamEmail}
+            label={t("email")}
+            aria-required="false"
+          />
+        </Box>
+      </DialogContent>
 
-            <TextField
-              id="team-edit-dialog-field-line1"
-              className={classes.formChild}
-              variant="outlined"
-              onChange={(e) => setAddrLine1(e.target.value)}
-              name="addr-line1"
-              value={addrLine1}
-              label={t("team-edit-dialog-placeholder-addr-line1")}
-              required={true}
-              aria-required="true"
-            />
-            <TextField
-              id="team-edit-dialog-field-line2"
-              className={classes.formChild}
-              variant="outlined"
-              onChange={(e) => setAddrLine2(e.target.value)}
-              name="addr-line2"
-              value={addrLine2}
-              label={t("team-edit-dialog-placeholder-addr-line2")}
-              required={false}
-              aria-required="false"
-            />
-            <TextField
-              id="team-edit-dialog-field-zip"
-              className={classes.formChild}
-              variant="outlined"
-              onChange={(e) => setAddrZipCode(e.target.value)}
-              name="addr-zip"
-              value={addrZipCode}
-              label={t("team-edit-dialog-placeholder-addr-zip")}
-              required={true}
-              aria-required="true"
-            />
-            <TextField
-              id="team-edit-dialog-field-city"
-              className={classes.formChild}
-              variant="outlined"
-              onChange={(e) => setAddrCity(e.target.value)}
-              name="addr-city"
-              value={addrCity}
-              label={t("team-edit-dialog-placeholder-addr-city")}
-              required={true}
-              aria-required="true"
-            />
-            <FormControl className={classes.formChild} required={true} variant="outlined">
-              <InputLabel htmlFor="team-edit-dialog-select-country">{t("team-edit-dialog-placeholder-addr-country")}</InputLabel>
-              <Select
-                native
-                label={t("team-edit-dialog-placeholder-addr-country")}
-                value={addrCountry}
-                onChange={(e) => setAddrCountry(e.target.value as string)}
-                inputProps={{ name: "country", id: "team-edit-dialog-select-country" }}>
-                {optionsCountries}
-              </Select>
-            </FormControl>
+      {warningLines}
 
-            <TextField
-              id="team-edit-dialog-field-phone"
-              className={classes.formChild}
-              variant="outlined"
-              onChange={(e) => setTeamPhone(e.target.value)}
-              name="phone"
-              value={teamPhone}
-              label={t("phone-number")}
-              required={true}
-              aria-required="true"
-            />
-            <TextField
-              id="team-edit-dialog-field-email"
-              className={classes.formChild}
-              variant="outlined"
-              onChange={(e) => setTeamEmail(e.target.value)}
-              name="email"
-              value={teamEmail}
-              label={t("email")}
-              required={false}
-              aria-required="false"
-            />
-          </form>
-
-          {warningLines}
-
-          <div className={classes.divModalButtons}>
-            <Button
-              id="team-edit-dialog-button-close"
-              className={classes.divModalButtonCancel}
-              variant="contained"
-              onClick={handleCloseModal}>
-              {t("button-cancel")}
-            </Button>
-            <Button
-              id="team-edit-dialog-button-validate"
-              disabled={formIsIncomplete}
-              onClick={handleValidateModal}
-              color="primary"
-              variant="contained">
-              {modalButtonValidate}
-            </Button>
-          </div>
-        </div>
-      </Fade>
-    </Modal>
+      <DialogActions>
+        <Button
+          id="team-edit-dialog-button-close"
+          onClick={handleCloseModal}
+        >
+          {t("button-cancel")}
+        </Button>
+        <Button
+          id="team-edit-dialog-button-validate"
+          disabled={formIsIncomplete}
+          onClick={handleValidateModal}
+          color="primary"
+          variant="contained"
+        >
+          {modalButtonValidate}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 

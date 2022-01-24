@@ -34,6 +34,7 @@ import _ from "lodash";
 import { Trans, useTranslation } from "react-i18next";
 
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
+import Box from "@material-ui/core/Box";
 import Link from "@material-ui/core/Link";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
@@ -49,21 +50,19 @@ import { useSignUpFormState } from "./signup-formstate-context";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      width: "100%",
-    },
-    button: {
-      marginRight: theme.spacing(1),
-    },
     instructions: {
       textAlign: "left",
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1),
     },
+    stepper: {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
   })
 );
 
-export default function SignUpStepper() : JSX.Element {
+export default function SignUpStepper(): JSX.Element {
   const { t } = useTranslation("yourloops");
   const classes = useStyles();
   const { state, dispatch } = useSignUpFormState();
@@ -104,38 +103,31 @@ export default function SignUpStepper() : JSX.Element {
   const getStepContent = (step: number) => {
     switch (step) {
       case 0:
-        return (
-          <SignUpAccountSelector
-            handleBack={handleBack}
-            handleNext={handleNext}
-          />
-        );
+        return (<SignUpAccountSelector handleBack={handleBack} handleNext={handleNext} />);
       case 1:
-        return (
-          <SignUpConsent handleBack={handleBack} handleNext={handleNext} />
-        );
+        return (<SignUpConsent handleBack={handleBack} handleNext={handleNext} />);
       case 2:
-        return (
-          <SignUpProfileForm handleBack={handleBack} handleNext={handleNext} />
-        );
-      // eslint-disable-next-line no-magic-numbers
+        return (<SignUpProfileForm handleBack={handleBack} handleNext={handleNext} />);
       case 3:
-        return (
-          <SignUpAccountForm handleBack={handleBack} handleNext={handleNext} />
-        );
+        return (<SignUpAccountForm handleBack={handleBack} handleNext={handleNext} />);
       default:
         return t("signup-steppers-step-unknown");
     }
   };
 
   return (
-    <div className={classes.root}>
+    <React.Fragment>
       {activeStep > 0 && (
         <Typography color="primary" variant="h4" gutterBottom>
           {title}
         </Typography>
       )}
-      <Stepper id="signup-stepper" activeStep={activeStep} alternativeLabel>
+      <Stepper
+        id="signup-stepper"
+        className={classes.stepper}
+        activeStep={activeStep}
+        alternativeLabel
+      >
         {steps.map((label) => {
           const stepProps: { completed?: boolean } = {};
           const labelProps: { optional?: React.ReactNode } = {};
@@ -146,40 +138,43 @@ export default function SignUpStepper() : JSX.Element {
           );
         })}
       </Stepper>
-      <div>
         {activeStep === steps.length ? (
-          <div>
+          <Box px={1}>
             <Typography id="signup-steppers-ending-text-1" className={classes.instructions}>
               <Trans
                 t={t}
                 i18nKey="signup-steppers-ending-message-1"
                 components={{ strong: <strong /> }}
-                values={{ email: state.formValues.accountUsername }}>
-                Please follow the link in the email we just sent you at <strong>email</strong> to verify and activate your account.
+                values={{ email: state.formValues.accountUsername }}
+              >
+                Please follow the link in the email we just sent you at <strong>email</strong> to verify and activate
+                your account.
               </Trans>
             </Typography>
             <Typography id="signup-steppers-ending-text-2" className={classes.instructions}>
               <Trans
                 t={t}
                 i18nKey="signup-steppers-ending-message-2"
-                components={{ a: <a /> }}>
+                components={{ a: <a /> }}
+              >
                 If you don’t receive any email from us, please contact our support at
                 technical.support@diabeloop.com
               </Trans>
             </Typography>
+            <Box mt={2}>
             <Link
               id="link-signup-gotologin"
-              className={classes.button}
               component={RouterLink}
               to="/"
-              onClick={handleLogin}>
-                {t("signup-steppers-back-login")}
+              onClick={handleLogin}
+            >
+              {t("signup-steppers-back-login")}
             </Link>
-          </div>
+            </Box>
+          </Box>
         ) : (
           <div>{getStepContent(activeStep)}</div>
         )}
-      </div>
-    </div>
+    </React.Fragment>
   );
 }

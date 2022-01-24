@@ -4,7 +4,7 @@ export WEBPACK_DEVTOOL='source-map'
 export PORT='3001'
 
 # Diabeloop specific
-export BRANDING='diabeloop'
+export BRANDING='diabeloop/blue'
 export PWD_MIN_LENGTH='10'
 export PWD_MAX_LENGTH='72'
 export MAX_FAILED_LOGIN_ATTEMPTS='5'

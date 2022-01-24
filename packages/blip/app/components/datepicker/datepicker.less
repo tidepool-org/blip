@@ -61,8 +61,8 @@
   cursor: initial;
 
   @media (max-width: (@screen-md-lg-min - 1)) {
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
     width: 100%;
     height: calc(100% - 1px);
     align-items: center;
@@ -80,13 +80,10 @@
     .change-month {
       color: @black-color;
       cursor: pointer;
-      margin-top: 0px;
-      margin-bottom: 0px;
-      margin-left: 0.2rem;
-      margin-right: 0.2rem;
+      margin: 0 0.2rem 0;
 
       &:hover {
-        color: @gray-dark;
+        color: var(--blip-color-primary-alt);
         text-decoration-line: underline;
         font-weight: bold;
       }
@@ -108,7 +105,7 @@
 
         .year {
           color: #281946;
-          margin: 0px;
+          margin: 0;
         }
 
         .monthdays {
@@ -158,7 +155,7 @@
 
             &.day-in {
               // Day in the selected range
-              background-color: @purple-success;
+              background-color: var(--blip-color-primary-light);
               color: @white-color;
             }
 
@@ -171,8 +168,8 @@
               // Selected day (first or last in the range)
               font-weight: bold;
               color: @white-color;
-              background-color: @gray-dark;
-              border-color: @gray-dark;
+              background-color: var(--blip-color-primary-alt);
+              border-color: var(--blip-color-primary-alt);
             }
           }
         }
@@ -210,7 +207,7 @@
 
     button {
       width: 40%;
-      padding: 0px;
+      padding: 0;
       height: 3em;
 
       @media (max-width: @screen-sm-max) {
