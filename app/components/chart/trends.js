@@ -367,6 +367,7 @@ const Trends = translate()(class Trends extends PureComponent {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.smbgRangeOverlay = prefs.trends.smbgRangeOverlay ? false : true;
     this.props.updateChartPrefs(prefs, false);
+    this.props.trackMetric(`clicked Trends range and average ${prefs.trends.smbgRangeOverlay ? 'on' : 'off'}`);
   }
 
   toggleDay(day) {
@@ -383,18 +384,29 @@ const Trends = translate()(class Trends extends PureComponent {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.smbgGrouped = prefs.trends.smbgGrouped ? false : true;
     this.props.updateChartPrefs(prefs, false);
+    this.props.trackMetric(`clicked Trends group ${prefs.trends.smbgGrouped ? 'on' : 'off'}`);
   }
 
   toggleLines() {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.smbgLines = prefs.trends.smbgLines ? false : true;
     this.props.updateChartPrefs(prefs, false);
+    this.props.trackMetric(`clicked Trends lines ${prefs.trends.smbgLines ? 'on' : 'off'}`);
   }
 
   toggleDisplayFlags(flag, value) {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.cbgFlags[flag] = value;
     this.props.updateChartPrefs(prefs, false);
+
+    const flagMetrics = {
+      cbg100Enabled: encodeURIComponent('100% readings'),
+      cbg80Enabled: encodeURIComponent('80% readings'),
+      cbg50Enabled: encodeURIComponent('50% readings'),
+      cbgMedianEnabled: 'median',
+    }
+
+    this.props.trackMetric(`clicked Trends ${flagMetrics[flag]} ${value ? 'on' : 'off'}`);
   }
 
   toggleWeekdays(allActive) {
@@ -462,14 +474,17 @@ const Trends = translate()(class Trends extends PureComponent {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 stats={statsToRender}
+                trackMetric={this.props.trackMetric}
               />
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 devices={_.get(this.props, 'data.metaData.devices', [])}
-                updateChartPrefs={this.props.updateChartPrefs}
                 removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                trackMetric={this.props.trackMetric}
+                updateChartPrefs={this.props.updateChartPrefs}
               />
             </div>
           </div>
