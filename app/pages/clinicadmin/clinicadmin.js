@@ -152,7 +152,7 @@ export const ClinicAdmin = (props) => {
         !fetchingCliniciansFromClinic.completed &&
         !fetchingCliniciansFromClinic.notification
       ) {
-        dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id));
+        dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id, { limit: 1000, offset: 0 }));
       }
     }
   }, [
