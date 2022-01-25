@@ -48,6 +48,7 @@ import { useTeam } from "../../lib/team/hook";
 import { useSharedUser } from "../../lib/share";
 import metrics from "../../lib/metrics";
 import { useAlert } from "../../components/utils/snackbar";
+import AddTeamDialog from "../../pages/patient/teams/add-dialog";
 
 interface NotificationSpanProps {
   id: string;
@@ -180,8 +181,14 @@ export const Notification = (props: NotificationProps): JSX.Element => {
   const classes = useStyles();
   const { notification } = props;
   const { id } = notification;
+  const [addTeamDialogVisible, setAddTeamDialogVisible] = React.useState(false);
+  const isACareTeamInvitation = notification.type === NotificationType.careTeamProInvitation || notification.type === NotificationType.careTeamPatientInvitation;
 
-  const onAccept = async (/* event: React.MouseEvent<HTMLButtonElement, MouseEvent> */) => {
+  if (isACareTeamInvitation && !notification.target) {
+    throw Error("Cannot accept team invite because notification is missing the team id info");
+  }
+
+  const acceptInvitation = async () => {
     setInProgress(true);
     try {
       await notifications.accept(notification);
@@ -198,6 +205,14 @@ export const Notification = (props: NotificationProps): JSX.Element => {
     }
   };
 
+  const onOpenInvitationDialog = () => {
+    if (isACareTeamInvitation) {
+      setAddTeamDialogVisible(true);
+    } else {
+      acceptInvitation();
+    }
+  };
+
   const onDecline = async (/* event: React.MouseEvent<HTMLButtonElement, MouseEvent> */) => {
     setInProgress(true);
     try {
@@ -211,12 +226,25 @@ export const Notification = (props: NotificationProps): JSX.Element => {
     }
   };
 
+  const closeTeamAcceptDialog = (teamId: string | null): void => {
+    setAddTeamDialogVisible(false);
+    if (notification.target && teamId && notification.target.id === teamId) {
+      acceptInvitation();
+    }
+  };
+
   return (
     <div id={`notification-line-${id}`} className={`${classes.container} notification-line`} data-notificationid={id}>
       <NotificationIcon id={`notification-icon-${id}`} className="notification-icon" type={notification.type} />
       <NotificationSpan id={`notification-text-${id}`} t={t} notification={notification} className={`${classes.notificationSpan} notification-text`} />
       <div className={classes.rightSide}>
         <NotificationDate createdDate={notification.date} id={id} />
+        {isACareTeamInvitation && addTeamDialogVisible && notification.target
+          && <AddTeamDialog
+            error={t("notification-patient-invitation-wrong-code", { careteam : notification.target.name } )}
+            teamName={notification.target.name}
+            actions={{ onDialogResult : (teamId) => { closeTeamAcceptDialog(teamId);} }}
+          />}
         {props.userRole === UserRoles.caregiver && notification.type === NotificationType.careTeamProInvitation ? (
           <IconButton
             id={`notification-help-${id}-button`}
@@ -234,7 +262,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
             variant="contained"
             className={`${classes.buttonAccept} notification-button-accept`}
             disabled={inProgress}
-            onClick={onAccept}>
+            onClick={onOpenInvitationDialog}>
             {t("button-accept")}
           </Button>
         )}
