@@ -6,6 +6,7 @@ It is based on Tidepool Blip 1.27.
 ### Added
 - YLP-370 Remove a patient from the HCP patient list
 - YLP-1105 Yourloops new blue theme
+- YLP-1188 Pink theme for clinical environment
 ### Improvements
 - YLP-22 Print PDF content cleaned and improved (removing useless data)
 ### Fixed
