@@ -62,6 +62,7 @@ import {
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
+const { isCustomBgRange } = vizUtils.bg;
 
 export const PatientDataClass = createReactClass({
   displayName: 'PatientData',
@@ -569,6 +570,41 @@ export const PatientDataClass = createReactClass({
     }
   },
 
+  renderDefaultBgRangeCheckbox: function(props, state) {
+    const { t } = props;
+
+    return (
+      <Box p={2} sx={{
+        borderTop: '1px solid',
+        borderColor: 'grays.1',
+      }}>
+        <PopoverLabel
+          id='exclude-bolus-info'
+          label={(
+            <Checkbox
+              checked={!!this.state.bgPrefs?.useDefaultRange}
+              label={t('Use default BG ranges')}
+              onChange={this.toggleDefaultBgRange}
+              themeProps={{
+                color: 'stat.text',
+              }}
+            />
+          )}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                <strong>{t('This patient has set a custom BG target range.')}</strong>
+              </Paragraph2>
+              <Paragraph2>
+                {t('If this option is checked, the target ranges for this view will be updated to the default ranges.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+      </Box>
+    );
+  },
+
   renderExcludeEmptyBolusDaysCheckbox: function(props, state) {
     const { t } = props;
 
@@ -642,6 +678,29 @@ export const PatientDataClass = createReactClass({
     this.updateChartPrefs(prefs, false, true, true);
   },
 
+  toggleDefaultBgRange: function(e, value) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const patientSettings = _.get(this.props, 'patient.settings', {});
+    let bgPrefs = this.state.bgPrefs || {};
+
+    if (!bgPrefs.useDefaultRange) {
+      bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, this.props.queryParams);
+      bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+      bgPrefs.useDefaultRange = true;
+    } else {
+      bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
+      bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+      bgPrefs.useDefaultRange = false;
+    }
+
+    this.setState({ bgPrefs }, () => {
+      this.updateChartPrefs({}, false, true, true);
+    });
+  },
+
   closeDatesDialog: function() {
     this.setState({
       datesDialogOpen: false,
@@ -689,6 +748,10 @@ export const PatientDataClass = createReactClass({
         bgPrefs,
         manufacturer,
       });
+
+      if (this.state.isCustomBgRange && !props.isUserPatient && _.includes(['timeInRange', 'readingsInRange'], statType)) {
+        stat.children = this.renderDefaultBgRangeCheckbox(props, state);
+      }
 
       if (statType === 'totalInsulin' && _.includes(['basics', 'trends'], chartType)) {
         // We nest the averageDailyDose stat within the totalInsulin stat
@@ -1106,6 +1169,7 @@ export const PatientDataClass = createReactClass({
         this.queryData(undefined, queryOpts);
       } else if (queryStats || queryAggregations) {
         const query = {
+          bgPrefs: _.get(this.state, 'bgPrefs'),
           endpoints: _.get(this.state, 'chartEndpoints.current'),
           stats: queryStats ? this.getStatsByChartType() : undefined,
           aggregationsByDate: queryAggregations ? this.getAggregationsByChartType() : undefined,
@@ -1412,6 +1476,7 @@ export const PatientDataClass = createReactClass({
       if (!bgPrefs) {
         bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+        if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
         stateUpdates.bgPrefs = bgPrefs;
       }
 
