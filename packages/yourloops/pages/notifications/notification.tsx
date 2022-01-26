@@ -182,9 +182,9 @@ export const Notification = (props: NotificationProps): JSX.Element => {
   const { notification } = props;
   const { id } = notification;
   const [addTeamDialogVisible, setAddTeamDialogVisible] = React.useState(false);
-  const isACareTeamInvitation = notification.type === NotificationType.careTeamProInvitation || notification.type === NotificationType.careTeamPatientInvitation;
+  const isACareTeamPatientInvitation = notification.type === NotificationType.careTeamPatientInvitation;
 
-  if (isACareTeamInvitation && !notification.target) {
+  if (isACareTeamPatientInvitation && !notification.target) {
     throw Error("Cannot accept team invite because notification is missing the team id info");
   }
 
@@ -206,7 +206,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
   };
 
   const onOpenInvitationDialog = () => {
-    if (isACareTeamInvitation) {
+    if (isACareTeamPatientInvitation) {
       setAddTeamDialogVisible(true);
     } else {
       acceptInvitation();
@@ -239,7 +239,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
       <NotificationSpan id={`notification-text-${id}`} t={t} notification={notification} className={`${classes.notificationSpan} notification-text`} />
       <div className={classes.rightSide}>
         <NotificationDate createdDate={notification.date} id={id} />
-        {isACareTeamInvitation && addTeamDialogVisible && notification.target
+        {isACareTeamPatientInvitation && addTeamDialogVisible && notification.target
           && <AddTeamDialog
             error={t("notification-patient-invitation-wrong-code", { careteam : notification.target.name } )}
             teamName={notification.target.name}
