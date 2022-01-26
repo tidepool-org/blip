@@ -39,19 +39,15 @@ import { IUser, UserRoles } from "../../../models/shoreline";
 import { getUserFirstName, getUserLastName, getUserEmail, errorTextFromException, setPageTitle } from "../../../lib/utils";
 import metrics from "../../../lib/metrics";
 import { useAuth } from "../../../lib/auth";
-import { useSharedUser, ShareUser, addDirectShare, removeDirectShare } from "../../../lib/share";
+import { useSharedUser, ShareUser, removeDirectShare } from "../../../lib/share";
 import { useAlert } from "../../../components/utils/snackbar";
 import RemovePatientDialog, { RemovePatientDialogContentProps } from "../../../components/dialogs/patient-remove";
-import { AddPatientDialogContentProps, AddPatientDialogResult } from "./types";
 import PatientsSecondaryBar from "./secondary-bar";
 import PatientListTable from "./table";
-import AddPatientDialog from "./add-dialog";
 
 const log = bows("PatientListPage");
 
-// eslint-disable-next-line no-magic-numbers
 const throttledMetrics = _.throttle(metrics.send, 60000); // No more than one per minute
-// eslint-disable-next-line no-magic-numbers
 const throttleSearchMetrics = _.throttle(metrics.send, 10000, { trailing: true });
 
 /**
@@ -101,7 +97,7 @@ function updatePatientList(
 
   log.info("update-patient-list", { filter, filterType, orderBy, order, sortFlaggedFirst });
 
-  let patients = shares;
+  let patients;
   if (filterType === FilterType.pending) {
     patients = shares.filter((p) => p.status === UserInvitationStatus.pending && p.user.role === UserRoles.patient);
   } else if (filterType === FilterType.flagged) {
@@ -121,10 +117,7 @@ function updatePatientList(
         return true;
       }
       const lastName = getUserLastName(patient.user);
-      if (lastName.toLocaleLowerCase().includes(searchText)) {
-        return true;
-      }
-      return false;
+      return lastName.toLocaleLowerCase().includes(searchText);
     });
   }
 
@@ -172,7 +165,6 @@ function PatientListPage(): JSX.Element {
   const [orderBy, setOrderBy] = React.useState<SortFields>(SortFields.lastname);
   const [filter, setFilter] = React.useState<string>("");
   const [filterType, setFilterType] = React.useState<FilterType | string>(FilterType.all);
-  const [patientToAdd, setPatientToAdd] = React.useState<AddPatientDialogContentProps | null>(null);
   const [patientToRemove, setPatientToRemove] = React.useState<RemovePatientDialogContentProps | null>(null);
 
   const flagged = authHook.getFlagPatients();
@@ -185,10 +177,12 @@ function PatientListPage(): JSX.Element {
     setOrder(order);
     setOrderBy(orderBy);
   };
+
   const handleSelectPatient = (user: IUser, flagged: boolean): void => {
     metrics.send("patient_selection", "select_patient", flagged ? "flagged" : "not_flagged");
     historyHook.push(`/caregiver/patient/${user.userid}`);
   };
+
   const handleFlagPatient = async (userId: string, flagged: boolean): Promise<void> => {
     try {
       await authHook.flagPatient(userId);
@@ -197,11 +191,13 @@ function PatientListPage(): JSX.Element {
       log.error(errorTextFromException(reason));
     }
   };
+
   const handleFilter = (filter: string): void => {
     log.info("Filter patients name", filter);
     throttledMetrics("patient_selection", "search_patient", "by_name");
     setFilter(filter);
   };
+
   const handleFilterType = (filterType: FilterType | string): void => {
     log.info("Filter patients with", filterType);
     setFilterType(filterType);
@@ -211,29 +207,7 @@ function PatientListPage(): JSX.Element {
     }
     metrics.send("patient_selection", "filter_patient", filterType);
   };
-  const handleInvitePatient = async (): Promise<void> => {
-    const getPatientEmailAndTeam = (): Promise<AddPatientDialogResult | null> => {
-      return new Promise((resolve: (value: AddPatientDialogResult | null) => void) => {
-        setPatientToAdd({ onDialogResult: resolve });
-      });
-    };
 
-    const result = await getPatientEmailAndTeam();
-    setPatientToAdd(null); // Close the dialog
-
-    if (result !== null && session !== null) {
-      try {
-        const { email } = result;
-        await addDirectShare(session, email);
-        setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
-        alert.success(t("alert-invitation-sent-success"));
-        metrics.send("invitation", "send_invitation", "patient");
-      } catch (reason) {
-        log.error(reason);
-        alert.error(t("alert-invitation-patient-failed"));
-      }
-    }
-  };
   const handleRemovePatient = async (patient: IUser, flagged: boolean, isPendingInvitation: boolean): Promise<void> => {
     const getConfirmation = (): Promise<boolean> => {
       return new Promise((resolve: (value: boolean) => void) => {
@@ -285,7 +259,6 @@ function PatientListPage(): JSX.Element {
         filterType={filterType}
         onFilter={handleFilter}
         onFilterType={handleFilterType}
-        onInvitePatient={handleInvitePatient}
       />
       <Container id="patient-list-container" maxWidth="lg" style={{ paddingTop: "2em" }}>
         <PatientListTable
@@ -299,7 +272,6 @@ function PatientListPage(): JSX.Element {
           onRemovePatient={handleRemovePatient}
         />
       </Container>
-      <AddPatientDialog actions={patientToAdd} />
       <RemovePatientDialog actions={patientToRemove} />
     </React.Fragment>
   );

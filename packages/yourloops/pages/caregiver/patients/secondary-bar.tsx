@@ -32,14 +32,12 @@ import { useTranslation } from "react-i18next";
 import { Theme, makeStyles } from "@material-ui/core/styles";
 
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
-import Button from "@material-ui/core/Button";
 import MenuItem from "@material-ui/core/MenuItem";
 import Typography from "@material-ui/core/Typography";
 
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import HomeIcon from "@material-ui/icons/Home";
 import FlagIcon from "@material-ui/icons/Flag";
-import PersonAddIcon from "@material-ui/icons/PersonAdd";
 
 import { FilterType } from "../../../models/generic";
 import SecondaryHeaderBar from "../../../components/header-bars/secondary";
@@ -50,7 +48,6 @@ export interface PatientListBarProps {
   filterType: FilterType | string;
   onFilter: (text: string) => void;
   onFilterType: (filterType: FilterType | string) => void;
-  onInvitePatient: () => Promise<void>;
 }
 
 const pageBarStyles = makeStyles((theme: Theme) => {
@@ -139,7 +136,7 @@ const pageBarStyles = makeStyles((theme: Theme) => {
 }, { name: "ylp-caregiver-patients-secondarybar" });
 
 function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
-  const { filter, filterType, onFilter, onFilterType, onInvitePatient } = props;
+  const { filter, filterType, onFilter, onFilterType } = props;
   const { t } = useTranslation("yourloops");
   const classes = pageBarStyles();
 
@@ -156,10 +153,6 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
       icon: <AccessTimeIcon color="primary" className={classes.selectFilterIcon} />,
     },
   ];
-
-  const handleOpenModalAddPatient = (): void => {
-    onInvitePatient();
-  };
 
   const optionsFilterElements: JSX.Element[] = [];
   for (const sfv of selectFilterValues) {
@@ -190,17 +183,6 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
           noFilter={true}
           optionsFilterElements={optionsFilterElements}
         />
-      </div>
-      <div id="patients-list-toolbar-item-right" className={classes.toolBarRight}>
-        <Button
-          id="patient-list-toolbar-add-patient"
-          color="primary"
-          variant="contained"
-          className={classes.buttonAddPatient}
-          onClick={handleOpenModalAddPatient}>
-          <PersonAddIcon />
-          <span className={classes.buttonAddPatientText}>&nbsp;{t("add-patient")}</span>
-        </Button>
       </div>
     </SecondaryHeaderBar>
   );
