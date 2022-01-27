@@ -46,7 +46,7 @@ import FlagIcon from "@material-ui/icons/Flag";
 import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 
 import IconActionButton from "../../../components/buttons/icon-action";
-import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
+// import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
 
 import { FilterType, SortDirection, SortFields } from "../../../models/generic";
 import { MedicalData } from "../../../models/device-data";
@@ -86,7 +86,7 @@ const patientListStyle = makeStyles(
 );
 
 function PatientRow(props: PatientElementProps): JSX.Element {
-  const { trNA, patient, flagged, filter, onClickPatient, onFlagPatient, onClickRemovePatient } = props;
+  const { trNA, patient, flagged, filter, onClickPatient, onFlagPatient, /* onClickRemovePatient */ } = props;
   const { t } = useTranslation("yourloops");
   const authHook = useAuth();
   const teamHook = useTeam();
@@ -111,10 +111,15 @@ function PatientRow(props: PatientElementProps): JSX.Element {
     metrics.send("patient_selection", "select_patient", isFlagged ? "flagged" : "un-flagged");
   };
 
-  const onClickRemoveIcon = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClickRemovePatient(patient);
-  };
+  /*
+  * TODO Can't add this feature for the moment
+  *  we need to wait until yourloops will be certified to level 2 of medical device
+  *  see YLP-370 (https://diabeloop.atlassian.net/browse/YLP-370)
+   */
+  // const onClickRemoveIcon = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   onClickRemovePatient(patient);
+  // };
 
   const { tir, tbr, lastUpload } = React.useMemo(() => getMedicalValues(medicalData, trNA), [medicalData, trNA]);
   // Replace the "@" if the userid is the email (status pending)
@@ -197,11 +202,14 @@ function PatientRow(props: PatientElementProps): JSX.Element {
       <TableCell id={`${rowId}-tbr`}>{tbr}</TableCell>
       <TableCell id={`${rowId}-upload`}>{lastUpload}</TableCell>
       <TableCell id={`${rowId}-remove-icon`}>
-        <IconActionButton
-          icon={<PersonRemoveIcon />}
-          className="remove-patient-hcp-view-button"
-          onClick={onClickRemoveIcon}
-        />
+        {/* TODO Can't add this feature for the moment */}
+        {/*  we need to wait until yourloops will be certified to level 2 of medical device */}
+        {/*  see YLP-370 (https://diabeloop.atlassian.net/browse/YLP-370) */}
+        {/*<IconActionButton*/}
+        {/*  icon={<PersonRemoveIcon />}*/}
+        {/*  className="remove-patient-hcp-view-button"*/}
+        {/*  onClick={onClickRemoveIcon}*/}
+        {/*/>*/}
       </TableCell>
     </TableRow>
   );

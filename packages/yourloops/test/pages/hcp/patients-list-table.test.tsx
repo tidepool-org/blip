@@ -127,13 +127,18 @@ function testPatientListTable(): void {
     expect(clickFlagPatientStub.calledOnce).to.be.true;
   });
 
-  it("should call onRemovePatient method when clicking on a remove icon", async () => {
-    await mountComponent();
-    const firstRow = document.querySelector(".patients-list-row");
-    const removeButton = firstRow.querySelector(".remove-patient-hcp-view-button");
-    Simulate.click(removeButton);
-    expect(clickRemovePatientStub.calledOnce).to.be.true;
-  });
+  /*
+  * TODO Can't add this feature for the moment
+  *  we need to wait until yourloops will be certified to level 2 of medical device
+  *  see YLP-370 (https://diabeloop.atlassian.net/browse/YLP-370)
+   */
+  // it("should call onRemovePatient method when clicking on a remove icon", async () => {
+  //   await mountComponent();
+  //   const firstRow = document.querySelector(".patients-list-row");
+  //   const removeButton = firstRow.querySelector(".remove-patient-hcp-view-button");
+  //   Simulate.click(removeButton);
+  //   expect(clickRemovePatientStub.calledOnce).to.be.true;
+  // });
 }
 
 export default testPatientListTable;
