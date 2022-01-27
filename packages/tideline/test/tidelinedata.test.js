@@ -637,6 +637,73 @@ describe("TidelineData", function() {
     });
   });
 
+  describe("YLP-1170 Deduplicate Boluses to workaround handset issue DROIDISSUE-269", () => {
+    /** @type {TidelineData} */
+    let td = null;
+
+    const bolusData = [
+      {
+        _active: true,
+        createdTime: "2021-06-03T12:00:00.000Z",
+        deviceId: "MobiGo352719110492773",
+        deviceTime: "2021-06-03T12:00:00",
+        id: "abcd",
+        time: "2021-06-03T12:00:00.000Z",
+        timezone: "Europe/Paris",
+        timezoneOffset: 120,
+        type: "bolus",
+        uploadId: "dd3b7032e7507332d85babe88d8ac173",
+        _userId: "1740d455c3",
+        normal: 1,
+        expectedNormal: 1
+      },{
+        _active: true,
+        createdTime: "2021-06-03T12:00:00.000Z",
+        deviceId: "MobiGo352719110492773",
+        deviceTime: "2021-06-03T12:00:00",
+        id: "NormalIsZeroButDuplicated",
+        time: "2021-06-03T12:00:00.000Z",
+        timezone: "Europe/Paris",
+        timezoneOffset: 120,
+        type: "bolus",
+        uploadId: "dd3b7032e7507332d85babe88d8ac173",
+        _userId: "1740d455c3",
+        normal: 0,
+        expectedNormal: 1
+      },{
+        _active: true,
+        createdTime: "2021-06-03T12:00:00.000Z",
+        deviceId: "MobiGo352719110492773",
+        deviceTime: "2021-06-03T12:00:00",
+        id: "NormalIsZero",
+        time: "2021-06-03T12:10:00.000Z",
+        timezone: "Europe/Paris",
+        timezoneOffset: 120,
+        type: "bolus",
+        uploadId: "dd3b7032e7507332d85babe88d8ac173",
+        _userId: "1740d455c3",
+        normal: 0,
+        expectedNormal: 1
+      }
+    ];
+
+    before(() => {
+      td = new TidelineData({ timePrefs: { timezoneName } });
+    });
+
+    it("should get the bolus datum without any duplicates", async () => {
+      await td.addData(_.cloneDeep(bolusData));
+      expect(td.data).to.be.an("array");
+      const boluses = td.data.filter((d) => d.type === "bolus");
+      expect(boluses).to.be.lengthOf(2);
+      const normalisZero = boluses.filter((d) => d.normal === 0);
+      expect(normalisZero).to.be.lengthOf(1);
+      const uniqueByTime = boluses.filter((d) => d.normalTime === "2021-06-03T12:00:00.000Z");
+      expect(uniqueByTime).to.be.lengthOf(1);
+    });
+
+  });
+
 /*
   it('should contain sorted groups of data by normalTime', async () => {
     const data = [
