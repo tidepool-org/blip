@@ -208,7 +208,7 @@ function PatientListPage(): JSX.Element {
     metrics.send("patient_selection", "filter_patient", filterType);
   };
 
-  const handleRemovePatient = async (patient: IUser, flagged: boolean, isPendingInvitation: boolean): Promise<void> => {
+  const handleRemovePatient = async (patient: IUser, flagged: boolean): Promise<void> => {
     const getConfirmation = (): Promise<boolean> => {
       return new Promise((resolve: (value: boolean) => void) => {
         setPatientToRemove({ onDialogResult: resolve, patient });
@@ -224,11 +224,11 @@ function PatientListPage(): JSX.Element {
         setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
         alert.success(t("alert-remove-patient-success"));
       } catch (reason) {
-        log.error(reason, { removed: result, flagged, isPendingInvitation });
+        log.error(reason, { removed: result, flagged });
         alert.error(t("alert-remove-patient-failure"));
       }
     } else {
-      log.error("remove_patient", { removed: result, flagged, isPendingInvitation });
+      log.error("remove_patient", { removed: result, flagged });
     }
     await Promise.resolve();
   };

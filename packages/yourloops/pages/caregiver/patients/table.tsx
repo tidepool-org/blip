@@ -38,13 +38,11 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
-import Tooltip from "@material-ui/core/Tooltip";
 
-import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
 import IconActionButton from "../../../components/buttons/icon-action";
 
-import { SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
+import { SortDirection, SortFields } from "../../../models/generic";
 import { IUser } from "../../../models/shoreline";
 import { getUserFirstName, getUserLastName, getUserEmail } from "../../../lib/utils";
 import { ShareUser } from "../../../lib/share";
@@ -56,7 +54,7 @@ export interface PatientListTableProps {
   orderBy: SortFields;
   onClickPatient: (user: IUser, flagged: boolean) => void;
   onFlagPatient: (userId: string, flagged: boolean) => Promise<void>;
-  onRemovePatient: (user: IUser, flagged: boolean, isPendingInvitation: boolean) => Promise<void>;
+  onRemovePatient: (user: IUser, flagged: boolean) => Promise<void>;
   onSortList: (field: SortFields, direction: SortDirection) => void;
 }
 
@@ -66,7 +64,7 @@ export interface PatientTableRowProps {
   flagged: string[];
   onClickPatient: (user: IUser, flagged: boolean) => void;
   onFlagPatient: (userId: string, flagged: boolean) => Promise<void>;
-  onRemovePatient: (user: IUser, flagged: boolean, isPendingInvitation: boolean) => Promise<void>;
+  onRemovePatient: (user: IUser, flagged: boolean) => Promise<void>;
 }
 
 const patientListStyle = makeStyles(
@@ -77,10 +75,6 @@ const patientListStyle = makeStyles(
       },
       tableRow: {
         cursor: "pointer",
-      },
-      tableRowPending: {
-        cursor: "default",
-        backgroundColor: theme.palette.secondary.main,
       },
       tableRowHeader: {
         textTransform: "uppercase",
@@ -112,13 +106,12 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
   // wdio used in the system tests do not accept "@"" in selectors
   // Theses ids should be the same as in pages/hcp/patients/table.tsx to ease the tests
   const rowId = `patients-list-row-${userId.replace(/@/g, "_")}`;
-  const isPendingInvitation = shareUser.status === UserInvitationStatus.pending;
 
   const handleSelectPatient = (/* e: React.MouseEvent */): void => onClickPatient(patient, isFlagged);
 
   const handleClickRemoveMember = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.stopPropagation();
-    onRemovePatient(patient, isFlagged, isPendingInvitation);
+    onRemovePatient(patient, isFlagged);
   };
 
   return (
@@ -126,19 +119,13 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
       id={rowId}
       tabIndex={-1}
       hover
-      className={`${classes.tableRow} ${classes.tableRowPending} patients-list-row`}
+      className={`${classes.tableRow} patients-list-row`}
       ref={rowRef}
-      onClick={isPendingInvitation ? undefined : handleSelectPatient}
+      onClick={handleSelectPatient}
       data-userid={userId}
       data-email={email}
     >
-      <TableCell id={`${rowId}-icon`}>
-        {isPendingInvitation &&
-        <Tooltip title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
-          <AccessTimeIcon id={`${rowId}-icon-pending`} />
-        </Tooltip>
-        }
-      </TableCell>
+      <TableCell id={`${rowId}-icon`} />
       <TableCell id={`${rowId}-lastname`}>{lastName}</TableCell>
       <TableCell id={`${rowId}-firstname`}>{firstName}</TableCell>
       <TableCell id={`${rowId}-email`}>{email}</TableCell>
