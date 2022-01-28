@@ -65,15 +65,18 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
   } else {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     if (!_.isEmpty(user)) {
-      checkIfAcceptedTerms(user);
+      checkIfAcceptedTerms(null, user);
     } else {
-      dispatch(actions.async.fetchUser(api, (err, user) => checkIfAcceptedTerms(user)));
+      dispatch(actions.async.fetchUser(api, (err, user) => checkIfAcceptedTerms(err, user)));
     }
 
-    function checkIfAcceptedTerms(user) {
+    function checkIfAcceptedTerms(err, user) {
+      if (err) return cb();
+
       if (!personUtils.hasAcceptedTerms(user)) {
         dispatch(push('/terms'));
       }
+
       getClinicsForMember(user);
     }
 
@@ -85,6 +88,8 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
         && !state.working.fetchingClinicsForClinician.notification
       ) {
         dispatch(actions.async.getClinicsForClinician(api, user.userid, {}, (err, clinics = []) => {
+          if (err) return cb();
+
           const isClinicianAccount = personUtils.isClinicianAccount(user);
           const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
           const firstEmptyOrUnmigratedClinic = _.find(clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
@@ -244,7 +249,7 @@ export const onUploaderPasswordReset = (api, cb = _.noop) => (dispatch) => {
   if (api.user.isAuthenticated()) {
     dispatch(push('/profile'));
   }
-  cb()
+  cb();
 }
 
 /**
