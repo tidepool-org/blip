@@ -581,4 +581,24 @@ describe('utils', () => {
     });
   });
 
+  describe('readableStatName', function() {
+    it('should return a readable name for stats, and fall back to the argument provided if no readable name exists', function() {
+      expect(utils.readableStatName('readingsInRange')).to.equal('Readings in range');
+      expect(utils.readableStatName('timeInAuto')).to.equal('Time in automation');
+      expect(utils.readableStatName('timeInOverride')).to.equal('Time in activity');
+      expect(utils.readableStatName('timeInRange')).to.equal('Time in range');
+      expect(utils.readableStatName('totalInsulin')).to.equal('Insulin ratio');
+      expect(utils.readableStatName('foo')).to.equal('foo');
+    });
+  });
+
+  describe('readableChartName', function() {
+    it('should return a readable name for charts, and fall back to the argument provided if no readable name exists', function() {
+      expect(utils.readableChartName('basics')).to.equal('Basics');
+      expect(utils.readableChartName('bgLog')).to.equal('BG log');
+      expect(utils.readableChartName('daily')).to.equal('Daily');
+      expect(utils.readableChartName('trends')).to.equal('Trends');
+      expect(utils.readableChartName('bar')).to.equal('bar');
+    });
+  });
 });

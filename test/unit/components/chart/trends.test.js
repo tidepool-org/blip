@@ -398,14 +398,54 @@ describe('Trends', () => {
 
   describe('toggleDisplayFlags', () => {
     it('should set the provided the trends `cbgFlags` chartPrefs state to the provided value', () => {
-      instance.toggleDisplayFlags('cbg100', true);
+      instance.toggleDisplayFlags('cbg100Enabled', true);
       sinon.assert.callCount(baseProps.updateChartPrefs, 1);
       sinon.assert.calledWith(baseProps.updateChartPrefs, {
         trends: {
           ...baseProps.chartPrefs.trends,
-          cbgFlags: { cbg100: true },
+          cbgFlags: { cbg100Enabled: true },
         },
       }, false);
+    });
+  });
+
+  describe('metrics on display toggle events', () => {
+    it('should send metrics for toggleBoxOverlay changes', () => {
+      wrapper.setProps({chartPrefs: { trends: { smbgRangeOverlay: false } } });
+      sinon.assert.callCount(baseProps.trackMetric, 0);
+      instance.toggleBoxOverlay();
+      sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends range and average on');
+      wrapper.setProps({chartPrefs: { trends: { smbgRangeOverlay: true } } });
+      instance.toggleBoxOverlay();
+      sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends range and average off');
+    });
+
+    it('should send metrics for toggleGrouping changes', () => {
+      wrapper.setProps({chartPrefs: { trends: { smbgGrouped: false } } });
+      sinon.assert.callCount(baseProps.trackMetric, 0);
+      instance.toggleGrouping();
+      sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends group on');
+      wrapper.setProps({chartPrefs: { trends: { smbgGrouped: true } } });
+      instance.toggleGrouping();
+      sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends group off');
+    });
+
+    it('should send metrics for toggleLines changes', () => {
+      wrapper.setProps({chartPrefs: { trends: { smbgLines: false } } });
+      sinon.assert.callCount(baseProps.trackMetric, 0);
+      instance.toggleLines();
+      sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends lines on');
+      wrapper.setProps({chartPrefs: { trends: { smbgLines: true } } });
+      instance.toggleLines();
+      sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends lines off');
+    });
+
+    it('should send metrics for toggleDisplayFlags changes', () => {
+      sinon.assert.callCount(baseProps.trackMetric, 0);
+      instance.toggleDisplayFlags('cbg100Enabled', true);
+      sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends 100%25%20readings on');
+      instance.toggleDisplayFlags('cbg100Enabled', false);
+      sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends 100%25%20readings off');
     });
   });
 });
