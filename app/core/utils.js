@@ -445,4 +445,19 @@ utils.initializePendo = (user, location, window) => {
   }
 };
 
+utils.readableStatName = statId => ({
+  readingsInRange: 'Readings in range',
+  timeInAuto: 'Time in automation',
+  timeInOverride: 'Time in activity',
+  timeInRange: 'Time in range',
+  totalInsulin: 'Insulin ratio',
+}[statId] || statId);
+
+utils.readableChartName = chartType => ({
+  basics: 'Basics',
+  bgLog: 'BG log',
+  daily: 'Daily',
+  trends: 'Trends',
+}[chartType] || chartType);
+
 export default utils;

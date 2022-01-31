@@ -1098,6 +1098,9 @@ describe('PatientData', function () {
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
           showingCbgDateTraces: false,
+          stats: {
+            excludeDaysWithoutBolus: false
+          },
           touched: false,
         },
         bgLog: {
@@ -1861,6 +1864,8 @@ describe('PatientData', function () {
           'timeInRange',
           'averageGlucose',
           'sensorUsage',
+          'totalInsulin',
+          'averageDailyDose',
           'glucoseManagementIndicator',
           'standardDev',
           'coefficientOfVariation',
@@ -1873,6 +1878,8 @@ describe('PatientData', function () {
         expect(instance.getStatsByChartType()).to.eql([
           'readingsInRange',
           'averageGlucose',
+          'totalInsulin',
+          'averageDailyDose',
           'standardDev',
           'coefficientOfVariation',
           'bgExtents',
@@ -1885,6 +1892,8 @@ describe('PatientData', function () {
         expect(instance.getStatsByChartType()).to.eql([
           'readingsInRange',
           'averageGlucose',
+          'totalInsulin',
+          'averageDailyDose',
           'timeInAuto',
           'standardDev',
           'coefficientOfVariation',
@@ -1898,6 +1907,8 @@ describe('PatientData', function () {
         expect(instance.getStatsByChartType()).to.eql([
           'readingsInRange',
           'averageGlucose',
+          'totalInsulin',
+          'averageDailyDose',
           'timeInOverride',
           'standardDev',
           'coefficientOfVariation',
@@ -2927,6 +2938,7 @@ describe('PatientData', function () {
     });
 
     it('should call `updateChartPrefs` with the `excludeDaysWithoutBolus` chartPrefs state toggled', () => {
+      instance.setState({ chartType: 'basics' });
       const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
       instance.toggleDaysWithoutBoluses();
 
@@ -2943,11 +2955,17 @@ describe('PatientData', function () {
       });
     });
 
-    it('should track a metric when `excludeDaysWithoutBolus` set to true', () => {
+    it('should track a metric when `excludeDaysWithoutBolus` set to true on basics view', () => {
+      instance.setState({ chartType: 'basics' });
       instance.toggleDaysWithoutBoluses();
       sinon.assert.calledWith(defaultProps.trackMetric, 'Basics exclude days without boluses');
     });
 
+    it('should track a metric when `excludeDaysWithoutBolus` set to true on trends view', () => {
+      instance.setState({ chartType: 'trends' });
+      instance.toggleDaysWithoutBoluses();
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends exclude days without boluses');
+    });
   });
 
   describe('closeDatesDialog', () => {
