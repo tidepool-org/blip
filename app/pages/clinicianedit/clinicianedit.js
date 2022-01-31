@@ -162,7 +162,7 @@ export const ClinicianEdit = (props) => {
       !fetchingCliniciansFromClinic.completed &&
       !fetchingCliniciansFromClinic.notification
     ) {
-      dispatch(actions.async.fetchCliniciansFromClinic(api, selectedClinic));
+      dispatch(actions.async.fetchCliniciansFromClinic(api, selectedClinic, { limit: 1000, offset: 0 }));
     }
   }
 

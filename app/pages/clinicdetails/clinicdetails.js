@@ -117,9 +117,15 @@ export const ClinicDetails = (props) => {
       // We don't update the form display state until the clinic is available or while submitting
       setDisplayFullForm(isEmpty(clinic?.name) || clinic?.canMigrate);
 
-      // If there is no reason for the user to be here, we redirect them appropriately
-      if (!isEmpty(clinic.name) && !clinic.canMigrate && userHasClinicProfile) {
-        redirectToWorkspace();
+      if (!isEmpty(clinic.name) && userHasClinicProfile) {
+        if (clinic?.canMigrate) {
+          // If the user has already filled out their clinician profile and clinic details, and the
+          // clinic patients have not been migrated, we open the prompt to complete the migration
+          openMigrationConfirmationModal();
+        } else {
+          // If there is no reason for the user to be here, we redirect them appropriately
+          redirectToWorkspace();
+        }
       }
     }
   }, [clinic, submitting]);
@@ -295,6 +301,7 @@ export const ClinicDetails = (props) => {
   }
 
   function handleConfirmClinicMigration() {
+    setSubmitting(true);
     trackMetric('Clinic - Migration confirmed', { clinicId: selectedClinicId });
     dispatch(actions.async.triggerInitialClinicMigration(api, selectedClinicId));
   }
