@@ -6,9 +6,18 @@ import Checkbox from '../elements/Checkbox';
 import { Box, Flex } from 'rebass/styled-components';
 
 import { colors, fontSizes } from '../../themes/baseTheme';
+import utils from '../../core/utils';
 
 export const DeviceSelection = (props) => {
-  const { chartPrefs,  devices = [], updateChartPrefs, removeGeneratedPDFS } = props;
+  const {
+    chartPrefs,
+    chartType,
+    devices = [],
+    removeGeneratedPDFS,
+    trackMetric,
+    updateChartPrefs,
+  } = props;
+
   const excludedDevices = get(chartPrefs, 'excludedDevices', []);
 
   const toggleDevice = (e) => {
@@ -20,9 +29,14 @@ export const DeviceSelection = (props) => {
       prefs.excludedDevices = union(prefs.excludedDevices, [e.target.value]);
     }
 
+    trackMetric(`Clicked ${utils.readableChartName(chartType)} filter device ${e.target.checked ? 'on' : 'off'}`);
     updateChartPrefs(prefs, true, true);
     removeGeneratedPDFS();
   };
+
+  const handleCollapse = (e, expanded) => {
+    trackMetric(`Click ${expanded ? 'expanded' : 'collapsed'} - ${utils.readableChartName(chartType)} - Filter devices`);
+  }
 
   return (
     <Accordion
@@ -34,16 +48,19 @@ export const DeviceSelection = (props) => {
         </Flex>
       }
       children={map(devices, ({id, label}) => (
-        <Checkbox
-          checked={!includes(excludedDevices, id)}
-          onChange={toggleDevice}
-          label={label || id}
-          name={`${id}-toggle`}
-          value={id}
-          key={id}
-          themeProps={{ color: colors.stat.text }}
-        />
+        <Box mb={1}>
+          <Checkbox
+            checked={!includes(excludedDevices, id)}
+            onChange={toggleDevice}
+            label={label || id}
+            name={`${id}-toggle`}
+            value={id}
+            key={id}
+            themeProps={{ color: colors.stat.text }}
+          />
+        </Box>
       ))}
+      onChange={handleCollapse}
       square={false}
       themeProps={{
         wrapper: {
@@ -91,6 +108,8 @@ export const DeviceSelection = (props) => {
         panel: {
           style: {
             flexDirection: 'column',
+            paddingTop: '8px',
+            paddingBottom: '4px',
           },
         },
       }}
@@ -102,6 +121,7 @@ DeviceSelection.propTypes = {
   chartPrefs: PropTypes.shape({
     excludedDevices: PropTypes.array,
   }),
+  chartType: PropTypes.string.isRequired,
   devices: PropTypes.arrayOf(
     PropTypes.shape({
       bgm: PropTypes.bool,
@@ -113,6 +133,7 @@ DeviceSelection.propTypes = {
     }
   )),
   removeGeneratedPDFS: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
   updateChartPrefs: PropTypes.func.isRequired,
 };
 

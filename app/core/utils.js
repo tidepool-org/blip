@@ -342,7 +342,7 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
 };
 
 utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
-  var bgUnits = _.get(patientSettings, 'units.bg', MGDL_UNITS);
+  var bgUnits = _.get(patientSettings, 'units.bg', queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS);
 
   const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
   const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
@@ -444,5 +444,20 @@ utils.initializePendo = (user, location, window) => {
     });
   }
 };
+
+utils.readableStatName = statId => ({
+  readingsInRange: 'Readings in range',
+  timeInAuto: 'Time in automation',
+  timeInOverride: 'Time in activity',
+  timeInRange: 'Time in range',
+  totalInsulin: 'Insulin ratio',
+}[statId] || statId);
+
+utils.readableChartName = chartType => ({
+  basics: 'Basics',
+  bgLog: 'BG log',
+  daily: 'Daily',
+  trends: 'Trends',
+}[chartType] || chartType);
 
 export default utils;

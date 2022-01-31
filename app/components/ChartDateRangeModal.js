@@ -190,7 +190,7 @@ export const ChartDateRangeModal = (props) => {
               onFocusChange={input => setDatePickerOpen(!!input)}
               themeProps={{
                 minWidth: '580px',
-                minHeight: datePickerOpen ? '320px' : undefined,
+                minHeight: datePickerOpen ? '350px' : undefined,
               }}
             />
           </Box>
