@@ -165,10 +165,12 @@ describe('AccessManagement', () => {
         },
       },
       membersOfTargetCareTeam: [
-        'otherPatient123'
+        'otherPatient123',
+        'clinicianUserId123'
       ],
       permissionsOfMembersInTargetCareTeam: {
         otherPatient123: { view: {}, upload: {} },
+        clinicianUserId123: { view: {}, upload: {} },
       },
       pendingSentInvites: [
         {
@@ -276,8 +278,8 @@ describe('AccessManagement', () => {
     it('should render a Table when data is available', () => {
       const table = wrapper.find(Table);
       expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(6); // data (member + clinic share, 2 member + clinic invites) + header
-      expect(table.find('td')).to.have.length(20);
+      expect(table.find('tr')).to.have.length(7); // data (member, clinician + clinic share, 2 member + clinic invites) + header
+      expect(table.find('td')).to.have.length(24);
     });
 
     it('should render a "More" icon that opens a popover menu', () => {
@@ -296,11 +298,63 @@ describe('AccessManagement', () => {
       expect(popover().prop('open')).to.be.true;
     });
 
-    it('should render appropriate popover actions for a care team member', () => {
+    it('should render appropriate popover actions for a classic clinic team member', () => {
       const table = wrapper.find(Table)
 
       const accountRow = table.find('tr').at(1);
-      expect(accountRow.text()).contains('Fooey McBear').and.contains('member');
+      expect(accountRow.text()).contains('Example Clinic').and.contains('clinician');
+
+      const popoverMenu = accountRow.find('PopoverMenu');
+      expect(popoverMenu).to.have.length(1);
+      const popoverActionButtons = popoverMenu.find('button.action-list-item');
+      expect(popoverActionButtons).to.have.length(2)
+
+      const expectedActions = [
+        {
+          type: 'SET_MEMBER_PERMISSIONS_REQUEST',
+        },
+        {
+          type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST',
+        },
+      ];
+
+      const actions = () => store.getActions();
+
+      // Click upload permissions toggle
+      expect(popoverActionButtons.at(0).text()).contains('Remove upload permission');
+      popoverActionButtons.at(0).props().onClick();
+      expect(actions()[0]).to.eql(expectedActions[0]);
+
+      sinon.assert.calledWith(
+        defaultProps.api.access.setMemberPermissions,
+        'clinicianUserId123',
+        { upload: undefined, view: {} }
+      );
+
+      // Click remove account button to open confirmation modal
+      expect(popoverActionButtons.at(1).text()).contains('Remove account');
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
+      popoverActionButtons.at(1).props().onClick();
+      wrapper.update();
+      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
+
+      // Confirm delete in modal
+      const deleteButton = wrapper.find('button.remove-account-access');
+      expect(deleteButton).to.have.length(1);
+      deleteButton.props().onClick();
+      expect(actions()[1]).to.eql(expectedActions[1]);
+
+      sinon.assert.calledWith(
+        defaultProps.api.access.removeMember,
+        'clinicianUserId123',
+      );
+    });
+
+    it('should render appropriate popover actions for a care team member', () => {
+      const table = wrapper.find(Table)
+
+      const accountRow = table.find('tr').at(2);
+      expect(accountRow.text()).contains('Fooey McBear').and.contains('member').and.contains('sharing');
 
       const popoverMenu = accountRow.find('PopoverMenu');
       expect(popoverMenu).to.have.length(1);
@@ -351,7 +405,7 @@ describe('AccessManagement', () => {
     it('should render appropriate popover actions for a pending care team invitation', () => {
       const table = wrapper.find(Table)
 
-      const accountRow = table.find('tr').at(4);
+      const accountRow = table.find('tr').at(5);
       expect(accountRow.text()).contains('pendingpatient@example.com').and.contains('invite sent').and.contains('member');
 
       const popoverMenu = accountRow.find('PopoverMenu');
@@ -410,7 +464,7 @@ describe('AccessManagement', () => {
     it('should render appropriate popover actions for a declined care team invitation', () => {
       const table = wrapper.find(Table)
 
-      const accountRow = table.find('tr').at(5);
+      const accountRow = table.find('tr').at(6);
       expect(accountRow.text()).contains('yetanotherpatient@example.com').and.contains('invite declined').and.contains('member');
 
       const popoverMenu = accountRow.find('PopoverMenu');
@@ -448,7 +502,7 @@ describe('AccessManagement', () => {
     it('should render appropriate popover actions for a clinic member', () => {
       const table = wrapper.find(Table)
 
-      const accountRow = table.find('tr').at(2);
+      const accountRow = table.find('tr').at(3);
       expect(accountRow.text()).contains('new_clinic_name').and.contains('clinic');
 
       const popoverMenu = accountRow.find('PopoverMenu');
@@ -502,7 +556,7 @@ describe('AccessManagement', () => {
     it('should render appropriate popover actions for a clinic invitation', () => {
       const table = wrapper.find(Table)
 
-      const accountRow = table.find('tr').at(3);
+      const accountRow = table.find('tr').at(4);
       expect(accountRow.text()).contains('other_clinic_name').and.contains('invite sent').and.contains('clinic');
 
       const popoverMenu = accountRow.find('PopoverMenu');
