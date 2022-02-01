@@ -94,42 +94,13 @@ class BasicsChartNoSize extends React.Component {
         }
       }
     }
-
-    if (!this.hasSectionData(basicsData, basicsData.sections.boluses.type)) {
-      basicsData.sections.boluses.active = false;
-      basicsData.sections.boluses.message = noPumpDataMessage;
-    }
-
-    if (!this.hasSectionData(basicsData, basicsData.sections.basals.type)) {
-      basicsData.sections.basals.active = false;
-      basicsData.sections.basals.message = noPumpDataMessage;
-    }
-
-    if (!this.automatedBasalEventsAvailable(basicsData)) {
-      const basalSection = _.find(basicsData.sections, { type: "basal" });
-
-      basalSection.selectorOptions.rows.forEach((row) => {
-        // eslint-disable-next-line lodash/prefer-filter
-        _.forEach(row, (option) => {
-          if (option.key === "automatedStop") {
-            option.active = false;
-          }
-        });
-      });
-    }
   }
 
   insulinDataAvailable(basicsData) {
     const { basal, bolus, wizard } = _.get(basicsData, "data", {});
-    if (_.get(basal, "data.length", false) || _.get(bolus, "data.length", false) || _.get(wizard, "data.length", false)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  automatedBasalEventsAvailable(basicsData) {
-    return _.get(basicsData, "data.basal.summary.automatedStop.count", 0) > 0;
+    return _.get(basal, "data.length", false)
+      || _.get(bolus, "data.length", false)
+      || _.get(wizard, "data.length", false);
   }
 
   hasSectionData(basicsData, section) {
@@ -141,23 +112,6 @@ class BasicsChartNoSize extends React.Component {
     return _.some(data, (datum) => {
       return datum.normalTime >= basicsData.dateRange[0];
     });
-  }
-
-  availableDeviceData() {
-    const { basicsData } = this.state;
-    const deviceTypes = [];
-
-    if (this.hasSectionData(basicsData, "cbg")) {
-      deviceTypes.push("CGM");
-    }
-    if (this.hasSectionData(basicsData, "smbg")) {
-      deviceTypes.push("BGM");
-    }
-    if (this.insulinDataAvailable(basicsData)) {
-      deviceTypes.push("Pump");
-    }
-
-    return deviceTypes;
   }
 
   render() {

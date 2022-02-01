@@ -55,7 +55,6 @@ import "./nurseshark.test";
 
 import "./blip/components/day/hover/InfusionHoverDisplay.test.js";
 import "./blip/components/logic/actions.test.js";
-import "./blip/components/misc/SummaryGroup.test.js";
 import "./blip/components/sitechange/Selector.test.js";
 import "./blip/components/BasicsUtils.test.js";
 import "./blip/components/CalendarContainer.test.js";
