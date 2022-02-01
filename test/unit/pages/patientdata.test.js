@@ -33,7 +33,7 @@ const t = i18next.t.bind(i18next);
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 import { MGDL_UNITS } from '../../../app/core/constants';
 
-describe('PatientData', function () {
+describe.only('PatientData', function () {
   const defaultProps = {
     addingData: { inProgress: false, completed: false },
     currentPatientInViewId: 'otherPatientId',
@@ -91,6 +91,7 @@ describe('PatientData', function () {
       },
       bg: {
         reshapeBgClassesToBgBounds: sinon.stub().returns('stubbed bgBounds'),
+        isCustomBgRange: sinon.stub().returns(false),
       },
       aggregation: {
         defineBasicsAggregations: sinon.stub().returns('stubbed aggregations definitions'),
@@ -103,7 +104,7 @@ describe('PatientData', function () {
     PD.__ResetDependency__('Basics');
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('BgLog');
-    PD.__ResetDependency__('vizUtils');
+    // PD.__ResetDependency__('vizUtils');
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -2260,7 +2261,7 @@ describe('PatientData', function () {
         });
       });
 
-      context('patient settings have been fetched, patient data has been added to worker', () => {
+      context.only('patient settings have been fetched, patient data has been added to worker', () => {
         it('should set bgPrefs if not already set to state', () => {
           wrapper.setState({ bgPrefs: { bgUnits: 'mg/dL' } });
           setStateSpy.resetHistory();
