@@ -116,9 +116,9 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.unmountChart();
   };
 
-  mountChart = () => {
+  mountChart = (props = this.props) => {
     this.log('Mounting...');
-    this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(this.props, this.chartOpts))
+    this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(props, this.chartOpts))
       .setupPools();
     this.bindEvents();
   };
@@ -171,11 +171,12 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   };
 
-  rerenderChart = (props = this.props) => {
+  rerenderChart = (updates = {}) => {
+    const chartProps = { ...this.props, ...updates };
     this.log('Rerendering...');
     this.unmountChart();
-    this.mountChart();
-    this.initializeChart(props);
+    this.mountChart(chartProps);
+    this.initializeChart(chartProps);
     this.chart.emitter.emit('inTransition', false);
   };
 
@@ -264,9 +265,13 @@ class Daily extends Component {
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
     const wrappedInstance = _.get(this.refs, 'chart.wrappedInstance');
+    const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
 
-    if (wrappedInstance && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
-      wrappedInstance.rerenderChart(nextProps);
+    if (wrappedInstance) {
+      const updates = {};
+      if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
+      if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) updates.bgClasses = nextProps.data.bgPrefs.bgClasses;
+      if (!_.isEmpty(updates)) wrappedInstance.rerenderChart(updates);
     }
   };
 
