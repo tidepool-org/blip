@@ -65,6 +65,15 @@ pipeline {
                     withCredentials([string(credentialsId: 'nexus-token', variable: 'NEXUS_TOKEN')]) {
                         pack()
                     }
+                    if (env.GIT_BRANCH == 'dblp' || 'engineering/latest-tag') {
+                        //publish latest tag when git branch is dblp
+                        echo "Push latest tag"
+                        def config = getConfig()
+                        dockerImageName = config.dockerImageName
+                        withCredentials([usernamePassword(credentialsId: 'nexus-jenkins', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PWD')]) {
+                            pushDocker("${utils.diabeloopRegistry}", "${NEXUS_USER}", "${NEXUS_PWD}", "${dockerImageName}:${GIT_COMMIT}", "latest")
+                        }
+                    }
                 }
             }
         }
