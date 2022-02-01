@@ -33,7 +33,7 @@ const t = i18next.t.bind(i18next);
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 import { MGDL_UNITS } from '../../../app/core/constants';
 
-describe.only('PatientData', function () {
+describe('PatientData', function () {
   const defaultProps = {
     addingData: { inProgress: false, completed: false },
     currentPatientInViewId: 'otherPatientId',
@@ -104,7 +104,7 @@ describe.only('PatientData', function () {
     PD.__ResetDependency__('Basics');
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('BgLog');
-    // PD.__ResetDependency__('vizUtils');
+    PD.__ResetDependency__('vizUtils');
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -1346,7 +1346,7 @@ describe.only('PatientData', function () {
     });
 
     it('should query stats if enabled via arg, but not by default, nor if querying data', () => {
-      instance.setState({ chartEndpoints: { current: [100, 200] } });
+      instance.setState({ chartEndpoints: { current: [100, 200] }, bgPrefs: 'bgPrefs' });
 
       // queryData set to false and queryStats set undefined
       instance.updateChartPrefs({ trends: 'bar'}, false);
@@ -1364,6 +1364,7 @@ describe.only('PatientData', function () {
       sinon.assert.calledWith(
         instance.queryData,
         sinon.match({
+          bgPrefs: 'bgPrefs',
           endpoints: [100, 200],
           stats: 'stats stub',
         }),
@@ -1371,8 +1372,8 @@ describe.only('PatientData', function () {
       );
     });
 
-    it('should query aggreagations if enabled via arg, but not by default, nor if querying data', () => {
-      instance.setState({ chartEndpoints: { current: [100, 200] } });
+    it('should query aggregations if enabled via arg, but not by default, nor if querying data', () => {
+      instance.setState({ chartEndpoints: { current: [100, 200] }, bgPrefs: 'bgPrefs' });
 
       // queryData and queryStats set to false and queryAggregations set undefined
       instance.updateChartPrefs({ trends: 'bar'}, false, false);
@@ -1390,6 +1391,7 @@ describe.only('PatientData', function () {
       sinon.assert.calledWith(
         instance.queryData,
         sinon.match({
+          bgPrefs: 'bgPrefs',
           endpoints: [100, 200],
           aggregationsByDate: 'aggregations stub',
         }),
@@ -2261,7 +2263,7 @@ describe.only('PatientData', function () {
         });
       });
 
-      context.only('patient settings have been fetched, patient data has been added to worker', () => {
+      context('patient settings have been fetched, patient data has been added to worker', () => {
         it('should set bgPrefs if not already set to state', () => {
           wrapper.setState({ bgPrefs: { bgUnits: 'mg/dL' } });
           setStateSpy.resetHistory();
@@ -2282,6 +2284,35 @@ describe.only('PatientData', function () {
               bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
               bgUnits: 'mg/dL',
             },
+          }));
+        });
+
+        it('should set `bgPrefs.isCustomBgRange` to state if patient is using custom BG range', () => {
+          PD.__Rewire__('vizUtils', {
+            data: {
+              selectDailyViewData: sinon.stub().returns('stubbed filtered daily data'),
+              selectBgLogViewData: sinon.stub().returns('stubbed filtered bgLog data'),
+            },
+            bg: {
+              reshapeBgClassesToBgBounds: sinon.stub().returns('stubbed bgBounds'),
+              isCustomBgRange: sinon.stub().returns(true),
+            },
+            aggregation: {
+              defineBasicsAggregations: sinon.stub().returns('stubbed aggregations definitions'),
+              processBasicsAggregations: sinon.stub().returns('stubbed processed aggregations'),
+            },
+          });
+
+          wrapper.setState({ bgPrefs: undefined });
+          wrapper.setProps(props);
+
+          sinon.assert.calledWith(setStateSpy, sinon.match({
+            bgPrefs: {
+              bgBounds: 'stubbed bgBounds',
+              bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
+              bgUnits: 'mg/dL',
+            },
+            isCustomBgRange: true,
           }));
         });
 
@@ -2966,6 +2997,63 @@ describe.only('PatientData', function () {
       instance.setState({ chartType: 'trends' });
       instance.toggleDaysWithoutBoluses();
       sinon.assert.calledWith(defaultProps.trackMetric, 'Trends exclude days without boluses');
+    });
+  });
+
+  describe('toggleDefaultBgRange', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should call `updateChartPrefs` with arguments needed to trigger stats and aggregations refresh', () => {
+      instance.setState({ chartType: 'basics' });
+      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
+      instance.toggleDefaultBgRange();
+      sinon.assert.calledWith(updateChartPrefsSpy, {}, false, true, true);
+    });
+
+    it('should call `setState` with the `useDefaultRange` bgPrefs state toggled', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      instance.setState({ chartType: 'basics' });
+      instance.toggleDefaultBgRange();
+
+      sinon.assert.calledWith(setStateSpy, {
+        bgPrefs:  {
+          bgBounds: 'stubbed bgBounds',
+          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
+          bgUnits: 'mg/dL',
+          useDefaultRange: true,
+        }
+      });
+
+      instance.toggleDefaultBgRange();
+
+      sinon.assert.calledWith(setStateSpy, {
+        bgPrefs:  {
+          bgBounds: 'stubbed bgBounds',
+          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
+          bgUnits: 'mg/dL',
+          useDefaultRange: false
+        }
+      });
+    });
+
+    it('should track a metric when `useDefaultRange` set to true on basics view', () => {
+      defaultProps.trackMetric.resetHistory();
+      instance.setState({ chartType: 'basics' });
+      instance.toggleDefaultBgRange();
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics - use default BG range');
+    });
+
+    it('should track a metric when `useDefaultRange` set to true on trends view', () => {
+      defaultProps.trackMetric.resetHistory();
+      instance.setState({ chartType: 'trends' });
+      instance.toggleDefaultBgRange();
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends - use default BG range');
     });
   });
 

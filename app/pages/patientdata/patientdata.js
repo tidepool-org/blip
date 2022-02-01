@@ -62,6 +62,7 @@ import {
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
+const { isCustomBgRange } = vizUtils.bg;
 
 export const PatientDataClass = createReactClass({
   displayName: 'PatientData',
@@ -694,6 +695,8 @@ export const PatientDataClass = createReactClass({
       bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
       bgPrefs.useDefaultRange = false;
     }
+
+    if (bgPrefs.useDefaultRange) this.props.trackMetric(`${_.capitalize(this.state.chartType)} - use default BG range`);
 
     this.setState({ bgPrefs }, () => {
       this.updateChartPrefs({}, false, true, true);
@@ -1475,7 +1478,7 @@ export const PatientDataClass = createReactClass({
       if (!bgPrefs) {
         bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
-        if (vizUtils.bg.isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
+        if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
         stateUpdates.bgPrefs = bgPrefs;
       }
 
