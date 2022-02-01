@@ -579,7 +579,7 @@ export const PatientDataClass = createReactClass({
         borderColor: 'grays.1',
       }}>
         <PopoverLabel
-          id='exclude-bolus-info'
+          id="use-default-bg-range"
           label={(
             <Checkbox
               checked={!!this.state.bgPrefs?.useDefaultRange}
@@ -614,7 +614,7 @@ export const PatientDataClass = createReactClass({
         borderColor: 'grays.1',
       }}>
         <PopoverLabel
-          id='exclude-bolus-info'
+          id="exclude-bolus-info"
           label={(
             <Checkbox
               checked={_.get(state, ['chartPrefs', state.chartType, 'stats', 'excludeDaysWithoutBolus'])}
