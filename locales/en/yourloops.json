@@ -208,6 +208,7 @@
   "select-pending-invitation-patients": "Pending",
   "send-reset-link": "Send reset link",
   "sending-reset-link": "Sending reset link",
+  "signup-account-deletion-warning": "If your account is not validated within 30 days it will be deleted.",
   "signup-account-selection-error": "You must select an account type",
   "signup-account-selection-msg": "If you use a DBL System, you have to create your account from your handset. You can’t create several accounts with the same email address.",
   "signup-country": "Country",

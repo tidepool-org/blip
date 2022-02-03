@@ -1,6 +1,5 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * password strength meter component tests
+ * Copyright (c) 2022, Diabeloop
  *
  * All rights reserved.
  *
@@ -32,39 +31,18 @@ import { expect } from "chai";
 import { act } from "@testing-library/react-hooks/dom";
 import _ from "lodash";
 
-import { SignUpFormStateProvider, useSignUpFormState } from "../../../pages/signup/signup-formstate-context";
-import SignUpProfileForm from "../../../pages/signup/signup-profile-form";
+import { SignUpFormStateProvider } from "../../../pages/signup/signup-formstate-context";
+import SignupAccountForm from "../../../pages/signup/signup-account-form";
 
-
-function FakeHcpSelector(): JSX.Element {
-  const { state, dispatch } = useSignUpFormState();
-
-  React.useEffect(() => {
-    if (state.formValues.accountRole !== "hcp") {
-      dispatch({
-        type: "EDIT_FORMVALUE",
-        key: "accountRole",
-        value: "hcp",
-      });
-    }
-  }, [dispatch, state.formValues.accountRole]);
-
-  return null;
-}
-
-function TestSignupProfileForm(): void {
+function TestSignupAccountForm(): void {
   let container: HTMLElement | null = null;
 
-  const mountComponent = async (hcp: boolean): Promise<void> => {
+  const mountComponent = async (): Promise<void> => {
     await act(() => {
       return new Promise((resolve) => {
-
         render(
           <SignUpFormStateProvider>
-            { hcp &&
-              <FakeHcpSelector />
-            }
-            <SignUpProfileForm handleBack={_.noop} handleNext={_.noop} />
+            <SignupAccountForm handleBack={_.noop} handleNext={_.noop} />
           </SignUpFormStateProvider>, container, resolve);
       });
     });
@@ -83,17 +61,11 @@ function TestSignupProfileForm(): void {
     }
   });
 
-  it("should not render the drop down list when caregiver", async () => {
-    await mountComponent(false);
-    const dropDownList = document.querySelector("#hcp-profession-selector");
-    expect(dropDownList).to.be.null;
-  });
-
-  it("should render the drop down list when HCP", async () => {
-    await mountComponent(true);
-    const dropDownList = document.querySelector("#hcp-profession-selector");
-    expect(dropDownList).to.be.not.null;
+  it("should render the warning message for account deletion", async () => {
+    await mountComponent();
+    const warningMessage = document.querySelector("#signup-account-deletion-warning");
+    expect(warningMessage).to.be.not.null;
   });
 }
 
-export default TestSignupProfileForm;
+export default TestSignupAccountForm;
