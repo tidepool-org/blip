@@ -208,6 +208,7 @@
   "select-pending-invitation-patients": "In attesa",
   "send-reset-link": "Invia link di reimpostazione",
   "sending-reset-link": "Invia link di reimpostazione",
+  "signup-account-deletion-warning": "Se il tuo account non viene convalidato entro 30 giorni, verrà eliminato.",
   "signup-account-selection-error": "è necessario selezionare un tipo di account",
   "signup-account-selection-msg": "Se lei usa un DBL System, deve creare il suo account dal suo portatile. Non può creare diversi accounts con lo stesso indirizzo e-mail.",
   "signup-country": "Paese",

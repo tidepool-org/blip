@@ -208,6 +208,7 @@
   "select-pending-invitation-patients": "Pendiente",
   "send-reset-link": "Enviar",
   "sending-reset-link": "Enviar enlace para restablecer",
+  "signup-account-deletion-warning": "Si su cuenta no es validada dentro de los 30 días se eliminará.",
   "signup-account-selection-error": "Debe seleccionar un tipo de cuenta",
   "signup-account-selection-msg": "Si utiliza un DBL System, tiene que crear su cuenta desde la terminal. No puede crear varias cuentas con la misma dirección de correo electrónico.",
   "signup-country": "País",

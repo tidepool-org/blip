@@ -208,6 +208,7 @@
   "select-pending-invitation-patients": "Ausstehend",
   "send-reset-link": "Reset-Link senden",
   "sending-reset-link": "Sende Link zum Zurücksetzen",
+  "signup-account-deletion-warning": "Wenn Ihr Konto nicht innerhalb von 30 Tagen aktiviert wird, wird es gelöscht. Herzlichen Dank!",
   "signup-account-selection-error": "Sie müssen einen Kontotyp auswählen",
   "signup-account-selection-msg": "Wenn Sie ein DBL-System verwenden, müssen Sie Ihr Konto von Ihrem Handset aus erstellen. Sie können nicht mehrere Konten mit der gleichen E-Mail-Adresse erstellen.",
   "signup-country": "Land",

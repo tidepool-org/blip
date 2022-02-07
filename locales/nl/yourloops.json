@@ -208,6 +208,7 @@
   "select-pending-invitation-patients": "In behandeling",
   "send-reset-link": "Reset link verzenden",
   "sending-reset-link": "Reset link verzenden",
+  "signup-account-deletion-warning": "Als je account niet binnen 30 dagen is gevalideerd, wordt het verwijderd.",
   "signup-account-selection-error": "Je moet een accounttype kiezen",
   "signup-account-selection-msg": "Als je een DBL Systeem gebruikt, moet je je account aanmaken vanaf je handset. Je kunt niet meerdere accounts aanmaken met hetzelfde e-mail adres.",
   "signup-country": "Land",

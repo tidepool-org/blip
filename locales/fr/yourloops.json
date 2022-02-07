@@ -208,6 +208,7 @@
   "select-pending-invitation-patients": "En attente",
   "send-reset-link": "Envoyer",
   "sending-reset-link": "Envoi du lien de réinitialisation",
+  "signup-account-deletion-warning": "Si votre compte n'est pas validé dans les 30 jours, il sera supprimé.",
   "signup-account-selection-error": "Vous devez sélectionner le type de compte",
   "signup-account-selection-msg": "Si vous utilisez un DBL System, vous devez créer votre compte depuis votre terminal. Vous ne pouvez pas créer plusieurs comptes avec la même adresse email.",
   "signup-country": "Pays",
