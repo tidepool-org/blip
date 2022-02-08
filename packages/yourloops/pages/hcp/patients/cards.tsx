@@ -80,6 +80,12 @@ const patientListStyle = makeStyles(theme => ({
   },
 }), { name: "ylp-hcp-patients-cards" });
 
+/**
+ * TODO Temporary here to disable remove patient functionality until Yourloops new certification
+ * see YLP-370 (https://diabeloop.atlassian.net/browse/YLP-370)
+ */
+const removeButtonEnabled = false;
+
 function PatientCard(props: PatientElementCardProps): JSX.Element {
   const { patient, flagged, onFlagPatient, onClickPatient, onClickRemovePatient, trNA, trTIR, trTBR, trUpload } = props;
   const { t } = useTranslation("yourloops");
@@ -181,12 +187,14 @@ function PatientCard(props: PatientElementCardProps): JSX.Element {
         <Typography id={`patients-list-card-${userId}-fullname`} className={classes.fullWidth}>
           {fullName}
         </Typography>
-        <IconActionButton
-          icon={<PersonRemoveIcon />}
-          className={classes.removePatientButton}
-          id={`patients-list-card-${userId}-remove-btn`}
-          onClick={onClickRemoveIcon}
-        />
+        {removeButtonEnabled &&
+          <IconActionButton
+            icon={<PersonRemoveIcon />}
+            className={classes.removePatientButton}
+            id={`patients-list-card-${userId}-remove-btn`}
+            onClick={onClickRemoveIcon}
+          />
+        }
       </Box>
 
       <Box
@@ -250,50 +258,6 @@ function Cards(props: PatientListProps): JSX.Element {
   const trTIR = translateSortField(t, SortFields.tir);
   const trTBR = translateSortField(t, SortFields.tbr);
   const trUpload = translateSortField(t, SortFields.upload);
-
-  // TODO: Sort is disabled for now, we will see how to do the UI later:
-
-  // const handleSortOrderChange = () => {
-  //   onSortList(orderBy, order === SortDirection.asc ? SortDirection.desc : SortDirection.asc);
-  // };
-  // const handleClickMenuSortField = (event: React.MouseEvent<HTMLElement>) => {
-  //   setAnchorMenuEl(event.currentTarget);
-  // };
-  // const handleCloseMenu = () => {
-  //   setAnchorMenuEl(null);
-  // };
-  // const handleSelectOrderBy = (fieldName: SortFields) => {
-  //   handleCloseMenu();
-  //   onSortList(fieldName, order);
-  // };
-  // const menuItems: JSX.Element[] = Object.values(SortFields).map((fieldName: SortFields) => (
-  //   <MenuItem
-  //     key={fieldName}
-  //     selected={orderBy === fieldName}
-  //     onClick={(/* event */) => handleSelectOrderBy(fieldName)}
-  //   >
-  //     {translateSortField(t, fieldName)}
-  //   </MenuItem>
-  // ));
-  // const sortMenu = (
-  //   <div>
-  //     <IconButton size="small" onClick={handleSortOrderChange}>
-  //       {order === SortDirection.asc ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
-  //     </IconButton>
-  //     <Button aria-haspopup="true" onClick={handleClickMenuSortField} color="secondary" size="small" startIcon={<MoreVertIcon />}>
-  //       {translateSortField(orderBy)}
-  //     </Button>
-  //     <Menu
-  //       id="patients-list-menu-sort-field"
-  //       anchorEl={anchorMenuEl}
-  //       keepMounted
-  //       open={Boolean(anchorMenuEl)}
-  //       onClose={handleCloseMenu}
-  //     >
-  //       {menuItems}
-  //     </Menu>
-  //   </div>
-  // );
 
   return (
     <React.Fragment>

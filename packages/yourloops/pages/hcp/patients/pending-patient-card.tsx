@@ -60,6 +60,12 @@ const style = makeStyles(theme => ({
   },
 }));
 
+/**
+ * TODO Temporary here to disable remove patient functionality until Yourloops new certification
+ * see YLP-370 (https://diabeloop.atlassian.net/browse/YLP-370)
+ */
+const removeButtonEnabled = false;
+
 function PendingPatientCard(props: PendingPatientCardProps): JSX.Element {
   const { patient, onClickRemovePatient } = props;
   const classes = style();
@@ -90,11 +96,13 @@ function PendingPatientCard(props: PendingPatientCardProps): JSX.Element {
       >
         {email}
       </Link>
-      <IconActionButton
-        icon={<PersonRemoveIcon />}
-        id={`pending-patient-list-card-remove-icon-${patientId}`}
-        onClick={handleOnClick}
-      />
+      {removeButtonEnabled &&
+        <IconActionButton
+          icon={<PersonRemoveIcon />}
+          id={`pending-patient-list-card-remove-icon-${patientId}`}
+          onClick={handleOnClick}
+        />
+      }
     </Paper>
   );
 }
