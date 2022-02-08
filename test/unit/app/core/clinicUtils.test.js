@@ -39,6 +39,7 @@ describe('clinicUtils', function() {
       { value: 'provider_practice', label: 'Provider Practice' },
       { value: 'healthcare_system', label: 'Healthcare System' },
       { value: 'veterinary_clinic', label: 'Veterinary Clinic' },
+      { value: 'research_organization', label: 'Research Organization' },
       { value: 'other', label: 'Other' },
     ]);
   });
