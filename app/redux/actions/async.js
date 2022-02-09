@@ -1925,11 +1925,13 @@ export function fetchClinician(api, clinicId, clinicianId) {
  * @param {String} clinician.name - The name of the clinician
  * @param {String[]} clinician.roles - Array of string roles
  */
-export function updateClinician(api, clinicId, clinicianId, clinician) {
+export function updateClinician(api, clinicId, clinicianId, clinician, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.updateClinicianRequest());
 
     api.clinics.updateClinician(clinicId, clinicianId, clinician, (err) => {
+      cb(err);
+
       if (err) {
         dispatch(sync.updateClinicianFailure(
           createActionError(ErrorMessages.ERR_UPDATING_CLINICIAN, err), err
@@ -2105,11 +2107,13 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
  * @param {String} [patient.mrn] - The medical record number of the patient
  * @param {String} [patient.email] - The email address of the patient
  */
-export function updateClinicPatient(api, clinicId, patientId, patient) {
+export function updateClinicPatient(api, clinicId, patientId, patient, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.updateClinicPatientRequest());
 
     api.clinics.updateClinicPatient(clinicId, patientId, patient, (err, patient) => {
+      cb(err, patient);
+
       if (err) {
         dispatch(sync.updateClinicPatientFailure(
           createActionError(ErrorMessages.ERR_UPDATING_CLINIC_PATIENT, err), err

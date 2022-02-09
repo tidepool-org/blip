@@ -16,6 +16,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
+import async from 'async';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -81,6 +82,10 @@ export var UserProfile = translate()(class extends React.Component {
   componentDidMount() {
     if (this.props.trackMetric) {
       this.props.trackMetric('Viewed Account Edit');
+    }
+
+    if (!this.props.fetchingClinicsForPatient.inProgress && !this.props.fetchingClinicsForPatient.completed) {
+      this.props.fetchClinicsForPatient(this.props.user.userid);
     }
   }
 
@@ -247,7 +252,7 @@ export var UserProfile = translate()(class extends React.Component {
  */
 export function mapStateToProps(state) {
   let user = null;
-  let { allUsersMap, loggedInUserId } = state.blip;
+  let { allUsersMap, loggedInUserId, clinics } = state.blip;
 
   if (allUsersMap) {
     if (loggedInUserId) {
@@ -255,20 +260,61 @@ export function mapStateToProps(state) {
     }
   }
 
+  const teamMemberClinics = _.filter(clinics, clinic => !!clinic.clinicians?.[loggedInUserId]);
+  const patientClinics = _.filter(clinics, clinic => !!clinic.patients?.[loggedInUserId]);
+
   return {
     user: user,
-    fetchingUser: state.blip.working.fetchingUser.inProgress
+    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    fetchingClinicsForPatient: state.blip.working.fetchingClinicsForPatient,
+    teamMemberClinics,
+    patientClinics,
   };
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  updateUser: actions.async.updateUser
+  updateUser: actions.async.updateUser,
+  updateClinician: actions.async.updateClinician,
+  updateClinicPatient: actions.async.updateClinicPatient,
+  fetchClinicsForPatient: actions.async.fetchClinicsForPatient,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.api;
   return Object.assign({}, _.pick(ownProps, ['history', 'trackMetric']), stateProps, {
-    onSubmit: dispatchProps.updateUser.bind(null, api),
+    fetchClinicsForPatient: dispatchProps.fetchClinicsForPatient.bind(null, api),
+    onSubmit: (formValues = {}) => {
+      const userId = stateProps.user?.userid;
+
+      const updateCalls = {
+        // Update account information
+        user: cb => dispatchProps.updateUser(api, formValues, {}, cb)
+      };
+
+      // Update name and email within all clinics where the user is a team member
+      _.reduce(stateProps.teamMemberClinics, (result, clinic) => {
+        result[`clinicMember${clinic.id}`] = cb => dispatchProps.updateClinician(api, clinic.id, userId, {
+          ...clinic.clinicians?.[userId],
+          name: formValues.profile?.fullName,
+          email: formValues.username,
+        }, cb);
+
+        return result;
+      }, updateCalls);
+
+      // Update name and email within all clinics where the user is a patient
+      _.reduce(stateProps.patientClinics, (result, clinic) => {
+        result[`clinicPatient${clinic.id}`] = cb => dispatchProps.updateClinicPatient(api, clinic.id, userId, {
+          ...clinic.patients?.[userId],
+          fullName: formValues.profile?.fullName,
+          email: formValues.username,
+        }, cb);
+
+        return result;
+      }, updateCalls);
+
+      async.parallel(async.reflectAll(updateCalls));
+    }
   });
 };
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(UserProfile);
