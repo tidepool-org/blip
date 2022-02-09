@@ -40,7 +40,6 @@ class Settings extends React.Component {
     timePrefs: PropTypes.object.isRequired,
     patient: PropTypes.object,
     patientData: PropTypes.object.isRequired,
-    permsOfLoggedInUser: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
     canPrint: PropTypes.bool.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
@@ -79,7 +78,6 @@ class Settings extends React.Component {
           canPrint={this.props.canPrint}
           prefixURL={this.props.prefixURL}
           trackMetric={this.props.trackMetric}
-          permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           onClickMostRecent={this.handleClickMostRecent}
           onClickBasics={this.props.onSwitchToBasics}
           onClickOneDay={this.handleClickOneDay}

@@ -176,15 +176,14 @@ export function formatBirthdate(patient) {
 
 /**
  * formatClocktimeFromMsPer24
- * @param {Number} duration - positive integer representing a time of day
+ * @param {number} milliseconds - positive integer representing a time of day
  *                            in milliseconds within a 24-hr day
- * @param {String} [format] - optional moment display format string; default is 'h:mm a'
+ * @param {string} format - optional moment display format string; default is 'h:mm a'
  *
- * @return {String} formatted clocktime, e.g., '12:05 pm'
+ * @return {string} formatted clocktime, e.g., '12:05 pm'
  */
 export function formatClocktimeFromMsPer24(milliseconds, format = getHourMinuteFormat()) {
-  if (_.isNull(milliseconds) || _.isUndefined(milliseconds) ||
-    milliseconds < 0 || milliseconds > TWENTY_FOUR_HRS || milliseconds instanceof Date) {
+  if (!Number.isFinite(milliseconds) || milliseconds < 0 || milliseconds > TWENTY_FOUR_HRS) {
     throw new Error("First argument must be a value in milliseconds per twenty-four hour day!");
   }
   return moment.utc(milliseconds).format(format);

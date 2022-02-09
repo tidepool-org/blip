@@ -62,7 +62,6 @@ export class CBGDateTraceAnimated extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    this.handleClick = this.handleClick.bind(this);
     this.handleMouseOut = this.handleMouseOut.bind(this);
   }
 
@@ -82,9 +81,9 @@ export class CBGDateTraceAnimated extends React.PureComponent {
     );
   }
 
-  handleClick() {
-    const { date, onSelectDate } = this.props;
-    onSelectDate(date);
+  handleClick(d) {
+    const { onSelectDate } = this.props;
+    onSelectDate(d.epoch);
   }
 
   handleMouseOut() {
@@ -103,7 +102,7 @@ export class CBGDateTraceAnimated extends React.PureComponent {
             cy={yScale(d.value)}
             id={`cbgCircle-${d.id}`}
             key={d.id}
-            onClick={this.handleClick}
+            onClick={() => this.handleClick(d)}
             onMouseOver={() => {
               this.props.focusDateTrace(userId, d, {
                 left: xScale(d.msPer24),
@@ -114,7 +113,7 @@ export class CBGDateTraceAnimated extends React.PureComponent {
               });
             }}
             onMouseOut={this.handleMouseOut}
-            opacity={0}
+            opacity={1}
             r={cbgRadius}
             ref={(node) => { this[d.id] = node; }}
           />

@@ -35,7 +35,7 @@
 }
 
 .loaderDots.hidden {
-  opacity: 0.01;
+  display: none;
 }
 
 .loaderDot {

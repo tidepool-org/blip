@@ -29,19 +29,15 @@ import Background
   from "../../../../src/components/trends/common/Background";
 import CBGSlicesContainer
   from "../../../../src/components/trends/cbg/CBGSlicesContainer";
-import SMBGRangeAvgContainer
-  from "../../../../src/components/trends/smbg/SMBGRangeAvgContainer";
 import NoData from "../../../../src/components/trends/common/NoData";
 import TargetRangeLines from "../../../../src/components/trends/common/TargetRangeLines";
 import XAxisLabels from "../../../../src/components/trends/common/XAxisLabels";
 import XAxisTicks from "../../../../src/components/trends/common/XAxisTicks";
 import YAxisLabelsAndTicks from "../../../../src/components/trends/common/YAxisLabelsAndTicks";
 
-function makeScale(scale) {
-  // eslint-disable-next-line no-param-reassign
-  scale.range = sinon.stub().returns([0, 10]);
-  return scale;
-}
+/**
+ * @typedef {import("enzyme").ShallowWrapper } ShallowWrapper
+ */
 
 describe("TrendsSVGContainer", () => {
   const props = {
@@ -63,196 +59,203 @@ describe("TrendsSVGContainer", () => {
       width: 960,
       height: 520,
     },
-    dates: [],
+    dates: ["2017-01-01"],
     cbgData: [{ id: "a2b3c4", localDate: "2017-01-01", msPer24: 6000, value: 180 }],
-    smbgData: [{ id: "a2b3c4", localDate: "2016-07-04", msPer24: 6000, value: 180 }],
+    yScaleDomain: [60, 300],
     displayFlags: {
       cbg100Enabled: false,
       cbg80Enabled: true,
       cbg50Enabled: true,
       cbgMedianEnabled: true,
     },
-    onSelectDate: () => {},
-    showingCbg: true,
+    onSelectDate: _.noop,
     showingCbgDateTraces: false,
-    showingSmbg: false,
-    smbgGrouped: true,
-    smbgLines: true,
-    smbgRangeOverlay: true,
-    timezone: "UTC",
-    xScale: makeScale(() => {}),
-    yScale: makeScale(() => {}),
+  };
+  const focusedSliceData = {
+    msFrom: 0,
+    msTo: 10000,
+    firstQuartile: 25,
+    thirdQuartile: 75,
+    ninetiethQuantile: 200,
+    tenthQuantile: 300,
+    max: 200,
+    min: 0,
+    median: 100,
+  };
+  const focusedSlice = {
+    data: focusedSliceData,
+    position: {
+      left: 0,
+      tooltipLeft: true,
+      yPositions: focusedSliceData,
+    },
   };
 
+  /** @type {ShallowWrapper} */
+  let wrapper = null;
+
+  beforeEach(() => {
+    sinon.spy(TrendsSVGContainer.prototype, "setScales");
+  });
   afterEach(() => {
-    props.xScale.range.resetHistory();
-    props.yScale.range.resetHistory();
+    if (wrapper) {
+      wrapper.unmount();
+      wrapper = null;
+    }
+    TrendsSVGContainer.prototype.setScales.restore();
   });
 
   describe("setScales", () => {
+    beforeEach(() => {
+      // Stub render, because it crash on mounting
+      sinon.stub(TrendsSVGContainer.prototype, "render").returns(null);
+    });
+    afterEach(() => {
+      TrendsSVGContainer.prototype.render.restore();
+    });
     it("should set the range of the xScale", () => {
-      sinon.spy(TrendsSVGContainer.prototype, "setScales");
-      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
-      shallow(<TrendsSVGContainer {...props} />);
-      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(1);
-      expect(props.xScale.range.callCount).to.equal(1);
-      expect(props.xScale.range.firstCall.args[0]).to.deep.equal([48, 942]);
-      TrendsSVGContainer.prototype.setScales.restore();
+      expect(TrendsSVGContainer.prototype.setScales.callCount, "setScales.callCount before").to.equal(0);
+      wrapper = shallow(<TrendsSVGContainer {...props} />, { disableLifecycleMethods: false });
+      expect(TrendsSVGContainer.prototype.setScales.callCount, "setScales.callCount after").to.equal(1);
+      const { xScale } = wrapper.state();
+      expect(xScale, "xScale").to.be.not.null;
+      expect(xScale.range()).to.deep.equal([48, 942]);
     });
 
     it("should set the range of the yScale", () => {
-      sinon.spy(TrendsSVGContainer.prototype, "setScales");
-      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
-      shallow(<TrendsSVGContainer {...props} />);
-      expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(1);
-      expect(props.yScale.range.callCount).to.equal(1);
-      expect(props.yScale.range.firstCall.args[0]).to.deep.equal([480, 80]);
-      TrendsSVGContainer.prototype.setScales.restore();
+      expect(TrendsSVGContainer.prototype.setScales.callCount, "setScales.callCount before").to.equal(0);
+      wrapper = shallow(<TrendsSVGContainer {...props} />, { disableLifecycleMethods: false });
+      expect(TrendsSVGContainer.prototype.setScales.callCount, "setScales.callCount after").to.equal(1);
+      const { yScale } = wrapper.state();
+      expect(yScale, "yScale").to.be.not.null;
+      expect(yScale.range()).to.deep.equal([480, 80]);
     });
   });
 
-  describe("componentWillMount", () => {
+  describe("componentDidMount", () => {
+    beforeEach(() => {
+      sinon.stub(TrendsSVGContainer.prototype, "render").returns(null);
+    });
+    afterEach(() => {
+      TrendsSVGContainer.prototype.render.restore();
+    });
     it("should call the `setScales` method", () => {
-      sinon.spy(TrendsSVGContainer.prototype, "setScales");
-      sinon.spy(TrendsSVGContainer.prototype, "UNSAFE_componentWillMount");
-      expect(TrendsSVGContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(0);
+      sinon.spy(TrendsSVGContainer.prototype, "componentDidMount");
+      expect(TrendsSVGContainer.prototype.componentDidMount.callCount).to.equal(0);
       expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
-      shallow(<TrendsSVGContainer {...props} />);
-      expect(TrendsSVGContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(1);
+      wrapper = shallow(<TrendsSVGContainer {...props} />, { disableLifecycleMethods: false });
+      expect(TrendsSVGContainer.prototype.componentDidMount.callCount).to.equal(1);
       expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(1);
-      TrendsSVGContainer.prototype.UNSAFE_componentWillMount.restore();
-      TrendsSVGContainer.prototype.setScales.restore();
+      TrendsSVGContainer.prototype.componentDidMount.restore();
     });
   });
 
-  describe("componentWillReceiveProps", () => {
-    describe("when yScale changes", () => {
+  describe("componentDidUpdate", () => {
+    describe("when yScaleDomain changes", () => {
       it("should call the `setScales` method", () => {
-        sinon.spy(TrendsSVGContainer.prototype, "setScales");
-        const container = shallow(<TrendsSVGContainer {...props} />);
+        const container = shallow(<TrendsSVGContainer {...props} />, { disableLifecycleMethods: false });
         TrendsSVGContainer.prototype.setScales.resetHistory();
-        expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
+        expect(TrendsSVGContainer.prototype.setScales.callCount, "before setProps").to.equal(0);
 
-        container.setProps({ yScale: _.assign({}, props.yScale, { changed: true }) });
-        expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(1);
-
-        TrendsSVGContainer.prototype.setScales.restore();
+        container.setProps({ yScaleDomain: [50, 300] });
+        expect(TrendsSVGContainer.prototype.setScales.callCount, "after setProps").to.equal(1);
       });
     });
 
-    describe("when yScale does not change", () => {
+    describe("when yScaleDomain does not change", () => {
       it("should not call the `setScales` method", () => {
-        sinon.spy(TrendsSVGContainer.prototype, "setScales");
-        const container = shallow(<TrendsSVGContainer {...props} />);
+        const container = shallow(<TrendsSVGContainer {...props} />, { disableLifecycleMethods: false });
         TrendsSVGContainer.prototype.setScales.resetHistory();
-        expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
+        expect(TrendsSVGContainer.prototype.setScales.callCount, "before setProps").to.equal(0);
 
-        container.setProps({ someChange: true });
-        expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
-
-        TrendsSVGContainer.prototype.setScales.restore();
+        container.setProps({ yScaleDomain: [60, 300] });
+        expect(TrendsSVGContainer.prototype.setScales.callCount, "after setProps").to.equal(0);
       });
     });
 
     describe("when showingCbgDateTraces is true", () => {
-      let wrapper;
+
+      before(() => {
+        sinon.spy(TrendsSVGContainer.prototype, "setState");
+        sinon.spy(TrendsSVGContainer.prototype, "componentDidUpdate");
+      });
       beforeEach(() => {
         const showingCbgDateTracesProps = _.assign({}, props, { showingCbgDateTraces: true });
-        wrapper = shallow(<TrendsSVGContainer {...showingCbgDateTracesProps} />);
+        wrapper = shallow(<TrendsSVGContainer {...showingCbgDateTracesProps} />, { disableLifecycleMethods: false });
+        TrendsSVGContainer.prototype.setState.resetHistory();
+        TrendsSVGContainer.prototype.componentDidUpdate.resetHistory();
+      });
+      after(() => {
+        TrendsSVGContainer.prototype.setState.restore();
+        TrendsSVGContainer.prototype.componentDidUpdate.restore();
       });
 
       describe("when a cbg slice segment has been focused long enough", () => {
         it("should set focusedSegmentDataGroupedByDate in state", () => {
-          sinon.spy(TrendsSVGContainer.prototype, "UNSAFE_componentWillReceiveProps");
-          sinon.spy(TrendsSVGContainer.prototype, "setState");
-          const focusedSlice = {
-            data: {
-              msFrom: 0,
-              msTo: 10000,
-              ninetiethQuantile: 200,
-              thirdQuartile: 75,
-            },
-          };
           const focusedSliceKeys = ["thirdQuartile", "ninetiethQuantile"];
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
+          expect(TrendsSVGContainer.prototype.componentDidUpdate.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({ cbgData: props.cbgData, focusedSlice, focusedSliceKeys });
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
-          expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(2);
+          expect(TrendsSVGContainer.prototype.componentDidUpdate.callCount, "componentDidUpdate.callCount").to.equal(2);
+          expect(TrendsSVGContainer.prototype.setState.callCount, "setState.callCount").to.equal(1);
           expect(TrendsSVGContainer.prototype.setState.args[0][0]).to.deep.equal({
-            size: {
-              width: 960,
-              height: 520,
-            },
-            chartWidth: 960 - 70,
-          });
-          expect(TrendsSVGContainer.prototype.setState.args[1][0]).to.deep.equal({
             focusedSegmentDataGroupedByDate: {
               "2017-01-01": props.cbgData,
             },
           });
-          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
-          TrendsSVGContainer.prototype.setState.restore();
         });
       });
 
       describe("when you've moved to focus a different cbg slice segment", () => {
         it("should calculate new focusedSegmentDataGroupedByDate object", () => {
-          sinon.spy(TrendsSVGContainer.prototype, "UNSAFE_componentWillReceiveProps");
-          sinon.spy(TrendsSVGContainer.prototype, "setState");
-          const focusedSlice = {
-            data: {
-              msFrom: 0,
-              msTo: 10000,
-              firstQuartile: 25,
-              thirdQuartile: 75,
-            },
-          };
           const focusedSliceKeys = ["firstQuartile", "thirdQuartile"];
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({ focusedSlice, focusedSliceKeys });
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
-          expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(2);
-          expect(TrendsSVGContainer.prototype.setState.args[1][0]).to.deep.equal({
+          expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(1);
+          expect(TrendsSVGContainer.prototype.setState.args[0][0]).to.deep.equal({
             focusedSegmentDataGroupedByDate: {},
           });
-          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
-          TrendsSVGContainer.prototype.setState.restore();
         });
       });
 
       describe("when you've just stopped focusing a cbg slice segment", () => {
+        beforeEach(() => {
+          wrapper.setProps({ focusedSlice, focusedSliceKeys: ["firstQuartile", "thirdQuartile"] });
+          TrendsSVGContainer.prototype.setState.resetHistory();
+          TrendsSVGContainer.prototype.componentDidUpdate.resetHistory();
+        });
         it("should reset focusedSegmentDataGroupedByDate to `null` in state", () => {
-          sinon.spy(TrendsSVGContainer.prototype, "UNSAFE_componentWillReceiveProps");
-          sinon.spy(TrendsSVGContainer.prototype, "setState");
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
+          expect(TrendsSVGContainer.prototype.componentDidUpdate.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({
             focusedSlice: null, focusedSliceKeys: null, showingCbgDateTraces: false,
           });
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
-          expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(2);
-          expect(TrendsSVGContainer.prototype.setState.args[1][0]).to.deep.equal({
+          expect(TrendsSVGContainer.prototype.componentDidUpdate.callCount, "componentDidUpdate.callCount").to.equal(2);
+          expect(TrendsSVGContainer.prototype.setState.callCount, "setState.callCount").to.equal(1);
+          expect(TrendsSVGContainer.prototype.setState.args[0][0]).to.deep.equal({
             focusedSegmentDataGroupedByDate: null,
           });
-          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
-          TrendsSVGContainer.prototype.setState.restore();
         });
       });
     });
 
     describe("when showingCbgDateTraces is false", () => {
-      let wrapper;
-      beforeEach(() => {
-        wrapper = shallow(<TrendsSVGContainer {...props} />);
+      before(() => {
+        sinon.spy(TrendsSVGContainer.prototype, "setState");
+        sinon.spy(TrendsSVGContainer.prototype, "componentDidUpdate");
       });
-
+      beforeEach(() => {
+        wrapper = shallow(<TrendsSVGContainer {...props} />, { disableLifecycleMethods: false });
+        TrendsSVGContainer.prototype.setState.resetHistory();
+        TrendsSVGContainer.prototype.componentDidUpdate.resetHistory();
+      });
+      after(() => {
+        TrendsSVGContainer.prototype.setState.restore();
+        TrendsSVGContainer.prototype.componentDidUpdate.restore();
+      });
       describe("when you haven't focused a cbg slice segment", () => {
-        it("should not set the `focusedSegmentDataGroupedByDate` state in componentWillReceiveProps", () => {
-          sinon.spy(TrendsSVGContainer.prototype, "UNSAFE_componentWillReceiveProps");
-          sinon.spy(TrendsSVGContainer.prototype, "setState");
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
+        it("should not set the `focusedSegmentDataGroupedByDate` state in componentDidUpdate", () => {
+          expect(TrendsSVGContainer.prototype.componentDidUpdate.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({
             activeDays: {
@@ -265,34 +268,19 @@ describe("TrendsSVGContainer", () => {
               sunday: true,
             },
           });
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
-          expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(1);
-          expect(TrendsSVGContainer.prototype.setState.args[0][0]).to.not.include.keys("focusedSegmentDataGroupedByDate");
-          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
-          TrendsSVGContainer.prototype.setState.restore();
+          expect(TrendsSVGContainer.prototype.componentDidUpdate.callCount).to.equal(1);
+          expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
         });
       });
 
       describe("when you've just focused a cbg slice segment", () => {
-        it("should not set the `focusedSegmentDataGroupedByDate` state in componentWillReceiveProps", () => {
-          sinon.spy(TrendsSVGContainer.prototype, "UNSAFE_componentWillReceiveProps");
-          sinon.spy(TrendsSVGContainer.prototype, "setState");
-          const focusedSlice = {
-            data: {
-              msFrom: 0,
-              msTo: 10000,
-              ninetiethQuantile: 200,
-              thirdQuartile: 75,
-            },
-          };
+        it("should not set the `focusedSegmentDataGroupedByDate` state in componentDidUpdate", () => {
           const focusedSliceKeys = ["thirdQuartile", "ninetiethQuantile"];
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
+          expect(TrendsSVGContainer.prototype.componentDidUpdate.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({ cbgData: props.cbgData, focusedSlice, focusedSliceKeys });
-          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
-          expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(1);
-          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
-          TrendsSVGContainer.prototype.setState.restore();
+          expect(TrendsSVGContainer.prototype.componentDidUpdate.callCount).to.equal(1);
+          expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
         });
       });
     });
@@ -301,7 +289,7 @@ describe("TrendsSVGContainer", () => {
   describe("render", () => {
     let wrapper;
     before(() => {
-      wrapper = shallow(<TrendsSVGContainer {...props} />);
+      wrapper = shallow(<TrendsSVGContainer {...props} />, { disableLifecycleMethods: false });
     });
 
     it("should render a Background", () => {
@@ -338,79 +326,21 @@ describe("TrendsSVGContainer", () => {
       });
 
       it("should render a unselected all data message when all days unselected", () => {
-        const unselectedProps = _.assign({}, props, { cbgData: [], activeDays: { monday: false } });
-        const unselectedWrapper = shallow(<TrendsSVGContainer {...unselectedProps} />);
+        const activeDays = { ...props.activeDays };
+        for (const k in activeDays) {
+          activeDays[k] = false;
+        }
+        const unselectedProps = _.assign({}, props, { cbgData: [], activeDays });
+        const unselectedWrapper = shallow(<TrendsSVGContainer {...unselectedProps} />, { disableLifecycleMethods: false });
         expect(unselectedWrapper.find(NoData)).to.have.length(1);
         expect(unselectedWrapper.find(NoData).prop("unselectedAllData")).to.be.true;
-      });
-
-      describe("when showingSmbg is false", () => {
-        it("should not render an SMBGRangeAvgContainer", () => {
-          expect(wrapper.find(SMBGRangeAvgContainer)).to.have.length(0);
-        });
       });
 
       it("should render a no data message when there are no cbg values", () => {
         const noCBGDataProps = _.assign({}, props, { cbgData: [] });
-        const noDataWrapper = shallow(<TrendsSVGContainer {...noCBGDataProps} />);
+        const noDataWrapper = shallow(<TrendsSVGContainer {...noCBGDataProps} />, { disableLifecycleMethods: false });
         expect(noDataWrapper.find(NoData)).to.have.length(1);
         expect(noDataWrapper.find(NoData).prop("dataType")).to.equal("cbg");
-      });
-    });
-
-    describe("showing BGM data", () => {
-      it("should render a unselected all data message when all days unselected", () => {
-        const unselectedProps = _.assign(
-          {},
-          props,
-          { showingCbg: false, showingSmbg: true, smbgData: [], activeDays: { monday: false } }
-        );
-        const unselectedWrapper = shallow(<TrendsSVGContainer {...unselectedProps} />);
-        expect(unselectedWrapper.find(NoData)).to.have.length(1);
-        expect(unselectedWrapper.find(NoData).prop("unselectedAllData")).to.be.true;
-      });
-
-      describe("when smbgRangeOverlay is true", () => {
-        it("should render an SMBGRangeAvgContainer each for range and mean", () => {
-          const smbgRangeProps = _.assign(
-            {}, props, { showingSmbg: true, smbgRangeOverlay: true }
-          );
-          const smbgRangeWrapper = shallow(<TrendsSVGContainer {...smbgRangeProps} />);
-          expect(smbgRangeWrapper.find(SMBGRangeAvgContainer)).to.have.length(2);
-        });
-      });
-
-      describe("when smbgRangeOverlay is false", () => {
-        it("should render SMBGRangeAvgContainers with empty data (to get exit animation)", () => {
-          const smbgRangeProps = _.assign(
-            {}, props, { showingSmbg: true, smbgRangeOverlay: false }
-          );
-          const smbgRangeWrapper = shallow(<TrendsSVGContainer {...smbgRangeProps} />);
-          const rangeAvgContainer = smbgRangeWrapper.find(SMBGRangeAvgContainer);
-          expect(rangeAvgContainer).to.have.length(2);
-          // eslint-disable-next-line lodash/prefer-lodash-method
-          rangeAvgContainer.forEach((container) => {
-            expect(container.prop("data")).to.deep.equal([]);
-          });
-        });
-      });
-
-      describe("when showingCbg is false", () => {
-        it("should not render a CBGSlicesContainer", () => {
-          const noCbgProps = _.assign({}, props, { showingCbg: false, showingSmbg: true });
-          const noCbgWrapper = shallow(<TrendsSVGContainer {...noCbgProps} />);
-          expect(noCbgWrapper.find(CBGSlicesContainer)).to.have.length(0);
-          expect(noCbgWrapper.find(SMBGRangeAvgContainer)).to.have.length(2);
-        });
-      });
-
-      it("should render a no data message when there are no smbg values", () => {
-        const noSMBGDataProps = _.assign(
-          {}, props, { showingCbg: false, showingSmbg: true, smbgData: [] }
-        );
-        const noDataWrapper = shallow(<TrendsSVGContainer {...noSMBGDataProps} />);
-        expect(noDataWrapper.find(NoData)).to.have.length(1);
-        expect(noDataWrapper.find(NoData).prop("dataType")).to.equal("smbg");
       });
     });
   });

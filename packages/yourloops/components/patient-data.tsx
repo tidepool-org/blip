@@ -44,7 +44,8 @@ import { useData } from "../lib/data";
 import { getUserFirstLastName, setPageTitle } from "../lib/utils";
 
 import ProfileDialog from "./dialogs/patient-profile";
-import DatePicker from "./date-pickers/date-picker";
+import DialogDatePicker from "./date-pickers/dialog-date-picker";
+import DialogRangeDatePicker from "./date-pickers/dialog-range-date-picker";
 
 interface PatientDataPageProps {
   prefixURL: string;
@@ -138,7 +139,8 @@ function PatientDataPage(props: PatientDataPageProps): JSX.Element | null {
         patient={patient}
         profileDialog={ProfileDialog}
         prefixURL={prefixURL}
-        datePicker={DatePicker}
+        dialogDatePicker={DialogDatePicker}
+        dialogRangeDatePicker={DialogRangeDatePicker}
       />
     </Container>
   );

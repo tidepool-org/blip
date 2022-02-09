@@ -19,16 +19,32 @@ import React from "react";
 import moment from "moment-timezone";
 import * as sinon from "sinon";
 import { expect } from "chai";
-import Trends from "../../../../app/components/chart/trends";
-import { mount, shallow } from "enzyme";
+import { mount } from "enzyme";
+
 import { MS_IN_DAY, MGDL_UNITS } from "tideline";
 import { components as vizComponents } from "tidepool-viz";
+
+import Utils from "../../../../app/core/utils";
+import Trends from "../../../../app/components/chart/trends";
 import DataUtilStub from "../../../helpers/DataUtil";
 
 const { Loader } = vizComponents;
 
+/** @typedef {import('enzyme').ReactWrapper<Trends>} TrendsWrapper */
+
 describe("Trends", () => {
-  let baseProps = {
+  const tidelineData = {
+    data: [],
+    grouped: {
+      cbg: [],
+    },
+    endpoints: [
+      "2018-01-01T00:00:00.000Z",
+      "2021-06-20T00:00:00.000Z"
+    ],
+    getTimezoneAt: sinon.stub().returns("UTC"),
+  };
+  const baseProps = {
     bgPrefs: {
       bgClasses: {
         "very-low": {
@@ -61,16 +77,13 @@ describe("Trends", () => {
           sunday: true
         },
         extentSize: 14,
-        showingCbg: true,
-        showingSmbg: false,
-        boxOverlay: true,
-        grouped: true,
-        showingLines: false
       },
     },
-    epochLocation: moment.utc("2014-03-13T12:00:00.000Z").valueOf(),
+    epochLocation: moment.utc("2021-01-01T12:00:00.000Z").valueOf(),
     msRange: MS_IN_DAY*7,
-    currentPatientInViewId: "1234",
+    patient: {
+      userid: "1234",
+    },
     dataUtil: new DataUtilStub(),
     loading: false,
     canPrint: false,
@@ -81,19 +94,12 @@ describe("Trends", () => {
     onSwitchToTrends: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
     onDatetimeLocationChange: sinon.stub().resolves(false),
-    updateChartPrefs: sinon.stub(),
+    updateChartPrefs: sinon.stub().callsFake((_p,cb) => { if (cb) cb(); }),
     trackMetric: sinon.stub(),
-    tidelineData: {
-      TrendsData: {
-        data: {},
-      },
-      endpoints: [
-        "2018-01-01T00:00:00.000Z",
-        "2018-06-20T00:00:00.000Z"
-      ],
-    },
+    dialogRangeDatePicker: (props) => <div id="range-date-picker">{`${props.start} - ${props.end}`}</div>,
+    tidelineData,
     timePrefs: {
-      timezoneAware: false,
+      timezoneAware: true,
       timezoneName: "US/Pacific"
     },
     trendsState: {
@@ -109,7 +115,7 @@ describe("Trends", () => {
 
   before(() => {
     // Avoid mounting the redux stack
-    sinon.stub(Trends.prototype, "renderChart").returns(null);
+    sinon.stub(Trends.prototype, "renderChart").returns(<div />);
     sinon.stub(vizComponents, "RangeSelect").value(
       function RangeSelect() { return <div id="range-select" />; }
     );
@@ -119,28 +125,22 @@ describe("Trends", () => {
     sinon.restore();
   });
 
-  /** @type {import('enzyme').ReactWrapper} */
+  /** @type {TrendsWrapper|null} */
   let wrapper = null;
-  /** @type {Trends} */
-  let instance = null;
-  beforeEach(() => {
-    // const store = initStore();
-    // baseProps.store = store;
-    wrapper = mount(<Trends {...baseProps} />);
-    instance = wrapper.instance();
-  });
 
   afterEach(() => {
     if (wrapper) {
       wrapper.unmount();
       wrapper = null;
-      instance = null;
     }
-    baseProps.updateChartPrefs.reset();
+    baseProps.updateChartPrefs.resetHistory();
     baseProps.onDatetimeLocationChange.resetHistory();
   });
 
   describe("render", () => {
+    beforeEach(() => {
+      wrapper = mount(<Trends {...baseProps} />);
+    });
     it("should show a loader when loading prop is true", () => {
       const loader = () => wrapper.find(Loader);
 
@@ -151,105 +151,80 @@ describe("Trends", () => {
       expect(loader().props().show).to.be.true;
     });
 
-    it("should render the bg toggle", () => {
-      const toggle = wrapper.find("BgSourceToggle");
-      expect(toggle.length).to.equal(1);
-    });
-
     it("should render the stats", () => {
       const stats = wrapper.find("Stats");
       expect(stats.length).to.equal(1);
     });
   });
 
-  describe("handleDatetimeLocationChange", () => {
-    it("should set the `atMostRecent` state", () => {
-      expect(wrapper.state().atMostRecent).to.be.true;
-
-      instance.handleDatetimeLocationChange([
-        "2018-01-15T00:00:00.000Z",
-        "2018-01-29T00:00:00.000Z",
-      ], false);
-
-      expect(wrapper.state().atMostRecent).to.be.false;
+  describe("componentDidMount", () => {
+    it("should clamp to startDate", async () => {
+      const props = {...baseProps, epochLocation: moment.utc("2014-03-13T12:00:00.000Z").valueOf() };
+      wrapper = mount(<Trends {...props} />);
+      await Utils.waitTimeout(10);
+      expect(props.onDatetimeLocationChange.calledOnce, "onDatetimeLocationChange.calledOnce").to.be.true;
+      const firstCall = props.onDatetimeLocationChange.firstCall.args;
+      expect(firstCall).to.be.an("array").lengthOf(2);
+      expect(firstCall[0]).to.be.eq(1515369600000); // 2018-01-08T00:00:00.000Z
+      expect(firstCall[1]).to.be.eq(props.chartPrefs.trends.extentSize * MS_IN_DAY); // 14 days
+      expect(wrapper.state()?.atMostRecent, "atMostRecent").to.be.false;
     });
 
-    it("should set the title", () => {
-      const epochLocation = Date.parse("2018-01-15T11:00:00.000Z");
-      const msRange = MS_IN_DAY*10;
-
-      wrapper.setProps({ epochLocation, msRange });
-      // wrapper.update();
-      const title = shallow(instance.getTitle());
-      expect(title.text(), "title text").to.be.equal("Jan 10, 2018 - Jan 20, 2018");
+    it("should clamp to endDate", async () => {
+      const props = {...baseProps, epochLocation: moment.utc("2022-01-01T00:00:00.000Z").valueOf() };
+      wrapper = mount(<Trends {...props} />);
+      await Utils.waitTimeout(10);
+      expect(props.onDatetimeLocationChange.calledOnce, "onDatetimeLocationChange.calledOnce").to.be.true;
+      const firstCall = props.onDatetimeLocationChange.firstCall.args;
+      expect(firstCall).to.be.an("array").lengthOf(2);
+      expect(firstCall[0]).to.be.eq(1623542400000); // 2021-06-13T00:00:00.000Z
+      expect(firstCall[1]).to.be.eq(props.chartPrefs.trends.extentSize * MS_IN_DAY); // 14 days
+      expect(wrapper.state()?.atMostRecent, "atMostRecent").to.be.true;
     });
 
-    it("should set the title correctly when ending on a DST changeover date", () => {
-      const epochLocation = Date.parse("2018-03-05T08:00:00.000Z");
-      const msRange = MS_IN_DAY*7;
-      const timezoneAwareProps = {
-        loading: true,
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: "US/Pacific",
-        }
+    it("should clamp to extendsSize", async () => {
+      const tidelineData = {
+        data: [],
+        grouped: {
+          cbg: [],
+        },
+        endpoints: [
+          "2021-06-01T00:00:00.000Z",
+          "2021-06-05T00:00:00.000Z"
+        ],
+        getTimezoneAt: sinon.stub().returns("UTC"),
       };
-
-      wrapper.setProps(timezoneAwareProps);
-      let title = shallow(instance.getTitle());
-      expect(title.text()).to.be.equal("Loading...");
-
-      wrapper.setProps({ epochLocation, msRange, loading: false }).update();
-      title = shallow(instance.getTitle());
-      expect(title.text(), "title contains:").to.be.equal("Mar 1, 2018 - Mar 8, 2018");
+      const props = {...baseProps, epochLocation: moment.utc("2021-06-04T12:00:00.000Z").valueOf(), tidelineData };
+      wrapper = mount(<Trends {...props} />);
+      await Utils.waitTimeout(10);
+      expect(props.onDatetimeLocationChange.calledOnce, "onDatetimeLocationChange.calledOnce").to.be.true;
+      let firstCall = props.onDatetimeLocationChange.firstCall.args;
+      expect(firstCall).to.be.an("array").lengthOf(2);
+      expect(firstCall[0], "onDatetimeLocationChange[0]").to.be.eq(1622678400000); // 2021-06-03T00:00:00.000Z
+      expect(firstCall[1], "onDatetimeLocationChange[1]").to.be.eq(4 * MS_IN_DAY);
+      expect(props.updateChartPrefs.calledOnce, "updateChartPrefs.calledOnce").to.be.true;
+      firstCall = props.updateChartPrefs.firstCall.args;
+      expect(firstCall[0], "updateChartPrefs[0]").to.be.an("object");
+      expect(firstCall[0]?.trends?.extentSize, "extentSize").to.be.eq(4);
+      expect(firstCall[1], "updateChartPrefs[1]").to.be.a("function");
+      expect(wrapper.state()?.atMostRecent, "atMostRecent").to.be.true;
     });
 
-    it("should set the title correctly when starting on a DST changeover date", () => {
-      const epochLocation = Date.parse("2018-03-14T08:00:00.000Z");
-      const msRange = MS_IN_DAY*7;
-      const timePrefs = {
-        timezoneAware: true,
-        timezoneName: "US/Pacific",
-      };
-
-      wrapper.setProps({ epochLocation, msRange, timePrefs });
-      const title = shallow(instance.getTitle());
-      expect(title.text()).to.be.equal("Mar 10, 2018 - Mar 17, 2018");
-    });
-
-    it("should call the `onDatetimeLocationChange` prop method", () => {
-      const endpoints = [
-        "2018-01-15T00:00:00.000Z",
-        "2018-01-29T00:00:00.000Z",
-      ];
-      const start = Date.parse(endpoints[0]);
-      const msRange = Date.parse(endpoints[1]) - start;
-      const center = start + msRange / 2;
-      sinon.assert.callCount(baseProps.onDatetimeLocationChange, 0);
-
-      instance.handleDatetimeLocationChange(endpoints);
-
-      sinon.assert.callCount(baseProps.onDatetimeLocationChange, 1);
-      sinon.assert.calledWith(baseProps.onDatetimeLocationChange, center, msRange);
+    it("should set the extendSize", async () => {
+      const props = {...baseProps, msRange: MS_IN_DAY };
+      wrapper = mount(<Trends {...props} />);
+      await Utils.waitTimeout(10);
+      const firstCall = props.onDatetimeLocationChange.firstCall.args;
+      expect(firstCall).to.be.an("array").lengthOf(2);
+      expect(firstCall[0]).to.be.eq(1609502400000); // 2021-01-01T12:00:00.000Z
+      expect(firstCall[1]).to.be.eq(props.chartPrefs.trends.extentSize * MS_IN_DAY); // 14 days
+      expect(wrapper.state()?.atMostRecent, "atMostRecent").to.be.false;
     });
   });
 
-  describe("toggleBgDataSource", () => {
-    it.skip("should call the `updateChartPrefs` handler to update the bgSource", () => {
-      const instance = wrapper.instance();
-      instance.toggleBgDataSource(null, "cbg");
+  // describe("componentDidUpdate", () => {
+  //   it("should set the atMostRecent state", () => {
+  //   });
+  // });
 
-      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
-      sinon.assert.calledWith(baseProps.updateChartPrefs, {
-        trends: sinon.match({ bgSource: "cbg" }),
-      });
-
-      instance.toggleBgDataSource(null, "smbg");
-
-      sinon.assert.callCount(baseProps.updateChartPrefs, 2);
-      sinon.assert.calledWith(baseProps.updateChartPrefs, {
-        trends: sinon.match({ bgSource: "smbg" }),
-      });
-    });
-  });
 });

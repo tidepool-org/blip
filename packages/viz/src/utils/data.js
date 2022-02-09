@@ -10,14 +10,10 @@ import { cgmSampleFrequency, classifyBgValue, reshapeBgClassesToBgBounds } from 
 import { addDuration } from "./datetime";
 import { getLatestPumpUpload } from "./device";
 
-
-/* eslint-disable lodash/prefer-lodash-method, no-underscore-dangle, no-param-reassign */
-
 class DataUtil {
   /**
-   * @param {Object} bgBounds - object describing boundaries for blood glucose categories
-   * @param {Array} data Unfiltered tideline data
-   * @param {Array} endpoints Array ISO strings [start, end]
+   * @param {unknown[]} data Unfiltered tideline data
+   * @param {{endpoints?: [string, string]; chartPrefs?: {}; bgPrefs?: {}; timePrefs?: {}}} opts
    */
   constructor(data, opts = {}) {
     this.log = bows("DataUtil");
@@ -26,16 +22,14 @@ class DataUtil {
     this._endpoints = opts.endpoints || [];
     this._chartPrefs = opts.chartPrefs || {};
     this.bgBounds = reshapeBgClassesToBgBounds(opts.bgPrefs);
-    this.timeZoneName = _.get(opts, "timePrefs.timezoneName", "UTC");
     this.bgUnits = _.get(opts, "bgPrefs.bgUnits");
     this.days = this.getDayCountFromEndpoints();
     this.dimension = {};
     this.filter = {};
-    this.sort = {};
 
     this.buildDimensions();
     this.buildFilters();
-    this.buildSorts();
+    this.sort = this.buildSorts();
 
     this.bgSources = this.getBgSources();
     this.defaultBgSource = this.getDefaultBgSource();
@@ -62,18 +56,18 @@ class DataUtil {
     this.log("bgPrefs", { bgBounds: this.bgBounds, bgUnits: this.bgUnits });
   }
 
-  addData = data => {
+  addData(data) {
     this.data.add(data);
     this.bgSources = this.getBgSources();
     this.defaultBgSource = this.getDefaultBgSource();
-  };
+  }
 
-  removeData = () => {
+  removeData() {
     this.clearFilters();
     this.data.remove();
-  };
+  }
 
-  addBasalOverlappingStart = (basalData) => {
+  addBasalOverlappingStart(basalData) {
     if (basalData.length && basalData[0].normalTime > this._endpoints[0]) {
       // Fetch last basal from previous day
       this.filter.byEndpoints([
@@ -95,9 +89,9 @@ class DataUtil {
       }
     }
     return basalData;
-  };
+  }
 
-  applyDateFilters = () => {
+  applyDateFilters() {
     this.filter.byEndpoints(this._endpoints);
 
     this.dimension.byDayOfWeek.filterAll();
@@ -123,7 +117,7 @@ class DataUtil {
     this.dimension.byDate = this.data.dimension(d => d.normalTime);
 
     this.dimension.byDayOfWeek = this.data.dimension(
-      d => moment.utc(d.normalTime).tz(this.timeZoneName).day()
+      d => moment.tz(d.normalTime, d.timezone ?? "UTC").day()
     );
 
     this.dimension.byType = this.data.dimension(d => d.type);
@@ -137,11 +131,16 @@ class DataUtil {
     this.filter.byType = type => this.dimension.byType.filterExact(type);
   };
 
-  buildSorts = () => {
-    this.sort.byDate = array => (
-      crossfilter.quicksort.by(d => d.normalTime)(array, 0, array.length)
-    );
-  };
+  buildSorts() {
+    return {
+      byDate: (/** @type {{epoch: number}[]} */ array) => {
+        if (Array.isArray(array)) {
+          array.sort((a, b) => a.epoch - b.epoch);
+        }
+        return array;
+      },
+    };
+  }
 
   clearFilters = () => {
     this.dimension.byDate.filterAll();
@@ -207,7 +206,7 @@ class DataUtil {
     return Math.min(uDays.length, this.days);
   }
 
-  getBasalBolusData = () => {
+  getBasalBolusData() {
     this.applyDateFilters();
 
     const bolusData = this.filter.byType("bolus").top(Infinity);
@@ -228,7 +227,7 @@ class DataUtil {
     }
 
     return basalBolusData;
-  };
+  }
 
   getBgSources = () => {
     this.clearFilters();

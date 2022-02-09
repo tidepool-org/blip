@@ -38,11 +38,12 @@ Some styles we'd rather not use on touch screens (for example hover effects whic
 ```
 
 ### Icons
+_Deprecated: Use MUI icons instead for new dev_
 
 We use an icon font for app icons (in `app/core/fonts/`). To use an icon, simply add the correct class to an element (convention is to use the `<i>` element), for example:
 
 ```html
-<i class="icon-logout"></i>
+<i class="icon-next"></i>
 ```
 
 Take a look at the `app/core/less/icons.less` file for available icons.

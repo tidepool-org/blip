@@ -33,13 +33,6 @@ const settingsStateByUser = (state = {}, action) => {
   }
   case actionTypes.LOGOUT_REQUEST:
     return {};
-  case actionTypes.MARK_SETTINGS_VIEWED: {
-    const { userId } = action.payload;
-    return update(
-      state,
-      { [userId]: { touched: { $set: true } } }
-    );
-  }
   case actionTypes.TOGGLE_SETTINGS_SECTION: {
     const { deviceKey, userId, scheduleOrProfileKey } = action.payload;
     if (!state[userId][deviceKey]) {

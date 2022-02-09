@@ -23,10 +23,11 @@
  * in this parent/container component are just used directly as constants.
  */
 import PropTypes from "prop-types";
-import React, { PureComponent } from "react";
+import React from "react";
 import sizeMe from "react-sizeme";
 import _ from "lodash";
-import { MGDL_UNITS, MMOLL_UNITS } from "tideline";
+import { scaleLinear } from "d3-scale";
+import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from "tideline";
 
 import { THREE_HRS } from "../../../utils/datetime";
 import { findDatesIntersectingWithCbgSliceSegment } from "../../../utils/trends/data";
@@ -34,11 +35,6 @@ import Background from "./Background";
 import CBGDateTracesAnimationContainer from "../cbg/CBGDateTracesAnimationContainer";
 import CBGSlicesContainer from "../cbg/CBGSlicesContainer";
 import FocusedCBGSliceSegment from "../cbg/FocusedCBGSliceSegment";
-import SMBGsByDateContainer from "../smbg/SMBGsByDateContainer";
-import SMBGRangeAvgContainer from "../smbg/SMBGRangeAvgContainer";
-import SMBGRangeAnimated from "../smbg/SMBGRangeAnimated";
-import SMBGMeanAnimated from "../smbg/SMBGMeanAnimated";
-
 import NoData from "./NoData";
 import TargetRangeLines from "./TargetRangeLines";
 import XAxisLabels from "./XAxisLabels";
@@ -62,96 +58,79 @@ const SMBG_OPTS = {
   r: 6,
 };
 
-export class TrendsSVGContainer extends PureComponent {
+const CHART_WIDTH_M_SIZE = 70;
+
+export class TrendsSVGContainer extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       focusedSegmentDataGroupedByDate: null,
-      size: this.props.size,
-      chartWidth: this.props.size.width - 70,
+      xScale: scaleLinear().domain([0, MS_IN_DAY]),
+      yScale: null,
     };
   }
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     this.setScales();
   }
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const width = nextProps.size.width || this.state.size.width;
-    const height = nextProps.size.height || this.state.size.height;
-
-    this.setState({
-      size: {
-        width,
-        height,
-      },
-      chartWidth: width - 70,
-    });
-
-    if (nextProps.yScale !== this.props.yScale) {
-      this.setScales(nextProps);
+  componentDidUpdate(prevProps) {
+    const sizeChanged = !_.isEqual(this.props.size, prevProps.size);
+    const yDomainChanged = !_.isEqual(this.props.yScaleDomain, prevProps.yScaleDomain);
+    if (sizeChanged || yDomainChanged) {
+      this.setScales();
     }
 
-    const { showingCbgDateTraces } = nextProps;
-    if (!showingCbgDateTraces) {
-      // if we just flipped the showingCbgDateTraces flag from true to false
-      // then we need to reset the focusedSegmentDataGroupedByDate to `null`
-      if (this.props.showingCbgDateTraces) {
+    if (this.props.showingCbgDateTraces) {
+      const { cbgData, focusedSlice, focusedSliceKeys } = this.props;
+      const shouldGenData = !_.isNil(focusedSlice) && !_.isNil(focusedSliceKeys) && (
+        this.state.focusedSegmentDataGroupedByDate === null
+        || !_.isEqual(focusedSlice, prevProps.focusedSlice)
+        || !_.isEqual(focusedSliceKeys, prevProps.focusedSliceKeys)
+      );
+
+      if (shouldGenData) {
+        const intersectingDates = findDatesIntersectingWithCbgSliceSegment(cbgData, focusedSlice, focusedSliceKeys);
+        const focusedSegmentDataGroupedByDate = _.groupBy(
+          _.filter(cbgData, (d) => (_.includes(intersectingDates, d.localDate))),
+          "localDate"
+        );
         this.setState({
-          focusedSegmentDataGroupedByDate: null,
+          focusedSegmentDataGroupedByDate,
         });
       }
-      return;
-    }
-    const { cbgData, focusedSlice, focusedSliceKeys } = nextProps;
-    if (focusedSlice) {
-      const intersectingDates = findDatesIntersectingWithCbgSliceSegment(
-        cbgData, focusedSlice, focusedSliceKeys
-      );
-      const focusedSegmentDataGroupedByDate = _.groupBy(
-        _.filter(cbgData, (d) => (_.includes(intersectingDates, d.localDate))),
-        (d) => (d.localDate)
-      );
+
+    } else if (this.state.focusedSegmentDataGroupedByDate !== null) {
       this.setState({
-        focusedSegmentDataGroupedByDate,
+        focusedSegmentDataGroupedByDate: null,
       });
-    } else {
-      // only reset focusedSegmentDataGroupedByDate to null if previous props had a focused slice
-      // but nextProps do not! (i.e., you've just rolled off a segment and not onto another one)
-      if (this.props.focusedSlice) {
-        this.setState({
-          focusedSegmentDataGroupedByDate: null,
-        });
-      }
     }
   }
 
-  setScales(props = this.props) {
-    const { margins, smbgOpts, xScale, yScale } = props;
-    const { width, height } = this.state.size;
-    xScale.range([
+  setScales() {
+    const { margins, smbgOpts, yScaleDomain } = this.props;
+    const { width, height } = this.props.size;
+    const xScale = scaleLinear().domain([0, MS_IN_DAY]).range([
       margins.left + Math.round(smbgOpts.maxR),
       width - margins.right - Math.round(smbgOpts.maxR),
     ]);
-    yScale.range([
+    const yScale = scaleLinear().domain(yScaleDomain).clamp(true).range([
       height - margins.bottom - BUMPERS.bottom,
       margins.top + BUMPERS.top,
     ]);
+    this.setState({ xScale, yScale });
   }
 
   renderNoDataMessage(dataType) {
-    const { activeDays, margins } = this.props;
-    const { width, height } = this.state.size;
+    if (_.isEmpty(this.props.cbgData)) {
+      const { activeDays, margins } = this.props;
+      const { width, height } = this.props.size;
 
-    const xPos = (width / 2) + margins.right;
-    const yPos = (height / 2) + margins.bottom;
-    const messagePosition = { x: xPos, y: yPos };
-    const unselectedAll = _.every(activeDays, (flag) => (!flag));
-    if ((this.props.showingCbg && _.isEmpty(this.props.cbgData)) ||
-      (this.props.showingSmbg && _.isEmpty(this.props.smbgData))) {
+      const xPos = (width / 2) + margins.right;
+      const yPos = (height / 2) + margins.bottom;
+      const messagePosition = { x: xPos, y: yPos };
+      const unselectedAll = _.every(activeDays, (flag) => (!flag));
       return (
         <NoData
           dataType={dataType}
@@ -163,166 +142,91 @@ export class TrendsSVGContainer extends PureComponent {
     return null;
   }
 
-  renderOverlay(smbgComponent, componentKey) {
-    const data = this.props.smbgRangeOverlay ? this.props.smbgData : [];
-    return (
-      <SMBGRangeAvgContainer
-        bgBounds={this.props.bgPrefs.bgBounds}
-        data={data}
-        key={componentKey}
-        smbgComponent={smbgComponent}
-        someSmbgDataIsFocused={this.props.focusedSmbg !== null}
-        tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-        xScale={this.props.xScale}
-        yScale={this.props.yScale}
-        width={(this.state.chartWidth / 8) - 3}
-      />
-    );
-  }
-
   renderCbg() {
-    if (this.props.showingCbg) {
-      const slices = (
+    const { margins, focusedSlice, focusedSliceKeys } = this.props;
+    const sliceWidth = (this.props.size.width - CHART_WIDTH_M_SIZE) / 56;
+    const { xScale, yScale } = this.state;
+
+    let dateTraces = null;
+    let focused = null;
+    if (focusedSlice) {
+      const { focusedSegmentDataGroupedByDate } = this.state;
+      dateTraces = focusedSegmentDataGroupedByDate === null ? null : (
+        <CBGDateTracesAnimationContainer
+          bgBounds={this.props.bgPrefs.bgBounds}
+          data={focusedSegmentDataGroupedByDate}
+          onSelectDate={this.props.onSelectDate}
+          topMargin={margins.top}
+          xScale={xScale}
+          yScale={yScale}
+        />
+      );
+      focused = (
+        <FocusedCBGSliceSegment
+          focusedSlice={focusedSlice}
+          focusedSliceKeys={focusedSliceKeys}
+          sliceWidth={sliceWidth}
+        />
+      );
+    }
+
+    return (
+      <g id="cbgTrends">
         <CBGSlicesContainer
           bgBounds={this.props.bgPrefs.bgBounds}
-          sliceWidth={this.state.chartWidth / 56}
+          sliceWidth={sliceWidth}
           data={this.props.cbgData}
           displayFlags={this.props.displayFlags}
           showingCbgDateTraces={this.props.showingCbgDateTraces}
           tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          topMargin={this.props.margins.top}
-          xScale={this.props.xScale}
-          yScale={this.props.yScale}
+          topMargin={margins.top}
+          xScale={xScale}
+          yScale={yScale}
         />
-      );
-
-      const { focusedSegmentDataGroupedByDate } = this.state;
-      const dateTraces = (
-        <CBGDateTracesAnimationContainer
-          bgBounds={this.props.bgPrefs.bgBounds}
-          data={focusedSegmentDataGroupedByDate}
-          dates={_.keys(focusedSegmentDataGroupedByDate) || []}
-          onSelectDate={this.props.onSelectDate}
-          topMargin={this.props.margins.top}
-          xScale={this.props.xScale}
-          yScale={this.props.yScale}
-        />
-      );
-
-      let focused = null;
-      const { focusedSlice, focusedSliceKeys } = this.props;
-      if (!_.isEmpty(focusedSlice) && !_.isEmpty(focusedSliceKeys)) {
-        focused = (
-          <FocusedCBGSliceSegment
-            focusedSlice={focusedSlice}
-            focusedSliceKeys={focusedSliceKeys}
-            sliceWidth={this.state.chartWidth / 56}
-          />
-        );
-      }
-
-      return (
-        <g id="cbgTrends">
-          {slices}
-          {dateTraces}
-          {focused}
-        </g>
-      );
-    }
-    return null;
-  }
-
-  renderSmbg() {
-    if (this.props.showingSmbg) {
-      const allSmbgsByDate = (
-        <SMBGsByDateContainer
-          anSmbgRangeAvgIsFocused={this.props.focusedSmbgRangeAvgKey !== null}
-          bgBounds={this.props.bgPrefs.bgBounds}
-          data={this.props.smbgData}
-          dates={this.props.dates}
-          grouped={this.props.smbgGrouped}
-          key="smbgDaysContainer"
-          lines={this.props.smbgLines}
-          onSelectDate={this.props.onSelectDate}
-          smbgOpts={this.props.smbgOpts}
-          someSmbgDataIsFocused={this.props.focusedSmbg !== null}
-          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          xScale={this.props.xScale}
-          yScale={this.props.yScale}
-        />
-      );
-      // Focused date will be rendered last, on top of everything else but flagged
-      // as nonInteractive to allow mouse events to be handled exclusively by normally
-      // rendered points and lines
-      const focusedSmbgDate = this.props.focusedSmbg ? (
-        <SMBGsByDateContainer
-          anSmbgRangeAvgIsFocused={false}
-          bgBounds={this.props.bgPrefs.bgBounds}
-          data={this.props.focusedSmbg.allSmbgsOnDate}
-          dates={[this.props.focusedSmbg.date]}
-          focusedSmbg={this.props.focusedSmbg}
-          grouped={this.props.smbgGrouped}
-          key="focusedSmbgDayContainer"
-          lines={this.props.smbgLines}
-          nonInteractive
-          onSelectDate={this.props.onSelectDate}
-          smbgOpts={this.props.smbgOpts}
-          someSmbgDataIsFocused={false}
-          tooltipLeftThreshold={this.props.tooltipLeftThreshold}
-          xScale={this.props.xScale}
-          yScale={this.props.yScale}
-        />
-      ) : null;
-
-      return (
-        <g id="smbgTrends">
-          {this.renderOverlay(SMBGRangeAnimated, "SMBGRangeContainer")}
-          {allSmbgsByDate}
-          {this.renderOverlay(SMBGMeanAnimated, "SMBGMeanContainer")}
-          {focusedSmbgDate}
-        </g>
-      );
-    }
-    return null;
+        {focused}
+        {dateTraces}
+      </g>
+    );
   }
 
   render() {
-    const { width, height } = this.state.size;
+    const { width, height } = this.props.size;
+    const { xScale, yScale } = this.state;
+
+    if (xScale === null || yScale === null) {
+      return null;
+    }
 
     return (
-      <div>
-        <svg height={height} width="100%">
+      <div id="trends-svg-container">
+        <svg id="trends-svg" height={height} width="100%">
           <Background
             linesAtThreeHrs
             margins={this.props.margins}
-            smbgOpts={this.props.smbgOpts}
             svgDimensions={{ height, width }}
-            xScale={this.props.xScale}
+            xScale={xScale}
           />
           <XAxisLabels
             margins={this.props.margins}
-            useRangeLabels={false}
-            xScale={this.props.xScale}
+            xScale={xScale}
           />
           <XAxisTicks
             margins={this.props.margins}
-            xScale={this.props.xScale}
+            xScale={xScale}
           />
           <YAxisLabelsAndTicks
             bgPrefs={this.props.bgPrefs}
-            bgUnits={this.props.bgUnits}
             margins={this.props.margins}
-            yScale={this.props.yScale}
+            yScale={yScale}
           />
           {this.renderCbg()}
-          {this.renderSmbg()}
           <TargetRangeLines
             bgBounds={this.props.bgPrefs.bgBounds}
             smbgOpts={this.props.smbgOpts}
-            xScale={this.props.xScale}
-            yScale={this.props.yScale}
+            xScale={xScale}
+            yScale={yScale}
           />
-          {this.renderNoDataMessage(this.props.showingCbg ? "cbg" : "smbg")}
+          {this.renderNoDataMessage("cbg")}
         </svg>
       </div>
     );
@@ -334,6 +238,10 @@ TrendsSVGContainer.defaultProps = {
   smbgOpts: SMBG_OPTS,
   // for time values after 6 p.m. (1800), float the tooltips left instead of right
   tooltipLeftThreshold: 6 * THREE_HRS,
+  size: {
+    width: 640,
+    height: 480,
+  },
 };
 
 TrendsSVGContainer.propTypes = {
@@ -355,18 +263,10 @@ TrendsSVGContainer.propTypes = {
     }).isRequired,
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   }).isRequired,
-  bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
   size: PropTypes.shape({
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
   }).isRequired,
-  smbgData: PropTypes.arrayOf(PropTypes.shape({
-    // here only documenting the properties we actually use rather than the *whole* data model!
-    id: PropTypes.string.isRequired,
-    localDate: PropTypes.string.isRequired,
-    msPer24: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-  })).isRequired,
   cbgData: PropTypes.arrayOf(PropTypes.shape({
     // here only documenting the properties we actually use rather than the *whole* data model!
     id: PropTypes.string.isRequired,
@@ -414,24 +314,6 @@ TrendsSVGContainer.propTypes = {
     "tenthQuantile",
     "thirdQuartile",
   ])),
-  focusedSmbg: PropTypes.shape({
-    allPositions: PropTypes.arrayOf(PropTypes.shape({
-      top: PropTypes.number.isRequired,
-      left: PropTypes.number.isRequired,
-    })),
-    allSmbgsOnDate: PropTypes.arrayOf(PropTypes.shape({
-      value: PropTypes.number.isRequired,
-    })),
-    date: PropTypes.string.isRequired,
-    datum: PropTypes.shape({
-      value: PropTypes.number.isRequired,
-    }),
-    position: PropTypes.shape({
-      top: PropTypes.number.isRequired,
-      left: PropTypes.number.isRequired,
-    }),
-  }),
-  focusedSmbgRangeAvgKey: PropTypes.string,
   margins: PropTypes.shape({
     top: PropTypes.number.isRequired,
     right: PropTypes.number.isRequired,
@@ -439,19 +321,13 @@ TrendsSVGContainer.propTypes = {
     left: PropTypes.number.isRequired,
   }).isRequired,
   onSelectDate: PropTypes.func.isRequired,
-  showingCbg: PropTypes.bool.isRequired,
   showingCbgDateTraces: PropTypes.bool.isRequired,
-  showingSmbg: PropTypes.bool.isRequired,
-  smbgGrouped: PropTypes.bool.isRequired,
-  smbgLines: PropTypes.bool.isRequired,
   smbgOpts: PropTypes.shape({
     maxR: PropTypes.number.isRequired,
     r: PropTypes.number.isRequired,
-  }).isRequired,
-  smbgRangeOverlay: PropTypes.bool.isRequired,
+  }),
   tooltipLeftThreshold: PropTypes.number.isRequired,
-  xScale: PropTypes.func.isRequired,
-  yScale: PropTypes.func.isRequired,
+  yScaleDomain: PropTypes.arrayOf(PropTypes.number),
 };
 
 export default sizeMe({ monitorHeight: true })(TrendsSVGContainer);

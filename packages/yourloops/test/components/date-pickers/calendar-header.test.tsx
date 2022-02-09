@@ -53,14 +53,17 @@ function testCalendarHeader(): void {
 
   it("should correctly render a month", async () => {
     const today = dayjs("2021-11-01T12:00:00Z"); // Monday
-    const onMonthChange = sinon.stub<[dayjs.Dayjs], void>();
+    const onPrevMonth = sinon.stub();
+    const onNextMonth = sinon.stub();
 
     await act(() => {
       return new Promise((resolve) => {
         ReactDOM.render(
           <CalendarHeader
+            orientation="landscape"
             currentMonth={today}
-            onMonthChange={onMonthChange}
+            onPrevMonth={onPrevMonth}
+            onNextMonth={onNextMonth}
           />, container, resolve);
       });
     });
@@ -72,16 +75,14 @@ function testCalendarHeader(): void {
     expect(buttonPrevMonth.nodeName.toLowerCase(), "buttonPrevMonth node").to.be.eq("button");
     expect(buttonPrevMonth.getAttribute("disabled"), "buttonPrevMonth disabled").to.be.null;
     buttonPrevMonth.click();
-    expect(onMonthChange.calledOnce).to.be.true;
-    expect(onMonthChange.firstCall.args[0].format("YYYY-MM-DD")).to.be.eq("2021-10-01");
+    expect(onPrevMonth.calledOnce).to.be.true;
 
     const buttonNextMonth = document.getElementById("calendar-header-button-next-month");
     expect(buttonNextMonth, "buttonNextMonth").to.be.not.null;
     expect(buttonNextMonth.nodeName.toLowerCase(), "buttonNextMonth node").to.be.eq("button");
     expect(buttonNextMonth.getAttribute("disabled"), "buttonNextMonth disabled").to.be.null;
     buttonNextMonth.click();
-    expect(onMonthChange.calledTwice).to.be.true;
-    expect(onMonthChange.secondCall.args[0].format("YYYY-MM-DD")).to.be.eq("2021-12-01");
+    expect(onNextMonth.calledOnce).to.be.true;
 
     const displayedMonth = document.getElementById("calendar-header-current-month");
     expect(displayedMonth).to.be.not.null;
@@ -90,18 +91,13 @@ function testCalendarHeader(): void {
 
   it("should correctly restrict prev/next month when disabled", async () => {
     const today = dayjs("2021-11-01T12:00:00Z"); // Monday
-    const minDate = today;
-    const maxDate = today.endOf("month");
-    const onMonthChange = sinon.stub<[dayjs.Dayjs], void>();
 
     await act(() => {
       return new Promise((resolve) => {
         ReactDOM.render(
           <CalendarHeader
+            orientation="landscape"
             currentMonth={today}
-            minDate={minDate}
-            maxDate={maxDate}
-            onMonthChange={onMonthChange}
           />, container, resolve);
       });
     });
@@ -117,10 +113,11 @@ function testCalendarHeader(): void {
 
   it("should render the transition when requested", async () => {
     const today = dayjs("2021-11-01T12:00:00Z"); // Monday
-    const onMonthChange = sinon.stub<[dayjs.Dayjs], void>();
-    const changeMonth: CalendarChangeMonth = {
+    const onPrevMonth = sinon.stub();
+    const onNextMonth = sinon.stub();
+    const changingMonth: CalendarChangeMonth = {
       direction: "right",
-      newMonth: today.add(1, "month"),
+      toMonth: today.add(1, "month"),
       onAnimationEnd: sinon.stub(),
     };
 
@@ -128,9 +125,11 @@ function testCalendarHeader(): void {
       return new Promise((resolve) => {
         ReactDOM.render(
           <CalendarHeader
+            orientation="landscape"
             currentMonth={today}
-            onMonthChange={onMonthChange}
-            changeMonth={changeMonth}
+            onPrevMonth={onPrevMonth}
+            onNextMonth={onNextMonth}
+            changingMonth={changingMonth}
           />, container, resolve);
       });
     });
@@ -142,6 +141,52 @@ function testCalendarHeader(): void {
     const nextMonth = document.getElementById("calendar-header-next-month");
     expect(nextMonth, "nextMonth").to.be.not.null;
     expect(nextMonth.innerText, "nextMonth text").to.be.eq("December 2021");
+  });
+
+  it("should hide the prev-month button when position is last and orientation islandscape", async () => {
+    const today = dayjs("2021-11-01T12:00:00Z"); // Monday
+    const onPrevMonth = sinon.stub();
+    const onNextMonth = sinon.stub();
+
+    await act(() => {
+      return new Promise((resolve) => {
+        ReactDOM.render(
+          <CalendarHeader
+            orientation="landscape"
+            position="last"
+            currentMonth={today}
+            onPrevMonth={onPrevMonth}
+            onNextMonth={onNextMonth}
+          />, container, resolve);
+      });
+    });
+
+    const buttonPrevMonth = document.getElementById("calendar-header-last-button-prev-month");
+    expect(buttonPrevMonth, "calendar-header-last-button-prev-month").to.be.not.null;
+    expect(buttonPrevMonth.getAttribute("aria-disabled"), "aria-disabled").to.be.eq("true");
+  });
+
+  it("should hide the next-month button when position is first and orientation islandscape", async () => {
+    const today = dayjs("2021-11-01T12:00:00Z"); // Monday
+    const onPrevMonth = sinon.stub();
+    const onNextMonth = sinon.stub();
+
+    await act(() => {
+      return new Promise((resolve) => {
+        ReactDOM.render(
+          <CalendarHeader
+            orientation="landscape"
+            position="first"
+            currentMonth={today}
+            onPrevMonth={onPrevMonth}
+            onNextMonth={onNextMonth}
+          />, container, resolve);
+      });
+    });
+
+    const buttonNextMonth = document.getElementById("calendar-header-first-button-next-month");
+    expect(buttonNextMonth, "calendar-header-first-button-next-month").to.be.not.null;
+    expect(buttonNextMonth.getAttribute("aria-disabled"), "aria-disabled").to.be.eq("true");
   });
 }
 

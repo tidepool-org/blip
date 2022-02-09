@@ -70,18 +70,6 @@ describe("settingsStateByUser", () => {
     });
   });
 
-  describe("MARK_SETTINGS_VIEWED", () => {
-    it("should flip `touched` to true for the given user", () => {
-      const initialState = { [USER_1]: {} };
-      const tracked = mutationTracker.trackObj(initialState);
-      expect(settingsStateByUser(initialState, {
-        type: actionTypes.MARK_SETTINGS_VIEWED,
-        payload: { userId: USER_1 },
-      })).to.deep.equal({ [USER_1]: { touched: true } });
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
-    });
-  });
-
   describe("TOGGLE_SETTINGS_SECTION", () => {
     it("should add a key that wasn't previously in state", () => {
       const initialState = { [USER_1]: { [deviceKey]: { illness: false } } };

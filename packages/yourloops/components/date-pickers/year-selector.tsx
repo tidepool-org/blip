@@ -31,14 +31,11 @@ import clsx from "clsx";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 
-import { MAX_YEAR, MIN_YEAR } from "./models";
-
 interface YearSelectorProps {
   selectedYear: number;
-  minYear?: number;
-  /** Max year included */
-  maxYear?: number;
-  onSelectedYear: (year: number) => void;
+  minYear: number;
+  maxYear: number;
+  onSelectYear: (year: number) => void;
 }
 
 const yearSelectorStyles = makeStyles((theme: Theme) => {
@@ -48,8 +45,15 @@ const yearSelectorStyles = makeStyles((theme: Theme) => {
       overflowY: "auto",
       marginRight: theme.spacing(1),
       marginLeft: theme.spacing(1),
-      marginTop: "auto",
-      marginBottom: "auto",
+      height: 345,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      [theme.breakpoints.down("sm")]: {
+        height: 303,
+        marginLeft: "auto",
+        marginRight: "auto",
+      },
     },
     year: {
       "textAlign": "center",
@@ -67,8 +71,8 @@ const yearSelectorStyles = makeStyles((theme: Theme) => {
 }, { name: "date-pickers-year-selector" });
 
 function YearSelector(props: YearSelectorProps): JSX.Element {
-  const minYear = props.minYear ?? MIN_YEAR;
-  const maxYear = (props.maxYear ?? MAX_YEAR) + 1;
+  const { minYear } = props;
+  const maxYear = props.maxYear + 1;
   const classes = yearSelectorStyles();
   const refSelected = React.useRef<HTMLDivElement>(null);
   const refSelector = React.useRef<HTMLDivElement>(null);
@@ -90,7 +94,7 @@ function YearSelector(props: YearSelectorProps): JSX.Element {
     switch (e.key) {
     case "Enter":
     case " ":
-      props.onSelectedYear(selectedYear);
+      props.onSelectYear(selectedYear);
       break;
     case "ArrowUp":
       e.preventDefault();
@@ -120,7 +124,7 @@ function YearSelector(props: YearSelectorProps): JSX.Element {
         variant={isSelectedYear ? "h6" : "subtitle1"}
         component="div"
         className={clsx(classes.year, { [classes.selectedYear]: isSelectedYear })}
-        onClick={() => props.onSelectedYear(i)}
+        onClick={() => props.onSelectYear(i)}
         role="option"
         aria-selected={isSelectedYear}
         ref={isSelectedYear ? refSelected : null}

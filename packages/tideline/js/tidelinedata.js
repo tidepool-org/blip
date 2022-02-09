@@ -17,8 +17,8 @@
 /* eslint-disable lodash/prefer-matches */
 /**
  * @typedef {'basal'|'bolus'|'cbg'|'smbg'|'deviceEvent'|'wizard'|'upload'|'pumpSettings'|'physicalActivity'|'message'|'fill'} DatumType
- * @typedef {{ type: string, time?: string, normalTime: string, normalEnd?: string, subType?: string, epoch: number, epochEnd?: number, guessedTimezone?: boolean, timezone: string, displayOffset: number }} Datum
- * @typedef {{ [x: DatumType]: Datum[] }} Grouped
+ * @typedef {{ type: string, time?: string, normalTime: string, normalEnd?: string, subType?: string, epoch: number, epochEnd?: number, guessedTimezone?: boolean, timezone: string, displayOffset: number;localDate?:string;isoWeekday?:string;}} Datum
+ * @typedef {{ cbg:Datum[]; basal:Datum[], bolus:Datum[] }} Grouped
  * @typedef {{ payload: { parameters: {name: string}[]} } | Datum} PumpSettings
  * @typedef {{ timezone: string, dateRange: string[], nData: number, days: {date:string,type:string}[], data:{[x:string]: {data: Datum[]}} }} BasicsData
  * @typedef {{ time: number, timezone: string}[]} TimezoneList
@@ -132,20 +132,8 @@ function TidelineData(opts = defaults) {
   // Crossfilters
   /** @type {crossfilter.Crossfilter<Datum>} */
   this.filterData = null;
-  /** @type {crossfilter.Crossfilter<Datum>} */
-  this.smbgData = null;
-  /** @type {crossfilter.Crossfilter<Datum>} */
-  this.cbgData = null;
   /** @type {crossfilter.Dimension<Datum, string>} */
   this.dataByDate = null;
-  /** @type {crossfilter.Dimension<Datum, string>} */
-  this.smbgByDate = null;
-  /** @type {crossfilter.Dimension<Datum, string>} */
-  this.smbgByDayOfWeek = null;
-  /** @type {crossfilter.Dimension<Datum, string>} */
-  this.cbgByDate = null;
-  /** @type {crossfilter.Dimension<Datum, string>} */
-  this.cbgByDayOfWeek = null;
 
   // Utils
   /** @type {BasalUtil} */
@@ -438,7 +426,7 @@ TidelineData.prototype.setTimezones = function setTimezones() {
     }
 
     // Display offset (for the daily timeline)
-    const mTime = moment.utc(d.epoch).tz(timezone);
+    const mTime = moment.tz(d.epoch, timezone);
     d.displayOffset = -mTime.utcOffset();
     if (Number.isNaN(displayOffset)) {
       displayOffset = d.displayOffset;
@@ -455,8 +443,10 @@ TidelineData.prototype.setTimezones = function setTimezones() {
     }
 
     // Other infos:
-    if (d.type === "smbg" || d.type === "cbg") {
-      d.localDate = mTime.format("YYYY-MM-DD"); // Has to be translated ?
+    if (d.type === "cbg") {
+      // Used for trends view
+      d.localDate = mTime.format("YYYY-MM-DD");
+      d.isoWeekday = dt.isoWeekdayToString(mTime.isoWeekday());
       d.msPer24 = dt.getMsFromMidnight(mTime);
     }
   }
@@ -576,6 +566,25 @@ TidelineData.prototype.setEndPoints = function setEndPoints() {
   }
 
   this.endpoints = [start.toISOString(), end.toISOString()];
+};
+
+/**
+ *
+ * @returns Start / End date for the calendar
+ */
+TidelineData.prototype.getLocaleTimeEndpoints = function getLocaleTimeEndpoints(endInclusive = true) {
+  let timezone = this.getTimezoneAt(this.endpoints[0]);
+  const startDate = moment.tz(this.endpoints[0], timezone).toDate();
+
+  timezone = this.getTimezoneAt(this.endpoints[1]);
+  let endDate = moment.tz(this.endpoints[1], timezone);
+  if (endInclusive) {
+    // endpoints end date is exclusive, but the DatePicker is inclusive
+    // remove 1ms to the endDate
+    endDate.subtract(1, "millisecond");
+  }
+
+  return { startDate, endDate: endDate.toDate() };
 };
 
 TidelineData.prototype.setDeviceParameters = function setDeviceParameters() {
@@ -805,40 +814,10 @@ TidelineData.prototype.getLastestManufacturer = function getLastestManufacturer(
 };
 
 TidelineData.prototype.updateCrossFilters = function updateCrossFilters() {
-  const createCrossFilter = (dim) => {
-    let newDim = null;
-    switch (dim) {
-    case "datetime":
-      newDim = this.filterData.dimension((d) => d.normalTime);
-      break;
-    case "smbgByDatetime":
-      newDim = this.smbgData.dimension((d) => d.normalTime);
-      break;
-    case "smbgByDayOfWeek":
-      newDim = this.smbgData.dimension((d) => dt.weekdayLookup(moment.utc(d.epoch).tz(d.timezone).day()));
-      break;
-    case "cbgByDatetime":
-      newDim = this.cbgData.dimension((d) => d.normalTime);
-      break;
-    case "cbgByDayOfWeek":
-      newDim = this.cbgData.dimension((d) => dt.weekdayLookup(moment.utc(d.epoch).tz(d.timezone).day()));
-      break;
-    }
-    return newDim;
-  };
-
   this.filterData = crossfilter(this.data);
-  this.smbgData = crossfilter(this.grouped.smbg ?? []);
-  this.cbgData = crossfilter(this.grouped.cbg ?? []);
-  this.dataByDate = createCrossFilter("datetime");
-  this.smbgByDate = createCrossFilter("smbgByDatetime");
-  this.smbgByDayOfWeek = createCrossFilter("smbgByDayOfWeek");
-  this.cbgByDate = createCrossFilter("cbgByDatetime");
-  this.cbgByDayOfWeek = createCrossFilter("cbgByDayOfWeek");
-
+  this.dataByDate = this.filterData.dimension((d) => d.normalTime);
   return this;
 };
-
 TidelineData.prototype.setUtilities = function setUtilities() {
   this.basalUtil = new BasalUtil(this.grouped.basal);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
@@ -1090,14 +1069,7 @@ TidelineData.prototype.addData = async function addData(newData) {
   this.basicsData = null;
 
   this.filterData = null;
-  this.smbgData = null;
-  this.cbgData = null;
   this.dataByDate = null;
-  this.smbgByDate = null;
-  this.smbgByDayOfWeek = null;
-  this.cbgByDate = null;
-  this.cbgByDayOfWeek = null;
-
   this.basalUtil = null;
   this.bolusUtil = null;
   this.cbgUtil = null;
@@ -1260,5 +1232,5 @@ TidelineData.prototype.editMessage = function editMessage(editedMessage) {
   return message;
 };
 
-export { DAILY_TYPES };
+export { DAILY_TYPES, genRandomId };
 export default TidelineData;

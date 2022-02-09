@@ -17,7 +17,6 @@
 
 import _ from "lodash";
 import React from "react";
-import TransitionGroupPlus from "../../../../src/components/common/ReactTransitionGroupPlus";
 import { shallow } from "enzyme";
 import { expect } from "chai";
 import * as sinon from "sinon";
@@ -40,16 +39,16 @@ describe("CBGDateTracesAnimationContainer", () => {
     yScale: sinon.stub(),
   };
 
-  it("should render a TransitionGroupPlus even if there are no dates or data", () => {
+  it("should render a group even if there are no dates or data", () => {
     const noDataProps = _.assign({}, props, { data: {}, dates: [] });
     const wrapper = shallow(<CBGDateTracesAnimationContainer {...noDataProps} />);
-    expect(wrapper.find(TransitionGroupPlus)).to.have.length(1);
+    expect(wrapper.find("#cbgDateTraces")).to.have.length(1);
     expect(wrapper.find(CBGDateTraceAnimated)).to.have.length(0);
   });
 
-  it("should render a TransitionGroupPlus and a CBGDateTraceAnimated for each date", () => {
+  it("should render a group and a CBGDateTraceAnimated for each date", () => {
     const wrapper = shallow(<CBGDateTracesAnimationContainer {...props} />);
-    expect(wrapper.find(TransitionGroupPlus)).to.have.length(1);
+    expect(wrapper.find("#cbgDateTraces")).to.have.length(1);
     expect(wrapper.find(CBGDateTraceAnimated)).to.have.length(2);
   });
 });

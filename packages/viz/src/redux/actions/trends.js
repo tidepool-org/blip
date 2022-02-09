@@ -31,29 +31,6 @@ export function focusTrendsCbgSlice(userId, sliceData, slicePosition, focusedKey
   };
 }
 
-export function focusTrendsSmbg(
-  userId, smbgDatum, smbgPosition, allSmbgsOnDate, allPositions, date
-) {
-  return {
-    type: actionTypes.FOCUS_TRENDS_SMBG,
-    payload: { userId, smbgDatum, smbgPosition, allSmbgsOnDate, allPositions, date },
-  };
-}
-
-export function focusTrendsSmbgRangeAvg(userId, rangeAvgData, rangeAvgPosition) {
-  return {
-    type: actionTypes.FOCUS_TRENDS_SMBG_RANGE_AVG,
-    payload: { rangeAvgData, rangeAvgPosition, userId },
-  };
-}
-
-export function markTrendsViewed(userId) {
-  return {
-    type: actionTypes.MARK_TRENDS_VIEWED,
-    payload: { userId },
-  };
-}
-
 export function showCbgDateTraces(userId) {
   return {
     type: actionTypes.SHOW_CBG_DATE_TRACES,
@@ -85,20 +62,6 @@ export function unfocusTrendsCbgDateTrace(userId) {
 export function unfocusTrendsCbgSlice(userId) {
   return {
     type: actionTypes.UNFOCUS_TRENDS_CBG_SLICE,
-    payload: { userId },
-  };
-}
-
-export function unfocusTrendsSmbg(userId) {
-  return {
-    type: actionTypes.UNFOCUS_TRENDS_SMBG,
-    payload: { userId },
-  };
-}
-
-export function unfocusTrendsSmbgRangeAvg(userId) {
-  return {
-    type: actionTypes.UNFOCUS_TRENDS_SMBG_RANGE_AVG,
     payload: { userId },
   };
 }

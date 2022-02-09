@@ -38,6 +38,8 @@ import { CalendarChangeMonth, TRANSITION_DURATION } from "../../../components/da
 import Calendar from "../../../components/date-pickers/calendar";
 
 function testCalendar(): void {
+  const minDate = dayjs("2010-01-01", { utc: true });
+  const maxDate = dayjs("2040-01-01", { utc: true });
   let container: HTMLDivElement | null = null;
 
   beforeEach(() => {
@@ -61,18 +63,20 @@ function testCalendar(): void {
         ReactDOM.render(
           <Calendar
             currentMonth={today}
-            selectedDate={today}
+            selection={{ mode: "single", selected: today }}
             onChange={onChange}
+            minDate={minDate}
+            maxDate={maxDate}
           />, container, resolve);
       });
     });
 
     const calendarElem = document.getElementById("calendar-month");
-    expect(calendarElem).to.be.not.null;
+    expect(calendarElem, "calendarElem").to.be.not.null;
     expect(calendarElem.nodeName.toLowerCase()).to.be.eq("div");
 
-    const firstDay = document.getElementById("calendar-weekday-0");
-    expect(firstDay).to.be.not.null;
+    const firstDay = document.getElementById("calendar-month-weekday-0");
+    expect(firstDay, "firstDay").to.be.not.null;
     expect(firstDay.innerText).to.be.eq("Su");
 
     const todayButton = document.getElementById("button-calendar-day-2021-11-09");
@@ -82,7 +86,7 @@ function testCalendar(): void {
     expect(todayButton.nodeName.toLowerCase()).to.be.eq("button");
 
     const tomorrowElem = document.getElementById("button-calendar-day-2021-11-10");
-    expect(tomorrowElem).to.be.not.null;
+    expect(tomorrowElem, "tomorrowElem").to.be.not.null;
     tomorrowElem.click();
     expect(onChange.calledOnce).to.be.true;
     expect(onChange.firstCall.args[0].format("YYYY-MM-DD")).to.be.eq("2021-11-10");
@@ -95,7 +99,7 @@ function testCalendar(): void {
     const onAnimationEnd = sinon.stub();
     const changeMonth: CalendarChangeMonth = {
       direction: "left",
-      newMonth: today.subtract(1, "month"),
+      toMonth: today.subtract(1, "month"),
       onAnimationEnd,
     };
 
@@ -104,14 +108,16 @@ function testCalendar(): void {
         ReactDOM.render(
           <Calendar
             currentMonth={today}
-            selectedDate={today}
+            selection={{ mode: "single", selected: today }}
             onChange={onChange}
             changeMonth={changeMonth}
+            minDate={minDate}
+            maxDate={maxDate}
           />, container, resolve);
       });
     });
 
-    expect(document.getElementById("calendar-weekdays-values-new"), "calendar-weekdays-values-new").to.be.not.null;
+    expect(document.getElementById("calendar-month-weekdays-values-new"), "calendar-month-weekdays-values-new").to.be.not.null;
 
     while (!onAnimationEnd.called) {
       await waitTimeout(TRANSITION_DURATION);
@@ -128,8 +134,10 @@ function testCalendar(): void {
         ReactDOM.render(
           <Calendar
             currentMonth={today}
-            selectedDate={today}
+            selection={{ mode: "single", selected: today }}
             onChange={onChange}
+            minDate={minDate}
+            maxDate={maxDate}
           />, container, resolve);
       });
     });

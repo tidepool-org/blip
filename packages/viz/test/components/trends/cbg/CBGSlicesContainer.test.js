@@ -57,14 +57,14 @@ describe("CBGSlicesContainer", () => {
     wrapper = mount(<CBGSlicesContainer {...props} />);
   });
 
-  describe("componentWillMount", () => {
+  describe("componentDidMount", () => {
     it("sets mungedData in state", () => {
-      sinon.spy(CBGSlicesContainer.prototype, "UNSAFE_componentWillMount");
+      sinon.spy(CBGSlicesContainer.prototype, "componentDidMount");
       sinon.spy(CBGSlicesContainer.prototype, "setState");
-      expect(CBGSlicesContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(0);
+      expect(CBGSlicesContainer.prototype.componentDidMount.callCount).to.equal(0);
       expect(CBGSlicesContainer.prototype.setState.callCount).to.equal(0);
       mount(<CBGSlicesContainer {...props} />);
-      expect(CBGSlicesContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(1);
+      expect(CBGSlicesContainer.prototype.componentDidMount.callCount).to.equal(1);
       expect(CBGSlicesContainer.prototype.setState.callCount).to.equal(1);
       const undefineds = {
         firstQuartile: undefined,
@@ -85,7 +85,7 @@ describe("CBGSlicesContainer", () => {
     });
   });
 
-  describe("componentWillReceiveProps", () => {
+  describe("componentDidUpdate", () => {
     it("remunges data if binSize has changed", () => {
       const instance = wrapper.instance();
       sinon.spy(instance, "mungeData");

@@ -17,13 +17,6 @@
 
 import * as actionTypes from "../constants/actionTypes";
 
-export function markSettingsViewed(userId) {
-  return {
-    type: actionTypes.MARK_SETTINGS_VIEWED,
-    payload: { userId },
-  };
-}
-
 export function toggleSettingsSection(userId, deviceKey, scheduleOrProfileKey) {
   return {
     type: actionTypes.TOGGLE_SETTINGS_SECTION,

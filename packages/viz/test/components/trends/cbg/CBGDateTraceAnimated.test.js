@@ -41,13 +41,16 @@ describe("CBGDateTraceAnimated", () => {
     data: [{
       id: "a1b2c3",
       localDate: "2016-12-25",
+      timezone: "UTC",
       msPer24: 0,
       value: 100,
+      epoch: 1482624000000,
     }, {
       id: "d4e5f6",
       localDate: "2016-12-25",
       msPer24: 43200000,
       value: 200,
+      epoch: 1482667200000,
     }],
     date: "2016-12-25",
     focusDateTrace: sinon.spy(),
@@ -106,7 +109,7 @@ describe("CBGDateTraceAnimated", () => {
           expect(props.onSelectDate.callCount).to.equal(0);
           circle.simulate("click");
           expect(props.onSelectDate.callCount).to.equal(1);
-          expect(props.onSelectDate.args[0][0]).to.equal(props.data[0].localDate);
+          expect(props.onSelectDate.args[0][0]).to.equal(props.data[0].epoch);
         });
       });
 

@@ -53,7 +53,7 @@ describe("Daily", () => {
     permsOfLoggedInUser: {
       root: true,
     },
-    datePicker: (props) => <div id="date-picker" className={props?.className}>{props.children}</div>,
+    dialogDatePicker: (props) => props.isOpen ? <div id="date-picker">{props.date}</div> : null,
     dataUtil: new DataUtilStub(),
     profileDialog: sinon.stub().returns(<div id="profile-dialog" />),
     epochLocation: moment.utc("2014-03-13T12:00:00.000Z").valueOf(),
@@ -84,12 +84,16 @@ describe("Daily", () => {
         timePrefs: {
           timezoneAware: true,
           timezoneName: timezone,
-          timezoneOffset: 0,
         },
       },
-      grouped: { foo: "bar" },
+      data: [{ type: "cbg", value: 80, units: "mg/dL", epoch: 0, timezone: "UTC" }],
+      grouped: { cbg: [{ type: "cbg", value: 80, units: "mg/dL", epoch: 0, timezone: "UTC" }] },
       getTimezoneAt: sinon.stub().returns(timezone),
       endpoints: ["2014-03-01T00:00:00.000Z", "2014-03-13T23:59:59.999Z"],
+      getLocaleTimeEndpoints: sinon.stub().returns({
+        startDate: new Date("2014-03-01T00:00:00.000Z"),
+        endDate: new Date("2014-03-13T23:59:59.999Z"),
+      }),
     },
     canPrint: false,
     timePrefs: {
@@ -198,58 +202,45 @@ describe("Daily", () => {
       expect(stats.length).to.equal(1);
     });
 
-    it("should render the date-picker", () => {
-      let titleElem = wrapper?.find("#date-picker");
-      expect(titleElem?.length).to.be.eq(1);
-      // enzyme see the "id" set in the component, so filter it more
-      titleElem = wrapper?.find("#daily-chart-title-date").find(".patient-data-subnav-disabled");
-      expect(titleElem?.length).to.be.eq(0);
+    it("should render the date-picker input element", () => {
+      let titleElem = wrapper?.find(".calendar-nav-icon");
+      expect(titleElem?.length).to.be.above(0);
+      titleElem = wrapper?.find("#daily-chart-title-date");
+      expect(titleElem?.length).to.be.above(0);
+      expect(titleElem.last().getDOMNode().getAttribute("disabled")).to.be.null;
     });
 
     it("should render the date title as disabled when loading", () => {
       const props = {...baseProps, loading: true };
       wrapper?.setProps(props);
-      let titleElem = wrapper?.find("#date-picker");
-      expect(titleElem?.length).to.be.eq(0);
-      titleElem = wrapper?.find("#daily-chart-title-date");
-      expect(titleElem?.length).to.be.eq(1);
+      const titleElem = wrapper?.find("#daily-chart-title-date");
+      expect(titleElem?.length).to.be.above(0);
+      expect(titleElem.last().getDOMNode().getAttribute("disabled")).to.be.not.null;
     });
 
     it("should render the date title as disabled when in transition", () => {
       instance?.handleInTransition(true);
       wrapper?.update();
-      let titleElem = wrapper?.find("#date-picker");
-      expect(titleElem?.length).to.be.eq(0);
-      titleElem = wrapper?.find("#daily-chart-title-date");
-      expect(titleElem?.length).to.be.eq(1);
+      const titleElem = wrapper?.find("#daily-chart-title-date");
+      expect(titleElem?.length).to.be.above(0);
+      expect(titleElem.last().getDOMNode().getAttribute("disabled")).to.be.not.null;
     });
 
     it("should set the new displayed date after a return of the date-picker", () => {
-      /** @type {null | ((s: string) => void)} */
       let onResult = null;
-      let id = "";
-      let className = "";
-      let children = null;
       const DatePicker = (props) => {
         onResult = props.onResult;
-        id = props.id;
-        className = props.className;
-        children = props.children;
-        return <div id="date-picker-with-result" className={props?.className}>{props.children}</div>;
+        return (
+          <div id="date-picker-with-result">
+            <button id="button-ok" type="button">OK</button>
+          </div>
+        );
       };
       DatePicker.propTypes = {
-        id: PropTypes.string,
         onResult: PropTypes.func.isRequired,
-        className: PropTypes.string,
-        children: PropTypes.node,
       };
-      const props = {...baseProps, datePicker: DatePicker };
+      const props = {...baseProps, dialogDatePicker: DatePicker };
       wrapper?.setProps(props);
-      let titleElem = wrapper?.find("#date-picker-with-result");
-      expect(titleElem?.length).to.be.eq(1);
-      expect(id).to.be.eq("daily-chart-title-date");
-      expect(className).to.be.eq("patient-data-subnav-text patient-data-subnav-dates-daily chart-title-clickable");
-      expect(children).to.be.not.null;
       expect(onResult).to.be.a("function");
       onResult("2021-11-01");
       expect(dailyChartGoToDate.calledOnce).to.be.true;

@@ -59,7 +59,6 @@ class Basics extends React.Component {
           prefixURL={this.props.prefixURL}
           canPrint={this.props.canPrint}
           trackMetric={this.props.trackMetric}
-          permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           onClickBasics={this.handleClickBasics}
           onClickOneDay={this.handleClickDaily}
           onClickTrends={this.handleClickTrends}

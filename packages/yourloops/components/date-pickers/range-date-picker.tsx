@@ -27,34 +27,38 @@
  */
 
 import React from "react";
-import { Dayjs } from "dayjs";
+import { Dayjs, isDayjs } from "dayjs";
 
 import {
   CalendarOrientation,
-  CalendarSelectionSingle,
+  CalendarChangeMonth,
+  CalendarSelectionRange,
 } from "./models";
-import { useChangeMonthState, toYearMonth } from "./change-month";
 import PickerToolbar from "./picker-toolbar";
 import CalendarBox from "./calendar-box";
+import { useChangeMonthState } from "./change-month";
 
-interface DatePickerProps {
+interface CalendarViewProps {
   showToolbar?: boolean;
-  selection: CalendarSelectionSingle;
+  selection: CalendarSelectionRange;
   minDate: Dayjs;
   maxDate: Dayjs;
   orientation: CalendarOrientation;
   onChange: (d: Dayjs) => void;
 }
 
-/**
- * A single month calendar
- */
-function DatePicker(props: DatePickerProps): JSX.Element {
+function RangeDatePicker(props: CalendarViewProps): JSX.Element {
   const { selection, minDate, maxDate, orientation, onChange } = props;
 
-  const [selectingYear, setSelectingYear] = React.useState<boolean>(false);
+  const [currentMonth, setCurrentMonth] = React.useState<Dayjs>(() => {
+    const lastMonth = selection.selected.end.startOf("month");
+    if (isDayjs(minDate) && lastMonth.subtract(1, "day").isBefore(minDate)) {
+      // Don't display an unselectable month
+      return lastMonth.add(1, "month");
+    }
+    return lastMonth;
+  });
 
-  const [currentMonth, setCurrentMonth] = React.useState<Dayjs>(selection.selected.startOf("month"));
   const [changingMonth, handlePrevMonth, handleNextMonth] = useChangeMonthState({
     currentMonth,
     setCurrentMonth,
@@ -63,54 +67,53 @@ function DatePicker(props: DatePickerProps): JSX.Element {
     mode: selection.mode,
   });
 
-  const handleSelectedYear = selectingYear ? (year: number) => {
-    setSelectingYear(false);
-    let date = selection.selected.set("year", year);
-    if (date.isBefore(minDate)) {
-      date = minDate;
-    } else if (date.isAfter(maxDate)) {
-      date = maxDate;
-    }
-    props.onChange(date);
-    setCurrentMonth(date.startOf("month"));
-  } : undefined;
+  const prevMonth = React.useMemo(() => {
+    return currentMonth.subtract(1, "month");
+  }, [currentMonth]);
 
-  const onChangeSelectedDate = (date: Dayjs, updateCurrentMonth?: boolean): void => {
-    if (date.isBefore(minDate) || date.isAfter(maxDate)) {
-      return;
+  const changingPrevMonth = React.useMemo<CalendarChangeMonth | null>(() => {
+    if (changingMonth) {
+      return {
+        direction: changingMonth.direction,
+        onAnimationEnd: changingMonth.onAnimationEnd,
+        toMonth: changingMonth.toMonth.subtract(1, "month"),
+      };
     }
-    if (updateCurrentMonth) {
-      const dMonth = toYearMonth(date) - toYearMonth(currentMonth);
-      if (dMonth > 0 && handleNextMonth) {
-        handleNextMonth();
-      } else if (dMonth < 0 && handlePrevMonth) {
-        handlePrevMonth();
-      }
-    }
-    onChange(date);
-  };
+    return null;
+  }, [changingMonth]);
 
   return (
     <React.Fragment>
       {props.showToolbar && <PickerToolbar
         selection={selection}
         orientation={orientation}
-        onClickYear={() => setSelectingYear(true)}
       />}
       <CalendarBox
+        position="first"
+        selection={selection}
+        orientation={orientation}
+        currentMonth={prevMonth}
+        minDate={minDate}
+        maxDate={maxDate}
+        changingMonth={changingPrevMonth}
+        onPrevMonth={handlePrevMonth}
+        onNextMonth={handleNextMonth}
+        onChange={onChange}
+      />
+      <CalendarBox
+        position="last"
+        selection={selection}
         orientation={orientation}
         currentMonth={currentMonth}
-        selection={selection}
         minDate={minDate}
         maxDate={maxDate}
         changingMonth={changingMonth}
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
-        onChange={onChangeSelectedDate}
-        onSelectYear={handleSelectedYear}
+        onChange={onChange}
       />
     </React.Fragment>
   );
 }
 
-export default DatePicker;
+export default RangeDatePicker;

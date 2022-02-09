@@ -22,13 +22,6 @@
   font-family: @font-family-base;
   font-size: @font-size-base;
   line-height: @line-height-base;
-
-  button {
-    cursor: pointer;
-    font-size: 16px;
-    font-family: @font-family-base;
-    white-space: nowrap;
-  }
 }
 
 // Subnav
@@ -48,7 +41,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  height: 64px;
+  min-height: 64px;
   align-items: center;
 
   @media (min-width: @screen-md-lg-min) {
@@ -61,8 +54,8 @@
 }
 
 .patient-data-subnav-text {
-  display: inline-block;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
 
   &.patient-data-subnav-disabled {
     color: @gray;
@@ -71,11 +64,7 @@
 }
 
 .patient-data-subnav-dates-daily {
-  width: 150px;
-}
-
-.patient-data-subnav-dates-bgLog {
-  width: 220px;
+  min-width: 150px;
 }
 
 .patient-data-subnav a {
@@ -98,26 +87,6 @@
 
   &:active,
   &.patient-data-subnav-disabled {
-    color: @gray;
-    cursor: default;
-  }
-}
-.patient-data-subnav button {
-  background-color: transparent;
-  border-style: none;
-  padding: 0;
-
-  color: @black-80;
-  font-weight: bold;
-  letter-spacing: 0;
-
-  &:hover {
-    color: var(--blip-color-primary-light);
-    text-decoration: none;
-  }
-
-  &:active,
-  &:disabled {
     color: @gray;
     cursor: default;
   }
@@ -145,8 +114,25 @@ a.js-home {
   max-width: 15rem;
   align-self: center;
 }
+.patient-data-subnav svg.calendar-nav-icon {
+  font-size: 1rem;
+  margin-bottom: 2px; /* For better icon alignment with the text */
+  margin-right: 0.2rem;
+}
+/* Alter MUI button apparence to be closer to other second toolbar's elements */
+.patient-data-subnav button.mui-nav-button {
+  padding: 0;
+  color: black;
+  font-family: @font-family-base;
+  font-weight: initial;
+  text-transform: initial;
 
+  &:disabled {
+    color: @gray;
+  }
+}
 .patient-data-subnav button.patient-data-subnav-button {
+  border-style: none;
   border-width: 0;
   background-color: transparent;
   color: @black-80;
@@ -158,12 +144,20 @@ a.js-home {
   padding-right: 0;
   padding-left: 0;
   outline-style: none;
+  font-weight: bold;
+  letter-spacing: 0;
+  font-size: 16px;
+  white-space: nowrap;
+  font-family: @font-family-base;
+  cursor: pointer;
 
   &:hover {
-    color: var(--blip-color-primary-light)
+    color: var(--blip-color-primary-light);
+    text-decoration: none;
   }
   &:active, &:disabled {
     color: @gray;
+    cursor: default;
   }
   svg {
     margin-right: 5px;
@@ -277,14 +271,6 @@ a.js-home {
   overflow: hidden;
 }
 
-.patient-data-chart-trends-no-data {
-  position: absolute;
-  top: 230px;
-  left: 30px;
-  text-align: center;
-  width: 100%;
-}
-
 @media print {
   .patient-data-chart {
     overflow-y: inherit;
@@ -293,6 +279,12 @@ a.js-home {
   i {
     display: none;
   }
+}
+#daily-chart-title-date {
+  width: 10rem;
+}
+#trends-chart-title-dates {
+  width: 14rem;
 }
 
 // Messages

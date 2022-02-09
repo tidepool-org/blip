@@ -1,5 +1,7 @@
+const _ = require("lodash");
 const path = require("path");
 const webpack = require("webpack");
+const brandings = require("../../branding/branding.json");
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
@@ -118,10 +120,11 @@ const entry = {
   index: [path.join(__dirname, "/src/index")],
   print: [path.join(__dirname, "/src/modules/print/index")],
 };
-
+const branding = brandings[_.keys(brandings)[0]];
 const resolve = {
   alias: {
     "pdfkit": "pdfkit/js/pdfkit.standalone.js",
+    "branding/pdf-logo.png": path.resolve(__dirname, `../../branding/${branding["branding/pdf-logo.png"]}`),
     "lock.svg": path.resolve(__dirname, "../../branding/lock.svg"),
     "cartridge.png": path.resolve(__dirname, "../../branding/sitechange/cartridge.png"),
     "cartridge-vicentra.png": path.resolve(__dirname, "../../branding/sitechange/cartridge-vicentra.png"),

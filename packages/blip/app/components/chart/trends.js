@@ -20,58 +20,174 @@ import moment from "moment-timezone";
 import i18next from "i18next";
 import React from "react";
 import PropTypes from "prop-types";
-import sundial from "sundial";
 import WindowSizeListener from "react-window-size-listener";
+
+import DateRangeIcon from "@material-ui/icons/DateRange";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import TextField from "@material-ui/core/TextField";
+
 import {
   components as vizComponents,
   containers as vizContainers,
   utils as vizUtils
 } from "tidepool-viz";
+import { MS_IN_DAY } from "tideline";
 
 import Header from "./header";
-import SubNav from "./trendssubnav";
+import SubNav, { weekDays } from "./trendssubnav";
 import Stats from "./stats";
-import BgSourceToggle from "./bgSourceToggle";
 import Footer from "./footer";
-import { RangeDatePicker } from "../datepicker";
-import { BG_DATA_TYPES } from "../../core/constants";
+
+/**
+ * @typedef { import("tideline").TidelineData } TidelineData
+ * @typedef { import("tideline/js/tidelinedata").Datum } Datum
+ * @typedef { import("../../index").DialogRangeDatePicker } DialogRangeDatePicker
+ *
+ * @typedef { import("./index").TrendsDatePickerProps } TrendsDatePickerProps
+ * @typedef { import("./index").TrendsProps } TrendsProps
+ * @typedef { import("./index").TrendsState } TrendsState
+*/
 
 const t = i18next.t.bind(i18next);
 const CBGDateTraceLabel = vizComponents.CBGDateTraceLabel;
 const FocusedRangeLabels = vizComponents.FocusedRangeLabels;
-const FocusedSMBGPointLabel = vizComponents.FocusedSMBGPointLabel;
 const Loader = vizComponents.Loader;
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const reshapeBgClassesToBgBounds = vizUtils.bg.reshapeBgClassesToBgBounds;
-const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 
+// Do not translate this date, it's the ISO format!
+const ISO_DAY_FORMAT = "YYYY-MM-DD";
+
+/*
+ Date management is hard:
+ Some hint, which should be kept in mind:
+ - Date range selection: start >= value < end
+   * End date is exclusive, but we display the inclusive one, so we often substract 1ms to display
+     the previous day
+ - Try to work with days when possible (YYYY-MM-DD)
+ */
+
+/**
+ * Return the start of day for an UTC date.
+ * according to the timezone of the data
+ *
+ * startOf("day") of moment do not do what's is expected
+ * @param {string|number|Date|moment.Moment} date
+ * @param {TidelineData} tidelineData
+ */
+function getDayAt(date, tidelineData) {
+  const timezone = tidelineData.getTimezoneAt(date);
+  const mDate = moment.tz(date, timezone);
+  return mDate.format(ISO_DAY_FORMAT);
+}
+
+/**
+ * Same as getDayAt() but return a moment object
+ *
+ * Return the start day, for the timezone at that moment for the specified date
+ * @param {string|number|Date|moment.Moment} date
+ * @param {TidelineData} tidelineData
+ */
+function getMomentDayAt(date, tidelineData) {
+  const timezone = tidelineData.getTimezoneAt(date);
+  const mDate = moment.tz(date, timezone);
+  return moment.tz(mDate.format(ISO_DAY_FORMAT), timezone);
+}
+
+/**
+ *
+ * @param {TrendsDatePickerProps} props
+ * @returns {JSX.Element}
+ */
+function TrendsDatePicker(props) {
+  const {
+    dialogRangeDatePicker: DialogRangeDatePicker,
+    displayedDate,
+    start,
+    end,
+    minDate,
+    maxDate,
+    disabled,
+    onResult
+  } = props;
+
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const handleResult = (start, end) => {
+    setIsOpen(false);
+    onResult(start, end);
+  };
+
+  return (
+    <React.Fragment>
+      <TextField
+        id="trends-chart-title-dates"
+        onClick={() => setIsOpen(true)}
+        onKeyPress={() => setIsOpen(true)}
+        variant="standard"
+        value={displayedDate}
+        disabled={disabled || isOpen}
+        InputProps={disabled ? undefined : {
+          readOnly: true,
+          startAdornment: (
+            <InputAdornment position="start">
+              <DateRangeIcon className="calendar-nav-icon" />
+            </InputAdornment>
+          ),
+        }}
+      />
+      <DialogRangeDatePicker
+        start={start}
+        end={end}
+        minDate={minDate}
+        maxDate={maxDate}
+        maxSelectableDays={90}
+        onResult={handleResult}
+        isOpen={isOpen}
+        showToolbar
+      />
+    </React.Fragment>
+  );
+}
+
+TrendsDatePicker.propTypes = {
+  dialogRangeDatePicker: PropTypes.func.isRequired,
+  displayedDate: PropTypes.string.isRequired,
+  start: PropTypes.string.isRequired,
+  end: PropTypes.string.isRequired,
+  minDate: PropTypes.string.isRequired,
+  maxDate: PropTypes.string.isRequired,
+  disabled: PropTypes.bool,
+  onResult: PropTypes.func.isRequired,
+};
+
+/**
+ * @augments {React.Component<TrendsProps,TrendsState>}
+ */
 class Trends extends React.Component {
   static propTypes = {
     canPrint: PropTypes.bool.isRequired,
     bgPrefs: PropTypes.object.isRequired,
-    bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object.isRequired,
-    currentPatientInViewId: PropTypes.string.isRequired,
     dataUtil: PropTypes.object,
     timePrefs: PropTypes.object.isRequired,
     epochLocation: PropTypes.number.isRequired,
     msRange: PropTypes.number.isRequired,
     patient: PropTypes.object,
     tidelineData: PropTypes.object.isRequired,
-    permsOfLoggedInUser: PropTypes.object.isRequired,
     loading: PropTypes.bool.isRequired,
     trendsState: PropTypes.object.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
-    onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onDatetimeLocationChange: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     prefixURL: PropTypes.string,
     profileDialog: PropTypes.func,
+    dialogRangeDatePicker: PropTypes.func.isRequired,
   };
   static defaultProps = {
     profileDialog: null,
@@ -82,13 +198,22 @@ class Trends extends React.Component {
 
     this.bgBounds = reshapeBgClassesToBgBounds(props.bgPrefs);
     this.chartType = "trends";
+
     this.log = bows("Trends");
 
     this.state = {
+      /**
+       * Used to prevent componentDidUpdate() trigger some changed, while we are updating
+       * epochLocation, msRange & extentSize
+       */
+      updatingDates: false,
       atMostRecent: true,
-      inTransition: false,
-      extentSize: 14,
-      displayCalendar: false,
+      /**
+       * Days to display, used in conjunction with datum.localDate
+       * to choose the good data
+       */
+      localDates: [],
+      currentCbgData: [],
     };
 
     this.chartRef = React.createRef();
@@ -100,23 +225,119 @@ class Trends extends React.Component {
     this.handleClickMostRecent = this.handleClickMostRecent.bind(this);
     this.handleClickSettings = this.handleClickSettings.bind(this);
     this.handleClickTrends = this.handleClickTrends.bind(this);
-    this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.handleSelectDate = this.handleSelectDate.bind(this);
-    this.toggleBgDataSource = this.toggleBgDataSource.bind(this);
-    this.toggleBoxOverlay = this.toggleBoxOverlay.bind(this);
     this.toggleDay = this.toggleDay.bind(this);
-    this.toggleGrouping = this.toggleGrouping.bind(this);
-    this.toggleLines = this.toggleLines.bind(this);
     this.toggleWeekdays = this.toggleWeekdays.bind(this);
     this.toggleWeekends = this.toggleWeekends.bind(this);
+
+    /** @type {{tidelineData: TidelineData}} */
+    const { tidelineData } = props;
+    // Min / max date for the date picker
+    /** @type {Date} */
+    this.startDate = new Date(tidelineData.endpoints[0]);
+    /** @type {Date} */
+    this.endDate = new Date(tidelineData.endpoints[1]);
+    /** Max range in ms */
+    this.maxRange = this.endDate.valueOf() - this.startDate.valueOf();
+    this.log.debug({ startDate: this.startDate, endDate: this.endDate, maxRange: this.maxRange });
   }
 
   componentDidMount() {
     this.log.debug("Mounting...");
+
+    this.setState({ updatingDates: true }, () => {
+      this.clampEndpoints().catch((reason) => {
+        this.log.error(reason);
+      }).finally(() => {
+        this.setState({ updatingDates: false }, () => {
+          this.log.debug("Mounting finished");
+        });
+      });
+    });
   }
 
   componentWillUnmount() {
     this.log("Unmounting...");
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.updatingDates) {
+      return;
+    }
+    const extentSize = this.props.chartPrefs.trends.extentSize;
+    const epochLocation = this.props.epochLocation;
+
+    const locationChanged = epochLocation !== prevProps.epochLocation
+      || extentSize !== prevProps.chartPrefs.trends.extentSize;
+
+    const filtersChanged = !(
+      _.isEqual(this.state.localDates, prevState.localDates)
+      && _.isEqual(this.props.chartPrefs.trends.activeDays, prevProps.chartPrefs.trends.activeDays)
+    );
+
+    const loadingDone = !this.props.loading && prevProps.loading;
+    const dateUpdated = !this.state.updatingDates && prevState.updatingDates;
+
+    this.log.debug("componentDidUpdate", {
+      locationChanged,
+      filtersChanged,
+      loadingDone,
+      dateUpdated,
+    });
+    if (locationChanged || dateUpdated) {
+      this.updateAtMostRecent();
+      const localDates = this.getDisplayedlocalDates();
+      if (!_.isEqual(localDates, this.state.localDates)) {
+        this.log.debug("componentDidUpdate", { localDates });
+        this.setState({ localDates });
+      }
+    }
+
+    if (filtersChanged || loadingDone) {
+      this.filterData();
+    }
+  }
+
+  updateAtMostRecent() {
+    const extentSize = this.props.chartPrefs.trends.extentSize;
+    const epochLocation = this.props.epochLocation;
+    const atMostRecent = epochLocation + Math.floor(extentSize * MS_IN_DAY / 2) + 1 > this.endDate.valueOf();
+    if (this.state.atMostRecent !== atMostRecent) {
+      this.setState({ atMostRecent });
+    }
+  }
+
+  filterData() {
+    const { tidelineData, chartPrefs } = this.props;
+    const { localDates } = this.state;
+
+    const activeDays = chartPrefs.trends.activeDays;
+    const activeDaysArray = [];
+    for (const weekDay of weekDays) {
+      if (activeDays[weekDay]) {
+        activeDaysArray.push(weekDay);
+      }
+    }
+
+    const currentCbgData = tidelineData.grouped.cbg.filter((v) => (
+      activeDaysArray.includes(v.isoWeekday) && localDates.includes(v.localDate)
+    ));
+    currentCbgData.sort((a, b) => a.epoch - b.epoch);
+    this.log.debug("filterData", currentCbgData);
+    this.setState({ currentCbgData });
+  }
+
+  /**
+   * @returns An array of displayes dates (ex: `["2021-12-01", "2021-12-02"]`)
+   */
+  getDisplayedlocalDates() {
+    const endPoints = this.getMomentEndpoints();
+    const dates = [endPoints[0].format(ISO_DAY_FORMAT)];
+    const endDate = endPoints[1].format(ISO_DAY_FORMAT);
+    while (endPoints[0].add(1, "day").format(ISO_DAY_FORMAT) < endDate) {
+      dates.push(endPoints[0].format(ISO_DAY_FORMAT));
+    }
+    return dates;
   }
 
   getChart() {
@@ -126,151 +347,175 @@ class Trends extends React.Component {
     return null;
   }
 
-  formatDate(datetime) {
-    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
-    return sundial.formatInTimezone(datetime, timezone, t("MMM D, YYYY"));
+  getMaxExtendsSize() {
+    return Math.ceil(this.maxRange / MS_IN_DAY);
+  }
+
+  updateExtendsSize(/** @type {number} */ newExtend, /** @type {(()=>void)|undefined} */ cb) {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.trends.extentSize = Math.min(newExtend, this.getMaxExtendsSize());
+    this.log.info("updateExtendsSize", prefs.trends.extentSize);
+    this.props.updateChartPrefs(prefs, cb);
+  }
+
+  /**
+   * Verify if our initial endpoint are good
+   * @returns {Promise<boolean>}
+   */
+  clampEndpoints() {
+    const extentSize = this.props.chartPrefs.trends.extentSize;
+    const epochLocation = this.props.epochLocation;
+
+    // If we have less available days than the current extendSize
+    const availDays = this.getMaxExtendsSize();
+    if (availDays < extentSize) {
+      const center = this.startDate.valueOf() + this.maxRange / 2;
+      this.log.debug("Too few days available, update date and range to", { center, maxRange: this.maxRange });
+      return this.props.onDatetimeLocationChange(center, this.maxRange).then(() => {
+        return new Promise((resolve) => {
+          this.updateExtendsSize(availDays, () => resolve(true));
+        });
+      });
+    }
+
+    const msRange = Math.max(extentSize, 1) * MS_IN_DAY;
+    const msRangeDiv2 = Math.floor(msRange / 2);
+    const end = epochLocation + msRangeDiv2;
+
+    // If (currentLocation + range/2) is after the end date
+    if (end > this.endDate.valueOf()) {
+      const center = this.endDate.valueOf() - msRangeDiv2;
+      this.log.debug("Current location too closed to the end", { center, maxRange: this.maxRange });
+      return this.props.onDatetimeLocationChange(center, msRange).then(() => Promise.resolve(true));
+    }
+
+    // If (currentLocation - range/2) is before the start date
+    const start = epochLocation - msRangeDiv2;
+    if (start < this.startDate.valueOf()) {
+      const center = this.startDate.valueOf() + msRangeDiv2;
+      this.log.debug("Current location too closed to the start", { center, maxRange: this.maxRange });
+      return this.props.onDatetimeLocationChange(center, msRange).then(() => Promise.resolve(true));
+    }
+
+    if (msRange !== this.props.msRange) {
+      this.log.debug("Loading missing data");
+      return this.props.onDatetimeLocationChange(epochLocation, msRange).then(() => Promise.resolve(true));
+    }
+
+    return Promise.resolve(false);
   }
 
   /**
    * @private
-   * @returns {string[] | moment.Moment[]} ISO string UTC date range
+   * @returns {[moment.Moment, moment.Moment]}
    */
-  getEndpoints(returnMoment = false) {
-    /** @type {{ epochLocation: number, msRange: number, timePrefs: object }} */
-    const { epochLocation, msRange, timePrefs } = this.props;
+  getMomentEndpoints() {
+    const { epochLocation, tidelineData } = this.props;
+    /** @type {number} */
+    const extentSize = this.props.chartPrefs.trends.extentSize;
+    const msRange = Math.max(extentSize, 1) * MS_IN_DAY;
+    const msRangeDiv2 = Math.floor(msRange / 2);
+    const start = epochLocation - msRangeDiv2;
+    const end = epochLocation + msRangeDiv2;
+    const startDate = getMomentDayAt(start, tidelineData);
+    const endDate = getMomentDayAt(end, tidelineData);
+    return [startDate, endDate];
+  }
 
-    const timezone = getTimezoneFromTimePrefs(timePrefs);
-    /** @type {undefined | null | { start: string; end: string }} */
-    const dateDomain = this.getChart()?.state?.dateDomain;
-    const msRangeDiv2 = Math.round(msRange / 2);
-    const start = dateDomain?.start ?? epochLocation - msRangeDiv2;
-    const end = dateDomain?.end ?? epochLocation + msRangeDiv2 - 1;
-    const startDate = moment.tz(start, timezone);
-    const endDate = moment.tz(end, timezone);
-    if (returnMoment) {
-      return [startDate, endDate];
-    }
+  /**
+   * @private
+   * @returns {[string, string]} ISO string UTC date range
+   */
+  getEndpoints() {
+    const [startDate, endDate] = this.getMomentEndpoints();
     return [startDate.toISOString(), endDate.toISOString()];
   }
 
   /**
-   * @private
-   * @returns {string} ISO string UTC
+   *
+   * @param {moment.Moment} start
+   * @param {moment.Moment} end
    */
-  getInitialDatetimeLocation() {
-    /** @type {{ epochLocation: number }} */
-    const { epochLocation, timePrefs } = this.props;
-    const m = moment.tz(epochLocation, timePrefs.timezoneName ?? "UTC");
-    return m.toISOString();
-  }
-
-  getExtendSize(domain) {
-    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
-    const startDate = moment.tz(domain[0], timezone);
-    const endDate = moment.tz(domain[1], timezone);
-    return Math.round(endDate.diff(startDate, "days", true));
+  setEndPoints(start, end) {
+    const newRange = end.valueOf() - start.valueOf();
+    const newHalfRange = Math.floor(newRange / 2);
+    const newEpochLocation = end.valueOf() - newHalfRange;
+    return this.props.onDatetimeLocationChange(newEpochLocation, newRange);
   }
 
   getTitle() {
-    const { loading, tidelineData } = this.props;
-    const { displayCalendar } = this.state;
+    const { loading, tidelineData, dialogRangeDatePicker } = this.props;
 
-    if (loading) {
-      return (
-        <span id="trends-chart-title-dates">{t("Loading...")}</span>
-      );
-    }
-
-    /** @type {[moment.Moment, moment.Moment]} */
-    const [startDate, endDate] = this.getEndpoints(true);
-
+    const [startDate, endDate] = this.getMomentEndpoints();
     const mFormat = t("MMM D, YYYY");
-    const displayStartDate = startDate.format(mFormat);
-    const displayEndDate = endDate.format(mFormat);
 
-    const handleClickTitle = (e) => {
-      e.stopPropagation();
-      this.setState({ displayCalendar: true });
-    };
-    const handleKeyboard = (/** @type {React.KeyboardEvent<HTMLDivElement>} */ e) => {
-      e.stopPropagation();
-      if (e.key === "Enter" || e.key === " ") {
-        this.setState({ displayCalendar: true });
+    const onResult = (/** @type {string|undefined} */ start, /** @type {string|undefined} */ end) => {
+      if (start && end) {
+        const startTimezone = tidelineData.getTimezoneAt(start);
+        const mStartDate = moment.tz(start, startTimezone);
+        const endTimezone = tidelineData.getTimezoneAt(end);
+        const mEndDate = moment.tz(end, endTimezone).add(1, "day");
+        const extendSize = (mEndDate.valueOf() - mStartDate.valueOf()) / MS_IN_DAY;
+
+        this.setState({ updatingDates: true }, () => {
+          this.updateExtendsSize(extendSize, () => {
+            this.setEndPoints(mStartDate, mEndDate);
+            this.setState({ updatingDates: false });
+          });
+          this.props.trackMetric("data_visualization", "select_period", "date_picker", extendSize);
+        });
       }
     };
-    const handleChange = (/** @type {moment.Moment} */ begin, /** @type {moment.Moment} */ end) => {
-      const newDomain = [begin.toISOString(), end.add(1, "days").subtract(1, "millisecond").toISOString()];
-      this.log.debug("Calendar newDomain", newDomain);
-      this.setState({ displayCalendar: false }, () => {
-        const prefs = _.cloneDeep(this.props.chartPrefs);
-        const extentSize = this.getExtendSize(newDomain);
-        prefs.trends.extentSize = extentSize;
-        this.props.updateChartPrefs(prefs, () => {
-          const chart = this.getChart();
-          chart?.setExtent(newDomain);
-          this.props.trackMetric("data_visualization", "select_period", "range_date_picker", end.diff(begin, "days"));
-        });
-      });
-    };
 
-    const handleCancel = () => {
-      this.setState({ displayCalendar: false });
-    };
+    const startMinDate = moment.utc(this.startDate);
+    const endMaxDate = moment.utc(this.endDate).subtract(1, "day");
 
-    let calendar = null;
-    let divClass = "patient-data-subnav-text patient-data-subnav-dates-trends chart-title-clickable";
-    if (displayCalendar) {
-      const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
-      const minDate = moment.tz(tidelineData.endpoints[0], timezone);
-      const maxDate = moment.tz(tidelineData.endpoints[1], timezone);
-      calendar = (
-        <RangeDatePicker
-          timezone={timezone}
-          begin={startDate}
-          end={endDate}
-          min={minDate}
-          max={maxDate}
-          minDuration={1}
-          maxDuration={90}
-          aboveMaxDurationMessage={t("The period must be less than {{days}} days", { days: 90 })}
-          allowSelectDateOutsideDuration={true}
-          onChange={handleChange}
-          onCancel={handleCancel}
-          value={startDate}
-        />
-      );
-      divClass = `${divClass} active`;
-    }
-
+    // End date is exclusive, substract 1s to display the last day, inclusive
+    // it's what the user expect
+    const displayEndDate = endDate.clone().subtract(1, "day");
     return (
-      <div id="date-picker-button-show-calendar" className={divClass} onClick={handleClickTitle} onKeyPress={handleKeyboard} role="button" tabIndex={0}>
-        <span id="trends-chart-title-dates">
-          {displayStartDate}&nbsp;-&nbsp;{displayEndDate}
-        </span>
-        {calendar}
-      </div>
+      <TrendsDatePicker
+        dialogRangeDatePicker={dialogRangeDatePicker}
+        displayedDate={loading ? t("Loading...") : `${startDate.format(mFormat)} - ${displayEndDate.format(mFormat)}`}
+        start={startDate.format(ISO_DAY_FORMAT)}
+        end={displayEndDate.format(ISO_DAY_FORMAT)}
+        minDate={getDayAt(startMinDate, tidelineData)}
+        maxDate={getDayAt(endMaxDate, tidelineData)}
+        disabled={loading}
+        onResult={onResult}
+      />
     );
   }
 
   handleWindowResize(/* windowSize */) {
-    this.getChart()?.mountData(false);
+    this.getChart()?.mountData();
   }
 
   handleClickBack(e) {
     if (e) {
       e.preventDefault();
     }
-    this.getChart()?.goBack();
-  }
 
-  handleClickDaily(e) {
-    const { epochLocation, timePrefs } = this.props;
-    if (e) {
-      e.preventDefault();
+    const { epochLocation, tidelineData } = this.props;
+    const extentSize = Math.round(this.props.chartPrefs.trends.extentSize);
+    // Multiply by 1.5 => 1 = the extends + 0.5 since the current location is the
+    // middle of the range.
+    // Ex: if extentSize == 14, we need to shift 14+7 days back
+    const epochShift = Math.max(Math.floor(extentSize * 1.5), 1) * MS_IN_DAY;
+
+    // Use the start range date to do the shift
+    if (epochLocation - epochShift < this.startDate.valueOf()) {
+      const msRange = extentSize * MS_IN_DAY;
+      this.props.onDatetimeLocationChange(this.startDate.valueOf() + msRange / 2, msRange);
+    } else {
+      const startEpoch = Math.max(epochLocation - epochShift, this.startDate.valueOf());
+
+      const newStartDate = getMomentDayAt(startEpoch, tidelineData);
+      const newEndDate = getMomentDayAt(newStartDate.clone().add(extentSize, "days"), tidelineData);
+
+      this.setEndPoints(newStartDate, newEndDate);
     }
-    const extentSize = this.props.chartPrefs.trends.extentSize;
-    const m = moment.tz(epochLocation, timePrefs.timezoneName ?? "UTC").add(Math.round(extentSize / 2), "days");
-    this.props.onSwitchToDaily(m);
+    this.props.trackMetric("data_visualization", "select_period", "backward");
   }
 
   handleClickForward(e) {
@@ -280,51 +525,79 @@ class Trends extends React.Component {
     if (this.state.atMostRecent) {
       return;
     }
-    this.getChart()?.goForward();
+    // For the comments see handleClickBack()
+    const { epochLocation, tidelineData } = this.props;
+    const extentSize = Math.round(this.props.chartPrefs.trends.extentSize);
+    const epochShift = Math.max(Math.floor(extentSize * 1.5), 1) * MS_IN_DAY;
+    if (epochLocation + epochShift > this.endDate.valueOf()) {
+      this.handleClickMostRecent(null);
+    } else {
+      const endEpoch = epochLocation + epochShift;
+      const newEndDate = getMomentDayAt(endEpoch, tidelineData).add(1, "day");
+      const newStartDate = getMomentDayAt(newEndDate.clone().subtract(extentSize, "days"), tidelineData);
+      this.setEndPoints(newStartDate, newEndDate);
+    }
+    this.props.trackMetric("data_visualization", "select_period", "forward");
   }
 
-  handleClickMostRecent(e) {
-    if (e) {
-      e.preventDefault();
+  handleClickMostRecent(event) {
+    if (event) {
+      event.preventDefault();
     }
     if (this.state.atMostRecent) {
       return;
     }
-    this.getChart()?.goToMostRecent();
+    const extentSize = Math.round(this.props.chartPrefs.trends.extentSize);
+    const msRange = extentSize * MS_IN_DAY;
+    this.props.onDatetimeLocationChange(this.endDate.valueOf() - Math.floor(msRange/2), msRange);
+    if (event) {
+      // If event is set, it's a click, so we can track this change
+      this.props.trackMetric("data_visualization", "select_period", "most_recent");
+    }
   }
 
+  /**
+   *
+   * @param {Event} e
+   * @param {number} extentSize In days
+   */
   handleClickPresetWeeks(e, extentSize) {
     if (e) {
       e.preventDefault();
     }
-    const { timePrefs, chartPrefs, tidelineData, updateChartPrefs } = this.props;
-    const chart = this.getChart();
-
-    // if no change, return early
-    if (chartPrefs.trends.extentSize !== extentSize && chart !== null) {
-      const timezone = getTimezoneFromTimePrefs(timePrefs);
-      const prefs = _.cloneDeep(chartPrefs);
-
-      // Use the endDate as a reference point in time
-      const endDate = moment.tz(chart.state.dateDomain.end, timezone);
-      let startDate = moment.tz(endDate.valueOf(), timezone).subtract(extentSize, "days").add(1, "millisecond");
-      const minDate = moment.tz(tidelineData.endpoints[0], timezone);
-      if (startDate.isBefore(minDate)) {
-        startDate = minDate;
-        this.log.info(`Require more days than available changing from ${extentSize} to ${endDate.diff(startDate, "days")}`);
-      }
-
-      prefs.trends.extentSize = Math.round(endDate.diff(startDate, "days", true));
-      const oldDomain = [chart.state.dateDomain.start, chart.state.dateDomain.end];
-      const newDomain = [startDate.toISOString(), endDate.toISOString()];
-
-      this.log.info(`Changing number of displays days to ${prefs.trends.extentSize} days`, { oldDomain, newDomain });
-      this.props.trackMetric("data_visualization", "select_period", "button_trends_period", prefs.trends.extentSize);
-
-      updateChartPrefs(prefs, () => {
-        chart.setExtent(newDomain, oldDomain);
-      });
+    const { tidelineData, epochLocation, msRange } = this.props;
+    let newExtentSize = extentSize;
+    let newMsRange = newExtentSize * MS_IN_DAY;
+    let endEpoch = epochLocation + Math.floor(msRange / 2);
+    let startEpoch = endEpoch - newMsRange;
+    if (startEpoch < this.startDate.valueOf()) {
+      startEpoch = this.startDate.valueOf();
     }
+    newMsRange = endEpoch - startEpoch;
+    this.setState({ updatingDates: true }, () => {
+      let epoch = endEpoch - Math.floor(newMsRange / 2);
+      this.props.onDatetimeLocationChange(epoch, newMsRange).then(() => {
+        // First load the data, we may have some changes in the timezone detection
+        startEpoch = getMomentDayAt(startEpoch, tidelineData).valueOf();
+        newMsRange = endEpoch - startEpoch;
+        epoch = endEpoch - Math.floor(newMsRange / 2);
+        this.props.onDatetimeLocationChange(epoch, newMsRange).then(() => {
+          // Set the real value we want
+          this.updateExtendsSize(newExtentSize, () => {
+            this.setState({ updatingDates: false });
+            this.props.trackMetric("data_visualization", "select_period", "preset", extentSize);
+          });
+        });
+      });
+    });
+  }
+
+  handleClickDaily(e) {
+    const { epochLocation } = this.props;
+    if (e) {
+      e.preventDefault();
+    }
+    this.props.onSwitchToDaily(epochLocation);
   }
 
   handleClickSettings(e) {
@@ -342,65 +615,17 @@ class Trends extends React.Component {
     return;
   }
 
-  /**
-   * @param {string[]} endpoints
-   * @param {boolean} atMostRecent
-   * @return Promise<boolean>
-   */
-  handleDatetimeLocationChange(endpoints, atMostRecent) {
-    if (typeof atMostRecent !== "boolean") {
-      this.log.error("handleDatetimeLocationChange: Invalid parameter atMostRecent");
-      atMostRecent = false;
-    }
-
-    this.log.debug("handleDatetimeLocationChange", { endpoints, atMostRecent });
-
-    this.setState({ atMostRecent });
-    const start = moment.utc(endpoints[0]).valueOf();
-    const end = moment.utc(endpoints[1]).valueOf();
-    const range = end - start;
-    const center = start + Math.round(range / 2);
-    return this.props.onDatetimeLocationChange(center, range);
-  }
-
   handleSelectDate(date) {
     this.props.onSwitchToDaily(date);
   }
 
-  toggleBgDataSource(e, bgSource) {
-    if (e) {
-      e.preventDefault();
-    }
-    // YLP-888 Disable SMBG data source
-    this.log.debug("toggleBgDataSource", bgSource, "is disabled");
-  }
-
-  toggleBoxOverlay() {
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.trends.smbgRangeOverlay = prefs.trends.smbgRangeOverlay ? false : true;
-    this.props.updateChartPrefs(prefs);
-  }
-
   toggleDay(day) {
-    const self = this;
-    return function (e) {
+    return (e) => {
       e.stopPropagation();
-      const prefs = _.cloneDeep(self.props.chartPrefs);
-      prefs.trends.activeDays[day] = prefs.trends.activeDays[day] ? false : true;
-      self.props.updateChartPrefs(prefs);
+      const prefs = _.cloneDeep(this.props.chartPrefs);
+      prefs.trends.activeDays[day] = !prefs.trends.activeDays[day];
+      this.props.updateChartPrefs(prefs);
     };
-  }
-
-  toggleGrouping() {
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.trends.smbgGrouped = prefs.trends.smbgGrouped ? false : true;
-    this.props.updateChartPrefs(prefs);
-  }
-
-  toggleLines() {
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.trends.smbgLines = prefs.trends.smbgLines ? false : true;
-    this.props.updateChartPrefs(prefs);
   }
 
   toggleWeekdays(allActive) {
@@ -433,49 +658,26 @@ class Trends extends React.Component {
 
   render() {
     const {
-      currentPatientInViewId,
       chartPrefs,
       trendsState,
       loading,
+      patient,
     } = this.props;
+
+    const currentPatientInViewId = patient.userid;
 
     if (_.isEmpty(_.get(trendsState, currentPatientInViewId))) {
       return <Loader />;
     }
 
-    const trendsChartPrefs = chartPrefs.trends;
     const endpoints = this.getEndpoints();
 
     let rightFooter = null;
-    if (trendsChartPrefs.showingSmbg) {
-      rightFooter = (
-        <div className="footer-right-options">
-          <label htmlFor="overlayCheckbox">
-            <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
-              checked={trendsChartPrefs.smbgRangeOverlay}
-              onChange={this.toggleBoxOverlay} />{t("Range & Average")}
-          </label>
-
-          <label htmlFor="groupCheckbox">
-            <input type="checkbox" name="groupCheckbox" id="groupCheckbox"
-              checked={trendsChartPrefs.smbgGrouped}
-              onChange={this.toggleGrouping} />{t("Group")}
-          </label>
-
-          <label htmlFor="linesCheckbox">
-            <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
-              checked={trendsChartPrefs.smbgLines}
-              onChange={this.toggleLines} />{t("Lines")}
-          </label>
-        </div>
-      );
-    } else {
-      // Get the component here, for the tests: Avoid having redux set
-      const { RangeSelect } = vizComponents;
-      rightFooter = (
-        <RangeSelect displayFlags={trendsState[currentPatientInViewId].cbgFlags} currentPatientInViewId={currentPatientInViewId} />
-      );
-    }
+    // Get the component here, for the tests: Avoid having redux set
+    const { RangeSelect } = vizComponents;
+    rightFooter = (
+      <RangeSelect displayFlags={trendsState[currentPatientInViewId].cbgFlags} currentPatientInViewId={currentPatientInViewId} />
+    );
 
     return (
       <div id="tidelineMain" className="trends grid">
@@ -489,20 +691,12 @@ class Trends extends React.Component {
                 {this.renderChart()}
               </div>
               {this.renderFocusedCbgDateTraceLabel()}
-              {this.renderFocusedSMBGPointLabel()}
               {this.renderFocusedRangeLabels()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-              <BgSourceToggle
-                bgSource={this.props.dataUtil.bgSource}
-                bgSources={this.props.dataUtil.bgSources}
-                chartPrefs={chartPrefs}
-                chartType={this.chartType}
-                dataUtil={this.props.dataUtil}
-                onClickBgSourceToggle={this.toggleBgDataSource}
-              />
+              <div id="toggle-bg-replacement" style={{height: 36 }} />
               <Stats
                 bgPrefs={this.props.bgPrefs}
                 bgSource={this.props.dataUtil.bgSource}
@@ -530,15 +724,14 @@ class Trends extends React.Component {
         profileDialog={this.props.profileDialog}
         chartType={this.chartType}
         patient={this.props.patient}
-        inTransition={this.state.inTransition}
         atMostRecent={this.state.atMostRecent}
         prefixURL={this.props.prefixURL}
         canPrint={this.props.canPrint}
         trackMetric={this.props.trackMetric}
-        iconBack={"icon-back"}
-        iconNext={"icon-next"}
-        iconMostRecent={"icon-most-recent"}
-        permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+        loading={this.props.loading}
+        iconBack
+        iconNext
+        iconMostRecent
         onClickBack={this.handleClickBack}
         onClickBasics={this.props.onSwitchToBasics}
         onClickTrends={this.handleClickTrends}
@@ -553,11 +746,12 @@ class Trends extends React.Component {
   }
 
   renderSubNav() {
+    const { msRange } = this.props;
     return (
       <SubNav
         trackMetric={this.props.trackMetric}
         activeDays={this.props.chartPrefs.trends.activeDays}
-        extentSize={this.props.chartPrefs.trends.extentSize}
+        extentSize={msRange / MS_IN_DAY}
         domainClickHandlers={{
           "1 week": (e) => this.handleClickPresetWeeks(e, 7),
           "2 weeks": (e) => this.handleClickPresetWeeks(e, 14),
@@ -571,32 +765,22 @@ class Trends extends React.Component {
   }
 
   renderChart() {
-    const initialDatetimeLocation = this.getInitialDatetimeLocation();
+    const { localDates, currentCbgData } = this.state;
     return (
       <TrendsContainer
+        currentCbgData={currentCbgData}
+        days={localDates}
         activeDays={this.props.chartPrefs.trends.activeDays}
         bgPrefs={{
           bgBounds: this.bgBounds,
           bgUnits: this.props.bgPrefs.bgUnits,
         }}
-        currentPatientInViewId={this.props.currentPatientInViewId}
+        currentPatientInViewId={this.props.patient.userid}
         extentSize={this.props.chartPrefs.trends.extentSize}
-        initialDatetimeLocation={initialDatetimeLocation}
         loading={this.props.loading}
-        showingSmbg={this.props.chartPrefs.trends.showingSmbg}
-        showingCbg={this.props.chartPrefs.trends.showingCbg}
-        smbgRangeOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
-        smbgGrouped={this.props.chartPrefs.trends.smbgGrouped}
-        smbgLines={this.props.chartPrefs.trends.smbgLines}
-        timePrefs={this.props.timePrefs}
         // data
         tidelineData={this.props.tidelineData}
-        cbgByDate={this.props.tidelineData.cbgByDate}
-        cbgByDayOfWeek={this.props.tidelineData.cbgByDayOfWeek}
-        smbgByDate={this.props.tidelineData.smbgByDate}
-        smbgByDayOfWeek={this.props.tidelineData.smbgByDayOfWeek}
         // handlers
-        onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}
         ref={this.chartRef}
       />
@@ -604,8 +788,8 @@ class Trends extends React.Component {
   }
 
   renderFocusedCbgDateTraceLabel() {
-    const { currentPatientInViewId, trendsState } = this.props;
-    const focusedCbgDateTrace = _.get(trendsState, `${currentPatientInViewId}.focusedCbgDateTrace`);
+    const { patient, trendsState } = this.props;
+    const focusedCbgDateTrace = _.get(trendsState, `${patient.userid}.focusedCbgDateTrace`);
     if (focusedCbgDateTrace) {
       return <CBGDateTraceLabel focusedDateTrace={focusedCbgDateTrace} />;
     }
@@ -613,58 +797,19 @@ class Trends extends React.Component {
   }
 
   renderFocusedRangeLabels() {
-    const { currentPatientInViewId, trendsState } = this.props;
-    const {
-      chartPrefs: {
-        trends: { showingCbg, showingSmbg },
-      },
-    } = this.props;
-
-    const userTrendsState = _.get(trendsState, currentPatientInViewId);
-
-    if (_.isEmpty(userTrendsState)) {
-      return null;
-    } else if (showingCbg) {
-      return (
-        <FocusedRangeLabels
-          bgPrefs={this.props.bgPrefs}
-          dataType={"cbg"}
-          focusedKeys={userTrendsState.focusedCbgSliceKeys}
-          focusedSlice={userTrendsState.focusedCbgSlice}
-          timePrefs={this.props.timePrefs}
-        />
-      );
-    } else if (showingSmbg) {
-      return (
-        <FocusedRangeLabels
-          bgPrefs={this.props.bgPrefs}
-          dataType={"smbg"}
-          focusedRange={userTrendsState.focusedSmbgRangeAvg}
-          timePrefs={this.props.timePrefs}
-        />
-      );
-    }
-    return null;
-  }
-
-  renderFocusedSMBGPointLabel() {
-    if (!this.props.chartPrefs.trends.showingSmbg) {
-      return null;
-    }
-    const { currentPatientInViewId, trendsState } = this.props;
-    const userTrendsState = _.get(trendsState, currentPatientInViewId);
+    const { patient, trendsState } = this.props;
+    const userTrendsState = _.get(trendsState, patient.userid);
 
     if (_.isEmpty(userTrendsState)) {
       return null;
     }
-
     return (
-      <FocusedSMBGPointLabel
+      <FocusedRangeLabels
         bgPrefs={this.props.bgPrefs}
+        dataType={"cbg"}
+        focusedKeys={userTrendsState.focusedCbgSliceKeys}
+        focusedSlice={userTrendsState.focusedCbgSlice}
         timePrefs={this.props.timePrefs}
-        grouped={this.props.chartPrefs.trends.smbgGrouped}
-        lines={this.props.chartPrefs.trends.smbgLines}
-        focusedPoint={userTrendsState.focusedSmbg}
       />
     );
   }

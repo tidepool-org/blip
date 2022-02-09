@@ -28,6 +28,7 @@ class Common {
     this.deviceTime = this.makeDeviceTime();
     this.source = opts.source || "testpage";
     this.conversionOffset = 0;
+    this.timezone = "UTC";
 
     this.assignGUID();
   }
@@ -102,6 +103,7 @@ export class Basal extends Common {
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
     this.normalEnd = addDuration(this.normalTime, this.duration);
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 
@@ -126,6 +128,7 @@ export class Bolus extends Common {
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 
@@ -152,6 +155,7 @@ export class CBG extends Common {
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 
@@ -172,6 +176,7 @@ export class Message extends Common {
     const offsetMinutes = dt.getTimezoneOffset();
     dt.setUTCMinutes(dt.getUTCMinutes() - offsetMinutes);
     this.normalTime = dt.toISOString();
+    this.epoch = dt.valueOf();
 
     this.messageText = opts.messageText;
     this.parentMessage = opts.parentMessage;
@@ -224,6 +229,7 @@ export class Settings extends Common {
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 
@@ -250,6 +256,7 @@ export class SMBG extends Common {
     this.timezoneOffset = this.makeTimezoneOffset();
     this.displayOffset = opts.displayOffset;
     this.normalTime = this.makeNormalTime();
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 
@@ -277,6 +284,7 @@ export class DeviceEvent extends Common {
     this.createdTime = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 
@@ -300,6 +308,7 @@ export class Upload extends Common {
     this.normalTime = this.makeNormalTime();
     this.createdTime = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 
@@ -340,6 +349,7 @@ export class Wizard extends Common {
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 
@@ -362,6 +372,7 @@ export class Food extends Common {
     this.normalTime = this.makeNormalTime();
     this.createdTime = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 

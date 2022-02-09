@@ -19,7 +19,6 @@ import "./styles/colors.css";
 
 import CBGDateTraceLabel from "./components/trends/cbg/CBGDateTraceLabel";
 import FocusedRangeLabels from "./components/trends/common/FocusedRangeLabels";
-import FocusedSMBGPointLabel from "./components/trends/smbg/FocusedSMBGPointLabel";
 import Loader from "./components/common/loader/Loader";
 import RangeSelect from "./components/trends/cbg/RangeSelect";
 import TwoOptionToggle from "./components/common/controls/TwoOptionToggle";
@@ -60,7 +59,6 @@ import { selectDailyViewData, selectBgLogViewData } from "./utils/print/data";
 const components = {
   CBGDateTraceLabel,
   FocusedRangeLabels,
-  FocusedSMBGPointLabel,
   Loader,
   RangeSelect,
   TwoOptionToggle,

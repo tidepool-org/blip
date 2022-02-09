@@ -63,7 +63,7 @@ function testMonthDayElements(): void {
             daysArray={days}
             currentMonth={today.month()}
             onChange={onChange}
-            selectedDate={today}
+            selection={{ mode: "single", selected: today }}
             minDate={yesterday}
             maxDate={tomorrow}
           />, container, resolve);

@@ -51,13 +51,15 @@ function testYearSelector(): void {
   });
 
   it("should correctly render the default list of years", async () => {
-    const onSelectedYear = sinon.stub<[number], void>();
+    const onSelectYear = sinon.stub<[number], void>();
     await act(() => {
       return new Promise((resolve) => {
         ReactDOM.render(
           <YearSelector
+            minYear={1900}
+            maxYear={2100}
             selectedYear={2021}
-            onSelectedYear={onSelectedYear}
+            onSelectYear={onSelectYear}
           />, container, resolve);
       });
     });
@@ -68,7 +70,7 @@ function testYearSelector(): void {
   });
 
   it("should select the previous year with the arrow up key", async () => {
-    const onSelectedYear = sinon.stub<[number], void>();
+    const onSelectYear = sinon.stub<[number], void>();
     await act(() => {
       return new Promise((resolve) => {
         ReactDOM.render(
@@ -76,7 +78,7 @@ function testYearSelector(): void {
             selectedYear={2021}
             maxYear={2024}
             minYear={2017}
-            onSelectedYear={onSelectedYear}
+            onSelectYear={onSelectYear}
           />, container, resolve);
       });
     });
@@ -94,13 +96,13 @@ function testYearSelector(): void {
     expect(year2021.getAttribute("aria-selected")).to.be.eq("false");
 
     Simulate.keyUp(yearSelector, { key: "Enter" });
-    expect(onSelectedYear.calledOnce).to.be.true;
+    expect(onSelectYear.calledOnce).to.be.true;
     // eslint-disable-next-line no-magic-numbers
-    expect(onSelectedYear.firstCall.args[0]).to.be.eq(2020);
+    expect(onSelectYear.firstCall.args[0]).to.be.eq(2020);
   });
 
   it("should select the next year with the arrow down key", async () => {
-    const onSelectedYear = sinon.stub<[number], void>();
+    const onSelectYear = sinon.stub<[number], void>();
     await act(() => {
       return new Promise((resolve) => {
         ReactDOM.render(
@@ -108,7 +110,7 @@ function testYearSelector(): void {
             selectedYear={2021}
             maxYear={2024}
             minYear={2017}
-            onSelectedYear={onSelectedYear}
+            onSelectYear={onSelectYear}
           />, container, resolve);
       });
     });
@@ -126,9 +128,9 @@ function testYearSelector(): void {
     expect(year2022.getAttribute("aria-selected")).to.be.eq("true");
 
     Simulate.keyUp(yearSelector, { key: " " });
-    expect(onSelectedYear.calledOnce).to.be.true;
+    expect(onSelectYear.calledOnce).to.be.true;
     // eslint-disable-next-line no-magic-numbers
-    expect(onSelectedYear.firstCall.args[0]).to.be.eq(2022);
+    expect(onSelectYear.firstCall.args[0]).to.be.eq(2022);
   });
 }
 

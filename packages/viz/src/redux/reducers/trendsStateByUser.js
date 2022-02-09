@@ -32,7 +32,6 @@ const FOCUSED_CBG_KEYS = "focusedCbgSliceKeys";
 const FOCUSED_SMBG = "focusedSmbg";
 const FOCUSED_SMBG_RANGE_AVG = "focusedSmbgRangeAvg";
 const SHOW_CBG_DATE_TRACES = "showingCbgDateTraces";
-const TOUCHED = "touched";
 
 const CBG_FLAG_MAP = {
   100: CBG_100_ENABLED,
@@ -54,15 +53,11 @@ const initialState = {
   [FOCUSED_SMBG]: null,
   [FOCUSED_SMBG_RANGE_AVG]: null,
   [SHOW_CBG_DATE_TRACES]: false,
-  [TOUCHED]: false,
 };
 
 const log = bows("Viz");
 
 const trendsStateByUser = (state = {}, action) => {
-  if (action.type in actionTypes) {
-    log.debug(action.type, { state, action });
-  }
   switch (action.type) {
   case actionTypes.FETCH_PATIENT_DATA_SUCCESS: {
     const { patientId: userId } = action.payload;
@@ -120,13 +115,6 @@ const trendsStateByUser = (state = {}, action) => {
   }
   case actionTypes.LOGOUT_REQUEST:
     return {};
-  case actionTypes.MARK_TRENDS_VIEWED: {
-    const { userId } = action.payload;
-    return update(
-      state,
-      { [userId]: { [TOUCHED]: { $set: true } } }
-    );
-  }
   case actionTypes.SHOW_CBG_DATE_TRACES: {
     const { userId } = action.payload;
     return update(
@@ -181,25 +169,8 @@ const trendsStateByUser = (state = {}, action) => {
       } }
     );
   }
-  case actionTypes.UNFOCUS_TRENDS_SMBG: {
-    const { userId } = action.payload;
-    return update(
-      state,
-      { [userId]: {
-        [FOCUSED_SMBG]: { $set: null },
-      } }
-    );
-  }
-  case actionTypes.UNFOCUS_TRENDS_SMBG_RANGE_AVG: {
-    const { userId } = action.payload;
-    return update(
-      state,
-      { [userId]: {
-        [FOCUSED_SMBG_RANGE_AVG]: { $set: null },
-      } }
-    );
-  }
   default:
+    log.warn("Unknown action", action.type);
     return state;
   }
 };

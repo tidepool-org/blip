@@ -34,10 +34,7 @@ import * as sinon from "sinon";
 import { AuthContextProvider } from "../../../lib/auth";
 import { Team, TeamAPI, TeamContext, TeamContextProvider, TeamMember, TeamUser, useTeam } from "../../../lib/team";
 import { UserInvitationStatus } from "../../../models/generic";
-import {
-  emptyTeam3, members,
-  patients, teams
-} from "../../common";
+import { emptyTeam3, members, patients, teams } from "../../common";
 import { authHookHcp } from "../auth/hook.test";
 import { directShareAPI } from "../direct-share/hook.test";
 
@@ -180,4 +177,3 @@ export function testTeamHook(): void {
     });
   });
 }
-

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, Diabeloop
+ * Copyright (c) 2021-2022, Diabeloop
  * A button for a single day (date of the month) in the calendar
  *
  * All rights reserved.
@@ -39,7 +39,6 @@ interface DayProps extends ButtonBaseProps {
 const dayStyles = makeStyles((theme: Theme) => ({
   root: {
     ...theme.typography.caption,
-    "borderRadius": "50%",
     "padding": 0,
     "backgroundColor": theme.palette.background.paper,
     "color": theme.palette.text.primary,
@@ -85,6 +84,7 @@ function Day(props: DayProps): JSX.Element {
       [classes.disabled]: Boolean(props.disabled),
     }
   );
+
   return (
     <ButtonBase
       {...props}

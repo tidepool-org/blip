@@ -137,11 +137,6 @@ const datetime = {
     return moment.utc(d).tz(timezoneName).format("YYYY-MM-DD");
   },
 
-  getLocalDayOfWeek: function(d, timezoneName) {
-    timezoneName = timezoneName || "UTC";
-    return this.weekdayLookup(moment.utc(d).tz(timezoneName).day());
-  },
-
   getMidnight: function(d, next) {
     if (next) {
       return this.getMidnight(this.addDays(d, 1));
@@ -162,21 +157,8 @@ const datetime = {
       val += d.milliseconds();
       return val;
     }
-    var midnight = new Date(this.getMidnight(d)).valueOf();
+    const midnight = new Date(this.getMidnight(d)).valueOf();
     return new Date(d).valueOf() - midnight;
-  },
-
-  // this does basically the same as above method
-  // but I don't want to take the time right now to consolidate them
-  // and make sure all uses of former are covered by latter
-  getMsPer24: function(d, timezoneName) {
-    timezoneName = timezoneName || "UTC";
-    var localized = moment.utc(d).tz(timezoneName);
-    var hrsToMs = localized.hours() * 1000 * 60 * 60;
-    var minToMs = localized.minutes() * 1000 * 60;
-    var secToMs = localized.seconds() * 1000;
-    var ms = localized.milliseconds();
-    return hrsToMs + minToMs + secToMs + ms;
   },
 
   getOffset: function(d, timezoneName) {
@@ -306,21 +288,24 @@ const datetime = {
     return false;
   },
 
-  weekdayLookup: function(n) {
-    if (n < 0 || n > 6) {
-      console.error("weekdayLookup: invalid day", n);
-      return null;
+  /**
+   *
+   * @param {number} n The ISO weekday (1=monday, 7=sunday)
+   * @returns {"monday"|"tuesday"|"wednesday"|"thursday"|"friday"|"saturday"|"sunday"}
+   */
+  isoWeekdayToString: (n) => {
+    switch (n) {
+    case 1: return "monday";
+    case 2: return "tuesday";
+    case 3: return "wednesday";
+    case 4: return "thursday";
+    case 5: return "friday";
+    case 6: return "saturday";
+    case 7: return "sunday";
+    default:
+      console.error("isoWeekdayToString: invalid day", n);
+      return "n/a";
     }
-    var weekdays = {
-      0: "sunday",
-      1: "monday",
-      2: "tuesday",
-      3: "wednesday",
-      4: "thursday",
-      5: "friday",
-      6: "saturday"
-    };
-    return weekdays[n];
   },
 
   /**

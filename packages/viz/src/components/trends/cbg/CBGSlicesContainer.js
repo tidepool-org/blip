@@ -36,8 +36,8 @@ export default class CBGSlicesContainer extends PureComponent {
       targetLowerBound: PropTypes.number.isRequired,
       veryLowThreshold: PropTypes.number.isRequired,
     }).isRequired,
-    binSize: PropTypes.number.isRequired,
-    sliceWidth: PropTypes.number.isRequired,
+    binSize: PropTypes.number,
+    sliceWidth: PropTypes.number,
     data: PropTypes.arrayOf(PropTypes.shape({
       // here only documenting the properties we actually use rather than the *whole* data model!
       id: PropTypes.string.isRequired,
@@ -55,8 +55,6 @@ export default class CBGSlicesContainer extends PureComponent {
     topMargin: PropTypes.number.isRequired,
     xScale: PropTypes.func.isRequired,
     yScale: PropTypes.func.isRequired,
-    focusSlice: PropTypes.func.isRequired,
-    unfocusSlice: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -71,16 +69,14 @@ export default class CBGSlicesContainer extends PureComponent {
     };
   }
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     const { binSize, data } = this.props;
     this.setState({ mungedData: this.mungeData(binSize, data) });
   }
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { binSize, data } = nextProps;
-    if (binSize !== this.props.binSize || data !== this.props.data) {
+  componentDidUpdate(prevProps) {
+    const { binSize, data } = this.props;
+    if (binSize !== prevProps.binSize || data !== prevProps.data) {
       this.setState({ mungedData: this.mungeData(binSize, data) });
     }
   }
@@ -113,11 +109,9 @@ export default class CBGSlicesContainer extends PureComponent {
               bgBounds={this.props.bgBounds}
               datum={bin}
               displayFlags={this.props.displayFlags}
-              focusSlice={this.props.focusSlice}
               showingCbgDateTraces={this.props.showingCbgDateTraces}
               tooltipLeftThreshold={this.props.tooltipLeftThreshold}
               topMargin={this.props.topMargin}
-              unfocusSlice={this.props.unfocusSlice}
               xScale={xScale}
               yScale={yScale}
               sliceWidth={sliceWidth}

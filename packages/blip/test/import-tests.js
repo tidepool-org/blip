@@ -9,7 +9,6 @@ import "./unit/components/chart/bgSourceToggle.test.js";
 import "./unit/components/chart/basics.test.js";
 import "./unit/components/chart/stats.test.js";
 import "./unit/components/chart/footer.test.js";
-import "./unit/components/datepicker.test.js";
 import "./unit/components/messages/messages.test.js";
 import "./unit/components/messages/message.test.js";
 import "./unit/components/messages/messageform.test.js";

@@ -22,8 +22,7 @@ import i18next from "i18next";
 
 const t = i18next.t.bind(i18next);
 const domains = ["1 week", "2 weeks", "4 weeks", "3 months"];
-const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday"];
-const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+export const weekDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
 class DaysGroup extends React.Component {
   static propTypes = {
@@ -57,7 +56,15 @@ class DaysGroup extends React.Component {
 
 class TrendsSubNav extends React.Component {
   static propTypes = {
-    activeDays: PropTypes.object.isRequired,
+    activeDays: PropTypes.shape({
+      monday: PropTypes.bool.isRequired,
+      tuesday: PropTypes.bool.isRequired,
+      wednesday: PropTypes.bool.isRequired,
+      thursday: PropTypes.bool.isRequired,
+      friday: PropTypes.bool.isRequired,
+      saturday: PropTypes.bool.isRequired,
+      sunday: PropTypes.bool.isRequired,
+    }).isRequired,
     extentSize: PropTypes.number.isRequired,
     domainClickHandlers: PropTypes.object.isRequired,
     onClickDay: PropTypes.func.isRequired,
@@ -65,7 +72,7 @@ class TrendsSubNav extends React.Component {
     toggleWeekends: PropTypes.func.isRequired
   };
 
-  renderDayAbbrev = (day) => {
+  renderDayAbbrev(day) {
     switch (day) {
     case "monday": return t("M_Monday");
     case "tuesday": return t("Tu_Tuesday");
@@ -76,9 +83,9 @@ class TrendsSubNav extends React.Component {
     case "sunday": return t("Su_Sunday");
     default: return undefined;
     }
-  };
+  }
 
-  extentSizeToDomain = (extentSize) => {
+  extentSizeToDomain(extentSize) {
     switch (extentSize) {
     case 7: return "1 week";
     case 14: return "2 weeks";
@@ -86,9 +93,9 @@ class TrendsSubNav extends React.Component {
     case 90: return "3 months";
     default: return "custom";
     }
-  };
+  }
 
-  renderDomain = (domain) => {
+  renderDomain(domain) {
     switch (domain) {
     case "1 week": return t("1 week");
     case "2 weeks": return t("2 weeks");
@@ -96,21 +103,11 @@ class TrendsSubNav extends React.Component {
     case "3 months": return t("3 months");
     default: return t("custom");
     }
-  };
-
-  UNSAFE_componentWillMount() {
-    this.areWeekdaysActive(this.props);
-    this.areWeekendsActive(this.props);
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    this.areWeekdaysActive(nextProps);
-    this.areWeekendsActive(nextProps);
   }
 
   render() {
-    var domainContainer = this.renderDomainContainer();
-    var dayFilters = this.renderDayFilters();
+    const domainContainer = this.renderDomainContainer();
+    const dayFilters = this.renderDayFilters();
 
     return (
       <div id="trendsSubNav">
@@ -121,7 +118,7 @@ class TrendsSubNav extends React.Component {
 
   }
 
-  renderDomainContainer = () => {
+  renderDomainContainer() {
     const { activeDays, extentSize } = this.props;
     const domainLinks = [];
     for (let i = 0; i < domains.length; ++i) {
@@ -148,10 +145,10 @@ class TrendsSubNav extends React.Component {
         <p className="visibleDays">{visibleDaysText}</p>
       </div>
     );
-  };
+  }
 
-  renderDomainLink = (/** @type {string} */ domain) => {
-    var domainLinkClass = cx({
+  renderDomainLink(/** @type {string} */ domain) {
+    const domainLinkClass = cx({
       "btn btn-chart-control": true,
       "active": domain === this.extentSizeToDomain(this.props.extentSize)
     });
@@ -171,33 +168,32 @@ class TrendsSubNav extends React.Component {
         {this.renderDomain(domain)}
       </button>
     );
-  };
+  }
 
-  renderDayFilters = () => {
-    var dayLinks = [];
-    for (var i = 0; i < days.length; ++i) {
-      dayLinks.push(this.renderDay(days[i]));
+  renderDayFilters() {
+    const dayLinks = [];
+    for (let i = 0; i < weekDays.length; ++i) {
+      dayLinks.push(this.renderDay(weekDays[i]));
     }
 
     return (
       <div className="daysGroupContainer">
         <DaysGroup
-          active={this.state.weekdaysActive}
+          active={this.areWeekdaysActive()}
           category={"weekday"}
           days={dayLinks.slice(0, 5)}
           onClickGroup={this.handleSelectDaysGroup} />
         <DaysGroup
-          active={this.state.weekendsActive}
+          active={this.areWeekendsActive()}
           category={"weekend"}
           days={dayLinks.slice(5, 7)}
           onClickGroup={this.handleSelectDaysGroup} />
       </div>
     );
+  }
 
-  };
-
-  renderDay = (day) => {
-    var dayLinkClass = cx({
+  renderDay(day) {
+    const dayLinkClass = cx({
       "dayFilter": true,
       "btn btn-chart-control": true,
       "active": this.props.activeDays[day],
@@ -207,37 +203,30 @@ class TrendsSubNav extends React.Component {
     return (
       <a className={dayLinkClass} key={day} onClick={this.props.onClickDay(day)}>{this.renderDayAbbrev(day)}</a>
     );
+  }
 
-  };
+  areWeekdaysActive() {
+    const { activeDays } = this.props;
+    return activeDays.monday
+      && activeDays.tuesday
+      && activeDays.wednesday
+      && activeDays.thursday
+      && activeDays.friday;
+  }
 
-  areWeekdaysActive = (props) => {
-    var active = true;
-    var activeDays = props.activeDays;
-    for (var i = 0; i < weekdays.length; ++i) {
-      if (!activeDays[weekdays[i]]) {
-        active = false;
-        break;
-      }
-    }
-    this.setState({
-      weekdaysActive: active
-    });
-  };
-
-  areWeekendsActive = (props) => {
-    var activeDays = props.activeDays;
-    this.setState({
-      weekendsActive: activeDays.saturday && activeDays.sunday
-    });
-  };
+  areWeekendsActive() {
+    const { activeDays } = this.props;
+    return activeDays.saturday && activeDays.sunday;
+  }
 
   // handlers
   handleSelectDaysGroup = (category) => {
     if (category === "weekday") {
-      this.props.toggleWeekdays(this.state.weekdaysActive);
-    }
-    else if (category === "weekend") {
-      this.props.toggleWeekends(this.state.weekendsActive);
+      this.props.toggleWeekdays(this.areWeekdaysActive());
+    } else if (category === "weekend") {
+      this.props.toggleWeekends(this.areWeekendsActive());
+    } else {
+      console.error("Invalid category", category);
     }
   };
 }

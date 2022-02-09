@@ -9,6 +9,7 @@ import { MS_IN_HOUR, MS_IN_MIN } from "../../src/utils/constants";
 /* eslint-disable max-len, no-underscore-dangle */
 
 describe("DataUtil", () => {
+  /** @type {DataUtil} */
   let dataUtil;
 
   const basalDatumOverlappingStart = new Types.Basal({
@@ -634,9 +635,9 @@ describe("DataUtil", () => {
 
   describe("buildSorts", () => {
     it("should build the data sorters", () => {
-      dataUtil.sort = {};
-      dataUtil.buildSorts();
       expect(dataUtil.sort.byDate).to.be.a("function");
+      const sort = dataUtil.buildSorts();
+      expect(sort.byDate).to.be.a("function");
     });
   });
 
@@ -729,7 +730,7 @@ describe("DataUtil", () => {
         });
       });
 
-      it("should include the portion of delivery of a basal datum that overlaps the start endpoint", () => {
+      it("should include the portion of delivery of a basal datum that overlaps the end endpoint", () => {
         dataUtil.endpoints = dayEndpoints;
         dataUtil.addData([basalDatumOverlappingEnd]);
         expect(dataUtil.getBasalBolusData()).to.eql({

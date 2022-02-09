@@ -187,7 +187,7 @@ async function cancelInvitation(session: Readonly<Session>, notification: INotif
     body: JSON.stringify(body),
   });
 
-  if (response.ok || response.status === 404) {
+  if (response.ok || response.status === HttpStatus.StatusNotFound) {
     log.info("cancelInvitation response:", await response.text());
     return Promise.resolve();
   }

@@ -314,20 +314,6 @@ describe("datetime utility", function() {
     });
   });
 
-  describe("getLocalDayOfWeek", function() {
-    it("should be a function", function() {
-      assert.isFunction(dt.getLocalDayOfWeek);
-    });
-
-    it("should return Thursday for UTC midnight January 1st, 2015, no timezoneName", function() {
-      expect(dt.getLocalDayOfWeek("2015-01-01T00:00:00.000Z")).to.equal("thursday");
-    });
-
-    it("should return Wednesday for UTC midnight January 1st, 2015, Pacific/Honolulu", function() {
-      expect(dt.getLocalDayOfWeek("2015-01-01T00:00:00.000Z", "Pacific/Honolulu")).to.equal("wednesday");
-    });
-  });
-
   describe("getMidnight", function() {
     it("should be a function", function() {
       assert.isFunction(dt.getMidnight);
@@ -349,28 +335,6 @@ describe("datetime utility", function() {
 
     it("should return 1 when passed a timestamp 1ms after midnight", function() {
       expect(dt.getMsFromMidnight("2014-03-06T00:00:00.001Z")).to.equal(1);
-    });
-  });
-
-  describe("getMsPer24", function() {
-    it("should be a function", function() {
-      assert.isFunction(dt.getMsPer24);
-    });
-
-    it("should return 1 when passed a timestamp 1ms after midnight", function() {
-      expect(dt.getMsPer24("2014-03-06T00:00:00.001Z")).to.equal(1);
-    });
-
-    it("should return 1 when passed a timestamp 1ms after midnight Pacific time", function() {
-      expect(dt.getMsPer24("2014-03-06T08:00:00.001Z", "US/Pacific")).to.equal(1);
-    });
-
-    it("should return a value less than 864e5 even when past 11 p.m. on switch to DST", function() {
-      expect(dt.getMsPer24("2014-11-03T07:25:00.000Z", "US/Pacific")).to.equal(84300000);
-    });
-
-    it("should return same value as above when past 11 p.m. on switch to non-DST", function() {
-      expect(dt.getMsPer24("2014-03-10T06:25:00.000Z", "US/Pacific")).to.equal(84300000);
     });
   });
 
@@ -576,20 +540,23 @@ describe("datetime utility", function() {
     });
   });
 
-  describe("weekdayLookup", function() {
+  describe("isoWeekdayToString", function() {
+    const weekDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
     it("should be a function", function() {
-      assert.isFunction(dt.weekdayLookup);
+      assert.isFunction(dt.isoWeekdayToString);
     });
 
-    it("should return null if given invalid int", function() {
-      expect(dt.weekdayLookup(-1)).to.equal(null);
-      expect(dt.weekdayLookup(7)).to.equal(null);
+    it("should return n/a if given invalid int", function() {
+      expect(dt.isoWeekdayToString(-1)).to.equal("n/a");
+      expect(dt.isoWeekdayToString(0)).to.equal("n/a");
+      expect(dt.isoWeekdayToString(8)).to.equal("n/a");
     });
 
-    it("should return `monday` when given 1", function() {
-      var d = new Date("2014-11-17T00:00:00.000Z");
-      expect(dt.weekdayLookup(d.getUTCDay())).to.equal("monday");
-      expect(dt.weekdayLookup(1)).to.equal("monday");
-    });
+    for (let i=0; i<weekDays.length; i++) {
+      const weekDay = weekDays[i];
+      it(`should return "${weekDay}" when given ${i+1}`, () => {
+        expect(dt.isoWeekdayToString(i+1)).to.be.eq(weekDay);
+      });
+    }
   });
 });

@@ -20,7 +20,7 @@
   "dependencies": {
     "bows": "1.7.2",
     "classnames": "^2.3.1",
-    "crossfilter2": "1.4.8",
+    "crossfilter2": "^1.5.4",
     "d3": "3.5.17",
     "d3.chart": "0.3.0",
     "events": "^3.2.0",

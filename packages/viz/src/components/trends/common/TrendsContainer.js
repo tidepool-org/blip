@@ -18,14 +18,12 @@
 import _ from "lodash";
 import bows from "bows";
 import { extent } from "d3-array";
-import { scaleLinear } from "d3-scale";
-import moment from "moment-timezone";
 import React from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
-import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from "tideline";
+import { MGDL_UNITS, MMOLL_UNITS } from "tideline";
 
 import * as actions from "../../../redux/actions/";
 import TrendsSVGContainer from "./TrendsSVGContainer";
@@ -35,72 +33,10 @@ import {
   MMOLL_CLAMP_TOP,
 } from "../../../utils/constants";
 
-import * as datetime from "../../../utils/datetime";
-
-/**
- * getAllDatesInRange
- * @param {String} start - Zulu timestamp (Integer hammertime also OK)
- * @param {String} end - Zulu timestamp (Integer hammertime also OK)
- * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
- *
- * @return {Array} dates - array of YYYY-MM-DD String dates
- */
-export function getAllDatesInRange(start, end, timePrefs) {
-  const timezoneName = datetime.getTimezoneFromTimePrefs(timePrefs);
-  const dates = [];
-  const current = moment.utc(start)
-    .tz(timezoneName);
-  const excludedBoundary = moment.utc(end);
-  while (current.isBefore(excludedBoundary)) {
-    dates.push(current.format("YYYY-MM-DD"));
-    current.add(1, "day");
-  }
-  return dates;
-}
-
-/**
- * getLocalizedNoonBeforeUTC
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
- *
- * @return {JavaScript Date} the closet noon before the input datetime in the given timezone
- */
-export function getLocalizedNoonBeforeUTC(utc, timePrefs) {
-  if (utc instanceof Date) {
-    throw new Error("`utc` must be a ISO-formatted String timestamp or integer hammertime!");
-  }
-  const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-  const ceil = datetime.getLocalizedCeiling(utc, timePrefs);
-  return moment.utc(ceil.valueOf())
-    .tz(timezone)
-    .subtract(1, "day")
-    .hours(12)
-    .toDate();
-}
-
-/**
- * getLocalizedOffset
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {Object} offset - { amount: integer (+/-), units: 'hour', 'day', &c }
- * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
- *
- * @return {JavaScript Date} datetime at the specified +/- offset from the input datetime
- *                           inspired by d3-time's offset function: https://github.com/d3/d3-time#interval_offset
- *                           but able to work with an arbitrary timezone
- */
-export function getLocalizedOffset(utc, offset, timePrefs) {
-  if (utc instanceof Date) {
-    throw new Error("`utc` must be a ISO-formatted String timestamp or integer hammertime!");
-  }
-  const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-  return moment.utc(utc)
-    .tz(timezone)
-    .add(offset.amount, offset.units)
-    .toDate();
-}
-
 export class TrendsContainer extends React.Component {
   static propTypes = {
+    currentCbgData: PropTypes.arrayOf(PropTypes.object).isRequired,
+    days: PropTypes.arrayOf(PropTypes.string).isRequired,
     activeDays: PropTypes.shape({
       monday: PropTypes.bool.isRequired,
       tuesday: PropTypes.bool.isRequired,
@@ -121,30 +57,14 @@ export class TrendsContainer extends React.Component {
     }).isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
     extentSize: PropTypes.number.isRequired,
-    initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
-    showingSmbg: PropTypes.bool.isRequired,
-    showingCbg: PropTypes.bool.isRequired,
-    smbgRangeOverlay: PropTypes.bool.isRequired,
-    smbgGrouped: PropTypes.bool.isRequired,
-    smbgLines: PropTypes.bool.isRequired,
-    timePrefs: PropTypes.shape({
-      timezoneAware: PropTypes.bool.isRequired,
-      timezoneName: PropTypes.string,
-    }).isRequired,
     yScaleClampTop: PropTypes.shape({
       [MGDL_UNITS]: PropTypes.number.isRequired,
       [MMOLL_UNITS]: PropTypes.number.isRequired,
     }).isRequired,
     // data (crossfilter dimensions)
     tidelineData: PropTypes.object.isRequired,
-    cbgByDate: PropTypes.object.isRequired,
-    cbgByDayOfWeek: PropTypes.object.isRequired,
-    smbgByDate: PropTypes.object.isRequired,
-    smbgByDayOfWeek: PropTypes.object.isRequired,
     // handlers
-    markTrendsViewed: PropTypes.func.isRequired,
-    onDatetimeLocationChange: PropTypes.func.isRequired,
     onSelectDate: PropTypes.func.isRequired,
     // viz state
     trendsState: PropTypes.shape({
@@ -228,11 +148,8 @@ export class TrendsContainer extends React.Component {
           }).isRequired,
         }).isRequired,
       }),
-      touched: PropTypes.bool.isRequired,
     }).isRequired,
     unfocusCbgSlice: PropTypes.func.isRequired,
-    unfocusSmbg: PropTypes.func.isRequired,
-    unfocusSmbgRangeAvg: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -240,29 +157,22 @@ export class TrendsContainer extends React.Component {
       [MGDL_UNITS]: MGDL_CLAMP_TOP,
       [MMOLL_UNITS]: MMOLL_CLAMP_TOP,
     },
-    initialDatetimeLocation: new Date().toISOString(),
   };
 
   constructor(props) {
     super(props);
     this.log = bows("TrendsContainer");
     this.state = {
-      currentCbgData: [],
-      currentSmbgData: [],
-      dateDomain: null,
-      mostRecent: null,
-      previousDateDomain: null,
-      xScale: scaleLinear().domain([0, MS_IN_DAY]),
-      yScale: null,
+      yScaleDomain: null,
     };
 
     /** Avoid infinite mount data loop */
     this.mountingData = false;
-    this.selectDate = this.selectDate.bind(this);
   }
 
   componentDidMount() {
-    this.mountData(true);
+    this.log.info("componentDidMount");
+    this.mountData();
   }
 
   /*
@@ -275,277 +185,69 @@ export class TrendsContainer extends React.Component {
    * as a temporary compatibility interface
    */
   componentDidUpdate(prevProps) {
-    const newDataLoaded = prevProps.loading && !this.props.loading;
-
+    const newDataLoaded = (prevProps.loading && !this.props.loading) || !_.isEqual(prevProps.days, this.props.days);
     if (newDataLoaded) {
-      this.mountData(false);
-    } else if (!_.isEqual(prevProps.activeDays, this.props.activeDays)) {
-      this.filterCurrentData();
+      this.mountData();
     }
   }
 
   componentWillUnmount() {
+    this.unfocusCbgSlice();
+  }
+
+  unfocusCbgSlice() {
     const {
       currentPatientInViewId,
       trendsState,
       unfocusCbgSlice,
-      unfocusSmbg,
-      unfocusSmbgRangeAvg,
     } = this.props;
     if (_.get(trendsState, "focusedCbgSlice") !== null) {
       unfocusCbgSlice(currentPatientInViewId);
     }
-    if (_.get(trendsState, "focusedSmbg") !== null) {
-      unfocusSmbg(currentPatientInViewId);
-    }
-    if (_.get(trendsState, "focusedSmbgRangeAvg") !== null) {
-      unfocusSmbgRangeAvg(currentPatientInViewId);
-    }
   }
 
-  mountData(initialLoading) {
+  mountData() {
     if (this.mountingData) {
       return;
     }
     this.mountingData = true;
 
-    const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek, bgPrefs, yScaleClampTop, tidelineData } = this.props;
-    const { currentPatientInViewId, trendsState } = this.props;
+    const { bgPrefs, yScaleClampTop, tidelineData } = this.props;
     const { bgBounds, bgUnits } = bgPrefs;
     const upperBound = yScaleClampTop[bgUnits];
-    const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
-    const bgDomain = extent(allBg, d => d.value);
-    const yScaleDomain = [bgDomain[0], upperBound];
+    const bgDomain = extent(tidelineData.grouped.cbg, d => d.value);
+    const yScaleDomain = [bgDomain[0] ?? 0, upperBound];
     if (bgDomain[0] > bgBounds.veryLowThreshold) {
       yScaleDomain[0] = bgBounds.veryLowThreshold;
     }
-    const yScale = scaleLinear().domain(yScaleDomain).clamp(true);
 
-    if (initialLoading) {
-      // find BG domain (for yScale construction)
-      const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
-
-      // find initial date domain (based on initialDatetimeLocation or current time)
-      const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-      // Remove 1 milliseconds here, because there is 1 added in tidelinedata
-      const mostRecent = moment.tz(tidelineData.endpoints[1], timezone).subtract(1, "millisecond");
-      let end = moment.tz(initialDatetimeLocation, timezone).endOf("day").add(Math.round(extentSize / 2), "days");
-      if (end.valueOf() > mostRecent.valueOf()) {
-        this.log.info("End after most recent, update it", { end: end.toISOString(), mostRecent: mostRecent.toISOString() });
-        end = moment.tz(mostRecent.valueOf(), timezone);
-      }
-      let start = moment.tz(end.valueOf(), timezone).subtract(extentSize, "days").add(1, "millisecond");
-      const dateDomain = [start.toISOString(), end.toISOString()];
-
-      // filter data according to current activeDays and dateDomain
-      this.initialFiltering(cbgByDate, cbgByDayOfWeek, dateDomain);
-      this.initialFiltering(smbgByDate, smbgByDayOfWeek, dateDomain);
-
-      const state = {
-        bgDomain: { lo: bgDomain[0], hi: bgDomain[1] },
-        currentCbgData: cbgByDate.top(Infinity).reverse(),
-        currentSmbgData: smbgByDate.top(Infinity).reverse(),
-        dateDomain: { start: dateDomain[0], end: dateDomain[1] },
-        mostRecent: mostRecent.toISOString(),
-        yScale,
-      };
-
-      this.setState(state);
-      const atMostRecent = Math.abs(end.diff(mostRecent, "hours", true).valueOf()) < 1;
-      this.props.onDatetimeLocationChange(dateDomain, atMostRecent).catch((reason) => {
-        this.log.error(reason);
-      }).finally(() => {
-        this.mountingData = false;
-        this.log.debug("Mounting done", { initialDatetimeLocation, dateDomain: state.dateDomain, mostRecent: state.mostRecent, timezone });
-      });
-    } else {
-      const { dateDomain } = this.state;
-      this.initialFiltering(cbgByDate, cbgByDayOfWeek, [dateDomain.start, dateDomain.end]);
-      this.initialFiltering(smbgByDate, smbgByDayOfWeek, [dateDomain.start, dateDomain.end]);
-      this.setState({
-        bgDomain: { lo: bgDomain[0], hi: bgDomain[1] },
-        currentCbgData: cbgByDate.top(Infinity).reverse(),
-        currentSmbgData: smbgByDate.top(Infinity).reverse(),
-        yScale,
-      }, () => {
-        this.mountingData = false;
-        this.log.debug("Remount done", { currentCbgData: this.state.currentCbgData, currentSmbgData: this.state.currentSmbgData, dateDomain });
-      });
-    }
-
-    if (!trendsState.touched) {
-      this.props.markTrendsViewed(currentPatientInViewId);
-    }
-  }
-
-  filterCurrentData() {
-    const { cbgByDayOfWeek, smbgByDayOfWeek, smbgByDate, cbgByDate } = this.props;
-    this.refilterByDayOfWeek(cbgByDayOfWeek, this.props.activeDays);
-    this.refilterByDayOfWeek(smbgByDayOfWeek, this.props.activeDays);
-    this.setState({
-      currentCbgData: cbgByDate.top(Infinity).reverse(),
-      currentSmbgData: smbgByDate.top(Infinity).reverse(),
+    this.setState({ yScaleDomain }, () => {
+      this.unfocusCbgSlice();
+      this.mountingData = false;
     });
-  }
-
-  getCurrentDay() {
-    const { dateDomain } = this.state;
-    if (dateDomain) {
-      return getLocalizedNoonBeforeUTC(dateDomain.end, this.props.timePrefs).toISOString();
-    }
-
-    return null;
-  }
-
-  setExtent(newDomain, oldDomain = null) {
-    if (!Array.isArray(newDomain) || newDomain.length !== 2) {
-      throw new Error("Invalid newDomain parameter");
-    }
-    if (oldDomain !== null && (!Array.isArray(oldDomain) || oldDomain.length !== 2)) {
-      throw new Error("Invalid oldDomain parameter");
-    }
-    const { cbgByDate, smbgByDate } = this.props;
-    const { mostRecent } = this.state;
-    this.refilterByDate(cbgByDate, newDomain);
-    this.refilterByDate(smbgByDate, newDomain);
-    this.setState({
-      currentCbgData: cbgByDate.top(Infinity).reverse(),
-      currentSmbgData: smbgByDate.top(Infinity).reverse(),
-      dateDomain: { start: newDomain[0], end: newDomain[1] },
-      previousDateDomain: oldDomain ?
-        { start: oldDomain[0], end: oldDomain[1] } :
-        null,
-    }, () => {
-      this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
-    });
-  }
-
-  selectDate() {
-    const { timePrefs } = this.props;
-    return (date) => {
-      const noonOnDate = moment.tz(date, datetime.getTimezoneFromTimePrefs(timePrefs))
-        .startOf("day")
-        .add(12, "hours")
-        .toISOString();
-      this.props.onSelectDate(noonOnDate);
-    };
-  }
-
-  goBack() {
-    const { timePrefs, extentSize, tidelineData } = this.props;
-    const { dateDomain } = this.state;
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const mMostAncient = moment.tz(tidelineData.endpoints[0], timezone);
-    let start = moment.tz(dateDomain.start, timezone).subtract(extentSize, "days");
-    if (start.isBefore(mMostAncient)) {
-      this.log.warn("Requesting start date before our first data", { start: start.toISOString(), mMostAncient: mMostAncient.toISOString() });
-      start = mMostAncient;
-    }
-    const end = moment.tz(start, timezone).add(extentSize, "days").subtract(1, "millisecond");
-    const oldDomain = [dateDomain.start, dateDomain.end];
-    const newDomain = [start.toISOString(), end.toISOString()];
-    this.log.info("Go back", { newDomain, oldDomain, extentSize });
-    this.setExtent(newDomain, oldDomain);
-  }
-
-  goForward() {
-    const { timePrefs, extentSize } = this.props;
-    const { dateDomain, mostRecent } = this.state;
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const mMostRecent = moment.tz(mostRecent, timezone);
-    let end = moment.tz(dateDomain.end, timezone).add(extentSize, "days");
-    if (end.isAfter(mMostRecent)) {
-      this.log.warn("Requesting end date after our last data", { end: end.toISOString(), mMostRecent: mMostRecent.toISOString() });
-      end = mMostRecent;
-    }
-    const start = moment.tz(end.valueOf(), timezone).subtract(extentSize, "days").add(1, "millisecond");
-    const oldDomain = [dateDomain.start, dateDomain.end];
-    const newDomain = [start.toISOString(), end.toISOString()];
-    this.log.info("Go forward", { newDomain, oldDomain, extentSize });
-    this.setExtent(newDomain, oldDomain);
-  }
-
-  goToMostRecent() {
-    const { timePrefs, extentSize } = this.props;
-    const { dateDomain, mostRecent } = this.state;
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const end = moment.tz(mostRecent, timezone);
-    const start = moment.tz(end.valueOf(), timezone).subtract(extentSize, "days").add(1, "millisecond");
-    const oldDomain = [dateDomain.start, dateDomain.end];
-    const newDomain = [start.toISOString(), end.toISOString()];
-    this.log.info("Go to most recent", { newDomain, oldDomain, extentSize });
-    this.setExtent(newDomain, oldDomain);
-  }
-
-  refilterByDate(dataByDate, dateDomain) {
-    // eslint-disable-next-line lodash/prefer-lodash-method
-    dataByDate.filter(dateDomain);
-  }
-
-  refilterByDayOfWeek(dataByDayOfWeek, activeDays) {
-    dataByDayOfWeek.filterFunction(this.filterActiveDaysFn(activeDays));
-  }
-
-  initialFiltering(dataByDate, dataByDayOfWeek, dateDomain) {
-    const { activeDays } = this.props;
-    // clear old filters
-    dataByDayOfWeek.filterAll();
-
-    // filter by day of week (Monday, Tuesday, etc.)
-    dataByDayOfWeek.filterFunction(this.filterActiveDaysFn(activeDays));
-
-    // filter within date domain
-    // eslint-disable-next-line lodash/prefer-lodash-method
-    dataByDate.filter(dateDomain);
-  }
-
-  filterActiveDaysFn(activeDays) {
-    return (d) => (activeDays[d]);
   }
 
   render() {
-    const { dateDomain } = this.state;
+    const { days, activeDays, bgPrefs, currentCbgData } = this.props;
+    const { yScaleDomain } = this.state;
 
-    if (_.isNull(dateDomain)) {
-      // Datas have not yet been mounted.
-      return (<div />);
-    }
-
-    const { start: currentStart, end: currentEnd } = dateDomain;
-
-    const prevStart = _.get(this.state, "previousDateDomain.start");
-    const prevEnd = _.get(this.state, "previousDateDomain.end");
-    let start = currentStart;
-    let end = currentEnd;
-    if (prevStart && prevEnd) {
-      if (currentStart < prevStart) {
-        end = prevEnd;
-      } else if (prevStart < currentStart) {
-        start = prevStart;
-      }
+    if (!Array.isArray(days) || days.length < 1 || yScaleDomain === null) {
+      // Data have not yet been mounted.
+      return null;
     }
 
     return (
       <TrendsSVGContainer
-        activeDays={this.props.activeDays}
-        bgPrefs={this.props.bgPrefs}
-        smbgData={this.state.currentSmbgData}
-        cbgData={this.state.currentCbgData}
-        dates={getAllDatesInRange(start, end, this.props.timePrefs)}
+        activeDays={activeDays}
+        bgPrefs={bgPrefs}
+        cbgData={currentCbgData}
+        dates={days}
         focusedSlice={this.props.trendsState.focusedCbgSlice}
         focusedSliceKeys={this.props.trendsState.focusedCbgSliceKeys}
-        focusedSmbgRangeAvgKey={_.get(this.props, "trendsState.focusedSmbgRangeAvg.data.id", null)}
-        focusedSmbg={this.props.trendsState.focusedSmbg}
         displayFlags={this.props.trendsState.cbgFlags}
-        showingCbg={this.props.showingCbg}
         showingCbgDateTraces={_.get(this.props, "trendsState.showingCbgDateTraces", false)}
-        showingSmbg={this.props.showingSmbg}
-        smbgGrouped={this.props.smbgGrouped}
-        smbgLines={this.props.smbgLines}
-        smbgRangeOverlay={this.props.smbgRangeOverlay}
-        onSelectDate={this.selectDate()}
-        xScale={this.state.xScale}
-        yScale={this.state.yScale}
+        onSelectDate={(date) => this.props.onSelectDate(date)}
+        yScaleDomain={yScaleDomain}
       />
     );
   }
@@ -560,10 +262,7 @@ export function mapStateToProps(state, ownProps) {
 
 export function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    markTrendsViewed: actions.markTrendsViewed,
     unfocusCbgSlice: actions.unfocusTrendsCbgSlice,
-    unfocusSmbg: actions.unfocusTrendsSmbg,
-    unfocusSmbgRangeAvg: actions.unfocusTrendsSmbgRangeAvg,
   }, dispatch);
 }
 

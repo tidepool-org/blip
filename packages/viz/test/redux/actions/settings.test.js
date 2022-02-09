@@ -25,20 +25,6 @@ import * as actions from "../../../src/redux/actions/";
 describe("settings action creators", () => {
   const userId = "a1b2c3";
 
-  describe("markSettingsViewed", () => {
-    const action = actions.markSettingsViewed(userId);
-    it("should be a TSA", () => {
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it("should create an action to marks settings viewed", () => {
-      expect(action).to.deep.equal({
-        type: actionTypes.MARK_SETTINGS_VIEWED,
-        payload: { userId },
-      });
-    });
-  });
-
   describe("toggleSettingsSection", () => {
     const deviceKey = "acme";
     const scheduleOrProfileKey = "weekday";

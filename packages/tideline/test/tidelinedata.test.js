@@ -44,13 +44,7 @@ describe("TidelineData", function() {
     "endpoints",
     "basicsData",
     "filterData",
-    "smbgData",
-    "cbgData",
     "dataByDate",
-    "smbgByDate",
-    "smbgByDayOfWeek",
-    "cbgByDate",
-    "cbgByDayOfWeek",
     "basalUtil",
     "bolusUtil",
     "cbgUtil",
@@ -340,7 +334,7 @@ describe("TidelineData", function() {
       expect(td.data[1].displayOffset).to.be.equal(480);
     });
 
-    it("should should set localDate and msPer24 for cbg & smbg", () => {
+    it("should should set localDate, isoWeekday and msPer24 for cbg", () => {
       const dInitial = {
         id: "abc",
         type: "cbg",
@@ -348,15 +342,15 @@ describe("TidelineData", function() {
         timezone: timezoneName,
       };
 
-      td.data = [dInitial, { ...dInitial, type: "smbg" }];
+      td.data = [dInitial];
       td.setTimezones();
 
-      expect(td.data.length).to.be.equal(2);
       td.data.forEach((d) => {
         expect(d.timezone).to.be.equal(timezoneName);
         expect(d.guessedTimezone).to.be.undefined;
         expect(d.displayOffset).to.be.equal(-60);
         expect(d.localDate).to.be.equal("2021-02-10");
+        expect(d.isoWeekday).to.be.equal("wednesday");
         expect(d.msPer24).to.be.equal(36000000); // UTC+1 => 10h => 10 * 60 * 60 * 1000
       });
     });
