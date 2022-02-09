@@ -121,7 +121,7 @@ export default (state = initialWorkingState, action) => {
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
-          return update(initialWorkingState, {
+          return update(state, {
             [key]: {
               $set: {
                 inProgress: true,
@@ -284,7 +284,7 @@ export default (state = initialWorkingState, action) => {
           });
         } else if (action.type === types.DATA_WORKER_REMOVE_DATA_SUCCESS) {
           const queryingDataWorkingKey = actionWorkingMap(types.DATA_WORKER_QUERY_DATA_SUCCESS);
-          return update(initialWorkingState, {
+          return update(state, {
             [queryingDataWorkingKey]: {
               $set: initialState.working[queryingDataWorkingKey],
             },
@@ -298,7 +298,7 @@ export default (state = initialWorkingState, action) => {
           });
         } else if (action.type === types.REMOVE_GENERATED_PDFS) {
           const generatingPDFWorkingKey = actionWorkingMap(types.GENERATE_PDF_SUCCESS);
-          return update(initialWorkingState, {
+          return update(state, {
             [generatingPDFWorkingKey]: {
               $set: initialState.working[generatingPDFWorkingKey],
             },
