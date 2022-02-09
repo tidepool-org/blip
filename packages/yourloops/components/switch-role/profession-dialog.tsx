@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Switch role from caregiver to HCP dialog
+ * Copyright (c) 2022, Diabeloop
+ * Switch role from caregiver to HCP dialog - Request profession
  *
  * All rights reserved.
  *
@@ -25,50 +25,58 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { Theme, makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
+import Box from "@material-ui/core/Box";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 
-import { SwitchRoleConsequencesDialogProps } from "./models";
+import { HcpProfession, HcpProfessionList } from "../../models/hcp-profession";
+import { SwitchRoleProfessionDialogProps } from "./models";
+import BasicDropdown from "../dropdown/basic-dropdown";
 
 const dialogStyles = makeStyles(
   (theme: Theme) => {
     return {
-      dialog: {
-        textAlign: "left",
-        padding: theme.spacing(4),
-      },
       dialogContent: {
         display: "flex",
         flexDirection: "column",
         width: theme.breakpoints.values["sm"],
+        paddingLeft: theme.spacing(5),
       },
-      switchList: {
-        marginTop: 0,
-        marginBottom: 0,
-        display: "inline-block",
+      dialogContentBox: {
+        maxWidth: "300px",
       },
     };
   },
   { name: "ylp-dialog-switch-role-consequences" }
 );
 
-function SwitchRoleConsequencesDialog(props: SwitchRoleConsequencesDialogProps): JSX.Element {
-  const { title, open, onAccept, onCancel } = props;
+function SwitchRoleProfessionDialog(props: SwitchRoleProfessionDialogProps): JSX.Element {
+  const { open, onAccept, onCancel } = props;
   const classes = dialogStyles();
   const { t } = useTranslation("yourloops");
 
+  const [hcpProfession, setHcpProfession] = React.useState<HcpProfession>(HcpProfession.empty);
+
+  const handleAccept = () => {
+    onAccept(hcpProfession);
+  };
+
+  const onClose = () => {
+    onCancel();
+    setHcpProfession(HcpProfession.empty);
+  };
+
   return (
     <Dialog
-      id="switch-role-consequences-dialog"
-      className={classes.dialog}
+      id="switch-role-profession-dialog"
       PaperProps={{
         style: {
           padding: "20px",
@@ -76,54 +84,43 @@ function SwitchRoleConsequencesDialog(props: SwitchRoleConsequencesDialogProps):
       }}
       maxWidth="md"
       open={open}
-      onClose={onCancel}>
-      <DialogTitle id="switch-role-consequences-dialog-title">
-        <strong>{t(title)}</strong>
+      onClose={onClose}>
+      <DialogTitle id="patient-add-caregiver-dialog-title">
+        <strong>{t("profession-dialog-title")}</strong>
       </DialogTitle>
-
       <DialogContent id="switch-role-consequences-dialog-content" className={classes.dialogContent}>
-        <DialogContentText id="modal-switch-hcp-info-1" color="textPrimary">
-          {t("modal-switch-hcp-info")}
-        </DialogContentText>
-        <DialogContentText id="modal-switch-hcp-info-list-3" component={"div"} color="textPrimary">
-          <span id="modal-switch-hcp-info-3">{t("modal-switch-hcp-info-3")}</span>
-          <ul className={classes.switchList}>
-            <li id="modal-switch-hcp-list-1">{t("modal-switch-hcp-list-1")}</li>
-            <li id="modal-switch-hcp-list-2">{t("modal-switch-hcp-list-2")}</li>
-            <li id="modal-switch-hcp-list-3">{t("modal-switch-hcp-list-3")}</li>
-          </ul>
-        </DialogContentText>
-        <DialogContentText id="modal-switch-hcp-info-4" color="textPrimary">
-          {t("modal-switch-hcp-info-4")}
-        </DialogContentText>
-        <DialogContentText id="modal-switch-hcp-info-5" color="textPrimary">
-          {t("modal-switch-hcp-info-5")}
-        </DialogContentText>
-        <DialogContentText id="modal-switch-hcp-info-2" color="textPrimary">
-          <strong>{t("modal-switch-hcp-info-2")}</strong>
-        </DialogContentText>
+        <Box className={classes.dialogContentBox}>
+          <BasicDropdown
+            onSelect={setHcpProfession}
+            defaultValue={HcpProfession.empty}
+            disabledValues={[HcpProfession.empty]}
+            values={HcpProfessionList.filter(item => item !== HcpProfession.empty)}
+            id="profession"
+            inputTranslationKey="hcp-profession"
+            errorTranslationKey="profession-dialog-title"
+          />
+        </Box>
       </DialogContent>
 
-      <DialogActions
-        id="switch-role-consequences-dialog-actions"
-      >
+      <DialogActions id="switch-role-profession-dialog-actions">
         <Button
-          id="switch-role-consequences-dialog-button-cancel"
-          onClick={onCancel}
+          id="switch-role-profession-dialog-button-decline"
+          onClick={onClose}
         >
-          {t("button-cancel")}
+          {t("button-decline")}
         </Button>
         <Button
-          id="switch-role-consequences-dialog-button-ok"
-          onClick={onAccept}
+          id="switch-role-profession-dialog-button-validate"
+          onClick={handleAccept}
           variant="contained"
           color="primary"
+          disabled={hcpProfession === HcpProfession.empty}
         >
-          {t("modal-switch-hcp-action")}
+          {t("button-validate")}
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-export default SwitchRoleConsequencesDialog;
+export default SwitchRoleProfessionDialog;

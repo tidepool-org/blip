@@ -34,6 +34,7 @@ import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { UserRoles } from "../../models/shoreline";
 import { ConsentForm } from "../consents";
@@ -42,11 +43,14 @@ import { SwitchRoleConsentDialogProps } from "./models";
 const dialogStyles = makeStyles(
   (theme: Theme) => {
     return {
+      dialog: {
+        textAlign: "left",
+        padding: theme.spacing(4),
+      },
       dialogContent: {
         display: "flex",
         flexDirection: "column",
         width: theme.breakpoints.values["sm"],
-        marginTop: "1.5em",
       },
       formControlPolicy: {
         marginBottom: theme.spacing(2),
@@ -55,17 +59,13 @@ const dialogStyles = makeStyles(
       checkbox: {
         marginBottom: "auto",
       },
-      dialogButtons: {
-        display: "flex",
-        justifyContent: "space-around",
-      },
     };
   },
   { name: "ylp-dialog-switch-role-consent" },
 );
 
 function SwitchRoleConsentDialog(props: SwitchRoleConsentDialogProps): JSX.Element {
-  const { open, onResult } = props;
+  const { open, onAccept, onCancel } = props;
   const classes = dialogStyles();
   const { t } = useTranslation("yourloops");
   const [policyAccepted, setPolicyAccepted] = React.useState(false);
@@ -77,17 +77,33 @@ function SwitchRoleConsentDialog(props: SwitchRoleConsentDialogProps): JSX.Eleme
     setTermsAccepted(false);
     setFeedbackAccepted(false);
   };
-  const handleClose = () => {
-    onResult(false, false);
+
+  const handleAccept = () => {
+    onAccept(feedbackAccepted);
     resetForm();
   };
-  const handleAccept = () => {
-    onResult(true, feedbackAccepted);
+
+  const onClose = () => {
+    onCancel();
     resetForm();
   };
 
   return (
-    <Dialog id="switch-role-consent-dialog" open={open} onClose={handleClose}>
+    <Dialog
+      id="switch-role-consent-dialog"
+      className={classes.dialog}
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        style: {
+          padding: "20px",
+        },
+      }}
+      maxWidth="md"
+    >
+      <DialogTitle id="switch-role-consent-dialog-title">
+        <strong>{t("modal-switch-hcp-consent-title")}</strong>
+      </DialogTitle>
       <DialogContent id="switch-role-consequences-dialog-content" className={classes.dialogContent}>
         <ConsentForm
           id="switch-role-consequences-dialog"
@@ -101,10 +117,10 @@ function SwitchRoleConsentDialog(props: SwitchRoleConsentDialogProps): JSX.Eleme
         />
       </DialogContent>
 
-      <DialogActions id="switch-role-consent-dialog-actions" className={classes.dialogButtons}>
+      <DialogActions id="switch-role-consent-dialog-actions">
         <Button
           id="switch-role-consent-dialog-button-decline"
-          onClick={handleClose}
+          onClick={onClose}
         >
           {t("button-decline")}
         </Button>

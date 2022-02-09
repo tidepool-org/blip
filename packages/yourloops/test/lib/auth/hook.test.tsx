@@ -70,7 +70,7 @@ export interface AuthContextStubs {
   flagPatient: sinon.SinonStub<[string], Promise<void>>;
   setFlagPatients: sinon.SinonStub<[string[]], Promise<void>>;
   getFlagPatients: sinon.SinonStub<[], string[]>;
-  switchRoleToHCP: sinon.SinonStub<[boolean], Promise<void>>;
+  switchRoleToHCP: sinon.SinonStub<[boolean, HcpProfession], Promise<void>>;
 }
 
 /**
@@ -98,7 +98,7 @@ export const createAuthHookStubs = (session?: Session): AuthContextStubs => ({
   flagPatient: sinon.stub<[string], Promise<void>>().resolves(),
   setFlagPatients: sinon.stub<[string[]], Promise<void>>().resolves(),
   getFlagPatients: sinon.stub<[], string[]>().returns([]),
-  switchRoleToHCP: sinon.stub<[boolean], Promise<void>>().resolves(),
+  switchRoleToHCP: sinon.stub<[boolean, HcpProfession], Promise<void>>().resolves(),
 });
 
 /**
@@ -488,7 +488,7 @@ function testHook(): void {
       await initAuthContext(authHcp, authApiHcpStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP(false);
+        await authContext.switchRoleToHCP(false, HcpProfession.diabeto);
       } catch (reason) {
         error = reason;
       }
@@ -500,7 +500,7 @@ function testHook(): void {
       await initAuthContext(authPatient, authApiStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP(false);
+        await authContext.switchRoleToHCP(false, HcpProfession.diabeto);
       } catch (reason) {
         error = reason;
       }
@@ -513,7 +513,7 @@ function testHook(): void {
       await initAuthContext(authCaregiver, authApiStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP(false);
+        await authContext.switchRoleToHCP(false, HcpProfession.diabeto);
       } catch (reason) {
         error = reason;
       }
@@ -531,7 +531,7 @@ function testHook(): void {
       await initAuthContext(authCaregiver, authApiStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP(false);
+        await authContext.switchRoleToHCP(false, HcpProfession.diabeto);
       } catch (reason) {
         error = reason;
       }
@@ -564,7 +564,7 @@ function testHook(): void {
       await initAuthContext(authCaregiver, authApiStubs);
       let error: Error | null = null;
       try {
-        await authContext.switchRoleToHCP(false);
+        await authContext.switchRoleToHCP(false, HcpProfession.diabeto);
       } catch (reason) {
         error = reason;
       }
@@ -597,7 +597,7 @@ function testHook(): void {
       authApiStubs.refreshToken.resolves(updatedToken);
       await initAuthContext(authCaregiver, authApiStubs);
 
-      await authContext.switchRoleToHCP(true);
+      await authContext.switchRoleToHCP(true, HcpProfession.diabeto);
       expect(authApiStubs.updateUser.calledOnce, "updateUser.calledOnce").to.be.true;
       const updateUserArgs = authApiStubs.updateUser.firstCall.args;
       expect(updateUserArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);
@@ -640,7 +640,7 @@ function testHook(): void {
       authApiStubs.refreshToken.resolves(updatedToken);
       await initAuthContext(authCaregiver, authApiStubs);
 
-      await authContext.switchRoleToHCP(false);
+      await authContext.switchRoleToHCP(false, HcpProfession.diabeto);
       expect(authApiStubs.updateUser.calledOnce, "updateUser.calledOnce").to.be.true;
       const updateUserArgs = authApiStubs.updateUser.firstCall.args;
       expect(updateUserArgs[0]).to.have.keys(["user", "sessionToken", "traceToken"]);

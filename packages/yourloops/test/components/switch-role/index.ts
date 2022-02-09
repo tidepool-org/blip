@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Components tests
+ * Copyright (c) 2022, Diabeloop
+ * Date-pickers tests
  *
  * All rights reserved.
  *
@@ -26,18 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testDatePickers from "./date-pickers";
-import testSnackbar from "./utils/snackbar.test";
-import TestPasswordStrengthMeter from "./password-strength-meter.test";
-import testSwitchRole from "./switch-role";
-import testDropdowns from "./dropdown";
+import testRoleProfessionDialog from "./profession-dialog.test";
 
-function testComponents(): void {
-  describe("DatePickers", testDatePickers);
-  describe("Snackbar", testSnackbar);
-  describe("Dropdowns", testDropdowns);
-  describe("SwitchRole", testSwitchRole);
-  describe("Password strength meter", TestPasswordStrengthMeter);
+function testSwitchRole() {
+  describe("ProfessionDialog", testRoleProfessionDialog);
 }
 
-export default testComponents;
+export default testSwitchRole;

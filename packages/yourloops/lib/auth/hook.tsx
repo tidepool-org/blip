@@ -36,6 +36,7 @@ import { useHistory } from "react-router-dom";
 
 import { HistoryState } from "../../models/generic";
 import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
+import { HcpProfession } from "../../models/hcp-profession";
 import { defer, fixYLP878Settings, numberPrecision } from "../utils";
 import { availableLanguageCodes, getCurrentLang, changeLanguage } from "../language";
 import metrics from "../metrics";
@@ -377,7 +378,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     return api.resetPassword(key, username, password, traceToken);
   };
 
-  const switchRoleToHCP = async (feedbackConsent: boolean): Promise<void> => {
+  const switchRoleToHCP = async (feedbackConsent: boolean, hcpProfession: HcpProfession): Promise<void> => {
     const authInfo = await getAuthInfos();
     if (authInfo.user.role !== UserRoles.caregiver) {
       throw new Error("invalid-user-role");
@@ -392,6 +393,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     updatedProfile.termsOfUse = { acceptanceTimestamp: now, isAccepted: true };
     updatedProfile.privacyPolicy = { acceptanceTimestamp: now, isAccepted: true };
     updatedProfile.contactConsent = { acceptanceTimestamp: now, isAccepted: feedbackConsent };
+    updatedProfile.hcpProfession = hcpProfession;
     const profile = await updateProfile(updatedProfile, false);
 
     // Ask for a new token with the updated role

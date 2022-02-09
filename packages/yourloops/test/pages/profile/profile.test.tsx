@@ -108,7 +108,7 @@ function testProfile(): void {
     const saveButton: HTMLButtonElement = container.querySelector("#profile-button-save");
     const firstnameInput: HTMLInputElement = container.querySelector("#profile-textfield-firstname");
     const languageSelectInput = container.querySelector("#profile-locale-selector + input");
-    const hcpProfessionSelectInput = container.querySelector("#profile-hcp-profession-selector + input");
+    const hcpProfessionSelectInput = container.querySelector("#dropdown-profession-selector + input");
     const unitSelectInput = container?.querySelector("#profile-units-selector + input");
 
     expect(saveButton.disabled, "button is disabled").to.be.true;
