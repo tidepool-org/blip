@@ -34,6 +34,7 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import InfoIcon from "@material-ui/icons/Info";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
 import { checkPasswordStrength } from "../../lib/auth/helpers";
@@ -53,11 +54,18 @@ interface Errors {
   confirmNewPassword: boolean;
 }
 
+const useStyles = makeStyles((theme: Theme) => ({
+  backButton: {
+    marginRight: theme.spacing(2),
+  },
+}));
+
 /**
  * SignUpAccount Form
  */
 function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
   const { t } = useTranslation("yourloops");
+  const classes = useStyles();
   const auth = useAuth();
   const alert = useAlert();
   const { state, dispatch } = useSignUpFormState();
@@ -165,14 +173,14 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
       <Box
         id="signup-accountform-button-group"
         display="flex"
-        justifyContent="space-evenly"
-        mx={2}
+        justifyContent="end"
+        mx={0}
         mt={4}
       >
         <Button
+          className={classes.backButton}
           id="button-signup-steppers-back"
           onClick={handleBack}
-          classes={{ label: "button-signup-steppers-back-label" }}
         >
           {t("signup-steppers-back")}
         </Button>
@@ -182,7 +190,6 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
           color="primary"
           disabled={_.some(errors) || inProgress}
           onClick={onNext}
-          classes={{ label: "button-signup-steppers-create-account-label" }}
         >
           {t("signup-steppers-create-account")}
         </Button>

@@ -28,10 +28,12 @@
 
 import TestSignupProfileForm from "./signup-profile-form.test";
 import TestSignupAccountForm from "./signup-account-form.test";
+import TestSignupAccountSelector from "./signup-account-selector.test";
 
 function testSignupProfilePage(): void {
   describe("Profile form", TestSignupProfileForm);
   describe("Account form", TestSignupAccountForm);
+  describe("Account selector", TestSignupAccountSelector);
 }
 
 export default testSignupProfilePage;

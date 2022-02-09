@@ -30,14 +30,22 @@ import { useTranslation } from "react-i18next";
 
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 
 import metrics from "../../lib/metrics";
 import { ConsentForm } from "../../components/consents";
 import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
 import SignUpFormProps from "./signup-form-props";
 
+const useStyles = makeStyles((theme: Theme) => ({
+  backButton: {
+    marginRight: theme.spacing(2),
+  },
+}));
+
 export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
   const { t } = useTranslation("yourloops");
+  const classes = useStyles();
   const { handleBack, handleNext } = props;
   const { state, dispatch } = useSignUpFormState();
   const consentsChecked = state.formValues.terms && state.formValues.privacyPolicy;
@@ -81,14 +89,14 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
       <Box
         id="signup-consent-button-group"
         display="flex"
-        justifyContent="space-evenly"
-        mx={2}
+        justifyContent="end"
+        mx={0}
         mt={4}
       >
         <Button
+          className={classes.backButton}
           id="button-signup-steppers-back"
           disabled={props.activeStep === 0}
-          classes={{ label: "button-signup-steppers-back-label" }}
           onClick={handleBack}>
           {t("signup-steppers-back")}
         </Button>
@@ -97,7 +105,6 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="primary"
           disabled={!consentsChecked}
-          classes={{ label: "button-signup-steppers-next-label" }}
           onClick={onNext}>
           {t("signup-steppers-next")}
         </Button>

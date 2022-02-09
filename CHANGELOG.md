@@ -8,6 +8,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1122 Patient should enter the team unique ID to accept a team invitation
 - YLP-1188 Pink theme for clinical environment
 - YLP-1190 Advertise user about account deletion
+- YLP-1217 Patient should be better informed that he should not create an account through web UI
 ### Improvements
 - YLP-22 Print PDF content cleaned and improved (removing useless data)
 - YLP-1120 Overview tab cleanup

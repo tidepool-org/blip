@@ -61,6 +61,9 @@ const formStyle = makeStyles((theme: Theme) => {
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
     },
+    backButton: {
+      marginRight: theme.spacing(2),
+    },
   };
 });
 
@@ -236,13 +239,13 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
       <Box
         id="signup-profileform-button-group"
         display="flex"
-        justifyContent="space-evenly"
-        mx={2}
+        justifyContent="end"
+        mx={0}
         mt={4}
       >
         <Button
+          className={classes.backButton}
           id="button-signup-steppers-back"
-          classes={{ label: "button-signup-steppers-back-label" }}
           onClick={handleBack}
         >
           {t("signup-steppers-back")}
@@ -251,7 +254,6 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
           id="button-signup-steppers-next"
           variant="contained"
           color="primary"
-          classes={{ label: "button-signup-steppers-next-label" }}
           onClick={onNext}
         >
           {t("signup-steppers-next")}

@@ -26,7 +26,6 @@
  */
 
 import React from "react";
-import _ from "lodash";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
@@ -38,12 +37,12 @@ import FormHelperText from "@material-ui/core/FormHelperText";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
 
 import metrics from "../../lib/metrics";
 import RadioLabel from "./signup-radio-label";
-import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
+import { FormValuesType, useSignUpFormState } from "./signup-formstate-context";
 import SignUpFormProps from "./signup-form-props";
+import { UserRoles } from "../../models/shoreline";
 
 const useStyles = makeStyles((theme: Theme) => ({
   FormControl: {
@@ -65,6 +64,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
+  backButton: {
+    marginRight: theme.spacing(2),
+  },
 }));
 
 /**
@@ -77,6 +79,9 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
   const [error, setError] = React.useState(false);
   const { handleBack, handleNext } = props;
   const [helperText, setHelperText] = React.useState("");
+
+  const isInvalidRole = state.formValues.accountRole === UserRoles.unset
+    || state.formValues.accountRole === UserRoles.patient;
 
   const resetFormState = (): void => {
     setError(false);
@@ -96,7 +101,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
   };
 
   const validForm = (): boolean => {
-    if (_.isEmpty(state.formValues.accountRole)) {
+    if (isInvalidRole) {
       setError(true);
       setHelperText(t("signup-account-selection-error"));
       return false;
@@ -137,7 +142,22 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
           <Paper elevation={3} className={classes.Paper}>
             <FormControlLabel
               className={classes.FormControlLabel}
-              value="hcp"
+              value={UserRoles.caregiver}
+              id="form-label-signup-account-caregiver"
+              control={<Radio id="signup-account-selector-radio-caregiver" color="primary" />}
+              label={
+                <RadioLabel
+                  id="signup-account-selector-radio-label-caregiver"
+                  header={t("signup-radiolabel-caregiver-header")}
+                  body={t("signup-radiolabel-caregiver-body")}
+                />
+              }
+            />
+          </Paper>
+          <Paper elevation={3} className={classes.Paper}>
+            <FormControlLabel
+              className={classes.FormControlLabel}
+              value={UserRoles.hcp}
               id="form-label-signup-account-hcp"
               control={<Radio id="signup-account-selector-radio-hcp" color="primary" />}
               label={
@@ -152,33 +172,30 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
           <Paper elevation={3} className={classes.Paper}>
             <FormControlLabel
               className={classes.FormControlLabel}
-              value="caregiver"
-              id="form-label-signup-account-caregiver"
-              control={<Radio id="signup-account-selector-radio-caregiver" color="primary" />}
+              value={UserRoles.patient}
+              id="form-label-signup-account-patient"
+              control={<Radio id="signup-account-selector-radio-patient" color="primary" />}
               label={
                 <RadioLabel
-                  id="signup-account-selector-radio-label-caregiver"
-                  header={t("signup-radiolabel-caregiver-header")}
-                  body={t("signup-radiolabel-caregiver-body")}
+                  id="signup-account-selector-radio-label-patient"
+                  header={t("signup-radiolabel-patient-header")}
+                  body={t("signup-account-selection-msg")}
                 />
               }
             />
           </Paper>
         </RadioGroup>
-        <Typography variant="body2" gutterBottom>
-          {t("signup-account-selection-msg")}
-        </Typography>
       </FormControl>
       <Box
         id="signup-account-selector-button-group"
         display="flex"
-        justifyContent="space-evenly"
-        mx={2}
+        justifyContent="end"
+        mx={3}
         mt={4}
       >
         <Button
+          className={classes.backButton}
           id="button-signup-steppers-back"
-          classes={{ label: "button-signup-steppers-back-label" }}
           onClick={handleBack}>
           {t("signup-steppers-back")}
         </Button>
@@ -186,7 +203,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
           id="button-signup-steppers-next"
           variant="contained"
           color="primary"
-          classes={{ label: "button-signup-steppers-next-label" }}
+          disabled={isInvalidRole}
           onClick={onNext}>
           {t("signup-steppers-next")}
         </Button>
