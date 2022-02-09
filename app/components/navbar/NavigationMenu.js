@@ -83,7 +83,7 @@ export const NavigationMenu = props => {
 
     if (isClinicProfileFormPath) {
       setMenuOptions([logoutOption]);
-    } else if (userClinics.length || pendingReceivedClinicianInvites.length) {
+    } else if (userClinics.length) {
       const options = [
         ...map(userClinics, clinic => ({
           action: handleSelectWorkspace.bind(null, clinic.id),

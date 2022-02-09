@@ -237,6 +237,7 @@ export function login(api, credentials, options, postLoginAction) {
             handleLoginFailure(ErrorMessages.ERR_FETCHING_USER, err);
           } else {
             const userHasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+            const userHasPatientProfile = !!_.get(user, ['profile', 'patient'], false);
 
             if (config.CLINICS_ENABLED) {
               // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
