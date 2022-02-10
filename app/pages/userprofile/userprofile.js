@@ -85,7 +85,7 @@ export var UserProfile = translate()(class extends React.Component {
     }
 
     if (!this.props.fetchingClinicsForPatient.inProgress && !this.props.fetchingClinicsForPatient.completed) {
-      this.props.fetchClinicsForPatient(this.props.user.userid);
+      this.props.fetchClinicsForPatient(this.props.user?.userid);
     }
   }
 
