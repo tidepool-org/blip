@@ -38,8 +38,6 @@ import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import brandingLogo from "branding/logo.png";
 
-import LanguageSelector from "../../components/language-select";
-
 import SignUpStepper from "./signup-stepper";
 import { SignUpFormStateProvider } from "./signup-formstate-context";
 
@@ -73,11 +71,6 @@ const formStyle = makeStyles((theme: Theme) => {
         padding: theme.spacing(2),
       },
     },
-    gridLangSelector: {
-      padding: theme.spacing(2),
-      textAlign: "center",
-      fontSize: "small",
-    },
     logoHeader: {
       [theme.breakpoints.up("sm")]: {
         paddingTop: theme.spacing(4),
@@ -110,9 +103,6 @@ function SignUpPage(): JSX.Element {
               </CardContent>
             </Card>
           </SignUpFormStateProvider>
-        </Grid>
-        <Grid item xs={12} className={classes.gridLangSelector}>
-          <LanguageSelector />
         </Grid>
       </Grid>
     </Container>

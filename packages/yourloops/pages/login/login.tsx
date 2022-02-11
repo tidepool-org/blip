@@ -53,7 +53,6 @@ import metrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { errorTextFromException } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
-import LanguageSelector from "../../components/language-select";
 import Password from "../../components/utils/password";
 import ButtonResendActivationLink from "./resend-link";
 
@@ -277,9 +276,6 @@ function Login(): JSX.Element {
               </Button>
             </CardActions>
           </Card>
-        </Grid>
-        <Grid item xs={12} className={classes.gridLangSelector}>
-          <LanguageSelector />
         </Grid>
       </Grid>
     </Container>

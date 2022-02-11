@@ -41,7 +41,6 @@ import brandingLogo from "branding/logo.png";
 import { useAuth } from "../../lib/auth";
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
-import LanguageSelector from "../../components/language-select";
 
 import RequestPasswordForm from "./request-password-form";
 import RequestPassordMessage from "./request-password-message";
@@ -51,11 +50,6 @@ const loginStyle = makeStyles((theme: Theme) => {
     container: {
       display: "flex",
       flexDirection: "column",
-    },
-    divLanguageSelector: {
-      marginLeft: "auto",
-      marginRight: "auto",
-      padding: "16px",
     },
     Card: {
       display: "flex",
@@ -157,9 +151,6 @@ function RequestPasswordResetPage(): JSX.Element {
           />
         )}
       </Card>
-      <div className={classes.divLanguageSelector}>
-        <LanguageSelector />
-      </div>
     </Container>
   );
 }

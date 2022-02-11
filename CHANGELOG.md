@@ -13,6 +13,7 @@ It is based on Tidepool Blip 1.27.
 ### Improvements
 - YLP-22 Print PDF content cleaned and improved (removing useless data)
 - YLP-288 Improve date selection on Trends view
+- YLP-1088 Rework UX/UI of the YLP footer
 - YLP-1120 Overview tab cleanup
 ### Fixed
 - YLP-1101 Yourloops logo redirect not working for HCPs

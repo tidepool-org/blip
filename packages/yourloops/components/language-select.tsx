@@ -30,11 +30,22 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import { useTranslation } from "react-i18next";
+
+const languageSelectStyle = makeStyles((theme: Theme) => {
+  return {
+    select: {
+      fontSize: "12px",
+      color: theme.palette.grey[700],
+    },
+  };
+});
 
 function LanguageSelect(): JSX.Element {
   const { i18n } = useTranslation();
   const [val, setVal] = React.useState(i18n.language);
+  const classes = languageSelectStyle();
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const lang = event.target.value as string;
@@ -60,6 +71,11 @@ function LanguageSelect(): JSX.Element {
         id="language-selector"
         name="language-select"
         disableUnderline
+        inputProps={{
+          classes: {
+            select: classes.select,
+          },
+        }}
         IconComponent={ArrowDropDownIcon}
         value={val}
         onChange={handleChange}

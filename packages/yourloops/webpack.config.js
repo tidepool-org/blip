@@ -48,6 +48,8 @@ const alias = {
   "infusion.png": path.resolve(__dirname, "../../branding/sitechange/infusion.png"),
   "cartridge-vicentra.png": path.resolve(__dirname, "../../branding/sitechange/cartridge-vicentra.png"),
   "warmup-dexcom.svg": path.resolve(__dirname, "../../branding/warmup/warmup-dexcom.svg"),
+  "diabeloop-logo.svg": path.resolve(__dirname, "../../branding/diabeloop/diabeloop-logo.svg"),
+  "diabeloop-label.svg": path.resolve(__dirname, "../../branding/diabeloop/diabeloop-label.svg"),
   ...blipWebpack.resolve.alias,
 };
 
