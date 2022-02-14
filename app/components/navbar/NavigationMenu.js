@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
-import get from 'lodash/get';
 import has from 'lodash/has';
+import includes from 'lodash/includes';
 import map from 'lodash/map';
 import values from 'lodash/values';
 import DashboardRoundedIcon from '@material-ui/icons/DashboardRounded';
@@ -25,27 +26,30 @@ import {
 import * as actions from '../../redux/actions';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
+import NotificationIcon from '../elements/NotificationIcon';
 import personUtils from '../../core/personutils';
 import { borders, colors, space } from '../../themes/baseTheme';
 
 export const NavigationMenu = props => {
-  const { t, api } = props;
+  const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
+  const isClinicProfileFormPath = includes(['/clinic-details', '/clinician-details'], pathname);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
-  const membershipInOtherCareTeams = useSelector((state) => state.blip.membershipInOtherCareTeams);
-  const hasPatientProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'patient'], false);
+  const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
 
   const popupState = usePopupState({
     variant: 'popover',
     popupId: 'navigationMenu',
   });
 
-  const personalWorkspaceOption = {
+  const privateWorkspaceOption = {
     action: handleSelectWorkspace.bind(null, null),
     icon: SupervisedUserCircleRoundedIcon,
-    label: t('Personal Workspace'),
+    label: t('Private Workspace'),
+    metric: ['Clinic - Menu - Go to private workspace'],
   };
 
   const accountSettingsOption = {
@@ -54,11 +58,13 @@ export const NavigationMenu = props => {
     label: t('Account Settings'),
   };
 
-  const manageWorkspacesOption = {
+  const manageWorkspacesOption = () => ({
     action: () => dispatch(push('/workspaces')),
     icon: ViewListRoundedIcon,
     label: t('Manage Workspaces'),
-  };
+    metric: ['Clinic - Menu - Manage workspaces'],
+    notification: pendingReceivedClinicianInvites.length > 0,
+  });
 
   const logoutOption = {
     action: () => dispatch(actions.async.logout(api)),
@@ -67,7 +73,7 @@ export const NavigationMenu = props => {
   };
 
   const [menuOptions, setMenuOptions] = useState([
-    personalWorkspaceOption,
+    privateWorkspaceOption,
     accountSettingsOption,
     logoutOption,
   ]);
@@ -75,28 +81,25 @@ export const NavigationMenu = props => {
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
 
-    if (userClinics.length) {
-      const hidePersonalWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
-
+    if (isClinicProfileFormPath) {
+      setMenuOptions([logoutOption]);
+    } else if (userClinics.length) {
       const options = [
         ...map(userClinics, clinic => ({
           action: handleSelectWorkspace.bind(null, clinic.id),
           icon: DashboardRoundedIcon,
           label: t('{{name}} Workspace', { name: clinic.name }),
+          metric: ['Clinic - Menu - Go to clinic workspace', { clinicId: clinic.id }],
         })),
-        manageWorkspacesOption,
-      ];
-
-      if (!hidePersonalWorkspaceOption) options.push(personalWorkspaceOption);
-
-      options.push(...[
+        manageWorkspacesOption(),
+        privateWorkspaceOption,
         accountSettingsOption,
         logoutOption,
-      ]);
+      ];
 
       setMenuOptions(options);
     }
-  }, [clinics]);
+  }, [clinics, pendingReceivedClinicianInvites]);
 
   function handleSelectWorkspace(clinicId) {
     dispatch(actions.sync.selectClinic(clinicId));
@@ -104,6 +107,7 @@ export const NavigationMenu = props => {
   }
 
   function handleMenuAction(menuOption) {
+    if (menuOption.metric?.length) trackMetric(...menuOption.metric);
     menuOption.action();
     popupState.close();
   }
@@ -124,11 +128,14 @@ export const NavigationMenu = props => {
           },
         }}
       >
-        {personUtils.patientFullName(allUsersMap?.[loggedInUserId]) || t('Account')}
+        <Flex alignItems="center">
+          {personUtils.fullName(allUsersMap?.[loggedInUserId]) || t('Account')}
+          {pendingReceivedClinicianInvites.length > 0 && <NotificationIcon flexShrink={0} />}
+        </Flex>
       </Button>
 
       <Popover
-        width="15em"
+        minWidth="15em"
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'center',
@@ -169,7 +176,10 @@ export const NavigationMenu = props => {
                 },
               }}
             >
-              {option.label}
+              <Flex alignItems="center">
+                {option.label}
+                {option.notification && <NotificationIcon flexShrink={0} />}
+              </Flex>
             </Button>
           ))}
         </Box>

@@ -111,7 +111,7 @@ const InviteClinic = props => {
     if (!isFirstRender && !inProgress) {
       if (completed) {
         setToast({
-          message: t('Share invitation to {{clinic}} has been sent.', {
+          message: t('Share invite to {{clinic}} has been sent.', {
             clinic: clinic.name,
           }),
           variant: 'success',
@@ -139,6 +139,10 @@ const InviteClinic = props => {
     }
   };
 
+  const handleSwitchToEmailInvite = () => {
+    dispatch(push(`/patients/${loggedInUserId}/share/member`));
+  };
+
   const backButtonText = clinic ? t('Cancel') : t('Back');
   const submitButtonText = clinic ? t('Send Invite') : t('Submit Code');
 
@@ -154,7 +158,7 @@ const InviteClinic = props => {
         py={3}
         sx={{ borderBottom: baseTheme.borders.default }}
       >
-        <Title textAlign={['center', 'left']}>{t('Share with a Clinic')}</Title>
+        <Title textAlign={['center', 'left']}>{t('Share With A Clinic')}</Title>
       </Box>
 
       <Box px={5} py={5}>
@@ -192,6 +196,18 @@ const InviteClinic = props => {
                 }}
               />
             </InputMask>
+
+            <Button
+              id="emailInviteLink"
+              variant="textTertiary"
+              mb={5}
+              px={0}
+              py={2}
+              fontSize={0}
+              onClick={handleSwitchToEmailInvite}
+            >
+              {t('Want to share data with a new member? Invite via email address')}
+            </Button>
           </>
         )}
 

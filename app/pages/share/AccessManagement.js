@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -12,11 +12,13 @@ import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
+import indexOf from 'lodash/indexOf';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import sundial from 'sundial';
 
 import {
   Title,
@@ -42,6 +44,7 @@ import personUtils from '../../core/personutils';
 import baseTheme, { colors } from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
+import config from '../../config';
 
 export const AccessManagement = (props) => {
   const { t, api, trackMetric } = props;
@@ -49,6 +52,7 @@ export const AccessManagement = (props) => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
   const [sharedAccounts, setSharedAccounts] = useState([]);
   const [pendingClinicInvites, setPendingClinicInvites] = useState([]);
   const [selectedSharedAccount, setSelectedSharedAccount] = useState(null);
@@ -68,6 +72,7 @@ export const AccessManagement = (props) => {
   const membersOfTargetCareTeam = useSelector((state) => state.blip.membersOfTargetCareTeam);
   const pendingSentInvites = useSelector((state) => state.blip.pendingSentInvites);
   const permissionsOfMembersInTargetCareTeam = useSelector((state) => state.blip.permissionsOfMembersInTargetCareTeam);
+  const timePrefs = useSelector((state) => state.blip.timePrefs);
 
   const {
     cancellingSentInvite,
@@ -91,6 +96,7 @@ export const AccessManagement = (props) => {
       if (completed) {
         popupState?.close();
         setShowDeleteDialog(false);
+        setShowResendInviteDialog(false);
 
         setToast({
           message: successMessage,
@@ -125,13 +131,13 @@ export const AccessManagement = (props) => {
   }, [updatingPatientPermissions]);
 
   useEffect(() => {
-    handleAsyncResult(resendingInvite, t('Share invitation to {{email}} has been re-sent.', {
+    handleAsyncResult(resendingInvite, t('Share invite to {{email}} has been resent.', {
       email: selectedSharedAccount?.email,
     }));
   }, [resendingInvite]);
 
   useEffect(() => {
-    handleAsyncResult(cancellingSentInvite, t('Share invitation to {{email}} has been revoked.', {
+    handleAsyncResult(cancellingSentInvite, t('Share invite to {{email}} has been revoked.', {
       email: selectedSharedAccount?.email,
     }));
   }, [cancellingSentInvite]);
@@ -149,7 +155,7 @@ export const AccessManagement = (props) => {
   }, [deletingPatientFromClinic]);
 
   useEffect(() => {
-    handleAsyncResult(deletingPatientInvitation, t('Share invitation to {{name}} has been revoked.', {
+    handleAsyncResult(deletingPatientInvitation, t('Share invite to {{name}} has been revoked.', {
       name: selectedSharedAccount?.name,
     }));
   }, [deletingPatientInvitation]);
@@ -234,7 +240,7 @@ export const AccessManagement = (props) => {
         name: personUtils.fullName(allUsers[memberId]),
         nameOrderable: (personUtils.fullName(allUsers[memberId]) || '').toLowerCase(),
         permissions: get(permissionsOfMembersInTargetCareTeam, [memberId]),
-        role: 'member',
+        role: hasClinicRole(allUsers[memberId]) ? 'clinician' : 'member',
         type: 'account',
         uploadPermission: !!get(permissionsOfMembersInTargetCareTeam, [memberId, 'upload']),
       }))),
@@ -247,6 +253,7 @@ export const AccessManagement = (props) => {
         status: invite.status,
         type: invite.type,
         uploadPermission: !!get(invite, ['context', 'upload']),
+        created: invite.created,
       }))),
       ...(map(clinicInvites, invite => ({
         id: invite.clinicId,
@@ -287,9 +294,11 @@ export const AccessManagement = (props) => {
       }
 
       if (selectedSharedAccount.type === 'careteam_invitation') {
-        title = t('Revoke invitation?');
-        submitText = t('Revoke Invitation');
-        body = t('Are you sure you want to revoke this share invitation to {{member}}?', { member: selectedSharedAccount.email || selectedSharedAccount.name });
+        title = t('Revoke Invite?');
+        submitText = t('Revoke Invite');
+        body = (<Trans>
+          Are you sure you want to revoke this share invite to <Text as='span' fontWeight='bold'>{{member: selectedSharedAccount.email || selectedSharedAccount.name }}</Text>?
+        </Trans>)
       }
 
       setDeleteDialogContent({
@@ -299,6 +308,10 @@ export const AccessManagement = (props) => {
       })
     }
   }, [selectedSharedAccount]);
+
+  function hasClinicRole(user){
+    return indexOf(get(user, 'roles', []), 'clinic') !== -1
+  }
 
   function handleUploadPermissionsToggle(member) {
     trackMetric(`upload permission turned ${member.uploadPermission ? 'off' : 'on'}`);
@@ -384,7 +397,12 @@ export const AccessManagement = (props) => {
           label={status === 'pending' ? t('invite sent') : t('invite declined')}
           colorPalette={status === 'pending' ? colors.status.pending : colors.status.declined}
         />
-      ) : ''}
+      ) : (
+        <Pill
+          text={t('sharing')}
+          label={t('sharing')}
+          colorPalette="indigos" />
+      )}
     </Box>
   );
 
@@ -446,25 +464,25 @@ export const AccessManagement = (props) => {
     }
 
     if (member.type === 'careteam_invitation') {
-      if (member.role === 'member') items.push({
+      if (member.role === 'member' && member.status !== 'declined') items.push({
         disabled: resendingInvite.inProgress,
         icon: InputIcon,
-        iconLabel: t('Resend invitation'),
+        iconLabel: t('Resend Invite'),
         iconPosition: 'left',
         id: `resendInvite-${member.inviteId}`,
         onClick: _popupState => {
-          setPopupState(_popupState);
+          _popupState.close();
           setSelectedSharedAccount(member);
-          handleResendInvite(member);
+          setShowResendInviteDialog(true);
         },
         processing: resendingInvite.inProgress,
-        text: t('Resend invitation'),
+        text: t('Resend Invite'),
         variant: 'actionListItem',
       });
 
       items.push({
         icon: DeleteForeverIcon,
-        iconLabel: t('Revoke invitation'),
+        iconLabel: t('Revoke Invite'),
         iconPosition: 'left',
         id: `deleteInvite-${member.inviteId}`,
         onClick: _popupState => {
@@ -472,7 +490,7 @@ export const AccessManagement = (props) => {
           setSelectedSharedAccount(member);
           setShowDeleteDialog(true);
         },
-        text: t('Revoke invitation'),
+        text: t('Revoke Invite'),
         variant: 'actionListItemDanger',
       });
     }
@@ -528,9 +546,18 @@ export const AccessManagement = (props) => {
       title: '',
       field: 'more',
       render: renderMore,
-      align: 'left',
+      align: 'right',
     },
   ];
+
+  const formattedInviteDate =
+    selectedSharedAccount?.created &&
+    sundial.formatInTimezone(
+      selectedSharedAccount?.created,
+      timePrefs?.timezoneName ||
+        new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      'MM/DD/YYYY [at] h:mm a'
+    );
 
   return (
     <>
@@ -552,19 +579,22 @@ export const AccessManagement = (props) => {
                 dispatch(push(`/patients/${loggedInUserId}/share/member`));
               }}
             >
-              {t('Invite new member')}
+              {t('Invite New Member')}
             </Button>
-            <Button
-              ml={3}
-              id="invite-clinic"
-              variant="secondary"
-              className="active"
-              onClick={() => {
-                dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
-              }}
-            >
-              {t('Invite new clinic')}
-            </Button>
+            {/* Clinic invite button is hidden during clinic LMR */}
+            {/* {config.CLINICS_ENABLED && (
+              <Button
+                ml={3}
+                id="invite-clinic"
+                variant="secondary"
+                className="active"
+                onClick={() => {
+                  dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
+                }}
+              >
+                {t('Invite New Clinic')}
+              </Button>
+            )} */}
           </Flex>
         </Flex>
 
@@ -616,6 +646,43 @@ export const AccessManagement = (props) => {
             }}
           >
             {deleteDialogContent?.submitText}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        id="resendInvite"
+        aria-labelledBy="dialog-title"
+        open={showResendInviteDialog}
+        onClose={() => setShowResendInviteDialog(false)}
+      >
+        <DialogTitle onClose={() => setShowResendInviteDialog(false)}>
+          <MediumTitle id="dialog-title">{t('Confirm Resending Invite')}</MediumTitle>
+        </DialogTitle>
+        <DialogContent>
+          <Body1>
+            <Trans>
+              <Text>
+                You invited <Text as='span' fontWeight='bold'>{{inviteName: selectedSharedAccount?.name || selectedSharedAccount?.email}}</Text> to view your data on <Text as='span' fontWeight='bold'>{{inviteDate: formattedInviteDate}}</Text>.
+              </Text>
+              <Text>
+                Are you sure you want to resend this invite?
+              </Text>
+            </Trans>
+          </Body1>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="secondary" onClick={() => setShowResendInviteDialog(false)}>
+            {t('Cancel')}
+          </Button>
+          <Button
+            className="resend-invitation"
+            variant="primary"
+            processing={resendingInvite.inProgress}
+            onClick={() => {
+              handleResendInvite(selectedSharedAccount);
+            }}
+          >
+            {t('Resend Invite')}
           </Button>
         </DialogActions>
       </Dialog>

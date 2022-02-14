@@ -14,6 +14,7 @@ const StyledPopover = styled(Base)`
     box-shadow: ${shadows.large};
     border-radius: ${radii.default}px;
     width: ${({ width }) => width};
+    min-width: ${({ minWidth }) => minWidth};
     max-width: calc(100% - ${space[5]}px);
   }
 `;

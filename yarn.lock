@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.22.0-microtech-equil.5":
-  version "1.22.0-microtech-equil.5"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.22.0-microtech-equil.5.tgz#1d2765aa639739e2750c7a534053b79650044a8e"
-  integrity sha512-RdmtCeEvnTKvnNTliTJsbxrytCOesAVGfX0SI+dIioHjsREazOJFMnDKj74EV8/6u+wmwayVYMzdmWiclOhZ0w==
+"@tidepool/viz@1.24.0-web-1213-bg-range-copy-text-annotation.1":
+  version "1.24.0-web-1213-bg-range-copy-text-annotation.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.24.0-web-1213-bg-range-copy-text-annotation.1.tgz#73a184934fc4d107ce0dbcfe12cb863d4fa77e75"
+  integrity sha512-Y0634lIUz0VqZtV6kCwDyjLNkQ0q1K/R7uwMZTYJz8yXLUSsRlmZShjhxb/vm2wrXchMJXJwHF8xqtJ13jhF0w==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -13920,9 +13920,9 @@ path-key@^2.0.0, path-key@^2.0.1:
   integrity sha1-QRyttXTFoUDTpLGRDUDYDMn0C0A=
 
 path-parse@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.6.tgz#d62dbb5679405d72c4737ec58600e9ddcf06d24c"
-  integrity sha512-GSmOT2EbHrINBf9SR7CDELwlJ8AENk3Qn7OikK4nFYAu3Ote2+JYNVvkpAEQm3/TLNEJFD/xZJjzyxg3KBWOzw==
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
+  integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==
 
 path-to-regexp@0.1.7:
   version "0.1.7"
@@ -18427,10 +18427,10 @@ thunky@^1.0.2:
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
   integrity sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==
 
-tideline@1.25.0-web-880-clinic-signup.1:
-  version "1.25.0-web-880-clinic-signup.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.25.0-web-880-clinic-signup.1.tgz#2513b1937942e17366a309dbc5d8d9253bb2e600"
-  integrity sha512-eYcG7dRzg2ThdoI8GeWfzdcTKwTnW8/NrMeB4e9M+xVX9rwVh1usY4aF0kfINiQTwbaO2eUdEFtJHI+BUSnlHw==
+tideline@1.25.0:
+  version "1.25.0"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.25.0.tgz#fc8f4f1d86b03203ee52919de4096f392ee3e961"
+  integrity sha512-/IbTaVBud5nA2d/QQ2O4PpMMTKs+ySADxT10y05gvRgmpm7AogKuCbPBil3jYOR+bAFFekLAB2buIlRg4+okmQ==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
@@ -18447,10 +18447,10 @@ tideline@1.25.0-web-880-clinic-signup.1:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.47.0-web-880-clinic-signup.2:
-  version "0.47.0-web-880-clinic-signup.2"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.47.0-web-880-clinic-signup.2.tgz#820639709d1e0c7502b95357b6a84a003a8de8f8"
-  integrity sha512-QvAr4rDp0P7f/G2dyzAI0RNNJ39okeU6RDHJ17Twl9leDYendEjfirXi/4Vo/7U7DSgwGmfl//slcabM9G9GfQ==
+tidepool-platform-client@0.48.0:
+  version "0.48.0"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.48.0.tgz#7ed79629c0cb6d59afa760fae392f99655800c30"
+  integrity sha512-1RBznq9gT657rmkrDx9yCm9ukH4gUYEIgNOP2SGaPonKR1bBvwaKwFhGBAcJtb/IwZRsvn9PEj9CJ4dyAnPxPw==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
@@ -19056,9 +19056,9 @@ url-parse-lax@^1.0.0:
     prepend-http "^1.0.1"
 
 url-parse@^1.4.3:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.1.tgz#d5fa9890af8a5e1f274a2c98376510f6425f6e3b"
-  integrity sha512-HOfCOUJt7iSYzEx/UqgtwKRMC6EU91NFhsCHMv9oM03VJcVo2Qrp8T8kI9D7amFf1cu+/3CEhgb3rF9zL7k85Q==
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.3.tgz#71c1303d38fb6639ade183c2992c8cc0686df862"
+  integrity sha512-IIORyIQD9rvj0A4CLWsHkBBJuNqWpFQe224b6j9t/ABmquIS0qDU2pY6kl6AuOrL5OkCXHMCFNe1jBcuAggjvQ==
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"

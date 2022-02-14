@@ -290,9 +290,9 @@ describe('ClinicProfile', () => {
         expect(profileForm.find('input[name="name"]').prop('value')).to.equal('new_clinic_name');
         expect(profileForm.find('input[name="phoneNumbers.0.number"]').prop('defaultValue')).to.equal('(888) 555-5555');
         expect(profileForm.find('select[name="country"]').prop('value')).to.equal('US');
-        expect(profileForm.find('input[name="address"]').prop('value')).to.equal('1 Address Ln, City Zip');
+        expect(profileForm.find('select[name="state"]').prop('value')).to.equal('New Jersey');
         expect(profileForm.find('input[name="city"]').prop('value')).to.equal('Gotham');
-        expect(profileForm.find('input[name="state"]').prop('value')).to.equal('New Jersey');
+        expect(profileForm.find('input[name="address"]').prop('value')).to.equal('1 Address Ln, City Zip');
         expect(profileForm.find('input[name="postalCode"]').prop('value')).to.equal('12345');
         expect(profileForm.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
         expect(profileForm.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('provider_practice');
@@ -315,17 +315,17 @@ describe('ClinicProfile', () => {
         wrapper.find('select[name="country"]').simulate('change', { persist: noop, target: { name: 'country', value: 'CA' } });
         expect(wrapper.find('select[name="country"]').prop('value')).to.equal('CA');
 
-        wrapper.find('input[name="address"]').simulate('change', { persist: noop, target: { name: 'address', value: 'address_updated' } });
-        expect(wrapper.find('input[name="address"]').prop('value')).to.equal('address_updated');
+        wrapper.find('select[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'ON' } });
+        expect(wrapper.find('select[name="state"]').prop('value')).to.equal('ON');
 
         wrapper.find('input[name="city"]').simulate('change', { persist: noop, target: { name: 'city', value: 'city_updated' } });
         expect(wrapper.find('input[name="city"]').prop('value')).to.equal('city_updated');
 
-        wrapper.find('input[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'state_updated' } });
-        expect(wrapper.find('input[name="state"]').prop('value')).to.equal('state_updated');
+        wrapper.find('input[name="address"]').simulate('change', { persist: noop, target: { name: 'address', value: 'address_updated' } });
+        expect(wrapper.find('input[name="address"]').prop('value')).to.equal('address_updated');
 
-        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: '65432' } });
-        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('65432');
+        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: 'L3X 9G2' } });
+        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('L3X 9G2');
 
         wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic_updated.com' } });
         expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic_updated.com');
@@ -353,8 +353,8 @@ describe('ClinicProfile', () => {
               country: 'CA',
               name: 'name_updated',
               phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
-              postalCode: '65432',
-              state: 'state_updated',
+              postalCode: 'L3X 9G2',
+              state: 'ON',
               website: 'http://clinic_updated.com',
             }
           );
@@ -365,18 +365,7 @@ describe('ClinicProfile', () => {
               type: 'UPDATE_CLINIC_SUCCESS',
               payload: {
                 clinicId: 'clinicID456',
-                clinic: {
-                  address: 'address_updated',
-                  city: 'city_updated',
-                  clinicSize: '250-499',
-                  clinicType: 'healthcare_system',
-                  country: 'CA',
-                  name: 'name_updated',
-                  phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
-                  postalCode: '65432',
-                  state: 'state_updated',
-                  website: 'http://clinic_updated.com',
-                },
+                clinic: { updateReturn: 'success' },
               },
             },
           ]);

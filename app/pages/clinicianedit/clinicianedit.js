@@ -35,6 +35,7 @@ import { useToasts } from '../../providers/ToastProvider';
 import baseTheme from '../../themes/baseTheme';
 import { useIsFirstRender } from '../../core/hooks';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
+import config from '../../config';
 
 const { Loader } = vizComponents;
 
@@ -49,6 +50,7 @@ export const ClinicianEdit = (props) => {
   const location = useLocation();
   const selectedClinicianId = get(location, 'state.clinicianId', false);
   const { updatingClinician, fetchingCliniciansFromClinic } = useSelector((state) => state.blip.working);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const selectedClinic = get(location, 'state.clinicId', false);
 
   const selectedClinician = useSelector((state) =>
@@ -68,7 +70,7 @@ export const ClinicianEdit = (props) => {
     <>
       <Title mt="-0.25em">{t('Clinic Admin')}</Title>
       <Body1>
-        {t('Clinic administrators have full read and edit access to access management. More details are described here.')}
+        {t('Clinic admins have complete access to a workspace and can manage patients, clinicians and the clinic profile.')}
       </Body1>
     </>
   );
@@ -77,7 +79,7 @@ export const ClinicianEdit = (props) => {
     <>
       <Title mt="-0.25em">{t('Clinic Member')}</Title>
       <Body1>
-        {t('Clinic members have read access to access management. More details are described here.')}
+        {t('Clinic members have limited access to a workspace and can only manage patients.')}
       </Body1>
     </>
   );
@@ -113,9 +115,15 @@ export const ClinicianEdit = (props) => {
 
       const updatedClinician = cloneDeep(selectedClinician);
       const updatedRoles = [clinicianType];
-      if (prescriberPermission) updatedRoles.push('PRESCRIBER');
+      let metricProperties = { clinicId: selectedClinicId, role: clinicianType };
+
+      if (prescriberPermission) {
+        updatedRoles.push('PRESCRIBER');
+        metricProperties.access = 'PRESCRIBER';
+      }
+
       updatedClinician.roles = updatedRoles;
-      trackMetric('Clinic - Edit clinician');
+      trackMetric('Clinic - Update clinic team member', metricProperties);
 
       dispatch(
         actions.async.updateClinician(
@@ -154,15 +162,9 @@ export const ClinicianEdit = (props) => {
       !fetchingCliniciansFromClinic.completed &&
       !fetchingCliniciansFromClinic.notification
     ) {
-      dispatch(actions.async.fetchCliniciansFromClinic(api, selectedClinic));
+      dispatch(actions.async.fetchCliniciansFromClinic(api, selectedClinic, { limit: 1000, offset: 0 }));
     }
   }
-
-  useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Clinic - Clinician Edit');
-    }
-  }, []);
 
   useEffect(() => {
     const { inProgress, completed, notification } = updatingClinician;
@@ -189,6 +191,7 @@ export const ClinicianEdit = (props) => {
   }, [updatingClinician]);
 
   function handleClickDelete() {
+    trackMetric('Clinic - Remove clinic team member', { clinicId: selectedClinicId });
     setDeleteDialogOpen(true);
   }
 
@@ -196,6 +199,7 @@ export const ClinicianEdit = (props) => {
     if (dirty) {
       setConfirmDialogOpen(true);
     } else {
+      trackMetric('Clinic - Update clinic team member back out', { clinicId: selectedClinicId });
       dispatch(push('/clinic-admin'));
     }
   }
@@ -205,6 +209,8 @@ export const ClinicianEdit = (props) => {
   }
 
   function handleConfirmDeleteDialog() {
+    trackMetric('Clinic - Remove clinic team member confirmed', { clinicId: selectedClinicId });
+
     dispatch(
       actions.async.deleteClinicianFromClinic(
         api,
@@ -212,6 +218,7 @@ export const ClinicianEdit = (props) => {
         selectedClinicianId
       )
     );
+
     dispatch(push('/clinic-admin'));
   }
 
@@ -220,6 +227,7 @@ export const ClinicianEdit = (props) => {
   }
 
   function handleExitConfirmDialog() {
+    trackMetric('Clinic - Update clinic team member back out', { clinicId: selectedClinicId });
     dispatch(push('/clinic-admin'));
   }
 
@@ -272,30 +280,37 @@ export const ClinicianEdit = (props) => {
                       borderRadius: `${baseTheme.radii.default}px ${baseTheme.radii.default}px 0 0`,
                       borderBottom: 'none',
                     },
+                    '&:last-child': {
+                      borderRadius: config.RX_ENABLED
+                        ? 0
+                        : `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
+                    },
                   },
                 },
               }}
             />
 
-            <Box
-              p={4}
-              mb={4}
-              bg="lightestGrey"
-              sx={{
-                border: baseTheme.borders.default,
-                borderTop: 'none',
-                borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
-              }}
-            >
-              <Checkbox
-                {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
-                label={t('Prescribing access')}
-                themeProps={{ bg: 'lightestGrey' }}
-              />
-            </Box>
+            {config.RX_ENABLED && (
+              <Box
+                p={4}
+                mb={3}
+                bg="lightestGrey"
+                sx={{
+                  border: baseTheme.borders.default,
+                  borderTop: 'none',
+                  borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
+                }}
+              >
+                <Checkbox
+                  {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
+                  label={t('Prescribing access')}
+                  themeProps={{ bg: 'lightestGrey' }}
+                />
+              </Box>
+            )}
 
-            <Button variant="textPrimary" onClick={() => setPermissionsDialogOpen(true)}>
-              Learn more about clincian roles and permissions
+            <Button mt={3} variant="textPrimary" onClick={() => setPermissionsDialogOpen(true)}>
+              Learn more about clinician roles and permissions
             </Button>
 
             <Flex p={4} justifyContent="flex-end">
@@ -356,7 +371,7 @@ export const ClinicianEdit = (props) => {
 
             <DialogContent>
               <Body1>
-                {t('You have a unsaved changes to this clinician which will be lost if you navigate away. Are you sure you wish to discard these changes?')}
+                {t('There are unsaved changes to this clinician’s permissions which will be lost if you navigate away. Are you sure you want to discard these changes?')}
               </Body1>
             </DialogContent>
 
@@ -374,7 +389,7 @@ export const ClinicianEdit = (props) => {
                 variant="danger"
                 onClick={handleExitConfirmDialog}
               >
-                {t('Exit')}
+                {t('Discard Changes')}
               </Button>
             </DialogActions>
           </Dialog>

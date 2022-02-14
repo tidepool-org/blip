@@ -58,14 +58,15 @@ describe('Stats', () => {
     chartPrefs: {
       animateStats: true
     },
+    chartType: 'basics',
     stats: [],
+    trackMetric: sinon.stub(),
   };
 
   let wrapper;
-  let instance;
+
   beforeEach(() => {
     wrapper = shallow(<Stats {...baseProps} />);
-    instance = wrapper.instance();
   });
 
   describe('render', () => {
@@ -104,6 +105,110 @@ describe('Stats', () => {
 
       _.each(expectedStats, statId => {
         expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
+      });
+    });
+
+    describe('collapse state', () => {
+      afterEach(() => {
+        Stats.__ResetDependency__('useLocalStorage');
+        baseProps.trackMetric.resetHistory();
+      });
+
+      it('should render the stats with correct `isOpened` and `title` props from localStorage', () => {
+        Stats.__Rewire__('useLocalStorage', sinon.stub().returns([
+          {
+            basics: {
+              // collapsed state of stats
+              averageDailyDose: false,
+              carbs: true,
+            },
+          },
+          sinon.stub()
+        ]));
+
+        wrapper.setProps({
+          ...wrapper.props(),
+          stats: [
+            {
+              id: 'carbs',
+              collapsible: false,
+              title: 'Carbs',
+              collapsedTitle: 'Carbs Collapsed',
+            },
+            {
+              id: 'averageDailyDose',
+              collapsible: true,
+              title: 'Daily Dose',
+              collapsedTitle: 'Daily Dose Collapsed',
+            },
+          ],
+        });
+
+        // non-collapsible stats should always be open and use the standard title prop,
+        // even if collapsed state in local storage is `true`
+        const carbStat = () => wrapper.find('#Stat--carbs').childAt(0);
+        expect(carbStat().props().isOpened).to.be.true;
+        expect(carbStat().props().title).to.equal('Carbs');
+
+        // collapsible stat should follow the collapsed state
+        const dailyDoseStat = () => wrapper.find('#Stat--averageDailyDose').childAt(0);
+        expect(dailyDoseStat().props().isOpened).to.be.true;
+        expect(dailyDoseStat().props().title).to.equal('Daily Dose');
+
+        // Update collapsed state to true
+        Stats.__Rewire__('useLocalStorage', sinon.stub().returns([
+          {
+            basics: {
+              // collapsed state of stats
+              averageDailyDose: true,
+              carbs: true,
+            },
+          },
+          sinon.stub()
+        ]));
+
+        wrapper.setProps();
+
+        expect(dailyDoseStat().props().isOpened).to.be.false;
+        expect(dailyDoseStat().props().title).to.equal('Daily Dose Collapsed');
+
+        expect(carbStat().props().isOpened).to.be.true;
+        expect(carbStat().props().title).to.equal('Carbs');
+      });
+
+      it('should track metrics for collapse and expand clicks', () => {
+        Stats.__Rewire__('useLocalStorage', sinon.stub().returns([
+          {
+            basics: {
+              // collapsed state of stats
+              averageDailyDose: false,
+            },
+          },
+          sinon.stub()
+        ]));
+
+        wrapper.setProps({
+          ...wrapper.props(),
+          stats: [
+            {
+              id: 'averageDailyDose',
+              collapsible: true,
+              title: 'Daily Dose',
+              collapsedTitle: 'Daily Dose Collapsed',
+            },
+          ],
+        });
+
+        const dailyDoseStat = () => wrapper.find('#Stat--averageDailyDose').childAt(0);
+
+        expect(dailyDoseStat().props().isOpened).to.be.true;
+        sinon.assert.callCount(baseProps.trackMetric, 0);
+
+        dailyDoseStat().props().onCollapse(true);
+        sinon.assert.calledWith(baseProps.trackMetric, 'Click collapsed - Basics - averageDailyDose');
+
+        dailyDoseStat().props().onCollapse(false);
+        sinon.assert.calledWith(baseProps.trackMetric, 'Click expanded - Basics - averageDailyDose');
       });
     });
   });

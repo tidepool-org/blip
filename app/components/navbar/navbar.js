@@ -60,6 +60,11 @@ export default translate()(class extends React.Component {
               icon={ChevronLeftRoundedIcon}
               iconPosition='left'
               id="patientListLink"
+              onClick={() => this.props.trackMetric('Clinic - View patient list', {
+                clinicId: this.props.selectedClinicId,
+                source: 'Patient data',
+              })}
+              sx={{ display: 'inline-flex !important' }}
             >
               {t('Back to Patient List')}
             </Button>
@@ -87,8 +92,9 @@ export default translate()(class extends React.Component {
 
     if (this.props.clinicFlowActive) {
       const userClinics = _.filter(_.values(this.props.clinics), ({ clinicians }) => _.has(clinicians, _.get(this.props, 'user.userid')));
-      // Disable logo link if the clinician is only a member of a single clinic, or is not on a clinic workspace tab
-      linkDisabled = userClinics.length < 2 || !/^\/clinic-workspace.*/.test(this.props.currentPage);
+      // Disable logo link if the clinician is only a member of a single clinic,
+      // or is not on a clinic workspace tab, the private workspace, or the account settings page
+      linkDisabled = userClinics.length < 2 || !/^(\/clinic-workspace.*|\/profile|\/patients)$/.test(this.props.currentPage);
     }
 
     return (
@@ -189,7 +195,7 @@ export default translate()(class extends React.Component {
 
     return (
       <Flex flex={1} justifyContent="flex-end">
-        <NavigationMenu api={this.props.api} />
+        <NavigationMenu api={this.props.api} trackMetric={this.props.trackMetric} />
       </Flex>
     );
   };

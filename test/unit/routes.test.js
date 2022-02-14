@@ -4,6 +4,7 @@
 /* global it */
 /* global beforeEach */
 /* global afterEach */
+/* global context */
 
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -262,6 +263,219 @@ describe('routes', () => {
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
     });
+
+    it('should fetch clinics for the user if they have not already been fetched', () => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+      config.CLINICS_ENABLED = true;
+      let user = {
+        userid: 'a1b2c3',
+        emailVerified: true,
+        profile: {
+          patient: {},
+        },
+        termsAccepted: '2019-12-30T00:00:00-08:00',
+      };
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(null, user);
+          },
+        },
+        clinics: {
+          getClinicsForClinician: sinon.stub().returns(null, []),
+        },
+      };
+
+      let store = mockStore({
+        blip: { working: {
+          fetchingClinicsForClinician: {
+            inProgress: false,
+            completed: false,
+            inProgress: null,
+          }
+        }},
+      });
+
+      let expectedActions = [
+        { type: 'FETCH_USER_REQUEST' },
+        { type: 'FETCH_USER_SUCCESS', payload: { user } },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+      ];
+
+      store.dispatch(requireAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should redirect the user to `/clinic-details` if the first returned clinic is empty', () => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+      config.CLINICS_ENABLED = true;
+      let user = {
+        userid: 'a1b2c3',
+        emailVerified: true,
+        profile: {
+          patient: {},
+          clinic: {},
+        },
+        roles: ['clinic'],
+        termsAccepted: '2019-12-30T00:00:00-08:00',
+      };
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(null, user);
+          },
+        },
+        clinics: {
+          getClinicsForClinician: sinon.stub().callsArgWith(2, null, [{ clinic: { id: 'newClinic' } }]),
+        },
+      };
+
+      let store = mockStore({
+        blip: {
+          working: {
+            fetchingClinicsForClinician: {
+              inProgress: false,
+              completed: false,
+              inProgress: null,
+            }
+          },
+          clinicFlowActive: true,
+        },
+        router: { location: { pathname: 'foo-path' } } ,
+      });
+
+      let expectedActions = [
+        { type: 'FETCH_USER_REQUEST' },
+        { type: 'FETCH_USER_SUCCESS', payload: { user } },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+        { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
+        routeAction('/clinic-details'),
+        { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: {
+          clinicianId: 'a1b2c3',
+          clinics: [{ clinic: { id: 'newClinic' } }],
+        } },
+      ];
+
+      store.dispatch(requireAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should redirect the user to `/clinic-details` if the first returned clinic ready to migrate', () => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+      config.CLINICS_ENABLED = true;
+      let user = {
+        userid: 'a1b2c3',
+        emailVerified: true,
+        profile: {
+          patient: {},
+          clinic: {},
+        },
+        roles: ['clinic'],
+        termsAccepted: '2019-12-30T00:00:00-08:00',
+      };
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(null, user);
+          },
+        },
+        clinics: {
+          getClinicsForClinician: sinon.stub().callsArgWith(2, null, [{ clinic: { id: 'newClinic', name: 'Clinic ABC', canMigrate: true } }]),
+        },
+      };
+
+      let store = mockStore({
+        blip: {
+          working: {
+            fetchingClinicsForClinician: {
+              inProgress: false,
+              completed: false,
+              inProgress: null,
+            }
+          },
+          clinicFlowActive: true,
+        },
+        router: { location: { pathname: 'foo-path' } } ,
+      });
+
+      let expectedActions = [
+        { type: 'FETCH_USER_REQUEST' },
+        { type: 'FETCH_USER_SUCCESS', payload: { user } },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+        { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
+        routeAction('/clinic-details'),
+        { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: {
+          clinicianId: 'a1b2c3',
+          clinics: [{ clinic: { id: 'newClinic', name: 'Clinic ABC', canMigrate: true } }],
+        } },
+      ];
+
+      store.dispatch(requireAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should redirect a non-clinic member user to `/patients` if they are on a Clinic UI route', () => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+      config.CLINICS_ENABLED = true;
+      let user = {
+        userid: 'a1b2c3',
+        emailVerified: true,
+        profile: {
+          patient: {},
+        },
+        termsAccepted: '2019-12-30T00:00:00-08:00',
+      };
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(null, user);
+          },
+        },
+        clinics: {
+          getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+        },
+      };
+
+      let store = mockStore({
+        blip: {
+          working: {
+            fetchingClinicsForClinician: {
+              inProgress: false,
+              completed: false,
+              inProgress: null,
+            }
+          },
+          clinicFlowActive: false,
+        },
+        router: { location: { pathname: '/clinic-workspace/patients' } } ,
+      });
+
+      let expectedActions = [
+        { type: 'FETCH_USER_REQUEST' },
+        { type: 'FETCH_USER_SUCCESS', payload: { user } },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+        routeAction('/patients'),
+        { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: {
+          clinicianId: 'a1b2c3',
+          clinics: [],
+        } },
+      ];
+
+      store.dispatch(requireAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
   });
 
   describe('requireAuthAndNoPatient', () => {
@@ -494,23 +708,106 @@ describe('routes', () => {
   });
 
   describe('requireNoAuth', () => {
-    it('should update route to /patients if user is authenticated', () => {
-      let api = {
-        user: {
-          isAuthenticated: sinon.stub().returns(true),
-        },
-      };
+    context('user is authenticated', () => {
+      context('clinic flow is active', () => {
+        it('should update route to /workspaces if user is not on a clinic/clinician details page', () => {
+          let api = {
+            user: {
+              isAuthenticated: sinon.stub().returns(true),
+            },
+          };
 
-      let store = mockStore({
-        blip: {},
+          let store = mockStore({
+            blip: { clinicFlowActive: true },
+          });
+
+          let expectedActions = [routeAction('/workspaces')];
+
+          store.dispatch(requireNoAuth(api));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+        });
+
+        it('should update route to /clinic-details if user needs to fill in clinic details', () => {
+          let api = {
+            user: {
+              isAuthenticated: sinon.stub().returns(true),
+            },
+          };
+
+          let store = mockStore({
+            blip: {
+              allUsersMap: {
+                clinician123: { isClinicMember: true },
+              },
+              clinicFlowActive: true,
+              clinics: {
+                clinic123: { id: 'clinic123', name: undefined },
+              },
+              loggedInUserId: 'clinician123',
+            },
+          });
+
+          let expectedActions = [
+            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
+            routeAction('/clinic-details'),
+          ];
+
+          store.dispatch(requireNoAuth(api));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+        });
       });
 
-      let expectedActions = [routeAction('/patients')];
+      context('clinic flow is inactive', () => {
+        it('should update route to /patients if user is not on a clinic/clinician details page', () => {
+          let api = {
+            user: {
+              isAuthenticated: sinon.stub().returns(true),
+            },
+          };
 
-      store.dispatch(requireNoAuth(api));
+          let store = mockStore({
+            blip: { clinicFlowActive: false },
+          });
 
-      const actions = store.getActions();
-      expect(actions).to.eql(expectedActions);
+          let expectedActions = [routeAction('/patients')];
+
+          store.dispatch(requireNoAuth(api));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+        });
+
+        it('should update route to /clinician-details if user needs to fill in their clinician profile', () => {
+          let api = {
+            user: {
+              isAuthenticated: sinon.stub().returns(true),
+            },
+          };
+
+          let store = mockStore({
+            blip: {
+              allUsersMap: {
+                clinician123: { roles: ['clinic'], profile: { clinic: undefined } },
+              },
+              clinicFlowActive: false,
+              loggedInUserId: 'clinician123',
+            },
+          });
+
+          let expectedActions = [
+            routeAction('/clinician-details'),
+          ];
+
+          store.dispatch(requireNoAuth(api));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+        });
+      });
     });
 
     it('should not update route if user is not authenticated', () => {

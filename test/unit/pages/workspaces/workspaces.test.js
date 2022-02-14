@@ -198,7 +198,7 @@ describe('Workspaces', () => {
 
     it('should render the workspaces title', () => {
       const title = wrapper.find('h3').at(0);
-      expect(title.text()).to.equal('Welcome to Tidepool');
+      expect(title.text()).to.equal('Welcome To Tidepool');
     });
 
     it('should render the workspaces section heading', () => {
@@ -213,17 +213,19 @@ describe('Workspaces', () => {
       const clinics = workspaceList.find('div.workspace-item-clinic');
       expect(clinics).to.have.lengthOf(1);
       expect(clinics.at(0).text()).contains('new_clinic_name');
+      expect(clinics.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(0);
 
       const invites = workspaceList.find('div.workspace-item-clinician_invitation');
       expect(invites).to.have.lengthOf(1);
       expect(invites.at(0).text()).contains('Example Health');
+      expect(invites.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
     });
 
     it('should allow a clinician to navigate to a clinic workspace', () => {
       const clinic = wrapper.find('div.workspace-item-clinic').at(0);
       const navigateButton = clinic.find('Button[variant="primary"]');
       expect(navigateButton).to.have.lengthOf(1);
-      expect(navigateButton.text()).to.equal('Go to Workspace');
+      expect(navigateButton.text()).to.equal('Go To Workspace');
 
       store.clearActions();
       navigateButton.simulate('click');
@@ -335,33 +337,6 @@ describe('Workspaces', () => {
           type: 'DISMISS_CLINICIAN_INVITE_SUCCESS',
           payload: {
             inviteId: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
-          },
-        },
-      ]);
-    });
-
-    it('should render a button to navigate to a personal workspace', () => {
-      const personalWorkspace = wrapper.find('#personal-workspace').hostNodes();
-      expect(personalWorkspace).to.have.lengthOf(1);
-      const personalWorkspaceCTA = personalWorkspace.find('button');
-      expect(personalWorkspaceCTA).to.have.lengthOf(1);
-      expect(personalWorkspaceCTA.text()).to.equal('Go to Personal Workspace');
-
-      store.clearActions();
-      personalWorkspaceCTA.simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: 'SELECT_CLINIC',
-          payload: {
-            clinicId: null,
-          },
-        },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/patients'],
-            method: 'push',
           },
         },
       ]);

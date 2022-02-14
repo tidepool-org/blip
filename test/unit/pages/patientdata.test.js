@@ -91,6 +91,7 @@ describe('PatientData', function () {
       },
       bg: {
         reshapeBgClassesToBgBounds: sinon.stub().returns('stubbed bgBounds'),
+        isCustomBgRange: sinon.stub().returns(false),
       },
       aggregation: {
         defineBasicsAggregations: sinon.stub().returns('stubbed aggregations definitions'),
@@ -1098,6 +1099,9 @@ describe('PatientData', function () {
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
           showingCbgDateTraces: false,
+          stats: {
+            excludeDaysWithoutBolus: false
+          },
           touched: false,
         },
         bgLog: {
@@ -1342,7 +1346,7 @@ describe('PatientData', function () {
     });
 
     it('should query stats if enabled via arg, but not by default, nor if querying data', () => {
-      instance.setState({ chartEndpoints: { current: [100, 200] } });
+      instance.setState({ chartEndpoints: { current: [100, 200] }, bgPrefs: 'bgPrefs' });
 
       // queryData set to false and queryStats set undefined
       instance.updateChartPrefs({ trends: 'bar'}, false);
@@ -1360,6 +1364,7 @@ describe('PatientData', function () {
       sinon.assert.calledWith(
         instance.queryData,
         sinon.match({
+          bgPrefs: 'bgPrefs',
           endpoints: [100, 200],
           stats: 'stats stub',
         }),
@@ -1367,8 +1372,8 @@ describe('PatientData', function () {
       );
     });
 
-    it('should query aggreagations if enabled via arg, but not by default, nor if querying data', () => {
-      instance.setState({ chartEndpoints: { current: [100, 200] } });
+    it('should query aggregations if enabled via arg, but not by default, nor if querying data', () => {
+      instance.setState({ chartEndpoints: { current: [100, 200] }, bgPrefs: 'bgPrefs' });
 
       // queryData and queryStats set to false and queryAggregations set undefined
       instance.updateChartPrefs({ trends: 'bar'}, false, false);
@@ -1386,6 +1391,7 @@ describe('PatientData', function () {
       sinon.assert.calledWith(
         instance.queryData,
         sinon.match({
+          bgPrefs: 'bgPrefs',
           endpoints: [100, 200],
           aggregationsByDate: 'aggregations stub',
         }),
@@ -1730,6 +1736,7 @@ describe('PatientData', function () {
           'carbs',
           'averageDailyDose',
           'glucoseManagementIndicator',
+          'standardDev',
           'coefficientOfVariation',
           'bgExtents',
         ]);
@@ -1743,6 +1750,7 @@ describe('PatientData', function () {
           'totalInsulin',
           'carbs',
           'averageDailyDose',
+          'standardDev',
           'coefficientOfVariation',
           'bgExtents',
         ]);
@@ -1758,6 +1766,7 @@ describe('PatientData', function () {
           'timeInAuto',
           'carbs',
           'averageDailyDose',
+          'standardDev',
           'coefficientOfVariation',
           'bgExtents',
         ]);
@@ -1773,6 +1782,7 @@ describe('PatientData', function () {
           'timeInOverride',
           'carbs',
           'averageDailyDose',
+          'standardDev',
           'coefficientOfVariation',
           'bgExtents',
         ]);
@@ -1857,6 +1867,8 @@ describe('PatientData', function () {
           'timeInRange',
           'averageGlucose',
           'sensorUsage',
+          'totalInsulin',
+          'averageDailyDose',
           'glucoseManagementIndicator',
           'standardDev',
           'coefficientOfVariation',
@@ -1869,6 +1881,8 @@ describe('PatientData', function () {
         expect(instance.getStatsByChartType()).to.eql([
           'readingsInRange',
           'averageGlucose',
+          'totalInsulin',
+          'averageDailyDose',
           'standardDev',
           'coefficientOfVariation',
           'bgExtents',
@@ -1881,6 +1895,8 @@ describe('PatientData', function () {
         expect(instance.getStatsByChartType()).to.eql([
           'readingsInRange',
           'averageGlucose',
+          'totalInsulin',
+          'averageDailyDose',
           'timeInAuto',
           'standardDev',
           'coefficientOfVariation',
@@ -1894,6 +1910,8 @@ describe('PatientData', function () {
         expect(instance.getStatsByChartType()).to.eql([
           'readingsInRange',
           'averageGlucose',
+          'totalInsulin',
+          'averageDailyDose',
           'timeInOverride',
           'standardDev',
           'coefficientOfVariation',
@@ -2266,6 +2284,35 @@ describe('PatientData', function () {
               bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
               bgUnits: 'mg/dL',
             },
+          }));
+        });
+
+        it('should set `bgPrefs.isCustomBgRange` to state if patient is using custom BG range', () => {
+          PD.__Rewire__('vizUtils', {
+            data: {
+              selectDailyViewData: sinon.stub().returns('stubbed filtered daily data'),
+              selectBgLogViewData: sinon.stub().returns('stubbed filtered bgLog data'),
+            },
+            bg: {
+              reshapeBgClassesToBgBounds: sinon.stub().returns('stubbed bgBounds'),
+              isCustomBgRange: sinon.stub().returns(true),
+            },
+            aggregation: {
+              defineBasicsAggregations: sinon.stub().returns('stubbed aggregations definitions'),
+              processBasicsAggregations: sinon.stub().returns('stubbed processed aggregations'),
+            },
+          });
+
+          wrapper.setState({ bgPrefs: undefined });
+          wrapper.setProps(props);
+
+          sinon.assert.calledWith(setStateSpy, sinon.match({
+            bgPrefs: {
+              bgBounds: 'stubbed bgBounds',
+              bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
+              bgUnits: 'mg/dL',
+            },
+            isCustomBgRange: true,
           }));
         });
 
@@ -2923,6 +2970,7 @@ describe('PatientData', function () {
     });
 
     it('should call `updateChartPrefs` with the `excludeDaysWithoutBolus` chartPrefs state toggled', () => {
+      instance.setState({ chartType: 'basics' });
       const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
       instance.toggleDaysWithoutBoluses();
 
@@ -2939,11 +2987,74 @@ describe('PatientData', function () {
       });
     });
 
-    it('should track a metric when `excludeDaysWithoutBolus` set to true', () => {
+    it('should track a metric when `excludeDaysWithoutBolus` set to true on basics view', () => {
+      instance.setState({ chartType: 'basics' });
       instance.toggleDaysWithoutBoluses();
       sinon.assert.calledWith(defaultProps.trackMetric, 'Basics exclude days without boluses');
     });
 
+    it('should track a metric when `excludeDaysWithoutBolus` set to true on trends view', () => {
+      instance.setState({ chartType: 'trends' });
+      instance.toggleDaysWithoutBoluses();
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends exclude days without boluses');
+    });
+  });
+
+  describe('toggleDefaultBgRange', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should call `updateChartPrefs` with arguments needed to trigger stats and aggregations refresh', () => {
+      instance.setState({ chartType: 'basics' });
+      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
+      instance.toggleDefaultBgRange();
+      sinon.assert.calledWith(updateChartPrefsSpy, {}, false, true, true);
+    });
+
+    it('should call `setState` with the `useDefaultRange` bgPrefs state toggled', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      instance.setState({ chartType: 'basics' });
+      instance.toggleDefaultBgRange();
+
+      sinon.assert.calledWith(setStateSpy, {
+        bgPrefs:  {
+          bgBounds: 'stubbed bgBounds',
+          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
+          bgUnits: 'mg/dL',
+          useDefaultRange: true,
+        }
+      });
+
+      instance.toggleDefaultBgRange();
+
+      sinon.assert.calledWith(setStateSpy, {
+        bgPrefs:  {
+          bgBounds: 'stubbed bgBounds',
+          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
+          bgUnits: 'mg/dL',
+          useDefaultRange: false
+        }
+      });
+    });
+
+    it('should track a metric when `useDefaultRange` set to true on basics view', () => {
+      defaultProps.trackMetric.resetHistory();
+      instance.setState({ chartType: 'basics' });
+      instance.toggleDefaultBgRange();
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics - use default BG range');
+    });
+
+    it('should track a metric when `useDefaultRange` set to true on trends view', () => {
+      defaultProps.trackMetric.resetHistory();
+      instance.setState({ chartType: 'trends' });
+      instance.toggleDefaultBgRange();
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends - use default BG range');
+    });
   });
 
   describe('closeDatesDialog', () => {
@@ -3804,19 +3915,37 @@ describe('PatientData', function () {
       it('should track the `Fetched earlier patient data` metric', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
+        // Should not include `clinicId` if `props.selectedClinicId` is not set
         wrapper.setProps({
           data: {
             fetchedUntil,
           },
+          selectedClinicId: undefined,
         });
 
         expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
 
         instance.fetchEarlierData();
 
-        sinon.assert.calledWith(props.trackMetric, 'Fetched earlier patient data', {
+        sinon.assert.calledWithExactly(props.trackMetric, 'Fetched earlier patient data', {
           count: 1,
-          patientID: 'otherPatientId' ,
+          patientID: 'otherPatientId',
+        });
+
+        // Should include `clinicId` if `props.selectedClinicId` is set
+        wrapper.setProps({
+          data: {
+            fetchedUntil,
+          },
+          selectedClinicId: 'clinic123',
+        });
+
+        instance.fetchEarlierData();
+
+        sinon.assert.calledWithExactly(props.trackMetric, 'Fetched earlier patient data', {
+          count: 2,
+          patientID: 'otherPatientId',
+          clinicId: 'clinic123',
         });
       });
     });

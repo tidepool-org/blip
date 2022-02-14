@@ -46,6 +46,7 @@ class BgLogChart extends Component {
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     patient: PropTypes.object,
+    showingValues: PropTypes.bool,
     // handlers
     onDatetimeLocationChange: PropTypes.func.isRequired,
     onMostRecent: PropTypes.func.isRequired,
@@ -67,7 +68,7 @@ class BgLogChart extends Component {
   };
 
   mount = (props = this.props) => {
-    this.mountChart(ReactDOM.findDOMNode(this));
+    this.mountChart(ReactDOM.findDOMNode(this), props);
     this.initializeChart(props.data, props.initialDatetimeLocation, props.showingValues);
   };
 
@@ -75,10 +76,9 @@ class BgLogChart extends Component {
     this.unmountChart();
   };
 
-  mountChart = (node, chartOpts) => {
+  mountChart = (node, props = {}) => {
     this.log('Mounting...');
-    chartOpts = chartOpts || {};
-    this.chart = chartBgLogFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
+    this.chart = chartBgLogFactory(node, props);
     this.chart.node = node;
     this.bindEvents();
   };
@@ -88,19 +88,21 @@ class BgLogChart extends Component {
     if (this.chart) this.chart.destroy();
   };
 
-  remountChart = (props = this.props) => {
+  remountChart = (updates = {}) => {
+    const chartProps = { ...this.props, ...updates };
     this.log('Remounting...');
     this.unmountChart();
-    this.mount(props);
+    this.mount(chartProps);
     this.chart.emitter.emit('inTransition', false);
   }
 
-  rerenderChart = (props = this.props) => {
+  rerenderChart = (updates = {}) => {
+    const chartProps = { ...this.props, ...updates };
     this.log('Rerendering...');
     this.chart.clear();
     this.bindEvents();
-    this.chart.load(props.data, props.initialDatetimeLocation);
-    if (props.showingValues) {
+    this.chart.load(chartProps.data, chartProps.initialDatetimeLocation);
+    if (chartProps.showingValues) {
       this.showValues();
     } else {
       this.hideValues();
@@ -215,12 +217,14 @@ class BgLog extends Component {
   UNSAFE_componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
-    if (this.refs.chart && (loadingJustCompleted || newDataRecieved)) {
-      this.refs.chart.rerenderChart(_.assign(
-        {},
-        nextProps,
-        { showingValues: this.state.showingValues },
-      ));
+    const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
+
+    if (this.refs.chart) {
+      if (loadingJustCompleted || newDataRecieved) this.refs.chart.rerenderChart({ data: nextProps.data });
+
+      if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) {
+        this.refs.chart.remountChart({ bgClasses: nextProps.data.bgPrefs.bgClasses });
+      }
     }
   };
 
@@ -253,14 +257,17 @@ class BgLog extends Component {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 stats={this.props.stats}
+                trackMetric={this.props.trackMetric}
               />
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 devices={_.get(this.props, 'data.metaData.devices', [])}
-                updateChartPrefs={this.props.updateChartPrefs}
                 removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                trackMetric={this.props.trackMetric}
+                updateChartPrefs={this.props.updateChartPrefs}
               />
             </div>
           </div>
@@ -284,6 +291,7 @@ class BgLog extends Component {
         bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
         data={this.props.data}
+        showingValues={this.state.showingValues}
         timePrefs={_.get(this.props, 'data.timePrefs', {})}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
@@ -369,11 +377,7 @@ class BgLog extends Component {
   };
 
   handleWindowResize = () => {
-    this.refs.chart && this.refs.chart.remountChart(_.assign(
-      {},
-      this.props,
-      { showingValues: this.state.showingValues },
-    ));
+    this.refs.chart && this.refs.chart.remountChart();
   };
 
   isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.metaData.latestDatumByType.smbg'));

@@ -49,7 +49,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_REQUEST:
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_DATA_REQUEST:
-    case types.FETCH_PRESCRIPTIONS_REQUEST:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_REQUEST:
     case types.CREATE_PRESCRIPTION_REQUEST:
     case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
     case types.DELETE_PRESCRIPTION_REQUEST:
@@ -94,7 +94,6 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_CLINIC_REQUEST:
     case types.FETCH_CLINICS_BY_IDS_REQUEST:
     case types.UPDATE_CLINIC_REQUEST:
-    case types._REQUEST:
     case types.FETCH_CLINICIANS_FROM_CLINIC_REQUEST:
     case types.FETCH_CLINICIAN_REQUEST:
     case types.UPDATE_CLINICIAN_REQUEST:
@@ -103,8 +102,10 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_PATIENTS_FOR_CLINIC_REQUEST:
     case types.CREATE_CUSTODIAL_ACCOUNT_REQUEST:
     case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_REQUEST:
     case types.SEND_CLINICIAN_INVITE_REQUEST:
+    case types.FETCH_CLINICIAN_INVITE_REQUEST:
     case types.RESEND_CLINICIAN_INVITE_REQUEST:
     case types.DELETE_CLINICIAN_INVITE_REQUEST:
     case types.FETCH_PATIENT_INVITES_REQUEST:
@@ -116,6 +117,7 @@ export default (state = initialWorkingState, action) => {
     case types.ACCEPT_CLINICIAN_INVITE_REQUEST:
     case types.DISMISS_CLINICIAN_INVITE_REQUEST:
     case types.GET_CLINICS_FOR_CLINICIAN_REQUEST:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
@@ -146,8 +148,10 @@ export default (state = initialWorkingState, action) => {
           types.UPDATE_CLINICIAN_REQUEST,
           types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST,
           types.DELETE_PATIENT_FROM_CLINIC_REQUEST,
+          types.FETCH_PATIENTS_FOR_CLINIC_REQUEST,
           types.CREATE_CUSTODIAL_ACCOUNT_REQUEST,
           types.SEND_CLINICIAN_INVITE_REQUEST,
+          types.FETCH_CLINICIAN_INVITE_REQUEST,
           types.SEND_INVITE_REQUEST,
           types.SEND_CLINIC_INVITE_REQUEST,
           types.RESEND_INVITE_REQUEST,
@@ -158,6 +162,7 @@ export default (state = initialWorkingState, action) => {
           types.DISMISS_CLINICIAN_INVITE_REQUEST,
           types.SET_MEMBER_PERMISSIONS_REQUEST,
           types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST,
+          types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
@@ -195,7 +200,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_DATA_SUCCESS:
-    case types.FETCH_PRESCRIPTIONS_SUCCESS:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS:
     case types.CREATE_PRESCRIPTION_SUCCESS:
     case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
     case types.DELETE_PRESCRIPTION_SUCCESS:
@@ -249,8 +254,10 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS:
     case types.CREATE_CUSTODIAL_ACCOUNT_SUCCESS:
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_SUCCESS:
     case types.SEND_CLINICIAN_INVITE_SUCCESS:
+    case types.FETCH_CLINICIAN_INVITE_SUCCESS:
     case types.RESEND_CLINICIAN_INVITE_SUCCESS:
     case types.DELETE_CLINICIAN_INVITE_SUCCESS:
     case types.FETCH_PATIENT_INVITES_SUCCESS:
@@ -262,6 +269,7 @@ export default (state = initialWorkingState, action) => {
     case types.ACCEPT_CLINICIAN_INVITE_SUCCESS:
     case types.DISMISS_CLINICIAN_INVITE_SUCCESS:
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -344,7 +352,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
-    case types.FETCH_PRESCRIPTIONS_FAILURE:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_FAILURE:
     case types.CREATE_PRESCRIPTION_FAILURE:
     case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
     case types.DELETE_PRESCRIPTION_FAILURE:
@@ -396,8 +404,10 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
     case types.CREATE_CUSTODIAL_ACCOUNT_FAILURE:
     case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_FAILURE:
     case types.SEND_CLINICIAN_INVITE_FAILURE:
+    case types.FETCH_CLINICIAN_INVITE_FAILURE:
     case types.RESEND_CLINICIAN_INVITE_FAILURE:
     case types.DELETE_CLINICIAN_INVITE_FAILURE:
     case types.FETCH_PATIENT_INVITES_FAILURE:
@@ -409,6 +419,7 @@ export default (state = initialWorkingState, action) => {
     case types.ACCEPT_CLINICIAN_INVITE_FAILURE:
     case types.DISMISS_CLINICIAN_INVITE_FAILURE:
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -431,6 +442,7 @@ export default (state = initialWorkingState, action) => {
       const newState = _.cloneDeep(state);
       _.forEach([
         'fetchingCliniciansFromClinic',
+        'fetchingClinicPrescriptions',
         'fetchingPatientsForClinic',
         'fetchingPatientInvites',
       ], key => _.set(newState, key, {

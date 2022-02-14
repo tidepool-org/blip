@@ -1,115 +1,60 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import * as yup from 'yup';
-import map from 'lodash/map';
-import keys from 'lodash/keys';
-import sortBy from 'lodash/sortBy';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 import forEach from 'lodash/forEach';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import keys from 'lodash/keys';
+import map from 'lodash/map';
+import noop from 'lodash/noop';
+import pick from 'lodash/pick';
 import { Formik, Form, FastField } from 'formik';
-import InputMask from 'react-input-mask';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'rebass/styled-components';
 import countries from 'i18n-iso-countries';
-import { phoneRegex } from '../prescription/prescriptionFormConstants';
-import { Body1, Body2, Headline, Title } from '../../components/elements/FontStyles';
+import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
-import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
 import Checkbox from '../../components/elements/Checkbox';
 import Button from '../../components/elements/Button';
+import NotificationIcon from '../../components/elements/NotificationIcon';
+import ClinicProfileFields from '../../components/clinic/ClinicProfileFields';
 import * as actions from '../../redux/actions';
 import i18next from '../../core/language';
-import config from '../../config';
 import { usePrevious } from '../../core/hooks';
-import { fieldsAreValid } from '../../core/forms';
+import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useToasts } from '../../providers/ToastProvider';
 import { push } from 'connected-react-router';
 import { components as vizComponents } from '@tidepool/viz';
+import { clinicValuesFromClinic, roles, clinicSchema as validationSchema } from '../../core/clinicUtils';
+import { addEmptyOption } from '../../core/forms';
+import personUtils from '../../core/personutils';
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '../../components/elements/Dialog';
 
 const { Loader } = vizComponents;
 const t = i18next.t.bind(i18next);
 countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
 
-const roles = [
-  { value: 'clinic_manager', label: t('Clinic Manager') },
-  { value: 'diabetes_educator', label: t('Diabetes Educator') },
-  { value: 'endocrinologist', label: t('Endocrinologist') },
-  { value: 'front_desk', label: t('Front Desk') },
-  { value: 'information_technology', label: t('IT/Technology') },
-  { value: 'medical_assistant', label: t('Medical Assistant') },
-  { value: 'nurse', label: t('Nurse/Nurse Practitioner') },
-  { value: 'primary_care_physician', label: t('Primary Care Physician') },
-  { value: 'physician_assistant', label: t('Physician Assistant') },
-  { value: 'pharmacist', label: t('Pharmacist') },
-  { value: 'health_student', label: t('Health Professions Student') },
-  { value: 'other', label: t('Other') },
-];
-
-const clinicTypes = [
-  { value: 'provider_practice', label: t('Provider Practice') },
-  { value: 'healthcare_system', label: t('Healthcare System') },
-  { value: 'other', label: t('Other') },
-];
-
-const clinicSizes = [
-  { value: '0-249', label: t('0-249') },
-  { value: '250-499', label: t('250-499') },
-  { value: '500-999', label: t('500-999') },
-  { value: '1000+', label: t('1000+') },
-];
-
-const selectCountries = sortBy(
-  map(countries.getNames('en'), (val, key) => ({
-    value: key,
-    label: t(val),
-  })),
-  'label'
-);
-
-const clinicSchema = yup.object().shape({
+const clinicianSchema = yup.object().shape({
   firstName: yup.string().required(t('First name is required')),
   lastName: yup.string().required(t('Last name is required')),
-  role: yup.string().oneOf(map(roles, 'value')),
+  role: yup.string().oneOf([...map(roles, 'value'), '']),
   npi: yup
     .string()
     .test('npiFormat', t('NPI must be 10 digits'), npi => !npi || /^\d{10}$/.test(npi)),
-  clinicType: yup
-    .string()
-    .oneOf(map(clinicTypes, 'value'))
-    .required(t('Please select a clinic type')),
-  clinicSize: yup
-    .string()
-    .oneOf(map(clinicSizes, 'value'))
-    .required(t('Please select an organization size')),
-  country: yup
-    .string()
-    .oneOf(keys(countries.getAlpha2Codes()))
-    .required(t('Please enter a country')),
-  orgName: yup.string().required(t('Please enter an organization name')),
-  phoneNumber: yup
-    .string()
-    .matches(phoneRegex, t('Please enter a valid phone number'))
-    .required(t('Patient phone number is required')),
-  // TODO: investigate address autocomplete API
-  address1: yup.string().required(t('Please enter an address')),
-  address2: yup.string(),
-  city: yup.string().required(t('Please enter a city')),
-  state: yup.string().required(t('Please enter a state')),
-  zip: yup.string().required(t('Please enter a zip code')),
-  website: yup.string(),
-  adminAcknowledge: yup
-    .bool()
-    .oneOf([true], t('You must acknowledge admin role')),
 });
 
-const clinicianSchema = clinicSchema.pick(['firstName', 'lastName', 'role', 'npi']);
-
-const inputStyles = {
-  themeProps: { width: [1, 0.75, 0.5], py: 2, pr: [0, 0, 4] },
-};
+const clinicSchema = clinicianSchema.concat(validationSchema).concat(yup.object().shape({
+  adminAcknowledge: yup.boolean()
+    .test('isTrue', t('You must acknowledge admin role'), value => (value === true)),
+}));
 
 export const ClinicDetails = (props) => {
   const { t, api, trackMetric } = props;
@@ -123,11 +68,67 @@ export const ClinicDetails = (props) => {
   }, []);
 
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
+  const clinics = useSelector((state) => state.blip.clinics);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const displayFullForm = config.CLINICS_ENABLED && isEmpty(pendingReceivedClinicianInvites)
-  const validationSchema = displayFullForm ? clinicSchema : clinicianSchema;
+  const allUsersMap = useSelector((state) => state.blip.allUsersMap);
+  const user = get(allUsersMap, loggedInUserId);
+  const userHasClinicProfile = !!get(user, ['profile', 'clinic'], false);
+  const clinic = get(clinics, selectedClinicId);
+  const [displayFullForm, setDisplayFullForm] = useState(false);
+  const schema = displayFullForm ? clinicSchema : clinicianSchema;
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
+  const [submitting, setSubmitting] = useState(false);
+  const [showMigrationDialog, setShowMigrationDialog] = useState(false);
+  const [showDeclineDialog, setShowDeclineDialog] = useState(false);
+  const [logoutPending, setLogoutPending] = useState(false);
+  const [clinicInvite, setClinicInvite] = useState();
+
+  const clinicValues = () => ({
+    firstName: '',
+    lastName: '',
+    role: '',
+    npi: '',
+    ...clinicValuesFromClinic(clinic),
+  });
+
+  function redirectToWorkspace() {
+    const redirectPath = isEmpty(pendingReceivedClinicianInvites) ? '/clinic-workspace' : '/workspaces';
+    dispatch(push(redirectPath));
+  }
+
+  function redirectToClinicianDetails() {
+    dispatch(push('/clinician-details'));
+  }
+
+  function redirectToPatients() {
+    dispatch(push('/patients?justLoggedIn=true'));
+  }
+
+  useEffect(() => {
+    if (pendingReceivedClinicianInvites.length) {
+      setClinicInvite(pendingReceivedClinicianInvites?.[0]);
+    }
+  }, [pendingReceivedClinicianInvites]);
+
+  useEffect(() => {
+    if (clinic && !submitting) {
+      // We don't update the form display state until the clinic is available or while submitting
+      setDisplayFullForm(isEmpty(clinic?.name) || clinic?.canMigrate);
+
+      if (!isEmpty(clinic.name) && userHasClinicProfile) {
+        if (clinic?.canMigrate) {
+          // If the user has already filled out their clinician profile and clinic details, and the
+          // clinic patients have not been migrated, we open the prompt to complete the migration
+          openMigrationConfirmationModal();
+        } else {
+          // If there is no reason for the user to be here, we redirect them appropriately
+          redirectToWorkspace();
+        }
+      }
+    }
+  }, [clinic, submitting]);
 
   // Fetchers
   useEffect(() => {
@@ -155,11 +156,15 @@ export const ClinicDetails = (props) => {
       completed,
       notification,
     } = working.updatingUser;
+
     const prevInProgress = get(
       previousWorking,
       'updatingUser.inProgress'
     );
-    if (!inProgress && completed && prevInProgress) {
+
+    if (submitting === 'partial' && !inProgress && completed && prevInProgress) {
+      setSubmitting(false);
+
       if (notification) {
         setToast({
           message: notification.message,
@@ -170,10 +175,153 @@ export const ClinicDetails = (props) => {
           message: t('Profile updated'),
           variant: 'success',
         });
-        dispatch(push('/workspaces'));
+
+        redirectToWorkspace();
       }
     }
   }, [working.updatingUser]);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.updatingClinic;
+
+    const prevInProgress = get(
+      previousWorking,
+      'updatingClinic.inProgress'
+    );
+
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        // If the account is flagged for migration, we open the migration confirmation modal.
+        // Otherwise redirect to the clinic workspaces tab.
+        if (clinic.canMigrate) {
+          openMigrationConfirmationModal();
+        } else {
+          setSubmitting(false);
+
+          setToast({
+            message: t('Clinic Profile updated'),
+            variant: 'success',
+          });
+
+          redirectToWorkspace();
+        }
+      }
+    }
+  }, [working.updatingClinic]);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.triggeringInitialClinicMigration;
+
+    let messageDelayTimer;
+
+    const prevInProgress = get(
+      previousWorking,
+      'triggeringInitialClinicMigration.inProgress'
+    );
+
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setLogoutPending(true);
+
+        setToast({
+          message: t('Clinic migration in progress. You will be automatically logged out.'),
+          variant: 'success',
+        });
+
+        // We log the user since the backend invalidates all of the user's authentication tokens
+        // as part of the migration process
+        messageDelayTimer = setTimeout(() => dispatch(actions.async.logout(api)), 5000);
+      }
+    }
+
+    return () => clearTimeout(messageDelayTimer);
+  }, [working.triggeringInitialClinicMigration]);
+
+  useEffect(() => {
+    const { inProgress, completed, notification } = working.dismissingClinicianInvite;
+
+    const successMessage = t('Invite to {{name}} has been declined.', {
+      name: clinicInvite?.creator?.clinicName,
+    });
+
+    if (!inProgress) {
+      if (completed) {
+        setShowDeclineDialog(false);
+
+        setToast({
+          message: successMessage,
+          variant: 'success',
+        });
+
+        if (personUtils.isClinicianAccount(user) && !userHasClinicProfile) {
+          // If the clinician is a newly created account, and thus has no clinician profile, we send
+          // them to the clinician profile form.
+          redirectToClinicianDetails();
+        } else {
+          // Otherwise, we redirect them to the patients view as would have been the login default
+          redirectToPatients();
+        }
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+    }
+  }, [working.dismissingClinicianInvite]);
+
+
+  function openMigrationConfirmationModal() {
+    setShowMigrationDialog(true);
+  }
+
+  function closeMigrationConfirmationModal() {
+    setSubmitting(false);
+    setShowMigrationDialog(false);
+  }
+
+  function handleConfirmClinicMigration() {
+    setSubmitting(true);
+    trackMetric('Clinic - Migration confirmed', { clinicId: selectedClinicId });
+    dispatch(actions.async.triggerInitialClinicMigration(api, selectedClinicId));
+  }
+
+  function handleDeclineInvite(workspace) {
+    trackMetric('Clinic - Details Form - Ignore clinic invite', { clinicId: selectedClinicId });
+    setShowDeclineDialog(true);
+  }
+
+  function handleConfirmDeclineInvite() {
+    trackMetric('Clinic - Details Form - Ignore clinic invite confirmed', { clinicId: selectedClinicId });
+
+    dispatch(
+      actions.async.dismissClinicianInvite(
+        api,
+        loggedInUserId,
+        clinicInvite.key
+      )
+    );
+  }
 
   return (
     <Box
@@ -182,42 +330,43 @@ export const ClinicDetails = (props) => {
     >
       {working.fetchingClinicianInvites.completed ? (
         <>
+          <Headline mb={2}>{t('Update your account')}</Headline>
+
           {!displayFullForm && (
-            <>
-              <Title>{t('Update your account')}</Title>
-              <Body2>{t('Before accessing your clinic workspace, please provide the additional account information requested below.')}</Body2>
-            </>
+            <Body1 mb={2}>
+              <Flex alignItems="center">
+                <NotificationIcon ml={0} mr={2} flexShrink={0} />
+                <Trans>
+                  You have been invited to become a clinic team member at&nbsp;
+
+                  <Text as='span' fontWeight='bold'>
+                    {{ clinicName: clinicInvite?.creator?.clinicName }}
+                  </Text>.
+                </Trans>
+              </Flex>
+            </Body1>
           )}
 
+          <Body1 mb={4}>
+            {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
+          </Body1>
+
           <Formik
-            initialValues={{
-              firstName: '',
-              lastName: '',
-              role: '',
-              npi: '',
-              clinicType: '',
-              clinicSize: '',
-              country: 'US',
-              orgName: '',
-              phoneNumber: '',
-              address1: '',
-              address2: '',
-              city: '',
-              state: '',
-              zip: '',
-              website: '',
-              adminAcknowledge: false,
-            }}
-            validationSchema={validationSchema}
+            initialValues={clinicValues()}
+            validationSchema={schema}
             onSubmit={(values) => {
+              setSubmitting(displayFullForm ? 'full' : 'partial');
+
               const profileUpdates = {
                 profile: {
                   fullName: `${values.firstName} ${values.lastName}`,
-                  clinic: {
-                    role: values.role,
-                  },
+                  clinic: {},
                 },
               };
+
+              if (values.role) {
+                profileUpdates.profile.clinic.role = values.role;
+              }
 
               if (values.npi) {
                 profileUpdates.profile.clinic.npi = values.npi;
@@ -226,197 +375,66 @@ export const ClinicDetails = (props) => {
               dispatch(actions.async.updateUser(api, profileUpdates));
 
               if (displayFullForm) {
-                const address =
-                values.address1 + (values.address2 ? ' ' + values.address2 : '');
-                const newClinic = {
-                  name: values.orgName,
-                  address,
-                  city: values.city,
-                  state: values.state,
-                  postalCode: values.zip,
-                  country: values.country,
-                  phoneNumbers: [
-                    {
-                      type: 'Office',
-                      number: values.phoneNumber,
-                    },
-                  ],
-                  clinicType: values.clinicType,
-                  clinicSize: values.clinicSize,
-                  website: values.website,
-                };
-
                 trackMetric('Clinic - Account created');
-                dispatch(actions.async.createClinic(api, newClinic));
+                dispatch(actions.async.updateClinic(api, clinic.id, pick(values, keys(clinicValuesFromClinic()))));
               }
             }}
           >
-            {({ errors, touched, setFieldTouched, setFieldValue, values, isSubmitting }) => (
+            {formikContext => (
               <Form id="clinic-profile">
-                <Flex flexWrap={'wrap'} mb={5}>
-                  <FastField
-                    as={TextInput}
-                    id="firstName"
-                    name="firstName"
-                    label={t('First Name')}
-                    placeholder={t('First Name')}
-                    error={touched.firstName && errors.firstName}
-                    {...inputStyles}
-                  />
-                  <FastField
-                    as={TextInput}
-                    id="lastName"
-                    name="lastName"
-                    label={t('Last Name')}
-                    placeholder={t('Last Name')}
-                    error={touched.lastName && errors.lastName}
-                    {...inputStyles}
-                  />
-                  <FastField
-                    as={Select}
-                    id="role"
-                    name="role"
-                    label={t('Job Title (Optional)')}
-                    options={roles}
-                    error={touched.role && errors.role}
-                    {...inputStyles}
-                  />
-                  <FastField
-                    as={TextInput}
-                    id="npi"
-                    name="npi"
-                    label={t('NPI (Optional)')}
-                    placeholder={t('NPI')}
-                    error={touched.npi && errors.npi}
-                    {...inputStyles}
-                  />
+                <Flex mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
+                  <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                    <TextInput
+                      {...getCommonFormikFieldProps('firstName', formikContext)}
+                      label={t('First Name')}
+                      placeholder={t('First Name')}
+                      variant="condensed"
+                      width="100%"
+                    />
+                  </Box>
+
+                  <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                    <TextInput
+                      {...getCommonFormikFieldProps('lastName', formikContext)}
+                      label={t('Last Name')}
+                      placeholder={t('Last Name')}
+                      variant="condensed"
+                      width="100%"
+                    />
+                  </Box>
+
+                  <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                    <Select
+                      {...getCommonFormikFieldProps('role', formikContext)}
+                      options={addEmptyOption(roles, t('Job Title'))}
+                      label={t('Job Title (Optional)')}
+                      variant="condensed"
+                      themeProps={{
+                        width: '100%',
+                      }}
+                    />
+                  </Box>
+
+                  <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                    <TextInput
+                      {...getCommonFormikFieldProps('npi', formikContext)}
+                      label={t('NPI (Optional)')}
+                      placeholder={t('NPI')}
+                      variant="condensed"
+                      width="100%"
+                    />
+                  </Box>
                 </Flex>
 
                 {displayFullForm && (
                   <>
-                    <Headline mb={4}>{t('More about your clinic')}</Headline>
+                    <Headline mb={2}>{t('More about your clinic')}</Headline>
                     <Body1 mb={4}>
                       {t('The information below will be displayed along with your name when you invite patients to connect and share their data remotely. Please ensure you have the correct clinic information for their verification.')}
                     </Body1>
-                    <Body2 mb={3}>
-                      {t('What is the type of organization you are a part of?')}
-                    </Body2>
-                    <FastField
-                      mb={3}
-                      as={RadioGroup}
-                      variant="vertical"
-                      id="clinicType"
-                      name="clinicType"
-                      options={clinicTypes}
-                      error={touched.clinicType && errors.clinicType}
-                    />
-                    <Body2 mb={3}>
-                      {t('How many patients does your clinic practice see?')}
-                    </Body2>
-                    <FastField
-                      mb={3}
-                      as={RadioGroup}
-                      variant="vertical"
-                      id="clinicSize"
-                      name="clinicSize"
-                      options={clinicSizes}
-                      error={touched.clinicSize && errors.clinicSize}
-                    />
-                    <FastField
-                      as={Select}
-                      id="country"
-                      name="country"
-                      label={t('Country')}
-                      error={touched.country && errors.country}
-                      options={selectCountries}
-                      {...inputStyles}
-                    />
-                    <Flex flexWrap={'wrap'} mb={5}>
-                      <FastField
-                        as={TextInput}
-                        id="orgName"
-                        name="orgName"
-                        label={t('Organization Name')}
-                        placeholder={t('Organization Name')}
-                        error={touched.orgName && errors.orgName}
-                        {...inputStyles}
-                      />
-                      <FastField
-                        as={({ innerRef }) => (
-                          <InputMask
-                            mask="(999) 999-9999"
-                            alwaysShowMask
-                            defaultValue={values.phoneNumber}
-                            onBlur={(e) => {
-                              setFieldTouched('phoneNumber', true);
-                              setFieldValue('phoneNumber', e.target.value);
-                            }}
-                          >
-                            <TextInput
-                              name="phoneNumber"
-                              id="phoneNumber"
-                              label={t('Phone Number')}
-                              error={touched.phoneNumber && errors.phoneNumber}
-                              {...inputStyles}
-                              innerRef={innerRef}
-                            />
-                          </InputMask>
-                        )}
-                      />
-                      <FastField
-                        as={TextInput}
-                        id="address1"
-                        name="address1"
-                        label={t('Address Line 1')}
-                        placeholder={t('Address Line 1')}
-                        error={touched.address1 && errors.address1}
-                        {...inputStyles}
-                      />
-                      <FastField
-                        as={TextInput}
-                        id="address2"
-                        name="address2"
-                        label={t('Address Line 2')}
-                        placeholder={t('Address Line 2')}
-                        error={touched.address2 && errors.address2}
-                        {...inputStyles}
-                      />
-                      <FastField
-                        as={TextInput}
-                        id="city"
-                        name="city"
-                        label={t('City')}
-                        placeholder={t('City')}
-                        error={touched.city && errors.city}
-                        {...inputStyles}
-                      />
-                      <FastField
-                        as={TextInput}
-                        id="state"
-                        name="state"
-                        label={t('State')}
-                        placeholder={t('State')}
-                        error={touched.state && errors.state}
-                        {...inputStyles}
-                      />
-                      <FastField
-                        as={TextInput}
-                        id="zip"
-                        name="zip"
-                        label={t('Zip Code')}
-                        placeholder={t('Postal Code')}
-                        error={touched.zip && errors.zip}
-                        {...inputStyles}
-                      />
-                      <FastField
-                        as={TextInput}
-                        id="website"
-                        name="website"
-                        label={t('Website')}
-                        error={touched.website && errors.website}
-                        {...inputStyles}
-                      />
-                    </Flex>
+
+                    <ClinicProfileFields formikContext={formikContext} />
+
                     <FastField
                       as={Checkbox}
                       id="adminAcknowledge"
@@ -424,22 +442,37 @@ export const ClinicDetails = (props) => {
                       label={t(
                         'By creating this clinic, your Tidepool account will become the default administrator. You can invite other healthcare professionals to join the clinic and add or remove privileges for these accounts at any time.'
                       )}
-                      error={touched.adminAcknowledge && errors.adminAcknowledge}
-                      checked={values.adminAcknowledge}
+                      error={formikContext.touched.adminAcknowledge && formikContext.errors.adminAcknowledge}
+                      checked={formikContext.values.adminAcknowledge}
                     />
                   </>
                 )}
 
-                <Flex justifyContent={['center', 'flex-end']}>
+                <Flex
+                  justifyContent={['center', 'flex-end']}
+                  id="clinic-profile-footer"
+                  alignItems={'center'}
+                  py={3}
+                >
+                  {!displayFullForm && (
+                    <Button
+                      variant="secondary"
+                      className="decline-invite"
+                      mr={2}
+                      onClick={handleDeclineInvite}
+                    >
+                      Decline Invite
+                    </Button>
+                  )}
+
                   <Button
                     id="submit"
                     type="submit"
-                    mt={3}
-                    processing={isSubmitting}
+                    processing={!!submitting}
                     disabled={!fieldsAreValid(
-                      keys(validationSchema.fields),
-                      validationSchema,
-                      values
+                      keys(schema.fields),
+                      schema,
+                      formikContext.values
                     )}
                   >
                     {t('Submit')}
@@ -448,6 +481,68 @@ export const ClinicDetails = (props) => {
               </Form>
             )}
           </Formik>
+          <Dialog
+            id="migrateClinic"
+            aria-labelledBy="dialog-title"
+            open={showMigrationDialog}
+            onClose={logoutPending ? noop : closeMigrationConfirmationModal}
+          >
+            <DialogTitle closeIcon={!logoutPending} onClose={closeMigrationConfirmationModal}>
+              <MediumTitle id="dialog-title">{t('Confirm Clinic Migration')}</MediumTitle>
+            </DialogTitle>
+            <DialogContent>
+              <Body1>
+                {t('You will be logged out of the system upon confirming. You need to login again into your Tidepool account to continue to the new clinic workspace.')}
+              </Body1>
+            </DialogContent>
+            <DialogActions>
+              <Button variant="secondary" disabled={logoutPending} onClick={closeMigrationConfirmationModal}>
+                {t('Cancel')}
+              </Button>
+              <Button
+                className="confirm-clinic-migration"
+                variant="primary"
+                disabled={logoutPending}
+                processing={working.triggeringInitialClinicMigration.inProgress}
+                onClick={() => {
+                  handleConfirmClinicMigration();
+                }}
+              >
+                {t('Confirm')}
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+            id="declineInvite"
+            aria-labelledBy="dialog-title"
+            open={showDeclineDialog}
+            onClose={() => setShowDeclineDialog(false)}
+          >
+            <DialogTitle onClose={() => setShowDeclineDialog(false)}>
+              <MediumTitle id="dialog-title">{t('Decline {{name}}', { name: clinicInvite?.creator?.clinicName })}</MediumTitle>
+            </DialogTitle>
+            <DialogContent>
+              <Body1>
+                {t('If you decline this invite, you will need to ask your Clinic Admin to send a new one. Are you sure you want to decline the invite to the {{name}} clinic workspace? ', { name: clinicInvite?.creator?.clinicName })}
+              </Body1>
+            </DialogContent>
+            <DialogActions>
+              <Button variant="secondary" onClick={() => setShowDeclineDialog(false)}>
+                {t('Cancel')}
+              </Button>
+              <Button
+                className="confirm-decline-invite"
+                variant="danger"
+                processing={working.dismissingClinicianInvite.inProgress}
+                onClick={() => {
+                  handleConfirmDeclineInvite();
+                }}
+              >
+                {t('Decline Invite')}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       ) : <Loader />}
     </Box>

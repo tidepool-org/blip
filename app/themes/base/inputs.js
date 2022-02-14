@@ -9,24 +9,27 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     lineHeight: 'inherit',
   };
 
+  const focusStyles = {
+    ':focus-within, :focus-visible': {
+      outlineWidth: '2px',
+      outlineStyle: 'solid',
+      outlineColor: colors.border.focus,
+    },
+
+    '@media (-webkit-min-device-pixel-ratio:0)': {
+      ':focus-within': {
+        outlineColor: colors.border.focus,
+        outlineStyle: 'auto',
+      },
+    },
+  };
+
   const textInputs = {
     ...common,
     color: colors.text.primary,
     caretColor: colors.blueGreyDark,
     width: '100%',
-
-    ':focus-within': {
-      outlineWidth: '2px',
-      outlineStyle: 'solid',
-      outlineColor: 'Highlight',
-    },
-
-    '@media (-webkit-min-device-pixel-ratio:0)': {
-      ':focus-within': {
-        outlineColor: '-webkit-focus-ring-color',
-        outlineStyle: 'auto',
-      },
-    },
+    ...focusStyles,
 
     input: {
       '&::placeholder': {
@@ -92,6 +95,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
 
   const selects = {
     ...common,
+    ...focusStyles,
     color: colors.text.primary,
     '&.disabled': {
       color: colors.text.primarySubdued,
@@ -101,6 +105,12 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     '&.error': {
       color: colors.feedback.danger,
       borderColor: colors.feedback.danger,
+    },
+    '&.empty': {
+      color: colors.text.primarySubdued,
+      option: {
+        display: 'block',
+      },
     },
   };
 
@@ -122,10 +132,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           },
         },
         '.prefix': {
-          paddingLeft: `${space[2] * 1.5}px`,
+          marginLeft: `${space[2] * 1.5}px`,
         },
         '.suffix, .icon': {
-          paddingRight: `${space[2] * 1.5}px`,
+          marginRight: `${space[2] * 1.5}px`,
         },
       },
       condensed: {
@@ -144,10 +154,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           },
         },
         '.prefix': {
-          paddingLeft: `${space[2]}px`,
+          marginLeft: `${space[2]}px`,
         },
         '.suffix, .icon': {
-          paddingRight: `${space[2]}px`,
+          marginRight: `${space[2]}px`,
         },
       },
     },

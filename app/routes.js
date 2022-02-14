@@ -58,22 +58,25 @@ export const requireChrome = (next, ...args) => (dispatch) => {
  *
  */
 export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
-  const { blip: state } = getState();
+  const { blip: state, router: routerState } = getState();
 
   if (!api.user.isAuthenticated()) {
     dispatch(push('/login'));
   } else {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     if (!_.isEmpty(user)) {
-      checkIfAcceptedTerms(user);
+      checkIfAcceptedTerms(null, user);
     } else {
-      dispatch(actions.async.fetchUser(api, (err, user) => checkIfAcceptedTerms(user)));
+      dispatch(actions.async.fetchUser(api, (err, user) => checkIfAcceptedTerms(err, user)));
     }
 
-    function checkIfAcceptedTerms(user) {
+    function checkIfAcceptedTerms(err, user) {
+      if (err) return cb();
+
       if (!personUtils.hasAcceptedTerms(user)) {
         dispatch(push('/terms'));
       }
+
       getClinicsForMember(user);
     }
 
@@ -84,9 +87,41 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
         && !state.working.fetchingClinicsForClinician.completed
         && !state.working.fetchingClinicsForClinician.notification
       ) {
-        dispatch(actions.async.getClinicsForClinician(api, user.userid));
+        dispatch(actions.async.getClinicsForClinician(api, user.userid, {}, (err, clinics = []) => {
+          if (err) return cb();
+
+          const isClinicianAccount = personUtils.isClinicianAccount(user);
+          const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+          const firstEmptyOrUnmigratedClinic = _.find(clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
+
+          const clinicUIRoutes = [
+            '/clinic-admin',
+            '/clinic-details',
+            '/clinician-details',
+            '/clinic-details',
+            '/clinic-invite',
+            '/clinic-workspace',
+            '/clinician-edit',
+            '/workspaces',
+            '/prescriptions',
+          ];
+
+          const isClinicUIRoute = _.some(clinicUIRoutes, route => _.startsWith(routerState.location?.pathname, route));
+
+          if (isClinicianAccount && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
+            // Navigate to the appropriate page for a clinician user or team member who needs to
+            // complete the setup process
+            if (firstEmptyOrUnmigratedClinic) dispatch(actions.sync.selectClinic(firstEmptyOrUnmigratedClinic.clinic.id));
+            dispatch(push(state.clinicFlowActive || state.selectedClinicId ? '/clinic-details' : '/clinician-details'));
+          } else if (!isClinicianAccount && isClinicUIRoute) {
+            // Redirect non clinic members to the patients page if they access a clinic UI page
+            dispatch(push('/patients'));
+          }
+          cb();
+        }));
+      } else {
+        cb();
       }
-      cb();
     }
   }
 };
@@ -139,7 +174,19 @@ export const ensureNoAuth = (api, cb = _.noop) => () => {
 export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
   const { blip: state } = getState();
   if (api.user.isAuthenticated()) {
-    dispatch(push(state.clinicFlowActive ? '/workspaces' : '/patients'));
+    const user = _.get(state.allUsersMap, state.loggedInUserId, {});
+    const isClinicianAccount = personUtils.isClinicianAccount(user);
+    const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+    const firstEmptyOrUnmigratedClinic = _.find(state.clinics, clinic => _.isEmpty(clinic.name) || clinic.canMigrate);
+
+    // We don't want to navigate forward to a workspace if a clinician who needs to set up their
+    // profile, or a clinician profile, navigates to the root url with the browser back button
+    if (isClinicianAccount && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
+      if (firstEmptyOrUnmigratedClinic) dispatch(actions.sync.selectClinic(firstEmptyOrUnmigratedClinic.id));
+      dispatch(push(state.clinicFlowActive || state.selectedClinicId ? '/clinic-details' : '/clinician-details'));
+    } else {
+      dispatch(push(state.clinicFlowActive || state.selectedClinicId ? '/workspaces' : '/patients'));
+    }
   }
   cb();
 };
@@ -202,7 +249,7 @@ export const onUploaderPasswordReset = (api, cb = _.noop) => (dispatch) => {
   if (api.user.isAuthenticated()) {
     dispatch(push('/profile'));
   }
-  cb()
+  cb();
 }
 
 /**
@@ -215,6 +262,7 @@ export const onUploaderPasswordReset = (api, cb = _.noop) => (dispatch) => {
 export const getRoutes = (appContext) => {
   let props = appContext.props;
   let api = props.api;
+  const { blip: state } = appContext.store.getState();
 
   const boundRequireNoAuth = requireNoAuth.bind(null, api);
   const boundRequireAuth = requireAuth.bind(null, api);
@@ -223,6 +271,7 @@ export const getRoutes = (appContext) => {
   const boundRequireChrome = requireChrome.bind(null, boundRequireAuth);
   const boundEnsureNoAuth = ensureNoAuth.bind(null, api);
   const boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
+  const authenticatedFallbackRoute = state.selectedClinicId ? '/workspaces' : '/patients';
 
   return (
     <Route path='/' {...props} render={routeProps => (
@@ -256,7 +305,7 @@ export const getRoutes = (appContext) => {
           <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
           <Route>
-            { api.user.isAuthenticated() ? <Redirect to='/patients' /> : <Redirect to='/login' /> }
+            { api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to='/login' /> }
           </Route>
         </Switch>
       </AppComponent>

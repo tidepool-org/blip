@@ -342,7 +342,7 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
 };
 
 utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
-  var bgUnits = _.get(patientSettings, 'units.bg', MGDL_UNITS);
+  var bgUnits = _.get(patientSettings, 'units.bg', queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS);
 
   const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
   const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
@@ -409,40 +409,19 @@ utils.getUploaderDownloadURL = (releases) => {
   };
 }
 
-const environments = {
-  'dev1.dev.tidepool.org': 'dev',
-  'qa1.development.tidepool.org': 'qa1',
-  'qa2.development.tidepool.org': 'qa2',
-  'int-app.tidepool.org': 'int',
-  'app.tidepool.org': 'prd',
-  localhost: 'local',
-};
+utils.readableStatName = statId => ({
+  readingsInRange: 'Readings in range',
+  timeInAuto: 'Time in automation',
+  timeInOverride: 'Time in activity',
+  timeInRange: 'Time in range',
+  totalInsulin: 'Insulin ratio',
+}[statId] || statId);
 
-utils.initializePendo = (user, location, window) => {
-  const noPendo = _.get(location, 'query.noPendo', false);
-  if (noPendo) return;
-  const initialize = _.get(window, 'pendo.initialize', false);
-  if (_.isFunction(initialize)) {
-    const hostname = _.get(window, 'location.hostname');
-    const env = _.get(environments, hostname, 'unknown');
-    const role =
-      _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1
-        ? 'clinician'
-        : 'personal';
-
-    initialize({
-      visitor: {
-        id: `${env}-${user.userid}`,
-        role,
-        // permission: [administrator, clinician, prescriber], when available
-        application: 'Web',
-      },
-      account: {
-        id: `${env}-tidepool`,
-        // clinic: [Clinic Name], when available
-      },
-    });
-  }
-};
+utils.readableChartName = chartType => ({
+  basics: 'Basics',
+  bgLog: 'BG log',
+  daily: 'Daily',
+  trends: 'Trends',
+}[chartType] || chartType);
 
 export default utils;

@@ -21,15 +21,19 @@ import thunkMiddleware from 'redux-thunk';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import qhistory from 'qhistory';
 import { stringify, parse } from 'qs';
+import assign from 'lodash/assign';
+import throttle from 'lodash/throttle';
 
 import Worker from 'worker-loader?inline!./../../worker/index';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
+import { loadLocalState, saveLocalState } from './localStorage';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
+import pendoMiddleware from '../utils/pendoMiddleware';
 
 export const history = qhistory(createBrowserHistory(), stringify, parse);
 
@@ -41,18 +45,26 @@ const reducer = combineReducers({
 const worker = new Worker;
 const workerMiddleware = createWorkerMiddleware(worker);
 
-let initialState = { blip: blipState };
-
 function _createStore(api) {
   const createStoreWithMiddleware = applyMiddleware(
     workerMiddleware,
     thunkMiddleware,
     routerMiddleware(history),
     createErrorLogger(api),
-    trackingMiddleware(api)
+    trackingMiddleware(api),
+    pendoMiddleware(api),
   )(createStore);
 
-  return createStoreWithMiddleware(reducer, initialState);
+  const initialState = { blip: assign(blipState, loadLocalState()) };
+  const store = createStoreWithMiddleware(reducer, initialState);
+
+  store.subscribe(throttle(() => {
+    saveLocalState({
+      selectedClinicId: store.getState().blip?.selectedClinicId,
+    });
+  }, 1000));
+
+  return store;
 }
 
 export default (api) => {

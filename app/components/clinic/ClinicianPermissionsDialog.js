@@ -35,17 +35,17 @@ const ClinicianPermissionsDialog = props => {
     t('Edit clinic details'),
     t('Add and remove clinician users'),
     t('Change clinician permissions'),
-    t('Add patient users'),
-    t('Accept patient invites'),
+    t('Create patient accounts'),
+    t('Accept patient share invites'),
     t('Remove patients from patient list'),
     t('View and upload patient data'),
   ];
 
   const memberPermissions = [
-    t('Add patient users'),
-    t('Accept patient invites'),
+    t('Create patient accounts'),
+    t('Accept patient share invites'),
     t('View and upload patient data'),
-    t('View clinic Members'),
+    t('View clinic members'),
   ];
 
   return (

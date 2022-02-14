@@ -31,7 +31,7 @@ import {
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
-import { borders } from '../../themes/baseTheme';
+import { borders, colors } from '../../themes/baseTheme';
 
 export const PatientInvites = (props) => {
   const { t, api, trackMetric } = props;
@@ -43,13 +43,6 @@ export const PatientInvites = (props) => {
   const [selectedInvitation, setSelectedInvitation] = useState(null);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [searchText, setSearchText] = React.useState('');
-
-  useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Viewed Share');
-    }
-  }, []);
-
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
@@ -86,16 +79,13 @@ export const PatientInvites = (props) => {
   }
 
   useEffect(() => {
-    handleAsyncResult(acceptingPatientInvitation, t('Patient invitation for {{name}} has been accepted.', {
+    handleAsyncResult(acceptingPatientInvitation, t('Patient invite for {{name}} has been accepted.', {
       name: selectedInvitation?.name,
     }));
-
-    // Refetch clinic patients to include newly-accepeted invitation
-    if (acceptingPatientInvitation.completed) dispatch(actions.async.fetchPatientsForClinic(api, clinic?.id));
   }, [acceptingPatientInvitation]);
 
   useEffect(() => {
-    handleAsyncResult(deletingPatientInvitation, t('Patient invitation for {{name}} has been declined.', {
+    handleAsyncResult(deletingPatientInvitation, t('Patient invite for {{name}} has been declined.', {
       name: selectedInvitation?.name,
     }));
   }, [deletingPatientInvitation]);
@@ -122,42 +112,43 @@ export const PatientInvites = (props) => {
 
   useEffect(() => {
     if (clinic) {
-      const patientInvites = filter(values(clinic?.patients), patient => patient.status === 'pending');
-
-      const invites = map(patientInvites, invite => ({
+      setPendingInvites(map(values(clinic?.patientInvites), invite => ({
         key: invite.key,
         name: get(invite, 'creator.profile.fullName', ''),
         nameOrderable: get(invite, 'creator.profile.fullName', '').toLowerCase(),
         birthday: get(invite, 'creator.profile.patient.birthday', ''),
-      }));
-
-      setPendingInvites(invites);
+      })));
     }
   }, [clinic]);
 
   useEffect(() => {
     if (selectedInvitation) {
       setDeleteDialogContent({
-        title: t('Decline invitation?'),
-        submitText: t('Decline Invitation'),
-        body: t('Are you sure you want to decline this share invitation from {{patient}}?', { patient: selectedInvitation.name }),
+        title: t('Decline invite?'),
+        submitText: t('Decline Invite'),
+        body: t('Are you sure you want to decline this share invite from {{patient}}?', { patient: selectedInvitation.name }),
       })
     }
   }, [selectedInvitation]);
 
   function handleAccept(invite) {
-    trackMetric('Clinic - Accept patient invitation');
-
+    trackMetric('Clinic - Accept patient invite', { clinicId: selectedClinicId });
     dispatch(actions.async.acceptPatientInvitation(api, clinic.id, invite.key));
   }
 
-  function handleDecline(invite) {
-    trackMetric('Clinic - Decline patient invitation');
+  function handleDecline(member) {
+    trackMetric('Clinic - Decline patient invite', { clinicId: selectedClinicId });
+    setSelectedInvitation(member);
+    setShowDeleteDialog(true);
+  }
 
+  function handleConfirmDecline(invite) {
+    trackMetric('Clinic - Decline patient invite confirmed', { clinicId: selectedClinicId });
     dispatch(actions.async.deletePatientInvitation(api, clinic.id, invite.key));
   }
 
   function handleRefetchInvites() {
+    trackMetric('Clinic - Refresh patient invites', { clinicId: selectedClinicId });
     dispatch(actions.async.fetchPatientInvites(api, clinic.id));
   }
 
@@ -185,11 +176,8 @@ export const PatientInvites = (props) => {
     <Flex justifyContent="flex-end">
       <Button
         className="decline-invite"
-        onClick={() => {
-          setSelectedInvitation(member);
-          setShowDeleteDialog(true);
-        }}
-        processing={deletingPatientInvitation.inProgress}
+        onClick={() => handleDecline(member)}
+        processing={deletingPatientInvitation.inProgress && member.key === selectedInvitation.key}
         variant="secondary"
       >
         {t('Decline')}
@@ -201,7 +189,7 @@ export const PatientInvites = (props) => {
           setSelectedInvitation(member);
           handleAccept(member);
         }}
-        processing={acceptingPatientInvitation.inProgress}
+        processing={acceptingPatientInvitation.inProgress && member.key === selectedInvitation.key}
         variant="primary"
         color="purpleMedium"
         bg="white"
@@ -267,6 +255,7 @@ export const PatientInvites = (props) => {
         order="asc"
         searchText={searchText}
         emptyText={null}
+        rowHover={false}
         rowsPerPage={10}
         pagination={pendingInvites.length > 10}
         fontSize={1}
@@ -286,6 +275,13 @@ export const PatientInvites = (props) => {
               iconPosition="left"
               processing={fetchingPatientInvites.inProgress}
               onClick={handleRefetchInvites}
+              sx={{
+                '&:hover,&:active,&.active,&.processing': {
+                  color: colors.purpleMedium,
+                  backgroundColor: colors.white,
+                  borderColor: colors.purpleMedium,
+                },
+              }}
             >
               {t('Refresh')}
             </Button>
@@ -316,7 +312,7 @@ export const PatientInvites = (props) => {
             variant="danger"
             processing={deletingPatientInvitation.inProgress}
             onClick={() => {
-              handleDecline(selectedInvitation);
+              handleConfirmDecline(selectedInvitation);
             }}
           >
             {deleteDialogContent?.submitText}

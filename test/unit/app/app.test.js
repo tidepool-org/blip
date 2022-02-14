@@ -5,6 +5,7 @@
 /* global context */
 /* global beforeEach */
 /* global afterEach */
+/* global before */
 
 var React = require('react');
 var _ = require('lodash');
@@ -293,19 +294,27 @@ describe('App', () => {
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {custodian:{}} });
+      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: { custodian: {} } });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
 
-      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {custodian:{}} });
+      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: { custodian: {} } });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
+
+      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: { custodian:{}} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(1);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {} });
+      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {} });
+      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: {} });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
+
+      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
     });
@@ -800,6 +809,35 @@ describe('App', () => {
         sinon.assert.callCount(props.context.trackMetric, 1);
       });
     });
+
+    context('doFetching', () => {
+      let initialProps = _.assign({}, baseProps, {
+        authenticated: false,
+        fetchers: [sinon.stub()],
+        location: 'page1',
+      });
+      let wrapper;
+      before(() => {
+        wrapper = shallow(<App {...initialProps} />);
+        initialProps.fetchers[0].reset();
+      });
+      afterEach(() => {
+        initialProps.fetchers[0].reset();
+      });
+      it('when neither authenticated nor page changes, it should not run fetchers', () => {
+        wrapper.setProps({ test: true });
+        sinon.assert.callCount(initialProps.fetchers[0], 0);
+      });
+      it('when user becomes authenticated, it should run any pending fetchers', () => {
+        wrapper.setProps({ authenticated: true });
+        sinon.assert.callCount(initialProps.fetchers[0], 1);
+      });
+      it('when page transitions, it should run any pending fetchers', () => {
+        wrapper.setProps({ location: 'page2' });
+        sinon.assert.callCount(initialProps.fetchers[0], 1);
+      });
+    });
+
   });
 
   describe('isPatientVisibleInNavbar', () => {

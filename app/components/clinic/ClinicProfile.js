@@ -7,34 +7,26 @@ import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import includes from 'lodash/includes'
 import keys from 'lodash/keys';
-import map from 'lodash/map';
-import sortBy from 'lodash/sortBy';
-import countries from 'i18n-iso-countries';
-import InputMask from 'react-input-mask';
 import { useFormik } from 'formik';
-import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
-import * as yup from 'yup';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
   Caption,
   Title,
-  Body2,
 } from '../../components/elements/FontStyles';
 
 import * as actions from '../../redux/actions';
-import { phoneRegex } from '../../pages/prescription/prescriptionFormConstants';
 import Button from '../../components/elements/Button';
-import TextInput from '../../components/elements/TextInput';
-import RadioGroup from '../../components/elements/RadioGroup';
-import Select from '../../components/elements/Select';
 import Icon from '../../components/elements/Icon';
 import baseTheme from '../../themes/baseTheme';
-import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
+import { fieldsAreValid } from '../../core/forms';
 import { useIsFirstRender } from '../../core/hooks';
+import { clinicValuesFromClinic, clinicSchema as validationSchema } from '../../core/clinicUtils';
 import { useToasts } from '../../providers/ToastProvider';
+import ClinicProfileFields from './ClinicProfileFields';
 
 const { ClipboardButton } = vizComponents;
 
@@ -53,84 +45,16 @@ export const ClinicProfile = (props) => {
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
   const [editing, setEditing] = useState(false);
 
-  const clinicTypes = [
-    { value: 'provider_practice', label: t('Provider Practice') },
-    { value: 'healthcare_system', label: t('Healthcare System') },
-    { value: 'other', label: t('Other') },
-  ];
-
-  const clinicSizes = [
-    { value: '0-249', label: t('0-249') },
-    { value: '250-499', label: t('250-499') },
-    { value: '500-999', label: t('500-999') },
-    { value: '1000+', label: t('1000+') },
-  ];
-
-  const selectCountries = sortBy(
-    map(countries.getNames('en'), (val, key) => ({
-      value: key,
-      label: t(val),
-    })),
-    'label'
-  );
-
-  const validationSchema = yup.object().shape({
-    name: yup.string().required(t('Please enter an organization name')),
-    address: yup.string().required(t('Please enter an address')),
-    city: yup.string().required(t('Please enter a city')),
-    state: yup.string().required(t('Please enter a state')),
-    postalCode: yup.string().required(t('Please enter a zip code')),
-    country: yup
-      .string()
-      .oneOf(keys(countries.getAlpha2Codes()))
-      .required(t('Please enter a country')),
-    phoneNumbers: yup.array().of(
-      yup.object().shape({
-        type: yup.string().required(),
-        number: yup
-          .string()
-          .matches(phoneRegex, t('Please enter a valid phone number'))
-          .required(t('Patient phone number is required')),
-      }),
-    ),
-    clinicType: yup
-      .string()
-      .oneOf(map(clinicTypes, 'value'))
-      .required(t('Please select a clinic type')),
-    clinicSize: yup
-      .string()
-      .oneOf(map(clinicSizes, 'value'))
-      .required(t('Please select an organization size')),
-    website: yup.string(),
-  });
-
   const navigationAction = {
     label: isWorkspacePath ? t('View Clinic Members'): t('View Patient List'),
     action: () => dispatch(push(isWorkspacePath ? '/clinic-admin' : '/clinic-workspace')),
+    metric: isWorkspacePath ? 'Clinic - View clinic members' : 'Clinic - View patient list',
   };
 
-  const clinicValues = () => ({
-    name: get(clinic, 'name', ''),
-    address: get(clinic, 'address', ''),
-    city: get(clinic, 'city', ''),
-    state: get(clinic, 'state', ''),
-    postalCode: get(clinic, 'postalCode', ''),
-    country: get(clinic, 'country', 'US'),
-    phoneNumbers: [
-      {
-        type: 'Office',
-        number: get(clinic, 'phoneNumbers.0.number', ''),
-      },
-    ],
-    clinicType: get(clinic, 'clinicType', ''),
-    clinicSize: get(clinic, 'clinicSize', ''),
-    website: get(clinic, 'website', ''),
-  });
-
   const formikContext = useFormik({
-    initialValues: clinicValues(),
-    onSubmit: (values, ctx) => {
-      trackMetric('Clinic - Profile updated');
+    initialValues: clinicValuesFromClinic(clinic),
+    onSubmit: values => {
+      trackMetric('Clinic - Edit clinic profile saved', { clinicId: selectedClinicId });
       dispatch(actions.async.updateClinic(api, clinic.id, values));
     },
     validationSchema,
@@ -147,7 +71,7 @@ export const ClinicProfile = (props) => {
 
   useEffect(() => {
     if (clinic) {
-      setValues(clinicValues())
+      setValues(clinicValuesFromClinic(clinic))
     }
   }, [clinic])
 
@@ -173,11 +97,22 @@ export const ClinicProfile = (props) => {
     }
   }, [updatingClinic]);
 
+  function handleNavigationAction() {
+    const source = isWorkspacePath ? undefined : 'Clinic members';
+    trackMetric(navigationAction.metric, { clinicId: selectedClinicId, source });
+    navigationAction.action();
+  }
+
+  function openClinicEdit() {
+    trackMetric('Clinic - Edit clinic profile', { clinicId: selectedClinicId });
+    setEditing(true);
+  }
+
   function closeClinicEdit() {
     setEditing(false);
     setSubmitting(false);
-    resetForm(clinicValues());
-  };
+    resetForm(clinicValuesFromClinic(clinic));
+  }
 
   if (!clinic) return null;
 
@@ -199,7 +134,7 @@ export const ClinicProfile = (props) => {
           <Button
             mr={4}
             variant="textPrimary"
-            onClick={navigationAction.action}
+            onClick={handleNavigationAction}
           >
             {navigationAction.label}
           </Button>
@@ -250,7 +185,7 @@ export const ClinicProfile = (props) => {
                   )}
                   successText={<span className="success">{t('✓')}</span>}
                   onClick={() => {
-                    trackMetric('Clicked Copy Therapy Settings Order')
+                    trackMetric('Clinic - Copy clinic share code', { clinicId: selectedClinicId })
                   }}
                   getText={() => clinic.shareCode}
                 />
@@ -263,7 +198,7 @@ export const ClinicProfile = (props) => {
               <Button
                 id="profileEditButton"
                 variant="textSecondary"
-                onClick={() => setEditing(true)}
+                onClick={openClinicEdit}
                 icon={EditRoundedIcon}
                 iconPosition='left'
                 fontSize={1}
@@ -281,128 +216,8 @@ export const ClinicProfile = (props) => {
           id="clinic-profile-update"
           onSubmit={handleSubmit}
         >
-          <Box p={4}>
-            <Flex flexWrap="wrap" flexDirection={['column', 'row']}>
-              <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <TextInput
-                  {...getCommonFormikFieldProps('name', formikContext)}
-                  label={t('Clinic Name')}
-                  placeholder={t('Clinic Name')}
-                  variant="condensed"
-                  width="100%"
-                />
-              </Box>
+          <ClinicProfileFields p={4} formikContext={formikContext} />
 
-              <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <InputMask
-                  mask="(999) 999-9999"
-                  {...getCommonFormikFieldProps('phoneNumbers.0.number', formikContext)}
-                  defaultValue={get(values, 'phoneNumbers.0.number')}
-                  onChange={e => {
-                    formikContext.setFieldValue('phoneNumbers.0.number', e.target.value.toUpperCase(), e.target.value.length === 14);
-                  }}
-                  onBlur={e => {
-                    formikContext.setFieldTouched('phoneNumbers.0.number');
-                    formikContext.setFieldValue('phoneNumbers.0.number', e.target.value.toUpperCase());
-                  }}
-                >
-                  <TextInput
-                    name="phoneNumbers.0.number"
-                    label={t('Phone Number')}
-                    variant="condensed"
-                    width="100%"
-                  />
-                </InputMask>
-              </Box>
-
-              <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <Select
-                  {...getCommonFormikFieldProps('country', formikContext)}
-                  options={selectCountries}
-                  label={t('Country')}
-                  placeholder={t('Country')}
-                  variant="condensed"
-                  themeProps={{
-                    width: '100%',
-                  }}
-                />
-              </Box>
-
-              <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <TextInput
-                  {...getCommonFormikFieldProps('address', formikContext)}
-                  label={t('Clinic Address')}
-                  placeholder={t('Clinic Address')}
-                  variant="condensed"
-                  width="100%"
-                />
-              </Box>
-
-              <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <TextInput
-                  {...getCommonFormikFieldProps('city', formikContext)}
-                  label={t('City')}
-                  placeholder={t('City')}
-                  variant="condensed"
-                  width="100%"
-                />
-              </Box>
-
-              <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <TextInput
-                  {...getCommonFormikFieldProps('state', formikContext)}
-                  label={t('State')}
-                  placeholder={t('State')}
-                  variant="condensed"
-                  width="100%"
-                />
-              </Box>
-
-              <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <TextInput
-                  {...getCommonFormikFieldProps('postalCode', formikContext)}
-                  label={t('Zip Code')}
-                  placeholder={t('Zip Code')}
-                  variant="condensed"
-                  width="100%"
-                />
-              </Box>
-
-              <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <TextInput
-                  {...getCommonFormikFieldProps('website', formikContext)}
-                  label={t('Website')}
-                  placeholder={t('Website')}
-                  variant="condensed"
-                  width="100%"
-                />
-              </Box>
-
-              <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <Text as={Body2} mb={3}>
-                  {t('What is the type of organization you are a part of?')}
-                </Text>
-                <RadioGroup
-                  id="clinic-type"
-                  options={clinicTypes}
-                  {...getCommonFormikFieldProps('clinicType', formikContext)}
-                  variant="vertical"
-                />
-              </Box>
-
-              <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                <Text as={Body2} mb={3}>
-                  {t('How many patients does your clinic practice see?')}
-                </Text>
-                <RadioGroup
-                  id="clinic-size"
-                  options={clinicSizes}
-                  {...getCommonFormikFieldProps('clinicSize', formikContext)}
-                  variant="vertical"
-                />
-              </Box>
-            </Flex>
-          </Box>
           <Flex
             justifyContent={['center', 'flex-end']}
             id="clinic-profile-footer"
@@ -421,7 +236,7 @@ export const ClinicProfile = (props) => {
               ml={2}
               mr={[0, 4]}
               processing={isSubmitting}
-              disabled={!fieldsAreValid(keys(clinicValues()), validationSchema, values)}
+              disabled={!fieldsAreValid(keys(clinicValuesFromClinic()), validationSchema, values)}
             >
               {t('Save Profile')}
             </Button>
