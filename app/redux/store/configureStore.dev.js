@@ -38,6 +38,7 @@ import { loadLocalState, saveLocalState } from './localStorage';
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
+import pendoMiddleware from '../utils/pendoMiddleware';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -69,6 +70,7 @@ if (!__DEV_TOOLS__) {
         routerMiddleware(history),
         createErrorLogger(api),
         trackingMiddleware(api),
+        pendoMiddleware(api),
       ),
       persistState(getDebugSessionKey()),
     );
@@ -84,6 +86,7 @@ if (!__DEV_TOOLS__) {
         routerMiddleware(history),
         createErrorLogger(api),
         trackingMiddleware(api),
+        pendoMiddleware(api),
         mutationTracker(),
       ),
       // We can persist debug sessions this way
