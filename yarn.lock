@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.24.0-web-1213-bg-range-copy-text-annotation.1":
-  version "1.24.0-web-1213-bg-range-copy-text-annotation.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.24.0-web-1213-bg-range-copy-text-annotation.1.tgz#73a184934fc4d107ce0dbcfe12cb863d4fa77e75"
-  integrity sha512-Y0634lIUz0VqZtV6kCwDyjLNkQ0q1K/R7uwMZTYJz8yXLUSsRlmZShjhxb/vm2wrXchMJXJwHF8xqtJ13jhF0w==
+"@tidepool/viz@1.25.0-microtech-equil.1":
+  version "1.25.0-microtech-equil.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.25.0-microtech-equil.1.tgz#df067e7a666167d09d9cdc8b94d0555f955194ea"
+  integrity sha512-mJxfk42yXFHSkbmu3RDE52Wz/n2s7MmYSSMryHJzUKIe1zfKHkdRGPMhjbuQaHqjCdDehfnzPAWaNa5fxbBwJw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
