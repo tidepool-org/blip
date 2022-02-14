@@ -61,7 +61,7 @@ function TestSignupAccountForm(): void {
     }
   });
 
-  it("should render the warning message for account deletion", async () => {
+  it("should render the warning message for account deletion (YLP-1147)", async () => {
     await mountComponent();
     const warningMessage = document.querySelector("#signup-account-deletion-warning");
     expect(warningMessage).to.be.not.null;
