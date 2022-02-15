@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,11 +16,12 @@ import { dateRegex, patientSchema as validationSchema } from '../../core/clinicU
 import { Body1 } from '../../components/elements/FontStyles';
 
 export const PatientForm = (props) => {
-  const { t, api, onFormChange, patient, ...boxProps } = props;
+  const { t, api, onFormChange, patient, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
+  const [initialValues, setInitialValues] = useState({});
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient),
@@ -33,6 +34,7 @@ export const PatientForm = (props) => {
         args: [selectedClinicId, { ...omitBy(values, isEmpty) }],
       };
 
+      if (!initialValues.email && values.email) trackMetric('Clinic - add patient email saved');
       dispatch(actions.async[action.handler](api, ...action.args));
     },
     validationSchema,
@@ -53,7 +55,10 @@ export const PatientForm = (props) => {
   }
 
   useEffect(() => {
-    setValues(getFormValues(patient));
+    // set form field values and store initial patient values on patient load
+    const patientValues = getFormValues(patient);
+    setValues(patientValues);
+    setInitialValues(patientValues);
   }, [patient]);
 
   useEffect(() => {
@@ -132,6 +137,7 @@ PatientForm.propTypes = {
   onFormChange: PropTypes.func.isRequired,
   patient: PropTypes.object,
   t: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
 };
 
 export default translate()(PatientForm);
