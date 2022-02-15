@@ -140,6 +140,36 @@ describe('ClinicDetails', () => {
     },
   };
 
+  const clinicCanMigrateState = {
+    blip: {
+      ...defaultState.blip,
+      allUsersMap: {
+        clinicianUserId123: {
+          emails: ['clinic@example.com'],
+          roles: ['clinic'],
+          userid: 'clinicianUserId123',
+          username: 'clinic@example.com',
+          profile: { clinic: { name: 'Clinician One' } },
+        },
+      },
+      clinics: {
+        clinicID456: {
+          id: 'clinicID456',
+          name: 'My Clinic',
+          canMigrate: true,
+          clinicians: {
+            clinicianUserId123: {
+              email: 'clinic@example.com',
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_ADMIN'],
+            },
+          },
+        },
+      },
+      selectedClinicId: 'clinicID456',
+    },
+  };
+
   let store = mockStore(defaultState);
 
   before(() => {
@@ -481,6 +511,25 @@ describe('ClinicDetails', () => {
 
           done();
         }, 0);
+      });
+    });
+
+    context('clinic is ready to migrate on load', () => {
+      beforeEach(() => {
+        store = mockStore(clinicCanMigrateState);
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicDetails {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+      });
+
+      it('should open the migration confirmation modal', () => {
+        const confirmMigrationDialog = () => wrapper.find('Dialog#migrateClinic');
+        expect(confirmMigrationDialog()).to.have.lengthOf(1);
+        expect(confirmMigrationDialog().props().open).to.be.true;
       });
     });
   });

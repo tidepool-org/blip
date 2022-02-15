@@ -186,7 +186,6 @@ export const ClinicPatients = (props) => {
             variant="primary"
             onClick={handleAddPatient}
             mr={0}
-            disabled={true} // Temporarily disable WEB-1302 for Clinic UI LMR
           >
             {t('Add a New Patient')}
           </Button>
@@ -433,7 +432,6 @@ export const ClinicPatients = (props) => {
         handleEditPatient(patient);
       },
       text: t('Edit Patient Information'),
-      disabled: true // Temporarily disable WEB-1302 for Clinic UI LMR
     });
 
     if (isClinicAdmin) items.push({
@@ -469,13 +467,12 @@ export const ClinicPatients = (props) => {
         sortable: true,
         render: renderLinkedField.bind(null, 'birthDate'),
       },
-      // Temporarily revert WEB-1303 for Clinic UI LMR
-      // {
-      //   title: t('MRN'),
-      //   field: 'mrn',
-      //   align: 'left',
-      //   render: renderLinkedField.bind(null, 'mrn'),
-      // },
+      {
+        title: t('MRN'),
+        field: 'mrn',
+        align: 'left',
+        render: renderLinkedField.bind(null, 'mrn'),
+      },
       {
         title: '',
         field: 'more',
