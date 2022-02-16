@@ -22,7 +22,6 @@ import {
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
-import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
@@ -266,7 +265,7 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} onFormChange={handlePatientFormChange} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} />
         </DialogContent>
 
         <DialogActions>
@@ -300,7 +299,7 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} onFormChange={handlePatientFormChange} patient={selectedPatient} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} />
         </DialogContent>
 
         <DialogActions>
