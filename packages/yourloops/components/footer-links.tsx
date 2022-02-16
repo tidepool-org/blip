@@ -44,10 +44,6 @@ import metrics from "../lib/metrics";
 import diabeloopLabel from "diabeloop-label.svg";
 import diabeloopLogo from "diabeloop-logo.svg";
 
-interface FooterLinksProps {
-  atBottom?: boolean;
-}
-
 const footerStyle = makeStyles((theme: Theme) => {
   return {
     bySpan: {
@@ -83,30 +79,15 @@ const footerStyle = makeStyles((theme: Theme) => {
       boxShadow: "0px -1px 4px rgba(0, 0, 0, 0.25)",
       color: theme.palette.grey[700],
       display: "flex",
+      flexShrink: 0,
       fontSize: "12px",
+      marginTop: theme.spacing(3),
       padding: "11px",
+      paddingBottom: "11px",
+      paddingTop: "11px",
       [theme.breakpoints.down("sm")]: {
         flexWrap: "wrap",
       },
-    },
-    containerAbsolute: {
-      ["@media (min-height:630px)"]: {
-        bottom: "0",
-        position: "absolute",
-      },
-      height: "68px",
-      [theme.breakpoints.down("sm")]: {
-        height: "149px",
-      },
-      [theme.breakpoints.down("xs")]: {
-        height: "189px",
-      },
-    },
-    containerAuto: {
-      height: "68px",
-      marginTop: "auto",
-      paddingBottom: "11px",
-      paddingTop: "11px",
     },
     cookiesManagement: {
       "&:hover": {
@@ -208,11 +189,10 @@ const footerStyle = makeStyles((theme: Theme) => {
   };
 }, { name: "footer-component-styles" });
 
-function FooterLinks(props: FooterLinksProps): JSX.Element {
+function FooterLinks(): JSX.Element {
   const { t, i18n } = useTranslation("yourloops");
   const { user } = useAuth();
   const classes = footerStyle();
-  const containerClassName = props.atBottom ? classes.containerAuto : classes.containerAbsolute;
 
   const handleShowCookieBanner = () => {
     if (typeof window.openAxeptioCookies === "function") {
@@ -225,7 +205,7 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
   };
 
   return (
-    <Container id="footer-links-container" className={`${classes.container} ${containerClassName}`} maxWidth={false}>
+    <Container id="footer-links-container" className={classes.container} maxWidth={false}>
       <Box className={`${classes.sideBox} ${classes.leftBox}`}>
         <Box className={classes.supportButton}></Box>
       </Box>
@@ -305,7 +285,7 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
               onClick={metricsPdfDocument("release_notes")}
               className={classes.link}
             >
-              <span className={classes.versionSpan}>&nbsp;v{config.VERSION}</span>
+              <span className={classes.versionSpan}>&nbsp;{`v${config.VERSION}`.substring(0, 10)}</span>
             </Link>
           </Tooltip>
           <span className={classes.bySpan}>by </span>

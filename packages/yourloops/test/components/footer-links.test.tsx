@@ -42,20 +42,20 @@ function testFooterLink(): void {
     let auth: AuthContext;
     let container: HTMLElement | null = null;
 
-    const FooterLinksComponent = (data: { user: User, atBottom: boolean }): JSX.Element => {
+    const FooterLinksComponent = (data: { user: User }): JSX.Element => {
       auth = useAuth();
       auth.user = data.user;
 
       return (
-        <FooterLinks atBottom />
+        <FooterLinks />
       );
     };
 
-    const mountComponent = async (user: User, atBottom: boolean): Promise<void> => {
+    const mountComponent = async (user?: User): Promise<void> => {
       await act(() => {
         return new Promise((resolve) => {
           render(
-            <FooterLinksComponent user={user} atBottom={atBottom} />, container, resolve);
+            <FooterLinksComponent user={user} />, container, resolve);
         });
       });
     };
@@ -79,45 +79,45 @@ function testFooterLink(): void {
     }
 
     it("should render", async () => {
-      await mountComponent(null, false);
+      await mountComponent();
       const component = document.getElementById("footer-links-container");
       expect(component).to.not.be.null;
     });
 
     it("should render language selector when user is not logged in", async () => {
-      await mountComponent(null, false);
+      await mountComponent();
       const languageSelector = document.getElementById("footer-language-box");
       expect(languageSelector).to.not.be.null;
     });
 
     it("should not render language selector when user is logged in", async () => {
-      await mountComponent({} as User, false);
+      await mountComponent({} as User);
       const languageSelector = document.getElementById("footer-language-box");
       expect(languageSelector).to.be.null;
     });
 
     it("should privacy policy link redirect to correct url", async () => {
-      await mountComponent(null, false);
+      await mountComponent();
       checkLinkHref("footer-link-url-privacy-policy", diabeloopUrls.getPrivacyPolicyUrL(i18n.language));
     });
 
     it("should terms of use link redirect to correct url", async () => {
-      await mountComponent(null, false);
+      await mountComponent();
       checkLinkHref("footer-link-url-terms", diabeloopUrls.getTermsUrL(i18n.language));
     });
 
     it("should intended use link redirect to correct url", async () => {
-      await mountComponent(null, false);
+      await mountComponent();
       checkLinkHref("footer-link-url-intended-use", diabeloopUrls.getIntendedUseUrL(i18n.language));
     });
 
     it("should cookies policy link redirect to correct url", async () => {
-      await mountComponent(null, false);
+      await mountComponent();
       checkLinkHref("footer-link-url-cookies-policy", diabeloopUrls.getCookiesPolicyUrl(i18n.language));
     });
 
     it("should release notes link redirect to correct url", async () => {
-      await mountComponent(null, false);
+      await mountComponent();
       checkLinkHref("footer-link-url-release-notes", diabeloopUrls.getReleaseNotesURL());
     });
   });

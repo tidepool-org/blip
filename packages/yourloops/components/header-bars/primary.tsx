@@ -267,7 +267,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
 
   const numInvitations = notificationHook.receivedInvitations.length;
   return (
-    <AppBar id="primary-appbar" position="static">
+    <AppBar id="primary-appbar" position="relative">
       <Toolbar id="primary-toolbar" className={classes.toolBar}>
         <div id="primary-toolbar-left" className={classes.toolbarLeft}>
           <input id="branding-logo-full" type="image" className={classes.toolbarLogoFull} alt={t("alt-img-logo")} src={brandingLogoFull} onClick={onLogoClick} />

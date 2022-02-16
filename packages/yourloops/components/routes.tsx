@@ -31,7 +31,7 @@ import { Redirect, Route, RouteProps, useHistory } from "react-router-dom";
 import bows from "bows";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { ThemeProvider } from "@material-ui/core/styles";
+import { makeStyles, ThemeProvider } from "@material-ui/core/styles";
 
 import { HistoryState } from "../models/generic";
 import { UserRoles } from "../models/shoreline";
@@ -44,10 +44,24 @@ import FooterLinks from "./footer-links";
 
 const log = bows("Routes");
 
+const routeStyle = makeStyles(() => {
+  return {
+    public: {
+      flex: "1 0 auto",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    private: {
+      flex: "1 0 auto",
+    },
+  };
+});
+
 export const PublicRoute = (props: RouteProps): JSX.Element | null => {
   const historyHook = useHistory<HistoryState>();
   const { isAuthInProgress, isLoggedIn, user } = useAuth();
-
+  const classes = routeStyle();
   React.useEffect(() => {
     setPageTitle();
   });
@@ -65,7 +79,9 @@ export const PublicRoute = (props: RouteProps): JSX.Element | null => {
     <ThemeProvider theme={externalTheme}>
       <CssBaseline />
       <SnackbarContextProvider context={DefaultSnackbarContext}>
-        {component}
+        <div className={classes.public}>
+          {component}
+        </div>
       </SnackbarContextProvider>
       <FooterLinks />
     </ThemeProvider>
@@ -75,6 +91,7 @@ export const PublicRoute = (props: RouteProps): JSX.Element | null => {
 export const PrivateRoute = (props: RouteProps): JSX.Element | null => {
   const historyHook = useHistory<HistoryState>();
   const { isAuthInProgress, isLoggedIn, user, isAuthHookInitialized } = useAuth();
+  const classes = routeStyle();
 
   const renewConsentPath = props.path === "/renew-consent" || props.path === "/new-consent";
   // const hcpPreferencesPath = props.path === "/professional/preferences";
@@ -114,9 +131,11 @@ export const PrivateRoute = (props: RouteProps): JSX.Element | null => {
       <SessionTimeout />
       <CssBaseline />
       <SnackbarContextProvider context={DefaultSnackbarContext}>
-        {component}
+        <div className={classes.private}>
+          {component}
+        </div>
       </SnackbarContextProvider>
-      <FooterLinks atBottom={!renewConsentPath} />
+      <FooterLinks />
     </ThemeProvider>
   );
 };
