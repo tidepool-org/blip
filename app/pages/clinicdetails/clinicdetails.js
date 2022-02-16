@@ -75,7 +75,7 @@ export const ClinicDetails = (props) => {
   const userHasClinicProfile = !!get(user, ['profile', 'clinic'], false);
   const clinic = get(clinics, selectedClinicId);
   const [displayFullForm, setDisplayFullForm] = useState(false);
-  const [populateProfileFields, setPopulateProfileFields] = useState(false);
+  const [populateProfileFields, setPopulateProfileFields] = useState(!isEmpty(clinic?.name));
   const schema = displayFullForm ? clinicSchema : clinicianSchema;
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
