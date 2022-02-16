@@ -1,6 +1,5 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Karma main test file
+ * Copyright (c) 2022, Diabeloop
  *
  * All rights reserved.
  *
@@ -26,26 +25,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import enzyme from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
-import { init as i18nInit } from "../lib/language";
-import initDayJS from "../lib/dayjs";
-import testLib from "./lib";
-import testComponents from "./components";
-import testPages from "./pages";
-import testServices from "./services";
+import React from "react";
+import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
+import Backdrop from "@material-ui/core/Backdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
-enzyme.configure({
-  adapter: new Adapter(),
-  disableLifecycleMethods: true,
-});
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: theme.palette.common.white,
+    },
+  }),
+);
 
-i18nInit().then(() => {
-  initDayJS();
-  describe("Lib", testLib);
-  describe("Components", testComponents);
-  describe("Services", testServices);
-  describe("Pages", testPages);
-}).catch((reason: unknown) => {
-  console.error(reason);
-});
+function LoadingBackdrop({ open }: { open: boolean }): JSX.Element {
+  const { backdrop } = useStyles();
+
+  return (
+    <Backdrop className={backdrop} open={open}>
+      <CircularProgress color="inherit" />
+    </Backdrop>
+  );
+}
+
+export default LoadingBackdrop;

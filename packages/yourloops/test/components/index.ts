@@ -32,8 +32,10 @@ import testFooterLink from "./footer-links.test";
 import testPasswordStrengthMeter from "./password-strength-meter.test";
 import testSwitchRole from "./switch-role";
 import testDropdowns from "./dropdown";
+import testButtons from "./buttons";
 
 function testComponents(): void {
+  describe("Buttons", testButtons);
   describe("DatePickers", testDatePickers);
   describe("Footer", testFooterLink);
   describe("Snackbar", testSnackbar);

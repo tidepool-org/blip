@@ -28,11 +28,12 @@
 
 import { v4 as uuidv4 } from "uuid";
 
-import { User, Session } from "../../lib/auth";
+import { Session, User } from "../../lib/auth";
 import { Units, UserInvitationStatus } from "../../models/generic";
 import { UserRoles } from "../../models/shoreline";
 import { ITeam, ITeamMember, TeamMemberRole, TeamType } from "../../models/team";
 import { createSessionToken } from "./utils";
+import { HcpProfession } from "../../models/hcp-profession";
 
 export { createSessionToken, refreshToken } from "./utils";
 
@@ -51,9 +52,9 @@ const userHCP: User = new User({
   username: "john.doe@example.com",
   role: UserRoles.hcp,
   emailVerified: true,
-  profile: { firstName: "John", lastName: "Doe", fullName: "John Doe" },
+  profile: { firstName: "John", lastName: "Doe", fullName: "John Doe", hcpProfession: HcpProfession.diabeto },
   preferences: { displayLanguageCode: "en" },
-  settings: { units: { bg: Units.gram } },
+  settings: { units: { bg: Units.gram }, country: "FR" },
 });
 
 const userPatient = new User({

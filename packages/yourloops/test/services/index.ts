@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Karma main test file
+ * Lib tests
  *
  * All rights reserved.
  *
@@ -26,26 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import enzyme from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
-import { init as i18nInit } from "../lib/language";
-import initDayJS from "../lib/dayjs";
-import testLib from "./lib";
-import testComponents from "./components";
-import testPages from "./pages";
-import testServices from "./services";
+import testHttp from "./http.test";
 
-enzyme.configure({
-  adapter: new Adapter(),
-  disableLifecycleMethods: true,
-});
+function testServices(): void {
+  describe("HTTP", testHttp);
+}
 
-i18nInit().then(() => {
-  initDayJS();
-  describe("Lib", testLib);
-  describe("Components", testComponents);
-  describe("Services", testServices);
-  describe("Pages", testPages);
-}).catch((reason: unknown) => {
-  console.error(reason);
-});
+export default testServices;

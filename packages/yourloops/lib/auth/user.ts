@@ -37,21 +37,23 @@ const urlPrefixFromUserRole = {
 };
 
 class User implements IUser {
-  userid: string;
-  username: string;
-  role: UserRoles;
   emails?: string[];
   emailVerified: boolean;
-  profile?: Profile | null;
-  settings?: Settings | null;
-  preferences?: Preferences | null;
-  medicalData?: MedicalData | null;
+  frProId?: string;
   latestConsentChangeDate: Date;
+  medicalData?: MedicalData | null;
+  preferences?: Preferences | null;
+  profile?: Profile | null;
+  role: UserRoles;
+  settings?: Settings | null;
+  userid: string;
+  username: string;
 
   constructor(u: IUser | User) {
     // TODO validate the user before
     this.userid = u.userid;
     this.username = u.username;
+    this.frProId = u.frProId;
 
     if (u.role) {
       this.role = u.role;
@@ -82,18 +84,6 @@ class User implements IUser {
     } else {
       this.latestConsentChangeDate = new Date(0);
     }
-  }
-
-  toJSON(): IUser {
-    return {
-      userid: this.userid,
-      username: this.username,
-      role: this.role,
-      emailVerified: this.emailVerified,
-      profile: _.cloneDeep(this.profile),
-      settings: _.cloneDeep(this.settings),
-      preferences: _.cloneDeep(this.preferences),
-    };
   }
 
   /**
@@ -181,6 +171,14 @@ class User implements IUser {
       path = path.replace(/\/+/g, "/");
     }
     return path;
+  }
+
+  getParsedFrProId(): string | null {
+    if (this.frProId) {
+      const parsedId = this.frProId.split(":");
+      return parsedId[2];
+    }
+    return null;
   }
 }
 

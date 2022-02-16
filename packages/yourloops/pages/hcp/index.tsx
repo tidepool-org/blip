@@ -43,6 +43,7 @@ import NotificationsPage from "../notifications";
 import PrimaryNavBar from "./primary-nav-bar";
 import PatientListPage from "./patients/page";
 import TeamsPage from "./teams-page";
+import CertifyAccountPage from "./certify-account-page";
 
 const defaultURL = "/professional/patients";
 const preferencesUrl = "/professional/preferences";
@@ -87,6 +88,7 @@ function HcpPage(): JSX.Element {
         <Route path="/professional/teams" component={TeamsPage} />
         <Route path="/professional/preferences" exact={true} component={() => <ProfilePage defaultURL={defaultURL} />} />
         <Route path="/professional/notifications" exact={true} component={() => <NotificationsPage defaultURL={defaultURL} />} />
+        <Route path={"/professional/certify"} component={() => <CertifyAccountPage />} />
         <DataContextProvider context={DefaultDataContext}>
           <Route path="/professional/patient/:patientId">
             <PatientDataPage prefixURL="/professional/patient" />

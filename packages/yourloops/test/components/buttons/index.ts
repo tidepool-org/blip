@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Karma main test file
+ * Copyright (c) 2022, Diabeloop
+ * Buttons tests
  *
  * All rights reserved.
  *
@@ -25,27 +25,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+import testProSanteConnectButton from "./pro-sante-connect-button-test";
 
-import enzyme from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
-import { init as i18nInit } from "../lib/language";
-import initDayJS from "../lib/dayjs";
-import testLib from "./lib";
-import testComponents from "./components";
-import testPages from "./pages";
-import testServices from "./services";
-
-enzyme.configure({
-  adapter: new Adapter(),
-  disableLifecycleMethods: true,
-});
-
-i18nInit().then(() => {
-  initDayJS();
-  describe("Lib", testLib);
-  describe("Components", testComponents);
-  describe("Services", testServices);
-  describe("Pages", testPages);
-}).catch((reason: unknown) => {
-  console.error(reason);
-});
+export default function testButtons() {
+  describe("Pro Sante Connect Button", testProSanteConnectButton);
+}

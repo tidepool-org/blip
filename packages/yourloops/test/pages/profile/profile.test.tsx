@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, Diabeloop
+ * Copyright (c) 2021-2022, Diabeloop
  * Profile page tests
  *
  * All rights reserved.
@@ -31,6 +31,7 @@ import { render, unmountComponentAtNode } from "react-dom";
 import { act, Simulate, SyntheticEventData } from "react-dom/test-utils";
 import { BrowserRouter } from "react-router-dom";
 import { expect } from "chai";
+import * as sinon from "sinon";
 
 import { Units } from "../../../models/generic";
 import { AuthContextProvider, Session } from "../../../lib/auth";
@@ -39,24 +40,32 @@ import { createAuthHookStubs } from "../../lib/auth/hook.test";
 import { NotificationContextProvider } from "../../../lib/notifications";
 import { stubNotificationContextValue } from "../../lib/notifications/hook.test";
 import ProfilePage from "../../../pages/profile";
+import { Preferences, Profile, Settings } from "../../../models/shoreline";
 
 function testProfile(): void {
   let container: HTMLElement | null = null;
+  let updatePreferences: sinon.SinonStub<[Preferences,boolean|undefined], Promise<Preferences>>;
+  let updateProfile: sinon.SinonStub<[Profile, boolean | undefined], Promise<Profile>>;
+  let updateSettings: sinon.SinonStub<[Settings,boolean|undefined], Promise<Settings>>;
   const defaultUrl = "/professional/patients";
 
-  function mountProfilePage(session: Session): void {
+  async function mountProfilePage(session: Session): Promise<void> {
     const context = createAuthHookStubs(session);
-    act(() => {
-      render(
-        <BrowserRouter>
-          <AuthContextProvider value={context}>
-            <NotificationContextProvider value={stubNotificationContextValue}>
-              <ProfilePage defaultURL={defaultUrl} />
-            </NotificationContextProvider>
-          </AuthContextProvider>
-        </BrowserRouter>,
-        container
-      );
+    updatePreferences = context.updatePreferences;
+    updateProfile = context.updateProfile;
+    updateSettings = context.updateSettings;
+
+    await act(() => {
+      return new Promise((resolve) => {
+        render(
+          <BrowserRouter>
+            <AuthContextProvider value={context}>
+              <NotificationContextProvider value={stubNotificationContextValue}>
+                <ProfilePage defaultURL={defaultUrl} />
+              </NotificationContextProvider>
+            </AuthContextProvider>
+          </BrowserRouter>, container, resolve);
+      });
     });
   }
 
@@ -73,53 +82,97 @@ function testProfile(): void {
     }
   });
 
-  it("should be able to render", () => {
-    mountProfilePage(loggedInUsers.hcpSession);
+  it("should be able to render", async () => {
+    await mountProfilePage(loggedInUsers.hcpSession);
     expect(container.querySelector("#profile-textfield-firstname").id).to.be.equal("profile-textfield-firstname");
     expect(container.querySelector("#profile-button-save").id).to.be.equal("profile-button-save");
   });
 
-  it("should display mg/dL Units by default if not specified", () => {
+  it("should display mg/dL Units by default if not specified", async () => {
     const session = loggedInUsers.hcpSession;
     delete session.user?.settings?.units?.bg;
-    mountProfilePage(session);
+    await mountProfilePage(session);
     const selectValue = container.querySelector("#profile-units-selector").innerHTML;
     expect(selectValue).to.be.equal(Units.gram);
   });
 
-  it("should display birthdate if user is a patient", () => {
+  it("should display birthdate if user is a patient", async () => {
     const session = loggedInUsers.patientSession;
-    mountProfilePage(session);
+    await mountProfilePage(session);
     const birthDateInput = container.querySelector("#profile-textfield-birthdate") as HTMLInputElement;
     expect(birthDateInput?.value).to.be.equal(session.user.profile?.patient?.birthday);
   });
 
-  it("should not display profession if user is a patient", () => {
+  it("should not display profession if user is a patient", async () => {
     const session = loggedInUsers.patientSession;
-    mountProfilePage(session);
+    await mountProfilePage(session);
     const hcpProfessionSelectInput = container.querySelector("#profile-hcp-profession-selector + input");
     expect(hcpProfessionSelectInput).to.be.null;
   });
 
-  it("should enable save button when changes are made", () => {
+  it("should not display pro sante connect button if user is not a french hcp", async () => {
     const session = loggedInUsers.hcpSession;
-    mountProfilePage(session);
+    session.user.settings.country = "EN";
+    await mountProfilePage(session);
+    const proSanteConnectButton = container.querySelector("#pro-sante-connect-button");
+    expect(proSanteConnectButton).to.be.null;
+  });
+
+  it("should display pro sante connect button if user is a french hcp and his account is not certified", async () => {
+    const session = loggedInUsers.hcpSession;
+    await mountProfilePage(session);
+    const proSanteConnectButton = container.querySelector("#pro-sante-connect-button");
+    expect(proSanteConnectButton).to.be.not.null;
+  });
+
+  it("should display eCPS number if user is a french hcp and his account is certified", async () => {
+    const session = loggedInUsers.hcpSession;
+    session.user.frProId = "ANS12345789";
+    await mountProfilePage(session);
+    const textField = container.querySelector("#professional-account-number-text-field");
+    expect(textField).to.be.not.null;
+  });
+
+  it("should update profile when saving after changing firstname", async () => {
+    const session = loggedInUsers.hcpSession;
+    await mountProfilePage(session);
 
     const saveButton: HTMLButtonElement = container.querySelector("#profile-button-save");
     const firstnameInput: HTMLInputElement = container.querySelector("#profile-textfield-firstname");
-    const languageSelectInput = container.querySelector("#profile-locale-selector + input");
-    const hcpProfessionSelectInput = container.querySelector("#dropdown-profession-selector + input");
+
+    expect(saveButton.disabled, "button is disabled").to.be.true;
+    Simulate.change(firstnameInput, { target: { value: "Chandler" } } as unknown as SyntheticEventData);
+    expect(saveButton.disabled, "button is enabled").to.be.false;
+    Simulate.click(saveButton);
+    expect(updateProfile.calledOnce, "call to method").to.be.true;
+  });
+
+  it("should update settings when saving after changing units", async () => {
+    const session = loggedInUsers.hcpSession;
+    await mountProfilePage(session);
+
+    const saveButton: HTMLButtonElement = container.querySelector("#profile-button-save");
     const unitSelectInput = container?.querySelector("#profile-units-selector + input");
 
     expect(saveButton.disabled, "button is disabled").to.be.true;
-
-    Simulate.change(firstnameInput, { target: { value: "Chandler" } } as unknown as SyntheticEventData);
-    Simulate.change(languageSelectInput, { target: { value: "es" } } as unknown as SyntheticEventData);
-    Simulate.change(hcpProfessionSelectInput, { target: { value: "hcp-profession-nurse" } } as unknown as SyntheticEventData);
     Simulate.change(unitSelectInput, { target: { value: Units.mole } } as unknown as SyntheticEventData);
-
     expect(saveButton.disabled, "button is enabled").to.be.false;
     Simulate.click(saveButton);
+    expect(updateSettings.calledOnce, "call to method").to.be.true;
+  });
+
+  it("should update preferences when saving after changing language", async () => {
+    const session = loggedInUsers.hcpSession;
+    await mountProfilePage(session);
+
+    const saveButton: HTMLButtonElement = container.querySelector("#profile-button-save");
+    const languageSelectInput = container.querySelector("#profile-locale-selector + input");
+
+    expect(saveButton.disabled, "button is disabled").to.be.true;
+    Simulate.change(languageSelectInput, { target: { value: "es" } } as unknown as SyntheticEventData);
+    expect(saveButton.disabled, "button is enabled").to.be.false;
+    Simulate.click(saveButton);
+    expect(updatePreferences.calledOnce, "call to method").to.be.true;
   });
 }
 

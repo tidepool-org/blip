@@ -133,6 +133,20 @@ function testUser(): void {
     expect(user.getHomePage(), "/patient/abcd").to.be.equals("/patient/abcd");
     expect(user.getHomePage("//suffix"), "/patient/abcd/suffix").to.be.equals("/patient/abcd/suffix");
   });
+
+  it("getParsedFrProId should return null when user frProId is null", () => {
+    const user = new User({ frProId: null } as User);
+    const res = user.getParsedFrProId();
+    expect(res).to.be.null;
+  });
+
+  it("getParsedFrProId should return correct result when user frProId is not null", () => {
+    const expectedRes = "value";
+    const frProId = `key:uid:${expectedRes}`;
+    const user = new User({ frProId } as User);
+    const actualRes = user.getParsedFrProId();
+    expect(actualRes).to.be.equal(expectedRes);
+  });
 }
 
 export default testUser;

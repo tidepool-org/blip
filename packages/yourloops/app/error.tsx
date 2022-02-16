@@ -43,7 +43,7 @@ import {
   STORAGE_KEY_SESSION_TOKEN,
   STORAGE_KEY_TRACE_TOKEN,
   STORAGE_KEY_USER,
-} from "../lib/auth/hook";
+} from "../lib/auth/models";
 
 import metrics from "../lib/metrics";
 

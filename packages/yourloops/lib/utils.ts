@@ -199,3 +199,7 @@ export function compareValues<T extends object>(key: keyof T, order = "asc") {
     return (order === "desc") ? (comparison * -1) : comparison;
   };
 }
+
+export function getFromSessionStorage(key: string): string {
+  return sessionStorage.getItem(key) ?? "";
+}

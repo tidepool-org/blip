@@ -69,7 +69,6 @@ const eslintTSConfig = {
     "no-fallthrough": ["warn", { commentPattern: ".*[Ff]allthrough.*" }],
     "no-loop-func": "error",
     "no-lonely-if": "error",
-    "no-magic-numbers": ["warn", { ignore: [-1, 0, 1, 2, 3, 4, 5, 10, 100, 500, 1000] }],
     "no-multi-spaces": "error",
     "no-return-assign": "error",
     "no-return-await": "error",

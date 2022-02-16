@@ -29,7 +29,7 @@
 import { v4 as uuidv4 } from "uuid";
 import jwtDecode from "jwt-decode";
 
-import { JwtShorelinePayload } from "../../models/shoreline";
+import { JwtShorelinePayload } from "../../lib/auth/models";
 import { User } from "../../lib/auth";
 
 // eslint-disable-next-line no-magic-numbers

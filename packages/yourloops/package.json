@@ -30,6 +30,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/styles": "^4.11.4",
     "@material-ui/lab": "latest",
+    "axios": "^0.25.0",
     "blip": "file:../blip",
     "bows": "^1.7.2",
     "clsx": "^1.1.1",

@@ -26,29 +26,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { JwtPayload } from "jwt-decode";
-
 import { Units } from "./generic";
 import { LanguageCodes } from "./locales";
 import { MedicalData } from "./device-data";
 import { HcpProfession } from "./hcp-profession";
 
-interface JwtShorelinePayload extends JwtPayload {
-  role: "hcp" | "patient" | "caregiver";
-  /** username: an e-mail */
-  name: string;
-  email: string;
-  /** userid */
-  usr: string;
-  /** yes for server token - we will never have that in Blip: always "no" */
-  srv: "yes" | "no";
-}
-
 enum UserRoles {
   hcp = "hcp",
   caregiver = "caregiver",
   patient = "patient",
-  /*Used only for signup-account-selector*/
+  /** Used only for signup-account-selector */
   unset = "unset",
   /** When the account is created but not yet confirm */
   unverified = "unverified"
@@ -93,26 +80,19 @@ interface Preferences {
 }
 
 interface IUser {
-  /** The user id */
-  readonly userid: string;
-  /** The username (login) */
-  readonly username: string;
-  /** Role of the user */
-  readonly role: UserRoles;
-  /** Shoreline (database) role value */
-  roles?: UserRoles[];
-  /** Emails of the users */
   emails?: string[];
-  /** true if the account has been verified */
   readonly emailVerified?: boolean;
-  /** User profile */
+  frProId?: string;
+  /** Main role of the user */
+  readonly role: UserRoles;
+  roles?: UserRoles[];
+  readonly userid: string;
+  readonly username: string;
   profile?: Profile | null;
-  /** User settings (read-only for patient only?) */
   settings?: Settings | null;
-  /** User preferences */
   preferences?: Preferences | null;
   /** Patient medical data. undefined means not fetched, null if the fetch failed */
   medicalData?: MedicalData | null;
 }
 
-export { JwtShorelinePayload, IUser, Profile, Settings, Preferences, Consent, UserRoles };
+export { IUser, Profile, Settings, Preferences, Consent, UserRoles };

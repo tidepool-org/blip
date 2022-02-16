@@ -40,65 +40,70 @@ import { Preferences, Profile, Settings, UserRoles } from "../../../models/shore
 import config from "../../../lib/config";
 import { waitTimeout } from "../../../lib/utils";
 import { AuthAPI, User, Session, AuthContext, SignupUser } from "../../../lib/auth";
-import { AuthContextImpl, STORAGE_KEY_SESSION_TOKEN, STORAGE_KEY_TRACE_TOKEN, STORAGE_KEY_USER } from "../../../lib/auth/hook";
+import { AuthContextImpl } from "../../../lib/auth/hook";
 import { loggedInUsers } from "../../common";
 import { AuthAPIStubs, createAuthAPIStubs, resetAuthAPIStubs } from "./api.test";
 import { HcpProfession } from "../../../models/hcp-profession";
+import { STORAGE_KEY_SESSION_TOKEN, STORAGE_KEY_TRACE_TOKEN, STORAGE_KEY_USER } from "../../../lib/auth/models";
 
 /**
  * Auth hook stubs definitions
  */
 export interface AuthContextStubs {
-  user: Readonly<User> | null;
-  sessionToken: string | null;
-  traceToken: string | null;
-  isLoggedIn: boolean;
-  isAuthInProgress: boolean;
+  certifyProfessionalAccount: sinon.SinonStub<null, Promise<void>>;
+  flagPatient: sinon.SinonStub<[string], Promise<void>>;
+  getFlagPatients: sinon.SinonStub<[], string[]>;
   isAuthHookInitialized: boolean;
-  session: sinon.SinonStub<[], Session|null>;
-  setUser: sinon.SinonStub<[User], void>;
+  isAuthInProgress: boolean;
+  isLoggedIn: boolean;
   login: sinon.SinonStub<[string, string, string|null], Promise<User>>;
   logout: sinon.SinonStub<[boolean|undefined], Promise<void>>;
+  redirectToProfessionalAccountLogin: sinon.SinonStub<[], void>;
+  resendSignup: sinon.SinonStub<[string], Promise<boolean>>;
+  resetPassword: sinon.SinonStub<[string,string,string], Promise<boolean>>;
+  sendPasswordResetEmail: sinon.SinonStub<[string,string], Promise<void>>;
+  session: sinon.SinonStub<[], Session|null>;
+  sessionToken: string | null;
+  setFlagPatients: sinon.SinonStub<[string[]], Promise<void>>;
+  setUser: sinon.SinonStub<[User], void>;
+  signup: sinon.SinonStub<[SignupUser], Promise<void>>;
+  switchRoleToHCP: sinon.SinonStub<[boolean, HcpProfession], Promise<void>>;
+  traceToken: string | null;
+  updatePassword: sinon.SinonStub<[string,string], Promise<void>>;
   updatePreferences: sinon.SinonStub<[Preferences,boolean|undefined], Promise<Preferences>>;
   updateProfile: sinon.SinonStub<[Profile,boolean|undefined], Promise<Profile>>;
   updateSettings: sinon.SinonStub<[Settings,boolean|undefined], Promise<Settings>>;
-  updatePassword: sinon.SinonStub<[string,string], Promise<void>>;
-  signup: sinon.SinonStub<[SignupUser], Promise<void>>;
-  resendSignup: sinon.SinonStub<[string], Promise<boolean>>;
-  sendPasswordResetEmail: sinon.SinonStub<[string,string], Promise<void>>;
-  resetPassword: sinon.SinonStub<[string,string,string], Promise<boolean>>;
-  flagPatient: sinon.SinonStub<[string], Promise<void>>;
-  setFlagPatients: sinon.SinonStub<[string[]], Promise<void>>;
-  getFlagPatients: sinon.SinonStub<[], string[]>;
-  switchRoleToHCP: sinon.SinonStub<[boolean, HcpProfession], Promise<void>>;
+  user: Readonly<User> | null;
 }
 
 /**
  * Hook Stubs
  */
 export const createAuthHookStubs = (session?: Session): AuthContextStubs => ({
-  user: session?.user ?? null,
-  sessionToken: session.sessionToken,
-  traceToken: session.traceToken,
-  isLoggedIn: true,
-  isAuthInProgress: false,
+  certifyProfessionalAccount: sinon.stub<null, Promise<void >>().resolves(),
+  flagPatient: sinon.stub<[string], Promise<void>>().resolves(),
+  getFlagPatients: sinon.stub<[], string[]>().returns([]),
   isAuthHookInitialized: true,
-  session: sinon.stub<[], Session | null>().returns(session),
-  setUser: sinon.stub<[User], void>(),
+  isAuthInProgress: false,
+  isLoggedIn: true,
   login: sinon.stub<[string, string, string|null], Promise<User>>().resolves(session.user),
   logout: sinon.stub<[boolean|undefined], Promise<void>>().resolves(),
+  redirectToProfessionalAccountLogin: sinon.stub<[], void>().resolves(),
+  resendSignup: sinon.stub<[string], Promise<boolean>>().resolves(true),
+  resetPassword: sinon.stub<[string,string,string], Promise<boolean>>().resolves(true),
+  sendPasswordResetEmail: sinon.stub<[string,string], Promise<void>>().resolves(),
+  session: sinon.stub<[], Session | null>().returns(session),
+  sessionToken: session.sessionToken,
+  setFlagPatients: sinon.stub<[string[]], Promise<void>>().resolves(),
+  setUser: sinon.stub<[User], void>(),
+  signup: sinon.stub<[SignupUser], Promise<void>>().resolves(),
+  switchRoleToHCP: sinon.stub<[boolean, HcpProfession], Promise<void>>().resolves(),
+  traceToken: session.traceToken,
+  updatePassword: sinon.stub<[string,string], Promise<void>>().resolves(),
   updatePreferences: sinon.stub<[Preferences,boolean|undefined], Promise<Preferences>>().resolves(session.user.preferences),
   updateProfile: sinon.stub<[Profile,boolean|undefined], Promise<Profile>>().resolves(session.user.profile),
   updateSettings: sinon.stub<[Settings,boolean|undefined], Promise<Settings>>().resolves(session.user.settings),
-  updatePassword: sinon.stub<[string,string], Promise<void>>().resolves(),
-  signup: sinon.stub<[SignupUser], Promise<void>>().resolves(),
-  resendSignup: sinon.stub<[string], Promise<boolean>>().resolves(true),
-  sendPasswordResetEmail: sinon.stub<[string,string], Promise<void>>().resolves(),
-  resetPassword: sinon.stub<[string,string,string], Promise<boolean>>().resolves(true),
-  flagPatient: sinon.stub<[string], Promise<void>>().resolves(),
-  setFlagPatients: sinon.stub<[string[]], Promise<void>>().resolves(),
-  getFlagPatients: sinon.stub<[], string[]>().returns([]),
-  switchRoleToHCP: sinon.stub<[boolean, HcpProfession], Promise<void>>().resolves(),
+  user: session?.user ?? null,
 });
 
 /**

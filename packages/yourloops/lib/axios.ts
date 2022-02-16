@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Karma main test file
+ * Copyright (c) 2022, Diabeloop
+ * Axios Instance configuration
  *
  * All rights reserved.
  *
@@ -26,26 +26,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import enzyme from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
-import { init as i18nInit } from "../lib/language";
-import initDayJS from "../lib/dayjs";
-import testLib from "./lib";
-import testComponents from "./components";
-import testPages from "./pages";
-import testServices from "./services";
+import axios, { AxiosRequestConfig } from "axios";
+import appConfig from "./config";
+import { v4 as uuidv4 } from "uuid";
+import { HttpHeaderKeys } from "../models/api";
+import { getFromSessionStorage } from "./utils";
+import { STORAGE_KEY_SESSION_TOKEN } from "./auth/models";
 
-enzyme.configure({
-  adapter: new Adapter(),
-  disableLifecycleMethods: true,
-});
+axios.defaults.baseURL = appConfig.API_HOST;
 
-i18nInit().then(() => {
-  initDayJS();
-  describe("Lib", testLib);
-  describe("Components", testComponents);
-  describe("Services", testServices);
-  describe("Pages", testPages);
-}).catch((reason: unknown) => {
-  console.error(reason);
+/**
+ * We use axios request interceptor to set the access token into headers each request the app send
+ */
+axios.interceptors.request.use((config): AxiosRequestConfig => {
+  config = {
+    ...config,
+    headers: {
+      [HttpHeaderKeys.sessionToken]: getFromSessionStorage(STORAGE_KEY_SESSION_TOKEN),
+      [HttpHeaderKeys.traceToken]: uuidv4(),
+    },
+  };
+  return config;
 });

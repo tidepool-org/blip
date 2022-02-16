@@ -30,7 +30,7 @@ import bows from "bows";
 import _ from "lodash";
 
 import { APIErrorResponse } from "../../models/error";
-import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
+import { IUser, Preferences, Profile, Settings, UserRoles } from "../../models/shoreline";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../models/api";
 
 import { errorFromHttpStatus } from "../utils";
@@ -40,6 +40,7 @@ import HttpStatus from "../http-status-codes";
 
 import { Session, UpdateUser } from "./models";
 import User from "./user";
+import HttpService from "../../services/http";
 
 const log = bows("Auth API");
 const failedLoginCounter = new Map<string, number>();
@@ -65,7 +66,7 @@ async function authenticate(username: string, password: string, traceToken: stri
 
   try {
     // Allow username / password with non ASCII characters
-    // Endode the string to UTF-8 first
+    // Encode the string to UTF-8 first
     const encoder = new TextEncoder();
     const utf8 = encoder.encode(`${username}:${password}`);
     const basicAuth = btoa(String.fromCharCode.apply(null, utf8 as unknown as number[]));
@@ -552,18 +553,24 @@ async function logout(session: Readonly<Session>): Promise<void> {
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
+async function certifyProfessionalAccount(): Promise<IUser> {
+  const { data } = await HttpService.post<IUser>("/auth/oauth/merge", _, { withCredentials: true });
+  return data;
+}
+
 export default {
-  login,
-  requestPasswordReset,
-  resetPassword,
-  signup,
-  resendSignup,
-  sendAccountValidation,
   accountConfirmed,
-  updateProfile,
+  certifyProfessionalAccount,
+  login,
+  logout,
+  signup,
+  refreshToken,
+  requestPasswordReset,
+  resendSignup,
+  resetPassword,
+  sendAccountValidation,
   updatePreferences,
+  updateProfile,
   updateSettings,
   updateUser,
-  refreshToken,
-  logout,
 };

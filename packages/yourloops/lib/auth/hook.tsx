@@ -35,30 +35,27 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
 import { HistoryState } from "../../models/generic";
-import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
+import { IUser, Preferences, Profile, Settings, UserRoles } from "../../models/shoreline";
 import { HcpProfession } from "../../models/hcp-profession";
 import { defer, fixYLP878Settings, numberPrecision } from "../utils";
-import { availableLanguageCodes, getCurrentLang, changeLanguage } from "../language";
+import { availableLanguageCodes, changeLanguage, getCurrentLang } from "../language";
 import metrics from "../metrics";
 import { zendeskLogin, zendeskLogout } from "../zendesk";
 import User from "./user";
-import { Session, AuthAPI, AuthContext, AuthProvider, SignupUser } from "./models";
+import {
+  AuthAPI,
+  AuthContext,
+  AuthProvider,
+  JwtShorelinePayload,
+  Session,
+  SignupUser,
+  STORAGE_KEY_USER,
+  STORAGE_KEY_SESSION_TOKEN,
+  STORAGE_KEY_TRACE_TOKEN,
+} from "./models";
 import AuthAPIImpl from "./api";
+import appConfig from "../config";
 
-interface JwtShorelinePayload extends JwtPayload {
-  role: "hcp" | "patient" | "caregiver" | "clinic";
-  /** username: an e-mail */
-  name: string;
-  email: string;
-  /** userid */
-  usr: string;
-  /** yes for server token - we will never have that in Blip: always "no" */
-  srv: "yes" | "no";
-}
-
-export const STORAGE_KEY_SESSION_TOKEN = "session-token";
-export const STORAGE_KEY_TRACE_TOKEN = "trace-token";
-export const STORAGE_KEY_USER = "logged-in-user";
 
 const ReactAuthContext = React.createContext({} as AuthContext);
 const log = bows("AuthHook");
@@ -104,7 +101,11 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
   const isAuthHookInitialized = traceToken !== null;
   const isLoggedIn = sessionToken !== null && traceToken !== null && user !== null;
   const session = React.useCallback(
-    (): Session | null => sessionToken !== null && traceToken !== null && user !== null ? { sessionToken, traceToken, user } : null,
+    (): Session | null => sessionToken !== null && traceToken !== null && user !== null ? {
+      sessionToken,
+      traceToken,
+      user,
+    } : null,
     [sessionToken, traceToken, user]
   );
 
@@ -142,7 +143,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
    */
   const setUser = (u: User): void => {
     setUserPrivate(u);
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(u.toJSON()));
+    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(u));
   };
 
   const loginPrivate = async (username: string, password: string, key: string | null): Promise<User> => {
@@ -180,7 +181,7 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
 
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, auth.sessionToken);
     sessionStorage.setItem(STORAGE_KEY_TRACE_TOKEN, auth.traceToken);
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(auth.user.toJSON()));
+    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(auth.user));
 
     setAuthInfos(auth.sessionToken, auth.traceToken, auth.user);
     return auth.user;
@@ -506,6 +507,17 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     // return unmount;
   };
 
+  const certifyProfessionalAccount = async (): Promise<void> => {
+    if (!user) {
+      throw Error("User not logged in");
+    }
+    const { frProId } = await api.certifyProfessionalAccount();
+    user.frProId = frProId;
+    setUser(user);
+  };
+
+  const redirectToProfessionalAccountLogin = (): void => window.location.assign(`${appConfig.API_HOST}/auth/oauth/login`);
+
   React.useEffect(initHook, [historyHook, pathname, traceToken, isAuthInProgress, setAuthInfos]);
 
   // Return the user object and auth methods
@@ -519,6 +531,8 @@ export function AuthContextImpl(api: AuthAPI): AuthContext {
     session,
     setUser,
     login,
+    certifyProfessionalAccount,
+    redirectToProfessionalAccountLogin,
     updateProfile,
     updatePreferences,
     updateSettings,
