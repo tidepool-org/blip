@@ -43,8 +43,7 @@ const t = i18next.t.bind(i18next);
 countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
 
 const clinicianSchema = yup.object().shape({
-  firstName: yup.string().required(t('First name is required')),
-  lastName: yup.string().required(t('Last name is required')),
+  fullName: yup.string().required(t('Name is required')),
   role: yup.string().oneOf([...map(roles, 'value'), '']),
   npi: yup
     .string()
@@ -76,6 +75,7 @@ export const ClinicDetails = (props) => {
   const userHasClinicProfile = !!get(user, ['profile', 'clinic'], false);
   const clinic = get(clinics, selectedClinicId);
   const [displayFullForm, setDisplayFullForm] = useState(false);
+  const [populateProfileFields, setPopulateProfileFields] = useState(!isEmpty(clinic?.name));
   const schema = displayFullForm ? clinicSchema : clinicianSchema;
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
@@ -86,10 +86,9 @@ export const ClinicDetails = (props) => {
   const [clinicInvite, setClinicInvite] = useState();
 
   const clinicValues = () => ({
-    firstName: '',
-    lastName: '',
-    role: '',
-    npi: '',
+    fullName: populateProfileFields ? user?.profile?.fullName || '' : '',
+    npi: populateProfileFields? user?.profile?.clinic?.npi || '' : '',
+    role: populateProfileFields ? user?.profile?.clinic?.role || '' : '',
     ...clinicValuesFromClinic(clinic),
   });
 
@@ -116,6 +115,7 @@ export const ClinicDetails = (props) => {
     if (clinic && !submitting) {
       // We don't update the form display state until the clinic is available or while submitting
       setDisplayFullForm(isEmpty(clinic?.name) || clinic?.canMigrate);
+      setPopulateProfileFields(!isEmpty(clinic?.name));
 
       if (!isEmpty(clinic.name) && userHasClinicProfile) {
         if (clinic?.canMigrate) {
@@ -359,7 +359,7 @@ export const ClinicDetails = (props) => {
 
               const profileUpdates = {
                 profile: {
-                  fullName: `${values.firstName} ${values.lastName}`,
+                  fullName: values.fullName,
                   clinic: {},
                 },
               };
@@ -385,23 +385,15 @@ export const ClinicDetails = (props) => {
                 <Flex mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
                   <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
                     <TextInput
-                      {...getCommonFormikFieldProps('firstName', formikContext)}
-                      label={t('First Name')}
-                      placeholder={t('First Name')}
+                      {...getCommonFormikFieldProps('fullName', formikContext)}
+                      label={t('Name')}
+                      placeholder={t('Name')}
                       variant="condensed"
                       width="100%"
                     />
                   </Box>
 
-                  <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                    <TextInput
-                      {...getCommonFormikFieldProps('lastName', formikContext)}
-                      label={t('Last Name')}
-                      placeholder={t('Last Name')}
-                      variant="condensed"
-                      width="100%"
-                    />
-                  </Box>
+                  <Box flexBasis="100%" />{/* Flex row break */}
 
                   <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
                     <Select
