@@ -2135,8 +2135,12 @@ export function sendClinicianInvite(api, clinicId, clinician) {
 
     api.clinics.inviteClinician(clinicId, clinician, (err, clinician) => {
       if (err) {
+        const errorMessage = err.status === 409
+          ? ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_ALREADY_MEMBER
+          : ErrorMessages.ERR_SENDING_CLINICIAN_INVITE;
+
         dispatch(sync.sendClinicianInviteFailure(
-          createActionError(ErrorMessages.ERR_SENDING_CLINICIAN_INVITE, err), err
+          createActionError(errorMessage, err), err
         ));
       } else {
         dispatch(sync.sendClinicianInviteSuccess(clinician, clinicId));
