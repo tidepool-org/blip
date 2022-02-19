@@ -215,11 +215,12 @@ export default translate()(class DataSources extends Component {
   }
 
   renderDataSourceWarningMessage(provider) {
+    const { t } = this.props;
     if (provider.id === 'oauth/dexcom') {
       return (
         <span>
-          *For US Dexcom users only. Please contact <a href="mailto:support@tidepool.org">
-          support@tidepool.org</a> if you live outside the United States.
+          *{t('For US Dexcom users only. Please contact')} <a href="mailto:support@tidepool.org">
+            support@tidepool.org</a> {t('if you live outside the United States')}.
         </span>
       )
     }
