@@ -26,6 +26,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1164 Daily view device parameters tooltips display wrong hours
 - YLP-1169 Fix German translation of Dietitian
 - YLP-1170 Bolus sent multiple times by the handset are duplicated in Yourloops/Backloops
+- YLP-1194 Time of reservoir change event in Overview page is not correct - GMT time is displayed
 ### Engineering Use
 - YLP-1082 Improve daily view rendering
 - YLP-1114 Review routes and data structure for message-api

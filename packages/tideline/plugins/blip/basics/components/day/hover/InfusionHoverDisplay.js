@@ -17,13 +17,14 @@
 
 import PropTypes from "prop-types";
 import React from "react";
+import moment from "moment";
 
 import format from "../../../../../../js/data/util/format";
 
 function InfusionHoverDisplay(props) {
   var times = props.data.dataByDate[props.date].data;
   var timesList = times.slice(0,3).map(function(time) {
-    return (<li key={time.id}>{format.timestamp(time.normalTime, time.displayOffset)}</li>);
+    return (<li key={time.id}>{format.timestamp(time.normalTime, moment.tz(time.timezone).utcOffset())}</li>);
   });
 
   return (
