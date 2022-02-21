@@ -304,7 +304,7 @@
   "ddd, MMM D, Y": "ddd, MMM D, Y",
   "ddd, MMM D, YYYY": "ddd, MMM D, YYYY",
   "dddd, MMMM D": "dddd D MMMM",
-  "dddd, h:mm a": "dddd, h:mm a",
+  "dddd, h:mm a": "dddd, H:mm",
   "delivered": "geliefert",
   "ezCarb ezBG": "ezCarb ezBG",
   "from": "von",
