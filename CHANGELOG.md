@@ -9,6 +9,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1122 Patient should enter the team unique ID to accept a team invitation
 - YLP-1188 Pink theme for clinical environment
 - YLP-1190 Advertise user about account deletion
+- YLP-1191 Add feature flag to retrieve cbg data with or without bucket optimization
 - YLP-1217 Patient should be better informed that he should not create an account through web UI
 ### Security Update
 - YLP-1182 Add an eCPS connection link into user preferences (HCP certification)

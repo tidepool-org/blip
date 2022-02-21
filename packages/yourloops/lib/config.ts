@@ -57,6 +57,7 @@ const defaultConfig: AppConfig = {
   SESSION_TIMEOUT: defaultSessionTimeout,
   DEV: true,
   TEST: false,
+  CBG_BUCKETS_ENABLED: true,
 };
 const appConfig = _.assign({}, defaultConfig);
 if (_.has(window, "config") && _.isObjectLike(_.get(window, "config", null))) {

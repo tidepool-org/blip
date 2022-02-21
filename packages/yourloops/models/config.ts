@@ -47,4 +47,5 @@ export interface AppConfig {
   COOKIE_BANNER_CLIENT_ID: string;
   SESSION_TIMEOUT: number;
   YLP820_BASAL_TIME: number;
+  CBG_BUCKETS_ENABLED: boolean;
 }
