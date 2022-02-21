@@ -18,6 +18,10 @@ html {
 :global(p.loading) {
   text-align: center;
   font-family: "Basis";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 :global(div.api-error-message) {
