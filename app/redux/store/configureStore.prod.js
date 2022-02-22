@@ -33,6 +33,7 @@ import { loadLocalState, saveLocalState } from './localStorage';
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
+import pendoMiddleware from '../utils/pendoMiddleware';
 
 export const history = qhistory(createBrowserHistory(), stringify, parse);
 
@@ -50,7 +51,8 @@ function _createStore(api) {
     thunkMiddleware,
     routerMiddleware(history),
     createErrorLogger(api),
-    trackingMiddleware(api)
+    trackingMiddleware(api),
+    pendoMiddleware(api),
   )(createStore);
 
   const initialState = { blip: assign(blipState, loadLocalState()) };

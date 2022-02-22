@@ -49,6 +49,7 @@ export const clinicTypes = [
   { value: 'provider_practice', label: t('Provider Practice') },
   { value: 'healthcare_system', label: t('Healthcare System') },
   { value: 'veterinary_clinic', label: t('Veterinary Clinic') },
+  { value: 'research_organization', label: t('Research Organization') },
   { value: 'other', label: t('Other') },
 ];
 
