@@ -52,12 +52,19 @@ var NavbarPatientCard = translate()(class extends React.Component {
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
     var overlay = this.state.showUploadOverlay ? this.renderOverlay() : null;
-
+    var dateOfBirth = new Date (patient.profile.patient.birthday);
+    var options = {month: 'long'};
+    var month = new Intl.DateTimeFormat('en-US', options).format(dateOfBirth);
+    var day = dateOfBirth.getUTCDate();
+    var year = dateOfBirth.getFullYear();
     return (
       <div className={classes}>
         <i className="Navbar-icon icon-face-standin"></i>
         <div className="patientcard-info">
           {profile}
+          <div className="patientcard-actions">
+            {month + ' ' +  day  + ', ' + year}
+          </div>
           <div className="patientcard-actions">
             {view}
             {share}
