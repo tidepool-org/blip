@@ -63,8 +63,8 @@ describe("nurseshark", function() {
         timezoneOffset: 0
       }];
       var res = nurseshark.processData(input);
-      expect(res.processedData[0]).to.eql(_.assign({}, input[1], {source: "Unspecified Data Source"}));
-      expect(res.processedData[1]).to.eql(_.assign({}, input[0], {source: "Unspecified Data Source"}));
+      expect(res.processedData[0]).to.eql(_.assign({}, input[1], {source: "Diabeloop"}));
+      expect(res.processedData[1]).to.eql(_.assign({}, input[0], {source: "Diabeloop"}));
     });
 
     it("should return an object, with erroredData and processedData", function() {
@@ -375,7 +375,7 @@ describe("nurseshark", function() {
       expect(res[1].source).to.equal("Demo");
     });
 
-    it("should add `Unknown` as source if no upload metadata", function() {
+    it("should add `Diabeloop` as source if no upload metadata", function() {
       var now = new Date().toISOString();
       var bolus = {
         time: now,
@@ -385,7 +385,7 @@ describe("nurseshark", function() {
         normal: 2.0
       };
       var res = nurseshark.processData([bolus]).processedData;
-      expect(res[0].source).to.equal("Unspecified Data Source");
+      expect(res[0].source).to.equal("Diabeloop");
     });
 
     it("should return sorted data", function() {
@@ -403,7 +403,7 @@ describe("nurseshark", function() {
         timezoneOffset: 0
       }];
       var sorted = [data[1], data[0]];
-      _.forEach(sorted, function(d) { d.source = "Unspecified Data Source"; });
+      _.forEach(sorted, function(d) { d.source = "Diabeloop"; });
       sorted[0].normalTime = now.toISOString();
       sorted[1].normalTime = nextTime.toISOString();
       expect(nurseshark.processData(data).processedData).to.eql(sorted);
