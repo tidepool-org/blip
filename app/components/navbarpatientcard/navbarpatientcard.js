@@ -57,12 +57,13 @@ var NavbarPatientCard = translate()(class extends React.Component {
     var month = new Intl.DateTimeFormat('en-US', options).format(dateOfBirth);
     var day = dateOfBirth.getUTCDate();
     var year = dateOfBirth.getFullYear();
+    // var dob = this.renderView(dateOfBirth);
     return (
       <div className={classes}>
         <i className="Navbar-icon icon-face-standin"></i>
         <div className="patientcard-info">
           {profile}
-          <div className="patientcard-actions">
+          <div className="patientcard-dateOfBirth">
             {month + ' ' +  day  + ', ' + year}
           </div>
           <div className="patientcard-actions">
