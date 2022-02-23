@@ -216,14 +216,10 @@ describe("DataUtil", () => {
 
   const uploadData = [
     new Types.Upload({
-      deviceTags: ["insulin-pump"],
-      source: "Insulet",
       deviceModel: "dash",
       deviceTime: "2018-01-02T00:00:00",
     }),
     new Types.Upload({
-      deviceTags: ["insulin-pump"],
-      source: "Medtronic",
       deviceModel: "1780",
       deviceTime: "2018-02-02T00:00:00",
     }),
@@ -1062,14 +1058,14 @@ describe("DataUtil", () => {
   describe("getLatestPump", () => {
     it("should return the make and model of the latest pump uploaded", () => {
       expect(dataUtil.getLatestPump()).to.eql({
-        manufacturer: "medtronic",
+        manufacturer: "diabeloop",
         deviceModel: "1780",
       });
 
       dataUtil = new DataUtil(uploadData.slice(0, 1), defaultOpts);
 
       expect(dataUtil.getLatestPump()).to.eql({
-        manufacturer: "insulet",
+        manufacturer: "diabeloop",
         deviceModel: "dash",
       });
     });
@@ -1264,11 +1260,12 @@ describe("DataUtil", () => {
       du.endpoints = dayEndpoints;
       du.addData(pumpSettings);
       // {name: 'WEIGHT', value: '60', unit: 'kg', level: 1}
-      expect(du.getTotalInsulinAndWeightData()).to.eql({
+      const result = du.getTotalInsulinAndWeightData();
+      expect(result, JSON.stringify(result)).to.deep.eql({
         totalInsulin: 16.5,
         weight: {
           name: "WEIGHT",
-          value: "60",
+          value: "60.0",
           unit: "kg",
           level: 1
         }
@@ -1279,11 +1276,12 @@ describe("DataUtil", () => {
       let du = new DataUtil(data, defaultOpts);
       du.endpoints = twoWeekEndpoints;
       du.addData(pumpSettings);
-      expect(du.getTotalInsulinAndWeightData()).to.eql({
+      const result = du.getTotalInsulinAndWeightData();
+      expect(result, JSON.stringify(result)).to.eql({
         totalInsulin: 10.5, // 9.5 + 1
         weight: {
           name: "WEIGHT",
-          value: "60",
+          value: "60.0",
           unit: "kg",
           level: 1
         }
@@ -1309,7 +1307,7 @@ describe("DataUtil", () => {
           totalInsulin: 17,
           weight: {
             name: "WEIGHT",
-            value: "60",
+            value: "60.0",
             unit: "kg",
             level: 1
           }
@@ -1325,7 +1323,7 @@ describe("DataUtil", () => {
           totalInsulin: 17.5,
           weight: {
             name: "WEIGHT",
-            value: "60",
+            value: "60.0",
             unit: "kg",
             level: 1
           }

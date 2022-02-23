@@ -1,4 +1,5 @@
 import * as sinon from "sinon";
+import { MGDL_UNITS } from "tideline";
 
 export default class DataUtil {
   // eslint-disable-next-line no-unused-vars
@@ -13,7 +14,7 @@ export default class DataUtil {
 
     this.defaultBgSource = "cbg";
     this.bgBounds = {};
-    this.bgUnits = "mg/dL";
+    this.bgUnits = MGDL_UNITS;
     this.days = {};
 
     this.latestPump = opts.latestPump || {

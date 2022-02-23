@@ -39,7 +39,7 @@ const eslintTSConfig = {
     "@typescript-eslint/no-use-before-define": "error",
     "@typescript-eslint/require-await": "error",
     "brace-style": ["error", "1tbs", { allowSingleLine: true }],
-    "complexity": "error",
+    "complexity": ["error", 20],
     "comma-dangle": ["warn", "always-multiline"],
     "consistent-return": "error",
     "default-param-last": "error",
@@ -48,6 +48,7 @@ const eslintTSConfig = {
     "no-bitwise": ["error", { int32Hint: true }],
     "no-restricted-globals": ["error", { name: "isNaN", message: "Use Number.isNaN instead" }, "NaN", "parseFloat", "parseInt"],
     "no-else-return": "error",
+    "no-shadow": "warn",
     "keyword-spacing": [
       "error",
       {
@@ -131,6 +132,7 @@ const eslintConfig = {
   },
   ignorePatterns: ["**/dist/*", "**/node_modules/*", "templates/lambda-request-viewer.js"],
   rules: {
+    "complexity": ["warn", 15],
     "quotes": ["error", "double", { avoidEscape: true, allowTemplateLiterals: false }],
     "quote-props": ["error", "consistent-as-needed"],
     "jsx-quotes": ["error", "prefer-double"],
@@ -164,6 +166,7 @@ const eslintConfig = {
     "no-restricted-globals": ["error", { name: "isNaN", message: "Use Number.isNaN instead" }, "NaN", "parseFloat", "parseInt"],
     "no-else-return": "warn",
     "no-lonely-if": "warn",
+    "no-shadow": "warn",
     "semi": "error",
     "jsx-a11y/alt-text": 1,
     "jsx-a11y/click-events-have-key-events": 1,

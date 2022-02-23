@@ -17,6 +17,7 @@
 
 import _ from "lodash";
 import * as sinon from "sinon";
+import moment from "moment-timezone";
 import { assert, expect } from "chai";
 
 import { MS_IN_DAY } from "../js/data/util/constants";
@@ -159,11 +160,12 @@ describe("datetime utility", function() {
       assert.isFunction(dt.findBasicsDays);
     });
 
-    it("should always return at least 7 days, Monday thru Friday", function() {
-      expect(_.map(dt.findBasicsDays([
-        "2015-09-07T07:00:00.000Z",
-        "2015-09-07T12:00:00.000Z"
-      ], "US/Pacific"), "date")).to.deep.equal([
+    it("should always return at least 7 days - Monday...Sunday for locale fr", function() {
+      const result = _.map(dt.findBasicsDays(
+        moment.tz("2015-09-09T07:00:00.000Z", "US/Pacific").locale("fr"),
+        moment.tz("2015-09-10T12:00:00.000Z", "US/Pacific").locale("fr")
+      ), "date");
+      expect(result, JSON.stringify(result)).to.deep.equal([
         "2015-09-07",
         "2015-09-08",
         "2015-09-09",
@@ -174,11 +176,29 @@ describe("datetime utility", function() {
       ]);
     });
 
-    it("should return a multiple of 7 days, Monday thru Friday", function() {
-      expect(_.map(dt.findBasicsDays([
-        "2015-09-07T05:00:00.000Z",
-        "2015-09-24T12:00:00.000Z"
-      ], "US/Central"), "date")).to.deep.equal([
+    it("should always return at least 7 days - Sunday...Saturday for locale en-US", function() {
+      const result = _.map(dt.findBasicsDays(
+        moment.tz("2015-09-09T07:00:00.000Z", "US/Pacific").locale("en"),
+        moment.tz("2015-09-10T12:00:00.000Z", "US/Pacific").locale("en")
+      ), "date");
+      expect(result, JSON.stringify(result)).to.deep.equal([
+        "2015-09-06",
+        "2015-09-07",
+        "2015-09-08",
+        "2015-09-09",
+        "2015-09-10",
+        "2015-09-11",
+        "2015-09-12",
+      ]);
+    });
+
+    it("should return a multiple of 7 days, Sunday...Saturday", function() {
+      const result = _.map(dt.findBasicsDays(
+        moment.tz("2015-09-07T05:00:00.000Z", "US/Central"),
+        moment.tz("2015-09-24T12:00:00.000Z", "US/Central"),
+      ), "date");
+      expect(result, JSON.stringify(result)).to.deep.equal([
+        "2015-09-06",
         "2015-09-07",
         "2015-09-08",
         "2015-09-09",
@@ -199,70 +219,40 @@ describe("datetime utility", function() {
         "2015-09-24",
         "2015-09-25",
         "2015-09-26",
-        "2015-09-27",
       ]);
     });
 
     it("should use UTC for the timezone when none provided", function() {
-      expect(_.map(dt.findBasicsDays([
-        "2015-09-07T00:00:00.000Z",
-        "2015-09-07T12:00:00.000Z"
-      ]), "date")).to.deep.equal([
+      expect(_.map(dt.findBasicsDays(
+        moment.utc("2015-09-07T00:00:00.000Z"),
+        moment.utc("2015-09-07T12:00:00.000Z")
+      ), "date")).to.deep.equal([
+        "2015-09-06",
         "2015-09-07",
         "2015-09-08",
         "2015-09-09",
         "2015-09-10",
         "2015-09-11",
         "2015-09-12",
-        "2015-09-13",
       ]);
     });
 
     it("should categorize each date as past, mostRecent or future", function() {
       const expected = [
+        {date: "2015-09-06", type: "past"},
         {date: "2015-09-07", type: "past"},
         {date: "2015-09-08", type: "past"},
         {date: "2015-09-09", type: "past"},
         {date: "2015-09-10", type: "past"},
         {date: "2015-09-11", type: "mostRecent"},
         {date: "2015-09-12", type: "future"},
-        {date: "2015-09-13", type: "future"},
       ];
-      const result = dt.findBasicsDays([
-        "2015-09-07T00:00:00.000Z",
-        "2015-09-10T12:00:00.000Z"
-      ], "Pacific/Auckland");
+      const result = dt.findBasicsDays(
+        moment.tz("2015-09-07T00:00:00.000Z", "Pacific/Auckland"),
+        moment.tz("2015-09-10T12:00:00.000Z", "Pacific/Auckland"),
+        true,
+      );
       expect(result, JSON.stringify({ expected, result }, null, 2)).to.deep.equal(expected);
-    });
-  });
-
-  describe("findBasicsStart", function() {
-    it("should be a function", function() {
-      assert.isFunction(dt.findBasicsStart);
-    });
-
-    it("should find the timezone-local midnight of the Monday >= 14 days prior to provided datetime", function() {
-      // exactly 28 days
-      expect(dt.findBasicsStart("2015-09-07T05:00:00.000Z", "US/Central"))
-        .to.equal("2015-08-24T05:00:00.000Z");
-      // almost but not quite 35 days
-      expect(dt.findBasicsStart("2015-09-13T09:00:00.000Z", "Pacific/Honolulu"))
-        .to.equal("2015-08-24T10:00:00.000Z");
-      // just over threshold into new local week
-      expect(dt.findBasicsStart("2015-09-14T06:01:00.000Z", "US/Mountain"))
-        .to.equal("2015-08-31T06:00:00.000Z");
-    });
-
-    it("should find UTC midnight of the Monday >= 14 days prior to provided UTC datetime (when no timezone provided)", function() {
-      // exactly 28 days
-      expect(dt.findBasicsStart("2015-09-07T00:00:00.000Z"))
-        .to.equal("2015-08-24T00:00:00.000Z");
-      // almost but not quite 35 days
-      expect(dt.findBasicsStart("2015-09-13T23:55:00.000Z"))
-        .to.equal("2015-08-24T00:00:00.000Z");
-      // just over threshold into new UTC week
-      expect(dt.findBasicsStart("2015-09-14T00:01:00.000Z"))
-        .to.equal("2015-08-31T00:00:00.000Z");
     });
   });
 

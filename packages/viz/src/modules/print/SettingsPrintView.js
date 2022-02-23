@@ -20,25 +20,10 @@ import i18next from "i18next";
 import PrintView from "./PrintView";
 
 import {
-  deviceName,
   getDeviceMeta,
-  startTimeAndValue,
 } from "../../utils/settings/data";
 
-import {
-  basal,
-  bolusTitle,
-  ratio,
-  sensitivity,
-  target,
-} from "../../utils/settings/nonTandemData";
-
 import * as dblData from "../../utils/settings/diabeloopData";
-
-import {
-  basalSchedules as profileSchedules,
-  basal as tandemBasal,
-} from "../../utils/settings/tandemData";
 
 const t = i18next.t.bind(i18next);
 
@@ -47,169 +32,36 @@ class SettingsPrintView extends PrintView {
     super(doc, data, opts);
 
     this.source = _.get(data, "source", "").toLowerCase();
-    this.manufacturer = this.source === "carelink" ? "medtronic" : this.source;
 
-    this.deviceMeta = getDeviceMeta(data, opts.timePrefs);
+    // Use the pumpSettings timezone if available
+    const timePrefs = _.isString(data.timezone) ? {
+      timezoneAware: true,
+      timezoneName: data.timezone,
+    } : opts.timePrefs;
+    this.timePrefs = timePrefs;
+    this.deviceMeta = getDeviceMeta(data, timePrefs);
 
     this.doc.addPage();
   }
 
   newPage() {
-    super.newPage(`Uploaded on: ${this.deviceMeta.uploaded}`);
+    super.newPage(`${t("Uploaded on")} ${this.deviceMeta.uploaded}`);
   }
 
   render() {
-    this.renderDeviceMeta();
-
-    switch (this.manufacturer) {
-    case "tandem":
-      this.renderTandemProfiles();
-      break;
-    case "diabeloop":
-      this.renderDiabeloopProfiles();
-      break;
-    default:
-      this.renderBasalSchedules();
-      this.renderWizardSettings();
-      break;
-    }
-  }
-
-  renderDeviceMeta() {
-    const device = deviceName(this.manufacturer) || t("Unknown");
-    this.doc
-      .font(this.boldFont)
-      .fontSize(this.defaultFontSize)
-      .text(device, { continued: true })
-      .font(this.font)
-      .text(` › ${t("Serial Number")}: ${this.deviceMeta.serial}`)
-      .moveDown();
-
+    this.renderDeviceInfo();
+    this.renderPumpInfo();
+    this.renderCgmInfo();
+    this.renderDeviceParameters();
     this.resetText();
-    this.doc.moveDown();
   }
 
-  renderTandemProfiles() {
-    this.renderSectionHeading(t("Profile Settings"));
+  /** Render the device information table */
+  renderDeviceInfo() {
+    const device = _.get(this.data, "payload.device", null);
 
-    const basalSchedules = profileSchedules(this.data);
-
-    const sortedSchedules = _.orderBy(basalSchedules,
-      [
-        schedule => (schedule.name === this.data.activeSchedule ? 1 : 0),
-        "position",
-      ],
-      ["desc", "asc"]
-    );
-
-    _.forEach(sortedSchedules, schedule => {
-      const profile = tandemBasal(schedule, this.data, this.bgUnits);
-
-      const heading = {
-        text: profile.title.main,
-        subText: profile.title.secondary,
-      };
-
-      this.renderTableHeading(heading, {
-        columnDefaults: {
-          fill: {
-            color: this.tableSettings.colors.zebraHeader,
-            opacity: 1,
-          },
-          width: this.chartArea.width,
-        },
-      });
-
-      const tableColumns = _.map(profile.columns, (column, index) => {
-        const isFirst = index === 0;
-
-        const widths = {
-          rate: 105,
-          bgTarget: 105,
-          carbRatio: 105,
-          insulinSensitivity: 155,
-        };
-
-        const fills = {
-          grey: {
-            color: this.tableSettings.colors.zebraHeader,
-            opacity: 1,
-          },
-          basal: {
-            color: this.colors.basal,
-            opacity: 0.15,
-          },
-        };
-
-        const headerFills = {
-          start: fills.grey,
-          rate: fills.basal,
-          bgTarget: fills.basal,
-          carbRatio: fills.basal,
-          insulinSensitivity: fills.basal,
-        };
-
-        const label = _.isPlainObject(column.label)
-          ? {
-            text: column.label.main,
-            subText: column.label.secondary,
-          } : {
-            text: column.label,
-          };
-
-        const columnDef = {
-          id: column.key,
-          header: label,
-          align: isFirst ? "left" : "center",
-          headerFill: headerFills[column.key],
-          cache: false,
-          headerRenderer: this.renderCustomTextCell,
-        };
-
-        if (!isFirst) {
-          columnDef.width = widths[column.key];
-
-          if (columnDef.id === "rate") {
-            columnDef.renderer = this.renderCustomTextCell;
-          }
-        } else {
-          columnDef.cache = false;
-          columnDef.renderer = this.renderCustomTextCell;
-        }
-
-        return columnDef;
-      });
-
-      const rows = _.map(profile.rows, (row, index) => {
-        const isLast = index === profile.rows.length - 1;
-
-        if (isLast) {
-          // eslint-disable-next-line no-underscore-dangle, no-param-reassign
-          row._bold = true;
-        }
-
-        return row;
-      });
-
-      this.renderTable(tableColumns, rows, {
-        columnDefaults: {
-          zebra: true,
-          headerFill: true,
-        },
-        flexColumn: "start",
-      });
-    });
-  }
-
-  renderDiabeloopProfiles() {
-    const device = _.get(this.data, "payload.device", null); // Device information
-    const parameters = _.get(this.data, "payload.parameters", null); // Device parameters
-    const pump = _.get(this.data, "payload.pump", null); // Pump information
-    const cgm = _.get(this.data, "payload.cgm", null); // CGM information
-
-    // Render the device information table:
     if (device) {
-      const deviceTableData = dblData.getDeviceInfosData(device);
+      const deviceTableData = dblData.getDeviceInfosData(device, this.data.timezone, this.data.originalDate);
       const deviceTableDataWidth = (this.chartArea.width * 0.6);
       deviceTableData.columns[0].width = (deviceTableDataWidth * 0.5);
       deviceTableData.columns[1].width = (deviceTableDataWidth * 0.5);
@@ -218,232 +70,54 @@ class SettingsPrintView extends PrintView {
     } else {
       this.renderSectionHeading(t("No diabeloop device informations available"));
     }
+  }
 
-    // Render the pump parameters table:
+  /** Render the pump parameters table */
+  renderPumpInfo() {
+    const pump = _.get(this.data, "payload.pump", null);
+
     if (pump) {
-      const pumpData = dblData.getPumpParametersData(pump);
+      const pumpData = dblData.getPumpParametersData(pump, this.data.timezone, this.data.originalDate);
       const customWidth = (this.chartArea.width * 0.6);
       pumpData.columns[0].width = (customWidth * 0.5);
       pumpData.columns[1].width = (customWidth * 0.5);
 
       this.renderSettingsSection(pumpData, customWidth);
     }
+  }
 
-    // Render the CGM parameters table:
+  /** Render the CGM parameters table */
+  renderCgmInfo() {
+    const cgm = _.get(this.data, "payload.cgm", null);
+
     if (cgm) {
-      const cgmData = dblData.getCGMParametersData(cgm);
+      const cgmData = dblData.getCGMParametersData(cgm, this.data.timezone, this.data.originalDate);
       const customWidth = (this.chartArea.width * 0.6);
       cgmData.columns[0].width = (customWidth * 0.5);
       cgmData.columns[1].width = (customWidth * 0.5);
 
       this.renderSettingsSection(cgmData, customWidth);
     }
+  }
 
-    // Render the device parameters tables:
+  /** Render the device parameters tables */
+  renderDeviceParameters() {
+    const parameters = _.get(this.data, "payload.parameters", null);
     if (parameters) {
       const parametersByLevel = dblData.getParametersByLevel(parameters);
-
+      // Display the parameters date only when originalDate is set, like the others table. But the date is the good one this time
+      const originalDate = !this.data.originalDate ? undefined : this.data.normalTime;
       parametersByLevel.forEach((params, level) => {
-        const tableData = dblData.getDeviceParametersData(params, { level, width: this.chartArea.width });
+        const tableData = dblData.getDeviceParametersData(params, { level, width: this.chartArea.width }, this.data.timezone, originalDate);
         this.renderSettingsSection(tableData, this.chartArea.width, { zebra: true, showHeaders: true });
       });
     } else {
       this.renderSectionHeading(t("No diabeloop device parameters available"));
     }
-
-    this.resetText();
   }
 
-  renderBasalSchedules() {
-    this.renderSectionHeading(t("Basal Rates"));
-
-    this.setLayoutColumns({
-      width: this.chartArea.width,
-      count: 3,
-      gutter: 15,
-    });
-
-    const {
-      activeSchedule,
-      basalSchedules,
-      lastManualBasalSchedule,
-    } = this.data;
-
-    const columnWidth = this.getActiveColumnWidth();
-
-    const tableColumns = _.map(startTimeAndValue("rate"), (column, index) => {
-      const isValue = index === 1;
-      const valueWidth = 50;
-
-      return {
-        id: column.key,
-        header: column.label,
-        align: isValue ? "right" : "left",
-        width: isValue ? valueWidth : columnWidth - valueWidth,
-      };
-    });
-
-    // We only show automated basal schedules if active at upload
-    const schedules = _.reject(
-      _.map(
-        basalSchedules,
-        (schedule, index) => basal(index, this.data, this.manufacturer)
-      ),
-      schedule => (schedule.isAutomated && schedule.scheduleName !== activeSchedule)
-    );
-
-    const sortedSchedules = _.orderBy(
-      schedules,
-      [
-        schedule => (schedule.isAutomated ? 1 : 0),
-        schedule => (schedule.scheduleName === lastManualBasalSchedule ? 1 : 0),
-        schedule => (schedule.scheduleName === activeSchedule ? 1 : 0),
-        schedule => schedule.rows.length,
-        "name",
-      ],
-      ["desc", "desc", "desc", "desc", "asc"]
-    );
-
-    const automatedScheduleShowing = _.some(sortedSchedules, { isAutomated: true });
-
-    _.forEach(sortedSchedules, (schedule, index) => {
-      const columnIndex = automatedScheduleShowing && index > 0 ? index - 1 : index;
-      const activeColumn = columnIndex < this.layoutColumns.count
-        ? columnIndex % this.layoutColumns.count
-        : this.getShortestLayoutColumn();
-
-      this.goToLayoutColumnPosition(activeColumn);
-
-      const scheduleLabel = _.get(schedule, "title", {});
-
-      const heading = {
-        text: scheduleLabel.main,
-        subText: schedule.isAutomated ? scheduleLabel.secondary.toLowerCase() : scheduleLabel.units,
-        note: schedule.isAutomated ? null : scheduleLabel.secondary,
-      };
-
-      this.renderTableHeading(heading, {
-        columnDefaults: {
-          fill: {
-            color: schedule.isAutomated ? this.colors.basalAutomated : this.colors.basal,
-            opacity: 0.15,
-          },
-          width: columnWidth,
-        },
-        bottomMargin: schedule.isAutomated ? 15 : 0,
-      });
-
-      this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
-
-      if (!schedule.isAutomated) {
-        const rows = _.map(schedule.rows, (row, rowIndex) => {
-          const isLast = rowIndex === schedule.rows.length - 1;
-
-          if (isLast) {
-            // eslint-disable-next-line no-underscore-dangle, no-param-reassign
-            row._bold = true;
-          }
-
-          return row;
-        });
-
-        this.renderTable(tableColumns, rows, {
-          columnDefaults: {
-            zebra: true,
-            headerFill: true,
-          },
-          bottomMargin: 15,
-        });
-
-        this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
-      }
-    });
-
-    this.resetText();
-  }
-
-  renderWizardSettings() {
-    this.doc.x = this.chartArea.leftEdge;
-    this.doc.y = _.get(this.layoutColumns, `columns.${this.getLongestLayoutColumn()}.y`);
-    this.doc.moveDown();
-
-    this.renderSectionHeading(bolusTitle(this.manufacturer));
-
-    this.setLayoutColumns({
-      width: this.chartArea.width,
-      count: 3,
-      gutter: 15,
-    });
-
-    this.renderSensitivity();
-
-    this.renderTarget();
-
-    this.renderRatio();
-
-    this.resetText();
-  }
-
-  renderWizardSetting(settings, units = "") {
-    this.goToLayoutColumnPosition(this.getShortestLayoutColumn());
-
-    const columnWidth = this.getActiveColumnWidth();
-
-    const tableColumns = _.map(settings.columns, (column, index) => {
-      const isValue = index > 0;
-      const valueWidth = 50;
-
-      return {
-        id: column.key,
-        header: column.label,
-        align: isValue ? "right" : "left",
-        width: isValue ? valueWidth : columnWidth - (valueWidth * (settings.columns.length - 1)),
-      };
-    });
-
-    const heading = {
-      text: settings.title,
-      subText: units,
-    };
-
-    this.renderTableHeading(heading, {
-      columnDefaults: {
-        fill: {
-          color: this.colors.basal,
-          opacity: 0.15,
-        },
-        width: columnWidth,
-      },
-    });
-
-    this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
-
-    this.renderTable(tableColumns, settings.rows, {
-      columnDefaults: {
-        zebra: true,
-        headerFill: true,
-      },
-    });
-
-    this.updateLayoutColumnPosition(this.layoutColumns.activeIndex);
-  }
-
-  renderSensitivity() {
-    const units = `${this.bgUnits}/U`;
-    this.renderWizardSetting(sensitivity(this.data, this.manufacturer, this.bgUnits), units);
-  }
-
-  renderTarget() {
-    const units = this.bgUnits;
-    this.renderWizardSetting(target(this.data, this.manufacturer), units);
-  }
-
-  renderRatio() {
-    const units = "g/U";
-    this.renderWizardSetting(ratio(this.data, this.manufacturer), units);
-  }
-
-  renderSettingsSection (tableData, width, { zebra, showHeaders } = false) {
+  /** @private */
+  renderSettingsSection(tableData, width, { zebra, showHeaders } = false) {
     this.renderTableHeading(tableData.heading, {
       columnDefaults: {
         fill: {
@@ -463,7 +137,6 @@ class SettingsPrintView extends PrintView {
       showHeaders : showHeaders ?? false,
     });
   }
-
 }
 
 export default SettingsPrintView;

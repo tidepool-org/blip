@@ -16,6 +16,7 @@
  */
 
 import _ from "lodash";
+import i18next from "i18next";
 
 /**
  * getPatientFullName
@@ -24,11 +25,5 @@ import _ from "lodash";
  * @return {String} PwD's full name (first & last)
  */
 export function getPatientFullName(patient) {
-  const profile = _.get(patient, "profile", {});
-  const patientInfo = profile.patient || {};
-
-  if (patientInfo.isOtherPerson) {
-    return patientInfo.fullName;
-  }
-  return profile.fullName;
+  return _.get(patient, "profile.fullName", i18next.t("Anonymous user"));
 }

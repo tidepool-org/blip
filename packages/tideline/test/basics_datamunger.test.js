@@ -514,119 +514,15 @@ describe("basics datamunger", function() {
         days: [{date: "2015-01-01", type: "past"}, {date: "2015-01-02", type: "mostRecent"}]
       };
       dm.reduceByDay(bd);
-      var types = ["bolus", "reservoirChange", "basal"];
-      types.forEach(function(type) {
-        it("should build crossfilter utils for " + type, function() {
+      const types = ["reservoirChange"];
+      types.forEach((type) => {
+        it("should build crossfilter utils for " + type, () => {
           expect(Object.keys(bd.data[type])).to.deep.equal(["data", "cf", "byLocalDate", "dataByDate"]);
         });
 
-        it("should build a `dataByDate` object for " + type + " with *only* localDates with data as keys", function() {
+        it("should build a `dataByDate` object for " + type + " with *only* localDates with data as keys", () => {
           expect(Object.keys(bd.data[type].dataByDate)).to.deep.equal(["2015-01-01"]);
         });
-      });
-    });
-
-    describe("crossfilter utils for fingerstick section", function() {
-      var then = "2015-01-01T00:00:00.000Z";
-      var bd = {
-        data: {
-          smbg: {data: [{type: "smbg", normalTime: then, displayOffset: 0}]},
-          calibration: {data: [{type: "deviceEvent", subType: "calibration", normalTime: then, displayOffset: 0}]}
-        },
-        days: [{date: "2015-01-01", type: "past"}, {date: "2015-01-02", type: "mostRecent"}]
-      };
-      dm.reduceByDay(bd);
-      var types = ["smbg", "calibration"];
-      types.forEach(function(type) {
-        it("should build crossfilter utils in fingerstick." + type, function() {
-          expect(Object.keys(bd.data.fingerstick[type])).to.deep.equal(["cf", "byLocalDate", "dataByDate"]);
-        });
-
-        it("should build a `dataByDate` object for " + type + " with *only* localDates with data as keys", function() {
-          expect(Object.keys(bd.data.fingerstick[type].dataByDate)).to.deep.equal(["2015-01-01"]);
-        });
-      });
-    });
-
-    describe("countAutomatedBasalEventsForDay", function() {
-      it("should count the number of `automatedStop` events and add them to the totals", function() {
-        var then = "2015-01-01T00:00:00.000Z";
-        var bd = {
-          data: {
-            basal: { data: [
-              { type: "basal", deliveryType: "temp", normalTime: then, displayOffset: 0 },
-              { type: "basal", deliveryType: "automated", normalTime: then, displayOffset: 0 },
-            ] },
-          },
-          days: [{ date: "2015-01-01", type: "mostRecent" }],
-        };
-
-        dm.reduceByDay(bd);
-
-        expect(bd.data.basal.dataByDate["2015-01-01"].subtotals.automatedStop).to.equal(0);
-        expect(bd.data.basal.dataByDate["2015-01-01"].subtotals.automatedStart).to.equal(1);
-        expect(bd.data.basal.dataByDate["2015-01-01"].total).to.equal(2);
-
-        // Add a scheduled basal to kick out of automode
-        bd.data.basal.data.push({ type: "basal", deliveryType: "scheduled", normalTime: then, displayOffset: 0 });
-        dm.reduceByDay(bd);
-
-        expect(bd.data.basal.dataByDate["2015-01-01"].subtotals.automatedStop).to.equal(1);
-        expect(bd.data.basal.dataByDate["2015-01-01"].total).to.equal(3);
-      });
-    });
-
-    describe("countDistinctSuspendsForDay", function() {
-      it("should count contiguous `suspend` events as 1 and add them to the totals", function() {
-        var start1 = "2015-01-01T00:00:00.000Z";
-        var start2 = "2015-01-01T00:01:00.000Z";
-        var start3 = "2015-01-01T00:01:02.000Z";
-        var start4 = "2015-01-01T00:01:06.000Z";
-        var start5 = "2015-01-01T00:02:00.000Z";
-        var bd = {
-          data: {
-            basal: { data: [
-              { type: "basal", deliveryType: "scheduled", normalTime: start1, normalEnd: start2 },
-              { type: "basal", deliveryType: "suspend", normalTime: start2, normalEnd: start3 },
-              { type: "basal", deliveryType: "suspend", normalTime: start3, normalEnd: start4 },
-              { type: "basal", deliveryType: "suspend", normalTime: start4, normalEnd: start5 },
-              { type: "basal", deliveryType: "scheduled", normalTime: start5 },
-            ] },
-          },
-          days: [{ date: "2015-01-01", type: "mostRecent" }],
-        };
-
-        dm.reduceByDay(bd);
-
-        // should only count the 3 suspends as 1, because they are contiguous
-        expect(bd.data.basal.dataByDate["2015-01-01"].subtotals.suspend).to.equal(1);
-        expect(bd.data.basal.dataByDate["2015-01-01"].total).to.equal(1);
-      });
-
-      it("should count non-contiguous `suspend` events as distict add them to the totals", function() {
-        var start1 = "2015-01-01T00:00:00.000Z";
-        var start2 = "2015-01-01T00:01:00.000Z";
-        var start3 = "2015-01-01T00:01:02.000Z";
-        var start4 = "2015-01-01T00:01:06.000Z";
-        var start5 = "2015-01-01T00:02:00.000Z";
-        var bd = {
-          data: {
-            basal: { data: [
-              { type: "basal", deliveryType: "scheduled", normalTime: start1, normalEnd: start2 },
-              { type: "basal", deliveryType: "suspend", normalTime: start2, normalEnd: start3 },
-              { type: "basal", deliveryType: "scheduled", normalTime: start3, normalEnd: start4 },
-              { type: "basal", deliveryType: "suspend", normalTime: start4, normalEnd: start5 },
-              { type: "basal", deliveryType: "scheduled", normalTime: start5 },
-            ] },
-          },
-          days: [{ date: "2015-01-01", type: "mostRecent" }],
-        };
-
-        dm.reduceByDay(bd);
-
-        // should only count the 2 suspends as 2, because they are non-contiguous
-        expect(bd.data.basal.dataByDate["2015-01-01"].subtotals.suspend).to.equal(2);
-        expect(bd.data.basal.dataByDate["2015-01-01"].total).to.equal(2);
       });
     });
   });

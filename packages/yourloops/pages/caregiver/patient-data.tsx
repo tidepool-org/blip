@@ -45,6 +45,7 @@ import InvalidRoute from "../../components/invalid-route";
 import ProfileDialog from "../../components/dialogs/patient-profile";
 import DialogDatePicker from "../../components/date-pickers/dialog-date-picker";
 import DialogRangeDatePicker from "../../components/date-pickers/dialog-range-date-picker";
+import DialogPDFOptions from "../../components/dialogs/pdf-print-options";
 
 interface PatientDataParam {
   patientId?: string;
@@ -124,6 +125,7 @@ function PatientDataPage(): JSX.Element | null {
         prefixURL={`/caregiver/patient/${paramPatientId}`}
         dialogDatePicker={DialogDatePicker}
         dialogRangeDatePicker={DialogRangeDatePicker}
+        dialogPDFOptions={DialogPDFOptions}
       />
     </Container>
   );

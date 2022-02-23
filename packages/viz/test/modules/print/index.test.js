@@ -31,17 +31,12 @@ describe("print module", () => {
 
   const data = {
     daily: { type: "daily" },
-    bgLog: { type: "bgLog" },
     basics: { type: "basics" },
     settings: { type: "settings" },
   };
 
   const opts = {
     bgPrefs: {},
-    numDays: {
-      daily: 6,
-      bgLog: 30,
-    },
     patient: {},
     timePrefs: {},
     mostRecent: "",
@@ -135,7 +130,6 @@ describe("print module", () => {
         doc,
         data.daily,
         {
-          numDays: opts.numDays.daily,
           patient: opts.patient,
           timePrefs: opts.timePrefs,
           bgPrefs: opts.bgPrefs,

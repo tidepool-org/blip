@@ -29,11 +29,13 @@ import { ONE_HR } from "./datetime";
 */
 export function getBasalSequences(basals) {
   const basalSequences = [];
+  if (!Array.isArray(basals) || basals.length < 1) {
+    return basalSequences;
+  }
   let currentBasal = basals[0];
   let seq = [basals[0]];
 
-  let idx = 1;
-  while (idx <= basals.length - 1) {
+  for (let idx = 1; idx < basals.length; idx++) {
     const nextBasal = basals[idx];
     const basalTypeChange = nextBasal.subType !== currentBasal.subType;
 
@@ -44,7 +46,6 @@ export function getBasalSequences(basals) {
 
     seq.push(nextBasal);
     currentBasal = nextBasal;
-    ++idx;
   }
   basalSequences.push(seq);
 
@@ -100,14 +101,14 @@ export function getEndpoints(data, s, e, optionalExtents = false) {
 
   const startIndex = _.findIndex(
     data,
-    segment => (optionalExtents || new Date(segment.normalTime).valueOf() <= start)
-      && (start <= new Date(segment.normalEnd).valueOf())
+    segment => (optionalExtents || segment.epoch <= start)
+      && (start <= segment.epochEnd)
   );
 
   const endIndex = _.findLastIndex(
     data,
-    segment => (new Date(segment.normalTime).valueOf() <= end)
-      && (optionalExtents || end <= new Date(segment.normalEnd).valueOf())
+    segment => (segment.epoch <= end)
+      && (optionalExtents || end <= segment.epochEnd)
   );
 
   return {
@@ -143,7 +144,7 @@ export function getGroupDurations(data, s, e) {
 
     // handle first segment, which may have started before the start endpoint
     let segment = data[endpoints.start.index];
-    const initialSegmentDuration = _.min([new Date(segment.normalEnd) - start, segment.duration]);
+    const initialSegmentDuration = _.min([segment.epochEnd - start, segment.duration]);
     durations[getBasalPathGroupType(segment)] = initialSegmentDuration;
 
     // add the durations of all subsequent basals, minus the last
@@ -157,7 +158,7 @@ export function getGroupDurations(data, s, e) {
     // handle last segment, which may go past the end endpoint
     segment = data[endpoints.end.index];
     durations[getBasalPathGroupType(segment)] += _.min([
-      end - new Date(segment.normalTime),
+      end - segment.epoch,
       segment.duration,
     ]);
   }

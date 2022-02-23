@@ -14,8 +14,6 @@ Blip is a web app for people with type 1 diabetes (PwDs) and their care teams. T
             + This view contains a general summary of all of the user-uploaded device data available, including BG Readings and Distribution, Infusion Site Changes, Basal Events, and Bolus Events.
         + Daily
             + This view contains charts showing all of available device data and notes for a given day, and summaries such as Basal:Bolus ratios, Time In Target stats, and average BG for this period of time.
-        + BG Log
-            + This view contains a plot of all available BG readings for a given 2 week span, and summaries such as Basal:Bolus ratios, Time In Target stats, and average BG for this period of time.
         + Trends
             + This view allows users to analyze their BGM or CGM trends over a 1, 2, or 4 week period of time.
     + The default view presented to the user upon logging in or refreshing to show newly-loaded data is based on the type of data that was most recently uploaded. The determining criteria are as follows:

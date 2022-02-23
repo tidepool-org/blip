@@ -97,10 +97,10 @@ class TrendsSubNav extends React.Component {
 
   renderDomain(domain) {
     switch (domain) {
-    case "1 week": return t("1 week");
-    case "2 weeks": return t("2 weeks");
-    case "4 weeks": return t("4 weeks");
-    case "3 months": return t("3 months");
+    case "1 week": return t("preset-dates-range-1week");
+    case "2 weeks": return t("preset-dates-range-2weeks");
+    case "4 weeks": return t("preset-dates-range-4weeks");
+    case "3 months": return t("preset-dates-range-3months");
     default: return t("custom");
     }
   }

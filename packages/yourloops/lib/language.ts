@@ -89,6 +89,7 @@ async function init(): Promise<void> {
     },
     ns: locales.namespaces,
     defaultNS: locales.defaultNS,
+    fallbackNS: locales.fallbackNS,
 
     resources: locales.resources,
   };
@@ -122,8 +123,14 @@ async function init(): Promise<void> {
  * @example t("translate-me");
  * @example t("translate-{{someone}}", { someone: "me" });
  */
-function t(s: string, p?: TOptions | string): string {
-  return i18n.t(`yourloops|${s}`, p);
+function t(s: string, p?: TOptions): string {
+  let opts;
+  if (p) {
+    opts = { ns: "yourloops", ...p };
+  } else {
+    opts = { ns: "yourloops" };
+  }
+  return i18n.t(s, opts);
 }
 
 const changeLanguage = i18n.changeLanguage.bind(i18n);

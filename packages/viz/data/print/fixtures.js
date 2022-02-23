@@ -221,14 +221,14 @@ export const basicsData = {
     upload: {
       data: [
         new types.Upload({
-          deviceTime: "2017-09-18T18:00:00",
-          deviceTags: ["insulin-pump"],
-          source: "Animas",
+          normalTime: "2017-09-18T18:00:00",
+          deviceTags: ["cgm", "insulin-pump"],
+          source: "Diabeloop",
         }),
         new types.Upload({
-          deviceTime: "2017-09-26T18:00:00",
-          deviceTags: ["insulin-pump"],
-          source: "Animas",
+          normalTime: "2017-09-26T18:00:00",
+          deviceTags: ["cgm", "insulin-pump"],
+          source: "Diabeloop",
         }),
       ],
     },

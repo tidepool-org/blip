@@ -20,14 +20,10 @@ import { timeParse } from "d3-time-format";
 import { assert, expect } from "chai";
 import * as sinon from "sinon";
 
-import * as patients from "../../data/patient/profiles";
+import { patient } from "../../data/patient/profiles";
 import * as datetime from "../../src/utils/datetime";
 
 describe("datetime", () => {
-  const {
-    standard,
-    fakeChildAcct,
-  } = patients;
 
   describe("THIRTY_MINS", () => {
     assert.isNumber(datetime.THIRTY_MINS);
@@ -109,28 +105,6 @@ describe("datetime", () => {
         expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal("Europe/Budapest");
         expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal("Europe/Budapest");
       });
-
-      it("should return browser timezone when timezoneAware is falsey", () => {
-        const timePrefs1 = {
-          timezoneAware: false,
-          timezoneName: "Europe/London",
-        };
-        const timePrefs2 = {
-          timezoneName: "Europe/London",
-        };
-        const timePrefs3 = {
-          timezoneAware: null,
-          timezoneName: "Europe/London",
-        };
-        const timePrefs4 = {
-          timezoneAware: undefined,
-          timezoneName: "Europe/London",
-        };
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal("Europe/Budapest");
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal("Europe/Budapest");
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal("Europe/Budapest");
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs4)).to.equal("Europe/Budapest");
-      });
     });
 
     context("timezone cannot be determined by browser", () => {
@@ -162,28 +136,6 @@ describe("datetime", () => {
         expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal("UTC");
         expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal("UTC");
       });
-
-      it("should return `UTC` when timezoneAware is falsey", () => {
-        const timePrefs1 = {
-          timezoneAware: false,
-          timezoneName: "Europe/London",
-        };
-        const timePrefs2 = {
-          timezoneName: "Europe/London",
-        };
-        const timePrefs3 = {
-          timezoneAware: null,
-          timezoneName: "Europe/London",
-        };
-        const timePrefs4 = {
-          timezoneAware: undefined,
-          timezoneName: "Europe/London",
-        };
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs1)).to.equal("UTC");
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs2)).to.equal("UTC");
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs3)).to.equal("UTC");
-        expect(datetime.getTimezoneFromTimePrefs(timePrefs4)).to.equal("UTC");
-      });
     });
   });
 
@@ -193,11 +145,7 @@ describe("datetime", () => {
     });
 
     it("should format birthdate extracted from normal patient object", () => {
-      expect(datetime.formatBirthdate(standard)).to.equal("Jan 31, 1983");
-    });
-
-    it("should format birthdate extracted from fake child account patient object", () => {
-      expect(datetime.formatBirthdate(fakeChildAcct)).to.equal("Jan 31, 1983");
+      expect(datetime.formatBirthdate(patient)).to.equal("Jan 31, 1983");
     });
   });
 
@@ -248,11 +196,7 @@ describe("datetime", () => {
     });
 
     it("should format diagnosisDate extracted from patient object", () => {
-      expect(datetime.formatDiagnosisDate(standard)).to.equal("Jan 31, 1990");
-    });
-
-    it("should format diagnosisDate extracted from fake child account patient object", () => {
-      expect(datetime.formatDiagnosisDate(fakeChildAcct)).to.equal("Jan 31, 1990");
+      expect(datetime.formatDiagnosisDate(patient)).to.equal("Jan 31, 1990");
     });
   });
 

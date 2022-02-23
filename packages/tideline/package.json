@@ -14,7 +14,7 @@
   "scripts": {
     "mrproper": "rm -rf dist node_modules",
     "clean": "rm -rf dist",
-    "test": "TZ=UTC NODE_ENV=test karma start",
+    "test": "LANG=C TZ=UTC NODE_ENV=test karma start",
     "test-debug": "TZ=UTC NODE_ENV='test' DEBUG_UNIT_TEST='true' karma --single-run=false --log-level debug start --auto-watch"
   },
   "dependencies": {

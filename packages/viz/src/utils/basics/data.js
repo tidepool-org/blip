@@ -39,20 +39,12 @@ import {
   NO_SITE_CHANGE,
   SITE_CHANGE,
   SITE_CHANGE_RESERVOIR,
-  SITE_CHANGE_TUBING,
-  SITE_CHANGE_CANNULA,
   SECTION_TYPE_UNDECLARED,
   AUTOMATED_DELIVERY,
   SCHEDULED_DELIVERY,
-  INSULET,
-  TANDEM,
-  ANIMAS,
-  MEDTRONIC,
   DIABELOOP,
   getPumpVocabularies,
 } from "../constants";
-
-import { getBasalPathGroups } from "../basal";
 
 const t = i18next.t.bind(i18next);
 
@@ -178,48 +170,20 @@ export function getInfusionSiteHistory(basicsData, type) {
  * @param {Object} patient
  * @returns {Object} basicsData - the revised data object
  */
-export function processInfusionSiteHistory(data, patient) {
-  const basicsData = _.cloneDeep(data);
+export function processInfusionSiteHistory(data) {
+  const basicsData = data;
   const latestPump = getLatestPumpUploaded(basicsData);
 
   if (!latestPump) {
     return basicsData;
   }
 
-  const {
-    settings,
-  } = patient;
-
-  if (latestPump === ANIMAS || latestPump === MEDTRONIC || latestPump === TANDEM) {
-    basicsData.data.cannulaPrime.infusionSiteHistory = getInfusionSiteHistory(
-      basicsData,
-      SITE_CHANGE_CANNULA
-    );
-
-    basicsData.data.tubingPrime.infusionSiteHistory = getInfusionSiteHistory(
-      basicsData,
-      SITE_CHANGE_TUBING
-    );
-
-    const siteChangeSource = _.get(settings, "siteChangeSource");
-    const allowedSources = [SITE_CHANGE_CANNULA, SITE_CHANGE_TUBING];
-
-    if (siteChangeSource && _.includes(allowedSources, siteChangeSource)) {
-      basicsData.sections.siteChanges.type = settings.siteChangeSource;
-    } else {
-      basicsData.sections.siteChanges.type = SECTION_TYPE_UNDECLARED;
-    }
-  } else if (latestPump === INSULET || latestPump === DIABELOOP) {
+  if (latestPump === DIABELOOP) {
     basicsData.data.reservoirChange.infusionSiteHistory = getInfusionSiteHistory(
       basicsData,
       SITE_CHANGE_RESERVOIR
     );
 
-    basicsData.sections.siteChanges.type = SITE_CHANGE_RESERVOIR;
-    basicsData.sections.siteChanges.selector = null;
-  } else {
-    // CareLink (Medtronic) or other unsupported pump
-    basicsData.data.reservoirChange = {};
     basicsData.sections.siteChanges.type = SITE_CHANGE_RESERVOIR;
     basicsData.sections.siteChanges.selector = null;
   }
@@ -508,6 +472,7 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
       emptyText,
       type,
       dimensions,
+      disabled: false,
     };
   });
 
@@ -525,165 +490,16 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
 export function reduceByDay(data, bgPrefs) {
   const basicsData = _.cloneDeep(data);
 
-  const sections = basicsData.sections;
-
-  const findSectionContainingType = type => section => {
-    if (section.column === "left") {
-      return false;
-    }
-    return section.type === type;
-  };
-
-  const reduceTotalByDate = (typeObj) => (p, date) => (
-    p + typeObj.dataByDate[date].total
-  );
-
-  /* eslint-disable no-param-reassign */
-  const countAutomatedBasalEventsForDay = (dataForDate) => {
-    // Get the path groups, and remove the first group, as we only want to
-    // track changes into and out of automated delivery
-    const basalPathGroups = getBasalPathGroups(dataForDate.data);
-    basalPathGroups.shift();
-
-    const events = {
-      automatedStop: 0,
-    };
-
-    _.reduce(basalPathGroups, (acc, group) => {
-      const subType = _.get(group[0], "subType", group[0].deliveryType);
-      const event = subType === "automated" ? "automatedStart" : "automatedStop";
-      // For now, we're only tracking `automatedStop` events
-      if (event === "automatedStop") {
-        acc[event]++;
-      }
-      return acc;
-    }, events);
-
-    _.assign(dataForDate.subtotals, events);
-    dataForDate.total += events.automatedStop;
-  };
-  /* eslint-enable no-param-reassign */
-
-  /* eslint-disable no-param-reassign */
-  const countDistinctSuspendsForDay = (dataForDate) => {
-    const suspends = _.filter(dataForDate.data, d => d.deliveryType === "suspend");
-
-    const result = {
-      prev: {},
-      distinct: 0,
-      skipped: 0,
-    };
-
-    _.reduce(suspends, (acc, datum) => {
-      // We only want to track non-contiguous suspends as distinct
-      if (_.get(acc.prev, "normalEnd") === datum.normalTime) {
-        acc.skipped++;
-      } else {
-        acc.distinct++;
-      }
-      acc.prev = datum;
-      return acc;
-    }, result);
-
-    dataForDate.subtotals.suspend = result.distinct;
-    dataForDate.total -= result.skipped;
-  };
-  /* eslint-enable no-param-reassign */
-
-  const mostRecentDay = _.find(basicsData.days, { type: "mostRecent" }).date;
-
-  _.forEach(basicsData.data, (value, type) => {
+  _.forEach(basicsData.data, (_value, type) => {
     const typeObj = basicsData.data[type];
 
-    if (_.includes(
-      ["basal", "bolus", SITE_CHANGE_RESERVOIR, SITE_CHANGE_TUBING, SITE_CHANGE_CANNULA], type)
-    ) {
+    if (_.includes([SITE_CHANGE_RESERVOIR], type)) {
       typeObj.cf = crossfilter(typeObj.data);
       buildCrossfilterUtils(typeObj, type, bgPrefs);
     }
 
-    if (type === "basal") {
-      _.forEach(typeObj.dataByDate, countAutomatedBasalEventsForDay);
-      _.forEach(typeObj.dataByDate, countDistinctSuspendsForDay);
-    }
-
-    if (_.includes(["calibration", "smbg"], type)) {
-      if (!basicsData.data.fingerstick) {
-        basicsData.data.fingerstick = {};
-      }
-      basicsData.data.fingerstick[type] = {
-        cf: crossfilter(typeObj.data),
-      };
-      buildCrossfilterUtils(basicsData.data.fingerstick[type], type, bgPrefs);
-    }
-
-    // for basal and boluses, summarize tags and find avg events per day
-    if (_.includes(["basal", "bolus"], type)) {
-      // NB: for basals, the totals and avgPerDay are basal *events*
-      // that is, temps, suspends, & (not now, but someday) schedule changes
-      const section = _.find(sections, findSectionContainingType(type));
-      // wrap this in an if mostly for testing convenience
-      if (section) {
-        const tags = _.map(_.filter(section.dimensions, f => !f.primary), row => row.key);
-
-        const summary = {
-          total: _.reduce(
-            _.keys(typeObj.dataByDate),
-            reduceTotalByDate(typeObj), 0
-          ),
-        };
-
-        _.forEach(tags, summarizeTagFn(typeObj, summary));
-        summary.avgPerDay = averageExcludingMostRecentDay(
-          typeObj,
-          summary.total,
-          mostRecentDay
-        );
-        typeObj.summary = summary;
-      }
-    }
-
     basicsData.data[type] = typeObj;
   });
-
-  const fsSection = _.find(sections, findSectionContainingType("fingerstick"));
-  // wrap this in an if mostly for testing convenience
-  if (fsSection) {
-    const fingerstickData = basicsData.data.fingerstick;
-    const fsSummary = { total: 0 };
-
-    // calculate the total events for each type that participates in the fingerstick section
-    // as well as an overall total
-    _.forEach(["calibration", "smbg"], fsCategory => {
-      fsSummary[fsCategory] = {
-        total: _.reduce(
-          _.keys(fingerstickData[fsCategory].dataByDate),
-          (p, date) => {
-            const dateData = fingerstickData[fsCategory].dataByDate[date];
-            return p + (dateData.total || dateData.count);
-          }, 0
-        ),
-      };
-      fsSummary.total += fsSummary[fsCategory].total;
-    });
-
-    fingerstickData.summary = fsSummary;
-
-    const filterTags = filter => (filter.path === "smbg" && !filter.primary);
-
-    const fsTags = _.map(_.filter(fsSection.dimensions, filterTags), row => row.key);
-
-    _.forEach(fsTags, summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
-    const smbgSummary = fingerstickData.summary.smbg;
-    smbgSummary.avgPerDay = averageExcludingMostRecentDay(
-      fingerstickData.smbg,
-      smbgSummary.total,
-      mostRecentDay,
-    );
-
-    basicsData.data.fingerstick = fingerstickData;
-    basicsData.data.fingerstick.summary.smbg = smbgSummary;
-  }
 
   return basicsData;
 }
@@ -782,7 +598,7 @@ export function disableEmptySections(data) {
       disabled = !hasDataInRange(typeData[type]);
     } else if (_.includes(aggregatedDataTypes, key)) {
       disabled = !typeData[key];
-    } else if (type === "fingerstick") {
+    } else if (type === "fingerstick" && typeData[type]) {
       const hasSMBG = hasDataInRange(typeData[type].smbg);
       const hasCalibrations = hasDataInRange(typeData[type].calibration);
 
@@ -792,7 +608,7 @@ export function disableEmptySections(data) {
 
       disabled = !hasSMBG && !hasCalibrations;
     } else if (key === "siteChanges") {
-      disabled = (!type || type === SECTION_TYPE_UNDECLARED);
+      disabled = (!type || type === SECTION_TYPE_UNDECLARED) || _.isEmpty(_.get(typeData, "reservoirChange.data"));
     }
 
     if (disabled) {

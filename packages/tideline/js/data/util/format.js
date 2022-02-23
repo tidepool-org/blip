@@ -133,14 +133,6 @@ const format = {
     return s[0].toUpperCase() + s.slice(1);
   },
 
-  dayAndDate: function(i, offset) {
-    var d = new Date(i);
-    if (offset) {
-      d.setUTCMinutes(d.getUTCMinutes() + offset);
-    }
-    return moment.utc(d).format("ddd, MMM D");
-  },
-
   fixFloatingPoint: function(n) {
     return Number.parseFloat(n.toFixed(3));
   },

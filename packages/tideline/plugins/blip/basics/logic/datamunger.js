@@ -22,7 +22,6 @@ import sundial from "sundial";
 
 import { MGDL_UNITS } from "../../../../js/data/util/constants";
 import { getLatestPumpUpload } from "../../../../js/data/util/device";
-import BasalUtil from "../../../../js/data/basalutil";
 
 import classifiersMkr from "./classifiers";
 import * as constants from "./constants";
@@ -30,7 +29,6 @@ import basicsActions from "./actions";
 import togglableState from "../TogglableState";
 
 function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
-  const basalUtil = new BasalUtil();
   const classifiers = classifiersMkr(bgClasses, bgUnits);
 
   return {
@@ -249,151 +247,15 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
       return (total - mostRecentTotal)/numDaysExcludingMostRecent;
     },
     reduceByDay: function(basicsData) {
-
-      function findSectionContainingType(type) {
-        return function(section) {
-          if (section.column === "left") {
-            return false;
-          }
-          return section.type === type;
-        };
-      }
-
-      function reduceTotalByDate(typeObj) {
-        return function(p, date) {
-          return p + typeObj.dataByDate[date].total;
-        };
-      }
-
-      function countAutomatedBasalEventsForDay(dataForDate) {
-        // Get the path groups, and remove the first group, as we only want to
-        // track changes into and out of automated delivery
-        var basalPathGroups = basalUtil.getBasalPathGroups(dataForDate.data);
-        basalPathGroups.shift();
-
-        var events = {
-          automatedStop: 0,
-          automatedStart: 0,
-        };
-
-        _.reduce(basalPathGroups, (acc, group) => {
-          const event = group[0].deliveryType === "automated" ? "automatedStart" : "automatedStop";
-          acc[event]++;
-          return acc;
-        }, events);
-
-        _.assign(dataForDate.subtotals, events);
-        dataForDate.total += events.automatedStop;
-        dataForDate.total += events.automatedStart;
-      }
-
-      function countDistinctSuspendsForDay(dataForDate) {
-        const suspends = _.filter(dataForDate.data, d => d.deliveryType === "suspend");
-
-        const result = {
-          prev: {},
-          distinct: 0,
-          skipped: 0,
-        };
-
-        _.reduce(suspends, (acc, datum) => {
-          // We only want to track non-contiguous suspends as distinct
-          if (_.get(acc.prev, "normalEnd") === datum.normalTime) {
-            acc.skipped++;
-          } else {
-            acc.distinct++;
-          }
-          acc.prev = datum;
-          return acc;
-        }, result);
-
-        dataForDate.subtotals.suspend = result.distinct;
-        dataForDate.total -= result.skipped;
-      }
-
-      const mostRecent = _.find(basicsData.days, { type: "mostRecent" });
-      let mostRecentDay = null;
-      if (!_.isEmpty(mostRecent)) {
-        mostRecentDay = mostRecent.date;
-      }
-
       for (const type in basicsData.data) {
         let typeObj = basicsData.data[type];
         if (_.isEmpty(typeObj)) {
           continue;
         }
-        if (_.includes(["basal", "bolus", constants.SITE_CHANGE_RESERVOIR, constants.SITE_CHANGE_TUBING, constants.SITE_CHANGE_CANNULA], type)) {
+        if (_.includes([constants.SITE_CHANGE_RESERVOIR, constants.SITE_CHANGE_CANNULA, constants.SITE_CHANGE_TUBING], type)) {
           typeObj.cf = crossfilter(typeObj.data);
           this._buildCrossfilterUtils(typeObj, type);
         }
-
-        if (_.includes(["calibration", "smbg"], type)) {
-          if (!basicsData.data.fingerstick) {
-            basicsData.data.fingerstick = {};
-          }
-          basicsData.data.fingerstick[type] = {
-            cf: crossfilter(typeObj.data)
-          };
-          this._buildCrossfilterUtils(basicsData.data.fingerstick[type], type);
-        }
-
-        if (type === "basal") {
-          _.forEach(typeObj.dataByDate, countAutomatedBasalEventsForDay);
-          _.forEach(typeObj.dataByDate, countDistinctSuspendsForDay);
-        }
-
-        // for basal and boluses, summarize tags and find avg events per day
-        if (_.includes(["basal", "bolus"], type)) {
-          // NB: for basals, the totals and avgPerDay are basal *events*
-          // that is, temps, suspends, & (not now, but someday) schedule changes
-          var section = _.find(basicsData.sections, findSectionContainingType(type));
-          // wrap this in an if mostly for testing convenience
-          if (section) {
-            var tags = _.flatten(_.map(section.selectorOptions.rows, this._getRowKey));
-
-            var summary = {total: Object.keys(typeObj.dataByDate)
-              .reduce(reduceTotalByDate(typeObj), 0)};
-            _.forEach(tags, this._summarizeTagFn(typeObj, summary));
-            summary.avgPerDay = this._averageExcludingMostRecentDay(
-              typeObj,
-              summary.total,
-              mostRecentDay
-            );
-            typeObj.summary = summary;
-          }
-        }
-      }
-
-      var fsSection = _.find(basicsData.sections, findSectionContainingType("fingerstick"));
-      // wrap this in an if mostly for testing convenience
-      if (fsSection) {
-        var fingerstickData = basicsData.data.fingerstick;
-        var fsSummary = {total: 0};
-        // calculate the total events for each type that participates in the fingerstick section
-        // as well as an overall total
-        _.forEach(["calibration", "smbg"], function(fsCategory) {
-          fsSummary[fsCategory] = {total: Object.keys(fingerstickData[fsCategory].dataByDate)
-            .reduce(function(p, date) {
-              var dateData = fingerstickData[fsCategory].dataByDate[date];
-              return p + (dateData.total || dateData.count);
-            }, 0)};
-          fsSummary.total += fsSummary[fsCategory].total;
-        });
-        fingerstickData.summary = fsSummary;
-
-        var fsTags = _.flatten(fsSection.selectorOptions.rows.map(function(row) {
-          return _.map(_.filter(row, function(opt) {
-            return opt.path === "smbg";
-          }), "key");
-        }));
-
-        _.forEach(fsTags, this._summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
-        var smbgSummary = fingerstickData.summary.smbg;
-        smbgSummary.avgPerDay = this._averageExcludingMostRecentDay(
-          fingerstickData.smbg,
-          smbgSummary.total,
-          mostRecentDay
-        );
       }
     }
   };

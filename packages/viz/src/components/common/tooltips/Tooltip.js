@@ -240,7 +240,6 @@ Tooltip.propTypes = {
     timePrefs: PropTypes.shape({
       timezoneAware: PropTypes.bool.isRequired,
       timezoneName: PropTypes.string.isRequired,
-      timezoneOffset: PropTypes.number.isRequired,
     }).isRequired,
   }),
   content: PropTypes.node,

@@ -18,6 +18,11 @@
 import _ from "lodash";
 
 import { MGDL_UNITS, MS_IN_DAY } from "tideline";
+
+import dblDevice from "./pumpSettings/diabeloop/device.json";
+import dblParamHistory from "./pumpSettings/diabeloop/deviceHistory.json";
+
+import { DIABELOOP } from "../src/utils/constants";
 import { addDuration } from "../src/utils/datetime";
 
 const APPEND = ".000Z";
@@ -26,9 +31,8 @@ class Common {
   constructor(opts = {}) {
     this.deviceId = "Test Page Data - 123";
     this.deviceTime = this.makeDeviceTime();
-    this.source = opts.source || "testpage";
-    this.conversionOffset = 0;
-    this.timezone = "UTC";
+    this.source = opts.source ?? DIABELOOP;
+    this.timezone = opts.timezone ?? "Europe/Paris";
 
     this.assignGUID();
   }
@@ -100,10 +104,10 @@ export class Basal extends Common {
     this.rate = opts.rate;
 
     this.time = this.makeTime();
-    this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
     this.normalEnd = addDuration(this.normalTime, this.duration);
     this.epoch = Date.parse(this.normalTime);
+    this.epochEnd = this.epoch + this.duration;
   }
 }
 
@@ -126,7 +130,6 @@ export class Bolus extends Common {
     }
 
     this.time = this.makeTime();
-    this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
     this.epoch = Date.parse(this.normalTime);
   }
@@ -153,7 +156,6 @@ export class CBG extends Common {
     this.localDate = opts.localDate;
 
     this.time = this.makeTime();
-    this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
     this.epoch = Date.parse(this.normalTime);
   }
@@ -227,7 +229,6 @@ export class Settings extends Common {
     this.units = opts.units;
 
     this.time = this.makeTime();
-    this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
     this.epoch = Date.parse(this.normalTime);
   }
@@ -253,7 +254,6 @@ export class SMBG extends Common {
     this.localDate = opts.localDate;
 
     this.time = this.makeTime();
-    this.timezoneOffset = this.makeTimezoneOffset();
     this.displayOffset = opts.displayOffset;
     this.normalTime = this.makeNormalTime();
     this.epoch = Date.parse(this.normalTime);
@@ -282,7 +282,6 @@ export class DeviceEvent extends Common {
 
     this.time = this.makeTime();
     this.createdTime = this.makeTime();
-    this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
     this.epoch = Date.parse(this.normalTime);
   }
@@ -294,20 +293,17 @@ export class Upload extends Common {
 
     _.defaults(opts, {
       deviceTime: this.makeDeviceTime(),
-      timezone: "US/Eastern",
+      deviceTags: ["cgm", "insulin-pump"],
     });
 
     this.type = "upload";
     this.deviceTags = opts.deviceTags;
-    this.source = opts.source;
     this.deviceTime = opts.deviceTime;
     this.deviceModel = opts.deviceModel;
 
     this.time = this.makeTime();
-    this.timezone = opts.timezone;
     this.normalTime = this.makeNormalTime();
     this.createdTime = this.makeTime();
-    this.timezoneOffset = this.makeTimezoneOffset();
     this.epoch = Date.parse(this.normalTime);
   }
 }
@@ -347,7 +343,6 @@ export class Wizard extends Common {
     this.recommended = opts.recommended;
 
     this.time = this.makeTime();
-    this.timezoneOffset = this.makeTimezoneOffset();
     this.normalTime = this.makeNormalTime();
     this.epoch = Date.parse(this.normalTime);
   }
@@ -371,7 +366,6 @@ export class Food extends Common {
     this.time = this.makeTime();
     this.normalTime = this.makeNormalTime();
     this.createdTime = this.makeTime();
-    this.timezoneOffset = this.makeTimezoneOffset();
     this.epoch = Date.parse(this.normalTime);
   }
 }
@@ -379,24 +373,21 @@ export class Food extends Common {
 export class PumpSettings extends Common {
   constructor(opts = {}) {
     super(opts);
+
+    _.defaults(opts, {
+      deviceTime: this.makeDeviceTime(),
+    });
+
     this.type = "pumpSettings";
-    this.payload = {
-      device: {
-        deviceId: "Xperia XZ1 (AOSP)358321085116760",
-        imei: "358321085116760",
-        name: "DBL4K",
-        manufacturer: "Diabeloop",
-        swVersion: "1.1.1.18_DBL4K_CLINICAL"
-      },
-      parameters:[
-        {
-          name: "WEIGHT",
-          value: "60",
-          unit: "kg",
-          level: 1
-        },
-      ]
-    };
+    this.deviceTime = opts.deviceTime;
+    this.deviceId = dblDevice.deviceId;
+    this.payload = _.cloneDeep(dblDevice.payload);
+    this.payload.history = _.cloneDeep(dblParamHistory.history);
+
+    this.deviceTime = opts.deviceTime;
+    this.time = this.makeTime();
+    this.normalTime = this.makeNormalTime();
+    this.epoch = Date.parse(this.normalTime);
   }
 }
 

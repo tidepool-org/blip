@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Components tests
+ * Copyright (c) 2022, Diabeloop
+ * Dialogs tests
  *
  * All rights reserved.
  *
@@ -26,25 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testDatePickers from "./date-pickers";
-import testSnackbar from "./utils/snackbar.test";
-import testFooterLink from "./footer-links.test";
-import testPasswordStrengthMeter from "./password-strength-meter.test";
-import testSwitchRole from "./switch-role";
-import testDialogs from "./dialogs";
-import testDropdowns from "./dropdown";
-import testButtons from "./buttons";
+import testDialogPDFOptions from "./pdf-print-options.test";
 
-function testComponents(): void {
-  describe("Buttons", testButtons);
-  describe("DatePickers", testDatePickers);
-  describe("Footer", testFooterLink);
-  describe("Snackbar", testSnackbar);
-  describe("Footer", testFooterLink);
-  describe("Password strength meter", testPasswordStrengthMeter);
-  describe("SwitchRole", testSwitchRole);
-  describe("Dropdowns", testDropdowns);
-  describe("Dialogs", testDialogs);
+function testDialogs() {
+  describe("DialogPDFOptions", testDialogPDFOptions);
 }
 
-export default testComponents;
+export default testDialogs;

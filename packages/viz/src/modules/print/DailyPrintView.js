@@ -90,7 +90,6 @@ class DailyPrintView extends PrintView {
     this.summaryHeaderFontSize = opts.summaryHeaderFontSize;
 
     this.chartsPerPage = opts.chartsPerPage;
-    this.numDays = opts.numDays;
 
     // render options
     this.bolusWidth = 3;
@@ -101,6 +100,7 @@ class DailyPrintView extends PrintView {
     this.interruptedLineThickness = 0.5;
     this.smbgRadius = 3;
     this.triangleHeight = 1.25;
+    this.bgScaleYLimit = 0;
 
     const undelivered = "#B2B2B2";
 
@@ -144,11 +144,10 @@ class DailyPrintView extends PrintView {
     this.summaryArea.width = this.summaryArea.rightEdge - this.margins.left;
 
     const dates = _.keys(data.dataByDate);
-    const numDays = _.min([this.numDays, dates.length]);
-    const selectedDates = _.slice(dates, -Math.abs(numDays));
+    const numDays = dates.length;
     this.chartsByDate = {};
     this.initialChartsByDate = {};
-    _.forEach(selectedDates, (date) => {
+    _.forEach(dates, (date) => {
       const dateData = data.dataByDate[date];
       this.chartsByDate[date] = { ...dateData };
       this.initialChartsByDate[date] = { ...dateData };
@@ -162,7 +161,7 @@ class DailyPrintView extends PrintView {
 
     // calculate heights and place charts in preparation for rendering
     for (let i = 0; i < numDays; ++i) {
-      const dateData = data.dataByDate[selectedDates[i]];
+      const dateData = data.dataByDate[dates[i]];
       this.calculateDateChartHeight(dateData);
     }
 
@@ -380,7 +379,7 @@ class DailyPrintView extends PrintView {
       .fillOpacity(1)
       .font(this.boldFont)
       .fontSize(this.summaryHeaderFontSize)
-      .text(moment(date, "YYYY-MM-DD").format(getLongFormat()), this.margins.left, topEdge);
+      .text(moment.utc(date, "YYYY-MM-DD").format(getLongFormat()), this.margins.left, topEdge);
 
     const yPos = (function (doc) { // eslint-disable-line func-names
       let value = topEdge + doc.currentLineHeight() * 1.5;
@@ -401,6 +400,16 @@ class DailyPrintView extends PrintView {
       .lineTo(this.summaryArea.rightEdge, yPos.current())
       .lineWidth(0.5)
       .stroke(this.colors.lightDividers);
+
+    const drawSepLine = () => {
+      if (!first) {
+        this.doc.moveTo(this.margins.left, yPos.update())
+          .lineTo(this.summaryArea.rightEdge, yPos.current())
+          .stroke(this.colors.lightDividers);
+      } else {
+        first = false;
+      }
+    };
 
     if (totalCbgDuration > 0) {
       first = false;
@@ -435,13 +444,7 @@ class DailyPrintView extends PrintView {
     }
 
     if (totalInsulin > 0) {
-      if (!first) {
-        this.doc.moveTo(this.margins.left, yPos.update())
-          .lineTo(this.summaryArea.rightEdge, yPos.current())
-          .stroke(this.colors.lightDividers);
-      } else {
-        first = false;
-      }
+      drawSepLine();
 
       const ratioTitle = this.isAutomatedBasalDevice
         ? t("Time in {{automatedLabel}}", { automatedLabel: this.basalGroupLabels.automated })
@@ -512,13 +515,7 @@ class DailyPrintView extends PrintView {
     }
 
     if (averageGlucose) {
-      if (!first) {
-        this.doc.moveTo(this.margins.left, yPos.update())
-          .lineTo(this.summaryArea.rightEdge, yPos.current())
-          .stroke(this.colors.lightDividers);
-      } else {
-        first = false;
-      }
+      drawSepLine();
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
@@ -533,17 +530,12 @@ class DailyPrintView extends PrintView {
           { align: "right" }
         );
 
+      yPos.update();
       yPos.small();
     }
 
     if (totalInsulin > 0) {
-      if (!first) {
-        this.doc.moveTo(this.margins.left, yPos.update())
-          .lineTo(this.summaryArea.rightEdge, yPos.current())
-          .stroke(this.colors.lightDividers);
-      } else {
-        first = false;
-      }
+      drawSepLine();
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
@@ -562,13 +554,7 @@ class DailyPrintView extends PrintView {
     }
 
     if (carbs > 0) {
-      if (!first) {
-        this.doc.moveTo(this.margins.left, yPos.update())
-          .lineTo(this.summaryArea.rightEdge, yPos.current())
-          .stroke(this.colors.lightDividers);
-      } else {
-        first = false;
-      }
+      drawSepLine();
 
       this.doc.fontSize(this.smallFontSize).font(this.boldFont)
         .text(
@@ -705,8 +691,10 @@ class DailyPrintView extends PrintView {
 
   renderCbgs({ bgScale, data: { cbg: cbgs }, xScale }) {
     _.forEach(cbgs, (cbg) => {
-      this.doc.circle(xScale(cbg.utc), bgScale(cbg.value), 1)
-        .fill(this.colors[classifyBgValue(this.bgBounds, cbg.value)]);
+      // Clamp to the max bgValue
+      const bgBalue = Math.min(cbg.value, this.bgScaleYLimit);
+      this.doc.circle(xScale(cbg.utc), bgScale(bgBalue), 1)
+        .fill(this.colors[classifyBgValue(this.bgBounds, bgBalue)]);
     });
 
     return this;
@@ -859,7 +847,7 @@ class DailyPrintView extends PrintView {
           { align: "right" }
         );
 
-        if (!_.isNil(bolus.extended)) {
+        if (bolus.extended) {
           const normalPercentage = getNormalPercentage(bolus);
           const extendedPercentage = getExtendedPercentage(bolus);
           const durationText = `${formatDuration(getMaxDuration(bolus))}`;
@@ -1059,8 +1047,8 @@ class DailyPrintView extends PrintView {
 
     const legendVerticalMiddle = legendTop + lineHeight * 2;
     const legendTextMiddle = legendVerticalMiddle - this.doc.currentLineHeight() / 2;
-    const legendItemLeftOffset = 9;
-    const legendItemLabelOffset = 6;
+    const legendItemLeftOffset = 8;
+    const legendItemLabelOffset = 4;
 
     let cursor = this.margins.left + legendItemLeftOffset;
 

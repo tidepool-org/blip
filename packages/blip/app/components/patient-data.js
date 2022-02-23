@@ -21,6 +21,7 @@ import _ from "lodash";
 import bows from "bows";
 import moment from "moment-timezone";
 import i18next from "i18next";
+import clsx from "clsx";
 import { Switch, Route /*, Redirect */ } from "react-router-dom";
 
 import { TidelineData, nurseShark, MS_IN_DAY, MGDL_UNITS } from "tideline";
@@ -36,9 +37,6 @@ import { FETCH_PATIENT_DATA_SUCCESS } from "../redux";
 
 const { waitTimeout } = utils;
 const { DataUtil } = vizUtils.data;
-const { addDuration, getLocalizedCeiling } = vizUtils.datetime;
-const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
-const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
 const { Loader } = vizComponents;
 
 /** @type {(s: string, p?: object) => string} */
@@ -65,7 +63,7 @@ const LOADING_STATE_ERROR = LOADING_STATE_EARLIER_PROCESS + 1;
  * @typedef { import("../core/lib/partial-data-load").DateRange } DateRange
  *
  * @typedef {{ api: API, patient: User, store: Store, prefixURL: string, history: History;dialogDatePicker: DialogDatePicker; dialogRangeDatePicker:DialogRangeDatePicker; profileDialog: ProfileDialog }} PatientDataProps
- * @typedef {{loadingState: number; tidelineData: TidelineData | null; epochLocation: number; epochRange: number; patient: User; canPrint: boolean; pdf: object; chartPrefs: object; createMessageDatetime: string | null; messageThread: MessageNote[] | null; errorMessage?: string | null; msRange: number}} PatientDataState
+ * @typedef {{loadingState: number; tidelineData: TidelineData | null; epochLocation: number; epochRange: number; patient: User; canPrint: boolean; chartPrefs: object; createMessageDatetime: string | null; messageThread: MessageNote[] | null; errorMessage?: string | null; msRange: number}} PatientDataState
  */
 
 /**
@@ -109,7 +107,7 @@ class PatientDataPage extends React.Component {
         notes: {},
       },
       canPrint: false,
-      pdf: null,
+      showPDFPrintOptions: false,
 
       // Messages
       messageThread: null,
@@ -138,12 +136,6 @@ class PatientDataPage extends React.Component {
       },
       chartStates: {
         trends: {
-        },
-      },
-      printOpts: {
-        numDays: {
-          daily: 6,
-          bgLog: 30,
         },
       },
       /** @type {TidelineData | null} */
@@ -175,11 +167,9 @@ class PatientDataPage extends React.Component {
 
   componentDidMount() {
     const { store } = this.props;
-    this.log.debug("Mounting...");
     this.unsubscribeStore = store.subscribe(this.reduxListener.bind(this));
     this.handleRefresh().then(() => {
       const locationChart = this.getChartType();
-      this.log.debug("Mouting", { locationChart });
       switch (locationChart) {
       case "overview":
         this.handleSwitchToBasics();
@@ -201,9 +191,7 @@ class PatientDataPage extends React.Component {
   }
 
   componentWillUnmount() {
-    this.log.debug("Unmounting...");
     if (typeof this.unsubscribeStore === "function") {
-      this.log("componentWillUnmount => unsubscribeStore()");
       this.unsubscribeStore();
       this.unsubscribeStore = null;
     }
@@ -212,7 +200,8 @@ class PatientDataPage extends React.Component {
   }
 
   render() {
-    const { loadingState, errorMessage } = this.state;
+    const { dialogPDFOptions: DialogPDFOptions } = this.props;
+    const { loadingState, errorMessage, tidelineData, canPrint, showPDFPrintOptions } = this.state;
     const chartType = this.getChartType();
     let loader = null;
     let messages = null;
@@ -244,12 +233,34 @@ class PatientDataPage extends React.Component {
       break;
     }
 
+    let start = "1970-01-01";
+    let end = "1970-01-02";
+    if (canPrint && showPDFPrintOptions) {
+      const { startDate, endDate } = tidelineData.getLocaleTimeEndpoints();
+      start = startDate.format("YYYY-MM-DD");
+      end = endDate.format("YYYY-MM-DD");
+    }
+
+    const classes = clsx(
+      "patient-data",
+      "patient-data-yourloops",
+      { ["patient-data-with-dialog"]: showPDFPrintOptions }
+    );
+
     return (
-      <div className="patient-data patient-data-yourloops">
+      <div className={classes}>
         {messages}
         {patientData}
         {loader}
         {errorDisplay}
+        {canPrint &&
+          <DialogPDFOptions
+            open={showPDFPrintOptions}
+            minDate={start}
+            maxDate={end}
+            onResult={this.handlePrint}
+          />
+        }
       </div>
     );
   }
@@ -488,134 +499,55 @@ class PatientDataPage extends React.Component {
     return null;
   }
 
-  generatePDFStats(data) {
-    const { timePrefs } = this.state;
-    const {
-      bgBounds,
-      bgUnits,
-      latestPump: { manufacturer, deviceModel },
-    } = this.dataUtil;
-    const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
-
-    const getStat = (statType) => {
-      const { bgSource, days } = this.dataUtil;
-
-      return getStatDefinition(this.dataUtil[statFetchMethods[statType]](), statType, {
-        bgSource,
-        days,
-        bgPrefs: {
-          bgBounds,
-          bgUnits,
-        },
-        manufacturer,
-      });
-    };
-
-    const basicsDateRange = _.get(data, "basics.dateRange");
-    if (basicsDateRange) {
-      data.basics.endpoints = [basicsDateRange[0], getLocalizedCeiling(basicsDateRange[1], timePrefs).toISOString()];
-
-      this.dataUtil.endpoints = data.basics.endpoints;
-
-      data.basics.stats = {
-        [commonStats.timeInRange]: getStat(commonStats.timeInRange),
-        [commonStats.readingsInRange]: getStat(commonStats.readingsInRange),
-        [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
-        [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
-        [commonStats.carbs]: getStat(commonStats.carbs),
-        [commonStats.averageDailyDose]: getStat(commonStats.averageDailyDose),
-        [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
-        [commonStats.glucoseManagementIndicator]: getStat(commonStats.glucoseManagementIndicator)
-      };
-    }
-
-    const dailyDateRanges = _.get(data, "daily.dataByDate");
-    if (dailyDateRanges) {
-      _.forIn(
-        dailyDateRanges,
-        _.bind(function (value, key) {
-          data.daily.dataByDate[key].endpoints = [
-            getLocalizedCeiling(dailyDateRanges[key].bounds[0], timePrefs).toISOString(),
-            getLocalizedCeiling(dailyDateRanges[key].bounds[1], timePrefs).toISOString(),
-          ];
-
-          this.dataUtil.endpoints = data.daily.dataByDate[key].endpoints;
-
-          data.daily.dataByDate[key].stats = {
-            [commonStats.timeInRange]: getStat(commonStats.timeInRange),
-            [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
-            [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
-            [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
-            [commonStats.carbs]: getStat(commonStats.carbs),
-          };
-        }, this)
-      );
-    }
-
-    const bgLogDateRange = _.get(data, "bgLog.dateRange");
-    if (bgLogDateRange) {
-      data.bgLog.endpoints = [
-        getLocalizedCeiling(bgLogDateRange[0], timePrefs).toISOString(),
-        addDuration(getLocalizedCeiling(bgLogDateRange[1], timePrefs).toISOString(), 864e5),
-      ];
-
-      this.dataUtil.endpoints = data.bgLog.endpoints;
-
-      data.bgLog.stats = {
-        [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
-      };
-    }
-
-    return data;
-  }
-
-  generatePDF() {
+  /**
+   *
+   * @param {{ start: string; end: string; preset?: string; }} printOptions
+   * @returns {Promise<void>}
+   */
+  async generatePDF(printOptions) {
     const { patient } = this.props;
-    const { tidelineData, bgPrefs, printOpts, timePrefs } = this.state;
-    const diabetesData = tidelineData.diabetesData;
+    const { tidelineData, bgPrefs } = this.state;
 
-    const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
+    if (tidelineData === null) {
+      return Promise.reject("Tidelinedata is null");
+    }
+
+    const start = moment.tz(printOptions.start, tidelineData.getTimezoneAt(printOptions.start)).startOf("day");
+    const timezone = tidelineData.getTimezoneAt(printOptions.end);
+    const end = moment.tz(printOptions.end, timezone).endOf("day");
+    const numDays = end.diff(start, "days") + 1;
+    const epochLocation = start.valueOf() + (end.valueOf() - start.valueOf()) / 2;
+    const endPDFDate = end.toISOString();
+
+    // Load a 2 days more than needed, around the wanted location, to be sure
+    // we have data with duration too within this range
+    await this.handleDatetimeLocationChange(epochLocation, (2 + numDays) * MS_IN_DAY, "pdf");
+
+    const timePrefs = {
+      timezoneAware: true,
+      timezoneName: timezone,
+    };
     const opts = {
       bgPrefs,
-      numDays: printOpts.numDays,
       patient,
       timePrefs,
-      mostRecent,
+      endPDFDate,
     };
 
-    const dailyData = vizUtils.data.selectDailyViewData(
-      mostRecent,
-      _.pick(tidelineData.grouped, ["basal", "bolus", "cbg", "food", "message", "smbg", "upload", "physicalActivity"]),
-      printOpts.numDays.daily,
-      timePrefs
-    );
-
-    const bgLogData = vizUtils.data.selectBgLogViewData(
-      mostRecent,
-      _.pick(tidelineData.grouped, ["smbg"]),
-      printOpts.numDays.bgLog,
-      timePrefs
-    );
-
+    const lastPumpSettings = _.last(tidelineData.grouped.pumpSettings);
     const pdfData = {
-      basics: tidelineData.basicsData,
-      daily: dailyData,
-      settings: _.last(tidelineData.grouped.pumpSettings),
-      bgLog: bgLogData,
+      basics: tidelineData.generateBasicsData(start, end),
+      daily: vizUtils.data.selectDailyViewData(tidelineData, start, end),
+      settings: !printOptions.preset
+        ? vizUtils.data.generatePumpSettings(_.last(tidelineData.grouped.pumpSettings), end)
+        : lastPumpSettings,
     };
 
-    this.generatePDFStats(pdfData);
-
-    this.log("Generating PDF with", pdfData, opts);
-
+    vizUtils.data.generatePDFStats(pdfData, this.dataUtil);
     return createPrintPDFPackage(pdfData, opts);
   }
 
   async handleMessageCreation(message) {
-    this.log.debug("handleMessageCreation", message);
-    const shapedMessage = nurseShark.reshapeMessage(message);
-
-    this.log.debug({ message, shapedMessage });
     await this.chartRef.current.createMessage(nurseShark.reshapeMessage(message));
     this.trackMetric("note", "create_note");
   }
@@ -643,7 +575,6 @@ class PatientDataPage extends React.Component {
    * @returns {Promise<void>}
    */
   async handleEditMessage(message) {
-    this.log.debug("handleEditMessage", { message });
     const { api } = this.props;
 
     await api.editMessage(message);
@@ -657,16 +588,14 @@ class PatientDataPage extends React.Component {
   }
 
   async handleShowMessageThread(messageThread) {
-    this.log.debug("handleShowMessageThread", messageThread);
     const { api } = this.props;
 
     const messages = await api.getMessageThread(messageThread);
     this.setState({ messageThread: messages });
   }
 
-  handleShowMessageCreation(/** @type {moment.Moment | Date} */ datetime) {
+  handleShowMessageCreation(/** @type {moment.Moment | Date | null} */ datetime) {
     const { epochLocation, tidelineData } = this.state;
-    this.log.debug("handleShowMessageCreation", { datetime, epochLocation });
     let mDate = datetime;
     if (datetime === null) {
       const timezone = tidelineData.getTimezoneAt(epochLocation);
@@ -715,8 +644,6 @@ class PatientDataPage extends React.Component {
       epochLocation = datetime.valueOf();
     }
 
-    this.log.info("Switch to daily", { date: moment.utc(epochLocation).toISOString(), epochLocation });
-
     this.dataUtil.chartPrefs = this.state.chartPrefs[toChart];
     this.setState({
       epochLocation,
@@ -757,9 +684,18 @@ class PatientDataPage extends React.Component {
     }
   }
 
-  /** @returns {Promise<void>} */
   handleClickPrint = () => {
-    function openPDFWindow(pdf) {
+    if (this.state.canPrint) {
+      this.setState({ showPDFPrintOptions: true });
+    }
+  }
+
+  /**
+   * @param {{ start: string; end: string; preset?: string; }|undefined} printOptions
+   * @returns {Promise<void>}
+   */
+  handlePrint = (printOptions) => {
+    const openPDFWindow = (pdf) => {
       const printWindow = window.open(pdf.url);
       if (printWindow !== null) {
         printWindow.focus();
@@ -767,40 +703,33 @@ class PatientDataPage extends React.Component {
           printWindow.print();
         }
       }
-    }
+    };
 
-    this.trackMetric("export_data", "save_report", this.getChartType() ?? "");
+    this.setState({ showPDFPrintOptions: false });
+
+    if (!printOptions) {
+      return Promise.resolve();
+    }
 
     // Return a promise for the tests
     return new Promise((resolve, reject) => {
-      if (this.state.pdf !== null) {
-        openPDFWindow(this.state.pdf);
-        resolve();
-      } else {
-        const { tidelineData, loadingState } = this.state;
-        let hasDiabetesData = false;
-        if (tidelineData !== null) {
-          hasDiabetesData = _.get(tidelineData, "diabetesData.length", 0) > 0;
-        }
-
-        if (loadingState === LOADING_STATE_DONE && hasDiabetesData) {
-          this.generatePDF()
-            .then((pdf) => {
-              openPDFWindow(pdf);
-              this.setState({ pdf });
-              resolve();
-            })
-            .catch((err) => {
-              this.log("generatePDF:", err);
-              if (_.isFunction(window.onerror)) {
-                window.onerror("print", "patient-data", 0, 0, err);
-              }
-              reject(err);
-            });
-        } else {
+      this.setState({ canPrint: false, loadingState: LOADING_STATE_EARLIER_FETCH });
+      this.generatePDF(printOptions)
+        .then((pdf) => {
+          this.trackMetric("export_data", "save_report", printOptions.preset ?? "custom");
+          openPDFWindow(pdf);
           resolve();
-        }
-      }
+        })
+        .catch((err) => {
+          this.log.error("generatePDF:", err);
+          this.trackMetric("export_data", "save_report", "error");
+          if (_.isFunction(window.onerror)) {
+            window.onerror("print", "patient-data", 0, 0, err);
+          }
+          reject(err);
+        }).finally(() => {
+          this.setState({ canPrint: true, loadingState: LOADING_STATE_DONE });
+        });
     });
   }
 
@@ -836,29 +765,38 @@ class PatientDataPage extends React.Component {
    * Chart display date / range change
    * @param {number} epochLocation datetime epoch value in ms
    * @param {number} msRange ms around epochLocation
+   * @param {"pdf" | null} target
    * @returns {Promise<boolean>} true if new data are loaded
    */
-  async handleDatetimeLocationChange(epochLocation, msRange) {
+  async handleDatetimeLocationChange(epochLocation, msRange, target = null) {
     const { loadingState } = this.state;
-    const chartType = this.getChartType();
+    const chartType = target ?? this.getChartType();
     let dataLoaded = false;
-
-    // this.log.debug("handleDatetimeLocationChange()", {
-    //   epochLocation,
-    //   msRange,
-    //   date: moment.utc(epochLocation).toISOString(),
-    //   rangeDays: msRange/MS_IN_DAY,
-    //   loadingState,
-    // });
 
     if (!Number.isFinite(epochLocation) || !Number.isFinite(msRange)) {
       throw new Error("handleDatetimeLocationChange: invalid parameters");
     }
 
+    const updateLocation = target === "pdf" ? _.noop : () => {
+      this.setState({ epochLocation, msRange });
+    };
+
     // Don't do anything if we are currently loading
     if (loadingState === LOADING_STATE_DONE) {
       // For daily check for +/- 1 day (and not 0.5 day), for others only the displayed range
-      let msRangeDataNeeded = chartType === "daily" ? MS_IN_DAY : msRange / 2;
+
+      let msRangeDataNeeded;
+      switch (chartType) {
+      case "daily":
+        msRangeDataNeeded = MS_IN_DAY;
+        break;
+      case "pdf":
+        msRangeDataNeeded = msRange;
+        break;
+      default:
+        msRangeDataNeeded = msRange / 2;
+        break;
+      }
 
       /** @type {DateRange} */
       let rangeDisplay = {
@@ -870,7 +808,7 @@ class PatientDataPage extends React.Component {
         // We need more data!
 
         if (chartType === "daily") {
-          // For daily we will load 1 week to avoid too many loading
+          // For daily we will load 3 days to avoid too many loading
           msRangeDataNeeded = MS_IN_DAY * 3;
           rangeDisplay = {
             start: moment.utc(epochLocation - msRangeDataNeeded).startOf("day").valueOf(),
@@ -878,15 +816,22 @@ class PatientDataPage extends React.Component {
           };
         }
 
-        this.setState({ epochLocation, msRange, loadingState: LOADING_STATE_EARLIER_FETCH });
+        updateLocation();
+        this.setState({ loadingState: LOADING_STATE_EARLIER_FETCH });
         const data = await this.apiUtils.fetchDataRange(rangeDisplay);
 
         this.setState({ loadingState: LOADING_STATE_EARLIER_PROCESS });
         await this.processData(data);
 
+        if (target !== "pdf") {
+          // The loading state will be changed after the PDF is generated,
+          // for other cases, we have finished
+          this.setState({ loadingState: LOADING_STATE_DONE });
+        }
+
         dataLoaded = true;
       } else {
-        this.setState({ epochLocation, msRange });
+        updateLocation();
       }
     }
 
@@ -900,7 +845,6 @@ class PatientDataPage extends React.Component {
       epochLocation: 0,
       msRange: 0,
       tidelineData: null,
-      pdf: null,
       canPrint: false,
     });
 
@@ -911,6 +855,8 @@ class PatientDataPage extends React.Component {
 
       // Process the data to be usable by us
       await this.processData(data);
+
+      this.setState({ loadingState: LOADING_STATE_DONE });
 
     } catch (reason) {
       this.onLoadingFailure(reason);
@@ -966,15 +912,16 @@ class PatientDataPage extends React.Component {
       newRange = MS_IN_DAY;
     }
 
+    const hasDiabetesData = _.get(tidelineData, "diabetesData.length", 0) > 0;
+
     this.setState({
       bgPrefs: bgPrefsUpdated,
       timePrefs: tidelineData.opts.timePrefs,
       tidelineData,
       epochLocation: newLocation,
       msRange: newRange,
-      loadingState: LOADING_STATE_DONE,
-      canPrint: true,
-    }, () => this.log.info("Loading finished"));
+      canPrint: hasDiabetesData,
+    });
 
     if (firstLoadOrRefresh) {
       store.dispatch({
@@ -996,6 +943,7 @@ PatientDataPage.propTypes = {
   profileDialog: PropTypes.func.isRequired,
   dialogDatePicker: PropTypes.func.isRequired,
   dialogRangeDatePicker: PropTypes.func.isRequired,
+  dialogPDFOptions: PropTypes.func.isRequired,
   prefixURL: PropTypes.string.isRequired,
   history: PropTypes.object.isRequired,
 };

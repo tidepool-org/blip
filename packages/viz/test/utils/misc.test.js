@@ -16,27 +16,21 @@
  */
 
 import { assert, expect } from "chai";
-import * as patients from "../../data/patient/profiles";
-import * as misc from "../../src/utils/misc";
+import { patient, anonymousPatient } from "../../data/patient/profiles";
+import { getPatientFullName } from "../../src/utils/misc";
 
 describe("misc utility functions", () => {
   describe("getPatientFullName", () => {
-    const {
-      standard,
-      fakeChildAcct,
-    } = patients;
-
     it("should be a function", () => {
-      assert.isFunction(misc.getPatientFullName);
+      assert.isFunction(getPatientFullName);
     });
 
     it("returns patient name", () => {
-      expect(misc.getPatientFullName(standard)).to.equal(standard.profile.fullName);
+      expect(getPatientFullName(patient)).to.equal(patient.profile.fullName);
     });
 
     it("returns child name when isOtherPerson", () => {
-      expect(misc.getPatientFullName(fakeChildAcct))
-        .to.equal(fakeChildAcct.profile.patient.fullName);
+      expect(getPatientFullName(anonymousPatient)).to.equal("Anonymous user");
     });
   });
 });

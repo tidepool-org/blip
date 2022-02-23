@@ -29,13 +29,7 @@ import {
   CGM_CALCULATED,
   NOT_ENOUGH_CGM,
   SITE_CHANGE_RESERVOIR,
-  SITE_CHANGE_TUBING,
-  SITE_CHANGE_CANNULA,
-  ANIMAS,
-  INSULET,
-  MEDTRONIC,
-  TANDEM,
-  SECTION_TYPE_UNDECLARED,
+  DIABELOOP,
 } from "../../../src/utils/constants";
 
 const bgBounds = {
@@ -103,18 +97,9 @@ const countSiteChangesByDay = {
 
 const siteChangeSections = {
   siteChanges: {
-    id: "siteChanges",
-    selectorOptions: {
-      primary: { key: SITE_CHANGE_RESERVOIR, label: "Reservoir Change" },
-      rows: [
-        [
-          { key: SITE_CHANGE_TUBING, label: "Tube Primes" },
-          { key: SITE_CHANGE_CANNULA, label: "Cannula Fills" },
-        ],
-      ],
-    },
-    type: SITE_CHANGE_RESERVOIR,
-  },
+    type: null,
+    title: "Infusion site changes",
+  }
 };
 
 describe("basics data utils", () => {
@@ -395,21 +380,17 @@ describe("basics data utils", () => {
         profile: {
           fullName: "Jill Jellyfish",
         },
-        settings: {
-          siteChangeSource: SITE_CHANGE_CANNULA,
-        },
       };
 
       const result = dataUtils.processInfusionSiteHistory(basicsData, patient);
       expect(result).to.deep.equal(basicsData);
     });
 
-    it("should set siteChanges type to cannulaPrime", () => {
+    it("should set the siteChanges", () => {
       const basicsData = {
         data: {
-          [SITE_CHANGE_CANNULA]: { dataByDate: countSiteChangesByDay },
-          [SITE_CHANGE_TUBING]: { dataByDate: countSiteChangesByDay },
-          upload: { data: [new Types.Upload({ deviceTags: ["insulin-pump"], source: TANDEM })] },
+          [SITE_CHANGE_RESERVOIR]: { dataByDate: countSiteChangesByDay },
+          upload: { data: [new Types.Upload({ deviceTags: ["cgm", "insulin-pump"], source: DIABELOOP })] },
         },
         days: oneWeekDates,
         sections: siteChangeSections,
@@ -418,133 +399,11 @@ describe("basics data utils", () => {
       const patient = {
         profile: {
           fullName: "Jill Jellyfish",
-        },
-        settings: {
-          siteChangeSource: SITE_CHANGE_CANNULA,
         },
       };
 
       const result = dataUtils.processInfusionSiteHistory(basicsData, patient);
-      expect(result.sections.siteChanges.type).to.equal(SITE_CHANGE_CANNULA);
-    });
-
-    it("should set siteChanges type to tubingPrime", () => {
-      const basicsData = {
-        data: {
-          [SITE_CHANGE_CANNULA]: { dataByDate: countSiteChangesByDay },
-          [SITE_CHANGE_TUBING]: { dataByDate: countSiteChangesByDay },
-          upload: { data: [new Types.Upload({ deviceTags: ["insulin-pump"], source: TANDEM })] },
-        },
-        days: oneWeekDates,
-        sections: siteChangeSections,
-      };
-
-      const patient = {
-        profile: {
-          fullName: "Jill Jellyfish",
-        },
-        settings: {
-          siteChangeSource: SITE_CHANGE_TUBING,
-        },
-      };
-
-      const result = dataUtils.processInfusionSiteHistory(basicsData, patient);
-      expect(result.sections.siteChanges.type).to.equal(SITE_CHANGE_TUBING);
-    });
-
-    it("should default siteChanges type to reservoirChange", () => {
-      const basicsData = {
-        data: {
-          [SITE_CHANGE_RESERVOIR]: { dataByDate: countSiteChangesByDay },
-        },
-        days: oneWeekDates,
-        sections: siteChangeSections,
-      };
-
-      const patient = {
-        profile: {
-          fullName: "Jill Jellyfish",
-        },
-        settings: {
-          siteChangeSource: SITE_CHANGE_TUBING,
-        },
-      };
-
-      dataUtils.processInfusionSiteHistory(basicsData, patient);
-      expect(basicsData.sections.siteChanges.type).to.equal(SITE_CHANGE_RESERVOIR);
-    });
-
-    const pumps = [ANIMAS, MEDTRONIC, TANDEM];
-    _.forEach(pumps, pump => {
-      it(`should set siteChanges type to undeclared, when no preference has been saved and pump is ${pump}`, () => {
-        const basicsData = {
-          data: {
-            [SITE_CHANGE_CANNULA]: { dataByDate: countSiteChangesByDay },
-            [SITE_CHANGE_TUBING]: { dataByDate: countSiteChangesByDay },
-            upload: { data: [new Types.Upload({ deviceTags: ["insulin-pump"], source: pump })] },
-          },
-          days: oneWeekDates,
-          sections: siteChangeSections,
-        };
-
-        const patient = {
-          profile: {
-            fullName: "Jill Jellyfish",
-          },
-          settings: {},
-        };
-
-        const result = dataUtils.processInfusionSiteHistory(basicsData, patient);
-        expect(result.sections.siteChanges.type).to.equal(SECTION_TYPE_UNDECLARED);
-      });
-
-      it(`should set siteChanges type to undeclared, when saved preference is not allowed for ${pump}`, () => {
-        const basicsData = {
-          data: {
-            [SITE_CHANGE_CANNULA]: { dataByDate: countSiteChangesByDay },
-            [SITE_CHANGE_TUBING]: { dataByDate: countSiteChangesByDay },
-            upload: { data: [new Types.Upload({ deviceTags: ["insulin-pump"], source: pump })] },
-          },
-          days: oneWeekDates,
-          sections: siteChangeSections,
-        };
-
-        const patient = {
-          profile: {
-            fullName: "Jill Jellyfish",
-          },
-          settings: {
-            siteChangeSource: SITE_CHANGE_RESERVOIR,
-          },
-        };
-
-        const result = dataUtils.processInfusionSiteHistory(basicsData, patient);
-        expect(result.sections.siteChanges.type).to.equal(SECTION_TYPE_UNDECLARED);
-      });
-    });
-
-    it(`should set siteChanges type to reservoirChange when saved preference is ${SITE_CHANGE_CANNULA} and pump is ${INSULET}`, () => {
-      const basicsData = {
-        data: {
-          [SITE_CHANGE_RESERVOIR]: { dataByDate: countSiteChangesByDay },
-        },
-        days: oneWeekDates,
-        sections: siteChangeSections,
-      };
-
-      const perms = { root: { } };
-
-      const patient = {
-        profile: {
-          fullName: "Jill Jellyfish",
-        },
-        settings: {
-          siteChangeSource: SITE_CHANGE_CANNULA,
-        },
-      };
-
-      dataUtils.processInfusionSiteHistory(basicsData, INSULET, patient, perms);
-      expect(basicsData.sections.siteChanges.type).to.equal(SITE_CHANGE_RESERVOIR);
+      expect(result.sections.siteChanges.type).to.equal(SITE_CHANGE_RESERVOIR);
     });
   });
 
@@ -553,14 +412,12 @@ describe("basics data utils", () => {
       const then = "2015-01-01T00:00:00.000Z";
       const bd = {
         data: {
-          basal: { data: [{ type: "basal", deliveryType: "temp", normalTime: then, displayOffset: 0 }] },
-          bolus: { data: [{ type: "bolus", normalTime: then, displayOffset: 0 }] },
           reservoirChange: { data: [{ type: "deviceEvent", subType: "reservoirChange", normalTime: then, displayOffset: 0 }] },
         },
         days: [{ date: "2015-01-01", type: "past" }, { date: "2015-01-02", type: "mostRecent" }],
       };
       const result = dataUtils.reduceByDay(bd, bgPrefs[MGDL_UNITS]);
-      const types = ["bolus", "reservoirChange", "basal"];
+      const types = ["reservoirChange"];
       _.forEach(types, type => {
         it(`should build crossfilter utils for ${type}`, () => {
           expect(_.keys(result.data[type])).to.deep.equal(["data", "cf", "byLocalDate", "dataByDate"]);
@@ -568,28 +425,6 @@ describe("basics data utils", () => {
 
         it(`should build a \`dataByDate\` object for ${type} with *only* localDates with data as keys`, () => {
           expect(_.keys(result.data[type].dataByDate)).to.deep.equal(["2015-01-01"]);
-        });
-      });
-    });
-
-    describe("crossfilter utils for fingerstick section", () => {
-      const then = "2015-01-01T00:00:00.000Z";
-      const bd = {
-        data: {
-          smbg: { data: [new Types.SMBG({ deviceTime: then.slice(0, -5) })] },
-          calibration: { data: [{ type: "deviceEvent", subType: "calibration", normalTime: then, displayOffset: 0 }] },
-        },
-        days: [{ date: "2015-01-01", type: "past" }, { date: "2015-01-02", type: "mostRecent" }],
-      };
-      const result = dataUtils.reduceByDay(bd, bgPrefs[MGDL_UNITS]);
-      const types = ["smbg", "calibration"];
-      _.forEach(types, type => {
-        it(`should build crossfilter utils in fingerstick.${type}`, () => {
-          expect(_.keys(result.data.fingerstick[type])).to.deep.equal(["cf", "byLocalDate", "dataByDate"]);
-        });
-
-        it(`should build a \`dataByDate\` object for ${type} with *only* localDates with data as keys`, () => {
-          expect(_.keys(result.data.fingerstick[type].dataByDate)).to.deep.equal(["2015-01-01"]);
         });
       });
     });
@@ -652,87 +487,6 @@ describe("basics data utils", () => {
         expect(dataUtils.averageExcludingMostRecentDay(dataObj, 28, "2015-01-04")).to.equal(9);
       });
     });
-
-    describe("countAutomatedBasalEventsForDay", () => {
-      it("should count the number of `automatedStop` events and add them to the totals", () => {
-        const then = "2015-01-01T00:00:00.000Z";
-        const bd = {
-          data: {
-            basal: { data: [
-              { type: "basal", deliveryType: "temp", normalTime: then, displayOffset: 0 },
-              { type: "basal", deliveryType: "automated", normalTime: then, displayOffset: 0 },
-            ] },
-          },
-          days: [{ date: "2015-01-01", type: "mostRecent" }],
-        };
-
-        const result = dataUtils.reduceByDay(bd, bgPrefs[MGDL_UNITS]);
-
-        expect(result.data.basal.dataByDate["2015-01-01"].subtotals.automatedStop).to.equal(0);
-        expect(result.data.basal.dataByDate["2015-01-01"].total).to.equal(1);
-
-        // Add a scheduled basal to kick out of automode
-        bd.data.basal.data.push({ type: "basal", deliveryType: "scheduled", normalTime: then, displayOffset: 0 });
-        const result2 = dataUtils.reduceByDay(bd, bgPrefs[MGDL_UNITS]);
-
-        expect(result2.data.basal.dataByDate["2015-01-01"].subtotals.automatedStop).to.equal(1);
-        expect(result2.data.basal.dataByDate["2015-01-01"].total).to.equal(2);
-      });
-    });
-
-    describe("countDistinctSuspendsForDay", () => {
-      it("should count contiguous `suspend` events as 1 and add them to the totals", () => {
-        const start1 = "2015-01-01T00:00:00.000Z";
-        const start2 = "2015-01-01T00:01:00.000Z";
-        const start3 = "2015-01-01T00:01:02.000Z";
-        const start4 = "2015-01-01T00:01:06.000Z";
-        const start5 = "2015-01-01T00:02:00.000Z";
-        const bd = {
-          data: {
-            basal: { data: [
-              { type: "basal", deliveryType: "scheduled", normalTime: start1, normalEnd: start2 },
-              { type: "basal", deliveryType: "suspend", normalTime: start2, normalEnd: start3 },
-              { type: "basal", deliveryType: "suspend", normalTime: start3, normalEnd: start4 },
-              { type: "basal", deliveryType: "suspend", normalTime: start4, normalEnd: start5 },
-              { type: "basal", deliveryType: "scheduled", normalTime: start5 },
-            ] },
-          },
-          days: [{ date: "2015-01-01", type: "mostRecent" }],
-        };
-
-        const result = dataUtils.reduceByDay(bd, bgPrefs[MGDL_UNITS]);
-
-        // should only count the 3 suspends as 1, because they are contiguous
-        expect(result.data.basal.dataByDate["2015-01-01"].subtotals.suspend).to.equal(1);
-        expect(result.data.basal.dataByDate["2015-01-01"].total).to.equal(1);
-      });
-
-      it("should count non-contiguous `suspend` events as distict add them to the totals", () => {
-        const start1 = "2015-01-01T00:00:00.000Z";
-        const start2 = "2015-01-01T00:01:00.000Z";
-        const start3 = "2015-01-01T00:01:02.000Z";
-        const start4 = "2015-01-01T00:01:06.000Z";
-        const start5 = "2015-01-01T00:02:00.000Z";
-        const bd = {
-          data: {
-            basal: { data: [
-              { type: "basal", deliveryType: "scheduled", normalTime: start1, normalEnd: start2 },
-              { type: "basal", deliveryType: "suspend", normalTime: start2, normalEnd: start3 },
-              { type: "basal", deliveryType: "scheduled", normalTime: start3, normalEnd: start4 },
-              { type: "basal", deliveryType: "suspend", normalTime: start4, normalEnd: start5 },
-              { type: "basal", deliveryType: "scheduled", normalTime: start5 },
-            ] },
-          },
-          days: [{ date: "2015-01-01", type: "mostRecent" }],
-        };
-
-        const result = dataUtils.reduceByDay(bd, bgPrefs[MGDL_UNITS]);
-
-        // should only count the 2 suspends as 2, because they are non-contiguous
-        expect(result.data.basal.dataByDate["2015-01-01"].subtotals.suspend).to.equal(2);
-        expect(result.data.basal.dataByDate["2015-01-01"].total).to.equal(2);
-      });
-    });
   });
 
   describe("defineBasicsSections", () => {
@@ -788,26 +542,10 @@ describe("basics data utils", () => {
       expect(automatedStopFilter.label).to.equal("Automated Exited");
     });
 
-    it("should set the active basal ratio to `basalBolusRatio` for non-automated-basal devices", () => {
-      const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], MEDTRONIC, "723");
-      expect(result.basalBolusRatio.active).to.be.true;
-      expect(result.timeInAutoRatio.active).to.be.false;
-    });
-
     it("should activate both `basalBolusRatio` and `timeInAutoRatio` for automated-basal devices", () => {
-      const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], MEDTRONIC, "1780");
+      const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], DIABELOOP, "1780");
       expect(result.basalBolusRatio.active).to.be.true;
       expect(result.timeInAutoRatio.active).to.be.true;
-    });
-
-    it("should set the per-manufacturer labels for `timeInAutoRatio`, with default fallbacks when unavailable", () => {
-      const result = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], MEDTRONIC, "1780");
-      expect(result.timeInAutoRatio.title).to.equal("Time in Auto Mode ratio");
-      expect(result.timeInAutoRatio.dimensions[1].label).to.equal("Auto Mode");
-
-      const fallbackResult = dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], ANIMAS);
-      expect(fallbackResult.timeInAutoRatio.title).to.equal("Time in Automated ratio");
-      expect(fallbackResult.timeInAutoRatio.dimensions[1].label).to.equal("Automated");
     });
   });
 
@@ -825,16 +563,11 @@ describe("basics data utils", () => {
         smbg: { data: [] },
         basal: { data: [] },
         bolus: { data: [] },
-        fingerstick: {
-          smbg: { data: [] },
-          calibration: { data: [] },
-        },
-        cannulaPrime: { dataByDate: {} },
-        tubingPrime: { dataByDate: {} },
-        upload: { data: [new Types.Upload({ deviceTags: ["insulin-pump"], source: MEDTRONIC })] },
+        reservoirChange: { dataByDate: {} },
+        upload: { data: [new Types.Upload({ deviceTags: ["cgm", "insulin-pump"], source: DIABELOOP })] },
       },
       days: oneWeekDates,
-      sections: dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], MEDTRONIC, "1780"),
+      sections: dataUtils.defineBasicsSections(bgPrefs[MGDL_UNITS], DIABELOOP, "1780"),
     };
 
     it("should disable sections for which there is no data available", () => {
@@ -842,13 +575,11 @@ describe("basics data utils", () => {
       expect(basicsData.sections.basals.active).to.be.true;
       expect(basicsData.sections.boluses.active).to.be.true;
       expect(basicsData.sections.siteChanges.active).to.be.true;
-      expect(basicsData.sections.fingersticks.active).to.be.true;
       expect(basicsData.sections.bgDistribution.active).to.be.true;
       expect(basicsData.sections.totalDailyDose.active).to.be.true;
       expect(basicsData.sections.basalBolusRatio.active).to.be.true;
       expect(basicsData.sections.timeInAutoRatio.active).to.be.true;
       expect(basicsData.sections.averageDailyCarbs.active).to.be.true;
-      expect(_.find(basicsData.sections.fingersticks.dimensions, { path: "calibration" })).to.not.be.undefined;
       const processedBasicsData = dataUtils.processInfusionSiteHistory(basicsData, {});
       const result = dataUtils.disableEmptySections(processedBasicsData);
 
@@ -860,9 +591,6 @@ describe("basics data utils", () => {
 
       // siteChanges gets disabled when no data
       expect(result.sections.siteChanges.disabled).to.be.true;
-
-      // fingersticks gets disabled when no data
-      expect(result.sections.fingersticks.disabled).to.be.true;
 
       // bgDistribution gets disabled when no data
       expect(result.sections.bgDistribution.disabled).to.be.true;
@@ -878,9 +606,6 @@ describe("basics data utils", () => {
 
       // averageDailyCarbs gets disabled when no data
       expect(result.sections.averageDailyCarbs.disabled).to.be.true;
-
-      // calibration filter in fingerstick section gets removed when no data
-      expect(_.find(result.sections.fingersticks.dimensions, { path: "calibration" })).to.be.undefined;
     });
 
     it("should set empty text for sections for which there is no data available", () => {
@@ -888,13 +613,11 @@ describe("basics data utils", () => {
       expect(basicsData.sections.basals.emptyText).to.be.undefined;
       expect(basicsData.sections.boluses.emptyText).to.be.undefined;
       expect(basicsData.sections.siteChanges.emptyText).to.be.undefined;
-      expect(basicsData.sections.fingersticks.emptyText).to.be.undefined;
       expect(basicsData.sections.bgDistribution.emptyText).to.be.undefined;
       expect(basicsData.sections.totalDailyDose.emptyText).to.be.undefined;
       expect(basicsData.sections.basalBolusRatio.emptyText).to.be.undefined;
       expect(basicsData.sections.timeInAutoRatio.emptyText).to.be.undefined;
       expect(basicsData.sections.averageDailyCarbs.emptyText).to.be.undefined;
-      expect(basicsData.sections.fingersticks.emptyText).to.be.undefined;
 
       const processedBasicsData = dataUtils.processInfusionSiteHistory(basicsData, {});
       const result = dataUtils.disableEmptySections(processedBasicsData);
@@ -907,9 +630,6 @@ describe("basics data utils", () => {
 
       // siteChanges gets emptyText set when no data
       expect(result.sections.siteChanges.emptyText).to.be.a("string");
-
-      // fingersticks gets emptyText set when no data
-      expect(result.sections.fingersticks.emptyText).to.be.a("string");
 
       // bgDistribution gets emptyText set when no data
       expect(result.sections.bgDistribution.emptyText).to.be.a("string");
@@ -925,9 +645,6 @@ describe("basics data utils", () => {
 
       // averageDailyCarbs gets emptyText set when no data
       expect(result.sections.averageDailyCarbs.emptyText).to.be.a("string");
-
-      // fingersticks gets emptyText set when no data
-      expect(result.sections.fingersticks.emptyText).to.be.a("string");
     });
   });
 });

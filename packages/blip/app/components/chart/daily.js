@@ -371,9 +371,9 @@ class Daily extends React.Component {
     const { tidelineData } = props;
     const { startDate, endDate } = tidelineData.getLocaleTimeEndpoints();
     /** @type {Date} */
-    this.startDate = startDate;
+    this.startDate = startDate.toDate();
     /** @type {Date} */
-    this.endDate = endDate;
+    this.endDate = endDate.toDate();
   }
 
   componentDidUpdate(prevProps) {

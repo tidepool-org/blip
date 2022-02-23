@@ -32,7 +32,6 @@ describe("PumpSettingsContainer", () => {
     timePrefs: {
       timezoneAware: true,
       timezoneName: "Europe/Paris",
-      timezoneOffset: 60,
     },
     pumpSettings: {
       deviceId: "123456789-ID",

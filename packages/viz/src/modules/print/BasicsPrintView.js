@@ -44,7 +44,6 @@ import serialize from "serialize-svg-path";
 
 import {
   CGM_DATA_KEY,
-  DIABELOOP,
   NO_SITE_CHANGE,
   SITE_CHANGE,
   SITE_CHANGE_CANNULA,
@@ -60,20 +59,16 @@ class BasicsPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
 
-
     this.siteChangeImages = {
       [SITE_CHANGE_CANNULA]: Images.siteChangeCannulaImage,
-      [SITE_CHANGE_RESERVOIR]: Images.siteChangeReservoirImage,
+      [SITE_CHANGE_RESERVOIR]: Images.siteChangeReservoirDiabeloopImage,
       [SITE_CHANGE_TUBING]: Images.siteChangeTubingImage,
     };
 
     const latestPumpUpload = getLatestPumpUpload(_.get(data, "data.upload.data", []));
     this.source = _.get(latestPumpUpload, "source", "").toLowerCase();
-    this.manufacturer = this.source === "carelink" ? "medtronic" : this.source;
+    this.manufacturer = this.source;
 
-    if (this.source === DIABELOOP.toLowerCase()) {
-      this.siteChangeImages[SITE_CHANGE_RESERVOIR] = Images.siteChangeReservoirDiabeloopImage;
-    }
     // Process basics data
     const { source: bgSource, cgmStatus } = determineBgDistributionSource(this.data);
     _.assign(this, { bgSource, cgmStatus });
@@ -111,7 +106,7 @@ class BasicsPrintView extends PrintView {
       totalDailyDose,
     });
 
-    this.data = processInfusionSiteHistory(this.data, this.patient);
+    this.data = processInfusionSiteHistory(this.data);
 
     this.data = disableEmptySections(this.data);
 
@@ -125,7 +120,7 @@ class BasicsPrintView extends PrintView {
   }
 
   newPage() {
-    super.newPage(this.getDateRange(this.data.dateRange[0], this.data.dateRange[1]));
+    super.newPage(this.getDateRange(this.data.dateRange[0], this.data.dateRange[1], undefined, this.data.timezone));
   }
 
   initCalendar() {
@@ -170,15 +165,24 @@ class BasicsPrintView extends PrintView {
   }
 
   renderLeftColumn() {
+    const { averageDailyDose, basalBolusRatio, timeInAutoRatio, } = this.data.data;
+
     this.goToLayoutColumnPosition(0);
 
     this.renderBgDistribution();
     this.renderAggregatedStats();
+
+    this.renderRatio("basalBolusRatio", {
+      primary: basalBolusRatio,
+      secondary: averageDailyDose,
+    });
+
+    this.renderRatio("timeInAutoRatio", {
+      primary: timeInAutoRatio,
+    });
   }
 
   renderCenterColumn() {
-    const { averageDailyDose, basalBolusRatio, timeInAutoRatio, } = this.data.data;
-
     this.goToLayoutColumnPosition(1);
 
     this.initCalendar();
@@ -195,15 +199,6 @@ class BasicsPrintView extends PrintView {
       type: "siteChange",
       disabled: this.data.sections.siteChanges.disabled,
       emptyText: this.data.sections.siteChanges.emptyText,
-    });
-
-    this.renderRatio("basalBolusRatio", {
-      primary: basalBolusRatio,
-      secondary: averageDailyDose,
-    });
-
-    this.renderRatio("timeInAutoRatio", {
-      primary: timeInAutoRatio,
     });
   }
 
@@ -311,12 +306,16 @@ class BasicsPrintView extends PrintView {
     const { averageGlucose } = _.get(this.data.stats, "averageGlucose.data.raw", {});
     this.renderSimpleStat(t("Average BG"), formatDecimalNumber(averageGlucose), "\nmg/dL");
 
-    const { glucoseManagementIndicator } = _.get(this.data.stats, "glucoseManagementIndicator.data.raw", {});
-    this.renderSimpleStat(t("GMI ({{bgSourceLabel}})"), formatDecimalNumber(glucoseManagementIndicator, 1), "%");
+    const { glucoseManagementIndicator, insufficientData } = _.get(this.data.stats, "glucoseManagementIndicator.data.raw", {});
+    if (!insufficientData && !Number.isNaN(glucoseManagementIndicator)) {
+      // HbA1c is an estimation, which only have meaning with enough data
+      // If we don't have enough data to print it, don't display it
+      this.renderSimpleStat(t("GMI ({{bgSourceLabel}})"), formatDecimalNumber(glucoseManagementIndicator, 1), "%");
+    }
   }
 
   renderRatio(sectionKey, sectionData) {
-    const columnWidth = this.getActiveColumnWidth() / 2;
+    const columnWidth = this.getActiveColumnWidth();
 
     const {
       [sectionKey]: section,
@@ -711,7 +710,7 @@ class BasicsPrintView extends PrintView {
       const isSiteChange = _.includes(siteChangeTypes, type) ? type === SITE_CHANGE : null;
 
       if (isSiteChange) {
-        this.setStroke(this.colors.grey);
+        this.setStroke(this.colors.lightGrey);
         this.doc.lineWidth(1);
 
         const isFirst = _.isNaN(daysSince);
@@ -747,7 +746,7 @@ class BasicsPrintView extends PrintView {
             .stroke();
 
           this.setFill(color);
-          this.setStroke(this.colors.grey);
+          this.setStroke(this.colors.lightGrey);
 
           this.doc
             .lineWidth(0.5)
@@ -840,80 +839,6 @@ class BasicsPrintView extends PrintView {
     };
 
     _.forEach(chunkedGridValues, renderRow);
-  }
-
-  renderCalendarSummary(opts) {
-    const columnWidth = this.getActiveColumnWidth();
-
-    const {
-      dimensions,
-      data,
-      type,
-      header,
-      disabled,
-    } = opts;
-
-    if (!disabled) {
-      let primaryDimension;
-      const rows = [];
-
-      _.forEach(dimensions, dimension => {
-        const valueObj = _.get(
-          data,
-          `${dimension.path}.${dimension.key}`,
-          _.get(data, dimension.key, {})
-        );
-
-        const isAverage = dimension.average;
-
-        const value = isAverage
-          ? Math.round(_.get(data, `${dimension.path}.avgPerDay`, data.avgPerDay))
-          : _.get(valueObj, "count", valueObj);
-
-        const stat = {
-          stat: dimension.label,
-          value: (value || 0).toString(),
-        };
-
-        if (dimension.primary) {
-          stat.stat = header;
-          primaryDimension = stat;
-        } else {
-          if (value === 0 && dimension.hideEmpty) {
-            return;
-          }
-          rows.push(stat);
-        }
-      });
-
-      const tableColumns = this.defineStatColumns({
-        statWidth: columnWidth * 0.75,
-        valueWidth: columnWidth * 0.25,
-        height: 20,
-        statHeader: primaryDimension.stat,
-        valueHeader: (primaryDimension.value || 0).toString(),
-      });
-
-      tableColumns[0].headerFont = this.font;
-
-      if (_.get(this, `calendar.pos[${type}]`)) {
-        this.doc.switchToPage(this.calendar.pos[type].pageIndex);
-        this.doc.y = this.calendar.pos[type].y;
-      }
-
-      this.renderTable(tableColumns, rows, {
-        columnDefaults: {
-          zebra: true,
-          headerFill: {
-            color: this.colors[`${type}Header`],
-            opacity: 1,
-          },
-          headerRenderer: this.renderCustomTextCell,
-          headerHeight: 28,
-        },
-        bottomMargin: 15,
-      });
-    }
   }
 
   renderEmptyText(text) {

@@ -22,7 +22,7 @@ import * as sinon from "sinon";
 import { expect } from "chai";
 
 import PrintView from "../../../src/modules/print/PrintView";
-import * as patients from "../../../data/patient/profiles";
+import { patient } from "../../../data/patient/profiles";
 
 import {
   getTimezoneFromTimePrefs,
@@ -77,7 +77,7 @@ describe("PrintView", () => {
       right: MARGIN,
       bottom: MARGIN,
     },
-    patient: patients.standard,
+    patient,
     timePrefs: {
       timezoneAware: true,
       timezoneName: "US/Pacific",
@@ -1106,7 +1106,7 @@ describe("PrintView", () => {
         this.onRowAdd = sinon.stub().resolves(true);
         this.onRowAdded = sinon.stub().resolves(true);
         this.onPageAdd = sinon.stub().resolves(true);
-        this.onPageAdded = sinon.stub().resolves(true);
+        this.onPageAdded = sinon.stub().returnsThis();
         this.onBodyAdded = sinon.stub().resolves(true);
         this.setColumnsDefaults = sinon.stub().returns(this);
         this.addColumns = sinon.stub().returns(this);
@@ -1119,6 +1119,7 @@ describe("PrintView", () => {
       }
     }
 
+    /** @type {Table} */
     let TableStub;
     let FitColumnStub;
     let setFill;
@@ -1270,11 +1271,11 @@ describe("PrintView", () => {
 
     describe("onPageAdded", () => {
       it("should add a table header", () => {
-        Renderer.renderTable([], [], {}, TableStub, FitColumnStub);
+        Renderer.renderTable([], [], { showHeaders: true }, TableStub, FitColumnStub);
         sinon.assert.notCalled(Renderer.table.addHeader);
 
-        Renderer.onPageAdded(Renderer.table);
-        sinon.assert.calledOnce(Renderer.table.addHeader);
+        Renderer.table.onPageAdded.yield(Renderer.table);
+        expect(Renderer.table.addHeader.calledOnce).to.be.true;
       });
     });
 

@@ -525,7 +525,7 @@ class DataUtil {
     return durations;
   };
 
-  getTotalInsulinAndWeightData = () => {
+  getTotalInsulinAndWeightData() {
     const weight = this.getWeight();
     const { basal, bolus } = this.getBasalBolusData();
 
@@ -538,13 +538,13 @@ class DataUtil {
       totalInsulin,
       weight
     };
-  };
+  }
 
   /**
    * Retreive the patient weight from the pump settings, null if not present
    * @returns {{ name: 'WEIGHT', value: string, unit: string, level: number } | null}
    */
-  getWeight = () => {
+  getWeight() {
     // retrieve lastest pump settings
     const pumpSettings = _.last(this.filter.byType("pumpSettings").top(Infinity));
     const parameters = _.get(pumpSettings, "payload.parameters");
@@ -555,8 +555,7 @@ class DataUtil {
     }
 
     return weight;
-
-  };
+  }
 }
 
 export default DataUtil;

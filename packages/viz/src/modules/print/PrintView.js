@@ -284,8 +284,8 @@ class PrintView {
     return this.layoutColumns.columns[this.layoutColumns.activeIndex].width;
   }
 
-  getDateRange(startDate, endDate, format) {
-    return t("Date range: ") + formatDateRange(startDate, endDate, format);
+  getDateRange(startDate, endDate, format, timezone) {
+    return t("Date range: ") + formatDateRange(startDate, endDate, format, timezone);
   }
 
   setFill(color = "black", opacity = 1) {
@@ -543,7 +543,11 @@ class PrintView {
 
     table.onPageAdd(this.onPageAdd.bind(this));
 
-    table.onPageAdded(this.onPageAdded.bind(this));
+    table.onPageAdded((tb /*, row */) => {
+      if (opts.showHeaders) {
+        tb.addHeader();
+      }
+    });
 
     table.onCellBackgroundAdd(this.onCellBackgroundAdd.bind(this));
 
@@ -578,10 +582,6 @@ class PrintView {
 
     // cancel event so the automatic page add is not triggered
     ev.cancel = true; // eslint-disable-line no-param-reassign
-  }
-
-  onPageAdded(tb) {
-    tb.addHeader();
   }
 
   onBodyAdded(tb) {
@@ -857,17 +857,20 @@ class PrintView {
     return this;
   }
 
-  static renderPageNumbers(doc) {
+  static renderPageNumbers(doc, opts = {}) {
+    const footerFontSize = opts.footerFontSize ?? FOOTER_FONT_SIZE;
+    const margins = opts.margins ?? MARGINS;
+    const height = opts.height ?? HEIGHT;
     const pageCount = doc.bufferedPageRange().count;
     let page = 0;
     while (page < pageCount) {
       page++;
       doc.switchToPage(page - 1);
-      doc.fontSize(FOOTER_FONT_SIZE).fillColor("#979797").fillOpacity(1);
+      doc.fontSize(footerFontSize).fillColor("#979797").fillOpacity(1);
       doc.text(
         t("Page {{page}} of {{pageCount}}", { page, pageCount }),
-        MARGINS.left,
-        (HEIGHT + MARGINS.top) - doc.currentLineHeight() * 1.5,
+        margins.left,
+        (height + margins.top) - doc.currentLineHeight() * 1.5,
         { align: "right" }
       );
     }

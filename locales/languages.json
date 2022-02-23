@@ -6,6 +6,7 @@
     "yourloops"
   ],
   "defaultNS": "main",
+  "fallbackNS": "yourloops",
   "resources": {
     "de": {
       "name": "Deutsch",

@@ -64,6 +64,7 @@ function ReduxProvider(props) {
         history={historyHook}
         dialogDatePicker={props.dialogDatePicker}
         dialogRangeDatePicker={props.dialogRangeDatePicker}
+        dialogPDFOptions={props.dialogPDFOptions}
       />
     </Provider>
   );
@@ -76,6 +77,7 @@ ReduxProvider.propTypes = {
   prefixURL: PropTypes.string.isRequired,
   dialogDatePicker: PropTypes.func.isRequired,
   dialogRangeDatePicker: PropTypes.func.isRequired,
+  dialogPDFOptions: PropTypes.func.isRequired,
 };
 
 /**
@@ -84,7 +86,7 @@ ReduxProvider.propTypes = {
 function Blip(props) {
   if (typeof props === "object") {
     try {
-      const { config, api, patient, profileDialog, prefixURL, dialogDatePicker, dialogRangeDatePicker } = props;
+      const { config, api, patient, profileDialog, prefixURL, dialogDatePicker, dialogRangeDatePicker, dialogPDFOptions } = props;
       updateConfig(config);
 
       return (
@@ -95,6 +97,7 @@ function Blip(props) {
           prefixURL={prefixURL}
           dialogDatePicker={dialogDatePicker}
           dialogRangeDatePicker={dialogRangeDatePicker}
+          dialogPDFOptions={dialogPDFOptions}
         />
       );
     } catch (err) {
@@ -114,6 +117,7 @@ Blip.propTypes = {
   prefixURL: PropTypes.string.isRequired,
   dialogDatePicker: PropTypes.func.isRequired,
   dialogRangeDatePicker: PropTypes.func.isRequired,
+  dialogPDFOptions: PropTypes.func.isRequired,
 };
 
 export { cleanStore };

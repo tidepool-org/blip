@@ -69,7 +69,6 @@ const props = {
 const timePrefsUtc = {
   timezoneAware: true,
   timezoneName: "UTC",
-  timezoneOffset: 0
 };
 
 describe("PhysicalTooltip", () => {

@@ -44,7 +44,6 @@ import _ from "lodash";
 // user’s browser time, not PwD’s configured timezone
 import { utcFormat, timeFormat } from "d3-time-format";
 import moment from "moment-timezone";
-import sundial from "sundial";
 import i18next from "i18next";
 
 const t = i18next.t.bind(i18next);
@@ -142,22 +141,15 @@ export function getBrowserTimezone() {
 
 /**
  * getTimezoneFromTimePrefs
- * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ * @param {{timezoneAware: boolean; timezoneName: string; }} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
  * @return {String} timezoneName from timePrefs, browser, or fallback to 'UTC'
  */
 export function getTimezoneFromTimePrefs(timePrefs) {
-  const { timezoneAware, timezoneName } = timePrefs;
-  try {
-    let timezone = getBrowserTimezone() || "UTC";
-    if (timezoneAware && timezoneName) {
-      timezone = timezoneName;
-    }
-    sundial.checkTimezoneName(timezone);
-    return timezone;
-  } catch (err) {
-    return "UTC";
+  if (typeof timePrefs === "object" && !_.isEmpty(timePrefs)) {
+    return timePrefs.timezoneName ?? getBrowserTimezone() ?? "UTC";
   }
+  return "UTC";
 }
 
 /**
@@ -213,13 +205,14 @@ export function formatDiagnosisDate(patient) {
 
 /**
  * formatDateRange
- * @param {String|Date} startDate - A moment-compatible date object or string
- * @param {String|Date} endDate - A moment-compatible date object or string
- * @param {String} format - Optional. The moment format string to parse startDate and endDate with
+ * @param {string|Date} startDate - A moment-compatible date object or string
+ * @param {string|Date} endDate - A moment-compatible date object or string
+ * @param {string|undefined} format - Optional. The moment format string to parse startDate and endDate with
+ * @param {string|undefined} timezone Default to UTC
  */
-export function formatDateRange(startDate, endDate, format) {
-  const start = moment.utc(startDate, format);
-  const end = moment.utc(endDate, format);
+export function formatDateRange(startDate, endDate, format = undefined, timezone = "UTC") {
+  const start = moment.tz(startDate, format, timezone);
+  const end = moment.tz(endDate, format, timezone);
 
   const isSameYear = start.isSame(end, "year");
   const startFormat = isSameYear ? start.format(t("MMM D")) : start.format(t("MMM D, YYYY"));

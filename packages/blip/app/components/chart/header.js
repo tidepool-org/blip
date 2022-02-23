@@ -138,7 +138,7 @@ class TidelineHeader extends React.Component {
       printLink = (
         <button className={printLinkClass} onClick={this.onClickPrint}>
           <Timeline className="print-icon" />
-          {t("Print")}
+          {t("pdf-generate-report")}
         </button>
       );
     }

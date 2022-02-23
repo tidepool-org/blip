@@ -18,7 +18,7 @@
 /**
  * @typedef {'basal'|'bolus'|'cbg'|'smbg'|'deviceEvent'|'wizard'|'upload'|'pumpSettings'|'physicalActivity'|'message'|'fill'} DatumType
  * @typedef {{ type: string, time?: string, normalTime: string, normalEnd?: string, subType?: string, epoch: number, epochEnd?: number, guessedTimezone?: boolean, timezone: string, displayOffset: number;localDate?:string;isoWeekday?:string;}} Datum
- * @typedef {{ cbg:Datum[]; basal:Datum[], bolus:Datum[] }} Grouped
+ * @typedef {{ cbg:Datum[]; basal:Datum[]; bolus:Datum[]; deviceEvent: Datum[] }} Grouped
  * @typedef {{ payload: { parameters: {name: string}[]} } | Datum} PumpSettings
  * @typedef {{ timezone: string, dateRange: string[], nData: number, days: {date:string,type:string}[], data:{[x:string]: {data: Datum[]}} }} BasicsData
  * @typedef {{ time: number, timezone: string}[]} TimezoneList
@@ -39,9 +39,9 @@ import dt from "./data/util/datetime";
 
 const RE_ISO_TIME = /^(?:[1-9]\d{3}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\d|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[1-9]\d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29)T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+|.{0})(?:Z|[+-][01]\d:[0-5]\d)$/;
 const INVALID_TIMEZONES = ["UTC", "GMT", "Etc/GMT"];
-const REQUIRED_TYPES = ["basal", "bolus", "wizard", "cbg", "message", "smbg", "pumpSettings", "physicalActivity", "deviceEvent", "upload"];
+const REQUIRED_TYPES = ["basal", "bolus", "wizard", "cbg", "message", "smbg", "pumpSettings", "physicalActivity", "deviceEvent", "upload", "food", "physicalActivity"];
 const DIABETES_DATA_TYPES = ["basal", "bolus", "cbg", "smbg", "wizard"];
-const BASICS_TYPE = ["basal", "bolus", "cbg", "smbg", "deviceEvent", "wizard", "upload"];
+const BASICS_TYPE = ["deviceEvent"];
 const DAILY_TYPES = ["basal", "bolus", "cbg", "food", "message", "smbg", "physicalActivity", "deviceEvent", "wizard"];
 
 const defaults = {
@@ -75,7 +75,6 @@ const defaults = {
   timePrefs: {
     timezoneAware: true,
     timezoneName: "UTC",
-    timezoneOffset: 0,
   },
   defaultSource: "Diabeloop",
   defaultPumpManufacturer: "default",
@@ -171,7 +170,6 @@ function TidelineData(opts = defaults) {
 
   this.log.info("Initialized", this);
 }
-
 
 /**
  * @param {Datun} d a datum which we may not want anymore
@@ -489,7 +487,7 @@ TidelineData.prototype.getTimezoneAt = function getTimezoneAt(date) {
     return this.opts.timePrefs.timezoneName;
   }
 
-  const time = moment.utc(date).valueOf();
+  const time = typeof date === "number" ? date : moment.utc(date).valueOf();
   let c = 0;
   while (c < this.timezonesList.length && time >= this.timezonesList[c].time) c++;
   return this.timezonesList[c - 1].timezone;
@@ -574,7 +572,7 @@ TidelineData.prototype.setEndPoints = function setEndPoints() {
  */
 TidelineData.prototype.getLocaleTimeEndpoints = function getLocaleTimeEndpoints(endInclusive = true) {
   let timezone = this.getTimezoneAt(this.endpoints[0]);
-  const startDate = moment.tz(this.endpoints[0], timezone).toDate();
+  const startDate = moment.tz(this.endpoints[0], timezone);
 
   timezone = this.getTimezoneAt(this.endpoints[1]);
   let endDate = moment.tz(this.endpoints[1], timezone);
@@ -584,7 +582,7 @@ TidelineData.prototype.getLocaleTimeEndpoints = function getLocaleTimeEndpoints(
     endDate.subtract(1, "millisecond");
   }
 
-  return { startDate, endDate: endDate.toDate() };
+  return { startDate, endDate };
 };
 
 TidelineData.prototype.setDeviceParameters = function setDeviceParameters() {
@@ -911,114 +909,94 @@ TidelineData.prototype.generateFillData = function generateFillData() {
   this.data.sort((a, b) => a.epoch - b.epoch);
 };
 
-TidelineData.prototype.setBasicsData = function setBasicsData() {
-  const last = _.findLast(this.data, (d) => {
-    switch (d.type) {
-    case "basal":
-    case "wizard":
-    case "bolus":
-    case "cbg":
-    case "smbg":
-    case "physicalActivity":
-      return true;
-    case "deviceEvent":
-      var includedSubtypes = ["reservoirChange", "prime", "calibration", "deviceParameter", "zen"];
-      if (_.includes(includedSubtypes, d.subType)) {
-        return true;
-      }
-      return false;
-    default:
+/**
+ * Generate basics data
+ * @param {string | null | undefined} startDate
+ * @param {string | null | undefined} endDate
+ * @returns {null|object}
+ */
+TidelineData.prototype.generateBasicsData = function generateBasicsData(startDate = null, endDate = null) {
+  const start = startDate ?? this.endpoints[0];
+  const end = endDate ?? this.endpoints[1];
+  let startEpoch = new Date(start).valueOf();
+  let endEpoch = new Date(end).valueOf();
+  if (!endDate) {
+    endEpoch = endEpoch - 1;
+  }
+
+  const { basicsTypes } = this.opts;
+  this.checkRequired(basicsTypes);
+
+  const endTimezone = this.getTimezoneAt(endEpoch);
+  const mEnd = moment.tz(endEpoch, endTimezone);
+  let mStart;
+  let startTimezone;
+  if (startDate) {
+    startTimezone = this.getTimezoneAt(startDate);
+    mStart = moment.tz(startDate, startTimezone);
+  } else {
+    const twoWeeksAgo = mEnd.clone().startOf("week").subtract(2, "weeks").valueOf();
+    startTimezone = this.getTimezoneAt(twoWeeksAgo);
+    mStart = moment.tz(twoWeeksAgo, startTimezone);
+  }
+
+  if (mStart.isAfter(mEnd)) {
+    this.log.warn("Invalid date range", { mStart: mStart.toISOString(), mEnd: mEnd.toISOString() });
+    return null;
+  }
+
+  // Get the UTC values with exclusive range:
+  startEpoch = mStart.valueOf() - 1;
+  endEpoch = mEnd.valueOf() + 1;
+  const days = dt.findBasicsDays(mStart, mEnd, startDate === null);
+  const dateRange = [mStart.toISOString(), mEnd.toISOString()];
+
+  const selectData = (/** @type {Datum[]} */group, /** @type {string|null} */ subType) => group.filter((d) => {
+    if (subType && d.subType !== subType) {
       return false;
     }
+    return startEpoch < d.epoch && d.epoch < endEpoch;
   });
 
-  // filters out any data that *precedes* basics date range
-  // which is determined from available pump data types
-  const skimOffBottom = (groupData, start) => {
-    return _.takeRightWhile(groupData, (d) => {
-      if (d.type === "basal") {
-        return d.normalEnd >= start;
-      }
-      return d.normalTime >= start;
-    });
-  };
-
-  // filters out any data that *follows* basics date range
-  // which is determined from available pump data types
-  // (data that follows basics date range is possible when a CGM
-  // is uploaded more recently (by a couple days, say) than a pump)
-  const skimOffTop = (groupData, end) => _.takeWhile(groupData, (d) => d.normalTime <= end);
-
-  const skimOfTopBottom = (groupData, start, end) => {
-    const bottom = skimOffBottom(groupData, start);
-    return skimOffTop(bottom, end);
-  };
-
-  // wrapping in an if-clause here because of the no-data
-  // or CGM-only data cases
-  if (!_.isEmpty(last)) {
-    const dateRange = [dt.findBasicsStart(last.normalTime, this.opts.timePrefs.timezoneName), last.normalTime];
-    const basicsData = {
-      timezone: this.opts.timePrefs.timezoneName ?? "UTC",
-      dateRange,
-      days: dt.findBasicsDays(dateRange, this.opts.timePrefs.timezoneName),
-      nData: 0,
-      data: {
-        reservoirChange: null,
-        cannulaPrime: null,
-        tubingPrime: null,
-        calibration: null,
-        upload: null,
-        basal: null,
-        bolus: null,
-        cbg: null,
-        smbg: null,
-        wizard: null,
+  const basicsData = {
+    timezone: endTimezone,
+    dateRange,
+    days,
+    nData: 0,
+    data: {
+      reservoirChange: {
+        data: selectData(this.grouped.deviceEvent, "reservoirChange"),
       },
-    };
+      deviceParameter: {
+        data: selectData(this.grouped.deviceEvent, "deviceParameter"),
+      },
+      // Types below are needed for PDF
+      upload: {
+        data: _.clone(this.grouped.upload),
+      },
+      cbg: {
+        data: selectData(this.grouped.cbg),
+      },
+      smbg: {
+        data: selectData(this.grouped.smbg),
+      },
+      basal: {
+        data: selectData(this.grouped.basal),
+      },
+      bolus: {
+        data: selectData(this.grouped.bolus),
+      },
+      wizard: {
+        data: selectData(this.grouped.wizard),
+      },
+    },
+  };
 
-    const { basicsTypes } = this.opts;
-    this.checkRequired(basicsTypes);
-    for (let i = 0; i < basicsTypes.length; ++i) {
-      const aType = basicsTypes[i];
+  _.forOwn(basicsData.data, (v) => {
+    basicsData.nData += v.data.length;
+  });
 
-      if (aType === "deviceEvent") {
-        basicsData.data.reservoirChange = {
-          data: _.filter(this.grouped.deviceEvent, { subType: "reservoirChange" }),
-        };
-        basicsData.data.cannulaPrime = {
-          data: _.filter(this.grouped.deviceEvent, { subType: "prime", primeTarget: "cannula" }),
-        };
-        basicsData.data.tubingPrime = {
-          data: _.filter(this.grouped.deviceEvent, { subType: "prime", primeTarget: "tubing" }),
-        };
-        const calibrations = skimOfTopBottom(this.grouped.deviceEvent, dateRange[0], dateRange[1]);
-        basicsData.data.calibration = {
-          data: _.filter(calibrations, { subType: "calibration" }),
-        };
-        basicsData.nData +=
-          basicsData.data.reservoirChange.data.length +
-          basicsData.data.cannulaPrime.data.length +
-          basicsData.data.tubingPrime.data.length +
-          basicsData.data.calibration.data.length;
-      } else if (aType === "upload") {
-        basicsData.data.upload = {
-          data: this.grouped.upload,
-        };
-        basicsData.nData += this.grouped.upload.length;
-      } else if (Array.isArray(this.grouped[aType])) {
-        const typeObj = { data: [] };
-        typeObj.data = skimOfTopBottom(this.grouped[aType], dateRange[0], dateRange[1]);
-        basicsData.data[aType] = typeObj;
-        basicsData.nData += typeObj.data.length;
-      } else {
-        this.log.warn("Missing basics type", aType);
-        basicsData.data[aType] = { data: [] };
-        basicsData.nData += basicsData.data[aType].data.length;
-      }
-    }
-    this.basicsData = basicsData;
-  }
+  return basicsData;
 };
 
 /**
@@ -1186,7 +1164,7 @@ TidelineData.prototype.addData = async function addData(newData) {
   endTimer("checkRequired");
 
   startTimer("setBasicsData");
-  this.setBasicsData();
+  this.basicsData = this.generateBasicsData();
   endTimer("setBasicsData");
 
   endTimer("addData");

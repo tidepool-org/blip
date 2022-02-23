@@ -235,7 +235,8 @@ describe("Locales tests", () => {
       }
     }
     for (const key of trKeys) {
-      if (!blipEnglish.includes(key) && !ignoredTransKeyInBlipFiles.includes(key)) {
+      // Use yourloops.json as a fallback
+      if (!blipEnglish.includes(key) && !ylpEnglish.includes(key) && !ignoredTransKeyInBlipFiles.includes(key)) {
         missingTranslations.push(key);
       }
     }

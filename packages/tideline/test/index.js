@@ -17,6 +17,7 @@
 
 import enzyme from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
+import moment from "moment-timezone";
 
 enzyme.configure({
   adapter: new Adapter(),
@@ -25,6 +26,8 @@ enzyme.configure({
 
 window.d3 = require("d3");
 window.d3.chart = require("d3.chart");
+
+moment.locale("en");
 
 // DOM not required
 // ====================================
