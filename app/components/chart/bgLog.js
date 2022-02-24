@@ -24,6 +24,7 @@ import sundial from 'sundial';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
+import { Flex } from 'rebass/styled-components';
 
 import Stats from './stats';
 import DeviceSelection from './deviceSelection';
@@ -31,13 +32,15 @@ import DeviceSelection from './deviceSelection';
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
 const chartBgLogFactory = tidelineBlip.twoweek;
+import Button from '../elements/Button';
+import Checkbox from '../elements/Checkbox';
+import { colors } from '../../themes/baseTheme';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const Loader = vizComponents.Loader;
 const { getLocalizedCeiling } = vizUtils.datetime;
 
 import Header from './header';
-import Footer from './footer';
 
 class BgLogChart extends Component {
   static propTypes = {
@@ -235,8 +238,18 @@ class BgLog extends Component {
   };
 
   render = () => {
+    const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'bgLog';
     let renderedContent;
+
+    const checkboxStyles = {
+      themeProps: { color: 'stat.text' },
+      backgroundColor: 'white',
+      sx: {
+        boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
+        color: colors.grays[2],
+      },
+    };
 
     if (dataQueryComplete) {
       renderedContent = this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart();
@@ -250,6 +263,28 @@ class BgLog extends Component {
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {renderedContent}
+
+              <Flex mt={4} mb={5} pl="50px" pr="30px" alignItems="center" justifyContent="space-between">
+                <Button variant="secondary" onClick={this.props.onClickRefresh}>
+                  {t('Refresh')}
+                </Button>
+
+                <Flex
+                  variant="inputs.checkboxGroup.horizontal"
+                  alignItems="center"
+                  bg="lightestGrey"
+                  px={3}
+                  py={2}
+                >
+                  <Checkbox
+                    label={t('Values')}
+                    name="valuesCheckbox"
+                    checked={this.state.showingValues}
+                    onChange={this.toggleValues}
+                    {...checkboxStyles}
+                  />
+                </Flex>
+              </Flex>
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -272,13 +307,6 @@ class BgLog extends Component {
             </div>
           </div>
         </div>
-        <Footer
-          chartType={this.isMissingSMBG() ? 'no-data' : this.chartType}
-          onClickValues={this.toggleValues}
-          onClickRefresh={this.props.onClickRefresh}
-          showingValues={this.state.showingValues}
-          ref="footer"
-        />
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );

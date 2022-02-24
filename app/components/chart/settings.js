@@ -4,12 +4,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
 import { Trans, translate } from 'react-i18next';
+import { Flex } from 'rebass/styled-components';
 
 import * as viz from '@tidepool/viz';
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
 import Header from './header';
-import Footer from './footer';
+import Button from '../elements/Button';
 
 const Settings = translate()(createReactClass({
   displayName: 'Settings',
@@ -42,6 +43,8 @@ const Settings = translate()(createReactClass({
   },
 
   render: function() {
+    const { manufacturer } = _.get(this.props, 'data.metaData.latestPumpUpload', {});
+
     return (
       <div id="tidelineMain">
         <Header
@@ -63,14 +66,15 @@ const Settings = translate()(createReactClass({
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               {this.isMissingSettings() ? this.renderMissingSettingsMessage() : this.renderChart()}
+
+              <Flex mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0 }>
+                <Button variant="secondary" onClick={this.props.onClickRefresh}>
+                  {this.props.t('Refresh')}
+                </Button>
+              </Flex>
             </div>
           </div>
         </div>
-        <Footer
-         chartType={this.chartType}
-         onClickRefresh={this.props.onClickRefresh}
-         onClickSettings={this.props.onSwitchToSettings}
-        ref="footer" />
       </div>
       );
   },

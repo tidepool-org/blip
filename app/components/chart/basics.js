@@ -4,6 +4,7 @@ import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
+import { Flex } from 'rebass/styled-components';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -16,9 +17,9 @@ const { basicsText } = vizUtils.text;
 import { isMissingBasicsData } from '../../core/data';
 
 import Stats from './stats';
+import Button from '../elements/Button';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
-import Footer from './footer';
 import DeviceSelection from './deviceSelection';
 
 class Basics extends Component {
@@ -101,6 +102,14 @@ class Basics extends Component {
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {renderedContent}
+
+              {!this.isMissingBasics() && (
+                <Flex mt={4} mb={5} pl="10px">
+                  <Button variant="secondary" onClick={this.props.onClickRefresh}>
+                    {this.props.t('Refresh')}
+                  </Button>
+                </Flex>
+              )}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -136,11 +145,6 @@ class Basics extends Component {
             </div>
           </div>
         </div>
-        <Footer
-          chartType={this.chartType}
-          onClickRefresh={this.props.onClickRefresh}
-          ref="footer"
-        />
       </div>
       );
   };
