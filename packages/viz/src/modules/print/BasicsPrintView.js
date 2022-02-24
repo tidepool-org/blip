@@ -304,7 +304,7 @@ class BasicsPrintView extends PrintView {
     );
 
     const { averageGlucose } = _.get(this.data.stats, "averageGlucose.data.raw", {});
-    this.renderSimpleStat(t("Average BG"), formatDecimalNumber(averageGlucose), "\nmg/dL");
+    this.renderSimpleStat(t("Average BG"), formatDecimalNumber(averageGlucose), `\n${this.bgUnits}`);
 
     const { glucoseManagementIndicator, insufficientData } = _.get(this.data.stats, "glucoseManagementIndicator.data.raw", {});
     if (!insufficientData && !Number.isNaN(glucoseManagementIndicator)) {
