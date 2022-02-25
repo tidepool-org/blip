@@ -20,6 +20,10 @@ import { translate } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import cx from 'classnames';
+import moment from 'moment';
+
+import { Flex } from 'rebass/styled-components';
+
 var launchCustomProtocol = require('custom-protocol-detection');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
@@ -42,9 +46,15 @@ var NavbarPatientCard = translate()(class extends React.Component {
   render() {
     var patient = this.props.patient || {};
     var self = this;
+    const birthday = patient?.profile?.patient?.birthday;
+
+    let formattedBirthday;
+    if (moment(birthday, 'YYYY-MM-DD', true).isValid()) {
+      formattedBirthday = moment(birthday).format('MMMM D, YYYY');
+    }
 
     var classes = cx({
-      'patientcard': true,
+      patientcard: true,
     });
 
     var view = this.renderView(patient);
@@ -52,20 +62,17 @@ var NavbarPatientCard = translate()(class extends React.Component {
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
     var overlay = this.state.showUploadOverlay ? this.renderOverlay() : null;
-    var dateOfBirth = new Date (patient.profile.patient.birthday);
-    var options = {month: 'long'};
-    var month = new Intl.DateTimeFormat('en-US', options).format(dateOfBirth);
-    var day = dateOfBirth.getUTCDate();
-    var year = dateOfBirth.getFullYear();
- 
+
     return (
-      <div className={classes}>
+      <Flex alignItems="center" className={classes}>
         <i className="Navbar-icon icon-face-standin"></i>
         <div className="patientcard-info">
           {profile}
-          <div className="patientcard-dateOfBirth">
-            {month + ' ' +  day  + ', ' + year}
-          </div>
+          {formattedBirthday && (
+            <div className="patientcard-dateOfBirth">
+              {formattedBirthday}
+            </div>
+          )}
           <div className="patientcard-actions">
             {view}
             {share}
@@ -74,7 +81,7 @@ var NavbarPatientCard = translate()(class extends React.Component {
         </div>
         <div className="clear"></div>
         {overlay}
-      </div>
+      </Flex>
     );
   }
 
