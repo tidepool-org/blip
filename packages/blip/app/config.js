@@ -38,6 +38,7 @@ const defaultConfig = {
   DEV: true,
   TEST: false,
   CBG_BUCKETS_ENABLED: true,
+  ECPS_ENABLED: true,
 };
 
 /** @typedef {typeof defaultConfig} AppConfig */

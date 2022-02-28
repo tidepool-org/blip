@@ -137,7 +137,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const log = bows("ProfilePage");
-
+// TODO Need to split this too big component, see YLP-1256 (https://diabeloop.atlassian.net/browse/YLP-1256)
+// eslint-disable-next-line complexity
 const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const { t, i18n } = useTranslation("yourloops");
   const classes = useStyles();
@@ -380,7 +381,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
                 />
               </Box>
 
-              {user.settings?.country === "FR" &&
+              {appConfig.ECPS_ENABLED && user.settings?.country === "FR" &&
                 <React.Fragment>
                   {user.frProId ?
                     <TextField

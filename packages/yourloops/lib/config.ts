@@ -58,6 +58,7 @@ const defaultConfig: AppConfig = {
   DEV: true,
   TEST: false,
   CBG_BUCKETS_ENABLED: true,
+  ECPS_ENABLED: true,
 };
 const appConfig = _.assign({}, defaultConfig);
 if (_.has(window, "config") && _.isObjectLike(_.get(window, "config", null))) {

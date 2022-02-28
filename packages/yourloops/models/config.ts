@@ -48,4 +48,5 @@ export interface AppConfig {
   SESSION_TIMEOUT: number;
   YLP820_BASAL_TIME: number;
   CBG_BUCKETS_ENABLED: boolean;
+  ECPS_ENABLED: boolean;
 }
