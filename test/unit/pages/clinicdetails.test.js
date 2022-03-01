@@ -140,6 +140,36 @@ describe('ClinicDetails', () => {
     },
   };
 
+  const clinicCanMigrateState = {
+    blip: {
+      ...defaultState.blip,
+      allUsersMap: {
+        clinicianUserId123: {
+          emails: ['clinic@example.com'],
+          roles: ['clinic'],
+          userid: 'clinicianUserId123',
+          username: 'clinic@example.com',
+          profile: { fullName: 'Clinician One', clinic: { npi: '1234567890', role: 'front_desk' } },
+        },
+      },
+      clinics: {
+        clinicID456: {
+          id: 'clinicID456',
+          name: 'My Clinic',
+          canMigrate: true,
+          clinicians: {
+            clinicianUserId123: {
+              email: 'clinic@example.com',
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_ADMIN'],
+            },
+          },
+        },
+      },
+      selectedClinicId: 'clinicID456',
+    },
+  };
+
   let store = mockStore(defaultState);
 
   before(() => {
@@ -276,11 +306,8 @@ describe('ClinicDetails', () => {
         const profileForm = wrapper.find('form#clinic-profile');
         expect(profileForm).to.have.lengthOf(1);
 
-        wrapper.find('input[name="firstName"]').simulate('change', { persist: noop, target: { name: 'firstName', value: 'Bill' } });
-        expect(wrapper.find('input[name="firstName"]').prop('value')).to.equal('Bill');
-
-        wrapper.find('input[name="lastName"]').simulate('change', { persist: noop, target: { name: 'lastName', value: 'Bryerson' } });
-        expect(wrapper.find('input[name="lastName"]').prop('value')).to.equal('Bryerson');
+        wrapper.find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Bill Bryerson' } });
+        expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('Bill Bryerson');
 
         wrapper.find('select[name="role"]').simulate('change', { persist: noop, target: { name: 'role', value: 'endocrinologist' } });
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('endocrinologist');
@@ -358,11 +385,8 @@ describe('ClinicDetails', () => {
         const profileForm = wrapper.find('form#clinic-profile');
         expect(profileForm).to.have.lengthOf(1);
 
-        wrapper.find('input[name="firstName"]').simulate('change', { persist: noop, target: { name: 'firstName', value: 'Bill' } });
-        expect(wrapper.find('input[name="firstName"]').prop('value')).to.equal('Bill');
-
-        wrapper.find('input[name="lastName"]').simulate('change', { persist: noop, target: { name: 'lastName', value: 'Bryerson' } });
-        expect(wrapper.find('input[name="lastName"]').prop('value')).to.equal('Bryerson');
+        wrapper.find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Bill Bryerson' } });
+        expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('Bill Bryerson');
 
         wrapper.find('select[name="role"]').simulate('change', { persist: noop, target: { name: 'role', value: 'endocrinologist' } });
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('endocrinologist');
@@ -481,6 +505,57 @@ describe('ClinicDetails', () => {
 
           done();
         }, 0);
+      });
+    });
+
+    context('pre-populate clinic team member profile fields', () => {
+      it('should not populate the team member profile fields if the clinic details have not been filled out', () => {
+        store = mockStore(initialEmptyClinicState);
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicDetails {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+
+        expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('');
+        expect(wrapper.find('select[name="role"]').prop('value')).to.equal('');
+        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('');
+      });
+
+      it('should populate the team member profile fields if the clinic details have been filled out', () => {
+        store = mockStore(clinicCanMigrateState);
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicDetails {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+
+        expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('Clinician One');
+        expect(wrapper.find('select[name="role"]').prop('value')).to.equal('front_desk');
+        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('1234567890');
+      });
+    });
+
+    context('clinic is ready to migrate on load', () => {
+      beforeEach(() => {
+        store = mockStore(clinicCanMigrateState);
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicDetails {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+      });
+
+      it('should open the migration confirmation modal', () => {
+        const confirmMigrationDialog = () => wrapper.find('Dialog#migrateClinic');
+        expect(confirmMigrationDialog()).to.have.lengthOf(1);
+        expect(confirmMigrationDialog().props().open).to.be.true;
       });
     });
   });

@@ -22,7 +22,6 @@ import {
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
-import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
@@ -186,7 +185,6 @@ export const ClinicPatients = (props) => {
             variant="primary"
             onClick={handleAddPatient}
             mr={0}
-            disabled={true} // Temporarily disable WEB-1302 for Clinic UI LMR
           >
             {t('Add a New Patient')}
           </Button>
@@ -267,7 +265,7 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} onFormChange={handlePatientFormChange} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} />
         </DialogContent>
 
         <DialogActions>
@@ -301,7 +299,7 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} onFormChange={handlePatientFormChange} patient={selectedPatient} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} />
         </DialogContent>
 
         <DialogActions>
@@ -433,7 +431,6 @@ export const ClinicPatients = (props) => {
         handleEditPatient(patient);
       },
       text: t('Edit Patient Information'),
-      disabled: true // Temporarily disable WEB-1302 for Clinic UI LMR
     });
 
     if (isClinicAdmin) items.push({
@@ -469,13 +466,12 @@ export const ClinicPatients = (props) => {
         sortable: true,
         render: renderLinkedField.bind(null, 'birthDate'),
       },
-      // Temporarily revert WEB-1303 for Clinic UI LMR
-      // {
-      //   title: t('MRN'),
-      //   field: 'mrn',
-      //   align: 'left',
-      //   render: renderLinkedField.bind(null, 'mrn'),
-      // },
+      {
+        title: t('MRN'),
+        field: 'mrn',
+        align: 'left',
+        render: renderLinkedField.bind(null, 'mrn'),
+      },
       {
         title: '',
         field: 'more',

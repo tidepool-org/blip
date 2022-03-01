@@ -5809,6 +5809,39 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.inviteClinician.callCount).to.equal(1);
       });
+
+      it('should trigger SEND_CLINICIAN_INVITE_FAILURE and it should call error once for a failed request with a 409 status', () => {
+        let clinician = {
+          email:'clinician@example.com',
+          roles: ['CLINIC_MEMBER']
+        };
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+
+        let api = {
+          clinics: {
+            inviteClinician: sinon.stub().callsArgWith(2, {status: 409, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_ALREADY_MEMBER);
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
+          { type: 'SEND_CLINICIAN_INVITE_FAILURE', error: err, meta: { apiError: {status: 409, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendClinicianInvite(api, clinicId, clinician));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_ALREADY_MEMBER });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.inviteClinician.callCount).to.equal(1);
+      });
     });
 
     describe('fetchClinicianInvite', () => {

@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.23.0-web-1369-bg-range-stat-updates.1":
-  version "1.23.0-web-1369-bg-range-stat-updates.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.23.0-web-1369-bg-range-stat-updates.1.tgz#45c95b585e2bcfd6dcb1db228e848ce050ea09e2"
-  integrity sha512-MLFzF5GdWWwZ0Y1NAtIteIq2rFIskRDb74UVI5xsN09cgWcote7c5Jmajwdc/NpeEeO/XduT3EG9zTd3ZM3jtA==
+"@tidepool/viz@1.26.0-web-1412-greyed-out-widget-fix.1":
+  version "1.26.0-web-1412-greyed-out-widget-fix.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.26.0-web-1412-greyed-out-widget-fix.1.tgz#afa16a4d09b75d6cfc132ad41934262234bc1e59"
+  integrity sha512-wDTYUzebpqaWPP7wMF5wCNzPI1PuJwOQ+aF1BtmT8cORwhHFhWr/z78h7tl/7gV8j19kXJzmu7qEAmLZbS3PBQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -18427,10 +18427,10 @@ thunky@^1.0.2:
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
   integrity sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==
 
-tideline@1.25.0:
-  version "1.25.0"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.25.0.tgz#fc8f4f1d86b03203ee52919de4096f392ee3e961"
-  integrity sha512-/IbTaVBud5nA2d/QQ2O4PpMMTKs+ySADxT10y05gvRgmpm7AogKuCbPBil3jYOR+bAFFekLAB2buIlRg4+okmQ==
+tideline@1.26.0-web-49-basics-basal-iq-auto-suspends.1:
+  version "1.26.0-web-49-basics-basal-iq-auto-suspends.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.26.0-web-49-basics-basal-iq-auto-suspends.1.tgz#57b72a9fa0dd6be66a9425507530831565ba22e6"
+  integrity sha512-GlYRGTo4w1btd0CQaFyojDoUZ+bCPhQQFMlItQOKM4lDolgDlH5fX6LrtqnKAHLqfZBALYEXypZRcgx2ylIvmw==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"

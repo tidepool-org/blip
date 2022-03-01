@@ -46,7 +46,8 @@ personUtils.isPatient = (person) => {
 };
 
 personUtils.isClinicianAccount = (user) => {
-  return (_.indexOf(_.get(user, 'roles', []), 'clinic') !== -1 || user?.isClinicMember);
+  const userRoles = _.get(user, 'roles', []);
+  return _.intersection(userRoles, ['clinic', 'migrated_clinic']).length > 0 || user?.isClinicMember;
 };
 
 personUtils.isDataDonationAccount = (account) => {

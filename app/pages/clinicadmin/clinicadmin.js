@@ -4,9 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
-import keys from 'lodash/keys';
+import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map';
-import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
@@ -152,7 +151,7 @@ export const ClinicAdmin = (props) => {
         !fetchingCliniciansFromClinic.completed &&
         !fetchingCliniciansFromClinic.notification
       ) {
-        dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id));
+        dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id, { limit: 1000, offset: 0 }));
       }
     }
   }, [
@@ -181,7 +180,8 @@ export const ClinicAdmin = (props) => {
         prescriberPermission: includes(roles, 'PRESCRIBER'),
         isAdmin: includes(roles, 'CLINIC_ADMIN'),
         userId: clinicianId,
-        inviteId: inviteId,
+        inviteId,
+        status: inviteId ? t('invite sent') : '',
         email,
         roles,
       };
@@ -295,9 +295,9 @@ export const ClinicAdmin = (props) => {
     </Box>
   );
 
-  const renderStatus = ({ inviteId }) => (
+  const renderStatus = ({ status }) => (
     <Box>
-      {inviteId ? <Pill text={t('invite sent')} colorPalette="greens" /> : ''}
+      {!isEmpty(status) ? <Pill text={status} colorPalette="greens" /> : ''}
     </Box>
   );
 
@@ -395,10 +395,10 @@ export const ClinicAdmin = (props) => {
     },
     {
       title: t('Status'),
-      field: 'inviteSent',
+      field: 'status',
       align: 'left',
       sortable: true,
-      sortBy: 'inviteSent',
+      sortBy: 'status',
       render: renderStatus,
     },
   ];

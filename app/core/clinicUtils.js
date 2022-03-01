@@ -49,6 +49,7 @@ export const clinicTypes = [
   { value: 'provider_practice', label: t('Provider Practice') },
   { value: 'healthcare_system', label: t('Healthcare System') },
   { value: 'veterinary_clinic', label: t('Veterinary Clinic') },
+  { value: 'research_organization', label: t('Research Organization') },
   { value: 'other', label: t('Other') },
 ];
 
@@ -131,5 +132,5 @@ export const patientSchema = yup.object().shape({
     .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
     .required(t('Patient\'s birthday is required')),
   mrn: yup.string(),
-  email: yup.string().email(),
+  email: yup.string().email(t('Please enter a valid email address')),
 });
