@@ -179,6 +179,7 @@ export default class HistoryTable extends Table {
           parameters.sort((a, b) =>
             b.level.toString().localeCompare(a.level.toString())
             || b.name.localeCompare(a.name)
+            || a.effectiveDate.localeCompare(b.effectiveDate)
           );
 
           for (let j = 0; j < nParameters; j++) {
