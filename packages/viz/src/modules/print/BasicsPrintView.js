@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* eslint-disable lodash/prefer-lodash-method */
-
 import _ from "lodash";
 import i18next from "i18next";
 import moment from "moment-timezone";
@@ -81,7 +79,7 @@ class BasicsPrintView extends PrintView {
 
     this.data = reduceByDay(this.data, this.bgPrefs);
 
-    const averageDailyCarbs = _.get(this.data, "stats.carbs.data.raw.foodCarbsPerDay");
+    const averageDailyCarbs = _.get(this.data, "stats.carbs.data.raw.totalCarbsPerDay");
     const totalDailyDose = _.get(this.data, "stats.averageDailyDose.data.raw.totalInsulin");
     const { basal, bolus } = _.get(this.data, "stats.totalInsulin.data.raw", {});
     const averageDailyDose = { basal, bolus };

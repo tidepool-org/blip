@@ -92,6 +92,7 @@ describe("BasicsPrintView", () => {
       averageGlucose: 120,
     } } },
     carbs: { data: { raw: {
+      totalCarbsPerDay: 22,
       foodCarbsPerDay: 10.2,
     } } },
     readingsInRange: { data: {
@@ -168,7 +169,7 @@ describe("BasicsPrintView", () => {
     });
 
     it("should add the provided averageDailyCarbs stat data", () => {
-      expect(Renderer.data.data.averageDailyCarbs).to.equal(10.2);
+      expect(Renderer.data.data.averageDailyCarbs).to.equal(stats.carbs.data.raw.totalCarbsPerDay);
     });
 
     it("should add the provided averageDailyDose stat data", () => {
