@@ -105,7 +105,7 @@ class Basics extends Component {
 
               {!this.isMissingBasics() && (
                 <Flex mt={4} mb={5} pl="10px">
-                  <Button variant="secondary" onClick={this.props.onClickRefresh}>
+                  <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                     {this.props.t('Refresh')}
                   </Button>
                 </Flex>

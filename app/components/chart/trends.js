@@ -477,7 +477,7 @@ const Trends = translate()(class Trends extends PureComponent {
               </div>
 
               <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" alignItems="center" justifyContent="space-between">
-                <Button variant="secondary" onClick={this.props.onClickRefresh}>
+                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {t('Refresh')}
                 </Button>
 

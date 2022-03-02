@@ -315,7 +315,7 @@ class Daily extends Component {
               {dataQueryComplete && this.renderChart()}
 
               <Flex mt={3} mb={5} pl="40px">
-                <Button variant="secondary" onClick={this.props.onClickRefresh}>
+                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {this.props.t('Refresh')}
                 </Button>
               </Flex>

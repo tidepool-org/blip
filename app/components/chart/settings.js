@@ -68,7 +68,7 @@ const Settings = translate()(createReactClass({
               {this.isMissingSettings() ? this.renderMissingSettingsMessage() : this.renderChart()}
 
               <Flex mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0 }>
-                <Button variant="secondary" onClick={this.props.onClickRefresh}>
+                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {this.props.t('Refresh')}
                 </Button>
               </Flex>

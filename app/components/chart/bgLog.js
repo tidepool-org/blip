@@ -265,7 +265,7 @@ class BgLog extends Component {
               {renderedContent}
 
               <Flex mt={4} mb={5} pl="50px" pr="30px" alignItems="center" justifyContent="space-between">
-                <Button variant="secondary" onClick={this.props.onClickRefresh}>
+                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {t('Refresh')}
                 </Button>
 
