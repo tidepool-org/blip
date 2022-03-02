@@ -52,6 +52,7 @@ const userHCP: User = new User({
   username: "john.doe@example.com",
   role: UserRoles.hcp,
   emailVerified: true,
+  frProId: "ANS20211229094028",
   profile: { firstName: "John", lastName: "Doe", fullName: "John Doe", hcpProfession: HcpProfession.diabeto },
   preferences: { displayLanguageCode: "en" },
   settings: { units: { bg: Units.gram }, country: "FR" },
@@ -138,6 +139,7 @@ export const teams: ITeam[] = [
         preferences: loggedInUsers.hcp.preferences,
         profile: loggedInUsers.hcp.profile,
         settings: loggedInUsers.hcp.settings,
+        idVerified: true,
       },
       {
         teamId: "team-0",
@@ -148,6 +150,7 @@ export const teams: ITeam[] = [
         preferences: null,
         profile: { firstName: "Jean", lastName: "Dupont", fullName: "Jean Dupont" },
         settings: null,
+        idVerified: false,
       },
     ],
   },
@@ -174,6 +177,7 @@ export const teams: ITeam[] = [
         preferences: loggedInUsers.hcp.preferences,
         profile: loggedInUsers.hcp.profile,
         settings: loggedInUsers.hcp.settings,
+        idVerified: true,
       },
       {
         teamId: "team-1",
@@ -184,6 +188,7 @@ export const teams: ITeam[] = [
         preferences: null,
         profile: { firstName: "Adelheide", lastName: "Alvar", fullName: "Adelheide Alvar" },
         settings: null,
+        idVerified: false,
       },
     ],
   },
@@ -210,6 +215,7 @@ export const teams: ITeam[] = [
         preferences: loggedInUsers.hcp.preferences,
         profile: loggedInUsers.hcp.profile,
         settings: loggedInUsers.hcp.settings,
+        idVerified: true,
       },
     ],
   },
@@ -241,6 +247,7 @@ export const members: ITeamMember[] = [
     preferences: null,
     profile: { firstName: "Michelle", lastName: "Dufour", fullName: "Michelle Dufour" },
     settings: null,
+    idVerified: true,
   },
 ];
 
@@ -254,6 +261,7 @@ export const patients: ITeamMember[] = [
     preferences: userPatient.preferences,
     profile: userPatient.profile,
     settings: userPatient.settings,
+    idVerified: false,
   },
   {
     invitationStatus: UserInvitationStatus.accepted,
@@ -264,6 +272,7 @@ export const patients: ITeamMember[] = [
     preferences: userPatient.preferences,
     profile: userPatient.profile,
     settings: userPatient.settings,
+    idVerified: false,
   },
   {
     invitationStatus: UserInvitationStatus.accepted,
@@ -272,6 +281,7 @@ export const patients: ITeamMember[] = [
     userId: "a0a0a0b1",
     email: "michel.dupont@example.com",
     profile: { firstName: "Michel", lastName: "Dupont", fullName: "Michel D." },
+    idVerified: false,
   },
   {
     invitationStatus: UserInvitationStatus.accepted,
@@ -280,6 +290,7 @@ export const patients: ITeamMember[] = [
     userId: "a0a0a0b2",
     email: "marivone.duplessie@example.com",
     profile: { firstName: "Marivone", lastName: "Duplessie", fullName: "Marivone Duplessie" },
+    idVerified: false,
   },
   {
     invitationStatus: UserInvitationStatus.accepted,
@@ -288,6 +299,7 @@ export const patients: ITeamMember[] = [
     userId: "a0a0a0b2",
     email: "marivone.duplessie@example.com",
     profile: { firstName: "Marivone", lastName: "Duplessie", fullName: "Marivone Duplessie" },
+    idVerified: false,
   },
   {
     invitationStatus: UserInvitationStatus.pending,
@@ -296,5 +308,6 @@ export const patients: ITeamMember[] = [
     userId: "a0a0a0b3",
     email: "gerard.dumoulin@example.com",
     profile: { firstName: "Gerard", lastName: "Dumoulin", fullName: "Gerard D." },
+    idVerified: false,
   },
 ];

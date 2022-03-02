@@ -83,6 +83,8 @@ interface IUser {
   emails?: string[];
   readonly emailVerified?: boolean;
   frProId?: string;
+  /** A boolean that indicates if the user has certified another account, like eCPS */
+  readonly idVerified?: boolean;
   /** Main role of the user */
   readonly role: UserRoles;
   roles?: UserRoles[];

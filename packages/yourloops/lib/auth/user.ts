@@ -40,6 +40,7 @@ class User implements IUser {
   emails?: string[];
   emailVerified: boolean;
   frProId?: string;
+  idVerified?: boolean;
   latestConsentChangeDate: Date;
   medicalData?: MedicalData | null;
   preferences?: Preferences | null;
@@ -54,6 +55,7 @@ class User implements IUser {
     this.userid = u.userid;
     this.username = u.username;
     this.frProId = u.frProId;
+    this.idVerified = u.idVerified;
 
     if (u.role) {
       this.role = u.role;

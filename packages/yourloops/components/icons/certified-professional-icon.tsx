@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2022, Diabeloop
+ * Medical Service Icon
  *
  * All rights reserved.
  *
@@ -27,62 +28,22 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import proSanteLogo from "pro-sante-connect.svg";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
-import Button from "@material-ui/core/Button";
+import Tooltip from "@material-ui/core/Tooltip";
 
-interface Props {
-  onClick: () => void;
-}
+import VerifiedUserOutlinedIcon from "@material-ui/icons/VerifiedUserOutlined";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  container: {
-    textAlign: "center",
-    [theme.breakpoints.only("xs")]: {
-      display: "flex",
-      alignItems: "center",
-    },
-  },
-  button: {
-    "width": "90%",
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
-    [theme.breakpoints.only("xs")]: {
-      width: "70%",
-    },
-  },
-  label: {
-    fontSize: 12,
-    [theme.breakpoints.only("xs")]: {
-      fontWeight: 600,
-      padding: 5,
-    },
-  },
-}));
-
-function ProSanteConnectButton({ onClick }: Props): JSX.Element {
-  const { button, label, container } = useStyles();
+function CertifiedProfessionalIcon({ id }: { id?: string }): JSX.Element {
   const { t } = useTranslation("yourloops");
 
   return (
-    <Box className={container}>
-      <Button
-        id="pro-sante-connect-button"
-        href=""
-        disableRipple
-        disableElevation
-        disableFocusRipple
-        className={button}
-        onClick={onClick}
-      >
-        <img src={proSanteLogo} alt={t("alt-img-pro-sante-logo")} />
-      </Button>
-      <span className={label}>{t("certify-professional-account")}</span>
+    <Box id={id} marginLeft={1}>
+      <Tooltip title={t("certified-professional-account") as string} placement="bottom">
+        <VerifiedUserOutlinedIcon color="primary" fontSize="small" />
+      </Tooltip>
     </Box>
   );
 }
 
-export default ProSanteConnectButton;
+export default CertifiedProfessionalIcon;

@@ -49,6 +49,7 @@ export interface ITeamMember {
   profile?: Profile | null;
   settings?: Settings | null;
   preferences?: Preferences | null;
+  idVerified: boolean;
 }
 
 /**

@@ -50,27 +50,28 @@ const ReactTeamContext = React.createContext<TeamContext>({} as TeamContext);
 let lock = false;
 
 export function iMemberToMember(iTeamMember: ITeamMember, team: Team, users: Map<string, TeamUser>): TeamMember {
-  const userId = iTeamMember.userId;
+  const { userId, invitationStatus, role, email, preferences, profile, settings, idVerified } = iTeamMember;
 
   let teamUser = users.get(userId);
-  if (typeof teamUser === "undefined") {
+  if (!teamUser) {
     teamUser = {
-      role: iTeamMember.role === TeamMemberRole.patient ? UserRoles.patient : UserRoles.hcp,
+      role: role === TeamMemberRole.patient ? UserRoles.patient : UserRoles.hcp,
       userid: userId,
-      username: iTeamMember.email,
-      emails: [iTeamMember.email],
-      preferences: iTeamMember.preferences,
-      profile: iTeamMember.profile,
-      settings: fixYLP878Settings(iTeamMember.settings),
+      username: email,
+      emails: [email],
+      preferences,
+      profile,
+      settings: fixYLP878Settings(settings),
       members: [],
+      idVerified,
     };
     users.set(userId, teamUser);
   }
 
   const teamMember: TeamMember = {
     team,
-    role: iTeamMember.role,
-    status: iTeamMember.invitationStatus,
+    role,
+    status: invitationStatus,
     user: teamUser,
   };
   teamUser.members.push(teamMember);
@@ -79,16 +80,9 @@ export function iMemberToMember(iTeamMember: ITeamMember, team: Team, users: Map
 }
 
 export function iTeamToTeam(iTeam: ITeam, users: Map<string, TeamUser>): Team {
-  const team: Team = {
-    ...iTeam,
-    members: [],
-  };
-
+  const team: Team = { ...iTeam, members: [] };
   // Detect duplicate users, and update the member if needed
-  iTeam.members.forEach((iTeamMember) => {
-    iMemberToMember(iTeamMember, team, users);
-  });
-
+  iTeam.members.forEach(iTeamMember => iMemberToMember(iTeamMember, team, users));
   return team;
 }
 
@@ -122,6 +116,7 @@ export async function loadTeams(
         preferences: session.user.preferences,
         profile: session.user.profile,
         settings: session.user.settings,
+        idVerified: false,
       });
     }
   }

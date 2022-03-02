@@ -176,6 +176,28 @@ function testTeamMembersTable(): void {
   });
 
   describe("Viewer", () => {
+    it("should display certified icon if the member is a certified professional", () => {
+      const team = teams[1];
+      const certifiedHcp = team.members.find(member => member.user.idVerified).user;
+
+      component = mount(<TestTeamMembersComponent {...{ ...defaultProps, team }} />, mountOptions);
+      component.find(`#team-members-list-${team.id}-header`).last().simulate("click");
+      component.update();
+
+      expect(component.exists(`#certified-professional-icon-${certifiedHcp.userid}`)).to.be.true;
+    });
+
+    it("should not display certified icon if the member is not a certified professional", () => {
+      const team = teams[1];
+      const patient = team.members.find(member => !member.user.idVerified).user;
+
+      component = mount(<TestTeamMembersComponent {...{ ...defaultProps, team }} />, mountOptions);
+      component.find(`#team-members-list-${team.id}-header`).last().simulate("click");
+      component.update();
+
+      expect(component.exists(`#certified-professional-icon-${patient.userid}`)).to.be.false;
+    });
+
     it("should not display the remove team member button and switch role checkbox must be disabled", async () => {
       const props: TeamMembersProps = {
         ...defaultProps,

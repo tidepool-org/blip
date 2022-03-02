@@ -56,6 +56,7 @@ export interface TeamMember {
   user: TeamUser;
   /** Invitations for roles = pending */
   invitation?: INotification;
+  idVerified?: boolean;
 }
 
 export interface Team {

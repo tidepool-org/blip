@@ -29,17 +29,17 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, withStyles, useTheme, Theme } from "@material-ui/core/styles";
+import { makeStyles, Theme, useTheme, withStyles } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Avatar from "@material-ui/core/Avatar";
+import Box from "@material-ui/core/Box";
 import Checkbox from "@material-ui/core/Checkbox";
 import Chip from "@material-ui/core/Chip";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -51,8 +51,9 @@ import Typography from "@material-ui/core/Typography";
 
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import PersonRemoveIcon from "../../components/icons/PersonRemoveIcon";
+import CertifiedProfessionalIcon from "../../components/icons/certified-professional-icon";
 import IconActionButton from "../../components/buttons/icon-action";
+import PersonRemoveIcon from "../../components/icons/PersonRemoveIcon";
 
 import { UserInvitationStatus } from "../../models/generic";
 import { TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
@@ -123,15 +124,8 @@ const teamMembersStyles = makeStyles((theme: Theme) => {
   };
 });
 
-const teamMembersTableStyles = makeStyles(() => ({
-  root: {
-    color: "black",
-  },
-}));
-
 /**
  * Create a custom accordion summary.
- *
  * With a CSS style named "ylp-member-accordion-summary"
  */
 const MembersAccordionSummary = withStyles(
@@ -176,7 +170,6 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
   const { team, onSwitchAdminRole, onShowRemoveTeamMemberDialog } = props;
 
   // Hooks
-  const classes = teamMembersTableStyles();
   const authContext = useAuth();
   const teamHook = useTeam();
   const { t } = useTranslation("yourloops");
@@ -199,19 +192,19 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     const isAdmin = member.role === TeamMemberRole.admin;
 
     let checkboxElement: JSX.Element | null = null;
-    let icon: JSX.Element | null = null;
 
     if (member.status === UserInvitationStatus.accepted) {
       // Determine if the current user can change the admin role for this member
       // - Must be an admin
-      // - Mustn't be the only admin for it's own entry
+      // - Mustn't be the only admin for its own entry
       // - An update mustn't be in progress
       const checkboxAdminDisabled =
         !userIsAdmin || (userIsTheOnlyAdministrator && userId === currentUserId) || updatingUser.length > 0;
       if (updatingUser === userId) {
         // Disabled while update in progress (backend api call in progress)
         checkboxElement = (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "42px", height: "42px" }}>
+          <div
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "42px", height: "42px" }}>
             <CircularProgress disableShrink size={17} />
           </div>
         );
@@ -235,15 +228,6 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
           />
         );
       }
-    } else {
-      icon = (
-        <Tooltip title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
-          <AccessTimeIcon
-            id={`team-members-list-${team.id}-row-${userId}-pending-icon`}
-            className="team-members-list-row-pending"
-          />
-        </Tooltip>
-      );
     }
 
     const handleClickRemoveMember = async (): Promise<void> => {
@@ -261,7 +245,16 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
         data-role={member.role}
         data-status={member.status}
       >
-        <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>{icon}</TableCell>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>
+          {member.status === UserInvitationStatus.pending &&
+            <Tooltip title={t("pending-invitation") as string} aria-label={t("pending-invitation")} placement="bottom">
+              <AccessTimeIcon
+                id={`team-members-list-${team.id}-row-${userId}-pending-icon`}
+                className="team-members-list-row-pending"
+              />
+            </Tooltip>
+          }
+        </TableCell>
         <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-lastname`}>
           {lastName}
         </TableCell>
@@ -269,26 +262,27 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
           {firstName}
         </TableCell>
         <TableCell id={`team-members-list-${team.id}-row-${userId}-email`}>
-          <Link
-            classes={{ root: classes.root }}
-            id={`team-members-list-${team.id}-row-${userId}-email-link`}
-            className="team-members-list-email-link"
-            href={`mailto:${email}`}
-            target="_blank"
-            rel="noreferrer">
-            {email}
-          </Link>
+          <Box display="flex">
+            <Typography
+              id={`team-members-list-${team.id}-row-${userId}-email-link`}
+              className="team-members-list-email-link"
+              variant="body2"
+            >
+              {email}
+            </Typography>
+            {member.user.idVerified && <CertifiedProfessionalIcon id={`certified-professional-icon-${member.user.userid}`} />}
+          </Box>
         </TableCell>
         <TableCell id={`team-members-list-${team.id}-row-${userId}-role`}>{checkboxElement}</TableCell>
         <TableCell id={`team-members-list-${team.id}-row-${userId}-actions`} align="right">
           {userIsAdmin && (userId !== currentUserId) &&
-          <IconActionButton
-            tooltip={t("team-member-remove")}
-            icon={<PersonRemoveIcon />}
-            id={`team-members-list-${team.id}-row-${userId}-action-remove`}
-            onClick={handleClickRemoveMember}
-            className="team-members-list-action-remove"
-          />
+            <IconActionButton
+              tooltip={t("team-member-remove")}
+              icon={<PersonRemoveIcon />}
+              id={`team-members-list-${team.id}-row-${userId}-action-remove`}
+              onClick={handleClickRemoveMember}
+              className="team-members-list-action-remove"
+            />
           }
         </TableCell>
       </TableRow>
@@ -331,7 +325,7 @@ function TeamMemberTable(props: TeamMembersProps): JSX.Element {
 }
 
 function TeamMembersCards(props: TeamMembersProps): JSX.Element {
-  const { team /*, onSwitchAdminRole*/, onShowRemoveTeamMemberDialog } = props;
+  const { team, onShowRemoveTeamMemberDialog } = props;
   const { t } = useTranslation("yourloops");
   const authContext = useAuth();
   const teamHook = useTeam();
@@ -342,89 +336,15 @@ function TeamMembersCards(props: TeamMembersProps): JSX.Element {
   const members = teamHook.getMedicalMembers(team);
   members.sort(sortTeamMembers);
 
-  const papers = members.map((member: TeamMember): JSX.Element | null => {
+  const papers = members.map((member: TeamMember): JSX.Element => {
     const userId = member.user.userid;
     const email = member.user.username;
 
     // TODO onSwitchAdminRole
 
-    let removeMemberButton: JSX.Element;
-    if (userIsAdmin && userId !== currentUserId) {
-      const handleClickRemoveMember = async (): Promise<void> => {
-        await onShowRemoveTeamMemberDialog(member);
-      };
-      removeMemberButton = (
-        <IconActionButton
-          icon={<PersonRemoveIcon />}
-          id={`team-members-list-${team.id}-paper-${email}-action-remove`}
-          onClick={handleClickRemoveMember}
-          className={classes.paperMemberRemove}
-        />
-      );
-    } else {
-      removeMemberButton = <div id={`team-members-list-${team.id}-paper-${email}-action-remove-empty`} />;
-    }
-
-    let content: JSX.Element;
-    if (member.status === UserInvitationStatus.pending) {
-      content = (
-        <React.Fragment>
-          <AccessTimeIcon className={classes.paperMemberPending} />
-          <Link
-            id={`team-members-list-${team.id}-link-${email}`}
-            className={classes.paperMemberName}
-            href={`mailto:${email}`}
-            color="textPrimary"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {email}
-          </Link>
-          {removeMemberButton}
-          <div className={classes.paperMemberBreak} />
-          {member.role === TeamMemberRole.admin &&
-          <div className={classes.paperMemberChip}>
-            <Chip size="small" label={t("team-member-admin")} />
-          </div>
-          }
-          <div className={classes.paperMemberChip}>
-            <Chip
-              id={`team-members-list-${team.id}-badge-admin-${email}`}
-              size="small"
-              label={t("pending-invitation")}
-            />
-          </div>
-        </React.Fragment>
-      );
-    } else if (member.status === UserInvitationStatus.accepted) {
-      content = (
-        <React.Fragment>
-          <Avatar>{getUserInitials(member.user)}</Avatar>
-          <Link
-            id={`team-members-list-${team.id}-username-${userId}`}
-            className={classes.paperMemberName}
-            href={`mailto:${email}`}
-            color="textPrimary"
-            target="_blank"
-            rel="noreferrer">
-            {t("user-name", getUserFirstLastName(member.user))}
-          </Link>
-          {removeMemberButton}
-          <div className={classes.paperMemberBreak} />
-          {member.role === TeamMemberRole.admin &&
-          <div className={classes.paperMemberChip}>
-            <Chip
-              id={`team-members-list-${team.id}-badge-admin-${userId}`}
-              size="small"
-              label={t("team-member-admin")}
-            />
-          </div>
-          }
-        </React.Fragment>
-      );
-    } else {
-      return null;
-    }
+    const handleClickRemoveMember = async (): Promise<void> => {
+      await onShowRemoveTeamMemberDialog(member);
+    };
 
     return (
       <Paper
@@ -432,7 +352,47 @@ function TeamMembersCards(props: TeamMembersProps): JSX.Element {
         id={`team-members-list-${team.id}-paper-${userId}`}
         className={classes.paperMember}
       >
-        {content}
+        <React.Fragment>
+          {member.status === UserInvitationStatus.pending ?
+            <AccessTimeIcon className={classes.paperMemberPending} />
+            :
+            <Avatar>{getUserInitials(member.user)}</Avatar>
+          }
+          <Typography
+            id={`team-members-list-${team.id}-link-${email}`}
+            className={classes.paperMemberName}
+            variant="body2"
+          >
+            <Box display="flex">
+              {member.status === UserInvitationStatus.pending ? email : t("user-name", getUserFirstLastName(member.user))}
+              {member.user.idVerified && <CertifiedProfessionalIcon id={`certified-professional-icon-${member.user.userid}`} />}
+            </Box>
+          </Typography>
+          {userIsAdmin && userId !== currentUserId &&
+            <IconActionButton
+              icon={<PersonRemoveIcon />}
+              id={`team-members-list-${team.id}-paper-${email}-action-remove`}
+              onClick={handleClickRemoveMember}
+              className={classes.paperMemberRemove}
+            />
+          }
+          <div className={classes.paperMemberBreak} />
+
+          {member.role === TeamMemberRole.admin &&
+            <div className={classes.paperMemberChip}>
+              <Chip size="small" label={t("team-member-admin")} />
+            </div>
+          }
+          {member.status === UserInvitationStatus.pending &&
+            <div className={classes.paperMemberChip}>
+              <Chip
+                id={`team-members-list-${team.id}-badge-admin-${email}`}
+                size="small"
+                label={t("pending-invitation")}
+              />
+            </div>
+          }
+        </React.Fragment>
       </Paper>
     );
   });
@@ -444,14 +404,14 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
   const { team } = props;
 
   const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.down("xs"));
+  const isMobileView = useMediaQuery(theme.breakpoints.only("xs"));
   const classes = teamMembersStyles();
   const { t } = useTranslation("yourloops");
   const teamHook = useTeam();
   const nMembers = teamHook.getNumMedicalMembers(team);
 
   return (
-    <div id={`team-members-list-${team.id}`} className={classes.root}>
+    <div id={`team-members-list-${team.id}`}>
       <Accordion elevation={0} TransitionProps={{ unmountOnExit: true }}>
         <MembersAccordionSummary
           id={`team-members-list-${team.id}-header`}
@@ -459,11 +419,13 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
           aria-label={t("aria-expand-team-members")}
           aria-controls={`team-members-list-${team.id}-content`}
         >
-          <Typography className={classes.listTitle}>{t("team-members-list-header", { nMembers })}</Typography>
+          <Typography className={classes.listTitle}>
+            {t("team-members-list-header", { nMembers })}
+          </Typography>
         </MembersAccordionSummary>
 
         <AccordionDetails className={classes.accordionMembersList}>
-          {matches ? <TeamMembersCards {...props} /> : <TeamMemberTable {...props} />}
+          {isMobileView ? <TeamMembersCards {...props} /> : <TeamMemberTable {...props} />}
         </AccordionDetails>
       </Accordion>
     </div>

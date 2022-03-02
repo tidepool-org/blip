@@ -13,6 +13,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-1217 Patient should be better informed that he should not create an account through web UI
 ### Security Update
 - YLP-1182 Add an eCPS connection link into user preferences (HCP certification)
+- YLP-1183 Add certified professional icon
 ### Improvements
 - YLP-22 Print PDF content cleaned and improved (removing useless data)
 - YLP-288 Improve date selection on Trends view

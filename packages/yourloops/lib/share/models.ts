@@ -37,6 +37,7 @@ interface DirectShareUser {
   profile?: Profile | null;
   settings?: Settings | null;
   email: string;
+  idVerified: boolean;
 }
 
 export interface DirectShareAPI {
