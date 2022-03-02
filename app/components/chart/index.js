@@ -23,5 +23,4 @@ module.exports = {
   bgLog: BgLog,
   settings: require('./settings'),
   header: require('./header'),
-  footer: require('./footer')
 };

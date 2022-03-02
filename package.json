@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.52.0-web-1451-status-sorting.1",
+  "version": "1.51.0-web-1457-move-data-view-controls.2",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -166,7 +166,7 @@
     "sundial": "1.6.0",
     "terser": "4.8.0",
     "terser-webpack-plugin": "2.2.1",
-    "tideline": "1.26.0-web-49-basics-basal-iq-auto-suspends.1",
+    "tideline": "1.26.0-web-1457-move-data-view-controls.1",
     "tidepool-platform-client": "0.48.0",
     "tidepool-standard-action": "0.1.1",
     "url-loader": "1.1.1",

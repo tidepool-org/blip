@@ -12,7 +12,7 @@ import {
 } from '../../themes/baseTheme';
 
 const StyledCheckbox = styled(Base)`
-  color: ${colors.border.default};
+  color: ${props => props.sx?.color || colors.border.default};
   height: 1.25em;
   width: 1.25em;
   padding: 0;
@@ -65,7 +65,11 @@ export const Checkbox = (props) => {
         as={Label}
         theme={baseTheme}
         variant={`inputs.checkboxes.${variant}`}
-        sx={{ display: 'inline-flex !important' }}
+        sx={{
+          backgroundColor: 'inherit',
+          display: 'inline-flex !important',
+          lineHeight: '1em',
+        }}
         width="auto"
         {...themeProps}
       >
