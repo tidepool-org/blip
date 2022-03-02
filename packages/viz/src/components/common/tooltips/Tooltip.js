@@ -159,7 +159,7 @@ class Tooltip extends React.PureComponent {
       tailNode = this.renderTail(styles.tooltipTitleBg);
     }
     if (title) {
-      renderedTitle =<span id="tooltip-daily-title-text">{title}</span>;
+      renderedTitle = <span id="tooltip-daily-title-text">{title}</span>;
     }
     if (dateTitle) {
       let dateValue = null;

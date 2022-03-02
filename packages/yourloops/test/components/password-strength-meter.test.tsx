@@ -31,7 +31,7 @@ import { render, unmountComponentAtNode } from "react-dom";
 import { expect } from "chai";
 import { act } from "@testing-library/react-hooks/dom";
 import { ThemeProvider } from "@material-ui/styles";
-import { hexToRgb } from "@material-ui/core";
+import { hexToRgb } from "@material-ui/core/styles";
 
 import { mainTheme } from "../../components/theme";
 import { PasswordStrengthMeter } from "../../components/utils/password-strength-meter";

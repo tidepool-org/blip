@@ -17,7 +17,7 @@
 
 import PropTypes from "prop-types";
 import React from "react";
-import moment from "moment";
+import moment from "moment-timezone";
 
 import format from "../../../../../../js/data/util/format";
 

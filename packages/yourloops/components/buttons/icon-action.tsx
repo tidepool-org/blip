@@ -29,15 +29,14 @@
 import React from "react";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
-import { PropTypes } from "@material-ui/core";
 
 export interface RemoveButtonProps {
   className?: string;
-  color?: PropTypes.Color;
+  color?: "inherit" | "primary" | "secondary" | "default";
   component?: React.ElementType;
   icon: JSX.Element;
   id?: string;
-  onClick: (payload: any) => void;
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
   size?: "small" | "medium";
   tooltip?: string;
 }

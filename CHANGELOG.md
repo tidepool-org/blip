@@ -30,13 +30,14 @@ It is based on Tidepool Blip 1.27.
 - YLP-1169 Fix German translation of Dietitian
 - YLP-1170 Bolus sent multiple times by the handset are duplicated in Yourloops/Backloops
 - YLP-1194 Time of reservoir change event in Overview page is not correct - GMT time is displayed
-- YLP-1289 Wrong units displayed in the PDF for avg glucose
 - YLP-1252 Settings History values are changing over the time
+- YLP-1289 Wrong units displayed in the PDF for avg glucose
 ### Engineering Use
 - YLP-1082 Improve daily view rendering
 - YLP-1114 Review routes and data structure for message-api
 - YLP-1172 Cannot debug unit test of blip (front)
 - YLP-1174 Removing add patient functionality for a caregiver (not used)
+- YLP-1304 Various minor eng changes
 
 ## 2.0.5 - 2021-12-06
 ### Improvements

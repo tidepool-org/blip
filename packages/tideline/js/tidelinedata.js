@@ -731,7 +731,7 @@ TidelineData.prototype.deduplicatePhysicalActivities = function deduplicatePhysi
 };
 
 /**
- * YLP-820 Adjust the display of temporay basal to workaround handset issue #220
+ * YLP-820 Adjust the display of temporary basal to workaround handset issue #220
  *
  * - A temp basal and an automated basal occurs at the same time (+ or - 2/3 seconds),
  *   the 2/3 seconds offset has to be adjusted according to existing database data, or maybe set as a variable

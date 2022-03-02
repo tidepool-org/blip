@@ -2,7 +2,7 @@
   "editor.tabSize": 2,
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
-  "javascript.preferences.quoteStyle": "single",
+  "javascript.preferences.quoteStyle": "double",
   "typescript.preferences.quoteStyle": "double",
   "eslint.workingDirectories": [{
     "pattern": "./packages/*/"

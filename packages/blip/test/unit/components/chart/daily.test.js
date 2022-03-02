@@ -185,8 +185,7 @@ describe("Daily", () => {
     it("should show a loader when loading prop is true", () => {
       const loader = () => wrapper.find(Loader).last();
 
-      expect(loader().length).to.equal(1);
-      expect(loader().prop("show")).to.be.false;
+      expect(loader().length).to.equal(0);
 
       wrapper.setProps({ loading: true });
       expect(loader().props().show).to.be.true;

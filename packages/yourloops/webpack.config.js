@@ -54,6 +54,18 @@ const alias = {
   ...blipWebpack.resolve.alias,
 };
 
+
+// Dynamically import dayjs locales from our declared locales
+
+const dayJSLocales = _.map(_.keysIn(languages.resources), (lang) => `dayjs/locale/${lang}`);
+// Bundle the dayjs plugins too
+dayJSLocales.push("dayjs/plugin/utc");
+dayJSLocales.push("dayjs/plugin/timezone");
+dayJSLocales.push("dayjs/plugin/localizedFormat");
+if (!isProduction) {
+  dayJSLocales.push("dayjs/plugin/devHelper");
+}
+
 const plugins = [
   new webpack.DefinePlugin({
     BUILD_CONFIG:
@@ -77,6 +89,7 @@ const plugins = [
     minify: false,
   }),
 ];
+
 if (isTest) {
   plugins.push(
     new webpack.SourceMapDevToolPlugin({
@@ -86,22 +99,16 @@ if (isTest) {
   );
 }
 
-// Dynamically import dayjs locales from our declared locales
-const dayJSLocales = _.map(_.keysIn(languages.resources), (lang) => `dayjs/locale/${lang}`);
-if (!isProduction) {
-  dayJSLocales.push("dayjs/plugin/devHelper");
-}
-
 /** @type {webpack.Configuration & { devServer: { [index: string]: any; }}} */
 const webpackConfig = {
   entry: {
-    nodeCompat: "../../node-compat.js",
-    dayjs: { import: dayJSLocales },
-    yourLoops: { import: "./app/index.tsx", dependOn: ["nodeCompat", "dayjs"] },
+    nodeCompat: { import: path.resolve(__dirname, "../../node-compat.js"), runtime: false, filename: "node-compat.[contenthash].js" },
+    dayjs: { import: dayJSLocales, runtime: false, filename: "dayjs.[contenthash].js" },
+    yourloops: { import: path.resolve(__dirname, "./app/index.tsx"), dependOn: ["nodeCompat", "dayjs"], filename: "yourloops.[contenthash].js" },
   },
   output: {
     path: path.resolve(__dirname, "dist"),
-    chunkFilename: "[id].[chunkhash].js",
+    chunkFilename: "[id].[contenthash].js",
     crossOriginLoading: "anonymous",
     assetModuleFilename: "[contenthash][ext]",
   },
@@ -167,6 +174,7 @@ const webpackConfig = {
   },
 
   optimization: {
+    realContentHash: true,
     minimizer: [
       new TerserPlugin({
         test: /\.js(\?.*)?$/i,
@@ -190,26 +198,42 @@ const webpackConfig = {
     ],
     splitChunks: {
       chunks: "all",
-      minSize: 20000,
-      minRemainingSize: 0,
-      minChunks: 1,
-      maxAsyncRequests: 5,
-      maxInitialRequests: 5,
-      enforceSizeThreshold: 50000,
+      minSize: 32768,
       cacheGroups: {
-        defaultVendors: {
-          test: /\/node_modules\//,
-          priority: -10,
+        polyfills: {
+          test: /\/node_modules\/(.*babel.*|core-js.*)\//,
+          priority: 0,
           reuseExistingChunk: true,
-          idHint: "vendors",
-          filename: "soup.[contenthash].bundle.js",
+          idHint: "polyfills",
+          filename: "polyfills.[contenthash].js",
         },
-        default: {
-          minChunks: 1,
-          priority: -20,
+        d3: {
+          test: /\/node_modules\/.*d3.*\//,
+          priority: 0,
           reuseExistingChunk: true,
-          idHint: "yourloops",
-          filename: "yourloops.[contenthash].bundle.js",
+          idHint: "d3",
+          filename: "d3.[contenthash].js",
+        },
+        pdfkit: {
+          test: /\/node_modules\/pdfkit\//,
+          priority: 0,
+          reuseExistingChunk: true,
+          idHint: "pdfkit",
+          filename: "pdfkit.[contenthash].js",
+        },
+        react: {
+          test: /\/node_modules\/(@material-ui|.*react.*)\//,
+          priority: 0,
+          reuseExistingChunk: true,
+          idHint: "react",
+          filename: "react.[contenthash].js",
+        },
+        modules: {
+          test: /(node_modules)/,
+          priority: -1,
+          reuseExistingChunk: true,
+          idHint: "modules",
+          filename: "modules.[contenthash].js",
         },
       },
     },

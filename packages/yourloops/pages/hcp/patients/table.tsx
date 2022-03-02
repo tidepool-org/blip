@@ -86,7 +86,7 @@ const patientListStyle = makeStyles(
 );
 
 function PatientRow(props: PatientElementProps): JSX.Element {
-  const { trNA, patient, flagged, filter, onClickPatient, onFlagPatient, /* onClickRemovePatient */ } = props;
+  const { trNA, patient, flagged, filter, onClickPatient, onFlagPatient /* ,onClickRemovePatient */ } = props;
   const { t } = useTranslation("yourloops");
   const authHook = useAuth();
   const teamHook = useTeam();

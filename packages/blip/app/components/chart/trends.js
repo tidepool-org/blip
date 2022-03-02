@@ -686,7 +686,7 @@ class Trends extends React.Component {
           <div className="container-box-inner patient-data-content-inner">
             {this.renderSubNav()}
             <div className="patient-data-content">
-              <Loader show={loading} overlay={true} />
+              {loading && <Loader show overlay={true} /> }
               <div id="tidelineContainer" className="patient-data-chart-trends">
                 {this.renderChart()}
               </div>

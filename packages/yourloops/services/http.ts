@@ -30,36 +30,45 @@ import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import httpStatus from "../lib/http-status-codes";
 import { t } from "../lib/language";
 
+interface Args {
+  url: string;
+  config?: AxiosRequestConfig;
+}
+
+interface ArgsWithPayload<P> extends Args {
+  payload?: P
+}
+
 export default class HttpService {
-  static async get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  static async get<T>({ url, config }: Args): Promise<AxiosResponse<T>> {
     try {
       return await axios.get<T>(url, { ...config });
-    } catch (error: any) {
-      throw HttpService.handleError(error);
+    } catch (error) {
+      throw HttpService.handleError(error as AxiosError);
     }
   }
 
-  static async post<T>(url: string, payload?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  static async post<R, P = undefined>({ url, payload, config }: ArgsWithPayload<P>): Promise<AxiosResponse<R>> {
     try {
-      return await axios.post<T>(url, payload, { ...config });
-    } catch (error: any) {
-      throw HttpService.handleError(error);
+      return await axios.post<R, AxiosResponse<R>, P>(url, payload, { ...config });
+    } catch (error) {
+      throw HttpService.handleError(error as AxiosError);
     }
   }
 
-  static async put<T>(url: string, payload?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  static async put<R, P = undefined>({ url, payload, config }: ArgsWithPayload<P>): Promise<AxiosResponse<R>> {
     try {
-      return await axios.put<T>(url, payload, { ...config });
-    } catch (error: any) {
-      throw HttpService.handleError(error);
+      return await axios.put<R, AxiosResponse<R>, P>(url, payload, { ...config });
+    } catch (error) {
+      throw HttpService.handleError(error as AxiosError);
     }
   }
 
-  static async delete(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+  static async delete({ url, config }: Args): Promise<AxiosResponse> {
     try {
       return await axios.delete(url, { ...config });
-    } catch (error: any) {
-      throw HttpService.handleError(error);
+    } catch (error) {
+      throw HttpService.handleError(error as AxiosError);
     }
   }
 

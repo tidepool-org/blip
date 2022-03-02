@@ -29,6 +29,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import { errorTextFromException } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import { useAlert } from "../../components/utils/snackbar";
 import LoadingBackdrop from "../../components/utils/loading-backdrop";
@@ -56,8 +57,8 @@ function CertifyAccountPage(): JSX.Element {
         await certifyProfessionalAccount();
         alert.success(t("certify-professional-account-done"));
       }
-    } catch (err: any) {
-      alert.error(err.message);
+    } catch (err) {
+      alert.error(errorTextFromException(err));
     } finally {
       setProcessing(false);
       history.push("/professional/preferences");

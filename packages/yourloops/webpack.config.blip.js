@@ -2,7 +2,6 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-const isDev = process.env.NODE_ENV === "development";
 const isTest = process.env.NODE_ENV === "test";
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -98,15 +97,6 @@ const fontLoaderConfiguration = {
   test: /\.(eot|woff2?|ttf)$/,
   type: isTest ? "asset/inline" : "asset/resource",
 };
-
-const output = {
-  filename: isDev || isTest ? "blip.js" : "blip.[hash].js",
-  path: path.join(__dirname, "dist"),
-};
-
-if (typeof process.env.PUBLIC_PATH === "string" && process.env.PUBLIC_PATH.startsWith("https")) {
-  output.publicPath = process.env.PUBLIC_PATH;
-}
 
 const resolve = {
   modules: [

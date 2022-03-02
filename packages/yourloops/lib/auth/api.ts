@@ -554,7 +554,10 @@ async function logout(session: Readonly<Session>): Promise<void> {
 }
 
 async function certifyProfessionalAccount(): Promise<IUser> {
-  const { data } = await HttpService.post<IUser>("/auth/oauth/merge", _, { withCredentials: true });
+  const { data } = await HttpService.post<IUser>({
+    url: "/auth/oauth/merge",
+    config: { withCredentials: true },
+  });
   return data;
 }
 

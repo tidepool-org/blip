@@ -444,7 +444,7 @@ class Daily extends React.Component {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={loading} overlay={true} />
+              {loading && <Loader show overlay={true} /> }
               <DailyChart
                 loading={loading}
                 bgClasses={this.props.bgPrefs.bgClasses}

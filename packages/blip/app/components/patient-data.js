@@ -22,7 +22,7 @@ import bows from "bows";
 import moment from "moment-timezone";
 import i18next from "i18next";
 import clsx from "clsx";
-import { Switch, Route /*, Redirect */ } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 
 import { TidelineData, nurseShark, MS_IN_DAY, MGDL_UNITS } from "tideline";
 import { utils as vizUtils, components as vizComponents, createPrintPDFPackage } from "tidepool-viz";
@@ -424,26 +424,24 @@ class PatientDataPage extends React.Component {
           />
         </Route>
         <Route path={`${prefixURL}/settings`}>
-          <div className="app-no-print">
-            <Settings
-              bgPrefs={this.state.bgPrefs}
-              chartPrefs={this.state.chartPrefs}
-              currentPatientInViewId={patient.userid}
-              timePrefs={this.state.timePrefs}
-              patient={patient}
-              patientData={tidelineData}
-              canPrint={canPrint}
-              prefixURL={prefixURL}
-              onClickRefresh={this.handleClickRefresh}
-              onClickNoDataRefresh={this.handleClickNoDataRefresh}
-              onSwitchToBasics={this.handleSwitchToBasics}
-              onSwitchToDaily={this.handleSwitchToDaily}
-              onSwitchToTrends={this.handleSwitchToTrends}
-              onSwitchToSettings={this.handleSwitchToSettings}
-              onClickPrint={this.handleClickPrint}
-              trackMetric={this.trackMetric}
-            />
-          </div>
+          <Settings
+            bgPrefs={this.state.bgPrefs}
+            chartPrefs={this.state.chartPrefs}
+            currentPatientInViewId={patient.userid}
+            timePrefs={this.state.timePrefs}
+            patient={patient}
+            patientData={tidelineData}
+            canPrint={canPrint}
+            prefixURL={prefixURL}
+            onClickRefresh={this.handleClickRefresh}
+            onClickNoDataRefresh={this.handleClickNoDataRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
+            onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToTrends={this.handleSwitchToTrends}
+            onSwitchToSettings={this.handleSwitchToSettings}
+            onClickPrint={this.handleClickPrint}
+            trackMetric={this.trackMetric}
+          />
         </Route>
       </Switch>
     );

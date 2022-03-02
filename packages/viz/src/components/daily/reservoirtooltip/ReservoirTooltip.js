@@ -87,7 +87,10 @@ ReservoirTooltip.propTypes = {
   borderColor: PropTypes.string.isRequired,
   borderWidth: PropTypes.number.isRequired,
   reservoir: PropTypes.object.isRequired,
-  timePrefs: PropTypes.object.isRequired,
+  timePrefs: PropTypes.shape({
+    timezoneAware: PropTypes.bool.isRequired,
+    timezoneName: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 ReservoirTooltip.defaultProps = {

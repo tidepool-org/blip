@@ -48,7 +48,7 @@ function testHttp(): void {
       axiosStub = sinon.stub(axios, "get").resolves(Promise.resolve(expectedResponse));
 
       //when
-      const response = await HttpService.get(url, config);
+      const response = await HttpService.get({ url, config });
 
       //then
       expect(response).to.equal(expectedResponse);
@@ -62,7 +62,7 @@ function testHttp(): void {
 
       //when
       try {
-        await HttpService.get(url, config);
+        await HttpService.get({ url, config });
         throw Error("This test should have gone into the catch");
       } catch (errorReceived) {
         //then
@@ -79,7 +79,7 @@ function testHttp(): void {
       axiosStub = sinon.stub(axios, "post").resolves(Promise.resolve(expectedResponse));
 
       //when
-      const response = await HttpService.post(url, payload, config);
+      const response = await HttpService.post({ url, payload, config });
 
       //then
       expect(response).to.equal(expectedResponse);
@@ -93,7 +93,7 @@ function testHttp(): void {
 
       //when
       try {
-        await HttpService.post(url, payload, config);
+        await HttpService.post({ url, payload, config });
         throw Error("This test should have gone into the catch");
       } catch (errorReceived) {
         //then
@@ -110,7 +110,7 @@ function testHttp(): void {
       axiosStub = sinon.stub(axios, "put").resolves(Promise.resolve(expectedResponse));
 
       //when
-      const response = await HttpService.put(url, payload, config);
+      const response = await HttpService.put({ url, payload, config });
 
       //then
       expect(response).to.equal(expectedResponse);
@@ -124,7 +124,7 @@ function testHttp(): void {
 
       //when
       try {
-        await HttpService.put(url, payload, config);
+        await HttpService.put({ url, payload, config });
         throw Error("This test should have gone into the catch");
       } catch (errorReceived) {
         //then
@@ -141,7 +141,7 @@ function testHttp(): void {
       axiosStub = sinon.stub(axios, "delete").resolves(Promise.resolve(expectedResponse));
 
       //when
-      const response = await HttpService.delete(url, config);
+      const response = await HttpService.delete({ url, config });
 
       //then
       expect(response).to.equal(expectedResponse);
@@ -155,7 +155,7 @@ function testHttp(): void {
 
       //when
       try {
-        await HttpService.delete(url, config);
+        await HttpService.delete({ url, config });
         throw Error("This test should have gone into the catch");
       } catch (errorReceived) {
         //then

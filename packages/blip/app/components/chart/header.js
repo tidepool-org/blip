@@ -156,7 +156,7 @@ class TidelineHeader extends React.Component {
     let profileDialog = null;
     if (_.isFunction(ProfileDialog)) {
       profileDialog = (
-        <div className="app-no-print patient-data-subnav-left">
+        <div className="patient-data-subnav-left">
           <AccountCircleIcon className={home} />
           <Link className={home} onClick={handleShowPatientProfile} title={t("Profile")}>
             {homeValue}
@@ -169,7 +169,7 @@ class TidelineHeader extends React.Component {
     return (
       <div className="grid patient-data-subnav">
         {profileDialog}
-        <div className="app-no-print patient-data-subnav-left">
+        <div className="patient-data-subnav-left">
           <a id="button-tab-overview" href={`${prefixURL}/overview`} className={basicsLinkClass} onClick={this.props.onClickBasics}>
             {t("Basics")}
           </a>
@@ -186,7 +186,7 @@ class TidelineHeader extends React.Component {
           {this.props.iconNext ? this.renderNavButton("button-nav-next", nextClass, this.props.onClickNext, "next", nextDisabled) : null}
           {this.props.iconMostRecent ? this.renderNavButton("button-nav-mostrecent", mostRecentClass, this.props.onClickMostRecent, "most-recent", mostRecentDisabled) : null}
         </div>
-        <div className="app-no-print patient-data-subnav-right">
+        <div className="patient-data-subnav-right">
           {printLink}
           <button id="button-tab-settings" className={settingsLinkClass} onClick={this.props.onClickSettings}>
             <StayCurrentPortrait />

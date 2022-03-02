@@ -26,7 +26,7 @@
  */
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { CircularProgress } from "@material-ui/core";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 interface Props {
   children: JSX.Element; // The button element

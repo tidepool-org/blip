@@ -34,7 +34,6 @@ import "@fontsource/roboto";
 import "branding/theme.css";
 import "branding/palette.css";
 
-import "../lib/axios";
 import metrics from "../lib/metrics";
 import { AuthContextProvider } from "../lib/auth";
 import { PrivateRoute, PublicRoute } from "../components/routes";

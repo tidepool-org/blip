@@ -30,7 +30,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { FormHelperTextProps } from "@material-ui/core";
+import { FormHelperTextProps } from "@material-ui/core/FormHelperText";
 import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import TextField from "@material-ui/core/TextField";
