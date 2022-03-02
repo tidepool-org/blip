@@ -166,7 +166,7 @@
     "sundial": "1.6.0",
     "terser": "4.8.0",
     "terser-webpack-plugin": "2.2.1",
-    "tideline": "1.26.0-web-49-basics-basal-iq-auto-suspends.1",
+    "tideline": "1.26.0-web-1457-move-data-view-controls.1",
     "tidepool-platform-client": "0.48.0",
     "tidepool-standard-action": "0.1.1",
     "url-loader": "1.1.1",
