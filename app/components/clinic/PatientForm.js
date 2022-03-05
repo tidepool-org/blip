@@ -13,6 +13,7 @@ import * as actions from '../../redux/actions';
 import TextInput from '../../components/elements/TextInput';
 import { getCommonFormikFieldProps } from '../../core/forms';
 import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
+import { accountInfoFromClinicPatient } from '../../core/personutils';
 import { Body1 } from '../../components/elements/FontStyles';
 
 export const PatientForm = (props) => {
@@ -27,14 +28,21 @@ export const PatientForm = (props) => {
     initialValues: getFormValues(patient),
     onSubmit: values => {
       const action = patient?.id ? {
-        handler: 'updateClinicPatient',
-        args: [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values) }, isEmpty)],
+        handler: selectedClinicId ? 'updateClinicPatient' : 'updatePatient',
+        args: selectedClinicId
+          ? [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values) }, isEmpty)]
+          : [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values) }, isEmpty))],
       } : {
-        handler: 'createClinicCustodialAccount',
-        args: [selectedClinicId, { ...omitBy(values, isEmpty) }],
+        handler: selectedClinicId ? 'createClinicCustodialAccount' : 'createVCACustodialAccount',
+        args: selectedClinicId
+          ? [selectedClinicId, omitBy(values, isEmpty)]
+          : [accountInfoFromClinicPatient(omitBy(values, isEmpty)).profile],
       };
 
-      if (!initialValues.email && values.email) trackMetric('Clinic - add patient email saved');
+      if (!initialValues.email && values.email) {
+        trackMetric(`${selectedClinicId ? 'Clinic' : 'Clinician'} - add patient email saved`);
+      }
+
       dispatch(actions.async[action.handler](api, ...action.args));
     },
     validationSchema,

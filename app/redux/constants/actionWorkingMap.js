@@ -304,6 +304,11 @@ export default (type) => {
     case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE:
       return 'creatingClinicCustodialAccount';
 
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE:
+      return 'creatingVCACustodialAccount';
+
     case types.UPDATE_CLINIC_PATIENT_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_FAILURE:

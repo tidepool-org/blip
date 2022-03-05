@@ -1569,6 +1569,32 @@ export function createClinicCustodialAccountFailure(error, apiError) {
   };
 }
 
+export function createVCACustodialAccountRequest() {
+  return {
+    type: ActionTypes.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
+  };
+}
+
+export function createVCACustodialAccountSuccess(patientId, patient) {
+  return {
+    type: ActionTypes.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS,
+    payload: {
+      patient,
+      patientId,
+    },
+  };
+}
+
+export function createVCACustodialAccountFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function updateClinicPatientRequest() {
   return {
     type: ActionTypes.UPDATE_CLINIC_PATIENT_REQUEST,
