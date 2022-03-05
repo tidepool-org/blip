@@ -27,23 +27,37 @@ export const PatientForm = (props) => {
   const formikContext = useFormik({
     initialValues: getFormValues(patient),
     onSubmit: values => {
-      const action = patient?.id ? {
-        handler: selectedClinicId ? 'updateClinicPatient' : 'updatePatient',
-        args: selectedClinicId
-          ? [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values) }, isEmpty)]
-          : [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values) }, isEmpty))],
-      } : {
-        handler: selectedClinicId ? 'createClinicCustodialAccount' : 'createVCACustodialAccount',
-        args: selectedClinicId
-          ? [selectedClinicId, omitBy(values, isEmpty)]
-          : [accountInfoFromClinicPatient(omitBy(values, isEmpty)).profile],
-      };
+      const action = patient?.id ? 'edit' : 'create';
+      const context = selectedClinicId ? 'clinic' : 'vca';
+
+      const actionMap = {
+        edit: {
+          clinic: {
+            handler: 'updateClinicPatient',
+            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values) }, isEmpty)],
+          },
+          vca: {
+            handler: 'updatePatient',
+            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values) }, isEmpty))],
+          },
+        },
+        create: {
+          clinic: {
+            handler: 'createClinicCustodialAccount',
+            args: () => [selectedClinicId, omitBy(values, isEmpty)],
+          },
+          vca: {
+            handler: 'createVCACustodialAccount',
+            args: () => [accountInfoFromClinicPatient(omitBy(values, isEmpty)).profile],
+          },
+        }
+      }
 
       if (!initialValues.email && values.email) {
         trackMetric(`${selectedClinicId ? 'Clinic' : 'Clinician'} - add patient email saved`);
       }
 
-      dispatch(actions.async[action.handler](api, ...action.args));
+      dispatch(actions.async[actionMap[action][context].handler](api, ...actionMap[action][context].args()));
     },
     validationSchema,
   });
