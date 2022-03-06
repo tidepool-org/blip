@@ -358,6 +358,14 @@ describe('api', () => {
       });
     });
 
+    describe('createCustodialAccount', () => {
+      it('should call tidepool.createCustodialAccount with the appropriate args', () => {
+        const cb = sinon.stub();
+        api.user.createCustodialAccount({new: 'patient'}, cb);
+        sinon.assert.calledWith(tidepool.createCustodialAccount, {new: 'patient'}, cb);
+      });
+    });
+
     describe('login', () => {
       it('should set the user config in Rollbar', () => {
         const cb = sinon.stub();

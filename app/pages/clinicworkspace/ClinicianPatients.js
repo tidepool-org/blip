@@ -403,6 +403,8 @@ export const ClinicianPatients = (props) => {
         field: 'fullName',
         align: 'left',
         sortable: true,
+        searchable: true,
+        searchBy: ['fullName', 'email'],
         render: renderPatient,
       },
       {
@@ -438,6 +440,7 @@ export const ClinicianPatients = (props) => {
           orderBy="fullNameOrderable"
           order="asc"
           rowsPerPage={8}
+          searchText={search}
           pagination={patients.length > 8}
         />
       </Box>

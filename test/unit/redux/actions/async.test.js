@@ -5611,6 +5611,71 @@ describe('Actions', () => {
       });
     });
 
+    describe('createVCACustodialAccount', () => {
+      it('should trigger CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS and it should call user.createCustodialAccount once for a successful request', () => {
+        let patient = {
+          fullName: 'patientName',
+          email: 'patientemail',
+          userid: 'patient123',
+        };
+
+        let api = {
+          user: {
+            createCustodialAccount: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST' },
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS', payload: {
+            patientId: 'patient123',
+            patient,
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createVCACustodialAccount(api, patient));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.createCustodialAccount.callCount).to.equal(1);
+      });
+
+      it('should trigger CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE and it should call error once for a failed request', () => {
+        let patient = {
+          fullName: 'patientName',
+          email: 'patientemail'
+        };
+        let api = {
+          user: {
+            createCustodialAccount: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST' },
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createVCACustodialAccount(api, patient));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.createCustodialAccount.callCount).to.equal(1);
+      });
+    });
+
     describe('updateClinicPatient', () => {
       it('should trigger UPDATE_CLINIC_PATIENT_SUCCESS and it should call clinics.updateClinicPatient once for a successful request', () => {
         let patientUserId = 'patient_userId';

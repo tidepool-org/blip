@@ -2987,6 +2987,49 @@ describe('Actions', () => {
       });
     });
 
+    describe('createVCACustodialAccountRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.createVCACustodialAccountRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST', () => {
+        let action = sync.createVCACustodialAccountRequest();
+        expect(action.type).to.equal('CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST');
+      });
+    });
+
+    describe('createVCACustodialAccountSuccess', () => {
+      let patientId = 'patientId';
+      let patient = { permissions: ['VIEW'] };
+      it('should be a TSA', () => {
+        let action = sync.createVCACustodialAccountSuccess(patientId, patient);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS', () => {
+        let action = sync.createVCACustodialAccountSuccess(patientId, patient);
+        expect(action.type).to.equal('CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS');
+        expect(action.payload.patientId).to.equal(patientId);
+        expect(action.payload.patient).to.equal(patient);
+      });
+    });
+
+    describe('createVCACustodialAccountFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('updating clinic patient failed :(');
+        let action = sync.createVCACustodialAccountFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.createVCACustodialAccountFailure(error);
+        expect(action.type).to.equal('CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('updateClinicPatientRequest', () => {
       it('should be a TSA', () => {
         let action = sync.updateClinicPatientRequest();

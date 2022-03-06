@@ -438,9 +438,8 @@ api.user.getAssociatedAccounts = function(cb) {
 
 api.user.createCustodialAccount = (profile, cb) => {
   const userId = tidepool.getUserId();
-
   api.log(`POST /auth/user/${userId}/user`);
-  tidepool.createCustodialAccount(profile, (err, account) => cb(err, account));
+  return tidepool.createCustodialAccount(profile, cb);
 };
 
 // ----- Patient -----
