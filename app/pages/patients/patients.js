@@ -30,8 +30,8 @@ import cx from 'classnames';
 
 import personUtils from '../../core/personutils';
 import PeopleList from '../../components/peoplelist';
-import PeopleTable from '../../components/peopletable';
 import Invitation from '../../components/invitation';
+import ClinicianPatients from '../../pages/clinicworkspace/ClinicianPatients';
 import BrowserWarning from '../../components/browserwarning';
 
 import { components as vizComponents } from '@tidepool/viz';
@@ -194,11 +194,7 @@ export let Patients = translate()(class extends React.Component {
           pb={6}
           width={['100%', '100%']}
         >
-          <PeopleTable
-            people={patients}
-            trackMetric={this.props.trackMetric}
-            onRemovePatient={this.props.onRemovePatient}
-          />
+          <ClinicianPatients {...this.props} />
         </Box>
       );
     }

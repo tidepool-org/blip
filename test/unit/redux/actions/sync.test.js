@@ -2853,51 +2853,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('createCustodialAccountRequest', () => {
-      it('should be a TSA', () => {
-        let action = sync.createCustodialAccountRequest();
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal CREATE_CUSTODIAL_ACCOUNT_REQUEST', () => {
-        let action = sync.createCustodialAccountRequest();
-        expect(action.type).to.equal('CREATE_CUSTODIAL_ACCOUNT_REQUEST');
-      });
-    });
-
-    describe('createCustodialAccountSuccess', () => {
-      let patient = {clinicId: 'clinicId', patientId: 'patientId', id: 'patientUserId'};
-      let clinicId = 'clinicId';
-      let patientId = 'patientId';
-      it('should be a TSA', () => {
-        let action = sync.createCustodialAccountSuccess(clinicId, patient, patientId);
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal CREATE_CUSTODIAL_ACCOUNT_SUCCESS', () => {
-        let action = sync.createCustodialAccountSuccess(clinicId, patient, patientId);
-        expect(action.type).to.equal('CREATE_CUSTODIAL_ACCOUNT_SUCCESS');
-        expect(action.payload.patient).to.equal(patient);
-        expect(action.payload.clinicId).to.equal(clinicId);
-        expect(action.payload.patientId).to.equal(patientId);
-      });
-    });
-
-    describe('createCustodialAccountFailure', () => {
-      it('should be a TSA', () => {
-        let error = new Error('fetching patients for clinic failed :(');
-        let action = sync.createCustodialAccountFailure(error);
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal CREATE_CUSTODIAL_ACCOUNT_FAILURE and error should equal passed error', () => {
-        let error = new Error('stink :(');
-        let action = sync.createCustodialAccountFailure(error);
-        expect(action.type).to.equal('CREATE_CUSTODIAL_ACCOUNT_FAILURE');
-        expect(action.error).to.equal(error);
-      });
-    });
-
     describe('fetchPatientFromClinicRequest', () => {
       it('should be a TSA', () => {
         let action = sync.fetchPatientFromClinicRequest();
@@ -2983,6 +2938,49 @@ describe('Actions', () => {
         let error = new Error('stink :(');
         let action = sync.createClinicCustodialAccountFailure(error);
         expect(action.type).to.equal('CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('createVCACustodialAccountRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.createVCACustodialAccountRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST', () => {
+        let action = sync.createVCACustodialAccountRequest();
+        expect(action.type).to.equal('CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST');
+      });
+    });
+
+    describe('createVCACustodialAccountSuccess', () => {
+      let patientId = 'patientId';
+      let patient = { permissions: ['VIEW'] };
+      it('should be a TSA', () => {
+        let action = sync.createVCACustodialAccountSuccess(patientId, patient);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS', () => {
+        let action = sync.createVCACustodialAccountSuccess(patientId, patient);
+        expect(action.type).to.equal('CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS');
+        expect(action.payload.patientId).to.equal(patientId);
+        expect(action.payload.patient).to.equal(patient);
+      });
+    });
+
+    describe('createVCACustodialAccountFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('updating clinic patient failed :(');
+        let action = sync.createVCACustodialAccountFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.createVCACustodialAccountFailure(error);
+        expect(action.type).to.equal('CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
