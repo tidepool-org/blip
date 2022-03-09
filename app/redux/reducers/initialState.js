@@ -127,7 +127,6 @@ const initialState = {
     deletingClinicianFromClinic: Object.assign({}, working),
     deletingPatientFromClinic: Object.assign({}, working),
     fetchingPatientsForClinic: Object.assign({}, working),
-    creatingCustodialAccount: Object.assign({}, working),
     fetchingPatientFromClinic: Object.assign({}, working),
     creatingClinicCustodialAccount: Object.assign({}, working),
     creatingVCACustodialAccount: Object.assign({}, working),

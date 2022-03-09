@@ -1489,33 +1489,6 @@ export function fetchPatientsForClinicFailure(error, apiError) {
   };
 }
 
-export function createCustodialAccountRequest() {
-  return {
-    type: ActionTypes.CREATE_CUSTODIAL_ACCOUNT_REQUEST,
-  };
-}
-
-export function createCustodialAccountSuccess(clinicId, patient, patientId) {
-  return {
-    type: ActionTypes.CREATE_CUSTODIAL_ACCOUNT_SUCCESS,
-    payload: {
-      clinicId,
-      patient,
-      patientId,
-    },
-  };
-}
-
-export function createCustodialAccountFailure(error, apiError) {
-  return {
-    type: ActionTypes.CREATE_CUSTODIAL_ACCOUNT_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null,
-    },
-  };
-}
-
 export function fetchPatientFromClinicRequest() {
   return {
     type: ActionTypes.FETCH_PATIENT_FROM_CLINIC_REQUEST,
