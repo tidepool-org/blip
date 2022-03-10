@@ -55,7 +55,7 @@
     "@storybook/addon-viewport": "5.3.19",
     "@storybook/addons": "5.3.19",
     "@storybook/react": "5.3.19",
-    "@tidepool/viz": "1.26.0-web-1412-greyed-out-widget-fix.1",
+    "@tidepool/viz": "1.26.0-web-1465-insulin-duration-format.1",
     "async": "2.6.1",
     "autoprefixer": "9.8.4",
     "babel-core": "7.0.0-bridge.0",
