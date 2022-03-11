@@ -35,9 +35,8 @@ import { User, AuthContext } from "../auth";
 import { t as translate } from "../language";
 import metrics from "../metrics";
 
-import { GetPatientDataOptions, GetPatientDataOptionsV0 } from "./models";
+import { GetPatientDataOptions } from "./models";
 import {
-  getPatientDataV0 as apiGetPatientDataV0,
   getPatientDataRange as apiGetPatientDataRange,
   getPatientData as apiGetPatientData,
   startMessageThread as apiStartMessageThread,
@@ -90,15 +89,6 @@ class BlipApi {
         metrics.endTimer("load_data");
         return Promise.reject(r);
       });
-    }
-    return Promise.reject(new Error(translate("not-logged-in")));
-  }
-
-  public getPatientDataV0(patient: IUser, options?: GetPatientDataOptionsV0): Promise<PatientData> {
-    this.log.debug("getPatientDataV0", { userId: patient.userid, options });
-    const session = this.authHook.session();
-    if (session !== null) {
-      return apiGetPatientDataV0(session, patient, options);
     }
     return Promise.reject(new Error(translate("not-logged-in")));
   }

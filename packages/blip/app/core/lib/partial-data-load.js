@@ -1,7 +1,6 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Use to know when patient-data need to fetch more data from tide-whisperer
- * when the /data/v1/* routes are available.
+ * Copyright (c) 2021-2022, Diabeloop
+ * Use to know which data range needed to be fetched from the backend
  *
  * All rights reserved.
  *
@@ -27,13 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* eslint-disable no-bitwise */
-
 import moment from "moment-timezone";
-import { MS_IN_DAY } from "tideline";
 
 /**
- * @typedef {{start: number, end: number}} DateRange
+ * @typedef {{start: moment.Moment, end: moment.Moment}} DateRange
  */
 
 /**
@@ -46,108 +42,126 @@ class PartialDataLoad {
    * @param {DateRange} initialLoadedRange start/end epoch values in ms
    */
   constructor(range, initialLoadedRange) {
-    const start = moment.utc(range.start).startOf("day");
-    const end = moment.utc(range.end).endOf("day");
-
-
     /** @type {DateRange} */
-    this.range = {
-      start: start.valueOf(),
-      end: end.valueOf(),
-    };
-
-    this.nDays = end.diff(start, "days");
-    const arraySize = Math.ceil(this.nDays/32.0);
-    this.daysLoaded = [];
-    for (let i=0; i<arraySize; i++) {
-      // Represent each UTC day as 1bit of a 32bits number
-      this.daysLoaded.push(0|0);
-    }
-    this.setRangeLoaded(initialLoadedRange);
-  }
-
-  /**
-   * @param {DateRange} displayRange Epoch dates values
-   */
-  setRangeLoaded(displayRange) {
-    const { start, end } = this.getStartEndDay(displayRange);
-
-    for (let day=start; day<end; day++) {
-      const idx = (day / 32)|0;
-      const bit = (day % 32)|0;
-      this.daysLoaded[idx] |= 1<<bit;
-    }
-  }
-
-  /**
-   * @param {DateRange} displayRange Epoch dates values
-   * @return {DateRange} epoch values of data to load, or null of we have it all
-   */
-  getRangeToLoad(displayRange) {
-    const { start, end } = this.getStartEndDay(displayRange);
-
-    const days = [];
-    for (let d=start; d<end; d++) {
-      const idx = (d / 32)|0;
-      const bit = (d % 32)|0;
-      const daysBits = this.daysLoaded[idx];
-      if (!(daysBits & (1<<bit))) {
-        days.push(d);
-      }
-    }
-
-    if (days.length > 0) {
-      return {
-        start: this.range.start + MS_IN_DAY * days[0],
-        // End range: end of the last day (so add +1 day and substract 1ms)
-        end: this.range.start + MS_IN_DAY * (days[days.length - 1] + 1) - 1,
-      };
-    }
-    return null;
+    this.range = range;
+    /** @type {DateRange[]} */
+    this.loadedRanges = [initialLoadedRange];
   }
 
   /**
    * @private
-   * @param {DateRange} displayRange
+   * @param {DateRange} range Range to check
+   * @returns {DateRange}
    */
-  getStartEndDay(displayRange) {
-    let dStart = displayRange.start - this.range.start;
-    let dEnd = displayRange.end - this.range.start;
-
-    if (dStart < 0) {
-      // silently change the value
-      dStart = 0;
-    } else if (dStart > this.nDays * MS_IN_DAY) {
-      dStart = (this.nDays - 1) * MS_IN_DAY;
+  limitRange(range) {
+    let { start, end } = range;
+    if (moment.isMoment(start) && moment.isMoment(end)) {
+      start = start.isBefore(this.range.start) ? this.range.start : start;
+      start = start.isAfter(this.range.end) ? this.range.end : start;
+      end = end.isAfter(this.range.end) ? this.range.end : end;
+      end = end.isBefore(this.range.start) ? this.range.start : end;
+      return { start, end };
     }
-    if (dEnd < 0) {
-      dEnd = MS_IN_DAY;
-    } else if (dEnd > this.nDays * MS_IN_DAY) {
-      dEnd = this.nDays * MS_IN_DAY;
+    throw new Error("Invalid range parameter");
+  }
+
+  /**
+   * @param {DateRange} wantedRange The date range needed, inclusive values, start of utc days
+   * @param {boolean} check set to true, to do a read-only check, default to false
+   */
+  getMissingRanges(wantedRange, check = false) {
+    /** @type {DateRange[]} */
+    const missingRanges = [];
+
+    let { start, end } = this.limitRange(wantedRange);
+    if (end.isBefore(start)) {
+      throw new Error("Invalid wanted range");
     }
 
-    const startDay = Math.floor(dStart / MS_IN_DAY);
-    const endDay = Math.ceil(dEnd / MS_IN_DAY);
+    for (const loadedRange of this.loadedRanges) {
+      if (start.isBefore(loadedRange.start)) {
+        // We have a missing range
+        if (end.isBefore(loadedRange.start)) {
+          // Completely before our range
+          missingRanges.push({
+            start,
+            end: end.clone().subtract(1, "day").endOf("day"),
+          });
+          break; // This is all we need
+        } else {
+          missingRanges.push({
+            start,
+            end: loadedRange.start.clone().subtract(1, "day").endOf("day"),
+          });
+          if (loadedRange.end.isBefore(end)) {
+            start = loadedRange.end; // Update start value
+          } else {
+            break; // This is all we need
+          }
+        }
+      } else if (start.isBefore(loadedRange.end) && end.isAfter(loadedRange.end)) {
+        // start is within the current tested range
+        start = loadedRange.end;
+      } else if (end.isSameOrBefore(loadedRange.end)) {
+        // Already loaded
+        break;
+      }
+    }
 
-    return { start: startDay, end: endDay };
+    if (!check && missingRanges.length > 0) {
+      this.sortAndMergeRanges(wantedRange);
+    }
+
+    return missingRanges;
+  }
+
+  /**
+   * Set the specified ranged as loaded
+   * @private
+   * @param {DateRange} newRange The new range just added
+   */
+  sortAndMergeRanges(newRange) {
+    // Update our loaded range
+    this.loadedRanges.push({
+      start: newRange.start.clone(),
+      end: newRange.end.clone(),
+    });
+
+    this.loadedRanges.sort((a, b) => a.start.valueOf() - b.start.valueOf());
+
+    let prevRange = this.loadedRanges[0];
+    for (let i = 1; i < this.loadedRanges.length; i++) {
+      let currentRange = this.loadedRanges[i];
+      if (prevRange.end.isSameOrAfter(currentRange.start)) {
+        if (prevRange.end.isSameOrBefore(currentRange.end)) {
+          prevRange.end = currentRange.end;
+        }
+        this.loadedRanges[i] = null;
+      }
+    }
+
+    this.loadedRanges = this.loadedRanges.filter((v) => v !== null);
   }
 
   toDebug() {
-    const daysLoadedStr = [];
-    for (let n=0; n<this.daysLoaded.length; n++) {
-      daysLoadedStr.push("0b" + this.daysLoaded[n].toString(2));
+    let ranges = [];
+    for (const loadedRange of this.loadedRanges) {
+      ranges.push({
+        start: loadedRange.start.toISOString(),
+        end: loadedRange.end.toISOString(),
+      });
     }
-    const rangeStr = {
-      start: moment.utc(this.range.start).toISOString(),
-      end: moment.utc(this.range.end).toISOString(),
-    };
     return {
-      range: this.range,
-      nDays: this.nDays,
-      daysLoaded: this.daysLoaded,
-      rangeStr,
-      daysLoadedStr,
+      ranges,
+      range: {
+        start: this.range.start.toISOString(),
+        end: this.range.end.toISOString(),
+      }
     };
+  }
+
+  toString() {
+    return JSON.stringify(this.toDebug());
   }
 }
 

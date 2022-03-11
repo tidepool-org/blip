@@ -88,56 +88,6 @@ export async function getPatientsDataSummary(session: Session, userId: string, o
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-function getPatientDataRouteV0(session: Session, patient: IUser, options?: GetPatientDataOptionsV0): Promise<Response> {
-  const { sessionToken, traceToken } = session;
-  const dataURL = new URL(`/data/${patient.userid}` , appConfig.API_HOST);
-
-  if (options) {
-    if (options.latest) {
-      dataURL.searchParams.set("latest", "true");
-    }
-    if (Array.isArray(options.types) && options.types.length > 0) {
-      dataURL.searchParams.append("type", options.types.join(","));
-    }
-    if (options.startDate) {
-      dataURL.searchParams.set("startDate", options.startDate);
-    }
-    if (options.endDate) {
-      dataURL.searchParams.set("endDate", options.endDate);
-    }
-  }
-
-  return fetch(dataURL.toString(), {
-    method: "GET",
-    headers: {
-      [HttpHeaderKeys.traceToken]: traceToken,
-      [HttpHeaderKeys.sessionToken]: sessionToken,
-    },
-  });
-}
-
-/**
- * Fetch data using tide-whisperer v0 route
- * @param session Session information
- * @param patient The patient (user) to fetch data
- * @param options Request options
- * @returns Array of patient data
- */
-export async function getPatientDataV0(session: Session, patient: IUser, options?: GetPatientDataOptionsV0): Promise<PatientData> {
-  if (patient.role !== UserRoles.patient) {
-    return Promise.reject(new Error(t("not-a-patient")));
-  }
-
-  const response = await getPatientDataRouteV0(session, patient, options);
-
-  if (response.ok) {
-    const patientData = (await response.json()) as PatientData;
-    return patientData;
-  }
-
-  return Promise.reject(errorFromHttpStatus(response, log));
-}
-
 function getRange(session: Session, patient: IUser): Promise<Response> {
   const { sessionToken, traceToken } = session;
   if (patient.role !== UserRoles.patient) {

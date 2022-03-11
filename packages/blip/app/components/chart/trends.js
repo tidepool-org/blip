@@ -114,9 +114,9 @@ function TrendsDatePicker(props) {
 
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const handleResult = (start, end) => {
+  const handleResult = (startDate, endDate) => {
     setIsOpen(false);
-    onResult(start, end);
+    onResult(startDate, endDate);
   };
 
   return (
@@ -278,15 +278,15 @@ class Trends extends React.Component {
     const loadingDone = !this.props.loading && prevProps.loading;
     const dateUpdated = !this.state.updatingDates && prevState.updatingDates;
 
-    this.log.debug("componentDidUpdate", {
-      locationChanged,
-      filtersChanged,
-      loadingDone,
-      dateUpdated,
-    });
+    // this.log.debug("componentDidUpdate", {
+    //   locationChanged,
+    //   filtersChanged,
+    //   loadingDone,
+    //   dateUpdated,
+    // });
     if (locationChanged || dateUpdated) {
       this.updateAtMostRecent();
-      const localDates = this.getDisplayedlocalDates();
+      const localDates = this.getDisplayedLocalDates();
       if (!_.isEqual(localDates, this.state.localDates)) {
         this.log.debug("componentDidUpdate", { localDates });
         this.setState({ localDates });
@@ -328,9 +328,9 @@ class Trends extends React.Component {
   }
 
   /**
-   * @returns An array of displayes dates (ex: `["2021-12-01", "2021-12-02"]`)
+   * @returns An array of displayed dates (ex: `["2021-12-01", "2021-12-02"]`)
    */
-  getDisplayedlocalDates() {
+  getDisplayedLocalDates() {
     const endPoints = this.getMomentEndpoints();
     const dates = [endPoints[0].format(ISO_DAY_FORMAT)];
     const endDate = endPoints[1].format(ISO_DAY_FORMAT);

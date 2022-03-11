@@ -122,8 +122,6 @@ function PatientDataPage(props: PatientDataPageProps): JSX.Element | null {
     }
   }, [userId, patient, t]);
 
-  log.debug("render", { userId, paramPatientId, error });
-
   if (error !== null) {
     return <PatientDataPageError msg={error} />;
   }
