@@ -5,6 +5,7 @@ It is based on Tidepool Blip 1.27.
 ## Unreleased
 ### Fixed
 - YLP-1312 Data loading may be missing some ranges
+- YLP-1313 Join wizard and bolus may fail
 
 ## 2.0.6 - 2022-03-03
 ### Added

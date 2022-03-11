@@ -117,20 +117,6 @@ var nurseshark = {
       }
     }
   },
-  joinWizardsAndBoluses: function(wizards, _boluses, collections) {
-    var allBoluses = collections.allBoluses;
-    var numWizards = wizards.length;
-    var joinedWizards = {};
-    for (var i = 0; i < numWizards; ++i) {
-      var wizard = wizards[i];
-      var bolusId = wizard.bolus;
-      if (!_.isNil(bolusId) && allBoluses[bolusId]) {
-        wizard.bolus = allBoluses[bolusId];
-        allBoluses[bolusId].wizard = _.omit(wizard, "bolus");
-        joinedWizards[bolusId] = wizard;
-      }
-    }
-  },
   reshapeMessage: function(d) {
     const msg = {
       time: d.timestamp,
@@ -255,10 +241,6 @@ var nurseshark = {
         process(data[i]);
       }
     }, "Process");
-
-    timeIt(function() {
-      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], typeGroups.bolus || [], collections);
-    }, "Join Wizards and Boluses");
 
     if (typeGroups.deviceEvent && typeGroups.deviceEvent.length > 0) {
       timeIt(function() {

@@ -323,6 +323,21 @@ TidelineData.prototype.cleanDatum = function cleanDatum(d) {
   }
 };
 
+TidelineData.prototype.joinWizardsAndBoluses = function joinWizardsAndBoluses() {
+  const wizards = this.data.filter((v) => v.type === "wizard" && typeof v.bolus === "string");
+  const boluses = this.data.filter((v) => v.type === "bolus");
+  const nWizards = wizards.length;
+  for (let i = 0; i < nWizards; i++) {
+    const wizard = wizards[i];
+    delete wizard.errorMessage;
+    const bolus = boluses.find((v) => v.id === wizard.bolus);
+    if (bolus) {
+      wizard.bolus = bolus;
+      bolus.wizard = wizard;
+    }
+  }
+};
+
 /**
  * Timezone change events (for daily timeline view -> poolMessages)
  * @param {string} prevTimezone The previous timezone name
@@ -1082,6 +1097,10 @@ TidelineData.prototype.addData = async function addData(newData) {
   // Initial sort
   this.data.sort((a, b) => a.epoch - b.epoch);
   endTimer("Concatenate & uniq & sort");
+
+  startTimer("joinWizardsAndBoluses");
+  this.joinWizardsAndBoluses();
+  endTimer("joinWizardsAndBoluses");
 
   startTimer("setTimezones");
   this.setTimezones(this.data);

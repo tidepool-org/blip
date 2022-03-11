@@ -695,7 +695,67 @@ describe("TidelineData", function() {
       const uniqueByTime = boluses.filter((d) => d.normalTime === "2021-06-03T12:00:00.000Z");
       expect(uniqueByTime).to.be.lengthOf(1);
     });
+  });
 
+  describe("joinWizardsAndBoluses", () => {
+    const data = [{
+      type: "bolus",
+      id: "abcde",
+    }, {
+      type: "wizard",
+      bolus: "abcde",
+      id: "bcdef",
+    }, {
+      type: "bolus",
+      id: "cdefg",
+    }, {
+      type: "wizard",
+      id: "defgh",
+    }, {
+      type: "wizard",
+      id: "efghi",
+      bolus: "fghij",
+    }, {
+      type: "bolus",
+      id: "ghijk",
+    }, {
+      type: "wizard",
+      id: "hijkl"
+    }];
+    /** @type {TidelineData} */
+    let td = null;
+
+    before(() => {
+      td = new TidelineData();
+      td.data = _.cloneDeep(data);
+      // Already joined wizard/bolus must not change:
+      const bolus = td.data[5];
+      const wizard = td.data[6];
+      wizard.bolus = bolus;
+      bolus.wizard = wizard;
+      td.joinWizardsAndBoluses();
+      expect(td.data.length).to.be.equal(data.length);
+    });
+
+    it("should join a bolus and wizard for wizard which includes the bolus's `id` in the `bolus` field", () => {
+      expect(td.data[0].id).to.be.eq(data[0].id);
+      expect(td.data[0].wizard).to.be.an("object");
+      expect(td.data[0].wizard.id).to.be.eq(data[1].id);
+      expect(td.data[1].id).to.be.eq(data[1].id);
+      expect(td.data[1].bolus).to.be.an("object");
+      expect(td.data[1].bolus.id).to.be.eq(data[0].id);
+    });
+
+    it("should not change bolus & wizard if wizard do not have a bolus `id` or if bolus is missing", () => {
+      for (let i = 2; i < 5; i++) {
+        const datum = data[i];
+        expect(datum).to.be.deep.equal(td.data[i]);
+      }
+      const bolus = td.data[5];
+      const wizard = td.data[6];
+      expect(bolus.wizard === wizard).to.be.true;
+      expect(wizard.bolus === bolus).to.be.true;
+    });
   });
 
 /*

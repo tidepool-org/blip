@@ -450,54 +450,6 @@ describe("nurseshark", function() {
     });
   });
 
-  describe("joinWizardsAndBoluses", function() {
-    var now = new Date().toISOString();
-    var data = [{
-      type: "bolus",
-      id: "abcde",
-      time: now,
-      timezoneOffset: 0
-    }, {
-      type: "wizard",
-      bolus: "abcde",
-      id: "bcdef",
-      time: now,
-      timezoneOffset: 0
-    }, {
-      type: "bolus",
-      id: "cdefg",
-      time: now,
-      timezoneOffset: 0
-    }, {
-      type: "wizard",
-      id: "defgh",
-      time: now,
-      timezoneOffset: 0
-    }];
-    it("should be a function", function() {
-      assert.isFunction(nurseshark.joinWizardsAndBoluses);
-    });
-
-    describe("new data model", function() {
-      var res = nurseshark.processData(data).processedData;
-      var embeddedBolus = res[1].bolus;
-      var secondWiz = res[3];
-
-      it("should join a bolus to a wizard that includes the bolus's `id` in the `bolus` field", function() {
-        expect(embeddedBolus.id).to.equal(data[0].id);
-        expect(secondWiz.bolus).to.be.undefined;
-      });
-
-      it("should add a wizard inside the bolus if bolus is associated with a wizard", function() {
-        var res = nurseshark.processData(data).processedData;
-        var embeddedWiz = res[0].wizard;
-        var secondBolus = res[3];
-        expect(embeddedWiz.id).to.equal(data[1].id);
-        expect(secondBolus.wizard).to.be.undefined;
-      });
-    });
-  });
-
   describe("annotateBasals", function() {
     it("should be a function", function() {
       assert.isFunction(nurseshark.annotateBasals);
