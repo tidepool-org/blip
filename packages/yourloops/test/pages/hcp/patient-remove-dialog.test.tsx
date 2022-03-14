@@ -45,7 +45,7 @@ import RemoveDialog from "../../../pages/hcp/patients/remove-dialog";
 import { waitTimeout } from "../../../lib/utils";
 
 
-function testPatientRemoveDialog(): void {
+describe("Patient remove dialog", () => {
   let container: HTMLElement | null = null;
   let patient: TeamUser | undefined;
 
@@ -122,6 +122,5 @@ function testPatientRemoveDialog(): void {
     await waitTimeout(1);
     expect(onCloseStub.calledOnce, "click on validate button").to.be.true;
   });
-}
+});
 
-export default testPatientRemoveDialog;

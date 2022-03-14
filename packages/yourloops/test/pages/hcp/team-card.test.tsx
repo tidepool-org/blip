@@ -39,7 +39,7 @@ import TeamCard, { TeamCardProps } from "../../../pages/hcp/team-card";
 import { authHcp } from "../../lib/auth/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
-function testTeamCard(): void {
+describe("Team card", () => {
   let teams: Team[] = [];
   const defaultProps: TeamCardProps = {
     team: {} as Team,
@@ -133,6 +133,5 @@ function testTeamCard(): void {
       expect(component.html()).to.be.null;
     });
   });
-}
+});
 
-export default testTeamCard;

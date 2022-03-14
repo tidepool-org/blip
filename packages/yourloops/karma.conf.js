@@ -30,9 +30,13 @@ const { updateDefaultConfig, setKarmaConfig } = require("../../karma.common.conf
 const webpack = require("./webpack.config.js");
 
 const config = {
-  files: ["test/index.ts"],
+  files: [
+    "test/index.ts",
+    "test/**/*.tsx",
+  ],
   preprocessors: {
     "test/index.ts": ["webpack", "sourcemap"],
+    "test/**/*.tsx": ["webpack", "sourcemap"],
   },
 };
 updateDefaultConfig("yourloops", config, webpack, true);

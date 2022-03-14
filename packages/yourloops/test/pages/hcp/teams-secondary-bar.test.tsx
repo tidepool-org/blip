@@ -34,7 +34,7 @@ import * as sinon from "sinon";
 import { waitTimeout } from "../../../lib/utils";
 import TeamsSecondaryBar from "../../../pages/hcp/teams-secondary-bar";
 
-function testTeamsSecondaryBar(): void {
+describe("Team secondary bar", () => {
   const apiTimeout = 50;
   const onShowEditTeamDialog = sinon.stub().resolves();
   let component: ReactWrapper | null = null;
@@ -63,6 +63,5 @@ function testTeamsSecondaryBar(): void {
     expect(onShowEditTeamDialog.calledOnce, "calledOnce").to.be.true;
     expect(onShowEditTeamDialog.calledWith(null), "calledWith(null)").to.be.true;
   });
-}
+});
 
-export default testTeamsSecondaryBar;

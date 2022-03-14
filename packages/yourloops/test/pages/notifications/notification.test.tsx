@@ -43,7 +43,7 @@ import MedicalServiceIcon from "../../../components/icons/MedicalServiceIcon";
 import { Notification } from "../../../pages/notifications/notification";
 import { INotification, NotificationType } from "../../../lib/notifications/models";
 
-export const testNotification = (): void => {
+describe("Notification", () => {
   const notif: INotification = {
     id: "11",
     metricsType: "share_data",
@@ -272,4 +272,5 @@ export const testNotification = (): void => {
       expect(dialog).to.be.null;
     });
   });
-};
+});
+

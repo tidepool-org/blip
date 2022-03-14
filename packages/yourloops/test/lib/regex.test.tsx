@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Date-pickers tests
+ * Regex tests
  *
  * All rights reserved.
  *
@@ -26,33 +26,52 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import i18n from "../../../lib/language";
+import { REGEX_EMAIL } from "../../lib/utils";
+import { expect } from "chai";
 
-import testCalendarHeader from "./calendar-header.test";
-import testMonthDayElements from "./month-days-elements.test";
-import testCalendar from "./calendar.test";
-import testYearSelector from "./year-selector.test";
-import testDatePicker from "./date-picker.test";
-import testRangeDatePicker from "./range-date-picker.test";
-import testDialogDatePicker from "./dialog-date-picker.test";
-import testDialogRangeDatePicker from "./dialog-range-date-picker.test";
+const validEmails = [
+  "foobar@domain.de",
+  "hello.world@example.com",
+  "compte.aidant+1@example.fr",
+  "hcp-test@example.com",
+  "my123account@domain.fr",
+  "abc@sub.domain.org",
+];
 
-function testDatePickers() {
-  before(() => {
-    i18n.addResourceBundle("en", "yourloops", {
-      "date-picker-header-date-format": "MMMM YYYY",
-      "date-picker-toolbar-date-format": "ddd, MMM D",
+const invalidEmails = [
+  "abcd",
+  "<hello>",
+  "mañana.es",
+  "aaa-ß@example.de",
+  " @example.com",
+  "+@example.com",
+  "+str@example.com",
+  "hello\nworld@test.org",
+  "world@test.org\nworld@test.org",
+  "name@☃-⌘.com",
+  "☃-⌘@domain.com",
+  "pine🍍pple@fruit.com",
+  "toto@ggrd.fr@aaa.de",
+  "<toto@ggrd.fr> v@aaa.de",
+  "a@g",
+  "er y@example.it",
+  "mañana@domain.es",
+  "<name> name@example.com",
+  "name@invalid-dômain.fr",
+  "almost@good.email.es ",
+];
+
+describe("Regex", () => {
+  it("email regex should accept a list of valid emails", () => {
+    validEmails.forEach((email: string) => {
+      expect(REGEX_EMAIL.test(email), `email ${email} should be valid`).to.be.true;
     });
   });
 
-  describe("CalendarHeader", testCalendarHeader);
-  describe("MonthDayElements", testMonthDayElements);
-  describe("Calendar", testCalendar);
-  describe("YearSelector", testYearSelector);
-  describe("DatePicker", testDatePicker);
-  describe("RangeDatePicker", testRangeDatePicker);
-  describe("DialogDatePicker", testDialogDatePicker);
-  describe("DialogRangeDatePicker", testDialogRangeDatePicker);
-}
+  it("email regex should refuse a list of invalid emails", () => {
+    invalidEmails.forEach((email: string) => {
+      expect(REGEX_EMAIL.test(email), `email ${email} should be invalid`).to.be.false;
+    });
+  });
+});
 
-export default testDatePickers;

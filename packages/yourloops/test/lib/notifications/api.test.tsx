@@ -68,7 +68,8 @@ export const resetNotificationAPIStub = (): void => {
   notificationAPIStub.cancelInvitation.resolves();
 };
 
-function testAPI(): void {
+describe("Notification API", () => {
+
   let fetchMock: sinon.SinonStub<[input: RequestInfo, init?: RequestInit], Promise<Response>>;
   before(() => {
     fetchMock = sinon.stub(window, "fetch");
@@ -1319,8 +1320,6 @@ function testAPI(): void {
       ];
       expect(fetchMock.firstCall.args).to.be.deep.equals(expectedArgs);
     });
-
   });
-}
+});
 
-export default testAPI;

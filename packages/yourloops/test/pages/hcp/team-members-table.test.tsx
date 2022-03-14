@@ -41,7 +41,7 @@ import { authHookHcp, authHcp } from "../../lib/auth/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 import { TeamMemberRole } from "../../../models/team";
 
-function testTeamMembersTable(): void {
+describe("Team member table", () => {
   const apiTimeout = 50;
   const defaultProps: TeamMembersProps = {
     team: {} as Team,
@@ -223,6 +223,4 @@ function testTeamMembersTable(): void {
       }
     });
   });
-}
-
-export default testTeamMembersTable;
+});

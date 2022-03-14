@@ -34,7 +34,7 @@ import SignupAccountSelector from "../../../pages/signup/signup-account-selector
 import { act } from "react-test-renderer";
 import ReactDOM from "react-dom";
 
-function TestSignupAccountForm(): void {
+describe("Signup account selector", () => {
 
   let container: HTMLDivElement | null = null;
 
@@ -87,6 +87,5 @@ function TestSignupAccountForm(): void {
     document.getElementById("signup-account-selector-radio-caregiver").click();
     nextButtonDisabled(false);
   });
-}
+});
 
-export default TestSignupAccountForm;

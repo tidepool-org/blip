@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2022, Diabeloop
- * Dialogs tests
+ * Copyright (c) 2021, Diabeloop
+ * Lib tests
  *
  * All rights reserved.
  *
@@ -26,10 +26,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testDialogPDFOptions from "./pdf-print-options.test";
+import { validate as validateUuid } from "uuid";
+import { expect } from "chai";
 
-function testDialogs() {
-  describe("DialogPDFOptions", testDialogPDFOptions);
-}
-
-export default testDialogs;
+describe("SOUP", () => {
+  it("UUID soup should be >= v8 with the validate function available", () => {
+    expect(validateUuid).to.be.a("function");
+  });
+});

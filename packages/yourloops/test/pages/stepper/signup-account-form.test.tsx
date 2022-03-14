@@ -34,7 +34,7 @@ import _ from "lodash";
 import { SignUpFormStateProvider } from "../../../pages/signup/signup-formstate-context";
 import SignupAccountForm from "../../../pages/signup/signup-account-form";
 
-function TestSignupAccountForm(): void {
+describe("Signup account form", () => {
   let container: HTMLElement | null = null;
 
   const mountComponent = async (): Promise<void> => {
@@ -66,6 +66,5 @@ function TestSignupAccountForm(): void {
     const warningMessage = document.querySelector("#signup-account-deletion-warning");
     expect(warningMessage).to.be.not.null;
   });
-}
+});
 
-export default TestSignupAccountForm;

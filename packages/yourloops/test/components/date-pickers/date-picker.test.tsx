@@ -37,7 +37,8 @@ import { waitTimeout } from "../../../lib/utils";
 import { TRANSITION_DURATION } from "../../../components/date-pickers/models";
 import DatePicker from "../../../components/date-pickers/date-picker";
 
-function testDatePicker(): void {
+describe("Date picker", () => {
+
   const minDate = dayjs("2000-01-01", { utc: true });
   const maxDate = dayjs("2100-01-01", { utc: true });
   let container: HTMLDivElement | null = null;
@@ -46,6 +47,7 @@ function testDatePicker(): void {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
+
   afterEach(() => {
     if (container) {
       ReactDOM.unmountComponentAtNode(container);
@@ -426,7 +428,6 @@ function testDatePicker(): void {
     expect(newMonth, "newMonth").to.be.not.null;
     expect(newMonth.innerText).to.be.eq("January 2022");
   });
+});
 
-}
 
-export default testDatePicker;

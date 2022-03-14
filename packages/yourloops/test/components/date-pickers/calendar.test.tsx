@@ -37,7 +37,8 @@ import { waitTimeout } from "../../../lib/utils";
 import { CalendarChangeMonth, TRANSITION_DURATION } from "../../../components/date-pickers/models";
 import Calendar from "../../../components/date-pickers/calendar";
 
-function testCalendar(): void {
+describe("Calendar", () => {
+
   const minDate = dayjs("2010-01-01", { utc: true });
   const maxDate = dayjs("2040-01-01", { utc: true });
   let container: HTMLDivElement | null = null;
@@ -46,6 +47,7 @@ function testCalendar(): void {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
+
   afterEach(() => {
     if (container) {
       ReactDOM.unmountComponentAtNode(container);
@@ -159,6 +161,5 @@ function testCalendar(): void {
     expect(onChange.callCount).to.be.eq(4);
     expect(onChange.getCall(3).args[0].format("YYYY-MM-DD")).to.be.eq("2021-11-10");
   });
-}
+});
 
-export default testCalendar;

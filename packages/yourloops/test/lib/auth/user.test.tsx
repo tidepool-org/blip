@@ -32,7 +32,9 @@ import { UserRoles } from "../../../models/shoreline";
 import config from "../../../lib/config";
 import User from "../../../lib/auth/user";
 
-function testUser(): void {
+
+describe("User", () => {
+
   before(() => {
     config.LATEST_TERMS = "2021-01-01";
   });
@@ -147,6 +149,5 @@ function testUser(): void {
     const actualRes = user.getParsedFrProId();
     expect(actualRes).to.be.equal(expectedRes);
   });
-}
+});
 
-export default testUser;

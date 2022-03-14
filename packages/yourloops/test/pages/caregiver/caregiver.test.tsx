@@ -29,10 +29,9 @@
 import { expect } from "chai";
 import CaregiverPage from "../../../pages/caregiver";
 
-function testCaregiver(): void {
+describe("Caregiver page", () => {
   it("should be exported as a function", () => {
     expect(CaregiverPage).to.be.a("function");
   });
-}
+});
 
-export default testCaregiver;

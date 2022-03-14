@@ -35,7 +35,8 @@ import { renderHook, act } from "@testing-library/react-hooks/dom";
 
 import { SnackbarContext, Snackbar, DefaultSnackbarContext } from "../../../components/utils/snackbar";
 
-function testSnackbar(): void {
+describe("Snackbar", () => {
+
   const spies = {
     error: sinon.stub(),
     warning: sinon.stub(),
@@ -90,6 +91,5 @@ function testSnackbar(): void {
     wrapper.update();
     expect(wrapper.exists("#alert-message")).to.be.true;
   });
-}
+});
 
-export default testSnackbar;

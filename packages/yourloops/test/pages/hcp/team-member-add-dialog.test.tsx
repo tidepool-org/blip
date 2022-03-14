@@ -38,7 +38,7 @@ import { AddMemberDialogContentProps } from "../../../pages/hcp/types";
 import { authHcp } from "../../lib/auth/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
-function testTeamAddMemberDialog(): void {
+describe("Team member add dialog", () => {
   const defaultProps: AddMemberDialogContentProps = {
     team: {} as Team,
     onDialogResult: sinon.spy(),
@@ -116,6 +116,5 @@ function testTeamAddMemberDialog(): void {
     const argExpected = { email: changeEmailEvent.target.value, role: "admin" };
     expect(argReveived, JSON.stringify({ argReveived, argExpected })).to.deep.equal(argExpected);
   });
-}
+});
 
-export default testTeamAddMemberDialog;

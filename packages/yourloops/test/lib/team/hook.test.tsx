@@ -71,7 +71,8 @@ export function resetTeamAPIStubs(): void {
   (teamAPI.fetchPatients as sinon.SinonStub).resolves(patients);
 }
 
-export function testTeamHook(): void {
+describe("Team hook", () => {
+
   let container: HTMLElement | null = null;
 
   let teamHook: TeamContext;
@@ -176,4 +177,4 @@ export function testTeamHook(): void {
       });
     });
   });
-}
+});

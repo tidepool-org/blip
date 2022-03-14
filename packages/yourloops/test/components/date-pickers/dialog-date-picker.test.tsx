@@ -36,13 +36,15 @@ import { expect } from "chai";
 import { waitTimeout } from "../../../lib/utils";
 import DialogDatePicker from "../../../components/date-pickers/dialog-date-picker";
 
-function testDialogDatePicker(): void {
+describe("Dialog date picker", () => {
+
   let container: HTMLDivElement | null = null;
 
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
+
   afterEach(() => {
     if (container) {
       ReactDOM.unmountComponentAtNode(container);
@@ -85,7 +87,7 @@ function testDialogDatePicker(): void {
   });
 
   it("should call the callback function on cancel", async () => {
-    const onResult = sinon.stub<[string|undefined], void>();
+    const onResult = sinon.stub<[string | undefined], void>();
     await act(() => {
       return new Promise((resolve) => {
         ReactDOM.render(<DialogDatePicker isOpen onResult={onResult} />, container, resolve);
@@ -100,7 +102,7 @@ function testDialogDatePicker(): void {
   });
 
   it("should return the selected date", async () => {
-    const onResult = sinon.stub<[string|undefined], void>();
+    const onResult = sinon.stub<[string | undefined], void>();
     await act(() => {
       return new Promise((resolve) => {
         // Note: wrong date value is intentional
@@ -137,6 +139,5 @@ function testDialogDatePicker(): void {
     expect(onResult.calledOnce, "onResult.calledOnce").to.be.true;
     expect(onResult.firstCall.args[0]).to.be.eq("2021-11-10");
   });
-}
+});
 
-export default testDialogDatePicker;

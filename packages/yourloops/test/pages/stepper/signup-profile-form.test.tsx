@@ -52,7 +52,7 @@ function FakeHcpSelector(): JSX.Element {
   return null;
 }
 
-function TestSignupProfileForm(): void {
+describe("Signup profile form", () => {
   let container: HTMLElement | null = null;
 
   const mountComponent = async (hcp: boolean): Promise<void> => {
@@ -61,7 +61,7 @@ function TestSignupProfileForm(): void {
 
         render(
           <SignUpFormStateProvider>
-            { hcp &&
+            {hcp &&
               <FakeHcpSelector />
             }
             <SignUpProfileForm handleBack={_.noop} handleNext={_.noop} />
@@ -94,6 +94,5 @@ function TestSignupProfileForm(): void {
     const dropDownList = document.querySelector("#hcp-profession-selector");
     expect(dropDownList).to.be.not.null;
   });
-}
+});
 
-export default TestSignupProfileForm;

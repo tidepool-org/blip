@@ -34,18 +34,21 @@ import { expect } from "chai";
 import config from "../../lib/config";
 import { getCurrentLang, getLangName } from "../../lib/language";
 
-function testLanguage(): void {
+describe("Language", () => {
   const zeSpy = sinon.spy();
+
   before(() => {
     window.zE = zeSpy;
     config.METRICS_SERVICE = "matomo";
   });
+
   after(async () => {
     delete window.zE;
     await i18n.changeLanguage("en");
     delete window._paq;
     config.METRICS_SERVICE = "disabled";
   });
+
   beforeEach(() => {
     zeSpy.resetHistory();
     window._paq = [];
@@ -68,6 +71,5 @@ function testLanguage(): void {
     expect(getLangName("it"), "it").to.be.equals("Italiano");
     expect(getLangName("nl"), "nl").to.be.equals("Nederlands");
   });
-}
+});
 
-export default testLanguage;

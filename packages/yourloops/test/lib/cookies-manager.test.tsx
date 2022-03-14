@@ -38,7 +38,7 @@ import initCookiesConcentListener from "../../lib/cookies-manager";
 
 type AxceptIOCallback = (a: AxeptIO) => void;
 
-function testCookiesManager(): void {
+describe("Cookie manager", () => {
   let sendMetrics: sinon.SinonSpy;
   let loadStonlyWidget: sinon.SinonSpy;
   before(() => {
@@ -104,6 +104,5 @@ function testCookiesManager(): void {
     expect((window.loadStonlyWidget as sinon.SinonSpy).calledOnce, "loadStonlyWidget").to.be.false;
     expect(isZendeskAllowCookies(), "zendeskAllowCookies").to.be.false;
   });
-}
+});
 
-export default testCookiesManager;

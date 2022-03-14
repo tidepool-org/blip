@@ -40,7 +40,7 @@ import { stubNotificationContextValue } from "../../lib/notifications/hook.test"
 import { teamAPI } from "../../lib/team/hook.test";
 
 
-function testPatientListPage(): void {
+describe("Patient list page", () => {
   let team: TeamContext;
   let patients: TeamUser[];
 
@@ -106,6 +106,5 @@ function testPatientListPage(): void {
     //then
     expect(patientReceived).to.eql(patientExpected);
   });
-}
+});
 
-export default testPatientListPage;

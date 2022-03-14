@@ -31,7 +31,7 @@ import * as sinon from "sinon";
 
 import HttpService from "../../services/http";
 
-function testHttp(): void {
+describe("HTTP", () => {
   const url = "myFakeUrl";
   const payload = "myFakePayload";
   const config = { withCredentials: true };
@@ -164,6 +164,5 @@ function testHttp(): void {
       }
     });
   });
-}
+});
 
-export default testHttp;

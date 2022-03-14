@@ -30,8 +30,9 @@ import { expect } from "chai";
 
 import { NotificationsPage } from "../../../pages/notifications/notifications-list";
 
-export const testNotifications = (): void => {
+describe("Notification list", () => {
   it("should be exported as a function", () => {
     expect(NotificationsPage).to.be.a("function");
   });
-};
+});
+

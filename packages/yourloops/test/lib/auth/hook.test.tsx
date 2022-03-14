@@ -56,23 +56,23 @@ export interface AuthContextStubs {
   isAuthHookInitialized: boolean;
   isAuthInProgress: boolean;
   isLoggedIn: boolean;
-  login: sinon.SinonStub<[string, string, string|null], Promise<User>>;
-  logout: sinon.SinonStub<[boolean|undefined], Promise<void>>;
+  login: sinon.SinonStub<[string, string, string | null], Promise<User>>;
+  logout: sinon.SinonStub<[boolean | undefined], Promise<void>>;
   redirectToProfessionalAccountLogin: sinon.SinonStub<[], void>;
   resendSignup: sinon.SinonStub<[string], Promise<boolean>>;
-  resetPassword: sinon.SinonStub<[string,string,string], Promise<boolean>>;
-  sendPasswordResetEmail: sinon.SinonStub<[string,string], Promise<void>>;
-  session: sinon.SinonStub<[], Session|null>;
+  resetPassword: sinon.SinonStub<[string, string, string], Promise<boolean>>;
+  sendPasswordResetEmail: sinon.SinonStub<[string, string], Promise<void>>;
+  session: sinon.SinonStub<[], Session | null>;
   sessionToken: string | null;
   setFlagPatients: sinon.SinonStub<[string[]], Promise<void>>;
   setUser: sinon.SinonStub<[User], void>;
   signup: sinon.SinonStub<[SignupUser], Promise<void>>;
   switchRoleToHCP: sinon.SinonStub<[boolean, HcpProfession], Promise<void>>;
   traceToken: string | null;
-  updatePassword: sinon.SinonStub<[string,string], Promise<void>>;
-  updatePreferences: sinon.SinonStub<[Preferences,boolean|undefined], Promise<Preferences>>;
-  updateProfile: sinon.SinonStub<[Profile,boolean|undefined], Promise<Profile>>;
-  updateSettings: sinon.SinonStub<[Settings,boolean|undefined], Promise<Settings>>;
+  updatePassword: sinon.SinonStub<[string, string], Promise<void>>;
+  updatePreferences: sinon.SinonStub<[Preferences, boolean | undefined], Promise<Preferences>>;
+  updateProfile: sinon.SinonStub<[Profile, boolean | undefined], Promise<Profile>>;
+  updateSettings: sinon.SinonStub<[Settings, boolean | undefined], Promise<Settings>>;
   user: Readonly<User> | null;
 }
 
@@ -80,18 +80,18 @@ export interface AuthContextStubs {
  * Hook Stubs
  */
 export const createAuthHookStubs = (session?: Session): AuthContextStubs => ({
-  certifyProfessionalAccount: sinon.stub<null, Promise<void >>().resolves(),
+  certifyProfessionalAccount: sinon.stub<null, Promise<void>>().resolves(),
   flagPatient: sinon.stub<[string], Promise<void>>().resolves(),
   getFlagPatients: sinon.stub<[], string[]>().returns([]),
   isAuthHookInitialized: true,
   isAuthInProgress: false,
   isLoggedIn: true,
-  login: sinon.stub<[string, string, string|null], Promise<User>>().resolves(session.user),
-  logout: sinon.stub<[boolean|undefined], Promise<void>>().resolves(),
+  login: sinon.stub<[string, string, string | null], Promise<User>>().resolves(session.user),
+  logout: sinon.stub<[boolean | undefined], Promise<void>>().resolves(),
   redirectToProfessionalAccountLogin: sinon.stub<[], void>().resolves(),
   resendSignup: sinon.stub<[string], Promise<boolean>>().resolves(true),
-  resetPassword: sinon.stub<[string,string,string], Promise<boolean>>().resolves(true),
-  sendPasswordResetEmail: sinon.stub<[string,string], Promise<void>>().resolves(),
+  resetPassword: sinon.stub<[string, string, string], Promise<boolean>>().resolves(true),
+  sendPasswordResetEmail: sinon.stub<[string, string], Promise<void>>().resolves(),
   session: sinon.stub<[], Session | null>().returns(session),
   sessionToken: session.sessionToken,
   setFlagPatients: sinon.stub<[string[]], Promise<void>>().resolves(),
@@ -99,10 +99,10 @@ export const createAuthHookStubs = (session?: Session): AuthContextStubs => ({
   signup: sinon.stub<[SignupUser], Promise<void>>().resolves(),
   switchRoleToHCP: sinon.stub<[boolean, HcpProfession], Promise<void>>().resolves(),
   traceToken: session.traceToken,
-  updatePassword: sinon.stub<[string,string], Promise<void>>().resolves(),
-  updatePreferences: sinon.stub<[Preferences,boolean|undefined], Promise<Preferences>>().resolves(session.user.preferences),
-  updateProfile: sinon.stub<[Profile,boolean|undefined], Promise<Profile>>().resolves(session.user.profile),
-  updateSettings: sinon.stub<[Settings,boolean|undefined], Promise<Settings>>().resolves(session.user.settings),
+  updatePassword: sinon.stub<[string, string], Promise<void>>().resolves(),
+  updatePreferences: sinon.stub<[Preferences, boolean | undefined], Promise<Preferences>>().resolves(session.user.preferences),
+  updateProfile: sinon.stub<[Profile, boolean | undefined], Promise<Profile>>().resolves(session.user.profile),
+  updateSettings: sinon.stub<[Settings, boolean | undefined], Promise<Settings>>().resolves(session.user.settings),
   user: session?.user ?? null,
 });
 
@@ -136,12 +136,10 @@ export const authHookHcp: AuthContext = createAuthHookStubs(authHcp);
 export const authHookPatient: AuthContext = createAuthHookStubs(authPatient);
 export const authHookCaregiver: AuthContext = createAuthHookStubs(authCaregiver);
 
-function testHook(): void {
+describe("Auth hook", () => {
+
   /* eslint-disable new-cap */
   const ReactAuthContext = React.createContext({} as AuthContext);
-  const authCaregiver = loggedInUsers.caregiverSession;
-  const authHcp = loggedInUsers.hcpSession;
-  const authPatient = loggedInUsers.patientSession;
   const authApiHcpStubs = createAuthAPIStubs(authHcp);
   let container: HTMLDivElement | null = null;
   let authContext: AuthContext | null = null;
@@ -190,6 +188,7 @@ function testHook(): void {
     sessionStorage.removeItem(STORAGE_KEY_TRACE_TOKEN);
     sessionStorage.removeItem(STORAGE_KEY_USER);
   });
+
   afterEach(() => {
     document.body.removeChild(container);
     container = null;
@@ -756,8 +755,8 @@ function testHook(): void {
     it("should un-flag a flagged patient", async () => {
       const userId = uuidv4();
       const otherUserId = uuidv4();
-      authHcp.user.preferences = { displayLanguageCode: "fr", patientsStarred: [userId, otherUserId] };
-      authApiHcpStubs.updatePreferences.resolves({ displayLanguageCode: "fr", patientsStarred: [otherUserId] });
+      authHcp.user.preferences = { patientsStarred: [userId, otherUserId] };
+      authApiHcpStubs.updatePreferences.resolves({ patientsStarred: [otherUserId] });
       await initAuthContext(authHcp, authApiHcpStubs);
       await authContext.flagPatient(userId);
       expect(authApiHcpStubs.updatePreferences.calledOnce, "updatePreferences calledOnce").to.be.true;
@@ -824,6 +823,6 @@ function testHook(): void {
       expect(apiCall).to.be.deep.equals([key, username, password, authContext.traceToken]);
     });
   });
-}
+});
 
-export default testHook;
+

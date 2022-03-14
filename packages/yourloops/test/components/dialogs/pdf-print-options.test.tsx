@@ -34,7 +34,8 @@ import { expect } from "chai";
 
 import DialogPDFOptions, { Presets, PrintPDFOptions } from "../../../components/dialogs/pdf-print-options";
 
-function testDialogPDFOptions() {
+describe("PDF print options", () => {
+
   const MIN_DATE = "2020-01-01";
   const MAX_DATE = "2022-12-31";
   const handleResult = sinon.stub<[PrintPDFOptions], void>();
@@ -45,6 +46,7 @@ function testDialogPDFOptions() {
     document.body.appendChild(container);
     handleResult.resetHistory();
   });
+
   afterEach(() => {
     if (container) {
       ReactDOM.unmountComponentAtNode(container);
@@ -150,7 +152,7 @@ function testDialogPDFOptions() {
     expect(calendarElem).to.be.null;
   });
 
-  it("should render if open",async () => {
+  it("should render if open", async () => {
     await render();
     const calendarElem = document.getElementById("dialog-pdf-options");
     expect(calendarElem).to.be.not.null;
@@ -214,6 +216,5 @@ function testDialogPDFOptions() {
     expectSelectedPreset(null);
     expectResult(null, "2022-11-08", "2022-11-15");
   });
-}
+});
 
-export default testDialogPDFOptions;

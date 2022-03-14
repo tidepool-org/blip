@@ -34,8 +34,7 @@ import * as sinon from "sinon";
 
 import BasicDropdown, { BasicDropdownProps } from "../../../components/dropdown/basic-dropdown";
 
-
-function testBasicDropdown(): void {
+describe("BasicDropdown", () => {
 
   let container: HTMLElement | null = null;
   const spyOnSelect = sinon.spy();
@@ -73,30 +72,26 @@ function testBasicDropdown(): void {
     }
   });
 
-  describe("BasicDropdown", () => {
-
-    it("should enable accept button when an option is selected", () => {
-      const defaultValue = "defaultValue";
-      const disabledValue = "disabledValue";
-      const valueToSelect = "valueToSelect";
-      const id = "id";
-      const errorTranslationKey = "errorTranslationKey";
-      const inputTranslationKey = "inputTranslationKey";
-      const values = [defaultValue, disabledValue, valueToSelect];
-      const props: BasicDropdownProps<string> = {
-        onSelect: spyOnSelect,
-        defaultValue: defaultValue,
-        disabledValues: [disabledValue],
-        values,
-        id,
-        errorTranslationKey,
-        inputTranslationKey,
-      };
-      const wrapper = mount(fakeDropdown(props));
-      wrapper.find("input.MuiSelect-nativeInput").simulate("change", { target: { name: `dropdown-${id}`, value: valueToSelect } });
-      expect(spyOnSelect.calledOnce).to.be.true;
-    });
+  it("should enable accept button when an option is selected", () => {
+    const defaultValue = "defaultValue";
+    const disabledValue = "disabledValue";
+    const valueToSelect = "valueToSelect";
+    const id = "id";
+    const errorTranslationKey = "errorTranslationKey";
+    const inputTranslationKey = "inputTranslationKey";
+    const values = [defaultValue, disabledValue, valueToSelect];
+    const props: BasicDropdownProps<string> = {
+      onSelect: spyOnSelect,
+      defaultValue: defaultValue,
+      disabledValues: [disabledValue],
+      values,
+      id,
+      errorTranslationKey,
+      inputTranslationKey,
+    };
+    const wrapper = mount(fakeDropdown(props));
+    wrapper.find("input.MuiSelect-nativeInput").simulate("change", { target: { name: `dropdown-${id}`, value: valueToSelect } });
+    expect(spyOnSelect.calledOnce).to.be.true;
   });
-}
+});
 
-export default testBasicDropdown;

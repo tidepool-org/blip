@@ -32,7 +32,7 @@ import config from "../../lib/config";
 import metrics from "../../lib/metrics";
 import { loggedInUsers } from "../common/index";
 
-function testMetrics(): void {
+describe("Metrics", () => {
   after(() => {
     delete window._paq;
     config.METRICS_SERVICE = "disabled";
@@ -141,6 +141,5 @@ function testMetrics(): void {
     expect(window._paq[0][3]).to.be.a("string").matches(/\/.*/);
     expect(window._paq[0][4]).to.be.greaterThanOrEqual(0);
   });
-}
+});
 
-export default testMetrics;

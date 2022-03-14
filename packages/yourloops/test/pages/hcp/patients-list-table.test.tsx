@@ -43,7 +43,7 @@ import { teamAPI } from "../../lib/team/hook.test";
 
 import PatientListTable from "../../../pages/hcp/patients/table";
 
-function testPatientListTable(): void {
+describe("Patient list table", () => {
   const clickPatientStub = sinon.stub<[user: TeamUser], void>();
   const clickFlagPatientStub = sinon.stub<[userId: string], Promise<void>>();
   const clickRemovePatientStub = sinon.stub<[patient: TeamUser], Promise<void>>();
@@ -139,6 +139,5 @@ function testPatientListTable(): void {
   //   Simulate.click(removeButton);
   //   expect(clickRemovePatientStub.calledOnce).to.be.true;
   // });
-}
+});
 
-export default testPatientListTable;

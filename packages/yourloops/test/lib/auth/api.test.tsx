@@ -44,11 +44,11 @@ import User from "../../../lib/auth/user";
  */
 export interface AuthAPIStubs {
   login: sinon.SinonStub<[string, string, string], Promise<Session>>;
-  requestPasswordReset: sinon.SinonStub<[string, string, string|undefined, boolean|undefined], Promise<void>>;
+  requestPasswordReset: sinon.SinonStub<[string, string, string | undefined, boolean | undefined], Promise<void>>;
   resetPassword: sinon.SinonStub<[string, string, string, string], Promise<boolean>>;
   signup: sinon.SinonStub<[string, string, UserRoles, string], Promise<Session>>;
-  resendSignup: sinon.SinonStub<[string, string, string|undefined], Promise<boolean>>;
-  sendAccountValidation: sinon.SinonStub<[Readonly<Session>, string|undefined], Promise<boolean>>;
+  resendSignup: sinon.SinonStub<[string, string, string | undefined], Promise<boolean>>;
+  sendAccountValidation: sinon.SinonStub<[Readonly<Session>, string | undefined], Promise<boolean>>;
   accountConfirmed: sinon.SinonStub<string[], Promise<boolean>>;
   updatePreferences: sinon.SinonStub<[Readonly<Session>], Promise<Preferences>>;
   updateProfile: sinon.SinonStub<[Readonly<Session>], Promise<Profile>>;
@@ -60,11 +60,11 @@ export interface AuthAPIStubs {
 
 export const createAuthAPIStubs = (session: Session): AuthAPIStubs => ({
   login: sinon.stub<[string, string, string], Promise<Session>>().resolves(session),
-  requestPasswordReset: sinon.stub<[string, string, string|undefined, boolean|undefined], Promise<void>>().resolves(),
+  requestPasswordReset: sinon.stub<[string, string, string | undefined, boolean | undefined], Promise<void>>().resolves(),
   resetPassword: sinon.stub<[string, string, string, string], Promise<boolean>>().resolves(true),
   signup: sinon.stub<[string, string, UserRoles, string], Promise<Session>>().resolves(session),
-  resendSignup: sinon.stub<[string, string, string|undefined], Promise<boolean>>().resolves(true),
-  sendAccountValidation: sinon.stub<[Readonly<Session>, string|undefined], Promise<boolean>>().resolves(true),
+  resendSignup: sinon.stub<[string, string, string | undefined], Promise<boolean>>().resolves(true),
+  sendAccountValidation: sinon.stub<[Readonly<Session>, string | undefined], Promise<boolean>>().resolves(true),
   accountConfirmed: sinon.stub().resolves(true),
   updatePreferences: sinon.stub<[Session], Promise<Preferences>>().resolves(session.user.preferences),
   updateProfile: sinon.stub<[Session], Promise<Profile>>().resolves(session.user.profile),
@@ -132,7 +132,8 @@ export const resetAuthAPIStubs = (apiStubs: AuthAPIStubs, session: Session): voi
   apiStubs.updateSettings.resolves(session.user.settings);
 };
 
-function testAPI(): void {
+describe("Auth API", () => {
+
   let fetchMock: sinon.SinonStub<[input: RequestInfo, init?: RequestInit], Promise<Response>>;
   before(() => {
     fetchMock = sinon.stub(window, "fetch");
@@ -290,7 +291,7 @@ function testAPI(): void {
       fetchMock.resolves(resolveError);
       let error: Error | null = null;
 
-      for (let i=0; i<config.MAX_FAILED_LOGIN_ATTEMPTS - 1; i++) {
+      for (let i = 0; i < config.MAX_FAILED_LOGIN_ATTEMPTS - 1; i++) {
         try {
           await api.login("abcd", "abcd", "abcd");
         } catch (err) {
@@ -1601,6 +1602,5 @@ function testAPI(): void {
       ]);
     });
   });
-}
+});
 
-export default testAPI;

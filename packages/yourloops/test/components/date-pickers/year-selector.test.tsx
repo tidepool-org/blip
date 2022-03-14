@@ -35,7 +35,8 @@ import { expect } from "chai";
 import { MIN_YEAR, MAX_YEAR } from "../../../components/date-pickers/models";
 import YearSelector from "../../../components/date-pickers/year-selector";
 
-function testYearSelector(): void {
+describe("Year selector", () => {
+
   let container: HTMLDivElement | null = null;
 
   beforeEach(() => {
@@ -132,6 +133,6 @@ function testYearSelector(): void {
     // eslint-disable-next-line no-magic-numbers
     expect(onSelectYear.firstCall.args[0]).to.be.eq(2022);
   });
-}
+});
 
-export default testYearSelector;
+

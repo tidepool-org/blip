@@ -40,7 +40,7 @@ import PatientsSecondaryBar, { PatientListBarProps } from "../../../pages/hcp/pa
 import { authHookHcp } from "../../lib/auth/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
-function testPatientsSecondaryBar(): void {
+describe("Patient secondary bar", () => {
   const apiTimeout = 50;
   const defaultProps: PatientListBarProps = {
     filter: "",
@@ -72,6 +72,5 @@ function testPatientsSecondaryBar(): void {
     await waitTimeout(apiTimeout);
     expect(component.find("#patients-list-toolbar-item-left").length).to.be.equal(1);
   });
-}
+});
 
-export default testPatientsSecondaryBar;

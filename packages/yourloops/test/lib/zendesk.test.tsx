@@ -31,11 +31,13 @@ import * as sinon from "sinon";
 
 import { isZendeskActive, zendeskLogin, zendeskLogout, zendeskAllowCookies } from "../../lib/zendesk";
 
-function testZendesk(): void {
+describe("Zendesk", () => {
+
   beforeEach(() => {
     delete window.zE;
     zendeskAllowCookies(false);
   });
+
   after(() => {
     delete window.zE;
   });
@@ -93,6 +95,5 @@ function testZendesk(): void {
     expect(s.getCall(2).args, "logout call 2").to.be.deep.equals(["webWidget", "clear"]);
     expect(s.getCall(3).args, "logout call 3").to.be.deep.equals(["webWidget", "reset"]);
   });
-}
+});
 
-export default testZendesk;

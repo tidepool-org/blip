@@ -43,7 +43,7 @@ import { authHookHcp } from "../../lib/auth/hook.test";
 import { stubNotificationContextValue } from "../../lib/notifications/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
-function testTeamPage(): void {
+describe("Team page", () => {
   const apiTimeout = 50;
   const mountOptions: MountRendererProps = {
     attachTo: null,
@@ -227,6 +227,5 @@ function testTeamPage(): void {
   describe("onSwitchAdminRole", () => {
     it("TODO", undefined);
   });
-}
+});
 
-export default testTeamPage;

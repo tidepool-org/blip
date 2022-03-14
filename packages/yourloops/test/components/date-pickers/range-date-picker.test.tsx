@@ -33,11 +33,10 @@ import * as sinon from "sinon";
 import { expect } from "chai";
 import dayjs from "dayjs";
 
-// import { waitTimeout } from "../../../lib/utils";
-// import { TRANSITION_DURATION } from "../../../components/date-pickers/models";
 import RangeDatePicker from "../../../components/date-pickers/range-date-picker";
 
-function testRangeDatePicker(): void {
+describe("Range date picker", () => {
+
   const minDate = dayjs("2000-01-01", { utc: true });
   const maxDate = dayjs("2100-01-01", { utc: true });
   let container: HTMLDivElement | null = null;
@@ -46,6 +45,7 @@ function testRangeDatePicker(): void {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
+
   afterEach(() => {
     if (container) {
       ReactDOM.unmountComponentAtNode(container);
@@ -95,6 +95,6 @@ function testRangeDatePicker(): void {
     expect(elem, "date-picker-toolbar-max-days-range").to.be.not.null;
     expect(elem.nodeName.toLowerCase(), "date-picker-toolbar-max-days-range").to.be.eq("p");
   });
-}
+});
 
-export default testRangeDatePicker;
+

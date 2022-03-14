@@ -64,14 +64,15 @@ export function resetNotificationContextValueStubs(): void {
   stubNotificationContextValueInternal.sentInvitations = [];
 }
 
-function testHook(): void {
+describe("Notification hook", () => {
+
   let container: HTMLDivElement | null = null;
   let notifications: NotificationContext | null = null;
 
   const initNotificationContext = async (): Promise<void> => {
     const DummyComponent = (): JSX.Element => {
       notifications = useNotification();
-      return (<div/>);
+      return (<div />);
     };
     act(() => {
       ReactDOM.render(
@@ -204,6 +205,5 @@ function testHook(): void {
       expect(notificationAPIStub.getSentInvitations.calledTwice, "getSentInvitations").to.be.true;
     });
   });
-}
+});
 
-export default testHook;

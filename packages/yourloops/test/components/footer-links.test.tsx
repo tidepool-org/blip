@@ -36,91 +36,87 @@ import FooterLinks from "../../components/footer-links";
 import { AuthContext, useAuth, User } from "../../lib/auth";
 import diabeloopUrls from "../../lib/diabeloop-url";
 
-function testFooterLink(): void {
+describe("Footer", () => {
+  let auth: AuthContext;
+  let container: HTMLElement | null = null;
 
-  describe("Footer ", () => {
-    let auth: AuthContext;
-    let container: HTMLElement | null = null;
+  const FooterLinksComponent = (data: { user: User }): JSX.Element => {
+    auth = useAuth();
+    auth.user = data.user;
 
-    const FooterLinksComponent = (data: { user: User }): JSX.Element => {
-      auth = useAuth();
-      auth.user = data.user;
+    return (
+      <FooterLinks />
+    );
+  };
 
-      return (
-        <FooterLinks />
-      );
-    };
-
-    const mountComponent = async (user?: User): Promise<void> => {
-      await act(() => {
-        return new Promise((resolve) => {
-          render(
-            <FooterLinksComponent user={user} />, container, resolve);
-        });
+  const mountComponent = async (user?: User): Promise<void> => {
+    await act(() => {
+      return new Promise((resolve) => {
+        render(
+          <FooterLinksComponent user={user} />, container, resolve);
       });
-    };
-
-    beforeEach(() => {
-      container = document.createElement("div");
-      document.body.appendChild(container);
     });
+  };
 
-    afterEach(() => {
-      if (container) {
-        unmountComponentAtNode(container);
-        container.remove();
-        container = null;
-      }
-    });
-
-    function checkLinkHref(linkId: string, expectedUrl: string) {
-      const link = document.getElementById(linkId) as HTMLLinkElement;
-      expect(link.href).equals(expectedUrl);
-    }
-
-    it("should render", async () => {
-      await mountComponent();
-      const component = document.getElementById("footer-links-container");
-      expect(component).to.not.be.null;
-    });
-
-    it("should render language selector when user is not logged in", async () => {
-      await mountComponent();
-      const languageSelector = document.getElementById("footer-language-box");
-      expect(languageSelector).to.not.be.null;
-    });
-
-    it("should not render language selector when user is logged in", async () => {
-      await mountComponent({} as User);
-      const languageSelector = document.getElementById("footer-language-box");
-      expect(languageSelector).to.be.null;
-    });
-
-    it("should privacy policy link redirect to correct url", async () => {
-      await mountComponent();
-      checkLinkHref("footer-link-url-privacy-policy", diabeloopUrls.getPrivacyPolicyUrL(i18n.language));
-    });
-
-    it("should terms of use link redirect to correct url", async () => {
-      await mountComponent();
-      checkLinkHref("footer-link-url-terms", diabeloopUrls.getTermsUrL(i18n.language));
-    });
-
-    it("should intended use link redirect to correct url", async () => {
-      await mountComponent();
-      checkLinkHref("footer-link-url-intended-use", diabeloopUrls.getIntendedUseUrL(i18n.language));
-    });
-
-    it("should cookies policy link redirect to correct url", async () => {
-      await mountComponent();
-      checkLinkHref("footer-link-url-cookies-policy", diabeloopUrls.getCookiesPolicyUrl(i18n.language));
-    });
-
-    it("should release notes link redirect to correct url", async () => {
-      await mountComponent();
-      checkLinkHref("footer-link-url-release-notes", diabeloopUrls.getReleaseNotesURL());
-    });
+  beforeEach(() => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
   });
-}
 
-export default testFooterLink;
+  afterEach(() => {
+    if (container) {
+      unmountComponentAtNode(container);
+      container.remove();
+      container = null;
+    }
+  });
+
+  function checkLinkHref(linkId: string, expectedUrl: string) {
+    const link = document.getElementById(linkId) as HTMLLinkElement;
+    expect(link.href).equals(expectedUrl);
+  }
+
+  it("should render", async () => {
+    await mountComponent();
+    const component = document.getElementById("footer-links-container");
+    expect(component).to.not.be.null;
+  });
+
+  it("should render language selector when user is not logged in", async () => {
+    await mountComponent();
+    const languageSelector = document.getElementById("footer-language-box");
+    expect(languageSelector).to.not.be.null;
+  });
+
+  it("should not render language selector when user is logged in", async () => {
+    await mountComponent({} as User);
+    const languageSelector = document.getElementById("footer-language-box");
+    expect(languageSelector).to.be.null;
+  });
+
+  it("should privacy policy link redirect to correct url", async () => {
+    await mountComponent();
+    checkLinkHref("footer-link-url-privacy-policy", diabeloopUrls.getPrivacyPolicyUrL(i18n.language));
+  });
+
+  it("should terms of use link redirect to correct url", async () => {
+    await mountComponent();
+    checkLinkHref("footer-link-url-terms", diabeloopUrls.getTermsUrL(i18n.language));
+  });
+
+  it("should intended use link redirect to correct url", async () => {
+    await mountComponent();
+    checkLinkHref("footer-link-url-intended-use", diabeloopUrls.getIntendedUseUrL(i18n.language));
+  });
+
+  it("should cookies policy link redirect to correct url", async () => {
+    await mountComponent();
+    checkLinkHref("footer-link-url-cookies-policy", diabeloopUrls.getCookiesPolicyUrl(i18n.language));
+  });
+
+  it("should release notes link redirect to correct url", async () => {
+    await mountComponent();
+    checkLinkHref("footer-link-url-release-notes", diabeloopUrls.getReleaseNotesURL());
+  });
+});
+

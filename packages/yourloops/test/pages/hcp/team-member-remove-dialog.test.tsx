@@ -41,7 +41,7 @@ import { RemoveMemberDialogContentProps } from "../../../pages/hcp/types";
 import { authHookHcp, authHcp } from "../../lib/auth/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
-function testTeamRemoveMemberDialog(): void {
+describe("Team member remove dialog", () => {
   const apiTimeout = 50;
   const defaultProps: RemoveMemberDialogContentProps = {
     member: {} as TeamMember,
@@ -54,7 +54,7 @@ function testTeamRemoveMemberDialog(): void {
     return (
       <AuthContextProvider value={authHookHcp} >
         <TeamContextProvider teamAPI={teamAPI} >
-          <RemoveMemberDialog userToBeRemoved={ props.userToBeRemoved } />
+          <RemoveMemberDialog userToBeRemoved={props.userToBeRemoved} />
         </TeamContextProvider>
       </AuthContextProvider>
     );
@@ -108,6 +108,4 @@ function testTeamRemoveMemberDialog(): void {
     expect(spy.calledOnce, "calledOnce").to.be.true;
     expect(spy.calledWith(true), "calledWith(true)").to.be.true;
   });
-}
-
-export default testTeamRemoveMemberDialog;
+});

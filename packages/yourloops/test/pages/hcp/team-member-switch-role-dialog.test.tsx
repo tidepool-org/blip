@@ -41,7 +41,7 @@ import { SwitchRoleDialogContentProps } from "../../../pages/hcp/types";
 import { authHookHcp, authHcp } from "../../lib/auth/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
-function testTeamSwitchRoleDialog(): void {
+describe("Team member switch role dialog", () => {
   const apiTimeout = 50;
   const defaultProps: SwitchRoleDialogContentProps = {
     member: {} as TeamMember,
@@ -118,6 +118,5 @@ function testTeamSwitchRoleDialog(): void {
     expect(spy.calledOnce, "calledOnce").to.be.true;
     expect(spy.calledWith(true), "calledWith(true)").to.be.true;
   });
-}
+});
 
-export default testTeamSwitchRoleDialog;

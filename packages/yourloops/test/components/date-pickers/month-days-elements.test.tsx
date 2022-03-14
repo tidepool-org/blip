@@ -35,7 +35,8 @@ import { expect } from "chai";
 
 import MonthDayElements from "../../../components/date-pickers/month-days-elements";
 
-function testMonthDayElements(): void {
+describe("Month day element", () => {
+
   let container: HTMLDivElement | null = null;
 
   beforeEach(() => {
@@ -99,6 +100,6 @@ function testMonthDayElements(): void {
     expect(afterTomorrowElem.getAttribute("disabled"), "afterTomorrowElem disabled").to.be.a("string");
     expect(afterTomorrowElem.innerText).to.be.eq("3");
   });
-}
+});
 
-export default testMonthDayElements;
+

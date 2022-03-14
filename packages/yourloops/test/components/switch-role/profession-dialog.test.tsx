@@ -36,7 +36,8 @@ import { HcpProfession, HcpProfessionList } from "../../../models/hcp-profession
 import { SwitchRoleProfessionDialogProps } from "../../../components/switch-role/models";
 import SwitchRoleProfessionDialog from "../../../components/switch-role/profession-dialog";
 
-function testRoleProfessionDialog(): void {
+describe("Profession dialog", () => {
+
   const onAccept = sinon.stub();
   const onCancel = sinon.stub();
   const defaultProps: SwitchRoleProfessionDialogProps = {
@@ -119,6 +120,4 @@ function testRoleProfessionDialog(): void {
     expect(onAccept.calledOnce).to.be.true;
     expect(onAccept.firstCall.args[0]).to.be.eq(selectedProfession);
   });
-}
-
-export default testRoleProfessionDialog;
+});

@@ -35,9 +35,10 @@ import dayjs from "dayjs";
 
 import DialogRangeDatePicker from "../../../components/date-pickers/dialog-range-date-picker";
 
-function testDialogRangeDatePicker(): void {
-  const handleResultStub = sinon.stub<[string|undefined, string|undefined], void>();
-  const handleSelectedDateChange = sinon.stub<[string|undefined, string|undefined], void>();
+describe("Dialog range date picker", () => {
+
+  const handleResultStub = sinon.stub<[string | undefined, string | undefined], void>();
+  const handleSelectedDateChange = sinon.stub<[string | undefined, string | undefined], void>();
   let container: HTMLDivElement | null = null;
 
   beforeEach(() => {
@@ -46,6 +47,7 @@ function testDialogRangeDatePicker(): void {
     handleResultStub.reset();
     handleSelectedDateChange.reset();
   });
+
   afterEach(() => {
     if (container) {
       ReactDOM.unmountComponentAtNode(container);
@@ -271,7 +273,7 @@ function testDialogRangeDatePicker(): void {
           expect(dayButton).to.be.not.null;
           range.disabled ?
             expect(dayButton.getAttribute("disabled"), formatedDay).to.be.not.null
-            : expect(dayButton.getAttribute("disabled"), formatedDay).to.be.null ;
+            : expect(dayButton.getAttribute("disabled"), formatedDay).to.be.null;
           day = day.add(1, "day");
           formatedDay = day.format("YYYY-MM-DD");
         }
@@ -289,6 +291,6 @@ function testDialogRangeDatePicker(): void {
     expect(handleSelectedDateChange.calledThrice, "calledThrice").to.be.true;
     expect(handleSelectedDateChange.thirdCall.args).to.be.deep.eq(["2021-12-24", "2021-12-31"]);
   });
-}
+});
 
-export default testDialogRangeDatePicker;
+

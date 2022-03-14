@@ -28,12 +28,8 @@
 
 import enzyme from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
-import { init as i18nInit } from "../lib/language";
+import i18n, { init as i18nInit } from "../lib/language";
 import initDayJS from "../lib/dayjs";
-import testLib from "./lib";
-import testComponents from "./components";
-import testPages from "./pages";
-import testServices from "./services";
 
 enzyme.configure({
   adapter: new Adapter(),
@@ -42,10 +38,11 @@ enzyme.configure({
 
 i18nInit().then(() => {
   initDayJS();
-  describe("Lib", testLib);
-  describe("Components", testComponents);
-  describe("Services", testServices);
-  describe("Pages", testPages);
+  i18n.addResourceBundle("en", "yourloops", {
+    "date-picker-header-date-format": "MMMM YYYY",
+    "date-picker-toolbar-date-format": "ddd, MMM D",
+  });
 }).catch((reason: unknown) => {
   console.error(reason);
 });
+

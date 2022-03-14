@@ -36,13 +36,16 @@ import dayjs from "dayjs";
 import { CalendarChangeMonth } from "../../../components/date-pickers/models";
 import CalendarHeader from "../../../components/date-pickers/calendar-header";
 
-function testCalendarHeader(): void {
+
+describe("Calendar header", () => {
+
   let container: HTMLDivElement | null = null;
 
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
+
   afterEach(() => {
     if (container) {
       ReactDOM.unmountComponentAtNode(container);
@@ -188,6 +191,4 @@ function testCalendarHeader(): void {
     expect(buttonNextMonth, "calendar-header-first-button-next-month").to.be.not.null;
     expect(buttonNextMonth.getAttribute("aria-disabled"), "aria-disabled").to.be.eq("true");
   });
-}
-
-export default testCalendarHeader;
+});

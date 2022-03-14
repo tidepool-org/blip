@@ -38,7 +38,7 @@ import { TeamEditModalContentProps } from "../../../pages/hcp/types";
 import { authHcp } from "../../lib/auth/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
-function testTeamEditDialog(): void {
+describe("Team edit dialog", () => {
   const defaultProps: TeamEditModalContentProps = {
     team: {} as Team,
     onSaveTeam: sinon.spy(),
@@ -168,6 +168,5 @@ function testTeamEditDialog(): void {
     };
     expect(spy.calledWith(updatedTeam), JSON.stringify(message, null, 2)).to.be.true;
   });
-}
+});
 
-export default testTeamEditDialog;

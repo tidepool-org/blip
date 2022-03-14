@@ -38,7 +38,8 @@ import { AuthContextProvider, SessionTimeout } from "../../../lib/auth";
 import { loggedInUsers } from "../../common";
 import { AuthContextStubs, createAuthHookStubs, resetAuthHookStubs } from "./hook.test";
 
-function testSessionTimeout(): void {
+describe("Session timeout", () => {
+
   const sessionTimeoutDelay = 100;
   const authHookHcpStubs = createAuthHookStubs(loggedInUsers.hcpSession);
   let container: HTMLDivElement | null = null;
@@ -126,6 +127,5 @@ function testSessionTimeout(): void {
     await waitTimeout(config.SESSION_TIMEOUT);
     expect(authHookHcpStubs.logout.calledOnce, "logout calledOnce (3)").to.be.true;
   });
-}
+});
 
-export default testSessionTimeout;

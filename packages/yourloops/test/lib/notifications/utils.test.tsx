@@ -33,7 +33,7 @@ import { INotificationAPI, APINotificationType } from "../../../models/notificat
 import { INotification, NotificationType } from "../../../lib/notifications";
 import { notificationConversion } from "../../../lib/notifications/utils";
 
-function testUtils(): void {
+describe("Notification utils", () => {
 
   describe("notificationConversion", () => {
     const baseAPINotification: INotificationAPI = {
@@ -125,6 +125,5 @@ function testUtils(): void {
       expect(convertedNotification).to.be.deep.equals(baseNotification);
     });
   });
-}
+});
 
-export default testUtils;
