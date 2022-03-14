@@ -183,6 +183,7 @@ export const ChartDateRangeModal = (props) => {
               endDateId="chart-end-date"
               onDatesChange={newDates => setDates(setDateRangeToExtents(newDates))}
               isOutsideRange={day => (
+                moment.utc(mostRecentDatumDate).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
                 endOfToday.diff(day) < 0 ||
                 (moment.isMoment(dates.endDate) && dates.endDate.diff(day, 'days') >= maxDays) ||
                 (moment.isMoment(dates.startDate) && dates.startDate.diff(day, 'days') <= -maxDays)
