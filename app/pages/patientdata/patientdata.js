@@ -45,6 +45,7 @@ import baseTheme from '../../themes/baseTheme';
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
+import ChartDateModal from '../../components/ChartDateModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import Button from '../../components/elements/Button';
 
@@ -204,7 +205,7 @@ export const PatientDataClass = createReactClass({
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
-        {datesDialog}
+        {this.state.datesDialogOpen && datesDialog}
         {printDialog}
         <Loader show={showLoader} />
       </div>
@@ -311,43 +312,61 @@ export const PatientDataClass = createReactClass({
   },
 
   renderDatesDialog: function() {
+    const isDaily = this.state.chartType === 'daily';
+
+    const onSubmit = dates => {
+      this.setState({ datesDialogProcessing: true });
+
+      // Determine the earliest startDate needed to fetch data to.
+      const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+      const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+      const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+
+      const newDatetimeLocation = isDaily
+        ? moment.utc(endDate).subtract(12, 'hours').toISOString()
+        : endDate;
+
+      const updateOpts = {
+        showLoading: true,
+        updateChartEndpoints: true,
+      };
+
+      if (startDate < fetchedUntil) {
+        this.setState({ datesDialogFetchingData: true });
+
+        this.fetchEarlierData({
+          returnData: false,
+          showLoading: true,
+          startDate,
+        });
+      } else {
+        this.closeDatesDialog();
+      }
+
+      this.updateChart(this.state.chartType, newDatetimeLocation, dates, updateOpts);
+    };
+
+    const DatePickerComponent = isDaily ? ChartDateModal : ChartDateRangeModal;
+
+    const extraProps = isDaily ? {
+      id: 'chart-date-dialog',
+      defaultDate: _.get(this.state, 'chartEndpoints.current.0'),
+    } : {
+      id: 'chart-dates-dialog',
+      defaultDates: _.get(this.state, 'chartEndpoints.current'),
+    };
+
     return (
-      <ChartDateRangeModal
+      <DatePickerComponent
         chartType={this.state.chartType}
-        defaultDates={_.get(this.state, 'chartEndpoints.current')}
-        id="chart-dates-dialog"
         mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
         open={this.state.datesDialogOpen}
         onClose={this.closeDatesDialog}
-        onSubmit={dates => {
-          this.setState({ datesDialogProcessing: true });
-
-          // Determine the earliest startDate needed to fetch data to.
-          const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
-          const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
-          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
-
-          const updateOpts = {
-            showLoading: true,
-            updateChartEndpoints: true,
-          };
-
-          if (startDate < fetchedUntil) {
-            this.setState({ datesDialogFetchingData: true });
-
-            this.fetchEarlierData({
-              returnData: false,
-              showLoading: true,
-              startDate,
-            });
-          } else {
-            this.closeDatesDialog();
-          }
-          this.updateChart(this.state.chartType, endDate, dates, updateOpts);
-        }}
+        onSubmit={onSubmit}
         processing={this.state.datesDialogProcessing}
         timePrefs={this.state.timePrefs}
         trackMetric={this.props.trackMetric}
+        {...extraProps}
       />
     );
   },
@@ -502,6 +521,7 @@ export const PatientDataClass = createReactClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
             stats={stats}
             trackMetric={this.props.trackMetric}
