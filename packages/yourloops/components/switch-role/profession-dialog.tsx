@@ -35,32 +35,13 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import Box from "@material-ui/core/Box";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { makeStyles, Theme } from "@material-ui/core/styles";
 
 import { HcpProfession, HcpProfessionList } from "../../models/hcp-profession";
 import { SwitchRoleProfessionDialogProps } from "./models";
 import BasicDropdown from "../dropdown/basic-dropdown";
 
-const dialogStyles = makeStyles(
-  (theme: Theme) => {
-    return {
-      dialogContent: {
-        display: "flex",
-        flexDirection: "column",
-        width: theme.breakpoints.values["sm"],
-        paddingLeft: theme.spacing(5),
-      },
-      dialogContentBox: {
-        maxWidth: "300px",
-      },
-    };
-  },
-  { name: "ylp-dialog-switch-role-consequences" }
-);
-
 function SwitchRoleProfessionDialog(props: SwitchRoleProfessionDialogProps): JSX.Element {
   const { open, onAccept, onCancel } = props;
-  const classes = dialogStyles();
   const { t } = useTranslation("yourloops");
 
   const [hcpProfession, setHcpProfession] = React.useState<HcpProfession>(HcpProfession.empty);
@@ -77,19 +58,15 @@ function SwitchRoleProfessionDialog(props: SwitchRoleProfessionDialogProps): JSX
   return (
     <Dialog
       id="switch-role-profession-dialog"
-      PaperProps={{
-        style: {
-          padding: "20px",
-        },
-      }}
-      maxWidth="md"
+      maxWidth="sm"
       open={open}
-      onClose={onClose}>
+      onClose={onClose}
+    >
       <DialogTitle id="patient-add-caregiver-dialog-title">
         <strong>{t("profession-dialog-title")}</strong>
       </DialogTitle>
-      <DialogContent id="switch-role-consequences-dialog-content" className={classes.dialogContent}>
-        <Box className={classes.dialogContentBox}>
+      <DialogContent id="switch-role-consequences-dialog-content">
+        <Box>
           <BasicDropdown
             onSelect={setHcpProfession}
             defaultValue={HcpProfession.empty}

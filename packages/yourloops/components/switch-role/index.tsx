@@ -48,7 +48,7 @@ function SwitchRoleDialogs(props: SwitchRoleDialogsProps): JSX.Element {
   const [switchRoleStep, setSwitchRoleStep] = React.useState<SwitchRoleToHcpSteps>(SwitchRoleToHcpSteps.none);
   const [feedbackConsent, setFeedbackConsent] = React.useState<boolean>(false);
 
-  if (user === null) {
+  if (!user) {
     throw new Error("User must be looged-in");
   }
 

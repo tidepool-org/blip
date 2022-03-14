@@ -3,6 +3,8 @@ Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
 ## Unreleased
+### Engineering Use
+- YLP-1319 Switch-roles dialogs CSS not consistent with other dialogs
 ### Fixed
 - YLP-1312 Data loading may be missing some ranges
 - YLP-1313 Join wizard and bolus may fail

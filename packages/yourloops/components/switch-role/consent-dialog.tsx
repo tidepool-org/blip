@@ -29,44 +29,23 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { Theme, makeStyles } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import { UserRoles } from "../../models/shoreline";
 import { ConsentForm } from "../consents";
 import { SwitchRoleConsentDialogProps } from "./models";
 
-const dialogStyles = makeStyles(
-  (theme: Theme) => {
-    return {
-      dialog: {
-        textAlign: "left",
-        padding: theme.spacing(4),
-      },
-      dialogContent: {
-        display: "flex",
-        flexDirection: "column",
-        width: theme.breakpoints.values["sm"],
-      },
-      formControlPolicy: {
-        marginBottom: theme.spacing(2),
-        color: theme.palette.text.primary,
-      },
-      checkbox: {
-        marginBottom: "auto",
-      },
-    };
-  },
-  { name: "ylp-dialog-switch-role-consent" },
-);
-
 function SwitchRoleConsentDialog(props: SwitchRoleConsentDialogProps): JSX.Element {
+  const theme = useTheme();
+  const isXSBreakpoint: boolean = useMediaQuery(theme.breakpoints.only("xs"));
+
   const { open, onAccept, onCancel } = props;
-  const classes = dialogStyles();
   const { t } = useTranslation("yourloops");
   const [policyAccepted, setPolicyAccepted] = React.useState(false);
   const [termsAccepted, setTermsAccepted] = React.useState(false);
@@ -91,20 +70,15 @@ function SwitchRoleConsentDialog(props: SwitchRoleConsentDialogProps): JSX.Eleme
   return (
     <Dialog
       id="switch-role-consent-dialog"
-      className={classes.dialog}
       open={open}
       onClose={onClose}
-      PaperProps={{
-        style: {
-          padding: "20px",
-        },
-      }}
-      maxWidth="md"
+      maxWidth="sm"
+      fullScreen={isXSBreakpoint}
     >
       <DialogTitle id="switch-role-consent-dialog-title">
         <strong>{t("modal-switch-hcp-consent-title")}</strong>
       </DialogTitle>
-      <DialogContent id="switch-role-consequences-dialog-content" className={classes.dialogContent}>
+      <DialogContent id="switch-role-consequences-dialog-content">
         <ConsentForm
           id="switch-role-consequences-dialog"
           userRole={UserRoles.hcp}
