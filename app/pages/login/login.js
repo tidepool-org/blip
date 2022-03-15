@@ -15,6 +15,9 @@ import { validateForm } from '../../core/validation';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
+import Button from '../../components/elements/Button';
+import { keycloak } from '../../keycloak';
+import config from '../../config';
 
 export let Login = translate()(class extends React.Component {
   static propTypes = {
@@ -62,6 +65,14 @@ export let Login = translate()(class extends React.Component {
   render() {
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
+    var loggingIn = this.props.working;
+    var login = config.KEYCLOAK_URL ? (
+      <Button onClick={() => keycloak.login()} disabled={loggingIn}>
+        {loggingIn ? 'Logging in...' : 'Login'}
+      </Button>
+    ) : (
+      <div className="login-simpleform">{form}</div>
+    );
 
     return (
       <div className="login">
@@ -73,7 +84,7 @@ export let Login = translate()(class extends React.Component {
         {inviteIntro}
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
-            <div className="login-simpleform">{form}</div>
+            {login}
           </div>
         </div>
       </div>

@@ -76,7 +76,7 @@ api.user.isAuthenticated = function() {
   return tidepool.isLoggedIn();
 };
 
-api.user.login = function(user, options, cb) {
+api.user.login = function (user, options, cb) {
   api.log('POST /user/login');
 
   options = options || {};
@@ -85,22 +85,40 @@ api.user.login = function(user, options, cb) {
     options = {};
   }
 
-  tidepool.login(user, options, function(err, data) {
+  if (!tidepool.isLoggedIn()) {
+    tidepool.login(user, options, function (err, data) {
+      if (err) {
+        return cb(err);
+      }
+
+      // Set account info in Rollbar config
+      _.isFunction(rollbar.configure) && rollbar.configure({
+        payload: {
+          person: {
+            id: data.userid,
+            email: user.username,
+            username: user.username,
+          }
+        }
+      });
+      cb();
+    });
+  } else {
+    cb();
+  }
+};
+
+api.user.saveSession = function (userId, token, options, cb) {
+  api.log('saveSession');
+  options = options || {};
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
+  }
+  tidepool.saveSession(userId, token, options, function (err, session) {
     if (err) {
       return cb(err);
     }
-
-    // Set account info in Rollbar config
-    _.isFunction(rollbar.configure) && rollbar.configure({
-      payload: {
-        person: {
-          id: data.userid,
-          email: user.username,
-          username: user.username,
-        }
-      }
-    });
-
     cb();
   });
 };

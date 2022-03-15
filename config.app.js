@@ -26,6 +26,9 @@
 /* global __PENDO_ENABLED__ */
 /* global __CLINICS_ENABLED__ */
 /* global __VERSION__ */
+/* global __KEYCLOAK_URL__ */
+/* global __KEYCLOAK_REALM__ */
+/* global __KEYCLOAK_CLIENTID__ */
 
 function booleanFromText(value, defaultValue) {
   if (value === 'true') {
@@ -60,6 +63,9 @@ const config = {
   RX_ENABLED: booleanFromText(__RX_ENABLED__, false),
   PENDO_ENABLED: booleanFromText(__PENDO_ENABLED__, true),
   CLINICS_ENABLED: booleanFromText(__CLINICS_ENABLED__, false),
+  KEYCLOAK_URL: __KEYCLOAK_URL__ || '',
+  KEYCLOAK_REALM: __KEYCLOAK_REALM__ || '',
+  KEYCLOAK_CLIENTID: __KEYCLOAK_CLIENTID__ || '',
 }
 
 if (__DEV__) {

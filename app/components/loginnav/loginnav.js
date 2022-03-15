@@ -1,6 +1,8 @@
 var React = require('react');
 
 import PropTypes from 'prop-types';
+import { keycloak } from '../../keycloak';
+import config from '../../config';
 
 import { translate } from 'react-i18next';
 var Link = require('react-router-dom').Link;
@@ -40,8 +42,12 @@ var LoginNav = translate()(class extends React.Component {
     var className = 'js-signup-link';
     var icon = 'icon-add';
     var text = t('Sign up');
-    var handleClick = function() {
+    var handleClick = function (e) {
       self.props.trackMetric('Clicked Sign Up Link');
+      if (config.KEYCLOAK_URL) {
+        e.preventDefault();
+        keycloak.register();
+      }
     };
 
     if (page === 'signup') {
@@ -55,9 +61,10 @@ var LoginNav = translate()(class extends React.Component {
     }
 
     return (
-      <Link
-        to={href}
-        className={className}><i className={icon}></i>{' ' + text}</Link>
+      <Link to={href} className={className} onClick={handleClick}>
+        <i className={icon}></i>
+        {' ' + text}
+      </Link>
     );
   };
 });

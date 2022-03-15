@@ -3,6 +3,9 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { hot, setConfig } from 'react-hot-loader';
 import { ThemeProvider } from 'styled-components';
+import { ReactKeycloakProvider } from '@react-keycloak/web';
+import { keycloak, onKeycloakEvent, onKeycloakTokens} from '../../keycloak';
+import config from '../../config';
 
 import baseTheme from '../../themes/baseTheme';
 import { history } from '../store/configureStore.dev';
@@ -13,7 +16,7 @@ setConfig({ logLevel: 'warning' })
 class Root extends Component {
   render() {
     const { store, routing } = this.props;
-    return (
+    let root = (
       <ThemeProvider theme={baseTheme}>
         <ToastProvider>
           <Provider store={store}>
@@ -25,6 +28,18 @@ class Root extends Component {
           </Provider>
         </ToastProvider>
       </ThemeProvider>
+    );
+
+    return config.KEYCLOAK_URL ? (
+      <ReactKeycloakProvider
+        authClient={keycloak}
+        onEvent={onKeycloakEvent(store)}
+        onTokens={onKeycloakTokens(store)}
+      >
+        [root]
+      </ReactKeycloakProvider>
+    ) : (
+      [root]
     );
   }
 };
