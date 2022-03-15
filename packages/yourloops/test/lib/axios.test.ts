@@ -1,6 +1,5 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Regex tests
+ * Copyright (c) 2022, Diabeloop
  *
  * All rights reserved.
  *
@@ -26,53 +25,49 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-import { REGEX_EMAIL } from "../../lib/utils";
 import { expect } from "chai";
 
-const validEmails = [
-  "foobar@domain.de",
-  "hello.world@example.com",
-  "compte.aidant+1@example.fr",
-  "hcp-test@example.com",
-  "my123account@domain.fr",
-  "abc@sub.domain.org",
-];
+import { onFulfilled } from "../../lib/axios";
+import { HttpHeaderKeys } from "../../models/api";
 
-const invalidEmails = [
-  "abcd",
-  "<hello>",
-  "mañana.es",
-  "aaa-ß@example.de",
-  " @example.com",
-  "+@example.com",
-  "+str@example.com",
-  "hello\nworld@test.org",
-  "world@test.org\nworld@test.org",
-  "name@☃-⌘.com",
-  "☃-⌘@domain.com",
-  "pine🍍pple@fruit.com",
-  "toto@ggrd.fr@aaa.de",
-  "<toto@ggrd.fr> v@aaa.de",
-  "a@g",
-  "er y@example.it",
-  "mañana@domain.es",
-  "<name> name@example.com",
-  "name@invalid-dômain.fr",
-  "almost@good.email.es ",
-];
+function testAxios(): void {
 
-describe("Regex", () => {
-  it("email regex should accept a list of valid emails", () => {
-    validEmails.forEach((email: string) => {
-      expect(REGEX_EMAIL.test(email), `email ${email} should be valid`).to.be.true;
+  describe("onFulfilled", () => {
+    it("should return config without added headers", () => {
+      //given
+      const expected = { params: {} };
+      const config = { params: { noHeader: true } };
+
+      //when
+      const actual = onFulfilled(config);
+
+      //then
+      expect(actual).to.deep.equal(expected);
+    });
+
+    it("should return config with header when no param is given", () => {
+      //given
+      //when
+      const actual = onFulfilled({});
+
+      //then
+      expect(actual.headers).to.include.keys(HttpHeaderKeys.sessionToken);
+      expect(actual.headers).to.include.keys(HttpHeaderKeys.traceToken);
+    });
+
+    it("should return config with added headers", () => {
+      //given
+      const config = { params: { fakeParam: true } };
+
+      //when
+      const actual = onFulfilled(config);
+
+      //then
+      expect(actual).to.deep.include(config);
+      expect(actual.headers).to.include.keys(HttpHeaderKeys.sessionToken);
+      expect(actual.headers).to.include.keys(HttpHeaderKeys.traceToken);
     });
   });
+}
 
-  it("email regex should refuse a list of invalid emails", () => {
-    invalidEmails.forEach((email: string) => {
-      expect(REGEX_EMAIL.test(email), `email ${email} should be invalid`).to.be.false;
-    });
-  });
-});
-
+export default testAxios;

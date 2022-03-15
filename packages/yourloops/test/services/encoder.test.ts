@@ -1,6 +1,5 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Regex tests
+ * Copyright (c) 2022, Diabeloop
  *
  * All rights reserved.
  *
@@ -26,53 +25,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-import { REGEX_EMAIL } from "../../lib/utils";
 import { expect } from "chai";
 
-const validEmails = [
-  "foobar@domain.de",
-  "hello.world@example.com",
-  "compte.aidant+1@example.fr",
-  "hcp-test@example.com",
-  "my123account@domain.fr",
-  "abc@sub.domain.org",
-];
+import EncoderService from "../../services/encoder";
 
-const invalidEmails = [
-  "abcd",
-  "<hello>",
-  "mañana.es",
-  "aaa-ß@example.de",
-  " @example.com",
-  "+@example.com",
-  "+str@example.com",
-  "hello\nworld@test.org",
-  "world@test.org\nworld@test.org",
-  "name@☃-⌘.com",
-  "☃-⌘@domain.com",
-  "pine🍍pple@fruit.com",
-  "toto@ggrd.fr@aaa.de",
-  "<toto@ggrd.fr> v@aaa.de",
-  "a@g",
-  "er y@example.it",
-  "mañana@domain.es",
-  "<name> name@example.com",
-  "name@invalid-dômain.fr",
-  "almost@good.email.es ",
-];
+function testEncoderService(): void {
 
-describe("Regex", () => {
-  it("email regex should accept a list of valid emails", () => {
-    validEmails.forEach((email: string) => {
-      expect(REGEX_EMAIL.test(email), `email ${email} should be valid`).to.be.true;
+  describe("encodeSHA1", () => {
+    it("should return correct SHA1 hash", async () => {
+      //given
+      const expected = "8EF80F372246EBBB93B988437EB9B43E7B93DE62";
+      const valueToEncode = "Bienveillant";
+
+      //when
+      const actual = await EncoderService.encodeSHA1(valueToEncode);
+
+      //then
+      expect(actual).to.equal(expected);
     });
   });
+}
 
-  it("email regex should refuse a list of invalid emails", () => {
-    invalidEmails.forEach((email: string) => {
-      expect(REGEX_EMAIL.test(email), `email ${email} should be invalid`).to.be.false;
-    });
-  });
-});
-
+export default testEncoderService;

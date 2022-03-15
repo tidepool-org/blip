@@ -33,8 +33,8 @@ import { act } from "@testing-library/react-hooks/dom";
 import { ThemeProvider } from "@material-ui/styles";
 import { hexToRgb } from "@material-ui/core/styles";
 
-import { mainTheme } from "../../components/theme";
-import { PasswordStrengthMeter } from "../../components/utils/password-strength-meter";
+import { mainTheme } from "../../../components/theme";
+import { PasswordStrengthMeter } from "../../../components/password/password-strength-meter";
 
 describe("Password strength meter", () => {
 

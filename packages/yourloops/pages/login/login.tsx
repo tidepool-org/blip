@@ -53,7 +53,7 @@ import metrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { errorTextFromException } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
-import Password from "../../components/utils/password";
+import Password from "../../components/password/password";
 import ButtonResendActivationLink from "./resend-link";
 
 const loginStyle = makeStyles((theme: Theme) => {

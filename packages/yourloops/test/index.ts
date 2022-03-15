@@ -45,4 +45,3 @@ i18nInit().then(() => {
 }).catch((reason: unknown) => {
   console.error(reason);
 });
-

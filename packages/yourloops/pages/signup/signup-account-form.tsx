@@ -37,21 +37,17 @@ import InfoIcon from "@material-ui/icons/Info";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
-import { checkPasswordStrength } from "../../lib/auth/helpers";
 import metrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
 import { getCurrentLang } from "../../lib/language";
 import { useAlert } from "../../components/utils/snackbar";
-import { PasswordStrengthMeter } from "../../components/utils/password-strength-meter";
-import Password from "../../components/utils/password";
+import { PasswordConfirm } from "../../components/password/password-confirm";
 import { useSignUpFormState } from "./signup-formstate-context";
 import SignUpFormProps from "./signup-form-props";
 
-
 interface Errors {
   username: boolean;
-  newPassword: boolean;
-  confirmNewPassword: boolean;
+  password: boolean;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -71,30 +67,27 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
   const { state, dispatch } = useSignUpFormState();
   const { handleBack, handleNext } = props;
 
+  const [hasPasswordError, setHasPasswordError] = React.useState(false);
+  const [password, setPassword] = React.useState("");
   const [username, setUsername] = React.useState("");
-  const [newPassword, setNewPassword] = React.useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = React.useState("");
   const [inProgress, setInProgress] = React.useState(false);
   const [usernameTextFieldFocused, setUsernameTextFieldFocused] = React.useState(false);
 
-  const passwordCheck = checkPasswordStrength(newPassword);
-
   const errors: Errors = React.useMemo(
     () => ({
-      username: _.isEmpty(username.trim()) || !REGEX_EMAIL.test(username),
-      newPassword: passwordCheck.onError,
-      confirmNewPassword: _.isEmpty(confirmNewPassword.trim()) || confirmNewPassword !== newPassword,
-    }), [confirmNewPassword, newPassword, passwordCheck.onError, username]
+      username: !username.trim() || !REGEX_EMAIL.test(username),
+      password: hasPasswordError,
+    }), [username, hasPasswordError]
   );
 
   React.useEffect(() => {
-    dispatch({ type: "EDIT_FORMVALUE", key: "accountPassword", value: newPassword });
+    dispatch({ type: "EDIT_FORMVALUE", key: "accountPassword", value: password });
     dispatch({ type: "EDIT_FORMVALUE", key: "accountUsername", value: username });
-  }, [dispatch, newPassword, username]);
+  }, [dispatch, password, username]);
 
   const onNext = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
-    if (!errors.username && !errors.newPassword && !errors.confirmNewPassword) {
+    if (!errors.username && !errors.password) {
       // submit to api
       try {
         setInProgress(true);
@@ -109,6 +102,11 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
         setInProgress(false);
       }
     }
+  };
+
+  const onSuccess = (password: string) => {
+    setHasPasswordError(false);
+    setPassword(password);
   };
 
   return (
@@ -127,37 +125,9 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
         onChange={(e) => setUsername(e.target.value)}
         helperText={errors.username && username.length > 0 && !usernameTextFieldFocused && t("invalid-email")}
       />
-      <Password
-        id="password"
-        label={t("new-password")}
-        value={newPassword}
-        onChange={(password) => setNewPassword(password)}
-        error={errors.newPassword && newPassword.length > 0}
-        autoComplete="new-password"
-        variant="outlined"
-        margin="normal"
-        checkStrength
-        required
-        helperText={
-          newPassword.length > 0 &&
-          <PasswordStrengthMeter
-            force={passwordCheck.score}
-            error={errors.newPassword}
-            helperText={passwordCheck.helperText}
-          />
-        }
-      />
-      <Password
-        id="confirm-password"
-        label={t("confirm-new-password")}
-        value={confirmNewPassword}
-        onChange={(password) => setConfirmNewPassword(password)}
-        error={errors.confirmNewPassword && confirmNewPassword.length > 0}
-        helperText={errors.confirmNewPassword && t("password-dont-match")}
-        autoComplete="new-password"
-        variant="outlined"
-        margin="normal"
-        required
+      <PasswordConfirm
+        onError={() => setHasPasswordError(true)}
+        onSuccess={onSuccess}
       />
       <Box display="flex" m={0}>
         <InfoIcon color="primary" />

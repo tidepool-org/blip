@@ -1,6 +1,5 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Regex tests
+ * Copyright (c) 2022, Diabeloop
  *
  * All rights reserved.
  *
@@ -26,53 +25,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import metrics from "../lib/metrics";
+import EncoderService from "./encoder";
+import HttpService from "./http";
 
-import { REGEX_EMAIL } from "../../lib/utils";
-import { expect } from "chai";
+export interface PasswordLeakResponse {
+  hasLeaked?: boolean
+}
 
-const validEmails = [
-  "foobar@domain.de",
-  "hello.world@example.com",
-  "compte.aidant+1@example.fr",
-  "hcp-test@example.com",
-  "my123account@domain.fr",
-  "abc@sub.domain.org",
-];
+export default class PasswordLeakService {
 
-const invalidEmails = [
-  "abcd",
-  "<hello>",
-  "mañana.es",
-  "aaa-ß@example.de",
-  " @example.com",
-  "+@example.com",
-  "+str@example.com",
-  "hello\nworld@test.org",
-  "world@test.org\nworld@test.org",
-  "name@☃-⌘.com",
-  "☃-⌘@domain.com",
-  "pine🍍pple@fruit.com",
-  "toto@ggrd.fr@aaa.de",
-  "<toto@ggrd.fr> v@aaa.de",
-  "a@g",
-  "er y@example.it",
-  "mañana@domain.es",
-  "<name> name@example.com",
-  "name@invalid-dômain.fr",
-  "almost@good.email.es ",
-];
-
-describe("Regex", () => {
-  it("email regex should accept a list of valid emails", () => {
-    validEmails.forEach((email: string) => {
-      expect(REGEX_EMAIL.test(email), `email ${email} should be valid`).to.be.true;
-    });
-  });
-
-  it("email regex should refuse a list of invalid emails", () => {
-    invalidEmails.forEach((email: string) => {
-      expect(REGEX_EMAIL.test(email), `email ${email} should be invalid`).to.be.false;
-    });
-  });
-});
-
+  static async verifyPassword(password: string): Promise<PasswordLeakResponse> {
+    const hashedPassword = await EncoderService.encodeSHA1(password);
+    const hashedPasswordPrefix = hashedPassword.substring(0, 5);
+    const hashedPasswordSuffix = hashedPassword.substring(5);
+    const config = { params: { noHeader: true } };
+    try {
+      const response = await HttpService.get<string>({
+        url: `https://api.pwnedpasswords.com/range/${hashedPasswordPrefix}`,
+        config,
+      });
+      const hasLeaked = response.data.includes(hashedPasswordSuffix);
+      return {
+        hasLeaked,
+      };
+    } catch (error) {
+      //if the service is unavailable, we do not want to block the user from creating an account
+      metrics.send("error", "password_leak", "The password leak API is unavailable");
+      console.error("Could not check whether entered password has been leaked");
+      return { hasLeaked: undefined };
+    }
+  }
+}

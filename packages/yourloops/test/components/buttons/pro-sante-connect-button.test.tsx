@@ -33,7 +33,6 @@ import { expect } from "chai";
 import * as sinon from "sinon";
 import ProSanteConnectButton from "../../../components/buttons/pro-sante-connect-button";
 
-
 describe("Pro sante connect button", () => {
 
   let container: HTMLElement | null = null;

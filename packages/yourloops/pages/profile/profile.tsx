@@ -57,7 +57,6 @@ import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, setPageTitle } from
 import { User, useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import metrics from "../../lib/metrics";
-import { checkPasswordStrength, CheckPasswordStrengthResults } from "../../lib/auth/helpers";
 import { useAlert } from "../../components/utils/snackbar";
 import { ConsentFeedback } from "../../components/consents";
 import SecondaryHeaderBar from "./secondary-bar";
@@ -165,21 +164,16 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const [firstName, setFirstName] = React.useState<string>(getUserFirstName(user));
   const [lastName, setLastName] = React.useState<string>(getUserLastName(user));
   const [currentPassword, setCurrentPassword] = React.useState<string>("");
+  const [refreshKey, setRefreshKey] = React.useState<number>(0);
   const [password, setPassword] = React.useState<string>("");
   const [passwordConfirmation, setPasswordConfirmation] = React.useState<string>("");
+  const [passwordConfirmationError, setPasswordConfirmationError] = React.useState<boolean>(false);
   const [unit, setUnit] = React.useState<Units>(user.settings?.units?.bg ?? Units.gram);
   const [birthDate, setBirthDate] = React.useState<string>(user.profile?.patient?.birthday ?? "");
   const [switchRoleOpen, setSwitchRoleOpen] = React.useState<boolean>(false);
   const [lang, setLang] = React.useState<LanguageCodes>(user.preferences?.displayLanguageCode ?? getCurrentLang());
   const [hcpProfession, setHcpProfession] = React.useState<HcpProfession>(user.profile?.hcpProfession ?? HcpProfession.empty);
   const [feedbackAccepted, setFeedbackAccepted] = React.useState(Boolean(user?.profile?.contactConsent?.isAccepted));
-
-  let passwordCheckResults: CheckPasswordStrengthResults;
-  if (password.length > 0) {
-    passwordCheckResults = checkPasswordStrength(password);
-  } else {
-    passwordCheckResults = { onError: false, helperText: "", score: -1 };
-  }
 
   React.useEffect(() => {
     // To be sure we have the locale:
@@ -259,12 +253,11 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
       firstName: _.isEmpty(firstName),
       lastName: _.isEmpty(lastName),
       hcpProfession: role === UserRoles.hcp && hcpProfession === HcpProfession.empty,
-      currentPassword: password.length > 0 && currentPassword.length < appConfig.PWD_MIN_LENGTH,
-      password: passwordCheckResults.onError,
-      passwordConfirmation: passwordConfirmation !== password,
+      currentPassword: password.length > 0 && currentPassword.length === 0,
+      password: passwordConfirmationError && (password.length > 0 || passwordConfirmation.length > 0),
       birthDate: role === UserRoles.patient && !REGEX_BIRTHDATE.test(birthDate),
     }),
-    [firstName, lastName, hcpProfession, password, currentPassword.length, passwordCheckResults.onError, passwordConfirmation, role, birthDate]
+    [firstName, lastName, role, hcpProfession, password.length, passwordConfirmationError, passwordConfirmation.length, currentPassword.length, birthDate]
   );
 
   const isAnyError = React.useMemo(() => _.some(errors), [errors]);
@@ -315,9 +308,11 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     }
 
     if (passwordChanged) {
+      setRefreshKey(refreshKey + 1);
       setCurrentPassword("");
       setPassword("");
       setPasswordConfirmation("");
+      setPasswordConfirmationError(false);
     }
 
     if (lang !== getCurrentLang()) {
@@ -418,16 +413,15 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
                 <strong className={classes.uppercase}>{t("my-credentials")}</strong>
               </div>
               <AuthenticationForm
+                key={`authenticationForm-${refreshKey}`}
                 user={user}
                 classes={classes}
                 errors={errors}
                 currentPassword={currentPassword}
                 setCurrentPassword={setCurrentPassword}
-                password={password}
                 setPassword={setPassword}
-                passwordConfirmation={passwordConfirmation}
                 setPasswordConfirmation={setPasswordConfirmation}
-                passwordCheckResults={passwordCheckResults}
+                setPasswordConfirmationError={setPasswordConfirmationError}
               />
             </React.Fragment>
           }

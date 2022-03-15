@@ -34,13 +34,10 @@ import appConfig from "./config";
 import { getFromSessionStorage } from "./utils";
 import { STORAGE_KEY_SESSION_TOKEN } from "./auth/models";
 
-function initAxios() {
-  axios.defaults.baseURL = appConfig.API_HOST;
-
-  /**
-   * We use axios request interceptor to set the access token into headers each request the app send
-   */
-  axios.interceptors.request.use((config): AxiosRequestConfig => {
+export const onFulfilled = (config: AxiosRequestConfig): AxiosRequestConfig => {
+  if (config.params?.noHeader) {
+    delete config.params.noHeader;
+  } else {
     config = {
       ...config,
       headers: {
@@ -48,8 +45,16 @@ function initAxios() {
         [HttpHeaderKeys.traceToken]: uuidv4(),
       },
     };
-    return config;
-  });
+  }
+  return config;
+};
+
+function initAxios() {
+  axios.defaults.baseURL = appConfig.API_HOST;
+  /**
+   * We use axios request interceptor to set the access token into headers each request the app send
+   */
+  axios.interceptors.request.use(onFulfilled);
 }
 
 export default initAxios;

@@ -1,6 +1,5 @@
 /**
- * Copyright (c) 2021, Diabeloop
- * Regex tests
+ * Copyright (c) 2022, Diabeloop
  *
  * All rights reserved.
  *
@@ -26,53 +25,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+export default class EncoderService {
 
-import { REGEX_EMAIL } from "../../lib/utils";
-import { expect } from "chai";
-
-const validEmails = [
-  "foobar@domain.de",
-  "hello.world@example.com",
-  "compte.aidant+1@example.fr",
-  "hcp-test@example.com",
-  "my123account@domain.fr",
-  "abc@sub.domain.org",
-];
-
-const invalidEmails = [
-  "abcd",
-  "<hello>",
-  "mañana.es",
-  "aaa-ß@example.de",
-  " @example.com",
-  "+@example.com",
-  "+str@example.com",
-  "hello\nworld@test.org",
-  "world@test.org\nworld@test.org",
-  "name@☃-⌘.com",
-  "☃-⌘@domain.com",
-  "pine🍍pple@fruit.com",
-  "toto@ggrd.fr@aaa.de",
-  "<toto@ggrd.fr> v@aaa.de",
-  "a@g",
-  "er y@example.it",
-  "mañana@domain.es",
-  "<name> name@example.com",
-  "name@invalid-dômain.fr",
-  "almost@good.email.es ",
-];
-
-describe("Regex", () => {
-  it("email regex should accept a list of valid emails", () => {
-    validEmails.forEach((email: string) => {
-      expect(REGEX_EMAIL.test(email), `email ${email} should be valid`).to.be.true;
-    });
-  });
-
-  it("email regex should refuse a list of invalid emails", () => {
-    invalidEmails.forEach((email: string) => {
-      expect(REGEX_EMAIL.test(email), `email ${email} should be invalid`).to.be.false;
-    });
-  });
-});
-
+  static async encodeSHA1(value: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(value);
+    const hashedValueBuffer = await crypto.subtle.digest("SHA-1", data);
+    const hashedValueByteArray = Array.from(new Uint8Array(hashedValueBuffer));
+    return hashedValueByteArray.map(b => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+  }
+}
