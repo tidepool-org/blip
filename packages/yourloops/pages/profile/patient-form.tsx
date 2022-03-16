@@ -27,8 +27,7 @@
  */
 
 import React from "react";
-import _ from "lodash";
-import moment from "moment-timezone";
+import { tz } from "moment-timezone";
 import { useTranslation } from "react-i18next";
 
 import { ClassNameMap } from "@material-ui/styles/withStyles";
@@ -39,7 +38,7 @@ import { Errors } from "./models";
 
 interface PatientProfileFormProps {
   user: User;
-  classes: ClassNameMap<"textField">;
+  classes: ClassNameMap<"formInput">;
   birthDate?: string;
   setBirthDate: React.Dispatch<string>;
   errors: Errors;
@@ -53,34 +52,27 @@ function PatientProfileForm(props: PatientProfileFormProps): JSX.Element {
 
   const a1cDate = user.settings?.a1c?.date;
   const a1cValue = user.settings?.a1c?.value;
-  const hba1cMoment = typeof a1cDate === "string" ? moment.tz(a1cDate, browserTimezone) : null;
-
-  let hba1cTextField: JSX.Element | null = null;
-  if (_.isNumber(a1cValue) && moment.isMoment(hba1cMoment) && hba1cMoment.isValid()) {
-    const hba1cDate = hba1cMoment.format("L");
-    hba1cTextField = (
-      <TextField
-        id="hbA1c"
-        label={t("patient-profile-hba1c", { hba1cDate })}
-        disabled
-        value={`${a1cValue}%`}
-        className={classes.textField}
-      />
-    );
-  }
 
   return (
     <React.Fragment>
       <TextField
         id="profile-textfield-birthdate"
         label={t("patient-profile-birthdate")}
-        value={birthDate ?? ""}
-        onChange={(event) => setBirthDate(event.target.value)}
+        value={birthDate}
+        onChange={event => setBirthDate(event.target.value)}
         error={errors.birthDate}
         helperText={errors.birthDate && t("required-field")}
-        className={classes.textField}
+        className={classes.formInput}
       />
-      {hba1cTextField}
+      {a1cValue && a1cDate &&
+        <TextField
+          id="hbA1c"
+          label={t("patient-profile-hba1c", { hba1cMoment: tz(a1cDate, browserTimezone).format("L") })}
+          disabled
+          value={`${a1cValue}%`}
+          className={classes.formInput}
+        />
+      }
     </React.Fragment>
   );
 }

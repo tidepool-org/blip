@@ -6,6 +6,7 @@ It is based on Tidepool Blip 1.27.
 ### Added
 - YLP-1260 Verify password leak on signup or password change
 ### Engineering Use
+- YLP-1256 Split Profile component into smaller subcomponents
 - YLP-1319 Switch-roles dialogs CSS not consistent with other dialogs
 ### Fixed
 - YLP-1312 Data loading may be missing some ranges

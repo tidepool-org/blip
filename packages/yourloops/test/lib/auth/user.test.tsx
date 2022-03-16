@@ -49,30 +49,30 @@ describe("User", () => {
 
   it("getFirstName", () => {
     const user = new User({ userid: "abcd", username: "text@example.com", role: UserRoles.unverified });
-    expect(user.getFirstName()).to.be.equals("");
+    expect(user.firstName).to.be.equals("");
     user.profile = {
       fullName: "Hello",
       firstName: "Test",
       lastName: "Example",
     };
-    expect(user.getFirstName()).to.be.equals("Test");
+    expect(user.firstName).to.be.equals("Test");
   });
 
 
   it("getLastName", () => {
     const user = new User({ userid: "abcd", username: "text@example.com", role: UserRoles.unverified });
-    expect(user.getLastName()).to.be.equals("text@example.com");
+    expect(user.lastName).to.be.equals("text@example.com");
     user.profile = {
       fullName: "Hello World",
       firstName: "Test",
     };
-    expect(user.getLastName()).to.be.equals("Hello World");
+    expect(user.lastName).to.be.equals("Hello World");
     user.profile = {
       fullName: "Hello World",
       firstName: "Test",
       lastName: "Example",
     };
-    expect(user.getLastName()).to.be.equals("Example");
+    expect(user.lastName).to.be.equals("Example");
   });
 
   it("shouldAcceptConsent", () => {

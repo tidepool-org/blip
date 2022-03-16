@@ -26,53 +26,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import _ from "lodash";
 import bows from "bows";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import Assignment from "@material-ui/icons/Assignment";
-import Tune from "@material-ui/icons/Tune";
-
-import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
 import Link from "@material-ui/core/Link";
-import MenuItem from "@material-ui/core/MenuItem";
-import Select from "@material-ui/core/Select";
-import TextField from "@material-ui/core/TextField";
 
+import { Errors } from "./models";
 import { Units } from "../../models/generic";
+import { HcpProfession } from "../../models/hcp-profession";
 import { LanguageCodes } from "../../models/locales";
-import { Preferences, Profile, UserRoles, Settings } from "../../models/shoreline";
-import BasicDropdown from "../../components/dropdown/basic-dropdown";
-import { getLangName, getCurrentLang, availableLanguageCodes } from "../../lib/language";
-import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, setPageTitle } from "../../lib/utils";
-import { User, useAuth } from "../../lib/auth";
-import appConfig from "../../lib/config";
+import { Preferences, Profile, Settings, UserRoles } from "../../models/shoreline";
+import { getCurrentLang } from "../../lib/language";
+import { REGEX_BIRTHDATE, setPageTitle } from "../../lib/utils";
+import { useAuth, User } from "../../lib/auth";
 import metrics from "../../lib/metrics";
 import { useAlert } from "../../components/utils/snackbar";
-import { ConsentFeedback } from "../../components/consents";
+import CredentialsForm from "./credentials-form";
+import PersonalInfoForm from "./personal-info-form";
+import PreferencesForm from "./preferences-form";
+import ProgressIconButtonWrapper from "../../components/buttons/progress-icon-button-wrapper";
 import SecondaryHeaderBar from "./secondary-bar";
 import SwitchRoleDialogs from "../../components/switch-role";
-import { Errors } from "./models";
-import PatientProfileForm from "./patient-form";
-import AuthenticationForm from "./auth-form";
-import { HcpProfession, HcpProfessionList } from "../../models/hcp-profession";
-import ProSanteConnectButton from "../../components/buttons/pro-sante-connect-button";
-import CertifiedProfessionalIcon from "../../components/icons/certified-professional-icon";
-
-type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
-type TextChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
-type SelectChangeEvent = React.ChangeEvent<{ name?: string; value: unknown }>;
-type HandleChange<E> = (event: E) => void;
-type CreateHandleChange<T, E> = (setState: SetState<T>) => HandleChange<E>;
 
 interface ProfilePageProps {
   defaultURL: string;
@@ -83,14 +65,8 @@ const useStyles = makeStyles((theme: Theme) =>
     button: {
       marginLeft: theme.spacing(2),
     },
-    formControl: {
+    formInput: {
       marginTop: theme.spacing(2),
-    },
-    textField: {
-      "marginTop": "1em",
-      "& input:disabled": {
-        backgroundColor: "white",
-      },
     },
     title: {
       color: theme.palette.primary.main,
@@ -137,8 +113,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const log = bows("ProfilePage");
-// TODO Need to split this too big component, see YLP-1256 (https://diabeloop.atlassian.net/browse/YLP-1256)
-// eslint-disable-next-line complexity
+
 const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const { t, i18n } = useTranslation("yourloops");
   const classes = useStyles();
@@ -151,54 +126,38 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     updateProfile,
     updateSettings,
     updatePassword,
-    redirectToProfessionalAccountLogin,
   } = useAuth();
 
   if (!user) {
-    throw new Error("User must be looged-in");
+    throw new Error("User must be logged-in");
   }
 
   const role = user.role;
   const showFeedback = role === UserRoles.hcp;
 
-  const [firstName, setFirstName] = React.useState<string>(getUserFirstName(user));
-  const [lastName, setLastName] = React.useState<string>(getUserLastName(user));
-  const [currentPassword, setCurrentPassword] = React.useState<string>("");
+  const [firstName, setFirstName] = useState<string>(user.firstName);
+  const [lastName, setLastName] = useState<string>(user.lastName);
+  const [currentPassword, setCurrentPassword] = useState<string>("");
   const [refreshKey, setRefreshKey] = React.useState<number>(0);
-  const [password, setPassword] = React.useState<string>("");
-  const [passwordConfirmation, setPasswordConfirmation] = React.useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
   const [passwordConfirmationError, setPasswordConfirmationError] = React.useState<boolean>(false);
-  const [unit, setUnit] = React.useState<Units>(user.settings?.units?.bg ?? Units.gram);
-  const [birthDate, setBirthDate] = React.useState<string>(user.profile?.patient?.birthday ?? "");
-  const [switchRoleOpen, setSwitchRoleOpen] = React.useState<boolean>(false);
-  const [lang, setLang] = React.useState<LanguageCodes>(user.preferences?.displayLanguageCode ?? getCurrentLang());
-  const [hcpProfession, setHcpProfession] = React.useState<HcpProfession>(user.profile?.hcpProfession ?? HcpProfession.empty);
-  const [feedbackAccepted, setFeedbackAccepted] = React.useState(Boolean(user?.profile?.contactConsent?.isAccepted));
+  const [unit, setUnit] = useState<Units>(user.settings?.units?.bg ?? Units.gram);
+  const [birthDate, setBirthDate] = useState<string>(user.profile?.patient?.birthday ?? "");
+  const [switchRoleOpen, setSwitchRoleOpen] = useState<boolean>(false);
+  const [lang, setLang] = useState<LanguageCodes>(user.preferences?.displayLanguageCode ?? getCurrentLang());
+  const [hcpProfession, setHcpProfession] = useState<HcpProfession>(user.profile?.hcpProfession ?? HcpProfession.empty);
+  const [feedbackAccepted, setFeedbackAccepted] = useState<boolean>(!!user?.profile?.contactConsent?.isAccepted);
+  const [saving, setSaving] = useState<boolean>(false);
 
-  React.useEffect(() => {
-    // To be sure we have the locale:
-    if (!availableLanguageCodes.includes(lang)) {
-      setLang(getCurrentLang());
-    }
-    setPageTitle(t("account-preferences"));
-  }, [lang, t]);
-
-  React.useEffect(() => {
-    // ISO date format is required from the user: It's not a very user-friendly format in all countries, We should change it
-    if (role === UserRoles.patient && !!birthDate) {
-      let birthday = birthDate;
-      if (birthday.length > 0 && birthday.indexOf("T") > 0) {
-        birthday = birthday.split("T")[0];
-      }
-      if (REGEX_BIRTHDATE.test(birthday)) {
-        setBirthDate(birthday);
-      } else {
-        setBirthDate("");
-      }
-    }
-    // No deps here, because we want the effect only when the component is mounting
-    // If we set the deps, the patient won't be able to change its birthday.
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const errors: Errors = useMemo(() => ({
+    firstName: !firstName,
+    lastName: !lastName,
+    hcpProfession: role === UserRoles.hcp && hcpProfession === HcpProfession.empty,
+    currentPassword: password.length > 0 && currentPassword.length === 0,
+    password: passwordConfirmationError && (password.length > 0 || passwordConfirmation.length > 0),
+    birthDate: role === UserRoles.patient && !REGEX_BIRTHDATE.test(birthDate),
+  }), [firstName, lastName, role, hcpProfession, password.length, passwordConfirmationError, passwordConfirmation.length, currentPassword.length, birthDate]);
 
   const getUpdatedPreferences = (): Preferences => {
     const updatedPreferences = _.cloneDeep(user.preferences ?? {}) as Preferences;
@@ -218,7 +177,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     if (user.role === UserRoles.hcp) {
       updatedProfile.hcpProfession = hcpProfession;
     }
-    if (showFeedback && Boolean(user?.profile?.contactConsent?.isAccepted) !== feedbackAccepted) {
+    if (showFeedback && !!user?.profile?.contactConsent?.isAccepted !== feedbackAccepted) {
       updatedProfile.contactConsent = {
         isAccepted: feedbackAccepted,
         acceptanceTimestamp: new Date().toISOString(),
@@ -234,99 +193,78 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     return updatedSettings;
   };
 
-  const preferencesChanged = !_.isEqual(user.preferences, getUpdatedPreferences());
-  const profileChanged = !_.isEqual(user.profile, getUpdatedProfile());
-  const settingsChanged = !_.isEqual(user.settings, getUpdatedSettings());
-  const passwordChanged = password !== "" || passwordConfirmation !== "";
-
-  const createHandleTextChange: CreateHandleChange<string, TextChangeEvent> = (setState) => (event) => setState(event.target.value);
-  const createHandleSelectChange = <T extends Units | LanguageCodes | HcpProfession>(setState: SetState<T>): HandleChange<SelectChangeEvent> => (event) => setState(event.target.value as T);
-
   const handleSwitchRoleOpen = () => {
     setSwitchRoleOpen(true);
     metrics.send("switch_account", "display_switch_preferences");
   };
+
   const handleSwitchRoleCancel = () => setSwitchRoleOpen(false);
 
-  const errors: Errors = React.useMemo(
-    () => ({
-      firstName: _.isEmpty(firstName),
-      lastName: _.isEmpty(lastName),
-      hcpProfession: role === UserRoles.hcp && hcpProfession === HcpProfession.empty,
-      currentPassword: password.length > 0 && currentPassword.length === 0,
-      password: passwordConfirmationError && (password.length > 0 || passwordConfirmation.length > 0),
-      birthDate: role === UserRoles.patient && !REGEX_BIRTHDATE.test(birthDate),
-    }),
-    [firstName, lastName, role, hcpProfession, password.length, passwordConfirmationError, passwordConfirmation.length, currentPassword.length, birthDate]
-  );
-
-  const isAnyError = React.useMemo(() => _.some(errors), [errors]);
-  const canSave = (preferencesChanged || profileChanged || settingsChanged || passwordChanged) && !isAnyError;
+  const preferencesChanged = !_.isEqual(user.preferences, getUpdatedPreferences());
+  const profileChanged = !_.isEqual(user.profile, getUpdatedProfile());
+  const settingsChanged = !_.isEqual(user.settings, getUpdatedSettings());
+  const passwordChanged = password !== "" || passwordConfirmation !== "";
+  const isAnyError = useMemo(() => _.some(errors), [errors]);
+  const canSave = (preferencesChanged || profileChanged || settingsChanged || passwordChanged) && !isAnyError && !saving;
 
   const onSave = async (): Promise<void> => {
     let preferences: Preferences | null = null;
     let profile: Profile | null = null;
     let settings: Settings | null = null;
-    let updateFailed = false;
-    /** Set to true if we need to update the user only (no change needed for the password) */
-    let updated = false;
+
+    const updatedUser = new User(user);
 
     try {
-      if (preferencesChanged) {
-        preferences = await updatePreferences(getUpdatedPreferences(), false);
-        updated = true;
-      }
+      setSaving(true);
+
       if (profileChanged) {
         profile = await updateProfile(getUpdatedProfile(), false);
-        updated = true;
-      }
-      if (settingsChanged) {
-        settings = await updateSettings(getUpdatedSettings(), false);
-        updated = true;
-      }
-      if (role !== UserRoles.patient && passwordChanged) {
-        await updatePassword(currentPassword, password);
-      }
-    } catch (err) {
-      log.error("Updating:", err);
-      updateFailed = true;
-    }
-
-    if (updated) {
-      const updatedUser = new User(user);
-      if (preferences) {
-        updatedUser.preferences = preferences;
-      }
-      if (profile) {
         updatedUser.profile = profile;
       }
-      if (settings) {
+
+      if (settingsChanged) {
+        settings = await updateSettings(getUpdatedSettings(), false);
         updatedUser.settings = settings;
       }
 
-      setUser(updatedUser);
-    }
+      if (role !== UserRoles.patient && passwordChanged) {
+        await updatePassword(currentPassword, password);
+        setRefreshKey(refreshKey + 1);
+        setPasswordConfirmationError(false);
+      }
 
-    if (passwordChanged) {
-      setRefreshKey(refreshKey + 1);
-      setCurrentPassword("");
-      setPassword("");
-      setPasswordConfirmation("");
-      setPasswordConfirmationError(false);
-    }
+      if (preferencesChanged) {
+        preferences = await updatePreferences(getUpdatedPreferences(), false);
+        updatedUser.preferences = preferences;
+        if (lang !== getCurrentLang()) {
+          i18n.changeLanguage(lang);
+        }
+      }
 
-    if (lang !== getCurrentLang()) {
-      i18n.changeLanguage(lang);
-    }
-
-    if (updateFailed) {
-      alert.error(t("profile-update-failed"));
-    } else {
       alert.success(t("profile-updated"));
+    } catch (err) {
+      log.error("Updating:", err);
+      alert.error(t("profile-update-failed"));
+    } finally {
+      setUser(updatedUser);
+      setSaving(false);
     }
   };
 
-  const onCancel = (): void => history.push(props.defaultURL);
+  useEffect(() => setPageTitle(t("account-preferences")), [lang, t]);
+
+  useEffect(() => {
+    // ISO date format is required from the user: It's not a very user-friendly format in all countries, We should change it
+    if (role === UserRoles.patient && !!birthDate) {
+      let birthday = birthDate;
+      if (birthday.length > 0 && birthday.indexOf("T") > 0) {
+        birthday = birthday.split("T")[0];
+      }
+      REGEX_BIRTHDATE.test(birthday) ? setBirthDate(birthday) : setBirthDate("");
+    }
+    // No deps here, because we want the effect only when the component is mounting
+    // If we set the deps, the patient won't be able to change its birthday.
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <React.Fragment>
@@ -337,161 +275,65 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
             {t("account-preferences")}
           </DialogTitle>
 
-          <Box className={classes.categoryLabel}>
-            <AccountCircle color="primary" style={{ margin: "0" }} />
-            <strong className={classes.uppercase}>{t("personal-information")}</strong>
-            {user.frProId && <CertifiedProfessionalIcon id={`certified-professional-icon-${user.userid}`} />}
-          </Box>
+          <PersonalInfoForm
+            birthDate={birthDate}
+            classes={classes}
+            errors={errors}
+            firstName={firstName}
+            hcpProfession={hcpProfession}
+            lastName={lastName}
+            role={role}
+            user={user}
+            setBirthDate={setBirthDate}
+            setFirstName={setFirstName}
+            setLastName={setLastName}
+            setHcpProfession={setHcpProfession}
+          />
 
-          <Box className={classes.inputContainer}>
-            <TextField
-              id="profile-textfield-firstname"
-              label={t("firstname")}
-              value={firstName}
-              onChange={createHandleTextChange(setFirstName)}
-              error={errors.firstName}
-              helperText={errors.firstName && t("required-field")}
-              className={`${classes.textField} ${classes.halfWide}`}
-            />
-            <TextField
-              id="profile-textfield-lastname"
-              label={t("lastname")}
-              value={lastName}
-              onChange={createHandleTextChange(setLastName)}
-              error={errors.lastName}
-              helperText={errors.lastName && t("required-field")}
-              className={`${classes.textField} ${classes.halfWide}`}
-            />
-          </Box>
-
-          {role === UserRoles.hcp &&
-            <Box className={classes.inputContainer}>
-              <Box className={`${classes.formControl} ${classes.halfWide}`}>
-                <BasicDropdown
-                  onSelect={setHcpProfession}
-                  defaultValue={hcpProfession}
-                  disabledValues={[HcpProfession.empty]}
-                  values={HcpProfessionList.filter(item => item !== HcpProfession.empty)}
-                  id="profession"
-                  inputTranslationKey="hcp-profession"
-                  errorTranslationKey="profession-dialog-title"
-                />
-              </Box>
-
-              {appConfig.ECPS_ENABLED && user.settings?.country === "FR" &&
-                <React.Fragment>
-                  {user.frProId ?
-                    <TextField
-                      id="professional-account-number-text-field"
-                      value={user.getParsedFrProId()}
-                      label={t("professional-account-number")}
-                      disabled
-                      className={classes.formControl}
-                    />
-                    :
-                    <FormControl className={`${classes.formControl} ${classes.halfWide}`}>
-                      <ProSanteConnectButton onClick={redirectToProfessionalAccountLogin} />
-                    </FormControl>
-                  }
-                </React.Fragment>
-              }
-            </Box>
-          }
-
-          {role === UserRoles.patient ?
-            <PatientProfileForm
+          {role !== UserRoles.patient &&
+            <CredentialsForm
+              key={`authenticationForm-${refreshKey}`}
               user={user}
               classes={classes}
               errors={errors}
-              birthDate={birthDate}
-              setBirthDate={setBirthDate}
-            />
-            :
-            <React.Fragment>
-              <div className={classes.categoryLabel}>
-                <Assignment color="primary" style={{ margin: "0" }} />
-                <strong className={classes.uppercase}>{t("my-credentials")}</strong>
-              </div>
-              <AuthenticationForm
-                key={`authenticationForm-${refreshKey}`}
-                user={user}
-                classes={classes}
-                errors={errors}
-                currentPassword={currentPassword}
-                setCurrentPassword={setCurrentPassword}
-                setPassword={setPassword}
-                setPasswordConfirmation={setPasswordConfirmation}
-                setPasswordConfirmationError={setPasswordConfirmationError}
-              />
-            </React.Fragment>
-          }
-
-          <Box className={classes.categoryLabel}>
-            <Tune color="primary" style={{ margin: "0" }} />
-            <strong className={classes.uppercase}>{t("preferences")}</strong>
-          </Box>
-
-          <Box className={classes.inputContainer}>
-            <FormControl className={`${classes.formControl} ${classes.halfWide}`}>
-              <InputLabel id="profile-units-input-label">{t("units")}</InputLabel>
-              <Select
-                disabled={role === UserRoles.patient}
-                labelId="unit-selector"
-                id="profile-units-selector"
-                value={unit}
-                onChange={createHandleSelectChange(setUnit)}
-              >
-                <MenuItem id="profile-units-mmoll" value={Units.mole}>
-                  {Units.mole}
-                </MenuItem>
-                <MenuItem id="profile-units-mgdl" value={Units.gram}>
-                  {Units.gram}
-                </MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl className={`${classes.formControl} ${classes.halfWide}`}>
-              <InputLabel id="profile-language-input-label">{t("language")}</InputLabel>
-              <Select
-                labelId="locale-selector"
-                id="profile-locale-selector"
-                value={lang}
-                onChange={createHandleSelectChange(setLang)}>
-                {availableLanguageCodes.map((languageCode) => (
-                  <MenuItem id={`profile-locale-item-${languageCode}`} key={languageCode} value={languageCode}>
-                    {getLangName(languageCode)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-
-          {showFeedback &&
-            <ConsentFeedback
-              id="profile"
-              userRole={role}
-              checked={feedbackAccepted}
-              style={{ marginLeft: -9, marginRight: 0, marginTop: "1em", marginBottom: 0 }}
-              onChange={() => setFeedbackAccepted(!feedbackAccepted)}
+              currentPassword={currentPassword}
+              setCurrentPassword={setCurrentPassword}
+              setPassword={setPassword}
+              setPasswordConfirmation={setPasswordConfirmation}
+              setPasswordConfirmationError={setPasswordConfirmationError}
             />
           }
+
+          <PreferencesForm
+            classes={classes}
+            feedbackAccepted={feedbackAccepted}
+            lang={lang}
+            role={role}
+            unit={unit}
+            setFeedbackAccepted={setFeedbackAccepted}
+            setLang={setLang}
+            setUnit={setUnit}
+          />
 
           <Box display="flex" justifyContent="flex-end" my={3}>
             <Button
               id="profile-button-cancel"
-              onClick={onCancel}
+              onClick={() => history.push(props.defaultURL)}
             >
               {t("button-cancel")}
             </Button>
-            <Button
-              id="profile-button-save"
-              variant="contained"
-              disabled={!canSave}
-              color="primary"
-              onClick={onSave}
-              className={classes.button}
-            >
-              {t("button-save")}
-            </Button>
+            <ProgressIconButtonWrapper inProgress={saving}>
+              <Button
+                id="profile-button-save"
+                variant="contained"
+                disabled={!canSave}
+                color="primary"
+                onClick={onSave}
+                className={classes.button}
+              >
+                {t("button-save")}
+              </Button>
+            </ProgressIconButtonWrapper>
           </Box>
 
           {UserRoles.caregiver === role &&

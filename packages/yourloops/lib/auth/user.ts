@@ -91,14 +91,14 @@ class User implements IUser {
   /**
    * Return the user first name
    */
-  getFirstName(): string {
+  get firstName(): string {
     return this.profile?.firstName ?? "";
   }
 
   /**
    * Return the user last name
    */
-  getLastName(): string {
+  get lastName(): string {
     return this.profile?.lastName ?? this.profile?.fullName ?? this.username;
   }
 

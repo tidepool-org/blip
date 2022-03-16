@@ -47,7 +47,7 @@ import brandingLogoFull from "branding/logo-full.svg";
 import brandingLogoIcon from "branding/logo-icon.svg";
 
 import metrics from "../../lib/metrics";
-import { useNotification } from "../../lib/notifications/hook";
+import { useNotification } from "../../lib/notifications";
 import config from "../../lib/config";
 import { User, useAuth } from "../../lib/auth";
 
@@ -220,7 +220,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   let accountMenu = null;
   if (auth.isLoggedIn) {
     const user = auth.user as User;
-    const name = t("user-name", { firstName: user.getFirstName(), lastName: user.getLastName() });
+    const name = t("user-name", { firstName: user.firstName, lastName: user.lastName });
     const { menuItems } = props;
 
     accountMenu = (

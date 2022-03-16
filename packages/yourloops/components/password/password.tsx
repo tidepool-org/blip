@@ -65,10 +65,7 @@ export interface PasswordProps {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     textField: {
-      "marginTop": "1em",
-      "& input:disabled": {
-        backgroundColor: "white",
-      },
+      marginTop: theme.spacing(2),
     },
     adornment: {
       [theme.breakpoints.down("sm")]: {

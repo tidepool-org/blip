@@ -29,6 +29,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import Assignment from "@material-ui/icons/Assignment";
 import { ClassNameMap } from "@material-ui/styles/withStyles";
 import TextField from "@material-ui/core/TextField";
 
@@ -38,9 +39,9 @@ import Password from "../../components/password/password";
 import { Errors } from "./models";
 import { PasswordConfirm } from "../../components/password/password-confirm";
 
-interface AuthenticationFormProps {
+interface CredentialsFormProps {
   user: User;
-  classes: ClassNameMap<"textField">;
+  classes: ClassNameMap;
   errors: Errors;
   currentPassword: string;
   setCurrentPassword: React.Dispatch<string>;
@@ -49,7 +50,7 @@ interface AuthenticationFormProps {
   setPasswordConfirmationError: React.Dispatch<boolean>;
 }
 
-function AuthenticationForm(props: AuthenticationFormProps): JSX.Element {
+function CredentialsForm(props: CredentialsFormProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const {
     user,
@@ -76,12 +77,16 @@ function AuthenticationForm(props: AuthenticationFormProps): JSX.Element {
 
   return (
     <React.Fragment>
+      <div className={classes.categoryLabel}>
+        <Assignment color="primary" style={{ margin: "0" }} />
+        <strong className={classes.uppercase}>{t("my-credentials")}</strong>
+      </div>
       <TextField
         id="profile-textfield-mail"
         label={t("email")}
         value={getUserEmail(user)}
         disabled
-        className={classes.textField}
+        className={classes.formInput}
       />
       <Password
         id="profile-textfield-password-current"
@@ -102,4 +107,4 @@ function AuthenticationForm(props: AuthenticationFormProps): JSX.Element {
   );
 }
 
-export default AuthenticationForm;
+export default CredentialsForm;

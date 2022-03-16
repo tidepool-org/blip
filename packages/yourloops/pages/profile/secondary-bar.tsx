@@ -84,7 +84,7 @@ function SecondaryBar(props: SecondaryBarProps): JSX.Element {
           <Typography id="profile-navbar-breadcrumbs-preferences" className={classes.breadcrumbText}>{t("account-preferences")}</Typography>
         </Breadcrumbs>
       </div>
-      <div id="profile-navbar-item-middle"></div>
+      <div id="profile-navbar-item-middle"/>
       <div id="profile-navbar-item-right" className={classes.toolBarRight} />
     </SecondaryHeaderBar>
   );
