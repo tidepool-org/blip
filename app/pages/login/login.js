@@ -63,12 +63,13 @@ export let Login = translate()(class extends React.Component {
   };
 
   render() {
+    const { t } = this.props;
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
     var loggingIn = this.props.working;
     var login = config.KEYCLOAK_URL ? (
       <Button onClick={() => keycloak.login()} disabled={loggingIn}>
-        {loggingIn ? 'Logging in...' : 'Login'}
+        {loggingIn ? t('Logging in...') : t('Login')}
       </Button>
     ) : (
       <div className="login-simpleform">{form}</div>

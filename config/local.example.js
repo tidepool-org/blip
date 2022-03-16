@@ -41,4 +41,7 @@ module.exports = {
   linkedPackages,
   featureFlags,
   apiHost,
+  keycloakUrl: '',
+  keycloakRealm: '',
+  keycloakClientId: '',
 };
