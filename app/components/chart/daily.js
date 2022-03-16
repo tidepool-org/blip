@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
+import moment from 'moment';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
@@ -172,12 +173,12 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   };
 
-  rerenderChart = (updates = {}) => {
+  rerenderChart = (updates = {}, datetime) => {
     const chartProps = { ...this.props, ...updates };
     this.log('Rerendering...');
     this.unmountChart();
     this.mountChart(chartProps);
-    this.initializeChart(chartProps);
+    this.initializeChart(chartProps, datetime);
     this.chart.emitter.emit('inTransition', false);
   };
 
@@ -267,12 +268,39 @@ class Daily extends Component {
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
     const wrappedInstance = _.get(this.refs, 'chart.wrappedInstance');
     const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
+    const initialDatetimeLocationUpdated = this.props.initialDatetimeLocation !== nextProps.initialDatetimeLocation;
+    const timezoneName = _.get(this.props, 'data.timePrefs.timezoneName', 'UTC');
 
-    if (wrappedInstance) {
+    if (wrappedInstance && !this.state.inTransition) {
       const updates = {};
+      const shiftedDatetimeLocation = moment.utc(nextProps.initialDatetimeLocation).tz(timezoneName).subtract(12, 'hours').toISOString();
       if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
       if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) updates.bgClasses = nextProps.data.bgPrefs.bgClasses;
-      if (!_.isEmpty(updates)) wrappedInstance.rerenderChart(updates);
+
+      if (initialDatetimeLocationUpdated) {
+        // this.log([
+        //   shiftedDatetimeLocation,
+        //   wrappedInstance.state.datetimeLocation,
+        //   this.state.initialDatetimeLocation,
+        //   this.props.initialDatetimeLocation,
+        //   nextProps.initialDatetimeLocation,
+        // ]);
+
+        if (!this.state.initialDatetimeLocation) this.setState({ initialDatetimeLocation: nextProps.initialDatetimeLocation });
+
+        wrappedInstance.setState({
+          datetimeLocation: nextProps.initialDatetimeLocation,
+        })
+
+        wrappedInstance.rerenderChart(nextProps, shiftedDatetimeLocation);
+      } else if (!_.isEmpty(updates)) {
+        if (shiftedDatetimeLocation !== wrappedInstance.state.datetimeLocation) {
+          wrappedInstance.rerenderChart(updates, nextProps.initialDatetimeLocation);
+        } else {
+          // TODO: if something broke comment out below line
+          wrappedInstance.rerenderChart(updates);
+        }
+      }
     }
   };
 
@@ -300,6 +328,7 @@ class Daily extends Component {
           iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
           onClickBasics={this.props.onSwitchToBasics}
+          onClickChartDates={this.props.onClickChartDates}
           onClickTrends={this.handleClickTrends}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}

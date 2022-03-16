@@ -933,6 +933,9 @@ export const PatientDataClass = createReactClass({
       setEndToLocalCeiling: forceChartDataUpdate || !isDaily,
     });
 
+    const endpointsChanged = newEndpoints && !_.isEqual(newEndpoints, this.state.endpoints);
+    if (!endpointsChanged) return;
+
     const newDatetimeLocation = isDaily
       ? moment.utc(datetimeLocation).subtract(12, 'hours').toISOString()
       : datetimeLocation;
@@ -1045,7 +1048,7 @@ export const PatientDataClass = createReactClass({
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
-      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs));
     }
 
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
