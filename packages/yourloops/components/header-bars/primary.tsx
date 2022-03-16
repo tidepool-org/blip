@@ -43,9 +43,6 @@ import Badge from "@material-ui/core/Badge";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 
-import brandingLogoFull from "branding/logo-full.svg";
-import brandingLogoIcon from "branding/logo-icon.svg";
-
 import metrics from "../../lib/metrics";
 import { useNotification } from "../../lib/notifications";
 import config from "../../lib/config";
@@ -270,8 +267,8 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     <AppBar id="primary-appbar" position="relative">
       <Toolbar id="primary-toolbar" className={classes.toolBar}>
         <div id="primary-toolbar-left" className={classes.toolbarLeft}>
-          <input id="branding-logo-full" type="image" className={classes.toolbarLogoFull} alt={t("alt-img-logo")} src={brandingLogoFull} onClick={onLogoClick} />
-          <input id="branding-logo-icon" type="image" className={classes.toolbarLogoIcon} alt={t("alt-img-logo")} src={brandingLogoIcon} onClick={onLogoClick} />
+          <input id="branding-logo-full" type="image" className={classes.toolbarLogoFull} alt={t("alt-img-logo")} src={`/branding_${config.BRANDING}_logo.svg`} onClick={onLogoClick} />
+          <input id="branding-logo-icon" type="image" className={classes.toolbarLogoIcon} alt={t("alt-img-logo")} src={`/branding_${config.BRANDING}_logo-icon.svg`} onClick={onLogoClick} />
         </div>
         {
           _.isNil(props.children) ? null : (

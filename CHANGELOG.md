@@ -8,6 +8,7 @@ It is based on Tidepool Blip 1.27.
 ### Engineering Use
 - YLP-1256 Split Profile component into smaller subcomponents
 - YLP-1319 Switch-roles dialogs CSS not consistent with other dialogs
+- YLP-1320 Dynamic branding
 ### Fixed
 - YLP-1312 Data loading may be missing some ranges
 - YLP-1313 Join wizard and bolus may fail

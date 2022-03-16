@@ -36,10 +36,9 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 
-import brandingLogo from "branding/logo.png";
-
 import SignUpStepper from "./signup-stepper";
 import { SignUpFormStateProvider } from "./signup-formstate-context";
+import appConfig from "../../lib/config";
 
 const formStyle = makeStyles((theme: Theme) => {
   return {
@@ -96,7 +95,7 @@ function SignUpPage(): JSX.Element {
           <SignUpFormStateProvider>
             <Card id="card-signup" className={classes.Card}>
               <CardMedia className={classes.logoHeader}>
-                <img src={brandingLogo} height={isXSBreakpoint ? 50 : 60} alt={t("alt-img-logo")} />
+                <img src={`/branding_${appConfig.BRANDING}_logo.svg`} height={isXSBreakpoint ? 50 : 60} alt={t("alt-img-logo")} />
               </CardMedia>
               <CardContent className={classes.CardContent}>
                 <SignUpStepper />

@@ -36,14 +36,13 @@ import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import Container from "@material-ui/core/Container";
 
-import brandingLogo from "branding/logo.png";
-
 import { useAuth } from "../../lib/auth";
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
 
 import RequestPasswordForm from "./request-password-form";
 import RequestPassordMessage from "./request-password-message";
+import appConfig from "../../lib/config";
 
 const loginStyle = makeStyles((theme: Theme) => {
   return {
@@ -128,7 +127,7 @@ function RequestPasswordResetPage(): JSX.Element {
             paddingBottom: "1em",
           }}>
           <img
-            src={brandingLogo}
+            src={`/branding_${appConfig.BRANDING}_logo.svg`}
             alt={t("alt-img-logo")}
             style={{
               height: "60px",

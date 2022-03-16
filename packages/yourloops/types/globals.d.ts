@@ -62,4 +62,5 @@ declare global {
     userLanguage?: string;
   }
   const BUILD_CONFIG: string;
+  const BRANDING_LIST: string[];
 }

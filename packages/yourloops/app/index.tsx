@@ -37,6 +37,7 @@ import { init as i18nInit } from "../lib/language";
 import initCookiesConcentListener from "../lib/cookies-manager";
 import initDayJS from "../lib/dayjs";
 import initAxios from "../lib/axios";
+import { initTheme } from "../components/theme";
 
 import Yourloops from "./app";
 import OnError from "./error";
@@ -58,6 +59,7 @@ i18nInit().then(() => {
   initDayJS();
   initCookiesConcentListener();
   initAxios();
+  initTheme();
 
   ReactDOM.render(config.DEV ? <React.StrictMode><Yourloops /></React.StrictMode> : <Yourloops />, div);
 });

@@ -32,7 +32,6 @@ import { BrowserRouter as Router, Route, Switch, useLocation } from "react-route
 
 import "@fontsource/roboto";
 import "branding/theme.css";
-import "branding/palette.css";
 
 import metrics from "../lib/metrics";
 import { AuthContextProvider } from "../lib/auth";

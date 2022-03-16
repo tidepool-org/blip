@@ -97,13 +97,13 @@ describe("CloudFront Lambda Generator", function () {
   });
 
   it("Should proceed the request to CloudFront for others requests", async () => {
-    testBase.Records[0].cf.request.uri = "/favicon.ico";
+    testBase.Records[0].cf.request.uri = "/branding_diabeloop_blue_favicon.ico";
     const response = await handler(testBase, null);
     expect(response).to.be.equal(testBase.Records[0].cf.request);
   });
 
   it("Should request a redirect for distributions files", async () => {
-    testBase.Records[0].cf.request.uri = "/patients/favicon.ico";
+    testBase.Records[0].cf.request.uri = "/patients/branding_diabeloop_blue_favicon.ico";
     const response = await handler(testBase, null);
     expect(response).to.be.an("object");
     expect(response).to.be.deep.equal({
@@ -113,7 +113,7 @@ describe("CloudFront Lambda Generator", function () {
       headers: {
         location: [{
           key: "Location",
-          value: "/favicon.ico"
+          value: "/branding_diabeloop_blue_favicon.ico"
         }],
       },
     });

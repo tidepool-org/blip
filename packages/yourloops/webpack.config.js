@@ -8,6 +8,7 @@ const { SubresourceIntegrityPlugin } = require("webpack-subresource-integrity");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const blipWebpack = require("./webpack.config.blip");
 const buildConfig = require("../../server/config.app");
 const brandings = require("../../branding/branding.json");
@@ -24,10 +25,6 @@ const isTest = process.env.NODE_ENV === "test";
 const isProduction = mode === "production";
 const isDev = !isProduction;
 
-if (!(buildConfig.BRANDING in brandings)) {
-  throw new Error("Invalid branding");
-}
-
 console.log(`Compiling ${pkg.name} v${pkg.version} for ${mode}`);
 console.log(`Branding: ${buildConfig.BRANDING}`);
 
@@ -35,15 +32,8 @@ if (process.env.USE_WEBPACK_DEV_SERVER === "true") {
   console.log(buildConfig);
 }
 
-const branding = brandings[buildConfig.BRANDING];
-
 const alias = {
   "branding/theme.css": path.resolve(__dirname, "../../branding/theme.css"),
-  "branding/logo.png": path.resolve(__dirname, `../../branding/${branding["branding/logo.png"]}`),
-  "branding/pdf-logo.png": path.resolve(__dirname, `../../branding/${branding["branding/pdf-logo.png"]}`),
-  "branding/logo-icon.svg": path.resolve(__dirname, `../../branding/${branding["branding/logo-icon.svg"]}`),
-  "branding/logo-full.svg": path.resolve(__dirname, `../../branding/${branding["branding/logo-full.svg"]}`),
-  "branding/palette.css": path.resolve(__dirname, `../../branding/${branding["branding/palette.css"]}`),
   "pro-sante-connect.svg": path.resolve(__dirname, "images/pro-sante-connect-gris.svg"),
   "cartridge.png": path.resolve(__dirname, "../../branding/sitechange/cartridge.png"),
   "infusion.png": path.resolve(__dirname, "../../branding/sitechange/infusion.png"),
@@ -70,6 +60,8 @@ const plugins = [
   new webpack.DefinePlugin({
     BUILD_CONFIG:
       isTest || isProduction ? `'${JSON.stringify({ DEV: isDev, TEST: isTest })}'` : `'${JSON.stringify(buildConfig)}'`,
+    // Create a global with declared branding, used in initTheme to have only one theme defined
+    BRANDING_LIST: JSON.stringify(brandings.map(brand => brand.replace("/","-"))),
   }),
   new MiniCssExtractPlugin({
     filename: isDev ? "style.css" : "style.[contenthash].css",
@@ -85,7 +77,6 @@ const plugins = [
     scriptLoading: "defer",
     inject: "body",
     hash: false,
-    favicon: path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/favicon.ico`),
     minify: false,
   }),
 ];
@@ -98,6 +89,22 @@ if (isTest) {
     })
   );
 }
+
+/* Copy branding assets for dynamic use in the app
+Since we're not importing statically assets (with import), webpack does not know he needs to bundle it,
+so we're doing it here. Moreover, we're flatting files because of the lambda serving only assets with flat hierarchy ...
+will copy /branding/diabeloop/blue/favicon.ico in /branding_diabeloop_blue_favicon.ico */
+
+const patterns = [];
+for (let branding of brandings) {
+  patterns.push({
+    from: `../../branding/${branding.replace("_","/")}`,
+    to: `branding_${branding}_[name][ext]`,
+  });
+}
+plugins.push(
+  new CopyWebpackPlugin({patterns: [...patterns, {from: "../../branding/palette.css", to: "palette.css"}]})
+);
 
 /** @type {webpack.Configuration & { devServer: { [index: string]: any; }}} */
 const webpackConfig = {

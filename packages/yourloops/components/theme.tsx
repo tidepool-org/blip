@@ -28,51 +28,67 @@
 
 import { createTheme, Theme } from "@material-ui/core/styles";
 import { PaletteOptions } from "@material-ui/core/styles/createPalette";
+import config from "../lib/config";
 
-const cssVar = (name: string): string => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+/** Set one and only one class for the branding in `<div id='app'>` */
+export function initTheme() {
+  const classList = document.getElementById("app")?.classList;
+  classList?.remove(...BRANDING_LIST);
+  classList?.add(config.BRANDING.replace("_","-"));
 
-const commonTheme: PaletteOptions = {
-  type: "light",
-  primary: {
-    main: cssVar("--color-primary-main"),
-    light: cssVar("--color-primary-light"),
-    dark: cssVar("--color-primary-dark"),
-  },
-  secondary: {
-    main: cssVar("--color-secondary-main"),
-    light: cssVar("--color-secondary-light"),
-    dark: cssVar("--color-secondary-dark"),
-  },
-};
+  const favIcon = document.getElementById("favicon") as HTMLAnchorElement;
+  favIcon.href = `./branding_${config.BRANDING}_favicon.ico`;
+}
 
-export const mainTheme = createTheme({
-  overrides: {
-    MuiButton: {
-      root: {
-        fontWeight: 600,
-      },
+function getCommonTheme(): PaletteOptions {
+  const cssVar = (name: string): string => getComputedStyle(document.getElementById("app") as HTMLElement).getPropertyValue(name).trim();
+  return {
+    type: "light",
+    primary: {
+      main: cssVar("--color-primary-main"),
+      light: cssVar("--color-primary-light"),
+      dark: cssVar("--color-primary-dark"),
     },
-    MuiDialogActions: {
-      spacing: {
-        "padding": 16,
-        "& > :last-child": {
-          marginLeft: 16,
+    secondary: {
+      main: cssVar("--color-secondary-main"),
+      light: cssVar("--color-secondary-light"),
+      dark: cssVar("--color-secondary-dark"),
+    },
+  };
+}
+
+export function getMainTheme() {
+  return createTheme({
+    overrides: {
+      MuiButton: {
+        root: {
+          fontWeight: 600,
+        },
+      },
+      MuiDialogActions: {
+        spacing: {
+          "padding": 16,
+          "& > :last-child": {
+            marginLeft: 16,
+          },
         },
       },
     },
-  },
-  palette: {
-    ...commonTheme,
-    background: { default: "#FFFFFF" },
-  },
-});
+    palette: {
+      ...getCommonTheme(),
+      background: { default: "#FFFFFF" },
+    },
+  });
+}
 
-export const externalTheme = createTheme({
-  palette: {
-    ...commonTheme,
-    background: { default: "#F7F7F8" },
-  },
-});
+export function getExternalTheme() {
+  return createTheme({
+    palette: {
+      ...getCommonTheme(),
+      background: { default: "#F7F7F8" },
+    },
+  });
+}
 
 /**
  * For some reason, return makeStyle(...) here don't work with our theme

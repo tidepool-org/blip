@@ -38,7 +38,6 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import CardContent from "@material-ui/core/CardContent";
 
-import brandingLogo from "branding/logo.png";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 
@@ -46,6 +45,7 @@ import { HistoryState } from "../../models/generic";
 import { Profile, UserRoles } from "../../models/shoreline";
 import { useAuth } from "../../lib/auth";
 import ConsentForm from "./form";
+import appConfig from "../../lib/config";
 
 interface ConsentProps {
   messageKey: string;
@@ -148,7 +148,7 @@ function Page(props: ConsentProps): JSX.Element {
                 paddingBottom: "1em",
               }}>
               <img
-                src={brandingLogo}
+                src={`/branding_${appConfig.BRANDING}_logo.svg`}
                 style={{
                   height: "60px",
                   marginLeft: "auto",

@@ -46,7 +46,7 @@ const defaultConfig: AppConfig = {
   ABOUT_MAX_LENGTH: 256,
   SUPPORT_WEB_ADDRESS: DUMMY_URL,
   ASSETS_URL: DUMMY_URL,
-  BRANDING: "diabeloop",
+  BRANDING: "diabeloop_blue",
   METRICS_SERVICE: "disabled",
   MAX_FAILED_LOGIN_ATTEMPTS: 5,
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: 10,

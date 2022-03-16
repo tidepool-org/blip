@@ -31,9 +31,7 @@ import { expect } from "chai";
 import * as sinon from "sinon";
 
 import { act } from "@testing-library/react-hooks/dom";
-import { ThemeProvider } from "@material-ui/styles";
 
-import { mainTheme } from "../../../components/theme";
 import { PasswordConfirm } from "../../../components/password/password-confirm";
 import PasswordLeakService from "../../../services/password-leak";
 import { Simulate, SyntheticEventData } from "react-dom/test-utils";
@@ -50,12 +48,11 @@ describe("Confirm password", () => {
     await act(() => {
       return new Promise((resolve) => {
         render(
-          <ThemeProvider theme={mainTheme}>
-            <PasswordConfirm
-              onError={() => onErrorStub()}
-              onSuccess={(passwordToUse) => onSuccessStub(passwordToUse)}
-            />
-          </ThemeProvider>, container, resolve);
+          <PasswordConfirm
+            onError={() => onErrorStub()}
+            onSuccess={(passwordToUse) => onSuccessStub(passwordToUse)}
+          />
+          , container, resolve);
       });
     });
   };

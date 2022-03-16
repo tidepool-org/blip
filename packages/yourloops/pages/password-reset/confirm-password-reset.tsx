@@ -35,8 +35,8 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 
-import brandingLogo from "branding/logo.png";
 import ResetPasswordContent from "./reset-password-content";
+import appConfig from "../../lib/config";
 
 const formStyle = makeStyles((theme: Theme) => {
   return {
@@ -79,7 +79,7 @@ function ConfirmPasswordResetPage(): JSX.Element {
                 paddingBottom: "1em",
               }}>
               <img
-                src={brandingLogo}
+                src={`/branding_${appConfig.BRANDING}_logo.svg`}
                 alt={t("alt-img-logo")}
                 style={{
                   height: "60px",

@@ -45,8 +45,6 @@ import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 
-import brandingLogo from "branding/logo.png";
-
 import { HistoryState } from "../../models/generic";
 import appConfig from "../../lib/config";
 import metrics from "../../lib/metrics";
@@ -217,7 +215,7 @@ function Login(): JSX.Element {
           <Card className={classes.Card}>
             <Box py="1em">
               <CardMedia>
-                <img src={brandingLogo} height={isXSBreakpoint ? 50 : 60} alt={t("alt-img-logo")} />
+                <img src={`/branding_${appConfig.BRANDING}_logo.svg`} height={isXSBreakpoint ? 50 : 60} alt={t("alt-img-logo")} />
               </CardMedia>
             </Box>
             <CardContent className={classes.CardContent}>

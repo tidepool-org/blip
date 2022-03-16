@@ -32,7 +32,6 @@ import { arrayBufferToBase64 } from "./utils/functions";
 
 // TO_DO have a configuration variable to support specific branding or not like done e.g. in Blip
 // branding should make use of artifact.sh to download specific branding artifacts such as images
-import logo from "branding/pdf-logo.png";
 import siteChangeCannulaImage from "./images/sitechange-cannula.png";
 import siteChangeReservoirImage from "./images/sitechange-reservoir.png";
 import siteChangeTubingImage from "./images/sitechange-tubing.png";
@@ -56,14 +55,9 @@ async function loadImages() {
   let imageStr = "";
 
   if (constants.Images.logo === null) {
-    if (logo.startsWith(base64Flag)) {
-      imageStr = logo;
-    } else {
-      const response = await fetch(logo);
-      const buffer = await response.arrayBuffer();
-      imageStr = base64Flag + arrayBufferToBase64(buffer);
-
-    }
+    const response = await fetch(`/branding_${window.config.BRANDING}_pdf-logo.png`);
+    const buffer = await response.arrayBuffer();
+    imageStr = base64Flag + arrayBufferToBase64(buffer);
     constants.Images.logo = imageStr;
   }
 

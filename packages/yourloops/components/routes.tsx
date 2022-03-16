@@ -39,7 +39,7 @@ import { useAuth, SessionTimeout } from "../lib/auth";
 import { setPageTitle } from "../lib/utils";
 import { NotificationContextProvider } from "../lib/notifications/hook";
 import { SnackbarContextProvider, DefaultSnackbarContext } from "./utils/snackbar";
-import { externalTheme, mainTheme } from "./theme";
+import { getExternalTheme, getMainTheme } from "./theme";
 import FooterLinks from "./footer-links";
 
 const log = bows("Routes");
@@ -76,7 +76,7 @@ export const PublicRoute = (props: RouteProps): JSX.Element | null => {
   }
 
   return (
-    <ThemeProvider theme={externalTheme}>
+    <ThemeProvider theme={getExternalTheme()}>
       <CssBaseline />
       <SnackbarContextProvider context={DefaultSnackbarContext}>
         <div className={classes.public}>
@@ -95,7 +95,7 @@ export const PrivateRoute = (props: RouteProps): JSX.Element | null => {
 
   const renewConsentPath = props.path === "/renew-consent" || props.path === "/new-consent";
   // const hcpPreferencesPath = props.path === "/professional/preferences";
-  const theme = renewConsentPath ? externalTheme : mainTheme;
+  const theme = renewConsentPath ? getExternalTheme() : getMainTheme();
 
   // Put the redirect under the contexts here because of the mount/unmount component logic
   // If not doing so, we have an update on an unmount component.
