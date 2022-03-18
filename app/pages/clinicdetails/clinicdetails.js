@@ -328,7 +328,7 @@ export const ClinicDetails = (props) => {
       variant="containers.mediumBordered"
       p={4}
     >
-      {working.fetchingClinicianInvites.completed ? (
+      {working.fetchingClinicianInvites.completed !== null ? (
         <>
           <Headline mb={2}>{t('Update your account')}</Headline>
 
