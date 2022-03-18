@@ -237,8 +237,9 @@ export function login(api, credentials, options, postLoginAction) {
             handleLoginFailure(ErrorMessages.ERR_FETCHING_USER, err);
           } else {
             const userHasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+            const isClinicianAccount = personUtils.isClinicianAccount(user);
 
-            if (config.CLINICS_ENABLED) {
+            if (config.CLINICS_ENABLED && isClinicianAccount) {
               // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
               // to the clinic workflow if a relationship with a clinic object or an invite exists.
               const fetchers = {
@@ -250,17 +251,21 @@ export function login(api, credentials, options, postLoginAction) {
               async.parallel(async.reflectAll(fetchers), (err, results) => {
                 const errors = _.mapValues(results, ({error}) => error);
                 const values = _.mapValues(results, ({value}) => value);
-                const hasError = _.some(errors, err => !_.isUndefined(err));
+                const hasError = err || _.some(errors, err => !_.isUndefined(err));
 
                 if (hasError) {
-                  if (errors.clinics) {
-                    handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, errors.clinics);
-                  }
-                  if (errors.invites) {
-                    handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, errors.invites);
-                  }
-                  if (errors.associatedAccounts) {
-                    handleLoginFailure(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, errors.associatedAccounts);
+                  if (errors) {
+                    if (errors.clinics) {
+                      handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, errors.clinics);
+                    }
+                    if (errors.invites) {
+                      handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, errors.invites);
+                    }
+                    if (errors.associatedAccounts) {
+                      handleLoginFailure(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, errors.associatedAccounts);
+                    }
+                  } else {
+                    handleLoginFailure(ErrorMessages.ERR_LOGIN, err);
                   }
                 }
                 else {
@@ -299,7 +304,7 @@ export function login(api, credentials, options, postLoginAction) {
             }
 
             function skipClinicFlow() {
-              if (personUtils.isClinicianAccount(user) && !userHasClinicProfile) {
+              if (isClinicianAccount && !userHasClinicProfile) {
                 redirectRoute = routes.clinicianDetails;
               }
 
@@ -337,6 +342,8 @@ export function login(api, credentials, options, postLoginAction) {
             dispatch(sync.loginFailure(
               createActionError(message, err), err
             ));
+
+            dispatch(logout(api));
           }
         }));
       }
