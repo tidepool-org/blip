@@ -452,7 +452,7 @@ describe('NavigationMenu', () => {
     });
   });
 
-  context('clinician has pending clinic invites', () => {
+  context('clinic team member has pending clinic invites', () => {
     beforeEach(() => {
       wrapper = mountWrapper(mockStore({
         blip: {
@@ -473,6 +473,30 @@ describe('NavigationMenu', () => {
       const menuOptions = wrapper.find('Button.navigation-menu-option');
       expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
       expect(menuOptions.at(1).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
+    });
+  });
+
+  context('non clinic team member has pending clinic invites', () => {
+    beforeEach(() => {
+      wrapper = mountWrapper(mockStore({
+        blip: {
+          ...defaultUserState.blip,
+          pendingReceivedClinicianInvites: [
+            'clinicInvite123',
+          ],
+        },
+      }));
+    });
+
+    it('should render a notification icon next to the navigation menu trigger and the `Manage Workspaces` option', () => {
+      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
+      expect(menuTrigger).to.have.lengthOf(1);
+      expect(menuTrigger.text()).to.equal('Example User');
+      expect(menuTrigger.find('.notification-icon').hostNodes()).to.have.lengthOf(1);
+
+      const menuOptions = wrapper.find('Button.navigation-menu-option');
+      expect(menuOptions.at(0).text()).to.equal('Manage Workspaces');
+      expect(menuOptions.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
     });
   });
 
