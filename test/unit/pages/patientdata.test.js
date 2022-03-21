@@ -964,7 +964,7 @@ describe('PatientData', function () {
 
       it('should render a chart date dialog on basics, with appropriate initial props', () => {
         instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2018-01-01T00:00:00.000Z');
-        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' }, chartType: 'basics' });
+        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' }, chartType: 'basics', datesDialogOpen: true });
         wrapper.update();
 
         const dialog = wrapper.find('#chart-dates-dialog');
@@ -972,7 +972,7 @@ describe('PatientData', function () {
         const dialogProps = dialog.props();
 
         expect(dialogProps.defaultDates).to.eql([1000, 2000]);
-        expect(dialogProps.open).to.equal(false);
+        expect(dialogProps.open).to.equal(true);
         expect(dialogProps.processing).to.equal(false);
         expect(dialogProps.maxDays).to.equal(90);
         expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
