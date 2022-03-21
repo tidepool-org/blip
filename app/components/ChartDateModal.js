@@ -53,7 +53,7 @@ export const ChartDateModal = (props) => {
 
   const validateDate = date => {
     const validationError = !moment.isMoment(date);
-    setError(validationError);
+    setError(validationError ? 'Please select a date' : false);
     return validationError;
   };
 
@@ -102,6 +102,8 @@ export const ChartDateModal = (props) => {
           <Box mb={3}>
             <Body1 mb={2}>{t('Select a specific day')}</Body1>
             <DatePicker
+              id="chart-date"
+              name="chart-date"
               date={date}
               onDateChange={newDate => setDate(newDate)}
               isOutsideRange={day => (

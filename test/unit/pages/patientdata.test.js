@@ -979,6 +979,22 @@ describe('PatientData', function () {
         expect(dialogProps.mostRecentDatumDate).to.equal('2018-01-01T00:00:00.000Z');
       });
 
+      it('should render a chart date dialog on daily, with appropriate initial props', () => {
+        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2018-01-01T00:00:00.000Z');
+        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' }, chartType: 'daily', datesDialogOpen: true });
+        wrapper.update();
+
+        const dialog = wrapper.find('#chart-date-dialog');
+        expect(dialog.length).to.equal(1);
+        const dialogProps = dialog.props();
+
+        expect(dialogProps.defaultDate).to.eql(1000);
+        expect(dialogProps.open).to.equal(true);
+        expect(dialogProps.processing).to.equal(false);
+        expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
+        expect(dialogProps.mostRecentDatumDate).to.equal('2018-01-01T00:00:00.000Z');
+      });
+
       it('should render a print dialog, with appropriate initial props', () => {
         instance.setState({ timePrefs: { timezoneName: 'US/Pacific' } });
         wrapper.update();

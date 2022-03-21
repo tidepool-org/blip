@@ -271,21 +271,13 @@ class Daily extends Component {
     const initialDatetimeLocationUpdated = this.props.initialDatetimeLocation !== nextProps.initialDatetimeLocation;
     const timezoneName = _.get(this.props, 'data.timePrefs.timezoneName', 'UTC');
 
-    if (wrappedInstance && !this.state.inTransition) {
+    if (wrappedInstance) {
       const updates = {};
       const shiftedDatetimeLocation = moment.utc(nextProps.initialDatetimeLocation).tz(timezoneName).subtract(12, 'hours').toISOString();
       if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
       if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) updates.bgClasses = nextProps.data.bgPrefs.bgClasses;
 
       if (initialDatetimeLocationUpdated) {
-        // this.log([
-        //   shiftedDatetimeLocation,
-        //   wrappedInstance.state.datetimeLocation,
-        //   this.state.initialDatetimeLocation,
-        //   this.props.initialDatetimeLocation,
-        //   nextProps.initialDatetimeLocation,
-        // ]);
-
         if (!this.state.initialDatetimeLocation) this.setState({ initialDatetimeLocation: nextProps.initialDatetimeLocation });
 
         wrappedInstance.setState({
@@ -297,7 +289,6 @@ class Daily extends Component {
         if (shiftedDatetimeLocation !== wrappedInstance.state.datetimeLocation) {
           wrappedInstance.rerenderChart(updates, nextProps.initialDatetimeLocation);
         } else {
-          // TODO: if something broke comment out below line
           wrappedInstance.rerenderChart(updates);
         }
       }
