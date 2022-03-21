@@ -32,7 +32,8 @@ export default ({ colors, fonts, fontSizes }) => {
 
     '.pages li > *': {
       ...listItemStyles,
-      width: '24px',
+      minWidth: '24px',
+      width: 'auto',
 
       '&.ellipsis': {
         fontSize: `${fontSizes[2]}px`,

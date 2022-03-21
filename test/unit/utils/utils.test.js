@@ -537,50 +537,6 @@ describe('utils', () => {
     });
   });
 
-  describe('initializePendo', () => {
-    let initialize = sinon.stub();
-    let window = { pendo: { initialize } };
-
-    afterEach(() => {
-      initialize.reset();
-    });
-
-    it('should not initialize if noPendo query param is set', () => {
-      const location = { query: { noPendo: true } };
-      utils.initializePendo({}, location, window);
-      expect(initialize.notCalled).to.be.true;
-    });
-
-    it('should set the appropriate environment based on hostname', () => {
-      const location = {};
-      const user = { userid: 'user1234' };
-      const prdWin = _.extend(window, {
-        location: { hostname: 'app.tidepool.org' },
-      });
-      const qa1Win = _.extend(window, {
-        location: { hostname: 'qa1.development.tidepool.org' },
-      });
-
-      utils.initializePendo(user, location, prdWin);
-      expect(initialize.calledWithMatch({ account: { id: 'prd-tidepool' } }));
-      initialize.reset();
-      utils.initializePendo(user, location, qa1Win);
-      expect(initialize.calledWithMatch({ account: { id: 'qa1-tidepool' } }));
-    });
-
-    it('should set the appropriate role based on clinical role status', () => {
-      const location = {};
-      const personalUser = { userid: 'user1234' };
-      const clinicUser = { userid: 'clinic5678', roles: ['clinic'] };
-
-      utils.initializePendo(personalUser, location, window);
-      expect(initialize.calledWithMatch({ visitor: { role: 'personal' } }));
-      initialize.reset();
-      utils.initializePendo(clinicUser, location, window);
-      expect(initialize.calledWithMatch({ visitor: { role: 'clinician' } }));
-    });
-  });
-
   describe('readableStatName', function() {
     it('should return a readable name for stats, and fall back to the argument provided if no readable name exists', function() {
       expect(utils.readableStatName('readingsInRange')).to.equal('Readings in range');
