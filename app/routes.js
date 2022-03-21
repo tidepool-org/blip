@@ -99,7 +99,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           // We should also run these checks for path restrictions in the event that the clinic
           // migration was triggered, but failed. Otherwise, a user could theoretically navigate
           // to restricted Clinic UI without completing the migration process.
-          state.working.triggeringInitialClinicMigration.completed !== null && state.working.triggeringInitialClinicMigration.completed === false
+          state.working.triggeringInitialClinicMigration.completed === false
         )
       ) {
         const fetchers = {
