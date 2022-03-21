@@ -313,39 +313,6 @@ export const PatientDataClass = createReactClass({
 
   renderDatesDialog: function() {
     const isDaily = this.state.chartType === 'daily';
-
-    const onSubmit = dates => {
-      this.setState({ datesDialogProcessing: true });
-
-      // Determine the earliest startDate needed to fetch data to.
-      const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
-      const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
-      const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
-
-      const newDatetimeLocation = isDaily
-        ? moment.utc(endDate).subtract(12, 'hours').toISOString()
-        : endDate;
-
-      const updateOpts = {
-        showLoading: true,
-        updateChartEndpoints: true,
-      };
-
-      if (startDate < fetchedUntil) {
-        this.setState({ datesDialogFetchingData: true });
-
-        this.fetchEarlierData({
-          returnData: false,
-          showLoading: true,
-          startDate,
-        });
-      } else {
-        this.closeDatesDialog();
-      }
-
-      this.updateChart(this.state.chartType, newDatetimeLocation, dates, updateOpts);
-    };
-
     const DatePickerComponent = isDaily ? ChartDateModal : ChartDateRangeModal;
 
     const extraProps = isDaily ? {
@@ -362,7 +329,37 @@ export const PatientDataClass = createReactClass({
         mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
         open={this.state.datesDialogOpen}
         onClose={this.closeDatesDialog}
-        onSubmit={onSubmit}
+        onSubmit={dates => {
+          this.setState({ datesDialogProcessing: true });
+
+          // Determine the earliest startDate needed to fetch data to.
+          const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+
+          const newDatetimeLocation = isDaily
+            ? moment.utc(endDate).subtract(12, 'hours').toISOString()
+            : endDate;
+
+          const updateOpts = {
+            showLoading: true,
+            updateChartEndpoints: true,
+          };
+
+          if (startDate < fetchedUntil) {
+            this.setState({ datesDialogFetchingData: true });
+
+            this.fetchEarlierData({
+              returnData: false,
+              showLoading: true,
+              startDate,
+            });
+          } else {
+            this.closeDatesDialog();
+          }
+
+          this.updateChart(this.state.chartType, newDatetimeLocation, dates, updateOpts);
+        }}
         processing={this.state.datesDialogProcessing}
         timePrefs={this.state.timePrefs}
         trackMetric={this.props.trackMetric}
