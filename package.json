@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.52.0-web-1503-deprecate-migrated_clinic.1",
+  "version": "1.52.0-web-1503-deprecate-migrated-clinic.2",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
