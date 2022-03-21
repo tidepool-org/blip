@@ -68,7 +68,7 @@ describe('pendoMiddleware', () => {
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['migrated_clinic'] },
+            userID345: { userid: 'userID345', roles: ['clinician'] },
           },
         },
       },
@@ -106,7 +106,7 @@ describe('pendoMiddleware', () => {
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['migrated_clinic'] },
+            userID345: { userid: 'userID345', roles: ['clinician'] },
           },
         },
       },
@@ -136,7 +136,7 @@ describe('pendoMiddleware', () => {
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['migrated_clinic'] },
+            userID345: { userid: 'userID345', roles: ['clinician'] },
           },
         },
       },
@@ -182,7 +182,7 @@ describe('pendoMiddleware', () => {
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['migrated_clinic'] },
+            userID345: { userid: 'userID345', roles: ['clinician'] },
           },
         },
       },
@@ -222,7 +222,7 @@ describe('pendoMiddleware', () => {
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['migrated_clinic'] },
+            userID345: { userid: 'userID345', roles: ['clinician'] },
           },
         },
       },
@@ -296,7 +296,7 @@ describe('pendoMiddleware', () => {
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['migrated_clinic'] },
+            userID345: { userid: 'userID345', roles: ['clinician'] },
           },
         },
       },
@@ -338,7 +338,7 @@ describe('pendoMiddleware', () => {
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['migrated_clinic'] },
+            userID345: { userid: 'userID345', roles: ['clinician'] },
           },
         },
       },
