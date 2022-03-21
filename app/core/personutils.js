@@ -188,14 +188,15 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
 
 personUtils.accountInfoFromClinicPatient = clinicPatient => ({
   permissions: clinicPatient.permissions,
-  profile: {
-    emails: [clinicPatient.email],
+  emails: clinicPatient.email ? [clinicPatient.email] : undefined,
+  profile: _.omitBy({
+    emails: clinicPatient.email ? [clinicPatient.email] : undefined,
     fullName: clinicPatient.fullName,
-    patient: {
+    patient: _.omitBy({
       birthday: clinicPatient.birthDate,
       mrn: clinicPatient.mrn,
-    },
-  },
+    }, _.isEmpty),
+  }, _.isEmpty),
   userid: clinicPatient.id,
   username: clinicPatient.email,
 });

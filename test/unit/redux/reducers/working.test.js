@@ -5511,104 +5511,6 @@ describe('dataWorkerQueryData', () => {
     });
   });
 
-  describe('createCustodialAccount', () => {
-    describe('request', () => {
-      it('should set creatingCustodialAccount.completed to null', () => {
-        expect(initialState.creatingCustodialAccount.completed).to.be.null;
-
-        let requestAction = actions.sync.createCustodialAccountRequest();
-        let requestState = reducer(initialState, requestAction);
-
-        expect(requestState.creatingCustodialAccount.completed).to.be.null;
-
-        let successAction = actions.sync.createCustodialAccountSuccess('foo', 'bar', 'baz');
-        let successState = reducer(requestState, successAction);
-
-        expect(successState.creatingCustodialAccount.completed).to.be.true;
-
-        let state = reducer(successState, requestAction);
-        expect(state.creatingCustodialAccount.completed).to.be.null;
-        expect(mutationTracker.hasMutated(tracked)).to.be.false;
-      });
-
-      it('should set creatingCustodialAccount.inProgress to be true', () => {
-        let initialStateForTest = _.merge({}, initialState);
-        let tracked = mutationTracker.trackObj(initialStateForTest);
-        let action = actions.sync.createCustodialAccountRequest();
-
-        expect(initialStateForTest.creatingCustodialAccount.inProgress).to.be.false;
-
-        let state = reducer(initialStateForTest, action);
-        expect(state.creatingCustodialAccount.inProgress).to.be.true;
-        expect(mutationTracker.hasMutated(tracked)).to.be.false;
-      });
-    });
-
-    describe('failure', () => {
-      it('should set creatingCustodialAccount.completed to be false', () => {
-        let error = new Error('Something bad happened :(');
-
-        expect(initialState.creatingCustodialAccount.completed).to.be.null;
-
-        let failureAction = actions.sync.createCustodialAccountFailure(error);
-        let state = reducer(initialState, failureAction);
-
-        expect(state.creatingCustodialAccount.completed).to.be.false;
-        expect(mutationTracker.hasMutated(tracked)).to.be.false;
-      });
-
-      it('should set creatingCustodialAccount.inProgress to be false and set error', () => {
-        let initialStateForTest = _.merge({}, initialState, {
-          creatingCustodialAccount: { inProgress: true, notification: null },
-        });
-
-        let tracked = mutationTracker.trackObj(initialStateForTest);
-        let error = new Error('Something bad happened :(');
-        let action = actions.sync.createCustodialAccountFailure(error);
-
-        expect(initialStateForTest.creatingCustodialAccount.inProgress).to.be.true;
-        expect(initialStateForTest.creatingCustodialAccount.notification).to.be.null;
-
-        let state = reducer(initialStateForTest, action);
-
-        expect(state.creatingCustodialAccount.inProgress).to.be.false;
-        expect(state.creatingCustodialAccount.notification.type).to.equal('error');
-        expect(state.creatingCustodialAccount.notification.message).to.equal(error.message);
-        expect(mutationTracker.hasMutated(tracked)).to.be.false;
-      });
-    });
-
-    describe('success', () => {
-      it('should set creatingCustodialAccount.completed to be true', () => {
-        expect(initialState.creatingCustodialAccount.completed).to.be.null;
-
-        let successAction = actions.sync.createCustodialAccountSuccess('foo');
-        let state = reducer(initialState, successAction);
-
-        expect(state.creatingCustodialAccount.completed).to.be.true;
-        expect(mutationTracker.hasMutated(tracked)).to.be.false;
-      });
-
-      it('should set creatingCustodialAccount.inProgress to be false', () => {
-
-        let initialStateForTest = _.merge({}, initialState, {
-          creatingCustodialAccount: { inProgress: true, notification: null },
-        });
-
-        let tracked = mutationTracker.trackObj(initialStateForTest);
-
-        let action = actions.sync.createCustodialAccountSuccess('clinicId', {id:'patientId'},'patientId');
-
-        expect(initialStateForTest.creatingCustodialAccount.inProgress).to.be.true;
-
-        let state = reducer(initialStateForTest, action);
-
-        expect(state.creatingCustodialAccount.inProgress).to.be.false;
-        expect(mutationTracker.hasMutated(tracked)).to.be.false;
-      });
-    });
-  });
-
   describe('fetchPatientFromClinic', () => {
     describe('request', () => {
       it('should leave fetchingPatientFromClinic.completed unchanged', () => {
@@ -5800,6 +5702,104 @@ describe('dataWorkerQueryData', () => {
         let state = reducer(initialStateForTest, action);
 
         expect(state.creatingClinicCustodialAccount.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('createVCACustodialAccount', () => {
+    describe('request', () => {
+      it('should set creatingVCACustodialAccount.completed to null', () => {
+        expect(initialState.creatingVCACustodialAccount.completed).to.be.null;
+
+        let requestAction = actions.sync.createVCACustodialAccountRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.creatingVCACustodialAccount.completed).to.be.null;
+
+        let successAction = actions.sync.createVCACustodialAccountSuccess('bar', 'baz');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.creatingVCACustodialAccount.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.creatingVCACustodialAccount.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingVCACustodialAccount.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.createVCACustodialAccountRequest();
+
+        expect(initialStateForTest.creatingVCACustodialAccount.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.creatingVCACustodialAccount.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set creatingVCACustodialAccount.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.creatingVCACustodialAccount.completed).to.be.null;
+
+        let failureAction = actions.sync.createVCACustodialAccountFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.creatingVCACustodialAccount.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingVCACustodialAccount.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingVCACustodialAccount: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.createVCACustodialAccountFailure(error);
+
+        expect(initialStateForTest.creatingVCACustodialAccount.inProgress).to.be.true;
+        expect(initialStateForTest.creatingVCACustodialAccount.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingVCACustodialAccount.inProgress).to.be.false;
+        expect(state.creatingVCACustodialAccount.notification.type).to.equal('error');
+        expect(state.creatingVCACustodialAccount.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set creatingVCACustodialAccount.completed to be true', () => {
+        expect(initialState.creatingVCACustodialAccount.completed).to.be.null;
+
+        let successAction = actions.sync.createVCACustodialAccountSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.creatingVCACustodialAccount.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingVCACustodialAccount.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingVCACustodialAccount: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.createVCACustodialAccountSuccess('patientId', { userid:'patientId' });
+
+        expect(initialStateForTest.creatingVCACustodialAccount.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingVCACustodialAccount.inProgress).to.be.false;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
     });

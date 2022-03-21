@@ -41,7 +41,7 @@ describe('currentPatientInViewId', () => {
       let action = actions.sync.setupDataStorageSuccess(userId, patient);
 
       let state = reducer(initialStateForTest, action);
-      
+
       expect(state).to.equal(userId);
     });
   });
@@ -56,18 +56,6 @@ describe('currentPatientInViewId', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(state).to.equal(patient.userid);
-    });
-  });
-
-  describe('updatePatientSuccess', () => {
-    it('should set state to fetched patient', () => {
-      let initialStateForTest = 'a1b2c3';
-      let updatedPatient = { userid: 'd4e5f6', name: 'Jessica', diagnosisDate: '01/01/2013' };
-      
-      let action = actions.sync.updatePatientSuccess(updatedPatient);
-      let state = reducer(initialStateForTest, action);
-
-      expect(state).to.equal(updatedPatient.userid);
     });
   });
 

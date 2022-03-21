@@ -130,7 +130,7 @@ describe('Daily', () => {
 
       wrapper.setProps(props);
 
-      var refreshButton = wrapper.find('.btn-refresh');
+      var refreshButton = wrapper.find('.btn-refresh').hostNodes();
 
       sinon.assert.callCount(props.onClickRefresh, 0);
       refreshButton.simulate('click');
