@@ -329,7 +329,6 @@ export function login(api, credentials, options, postLoginAction) {
 
           function handleLoginSuccess(user) {
             dispatch(sync.loginSuccess(user));
-            config.PENDO_ENABLED && utils.initializePendo(user, _.get(options, 'location', {}), window);
 
             if (postLoginAction) {
               dispatch(postLoginAction());

@@ -22,8 +22,8 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-const pageCount = () => select('Page Count', range(5, 50), 10);
-const initialPage = () => select('Initial Page', range(1, pageCount()), 1);
+const pageCount = () => select('Page Count', range(5, 1000), 1000);
+const initialPage = () => select('Initial Page', range(1, pageCount()), 99);
 const disabled = () => boolean('Disabled', false);
 const showPrevNextControls = () => boolean('Show Prev/Next Controls', true);
 const showFirstLastControls = () => boolean('Show First/Last Controls', false);
