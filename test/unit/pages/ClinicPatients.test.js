@@ -326,7 +326,7 @@ describe('ClinicPatients', () => {
 
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { limit: 8, offset: 0, search: 'Two', sort: '+fullName' });
           done();
-        }, 100);
+        }, 300);
       });
 
       it('should link to a patient data view when patient name is clicked', () => {
