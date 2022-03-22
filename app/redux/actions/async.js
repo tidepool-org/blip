@@ -239,7 +239,7 @@ export function login(api, credentials, options, postLoginAction) {
             const userHasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
             const isClinicianAccount = personUtils.isClinicianAccount(user);
 
-            if (config.CLINICS_ENABLED && isClinicianAccount) {
+            if (config.CLINICS_ENABLED) {
               // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
               // to the clinic workflow if a relationship with a clinic object or an invite exists.
               const fetchers = {
