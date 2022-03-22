@@ -278,18 +278,16 @@ class Daily extends Component {
       if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) updates.bgClasses = nextProps.data.bgPrefs.bgClasses;
 
       if (initialDatetimeLocationUpdated) {
-        if (!this.state.initialDatetimeLocation) this.setState({ initialDatetimeLocation: nextProps.initialDatetimeLocation });
-
         wrappedInstance.setState({
-          datetimeLocation: nextProps.initialDatetimeLocation,
-        })
-
-        wrappedInstance.rerenderChart(nextProps, shiftedDatetimeLocation);
+          datetimeLocation: shiftedDatetimeLocation,
+        });
       } else if (!_.isEmpty(updates)) {
-        if (shiftedDatetimeLocation !== wrappedInstance.state.datetimeLocation) {
-          wrappedInstance.rerenderChart(updates, nextProps.initialDatetimeLocation);
-        } else {
+        if (wrappedInstance.state.datetimeLocation === shiftedDatetimeLocation) {
+          // Chart is already shifted to the appropriate datetimeLocation. Update as usual.
           wrappedInstance.rerenderChart(updates);
+        } else {
+          // Chart needs to be relocated ot the proper datetimeLocation during updates.
+          wrappedInstance.rerenderChart(updates, nextProps.initialDatetimeLocation);
         }
       }
     }

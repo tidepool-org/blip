@@ -337,10 +337,6 @@ export const PatientDataClass = createReactClass({
           const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
           const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
 
-          const newDatetimeLocation = isDaily
-            ? moment.utc(endDate).subtract(12, 'hours').toISOString()
-            : endDate;
-
           const updateOpts = {
             showLoading: true,
             updateChartEndpoints: true,
@@ -358,7 +354,7 @@ export const PatientDataClass = createReactClass({
             this.closeDatesDialog();
           }
 
-          this.updateChart(this.state.chartType, newDatetimeLocation, dates, updateOpts);
+          this.updateChart(this.state.chartType, endDate, dates, updateOpts);
         }}
         processing={this.state.datesDialogProcessing}
         timePrefs={this.state.timePrefs}
