@@ -36,6 +36,7 @@ import { MGDL_UNITS } from '../../../app/core/constants';
 describe('PatientData', function () {
   const defaultProps = {
     addingData: { inProgress: false, completed: false },
+    removingData: { inProgress: false, completed: false },
     currentPatientInViewId: 'otherPatientId',
     data: {},
     dataWorkerRemoveDataRequest: sinon.stub(),
@@ -344,6 +345,7 @@ describe('PatientData', function () {
             isUserPatient: true,
             fetchingPatient: false,
             fetchingPatientData: false,
+            removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
           };
@@ -371,6 +373,7 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
           };
@@ -398,6 +401,7 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
             trackMetric: sinon.stub(),
@@ -436,6 +440,7 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
             trackMetric: sinon.stub()
@@ -1125,47 +1130,12 @@ describe('PatientData', function () {
       pdf: {},
     };
 
-    it('should clear patient data upon refresh', function() {
+    it('should clear patient data', function() {
       const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
       const callCount = props.dataWorkerRemoveDataRequest.callCount;
       elem.handleRefresh();
 
       expect(props.dataWorkerRemoveDataRequest.callCount).to.equal(callCount + 1);
-    });
-
-    it('should clear generated pdfs upon refresh', function() {
-      const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
-      const callCount = props.removeGeneratedPDFS.callCount;
-      elem.handleRefresh();
-      expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
-    });
-
-    it('should reset patient data processing state', function() {
-      const setStateSpy = sinon.spy(PatientDataClass.prototype, 'setState');
-      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      const instance = wrapper.instance();
-
-      instance.DEFAULT_TITLE = 'defaultTitle';
-
-      instance.setState({
-        chartType: 'currentChartType',
-      })
-
-      setStateSpy.resetHistory();
-      sinon.assert.callCount(setStateSpy, 0);
-      instance.handleRefresh();
-      sinon.assert.calledWithMatch(setStateSpy, {
-        ...instance.getInitialState(),
-        bgPrefs: undefined,
-        chartType: undefined,
-        chartEndpoints: undefined,
-        datetimeLocation: undefined,
-        mostRecentDatetimeLocation: undefined,
-        endpoints: undefined,
-        refreshChartType: 'currentChartType',
-      });
-
-      PatientDataClass.prototype.setState.restore();
     });
   });
 
@@ -2225,6 +2195,72 @@ describe('PatientData', function () {
 
         setStateSpy = sinon.spy(instance, 'setState');
       });
+
+      context('data is removed prior to refresh', () => {
+        it('should clear generated pdfs upon refresh', done => {
+          const removeGeneratedPDFSStub = sinon.stub();
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: removeGeneratedPDFSStub,
+            removingData: { inProgress: true },
+          });
+          wrapper.update();
+
+          setTimeout(() => {
+            expect(removeGeneratedPDFSStub.callCount).to.equal(0);
+
+            wrapper.setProps({
+              ...props,
+              removeGeneratedPDFS: removeGeneratedPDFSStub,
+              removingData: { inProgress: false, completed: true },
+            });
+            wrapper.update();
+
+            setTimeout(() => {
+                expect(removeGeneratedPDFSStub.callCount).to.equal(1);
+                done();
+            });
+          });
+        });
+
+        it('should reset patient data processing state', done => {
+          wrapper.setState({ chartType: 'currentChartType' });
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: true },
+          });
+          wrapper.update();
+
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: false, completed: true },
+          });
+          wrapper.update();
+
+          setTimeout(() => {
+            sinon.assert.callCount(setStateSpy, 1);
+
+            sinon.assert.calledWithMatch(setStateSpy, {
+              ...instance.getInitialState(),
+              bgPrefs: undefined,
+              chartType: undefined,
+              chartEndpoints: undefined,
+              datetimeLocation: undefined,
+              mostRecentDatetimeLocation: undefined,
+              endpoints: undefined,
+              refreshChartType: 'currentChartType',
+            });
+
+            done();
+          });
+        });
+      })
 
       context('patient settings have not been fetched, patient data has not been added to worker', () => {
         it('should not update state', () => {

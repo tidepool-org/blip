@@ -93,5 +93,57 @@ describe('NavbarPatientCard', function () {
       let wrapper = mount(<BrowserRouter><NavbarPatientCard.WrappedComponent {...props} /></BrowserRouter>);
       expect(wrapper.contains('Upload')).to.equal(false);
     });
+
+    it('should render the patient birthday when available', function() {
+      let props = {
+        permsOfLoggedInUser: careTeamMemberNoUpload.permsOfLoggedInUser,
+        patient: {
+          ...careTeamMemberNoUpload.patient,
+          profile: {
+            patient: {
+              birthday: '2010-01-01',
+            },
+          },
+        },
+        t,
+      };
+      let wrapper = mount(<BrowserRouter><NavbarPatientCard.WrappedComponent {...props} /></BrowserRouter>);
+      expect(wrapper.find('.patientcard-dateOfBirth')).to.have.lengthOf(1);
+      expect(wrapper.contains('January 1, 2010')).to.equal(true);
+    });
+
+    it('should not render the patient birthday when malformed', function() {
+      let props = {
+        permsOfLoggedInUser: careTeamMemberNoUpload.permsOfLoggedInUser,
+        patient: {
+          ...careTeamMemberNoUpload.patient,
+          profile: {
+            patient: {
+              birthday: 'badBirthday',
+            },
+          },
+        },
+        t,
+      };
+      let wrapper = mount(<BrowserRouter><NavbarPatientCard.WrappedComponent {...props} /></BrowserRouter>);
+      expect(wrapper.find('.patientcard-dateOfBirth')).to.have.lengthOf(0);
+    });
+
+    it('should not render the patient birthday when not provided', function() {
+      let props = {
+        permsOfLoggedInUser: careTeamMemberNoUpload.permsOfLoggedInUser,
+        patient: {
+          ...careTeamMemberNoUpload.patient,
+          profile: {
+            patient: {
+              birthday: undefined,
+            },
+          },
+        },
+        t,
+      };
+      let wrapper = mount(<BrowserRouter><NavbarPatientCard.WrappedComponent {...props} /></BrowserRouter>);
+      expect(wrapper.find('.patientcard-dateOfBirth')).to.have.lengthOf(0);
+    });
   });
 });

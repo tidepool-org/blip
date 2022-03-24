@@ -56,6 +56,9 @@
 }
 
 .patientcard {
+  display: flex;
+  align-items: center;
+
   > a {
     margin-left: 10px;
     float: left;
@@ -65,6 +68,11 @@
     text-align: left;
     display: block;
     height: 33px;
+  }
+
+  a.patientcard-fullname-link {
+    display: inline-block;
+    margin-bottom: 4px;
   }
 
   > a.patientcard-icon {
@@ -86,10 +94,16 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  height: 33px;
   max-width: 205px;
   color: @gray-dark;
   font-style: normal;
+}
+
+.patientcard-dateOfBirth {
+  padding-left: 5px;
+  max-width: 205px;
+  color: @gray-dark;
+  font-size: @font-size-small;
 }
 
 .patientcard-leave {

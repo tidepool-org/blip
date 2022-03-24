@@ -358,6 +358,14 @@ describe('api', () => {
       });
     });
 
+    describe('createCustodialAccount', () => {
+      it('should call tidepool.createCustodialAccount with the appropriate args', () => {
+        const cb = sinon.stub();
+        api.user.createCustodialAccount({new: 'patient'}, cb);
+        sinon.assert.calledWith(tidepool.createCustodialAccount, {new: 'patient'}, cb);
+      });
+    });
+
     describe('login', () => {
       it('should set the user config in Rollbar', () => {
         const cb = sinon.stub();
@@ -679,15 +687,6 @@ describe('api', () => {
         const clinicId = 'clinicId';
         api.clinics.getPatientsForClinic(clinicId, cb);
         sinon.assert.calledWith(tidepool.getPatientsForClinic, clinicId, cb);
-      });
-    });
-    describe('createCustodialAccount', () => {
-      it('should call tidepool.createCustodialAccount with the appropriate args', () => {
-        const cb = sinon.stub();
-        const clinicId = 'clinicId';
-        const patient = {new: 'patient'};
-        api.clinics.createCustodialAccount(clinicId, patient, cb);
-        sinon.assert.calledWith(tidepool.createCustodialAccount, clinicId, patient, cb);
       });
     });
     describe('getPatientFromClinic', () => {

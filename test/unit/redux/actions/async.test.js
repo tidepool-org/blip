@@ -5478,68 +5478,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('createCustodialAccount', () => {
-      it('should trigger CREATE_CUSTODIAL_ACCOUNT_SUCCESS and it should call clinics.createCustodialAccount once for a successful request', () => {
-        let patientUserId = 'patient_userId';
-        let clinicId = '5f85fbe6686e6bb9170ab5d0';
-        let patientId = 'patient_clinic_relationship_id';
-
-        let api = {
-          clinics: {
-            createCustodialAccount: sinon.stub().callsArgWith(2, null, {
-              id: patientId,
-            } ),
-          },
-        };
-
-        let expectedActions = [
-          { type: 'CREATE_CUSTODIAL_ACCOUNT_REQUEST' },
-          { type: 'CREATE_CUSTODIAL_ACCOUNT_SUCCESS', payload: {
-            clinicId,
-            patientId,
-            patient: { id: patientUserId }
-          } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.createCustodialAccount(api, clinicId, { id: patientUserId }));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.clinics.createCustodialAccount.callCount).to.equal(1);
-      });
-
-      it('should trigger CREATE_CUSTODIAL_ACCOUNT_FAILURE and it should call error once for a failed request', () => {
-        let api = {
-          clinics: {
-            createCustodialAccount: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
-          },
-        };
-
-        let err = new Error(ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'CREATE_CUSTODIAL_ACCOUNT_REQUEST' },
-          { type: 'CREATE_CUSTODIAL_ACCOUNT_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.createCustodialAccount(api, '5f85fbe6686e6bb9170ab5d0'));
-
-        const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT });
-        expectedActions[1].error = actions[1].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.clinics.createCustodialAccount.callCount).to.equal(1);
-      });
-    });
-
     describe('fetchPatientFromClinic', () => {
       it('should trigger FETCH_PATIENT_FROM_CLINIC_SUCCESS and it should call clinics.getPatientFromClinic once for a successful request', () => {
         let patientUserId = 'patient_userId';
@@ -5670,6 +5608,71 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
+      });
+    });
+
+    describe('createVCACustodialAccount', () => {
+      it('should trigger CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS and it should call user.createCustodialAccount once for a successful request', () => {
+        let patient = {
+          fullName: 'patientName',
+          email: 'patientemail',
+          userid: 'patient123',
+        };
+
+        let api = {
+          user: {
+            createCustodialAccount: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST' },
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS', payload: {
+            patientId: 'patient123',
+            patient,
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createVCACustodialAccount(api, patient));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.createCustodialAccount.callCount).to.equal(1);
+      });
+
+      it('should trigger CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE and it should call error once for a failed request', () => {
+        let patient = {
+          fullName: 'patientName',
+          email: 'patientemail'
+        };
+        let api = {
+          user: {
+            createCustodialAccount: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST' },
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createVCACustodialAccount(api, patient));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.createCustodialAccount.callCount).to.equal(1);
       });
     });
 
@@ -5805,6 +5808,39 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_CLINICIAN_INVITE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.inviteClinician.callCount).to.equal(1);
+      });
+
+      it('should trigger SEND_CLINICIAN_INVITE_FAILURE and it should call error once for a failed request with a 409 status', () => {
+        let clinician = {
+          email:'clinician@example.com',
+          roles: ['CLINIC_MEMBER']
+        };
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+
+        let api = {
+          clinics: {
+            inviteClinician: sinon.stub().callsArgWith(2, {status: 409, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_ALREADY_MEMBER);
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
+          { type: 'SEND_CLINICIAN_INVITE_FAILURE', error: err, meta: { apiError: {status: 409, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendClinicianInvite(api, clinicId, clinician));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_ALREADY_MEMBER });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.inviteClinician.callCount).to.equal(1);
