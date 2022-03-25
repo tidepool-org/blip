@@ -19,7 +19,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
-import moment from 'moment';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
@@ -173,12 +172,12 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   };
 
-  rerenderChart = (updates = {}, datetime) => {
+  rerenderChart = (updates = {}) => {
     const chartProps = { ...this.props, ...updates };
     this.log('Rerendering...');
     this.unmountChart();
     this.mountChart(chartProps);
-    this.initializeChart(chartProps, datetime);
+    this.initializeChart(chartProps);
     this.chart.emitter.emit('inTransition', false);
   };
 
@@ -268,28 +267,12 @@ class Daily extends Component {
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
     const wrappedInstance = _.get(this.refs, 'chart.wrappedInstance');
     const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
-    const initialDatetimeLocationUpdated = this.props.initialDatetimeLocation !== nextProps.initialDatetimeLocation;
-    const timezoneName = _.get(this.props, 'data.timePrefs.timezoneName', 'UTC');
 
     if (wrappedInstance) {
       const updates = {};
-      const shiftedDatetimeLocation = moment.utc(nextProps.initialDatetimeLocation).tz(timezoneName).subtract(12, 'hours').toISOString();
       if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
       if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) updates.bgClasses = nextProps.data.bgPrefs.bgClasses;
-
-      if (initialDatetimeLocationUpdated) {
-        wrappedInstance.setState({
-          datetimeLocation: shiftedDatetimeLocation,
-        });
-      } else if (!_.isEmpty(updates)) {
-        if (wrappedInstance.state.datetimeLocation === shiftedDatetimeLocation) {
-          // Chart is already shifted to the appropriate datetimeLocation. Update as usual.
-          wrappedInstance.rerenderChart(updates);
-        } else {
-          // Chart needs to be relocated ot the proper datetimeLocation during updates.
-          wrappedInstance.rerenderChart(updates, nextProps.initialDatetimeLocation);
-        }
-      }
+      if (!_.isEmpty(updates)) wrappedInstance.rerenderChart(updates);
     }
   };
 
