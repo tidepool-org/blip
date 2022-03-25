@@ -436,6 +436,12 @@ api.user.getAssociatedAccounts = function(cb) {
   });
 };
 
+api.user.createCustodialAccount = (profile, cb) => {
+  const userId = tidepool.getUserId();
+  api.log(`POST /auth/user/${userId}/user`);
+  return tidepool.createCustodialAccount(profile, cb);
+};
+
 // ----- Patient -----
 
 api.patient = {};
@@ -915,10 +921,6 @@ api.clinics.deletePatientFromClinic = function(clinicId, patientId, cb) {
 
 api.clinics.getPatientsForClinic = function(clinicId, options, cb) {
   return tidepool.getPatientsForClinic(clinicId, options, cb);
-};
-
-api.clinics.createCustodialAccount = function(clinicId, patient, cb) {
-  return tidepool.createCustodialAccount(clinicId, patient, cb);
 };
 
 api.clinics.getPatientFromClinic = function(clinicId, patientId, cb) {

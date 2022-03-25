@@ -312,6 +312,27 @@ describe('allUsersMap', () => {
     });
   });
 
+  describe('createVCACustodialAccountSuccess', () => {
+    it('should add the new patient', () => {
+      let initialStateForTest = {
+        a1b2c3:  { userid: 'a1b2c3' }
+      };
+
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let patient = { userid: 'd4e5f6' };
+
+      let action = actions.sync.createVCACustodialAccountSuccess(patient.userid, patient);
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(2);
+
+      expect(state[patient.userid].userid).to.equal('d4e5f6');
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
   describe('logoutRequest', () => {
     it('should set state to a hash map of patients', () => {
       let initialStateForTest = {

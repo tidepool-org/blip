@@ -51,7 +51,6 @@ export const notification = (state = initialState.notification, action) => {
     case types.CONNECT_DATA_SOURCE_FAILURE:
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
     case types.ADD_CLINICIAN_TO_CLINIC_FAILURE:
-    case types.CREATE_CUSTODIAL_ACCOUNT_FAILURE:
     case types.CREATE_CLINIC_FAILURE:
       const err = _.get(action, 'error', null);
       if (err) {
@@ -312,6 +311,8 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       return update(state, { [action.payload.userId]: { $merge: action.payload.updatedUser }});
     case types.UPDATE_PATIENT_SUCCESS:
       return update(state, { [action.payload.updatedPatient.userid]: { $merge: action.payload.updatedPatient }});
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
+      return update(state, { [action.payload.patientId]: { $set: action.payload.patient }});
     case types.UPDATE_SETTINGS_SUCCESS:
       return update(state, { [action.payload.userId]: { settings: { $merge: action.payload.updatedSettings }}});
     case types.LOGOUT_REQUEST:
@@ -326,8 +327,6 @@ export const currentPatientInViewId = (state = initialState.currentPatientInView
     case types.SETUP_DATA_STORAGE_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
       return _.get(action.payload, ['patient', 'userid'], null);
-    case types.UPDATE_PATIENT_SUCCESS:
-      return _.get(action.payload, ['updatedPatient', 'userid'], null);
     case types.LOGOUT_REQUEST:
     case types.CLEAR_PATIENT_IN_VIEW:
       return null;
@@ -397,6 +396,11 @@ export const membershipInOtherCareTeams = (state = initialState.membershipInOthe
       return _.reject(state, (memberId) => {
         return memberId === _.get(action.payload, 'removedPatientId', null);
       });
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
+      if (action.payload?.patientId) {
+        return update(state, { $push: [ action.payload.patientId ]});
+      }
+      return state;
     case types.LOGOUT_REQUEST:
       return [];
     default:
@@ -475,6 +479,9 @@ export const membershipPermissionsInOtherCareTeams = (state = initialState.membe
     }
     case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS:
       return _.omit(state, _.get(action.payload, 'removedPatientId', null));
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
+      const { patientId } = action.payload;
+      return update(state, { $merge: { [patientId]: { custodian: {}, upload: {}, view: {} } }});
     case types.LOGOUT_REQUEST:
       return {};
     default:

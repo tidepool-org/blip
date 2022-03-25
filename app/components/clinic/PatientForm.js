@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,27 +13,51 @@ import * as actions from '../../redux/actions';
 import TextInput from '../../components/elements/TextInput';
 import { getCommonFormikFieldProps } from '../../core/forms';
 import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
+import { accountInfoFromClinicPatient } from '../../core/personutils';
 import { Body1 } from '../../components/elements/FontStyles';
 
 export const PatientForm = (props) => {
-  const { t, api, onFormChange, patient, ...boxProps } = props;
+  const { t, api, onFormChange, patient, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
+  const [initialValues, setInitialValues] = useState({});
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient),
     onSubmit: values => {
-      const action = patient?.id ? {
-        handler: 'updateClinicPatient',
-        args: [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values) }, isEmpty)],
-      } : {
-        handler: 'createClinicCustodialAccount',
-        args: [selectedClinicId, { ...omitBy(values, isEmpty) }],
-      };
+      const action = patient?.id ? 'edit' : 'create';
+      const context = selectedClinicId ? 'clinic' : 'vca';
 
-      dispatch(actions.async[action.handler](api, ...action.args));
+      const actionMap = {
+        edit: {
+          clinic: {
+            handler: 'updateClinicPatient',
+            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values) }, isEmpty)],
+          },
+          vca: {
+            handler: 'updatePatient',
+            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values) }, isEmpty))],
+          },
+        },
+        create: {
+          clinic: {
+            handler: 'createClinicCustodialAccount',
+            args: () => [selectedClinicId, omitBy(values, isEmpty)],
+          },
+          vca: {
+            handler: 'createVCACustodialAccount',
+            args: () => [accountInfoFromClinicPatient(omitBy(values, isEmpty)).profile],
+          },
+        }
+      }
+
+      if (!initialValues.email && values.email) {
+        trackMetric(`${selectedClinicId ? 'Clinic' : 'Clinician'} - add patient email saved`);
+      }
+
+      dispatch(actions.async[actionMap[action][context].handler](api, ...actionMap[action][context].args()));
     },
     validationSchema,
   });
@@ -53,7 +77,10 @@ export const PatientForm = (props) => {
   }
 
   useEffect(() => {
-    setValues(getFormValues(patient));
+    // set form field values and store initial patient values on patient load
+    const patientValues = getFormValues(patient);
+    setValues(patientValues);
+    setInitialValues(patientValues);
   }, [patient]);
 
   useEffect(() => {
@@ -132,6 +159,7 @@ PatientForm.propTypes = {
   onFormChange: PropTypes.func.isRequired,
   patient: PropTypes.object,
   t: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
 };
 
 export default translate()(PatientForm);

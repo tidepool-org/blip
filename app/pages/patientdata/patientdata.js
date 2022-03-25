@@ -1122,24 +1122,9 @@ export const PatientDataClass = createReactClass({
       e.preventDefault();
     }
 
-    var refresh = this.props.onRefresh;
-    if (refresh) {
-      this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
-
-      this.setState({
-        ...this.getInitialState(),
-        bgPrefs: undefined,
-        chartType: undefined,
-        chartEndpoints: undefined,
-        datetimeLocation: undefined,
-        mostRecentDatetimeLocation: undefined,
-        endpoints: undefined,
-        refreshChartType: this.state.chartType,
-      }, () => {
-        refresh(this.props.currentPatientInViewId);
-        this.props.removeGeneratedPDFS();
-      });
-    }
+    // Prior to refetching data, we need to remove current data from the data worker
+    // Refetch will occur in UNSAFE_componentWillRecieveProps after data worker is emptied
+    this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
   },
 
   updateBasicsSettings: function(patientId, settings, canUpdateSettings) {
@@ -1467,6 +1452,25 @@ export const PatientDataClass = createReactClass({
     const userId = this.props.currentPatientInViewId;
     const patientData = _.get(nextProps, 'data.metaData.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
+
+    // Handle data refresh
+    if (this.props.removingData.inProgress && nextProps.removingData.completed) {
+      setTimeout(() => {
+        this.setState({
+          ...this.getInitialState(),
+          bgPrefs: undefined,
+          chartType: undefined,
+          chartEndpoints: undefined,
+          datetimeLocation: undefined,
+          mostRecentDatetimeLocation: undefined,
+          endpoints: undefined,
+          refreshChartType: this.state.chartType,
+        }, () => {
+          this.props.onRefresh(this.props.currentPatientInViewId);
+          this.props.removeGeneratedPDFS();
+        });
+      });
+    }
 
     // Hold processing until patient is fetched (ensuring settings are accessible) AND patient data exists
     if (patientSettings && patientData) {
@@ -1974,6 +1978,7 @@ export function mapStateToProps(state, props) {
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
     addingData: state.blip.working.addingData,
+    removingData: state.blip.working.removingData,
     updatingDatum: state.blip.working.updatingDatum,
     queryingData: state.blip.working.queryingData,
     generatingPDF: state.blip.working.generatingPDF,

@@ -2023,33 +2023,6 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
 }
 
 /**
- * Create custodial Patient for Clinic Action Creator
- *
- * @param {Object} api - an instance of the API wrapper
- * @param {String} clinicId - Id of the clinic
- * @param {Object} patient
- * @param {String} patient.email - The email address of the patient
- * @param {String} patient.fullName - The full name of the patient
- * @param {String} patient.birthDate - YYYY-MM-DD
- * @param {String} [patient.mrn] - The medical record number of the patient
- * @param {String[]} [patient.targetDevices] - Array of string target devices
- */
-export function createCustodialAccount(api, clinicId, patient) {
-  return (dispatch) => {
-    dispatch(sync.createCustodialAccountRequest());
-    api.clinics.createCustodialAccount(clinicId, patient, (err, result) => {
-      if (err) {
-        dispatch(sync.createCustodialAccountFailure(
-          createActionError(ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT, err), err
-        ));
-      } else {
-        dispatch(sync.createCustodialAccountSuccess(clinicId, patient, result.id));
-      }
-    });
-  };
-}
-
-/**
  * Fetch Patient from Clinic Action Creator
  *
  * @param {Object} api - an instance of the API wrapper
@@ -2099,6 +2072,31 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
 }
 
 /**
+ * Create custodial Patient for VCA Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {Object} profile
+ * @param {String[]} [profile.emails] - The email address of the patient in an array wrapper
+ * @param {Object} profile.patient
+ * @param {String} profile.patient.birthDate - YYYY-MM-DD
+ * @param {String} [profile.patient.mrn] - The medical record number of the patient
+ */
+ export function createVCACustodialAccount(api, profile) {
+  return (dispatch) => {
+    dispatch(sync.createVCACustodialAccountRequest());
+    api.user.createCustodialAccount(profile, (err, result) => {
+      if (err) {
+        dispatch(sync.createVCACustodialAccountFailure(
+          createActionError(ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT, err), err
+        ));
+      } else {
+        dispatch(sync.createVCACustodialAccountSuccess(result.userid, result));
+      }
+    });
+  };
+}
+
+/**
  * Update Clinic Patient Action Creator
  *
  * @param {Object} api - an instance of the API wrapper
@@ -2141,8 +2139,12 @@ export function sendClinicianInvite(api, clinicId, clinician) {
 
     api.clinics.inviteClinician(clinicId, clinician, (err, clinician) => {
       if (err) {
+        const errorMessage = err.status === 409
+          ? ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_ALREADY_MEMBER
+          : ErrorMessages.ERR_SENDING_CLINICIAN_INVITE;
+
         dispatch(sync.sendClinicianInviteFailure(
-          createActionError(ErrorMessages.ERR_SENDING_CLINICIAN_INVITE, err), err
+          createActionError(errorMessage, err), err
         ));
       } else {
         dispatch(sync.sendClinicianInviteSuccess(clinician, clinicId));

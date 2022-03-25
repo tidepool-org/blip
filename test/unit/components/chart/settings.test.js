@@ -13,6 +13,7 @@ import _ from 'lodash';
 import Settings from '../../../../app/components/chart/settings';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { createRenderer } from 'react-test-renderer/shallow';
+import i18next from '../../../../app/core/language';
 
 const expect = chai.expect;
 const renderer = createRenderer();
@@ -58,6 +59,7 @@ describe('Settings', function () {
     trackMetric: sinon.stub(),
     updateChartPrefs: sinon.stub(),
     pdf: {},
+    t: i18next.t.bind(i18next),
   };
 
   afterEach(() => {
