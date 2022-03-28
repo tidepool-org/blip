@@ -693,6 +693,20 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, patientCount: count } },
       });
     }
+    case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE: {
+      let { error } = action;
+      if (error?.status === 403) {
+        let {
+          payload: { clinicId },
+        } = action;
+        return update(state, {
+          [clinicId]: {
+            $set: { ...state[clinicId], patients: {}, patientCount: 0 },
+          },
+        });
+      }
+      return state;
+    }
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS: {
       let { clinicId, patient } = action.payload;
       return update(state, {
@@ -764,6 +778,18 @@ export const clinics = (state = initialState.clinics, action) => {
         );
       });
       return newClinics;
+    }
+    case types.FETCH_CLINICIANS_FROM_CLINIC_FAILURE: {
+      let { error } = action;
+      if (error?.status === 403) {
+        let {
+          payload: { clinicId },
+        } = action;
+        const newClinics = _.cloneDeep(state);
+        _.set(newClinics, [clinicId, 'clinicians'], {});
+        return newClinics;
+      }
+      return state;
     }
     case types.UPDATE_CLINICIAN_SUCCESS: {
       let clinician = _.get(action.payload, 'clinician');
