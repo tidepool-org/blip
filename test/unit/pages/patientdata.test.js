@@ -2063,6 +2063,7 @@ describe('PatientData', function () {
       it('should call `queryData` in `setState` callback with appropriate opts', () => {
         sinon.assert.callOrder(setStateSpy, instance.queryData);
         sinon.assert.calledWith(instance.queryData, 'my query', {
+          forceRemountAfterQuery: false,
           showLoading: true,
           transitioningChartType: true,
           updateChartEndpoints: true,
@@ -2070,6 +2071,7 @@ describe('PatientData', function () {
 
         instance.updateChart('basics', defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
         sinon.assert.calledWith(instance.queryData, undefined, {
+          forceRemountAfterQuery: false,
           showLoading: false,
           transitioningChartType: true,
           updateChartEndpoints: false,
@@ -2094,6 +2096,7 @@ describe('PatientData', function () {
       it('should call `queryData` in `setState` callback with appropriate opts', () => {
         sinon.assert.callOrder(setStateSpy, instance.queryData);
         sinon.assert.calledWith(instance.queryData, 'my query', {
+          forceRemountAfterQuery: false,
           showLoading: true,
           transitioningChartType: false,
           updateChartEndpoints: true,
@@ -2101,6 +2104,7 @@ describe('PatientData', function () {
 
         instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
         sinon.assert.calledWith(instance.queryData, undefined, {
+          forceRemountAfterQuery: false,
           showLoading: false,
           transitioningChartType: false,
           updateChartEndpoints: false,
@@ -2125,6 +2129,7 @@ describe('PatientData', function () {
       it('should call `queryData` in `setState` callback with appropriate opts', () => {
         sinon.assert.callOrder(setStateSpy, instance.queryData);
         sinon.assert.calledWith(instance.queryData, 'my query', {
+          forceRemountAfterQuery: false,
           showLoading: true,
           transitioningChartType: false,
           updateChartEndpoints: true,
@@ -2132,6 +2137,7 @@ describe('PatientData', function () {
 
         instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
         sinon.assert.calledWith(instance.queryData, undefined, {
+          forceRemountAfterQuery: false,
           showLoading: false,
           transitioningChartType: false,
           updateChartEndpoints: false,
@@ -2191,7 +2197,7 @@ describe('PatientData', function () {
       beforeEach(() => {
         props = _.assign({}, defaultProps, {
           data: {
-            metaData: { patientId: '40' },
+            metaData: { patientId: '40', queryDataCount: 1 },
           },
           patient: {
             userid: '40',
@@ -2390,22 +2396,23 @@ describe('PatientData', function () {
           }));
         });
 
-        it('should query for intial data if `state.queryDataCount < 1`', () => {
+        it('should query for intial data if `data.metaData.queryDataCount < 1`', () => {
           const queryDataSpy = sinon.spy(instance, 'queryData');
-
-          wrapper.setState({ queryDataCount: 1 });
-          wrapper.setProps(props);
           sinon.assert.notCalled(queryDataSpy);
 
-          wrapper.setState({ queryDataCount: 0 });
-          wrapper.setProps(props);
+          wrapper.setProps(_.assign(props, {
+            data: {
+              metaData: { patientId: '40', queryDataCount: 0 },
+            },
+          }));
+
           sinon.assert.calledWithMatch(queryDataSpy, {
             types: {
               upload: {
                 select: 'id,deviceId,deviceTags',
               },
             },
-            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
+            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices,queryDataCount',
             excludedDevices: undefined,
             timePrefs: sinon.match.object,
             bgPrefs: sinon.match.object,
@@ -2442,21 +2449,6 @@ describe('PatientData', function () {
             wrapper.setProps(completedDataQueryProps);
 
             sinon.assert.calledWith(setInitialChartViewSpy, sinon.match(completedDataQueryProps));
-          });
-
-          it('should increment `queryDataCount` if `types` was specified in the query', () => {
-            expect(instance.state.queryDataCount).to.equal(0);
-
-            wrapper.setProps(_.assign({}, completedDataQueryProps, {
-              data: {
-                ...props.data,
-                query: { types: 'smbg' },
-              },
-            }));
-
-            sinon.assert.calledWith(setStateSpy, sinon.match({
-              queryDataCount: 1,
-            }));
           });
 
           context('querying data just completed on current render cycle', () => {
@@ -2602,9 +2594,6 @@ describe('PatientData', function () {
           it('should call queryData with no arguments', () => {
             const queryDataSpy = sinon.spy(instance, 'queryData');
 
-            // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1 })
-
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
               addingData: { inProgress: true, completed: false }
@@ -2624,7 +2613,7 @@ describe('PatientData', function () {
             const generatePDFSpy = sinon.spy(instance, 'generatePDF');
 
             // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1, printDialogPDFOpts: undefined })
+            wrapper.setState({ printDialogPDFOpts: undefined })
 
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
@@ -2651,7 +2640,7 @@ describe('PatientData', function () {
             }
 
             // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1, printDialogPDFOpts: pdfOpts })
+            wrapper.setState({ printDialogPDFOpts: pdfOpts })
 
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
@@ -2671,7 +2660,7 @@ describe('PatientData', function () {
             const closeDatesDialogSpy = sinon.spy(instance, 'closeDatesDialog');
 
             // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1, datesDialogFetchingData: false })
+            wrapper.setState({ datesDialogFetchingData: false })
 
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
@@ -2691,7 +2680,7 @@ describe('PatientData', function () {
             const closeDatesDialogSpy = sinon.spy(instance, 'closeDatesDialog');
 
             // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1, datesDialogFetchingData: true })
+            wrapper.setState({ datesDialogFetchingData: true })
 
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
@@ -2798,7 +2787,7 @@ describe('PatientData', function () {
 
     it('should set the `metaData` query to `bgSources,devices` if arg not provided', () => {
       instance.queryData(emptyQuery);
-      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,excludedDevices' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,excludedDevices,queryDataCount' });
     });
 
     it('should set the `activeDays` query from `chartPrefs`', () => {
@@ -2844,6 +2833,7 @@ describe('PatientData', function () {
           endpoints: [100,200],
           excludedDevices: [],
           excludeDaysWithoutBolus: undefined,
+          forceRemountAfterQuery: undefined,
           types: 'cbg,smbg',
           metaData: 'bar',
         });
@@ -4156,7 +4146,8 @@ describe('PatientData', function () {
       sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'daily');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'daily' });
       sinon.assert.calledWith(instance.updateChart, 'daily', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
-        updateChartEndpoints: true
+        updateChartEndpoints: true,
+        forceRemountAfterQuery: true,
       });
     });
 
@@ -4197,6 +4188,7 @@ describe('PatientData', function () {
       sinon.assert.calledWith(instance.updateChart, 'daily', '2018-02-04T12:00:00.000Z', 'endpoints stub', {
         mostRecentDatetimeLocation: '2018-02-04T12:00:00.000Z',
         updateChartEndpoints: true,
+        forceRemountAfterQuery: true,
       });
     });
   });
