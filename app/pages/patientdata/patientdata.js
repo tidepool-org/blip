@@ -170,7 +170,6 @@ export const PatientDataClass = createReactClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
-      queryDataCount: 0,
       fetchEarlierDataCount: 0,
       loading: true,
       transitioningChartType: false,
@@ -354,7 +353,12 @@ export const PatientDataClass = createReactClass({
             this.closeDatesDialog();
           }
 
-          this.updateChart(this.state.chartType, endDate, dates, updateOpts);
+          const updateActionMap = {
+            basics: this.updateChart.bind(this, 'basics', endDate, dates, updateOpts),
+            daily: this.handleSwitchToDaily.bind(this, endDate),
+          }
+
+          updateActionMap[this.state.chartType]?.();
         }}
         processing={this.state.datesDialogProcessing}
         timePrefs={this.state.timePrefs}
@@ -520,7 +524,8 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updatingDatum={this.props.updatingDatum}
-            queryDataCount={this.state.queryDataCount}
+            queryDataCount={this.getMetaData('queryDataCount')}
+            key={this.state.chartKey}
             ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
@@ -546,7 +551,8 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            queryDataCount={this.state.queryDataCount}
+            queryDataCount={this.getMetaData('queryDataCount')}
+            key={this.state.chartKey}
             ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
@@ -574,7 +580,8 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            queryDataCount={this.state.queryDataCount}
+            queryDataCount={this.getMetaData('queryDataCount')}
+            key={this.state.chartKey}
             ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
@@ -1039,7 +1046,7 @@ export const PatientDataClass = createReactClass({
     const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
-    const updateOpts = { updateChartEndpoints: true };
+    const updateOpts = { updateChartEndpoints: true, forceRemountAfterQuery: true };
     if (datetime && mostRecentDatumTime) {
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs));
     }
@@ -1410,6 +1417,7 @@ export const PatientDataClass = createReactClass({
 
   updateChart: function(chartType, datetimeLocation, endpoints, opts = {}) {
     _.defaults(opts, {
+      forceRemountAfterQuery: false,
       showLoading: true,
       mostRecentDatetimeLocation: datetimeLocation,
     });
@@ -1431,11 +1439,12 @@ export const PatientDataClass = createReactClass({
 
     if (!this.state.mostRecentDatetimeLocation) state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
 
-    const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
+    const cb = (opts.forceRemountAfterQuery || chartTypeChanged || endpointsChanged || datetimeLocationChanged)
       ? this.queryData.bind(this, opts.query, {
         showLoading: opts.showLoading,
         updateChartEndpoints: opts.updateChartEndpoints,
         transitioningChartType: chartTypeChanged,
+        forceRemountAfterQuery: opts.forceRemountAfterQuery,
       }) : undefined;
 
     this.setState(state, cb);
@@ -1511,14 +1520,14 @@ export const PatientDataClass = createReactClass({
       }
 
       // Perform initial query of upload data to prepare for setting inital chart type
-      if (this.state.queryDataCount < 1) {
+      if (this.getMetaData('queryDataCount', 0, nextProps) < 1) {
         this.queryData({
           types: {
             upload: {
               select: 'id,deviceId,deviceTags',
             },
           },
-          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
+          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices,queryDataCount',
           excludedDevices: undefined,
           timePrefs,
           bgPrefs,
@@ -1537,10 +1546,6 @@ export const PatientDataClass = createReactClass({
           window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
         }
 
-        if (_.get(nextProps, 'data.query.types')) {
-          stateUpdates.queryDataCount = this.state.queryDataCount + 1;
-        }
-
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
         if (this.props.queryingData.inProgress) {
           if (_.get(nextProps, 'data.query.updateChartEndpoints')) {
@@ -1557,6 +1562,12 @@ export const PatientDataClass = createReactClass({
           if (isTransitioning || wasTransitioning) {
             stateUpdates.transitioningChartType = false;
             hideLoadingTimeout = 250;
+          }
+
+          const forceRemountAfterQuery = _.get(nextProps, 'data.query.forceRemountAfterQuery');
+          if (forceRemountAfterQuery) {
+            // Updating the key of a component forces a remount
+            stateUpdates.chartKey = _.get(nextProps, 'data.metaData.queryDataCount');
           }
         }
 
@@ -1649,7 +1660,7 @@ export const PatientDataClass = createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,devices,excludedDevices',
+      metaData: 'bgSources,devices,excludedDevices,queryDataCount',
     });
 
     if (this.state.queryingData) return;
@@ -1662,6 +1673,7 @@ export const PatientDataClass = createReactClass({
       excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
+      forceRemountAfterQuery: options.forceRemountAfterQuery,
     };
 
     const activeDays = _.get(this.state, ['chartPrefs', this.state.chartType, 'activeDays']);
