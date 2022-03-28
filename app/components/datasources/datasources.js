@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { scroller } from 'react-scroll';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 
 import sundial from 'sundial';
 
@@ -218,10 +218,12 @@ export default translate()(class DataSources extends Component {
     const { t } = this.props;
     if (provider.id === 'oauth/dexcom') {
       return (
-        <span>
-          *{t('For US Dexcom users only. Please contact')} <a href="mailto:support@tidepool.org">
-            support@tidepool.org</a> {t('if you live outside the United States')}.
-        </span>
+        <Trans i18nKey="html.dexcom-datasource-intl-disclaimer">
+          <span>
+            *For US Dexcom users only. Please contact <a href="mailto:support@tidepool.org">
+            support@tidepool.org</a> if you live outside the United States.
+          </span>
+        </Trans>
       )
     }
   }
