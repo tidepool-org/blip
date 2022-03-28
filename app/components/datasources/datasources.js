@@ -215,7 +215,6 @@ export default translate()(class DataSources extends Component {
   }
 
   renderDataSourceWarningMessage(provider) {
-    const { t } = this.props;
     if (provider.id === 'oauth/dexcom') {
       return (
         <Trans i18nKey="html.dexcom-datasource-intl-disclaimer">
