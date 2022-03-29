@@ -47,7 +47,7 @@ personUtils.isPatient = (person) => {
 
 personUtils.isClinicianAccount = (user) => {
   const userRoles = _.get(user, 'roles', []);
-  return _.intersection(userRoles, ['clinic', 'migrated_clinic']).length > 0 || user?.isClinicMember;
+  return _.intersection(userRoles, ['clinic', 'migrated_clinic', 'clinician']).length > 0 || user?.isClinicMember;
 };
 
 personUtils.isDataDonationAccount = (account) => {
