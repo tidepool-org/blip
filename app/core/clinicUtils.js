@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import moment from 'moment';
@@ -126,6 +127,7 @@ export const clinicSchema = yup.object().shape({
 });
 
 export const patientSchema = yup.object().shape({
+  id: yup.string(),
   fullName: yup.string().required(t('Please enter the patient\'s full name')),
   birthDate: yup.date()
     .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
@@ -133,4 +135,9 @@ export const patientSchema = yup.object().shape({
     .required(t('Patient\'s birthday is required')),
   mrn: yup.string(),
   email: yup.string().email(t('Please enter a valid email address')),
+  attestationConfirmed: yup.mixed().notRequired().when('id', {
+    is: id => isEmpty(id),
+    then: yup.boolean()
+      .test('isTrue', t('Please confirm that you have obtained this permission'), value => (value === true)),
+  }),
 });

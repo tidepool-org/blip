@@ -123,13 +123,15 @@ describe('clinicUtils', function() {
   });
 
   describe('patientSchema', () => {
-    it('should return a yup schema for clinic fields', () => {
+    it('should return a yup schema for clinic patient fields', () => {
       expect(clinicUtils.patientSchema).to.be.an('object');
 
       expect(clinicUtils.patientSchema._nodes).to.be.an('array').and.have.members([
-        'fullName',
+        'attestationConfirmed',
         'birthDate',
         'email',
+        'fullName',
+        'id',
         'mrn',
       ]);
     });
