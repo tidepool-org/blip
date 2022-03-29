@@ -7,7 +7,6 @@
 import { clinics as reducer } from '../../../../app/redux/reducers/misc';
 
 import * as actions from '../../../../app/redux/actions/index';
-import { update } from 'lodash-es';
 
 var expect = chai.expect;
 
@@ -53,6 +52,50 @@ describe('clinics', () => {
       let action = actions.sync.fetchPatientsForClinicSuccess(clinicId, patients);
       let state = reducer(initialStateForTest, action);
       expect(state[clinic.id].patients.patientId123).to.eql({ id: 'patientId123' });
+    });
+  });
+
+  describe('fetchPatientsForClinicFailure', () => {
+    it('should do nothing for 500 error', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          clinicians: {},
+          patients: {
+            patientId: {},
+          },
+        },
+      };
+      let err = new Error('server error');
+      err.status = 500;
+      let action = actions.sync.fetchPatientsForClinicFailure(
+        err,
+        null,
+        'clinicId123'
+      );
+      let state = reducer(initialStateForTest, action);
+      expect(state).to.eql(initialStateForTest);
+    });
+
+    it('should clear patients for a 403 unauthorized error', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          clinicians: {},
+          patients: {
+            patientId: {},
+          },
+        },
+      };
+      let err = new Error('auth error');
+      err.status = 403;
+      let action = actions.sync.fetchPatientsForClinicFailure(
+        err,
+        null,
+        'clinicId123'
+      );
+      let state = reducer(initialStateForTest, action);
+      expect(state['clinicId123'].patients).to.eql({});
     });
   });
 
@@ -192,6 +235,68 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state.clinicId123.clinicians.clinicianId123.name).to.eql('clinician123');
       expect(state.clinicId123.clinicians.clinicianId456.name).to.eql('clinician456');
+    });
+  });
+
+  describe('fetchCliniciansFromClinicFailure', () => {
+    it('should do nothing for 500 error', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          clinicians: {
+            clinicianId123: {
+              id: 'clinicianId123',
+              name: 'clinician123',
+            },
+            clinicianId456: {
+              id: 'clinicianId456',
+              name: 'clinician456',
+            },
+          },
+          patients: {
+            patientId: {},
+          },
+        },
+      };
+      let err = new Error('server error');
+      err.status = 500;
+      let action = actions.sync.fetchCliniciansFromClinicFailure(
+        err,
+        null,
+        'clinicId123'
+      );
+      let state = reducer(initialStateForTest, action);
+      expect(state).to.eql(initialStateForTest);
+    });
+
+    it('should clear clinicians for a 403 unauthorized error', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          clinicians: {
+            clinicianId123: {
+              id: 'clinicianId123',
+              name: 'clinician123',
+            },
+            clinicianId456: {
+              id: 'clinicianId456',
+              name: 'clinician456',
+            },
+          },
+          patients: {
+            patientId: {},
+          },
+        },
+      };
+      let err = new Error('auth error');
+      err.status = 403;
+      let action = actions.sync.fetchCliniciansFromClinicFailure(
+        err,
+        null,
+        'clinicId123'
+      );
+      let state = reducer(initialStateForTest, action);
+      expect(state['clinicId123'].clinicians).to.eql({});
     });
   });
 
