@@ -10,6 +10,7 @@ import * as actions from '../../redux/actions';
 
 import utils from '../../core/utils';
 import personUtils from '../../core/personutils';
+import config from '../../config';
 
 import * as ErrorMessages from '../../redux/constants/errorMessages';
 import * as UserMessages from '../../redux/constants/usrMessages';
@@ -647,7 +648,7 @@ export function mapStateToProps(state) {
         userIsCurrentPatient = true;
       }
 
-      if (_.get(user, 'preferences.displayLanguageCode')) {
+      if (config.I18N_ENABLED && _.get(user, 'preferences.displayLanguageCode')) {
         i18next.changeLanguage(user.preferences.displayLanguageCode);
       }
 

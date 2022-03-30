@@ -18,7 +18,7 @@
     "server": "node server",
     "build-docs": "./update-gh-pages.sh",
     "serve-docs": "./node_modules/.bin/gitbook serve",
-    "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o .",
+    "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' \"${TIDEPOOL_DOCKER_VIZ_DIR:-'../viz'}/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js\" -c i18next-parser.config.json -o .",
     "storybook": "./node_modules/.bin/start-storybook -p 6006 --ci",
     "build-storybook": "build-storybook",
     "lint": "npm run lint:js && npm run lint:css",
