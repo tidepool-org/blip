@@ -77,6 +77,7 @@ export const clinicValuesFromClinic = (clinic) => ({
   clinicType: get(clinic, 'clinicType', ''),
   clinicSize: get(clinic, 'clinicSize', ''),
   website: get(clinic, 'website', ''),
+  attestationConfirmed: get(clinic, 'attestationConfirmed', !isEmpty(clinic?.name)),
 });
 
 export const clinicSchema = yup.object().shape({
@@ -124,6 +125,8 @@ export const clinicSchema = yup.object().shape({
       ? t('Please enter a valid website address')
       : t('Please enter a valid website address with https:// at the beginning')
     ),
+  attestationConfirmed: yup.boolean()
+    .test('isTrue', t('Please confirm that you have obtained proper authorization to represent this clinic'), value => (value === true)),
 });
 
 export const patientSchema = yup.object().shape({
@@ -138,6 +141,6 @@ export const patientSchema = yup.object().shape({
   attestationConfirmed: yup.mixed().notRequired().when('id', {
     is: id => isEmpty(id),
     then: yup.boolean()
-      .test('isTrue', t('Please confirm that you have obtained this permission'), value => (value === true)),
+      .test('isTrue', t('Please confirm that you have obtained proper authorization to create this account'), value => (value === true)),
   }),
 });

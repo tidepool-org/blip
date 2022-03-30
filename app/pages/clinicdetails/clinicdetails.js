@@ -30,6 +30,7 @@ import { components as vizComponents } from '@tidepool/viz';
 import { clinicValuesFromClinic, roles, clinicSchema as validationSchema } from '../../core/clinicUtils';
 import { addEmptyOption } from '../../core/forms';
 import personUtils from '../../core/personutils';
+import baseTheme from '../../themes/baseTheme';
 
 import {
   Dialog,
@@ -89,6 +90,7 @@ export const ClinicDetails = (props) => {
     fullName: populateProfileFields ? user?.profile?.fullName || '' : '',
     npi: populateProfileFields? user?.profile?.clinic?.npi || '' : '',
     role: populateProfileFields ? user?.profile?.clinic?.role || '' : '',
+    adminAcknowledge: get(clinic, 'adminAcknowledge', !isEmpty(clinic?.name)),
     ...clinicValuesFromClinic(clinic),
   });
 
@@ -427,16 +429,43 @@ export const ClinicDetails = (props) => {
 
                     <ClinicProfileFields formikContext={formikContext} />
 
-                    <FastField
-                      as={Checkbox}
-                      id="adminAcknowledge"
-                      name="adminAcknowledge"
-                      label={t(
-                        'By creating this clinic, your Tidepool account will become the default administrator. You can invite other healthcare professionals to join the clinic and add or remove privileges for these accounts at any time.'
-                      )}
-                      error={formikContext.touched.adminAcknowledge && formikContext.errors.adminAcknowledge}
-                      checked={formikContext.values.adminAcknowledge}
-                    />
+                    <Box
+                      p={2}
+                      mb={4}
+                      bg="lightestGrey"
+                      sx={{
+                        bg: 'lightestGrey',
+                        border: baseTheme.borders.default,
+                        borderRadius: `${baseTheme.radii.default}px`,
+                      }}
+                    >
+                      <Checkbox
+                        {...getCommonFormikFieldProps('adminAcknowledge', formikContext, 'checked')}
+                        label={t('By creating this clinic, your Tidepool account will become the default administrator. You can invite other healthcare professionals to join the clinic and add or remove privileges for these accounts at any time.')}
+                        themeProps={{ lineHeight: 1.4 }}
+                      />
+                    </Box>
+
+                    <Box
+                      p={2}
+                      mb={3}
+                      bg="lightestGrey"
+                      sx={{
+                        bg: 'lightestGrey',
+                        border: baseTheme.borders.default,
+                        borderRadius: `${baseTheme.radii.default}px`,
+                      }}
+                    >
+                      <Body1 px={2} mb={3}>
+                        {t('I certify that the Healthcare Practice or Facility named above is a healthcare provider authorized to provide healthcare services to the patients of that Healthcare Practice or Facility whose personal health data will be stored and accessed through software supplied by Tidepool. I attest that I have obtained permission from the patient and/or the patient\'s legal guardian to use Tidepool\'s software to assist in the management of the patient\’s health care.')}
+                      </Body1>
+
+                      <Checkbox
+                        {...getCommonFormikFieldProps('attestationConfirmed', formikContext, 'checked')}
+                        label={t('I have read and agree on behalf of the Healthcare Practice or Facility named above to the Tidepool Terms of Use and Privacy Policy. I represent that I have the authority to agree to the Tidepool Terms of Use and Privacy Policy on behalf of that Healthcare Practice or Facility, and by checking the box, that Healthcare Practice or Facility is bound to the Tidepool Terms of Use and Privacy Policy (all as more fully described in the Terms of Use and Privacy Policy).')}
+                        themeProps={{ lineHeight: 1.4 }}
+                      />
+                    </Box>
                   </>
                 )}
 
