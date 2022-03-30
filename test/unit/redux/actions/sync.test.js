@@ -2673,9 +2673,11 @@ describe('Actions', () => {
 
       it('type should equal FETCH_CLINICIANS_FROM_CLINIC_FAILURE and error should equal passed error', () => {
         let error = new Error('stink :(');
-        let action = sync.fetchCliniciansFromClinicFailure(error);
+        let apiError = new Error('apierror');
+        let action = sync.fetchCliniciansFromClinicFailure(error, apiError, 'clinicId123');
         expect(action.type).to.equal('FETCH_CLINICIANS_FROM_CLINIC_FAILURE');
         expect(action.error).to.equal(error);
+        expect(action.payload.clinicId).to.equal('clinicId123');
       });
     });
 
@@ -2847,9 +2849,11 @@ describe('Actions', () => {
 
       it('type should equal FETCH_PATIENTS_FOR_CLINIC_FAILURE and error should equal passed error', () => {
         let error = new Error('stink :(');
-        let action = sync.fetchPatientsForClinicFailure(error);
+        let apiError = new Error('apiError');
+        let action = sync.fetchPatientsForClinicFailure(error, apiError, 'clinicId123');
         expect(action.type).to.equal('FETCH_PATIENTS_FOR_CLINIC_FAILURE');
         expect(action.error).to.equal(error);
+        expect(action.payload.clinicId).to.equal('clinicId123');
       });
     });
 

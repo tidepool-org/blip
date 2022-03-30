@@ -956,6 +956,13 @@ export function fetchPatient(api, id, cb = _.noop) {
             errMsg = ErrorMessages.ERR_ACCOUNT_NOT_CONFIGURED
           }
         }
+        if (status === 401) {
+          if (id === loggedInUserId){
+            errMsg = ErrorMessages.ERR_FETCHING_PATIENT_UNAUTHORIZED;
+          } else {
+            errMsg = ErrorMessages.ERR_FETCHING_PATIENT_CLINICIAN_UNAUTHORIZED;
+          }
+        }
         dispatch(sync.fetchPatientFailure(
           createActionError(errMsg, err), err, link
         ));
@@ -1054,8 +1061,17 @@ export function fetchPatientData(api, options, id) {
 
         api.patientData.get(id, latestDatumsFetchParams, (err, latestDatums) => {
           if (err) {
+            const { blip: { loggedInUserId } } = getState();
+            let errMsg = ErrorMessages.ERR_FETCHING_PATIENT_DATA
+            if (err?.status === 403) {
+              if(loggedInUserId === id) {
+                errMsg = ErrorMessages.ERR_FETCHING_PATIENT_DATA_UNAUTHORIZED
+              } else {
+                errMsg = ErrorMessages.ERR_FETCHING_PATIENT_DATA_CLINICIAN_UNAUTHORIZED
+              }
+            }
             dispatch(sync.fetchPatientDataFailure(
-              createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
+              createActionError(errMsg, err), err
             ));
           } else {
             // We then determine the date range to fetch data for by first finding the latest
@@ -1877,8 +1893,12 @@ export function fetchCliniciansFromClinic(api, clinicId, options) {
 
     api.clinics.getCliniciansFromClinic(clinicId, options, (err, clinicians) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_FETCHING_CLINICIANS_FROM_CLINIC;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_FETCHING_CLINICIANS_FROM_CLINIC_UNAUTHORIZED;
+        }
         dispatch(sync.fetchCliniciansFromClinicFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_CLINICIANS_FROM_CLINIC, err), err
+          createActionError(errMsg, err), err, clinicId
         ));
       } else {
         dispatch(sync.fetchCliniciansFromClinicSuccess({clinicians,clinicId}));
@@ -1929,8 +1949,12 @@ export function updateClinician(api, clinicId, clinicianId, clinician) {
 
     api.clinics.updateClinician(clinicId, clinicianId, clinician, (err) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_UPDATING_CLINICIAN;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_UPDATING_CLINICIAN_UNAUTHORIZED;
+        }
         dispatch(sync.updateClinicianFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_CLINICIAN, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.updateClinicianSuccess(clinicId, clinicianId, clinician));
@@ -1952,8 +1976,12 @@ export function deleteClinicianFromClinic(api, clinicId, clinicianId) {
 
     api.clinics.deleteClinicianFromClinic(clinicId, clinicianId, (err) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_DELETING_CLINICIAN_FROM_CLINIC;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_DELETING_CLINICIAN_FROM_CLINIC_UNAUTHORIZED;
+        }
         dispatch(sync.deleteClinicianFromClinicFailure(
-          createActionError(ErrorMessages.ERR_DELETING_CLINICIAN_FROM_CLINIC, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.deleteClinicianFromClinicSuccess(clinicId, clinicianId));
@@ -1977,8 +2005,12 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
       cb(err);
 
       if (err) {
+        let errMsg = ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC_UNAUTHORIZED;
+        }
         dispatch(sync.deletePatientFromClinicFailure(
-          createActionError(ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.deletePatientFromClinicSuccess(clinicId, patientId));
@@ -2004,8 +2036,12 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
 
     api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC_UNAUTHORIZED;
+        }
         dispatch(sync.fetchPatientsForClinicFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC, err), err
+          createActionError(errMsg, err), err, clinicId
         ));
       } else {
         const { data, meta } = results;
@@ -2054,8 +2090,12 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
     dispatch(sync.createClinicCustodialAccountRequest());
     api.clinics.createClinicCustodialAccount(clinicId, patient, (err, result) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_UNAUTHORIZED;
+        }
         dispatch(sync.createClinicCustodialAccountFailure(
-          createActionError(ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.createClinicCustodialAccountSuccess(clinicId, result.id, result));
@@ -2107,8 +2147,12 @@ export function updateClinicPatient(api, clinicId, patientId, patient) {
 
     api.clinics.updateClinicPatient(clinicId, patientId, patient, (err, patient) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_UNAUTHORIZED;
+        }
         dispatch(sync.updateClinicPatientFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_CLINIC_PATIENT, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.updateClinicPatientSuccess(clinicId, patient.id, patient));
@@ -2132,12 +2176,16 @@ export function sendClinicianInvite(api, clinicId, clinician) {
 
     api.clinics.inviteClinician(clinicId, clinician, (err, clinician) => {
       if (err) {
-        const errorMessage = err.status === 409
-          ? ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_ALREADY_MEMBER
-          : ErrorMessages.ERR_SENDING_CLINICIAN_INVITE;
+        let errMsg = ErrorMessages.ERR_SENDING_CLINICIAN_INVITE;
+        if (err?.status === 409) {
+          errMsg = ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_ALREADY_MEMBER;
+        }
+        if (err?.status === 401) {
+          errMsg = ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_UNAUTHORIZED;
+        }
 
         dispatch(sync.sendClinicianInviteFailure(
-          createActionError(errorMessage, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.sendClinicianInviteSuccess(clinician, clinicId));
@@ -2159,8 +2207,12 @@ export function sendClinicianInvite(api, clinicId, clinician) {
 
     api.clinics.getClinicianInvite(clinicId, inviteId, (err, invite) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE;
+        if (err?.status === 401) {
+          errMsg = ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE_UNAUTHORIZED;
+        }
         dispatch(sync.fetchClinicianInviteFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.fetchClinicianInviteSuccess(invite, clinicId));
@@ -2205,8 +2257,12 @@ export function deleteClinicianInvite(api, clinicId, inviteId) {
 
     api.clinics.deleteClinicianInvite(clinicId, inviteId, (err, result) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_DELETING_CLINICIAN_INVITE;
+        if (err?.status === 401) {
+          errMsg = ErrorMessages.ERR_DELETING_CLINICIAN_INVITE_UNAUTHORIZED;
+        }
         dispatch(sync.deleteClinicianInviteFailure(
-          createActionError(ErrorMessages.ERR_DELETING_CLINICIAN_INVITE, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.deleteClinicianInviteSuccess(clinicId, inviteId, result));
@@ -2251,8 +2307,12 @@ export function fetchPatientInvites(api, clinicId) {
 
     api.clinics.getPatientInvites(clinicId, (err, invites) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_FETCHING_PATIENT_INVITES;
+        if (err?.status === 401) {
+          errMsg = ErrorMessages.ERR_FETCHING_PATIENT_INVITES_UNAUTHORIZED;
+        }
         dispatch(sync.fetchPatientInvitesFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PATIENT_INVITES, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.fetchPatientInvitesSuccess(clinicId, invites));

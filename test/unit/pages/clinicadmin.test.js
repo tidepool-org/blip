@@ -76,6 +76,7 @@ describe('ClinicAdmin', () => {
           completed: true,
           notification: null,
         },
+        fetchingClinicianInvite: defaultWorkingState,
         updatingClinician: defaultWorkingState,
         sendingClinicianInvite: defaultWorkingState,
         resendingClinicianInvite: defaultWorkingState,
