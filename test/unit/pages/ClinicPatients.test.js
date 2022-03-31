@@ -193,9 +193,10 @@ describe('ClinicPatients', () => {
 
       const dialog = () => wrapper.find('Dialog#addPatient');
 
-      expect(dialog().props().open).to.be.false;
+      expect(dialog()).to.have.length(0);
       addButton.simulate('click');
       wrapper.update();
+      expect(dialog()).to.have.length(1);
       expect(dialog().props().open).to.be.true;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
@@ -326,7 +327,7 @@ describe('ClinicPatients', () => {
 
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { limit: 8, offset: 0, search: 'Two', sort: '+fullName' });
           done();
-        }, 100);
+        }, 300);
       });
 
       it('should link to a patient data view when patient name is clicked', () => {
@@ -380,9 +381,10 @@ describe('ClinicPatients', () => {
 
         const dialog = () => wrapper.find('Dialog#editPatient');
 
-        expect(dialog().props().open).to.be.false;
+        expect(dialog()).to.have.length(0);
         editButton.simulate('click');
         wrapper.update();
+        expect(dialog()).to.have.length(1);
         expect(dialog().props().open).to.be.true;
 
         expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
