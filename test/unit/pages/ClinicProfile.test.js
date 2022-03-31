@@ -356,6 +356,7 @@ describe('ClinicProfile', () => {
               postalCode: 'L3X 9G2',
               state: 'ON',
               website: 'http://clinic_updated.com',
+              attestationConfirmed: true,
             }
           );
 

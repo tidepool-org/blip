@@ -425,7 +425,10 @@ describe('ClinicDetails', () => {
         expect(wrapper.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('250-499');
 
         wrapper.find('input[name="adminAcknowledge"]').simulate('change', { persist: noop, target: { name: 'adminAcknowledge', value: true } });
-        expect(wrapper.find('input[name="adminAcknowledge"]').prop('value')).to.be.true;
+        expect(wrapper.find('input[name="adminAcknowledge"]').prop('checked')).to.be.true;
+
+        wrapper.find('input[name="attestationConfirmed"]').simulate('change', { persist: noop, target: { name: 'attestationConfirmed', value: true } });
+        expect(wrapper.find('input[name="attestationConfirmed"]').prop('checked')).to.be.true;
 
         store.clearActions();
         wrapper.find('Button#submit').simulate('submit');
@@ -462,6 +465,7 @@ describe('ClinicDetails', () => {
               postalCode: '90210',
               state: 'NJ',
               website: 'http://clinic.com',
+              attestationConfirmed: true,
             }
           );
 
