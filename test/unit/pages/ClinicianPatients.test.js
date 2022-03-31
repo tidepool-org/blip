@@ -163,9 +163,10 @@ describe('ClinicianPatients', () => {
 
       const dialog = () => wrapper.find('Dialog#addPatient');
 
-      expect(dialog().props().open).to.be.false;
+      expect(dialog()).to.have.length(0);
       addButton.simulate('click');
       wrapper.update();
+      expect(dialog()).to.have.length(1);
       expect(dialog().props().open).to.be.true;
 
       expect(defaultProps.trackMetric.calledWith('Clinician - Add patient')).to.be.true;
@@ -338,9 +339,10 @@ describe('ClinicianPatients', () => {
 
         const dialog = () => wrapper.find('Dialog#editPatient');
 
-        expect(dialog().props().open).to.be.false;
+        expect(dialog()).to.have.length(0);
         editButton.simulate('click');
         wrapper.update();
+        expect(dialog()).to.have.length(1);
         expect(dialog().props().open).to.be.true;
 
         expect(defaultProps.trackMetric.calledWith('Clinician - Edit patient')).to.be.true;
