@@ -460,8 +460,8 @@ export const ClinicianPatients = (props) => {
       {renderHeader()}
       {renderPeopleArea()}
       {renderRemoveDialog()}
-      {renderAddPatientDialog()}
-      {renderEditPatientDialog()}
+      {showAddPatientDialog && renderAddPatientDialog()}
+      {showEditPatientDialog && renderEditPatientDialog()}
     </Box>
   );
 };
