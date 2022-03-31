@@ -26,6 +26,7 @@ const defineEnvPlugin = new webpack.DefinePlugin({
   __RX_ENABLED__: JSON.stringify(process.env.RX_ENABLED || false),
   __PENDO_ENABLED__: JSON.stringify(process.env.PENDO_ENABLED || true),
   __CLINICS_ENABLED__: JSON.stringify(process.env.CLINICS_ENABLED || false),
+  __PATIENT_SUMMARIES_ENABLED__: JSON.stringify(process.env.PATIENT_SUMMARIES_ENABLED || false),
   __VERSION__: JSON.stringify(VERSION),
   __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
   __VERSION_SHA__: JSON.stringify(VERSION_SHA),

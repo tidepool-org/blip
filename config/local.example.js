@@ -24,6 +24,7 @@ const featureFlags = {
   pendoEnabled: true,
   rxEnabled: false,
   clinicsEnabled: false,
+  patientSummariesEnabled: false,
 };
 
 const environments = {
