@@ -100,9 +100,9 @@ export default (state = initialWorkingState, action) => {
     case types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST:
     case types.DELETE_PATIENT_FROM_CLINIC_REQUEST:
     case types.FETCH_PATIENTS_FOR_CLINIC_REQUEST:
-    case types.CREATE_CUSTODIAL_ACCOUNT_REQUEST:
     case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
     case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_REQUEST:
     case types.SEND_CLINICIAN_INVITE_REQUEST:
     case types.FETCH_CLINICIAN_INVITE_REQUEST:
@@ -149,7 +149,6 @@ export default (state = initialWorkingState, action) => {
           types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST,
           types.DELETE_PATIENT_FROM_CLINIC_REQUEST,
           types.FETCH_PATIENTS_FOR_CLINIC_REQUEST,
-          types.CREATE_CUSTODIAL_ACCOUNT_REQUEST,
           types.SEND_CLINICIAN_INVITE_REQUEST,
           types.FETCH_CLINICIAN_INVITE_REQUEST,
           types.SEND_INVITE_REQUEST,
@@ -163,6 +162,7 @@ export default (state = initialWorkingState, action) => {
           types.SET_MEMBER_PERMISSIONS_REQUEST,
           types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST,
           types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST,
+          types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
@@ -252,9 +252,9 @@ export default (state = initialWorkingState, action) => {
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS:
     case types.DELETE_PATIENT_FROM_CLINIC_SUCCESS:
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS:
-    case types.CREATE_CUSTODIAL_ACCOUNT_SUCCESS:
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
     case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_SUCCESS:
     case types.SEND_CLINICIAN_INVITE_SUCCESS:
     case types.FETCH_CLINICIAN_INVITE_SUCCESS:
@@ -402,9 +402,9 @@ export default (state = initialWorkingState, action) => {
     case types.DELETE_CLINICIAN_FROM_CLINIC_FAILURE:
     case types.DELETE_PATIENT_FROM_CLINIC_FAILURE:
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
-    case types.CREATE_CUSTODIAL_ACCOUNT_FAILURE:
     case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
     case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_FAILURE:
     case types.SEND_CLINICIAN_INVITE_FAILURE:
     case types.FETCH_CLINICIAN_INVITE_FAILURE:

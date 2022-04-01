@@ -1,14 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
-import debounce from 'lodash/debounce';
 import get from 'lodash/get'
-import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
-import values from 'lodash/values';
+import map from 'lodash/map';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
@@ -23,7 +21,6 @@ import {
 
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
-import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import PatientForm from '../../components/clinic/PatientForm';
 import PopoverMenu from '../../components/elements/PopoverMenu';
@@ -40,19 +37,17 @@ import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 import { patientSchema as validationSchema } from '../../core/clinicUtils';
+import { clinicPatientFromAccountInfo } from '../../core/personutils';
 
 const { Loader } = vizComponents;
 
-export const ClinicPatients = (props) => {
-  const { t, api, trackMetric, searchDebounceMs } = props;
+export const ClinicianPatients = (props) => {
+  const { t, api, patients, trackMetric } = props;
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
-  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const clinics = useSelector((state) => state.blip.clinics);
-  const clinic = get(clinics, selectedClinicId);
-  const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
+  const membershipPermissionsInOtherCareTeams = useSelector((state) => state.blip.membershipPermissionsInOtherCareTeams);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
@@ -61,21 +56,12 @@ export const ClinicPatients = (props) => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
-  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
-
-  const debounceSearch = useCallback(debounce(search => {
-    setPatientFetchOptions({
-      ...patientFetchOptions,
-      offset: 0,
-      search,
-    });
-  }, searchDebounceMs), []);
 
   const {
-    fetchingPatientsForClinic,
-    deletingPatientFromClinic,
-    updatingClinicPatient,
-    creatingClinicCustodialAccount,
+    fetchingAssociatedAccounts,
+    removingMembershipInOtherCareTeam,
+    updatingPatient,
+    creatingVCACustodialAccount,
   } = useSelector((state) => state.blip.working);
 
   function handleAsyncResult(workingState, successMessage) {
@@ -103,40 +89,22 @@ export const ClinicPatients = (props) => {
   }
 
   useEffect(() => {
-    handleAsyncResult(updatingClinicPatient, t('You have successfully updated a patient.'));
-  }, [updatingClinicPatient]);
+    handleAsyncResult(updatingPatient, t('You have successfully updated a patient.'));
+  }, [updatingPatient]);
 
   useEffect(() => {
-    handleAsyncResult(creatingClinicCustodialAccount, t('You have successfully added a new patient.'));
-  }, [creatingClinicCustodialAccount]);
+    handleAsyncResult(creatingVCACustodialAccount, t('You have successfully added a new patient.'));
+  }, [creatingVCACustodialAccount]);
 
   useEffect(() => {
-    handleAsyncResult(deletingPatientFromClinic, t('{{name}} has been removed from the clinic.', {
+    handleAsyncResult(removingMembershipInOtherCareTeam, t('{{name}} has been removed.', {
       name: get(selectedPatient, 'fullName', t('This patient')),
     }));
-  }, [deletingPatientFromClinic]);
+  }, [removingMembershipInOtherCareTeam]);
 
   useEffect(() => {
-    setLoading(fetchingPatientsForClinic.inProgress);
-  }, [fetchingPatientsForClinic.inProgress]);
-
-  // Fetchers
-  useEffect(() => {
-    if (
-      loggedInUserId
-      && clinic?.id
-      && !fetchingPatientsForClinic.inProgress
-      && !fetchingPatientsForClinic.notification
-    ) {
-      const fetchOptions = { ...patientFetchOptions };
-      if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
-      dispatch(actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, fetchOptions)());
-    }
-  }, [loggedInUserId, clinic?.id, patientFetchOptions]);
-
-  function clinicPatients() {
-    return values(clinic?.patients);
-  }
+    setLoading(fetchingAssociatedAccounts.inProgress);
+  }, [fetchingAssociatedAccounts.inProgress]);
 
   const renderHeader = () => {
     const toggleLabel = showNames ? t('Hide All') : t('Show All');
@@ -278,7 +246,7 @@ export const ClinicPatients = (props) => {
             id="addPatientConfirm"
             variant="primary"
             onClick={handleAddPatientConfirm}
-            processing={creatingClinicCustodialAccount.inProgress}
+            processing={creatingVCACustodialAccount.inProgress}
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
           >
             {t('Add Patient')}
@@ -313,7 +281,7 @@ export const ClinicPatients = (props) => {
             id="editPatientConfirm"
             variant="primary"
             onClick={handleEditPatientConfirm}
-            processing={updatingClinicPatient.inProgress}
+            processing={updatingPatient.inProgress}
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
           >
             {t('Save Changes')}
@@ -324,14 +292,14 @@ export const ClinicPatients = (props) => {
   };
 
   function handleRemove(patient) {
-    trackMetric('Clinic - Remove patient', { clinicId: selectedClinicId });
+    trackMetric('Clinician - Remove patient');
     setSelectedPatient(patient);
     setShowDeleteDialog(true);
   }
 
   function handleRemovePatient() {
-    trackMetric('Clinic - Remove patient confirmed', { clinicId: selectedClinicId });
-    dispatch(actions.async.deletePatientFromClinic(api, selectedClinicId, selectedPatient?.id));
+    trackMetric('Clinician - Remove patient confirmed');
+    dispatch(actions.async.removeMembershipInOtherCareTeam(api, selectedPatient?.id));
   }
 
   function handleCloseOverlay() {
@@ -351,23 +319,23 @@ export const ClinicPatients = (props) => {
   }
 
   function handleAddPatient() {
-    trackMetric('Clinic - Add patient', { clinicId: selectedClinicId });
+    trackMetric('Clinician - Add patient');
     setShowAddPatientDialog(true);
   }
 
   function handleAddPatientConfirm() {
-    trackMetric('Clinic - Add patient confirmed', { clinicId: selectedClinicId });
+    trackMetric('Clinician - Add patient confirmed');
     patientFormContext?.handleSubmit();
   }
 
   function handleEditPatient(patient) {
-    trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId });
+    trackMetric('Clinician - Edit patient');
     setSelectedPatient(patient);
     setShowEditPatientDialog(true);
   }
 
   function handleEditPatientConfirm() {
-    trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
+    trackMetric('Clinician - Edit patient confirmed');
     patientFormContext?.handleSubmit();
   }
 
@@ -377,33 +345,10 @@ export const ClinicPatients = (props) => {
 
   function handleSearchChange(event) {
     setSearch(event.target.value);
-    setLoading(true);
-    debounceSearch(event.target.value);
-  }
-
-  function handleSortChange(newOrderBy) {
-    const currentOrder = patientFetchOptions.sort[0];
-    const currentOrderBy = patientFetchOptions.sort.substring(1);
-    const newOrder = newOrderBy === currentOrderBy && currentOrder === '+' ? '-' : '+';
-
-    setPatientFetchOptions({
-      ...patientFetchOptions,
-      offSet: 0,
-      sort: `${newOrder}${newOrderBy}`,
-    });
   }
 
   function handleClearSearch(event) {
     setSearch('');
-    setLoading(true);
-    debounceSearch('');
-  }
-
-  function handlePageChange(event, page) {
-    setPatientFetchOptions({
-      ...patientFetchOptions,
-      offset: (page - 1) * patientFetchOptions.limit,
-    });
   }
 
   const renderPatient = patient => (
@@ -421,21 +366,24 @@ export const ClinicPatients = (props) => {
 
   const renderMore = patient => {
     const items = [];
+    const isLoggedInUser = patient.id === loggedInUserId;
 
-    items.push({
-      icon: EditIcon,
-      iconLabel: t('Edit Patient Information'),
-      iconPosition: 'left',
-      id: `edit-${patient.id}`,
-      variant: 'actionListItem',
-      onClick: _popupState => {
-        _popupState.close();
-        handleEditPatient(patient);
-      },
-      text: t('Edit Patient Information'),
-    });
+    if (isLoggedInUser || membershipPermissionsInOtherCareTeams?.[patient.id]?.custodian) {
+      items.push({
+        icon: EditIcon,
+        iconLabel: t('Edit Patient Information'),
+        iconPosition: 'left',
+        id: `edit-${patient.id}`,
+        variant: 'actionListItem',
+        onClick: _popupState => {
+          _popupState.close();
+          handleEditPatient(patient);
+        },
+        text: t('Edit Patient Information'),
+      });
+    }
 
-    if (isClinicAdmin) items.push({
+    if (!isLoggedInUser) items.push({
       icon: DeleteIcon,
       iconLabel: t('Remove Patient'),
       iconPosition: 'left',
@@ -459,6 +407,8 @@ export const ClinicPatients = (props) => {
         field: 'fullName',
         align: 'left',
         sortable: true,
+        searchable: true,
+        searchBy: ['fullName', 'email'],
         render: renderPatient,
       },
       {
@@ -489,23 +439,14 @@ export const ClinicPatients = (props) => {
           id={'peopleTable'}
           label={'peopletablelabel'}
           columns={columns}
-          data={clinicPatients()}
-          style={{fontSize:'14px'}}
-          onSort={handleSortChange}
-          order={patientFetchOptions.sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
-          orderBy={patientFetchOptions.sort.substring(1)}
+          data={map(patients, clinicPatientFromAccountInfo)}
+          style={{ fontSize:'14px' }}
+          orderBy="fullNameOrderable"
+          order="asc"
+          rowsPerPage={8}
+          searchText={search}
+          pagination={patients.length > 8}
         />
-
-        {clinic?.patientCount > patientFetchOptions.limit && (
-          <Pagination
-            mt={4}
-            id="clinic-patients-pagination"
-            count={Math.ceil(clinic.patientCount / patientFetchOptions.limit)}
-            onChange={handlePageChange}
-            showFirstButton={false}
-            showLastButton={false}
-          />
-        )}
       </Box>
     );
   }
@@ -519,24 +460,20 @@ export const ClinicPatients = (props) => {
   }
 
   return (
-    <div>
+    <Box pt={4}>
       {renderHeader()}
       {renderPeopleArea()}
       {renderRemoveDialog()}
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
-    </div>
+    </Box>
   );
 };
 
-ClinicPatients.propTypes = {
+ClinicianPatients.propTypes = {
   api: PropTypes.object.isRequired,
+  patients: PropTypes.array.isRequired,
   trackMetric: PropTypes.func.isRequired,
-  searchDebounceMs: PropTypes.number.isRequired,
 };
 
-ClinicPatients.defaultProps = {
-  searchDebounceMs: 1000,
-};
-
-export default translate()(ClinicPatients);
+export default translate()(ClinicianPatients);

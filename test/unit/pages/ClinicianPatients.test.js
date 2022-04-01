@@ -7,7 +7,7 @@ import merge from 'lodash/merge';
 import noop from 'lodash/noop';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
-import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
+import ClinicianPatients from '../../../app/pages/clinicworkspace/ClinicianPatients';
 import Popover from '../../../app/components/elements/Popover';
 
 /* global chai */
@@ -18,26 +18,62 @@ import Popover from '../../../app/components/elements/Popover';
 /* global beforeEach */
 /* global before */
 /* global after */
+/* global assert */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicPatients', () => {
+describe('ClinicianPatients', () => {
   let mount;
 
   let wrapper;
+
+  let patient1 = {
+    userid: 'patient1',
+    username: 'patient1@test.ca',
+    profile: {
+      fullName: 'Patient One',
+      patient: {
+        birthday: '1999-01-01' ,
+      }
+    }
+  };
+
+  let patient2 = {
+    userid: 'patient2',
+    username: 'patient2@test.ca',
+    profile: {
+      fullName: 'Patient Two',
+      patient: {
+        birthday: '1999-02-02',
+        mrn: 'mrn123'
+      }
+    }
+  };
+
   let defaultProps = {
     trackMetric: sinon.stub(),
     t: sinon.stub().callsFake((string) => string),
-    searchDebounceMs: 0,
+    patients: [
+      patient1,
+      patient2,
+    ],
     api: {
-      clinics: {
-        getPatientsForClinic: sinon.stub(),
-        deletePatientFromClinic: sinon.stub(),
-        createClinicCustodialAccount: sinon.stub().callsArgWith(2, null, { id: 'stubbedId' }),
-        updateClinicPatient: sinon.stub().callsArgWith(3, null, { id: 'stubbedId', stubbedUpdates: 'foo' }),
+      patient: {
+        put: sinon.stub().callsArgWith(1, null, { stubbedUpdates: 'foo' }),
       },
+      user: {
+        createCustodialAccount: sinon.stub().callsArgWith(1, null, { userid: 'stubbedId' }),
+      },
+      access: {
+        leaveGroup: sinon.stub(),
+      }
     },
+  };
+
+  let noPatientProps = {
+    ...defaultProps,
+    patients: [],
   };
 
   before(() => {
@@ -46,10 +82,9 @@ describe('ClinicPatients', () => {
 
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
-    defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-    defaultProps.api.clinics.deletePatientFromClinic.resetHistory();
-    defaultProps.api.clinics.createClinicCustodialAccount.resetHistory();
-    defaultProps.api.clinics.updateClinicPatient.resetHistory();
+    defaultProps.api.access.leaveGroup.resetHistory();
+    defaultProps.api.user.createCustodialAccount.resetHistory();
+    defaultProps.api.patient.put.resetHistory();
   });
 
   after(() => {
@@ -70,38 +105,20 @@ describe('ClinicPatients', () => {
   const loggedInUserId = 'clinicianUserId123';
 
   const clinicianUserId123 = {
-    email: 'clinic@example.com',
-    roles: ['CLINIC_ADMIN'],
-    id: 'clinicianUserId123',
+    username: 'clinic@example.com',
+    roles: ['CLINIC'],
+    userid: 'clinicianUserId123',
   };
 
   const noPatientsState = {
     blip: {
       loggedInUserId,
-      clinics: {
-        clinicID123: {
-          clinicians:{
-            clinicianUserId123,
-          },
-          patients: {},
-          id: 'clinicID123',
-          address: '2 Address Ln, City Zip',
-          name: 'other_clinic_name',
-          email: 'other_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 444-4444',
-              type: 'Office',
-            },
-          ],
-        },
-      },
-      selectedClinicId: 'clinicID123',
+      allUsersMap: { clinicianUserId123 },
       working: {
-        fetchingPatientsForClinic: completedState,
-        deletingPatientFromClinic: defaultWorkingState,
-        updatingClinicPatient: defaultWorkingState,
-        creatingClinicCustodialAccount: defaultWorkingState,
+        fetchingAssociatedAccounts: completedState,
+        removingMembershipInOtherCareTeam: defaultWorkingState,
+        updatingPatient: defaultWorkingState,
+        creatingVCACustodialAccount: defaultWorkingState,
       },
     },
   };
@@ -110,60 +127,18 @@ describe('ClinicPatients', () => {
 
   const hasPatientsState = merge({}, noPatientsState, {
     blip: {
+      ...noPatientsState.blip,
       allUsersMap: {
         clinicianUserId123,
+        patient1,
+        patient2,
       },
-      clinics: {
-        clinicID123: {
-          clinicians:{
-            clinicianUserId123,
-          },
-          patients: {
-            patient1: {
-              id: 'patient1',
-              email: 'patient1@test.ca',
-              fullName: 'Patient One',
-              birthDate: '1999-01-01' ,
-            },
-            patient2: {
-              id: 'patient2',
-              email: 'patient2@test.ca',
-              fullName: 'Patient Two',
-              birthDate: '1999-02-02',
-              mrn: 'mrn123'
-            },
-          },
-          id: 'clinicID123',
-          address: '2 Address Ln, City Zip',
-          name: 'other_clinic_name',
-          email: 'other_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 444-4444',
-              type: 'Office',
-            },
-          ],
-        },
-      },
+      membershipPermissionsInOtherCareTeams: {
+        patient1: { view: {} },
+        patient2: { custodian: {} },
+      }
     },
   });
-
-  const nonAdminPatientsState = {
-    blip: {
-      ...hasPatientsState.blip,
-      clinics: {
-        clinicID123: {
-          ...hasPatientsState.blip.clinics.clinicID123,
-          clinicians: {
-            clinicianUserId123: {
-              ...clinicianUserId123,
-              roles: ['CLINIC_MEMBER'],
-            },
-          },
-        },
-      },
-    },
-  };
 
   context('no patients', () => {
     beforeEach(() => {
@@ -171,7 +146,7 @@ describe('ClinicPatients', () => {
       wrapper = mount(
         <Provider store={store}>
           <ToastProvider>
-            <ClinicPatients {...defaultProps} />
+            <ClinicianPatients {...noPatientProps} />
           </ToastProvider>
         </Provider>
       );
@@ -199,7 +174,7 @@ describe('ClinicPatients', () => {
       expect(dialog()).to.have.length(1);
       expect(dialog().props().open).to.be.true;
 
-      expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
+      expect(defaultProps.trackMetric.calledWith('Clinician - Add patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
       const patientForm = () => dialog().find('form#clinic-patient-form');
@@ -225,27 +200,24 @@ describe('ClinicPatients', () => {
       dialog().find('Button#addPatientConfirm').simulate('click');
 
       setTimeout(() => {
-        expect(defaultProps.api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
+        expect(defaultProps.api.user.createCustodialAccount.callCount).to.equal(1);
 
         sinon.assert.calledWith(
-          defaultProps.api.clinics.createClinicCustodialAccount,
-          'clinicID123',
+          defaultProps.api.user.createCustodialAccount,
           {
+            emails: ['patient@test.ca'],
             fullName: 'Patient Name',
-            birthDate: '1999-11-21',
-            mrn: '123456',
-            email: 'patient@test.ca',
+            patient: { birthday: '1999-11-21', mrn: '123456' }
           }
         );
 
         expect(store.getActions()).to.eql([
-          { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST' },
           {
-            type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS',
+            type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS',
             payload: {
-              clinicId: 'clinicID123',
               patientId: 'stubbedId',
-              patient: { id: 'stubbedId' },
+              patient: { userid: 'stubbedId' },
             },
           },
         ]);
@@ -262,7 +234,7 @@ describe('ClinicPatients', () => {
       wrapper = mount(
         <Provider store={store}>
           <ToastProvider>
-            <ClinicPatients {...defaultProps} />
+            <ClinicianPatients {...defaultProps} />
           </ToastProvider>
         </Provider>
       );
@@ -304,7 +276,7 @@ describe('ClinicPatients', () => {
         expect(table.find('tr').at(2).text()).contains('mrn123');
       });
 
-      it('should allow searching patients', (done) => {
+      it('should allow searching patients', () => {
         const table = () => wrapper.find(Table);
         expect(table()).to.have.length(1);
         expect(table().find('tr')).to.have.length(3); // header row + 2 invites
@@ -314,20 +286,11 @@ describe('ClinicPatients', () => {
         const searchInput = wrapper.find('input[name="search-patients"]');
         expect(searchInput).to.have.lengthOf(1);
 
-        // Clear the store actions
-        store.clearActions();
-
         // Input partial match on name for patient two
         searchInput.simulate('change', { target: { name: 'search-patients', value: 'Two' } });
 
-        setTimeout(() => {
-          expect(store.getActions()).to.eql([
-            { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
-          ]);
-
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { limit: 8, offset: 0, search: 'Two', sort: '+fullName' });
-          done();
-        }, 300);
+        expect(table().find('tr')).to.have.length(2); // header row + 1 invites
+        expect(table().find('tr').at(1).text()).contains('Patient Two');
       });
 
       it('should link to a patient data view when patient name is clicked', () => {
@@ -373,6 +336,24 @@ describe('ClinicPatients', () => {
         expect(wrapper.find(Popover).at(0).props().open).to.be.true;
       });
 
+      it('should not show the patient edit link for non-custodial patient accounts', () => {
+        const table = wrapper.find(Table);
+        expect(table).to.have.length(1);
+        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
+        const patientRow1 = table.find('tr').at(1);
+        const patientRow2 = table.find('tr').at(2);
+
+        expect(patientRow1.text()).contains('Patient One');
+        const patient1EditButton = patientRow1.find('Button[iconLabel="Edit Patient Information"]');
+        assert(!hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient1.custodian)
+        expect(patient1EditButton).to.have.length(0);
+
+        expect(patientRow2.text()).contains('Patient Two');
+        assert(hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient2.custodian)
+        const patient2EditButton = patientRow2.find('Button[iconLabel="Edit Patient Information"]');
+        expect(patient2EditButton).to.have.length(1);
+      });
+
       it('should open a modal for patient editing when edit link is clicked', done => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
@@ -387,7 +368,7 @@ describe('ClinicPatients', () => {
         expect(dialog()).to.have.length(1);
         expect(dialog().props().open).to.be.true;
 
-        expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
+        expect(defaultProps.trackMetric.calledWith('Clinician - Edit patient')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
 
         const patientForm = () => dialog().find('form#clinic-patient-form');
@@ -413,29 +394,29 @@ describe('ClinicPatients', () => {
         dialog().find('Button#editPatientConfirm').simulate('click');
 
         setTimeout(() => {
-          expect(defaultProps.api.clinics.updateClinicPatient.callCount).to.equal(1);
+          expect(defaultProps.api.patient.put.callCount).to.equal(1);
 
           sinon.assert.calledWith(
-            defaultProps.api.clinics.updateClinicPatient,
-            'clinicID123',
-            'patient2',
+            defaultProps.api.patient.put,
             {
-              fullName: 'Patient 2',
-              birthDate: '1999-01-01',
-              mrn: 'mrn456',
-              id: 'patient2',
-              email: 'patient-two@test.ca',
+              emails: ['patient-two@test.ca'],
+              permissions: undefined,
+              profile: {
+                emails: ['patient-two@test.ca'],
+                fullName: 'Patient 2',
+                patient: { birthday: '1999-01-01', mrn: 'mrn456' },
+              },
+              userid: 'patient2',
+              username: 'patient-two@test.ca',
             }
           );
 
           expect(store.getActions()).to.eql([
-            { type: 'UPDATE_CLINIC_PATIENT_REQUEST' },
+            { type: 'UPDATE_PATIENT_REQUEST' },
             {
-              type: 'UPDATE_CLINIC_PATIENT_SUCCESS',
+              type: 'UPDATE_PATIENT_SUCCESS',
               payload: {
-                clinicId: 'clinicID123',
-                patientId: 'stubbedId',
-                patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
+                updatedPatient: { stubbedUpdates: 'foo' },
               },
             },
           ]);
@@ -455,7 +436,7 @@ describe('ClinicPatients', () => {
         wrapper.update();
         expect(wrapper.find('Dialog#deleteUser').props().open).to.be.true;
 
-        expect(defaultProps.trackMetric.calledWith('Clinic - Remove patient')).to.be.true;
+        expect(defaultProps.trackMetric.calledWith('Clinician - Remove patient')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
 
         const confirmRemoveButton = wrapper.find('Dialog#deleteUser').find('Button#patientRemoveConfirm');
@@ -464,65 +445,15 @@ describe('ClinicPatients', () => {
         store.clearActions();
 
         confirmRemoveButton.simulate('click');
+        console.log('store.getActions()', store.getActions());
         expect(store.getActions()).to.eql([
-          { type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' },
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
         ]);
 
-        sinon.assert.calledWith(defaultProps.api.clinics.deletePatientFromClinic, 'clinicID123', 'patient1');
+        sinon.assert.calledWith(defaultProps.api.access.leaveGroup, 'patient1');
 
-        expect(defaultProps.trackMetric.calledWith('Clinic - Remove patient confirmed')).to.be.true;
+        expect(defaultProps.trackMetric.calledWith('Clinician - Remove patient confirmed')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(2);
-      });
-
-      it('should refetch patients with updated sort parameter when name or birthday headers are clicked', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-
-        const patientHeader = table.find('#peopleTable-header-fullName .MuiTableSortLabel-root').at(0);
-        expect(patientHeader.text()).to.equal('Patient');
-
-        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-        patientHeader.simulate('click');
-        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
-
-        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-        patientHeader.simulate('click');
-        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
-
-        const birthdayHeader = table.find('#peopleTable-header-birthDate .MuiTableSortLabel-root').at(0);
-        expect(birthdayHeader.text()).to.equal('Birthday');
-
-        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-        birthdayHeader.simulate('click');
-        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+birthDate' }));
-
-        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-        birthdayHeader.simulate('click');
-        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-birthDate' }));
-      });
-
-      context('non-admin clinician', () => {
-        beforeEach(() => {
-          store = mockStore(nonAdminPatientsState);
-          defaultProps.trackMetric.resetHistory();
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <ClinicPatients {...defaultProps} />
-              </ToastProvider>
-            </Provider>
-          );
-
-          wrapper.find('button#patients-view-toggle').simulate('click');
-        });
-
-        it('should not render the remove button', () => {
-          const table = wrapper.find(Table);
-          expect(table).to.have.length(1);
-          expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-          const removeButton = table.find('tr').at(1).find('.remove-clinic-patient');
-          expect(removeButton).to.have.lengthOf(0);
-        });
       });
     });
   });

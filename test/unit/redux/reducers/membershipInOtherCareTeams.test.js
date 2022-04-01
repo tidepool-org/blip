@@ -72,6 +72,23 @@ describe('memberInOtherCareTeams', () => {
     });
   });
 
+  describe('createVCACustodialAccountSuccess', () => {
+    it('should add the new account ID', () => {
+      let patientId = 'x1y2z3';
+
+      let initialStateForTest = [ 'a1b2c3', 'd4e5f6' ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let action = actions.sync.createVCACustodialAccountSuccess(patientId);
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.length).to.equal(3);
+      expect(_.includes(state, patientId)).to.be.true;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
   describe('logoutRequest', () => {
     it('should set state to null', () => {
       let initialStateForTest = [ 'a1b2c3', 'd4e5f6', 'x1y2z3' ];
