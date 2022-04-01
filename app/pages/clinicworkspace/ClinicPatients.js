@@ -3,11 +3,19 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
+import { format } from 'd3-format';
+import moment from 'moment';
 import debounce from 'lodash/debounce';
+import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
+import map from 'lodash/map';
+import random from 'lodash/random';
+import round from 'lodash/round';
+import sample from 'lodash/sample';
+import sum from 'lodash/sum';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
@@ -39,7 +47,9 @@ import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
-import { patientSchema as validationSchema } from '../../core/clinicUtils';
+import { dateFormat, patientSchema as validationSchema } from '../../core/clinicUtils';
+import config from '../../config';
+import { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 
 const { Loader } = vizComponents;
 
@@ -57,11 +67,13 @@ export const ClinicPatients = (props) => {
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
+  const [showSummaryData, setShowSummaryData] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
+  const statEmptyText = '--';
 
   const debounceSearch = useCallback(debounce(search => {
     setPatientFetchOptions({
@@ -147,8 +159,79 @@ export const ClinicPatients = (props) => {
     }
   }, [loggedInUserId, clinic?.id, patientFetchOptions]);
 
+  /* BEGIN TEMPORARY MOCK SUMMARY DATA */
+  const [patientSummaries, setPatientSummaries] = useState({});
+
+  function randomDate(start = moment().subtract(40, 'days').toDate(), end = new Date()) {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  }
+
+  function randomSummaryData(patient) {
+    const bgUnits = sample([MGDL_UNITS, MMOLL_UNITS]);
+    const lastUpload = randomDate();
+    const lastData = randomDate(moment(lastUpload).subtract(random(0, 40), 'days').toDate(), lastUpload);
+    const firstData = randomDate(moment(lastData).subtract(random(0, 100), 'days').toDate(), lastData);
+    const timeInRange = random(3, 8, true);
+    const timeAboveRange = random(1, 4, true);
+    const timeVeryAboveRange = random(0, 2, true);
+    const timeBelowRange = random(1, 4, true);
+    const timeVeryBelowRange = random(0, 2, true);
+    const rangeSum = sum([timeInRange, timeAboveRange, timeVeryAboveRange, timeBelowRange, timeVeryBelowRange]);
+    const avgGlucose = rangeSum * (bgUnits === MMOLL_UNITS ? .7 : (.7 * MGDL_PER_MMOLL));
+    const timeCGMUse = round(random(0.6, 1, true), 2);
+    const meanInMGDL = bgUnits === MGDL_UNITS ? avgGlucose : avgGlucose * MGDL_PER_MMOLL;
+    const glucoseMgmtIndicator = timeCGMUse >= 0.7 ? (3.31 + 0.02392 * meanInMGDL) / 100 : undefined;
+
+    return {
+      userId: patient.id,
+      lastUpdated: new Date().toISOString(),
+      firstData: firstData.toISOString(),
+      lastData: lastData.toISOString(),
+      lastUpload: lastUpload.toISOString(),
+      outdatedSince: new Date().toISOString(),
+      avgGlucose: { units: bgUnits, value: avgGlucose },
+      glucoseMgmtIndicator,
+      timeInRange: round(timeInRange / rangeSum, 2),
+      timeAboveRange: round(timeAboveRange / rangeSum, 2),
+      timeVeryAboveRange: round(timeVeryAboveRange / rangeSum, 2),
+      timeBelowRange: round(timeBelowRange / rangeSum, 2),
+      timeVeryBelowRange: round(timeVeryBelowRange / rangeSum, 2),
+      timeCGMUse,
+      highGlucoseThreshold: bgUnits === MMOLL_UNITS ? 10.0 : 180,
+      lowGlucoseThreshold: bgUnits === MMOLL_UNITS ? 3.9 : 70,
+    };
+  }
+
+  useEffect(() => {
+    if (config.PATIENT_SUMMARIES_ENABLED && clinic?.patients) {
+      setShowSummaryData(true); // TODO: at some point this will be enabled via backend authorization
+
+      const summaries = { ...patientSummaries };
+
+      forEach(clinic?.patients, (patient, patientId) => {
+        if (!summaries[patientId]) {
+          summaries[patientId] = randomSummaryData(patient);
+        }
+      });
+
+      setPatientSummaries(summaries);
+      console.log('summaries', summaries);
+    }
+  }, [clinic?.patients]);
+  /* END TEMPORARY MOCK SUMMARY DATA */
+
+  function formatPercentage(val, precision = 0) {
+    if (!val || Number.isNaN(val)) {
+      return statEmptyText
+    }
+    return format(`.${precision}%`)(val);
+  }
+
   function clinicPatients() {
-    return values(clinic?.patients);
+    return map(values(clinic?.patients), patient => (showSummaryData
+      ? { ...patient, summary: patientSummaries[patient.id] }
+      : patient
+    ));
   }
 
   const renderHeader = () => {
@@ -422,7 +505,48 @@ export const ClinicPatients = (props) => {
   const renderPatient = patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient.fullName}</Text>
-      <Text>{patient.email || '\u00A0'}</Text>
+      {patient.email && <Text>{patient.email}</Text>}
+    </Box>
+  );
+
+  const renderPatientSecondaryInfo = patient => (
+    <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+      <Text>{t('DOB:')} {patient.birthDate}</Text>
+      {patient.mrn && <Text>{t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
+    </Box>
+  );
+
+  const renderLastUpload = ({ summary }) => {
+    let formattedLastUpload = statEmptyText;
+
+    if (summary?.lastUpload) {
+      const lastUploadMoment = moment(summary.lastUpload);
+      const daysAgo = moment().diff(lastUploadMoment, 'days');
+      formattedLastUpload = lastUploadMoment.format(dateFormat);
+
+      if (daysAgo <= 1) {
+        formattedLastUpload = (daysAgo === 1) ? t('Yesterday') : t('Today');
+      } else if (daysAgo <=30) {
+        formattedLastUpload = t('{{days}} days ago', { days: daysAgo });
+      }
+    }
+
+    return (
+      <Box classname="patient-last-upload">
+        <Text>{formattedLastUpload}</Text>
+      </Box>
+    );
+  };
+
+  const renderCGMUsage = ({ summary }) => (
+    <Box classname="patient-cgm-usage">
+      <Text>{summary?.timeCGMUse ? formatPercentage(summary.timeCGMUse) : statEmptyText}</Text>
+    </Box>
+  );
+
+  const renderGMI = ({ summary }) => (
+    <Box classname="patient-gmi">
+      <Text>{summary?.glucoseMgmtIndicator ? formatPercentage(summary.glucoseMgmtIndicator) : statEmptyText}</Text>
     </Box>
   );
 
@@ -495,6 +619,39 @@ export const ClinicPatients = (props) => {
       },
     ];
 
+    if (showSummaryData) {
+      columns.splice(1, 2, ...[
+        {
+          title: '',
+          field: 'patientSecondary',
+          align: 'left',
+          sortable: true,
+          sortBy: 'birthDate',
+          render: renderPatientSecondaryInfo,
+        },
+        {
+          title: t('Last Upload (CGM)'),
+          field: 'lastUpload',
+          align: 'left',
+          sortable: true,
+          sortBy: 'summary.lastUpload',
+          render: renderLastUpload,
+        },
+        {
+          title: t('% CGM Use'),
+          field: 'lastUpload',
+          align: 'center',
+          render: renderCGMUsage,
+        },
+        {
+          title: t('GMI'),
+          field: 'glucoseMgmtIndicator',
+          align: 'center',
+          render: renderGMI,
+        },
+      ]);
+    }
+
     return (
       <Box sx={{ position: 'relative' }}>
         <Loader show={loading} overlay={true} />
@@ -503,7 +660,7 @@ export const ClinicPatients = (props) => {
           label={'peopletablelabel'}
           columns={columns}
           data={clinicPatients()}
-          style={{fontSize:'14px'}}
+          style={{fontSize: showSummaryData ? '12px' : '14px'}}
           onSort={handleSortChange}
           order={patientFetchOptions.sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={patientFetchOptions.sort.substring(1)}
