@@ -145,6 +145,26 @@ export const ClinicAdmin = (props) => {
   }, [working.deletingClinicianFromClinic]);
 
   useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.fetchingClinicianInvite;
+    const prevInProgress = get(
+      previousWorking,
+      'fetchingClinicianInvite.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      }
+    }
+  }, [working.fetchingClinicianInvite]);
+
+  useEffect(() => {
     if(loggedInUserId && clinic) {
       if (
         !fetchingCliniciansFromClinic.inProgress &&
