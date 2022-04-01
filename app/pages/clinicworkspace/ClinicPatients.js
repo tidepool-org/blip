@@ -536,8 +536,8 @@ export const ClinicPatients = (props) => {
       {renderHeader()}
       {renderPeopleArea()}
       {renderRemoveDialog()}
-      {renderAddPatientDialog()}
-      {renderEditPatientDialog()}
+      {showAddPatientDialog && renderAddPatientDialog()}
+      {showEditPatientDialog && renderEditPatientDialog()}
     </div>
   );
 };
