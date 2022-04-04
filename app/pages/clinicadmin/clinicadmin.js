@@ -165,6 +165,26 @@ export const ClinicAdmin = (props) => {
   }, [working.fetchingClinicianInvite]);
 
   useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.fetchingCliniciansFromClinic;
+    const prevInProgress = get(
+      previousWorking,
+      'fetchingCliniciansFromClinic.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      }
+    }
+  }, [working.fetchingCliniciansFromClinic]);
+
+  useEffect(() => {
     if(loggedInUserId && clinic) {
       if (
         !fetchingCliniciansFromClinic.inProgress &&
