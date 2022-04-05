@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.27.0-web-1078-daily-view-date-picker.1":
-  version "1.27.0-web-1078-daily-view-date-picker.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.27.0-web-1078-daily-view-date-picker.1.tgz#485f95c0b886ef847f1f9300b5b46e5e370f7878"
-  integrity sha512-GH0SCLE13N1QOLd+oia5Am5nM9pXiw9Hyv7dD5yrjKeHfWigoMb9Py6i+BzkoZHzsdKm4JfORJ1s0gvtSSPQvQ==
+"@tidepool/viz@1.27.0-web-1338-patient-list-cgm-stats.1":
+  version "1.27.0-web-1338-patient-list-cgm-stats.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.27.0-web-1338-patient-list-cgm-stats.1.tgz#e7287051a42deb82b1d6a54b6defd054ce85ce41"
+  integrity sha512-JgQiLm1oq50YaMjlc+bXSRf3+M6KRlEcVGjA+mvxHaYA1DJ0BzBRhh9eWFy2ZtwWKQ460kyTjovOi/6BcdlXxg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
