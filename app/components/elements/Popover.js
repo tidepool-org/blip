@@ -1,17 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { default as Base, PopoverProps } from '@material-ui/core/Popover';
+import HoverPopover from 'material-ui-popup-state/HoverPopover';
 import styled from 'styled-components';
 import { Box, BoxProps } from 'rebass/styled-components';
 
-import { borders, radii, shadows, space } from '../../themes/baseTheme';
+import { borders, radii, shadows, space, fonts } from '../../themes/baseTheme';
 
-const StyledPopover = styled(Base)`
+const StyledPopover = (Component) => styled(Component)`
   .MuiPopover-paper {
-    margin-top: ${space[2]}px;
+    font-family: ${fonts.default};
+    margin-top: ${({ marginTop = `${space[2]}px` }) => marginTop};
     margin-bottom: ${space[2]}px;
     border: ${borders.modal};
-    box-shadow: ${shadows.large};
+    box-shadow: ${({ boxShadow = shadows.large }) => boxShadow};
     border-radius: ${radii.default}px;
     width: ${({ width }) => width};
     min-width: ${({ minWidth }) => minWidth};
@@ -27,11 +29,14 @@ const Popover = props => {
   const {
     themeProps,
     PaperProps,
+    useHoverPopover,
     ...popoverProps
   } = props;
 
+  const Component = StyledPopover(useHoverPopover ? HoverPopover : Base);
+
   return (
-    <StyledPopover
+    <Component
       PaperProps={{ component: PopoverContentWrapper }}
       {...popoverProps}
     />
@@ -41,6 +46,7 @@ const Popover = props => {
 Popover.propTypes = {
   ...PopoverProps,
   themeProps: PropTypes.shape(BoxProps),
+  useHoverPopover: PropTypes.bool,
 };
 
 Popover.defaultProps = {
