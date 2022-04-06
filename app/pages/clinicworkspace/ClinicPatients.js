@@ -33,6 +33,7 @@ import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
+import BgRangeSummary from '../../components/clinic/BgRangeSummary';
 import PatientForm from '../../components/clinic/PatientForm';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 
@@ -550,6 +551,23 @@ export const ClinicPatients = (props) => {
     </Box>
   );
 
+  const renderBgRangeSummary = ({ summary }) => {
+    const bgUnits = summary?.avgGlucose.units;
+    const targetRange = [summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold];
+
+    const data = {
+      veryLow: summary?.timeVeryBelowRange,
+      low: summary?.timeBelowRange,
+      target: summary?.timeInRange,
+      high: summary?.timeAboveRange,
+      veryHigh: summary?.timeVeryAboveRange,
+    };
+
+    return (
+      <BgRangeSummary data={data} targetRange={targetRange} bgUnits={bgUnits} />
+    );
+  };
+
   const renderLinkedField = (field, patient) => (
     <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient[field]}</Text>
@@ -648,6 +666,12 @@ export const ClinicPatients = (props) => {
           field: 'glucoseMgmtIndicator',
           align: 'center',
           render: renderGMI,
+        },
+        {
+          title: t('% Time in Range'),
+          field: 'bgRangeSummary',
+          align: 'center',
+          render: renderBgRangeSummary,
         },
       ]);
     }

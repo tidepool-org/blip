@@ -35,8 +35,8 @@ export const BgRangeSummary = props => {
   const bgLabels = generateBgRangeLabels(bgPrefs, { condensed: true });
 
   return (
-    <>
-      <Flex height="20px" width="200px" justifyContent="center" {...bindHover(popupState)}>
+    <Box width="200px">
+      <Flex height="20px" width="100%" justifyContent="center" {...bindHover(popupState)}>
         {map(data, (value, key) => (
           <Box key={key} bg={`bg.${key}`} width={`${value * 100}%`} />
         ))}
@@ -63,21 +63,21 @@ export const BgRangeSummary = props => {
             {map(data, (value, key) => (
               <Flex flexDirection="column" alignItems="center">
                 <Flex mb={2} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
-                  <Text fontSize={1}>
+                  <Text lineHeight={1} fontSize={1}>
                     {/* TODO: better formatting - precision matching viz stats for veryLow */}
                     {format(`.${0}%`)(value).slice(0, -1)}
                   </Text>
-                  <Text color="inherit" fontSize=".65em">%</Text>
+                  <Text lineHeight={1} color="inherit" fontSize=".65em">%</Text>
                 </Flex>
-                <Text color="grays.4" fontSize="9px">{bgLabels[key]}</Text>
+                <Text lineHeight={1} color="grays.4" fontSize="9px">{bgLabels[key]}</Text>
               </Flex>
             ))}
           </Flex>
 
-          <Text color="grays.4" fontSize="8px">{t(`Units in ${bgUnits}`)}</Text>
+          <Text lineHeight={1} color="grays.4" fontSize="8px">{t(`Units in ${bgUnits}`)}</Text>
         </Box>
-    </Popover>
-    </>
+      </Popover>
+    </Box>
   );
 };
 
