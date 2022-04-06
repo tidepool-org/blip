@@ -27,6 +27,14 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   .DateRangePickerInput {
     border-radius: ${radii.input}px;
     border-color: ${colors.borderColor};
+
+    .DateInput {
+      border-radius: ${radii.input}px;
+
+      input {
+        border-radius: ${radii.input}px;
+      }
+    }
   }
 
   .DateRangePicker_picker {
