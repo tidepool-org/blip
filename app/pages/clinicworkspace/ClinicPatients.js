@@ -22,8 +22,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
-import VerticalAlignBottomRoundedIcon from '@material-ui/icons/VerticalAlignBottomRounded';
-import ArrowDownwardRoundedIcon from '@material-ui/icons/ArrowDownwardRounded';
+import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
@@ -76,7 +75,7 @@ export const ClinicPatients = (props) => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
-  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
+  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 10, search: '', offset: 0, sort: '+fullName' });
   const statEmptyText = '--';
 
   const debounceSearch = useCallback(debounce(search => {
@@ -203,8 +202,8 @@ export const ClinicPatients = (props) => {
       timeCGMUse,
       highGlucoseThreshold: bgUnits === MMOLL_UNITS ? 10.0 : 180,
       lowGlucoseThreshold: bgUnits === MMOLL_UNITS ? 3.9 : 70,
-      lowEvents: round(random(0, timeBelowRange * 4)),
-      veryLowEvents: round(random(0, timeVeryBelowRange * 3)),
+      hyperGlycemicEvents: round(random(0, timeVeryAboveRange * 4.5)),
+      hypoGlycemicEvents: round(random(0, timeVeryBelowRange * 3.5)),
     };
   }
 
@@ -534,7 +533,7 @@ export const ClinicPatients = (props) => {
 
       if (daysAgo <= 1) {
         formattedLastUpload = (daysAgo === 1) ? t('Yesterday') : t('Today');
-        fontWeight = (daysAgo === 1) ? 'medium' : 'bold';
+        fontWeight = 'medium';
         color = 'greens.9';
       } else if (daysAgo <=30) {
         formattedLastUpload = t('{{days}} days ago', { days: daysAgo });
@@ -589,21 +588,30 @@ export const ClinicPatients = (props) => {
   };
 
 
-  const renderLowEvent = (type, value) => {
-    const EventIcon = type === 'low' ? ArrowDownwardRoundedIcon : VerticalAlignBottomRoundedIcon;
+  const renderGlycemicEvent = (type, value) => {
+    const rotation = type === 'low' ? 90 : -90;
+    const color = type === 'low' ? 'bg.veryLow' : 'bg.veryHigh';
+    const visibility = value > 0 ? 'visible' : 'hidden';
 
     return (
-      <Flex justifyContent="center">
-        <Icon mr={1} icon={EventIcon} color="red" label={type} variant="static" />
+      <Flex alignItems="center" sx={{ visibility, gap: '2px' }} gap={2}>
+        <Icon
+          fontSize={1}
+          sx={{ transform: `rotate(${rotation}deg)` }}
+          icon={DoubleArrowIcon}
+          color={color}
+          label={type}
+          variant="static"
+        />
         <Text fontWeight="medium" fontSize="10px">{value}</Text>
       </Flex>
     );
   };
 
-  const renderLowEvents = ({ summary }) => (
-    <Flex alignContent="center" flexDirection="column" sx={{ gap: 1 }}>
-      {summary?.veryLowEvents > 0 && renderLowEvent('veryLow', summary.veryLowEvents)}
-      {summary?.lowEvents > 0 && renderLowEvent('low', summary.lowEvents)}
+  const renderGlycemicEvents = ({ summary }) => (
+    <Flex alignContent="center" justifyContent="center" sx={{ gap: 3 }}>
+      {renderGlycemicEvent('low', summary?.hypoGlycemicEvents)}
+      {renderGlycemicEvent('high', summary?.hyperGlycemicEvents)}
     </Flex>
   );
 
@@ -716,7 +724,7 @@ export const ClinicPatients = (props) => {
           title: t('Hypo events'),
           field: 'hypoEvents',
           align: 'center',
-          render: renderLowEvents,
+          render: renderGlycemicEvents,
         },
       ]);
     }
