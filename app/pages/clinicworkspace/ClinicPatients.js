@@ -22,6 +22,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
+import VerticalAlignBottomRoundedIcon from '@material-ui/icons/VerticalAlignBottomRounded';
+import ArrowDownwardRoundedIcon from '@material-ui/icons/ArrowDownwardRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
@@ -30,6 +32,7 @@ import {
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
+import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
@@ -163,7 +166,7 @@ export const ClinicPatients = (props) => {
   /* BEGIN TEMPORARY MOCK SUMMARY DATA */
   const [patientSummaries, setPatientSummaries] = useState({});
 
-  function randomDate(start = moment().subtract(40, 'days').toDate(), end = new Date()) {
+  function randomDate(start = moment().subtract(random(0, 80), 'days').toDate(), end = new Date()) {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   }
 
@@ -172,11 +175,11 @@ export const ClinicPatients = (props) => {
     const lastUpload = randomDate();
     const lastData = randomDate(moment(lastUpload).subtract(random(0, 40), 'days').toDate(), lastUpload);
     const firstData = randomDate(moment(lastData).subtract(random(0, 100), 'days').toDate(), lastData);
-    const timeInRange = random(3, 8, true);
-    const timeAboveRange = random(1, 4, true);
-    const timeVeryAboveRange = random(0, 2, true);
-    const timeBelowRange = random(1, 4, true);
-    const timeVeryBelowRange = random(0, 2, true);
+    const timeInRange = random(3, 10, true);
+    const timeAboveRange = random(1, 2.5, true);
+    const timeVeryAboveRange = random(0, 1, true);
+    const timeBelowRange = random(0.5, 1.5, true);
+    const timeVeryBelowRange = random(0, 0.5, true);
     const rangeSum = sum([timeInRange, timeAboveRange, timeVeryAboveRange, timeBelowRange, timeVeryBelowRange]);
     const avgGlucose = rangeSum * (bgUnits === MMOLL_UNITS ? .7 : (.7 * MGDL_PER_MMOLL));
     const timeCGMUse = round(random(0.6, 1, true), 2);
@@ -200,6 +203,8 @@ export const ClinicPatients = (props) => {
       timeCGMUse,
       highGlucoseThreshold: bgUnits === MMOLL_UNITS ? 10.0 : 180,
       lowGlucoseThreshold: bgUnits === MMOLL_UNITS ? 3.9 : 70,
+      lowEvents: round(random(0, timeBelowRange * 4)),
+      veryLowEvents: round(random(0, timeVeryBelowRange * 3)),
     };
   }
 
@@ -519,6 +524,8 @@ export const ClinicPatients = (props) => {
 
   const renderLastUpload = ({ summary }) => {
     let formattedLastUpload = statEmptyText;
+    let color = 'inherit';
+    let fontWeight = 'regular';
 
     if (summary?.lastUpload) {
       const lastUploadMoment = moment(summary.lastUpload);
@@ -527,27 +534,31 @@ export const ClinicPatients = (props) => {
 
       if (daysAgo <= 1) {
         formattedLastUpload = (daysAgo === 1) ? t('Yesterday') : t('Today');
+        fontWeight = (daysAgo === 1) ? 'medium' : 'bold';
+        color = 'greens.9';
       } else if (daysAgo <=30) {
         formattedLastUpload = t('{{days}} days ago', { days: daysAgo });
+        fontWeight = 'medium';
+        color = '#E29147';
       }
     }
 
     return (
       <Box classname="patient-last-upload">
-        <Text>{formattedLastUpload}</Text>
+        <Text color={color} fontWeight={fontWeight}>{formattedLastUpload}</Text>
       </Box>
     );
   };
 
   const renderCGMUsage = ({ summary }) => (
     <Box classname="patient-cgm-usage">
-      <Text>{summary?.timeCGMUse ? formatPercentage(summary.timeCGMUse) : statEmptyText}</Text>
+      <Text fontWeight="medium">{summary?.timeCGMUse ? formatPercentage(summary.timeCGMUse) : statEmptyText}</Text>
     </Box>
   );
 
   const renderGMI = ({ summary }) => (
     <Box classname="patient-gmi">
-      <Text>{summary?.glucoseMgmtIndicator ? formatPercentage(summary.glucoseMgmtIndicator) : statEmptyText}</Text>
+      <Text fontWeight="medium">{summary?.glucoseMgmtIndicator ? formatPercentage(summary.glucoseMgmtIndicator) : statEmptyText}</Text>
     </Box>
   );
 
@@ -564,9 +575,37 @@ export const ClinicPatients = (props) => {
     };
 
     return (
-      <BgRangeSummary data={data} targetRange={targetRange} bgUnits={bgUnits} />
+      <Flex justifyContent="center">
+        {summary?.timeCGMUse >= 0.7
+          ? <BgRangeSummary data={data} targetRange={targetRange} bgUnits={bgUnits} />
+          : (
+            <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
+              <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Wear time <70%')}</Text>
+            </Flex>
+          )
+        }
+      </Flex>
     );
   };
+
+
+  const renderLowEvent = (type, value) => {
+    const EventIcon = type === 'low' ? ArrowDownwardRoundedIcon : VerticalAlignBottomRoundedIcon;
+
+    return (
+      <Flex justifyContent="center">
+        <Icon mr={1} icon={EventIcon} color="red" label={type} variant="static" />
+        <Text fontWeight="medium" fontSize="10px">{value}</Text>
+      </Flex>
+    );
+  };
+
+  const renderLowEvents = ({ summary }) => (
+    <Flex alignContent="center" flexDirection="column" sx={{ gap: 1 }}>
+      {summary?.veryLowEvents > 0 && renderLowEvent('veryLow', summary.veryLowEvents)}
+      {summary?.lowEvents > 0 && renderLowEvent('low', summary.lowEvents)}
+    </Flex>
+  );
 
   const renderLinkedField = (field, patient) => (
     <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
@@ -672,6 +711,12 @@ export const ClinicPatients = (props) => {
           field: 'bgRangeSummary',
           align: 'center',
           render: renderBgRangeSummary,
+        },
+        {
+          title: t('Hypo events'),
+          field: 'hypoEvents',
+          align: 'center',
+          render: renderLowEvents,
         },
       ]);
     }
