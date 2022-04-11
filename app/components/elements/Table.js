@@ -174,7 +174,7 @@ export const Table = props => {
                     direction={orderBy.split('.')[0] === colSortBy ? order : 'asc'}
                     onClick={col.sortable ? createSortHandler(colSortBy) : noop}
                   >
-                    {col.title}
+                    {col.titleComponent ? <col.titleComponent /> : col.title}
                   </Box>
                 </TableCell>
               );
