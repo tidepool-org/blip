@@ -18,11 +18,15 @@ import sample from 'lodash/sample';
 import sum from 'lodash/sum';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
-import EditIcon from '@material-ui/icons/EditRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
 import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
+import EditIcon from '@material-ui/icons/EditRounded';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
+import SearchIcon from '@material-ui/icons/Search';
+import VisibilityOffRoundedIcon from '@material-ui/icons/VisibilityOffRounded';
+import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
@@ -38,6 +42,7 @@ import TextInput from '../../components/elements/TextInput';
 import BgRangeSummary from '../../components/clinic/BgRangeSummary';
 import PatientForm from '../../components/clinic/PatientForm';
 import PopoverMenu from '../../components/elements/PopoverMenu';
+import PopoverLabel from '../../components/elements/PopoverLabel';
 
 import {
   Dialog,
@@ -53,6 +58,7 @@ import { fieldsAreValid } from '../../core/forms';
 import { dateFormat, patientSchema as validationSchema } from '../../core/clinicUtils';
 import config from '../../config';
 import { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
+import { borders } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
 
@@ -76,6 +82,8 @@ export const ClinicPatients = (props) => {
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 10, search: '', offset: 0, sort: '+fullName' });
+  const [patientFetchMoment, setPatientFetchMoment] = useState();
+  const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
 
   const debounceSearch = useCallback(debounce(search => {
@@ -138,6 +146,10 @@ export const ClinicPatients = (props) => {
   useEffect(() => {
     const { inProgress, completed, notification } = fetchingPatientsForClinic;
 
+    if (completed) {
+      setPatientFetchMoment(moment());
+    }
+
     if (!isFirstRender && !inProgress) {
       if (completed === false) {
         setToast({
@@ -147,6 +159,18 @@ export const ClinicPatients = (props) => {
       }
     }
   }, [fetchingPatientsForClinic]);
+
+  React.useEffect(() => {
+    // update patientFetchMinutesAgo upon new fetch
+    setPatientFetchMinutesAgo(moment().diff(patientFetchMoment, 'minutes'));
+
+    // update patientFetchMinutesAgo every minute thereafter
+    const fetchTimeInterval = setInterval(() => {
+      setPatientFetchMinutesAgo(moment().diff(patientFetchMoment, 'minutes'));
+    }, 1000 * 60);
+
+    return () => clearInterval(fetchTimeInterval);
+  }, [patientFetchMoment]);
 
   // Fetchers
   useEffect(() => {
@@ -240,59 +264,97 @@ export const ClinicPatients = (props) => {
   }
 
   const renderHeader = () => {
-    const toggleLabel = showNames ? t('Hide All') : t('Show All');
+    const VisibilityIcon = showNames ? VisibilityOffRoundedIcon : VisibilityRoundedIcon;
+    let timeAgoUnits = patientFetchMinutesAgo === 1 ? 'minute' : 'minutes';
+    let timeAgo = patientFetchMinutesAgo;
+
+    if (patientFetchMinutesAgo > 60) {
+      timeAgo = Math.floor(patientFetchMinutesAgo / 60);
+      timeAgoUnits = timeAgo > 1 ? 'hours' : 'hour';
+    }
+
+    const timeAgoMessage = timeAgo > 0
+      ? t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits })
+      : t('Last updated seconds ago')
+
+    console.log('timeAgo', timeAgo, timeAgoUnits);
 
     return (
-      <Flex mb={4} alignItems="center" justifyContent="space-between">
-        <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          flexGrow={1}
-          pt={0}
-        >
+      <>
+        <Box sx={{ position: 'absolute', top: '14px', right: 4 }}>
+          <TextInput
+            themeProps={{
+              width: 'auto',
+              minWidth: '250px',
+            }}
+            id="patients-search"
+            placeholder={t('Search')}
+            icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
+            iconLabel={t('Search')}
+            onClickIcon={!isEmpty(search) ? handleClearSearch : null}
+            name="search-patients"
+            onChange={handleSearchChange}
+            value={search}
+            variant="condensed"
+          />
+        </Box>
+
+
+        <Flex mb={4} alignItems="center" justifyContent="space-between">
           <Flex
             alignItems="center"
-            justifyContent="flex-start"
+            justifyContent="space-between"
+            flexGrow={1}
+            pt={0}
           >
-            <TextInput
-              themeProps={{
-                width: 'auto',
-                minWidth: '250px',
-              }}
-              id="patients-search"
-              placeholder={t('Search')}
-              icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
-              iconLabel={t('Search')}
-              onClickIcon={!isEmpty(search) ? handleClearSearch : null}
-              name="search-patients"
-              onChange={handleSearchChange}
-              value={search}
-              variant="condensed"
-            />
-            <Button
-              id="patients-view-toggle"
-              variant="textSecondary"
-              disabled={!isEmpty(search)}
-              onClick={handleToggleShowNames}
-              mr={0}
-              ml={2}
+            <Flex
+              alignItems="center"
+              justifyContent="flex-start"
             >
-              {toggleLabel}
-            </Button>
-          </Flex>
+              <Button
+                id="add-patient"
+                variant="primary"
+                onClick={handleAddPatient}
+                mr={0}
+              >
+                {t('Add New Patient')}
+              </Button>
+            </Flex>
 
-          <Button
-            id="add-patient"
-            variant="primary"
-            onClick={handleAddPatient}
-            mr={0}
-          >
-            {t('Add a New Patient')}
-          </Button>
+            <Flex
+              alignItems="center"
+              justifyContent="flex-end"
+            >
+              <Flex pr={3} mr={2} alignItems="center" sx={{ borderRight: borders.divider }}>
+                <Icon
+                  mr={2}
+                  id="refresh-patients"
+                  variant="default"
+                  icon={RefreshRoundedIcon}
+                  disabled={fetchingPatientsForClinic.inProgress}
+                  onClick={handleRefreshPatients}
+                />
+
+                <Text>{timeAgoMessage}</Text>
+              </Flex>
+
+              <Icon
+                id="patients-view-toggle"
+                variant="default"
+                icon={VisibilityIcon}
+                disabled={!isEmpty(search)}
+                onClick={handleToggleShowNames}
+              />
+            </Flex>
+          </Flex>
         </Flex>
-      </Flex>
+      </>
     );
   };
+
+  function handleRefreshPatients() {
+    dispatch(actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, { ...patientFetchOptions })());
+  }
 
   function handleToggleShowNames() {
     let toggleLabel = 'Clicked Hide All';
@@ -579,7 +641,7 @@ export const ClinicPatients = (props) => {
           ? <BgRangeSummary data={data} targetRange={targetRange} bgUnits={bgUnits} />
           : (
             <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
-              <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Wear time <70%')}</Text>
+              <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <70%')}</Text>
             </Flex>
           )
         }
@@ -594,7 +656,7 @@ export const ClinicPatients = (props) => {
     const visibility = value > 0 ? 'visible' : 'hidden';
 
     return (
-      <Flex alignItems="center" sx={{ visibility, gap: '2px' }} gap={2}>
+      <Flex alignItems="center" sx={{ visibility, gap: '2px' }}>
         <Icon
           fontSize={1}
           sx={{ transform: `rotate(${rotation}deg)` }}
@@ -613,6 +675,33 @@ export const ClinicPatients = (props) => {
       {renderGlycemicEvent('low', summary?.hypoGlycemicEvents)}
       {renderGlycemicEvent('high', summary?.hyperGlycemicEvents)}
     </Flex>
+  );
+
+  const renderGlycemicEventsPopover = () => (
+    <Box p={1}>
+      <Flex alignItems="center" sx={{ gap: '2px' }}>
+        <Icon
+          fontSize={1}
+          sx={{ transform: 'rotate(90deg)' }}
+          icon={DoubleArrowIcon}
+          color="bg.veryLow"
+          label="low"
+          variant="static"
+        />
+        <Text color="text.primary" fontSize="10px">{t('(Hypo event description)')}</Text>
+      </Flex>
+      <Flex alignItems="center" sx={{ gap: '2px' }}>
+        <Icon
+          fontSize={1}
+          sx={{ transform: 'rotate(-90deg)' }}
+          icon={DoubleArrowIcon}
+          color="bg.veryHigh"
+          label="high"
+          variant="static"
+        />
+        <Text color="text.primary" fontSize="10px">{t('(Hyper event description)')}</Text>
+      </Flex>
+    </Box>
   );
 
   const renderLinkedField = (field, patient) => (
@@ -698,7 +787,6 @@ export const ClinicPatients = (props) => {
           title: t('Last Upload (CGM)'),
           field: 'lastUpload',
           align: 'left',
-          sortable: true,
           sortBy: 'summary.lastUpload',
           render: renderLastUpload,
         },
@@ -715,13 +803,32 @@ export const ClinicPatients = (props) => {
           render: renderGMI,
         },
         {
-          title: t('% Time in Range'),
+          title: t('% Time In Range'),
           field: 'bgRangeSummary',
           align: 'center',
           render: renderBgRangeSummary,
         },
         {
-          title: t('Hypo events'),
+          titleComponent: () => (
+            <PopoverLabel
+              label={t('Glycemic Events')}
+              icon={InfoOutlinedIcon}
+              iconFontSize="12px"
+              popoverContent={renderGlycemicEventsPopover()}
+              popoverProps={{
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                },
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'center',
+                },
+                width: 'auto',
+              }}
+              triggerOnHover
+            />
+          ),
           field: 'hypoEvents',
           align: 'center',
           render: renderGlycemicEvents,
@@ -734,6 +841,7 @@ export const ClinicPatients = (props) => {
         <Loader show={loading} overlay={true} />
         <Table
           id={'peopleTable'}
+          variant="condensed"
           label={'peopletablelabel'}
           columns={columns}
           data={clinicPatients()}
