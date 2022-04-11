@@ -6,8 +6,9 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
 
     '.MuiTableCell-head': {
       paddingY: 1,
-      borderTop: borders.default,
-      borderBottom: 'none',
+      border: 'none',
+      bg: 'lightestGrey',
+      borderRadius: 'default',
     },
 
     '&.MuiTable-stickyHeader': {
@@ -31,6 +32,10 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
         borderTop: borders.default,
       },
 
+      '&:first-child .MuiTableCell-body': {
+        borderTop: 'none',
+      },
+
       '&:last-child .MuiTableCell-body': {
         borderBottom: borders.default,
       },
@@ -47,6 +52,10 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
           borderTopColor: 'transparent',
         },
       },
+    },
+
+    '.MuiTableSortLabel-icon': {
+      fontSize: 1,
     },
   };
 
