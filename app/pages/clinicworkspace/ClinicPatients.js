@@ -25,8 +25,8 @@ import EditIcon from '@material-ui/icons/EditRounded';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
 import SearchIcon from '@material-ui/icons/Search';
-import VisibilityOffRoundedIcon from '@material-ui/icons/VisibilityOffRounded';
-import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
@@ -81,8 +81,9 @@ export const ClinicPatients = (props) => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
-  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 10, search: '', offset: 0, sort: '+fullName' });
+  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
   const [patientFetchMoment, setPatientFetchMoment] = useState();
+  // TODO: need to store latest patient fetch time in redux state so this persists upon unmount/remount
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
 
@@ -244,9 +245,15 @@ export const ClinicPatients = (props) => {
       });
 
       setPatientSummaries(summaries);
-      console.log('summaries', summaries);
     }
   }, [clinic?.patients]);
+
+  useEffect(() => {
+    if (showSummaryData) {
+      setPatientFetchOptions({ ...patientFetchOptions, limit: 10 });
+    }
+  }, [showSummaryData])
+
   /* END TEMPORARY MOCK SUMMARY DATA */
 
   function formatPercentage(val, precision = 0) {
@@ -264,7 +271,7 @@ export const ClinicPatients = (props) => {
   }
 
   const renderHeader = () => {
-    const VisibilityIcon = showNames ? VisibilityOffRoundedIcon : VisibilityRoundedIcon;
+    const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     let timeAgoUnits = patientFetchMinutesAgo === 1 ? 'minute' : 'minutes';
     let timeAgo = patientFetchMinutesAgo;
 
@@ -277,16 +284,15 @@ export const ClinicPatients = (props) => {
       ? t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits })
       : t('Last updated seconds ago')
 
-    console.log('timeAgo', timeAgo, timeAgoUnits);
-
     return (
       <>
-        <Box sx={{ position: 'absolute', top: '14px', right: 4 }}>
+        <Box sx={{ position: 'absolute', top: '8px', right: 4 }}>
           <TextInput
             themeProps={{
               width: 'auto',
               minWidth: '250px',
             }}
+            fontSize="12px"
             id="patients-search"
             placeholder={t('Search')}
             icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
@@ -315,6 +321,7 @@ export const ClinicPatients = (props) => {
                 id="add-patient"
                 variant="primary"
                 onClick={handleAddPatient}
+                fontSize={0}
                 mr={0}
               >
                 {t('Add New Patient')}
@@ -325,22 +332,26 @@ export const ClinicPatients = (props) => {
               alignItems="center"
               justifyContent="flex-end"
             >
-              <Flex pr={3} mr={2} alignItems="center" sx={{ borderRight: borders.divider }}>
-                <Icon
-                  mr={2}
-                  id="refresh-patients"
-                  variant="default"
-                  icon={RefreshRoundedIcon}
-                  disabled={fetchingPatientsForClinic.inProgress}
-                  onClick={handleRefreshPatients}
-                />
+              {showNames && (
+                <Flex pr={3} mr={2} alignItems="center" sx={{ borderRight: borders.divider }}>
+                  <Icon
+                    mr={2}
+                    id="refresh-patients"
+                    variant="default"
+                    icon={RefreshRoundedIcon}
+                    color={loading ? 'text.primaryDisabled' : 'inherit'}
+                    disabled={loading}
+                    onClick={handleRefreshPatients}
+                  />
 
-                <Text>{timeAgoMessage}</Text>
-              </Flex>
+                  <Text fontSize={0}>{timeAgoMessage}</Text>
+                </Flex>
+              )}
 
               <Icon
                 id="patients-view-toggle"
                 variant="default"
+                color="grays.4"
                 icon={VisibilityIcon}
                 disabled={!isEmpty(search)}
                 onClick={handleToggleShowNames}
@@ -368,7 +379,7 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleInstructions = () => {
     return (
-      <Text fontSize={1} py={4} textAlign="center" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
+      <Text fontSize={1} py={4} mb={4} textAlign="center" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
         <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
           Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={handleToggleShowNames}>Show All</a> to display all patients.
         </Trans>
@@ -746,7 +757,7 @@ export const ClinicPatients = (props) => {
     const { t } = props;
     const columns = [
       {
-        title: t('Patient'),
+        title: t('Patient Details'),
         field: 'fullName',
         align: 'left',
         sortable: true,
@@ -836,12 +847,14 @@ export const ClinicPatients = (props) => {
       ]);
     }
 
+    const pageCount = Math.ceil(clinic.patientCount / patientFetchOptions.limit);
+
     return (
       <Box sx={{ position: 'relative' }}>
         <Loader show={loading} overlay={true} />
         <Table
           id={'peopleTable'}
-          variant="condensed"
+          variant={showSummaryData ? 'condensed' : 'default'}
           label={'peopletablelabel'}
           columns={columns}
           data={clinicPatients()}
@@ -853,9 +866,12 @@ export const ClinicPatients = (props) => {
 
         {clinic?.patientCount > patientFetchOptions.limit && (
           <Pagination
-            mt={4}
+            px="5%"
+            sx={{ position: 'absolute', bottom: '-50px' }}
+            width="100%"
             id="clinic-patients-pagination"
-            count={Math.ceil(clinic.patientCount / patientFetchOptions.limit)}
+            count={pageCount}
+            disabled={pageCount < 2}
             onChange={handlePageChange}
             showFirstButton={false}
             showLastButton={false}

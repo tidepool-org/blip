@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { translate } from 'react-i18next';
-import filter from 'lodash/filter'
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import values from 'lodash/values'
@@ -100,7 +99,7 @@ export const ClinicWorkspace = (props) => {
     <>
       <ClinicProfile api={api} trackMetric={trackMetric} />
 
-      <Box id="clinic-workspace" variant="containers.largeBordered">
+      <Box id="clinic-workspace" alignItems="center" variant="containers.largeBordered" mb={9}>
         <TabGroup
           id="clinic-workspace-tabs"
           variant="horizontal"
@@ -110,7 +109,7 @@ export const ClinicWorkspace = (props) => {
           themeProps={{
             panel: {
               p: 4,
-              pb: 6,
+              pb: 0,
               minHeight: '10em',
             },
           }}
