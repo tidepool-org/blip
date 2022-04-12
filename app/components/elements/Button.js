@@ -35,7 +35,7 @@ const StyledCircularProgress = styled(Box)`
 `;
 
 export const Button = props => {
-  const { children, selected, processing, icon, iconLabel, iconPosition, className = '', ...buttonProps } = props;
+  const { children, selected, processing, icon, iconLabel, iconPosition, iconFontSize, className = '', ...buttonProps } = props;
   const classNames = cx({ processing, selected });
   const themeContext = useContext(ThemeContext);
   const isLeftIcon = iconPosition === 'left';
@@ -53,7 +53,7 @@ export const Button = props => {
     <Flex as={StyledButton} flexDirection={flexDirection} alignItems="center" justifyContent={justifyContent} {...buttonProps} className={`${classNames} ${className}`}>
       <Box justifyContent="center">{children}</Box>
       {icon && (
-        <Icon tabIndex={-1} className="icon" mr={iconMargins.right} ml={iconMargins.left} theme={baseTheme} variant="static" icon={icon} label={iconLabel} />
+        <Icon tabIndex={-1} className="icon" fontSize={iconFontSize} mr={iconMargins.right} ml={iconMargins.left} theme={baseTheme} variant="static" icon={icon} label={iconLabel} />
       )}
       {processing && (
         <StyledCircularProgress>
@@ -75,6 +75,7 @@ Button.propTypes = {
   icon: PropTypes.elementType,
   iconLabel: PropTypes.string,
   iconPosition: PropTypes.oneOf(['left', 'right']),
+  iconFontSize: PropTypes.string,
   variant: PropTypes.oneOf([
     'primary',
     'secondary',
@@ -94,6 +95,7 @@ Button.propTypes = {
 
 Button.defaultProps = {
   iconPosition: 'right',
+  iconFontSize: 'inherit',
   type: 'button',
   variant: 'primary',
 };
