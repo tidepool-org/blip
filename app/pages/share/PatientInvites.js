@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
-import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -19,6 +19,7 @@ import {
 
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 
 import {
@@ -43,10 +44,13 @@ export const PatientInvites = (props) => {
   const [selectedInvitation, setSelectedInvitation] = useState(null);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [searchText, setSearchText] = React.useState('');
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const clinic = get(clinics, selectedClinicId);
+  const rowsPerPage = 8;
 
   const {
     fetchingPatientInvites,
@@ -122,6 +126,10 @@ export const PatientInvites = (props) => {
   }, [clinic]);
 
   useEffect(() => {
+    setPageCount(Math.ceil(pendingInvites.length / rowsPerPage));
+  }, [pendingInvites]);
+
+  useEffect(() => {
     if (selectedInvitation) {
       setDeleteDialogContent({
         title: t('Decline invite?'),
@@ -166,12 +174,26 @@ export const PatientInvites = (props) => {
   }
 
   function handleSearchChange(event) {
+    setPage(1);
     setSearchText(event.target.value);
+    if (isEmpty(event.target.value)) {
+      setPageCount(Math.ceil(pendingInvites.length / rowsPerPage));
+    }
   }
 
-  function clearSearchText() {
+  function handleClearSearch(event) {
+    setPage(1);
     setSearchText('');
+    setPageCount(Math.ceil(pendingInvites.length / rowsPerPage));
   }
+
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  const handleTableFilter = (data) => {
+    setPageCount(Math.ceil(data.length / rowsPerPage));
+  };
 
   const renderName = ({ name }) => (
     <Box>
@@ -240,7 +262,7 @@ export const PatientInvites = (props) => {
   ];
 
   return (
-    <>
+    <Box sx={{ position: 'relative' }}>
       <Flex>
         <TextInput
           themeProps={{
@@ -251,7 +273,7 @@ export const PatientInvites = (props) => {
           placeholder={t('Search by Name')}
           icon={searchText ? CloseRoundedIcon : SearchIcon}
           iconLabel="search"
-          onClickIcon={searchText ? clearSearchText : null}
+          onClickIcon={searchText ? handleClearSearch : null}
           name="search-invites"
           onChange={handleSearchChange}
           value={searchText}
@@ -266,16 +288,32 @@ export const PatientInvites = (props) => {
         data={pendingInvites}
         orderBy="nameOrderable"
         order="asc"
-        searchText={searchText}
-        emptyText={null}
         rowHover={false}
-        rowsPerPage={10}
-        pagination={pendingInvites.length > 10}
+        rowsPerPage={rowsPerPage}
+        searchText={searchText}
+        page={page}
+        onFilter={handleTableFilter}
+        emptyText={null}
         fontSize={1}
       />
 
+      {pendingInvites.length > rowsPerPage && (
+        <Pagination
+          px="5%"
+          sx={{ position: 'absolute', bottom: '-50px' }}
+          width="100%"
+          id="clinic-invites-pagination"
+          count={pageCount}
+          page={page}
+          disabled={pageCount < 2}
+          onChange={handlePageChange}
+          showFirstButton={false}
+          showLastButton={false}
+        />
+      )}
+
       {pendingInvites.length === 0 && (
-        <Box id="no-invites" pt={3} sx={{ borderTop: borders.divider }}>
+        <Box id="no-invites" pt={3} mb={4} sx={{ borderTop: borders.divider }}>
           <Text p={3} fontSize={1} color="text.primary" textAlign="center">
             {t('There are no invites. Refresh to check for pending invites.')}
           </Text>
@@ -332,7 +370,7 @@ export const PatientInvites = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </Box>
   );
 };
 
