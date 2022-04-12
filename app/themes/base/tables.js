@@ -36,10 +36,6 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
         borderTop: 'none',
       },
 
-      '&:last-child .MuiTableCell-body': {
-        borderBottom: borders.default,
-      },
-
       '&.MuiTableRow-hover:hover': {
         backgroundColor: colors.white,
         boxShadow: shadows.medium,
@@ -67,7 +63,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
       ...defaultStyles,
 
       '.MuiTableBody-root .MuiTableRow-root .MuiTableCell-body': {
-        paddingY: 2,
+        paddingY: '10px',
       },
     },
   };
