@@ -819,31 +819,32 @@ export const ClinicPatients = (props) => {
           align: 'center',
           render: renderBgRangeSummary,
         },
-        {
-          titleComponent: () => (
-            <PopoverLabel
-              label={t('Glycemic Events')}
-              icon={InfoOutlinedIcon}
-              iconFontSize="12px"
-              popoverContent={renderGlycemicEventsPopover()}
-              popoverProps={{
-                anchorOrigin: {
-                  vertical: 'bottom',
-                  horizontal: 'center',
-                },
-                transformOrigin: {
-                  vertical: 'top',
-                  horizontal: 'center',
-                },
-                width: 'auto',
-              }}
-              triggerOnHover
-            />
-          ),
-          field: 'hypoEvents',
-          align: 'center',
-          render: renderGlycemicEvents,
-        },
+        // Commented out for the time being. Glycemic events will be part of a future version
+        // {
+        //   titleComponent: () => (
+        //     <PopoverLabel
+        //       label={t('Glycemic Events')}
+        //       icon={InfoOutlinedIcon}
+        //       iconFontSize="12px"
+        //       popoverContent={renderGlycemicEventsPopover()}
+        //       popoverProps={{
+        //         anchorOrigin: {
+        //           vertical: 'bottom',
+        //           horizontal: 'center',
+        //         },
+        //         transformOrigin: {
+        //           vertical: 'top',
+        //           horizontal: 'center',
+        //         },
+        //         width: 'auto',
+        //       }}
+        //       triggerOnHover
+        //     />
+        //   ),
+        //   field: 'hypoEvents',
+        //   align: 'center',
+        //   render: renderGlycemicEvents,
+        // },
       ]);
     }
 
