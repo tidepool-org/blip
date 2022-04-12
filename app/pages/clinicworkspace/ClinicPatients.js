@@ -583,12 +583,12 @@ export const ClinicPatients = (props) => {
   const renderPatient = patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient.fullName}</Text>
-      {patient.email && <Text>{patient.email}</Text>}
+      {patient.email && <Text fontSize=".85em">{patient.email}</Text>}
     </Box>
   );
 
   const renderPatientSecondaryInfo = patient => (
-    <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} fontSize="10px" sx={{ cursor: 'pointer' }}>
       <Text>{t('DOB:')} {patient.birthDate}</Text>
       {patient.mrn && <Text>{t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
     </Box>
