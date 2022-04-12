@@ -106,7 +106,8 @@ export const Table = props => {
 
   const [order, setOrder] = useState(props.order || 'asc');
   const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
-  const [page, setPage] = React.useState(1);
+
+  const [page, setPage] = React.useState(props.page);
 
   const handleRequestSort = property => {
     const isAsc = orderBy === property && order === 'asc';
@@ -151,8 +152,12 @@ export const Table = props => {
     setOrderBy(props.orderBy);
   }, [props.order, props.orderBy]);
 
+  useEffect(() => {
+    setPage(props.page);
+  }, [props.page]);
+
   return (
-    <TableContainer>
+    <Box as={TableContainer}>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
         <TableHead>
           <TableRow>
@@ -220,7 +225,7 @@ export const Table = props => {
         my={3}
         {...paginationProps}
       />}
-    </TableContainer>
+    </Box>
   );
 };
 
