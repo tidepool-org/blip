@@ -300,6 +300,7 @@ class Daily extends Component {
           iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
           onClickBasics={this.props.onSwitchToBasics}
+          onClickChartDates={this.props.onClickChartDates}
           onClickTrends={this.handleClickTrends}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}

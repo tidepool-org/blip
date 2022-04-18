@@ -49,6 +49,9 @@ describe('ClinicAdmin', () => {
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.deleteClinicianFromClinic.resetHistory();
+    defaultProps.api.clinics.getCliniciansFromClinic.resetHistory();
+    defaultProps.api.clinics.deleteClinicianInvite.resetHistory();
+    defaultProps.api.clinics.resendClinicianInvite.resetHistory();
   });
 
   after(() => {
@@ -76,6 +79,7 @@ describe('ClinicAdmin', () => {
           completed: true,
           notification: null,
         },
+        fetchingClinicianInvite: defaultWorkingState,
         updatingClinician: defaultWorkingState,
         sendingClinicianInvite: defaultWorkingState,
         resendingClinicianInvite: defaultWorkingState,
@@ -240,6 +244,7 @@ describe('ClinicAdmin', () => {
           </ToastProvider>
         </Provider>
       );
+      store.clearActions();
     });
 
     it('should render an Invite button', () => {
@@ -411,6 +416,79 @@ describe('ClinicAdmin', () => {
         </Provider>
       );
 
+      sinon.assert.calledWith(defaultProps.api.clinics.getCliniciansFromClinic, 'clinicID456', { limit: 1000, offset: 0 });
+    });
+  });
+
+  context('on mount', () => {
+    it('should not fetch clinicians if fetch is already in progress', () => {
+      const noFetchState = merge({}, fetchedMultipleAdminState, {
+        blip: {
+          working: {
+            fetchingCliniciansFromClinic: {
+              inProgress: true,
+            },
+          },
+        },
+      });
+      const noFetchStore = mockStore(noFetchState);
+      defaultProps.api.clinics.getCliniciansFromClinic.resetHistory();
+      mount(
+        <Provider store={noFetchStore}>
+          <ToastProvider>
+            <ClinicAdmin {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      expect(noFetchStore.getActions()).to.eql([]);
+      sinon.assert.notCalled(defaultProps.api.clinics.getCliniciansFromClinic);
+    });
+
+    it('should fetch clinicians if not already in progress', () => {
+      const fetchStore = mockStore(fetchedMultipleAdminState);
+      mount(
+        <Provider store={fetchStore}>
+          <ToastProvider>
+            <ClinicAdmin {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+      const expectedActions = [
+        {
+          type: 'FETCH_CLINICIANS_FROM_CLINIC_REQUEST',
+        },
+      ];
+      expect(fetchStore.getActions()).to.eql(expectedActions);
+      sinon.assert.calledWith(defaultProps.api.clinics.getCliniciansFromClinic, 'clinicID456', { limit: 1000, offset: 0 });
+    });
+
+    it('should fetch clinicians even if previously errored', () => {
+      const erroredState = merge({}, fetchedMultipleAdminState, {
+        blip: {
+          working: {
+            fetchingCliniciansFromClinic: {
+              notification: {
+                message: 'Errored',
+              },
+            },
+          },
+        },
+      });
+      const errorStore = mockStore(erroredState);
+      mount(
+        <Provider store={errorStore}>
+          <ToastProvider>
+            <ClinicAdmin {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+      const expectedActions = [
+        {
+          type: 'FETCH_CLINICIANS_FROM_CLINIC_REQUEST',
+        },
+      ];
+      expect(errorStore.getActions()).to.eql(expectedActions);
       sinon.assert.calledWith(defaultProps.api.clinics.getCliniciansFromClinic, 'clinicID456', { limit: 1000, offset: 0 });
     });
   });

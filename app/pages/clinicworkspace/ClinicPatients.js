@@ -120,13 +120,25 @@ export const ClinicPatients = (props) => {
     setLoading(fetchingPatientsForClinic.inProgress);
   }, [fetchingPatientsForClinic.inProgress]);
 
+  useEffect(() => {
+    const { inProgress, completed, notification } = fetchingPatientsForClinic;
+
+    if (!isFirstRender && !inProgress) {
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+    }
+  }, [fetchingPatientsForClinic]);
+
   // Fetchers
   useEffect(() => {
     if (
       loggedInUserId
       && clinic?.id
       && !fetchingPatientsForClinic.inProgress
-      && !fetchingPatientsForClinic.notification
     ) {
       const fetchOptions = { ...patientFetchOptions };
       if (isEmpty(fetchOptions.search)) delete fetchOptions.search;

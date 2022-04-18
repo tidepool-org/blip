@@ -1347,13 +1347,16 @@ export function fetchCliniciansFromClinicSuccess(results) {
   };
 }
 
-export function fetchCliniciansFromClinicFailure(error, apiError) {
+export function fetchCliniciansFromClinicFailure(error, apiError, clinicId) {
   return {
     type: ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
     },
+    payload: {
+      clinicId
+    }
   };
 }
 
@@ -1479,13 +1482,16 @@ export function fetchPatientsForClinicSuccess(clinicId, patients, count) {
   };
 }
 
-export function fetchPatientsForClinicFailure(error, apiError) {
+export function fetchPatientsForClinicFailure(error, apiError, clinicId) {
   return {
     type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
     },
+    payload: {
+      clinicId
+    }
   };
 }
 
