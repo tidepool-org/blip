@@ -139,7 +139,6 @@ export const ClinicPatients = (props) => {
       loggedInUserId
       && clinic?.id
       && !fetchingPatientsForClinic.inProgress
-      && !fetchingPatientsForClinic.notification
     ) {
       const fetchOptions = { ...patientFetchOptions };
       if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
