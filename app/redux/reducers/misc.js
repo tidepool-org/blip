@@ -17,6 +17,7 @@
 import _ from 'lodash';
 import update from 'immutability-helper';
 import { generateCacheTTL } from 'redux-cache';
+import moment from 'moment';
 
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
@@ -690,7 +691,7 @@ export const clinics = (state = initialState.clinics, action) => {
         return newSet;
       }, {});
       return update(state, {
-        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, patientCount: count } },
+        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, patientCount: count, lastPatientFetchTime: moment.utc().valueOf() } },
       });
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE: {

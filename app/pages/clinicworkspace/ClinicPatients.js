@@ -82,8 +82,6 @@ export const ClinicPatients = (props) => {
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
-  const [patientFetchMoment, setPatientFetchMoment] = useState();
-  // TODO: need to store latest patient fetch time in redux state so this persists upon unmount/remount
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
 
@@ -147,10 +145,6 @@ export const ClinicPatients = (props) => {
   useEffect(() => {
     const { inProgress, completed, notification } = fetchingPatientsForClinic;
 
-    if (completed) {
-      setPatientFetchMoment(moment());
-    }
-
     if (!isFirstRender && !inProgress) {
       if (completed === false) {
         setToast({
@@ -162,16 +156,18 @@ export const ClinicPatients = (props) => {
   }, [fetchingPatientsForClinic]);
 
   React.useEffect(() => {
+    const patientFetchMoment = moment.utc(clinic?.lastPatientFetchTime);
+
     // update patientFetchMinutesAgo upon new fetch
-    setPatientFetchMinutesAgo(moment().diff(patientFetchMoment, 'minutes'));
+    setPatientFetchMinutesAgo(moment.utc().diff(patientFetchMoment, 'minutes'));
 
     // update patientFetchMinutesAgo every minute thereafter
     const fetchTimeInterval = setInterval(() => {
-      setPatientFetchMinutesAgo(moment().diff(patientFetchMoment, 'minutes'));
+      setPatientFetchMinutesAgo(moment.utc().diff(patientFetchMoment, 'minutes'));
     }, 1000 * 60);
 
     return () => clearInterval(fetchTimeInterval);
-  }, [patientFetchMoment]);
+  }, [clinic?.lastPatientFetchTime]);
 
   // Fetchers
   useEffect(() => {
@@ -272,17 +268,15 @@ export const ClinicPatients = (props) => {
 
   const renderHeader = () => {
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
-    let timeAgoUnits = patientFetchMinutesAgo === 1 ? 'minute' : 'minutes';
-    let timeAgo = patientFetchMinutesAgo;
+    const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
+    let timeAgoUnits = hoursAgo === 0 ? t('hour') : t('hours');
+    let timeAgo = hoursAgo === 0 ? t('less than an') : hoursAgo;
 
-    if (patientFetchMinutesAgo > 60) {
-      timeAgo = Math.floor(patientFetchMinutesAgo / 60);
-      timeAgoUnits = timeAgo > 1 ? 'hours' : 'hour';
+    if (hoursAgo >= 24) {
+      timeAgo = hoursAgo < 24 ? hoursAgo : t('over 24');
     }
 
-    const timeAgoMessage = timeAgo > 0
-      ? t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits })
-      : t('Last updated seconds ago')
+    const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
 
     return (
       <>
@@ -352,9 +346,18 @@ export const ClinicPatients = (props) => {
                 id="patients-view-toggle"
                 variant="default"
                 color="grays.4"
+                ml={1}
                 icon={VisibilityIcon}
-                disabled={!isEmpty(search)}
                 onClick={handleToggleShowNames}
+              />
+
+              <Icon
+                id="patients-info-trigger"
+                variant="default"
+                color="grays.4"
+                ml={2}
+                icon={InfoOutlinedIcon}
+                onClick={() => {}}
               />
             </Flex>
           </Flex>
