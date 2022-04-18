@@ -106,7 +106,7 @@ describe('ClinicPatients', () => {
     },
   };
 
-  let store;
+  let store = mockStore(noPatientsState);
 
   const hasPatientsState = merge({}, noPatientsState, {
     blip: {
@@ -164,6 +164,75 @@ describe('ClinicPatients', () => {
       },
     },
   };
+
+  context('on mount', () => {
+    beforeEach(() => {
+      store.clearActions();
+    });
+    it('should not fetch patients for clinic if already in progress', () => {
+      store = mockStore(
+        merge({}, hasPatientsState, {
+          blip: {
+            working: {
+              fetchingPatientsForClinic: {
+                inProgress: true,
+              },
+            },
+          },
+        })
+      );
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+      expect(store.getActions()).to.eql([]);
+    });
+
+    it('should fetch patients for clinic', () => {
+      store = mockStore(hasPatientsState);
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+      const expectedActions = [
+        { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+      ];
+      expect(store.getActions()).to.eql(expectedActions);
+    });
+
+    it('should fetch patients for clinic if previously errored', () => {
+      store = mockStore(
+        merge({}, hasPatientsState, {
+          blip: {
+            working: {
+              fetchingPatientsForClinic: {
+                notification: {
+                  message: 'Errored',
+                },
+              },
+            },
+          },
+        })
+      );
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+      const expectedActions = [
+        { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+      ];
+      expect(store.getActions()).to.eql(expectedActions);
+    });
+  });
 
   context('no patients', () => {
     beforeEach(() => {
