@@ -190,9 +190,9 @@ describe('ClinicianPatients', () => {
       patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
       expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
 
-      expect(patientForm().find('input[name="attestationConfirmed"]').prop('checked')).to.be.false;
-      patientForm().find('input[name="attestationConfirmed"]').simulate('change', { persist: noop, target: { name: 'attestationConfirmed', value: true } });
-      expect(patientForm().find('input[name="attestationConfirmed"]').prop('checked')).to.be.true;
+      expect(patientForm().find('input[name="attestationSubmitted"]').prop('checked')).to.be.false;
+      patientForm().find('input[name="attestationSubmitted"]').simulate('change', { persist: noop, target: { name: 'attestationSubmitted', value: true } });
+      expect(patientForm().find('input[name="attestationSubmitted"]').prop('checked')).to.be.true;
 
       store.clearActions();
       dialog().find('Button#addPatientConfirm').simulate('click');

@@ -127,7 +127,7 @@ describe('clinicUtils', function() {
       expect(clinicUtils.patientSchema).to.be.an('object');
 
       expect(clinicUtils.patientSchema._nodes).to.be.an('array').and.have.members([
-        'attestationConfirmed',
+        'attestationSubmitted',
         'birthDate',
         'email',
         'fullName',

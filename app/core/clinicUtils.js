@@ -135,7 +135,7 @@ export const patientSchema = yup.object().shape({
     .required(t('Patient\'s birthday is required')),
   mrn: yup.string(),
   email: yup.string().email(t('Please enter a valid email address')),
-  attestationConfirmed: yup.mixed().notRequired().when('id', {
+  attestationSubmitted: yup.mixed().notRequired().when('id', {
     is: id => isEmpty(id),
     then: yup.boolean()
       .test('isTrue', t('Please confirm that you have obtained this permission'), value => (value === true)),

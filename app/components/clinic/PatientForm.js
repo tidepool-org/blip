@@ -71,7 +71,7 @@ export const PatientForm = (props) => {
 
   function getFormValues(source) {
     return {
-      attestationConfirmed: get(source, 'attestationConfirmed', false),
+      attestationSubmitted: get(source, 'attestationSubmitted', false),
       birthDate: get(source, 'birthDate', ''),
       email: get(source, 'email', ''),
       fullName: get(source, 'fullName', ''),
@@ -166,7 +166,7 @@ export const PatientForm = (props) => {
           }}
         >
           <Checkbox
-            {...getCommonFormikFieldProps('attestationConfirmed', formikContext, 'checked')}
+            {...getCommonFormikFieldProps('attestationSubmitted', formikContext, 'checked')}
             label={t('I attest that I have obtained permission from the patient and/or the patient\'s legal guardian to use Tidepool\'s software to assist in the management of the patient\'s health care.')}
             themeProps={{ bg: 'lightestGrey', lineHeight: 1.4 }}
           />
