@@ -144,6 +144,19 @@ describe('personutils', () => {
       expect(result).to.be.ok;
     });
 
+    it('should return true if person has clinician role', () => {
+      var person = {
+        profile: {
+          fullName: 'Mary Smith'
+        },
+        roles: ['clinician']
+      };
+
+      var result = personUtils.isClinicianAccount(person);
+
+      expect(result).to.be.ok;
+    });
+
     it('should return false if person has no clinic role', () => {
       var person = {
         profile: {}
@@ -591,6 +604,7 @@ describe('personutils', () => {
         username: 'someEmail',
         userid: 'someID',
         permissions: { foo: 'bar' },
+        emails: ['someEmail'],
         profile: {
           fullName: 'Joe Jackson',
           emails: ['someEmail'],
@@ -604,7 +618,7 @@ describe('personutils', () => {
   });
 
   describe('clinicPatientFromAccountInfo', () => {
-    it('should map fields from the clinic patient to a user account object', () => {
+    it('should map fields from a patient account to a clinic patient object', () => {
       const patient = {
         username: 'someEmail',
         userid: 'someID',
@@ -636,6 +650,7 @@ describe('personutils', () => {
         username: 'anotherEmail',
         userid: 'someID',
         permissions: { bar: 'baz' },
+        emails: ['anotherEmail'],
         profile: {
           fullName: 'Joe Jackson',
           emails: ['anotherEmail'],
@@ -661,6 +676,7 @@ describe('personutils', () => {
         username: 'someEmail',
         userid: 'someID',
         permissions: { bar: 'baz', foo: 'bar' },
+        emails: ['someEmail'],
         profile: {
           fullName: 'Joe Jackson 2',
           emails: ['someEmail'],

@@ -34,7 +34,7 @@ export const NavigationMenu = props => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const isClinicProfileFormPath = includes(['/clinic-details', '/clinician-details'], pathname);
+  const [isClinicProfileFormPath, setIsClinicProfileFormPath] = useState();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
@@ -72,18 +72,20 @@ export const NavigationMenu = props => {
     label: t('Logout'),
   };
 
-  const [menuOptions, setMenuOptions] = useState([
+  const defaultMenuOptions = [
     privateWorkspaceOption,
     accountSettingsOption,
     logoutOption,
-  ]);
+  ];
+
+  const [menuOptions, setMenuOptions] = useState(defaultMenuOptions);
 
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
 
     if (isClinicProfileFormPath) {
       setMenuOptions([logoutOption]);
-    } else if (userClinics.length) {
+    } else if (userClinics.length || pendingReceivedClinicianInvites.length) {
       const options = [
         ...map(userClinics, clinic => ({
           action: handleSelectWorkspace.bind(null, clinic.id),
@@ -98,8 +100,14 @@ export const NavigationMenu = props => {
       ];
 
       setMenuOptions(options);
+    } else {
+      setMenuOptions(defaultMenuOptions)
     }
-  }, [clinics, pendingReceivedClinicianInvites]);
+  }, [clinics, pendingReceivedClinicianInvites, isClinicProfileFormPath]);
+
+  useEffect(() => {
+    setIsClinicProfileFormPath(includes(['/clinic-details', '/clinician-details'], pathname));
+  }, [pathname]);
 
   function handleSelectWorkspace(clinicId) {
     dispatch(actions.sync.selectClinic(clinicId));

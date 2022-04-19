@@ -73,19 +73,19 @@ export const ClinicAdmin = (props) => {
       previousWorking,
       'resendingClinicianInvite.inProgress'
     );
-    if (!inProgress && completed && prevInProgress) {
-      if (notification) {
-        setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
+    if (!inProgress && prevInProgress) {
+      if (completed) {
         setToast({
           message: t('Clinician invite resent to {{email}}.', { email: selectedInvite?.email }),
           variant: 'success',
         });
       }
-
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      }
       closeResendInviteDialog();
     }
   }, [working.resendingClinicianInvite]);
@@ -100,21 +100,21 @@ export const ClinicAdmin = (props) => {
       previousWorking,
       'deletingClinicianInvite.inProgress'
     );
-    if (!inProgress && completed && prevInProgress) {
+    if (!inProgress && prevInProgress) {
+      if (completed) {
+        setToast({
+          message: t('Clinician invite to {{email}} has been revoked.', {
+            email: selectedInvite?.email,
+          }),
+          variant: 'success',
+        });
+      }
       if (notification) {
         setToast({
           message: notification.message,
           variant: 'danger',
         });
-      } else {
-        setToast({
-          message: t('Clinician invite to {{email}} has been revoked.', {
-            email: selectedInvite?.email
-          }),
-          variant: 'success',
-        });
       }
-
       closeRevokeInviteDialog();
     }
   }, [working.deletingClinicianInvite]);
@@ -129,37 +129,63 @@ export const ClinicAdmin = (props) => {
       previousWorking,
       'deletingClinicianFromClinic.inProgress'
     );
-    if (!inProgress && completed && prevInProgress) {
+    if (!inProgress && prevInProgress) {
+      if (completed) {
+        setToast({
+          message: t('Clinician removed from clinic.'),
+          variant: 'success',
+        });
+      }
       if (notification) {
         setToast({
           message: notification.message,
           variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('Clinician removed from clinic.'),
-          variant: 'success',
         });
       }
     }
   }, [working.deletingClinicianFromClinic]);
 
   useEffect(() => {
-    if(loggedInUserId && clinic) {
-      if (
-        !fetchingCliniciansFromClinic.inProgress &&
-        !fetchingCliniciansFromClinic.completed &&
-        !fetchingCliniciansFromClinic.notification
-      ) {
-        dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id, { limit: 1000, offset: 0 }));
+    const { inProgress, notification } = working.fetchingClinicianInvite;
+    const prevInProgress = get(
+      previousWorking,
+      'fetchingClinicianInvite.inProgress'
+    );
+    if (!inProgress && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
       }
     }
-  }, [
-    clinic,
-    loggedInUserId,
-    selectedClinicId,
-    fetchingCliniciansFromClinic,
-  ]);
+  }, [working.fetchingClinicianInvite]);
+
+  useEffect(() => {
+    const { inProgress, notification } = working.fetchingCliniciansFromClinic;
+    const prevInProgress = get(
+      previousWorking,
+      'fetchingCliniciansFromClinic.inProgress'
+    );
+    if (!inProgress && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      }
+    }
+  }, [working.fetchingCliniciansFromClinic]);
+
+  useEffect(() => {
+    if (
+      loggedInUserId &&
+      clinic &&
+      !fetchingCliniciansFromClinic.inProgress
+    ) {
+      dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id, { limit: 1000, offset: 0 }));
+    }
+  }, [loggedInUserId, selectedClinicId]);
 
   const clinicianArray = map(
     get(clinics, [selectedClinicId, 'clinicians'], {}),

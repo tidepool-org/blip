@@ -36,6 +36,18 @@ function routeAction(path) {
 describe('routes', () => {
   const mockStore = configureStore([thunk]);
 
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: null,
+    notification: null,
+  };
+
+  const completedWorkingState = {
+    inProgress: false,
+    completed: true,
+    notification: null,
+  };
+
   let dispatch = sinon.stub().callsFake((arg) => {
     if (_.isFunction(arg)) {
       arg(dispatch);
@@ -146,7 +158,12 @@ describe('routes', () => {
       };
 
       let store = mockStore({
-        blip: {},
+        blip: {
+          working: {
+            triggeringInitialClinicMigration: defaultWorkingState,
+            fetchingClinicsForClinician: completedWorkingState,
+          },
+        },
       });
 
       let expectedActions = [
@@ -182,6 +199,10 @@ describe('routes', () => {
             },
           },
           loggedInUserId: 'a1b2c3',
+          working: {
+            triggeringInitialClinicMigration: defaultWorkingState,
+            fetchingClinicsForClinician: completedWorkingState,
+          },
         },
       });
 
@@ -214,7 +235,12 @@ describe('routes', () => {
       };
 
       let store = mockStore({
-        blip: {},
+        blip: {
+          working: {
+            triggeringInitialClinicMigration: defaultWorkingState,
+            fetchingClinicsForClinician: completedWorkingState,
+          },
+        },
       });
 
       let expectedActions = [
@@ -249,7 +275,12 @@ describe('routes', () => {
       };
 
       let store = mockStore({
-        blip: {},
+        blip: {
+          working: {
+            triggeringInitialClinicMigration: defaultWorkingState,
+            fetchingClinicsForClinician: completedWorkingState,
+          },
+        },
       });
 
       let expectedActions = [
@@ -283,7 +314,8 @@ describe('routes', () => {
           },
         },
         clinics: {
-          getClinicsForClinician: sinon.stub().returns(null, []),
+          getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
         },
       };
 
@@ -295,17 +327,90 @@ describe('routes', () => {
             inProgress: null,
           }
         }},
+        router: { location: { pathname: 'foo-path' } } ,
       });
 
       let expectedActions = [
         { type: 'FETCH_USER_REQUEST' },
         { type: 'FETCH_USER_SUCCESS', payload: { user } },
         { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 'a1b2c3', clinics: [] } },
+        { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+        { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
       ];
 
       store.dispatch(requireAuth(api));
 
       const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should redirect user to /patients if clinic status cannot be determined due to backend error', () => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+      config.CLINICS_ENABLED = true;
+      let user = {
+        userid: 'a1b2c3',
+        emailVerified: true,
+        profile: {
+          patient: {},
+          clinic: {},
+        },
+        roles: ['clinic'],
+        termsAccepted: '2019-12-30T00:00:00-08:00',
+      };
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(null, user);
+          },
+        },
+        clinics: {
+          getClinicsForClinician: sinon.stub().callsArgWith(2, { status: 500, body: 'Error!' }),
+          getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+        },
+      };
+
+      let store = mockStore({
+        blip: {
+          working: {
+            fetchingClinicsForClinician: {
+              inProgress: false,
+              completed: false,
+              inProgress: null,
+            }
+          },
+          clinicFlowActive: true,
+        },
+        router: { location: { pathname: '/workspaces' } } ,
+      });
+
+      let err = new Error('Something went wrong while getting clinics for clinician.');
+      err.status = 500;
+
+      let expectedActions = [
+        { type: 'FETCH_USER_REQUEST' },
+        { type: 'FETCH_USER_SUCCESS', payload: { user } },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+        {
+          type: 'GET_CLINICS_FOR_CLINICIAN_FAILURE',
+          error: err,
+          meta: {
+            apiError: { status: 500, body: 'Error!' },
+          },
+        },
+        { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+        { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+        routeAction('/patients'),
+      ];
+
+      store.dispatch(requireAuth(api));
+
+      const actions = store.getActions();
+
+      expect(actions[3].error).to.deep.include({ message: 'Something went wrong while getting clinics for clinician.' });
+      expectedActions[3].error = actions[3].error;
+
       expect(actions).to.eql(expectedActions);
     });
 
@@ -331,6 +436,7 @@ describe('routes', () => {
         },
         clinics: {
           getClinicsForClinician: sinon.stub().callsArgWith(2, null, [{ clinic: { id: 'newClinic' } }]),
+          getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
         },
       };
 
@@ -352,12 +458,14 @@ describe('routes', () => {
         { type: 'FETCH_USER_REQUEST' },
         { type: 'FETCH_USER_SUCCESS', payload: { user } },
         { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-        { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
-        routeAction('/clinic-details'),
         { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: {
           clinicianId: 'a1b2c3',
           clinics: [{ clinic: { id: 'newClinic' } }],
         } },
+        { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+        { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+        { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
+        routeAction('/clinic-details'),
       ];
 
       store.dispatch(requireAuth(api));
@@ -388,6 +496,7 @@ describe('routes', () => {
         },
         clinics: {
           getClinicsForClinician: sinon.stub().callsArgWith(2, null, [{ clinic: { id: 'newClinic', name: 'Clinic ABC', canMigrate: true } }]),
+          getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
         },
       };
 
@@ -409,12 +518,125 @@ describe('routes', () => {
         { type: 'FETCH_USER_REQUEST' },
         { type: 'FETCH_USER_SUCCESS', payload: { user } },
         { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-        { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
-        routeAction('/clinic-details'),
         { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: {
           clinicianId: 'a1b2c3',
           clinics: [{ clinic: { id: 'newClinic', name: 'Clinic ABC', canMigrate: true } }],
         } },
+        { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+        { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+        { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
+        routeAction('/clinic-details'),
+      ];
+
+      store.dispatch(requireAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should redirect the user to `/clinic-details` if the user has a clinic invite and no clinic profile', () => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+      config.CLINICS_ENABLED = true;
+      let user = {
+        userid: 'a1b2c3',
+        emailVerified: true,
+        profile: {
+          patient: {},
+        },
+        roles: ['clinic'],
+        termsAccepted: '2019-12-30T00:00:00-08:00',
+      };
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(null, user);
+          },
+        },
+        clinics: {
+          getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          getClinicianInvites: sinon.stub().callsArgWith(1, null, [{ id: 'inviteId' }]),
+        },
+      };
+
+      let store = mockStore({
+        blip: {
+          working: {
+            fetchingClinicsForClinician: {
+              inProgress: false,
+              completed: false,
+              inProgress: null,
+            }
+          },
+          clinicFlowActive: true,
+        },
+        router: { location: { pathname: 'foo-path' } } ,
+      });
+
+      let expectedActions = [
+        { type: 'FETCH_USER_REQUEST' },
+        { type: 'FETCH_USER_SUCCESS', payload: { user } },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 'a1b2c3', clinics: [] } },
+        { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+        { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [{ id: 'inviteId' }] } },
+        routeAction('/clinic-details'),
+      ];
+
+      store.dispatch(requireAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should redirect the user to `/workspaces` if the user has a clinic invite and has a clinic profile', () => {
+      config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+      config.CLINICS_ENABLED = true;
+      let user = {
+        userid: 'a1b2c3',
+        emailVerified: true,
+        profile: {
+          patient: {},
+          clinic: {},
+        },
+        roles: ['clinic'],
+        termsAccepted: '2019-12-30T00:00:00-08:00',
+      };
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(null, user);
+          },
+        },
+        clinics: {
+          getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          getClinicianInvites: sinon.stub().callsArgWith(1, null, [{ id: 'inviteId' }]),
+        },
+      };
+
+      let store = mockStore({
+        blip: {
+          working: {
+            fetchingClinicsForClinician: {
+              inProgress: false,
+              completed: false,
+              inProgress: null,
+            }
+          },
+          clinicFlowActive: true,
+        },
+        router: { location: { pathname: 'foo-path' } } ,
+      });
+
+      let expectedActions = [
+        { type: 'FETCH_USER_REQUEST' },
+        { type: 'FETCH_USER_SUCCESS', payload: { user } },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+        { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 'a1b2c3', clinics: [] } },
+        { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+        { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [{ id: 'inviteId' }] } },
+        routeAction('/workspaces'),
       ];
 
       store.dispatch(requireAuth(api));
@@ -443,6 +665,7 @@ describe('routes', () => {
         },
         clinics: {
           getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
         },
       };
 
@@ -464,11 +687,13 @@ describe('routes', () => {
         { type: 'FETCH_USER_REQUEST' },
         { type: 'FETCH_USER_SUCCESS', payload: { user } },
         { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-        routeAction('/patients'),
         { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: {
           clinicianId: 'a1b2c3',
           clinics: [],
         } },
+        { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+        { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+        routeAction('/patients'),
       ];
 
       store.dispatch(requireAuth(api));

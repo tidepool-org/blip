@@ -1347,13 +1347,16 @@ export function fetchCliniciansFromClinicSuccess(results) {
   };
 }
 
-export function fetchCliniciansFromClinicFailure(error, apiError) {
+export function fetchCliniciansFromClinicFailure(error, apiError, clinicId) {
   return {
     type: ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
     },
+    payload: {
+      clinicId
+    }
   };
 }
 
@@ -1479,40 +1482,16 @@ export function fetchPatientsForClinicSuccess(clinicId, patients, count) {
   };
 }
 
-export function fetchPatientsForClinicFailure(error, apiError) {
+export function fetchPatientsForClinicFailure(error, apiError, clinicId) {
   return {
     type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
     },
-  };
-}
-
-export function createCustodialAccountRequest() {
-  return {
-    type: ActionTypes.CREATE_CUSTODIAL_ACCOUNT_REQUEST,
-  };
-}
-
-export function createCustodialAccountSuccess(clinicId, patient, patientId) {
-  return {
-    type: ActionTypes.CREATE_CUSTODIAL_ACCOUNT_SUCCESS,
     payload: {
-      clinicId,
-      patient,
-      patientId,
-    },
-  };
-}
-
-export function createCustodialAccountFailure(error, apiError) {
-  return {
-    type: ActionTypes.CREATE_CUSTODIAL_ACCOUNT_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null,
-    },
+      clinicId
+    }
   };
 }
 
@@ -1562,6 +1541,32 @@ export function createClinicCustodialAccountSuccess(clinicId, patientId, patient
 export function createClinicCustodialAccountFailure(error, apiError) {
   return {
     type: ActionTypes.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createVCACustodialAccountRequest() {
+  return {
+    type: ActionTypes.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
+  };
+}
+
+export function createVCACustodialAccountSuccess(patientId, patient) {
+  return {
+    type: ActionTypes.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS,
+    payload: {
+      patient,
+      patientId,
+    },
+  };
+}
+
+export function createVCACustodialAccountFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,

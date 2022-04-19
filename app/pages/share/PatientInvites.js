@@ -131,6 +131,19 @@ export const PatientInvites = (props) => {
     }
   }, [selectedInvitation]);
 
+  useEffect(() => {
+    const { inProgress, completed, notification } = fetchingPatientInvites;
+
+    if (!isFirstRender && !inProgress) {
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+    }
+  }, [fetchingPatientInvites]);
+
   function handleAccept(invite) {
     trackMetric('Clinic - Accept patient invite', { clinicId: selectedClinicId });
     dispatch(actions.async.acceptPatientInvitation(api, clinic.id, invite.key));

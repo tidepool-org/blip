@@ -23,10 +23,12 @@ import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
+import { Flex } from 'rebass/styled-components';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import DeviceSelection from './deviceSelection';
+import Button from '../elements/Button';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -41,7 +43,6 @@ const FoodTooltip = vizComponents.FoodTooltip;
 const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
 
 import Header from './header';
-import Footer from './footer';
 
 const DailyChart = translate()(class DailyChart extends Component {
   static propTypes = {
@@ -299,6 +300,7 @@ class Daily extends Component {
           iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
           onClickBasics={this.props.onSwitchToBasics}
+          onClickChartDates={this.props.onClickChartDates}
           onClickTrends={this.handleClickTrends}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
@@ -312,6 +314,12 @@ class Daily extends Component {
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {dataQueryComplete && this.renderChart()}
+
+              <Flex mt={3} mb={5} pl="40px">
+                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
+                  {this.props.t('Refresh')}
+                </Button>
+              </Flex>
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -340,11 +348,6 @@ class Daily extends Component {
             </div>
           </div>
         </div>
-        <Footer
-          chartType={this.chartType}
-          onClickRefresh={this.props.onClickRefresh}
-          ref="footer"
-        />
         {this.state.hoveredBolus && <BolusTooltip
           position={{
             top: this.state.hoveredBolus.top,

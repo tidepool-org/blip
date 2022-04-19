@@ -36,6 +36,7 @@ import { MGDL_UNITS } from '../../../app/core/constants';
 describe('PatientData', function () {
   const defaultProps = {
     addingData: { inProgress: false, completed: false },
+    removingData: { inProgress: false, completed: false },
     currentPatientInViewId: 'otherPatientId',
     data: {},
     dataWorkerRemoveDataRequest: sinon.stub(),
@@ -344,6 +345,7 @@ describe('PatientData', function () {
             isUserPatient: true,
             fetchingPatient: false,
             fetchingPatientData: false,
+            removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
           };
@@ -371,6 +373,7 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
           };
@@ -398,6 +401,7 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
             trackMetric: sinon.stub(),
@@ -436,6 +440,7 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
             trackMetric: sinon.stub()
@@ -959,7 +964,7 @@ describe('PatientData', function () {
 
       it('should render a chart date dialog on basics, with appropriate initial props', () => {
         instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2018-01-01T00:00:00.000Z');
-        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' }, chartType: 'basics' });
+        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' }, chartType: 'basics', datesDialogOpen: true });
         wrapper.update();
 
         const dialog = wrapper.find('#chart-dates-dialog');
@@ -967,9 +972,25 @@ describe('PatientData', function () {
         const dialogProps = dialog.props();
 
         expect(dialogProps.defaultDates).to.eql([1000, 2000]);
-        expect(dialogProps.open).to.equal(false);
+        expect(dialogProps.open).to.equal(true);
         expect(dialogProps.processing).to.equal(false);
         expect(dialogProps.maxDays).to.equal(90);
+        expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
+        expect(dialogProps.mostRecentDatumDate).to.equal('2018-01-01T00:00:00.000Z');
+      });
+
+      it('should render a chart date dialog on daily, with appropriate initial props', () => {
+        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2018-01-01T00:00:00.000Z');
+        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' }, chartType: 'daily', datesDialogOpen: true });
+        wrapper.update();
+
+        const dialog = wrapper.find('#chart-date-dialog');
+        expect(dialog.length).to.equal(1);
+        const dialogProps = dialog.props();
+
+        expect(dialogProps.defaultDate).to.eql(1000);
+        expect(dialogProps.open).to.equal(true);
+        expect(dialogProps.processing).to.equal(false);
         expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
         expect(dialogProps.mostRecentDatumDate).to.equal('2018-01-01T00:00:00.000Z');
       });
@@ -1125,47 +1146,12 @@ describe('PatientData', function () {
       pdf: {},
     };
 
-    it('should clear patient data upon refresh', function() {
+    it('should clear patient data', function() {
       const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
       const callCount = props.dataWorkerRemoveDataRequest.callCount;
       elem.handleRefresh();
 
       expect(props.dataWorkerRemoveDataRequest.callCount).to.equal(callCount + 1);
-    });
-
-    it('should clear generated pdfs upon refresh', function() {
-      const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
-      const callCount = props.removeGeneratedPDFS.callCount;
-      elem.handleRefresh();
-      expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
-    });
-
-    it('should reset patient data processing state', function() {
-      const setStateSpy = sinon.spy(PatientDataClass.prototype, 'setState');
-      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      const instance = wrapper.instance();
-
-      instance.DEFAULT_TITLE = 'defaultTitle';
-
-      instance.setState({
-        chartType: 'currentChartType',
-      })
-
-      setStateSpy.resetHistory();
-      sinon.assert.callCount(setStateSpy, 0);
-      instance.handleRefresh();
-      sinon.assert.calledWithMatch(setStateSpy, {
-        ...instance.getInitialState(),
-        bgPrefs: undefined,
-        chartType: undefined,
-        chartEndpoints: undefined,
-        datetimeLocation: undefined,
-        mostRecentDatetimeLocation: undefined,
-        endpoints: undefined,
-        refreshChartType: 'currentChartType',
-      });
-
-      PatientDataClass.prototype.setState.restore();
     });
   });
 
@@ -2077,6 +2063,7 @@ describe('PatientData', function () {
       it('should call `queryData` in `setState` callback with appropriate opts', () => {
         sinon.assert.callOrder(setStateSpy, instance.queryData);
         sinon.assert.calledWith(instance.queryData, 'my query', {
+          forceRemountAfterQuery: false,
           showLoading: true,
           transitioningChartType: true,
           updateChartEndpoints: true,
@@ -2084,6 +2071,7 @@ describe('PatientData', function () {
 
         instance.updateChart('basics', defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
         sinon.assert.calledWith(instance.queryData, undefined, {
+          forceRemountAfterQuery: false,
           showLoading: false,
           transitioningChartType: true,
           updateChartEndpoints: false,
@@ -2108,6 +2096,7 @@ describe('PatientData', function () {
       it('should call `queryData` in `setState` callback with appropriate opts', () => {
         sinon.assert.callOrder(setStateSpy, instance.queryData);
         sinon.assert.calledWith(instance.queryData, 'my query', {
+          forceRemountAfterQuery: false,
           showLoading: true,
           transitioningChartType: false,
           updateChartEndpoints: true,
@@ -2115,6 +2104,7 @@ describe('PatientData', function () {
 
         instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
         sinon.assert.calledWith(instance.queryData, undefined, {
+          forceRemountAfterQuery: false,
           showLoading: false,
           transitioningChartType: false,
           updateChartEndpoints: false,
@@ -2139,6 +2129,7 @@ describe('PatientData', function () {
       it('should call `queryData` in `setState` callback with appropriate opts', () => {
         sinon.assert.callOrder(setStateSpy, instance.queryData);
         sinon.assert.calledWith(instance.queryData, 'my query', {
+          forceRemountAfterQuery: false,
           showLoading: true,
           transitioningChartType: false,
           updateChartEndpoints: true,
@@ -2146,6 +2137,7 @@ describe('PatientData', function () {
 
         instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
         sinon.assert.calledWith(instance.queryData, undefined, {
+          forceRemountAfterQuery: false,
           showLoading: false,
           transitioningChartType: false,
           updateChartEndpoints: false,
@@ -2205,7 +2197,7 @@ describe('PatientData', function () {
       beforeEach(() => {
         props = _.assign({}, defaultProps, {
           data: {
-            metaData: { patientId: '40' },
+            metaData: { patientId: '40', queryDataCount: 1 },
           },
           patient: {
             userid: '40',
@@ -2225,6 +2217,72 @@ describe('PatientData', function () {
 
         setStateSpy = sinon.spy(instance, 'setState');
       });
+
+      context('data is removed prior to refresh', () => {
+        it('should clear generated pdfs upon refresh', done => {
+          const removeGeneratedPDFSStub = sinon.stub();
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: removeGeneratedPDFSStub,
+            removingData: { inProgress: true },
+          });
+          wrapper.update();
+
+          setTimeout(() => {
+            expect(removeGeneratedPDFSStub.callCount).to.equal(0);
+
+            wrapper.setProps({
+              ...props,
+              removeGeneratedPDFS: removeGeneratedPDFSStub,
+              removingData: { inProgress: false, completed: true },
+            });
+            wrapper.update();
+
+            setTimeout(() => {
+                expect(removeGeneratedPDFSStub.callCount).to.equal(1);
+                done();
+            });
+          });
+        });
+
+        it('should reset patient data processing state', done => {
+          wrapper.setState({ chartType: 'currentChartType' });
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: true },
+          });
+          wrapper.update();
+
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: false, completed: true },
+          });
+          wrapper.update();
+
+          setTimeout(() => {
+            sinon.assert.callCount(setStateSpy, 1);
+
+            sinon.assert.calledWithMatch(setStateSpy, {
+              ...instance.getInitialState(),
+              bgPrefs: undefined,
+              chartType: undefined,
+              chartEndpoints: undefined,
+              datetimeLocation: undefined,
+              mostRecentDatetimeLocation: undefined,
+              endpoints: undefined,
+              refreshChartType: 'currentChartType',
+            });
+
+            done();
+          });
+        });
+      })
 
       context('patient settings have not been fetched, patient data has not been added to worker', () => {
         it('should not update state', () => {
@@ -2338,22 +2396,23 @@ describe('PatientData', function () {
           }));
         });
 
-        it('should query for intial data if `state.queryDataCount < 1`', () => {
+        it('should query for intial data if `data.metaData.queryDataCount < 1`', () => {
           const queryDataSpy = sinon.spy(instance, 'queryData');
-
-          wrapper.setState({ queryDataCount: 1 });
-          wrapper.setProps(props);
           sinon.assert.notCalled(queryDataSpy);
 
-          wrapper.setState({ queryDataCount: 0 });
-          wrapper.setProps(props);
+          wrapper.setProps(_.assign(props, {
+            data: {
+              metaData: { patientId: '40', queryDataCount: 0 },
+            },
+          }));
+
           sinon.assert.calledWithMatch(queryDataSpy, {
             types: {
               upload: {
                 select: 'id,deviceId,deviceTags',
               },
             },
-            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
+            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices,queryDataCount',
             excludedDevices: undefined,
             timePrefs: sinon.match.object,
             bgPrefs: sinon.match.object,
@@ -2390,21 +2449,6 @@ describe('PatientData', function () {
             wrapper.setProps(completedDataQueryProps);
 
             sinon.assert.calledWith(setInitialChartViewSpy, sinon.match(completedDataQueryProps));
-          });
-
-          it('should increment `queryDataCount` if `types` was specified in the query', () => {
-            expect(instance.state.queryDataCount).to.equal(0);
-
-            wrapper.setProps(_.assign({}, completedDataQueryProps, {
-              data: {
-                ...props.data,
-                query: { types: 'smbg' },
-              },
-            }));
-
-            sinon.assert.calledWith(setStateSpy, sinon.match({
-              queryDataCount: 1,
-            }));
           });
 
           context('querying data just completed on current render cycle', () => {
@@ -2550,9 +2594,6 @@ describe('PatientData', function () {
           it('should call queryData with no arguments', () => {
             const queryDataSpy = sinon.spy(instance, 'queryData');
 
-            // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1 })
-
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
               addingData: { inProgress: true, completed: false }
@@ -2572,7 +2613,7 @@ describe('PatientData', function () {
             const generatePDFSpy = sinon.spy(instance, 'generatePDF');
 
             // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1, printDialogPDFOpts: undefined })
+            wrapper.setState({ printDialogPDFOpts: undefined })
 
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
@@ -2599,7 +2640,7 @@ describe('PatientData', function () {
             }
 
             // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1, printDialogPDFOpts: pdfOpts })
+            wrapper.setState({ printDialogPDFOpts: pdfOpts })
 
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
@@ -2619,7 +2660,7 @@ describe('PatientData', function () {
             const closeDatesDialogSpy = sinon.spy(instance, 'closeDatesDialog');
 
             // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1, datesDialogFetchingData: false })
+            wrapper.setState({ datesDialogFetchingData: false })
 
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
@@ -2639,7 +2680,7 @@ describe('PatientData', function () {
             const closeDatesDialogSpy = sinon.spy(instance, 'closeDatesDialog');
 
             // ensure query for initial data doesn't pollute test
-            wrapper.setState({ queryDataCount: 1, datesDialogFetchingData: true })
+            wrapper.setState({ datesDialogFetchingData: true })
 
             // Adding Data
             wrapper.setProps(_.assign({}, props, {
@@ -2746,7 +2787,7 @@ describe('PatientData', function () {
 
     it('should set the `metaData` query to `bgSources,devices` if arg not provided', () => {
       instance.queryData(emptyQuery);
-      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,excludedDevices' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,excludedDevices,queryDataCount' });
     });
 
     it('should set the `activeDays` query from `chartPrefs`', () => {
@@ -2792,6 +2833,7 @@ describe('PatientData', function () {
           endpoints: [100,200],
           excludedDevices: [],
           excludeDaysWithoutBolus: undefined,
+          forceRemountAfterQuery: undefined,
           types: 'cbg,smbg',
           metaData: 'bar',
         });
@@ -4104,7 +4146,8 @@ describe('PatientData', function () {
       sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'daily');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'daily' });
       sinon.assert.calledWith(instance.updateChart, 'daily', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
-        updateChartEndpoints: true
+        updateChartEndpoints: true,
+        forceRemountAfterQuery: true,
       });
     });
 
@@ -4145,6 +4188,7 @@ describe('PatientData', function () {
       sinon.assert.calledWith(instance.updateChart, 'daily', '2018-02-04T12:00:00.000Z', 'endpoints stub', {
         mostRecentDatetimeLocation: '2018-02-04T12:00:00.000Z',
         updateChartEndpoints: true,
+        forceRemountAfterQuery: true,
       });
     });
   });
