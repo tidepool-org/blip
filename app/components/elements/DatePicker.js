@@ -26,6 +26,14 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
   .SingleDatePickerInput {
     border-radius: ${radii.input}px;
     border-color: ${colors.border.default};
+
+    .DateInput {
+      border-radius: ${radii.input}px;
+
+      input {
+        border-radius: ${radii.input}px;
+      }
+    }
   }
 
   .SingleDatePicker_picker {

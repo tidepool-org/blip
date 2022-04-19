@@ -106,7 +106,7 @@ describe('ClinicPatients', () => {
     },
   };
 
-  let store;
+  let store = mockStore(noPatientsState);
 
   const hasPatientsState = merge({}, noPatientsState, {
     blip: {
@@ -165,6 +165,75 @@ describe('ClinicPatients', () => {
     },
   };
 
+  context('on mount', () => {
+    beforeEach(() => {
+      store.clearActions();
+    });
+    it('should not fetch patients for clinic if already in progress', () => {
+      store = mockStore(
+        merge({}, hasPatientsState, {
+          blip: {
+            working: {
+              fetchingPatientsForClinic: {
+                inProgress: true,
+              },
+            },
+          },
+        })
+      );
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+      expect(store.getActions()).to.eql([]);
+    });
+
+    it('should fetch patients for clinic', () => {
+      store = mockStore(hasPatientsState);
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+      const expectedActions = [
+        { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+      ];
+      expect(store.getActions()).to.eql(expectedActions);
+    });
+
+    it('should fetch patients for clinic if previously errored', () => {
+      store = mockStore(
+        merge({}, hasPatientsState, {
+          blip: {
+            working: {
+              fetchingPatientsForClinic: {
+                notification: {
+                  message: 'Errored',
+                },
+              },
+            },
+          },
+        })
+      );
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+      const expectedActions = [
+        { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+      ];
+      expect(store.getActions()).to.eql(expectedActions);
+    });
+  });
+
   context('no patients', () => {
     beforeEach(() => {
       store = mockStore(noPatientsState);
@@ -193,9 +262,10 @@ describe('ClinicPatients', () => {
 
       const dialog = () => wrapper.find('Dialog#addPatient');
 
-      expect(dialog().props().open).to.be.false;
+      expect(dialog()).to.have.length(0);
       addButton.simulate('click');
       wrapper.update();
+      expect(dialog()).to.have.length(1);
       expect(dialog().props().open).to.be.true;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
@@ -380,9 +450,10 @@ describe('ClinicPatients', () => {
 
         const dialog = () => wrapper.find('Dialog#editPatient');
 
-        expect(dialog().props().open).to.be.false;
+        expect(dialog()).to.have.length(0);
         editButton.simulate('click');
         wrapper.update();
+        expect(dialog()).to.have.length(1);
         expect(dialog().props().open).to.be.true;
 
         expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;

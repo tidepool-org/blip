@@ -18427,10 +18427,10 @@ thunky@^1.0.2:
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
   integrity sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==
 
-tideline@1.26.0-web-1457-move-data-view-controls.1:
-  version "1.26.0-web-1457-move-data-view-controls.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.26.0-web-1457-move-data-view-controls.1.tgz#e373ccf52f4c61ed6522db901cb39b9734c2c378"
-  integrity sha512-NTpZ7cIBG/fKcqplBqfK7ONB4e6eFW2xb2KzDgh5fgrLXBTXnli9tV2DkMXNdy6kCIvX08GRWHA39IXUa6JcoQ==
+tideline@1.26.0:
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.26.0.tgz#6d2da5c74689acfa297223208c2216590ffaf9ef"
+  integrity sha512-UoNOHzTLjNiugdmALH+hhWBrCQtrs8caCGShQVbjZfbgFWRj6Occ7Ig0eTOS3G5aKqW67MsUfB2U6T4zCjT50A==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"

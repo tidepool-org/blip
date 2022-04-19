@@ -18,6 +18,7 @@ import Popover from '../../../app/components/elements/Popover';
 /* global beforeEach */
 /* global before */
 /* global after */
+/* global assert */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -132,6 +133,10 @@ describe('ClinicianPatients', () => {
         patient1,
         patient2,
       },
+      membershipPermissionsInOtherCareTeams: {
+        patient1: { view: {} },
+        patient2: { custodian: {} },
+      }
     },
   });
 
@@ -163,9 +168,10 @@ describe('ClinicianPatients', () => {
 
       const dialog = () => wrapper.find('Dialog#addPatient');
 
-      expect(dialog().props().open).to.be.false;
+      expect(dialog()).to.have.length(0);
       addButton.simulate('click');
       wrapper.update();
+      expect(dialog()).to.have.length(1);
       expect(dialog().props().open).to.be.true;
 
       expect(defaultProps.trackMetric.calledWith('Clinician - Add patient')).to.be.true;
@@ -330,6 +336,24 @@ describe('ClinicianPatients', () => {
         expect(wrapper.find(Popover).at(0).props().open).to.be.true;
       });
 
+      it('should not show the patient edit link for non-custodial patient accounts', () => {
+        const table = wrapper.find(Table);
+        expect(table).to.have.length(1);
+        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
+        const patientRow1 = table.find('tr').at(1);
+        const patientRow2 = table.find('tr').at(2);
+
+        expect(patientRow1.text()).contains('Patient One');
+        const patient1EditButton = patientRow1.find('Button[iconLabel="Edit Patient Information"]');
+        assert(!hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient1.custodian)
+        expect(patient1EditButton).to.have.length(0);
+
+        expect(patientRow2.text()).contains('Patient Two');
+        assert(hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient2.custodian)
+        const patient2EditButton = patientRow2.find('Button[iconLabel="Edit Patient Information"]');
+        expect(patient2EditButton).to.have.length(1);
+      });
+
       it('should open a modal for patient editing when edit link is clicked', done => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
@@ -338,9 +362,10 @@ describe('ClinicianPatients', () => {
 
         const dialog = () => wrapper.find('Dialog#editPatient');
 
-        expect(dialog().props().open).to.be.false;
+        expect(dialog()).to.have.length(0);
         editButton.simulate('click');
         wrapper.update();
+        expect(dialog()).to.have.length(1);
         expect(dialog().props().open).to.be.true;
 
         expect(defaultProps.trackMetric.calledWith('Clinician - Edit patient')).to.be.true;

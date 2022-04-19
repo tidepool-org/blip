@@ -48,6 +48,7 @@ export const ClinicianPatients = (props) => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const membershipPermissionsInOtherCareTeams = useSelector((state) => state.blip.membershipPermissionsInOtherCareTeams);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
@@ -388,21 +389,24 @@ export const ClinicianPatients = (props) => {
 
   const renderMore = patient => {
     const items = [];
+    const isLoggedInUser = patient.id === loggedInUserId;
 
-    items.push({
-      icon: EditIcon,
-      iconLabel: t('Edit Patient Information'),
-      iconPosition: 'left',
-      id: `edit-${patient.id}`,
-      variant: 'actionListItem',
-      onClick: _popupState => {
-        _popupState.close();
-        handleEditPatient(patient);
-      },
-      text: t('Edit Patient Information'),
-    });
+    if (isLoggedInUser || membershipPermissionsInOtherCareTeams?.[patient.id]?.custodian) {
+      items.push({
+        icon: EditIcon,
+        iconLabel: t('Edit Patient Information'),
+        iconPosition: 'left',
+        id: `edit-${patient.id}`,
+        variant: 'actionListItem',
+        onClick: _popupState => {
+          _popupState.close();
+          handleEditPatient(patient);
+        },
+        text: t('Edit Patient Information'),
+      });
+    }
 
-    if (patient.id !== loggedInUserId) items.push({
+    if (!isLoggedInUser) items.push({
       icon: DeleteIcon,
       iconLabel: t('Remove Patient'),
       iconPosition: 'left',
@@ -485,8 +489,8 @@ export const ClinicianPatients = (props) => {
         {renderHeader()}
         {renderPeopleArea()}
         {renderRemoveDialog()}
-        {renderAddPatientDialog()}
-        {renderEditPatientDialog()}
+        {showAddPatientDialog && renderAddPatientDialog()}
+        {showEditPatientDialog && renderEditPatientDialog()}
       </Box>
 
       {showNames && patients.length > rowsPerPage && (
