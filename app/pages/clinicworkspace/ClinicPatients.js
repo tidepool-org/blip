@@ -7,7 +7,8 @@ import { format } from 'd3-format';
 import moment from 'moment';
 import debounce from 'lodash/debounce';
 import forEach from 'lodash/forEach';
-import get from 'lodash/get'
+import find from 'lodash/find';
+import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
@@ -17,17 +18,26 @@ import round from 'lodash/round';
 import sample from 'lodash/sample';
 import sum from 'lodash/sum';
 import values from 'lodash/values';
+import without from 'lodash/without';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
 import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import EditIcon from '@material-ui/icons/EditRounded';
+import FilterIcon from './FilterIcon.svg';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import { components as vizComponents } from '@tidepool/viz';
+
+import {
+  bindPopover,
+  bindTrigger,
+  usePopupState,
+} from 'material-ui-popup-state/hooks';
 
 import {
   MediumTitle,
@@ -41,8 +51,11 @@ import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import BgRangeSummary from '../../components/clinic/BgRangeSummary';
 import PatientForm from '../../components/clinic/PatientForm';
+import Pill from '../../components/elements/Pill';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import PopoverLabel from '../../components/elements/PopoverLabel';
+import Popover from '../../components/elements/Popover';
+import RadioGroup from '../../components/elements/RadioGroup';
 
 import {
   Dialog,
@@ -84,6 +97,25 @@ export const ClinicPatients = (props) => {
   const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
+
+  const defaultFilterState = {
+    lastUpload: null,
+    timeInRange: null,
+  };
+
+  const [activeFilters, setActiveFilters] = useState(defaultFilterState);
+  const [pendingFilters, setPendingFilters] = useState(defaultFilterState);
+
+  const lastUploadFilterOptions = [
+    { value: 1, label: t('Today') },
+    { value: 14, label: t('Last 14 days') },
+    { value: 30, label: t('Last 30 days') },
+  ];
+
+  const popupFilterState = usePopupState({
+    variant: 'popover',
+    popupId: 'lastUploadFilters',
+  });
 
   const debounceSearch = useCallback(debounce(search => {
     setPatientFetchOptions({
@@ -266,6 +298,7 @@ export const ClinicPatients = (props) => {
   }
 
   const renderHeader = () => {
+    const activeFiltersArray = without(values(activeFilters), null);
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
     let timeAgoUnits = hoursAgo === 0 ? t('hour') : t('hours');
@@ -309,16 +342,106 @@ export const ClinicPatients = (props) => {
             <Flex
               alignItems="center"
               justifyContent="flex-start"
+              sx={{ gap: 2 }}
             >
               <Button
                 id="add-patient"
                 variant="primary"
                 onClick={handleAddPatient}
                 fontSize={0}
-                mr={0}
+                mr={1}
               >
                 {t('Add New Patient')}
               </Button>
+              <Flex
+                alignItems="center"
+                color={isEmpty(activeFiltersArray) ? 'grays.4' : 'purpleMedium'}
+                pl={2}
+                py={1}
+                sx={{ gap: 1, borderLeft: borders.divider }}
+              >
+                {isEmpty(activeFiltersArray) ? (
+                  <Icon
+                  id="filter-icon"
+                  variant="static"
+                  iconSrc={FilterIcon}
+                  fontSize={1}
+                  width="14px"
+                  color={'grays.4'}
+                />
+                ) : (
+                  <Pill
+                    label="filter count"
+                    round
+                    width="14px"
+                    fontSize="9px"
+                    colorPalette={['purpleMedium', 'white']}
+                    text={`${activeFiltersArray.length}`}
+                  />
+                )}
+                <Text fontSize={0}>{t('Filter By')}</Text>
+              </Flex>
+
+              <Button
+                variant="filter"
+                active={!!activeFilters.lastUpload}
+                {...bindTrigger(popupFilterState)}
+                icon={KeyboardArrowDownRoundedIcon}
+                iconLabel="Filter by last upload"
+                ml={2}
+                fontSize={0}
+              >
+                {activeFilters.lastUpload ? find(lastUploadFilterOptions, { value: activeFilters.lastUpload })?.label : t('Last Upload')}
+              </Button>
+
+              <Popover width="15em" {...bindPopover(popupFilterState)}>
+                <DialogContent px={2} py={3} dividers>
+                  <RadioGroup
+                    id="last-upload-filters"
+                    name="last-upload-filters"
+                    options={lastUploadFilterOptions}
+                    variant="vertical"
+                    fontSize={0}
+                    value={pendingFilters.lastUpload || activeFilters.lastUpload}
+                    onChange={event => {
+                      setPendingFilters({ ...pendingFilters, lastUpload: parseInt(event.target.value) || null });
+                    }}
+                  />
+                </DialogContent>
+
+                <DialogActions justifyContent="space-between" p={1}>
+                  <Button
+                    fontSize={1}
+                    variant="textSecondary"
+                    onClick={() => {
+                      setPendingFilters({ ...activeFilters, lastUpload: null });
+                      setActiveFilters({ ...activeFilters, lastUpload: null });
+                      popupFilterState.close();
+                    }}
+                  >
+                    {t('Clear')}
+                  </Button>
+
+                  <Button fontSize={1} variant="textPrimary" onClick={() => {
+                    setActiveFilters(pendingFilters);
+                    popupFilterState.close();
+                  }}>
+                    {t('Apply')}
+                  </Button>
+                </DialogActions>
+              </Popover>
+
+              {!isEmpty(activeFiltersArray) && (
+                <Button
+                  id="profileEditButton"
+                  variant="textSecondary"
+                  onClick={handleResetFilters}
+                  fontSize={0}
+                  color="grays.4"
+                >
+                  {t('Reset Filters')}
+                </Button>
+              )}
             </Flex>
 
             <Flex
@@ -326,7 +449,7 @@ export const ClinicPatients = (props) => {
               justifyContent="flex-end"
             >
               {showNames && (
-                <Flex pr={3} mr={2} alignItems="center" sx={{ borderRight: borders.divider }}>
+                <Flex pr={3} py={1} mr={2} alignItems="center" sx={{ borderRight: borders.divider }}>
                   <Icon
                     mr={2}
                     id="refresh-patients"
@@ -569,7 +692,7 @@ export const ClinicPatients = (props) => {
     });
   }
 
-  function handleClearSearch(event) {
+  function handleClearSearch() {
     setSearch('');
     setLoading(true);
     debounceSearch('');
@@ -580,6 +703,11 @@ export const ClinicPatients = (props) => {
       ...patientFetchOptions,
       offset: (page - 1) * patientFetchOptions.limit,
     });
+  }
+
+  function handleResetFilters() {
+    setActiveFilters(defaultFilterState);
+    setPendingFilters(defaultFilterState);
   }
 
   const renderPatient = patient => (
