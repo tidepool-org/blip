@@ -2,10 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { default as Base, PopoverProps } from '@material-ui/core/Popover';
 import HoverPopover from 'material-ui-popup-state/HoverPopover';
+import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import styled from 'styled-components';
 import { Box, BoxProps } from 'rebass/styled-components';
 
 import { borders, radii, shadows, space, fonts } from '../../themes/baseTheme';
+import Icon from '../../components/elements/Icon';
 
 const StyledPopover = (Component) => styled(Component)`
   .MuiPopover-paper {
@@ -27,6 +29,8 @@ const PopoverContentWrapper = React.forwardRef((props, ref) => (
 
 const Popover = props => {
   const {
+    children,
+    closeIcon,
     themeProps,
     PaperProps,
     useHoverPopover,
@@ -43,7 +47,23 @@ const Popover = props => {
     <Component
       PaperProps={{ component: PopoverContentWrapper }}
       {...popoverProps}
-    />
+    >
+      {closeIcon && (
+        <Icon
+          label="close dialog"
+          onClick={popoverProps?.onClose}
+          icon={CloseRoundedIcon}
+          variant="button"
+          fontSize={1}
+          sx={{
+            position: 'absolute !important',
+            top: 1,
+            right: 1,
+          }}
+        />
+      )}
+      {children}
+    </Component>
   );
 };
 
@@ -51,6 +71,7 @@ Popover.propTypes = {
   ...PopoverProps,
   themeProps: PropTypes.shape(BoxProps),
   useHoverPopover: PropTypes.bool,
+  closeIcon: PropTypes.bool,
 };
 
 Popover.defaultProps = {
@@ -64,7 +85,6 @@ Popover.defaultProps = {
     horizontal: 'left',
   },
   keepMounted: true,
-  useHoverPopover: false,
 };
 
 export default Popover;
