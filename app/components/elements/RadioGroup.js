@@ -167,6 +167,7 @@ RadioGroup.propTypes = {
 RadioGroup.defaultProps = {
   variant: 'vertical',
   color: colors.text.default,
+  fontSize: 1,
 };
 
 export default RadioGroup;
