@@ -33,7 +33,11 @@ const Popover = props => {
     ...popoverProps
   } = props;
 
-  const Component = StyledPopover(useHoverPopover ? HoverPopover : Base);
+  const [Component, setComponent] = React.useState((React.Fragment));
+
+  React.useEffect(() => {
+    setComponent(StyledPopover(useHoverPopover ? HoverPopover : Base));
+  }, []);
 
   return (
     <Component
@@ -60,6 +64,7 @@ Popover.defaultProps = {
     horizontal: 'left',
   },
   keepMounted: true,
+  useHoverPopover: false,
 };
 
 export default Popover;
