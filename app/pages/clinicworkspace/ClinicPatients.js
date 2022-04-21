@@ -384,7 +384,7 @@ export const ClinicPatients = (props) => {
 
               <Button
                 variant="filter"
-                active={!!activeFilters.lastUpload}
+                selected={!!activeFilters.lastUpload}
                 {...bindTrigger(popupFilterState)}
                 icon={KeyboardArrowDownRoundedIcon}
                 iconLabel="Filter by last upload"

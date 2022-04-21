@@ -250,6 +250,12 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
       '.icon': {
         fontSize: `${fontSizes[2]}px`,
       },
+      '&.selected': {
+        cursor: 'default',
+        color: colors.purpleMedium,
+        backgroundColor: colors.blues[0],
+        borderColor: colors.purpleMedium,
+      },
     },
     chip: {
       ...defaultStyles,
