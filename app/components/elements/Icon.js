@@ -19,6 +19,11 @@ const StyledIcon = styled(Box)`
   .MuiSvgIcon-root {
     font-size: inherit;
   }
+
+  .icon-custom-svg {
+    width: 100%;
+    height: 'auto';
+  }
 `;
 
 export const Icon = props => {
@@ -26,6 +31,7 @@ export const Icon = props => {
     active,
     cursor = 'pointer',
     icon: IconElement,
+    iconSrc,
     innerRef,
     label,
     variant,
@@ -50,7 +56,7 @@ export const Icon = props => {
       ref={innerRef}
       {...buttonProps}
     >
-      <IconElement />
+      {iconSrc ? <img className="icon-custom-svg" src={iconSrc} /> : <IconElement />}
     </StyledIcon>
   );
 };
