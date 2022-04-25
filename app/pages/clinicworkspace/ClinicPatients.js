@@ -31,7 +31,7 @@ import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 
 import {
   bindPopover,
@@ -56,6 +56,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import Popover from '../../components/elements/Popover';
 import RadioGroup from '../../components/elements/RadioGroup';
+import Checkbox from '../../components/elements/Checkbox';
 
 import {
   Dialog,
@@ -71,9 +72,10 @@ import { fieldsAreValid } from '../../core/forms';
 import { dateFormat, patientSchema as validationSchema } from '../../core/clinicUtils';
 import config from '../../config';
 import { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
-import { borders } from '../../themes/baseTheme';
+import { default as baseTheme, borders, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
+const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric, searchDebounceMs } = props;
@@ -88,6 +90,7 @@ export const ClinicPatients = (props) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
+  const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
   const [showSummaryData, setShowSummaryData] = useState(false);
   const [search, setSearch] = useState('');
@@ -100,8 +103,16 @@ export const ClinicPatients = (props) => {
 
   const defaultFilterState = {
     lastUpload: null,
-    timeInRange: null,
+    timeInRange: [],
+    meetsCriteria: true,
   };
+
+  const defaultBgPrefs = {
+    bgUntis: MGDL_UNITS,
+    bgBounds: reshapeBgClassesToBgBounds({ bgUnits: MGDL_UNITS }),
+  };
+
+  const defaultBgLabels = generateBgRangeLabels(defaultBgPrefs, { condensed: true });
 
   const [activeFilters, setActiveFilters] = useState(defaultFilterState);
   const [pendingFilters, setPendingFilters] = useState(defaultFilterState);
@@ -112,7 +123,15 @@ export const ClinicPatients = (props) => {
     { value: 30, label: t('Last 30 days') },
   ];
 
-  const popupFilterState = usePopupState({
+  const timeInRangeFilterOptions = [
+    { value: t('timeVeryBelowRange'), label: t('<1% Time below Range'), tag: t('Severe Hypoglycemia'), rangeName: 'veryLow' },
+    { value: t('timeBelowRange'), label: t('<4% Time below Range'), tag: t('Low'), rangeName: 'low' },
+    { value: t('timeInRange'), label: t('>70% Time in Range'), tag: t('Normal'), rangeName: 'target' },
+    { value: t('timeAboveRange'), label: t('<25% Time above Range'), tag: t('High'), rangeName: 'high' },
+    { value: t('timeVeryAboveRange'), label: t('<5% Time above Range'), tag: t('Severe Hyperglycemia'), rangeName: 'veryHigh' },
+  ];
+
+  const lastUploadPopupFilterState = usePopupState({
     variant: 'popover',
     popupId: 'lastUploadFilters',
   });
@@ -137,7 +156,7 @@ export const ClinicPatients = (props) => {
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
-        handleCloseOverlay();
+        handleCloseOverlays();
 
         setToast({
           message: successMessage,
@@ -298,7 +317,7 @@ export const ClinicPatients = (props) => {
   }
 
   const renderHeader = () => {
-    const activeFiltersArray = without(values(activeFilters), null);
+    const activeFiltersCount = without([activeFilters.lastUpload, activeFilters.timeInRange.length], null, 0).length;
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
     let timeAgoUnits = hoursAgo === 0 ? t('hour') : t('hours');
@@ -355,28 +374,29 @@ export const ClinicPatients = (props) => {
               </Button>
               <Flex
                 alignItems="center"
-                color={isEmpty(activeFiltersArray) ? 'grays.4' : 'purpleMedium'}
+                color={activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4'}
                 pl={2}
                 py={1}
                 sx={{ gap: 1, borderLeft: borders.divider }}
               >
-                {isEmpty(activeFiltersArray) ? (
-                  <Icon
-                  id="filter-icon"
-                  variant="static"
-                  iconSrc={FilterIcon}
-                  fontSize={1}
-                  width="14px"
-                  color={'grays.4'}
-                />
-                ) : (
+                {activeFiltersCount > 0 ? (
                   <Pill
                     label="filter count"
                     round
                     width="14px"
+                    lineHeight="15px"
                     fontSize="9px"
                     colorPalette={['purpleMedium', 'white']}
-                    text={`${activeFiltersArray.length}`}
+                    text={`${activeFiltersCount}`}
+                  />
+                ) : (
+                  <Icon
+                    id="filter-icon"
+                    variant="static"
+                    iconSrc={FilterIcon}
+                    fontSize={1}
+                    width="14px"
+                    color={'grays.4'}
                   />
                 )}
                 <Text fontSize={0}>{t('Filter By')}</Text>
@@ -385,16 +405,17 @@ export const ClinicPatients = (props) => {
               <Button
                 variant="filter"
                 selected={!!activeFilters.lastUpload}
-                {...bindTrigger(popupFilterState)}
+                {...bindTrigger(lastUploadPopupFilterState)}
                 icon={KeyboardArrowDownRoundedIcon}
                 iconLabel="Filter by last upload"
                 ml={2}
                 fontSize={0}
+                lineHeight={1.3}
               >
                 {activeFilters.lastUpload ? find(lastUploadFilterOptions, { value: activeFilters.lastUpload })?.label : t('Last Upload')}
               </Button>
 
-              <Popover width="15em" {...bindPopover(popupFilterState)}>
+              <Popover minWidth="11em" closeIcon {...bindPopover(lastUploadPopupFilterState)}>
                 <DialogContent px={2} py={3} dividers>
                   <RadioGroup
                     id="last-upload-filters"
@@ -403,7 +424,7 @@ export const ClinicPatients = (props) => {
                     variant="vertical"
                     fontSize={0}
                     value={pendingFilters.lastUpload || activeFilters.lastUpload}
-                    onChange={event => {
+                    onChange={event => { // TODO: Move to dedicated event handler function
                       setPendingFilters({ ...pendingFilters, lastUpload: parseInt(event.target.value) || null });
                     }}
                   />
@@ -414,9 +435,9 @@ export const ClinicPatients = (props) => {
                     fontSize={1}
                     variant="textSecondary"
                     onClick={() => {
-                      setPendingFilters({ ...activeFilters, lastUpload: null });
-                      setActiveFilters({ ...activeFilters, lastUpload: null });
-                      popupFilterState.close();
+                      setPendingFilters({ ...activeFilters, lastUpload: defaultFilterState.lastUpload });
+                      setActiveFilters({ ...activeFilters, lastUpload: defaultFilterState.lastUpload });
+                      lastUploadPopupFilterState.close();
                     }}
                   >
                     {t('Clear')}
@@ -424,14 +445,41 @@ export const ClinicPatients = (props) => {
 
                   <Button fontSize={1} variant="textPrimary" onClick={() => {
                     setActiveFilters(pendingFilters);
-                    popupFilterState.close();
+                    lastUploadPopupFilterState.close();
                   }}>
                     {t('Apply')}
                   </Button>
                 </DialogActions>
               </Popover>
 
-              {!isEmpty(activeFiltersArray) && (
+              <Button
+                variant="filter"
+                selected={!!activeFilters.timeInRange.length}
+                onClick={handleOpenTimeInRangeFilter}
+                ml={2}
+                fontSize={0}
+                lineHeight={1.3}
+              >
+                {t('% Time in Range')}
+                {!!activeFilters.timeInRange.length && (
+                  <Pill
+                    label="filter count"
+                    round
+                    width="14px"
+                    fontSize="9px"
+                    lineHeight="15px"
+                    ml={1}
+                    sx={{
+                      textAlign: 'center',
+                      display: 'inline-block',
+                    }}
+                    colorPalette={['purpleMedium', 'white']}
+                    text={`${activeFilters.timeInRange.length}`}
+                  />
+                )}
+              </Button>
+
+              {activeFiltersCount > 0 && (
                 <Button
                   id="profileEditButton"
                   variant="textSecondary"
@@ -518,11 +566,11 @@ export const ClinicPatients = (props) => {
     return (
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
-        onClose={handleCloseOverlay}
+        onClose={handleCloseOverlays}
       >
-        <DialogTitle onClose={handleCloseOverlay}>
+        <DialogTitle onClose={handleCloseOverlays}>
           <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: fullName })}</MediumTitle>
         </DialogTitle>
 
@@ -538,7 +586,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="patientRemoveCancel" variant="secondary" onClick={handleCloseOverlay}>
+          <Button id="patientRemoveCancel" variant="secondary" onClick={handleCloseOverlays}>
             {t('Cancel')}
           </Button>
           <Button
@@ -557,11 +605,11 @@ export const ClinicPatients = (props) => {
     return (
       <Dialog
         id="addPatient"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showAddPatientDialog}
-        onClose={handleCloseOverlay}
+        onClose={handleCloseOverlays}
       >
-        <DialogTitle onClose={handleCloseOverlay}>
+        <DialogTitle onClose={handleCloseOverlays}>
           <MediumTitle id="dialog-title">{t('Add New Patient Account')}</MediumTitle>
         </DialogTitle>
 
@@ -570,7 +618,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="addPatientCancel" variant="secondary" onClick={handleCloseOverlay}>
+          <Button id="addPatientCancel" variant="secondary" onClick={handleCloseOverlays}>
             {t('Cancel')}
           </Button>
           <Button
@@ -591,11 +639,11 @@ export const ClinicPatients = (props) => {
     return (
       <Dialog
         id="editPatient"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showEditPatientDialog}
-        onClose={handleCloseOverlay}
+        onClose={handleCloseOverlays}
       >
-        <DialogTitle onClose={handleCloseOverlay}>
+        <DialogTitle onClose={handleCloseOverlays}>
           <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
         </DialogTitle>
 
@@ -604,7 +652,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="editPatientCancel" variant="secondary" onClick={handleCloseOverlay}>
+          <Button id="editPatientCancel" variant="secondary" onClick={handleCloseOverlays}>
             {t('Cancel')}
           </Button>
 
@@ -622,6 +670,132 @@ export const ClinicPatients = (props) => {
     );
   };
 
+  const renderTimeInRangeDialog = () => {
+    return (
+      <Dialog
+        id="timeInRangeDialog"
+        aria-label="Time in range filters"
+        open={showTimeInRangeDialog}
+        onClose={handleCloseOverlays}
+        maxWidth='lg'
+      >
+        <DialogTitle
+          p={0}
+          sx={{
+            border: 'none',
+            button: { position: 'absolute !important', top: 1, right: 1 },
+          }}
+          onClose={handleCloseOverlays}
+        />
+
+        <DialogContent color="text.primary" pl={5} pr={6} pb={4}>
+          <Flex alignItems="center" mb={4} fontSize={1} fontWeight="medium">
+            <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>{t('View all patients that')}</Text>
+
+            <Button
+              variant={pendingFilters.meetsCriteria ? 'primary' : 'secondary'}
+              color={pendingFilters.meetsCriteria ? 'white' : 'grays.4'}
+              sx={{
+                borderColor: pendingFilters.meetsCriteria ? 'purpleMedium' : 'grays.1',
+                whiteSpace: 'nowrap',
+                borderRight: 0,
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              }}
+              onClick={() => setPendingFilters({ ...pendingFilters, meetsCriteria: true })}
+            >
+              {t('meet')}
+            </Button>
+
+            <Button
+              variant={!pendingFilters.meetsCriteria ? 'primary' : 'secondary'}
+              color={!pendingFilters.meetsCriteria ? 'white' : 'grays.4'}
+              sx={{
+                borderColor: !pendingFilters.meetsCriteria ? 'purpleMedium' : 'grays.1',
+                whiteSpace: 'nowrap',
+                borderLeft: 0,
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+              }}
+              onClick={() => setPendingFilters({ ...pendingFilters, meetsCriteria: false })}
+            >
+              {t('do NOT meet')}
+            </Button>
+
+            <Text ml={2} sx={{ whiteSpace: 'nowrap' }}>{t('the checked glycemic targets:')}</Text>
+          </Flex>
+
+          {map(timeInRangeFilterOptions, ({ value, label, rangeName, tag }) => (
+            <Flex mb={3} alignItems="center" sx={{ gap: 2 }}>
+              <Checkbox
+                id={`range-${value}-filter`}
+                name={`range-${value}-filter`}
+                variant="inputs.checkboxGroup.vertical"
+                theme={baseTheme}
+                key={value}
+                checked={includes([...pendingFilters.timeInRange], value)}
+                onChange={event => {
+                  setPendingFilters(event.target.checked
+                    ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
+                    : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
+                  );
+                }}
+              />
+
+              <Box fontWeight="medium">
+                <Flex alignItems="center">
+                  <Text fontSize={0} mr={2}>{label}</Text>
+                  <Pill fontSize="10px" lineHeight="1" py="2px" sx={{ border: '1px solid', borderColor: 'grays.1', textTransform: 'none' }} colorPalette={['white', 'grays.4']} text={`${defaultBgLabels[rangeName]} ${MGDL_UNITS}`} />
+                </Flex>
+
+                <Pill fontSize="9px" py="2px" sx={{ borderRadius: radii.input, textTransform: 'none' }} colorPalette={[`bg.${rangeName}`, 'white']} text={tag} />
+              </Box>
+            </Flex>
+          ))}
+
+          <Button
+            variant="textSecondary"
+            px={0}
+            fontSize={0}
+            onClick={() => {
+              setPendingFilters({ ...pendingFilters, timeInRange: defaultFilterState.timeInRange });
+            }}
+          >
+            {t('Unselect all')}
+          </Button>
+
+          <Text fontSize={0} color="grays.4">
+            {t('Filter is set to view all patients that {{criteria}} meeting all clinical target ranges.', { criteria: pendingFilters.meetsCriteria ? t('are') : t('are NOT') })}
+          </Text>
+        </DialogContent>
+
+        <DialogActions justifyContent="space-between">
+          <Button
+            id="timeInRangeFilterClear"
+            variant="secondary"
+            onClick={() => {
+              setPendingFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
+              setActiveFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
+              handleCloseOverlays();
+            }}
+          >
+            {t('Clear')}
+          </Button>
+
+          <Button
+            id="timeInRangeFilterConfirm"
+            variant="primary"
+            onClick={handleFilterTimeInRange}
+            processing={updatingClinicPatient.inProgress}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+          >
+            {t('Apply Filter')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
   function handleRemove(patient) {
     trackMetric('Clinic - Remove patient', { clinicId: selectedClinicId });
     setSelectedPatient(patient);
@@ -633,10 +807,11 @@ export const ClinicPatients = (props) => {
     dispatch(actions.async.deletePatientFromClinic(api, selectedClinicId, selectedPatient?.id));
   }
 
-  function handleCloseOverlay() {
+  function handleCloseOverlays() {
     setShowDeleteDialog(false);
     setShowAddPatientDialog(false);
     setShowEditPatientDialog(false);
+    setShowTimeInRangeDialog(false);
     setTimeout(() => {
       setSelectedPatient(null);
     })
@@ -708,6 +883,19 @@ export const ClinicPatients = (props) => {
   function handleResetFilters() {
     setActiveFilters(defaultFilterState);
     setPendingFilters(defaultFilterState);
+  }
+
+  function handleOpenTimeInRangeFilter() {
+    trackMetric('Clinic - Filter by time in range', { clinicId: selectedClinicId });
+    setShowTimeInRangeDialog(true);
+  }
+
+  function handleFilterTimeInRange() {
+    setActiveFilters({
+      ...activeFilters,
+      timeInRange: pendingFilters.timeInRange,
+    })
+    setShowTimeInRangeDialog(false);
   }
 
   const renderPatient = patient => (
@@ -1027,6 +1215,7 @@ export const ClinicPatients = (props) => {
       {renderRemoveDialog()}
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
+      {showTimeInRangeDialog && renderTimeInRangeDialog()}
     </div>
   );
 };
