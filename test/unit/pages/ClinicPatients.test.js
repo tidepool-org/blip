@@ -22,7 +22,7 @@ import Popover from '../../../app/components/elements/Popover';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicPatients', () => {
+describe.skip('ClinicPatients', () => {
   let mount;
 
   let wrapper;

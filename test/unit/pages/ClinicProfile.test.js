@@ -21,7 +21,7 @@ import Button from '../../../app/components/elements/Button';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicProfile', () => {
+describe.skip('ClinicProfile', () => {
   let mount;
 
   let wrapper;
