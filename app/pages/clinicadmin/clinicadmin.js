@@ -586,7 +586,7 @@ export const ClinicAdmin = (props) => {
 
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={closeDeleteDialog}
         TransitionProps={{onExited:clearSelectedUser}}
@@ -620,7 +620,7 @@ export const ClinicAdmin = (props) => {
 
       <Dialog
         id="resendInvite"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showResendInviteDialog && !!pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.created}
         onClose={closeResendInviteDialog}
         TransitionProps={{onExited:clearSelectedInvite}}
@@ -659,7 +659,7 @@ export const ClinicAdmin = (props) => {
 
       <Dialog
         id="revokeInvite"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showRevokeInviteDialog}
         onClose={closeRevokeInviteDialog}
         TransitionProps={{onExited:clearSelectedInvite}}

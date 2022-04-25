@@ -657,7 +657,7 @@ export const AccessManagement = (props) => {
 
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
       >
@@ -687,7 +687,7 @@ export const AccessManagement = (props) => {
       </Dialog>
       <Dialog
         id="resendInvite"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showResendInviteDialog}
         onClose={() => setShowResendInviteDialog(false)}
       >

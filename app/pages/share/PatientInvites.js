@@ -342,7 +342,7 @@ export const PatientInvites = (props) => {
 
       <Dialog
         id="declinePatientInvite"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
       >

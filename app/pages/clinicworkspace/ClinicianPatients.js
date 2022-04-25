@@ -195,7 +195,7 @@ export const ClinicianPatients = (props) => {
     return (
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={handleCloseOverlay}
       >
@@ -234,7 +234,7 @@ export const ClinicianPatients = (props) => {
     return (
       <Dialog
         id="addPatient"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showAddPatientDialog}
         onClose={handleCloseOverlay}
       >
@@ -268,7 +268,7 @@ export const ClinicianPatients = (props) => {
     return (
       <Dialog
         id="editPatient"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showEditPatientDialog}
         onClose={handleCloseOverlay}
       >
