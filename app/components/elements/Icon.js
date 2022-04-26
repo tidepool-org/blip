@@ -66,6 +66,7 @@ Icon.propTypes = {
   active: PropTypes.bool,
   disabled: PropTypes.bool,
   icon: PropTypes.elementType.isRequired,
+  iconSrc: PropTypes.string,
   innerRef: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.any }),
