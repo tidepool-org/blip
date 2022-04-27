@@ -99,13 +99,14 @@ export const Table = props => {
     searchText,
     onSort,
     variant,
+    orderBy: orderByProp,
     pagination,
     paginationProps,
     ...tableProps
   } = props;
 
   const [order, setOrder] = useState(props.order || 'asc');
-  const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
+  const [orderBy, setOrderBy] = useState(orderByProp || columns[0].field);
 
   const [page, setPage] = React.useState(props.page);
 
@@ -149,8 +150,8 @@ export const Table = props => {
 
   useEffect(() => {
     setOrder(props.order);
-    setOrderBy(props.orderBy);
-  }, [props.order, props.orderBy]);
+    setOrderBy(orderByProp);
+  }, [props.order, orderByProp]);
 
   useEffect(() => {
     setPage(props.page);

@@ -159,7 +159,7 @@ export const ClinicProfile = (props) => {
                   buttonTitle={t('Copy Share Code')}
                   buttonText={(
                     <Icon
-                      variant="button"
+                      variant="static"
                       icon={FileCopyRoundedIcon}
                       label={t('Copy Share Code')}
                       title={t('Copy Share Code')}
@@ -185,6 +185,7 @@ export const ClinicProfile = (props) => {
                   icon={EditRoundedIcon}
                   iconPosition='left'
                   iconFontSize="1.25em"
+                  iconLabel={t('Edit Clinic Profile')}
                   fontSize={1}
                 >
                   {t('Edit Clinic Profile')}
@@ -200,6 +201,7 @@ export const ClinicProfile = (props) => {
                 onClick={handleNavigationAction}
                 icon={GroupRoundedIcon}
                 iconPosition='left'
+                iconLabel={navigationAction.label}
                 iconFontSize="1.25em"
               >
                 {navigationAction.label}

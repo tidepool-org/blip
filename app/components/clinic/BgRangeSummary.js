@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Text, Box, Flex } from 'rebass/styled-components';
 import map from 'lodash/map';
 import { format } from 'd3-format';
@@ -17,7 +18,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
 export const BgRangeSummary = props => {
-  const { bgUnits, data, targetRange, t } = props;
+  const { bgUnits, data, striped, targetRange, t } = props;
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -36,11 +37,26 @@ export const BgRangeSummary = props => {
 
   return (
     <>
-      <Flex width="200px" height="20px" justifyContent="center" {...bindHover(popupState)}>
-        {map(data, (value, key) => (
-          <Box key={key} bg={`bg.${key}`} width={`${value * 100}%`} />
-        ))}
-      </Flex>
+      <Box sx={{ position: 'relative' }}>
+        <Flex width="200px" height="20px" justifyContent="center" {...bindHover(popupState)}>
+          {map(data, (value, key) => (
+              <Box key={key} bg={`bg.${key}`} width={`${value * 100}%`}/>
+          ))}
+        </Flex>
+
+        {striped && (
+          <Box
+            width="200px"
+            height="20px"
+            sx={{
+              position: 'absolute',
+              pointerEvents: 'none',
+              top: 0,
+              background: 'transparent repeating-linear-gradient(125deg,transparent,transparent 3px,rgba(255,255,255,0.75) 3px,rgba(255,255,255,0.75) 5px)',
+            }}
+          />
+        )}
+      </Box>
 
       <Popover
         anchorOrigin={{
@@ -61,7 +77,7 @@ export const BgRangeSummary = props => {
         <Box px={2} py={1}>
           <Flex mb={1} sx={{ gap: 3 }} justifyContent="space-between" flexWrap="nowrap">
             {map(data, (value, key) => (
-              <Flex flexDirection="column" alignItems="center">
+              <Flex key={key} flexDirection="column" alignItems="center">
                 <Flex mb={2} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
                   <Text fontWeight="bold" lineHeight={1} fontSize={1}>
                     {/* TODO: better formatting - precision matching viz stats for veryLow */}
@@ -80,5 +96,18 @@ export const BgRangeSummary = props => {
     </>
   );
 };
+
+BgRangeSummary.propTypes = {
+  bgUnits: PropTypes.string.isRequired,
+  data: PropTypes.shape({
+    veryLow: PropTypes.number,
+    low: PropTypes.number,
+    target: PropTypes.number,
+    high: PropTypes.number,
+    veryHigh: PropTypes.number,
+  }).isRequired,
+  striped: PropTypes.bool,
+  targetRange: PropTypes.arrayOf(PropTypes.number).isRequired,
+}
 
 export default translate()(BgRangeSummary);

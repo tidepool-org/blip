@@ -101,6 +101,7 @@ export const ClinicWorkspace = (props) => {
 
       <Box id="clinic-workspace" alignItems="center" variant="containers.largeBordered" mb={9}>
         <TabGroup
+          aria-label="Clinic workspace tabs"
           id="clinic-workspace-tabs"
           variant="horizontal"
           tabs={tabs}

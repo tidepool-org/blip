@@ -24,7 +24,6 @@ import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
 import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import EditIcon from '@material-ui/icons/EditRounded';
-import FilterIcon from './FilterIcon.svg';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
@@ -57,6 +56,8 @@ import PopoverLabel from '../../components/elements/PopoverLabel';
 import Popover from '../../components/elements/Popover';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
+import FilterIcon from '../../core/icons/FilterIcon.svg';
+import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 
 import {
   Dialog,
@@ -91,6 +92,7 @@ export const ClinicPatients = (props) => {
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
+  const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
   const [showSummaryData, setShowSummaryData] = useState(false);
   const [search, setSearch] = useState('');
@@ -244,7 +246,7 @@ export const ClinicPatients = (props) => {
     const bgUnits = sample([MGDL_UNITS, MMOLL_UNITS]);
     const lastUpload = randomDate();
     const lastData = randomDate(moment(lastUpload).subtract(random(0, 40), 'days').toDate(), lastUpload);
-    const firstData = randomDate(moment(lastData).subtract(random(0, 100), 'days').toDate(), lastData);
+    const firstData = randomDate(moment(lastData).subtract(random(1, 30), 'days').toDate(), lastData);
     const timeInRange = random(3, 10, true);
     const timeAboveRange = random(1, 2.5, true);
     const timeVeryAboveRange = random(0, 1, true);
@@ -252,7 +254,7 @@ export const ClinicPatients = (props) => {
     const timeVeryBelowRange = random(0, 0.5, true);
     const rangeSum = sum([timeInRange, timeAboveRange, timeVeryAboveRange, timeBelowRange, timeVeryBelowRange]);
     const avgGlucose = rangeSum * (bgUnits === MMOLL_UNITS ? .7 : (.7 * MGDL_PER_MMOLL));
-    const timeCGMUse = round(random(0.6, 1, true), 2);
+    const timeCGMUse = round(random(0.6, 0.95, true), 2);
     const meanInMGDL = bgUnits === MGDL_UNITS ? avgGlucose : avgGlucose * MGDL_PER_MMOLL;
     const glucoseMgmtIndicator = timeCGMUse >= 0.7 ? (3.31 + 0.02392 * meanInMGDL) / 100 : undefined;
 
@@ -394,6 +396,7 @@ export const ClinicPatients = (props) => {
                     id="filter-icon"
                     variant="static"
                     iconSrc={FilterIcon}
+                    label={t('Filter')}
                     fontSize={1}
                     width="14px"
                     color={'grays.4'}
@@ -505,6 +508,7 @@ export const ClinicPatients = (props) => {
                     icon={RefreshRoundedIcon}
                     color={loading ? 'text.primaryDisabled' : 'inherit'}
                     disabled={loading}
+                    label={t('Refresh patients list')}
                     onClick={handleRefreshPatients}
                   />
 
@@ -518,6 +522,7 @@ export const ClinicPatients = (props) => {
                 color="grays.4"
                 ml={1}
                 icon={VisibilityIcon}
+                label={t('Toggle visibility')}
                 onClick={handleToggleShowNames}
               />
 
@@ -527,6 +532,7 @@ export const ClinicPatients = (props) => {
                 color="grays.4"
                 ml={2}
                 icon={InfoOutlinedIcon}
+                label={t('Extra info')}
                 onClick={() => {}}
               />
             </Flex>
@@ -664,6 +670,43 @@ export const ClinicPatients = (props) => {
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
           >
             {t('Save Changes')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
+  const renderSendUploadReminderDialog = () => {
+    return (
+      <Dialog
+        id="resendInvite"
+        aria-labelledby="dialog-title"
+        open={showSendUploadReminderDialog}
+        onClose={handleCloseOverlays}
+      >
+        <DialogTitle onClose={handleCloseOverlays}>
+          <MediumTitle id="dialog-title">{t('Send Upload Reminder')}</MediumTitle>
+        </DialogTitle>
+        <DialogContent>
+          <Body1>
+            <Text>
+              {t('Are you sure you want to send an upload reminder email to {{name}}?', { name: selectedPatient?.fullName })}
+            </Text>
+          </Body1>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="secondary" onClick={handleCloseOverlays}>
+            {t('Cancel')}
+          </Button>
+          <Button
+            className="resend-invitation"
+            variant="primary"
+            // processing={sendingUploadReminder.inProgress} // TODO: API not implemented yet
+            onClick={() => {
+              handleSendUploadReminderConfirm(selectedPatient);
+            }}
+          >
+            {t('Send ')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -812,6 +855,7 @@ export const ClinicPatients = (props) => {
     setShowAddPatientDialog(false);
     setShowEditPatientDialog(false);
     setShowTimeInRangeDialog(false);
+    setShowSendUploadReminderDialog(false);
     setTimeout(() => {
       setSelectedPatient(null);
     })
@@ -842,6 +886,18 @@ export const ClinicPatients = (props) => {
 
   function handleEditPatientConfirm() {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
+    patientFormContext?.handleSubmit();
+  }
+
+  function handleSendUploadReminder(patient) {
+    trackMetric('Clinic - Send upload reminder', { clinicId: selectedClinicId });
+    setSelectedPatient(patient);
+    setShowSendUploadReminderDialog(true);
+  }
+
+  function handleSendUploadReminderConfirm() {
+    trackMetric('Clinic - Send upload reminder confirmed', { clinicId: selectedClinicId });
+    // dispatch(actions.async.sendUploadReminder(api, selectedClinicId, selectedPatient?.id)); // TODO: API not implemented yet
     patientFormContext?.handleSubmit();
   }
 
@@ -955,6 +1011,8 @@ export const ClinicPatients = (props) => {
   const renderBgRangeSummary = ({ summary }) => {
     const bgUnits = summary?.avgGlucose.units;
     const targetRange = [summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold];
+    const hoursInRange = moment(summary?.lastData).diff(moment(summary?.firstData), 'hours');
+    const cgmHours = hoursInRange * summary?.timeCGMUse;
 
     const data = {
       veryLow: summary?.timeVeryBelowRange,
@@ -966,11 +1024,11 @@ export const ClinicPatients = (props) => {
 
     return (
       <Flex justifyContent="center">
-        {summary?.timeCGMUse >= 0.7
-          ? <BgRangeSummary data={data} targetRange={targetRange} bgUnits={bgUnits} />
+        {cgmHours >= 24
+          ? <BgRangeSummary striped={summary?.timeCGMUse < 0.7} data={data} targetRange={targetRange} bgUnits={bgUnits} />
           : (
             <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
-              <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <70%')}</Text>
+              <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <24 hours')}</Text>
             </Flex>
           )
         }
@@ -1055,6 +1113,19 @@ export const ClinicPatients = (props) => {
       text: t('Edit Patient Information'),
     });
 
+    if (showSummaryData && patient.email) items.push({
+      iconSrc: SendEmailIcon,
+      iconLabel: t('Send Upload Reminder'),
+      iconPosition: 'left',
+      id: `send-upload-reminder-${patient.id}`,
+      variant: 'actionListItem',
+      onClick: _popupState => {
+        _popupState.close();
+        handleSendUploadReminder(patient);
+      },
+      text: t('Send Upload Reminder')
+    });
+
     if (isClinicAdmin) items.push({
       icon: DeleteIcon,
       iconLabel: t('Remove Patient'),
@@ -1121,7 +1192,7 @@ export const ClinicPatients = (props) => {
         },
         {
           title: t('% CGM Use'),
-          field: 'lastUpload',
+          field: 'cgmUse',
           align: 'center',
           render: renderCGMUsage,
         },
@@ -1216,6 +1287,7 @@ export const ClinicPatients = (props) => {
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
+      {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
     </div>
   );
 };

@@ -65,7 +65,7 @@ Icon.propTypes = {
   ...BoxProps,
   active: PropTypes.bool,
   disabled: PropTypes.bool,
-  icon: PropTypes.elementType.isRequired,
+  icon: PropTypes.elementType,
   iconSrc: PropTypes.string,
   innerRef: PropTypes.oneOfType([
     PropTypes.func,

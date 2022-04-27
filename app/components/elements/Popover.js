@@ -31,13 +31,12 @@ const Popover = props => {
   const {
     children,
     closeIcon,
-    themeProps,
     PaperProps,
     useHoverPopover,
     ...popoverProps
   } = props;
 
-  const [Component, setComponent] = React.useState((React.Fragment));
+  const [Component, setComponent] = React.useState((Base));
 
   React.useEffect(() => {
     setComponent(StyledPopover(useHoverPopover ? HoverPopover : Base));
@@ -69,7 +68,7 @@ const Popover = props => {
 
 Popover.propTypes = {
   ...PopoverProps,
-  themeProps: PropTypes.shape(BoxProps),
+  ...BoxProps,
   useHoverPopover: PropTypes.bool,
   closeIcon: PropTypes.bool,
 };
