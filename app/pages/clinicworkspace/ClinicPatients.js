@@ -352,7 +352,6 @@ export const ClinicPatients = (props) => {
           />
         </Box>
 
-
         <Flex mb={4} alignItems="center" justifyContent="space-between">
           <Flex
             alignItems="center"
@@ -374,124 +373,129 @@ export const ClinicPatients = (props) => {
               >
                 {t('Add New Patient')}
               </Button>
-              <Flex
-                alignItems="center"
-                color={activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4'}
-                pl={2}
-                py={1}
-                sx={{ gap: 1, borderLeft: borders.divider }}
-              >
-                {activeFiltersCount > 0 ? (
-                  <Pill
-                    label="filter count"
-                    round
-                    width="14px"
-                    lineHeight="15px"
-                    fontSize="9px"
-                    colorPalette={['purpleMedium', 'white']}
-                    text={`${activeFiltersCount}`}
-                  />
-                ) : (
-                  <Icon
-                    id="filter-icon"
-                    variant="static"
-                    iconSrc={FilterIcon}
-                    label={t('Filter')}
-                    fontSize={1}
-                    width="14px"
-                    color={'grays.4'}
-                  />
-                )}
-                <Text fontSize={0}>{t('Filter By')}</Text>
-              </Flex>
 
-              <Button
-                variant="filter"
-                selected={!!activeFilters.lastUpload}
-                {...bindTrigger(lastUploadPopupFilterState)}
-                icon={KeyboardArrowDownRoundedIcon}
-                iconLabel="Filter by last upload"
-                ml={2}
-                fontSize={0}
-                lineHeight={1.3}
-              >
-                {activeFilters.lastUpload ? find(lastUploadFilterOptions, { value: activeFilters.lastUpload })?.label : t('Last Upload')}
-              </Button>
-
-              <Popover minWidth="11em" closeIcon {...bindPopover(lastUploadPopupFilterState)}>
-                <DialogContent px={2} py={3} dividers>
-                  <RadioGroup
-                    id="last-upload-filters"
-                    name="last-upload-filters"
-                    options={lastUploadFilterOptions}
-                    variant="vertical"
-                    fontSize={0}
-                    value={pendingFilters.lastUpload || activeFilters.lastUpload}
-                    onChange={event => { // TODO: Move to dedicated event handler function
-                      setPendingFilters({ ...pendingFilters, lastUpload: parseInt(event.target.value) || null });
-                    }}
-                  />
-                </DialogContent>
-
-                <DialogActions justifyContent="space-between" p={1}>
-                  <Button
-                    fontSize={1}
-                    variant="textSecondary"
-                    onClick={() => {
-                      setPendingFilters({ ...activeFilters, lastUpload: defaultFilterState.lastUpload });
-                      setActiveFilters({ ...activeFilters, lastUpload: defaultFilterState.lastUpload });
-                      lastUploadPopupFilterState.close();
-                    }}
+              {showSummaryData && (
+                <>
+                  <Flex
+                    alignItems="center"
+                    color={activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4'}
+                    pl={2}
+                    py={1}
+                    sx={{ gap: 1, borderLeft: borders.divider }}
                   >
-                    {t('Clear')}
+                    {activeFiltersCount > 0 ? (
+                      <Pill
+                        label="filter count"
+                        round
+                        width="14px"
+                        lineHeight="15px"
+                        fontSize="9px"
+                        colorPalette={['purpleMedium', 'white']}
+                        text={`${activeFiltersCount}`}
+                      />
+                    ) : (
+                      <Icon
+                        id="filter-icon"
+                        variant="static"
+                        iconSrc={FilterIcon}
+                        label={t('Filter')}
+                        fontSize={1}
+                        width="14px"
+                        color={'grays.4'}
+                      />
+                    )}
+                    <Text fontSize={0}>{t('Filter By')}</Text>
+                  </Flex>
+
+                  <Button
+                    variant="filter"
+                    selected={!!activeFilters.lastUpload}
+                    {...bindTrigger(lastUploadPopupFilterState)}
+                    icon={KeyboardArrowDownRoundedIcon}
+                    iconLabel="Filter by last upload"
+                    ml={2}
+                    fontSize={0}
+                    lineHeight={1.3}
+                  >
+                    {activeFilters.lastUpload ? find(lastUploadFilterOptions, { value: activeFilters.lastUpload })?.label : t('Last Upload')}
                   </Button>
 
-                  <Button fontSize={1} variant="textPrimary" onClick={() => {
-                    setActiveFilters(pendingFilters);
-                    lastUploadPopupFilterState.close();
-                  }}>
-                    {t('Apply')}
+                  <Popover minWidth="11em" closeIcon {...bindPopover(lastUploadPopupFilterState)}>
+                    <DialogContent px={2} py={3} dividers>
+                      <RadioGroup
+                        id="last-upload-filters"
+                        name="last-upload-filters"
+                        options={lastUploadFilterOptions}
+                        variant="vertical"
+                        fontSize={0}
+                        value={pendingFilters.lastUpload || activeFilters.lastUpload}
+                        onChange={event => { // TODO: Move to dedicated event handler function
+                          setPendingFilters({ ...pendingFilters, lastUpload: parseInt(event.target.value) || null });
+                        }}
+                      />
+                    </DialogContent>
+
+                    <DialogActions justifyContent="space-between" p={1}>
+                      <Button
+                        fontSize={1}
+                        variant="textSecondary"
+                        onClick={() => {
+                          setPendingFilters({ ...activeFilters, lastUpload: defaultFilterState.lastUpload });
+                          setActiveFilters({ ...activeFilters, lastUpload: defaultFilterState.lastUpload });
+                          lastUploadPopupFilterState.close();
+                        }}
+                      >
+                        {t('Clear')}
+                      </Button>
+
+                      <Button fontSize={1} variant="textPrimary" onClick={() => {
+                        setActiveFilters(pendingFilters);
+                        lastUploadPopupFilterState.close();
+                      }}>
+                        {t('Apply')}
+                      </Button>
+                    </DialogActions>
+                  </Popover>
+
+                  <Button
+                    variant="filter"
+                    selected={!!activeFilters.timeInRange.length}
+                    onClick={handleOpenTimeInRangeFilter}
+                    ml={2}
+                    fontSize={0}
+                    lineHeight={1.3}
+                  >
+                    {t('% Time in Range')}
+                    {!!activeFilters.timeInRange.length && (
+                      <Pill
+                        label="filter count"
+                        round
+                        width="14px"
+                        fontSize="9px"
+                        lineHeight="15px"
+                        ml={1}
+                        sx={{
+                          textAlign: 'center',
+                          display: 'inline-block',
+                        }}
+                        colorPalette={['purpleMedium', 'white']}
+                        text={`${activeFilters.timeInRange.length}`}
+                      />
+                    )}
                   </Button>
-                </DialogActions>
-              </Popover>
 
-              <Button
-                variant="filter"
-                selected={!!activeFilters.timeInRange.length}
-                onClick={handleOpenTimeInRangeFilter}
-                ml={2}
-                fontSize={0}
-                lineHeight={1.3}
-              >
-                {t('% Time in Range')}
-                {!!activeFilters.timeInRange.length && (
-                  <Pill
-                    label="filter count"
-                    round
-                    width="14px"
-                    fontSize="9px"
-                    lineHeight="15px"
-                    ml={1}
-                    sx={{
-                      textAlign: 'center',
-                      display: 'inline-block',
-                    }}
-                    colorPalette={['purpleMedium', 'white']}
-                    text={`${activeFilters.timeInRange.length}`}
-                  />
-                )}
-              </Button>
-
-              {activeFiltersCount > 0 && (
-                <Button
-                  id="profileEditButton"
-                  variant="textSecondary"
-                  onClick={handleResetFilters}
-                  fontSize={0}
-                  color="grays.4"
-                >
-                  {t('Reset Filters')}
-                </Button>
+                  {activeFiltersCount > 0 && (
+                    <Button
+                      id="profileEditButton"
+                      variant="textSecondary"
+                      onClick={handleResetFilters}
+                      fontSize={0}
+                      color="grays.4"
+                    >
+                      {t('Reset Filters')}
+                    </Button>
+                  )}
+                </>
               )}
             </Flex>
 
@@ -499,7 +503,7 @@ export const ClinicPatients = (props) => {
               alignItems="center"
               justifyContent="flex-end"
             >
-              {showNames && (
+              {showSummaryData && showNames && (
                 <Flex pr={3} py={1} mr={2} alignItems="center" sx={{ borderRight: borders.divider }}>
                   <Icon
                     mr={2}
@@ -526,15 +530,17 @@ export const ClinicPatients = (props) => {
                 onClick={handleToggleShowNames}
               />
 
-              <Icon
-                id="patients-info-trigger"
-                variant="default"
-                color="grays.4"
-                ml={2}
-                icon={InfoOutlinedIcon}
-                label={t('Extra info')}
-                onClick={() => {}}
-              />
+              {showSummaryData && (
+                <Icon
+                  id="patients-info-trigger"
+                  variant="default"
+                  color="grays.4"
+                  ml={2}
+                  icon={InfoOutlinedIcon}
+                  label={t('Extra info')}
+                  onClick={() => {}}
+                />
+              )}
             </Flex>
           </Flex>
         </Flex>
