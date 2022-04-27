@@ -12,13 +12,13 @@ import Icon from '../../components/elements/Icon';
 const StyledPopover = (Component) => styled(Component)`
   .MuiPopover-paper {
     font-family: ${fonts.default};
-    margin-top: ${({ marginTop = `${space[2]}px` }) => marginTop};
+    margin-top: ${({ margintop = `${space[2]}px` }) => margintop};
     margin-bottom: ${space[2]}px;
     border: ${borders.modal};
-    box-shadow: ${({ boxShadow = shadows.large }) => boxShadow};
+    box-shadow: ${({ boxshadow = shadows.large }) => boxshadow};
     border-radius: ${radii.default}px;
     width: ${({ width }) => width};
-    min-width: ${({ minWidth }) => minWidth};
+    min-width: ${({ minwidth }) => minwidth};
     max-width: calc(100% - ${space[5]}px);
   }
 `;
@@ -33,6 +33,9 @@ const Popover = props => {
     closeIcon,
     PaperProps,
     useHoverPopover,
+    minWidth,
+    boxShadow,
+    marginTop,
     ...popoverProps
   } = props;
 
@@ -45,6 +48,9 @@ const Popover = props => {
   return (
     <Component
       PaperProps={{ component: PopoverContentWrapper }}
+      boxshadow={boxShadow}
+      margintop={marginTop}
+      minwidth={minWidth}
       {...popoverProps}
     >
       {closeIcon && (
