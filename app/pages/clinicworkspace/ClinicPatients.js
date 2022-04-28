@@ -326,6 +326,7 @@ export const ClinicPatients = (props) => {
       value = value / 100;
 
       if (!activeFilters.meetsGlycemicTargets) {
+        // Handle 'does NOT meet' criteria case
         comparator = comparator === '<' ? '>=' : '<=';
       }
 
@@ -1217,27 +1218,30 @@ export const ClinicPatients = (props) => {
           title: '',
           field: 'patientSecondary',
           align: 'left',
-          sortable: true,
-          sortBy: 'birthDate',
           render: renderPatientSecondaryInfo,
         },
         {
           title: t('Last Upload (CGM)'),
-          field: 'lastUpload',
+          field: 'summary.lastUpload',
           align: 'left',
+          sortable: true,
           sortBy: 'summary.lastUpload',
           render: renderLastUpload,
         },
         {
           title: t('% CGM Use'),
-          field: 'cgmUse',
+          field: 'summary.timeCGMUse',
+          sortable: true,
+          sortBy: 'summary.timeCGMUse',
           align: 'center',
           render: renderCGMUsage,
         },
         {
           title: t('GMI'),
-          field: 'glucoseMgmtIndicator',
+          field: 'summary.glucoseMgmtIndicator',
           align: 'center',
+          sortable: true,
+          sortBy: 'summary.glucoseMgmtIndicator',
           render: renderGMI,
         },
         {
