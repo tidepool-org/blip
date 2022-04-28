@@ -775,12 +775,10 @@ export const ClinicPatients = (props) => {
           </Flex>
 
           {map(timeInRangeFilterOptions, ({ value, label, rangeName, tag }) => (
-            <Flex mb={3} alignItems="center" sx={{ gap: 2 }}>
+            <Flex key={rangeName} mb={3} alignItems="center" sx={{ gap: 2 }}>
               <Checkbox
                 id={`range-${value}-filter`}
                 name={`range-${value}-filter`}
-                variant="inputs.checkboxGroup.vertical"
-                theme={baseTheme}
                 key={value}
                 checked={includes([...pendingFilters.timeInRange], value)}
                 onChange={event => {
@@ -794,10 +792,10 @@ export const ClinicPatients = (props) => {
               <Box fontWeight="medium">
                 <Flex alignItems="center">
                   <Text fontSize={0} mr={2}>{label}</Text>
-                  <Pill fontSize="10px" lineHeight="1" py="2px" sx={{ border: '1px solid', borderColor: 'grays.1', textTransform: 'none' }} colorPalette={['white', 'grays.4']} text={`${defaultBgLabels[rangeName]} ${MGDL_UNITS}`} />
+                  <Pill label={`BG Range - ${tag}`} fontSize="10px" lineHeight="1" py="2px" sx={{ border: '1px solid', borderColor: 'grays.1', textTransform: 'none' }} colorPalette={['white', 'grays.4']} text={`${defaultBgLabels[rangeName]} ${MGDL_UNITS}`} />
                 </Flex>
 
-                <Pill fontSize="9px" py="2px" sx={{ borderRadius: radii.input, textTransform: 'none' }} colorPalette={[`bg.${rangeName}`, 'white']} text={tag} />
+                <Pill label={tag} fontSize="9px" py="2px" sx={{ borderRadius: radii.input, textTransform: 'none' }} colorPalette={[`bg.${rangeName}`, 'white']} text={tag} />
               </Box>
             </Flex>
           ))}

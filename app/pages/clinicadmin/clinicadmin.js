@@ -352,7 +352,7 @@ export const ClinicAdmin = (props) => {
 
   const renderStatus = ({ status }) => (
     <Box>
-      {!isEmpty(status) ? <Pill text={status} colorPalette="greens" /> : ''}
+      {!isEmpty(status) ? <Pill label={status} text={status} colorPalette="greens" /> : ''}
     </Box>
   );
 
