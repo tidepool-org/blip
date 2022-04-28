@@ -177,7 +177,7 @@ export const Table = props => {
                     className="table-header-inner-cell"
                     as={InnerCell}
                     active={orderBy === colSortBy}
-                    direction={orderBy.split('.')[0] === colSortBy ? order : 'asc'}
+                    direction={orderBy === colSortBy ? order : 'asc'}
                     onClick={col.sortable ? createSortHandler(colSortBy) : noop}
                   >
                     {col.titleComponent ? <col.titleComponent /> : col.title}
