@@ -77,6 +77,7 @@ import { default as baseTheme, borders, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
+const { getLocalizedCeiling } = vizUtils.datetime;
 
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric, searchDebounceMs } = props;
@@ -87,6 +88,7 @@ export const ClinicPatients = (props) => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const clinic = get(clinics, selectedClinicId);
+  const timePrefs = useSelector((state) => state.blip.timePrefs);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
@@ -106,7 +108,7 @@ export const ClinicPatients = (props) => {
   const defaultFilterState = {
     lastUpload: null,
     timeInRange: [],
-    meetsCriteria: true,
+    meetsGlycemicTargets: true,
   };
 
   const defaultBgPrefs = {
@@ -125,12 +127,20 @@ export const ClinicPatients = (props) => {
     { value: 30, label: t('Last 30 days') },
   ];
 
+  const glycemicTargetThresholds = {
+    percentTimeInVeryLow: { value: 1, comparator: '<' },
+    percentTimeInLow: { value: 4, comparator: '<' },
+    percentTimeInTarget: { value: 70, comparator: '>' },
+    percentTimeInHigh: { value: 25, comparator: '<' },
+    percentTimeInVeryHigh: { value: 5, comparator: '<' },
+  }
+
   const timeInRangeFilterOptions = [
-    { value: t('timeVeryBelowRange'), label: t('<1% Time below Range'), tag: t('Severe Hypoglycemia'), rangeName: 'veryLow' },
-    { value: t('timeBelowRange'), label: t('<4% Time below Range'), tag: t('Low'), rangeName: 'low' },
-    { value: t('timeInRange'), label: t('>70% Time in Range'), tag: t('Normal'), rangeName: 'target' },
-    { value: t('timeAboveRange'), label: t('<25% Time above Range'), tag: t('High'), rangeName: 'high' },
-    { value: t('timeVeryAboveRange'), label: t('<5% Time above Range'), tag: t('Severe Hyperglycemia'), rangeName: 'veryHigh' },
+    { value: 'percentTimeInVeryLow', label: t('{{comparator}}{{value}}% Time below Range', glycemicTargetThresholds.percentTimeInVeryLow), tag: t('Severe Hypoglycemia'), rangeName: 'veryLow' },
+    { value: 'percentTimeInLow', label: t('{{comparator}}{{value}}% Time below Range', glycemicTargetThresholds.percentTimeInLow), tag: t('Low'), rangeName: 'low' },
+    { value: 'percentTimeInTarget', label: t('{{comparator}}{{value}}% Time in Range', glycemicTargetThresholds.percentTimeInTarget), tag: t('Normal'), rangeName: 'target' },
+    { value: 'percentTimeInHigh', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.percentTimeInHigh), tag: t('High'), rangeName: 'high' },
+    { value: 'percentTimeInVeryHigh', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.percentTimeInVeryHigh), tag: t('Severe Hyperglycemia'), rangeName: 'veryHigh' },
   ];
 
   const lastUploadPopupFilterState = usePopupState({
@@ -247,12 +257,12 @@ export const ClinicPatients = (props) => {
     const lastUpload = randomDate();
     const lastData = randomDate(moment(lastUpload).subtract(random(0, 40), 'days').toDate(), lastUpload);
     const firstData = randomDate(moment(lastData).subtract(random(1, 30), 'days').toDate(), lastData);
-    const timeInRange = random(3, 10, true);
-    const timeAboveRange = random(1, 2.5, true);
-    const timeVeryAboveRange = random(0, 1, true);
-    const timeBelowRange = random(0.5, 1.5, true);
-    const timeVeryBelowRange = random(0, 0.5, true);
-    const rangeSum = sum([timeInRange, timeAboveRange, timeVeryAboveRange, timeBelowRange, timeVeryBelowRange]);
+    const percentTimeInVeryLow = random(0, 0.5, true);
+    const percentTimeInLow = random(0.5, 1.5, true);
+    const percentTimeInTarget = random(3, 10, true);
+    const percentTimeInHigh = random(1, 2.5, true);
+    const percentTimeInVeryHigh = random(0, 1, true);
+    const rangeSum = sum([percentTimeInVeryLow, percentTimeInLow, percentTimeInTarget, percentTimeInHigh, percentTimeInVeryHigh]);
     const avgGlucose = rangeSum * (bgUnits === MMOLL_UNITS ? .7 : (.7 * MGDL_PER_MMOLL));
     const timeCGMUse = round(random(0.6, 0.95, true), 2);
     const meanInMGDL = bgUnits === MGDL_UNITS ? avgGlucose : avgGlucose * MGDL_PER_MMOLL;
@@ -267,16 +277,16 @@ export const ClinicPatients = (props) => {
       outdatedSince: new Date().toISOString(),
       avgGlucose: { units: bgUnits, value: avgGlucose },
       glucoseMgmtIndicator,
-      timeInRange: round(timeInRange / rangeSum, 2),
-      timeAboveRange: round(timeAboveRange / rangeSum, 2),
-      timeVeryAboveRange: round(timeVeryAboveRange / rangeSum, 2),
-      timeBelowRange: round(timeBelowRange / rangeSum, 2),
-      timeVeryBelowRange: round(timeVeryBelowRange / rangeSum, 2),
+      percentTimeInVeryLow: round(percentTimeInVeryLow / rangeSum, 2),
+      percentTimeInLow: round(percentTimeInLow / rangeSum, 2),
+      percentTimeInTarget: round(percentTimeInTarget / rangeSum, 2),
+      percentTimeInHigh: round(percentTimeInHigh / rangeSum, 2),
+      percentTimeInVeryHigh: round(percentTimeInVeryHigh / rangeSum, 2),
       timeCGMUse,
       highGlucoseThreshold: bgUnits === MMOLL_UNITS ? 10.0 : 180,
       lowGlucoseThreshold: bgUnits === MMOLL_UNITS ? 3.9 : 70,
-      hyperGlycemicEvents: round(random(0, timeVeryAboveRange * 4.5)),
-      hypoGlycemicEvents: round(random(0, timeVeryBelowRange * 3.5)),
+      hypoGlycemicEvents: round(random(0, percentTimeInVeryLow * 3.5)),
+      hyperGlycemicEvents: round(random(0, percentTimeInVeryHigh * 4.5)),
     };
   }
 
@@ -300,9 +310,33 @@ export const ClinicPatients = (props) => {
     if (showSummaryData) {
       setPatientFetchOptions({ ...patientFetchOptions, limit: 10 });
     }
-  }, [showSummaryData])
-
+  }, [showSummaryData]) // TODO: Do I need to fetch here?
   /* END TEMPORARY MOCK SUMMARY DATA */
+
+  useEffect(() => {
+    const filterOptions = {}
+
+    if (activeFilters.lastUpload) {
+      filterOptions.lastUploadTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+      filterOptions.lastUploadFrom = moment(filterOptions.lastUploadTo).subtract(activeFilters.lastUpload, 'days').toISOString();
+    }
+
+    forEach(activeFilters.timeInRange, filter => {
+      let { comparator, value } = glycemicTargetThresholds[filter];
+      value = value / 100;
+
+      if (!activeFilters.meetsGlycemicTargets) {
+        comparator = comparator === '<' ? '>=' : '<=';
+      }
+
+      filterOptions[filter] = comparator + value;
+    });
+
+    setPatientFetchOptions({
+      ...patientFetchOptions,
+      ...filterOptions,
+    });
+  }, [activeFilters]);
 
   function formatPercentage(val, precision = 0) {
     if (!val || Number.isNaN(val)) {
@@ -742,31 +776,31 @@ export const ClinicPatients = (props) => {
             <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>{t('View all patients that')}</Text>
 
             <Button
-              variant={pendingFilters.meetsCriteria ? 'primary' : 'secondary'}
-              color={pendingFilters.meetsCriteria ? 'white' : 'grays.4'}
+              variant={pendingFilters.meetsGlycemicTargets ? 'primary' : 'secondary'}
+              color={pendingFilters.meetsGlycemicTargets ? 'white' : 'grays.4'}
               sx={{
-                borderColor: pendingFilters.meetsCriteria ? 'purpleMedium' : 'grays.1',
+                borderColor: pendingFilters.meetsGlycemicTargets ? 'purpleMedium' : 'grays.1',
                 whiteSpace: 'nowrap',
                 borderRight: 0,
                 borderTopRightRadius: 0,
                 borderBottomRightRadius: 0,
               }}
-              onClick={() => setPendingFilters({ ...pendingFilters, meetsCriteria: true })}
+              onClick={() => setPendingFilters({ ...pendingFilters, meetsGlycemicTargets: true })}
             >
               {t('meet')}
             </Button>
 
             <Button
-              variant={!pendingFilters.meetsCriteria ? 'primary' : 'secondary'}
-              color={!pendingFilters.meetsCriteria ? 'white' : 'grays.4'}
+              variant={!pendingFilters.meetsGlycemicTargets ? 'primary' : 'secondary'}
+              color={!pendingFilters.meetsGlycemicTargets ? 'white' : 'grays.4'}
               sx={{
-                borderColor: !pendingFilters.meetsCriteria ? 'purpleMedium' : 'grays.1',
+                borderColor: !pendingFilters.meetsGlycemicTargets ? 'purpleMedium' : 'grays.1',
                 whiteSpace: 'nowrap',
                 borderLeft: 0,
                 borderTopLeftRadius: 0,
                 borderBottomLeftRadius: 0,
               }}
-              onClick={() => setPendingFilters({ ...pendingFilters, meetsCriteria: false })}
+              onClick={() => setPendingFilters({ ...pendingFilters, meetsGlycemicTargets: false })}
             >
               {t('do NOT meet')}
             </Button>
@@ -812,7 +846,7 @@ export const ClinicPatients = (props) => {
           </Button>
 
           <Text fontSize={0} color="grays.4">
-            {t('Filter is set to view all patients that {{criteria}} meeting all clinical target ranges.', { criteria: pendingFilters.meetsCriteria ? t('are') : t('are NOT') })}
+            {t('Filter is set to view all patients that {{criteria}} meeting all clinical target ranges.', { criteria: pendingFilters.meetsGlycemicTargets ? t('are') : t('are NOT') })}
           </Text>
         </DialogContent>
 
@@ -833,8 +867,6 @@ export const ClinicPatients = (props) => {
             id="timeInRangeFilterConfirm"
             variant="primary"
             onClick={handleFilterTimeInRange}
-            processing={updatingClinicPatient.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
           >
             {t('Apply Filter')}
           </Button>
@@ -953,8 +985,10 @@ export const ClinicPatients = (props) => {
   function handleFilterTimeInRange() {
     setActiveFilters({
       ...activeFilters,
+      meetsGlycemicTargets: pendingFilters.meetsGlycemicTargets,
       timeInRange: pendingFilters.timeInRange,
-    })
+    });
+
     setShowTimeInRangeDialog(false);
   }
 
@@ -1019,11 +1053,11 @@ export const ClinicPatients = (props) => {
     const cgmHours = hoursInRange * summary?.timeCGMUse;
 
     const data = {
-      veryLow: summary?.timeVeryBelowRange,
-      low: summary?.timeBelowRange,
-      target: summary?.timeInRange,
-      high: summary?.timeAboveRange,
-      veryHigh: summary?.timeVeryAboveRange,
+      veryLow: summary?.percentTimeInVeryLow,
+      low: summary?.percentTimeInLow,
+      target: summary?.percentTimeInTarget,
+      high: summary?.percentTimeInHigh,
+      veryHigh: summary?.percentTimeInVeryHigh,
     };
 
     return (
