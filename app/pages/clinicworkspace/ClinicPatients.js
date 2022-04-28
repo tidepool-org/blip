@@ -310,7 +310,7 @@ export const ClinicPatients = (props) => {
     if (showSummaryData) {
       setPatientFetchOptions({ ...patientFetchOptions, limit: 10 });
     }
-  }, [showSummaryData]) // TODO: Do I need to fetch here?
+  }, [showSummaryData]);
   /* END TEMPORARY MOCK SUMMARY DATA */
 
   useEffect(() => {
