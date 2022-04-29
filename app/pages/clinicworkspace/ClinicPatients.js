@@ -123,6 +123,7 @@ export const ClinicPatients = (props) => {
 
   const lastUploadFilterOptions = [
     { value: 1, label: t('Today') },
+    { value: 2, label: t('Last 2 days') },
     { value: 14, label: t('Last 14 days') },
     { value: 30, label: t('Last 30 days') },
   ];
