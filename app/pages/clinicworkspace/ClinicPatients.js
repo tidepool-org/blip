@@ -1153,7 +1153,7 @@ export const ClinicPatients = (props) => {
       text: t('Edit Patient Information'),
     });
 
-    if (showSummaryData && patient.email) items.push({
+    if (showSummaryData && patient.email && !patient.permissions?.custodian) items.push({
       iconSrc: SendEmailIcon,
       iconLabel: t('Send Upload Reminder'),
       iconPosition: 'left',
