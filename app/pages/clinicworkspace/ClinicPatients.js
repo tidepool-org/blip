@@ -106,7 +106,7 @@ export const ClinicPatients = (props) => {
   const statEmptyText = '--';
 
   const defaultFilterState = {
-    lastUpload: null,
+    lastUploadDate: null,
     timeInRange: [],
     meetsGlycemicTargets: true,
   };
@@ -121,7 +121,7 @@ export const ClinicPatients = (props) => {
   const [activeFilters, setActiveFilters] = useState(defaultFilterState);
   const [pendingFilters, setPendingFilters] = useState(defaultFilterState);
 
-  const lastUploadFilterOptions = [
+  const lastUploadDateFilterOptions = [
     { value: 1, label: t('Today') },
     { value: 2, label: t('Last 2 days') },
     { value: 14, label: t('Last 14 days') },
@@ -144,9 +144,9 @@ export const ClinicPatients = (props) => {
     { value: 'percentTimeInVeryHigh', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.percentTimeInVeryHigh), tag: t('Severe Hyperglycemia'), rangeName: 'veryHigh' },
   ];
 
-  const lastUploadPopupFilterState = usePopupState({
+  const lastUploadDatePopupFilterState = usePopupState({
     variant: 'popover',
-    popupId: 'lastUploadFilters',
+    popupId: 'lastUploadDateFilters',
   });
 
   const debounceSearch = useCallback(debounce(search => {
@@ -262,8 +262,8 @@ export const ClinicPatients = (props) => {
 
   function randomSummaryData(patient) {
     const bgUnits = sample([MGDL_UNITS, MMOLL_UNITS]);
-    const lastUpload = randomDate();
-    const lastData = randomDate(moment(lastUpload).subtract(random(0, 40), 'days').toDate(), lastUpload);
+    const lastUploadDate = randomDate();
+    const lastData = randomDate(moment(lastUploadDate).subtract(random(0, 40), 'days').toDate(), lastUploadDate);
     const firstData = randomDate(moment(lastData).subtract(random(1, 30), 'days').toDate(), lastData);
     const percentTimeInVeryLow = random(0, 0.5, true);
     const percentTimeInLow = random(0.5, 1.5, true);
@@ -271,26 +271,26 @@ export const ClinicPatients = (props) => {
     const percentTimeInHigh = random(1, 2.5, true);
     const percentTimeInVeryHigh = random(0, 1, true);
     const rangeSum = sum([percentTimeInVeryLow, percentTimeInLow, percentTimeInTarget, percentTimeInHigh, percentTimeInVeryHigh]);
-    const avgGlucose = rangeSum * (bgUnits === MMOLL_UNITS ? .7 : (.7 * MGDL_PER_MMOLL));
-    const timeCGMUse = round(random(0.6, 0.95, true), 2);
-    const meanInMGDL = bgUnits === MGDL_UNITS ? avgGlucose : avgGlucose * MGDL_PER_MMOLL;
-    const glucoseMgmtIndicator = timeCGMUse >= 0.7 ? (3.31 + 0.02392 * meanInMGDL) / 100 : undefined;
+    const averageGlucose = rangeSum * (bgUnits === MMOLL_UNITS ? .7 : (.7 * MGDL_PER_MMOLL));
+    const percentTimeCGMUse = round(random(0.6, 0.95, true), 2);
+    const meanInMGDL = bgUnits === MGDL_UNITS ? averageGlucose : averageGlucose * MGDL_PER_MMOLL;
+    const glucoseManagementIndicator = percentTimeCGMUse >= 0.7 ? (3.31 + 0.02392 * meanInMGDL) / 100 : undefined;
 
     return {
       userId: patient.id,
       lastUpdated: new Date().toISOString(),
       firstData: firstData.toISOString(),
       lastData: lastData.toISOString(),
-      lastUpload: lastUpload.toISOString(),
+      lastUploadDate: lastUploadDate.toISOString(),
       outdatedSince: new Date().toISOString(),
-      avgGlucose: { units: bgUnits, value: avgGlucose },
-      glucoseMgmtIndicator,
+      averageGlucose: { units: bgUnits, value: averageGlucose },
+      glucoseManagementIndicator,
       percentTimeInVeryLow: round(percentTimeInVeryLow / rangeSum, 2),
       percentTimeInLow: round(percentTimeInLow / rangeSum, 2),
       percentTimeInTarget: round(percentTimeInTarget / rangeSum, 2),
       percentTimeInHigh: round(percentTimeInHigh / rangeSum, 2),
       percentTimeInVeryHigh: round(percentTimeInVeryHigh / rangeSum, 2),
-      timeCGMUse,
+      percentTimeCGMUse,
       highGlucoseThreshold: bgUnits === MMOLL_UNITS ? 10.0 : 180,
       lowGlucoseThreshold: bgUnits === MMOLL_UNITS ? 3.9 : 70,
       hypoGlycemicEvents: round(random(0, percentTimeInVeryLow * 3.5)),
@@ -324,9 +324,11 @@ export const ClinicPatients = (props) => {
   useEffect(() => {
     const filterOptions = {}
 
-    if (activeFilters.lastUpload) {
-      filterOptions.lastUploadTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-      filterOptions.lastUploadFrom = moment(filterOptions.lastUploadTo).subtract(activeFilters.lastUpload, 'days').toISOString();
+    if (isFirstRender) return;
+
+    if (activeFilters.lastUploadDate) {
+      filterOptions.lastUploadDateTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+      filterOptions.lastUploadDateFrom = moment(filterOptions.lastUploadDateTo).subtract(activeFilters.lastUploadDate, 'days').toISOString();
     }
 
     forEach(activeFilters.timeInRange, filter => {
@@ -362,7 +364,7 @@ export const ClinicPatients = (props) => {
   }
 
   const renderHeader = () => {
-    const activeFiltersCount = without([activeFilters.lastUpload, activeFilters.timeInRange.length], null, 0).length;
+    const activeFiltersCount = without([activeFilters.lastUploadDate, activeFilters.timeInRange.length], null, 0).length;
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
     let timeAgoUnits = hoursAgo === 0 ? t('hour') : t('hours');
@@ -452,28 +454,28 @@ export const ClinicPatients = (props) => {
 
                   <Button
                     variant="filter"
-                    selected={!!activeFilters.lastUpload}
-                    {...bindTrigger(lastUploadPopupFilterState)}
+                    selected={!!activeFilters.lastUploadDate}
+                    {...bindTrigger(lastUploadDatePopupFilterState)}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by last upload"
                     ml={2}
                     fontSize={0}
                     lineHeight={1.3}
                   >
-                    {activeFilters.lastUpload ? find(lastUploadFilterOptions, { value: activeFilters.lastUpload })?.label : t('Last Upload')}
+                    {activeFilters.lastUploadDate ? find(lastUploadDateFilterOptions, { value: activeFilters.lastUploadDate })?.label : t('Last Upload')}
                   </Button>
 
-                  <Popover minWidth="11em" closeIcon {...bindPopover(lastUploadPopupFilterState)}>
+                  <Popover minWidth="11em" closeIcon {...bindPopover(lastUploadDatePopupFilterState)}>
                     <DialogContent px={2} py={3} dividers>
                       <RadioGroup
                         id="last-upload-filters"
                         name="last-upload-filters"
-                        options={lastUploadFilterOptions}
+                        options={lastUploadDateFilterOptions}
                         variant="vertical"
                         fontSize={0}
-                        value={pendingFilters.lastUpload || activeFilters.lastUpload}
+                        value={pendingFilters.lastUploadDate || activeFilters.lastUploadDate}
                         onChange={event => {
-                          setPendingFilters({ ...pendingFilters, lastUpload: parseInt(event.target.value) || null });
+                          setPendingFilters({ ...pendingFilters, lastUploadDate: parseInt(event.target.value) || null });
                         }}
                       />
                     </DialogContent>
@@ -483,9 +485,9 @@ export const ClinicPatients = (props) => {
                         fontSize={1}
                         variant="textSecondary"
                         onClick={() => {
-                          setPendingFilters({ ...activeFilters, lastUpload: defaultFilterState.lastUpload });
-                          setActiveFilters({ ...activeFilters, lastUpload: defaultFilterState.lastUpload });
-                          lastUploadPopupFilterState.close();
+                          setPendingFilters({ ...activeFilters, lastUploadDate: defaultFilterState.lastUploadDate });
+                          setActiveFilters({ ...activeFilters, lastUploadDate: defaultFilterState.lastUploadDate });
+                          lastUploadDatePopupFilterState.close();
                         }}
                       >
                         {t('Clear')}
@@ -493,7 +495,7 @@ export const ClinicPatients = (props) => {
 
                       <Button fontSize={1} variant="textPrimary" onClick={() => {
                         setActiveFilters(pendingFilters);
-                        lastUploadPopupFilterState.close();
+                        lastUploadDatePopupFilterState.close();
                       }}>
                         {t('Apply')}
                       </Button>
@@ -1014,22 +1016,22 @@ export const ClinicPatients = (props) => {
     </Box>
   );
 
-  const renderLastUpload = ({ summary }) => {
-    let formattedLastUpload = statEmptyText;
+  const renderLastUploadDate = ({ summary }) => {
+    let formattedLastUploadDate = statEmptyText;
     let color = 'inherit';
     let fontWeight = 'regular';
 
-    if (summary?.lastUpload) {
-      const lastUploadMoment = moment(summary.lastUpload);
-      const daysAgo = moment().diff(lastUploadMoment, 'days');
-      formattedLastUpload = lastUploadMoment.format(dateFormat);
+    if (summary?.lastUploadDate) {
+      const lastUploadDateMoment = moment(summary.lastUploadDate);
+      const daysAgo = moment().diff(lastUploadDateMoment, 'days');
+      formattedLastUploadDate = lastUploadDateMoment.format(dateFormat);
 
       if (daysAgo <= 1) {
-        formattedLastUpload = (daysAgo === 1) ? t('Yesterday') : t('Today');
+        formattedLastUploadDate = (daysAgo === 1) ? t('Yesterday') : t('Today');
         fontWeight = 'medium';
         color = 'greens.9';
       } else if (daysAgo <=30) {
-        formattedLastUpload = t('{{days}} days ago', { days: daysAgo });
+        formattedLastUploadDate = t('{{days}} days ago', { days: daysAgo });
         fontWeight = 'medium';
         color = '#E29147';
       }
@@ -1037,28 +1039,28 @@ export const ClinicPatients = (props) => {
 
     return (
       <Box classname="patient-last-upload">
-        <Text color={color} fontWeight={fontWeight}>{formattedLastUpload}</Text>
+        <Text color={color} fontWeight={fontWeight}>{formattedLastUploadDate}</Text>
       </Box>
     );
   };
 
   const renderCGMUsage = ({ summary }) => (
     <Box classname="patient-cgm-usage">
-      <Text fontWeight="medium">{summary?.timeCGMUse ? formatPercentage(summary.timeCGMUse) : statEmptyText}</Text>
+      <Text fontWeight="medium">{summary?.percentTimeCGMUse ? formatPercentage(summary.percentTimeCGMUse) : statEmptyText}</Text>
     </Box>
   );
 
   const renderGMI = ({ summary }) => (
     <Box classname="patient-gmi">
-      <Text fontWeight="medium">{summary?.glucoseMgmtIndicator ? formatPercentage(summary.glucoseMgmtIndicator) : statEmptyText}</Text>
+      <Text fontWeight="medium">{summary?.glucoseManagementIndicator ? formatPercentage(summary.glucoseManagementIndicator) : statEmptyText}</Text>
     </Box>
   );
 
   const renderBgRangeSummary = ({ summary }) => {
-    const bgUnits = summary?.avgGlucose.units;
+    const bgUnits = summary?.averageGlucose.units;
     const targetRange = [summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold];
     const hoursInRange = moment(summary?.lastData).diff(moment(summary?.firstData), 'hours');
-    const cgmHours = hoursInRange * summary?.timeCGMUse;
+    const cgmHours = hoursInRange * summary?.percentTimeCGMUse;
 
     const data = {
       veryLow: summary?.percentTimeInVeryLow,
@@ -1071,7 +1073,7 @@ export const ClinicPatients = (props) => {
     return (
       <Flex justifyContent="center">
         {cgmHours >= 24
-          ? <BgRangeSummary striped={summary?.timeCGMUse < 0.7} data={data} targetRange={targetRange} bgUnits={bgUnits} />
+          ? <BgRangeSummary striped={summary?.percentTimeCGMUse < 0.7} data={data} targetRange={targetRange} bgUnits={bgUnits} />
           : (
             <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
               <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <24 hours')}</Text>
@@ -1229,26 +1231,26 @@ export const ClinicPatients = (props) => {
         },
         {
           title: t('Last Upload (CGM)'),
-          field: 'summary.lastUpload',
+          field: 'summary.lastUploadDate',
           align: 'left',
           sortable: true,
-          sortBy: 'summary.lastUpload',
-          render: renderLastUpload,
+          sortBy: 'summary.lastUploadDate',
+          render: renderLastUploadDate,
         },
         {
           title: t('% CGM Use'),
-          field: 'summary.timeCGMUse',
+          field: 'summary.percentTimeCGMUse',
           sortable: true,
-          sortBy: 'summary.timeCGMUse',
+          sortBy: 'summary.percentTimeCGMUse',
           align: 'center',
           render: renderCGMUsage,
         },
         {
           title: t('GMI'),
-          field: 'summary.glucoseMgmtIndicator',
+          field: 'summary.glucoseManagementIndicator',
           align: 'center',
           sortable: true,
-          sortBy: 'summary.glucoseMgmtIndicator',
+          sortBy: 'summary.glucoseManagementIndicator',
           render: renderGMI,
         },
         {
