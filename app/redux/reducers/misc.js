@@ -890,6 +890,22 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { canMigrate: { $set: false } },
       });
     }
+    case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        lastUploadReminder,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...state[clinicId].patients[patientId],
+            lastUploadReminder,
+          } } },
+        },
+      });
+    }
     case types.LOGOUT_REQUEST:
       return initialState.clinics;
     default:

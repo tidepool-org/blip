@@ -162,6 +162,7 @@ export const ClinicPatients = (props) => {
     deletingPatientFromClinic,
     updatingClinicPatient,
     creatingClinicCustodialAccount,
+    sendingPatientUploadReminder,
   } = useSelector((state) => state.blip.working);
 
   function handleAsyncResult(workingState, successMessage) {
@@ -201,6 +202,12 @@ export const ClinicPatients = (props) => {
       name: get(selectedPatient, 'fullName', t('This patient')),
     }));
   }, [deletingPatientFromClinic]);
+
+  useEffect(() => {
+    handleAsyncResult(sendingPatientUploadReminder, t('Uploader reminder email for {{name}} has been sent.', {
+      name: get(selectedPatient, 'fullName', t('this patient')),
+    }));
+  }, [sendingPatientUploadReminder]);
 
   useEffect(() => {
     setLoading(fetchingPatientsForClinic.inProgress);
@@ -743,7 +750,7 @@ export const ClinicPatients = (props) => {
           <Button
             className="resend-invitation"
             variant="primary"
-            // processing={sendingUploadReminder.inProgress} // TODO: API not implemented yet
+            processing={sendingPatientUploadReminder.inProgress}
             onClick={() => {
               handleSendUploadReminderConfirm(selectedPatient);
             }}
@@ -935,8 +942,7 @@ export const ClinicPatients = (props) => {
 
   function handleSendUploadReminderConfirm() {
     trackMetric('Clinic - Send upload reminder confirmed', { clinicId: selectedClinicId });
-    // dispatch(actions.async.sendUploadReminder(api, selectedClinicId, selectedPatient?.id)); // TODO: API not implemented yet
-    patientFormContext?.handleSubmit();
+    dispatch(actions.async.sendPatientUploadReminder(api, selectedClinicId, selectedPatient?.id));
   }
 
   function handlePatientFormChange(formikContext) {

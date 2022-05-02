@@ -1969,3 +1969,30 @@ export function triggerInitialClinicMigrationFailure(error, apiError) {
     },
   };
 }
+
+export function sendPatientUploadReminderRequest() {
+  return {
+    type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
+  };
+}
+
+export function sendPatientUploadReminderSuccess(clinicId, patientId, lastUploadReminder) {
+  return {
+    type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      lastUploadReminder: lastUploadReminder,
+    },
+  };
+}
+
+export function sendPatientUploadReminderFailure(error, apiError) {
+  return {
+    type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
