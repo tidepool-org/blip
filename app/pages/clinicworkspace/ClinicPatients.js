@@ -256,7 +256,7 @@ export const ClinicPatients = (props) => {
   /* BEGIN TEMPORARY MOCK SUMMARY DATA */
   const [patientSummaries, setPatientSummaries] = useState({});
 
-  function randomDate(start = moment().subtract(random(0, 80), 'days').toDate(), end = new Date()) {
+  function randomDate(start = moment().subtract(random(0, 70), 'days').toDate(), end = new Date()) {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   }
 
@@ -472,7 +472,7 @@ export const ClinicPatients = (props) => {
                         variant="vertical"
                         fontSize={0}
                         value={pendingFilters.lastUpload || activeFilters.lastUpload}
-                        onChange={event => { // TODO: Move to dedicated event handler function
+                        onChange={event => {
                           setPendingFilters({ ...pendingFilters, lastUpload: parseInt(event.target.value) || null });
                         }}
                       />
