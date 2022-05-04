@@ -804,8 +804,10 @@ export const clinics = (state = initialState.clinics, action) => {
       const patient = _.get(action.payload, 'patient');
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
+      let patientCount = state[clinicId].patientCount;
+      if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) patientCount++;
       return update(state, {
-        [clinicId]: { patients: { [patientId]: { $set: patient } } },
+        [clinicId]: { patients: { [patientId]: { $set: patient } }, patientCount: { $set: patientCount } },
       });
     }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
@@ -820,6 +822,7 @@ export const clinics = (state = initialState.clinics, action) => {
       let patientId = _.get(action.payload, 'patientId');
       let newState = _.cloneDeep(state);
       delete newState[clinicId]?.patients?.[patientId];
+      if (newState[clinicId]?.patientCount) newState[clinicId].patientCount--;
       return newState;
     }
     case types.SEND_CLINICIAN_INVITE_SUCCESS: {
