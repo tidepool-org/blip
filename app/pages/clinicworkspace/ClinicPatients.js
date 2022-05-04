@@ -165,6 +165,8 @@ export const ClinicPatients = (props) => {
     sendingPatientUploadReminder,
   } = useSelector((state) => state.blip.working);
 
+  const prefixPopHealthMetric = metric => `Clinic - Population Health - ${metric}`;
+
   function handleAsyncResult(workingState, successMessage) {
     const { inProgress, completed, notification } = workingState;
 
@@ -299,8 +301,8 @@ export const ClinicPatients = (props) => {
   }
 
   useEffect(() => {
-    if (config.PATIENT_SUMMARIES_ENABLED && clinic?.patients) {
-      setShowSummaryData(true); // TODO: at some point this will be enabled via backend authorization
+    if (config.PATIENT_SUMMARIES_ENABLED && clinic?.tier >= 'tier0200') {
+      setShowSummaryData(true);
 
       const summaries = { ...patientSummaries };
 
@@ -358,7 +360,7 @@ export const ClinicPatients = (props) => {
 
   function clinicPatients() {
     return map(values(clinic?.patients), patient => (showSummaryData
-      ? { ...patient, summary: patientSummaries[patient.id] }
+      ? { ...patient, summary: patientSummaries[patient.id] } // TODO delete once real summaries available
       : patient
     ));
   }
@@ -452,20 +454,33 @@ export const ClinicPatients = (props) => {
                     <Text fontSize={0}>{t('Filter By')}</Text>
                   </Flex>
 
-                  <Button
-                    variant="filter"
-                    selected={!!activeFilters.lastUploadDate}
-                    {...bindTrigger(lastUploadDatePopupFilterState)}
-                    icon={KeyboardArrowDownRoundedIcon}
-                    iconLabel="Filter by last upload"
-                    ml={2}
-                    fontSize={0}
-                    lineHeight={1.3}
+                  <Box
+                    onClick={() => {
+                      if (!lastUploadDatePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Last upload filter open'), { clinicId: selectedClinicId });
+                    }}
                   >
-                    {activeFilters.lastUploadDate ? find(lastUploadDateFilterOptions, { value: activeFilters.lastUploadDate })?.label : t('Last Upload')}
-                  </Button>
+                    <Button
+                      variant="filter"
+                      selected={!!activeFilters.lastUploadDate}
+                      {...bindTrigger(lastUploadDatePopupFilterState)}
+                      icon={KeyboardArrowDownRoundedIcon}
+                      iconLabel="Filter by last upload"
+                      ml={2}
+                      fontSize={0}
+                      lineHeight={1.3}
+                    >
+                      {activeFilters.lastUploadDate ? find(lastUploadDateFilterOptions, { value: activeFilters.lastUploadDate })?.label : t('Last Upload')}
+                    </Button>
+                  </Box>
 
-                  <Popover minWidth="11em" closeIcon {...bindPopover(lastUploadDatePopupFilterState)}>
+                  <Popover
+                    minWidth="11em"
+                    closeIcon
+                    {...bindPopover(lastUploadDatePopupFilterState)}
+                    onClickCloseIcon={() => {
+                      trackMetric(prefixPopHealthMetric('Last upload filter close'), { clinicId: selectedClinicId });
+                    }}
+                  >
                     <DialogContent px={2} py={3} dividers>
                       <RadioGroup
                         id="last-upload-filters"
@@ -485,6 +500,7 @@ export const ClinicPatients = (props) => {
                         fontSize={1}
                         variant="textSecondary"
                         onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Last upload clear filter'), { clinicId: selectedClinicId });
                           setPendingFilters({ ...activeFilters, lastUploadDate: defaultFilterState.lastUploadDate });
                           setActiveFilters({ ...activeFilters, lastUploadDate: defaultFilterState.lastUploadDate });
                           lastUploadDatePopupFilterState.close();
@@ -494,6 +510,15 @@ export const ClinicPatients = (props) => {
                       </Button>
 
                       <Button fontSize={1} variant="textPrimary" onClick={() => {
+                        const dateRange = pendingFilters.lastUploadDate === 1
+                          ? 'today'
+                          : `${pendingFilters.lastUploadDate} days`;
+
+                        trackMetric(prefixPopHealthMetric('Last upload apply filter'), {
+                          clinicId: selectedClinicId,
+                          dateRange,
+                        });
+
                         setActiveFilters(pendingFilters);
                         lastUploadDatePopupFilterState.close();
                       }}>
@@ -574,18 +599,6 @@ export const ClinicPatients = (props) => {
                 label={t('Toggle visibility')}
                 onClick={handleToggleShowNames}
               />
-
-              {showSummaryData && (
-                <Icon
-                  id="patients-info-trigger"
-                  variant="default"
-                  color="grays.4"
-                  ml={2}
-                  icon={InfoOutlinedIcon}
-                  label={t('Extra info')}
-                  onClick={() => {}}
-                />
-              )}
             </Flex>
           </Flex>
         </Flex>
@@ -594,16 +607,16 @@ export const ClinicPatients = (props) => {
   };
 
   function handleRefreshPatients() {
+    trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
     dispatch(actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, { ...patientFetchOptions })());
   }
 
   function handleToggleShowNames() {
-    let toggleLabel = 'Clicked Hide All';
-    if ( !showNames ){
-      toggleLabel = 'Clicked Show All';
-    }
+    const metric = showSummaryData
+      ? prefixPopHealthMetric(`${showNames ? 'Hide' : 'Show'} all icon`)
+      : `Clicked ${showNames ? 'Hide' : 'Show'} All`;
 
-    trackMetric(toggleLabel);
+    trackMetric(metric, { clinicId: selectedClinicId });
     setShowNames(!showNames);
   }
 
@@ -746,7 +759,10 @@ export const ClinicPatients = (props) => {
           </Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={handleCloseOverlays}>
+          <Button variant="secondary" onClick={() => {
+            trackMetric(prefixPopHealthMetric('Send upload reminder declined'), { clinicId: selectedClinicId });
+            handleCloseOverlays();
+          }}>
             {t('Cancel')}
           </Button>
           <Button
@@ -779,7 +795,10 @@ export const ClinicPatients = (props) => {
             border: 'none',
             button: { position: 'absolute !important', top: 1, right: 1 },
           }}
-          onClose={handleCloseOverlays}
+          onClose={() => {
+            trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
+            handleCloseOverlays();
+          }}
         />
 
         <DialogContent color="text.primary" pl={5} pr={6} pb={4}>
@@ -850,6 +869,7 @@ export const ClinicPatients = (props) => {
             px={0}
             fontSize={0}
             onClick={() => {
+              trackMetric(prefixPopHealthMetric('Time in range unselect all'), { clinicId: selectedClinicId });
               setPendingFilters({ ...pendingFilters, timeInRange: defaultFilterState.timeInRange });
             }}
           >
@@ -857,7 +877,7 @@ export const ClinicPatients = (props) => {
           </Button>
 
           <Text fontSize={0} color="grays.4">
-            {t('Filter is set to view all patients that {{criteria}} meeting all clinical target ranges.', { criteria: pendingFilters.meetsGlycemicTargets ? t('are') : t('are NOT') })}
+            {t('Filter is set to view all patients that {{criteria}} meeting all selected clinical target ranges.', { criteria: pendingFilters.meetsGlycemicTargets ? t('are') : t('are NOT') })}
           </Text>
         </DialogContent>
 
@@ -866,6 +886,7 @@ export const ClinicPatients = (props) => {
             id="timeInRangeFilterClear"
             variant="secondary"
             onClick={() => {
+              trackMetric(prefixPopHealthMetric('Time in range clear filter'), { clinicId: selectedClinicId });
               setPendingFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
               setActiveFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
               handleCloseOverlays();
@@ -937,13 +958,13 @@ export const ClinicPatients = (props) => {
   }
 
   function handleSendUploadReminder(patient) {
-    trackMetric('Clinic - Send upload reminder', { clinicId: selectedClinicId });
+    trackMetric(prefixPopHealthMetric('Send upload reminder'), { clinicId: selectedClinicId });
     setSelectedPatient(patient);
     setShowSendUploadReminderDialog(true);
   }
 
   function handleSendUploadReminderConfirm() {
-    trackMetric('Clinic - Send upload reminder confirmed', { clinicId: selectedClinicId });
+    trackMetric(prefixPopHealthMetric('Send upload reminder confirmed'), { clinicId: selectedClinicId });
     dispatch(actions.async.sendPatientUploadReminder(api, selectedClinicId, selectedPatient?.id));
   }
 
@@ -967,6 +988,19 @@ export const ClinicPatients = (props) => {
       offSet: 0,
       sort: `${newOrder}${newOrderBy}`,
     });
+
+    if (showSummaryData) {
+      const order = newOrder === '+' ? 'ascending' : 'descending';
+
+      const sortColumnLabels = {
+        fullName: 'Patient details',
+        'summary.lastUploadDate': 'Last upload',
+        'summary.percentTimeCGMUse': 'CGM use',
+        'summary.glucoseManagementIndicator': 'GMI',
+      };
+
+      trackMetric(prefixPopHealthMetric(`${sortColumnLabels[newOrderBy]} sort ${order}`), { clinicId: selectedClinicId });
+    }
   }
 
   function handleClearSearch() {
@@ -983,16 +1017,27 @@ export const ClinicPatients = (props) => {
   }
 
   function handleResetFilters() {
+    trackMetric(prefixPopHealthMetric('Clear all filters'), { clinicId: selectedClinicId });
     setActiveFilters(defaultFilterState);
     setPendingFilters(defaultFilterState);
   }
 
   function handleOpenTimeInRangeFilter() {
-    trackMetric('Clinic - Filter by time in range', { clinicId: selectedClinicId });
+    trackMetric(prefixPopHealthMetric('Time in range filter open'), { clinicId: selectedClinicId });
     setShowTimeInRangeDialog(true);
   }
 
   function handleFilterTimeInRange() {
+    trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
+      clinicId: selectedClinicId,
+      meetsCriteria: pendingFilters.meetsGlycemicTargets,
+      severeHypo: includes(pendingFilters.timeInRange, 'percentTimeInVeryLow'),
+      hypo: includes(pendingFilters.timeInRange, 'percentTimeInLow'),
+      inRange: includes(pendingFilters.timeInRange, 'percentTimeInTarget'),
+      hyper: includes(pendingFilters.timeInRange, 'percentTimeInHigh'),
+      severeHyper: includes(pendingFilters.timeInRange, 'percentTimeInVeryHigh'),
+    });
+
     setActiveFilters({
       ...activeFilters,
       meetsGlycemicTargets: pendingFilters.meetsGlycemicTargets,
