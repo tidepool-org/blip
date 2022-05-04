@@ -318,6 +318,9 @@ export const ClinicPatients = (props) => {
 
   useEffect(() => {
     if (showSummaryData) {
+      // TODO: Sometimes, the initial patient fetch hasn't completed, which causes this one to not
+      // cause a fetch.  Need to refactor so we determine the proper fetch limit before the initial
+      // fetch, since by that point, we know whether or not a clinic is in a paid tier.
       setPatientFetchOptions({ ...patientFetchOptions, limit: 10 });
     }
   }, [showSummaryData]);
@@ -608,7 +611,9 @@ export const ClinicPatients = (props) => {
 
   function handleRefreshPatients() {
     trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
-    dispatch(actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, { ...patientFetchOptions })());
+    let fetchOptions = { ...patientFetchOptions };
+    if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
+    dispatch(actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, fetchOptions)());
   }
 
   function handleToggleShowNames() {
@@ -1350,7 +1355,7 @@ export const ClinicPatients = (props) => {
           orderBy={patientFetchOptions.sort.substring(1)}
         />
 
-        {clinic?.patientCount > patientFetchOptions.limit && (
+        {pageCount > 1 && (
           <Pagination
             px="5%"
             sx={{ position: 'absolute', bottom: '-50px' }}
