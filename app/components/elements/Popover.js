@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import noop from 'lodash/noop';
 import { default as Base, PopoverProps } from '@material-ui/core/Popover';
 import HoverPopover from 'material-ui-popup-state/HoverPopover';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
@@ -36,6 +37,7 @@ const Popover = props => {
     minWidth,
     boxShadow,
     marginTop,
+    onClickCloseIcon,
     ...popoverProps
   } = props;
 
@@ -56,7 +58,10 @@ const Popover = props => {
       {closeIcon && (
         <Icon
           label="close dialog"
-          onClick={popoverProps?.onClose}
+          onClick={() => {
+            onClickCloseIcon();
+            if (popoverProps?.onClose) popoverProps.onClose();
+          }}
           icon={CloseRoundedIcon}
           variant="button"
           fontSize={1}
@@ -77,6 +82,7 @@ Popover.propTypes = {
   ...BoxProps,
   useHoverPopover: PropTypes.bool,
   closeIcon: PropTypes.bool,
+  onClickCloseIcon: PropTypes.func,
 };
 
 Popover.defaultProps = {
@@ -90,6 +96,7 @@ Popover.defaultProps = {
     horizontal: 'left',
   },
   keepMounted: true,
+  onClickCloseIcon: noop,
 };
 
 export default Popover;
