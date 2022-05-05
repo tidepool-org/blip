@@ -897,14 +897,14 @@ export const clinics = (state = initialState.clinics, action) => {
       const {
         clinicId,
         patientId,
-        lastUploadReminder,
+        lastUploadReminderTime,
       } = action.payload;
 
       return update(state, {
         [clinicId]: {
           patients: { [patientId]: { $set: {
             ...state[clinicId].patients[patientId],
-            lastUploadReminder,
+            lastUploadReminderTime,
           } } },
         },
       });

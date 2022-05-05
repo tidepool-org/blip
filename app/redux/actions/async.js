@@ -2580,7 +2580,7 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
           createActionError(ErrorMessages.ERR_SENDING_PATIENT_UPLOAD_REMINDER, err), err
         ));
       } else {
-        dispatch(sync.sendPatientUploadReminderSuccess(clinicId, patientId, result?.lastUploadReminder));
+        dispatch(sync.sendPatientUploadReminderSuccess(clinicId, patientId, _.get(result, 'lastUploadReminderTime', moment().toISOString())));
       }
     });
   };

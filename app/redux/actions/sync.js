@@ -1976,13 +1976,13 @@ export function sendPatientUploadReminderRequest() {
   };
 }
 
-export function sendPatientUploadReminderSuccess(clinicId, patientId, lastUploadReminder) {
+export function sendPatientUploadReminderSuccess(clinicId, patientId, lastUploadReminderTime) {
   return {
     type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS,
     payload: {
       clinicId: clinicId,
       patientId: patientId,
-      lastUploadReminder: lastUploadReminder,
+      lastUploadReminderTime: lastUploadReminderTime,
     },
   };
 }

@@ -31,6 +31,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
+import sundial from 'sundial';
 
 import {
   bindPopover,
@@ -741,6 +742,13 @@ export const ClinicPatients = (props) => {
   };
 
   const renderSendUploadReminderDialog = () => {
+    const formattedLastUploadReminderTime = selectedPatient?.lastUploadReminderTime && sundial.formatInTimezone(
+      selectedPatient?.lastUploadReminderTime,
+      timePrefs?.timezoneName ||
+        new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      'MM/DD/YYYY [at] h:mm a'
+    );
+
     return (
       <Dialog
         id="resendInvite"
@@ -753,9 +761,23 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
         <DialogContent>
           <Body1>
-            <Text>
-              {t('Are you sure you want to send an upload reminder email to {{name}}?', { name: selectedPatient?.fullName })}
-            </Text>
+            {formattedLastUploadReminderTime ? (
+              <Trans>
+                <Text mb={2}>
+                  An upload reminder was last sent to <Text as='span' fontWeight='bold'>{{name: selectedPatient?.fullName}}</Text> on <Text as='span' fontWeight='bold'>{{date: formattedLastUploadReminderTime}}</Text>.
+                </Text>
+
+                <Text>
+                  Are you sure you want to send an upload reminder email?
+                </Text>
+              </Trans>
+            ) : (
+              <Trans>
+                <Text>
+                  Are you sure you want to send an upload reminder email to <Text as='span' fontWeight='bold'>{{name: selectedPatient?.fullName}}</Text>?
+                </Text>
+              </Trans>
+            )}
           </Body1>
         </DialogContent>
         <DialogActions>
