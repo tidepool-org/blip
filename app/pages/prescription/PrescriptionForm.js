@@ -138,6 +138,9 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         weightUnits: get(props, 'prescription.latestRevision.attributes.calculator.weightUnits', defaultUnits.weight),
         totalDailyDose: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDose'),
         totalDailyDoseScaleFactor: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDoseScaleFactor', 1),
+        recommendedBasalRate: get(props, 'prescription.latestRevision.attributes.calculator.recommendedBasalRate'),
+        recommendedInsulinSensitivity: get(props, 'prescription.latestRevision.attributes.calculator.recommendedInsulinSensitivity'),
+        recommendedCarbohydrateRatio: get(props, 'prescription.latestRevision.attributes.calculator.recommendedCarbohydrateRatio'),
       },
       initialSettings: {
         bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
@@ -275,6 +278,9 @@ export const PrescriptionForm = props => {
   const prescriptionState = get(prescription, 'state', 'draft');
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
   const isEditable = includes(['draft', 'pending'], prescriptionState);
+  const clinics = useSelector((state) => state.blip.clinics);
+  const clinic = get(clinics, selectedClinicId);
+  const isPrescriber = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'PRESCRIBER');
 
   const {
     creatingPrescription,
@@ -320,6 +326,8 @@ export const PrescriptionForm = props => {
       while (isUndefined(firstInvalidStep) && currentStep < stepValidationFields.length) {
         while (currentSubStep < stepValidationFields[currentStep].length) {
           if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], schema, values)) {
+            console.log('values.calculator', values.calculator);
+            console.log('stepValidationFields[currentStep][currentSubStep]', stepValidationFields[currentStep][currentSubStep]);
             firstInvalidStep = currentStep;
             firstInvalidSubStep = currentSubStep;
             break;
@@ -374,8 +382,9 @@ export const PrescriptionForm = props => {
       if (completed) {
         setStepAsyncState(asyncStates.completed);
         if (isLastStep) {
-          let messageAction = 'sent';
-          if (isDraft) messageAction = isRevision ? 'updated' : 'created';
+
+          let messageAction = isRevision ? t('updated') : t('created');
+          if (isPrescriber) messageAction = t('finalized and sent');
 
           setToast({
             message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction }),
@@ -480,8 +489,11 @@ export const PrescriptionForm = props => {
       }
 
       const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
-      prescriptionAttributes.state = 'draft';
       prescriptionAttributes.createdUserId = loggedInUserId;
+      prescriptionAttributes.prescriberTermsAccepted = isPrescriber && get(values, 'therapySettingsReviewed');
+
+      if (isLastStep) prescriptionAttributes.state = isPrescriber ? 'submitted' : 'pending';
+      setFieldValue('state', prescriptionAttributes.state);
 
       prescriptionAttributes.revisionHash = await sha512(
         canonicalize(prescriptionAttributes),
@@ -500,7 +512,7 @@ export const PrescriptionForm = props => {
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
   const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
   const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
-  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable);
+  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber);
 
   const stepProps = step => ({
     ...step,

@@ -69,6 +69,8 @@ const handlers = {
   activeStepUpdate: sinon.stub(),
 };
 
+const isEditable = true;
+
 describe('reviewFormStep', function() {
   afterEach(() => {
     handlers.activeStepUpdate.resetHistory();
@@ -82,8 +84,14 @@ describe('reviewFormStep', function() {
     expect(reviewFormStep().label).to.equal('Review and Save Prescription');
   });
 
-  it('should include the custom next button text', () => {
-    expect(reviewFormStep().completeText).to.equal('Save Prescription');
+  it('should include the custom next button text for a clinician without prescriber permissions', () => {
+    const isPrescriber = false;
+    expect(reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber).completeText).to.equal('Save Pending Prescription');
+  });
+
+  it('should include the custom next button text for a clinician with prescriber permissions', () => {
+    const isPrescriber = true;
+    expect(reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber).completeText).to.equal('Send Final Prescription');
   });
 
   it('should include panel content with pump and handlers passed along as props', () => {

@@ -287,7 +287,7 @@ const Prescriptions = props => {
   // Render
   return (
       <Box>
-        <Flex mb={4} justifyContent="space-between">
+        <Flex mb={4} alignItems="center" justifyContent="space-between">
           <Box>
             <Flex>
               <TextInput
