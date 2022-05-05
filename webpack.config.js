@@ -25,7 +25,6 @@ const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
   rxEnabled: process.env.RX_ENABLED || false,
   pendoEnabled: process.env.PENDO_ENABLED || true,
   clinicsEnabled: process.env.CLINICS_ENABLED || false,
-  patientSummariesEnabled: process.env.PATIENT_SUMMARIES_ENABLED || false,
 });
 
 const VERSION = pkg.version;
@@ -158,7 +157,6 @@ const plugins = [
     __RX_ENABLED__: JSON.stringify(featureFlags.rxEnabled),
     __PENDO_ENABLED__: JSON.stringify(featureFlags.pendoEnabled),
     __CLINICS_ENABLED__: JSON.stringify(featureFlags.clinicsEnabled),
-    __PATIENT_SUMMARIES_ENABLED__: JSON.stringify(featureFlags.patientSummariesEnabled),
     __VERSION__: JSON.stringify(VERSION),
     __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
     __VERSION_SHA__: JSON.stringify(VERSION_SHA),

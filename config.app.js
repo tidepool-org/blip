@@ -25,7 +25,6 @@
 /* global __RX_ENABLED__ */
 /* global __PENDO_ENABLED__ */
 /* global __CLINICS_ENABLED__ */
-/* global __PATIENT_SUMMARIES_ENABLED__ */
 /* global __VERSION__ */
 
 function booleanFromText(value, defaultValue) {
@@ -61,7 +60,6 @@ const config = {
   RX_ENABLED: booleanFromText(__RX_ENABLED__, false),
   PENDO_ENABLED: booleanFromText(__PENDO_ENABLED__, true),
   CLINICS_ENABLED: booleanFromText(__CLINICS_ENABLED__, false),
-  PATIENT_SUMMARIES_ENABLED: booleanFromText(__PATIENT_SUMMARIES_ENABLED__, false),
 }
 
 if (__DEV__) {
