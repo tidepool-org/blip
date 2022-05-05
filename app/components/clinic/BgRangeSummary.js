@@ -20,6 +20,20 @@ const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 export const BgRangeSummary = props => {
   const { bgUnits, data, striped, targetRange, t } = props;
 
+  const formatValue = (value) => {
+    let precision = 0;
+    const percentage = value * 100;
+
+    // We want to show extra precision on very small percentages so that we avoid showing 0%
+    // when there is some data there.
+    if (percentage > 0 && percentage < 0.5) {
+      precision = percentage < 0.05 ? 2 : 1;
+    }
+
+    return format(`.${precision}f`)(percentage);
+  }
+
+
   const popupState = usePopupState({
     variant: 'popover',
     popupId: 'summaryPopover',
@@ -80,8 +94,7 @@ export const BgRangeSummary = props => {
               <Flex key={key} flexDirection="column" alignItems="center">
                 <Flex mb={2} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
                   <Text fontWeight="bold" lineHeight={1} fontSize={1}>
-                    {/* TODO: better formatting - precision matching viz stats for veryLow */}
-                    {format(`.${0}%`)(value).slice(0, -1)}
+                    {formatValue(value)}
                   </Text>
                   <Text lineHeight={1} color="inherit" fontSize=".65em">%</Text>
                 </Flex>
