@@ -71,9 +71,8 @@ import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 import { dateFormat, patientSchema as validationSchema } from '../../core/clinicUtils';
-import config from '../../config';
 import { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
-import { default as baseTheme, borders, radii } from '../../themes/baseTheme';
+import { borders, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
@@ -96,14 +95,14 @@ export const ClinicPatients = (props) => {
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
-  const [showSummaryData, setShowSummaryData] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
-  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 8, search: '', offset: 0, sort: '+fullName' });
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
+  const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0200');
+  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 10, search: '', offset: 0, sort: '+fullName' });
 
   const defaultFilterState = {
     lastUploadDate: null,
@@ -117,7 +116,6 @@ export const ClinicPatients = (props) => {
   };
 
   const defaultBgLabels = generateBgRangeLabels(defaultBgPrefs, { condensed: true });
-
   const [activeFilters, setActiveFilters] = useState(defaultFilterState);
   const [pendingFilters, setPendingFilters] = useState(defaultFilterState);
 
@@ -242,6 +240,14 @@ export const ClinicPatients = (props) => {
     return () => clearInterval(fetchTimeInterval);
   }, [clinic?.lastPatientFetchTime]);
 
+  React.useEffect(() => {
+    setShowSummaryData(clinic?.tier >= 'tier0200');
+    setPatientFetchOptions({
+      ...patientFetchOptions,
+      limit: clinic?.tier >= 'tier0200' ? 10 : 8,
+    })
+  }, [clinic?.id]);
+
   // Fetchers
   useEffect(() => {
     if (
@@ -253,7 +259,7 @@ export const ClinicPatients = (props) => {
       if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
       dispatch(actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, fetchOptions)());
     }
-  }, [loggedInUserId, clinic?.id, patientFetchOptions]);
+  }, [loggedInUserId, patientFetchOptions]);
 
   /* BEGIN TEMPORARY MOCK SUMMARY DATA */
   const [patientSummaries, setPatientSummaries] = useState({});
@@ -301,9 +307,7 @@ export const ClinicPatients = (props) => {
   }
 
   useEffect(() => {
-    if (config.PATIENT_SUMMARIES_ENABLED && clinic?.tier >= 'tier0200') {
-      setShowSummaryData(true);
-
+    if (showSummaryData) {
       const summaries = { ...patientSummaries };
 
       forEach(clinic?.patients, (patient, patientId) => {
@@ -315,15 +319,6 @@ export const ClinicPatients = (props) => {
       setPatientSummaries(summaries);
     }
   }, [clinic?.patients]);
-
-  useEffect(() => {
-    if (showSummaryData) {
-      // TODO: Sometimes, the initial patient fetch hasn't completed, which causes this one to not
-      // cause a fetch.  Need to refactor so we determine the proper fetch limit before the initial
-      // fetch, since by that point, we know whether or not a clinic is in a paid tier.
-      setPatientFetchOptions({ ...patientFetchOptions, limit: 10 });
-    }
-  }, [showSummaryData]);
   /* END TEMPORARY MOCK SUMMARY DATA */
 
   useEffect(() => {
@@ -990,7 +985,7 @@ export const ClinicPatients = (props) => {
 
     setPatientFetchOptions({
       ...patientFetchOptions,
-      offSet: 0,
+      offset: 0,
       sort: `${newOrder}${newOrderBy}`,
     });
 
@@ -1242,6 +1237,7 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleTable = () => {
     const { t } = props;
+
     const columns = [
       {
         title: t('Patient Details'),
@@ -1339,6 +1335,7 @@ export const ClinicPatients = (props) => {
     }
 
     const pageCount = Math.ceil(clinic.patientCount / patientFetchOptions.limit);
+    const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
 
     return (
       <Box sx={{ position: 'relative' }}>
@@ -1364,6 +1361,7 @@ export const ClinicPatients = (props) => {
             count={pageCount}
             disabled={pageCount < 2}
             onChange={handlePageChange}
+            page={page}
             showFirstButton={false}
             showLastButton={false}
           />
