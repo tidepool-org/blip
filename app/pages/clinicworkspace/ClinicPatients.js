@@ -1403,7 +1403,7 @@ export const ClinicPatients = (props) => {
   return (
     <div>
       {renderHeader()}
-      {renderPeopleArea()}
+      {clinic && renderPeopleArea()}
       {renderRemoveDialog()}
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
