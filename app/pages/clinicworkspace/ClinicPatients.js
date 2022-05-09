@@ -227,7 +227,7 @@ export const ClinicPatients = (props) => {
     }
   }, [fetchingPatientsForClinic]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const patientFetchMoment = moment.utc(clinic?.lastPatientFetchTime);
 
     // update patientFetchMinutesAgo upon new fetch
