@@ -241,7 +241,7 @@ export const ClinicPatients = (props) => {
     return () => clearInterval(fetchTimeInterval);
   }, [clinic?.lastPatientFetchTime]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setShowSummaryData(clinic?.tier >= 'tier0200');
     setPatientFetchOptions({
       ...patientFetchOptions,
