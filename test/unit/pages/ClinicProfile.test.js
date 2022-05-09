@@ -21,7 +21,7 @@ import Button from '../../../app/components/elements/Button';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.skip('ClinicProfile', () => {
+describe('ClinicProfile', () => {
   let mount;
 
   let wrapper;
@@ -172,14 +172,8 @@ describe.skip('ClinicProfile', () => {
     );
   });
 
-  it('should render the header', () => {
-    const header = wrapper.find('#clinic-profile-header').hostNodes();
-    expect(header).to.have.lengthOf(1);
-    expect(header.find('h3').text()).to.equal('Clinic Profile');
-  });
-
   it('should render a link to the clinic admin page if currently on clinic workspace', () => {
-    const link = wrapper.find(Button).filter({ variant: 'textPrimary' });
+    const link = wrapper.find(Button).filter({ variant: 'textSecondary' });
     expect(link).to.have.length(1);
     expect(link.text()).to.equal('View Clinic Members');
     expect(link.props().onClick).to.be.a('function');
@@ -213,7 +207,7 @@ describe.skip('ClinicProfile', () => {
       </Provider>
     );
 
-    const link = wrapper.find(Button).filter({ variant: 'textPrimary' });
+    const link = wrapper.find(Button).filter({ variant: 'textSecondary' });
     expect(link).to.have.length(1);
     expect(link.text()).to.equal('View Patient List');
     expect(link.props().onClick).to.be.a('function');

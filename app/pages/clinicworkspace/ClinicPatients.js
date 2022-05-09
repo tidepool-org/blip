@@ -103,7 +103,8 @@ export const ClinicPatients = (props) => {
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0200');
-  const [patientFetchOptions, setPatientFetchOptions] = useState({ limit: 10, search: '', offset: 0, sort: '+fullName' });
+
+  const [patientFetchOptions, setPatientFetchOptions] = useState({});
 
   const defaultFilterState = {
     lastUploadDate: null,
@@ -152,9 +153,10 @@ export const ClinicPatients = (props) => {
     setPatientFetchOptions({
       ...patientFetchOptions,
       offset: 0,
+      sort: '+fullName',
       search,
     });
-  }, searchDebounceMs), []);
+  }, searchDebounceMs), [patientFetchOptions.limit]);
 
   const {
     fetchingPatientsForClinic,
@@ -244,7 +246,9 @@ export const ClinicPatients = (props) => {
   useEffect(() => {
     setShowSummaryData(clinic?.tier >= 'tier0200');
     setPatientFetchOptions({
-      ...patientFetchOptions,
+      search: '',
+      offset: 0,
+      sort: '+fullName',
       limit: clinic?.tier >= 'tier0200' ? 10 : 8,
     })
   }, [clinic?.id]);
@@ -255,10 +259,11 @@ export const ClinicPatients = (props) => {
       loggedInUserId
       && clinic?.id
       && !fetchingPatientsForClinic.inProgress
+      && !isEmpty(patientFetchOptions)
     ) {
       const fetchOptions = { ...patientFetchOptions };
       if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
-      dispatch(actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, fetchOptions)());
+      dispatch(actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions));
     }
   }, [loggedInUserId, patientFetchOptions]);
 
@@ -609,7 +614,7 @@ export const ClinicPatients = (props) => {
     trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
     let fetchOptions = { ...patientFetchOptions };
     if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
-    dispatch(actions.async.fetchPatientsForClinic.bind(null, api, clinic.id, fetchOptions)());
+    dispatch(actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions));
   }
 
   function handleToggleShowNames() {
@@ -751,7 +756,7 @@ export const ClinicPatients = (props) => {
 
     return (
       <Dialog
-        id="resendInvite"
+        id="sendUploadReminderDialog"
         aria-labelledby="dialog-title"
         open={showSendUploadReminderDialog}
         onClose={handleCloseOverlays}
@@ -1119,7 +1124,7 @@ export const ClinicPatients = (props) => {
 
   const renderGMI = ({ summary }) => (
     <Box classname="patient-gmi">
-      <Text fontWeight="medium">{summary?.glucoseManagementIndicator ? formatPercentage(summary.glucoseManagementIndicator) : statEmptyText}</Text>
+      <Text fontWeight="medium">{summary?.percentTimeCGMUse >= 0.7 ? formatPercentage(summary.glucoseManagementIndicator) : statEmptyText}</Text>
     </Box>
   );
 

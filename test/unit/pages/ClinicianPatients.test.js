@@ -445,7 +445,7 @@ describe('ClinicianPatients', () => {
         store.clearActions();
 
         confirmRemoveButton.simulate('click');
-        console.log('store.getActions()', store.getActions());
+
         expect(store.getActions()).to.eql([
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
         ]);

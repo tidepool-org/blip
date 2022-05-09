@@ -426,7 +426,7 @@ export const ClinicianPatients = (props) => {
     const { t } = props;
     const columns = [
       {
-        title: t('Patient'),
+        title: t('Patient Details'),
         field: 'fullName',
         align: 'left',
         sortable: true,

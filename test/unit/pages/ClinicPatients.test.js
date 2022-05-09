@@ -20,9 +20,10 @@ import Popover from '../../../app/components/elements/Popover';
 /* global after */
 
 const expect = chai.expect;
+const assert = chai.assert;
 const mockStore = configureStore([thunk]);
 
-describe.skip('ClinicPatients', () => {
+describe('ClinicPatients', () => {
   let mount;
 
   let wrapper;
@@ -36,6 +37,7 @@ describe.skip('ClinicPatients', () => {
         deletePatientFromClinic: sinon.stub(),
         createClinicCustodialAccount: sinon.stub().callsArgWith(2, null, { id: 'stubbedId' }),
         updateClinicPatient: sinon.stub().callsArgWith(3, null, { id: 'stubbedId', stubbedUpdates: 'foo' }),
+        sendPatientUploadReminder: sinon.stub(),
       },
     },
   };
@@ -102,6 +104,7 @@ describe.skip('ClinicPatients', () => {
         deletingPatientFromClinic: defaultWorkingState,
         updatingClinicPatient: defaultWorkingState,
         creatingClinicCustodialAccount: defaultWorkingState,
+        sendingPatientUploadReminder: defaultWorkingState,
       },
     },
   };
@@ -148,6 +151,30 @@ describe.skip('ClinicPatients', () => {
     },
   });
 
+  const tier0100ClinicState = {
+    blip: {
+      ...hasPatientsState.blip,
+      clinics: {
+        clinicID123: {
+          ...hasPatientsState.blip.clinics.clinicID123,
+          // tier: 'tier0100',
+        },
+      },
+    },
+  };
+
+  const tier0200ClinicState = {
+    blip: {
+      ...hasPatientsState.blip,
+      clinics: {
+        clinicID123: {
+          ...hasPatientsState.blip.clinics.clinicID123,
+          tier: 'tier0200',
+        },
+      },
+    },
+  };
+
   const nonAdminPatientsState = {
     blip: {
       ...hasPatientsState.blip,
@@ -193,6 +220,7 @@ describe.skip('ClinicPatients', () => {
 
     it('should fetch patients for clinic', () => {
       store = mockStore(hasPatientsState);
+
       wrapper = mount(
         <Provider store={store}>
           <ToastProvider>
@@ -245,7 +273,7 @@ describe.skip('ClinicPatients', () => {
         </Provider>
       );
 
-      wrapper.find('button#patients-view-toggle').simulate('click');
+      wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
       defaultProps.trackMetric.resetHistory();
     });
 
@@ -258,7 +286,7 @@ describe.skip('ClinicPatients', () => {
 
     it('should open a modal for adding a new patient', done => {
       const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add a New Patient');
+      expect(addButton.text()).to.equal('Add New Patient');
 
       const dialog = () => wrapper.find('Dialog#addPatient');
 
@@ -339,26 +367,26 @@ describe.skip('ClinicPatients', () => {
 
     describe('showNames', function () {
       it('should show a row of data for each person', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         // 2 people plus one row for the header
         expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
       });
 
       it('should trigger a call to trackMetric', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(defaultProps.trackMetric.calledWith('Clicked Show All')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
       it('should not have instructions displayed', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
       });
     });
 
     context('show names clicked', () => {
       beforeEach(() => {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         defaultProps.trackMetric.resetHistory();
       });
 
@@ -543,31 +571,147 @@ describe.skip('ClinicPatients', () => {
         expect(defaultProps.trackMetric.callCount).to.equal(2);
       });
 
-      it('should refetch patients with updated sort parameter when name or birthday headers are clicked', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
+      context('tier0100 clinic', () => {
+        beforeEach(() => {
+          store = mockStore(tier0100ClinicState);
 
-        const patientHeader = table.find('#peopleTable-header-fullName .MuiTableSortLabel-root').at(0);
-        expect(patientHeader.text()).to.equal('Patient');
+          wrapper = mount(
+            <Provider store={store}>
+              <ToastProvider>
+                <ClinicPatients {...defaultProps} />
+              </ToastProvider>
+            </Provider>
+          );
 
-        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-        patientHeader.simulate('click');
-        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
+          wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+          defaultProps.trackMetric.resetHistory();
+        });
 
-        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-        patientHeader.simulate('click');
-        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
+        it('should show the standard table columns', () => {
+          const table = wrapper.find(Table);
+          expect(table).to.have.length(1);
 
-        const birthdayHeader = table.find('#peopleTable-header-birthDate .MuiTableSortLabel-root').at(0);
-        expect(birthdayHeader.text()).to.equal('Birthday');
+          const columns = table.find('.MuiTableCell-head');
+          expect(columns.at(0).text()).to.equal('Patient Details');
+          assert(columns.at(0).is('#peopleTable-header-fullName'));
 
-        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-        birthdayHeader.simulate('click');
-        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+birthDate' }));
+          expect(columns.at(1).text()).to.equal('Birthday');
+          assert(columns.at(1).is('#peopleTable-header-birthDate'));
 
-        defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-        birthdayHeader.simulate('click');
-        sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-birthDate' }));
+          expect(columns.at(2).text()).to.equal('MRN');
+          assert(columns.at(2).is('#peopleTable-header-mrn'));
+        });
+
+        it('should refetch patients with updated sort parameter when name or birthday headers are clicked', () => {
+          const table = wrapper.find(Table);
+          expect(table).to.have.length(1);
+
+          const patientHeader = table.find('#peopleTable-header-fullName .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          patientHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          patientHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
+
+          const birthdayHeader = table.find('#peopleTable-header-birthDate .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          birthdayHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+birthDate' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          birthdayHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-birthDate' }));
+        });
+      });
+
+      context('tier0200 clinic', () => {
+        beforeEach(() => {
+          store = mockStore(tier0200ClinicState);
+
+          wrapper = mount(
+            <Provider store={store}>
+              <ToastProvider>
+                <ClinicPatients {...defaultProps} />
+              </ToastProvider>
+            </Provider>
+          );
+
+          wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+          defaultProps.trackMetric.resetHistory();
+        });
+
+        it('should show the populatation health summary table columns', () => {
+          const table = wrapper.find(Table);
+          expect(table).to.have.length(1);
+
+          const columns = table.find('.MuiTableCell-head');
+          expect(columns.at(0).text()).to.equal('Patient Details');
+          assert(columns.at(0).is('#peopleTable-header-fullName'));
+
+          expect(columns.at(1).text()).to.equal('');
+          assert(columns.at(1).is('#peopleTable-header-patientSecondary'));
+
+          expect(columns.at(2).text()).to.equal('Last Upload (CGM)');
+          assert(columns.at(2).is('#peopleTable-header-summary-lastUploadDate'));
+
+          expect(columns.at(3).text()).to.equal('% CGM Use');
+          assert(columns.at(3).is('#peopleTable-header-summary-percentTimeCGMUse'));
+
+          expect(columns.at(4).text()).to.equal('GMI');
+          assert(columns.at(4).is('#peopleTable-header-summary-glucoseManagementIndicator'));
+
+          expect(columns.at(5).text()).to.equal('% Time In Range');
+          assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
+        });
+
+        it('should refetch patients with updated sort parameter when name or birthday headers are clicked', () => {
+          const table = wrapper.find(Table);
+          expect(table).to.have.length(1);
+
+          const patientHeader = table.find('#peopleTable-header-fullName .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          patientHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          patientHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
+
+          const lastUploadHeader = table.find('#peopleTable-header-summary-lastUploadDate .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lastUploadHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.lastUploadDate' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lastUploadHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.lastUploadDate' }));
+
+          const cgmUseHeader = table.find('#peopleTable-header-summary-percentTimeCGMUse .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          cgmUseHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.percentTimeCGMUse' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          cgmUseHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.percentTimeCGMUse' }));
+
+          const gmiHeader = table.find('#peopleTable-header-summary-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          gmiHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.glucoseManagementIndicator' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          gmiHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.glucoseManagementIndicator' }));
+        });
       });
 
       context('non-admin clinician', () => {
@@ -582,7 +726,7 @@ describe.skip('ClinicPatients', () => {
             </Provider>
           );
 
-          wrapper.find('button#patients-view-toggle').simulate('click');
+          wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         });
 
         it('should not render the remove button', () => {

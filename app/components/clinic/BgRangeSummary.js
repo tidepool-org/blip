@@ -18,7 +18,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
 export const BgRangeSummary = props => {
-  const { bgUnits, data, striped, targetRange, t } = props;
+  const { bgUnits, data, striped, targetRange, t, ...themeProps } = props;
 
   const formatValue = (value) => {
     let precision = 0;
@@ -51,15 +51,16 @@ export const BgRangeSummary = props => {
 
   return (
     <>
-      <Box sx={{ position: 'relative' }}>
-        <Flex width="200px" height="20px" justifyContent="center" {...bindHover(popupState)}>
+      <Box sx={{ position: 'relative' }} {...themeProps}>
+        <Flex className="range-summary-bars" width="200px" height="20px" justifyContent="center" {...bindHover(popupState)}>
           {map(data, (value, key) => (
-              <Box key={key} bg={`bg.${key}`} width={`${value * 100}%`}/>
+              <Box className={`range-summary-bars-${key}`} key={key} bg={`bg.${key}`} width={`${value * 100}%`}/>
           ))}
         </Flex>
 
         {striped && (
           <Box
+            className="range-summary-stripe-overlay"
             width="200px"
             height="20px"
             sx={{
@@ -73,6 +74,7 @@ export const BgRangeSummary = props => {
       </Box>
 
       <Popover
+        className='range-summary-data'
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'center',
@@ -92,13 +94,13 @@ export const BgRangeSummary = props => {
           <Flex mb={1} sx={{ gap: 3 }} justifyContent="space-between" flexWrap="nowrap">
             {map(data, (value, key) => (
               <Flex key={key} flexDirection="column" alignItems="center">
-                <Flex mb={2} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
+                <Flex className={`range-summary-value-${key}`} mb={2} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
                   <Text fontWeight="bold" lineHeight={1} fontSize={1}>
                     {formatValue(value)}
                   </Text>
                   <Text lineHeight={1} color="inherit" fontSize=".65em">%</Text>
                 </Flex>
-                <Text fontWeight="medium" lineHeight={1} color="grays.4" fontSize="9px">{bgLabels[key]}</Text>
+                <Text className={`range-summary-range-${key}`} fontWeight="medium" lineHeight={1} color="grays.4" fontSize="9px">{bgLabels[key]}</Text>
               </Flex>
             ))}
           </Flex>
