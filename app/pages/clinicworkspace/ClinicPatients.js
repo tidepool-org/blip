@@ -1058,7 +1058,7 @@ export const ClinicPatients = (props) => {
 
   const renderGMI = ({ summary }) => (
     <Box classname="patient-gmi">
-      <Text fontWeight="medium">{summary?.percentTimeCGMUse >= 0.7 ? summary.glucoseManagementIndicator.toFixed(1) : statEmptyText}</Text>
+      <Text fontWeight="medium">{summary?.percentTimeCGMUse >= 0.7 ? formatPercentage(summary.glucoseManagementIndicator / 100, 1) : statEmptyText}</Text>
     </Box>
   );
 
@@ -1253,7 +1253,7 @@ export const ClinicPatients = (props) => {
           render: renderCGMUsage,
         },
         {
-          title: t('GMI'),
+          title: t('% GMI'),
           field: 'summary.glucoseManagementIndicator',
           align: 'center',
           sortable: true,

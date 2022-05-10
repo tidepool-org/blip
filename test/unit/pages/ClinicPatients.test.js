@@ -661,7 +661,7 @@ describe('ClinicPatients', () => {
           expect(columns.at(3).text()).to.equal('% CGM Use');
           assert(columns.at(3).is('#peopleTable-header-summary-percentTimeCGMUse'));
 
-          expect(columns.at(4).text()).to.equal('GMI');
+          expect(columns.at(4).text()).to.equal('% GMI');
           assert(columns.at(4).is('#peopleTable-header-summary-glucoseManagementIndicator'));
 
           expect(columns.at(5).text()).to.equal('% Time In Range');
@@ -756,6 +756,14 @@ describe('ClinicPatients', () => {
           // Apply button disabled until selection made
           const applyButton = () => popover().find('#apply-last-upload-filter').hostNodes();
           expect(applyButton().props().disabled).to.be.true;
+
+          filterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
+          expect(applyButton().props().disabled).to.be.false;
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          applyButton().simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName', lastUploadDateFrom: sinon.match.string, lastUploadDateTo: sinon.match.string }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days' }));
         });
       });
 
