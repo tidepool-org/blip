@@ -113,7 +113,7 @@ export const ClinicPatients = (props) => {
   };
 
   const defaultBgPrefs = {
-    bgUntis: MGDL_UNITS,
+    bgUnits: MGDL_UNITS,
     bgBounds: reshapeBgClassesToBgBounds({ bgUnits: MGDL_UNITS }),
   };
 
@@ -267,66 +267,6 @@ export const ClinicPatients = (props) => {
     }
   }, [loggedInUserId, patientFetchOptions]);
 
-  /* BEGIN TEMPORARY MOCK SUMMARY DATA */
-  const [patientSummaries, setPatientSummaries] = useState({});
-
-  function randomDate(start = moment().subtract(random(0, 70), 'days').toDate(), end = new Date()) {
-    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-  }
-
-  function randomSummaryData(patient) {
-    const bgUnits = sample([MGDL_UNITS, MMOLL_UNITS]);
-    const lastUploadDate = randomDate();
-    const lastData = randomDate(moment(lastUploadDate).subtract(random(0, 40), 'days').toDate(), lastUploadDate);
-    const firstData = randomDate(moment(lastData).subtract(random(1, 30), 'days').toDate(), lastData);
-    const percentTimeInVeryLow = random(0, 0.5, true);
-    const percentTimeInLow = random(0.5, 1.5, true);
-    const percentTimeInTarget = random(3, 10, true);
-    const percentTimeInHigh = random(1, 2.5, true);
-    const percentTimeInVeryHigh = random(0, 1, true);
-    const rangeSum = sum([percentTimeInVeryLow, percentTimeInLow, percentTimeInTarget, percentTimeInHigh, percentTimeInVeryHigh]);
-    const averageGlucose = rangeSum * (bgUnits === MMOLL_UNITS ? .7 : (.7 * MGDL_PER_MMOLL));
-    const percentTimeCGMUse = round(random(0.6, 0.95, true), 2);
-    const meanInMGDL = bgUnits === MGDL_UNITS ? averageGlucose : averageGlucose * MGDL_PER_MMOLL;
-    const glucoseManagementIndicator = percentTimeCGMUse >= 0.7 ? (3.31 + 0.02392 * meanInMGDL) / 100 : undefined;
-
-    return {
-      userId: patient.id,
-      lastUpdated: new Date().toISOString(),
-      firstData: firstData.toISOString(),
-      lastData: lastData.toISOString(),
-      lastUploadDate: lastUploadDate.toISOString(),
-      outdatedSince: new Date().toISOString(),
-      averageGlucose: { units: bgUnits, value: averageGlucose },
-      glucoseManagementIndicator,
-      percentTimeInVeryLow: round(percentTimeInVeryLow / rangeSum, 5),
-      percentTimeInLow: round(percentTimeInLow / rangeSum, 5),
-      percentTimeInTarget: round(percentTimeInTarget / rangeSum, 5),
-      percentTimeInHigh: round(percentTimeInHigh / rangeSum, 5),
-      percentTimeInVeryHigh: round(percentTimeInVeryHigh / rangeSum, 5),
-      percentTimeCGMUse,
-      highGlucoseThreshold: bgUnits === MMOLL_UNITS ? 10.0 : 180,
-      lowGlucoseThreshold: bgUnits === MMOLL_UNITS ? 3.9 : 70,
-      hypoGlycemicEvents: round(random(0, percentTimeInVeryLow * 3.5)),
-      hyperGlycemicEvents: round(random(0, percentTimeInVeryHigh * 4.5)),
-    };
-  }
-
-  useEffect(() => {
-    if (showSummaryData) {
-      const summaries = { ...patientSummaries };
-
-      forEach(clinic?.patients, (patient, patientId) => {
-        if (!summaries[patientId]) {
-          summaries[patientId] = randomSummaryData(patient);
-        }
-      });
-
-      setPatientSummaries(summaries);
-    }
-  }, [clinic?.patients]);
-  /* END TEMPORARY MOCK SUMMARY DATA */
-
   useEffect(() => {
     const filterOptions = {}
 
@@ -360,13 +300,6 @@ export const ClinicPatients = (props) => {
       return statEmptyText
     }
     return format(`.${precision}%`)(val);
-  }
-
-  function clinicPatients() {
-    return map(values(clinic?.patients), patient => (showSummaryData
-      ? { ...patient, summary: patientSummaries[patient.id] } // TODO delete once real summaries available
-      : patient
-    ));
   }
 
   const renderHeader = () => {
@@ -465,6 +398,7 @@ export const ClinicPatients = (props) => {
                   >
                     <Button
                       variant="filter"
+                      id="last-upload-filter-trigger"
                       selected={!!activeFilters.lastUploadDate}
                       {...bindTrigger(lastUploadDatePopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
@@ -513,7 +447,7 @@ export const ClinicPatients = (props) => {
                         {t('Clear')}
                       </Button>
 
-                      <Button fontSize={1} variant="textPrimary" onClick={() => {
+                      <Button id="apply-last-upload-filter" disabled={!pendingFilters.lastUploadDate} fontSize={1} variant="textPrimary" onClick={() => {
                         const dateRange = pendingFilters.lastUploadDate === 1
                           ? 'today'
                           : `${pendingFilters.lastUploadDate} days`;
@@ -590,7 +524,7 @@ export const ClinicPatients = (props) => {
                     onClick={handleRefreshPatients}
                   />
 
-                  <Text fontSize={0}>{timeAgoMessage}</Text>
+                  <Text id="last-refresh-time-ago" fontSize={0}>{timeAgoMessage}</Text>
                 </Flex>
               )}
 
@@ -1124,12 +1058,12 @@ export const ClinicPatients = (props) => {
 
   const renderGMI = ({ summary }) => (
     <Box classname="patient-gmi">
-      <Text fontWeight="medium">{summary?.percentTimeCGMUse >= 0.7 ? formatPercentage(summary.glucoseManagementIndicator) : statEmptyText}</Text>
+      <Text fontWeight="medium">{summary?.percentTimeCGMUse >= 0.7 ? summary.glucoseManagementIndicator.toFixed(1) : statEmptyText}</Text>
     </Box>
   );
 
   const renderBgRangeSummary = ({ summary }) => {
-    const bgUnits = summary?.averageGlucose.units;
+    const bgUnits = summary?.averageGlucose?.units;
     const targetRange = [summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold];
     const hoursInRange = moment(summary?.lastData).diff(moment(summary?.firstData), 'hours');
     const cgmHours = hoursInRange * summary?.percentTimeCGMUse;
@@ -1372,7 +1306,7 @@ export const ClinicPatients = (props) => {
           variant={showSummaryData ? 'condensed' : 'default'}
           label={'peopletablelabel'}
           columns={columns}
-          data={clinicPatients()}
+          data={values(clinic?.patients)}
           style={{fontSize: showSummaryData ? '12px' : '14px'}}
           onSort={handleSortChange}
           order={patientFetchOptions.sort.substring(0, 1) === '+' ? 'asc' : 'desc'}

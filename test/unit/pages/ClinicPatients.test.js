@@ -628,7 +628,7 @@ describe('ClinicPatients', () => {
         });
       });
 
-      context('tier0200 clinic', () => {
+      context.only('tier0200 clinic', () => {
         beforeEach(() => {
           store = mockStore(tier0200ClinicState);
 
@@ -711,6 +711,51 @@ describe('ClinicPatients', () => {
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.glucoseManagementIndicator' }));
+        });
+
+        it('should allow refreshing the patient list and maintain', () => {
+          const refreshButton = wrapper.find('#refresh-patients').hostNodes();
+          expect(refreshButton).to.have.lengthOf(1);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          refreshButton.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName' }));
+        });
+
+        it('should show the time since the last patient data fetch', () => {
+          const timeAgoMessage = () => wrapper.find('#last-refresh-time-ago').hostNodes().text();
+          expect(timeAgoMessage()).to.equal('Last updated less than an hour ago');
+        });
+
+        it.only('should allow filtering by last upload', () => {
+          const lastUploadFilterTrigger = wrapper.find('#last-upload-filter-trigger').hostNodes();
+          expect(lastUploadFilterTrigger).to.have.lengthOf(1);
+
+          const popover = () => wrapper.find('#lastUploadDateFilters').hostNodes();
+          expect(popover().props().style.visibility).to.equal('hidden');
+
+          // Open filters popover
+          lastUploadFilterTrigger.simulate('click');
+          expect(popover().props().style.visibility).to.be.undefined;
+
+          // Ensure filter options present
+          const filterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
+          expect(filterOptions).to.have.lengthOf(4);
+          expect(filterOptions.at(0).text()).to.equal('Today');
+          expect(filterOptions.at(0).find('input').props().value).to.equal('1');
+
+          expect(filterOptions.at(1).text()).to.equal('Last 2 days');
+          expect(filterOptions.at(1).find('input').props().value).to.equal('2');
+
+          expect(filterOptions.at(2).text()).to.equal('Last 14 days');
+          expect(filterOptions.at(2).find('input').props().value).to.equal('14');
+
+          expect(filterOptions.at(3).text()).to.equal('Last 30 days');
+          expect(filterOptions.at(3).find('input').props().value).to.equal('30');
+
+          // Apply button disabled until selection made
+          const applyButton = () => popover().find('#apply-last-upload-filter').hostNodes();
+          expect(applyButton().props().disabled).to.be.true;
         });
       });
 

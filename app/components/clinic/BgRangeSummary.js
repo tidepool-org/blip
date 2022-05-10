@@ -19,6 +19,7 @@ const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
 export const BgRangeSummary = props => {
   const { bgUnits, data, striped, targetRange, t, ...themeProps } = props;
+  const formattedBgUnits = bgUnits.replace(/l$/, 'L');
 
   const formatValue = (value) => {
     let precision = 0;
@@ -33,15 +34,14 @@ export const BgRangeSummary = props => {
     return format(`.${precision}f`)(percentage);
   }
 
-
   const popupState = usePopupState({
     variant: 'popover',
     popupId: 'summaryPopover',
   });
 
   const bgPrefs = {
-    bgUnits,
-    bgBounds: reshapeBgClassesToBgBounds({ bgUnits, bgClasses: {
+    bgUnits: formattedBgUnits,
+    bgBounds: reshapeBgClassesToBgBounds({ bgUnits: formattedBgUnits, bgClasses: {
       low: { boundary: targetRange[0]},
       target: { boundary: targetRange[1]},
     }}),
@@ -105,7 +105,7 @@ export const BgRangeSummary = props => {
             ))}
           </Flex>
 
-          <Text lineHeight={1} color="grays.4" fontSize="8px">{t(`Units in ${bgUnits}`)}</Text>
+          <Text lineHeight={1} color="grays.4" fontSize="8px">{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
         </Box>
       </Popover>
     </>
