@@ -8,6 +8,7 @@ import noop from 'lodash/noop';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
+import Checkbox from '../../../app/components/elements/Checkbox';
 import Popover from '../../../app/components/elements/Popover';
 
 /* global chai */
@@ -727,7 +728,7 @@ describe('ClinicPatients', () => {
           expect(timeAgoMessage()).to.equal('Last updated less than an hour ago');
         });
 
-        it.only('should allow filtering by last upload', () => {
+        it('should allow filtering by last upload', () => {
           const lastUploadFilterTrigger = wrapper.find('#last-upload-filter-trigger').hostNodes();
           expect(lastUploadFilterTrigger).to.have.lengthOf(1);
 
@@ -764,6 +765,84 @@ describe('ClinicPatients', () => {
           applyButton().simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName', lastUploadDateFrom: sinon.match.string, lastUploadDateTo: sinon.match.string }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days' }));
+        });
+
+        it.only('should allow filtering by bg range targets and selected meet/notMeet criteria', () => {
+          const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
+          expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
+
+          const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+          expect(dialog()).to.have.length(0);
+
+          // Open filters dialog
+          timeInRangeFilterTrigger.simulate('click');
+          wrapper.update();
+          expect(dialog()).to.have.length(1);
+          expect(dialog().props().open).to.be.true;
+
+          const meetsCriteriaButton = () => dialog().find('#meets-glycemic-targets-filter').hostNodes();
+          expect(meetsCriteriaButton()).to.have.lengthOf(1);
+          expect(meetsCriteriaButton().is('.selected')).to.be.true;
+
+          const notMeetsCriteriaButton = () => dialog().find('#not-meets-glycemic-targets-filter').hostNodes();
+          expect(notMeetsCriteriaButton()).to.have.lengthOf(1);
+          expect(notMeetsCriteriaButton().is('.selected')).to.be.false;
+
+          // Ensure filter options present and in default unchecked state
+          const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+          expect(veryLowFilter()).to.have.lengthOf(1);
+          expect(veryLowFilter().text()).contains('Severe Hypoglycemia');
+          expect(veryLowFilter().text()).contains('<1% Time below Range');
+          expect(veryLowFilter().text()).contains('<54 mg/dL');
+          expect(veryLowFilter().find('input').props().checked).to.be.false;
+
+          const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+          expect(lowFilter()).to.have.lengthOf(1);
+          expect(lowFilter().text()).contains('Low');
+          expect(lowFilter().text()).contains('<4% Time below Range');
+          expect(lowFilter().text()).contains('54-70 mg/dL');
+          expect(lowFilter().find('input').props().checked).to.be.false;
+
+          const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
+          expect(targetFilter()).to.have.lengthOf(1);
+          expect(targetFilter().text()).contains('Normal');
+          expect(targetFilter().text()).contains('>70% Time in Range');
+          expect(targetFilter().text()).contains('70-180 mg/dL');
+          expect(targetFilter().find('input').props().checked).to.be.false;
+
+          const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+          expect(highFilter()).to.have.lengthOf(1);
+          expect(highFilter().text()).contains('High');
+          expect(highFilter().text()).contains('<25% Time above Range');
+          expect(highFilter().text()).contains('180-250 mg/dL');
+          expect(highFilter().find('input').props().checked).to.be.false;
+
+          const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
+          expect(veryHighFilter()).to.have.lengthOf(1);
+          expect(veryHighFilter().text()).contains('Severe Hyperglycemia');
+          expect(veryHighFilter().text()).contains('<5% Time above Range');
+          expect(veryHighFilter().text()).contains('>250 mg/dL');
+          expect(veryHighFilter().find('input').props().checked).to.be.false;
+
+          // Select all filter ranges
+          veryLowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryLow-filter', checked: true } });
+          expect(veryLowFilter().find('input').props().checked).to.be.true;
+
+          lowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInLow-filter', checked: true } });
+          expect(lowFilter().find('input').props().checked).to.be.true;
+
+          targetFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInTarget-filter', checked: true } });
+          expect(targetFilter().find('input').props().checked).to.be.true;
+
+          highFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInHigh-filter', checked: true } });
+          expect(highFilter().find('input').props().checked).to.be.true;
+
+          veryHighFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryHigh-filter', checked: true } });
+          expect(veryHighFilter().find('input').props().checked).to.be.true;
+
+          // Submit the form
+
+
         });
       });
 

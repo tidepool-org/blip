@@ -13,6 +13,7 @@ import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
+import omit from 'lodash/omit';
 import random from 'lodash/random';
 import round from 'lodash/round';
 import sample from 'lodash/sample';
@@ -103,8 +104,8 @@ export const ClinicPatients = (props) => {
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0200');
-
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
+  const [patientFetchCount, setPatientFetchCount] = useState(0);
 
   const defaultFilterState = {
     lastUploadDate: null,
@@ -226,6 +227,11 @@ export const ClinicPatients = (props) => {
           variant: 'danger',
         });
       }
+
+      // For subsequent patient fetches, such as When filtering or searching, we can assume that
+      // the user would like to see the results
+      if (!showNames && patientFetchCount > 0) setShowNames(true);
+      setPatientFetchCount(patientFetchCount + 1);
     }
   }, [fetchingPatientsForClinic]);
 
@@ -273,8 +279,8 @@ export const ClinicPatients = (props) => {
     if (isFirstRender) return;
 
     if (activeFilters.lastUploadDate) {
-      filterOptions.lastUploadDateTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-      filterOptions.lastUploadDateFrom = moment(filterOptions.lastUploadDateTo).subtract(activeFilters.lastUploadDate, 'days').toISOString();
+      filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+      filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
     }
 
     forEach(activeFilters.timeInRange, filter => {
@@ -286,13 +292,23 @@ export const ClinicPatients = (props) => {
         comparator = comparator === '<' ? '>=' : '<=';
       }
 
-      filterOptions[filter] = comparator + value;
+      filterOptions[`summary.${filter}`] = comparator + value;
     });
 
-    setPatientFetchOptions({
-      ...patientFetchOptions,
+    const newPatientFetchOptions = {
+      ...omit(patientFetchOptions, [
+        'summary.lastUploadDateFrom',
+        'summary.lastUploadDateTo',
+        'summary.percentTimeInVeryLow',
+        'summary.percentTimeInLow',
+        'summary.percentTimeInTarget',
+        'summary.percentTimeInHigh',
+        'summary.percentTimeInVeryHigh',
+      ]),
       ...filterOptions,
-    });
+    };
+
+    setPatientFetchOptions(newPatientFetchOptions);
   }, [activeFilters]);
 
   function formatPercentage(val, precision = 0) {
@@ -466,6 +482,7 @@ export const ClinicPatients = (props) => {
                   </Popover>
 
                   <Button
+                    id="time-in-range-filter-trigger"
                     variant="filter"
                     selected={!!activeFilters.timeInRange.length}
                     onClick={handleOpenTimeInRangeFilter}
@@ -767,6 +784,8 @@ export const ClinicPatients = (props) => {
             <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>{t('View all patients that')}</Text>
 
             <Button
+              id="meets-glycemic-targets-filter"
+              selected={!!pendingFilters.meetsGlycemicTargets}
               variant={pendingFilters.meetsGlycemicTargets ? 'primary' : 'secondary'}
               color={pendingFilters.meetsGlycemicTargets ? 'white' : 'grays.4'}
               sx={{
@@ -782,6 +801,8 @@ export const ClinicPatients = (props) => {
             </Button>
 
             <Button
+              id="not-meets-glycemic-targets-filter"
+              selected={!pendingFilters.meetsGlycemicTargets}
               variant={!pendingFilters.meetsGlycemicTargets ? 'primary' : 'secondary'}
               color={!pendingFilters.meetsGlycemicTargets ? 'white' : 'grays.4'}
               sx={{
@@ -800,7 +821,7 @@ export const ClinicPatients = (props) => {
           </Flex>
 
           {map(timeInRangeFilterOptions, ({ value, label, rangeName, tag }) => (
-            <Flex key={rangeName} mb={3} alignItems="center" sx={{ gap: 2 }}>
+            <Flex id={`time-in-range-filter-${rangeName}`} key={rangeName} mb={3} alignItems="center" sx={{ gap: 2 }}>
               <Checkbox
                 id={`range-${value}-filter`}
                 name={`range-${value}-filter`}
@@ -1332,7 +1353,7 @@ export const ClinicPatients = (props) => {
   }
 
   const renderPeopleArea = () => {
-    if (!showNames && !search) {
+    if (!showNames) {
       return renderPeopleInstructions();
     } else {
       return renderPeopleTable();

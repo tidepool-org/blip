@@ -89,8 +89,6 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
       borderRadius: radii.default,
       '&.selected': {
         cursor: 'default',
-        backgroundColor: colors.blueGreyDark,
-        borderColor: colors.blueGreyDark,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,
