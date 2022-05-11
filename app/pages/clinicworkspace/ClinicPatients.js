@@ -1058,7 +1058,7 @@ export const ClinicPatients = (props) => {
         fontWeight = 'medium';
         color = 'greens.9';
       } else if (daysAgo <=30) {
-        formattedLastUploadDate = t('{{days}} days ago', { days: Math.floor(daysAgo) });
+        formattedLastUploadDate = t('{{days}} days ago', { days: Math.ceil(daysAgo) });
         fontWeight = 'medium';
         color = '#E29147';
       }
