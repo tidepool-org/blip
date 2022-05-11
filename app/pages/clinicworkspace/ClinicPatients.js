@@ -700,8 +700,7 @@ export const ClinicPatients = (props) => {
   const renderSendUploadReminderDialog = () => {
     const formattedLastUploadReminderTime = selectedPatient?.lastUploadReminderTime && sundial.formatInTimezone(
       selectedPatient?.lastUploadReminderTime,
-      timePrefs?.timezoneName ||
-        new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timePrefs?.timezoneName || new Intl.DateTimeFormat().resolvedOptions().timeZone,
       'MM/DD/YYYY [at] h:mm a'
     );
 
@@ -1049,16 +1048,17 @@ export const ClinicPatients = (props) => {
     let fontWeight = 'regular';
 
     if (summary?.lastUploadDate) {
-      const lastUploadDateMoment = moment(summary.lastUploadDate);
-      const daysAgo = moment().diff(lastUploadDateMoment, 'days');
+      const lastUploadDateMoment = moment.utc(summary.lastUploadDate);
+      const endOfToday = moment.utc(getLocalizedCeiling(new Date().toISOString(), timePrefs));
+      const daysAgo = endOfToday.diff(lastUploadDateMoment, 'days', true);
       formattedLastUploadDate = lastUploadDateMoment.format(dateFormat);
 
-      if (daysAgo <= 1) {
-        formattedLastUploadDate = (daysAgo === 1) ? t('Yesterday') : t('Today');
+      if (daysAgo < 2) {
+        formattedLastUploadDate = (daysAgo > 1) ? t('Yesterday') : t('Today');
         fontWeight = 'medium';
         color = 'greens.9';
       } else if (daysAgo <=30) {
-        formattedLastUploadDate = t('{{days}} days ago', { days: daysAgo });
+        formattedLastUploadDate = t('{{days}} days ago', { days: Math.floor(daysAgo) });
         fontWeight = 'medium';
         color = '#E29147';
       }
