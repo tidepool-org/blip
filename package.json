@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.54.0-web-1338-patient-list-cgm-stats.6",
+  "version": "1.54.0-web-1338-patient-list-cgm-stats.7",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
