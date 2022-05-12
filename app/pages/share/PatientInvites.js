@@ -262,14 +262,14 @@ export const PatientInvites = (props) => {
   ];
 
   return (
-    <Box sx={{ position: 'relative' }}>
-      <Flex>
+    <>
+      <Box sx={{ position: 'absolute', top: '8px', right: 4 }}>
         <TextInput
           themeProps={{
+            width: 'auto',
             minWidth: '250px',
-            mb: 4,
-            flexBasis: 1/2,
           }}
+          fontSize="12px"
           placeholder={t('Search by Name')}
           icon={searchText ? CloseRoundedIcon : SearchIcon}
           iconLabel="search"
@@ -279,98 +279,100 @@ export const PatientInvites = (props) => {
           value={searchText}
           variant="condensed"
         />
-      </Flex>
+      </Box>
 
-      <Table
-        id="patientInvitesTable"
-        label={t('Clinician Table')}
-        columns={columns}
-        data={pendingInvites}
-        orderBy="nameOrderable"
-        order="asc"
-        rowHover={false}
-        rowsPerPage={rowsPerPage}
-        searchText={searchText}
-        page={page}
-        onFilter={handleTableFilter}
-        emptyText={null}
-        fontSize={1}
-      />
-
-      {pendingInvites.length > rowsPerPage && (
-        <Pagination
-          px="5%"
-          sx={{ position: 'absolute', bottom: '-50px' }}
-          width="100%"
-          id="clinic-invites-pagination"
-          count={pageCount}
+      <Box sx={{ position: 'relative' }}>
+        <Table
+          id="patientInvitesTable"
+          label={t('Clinician Table')}
+          columns={columns}
+          data={pendingInvites}
+          orderBy="nameOrderable"
+          order="asc"
+          rowHover={false}
+          rowsPerPage={rowsPerPage}
+          searchText={searchText}
           page={page}
-          disabled={pageCount < 2}
-          onChange={handlePageChange}
-          showFirstButton={false}
-          showLastButton={false}
+          onFilter={handleTableFilter}
+          emptyText={null}
+          fontSize={1}
         />
-      )}
 
-      {pendingInvites.length === 0 && (
-        <Box id="no-invites" pt={3} mb={4} sx={{ borderTop: borders.divider }}>
-          <Text p={3} fontSize={1} color="text.primary" textAlign="center">
-            {t('There are no invites. Refresh to check for pending invites.')}
-          </Text>
+        {pendingInvites.length > rowsPerPage && (
+          <Pagination
+            px="5%"
+            sx={{ position: 'absolute', bottom: '-50px' }}
+            width="100%"
+            id="clinic-invites-pagination"
+            count={pageCount}
+            page={page}
+            disabled={pageCount < 2}
+            onChange={handlePageChange}
+            showFirstButton={false}
+            showLastButton={false}
+          />
+        )}
 
-          <Flex justifyContent="center">
+        {pendingInvites.length === 0 && (
+          <Box id="no-invites" pt={3} mb={4} sx={{ borderTop: borders.divider }}>
+            <Text p={3} fontSize={1} color="text.primary" textAlign="center">
+              {t('There are no invites. Refresh to check for pending invites.')}
+            </Text>
+
+            <Flex justifyContent="center">
+              <Button
+                id="refresh-invites"
+                variant="secondary"
+                icon={RefreshRoundedIcon}
+                iconPosition="left"
+                processing={fetchingPatientInvites.inProgress}
+                onClick={handleRefetchInvites}
+                sx={{
+                  '&:hover,&:active,&.active,&.processing': {
+                    color: colors.purpleMedium,
+                    backgroundColor: colors.white,
+                    borderColor: colors.purpleMedium,
+                  },
+                }}
+              >
+                {t('Refresh')}
+              </Button>
+            </Flex>
+          </Box>
+        )}
+
+        <Dialog
+          id="declinePatientInvite"
+          aria-labelledby="dialog-title"
+          open={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+        >
+          <DialogTitle onClose={() => setShowDeleteDialog(false)}>
+            <MediumTitle id="dialog-title">{deleteDialogContent?.title}</MediumTitle>
+          </DialogTitle>
+          <DialogContent>
+            <Body1>
+              {deleteDialogContent?.body}
+            </Body1>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>
+              {t('Cancel')}
+            </Button>
             <Button
-              id="refresh-invites"
-              variant="secondary"
-              icon={RefreshRoundedIcon}
-              iconPosition="left"
-              processing={fetchingPatientInvites.inProgress}
-              onClick={handleRefetchInvites}
-              sx={{
-                '&:hover,&:active,&.active,&.processing': {
-                  color: colors.purpleMedium,
-                  backgroundColor: colors.white,
-                  borderColor: colors.purpleMedium,
-                },
+              className="decline-invite"
+              variant="danger"
+              processing={deletingPatientInvitation.inProgress}
+              onClick={() => {
+                handleConfirmDecline(selectedInvitation);
               }}
             >
-              {t('Refresh')}
+              {deleteDialogContent?.submitText}
             </Button>
-          </Flex>
-        </Box>
-      )}
-
-      <Dialog
-        id="declinePatientInvite"
-        aria-labelledby="dialog-title"
-        open={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-      >
-        <DialogTitle onClose={() => setShowDeleteDialog(false)}>
-          <MediumTitle id="dialog-title">{deleteDialogContent?.title}</MediumTitle>
-        </DialogTitle>
-        <DialogContent>
-          <Body1>
-            {deleteDialogContent?.body}
-          </Body1>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>
-            {t('Cancel')}
-          </Button>
-          <Button
-            className="decline-invite"
-            variant="danger"
-            processing={deletingPatientInvitation.inProgress}
-            onClick={() => {
-              handleConfirmDecline(selectedInvitation);
-            }}
-          >
-            {deleteDialogContent?.submitText}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </>
   );
 };
 

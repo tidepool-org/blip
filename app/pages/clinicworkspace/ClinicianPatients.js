@@ -9,17 +9,21 @@ import keys from 'lodash/keys';
 import map from 'lodash/map';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
+  Title,
   MediumTitle,
   Body1,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
+import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
@@ -39,6 +43,7 @@ import { useIsFirstRender } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 import { patientSchema as validationSchema } from '../../core/clinicUtils';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
+import baseTheme from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
 
@@ -115,57 +120,68 @@ export const ClinicianPatients = (props) => {
   }, [patients]);
 
   const renderHeader = () => {
-    const toggleLabel = showNames ? t('Hide All') : t('Show All');
+    const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
 
     return (
-      <Flex mb={4} alignItems="center" justifyContent="space-between">
+      <>
         <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          flexGrow={1}
-          pt={0}
+          mb={4}
+          py={2}
+          sx={{ borderBottom: baseTheme.borders.default }}
+          alignItems={'center'}
         >
+          <Title flexGrow={1}>
+            {t('Patients')}
+          </Title>
+
+          <TextInput
+            themeProps={{
+              width: 'auto',
+              minWidth: '250px',
+            }}
+            fontSize="12px"
+            id="patients-search"
+            placeholder={t('Search')}
+            icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+            iconLabel={t('Search')}
+            onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
+            name="search-patients"
+            onChange={handleSearchChange}
+            value={searchText}
+            variant="condensed"
+          />
+        </Flex>
+
+        <Flex mb={4} alignItems="center" justifyContent="space-between">
           <Flex
             alignItems="center"
-            justifyContent="flex-start"
+            justifyContent="space-between"
+            flexGrow={1}
+            pt={0}
           >
-            <TextInput
-              themeProps={{
-                width: 'auto',
-                minWidth: '250px',
-              }}
-              id="patients-search"
-              placeholder={t('Search')}
-              icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
-              iconLabel={t('Search')}
-              onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
-              name="search-patients"
-              onChange={handleSearchChange}
-              value={searchText}
-              variant="condensed"
-            />
             <Button
+              id="add-patient"
+              variant="primary"
+              onClick={handleAddPatient}
+              fontSize={0}
+              mr={0}
+            >
+              {t('Add New Patient')}
+            </Button>
+
+            <Icon
               id="patients-view-toggle"
-              variant="textSecondary"
+              variant="default"
+              color="grays.4"
+              ml={1}
+              icon={VisibilityIcon}
+              label={t('Toggle visibility')}
               disabled={!isEmpty(searchText)}
               onClick={handleToggleShowNames}
-              mr={0}
-              ml={2}
-            >
-              {toggleLabel}
-            </Button>
+            />
           </Flex>
-
-          <Button
-            id="add-patient"
-            variant="primary"
-            onClick={handleAddPatient}
-            mr={0}
-          >
-            {t('Add a New Patient')}
-          </Button>
         </Flex>
-      </Flex>
+      </>
     );
   };
 
@@ -485,7 +501,7 @@ export const ClinicianPatients = (props) => {
 
   return (
     <>
-      <Box pt={4}>
+      <Box>
         {renderHeader()}
         {renderPeopleArea()}
         {renderRemoveDialog()}
