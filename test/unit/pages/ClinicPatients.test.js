@@ -5,11 +5,13 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
 import noop from 'lodash/noop';
+import moment from 'moment';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
 import Checkbox from '../../../app/components/elements/Checkbox';
 import Popover from '../../../app/components/elements/Popover';
+import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 
 /* global chai */
 /* global sinon */
@@ -38,7 +40,7 @@ describe('ClinicPatients', () => {
         deletePatientFromClinic: sinon.stub(),
         createClinicCustodialAccount: sinon.stub().callsArgWith(2, null, { id: 'stubbedId' }),
         updateClinicPatient: sinon.stub().callsArgWith(3, null, { id: 'stubbedId', stubbedUpdates: 'foo' }),
-        sendPatientUploadReminder: sinon.stub(),
+        sendPatientUploadReminder: sinon.stub().callsArgWith(2, null, { lastUploadReminderTime: '2022-02-02T00:00:00.000Z'}),
       },
     },
   };
@@ -171,6 +173,76 @@ describe('ClinicPatients', () => {
         clinicID123: {
           ...hasPatientsState.blip.clinics.clinicID123,
           tier: 'tier0200',
+          patients: {
+            patient1: {
+              id: 'patient1',
+              email: 'patient1@test.ca',
+              fullName: 'Patient One',
+              birthDate: '1999-01-01',
+              mrn: 'mrn012',
+              summary: {},
+              permissions: { custodian : {} }
+            },
+            patient2: {
+              id: 'patient2',
+              email: 'patient2@test.ca',
+              fullName: 'Patient Two',
+              birthDate: '1999-02-02',
+              mrn: 'mrn123',
+              summary:{
+                lastUploadDate: moment().toISOString(),
+                averageGlucose: { units: MMOLL_UNITS },
+                percentTimeCGMUse: 0.85,
+                glucoseManagementIndicator: 7.75,
+                lastData: moment().toISOString(),
+                firstData: moment().subtract(23, 'hours').toISOString(),
+              },
+              permissions: { custodian : undefined }
+            },
+            patient3: {
+              id: 'patient3',
+              email: 'patient3@test.ca',
+              fullName: 'Patient Three',
+              birthDate: '1999-03-03',
+              mrn: 'mrn456',
+              summary: {
+                lastUploadDate: moment().subtract(1, 'day').toISOString(),
+                averageGlucose: { units: MGDL_UNITS },
+                percentTimeCGMUse: 0.70,
+                glucoseManagementIndicator: 6.5,
+                lastData: moment().toISOString(),
+                firstData: moment().subtract(7, 'days').toISOString(),
+              },
+            },
+            patient4: {
+              id: 'patient4',
+              email: 'patient4@test.ca',
+              fullName: 'Patient Four',
+              birthDate: '1999-04-04',
+              mrn: 'mrn789',
+              summary: {
+                lastUploadDate: moment().subtract(29, 'days').toISOString(),
+                averageGlucose: { units: MMOLL_UNITS },
+                percentTimeCGMUse: 0.69,
+                glucoseManagementIndicator: undefined,
+                lastData: moment().toISOString(),
+                firstData: moment().subtract(7, 'days').toISOString(),
+              },
+            },
+            patient5: {
+              id: 'patient5',
+              email: 'patient5@test.ca',
+              fullName: 'Patient Five',
+              birthDate: '1999-05-05',
+              mrn: 'mrn101',
+              summary: {
+                lastUploadDate: moment().subtract(30, 'days').toISOString(),
+                averageGlucose: { units: MGDL_UNITS },
+                percentTimeCGMUse: 0.69,
+                glucoseManagementIndicator: undefined,
+              },
+            },
+          }
         },
       },
     },
@@ -629,7 +701,7 @@ describe('ClinicPatients', () => {
         });
       });
 
-      context.only('tier0200 clinic', () => {
+      context('tier0200 clinic', () => {
         beforeEach(() => {
           store = mockStore(tier0200ClinicState);
 
@@ -645,7 +717,9 @@ describe('ClinicPatients', () => {
           defaultProps.trackMetric.resetHistory();
         });
 
-        it('should show the populatation health summary table columns', () => {
+        it('should show and format patient data appropriately based on availablity', () => {
+          const emptyStatText = '--';
+
           const table = wrapper.find(Table);
           expect(table).to.have.length(1);
 
@@ -665,11 +739,53 @@ describe('ClinicPatients', () => {
           expect(columns.at(4).text()).to.equal('% GMI');
           assert(columns.at(4).is('#peopleTable-header-summary-glucoseManagementIndicator'));
 
-          expect(columns.at(5).text()).to.equal('% Time In Range');
+          expect(columns.at(5).text()).to.equal('% Time in Range');
           assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
+
+          const rows = table.find('tbody tr');
+          expect(rows).to.have.lengthOf(5);
+
+          const rowData = row => rows.at(row).find('.MuiTableCell-root');
+
+          // Patient name and email in first column
+          expect(rowData(0).at(0).text()).contains('Patient One');
+          expect(rowData(0).at(0).text()).contains('patient1@test.ca');
+
+          // Patient birth date and mrn in second column
+          expect(rowData(0).at(1).text()).contains('1999-01-01');
+          expect(rowData(0).at(1).text()).contains('mrn012');
+
+          // Last upload date in third column
+          expect(rowData(0).at(2).text()).contains(emptyStatText);
+          expect(rowData(1).at(2).text()).contains('Today');
+          expect(rowData(2).at(2).text()).contains('Yesterday');
+          expect(rowData(3).at(2).text()).contains('30 days ago');
+          expect(rowData(4).at(2).text()).to.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/); // match YYYY-MM-DD format
+
+          // CGM use in fourth column
+          expect(rowData(0).at(3).text()).contains(emptyStatText);
+          expect(rowData(1).at(3).text()).contains('85%');
+          expect(rowData(2).at(3).text()).contains('70%');
+          expect(rowData(3).at(3).text()).contains('69%');
+
+          // GMI in fifth column
+          expect(rowData(0).at(4).text()).contains(emptyStatText);
+          expect(rowData(1).at(4).text()).contains('7.8%');
+          expect(rowData(2).at(4).text()).contains('6.5%');
+          expect(rowData(3).at(4).text()).contains(emptyStatText);
+
+          // BG summary in sixth column
+          expect(rowData(0).at(5).text()).contains('CGM Use <24 hours'); // empty summary
+          expect(rowData(1).at(5).text()).contains('CGM Use <24 hours'); // 23 hours of data
+
+          expect(rowData(2).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
+          expect(rowData(2).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(0); // normal bars
+
+          expect(rowData(3).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
+          expect(rowData(3).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(1); // striped bars for <70% cgm use
         });
 
-        it('should refetch patients with updated sort parameter when name or birthday headers are clicked', () => {
+        it('should refetch patients with updated sort parameter when name, last upload, gmi, or cgm use headers are clicked', () => {
           const table = wrapper.find(Table);
           expect(table).to.have.length(1);
 
@@ -763,13 +879,17 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName', lastUploadDateFrom: sinon.match.string, lastUploadDateTo: sinon.match.string }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days' }));
         });
 
-        it.only('should allow filtering by bg range targets that DO meet selected criteria', () => {
+        it('should allow filtering by bg range targets that DO meet selected criteria', () => {
           const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
           expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
+          expect(timeInRangeFilterTrigger.text()).to.equal('% Time in Range');
+
+          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
+          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
 
           const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
           expect(dialog()).to.have.length(0);
@@ -865,11 +985,18 @@ describe('ClinicPatients', () => {
             severeHyper: true,
             severeHypo: true
           }));
+
+          expect(timeInRangeFilterCount()).to.have.lengthOf(1);
+          expect(timeInRangeFilterCount().text()).to.equal('5');
         });
 
-        it.only('should allow filtering by bg range targets that DO NOT meet selected criteria', () => {
+        it('should allow filtering by bg range targets that DO NOT meet selected criteria', () => {
           const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
           expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
+          expect(timeInRangeFilterTrigger.text()).to.equal('% Time in Range');
+
+          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
+          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
 
           const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
           expect(dialog()).to.have.length(0);
@@ -966,6 +1093,198 @@ describe('ClinicPatients', () => {
             severeHyper: true,
             severeHypo: true
           }));
+
+          expect(timeInRangeFilterCount()).to.have.lengthOf(1);
+          expect(timeInRangeFilterCount().text()).to.equal('5');
+        });
+
+        it('should track how many filters are active', () => {
+          const filterCount = () => wrapper.find('#filter-count').hostNodes();
+          expect(filterCount()).to.have.lengthOf(0);
+
+          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
+          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+
+          // Set lastUpload filter
+          const lastUploadFilterTrigger = wrapper.find('#last-upload-filter-trigger').hostNodes();
+          expect(lastUploadFilterTrigger).to.have.lengthOf(1);
+
+          const popover = () => wrapper.find('#lastUploadDateFilters').hostNodes();
+          lastUploadFilterTrigger.simulate('click');
+
+          const filterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
+          expect(filterOptions).to.have.lengthOf(4);
+
+          filterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
+          popover().find('#apply-last-upload-filter').hostNodes().simulate('click');
+
+          // Filter count should be 1
+          expect(filterCount()).to.have.lengthOf(1);
+          expect(filterCount().text()).to.equal('1');
+
+          // Set time in range filter
+          const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
+          expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
+
+          const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+          timeInRangeFilterTrigger.simulate('click');
+
+          // Select 3 filter ranges
+          const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+          veryLowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryLow-filter', checked: true } });
+          expect(veryLowFilter().find('input').props().checked).to.be.true;
+
+          const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+          lowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInLow-filter', checked: true } });
+          expect(lowFilter().find('input').props().checked).to.be.true;
+
+          const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+          highFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInHigh-filter', checked: true } });
+          expect(highFilter().find('input').props().checked).to.be.true;
+
+          // Submit the form
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          const applyButton = dialog().find('#timeInRangeFilterConfirm').hostNodes();
+          applyButton.simulate('click');
+
+          // Filter count should be 2
+          expect(filterCount().text()).to.equal('2');
+          expect(timeInRangeFilterCount().text()).to.equal('3');
+
+          // Unset last upload filter
+          lastUploadFilterTrigger.simulate('click');
+          popover().find('#clear-last-upload-filter').hostNodes().simulate('click');
+
+          // Filter count should be 1
+          expect(filterCount()).to.have.lengthOf(1);
+          expect(filterCount().text()).to.equal('1');
+          expect(timeInRangeFilterCount().text()).to.equal('3');
+
+          // Unset time in range filter
+          timeInRangeFilterTrigger.simulate('click');
+          dialog().find('#timeInRangeFilterClear').hostNodes().simulate('click');
+
+          // Total filter count and time in range filter count should be unset
+          expect(filterCount()).to.have.lengthOf(0);
+          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+        });
+
+        it('should reset all active filters at once', () => {
+          const filterCount = () => wrapper.find('#filter-count').hostNodes();
+          expect(filterCount()).to.have.lengthOf(0);
+
+          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
+          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+
+          // Reset Filters button only shows when filters are active
+          const resetAllFiltersButton = () => wrapper.find('#reset-all-active-filters').hostNodes();
+          expect(resetAllFiltersButton()).to.have.lengthOf(0);
+
+          // Set lastUpload filter
+          const lastUploadFilterTrigger = wrapper.find('#last-upload-filter-trigger').hostNodes();
+          expect(lastUploadFilterTrigger).to.have.lengthOf(1);
+
+          const popover = () => wrapper.find('#lastUploadDateFilters').hostNodes();
+          lastUploadFilterTrigger.simulate('click');
+
+          const filterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
+          expect(filterOptions).to.have.lengthOf(4);
+
+          filterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
+          popover().find('#apply-last-upload-filter').hostNodes().simulate('click');
+
+          // Filter count should be 1
+          expect(filterCount()).to.have.lengthOf(1);
+          expect(filterCount().text()).to.equal('1');
+          expect(resetAllFiltersButton()).to.have.lengthOf(1);
+          expect(resetAllFiltersButton().text()).to.equal('Reset Filters');
+
+          // Set time in range filter
+          const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
+          expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
+
+          const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+          timeInRangeFilterTrigger.simulate('click');
+
+          // Select 3 filter ranges
+          const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+          veryLowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryLow-filter', checked: true } });
+          expect(veryLowFilter().find('input').props().checked).to.be.true;
+
+          const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+          lowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInLow-filter', checked: true } });
+          expect(lowFilter().find('input').props().checked).to.be.true;
+
+          const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+          highFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInHigh-filter', checked: true } });
+          expect(highFilter().find('input').props().checked).to.be.true;
+
+          // Submit the form
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          const applyButton = dialog().find('#timeInRangeFilterConfirm').hostNodes();
+          applyButton.simulate('click');
+
+          // Filter count should be 2
+          expect(filterCount().text()).to.equal('2');
+          expect(timeInRangeFilterCount().text()).to.equal('3');
+          expect(resetAllFiltersButton()).to.have.lengthOf(1);
+
+          // Click reset filters button
+          resetAllFiltersButton().simulate('click');
+
+          // Total filter count and time in range filter count should be unset
+          expect(filterCount()).to.have.lengthOf(0);
+          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+          expect(resetAllFiltersButton()).to.have.lengthOf(0);
+        });
+
+        it('should send an upload reminder to a fully claimed patient account', () => {
+          const table = wrapper.find(Table);
+          expect(table).to.have.length(1);
+          expect(table.find('tbody tr')).to.have.length(5);
+
+          // No reminder action for a custodial account
+          const patient1Reminder = table.find('tbody tr').at(0).find('Button[iconLabel="Send Upload Reminder"]');
+          expect(patient1Reminder).to.have.lengthOf(0);
+
+          // Fully claimed account
+          const patient2Reminder = table.find('tbody tr').at(1).find('Button[iconLabel="Send Upload Reminder"]');
+          expect(patient2Reminder).to.have.lengthOf(1);
+
+          const dialog = () => wrapper.find('Dialog#sendUploadReminderDialog');
+
+          expect(dialog()).to.have.length(0);
+          patient2Reminder.simulate('click');
+          wrapper.update();
+          wrapper.update();
+          expect(dialog()).to.have.length(1);
+          expect(dialog().props().open).to.be.true;
+
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Send upload reminder', { clinicId: 'clinicID123' });
+          expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+          store.clearActions();
+          dialog().find('Button#resend-upload-reminder').simulate('click');
+
+          expect(defaultProps.api.clinics.sendPatientUploadReminder.callCount).to.equal(1);
+
+          sinon.assert.calledWith(
+            defaultProps.api.clinics.sendPatientUploadReminder,
+            'clinicID123',
+            'patient2',
+          );
+
+          expect(store.getActions()).to.eql([
+            { type: 'SEND_PATIENT_UPLOAD_REMINDER_REQUEST' },
+            {
+              type: 'SEND_PATIENT_UPLOAD_REMINDER_SUCCESS',
+              payload: {
+                clinicId: 'clinicID123',
+                patientId: 'patient2',
+                lastUploadReminderTime: '2022-02-02T00:00:00.000Z',
+              },
+            },
+          ]);
         });
       });
 

@@ -385,6 +385,7 @@ export const ClinicPatients = (props) => {
                   >
                     {activeFiltersCount > 0 ? (
                       <Pill
+                        id="filter-count"
                         label="filter count"
                         round
                         width="14px"
@@ -451,6 +452,7 @@ export const ClinicPatients = (props) => {
 
                     <DialogActions justifyContent="space-between" p={1}>
                       <Button
+                        id="clear-last-upload-filter"
                         fontSize={1}
                         variant="textSecondary"
                         onClick={() => {
@@ -493,6 +495,7 @@ export const ClinicPatients = (props) => {
                     {t('% Time in Range')}
                     {!!activeFilters.timeInRange.length && (
                       <Pill
+                        id="time-in-range-filter-count"
                         label="filter count"
                         round
                         width="14px"
@@ -511,7 +514,7 @@ export const ClinicPatients = (props) => {
 
                   {activeFiltersCount > 0 && (
                     <Button
-                      id="profileEditButton"
+                      id="reset-all-active-filters"
                       variant="textSecondary"
                       onClick={handleResetFilters}
                       fontSize={0}
@@ -743,7 +746,7 @@ export const ClinicPatients = (props) => {
             {t('Cancel')}
           </Button>
           <Button
-            className="resend-invitation"
+            id="resend-upload-reminder"
             variant="primary"
             processing={sendingPatientUploadReminder.inProgress}
             onClick={() => {
@@ -1282,7 +1285,7 @@ export const ClinicPatients = (props) => {
           render: renderGMI,
         },
         {
-          title: t('% Time In Range'),
+          title: t('% Time in Range'),
           field: 'bgRangeSummary',
           align: 'center',
           render: renderBgRangeSummary,
