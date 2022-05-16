@@ -262,6 +262,7 @@ export const ClinicPatients = (props) => {
       && clinic?.id
       && !fetchingPatientsForClinic.inProgress
       && !isEmpty(patientFetchOptions)
+      && !isFirstRender
     ) {
       const fetchOptions = { ...patientFetchOptions };
       if (isEmpty(fetchOptions.search)) delete fetchOptions.search;

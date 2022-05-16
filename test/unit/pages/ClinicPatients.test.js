@@ -764,14 +764,14 @@ describe('ClinicPatients', () => {
 
           // CGM use in fourth column
           expect(rowData(0).at(3).text()).contains(emptyStatText);
-          expect(rowData(1).at(3).text()).contains('85%');
-          expect(rowData(2).at(3).text()).contains('70%');
-          expect(rowData(3).at(3).text()).contains('69%');
+          expect(rowData(1).at(3).text()).contains('85 %');
+          expect(rowData(2).at(3).text()).contains('70 %');
+          expect(rowData(3).at(3).text()).contains('69 %');
 
           // GMI in fifth column
           expect(rowData(0).at(4).text()).contains(emptyStatText);
-          expect(rowData(1).at(4).text()).contains('7.8%');
-          expect(rowData(2).at(4).text()).contains('6.5%');
+          expect(rowData(1).at(4).text()).contains('7.8 %');
+          expect(rowData(2).at(4).text()).contains('6.5 %');
           expect(rowData(3).at(4).text()).contains(emptyStatText);
 
           // BG summary in sixth column
