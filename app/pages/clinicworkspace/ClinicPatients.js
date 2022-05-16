@@ -14,10 +14,6 @@ import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
-import random from 'lodash/random';
-import round from 'lodash/round';
-import sample from 'lodash/sample';
-import sum from 'lodash/sum';
 import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -70,10 +66,10 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
-import { useIsFirstRender } from '../../core/hooks';
+import { useIsFirstRender, useLocalStorage } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 import { dateFormat, patientSchema as validationSchema } from '../../core/clinicUtils';
-import { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
+import { MGDL_UNITS } from '../../core/constants';
 import { borders, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
@@ -104,7 +100,7 @@ export const ClinicPatients = (props) => {
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0200');
-  const [patientFetchOptions, setPatientFetchOptions] = useState({});
+  const [patientFetchOptions, setPatientFetchOptions] = useLocalStorage('patientFetchOptions', {});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
 
   const defaultFilterState = {
