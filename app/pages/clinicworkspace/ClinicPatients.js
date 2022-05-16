@@ -322,13 +322,9 @@ export const ClinicPatients = (props) => {
     const activeFiltersCount = without([activeFilters.lastUploadDate, activeFilters.timeInRange.length], null, 0).length;
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
-    let timeAgoUnits = hoursAgo === 0 ? t('hour') : t('hours');
-    let timeAgo = hoursAgo === 0 ? t('less than an') : hoursAgo;
-
-    if (hoursAgo >= 24) {
-      timeAgo = hoursAgo < 24 ? hoursAgo : t('over 24');
-    }
-
+    let timeAgoUnits = hoursAgo < 2 ? t('hour') : t('hours');
+    let timeAgo = hoursAgo === 0 ? t('less than an') : t('over {{hoursAgo}}', { hoursAgo });
+    if (hoursAgo >= 24) timeAgo = t('over 24');
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
 
     return (
