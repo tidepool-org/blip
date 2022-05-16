@@ -311,11 +311,11 @@ export const ClinicPatients = (props) => {
     setPatientFetchOptions(newPatientFetchOptions);
   }, [activeFilters]);
 
-  function formatPercentage(val, precision = 0) {
-    if (!val || Number.isNaN(val)) {
-      return statEmptyText
+  function formatDecimal(val, precision) {
+    if (precision === null || precision === undefined) {
+      return format('d')(val);
     }
-    return format(`.${precision}%`)(val);
+    return format(`.${precision}f`)(val);
   }
 
   const renderHeader = () => {
@@ -1073,13 +1073,15 @@ export const ClinicPatients = (props) => {
 
   const renderCGMUsage = ({ summary }) => (
     <Box classname="patient-cgm-usage">
-      <Text fontWeight="medium">{summary?.percentTimeCGMUse ? formatPercentage(summary.percentTimeCGMUse) : statEmptyText}</Text>
+      <Text as="span" fontWeight="medium">{summary?.percentTimeCGMUse ? formatDecimal(summary.percentTimeCGMUse * 100) : statEmptyText}</Text>
+      {summary?.percentTimeCGMUse && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
   );
 
   const renderGMI = ({ summary }) => (
     <Box classname="patient-gmi">
-      <Text fontWeight="medium">{summary?.percentTimeCGMUse >= 0.7 ? formatPercentage(summary.glucoseManagementIndicator / 100, 1) : statEmptyText}</Text>
+      <Text as="span" fontWeight="medium">{summary?.percentTimeCGMUse >= 0.7 ? formatDecimal(summary.glucoseManagementIndicator, 1) : statEmptyText}</Text>
+      {summary?.percentTimeCGMUse >= 0.7 && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
   );
 
