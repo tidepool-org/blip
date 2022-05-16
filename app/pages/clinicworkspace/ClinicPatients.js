@@ -274,7 +274,7 @@ export const ClinicPatients = (props) => {
   }, [loggedInUserId, patientFetchOptions]);
 
   useEffect(() => {
-    const filterOptions = {}
+    const filterOptions = { offset: 0 }
 
     if (isFirstRender) return;
 
