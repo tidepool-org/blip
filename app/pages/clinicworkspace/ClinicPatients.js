@@ -548,7 +548,6 @@ export const ClinicPatients = (props) => {
                 ml={1}
                 icon={VisibilityIcon}
                 label={t('Toggle visibility')}
-                disabled={!isEmpty(search) || activeFiltersCount > 0}
                 onClick={handleToggleShowNames}
               />
             </Flex>
