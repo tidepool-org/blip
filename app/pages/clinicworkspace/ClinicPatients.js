@@ -153,7 +153,7 @@ export const ClinicPatients = (props) => {
       sort: '+fullName',
       search,
     });
-  }, searchDebounceMs), [patientFetchOptions.limit]);
+  }, searchDebounceMs), [patientFetchOptions]);
 
   const {
     fetchingPatientsForClinic,
