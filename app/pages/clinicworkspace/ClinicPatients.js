@@ -69,7 +69,7 @@ import * as actions from '../../redux/actions';
 import { useIsFirstRender, useLocalStorage } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 import { dateFormat, patientSchema as validationSchema } from '../../core/clinicUtils';
-import { MGDL_UNITS } from '../../core/constants';
+import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import { borders, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
@@ -1082,8 +1082,12 @@ export const ClinicPatients = (props) => {
   );
 
   const renderBgRangeSummary = ({ summary }) => {
-    const bgUnits = summary?.averageGlucose?.units;
-    const targetRange = [summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold];
+    const bgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
+
+    const targetRange = map([summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold], value => {
+      return bgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value;
+    });
+
     const hoursInRange = moment(summary?.lastData).diff(moment(summary?.firstData), 'hours');
     const cgmHours = hoursInRange * summary?.percentTimeCGMUse;
 
