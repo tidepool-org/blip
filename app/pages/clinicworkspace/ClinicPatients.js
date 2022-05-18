@@ -566,7 +566,7 @@ export const ClinicPatients = (props) => {
                id="summary-stat-info-trigger"
                iconLabel={t('Summary stat info')}
                icon={InfoOutlinedIcon}
-               iconFontSize="16px"
+               iconFontSize="18px"
                popoverContent={renderInfoPopover()}
                ml={2}
                popoverProps={{
