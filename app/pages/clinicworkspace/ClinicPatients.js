@@ -101,6 +101,7 @@ export const ClinicPatients = (props) => {
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0200');
+  const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [patientFetchOptions, setPatientFetchOptions] = useLocalStorage('patientFetchOptions', {});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
 
@@ -110,12 +111,12 @@ export const ClinicPatients = (props) => {
     meetsGlycemicTargets: true,
   };
 
-  const defaultBgPrefs = {
-    bgUnits: MGDL_UNITS,
-    bgBounds: reshapeBgClassesToBgBounds({ bgUnits: MGDL_UNITS }),
-  };
+  const bgPrefs = () => ({
+    bgUnits: clinicBgUnits,
+    bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
+  });
 
-  const defaultBgLabels = generateBgRangeLabels(defaultBgPrefs, { condensed: true });
+  const bgLabels = () => generateBgRangeLabels(bgPrefs(), { condensed: true });
   const [activeFilters, setActiveFilters] = useState(defaultFilterState);
   const [pendingFilters, setPendingFilters] = useState(defaultFilterState);
 
@@ -247,6 +248,7 @@ export const ClinicPatients = (props) => {
   }, [clinic?.lastPatientFetchTime]);
 
   useEffect(() => {
+    setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS).replace(/l$/, 'L'));
     setShowSummaryData(clinic?.tier >= 'tier0200');
     setPatientFetchOptions({
       search: '',
@@ -865,7 +867,7 @@ export const ClinicPatients = (props) => {
               <Box fontWeight="medium">
                 <Flex alignItems="center">
                   <Text fontSize={0} mr={2}>{label}</Text>
-                  <Pill label={`BG Range - ${tag}`} fontSize="10px" lineHeight="1" py="2px" sx={{ border: '1px solid', borderColor: 'grays.1', textTransform: 'none' }} colorPalette={['white', 'grays.4']} text={`${defaultBgLabels[rangeName]} ${MGDL_UNITS}`} />
+                  <Pill label={`BG Range - ${tag}`} fontSize="10px" lineHeight="1" py="2px" sx={{ border: '1px solid', borderColor: 'grays.1', textTransform: 'none' }} colorPalette={['white', 'grays.4']} text={`${bgLabels()[rangeName]} ${clinicBgUnits}`} />
                 </Flex>
 
                 <Pill label={tag} fontSize="9px" py="2px" sx={{ borderRadius: radii.input, textTransform: 'none' }} colorPalette={[`bg.${rangeName}`, 'white']} text={tag} />
@@ -1114,11 +1116,9 @@ export const ClinicPatients = (props) => {
   );
 
   const renderBgRangeSummary = ({ summary }) => {
-    const bgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
-
-    const targetRange = map([summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold], value => {
-      return bgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value;
-    });
+    const targetRange = map([summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold], value => (
+      clinicBgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value
+    ));
 
     const hoursInRange = moment(summary?.lastData).diff(moment(summary?.firstData), 'hours');
     const cgmHours = hoursInRange * summary?.percentTimeCGMUse;
@@ -1134,7 +1134,7 @@ export const ClinicPatients = (props) => {
     return (
       <Flex justifyContent="center">
         {cgmHours >= 24
-          ? <BgRangeSummary striped={summary?.percentTimeCGMUse < 0.7} data={data} targetRange={targetRange} bgUnits={bgUnits} />
+          ? <BgRangeSummary striped={summary?.percentTimeCGMUse < 0.7} data={data} targetRange={targetRange} bgUnits={clinicBgUnits} />
           : (
             <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
               <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <24 hours')}</Text>
@@ -1144,7 +1144,6 @@ export const ClinicPatients = (props) => {
       </Flex>
     );
   };
-
 
   const renderGlycemicEvent = (type, value) => {
     const rotation = type === 'low' ? 90 : -90;
