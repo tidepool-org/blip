@@ -538,9 +538,9 @@ describe('ClinicPatients', () => {
 
       it('should display menu when "More" icon is clicked', () => {
         const moreMenuIcon = wrapper.find('PopoverMenu').find('Icon').at(0);
-        expect(wrapper.find(Popover).at(0).props().open).to.be.false;
+        expect(wrapper.find(Popover).at(1).props().open).to.be.false;
         moreMenuIcon.simulate('click');
-        expect(wrapper.find(Popover).at(0).props().open).to.be.true;
+        expect(wrapper.find(Popover).at(1).props().open).to.be.true;
       });
 
       it('should open a modal for patient editing when edit link is clicked', done => {

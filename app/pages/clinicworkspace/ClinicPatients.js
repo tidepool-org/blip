@@ -39,6 +39,7 @@ import {
 import {
   MediumTitle,
   Body1,
+  Paragraph1,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
@@ -315,6 +316,16 @@ export const ClinicPatients = (props) => {
     return format(`.${precision}f`)(val);
   }
 
+  const renderInfoPopover = () => (
+    <Box px={4} py={3} maxWidth="600px">
+      <Trans id="summary-stat-info" i18nKey="html.summary-stat-info">
+        <Paragraph1><strong>% CGM Use</strong>, <strong>GMI</strong>, and <strong>% Time in Range</strong> are calculated using the last 2 weeks’ worth of CGM data, where available.</Paragraph1>
+        <Paragraph1>A future release will include summary calculations for BGM data.</Paragraph1>
+        <Paragraph1><strong>Warning:</strong> % CGM Use, GMI, and % Time in Range may not match the patient profile if older data is added after the summary statistics have already been calculated.</Paragraph1>
+      </Trans>
+    </Box>
+  );
+
   const renderHeader = () => {
     const activeFiltersCount = without([activeFilters.lastUploadDate, activeFilters.timeInRange.length], null, 0).length;
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
@@ -550,6 +561,27 @@ export const ClinicPatients = (props) => {
                 label={t('Toggle visibility')}
                 onClick={handleToggleShowNames}
               />
+
+             <PopoverLabel
+               id="summary-stat-info-trigger"
+               iconLabel={t('Summary stat info')}
+               icon={InfoOutlinedIcon}
+               iconFontSize="16px"
+               popoverContent={renderInfoPopover()}
+               ml={2}
+               popoverProps={{
+                 anchorOrigin: {
+                   vertical: 'bottom',
+                   horizontal: 'center',
+                 },
+                 transformOrigin: {
+                   vertical: 'top',
+                   horizontal: 'center',
+                 },
+                 width: 'auto',
+               }}
+               triggerOnHover
+             />
             </Flex>
           </Flex>
         </Flex>
