@@ -248,15 +248,18 @@ export const ClinicPatients = (props) => {
   }, [clinic?.lastPatientFetchTime]);
 
   useEffect(() => {
-    setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS).replace(/l$/, 'L'));
     setShowSummaryData(clinic?.tier >= 'tier0200');
     setPatientFetchOptions({
       search: '',
       offset: 0,
       sort: '+fullName',
       limit: clinic?.tier >= 'tier0200' ? 10 : 8,
-    })
+    });
   }, [clinic?.id]);
+
+  useEffect(() => {
+    setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS).replace(/l$/, 'L'));
+  }, [clinic?.preferredBgUnits]);
 
   // Fetchers
   useEffect(() => {
