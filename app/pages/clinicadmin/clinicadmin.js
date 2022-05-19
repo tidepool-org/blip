@@ -185,7 +185,7 @@ export const ClinicAdmin = (props) => {
     ) {
       dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id, { limit: 1000, offset: 0 }));
     }
-  }, [loggedInUserId, selectedClinicId]);
+  }, [loggedInUserId, selectedClinicId, clinic?.id]);
 
   const clinicianArray = map(
     get(clinics, [selectedClinicId, 'clinicians'], {}),
