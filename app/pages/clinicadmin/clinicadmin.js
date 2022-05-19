@@ -180,12 +180,12 @@ export const ClinicAdmin = (props) => {
   useEffect(() => {
     if (
       loggedInUserId &&
-      clinic &&
+      clinic?.id &&
       !fetchingCliniciansFromClinic.inProgress
     ) {
       dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id, { limit: 1000, offset: 0 }));
     }
-  }, [loggedInUserId, selectedClinicId, clinic?.id]);
+  }, [loggedInUserId, clinic?.id]);
 
   const clinicianArray = map(
     get(clinics, [selectedClinicId, 'clinicians'], {}),
