@@ -424,6 +424,9 @@ describe('ClinicDetails', () => {
         wrapper.find('input[name="clinicSize"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicSize', value: '250-499' } });
         expect(wrapper.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('250-499');
 
+        wrapper.find('input[name="preferredBgUnits"]').at(1).simulate('change', { persist: noop, target: { name: 'preferredBgUnits', value: 'mmol/l' } });
+        expect(wrapper.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mmol/l');
+
         wrapper.find('input[name="adminAcknowledge"]').simulate('change', { persist: noop, target: { name: 'adminAcknowledge', value: true } });
         expect(wrapper.find('input[name="adminAcknowledge"]').prop('value')).to.be.true;
 
@@ -462,6 +465,7 @@ describe('ClinicDetails', () => {
               postalCode: '90210',
               state: 'NJ',
               website: 'http://clinic.com',
+              preferredBgUnits: 'mmol/l',
             }
           );
 
