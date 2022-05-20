@@ -567,6 +567,25 @@ describe('clinics', () => {
     });
   });
 
+  describe('sendPatientUploadReminderSuccess', () => {
+    it('should update patient `lastUploadReminderTime` in state', () => {
+      let clinicId = 'clinicId123';
+      let patientId = 'patientId123';
+      const lastUploadReminderTime = '2022-10-10T00:00:000Z';
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patients: {
+            [patientId]: {},
+          },
+        },
+      };
+      let action = actions.sync.sendPatientUploadReminderSuccess(clinicId, patientId, lastUploadReminderTime);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients.patientId123.lastUploadReminderTime).to.eql(lastUploadReminderTime);
+    });
+  });
+
   describe('logoutRequest', () => {
     it('should set clinics to initial state', () => {
       let initialStateForTest = {

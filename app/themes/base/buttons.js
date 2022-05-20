@@ -89,8 +89,6 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
       borderRadius: radii.default,
       '&.selected': {
         cursor: 'default',
-        backgroundColor: colors.blueGreyDark,
-        borderColor: colors.blueGreyDark,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,
@@ -249,6 +247,12 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
 
       '.icon': {
         fontSize: `${fontSizes[2]}px`,
+      },
+      '&.selected': {
+        cursor: 'default',
+        color: colors.purpleMedium,
+        backgroundColor: colors.blues[0],
+        borderColor: colors.purpleMedium,
       },
     },
     chip: {
