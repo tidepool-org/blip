@@ -55,8 +55,8 @@ describe('clinicUtils', function() {
 
   it('should return all preferredBgUnits options', () => {
     expect(clinicUtils.preferredBgUnits).to.eql([
-      { value: 'mg/dl', label: 'mg/dL' },
-      { value: 'mmol/l', label: 'mmol/L' },
+      { value: 'mg/dL', label: 'mg/dL' },
+      { value: 'mmol/L', label: 'mmol/L' },
     ]);
   });
 
@@ -100,7 +100,7 @@ describe('clinicUtils', function() {
         clinicType: 'provider_practice',
         clinicSize: '0-249',
         website: 'http://mysite.com',
-        preferredBgUnits: 'mmol/l',
+        preferredBgUnits: 'mmol/L',
       };
 
       expect(clinicUtils.clinicValuesFromClinic(clinic)).to.eql(clinic);

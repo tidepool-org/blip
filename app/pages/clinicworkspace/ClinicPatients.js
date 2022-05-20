@@ -258,7 +258,7 @@ export const ClinicPatients = (props) => {
   }, [clinic?.id]);
 
   useEffect(() => {
-    setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS).replace(/l$/, 'L'));
+    setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic?.preferredBgUnits]);
 
   // Fetchers

@@ -253,7 +253,7 @@ describe('ClinicPatients', () => {
       clinics: {
         clinicID123: {
           ...tier0200ClinicState.blip.clinics.clinicID123,
-          preferredBgUnits: 'mmol/l',
+          preferredBgUnits: 'mmol/L',
         },
       },
     },

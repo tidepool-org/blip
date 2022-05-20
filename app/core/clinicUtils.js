@@ -62,8 +62,8 @@ export const clinicSizes = [
 ];
 
 export const preferredBgUnits = [
-  { value: MGDL_UNITS.toLowerCase(), label: MGDL_UNITS },
-  { value: MMOLL_UNITS.toLowerCase(), label: MMOLL_UNITS },
+  { value: MGDL_UNITS, label: MGDL_UNITS },
+  { value: MMOLL_UNITS, label: MMOLL_UNITS },
 ];
 
 export const clinicValuesFromClinic = (clinic) => ({
