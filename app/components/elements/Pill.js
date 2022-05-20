@@ -15,12 +15,15 @@ const namedPalletMap = {
 };
 
 const Pill = (props) => {
-  const { variant, colorPalette, label, text, ...themeProps } = props;
+  const { variant, colorPalette, label, text, round, width, sx = {}, ...themeProps } = props;
   const palette = isString(colorPalette) ? namedPalletMap[colorPalette] : colorPalette;
   const darkShade = palette[palette.length - 1];
   const lightShade = palette[0];
   const color = variant === 'inverse' ? lightShade : darkShade;
   const bg = variant === 'inverse' ? darkShade : lightShade;
+  const borderRadius = round ? '100%' : 4;
+  const height = round ? width : 'auto';
+  const lineHeight = round ? width : 'inherit';
 
   return (
     <Text
@@ -29,11 +32,15 @@ const Pill = (props) => {
       fontSize={0}
       fontWeight="medium"
       as="span"
-      px={2}
-      py={1}
-      sx={{ borderRadius: 4, textTransform: 'upperCase' }}
+      px={round ? 0 : 2}
+      py={round ? 0 : 1}
+      sx={{ borderRadius, textTransform: 'upperCase', ...sx }}
       color={color}
       bg={bg}
+      width={width}
+      height={height}
+      lineHeight={lineHeight}
+      textAlign="center"
       {...themeProps}
     >
       {text}
@@ -42,6 +49,8 @@ const Pill = (props) => {
 };
 
 Pill.propTypes = {
+  ...TextProps,
+  round: PropTypes.bool,
   colorPalette: PropTypes.oneOfType([
     PropTypes.oneOf([
       'blues',
@@ -61,7 +70,8 @@ Pill.propTypes = {
 };
 
 Pill.defaultProps = {
-  ...TextProps,
+  colorPalette: 'purples',
+  width: 'auto',
   variant: 'default',
 };
 

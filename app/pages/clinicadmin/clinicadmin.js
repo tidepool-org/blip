@@ -11,9 +11,10 @@ import filter from 'lodash/filter';
 import find from 'lodash/find';
 import has from 'lodash/has';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import SearchIcon from '@material-ui/icons/Search';
-import InputIcon from '@material-ui/icons/Input';
+import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import InputIcon from '@material-ui/icons/Input';
+import SearchIcon from '@material-ui/icons/Search';
 import sundial from 'sundial';
 
 import {
@@ -25,6 +26,7 @@ import {
 import TextInput from '../../components/elements/TextInput';
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Pill from '../../components/elements/Pill';
 
@@ -37,7 +39,6 @@ import {
 
 import ClinicProfile from '../../components/clinic/ClinicProfile';
 import { useToasts } from '../../providers/ToastProvider';
-import personUtils from '../../core/personutils';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { usePrevious } from '../../core/hooks';
@@ -48,6 +49,8 @@ export const ClinicAdmin = (props) => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const [searchText, setSearchText] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
@@ -62,6 +65,12 @@ export const ClinicAdmin = (props) => {
   const clinic = get(clinics, selectedClinicId);
   const pendingSentClinicianInvites = useSelector((state) => state.blip.pendingSentClinicianInvites);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
+  const [clinicianArray, setClinicianArray] = useState([]);
+  const [userRolesInClinic, setUserRolesInClinic] = useState([]);
+  const rowsPerPage = 8;
+
+  const isClinicAdmin = () => includes(userRolesInClinic, 'CLINIC_ADMIN');
+  const isOnlyClinicAdmin = () => filter(clinicianArray, { isAdmin: true, inviteId: undefined }).length === 1;
 
   useEffect(() => {
     const {
@@ -187,7 +196,7 @@ export const ClinicAdmin = (props) => {
     }
   }, [loggedInUserId, selectedClinicId]);
 
-  const clinicianArray = map(
+  const getClinicianArray = () => map(
     get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
       const { roles, email, id: clinicianId, inviteId, name = '' } = clinician;
@@ -214,14 +223,16 @@ export const ClinicAdmin = (props) => {
     }
   );
 
-  const userRolesInClinic = get(
-    find(clinicianArray, { userId: loggedInUserId }),
-    'roles',
-    []
-  );
+  useEffect(() => {
+    setClinicianArray(getClinicianArray());
+    setUserRolesInClinic()
+  }, [clinic]);
 
-  const isClinicAdmin = includes(userRolesInClinic, 'CLINIC_ADMIN');
-  const isOnlyClinicAdmin = filter(clinicianArray, { isAdmin: true, inviteId: undefined }).length === 1;
+  useEffect(() => {
+    setUserRolesInClinic(get(find(clinicianArray, { userId: loggedInUserId }), 'roles', []));
+    setPageCount(Math.ceil(clinicianArray.length / rowsPerPage));
+  }, [clinicianArray]);
+
 
   function closeDeleteDialog() {
     setShowDeleteDialog(false);
@@ -241,10 +252,6 @@ export const ClinicAdmin = (props) => {
 
   function clearSelectedInvite() {
     setSelectedInvite(null);
-  }
-
-  function handleSearchChange(event) {
-    setSearchText(event.target.value);
   }
 
   function handleInviteNewMember() {
@@ -314,6 +321,28 @@ export const ClinicAdmin = (props) => {
     dispatch(actions.async.deleteClinicianInvite(api, selectedClinicId, inviteId));
   }
 
+  function handleSearchChange(event) {
+    setPage(1);
+    setSearchText(event.target.value);
+    if (isEmpty(event.target.value)) {
+      setPageCount(Math.ceil(clinicianArray.length / rowsPerPage));
+    }
+  }
+
+  function handleClearSearch(event) {
+    setPage(1);
+    setSearchText('');
+    setPageCount(Math.ceil(clinicianArray.length / rowsPerPage));
+  }
+
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  const handleTableFilter = (data) => {
+    console.log('handleTableFilter', data);
+  };
+
   const renderClinician = ({ fullName, email }) => (
     <Box>
       <Text fontWeight="medium">{fullName}</Text>
@@ -323,7 +352,7 @@ export const ClinicAdmin = (props) => {
 
   const renderStatus = ({ status }) => (
     <Box>
-      {!isEmpty(status) ? <Pill text={status} colorPalette="greens" /> : ''}
+      {!isEmpty(status) ? <Pill label={status} text={status} colorPalette="greens" /> : ''}
     </Box>
   );
 
@@ -359,7 +388,7 @@ export const ClinicAdmin = (props) => {
   const renderMore = props => {
     const items = [];
 
-    if (props.userId && (!props.isAdmin || !isOnlyClinicAdmin)) {
+    if (props.userId && (!props.isAdmin || !isOnlyClinicAdmin())) {
       items.push({
         icon: DeleteForeverIcon,
         iconLabel: t('Remove User'),
@@ -449,7 +478,7 @@ export const ClinicAdmin = (props) => {
     render: renderRole,
   });
 
-  if (isClinicAdmin) {
+  if (((isClinicAdmin()))) {
     columns.push(
       {
         title: '',
@@ -478,39 +507,29 @@ export const ClinicAdmin = (props) => {
   return (
     <>
       <ClinicProfile api={api} trackMetric={trackMetric} />
+      <Box mb={8}>
+        <Box variant="containers.largeBordered" mb={4}>
+          <Flex
+            px={4}
+            py={2}
+            sx={{ borderBottom: baseTheme.borders.default }}
+            alignItems={'center'}
+          >
+            <Title flexGrow={1}>
+              {t('Clinic Members')}
+            </Title>
 
-      <Box variant="containers.largeBordered">
-        <Flex
-          sx={{ borderBottom: baseTheme.borders.default }}
-          alignItems={'center'}
-        >
-          <Title p={4} flexGrow={1}>
-            {t('Clinic Members')}
-          </Title>
-
-          {isClinicAdmin && (
-            <Box>
-              <Button
-                mr={4}
-                variant="primary"
-                onClick={handleInviteNewMember}
-              >
-                {t('Invite New Clinic Team Member')}
-              </Button>
-            </Box>
-          )}
-        </Flex>
-
-        <Box mx={4}>
-          <Flex>
             <TextInput
               themeProps={{
+                width: 'auto',
                 minWidth: '250px',
-                my: 4,
-                flexBasis: 1/2,
               }}
+              fontSize="12px"
+              value={searchText}
               placeholder={t('Search by Name')}
-              icon={SearchIcon}
+              icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+              iconLabel={t('Search')}
+              onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
               id="search-members"
               name="search-members"
               onChange={handleSearchChange}
@@ -518,25 +537,56 @@ export const ClinicAdmin = (props) => {
             />
           </Flex>
 
-          <Table
-            id="clinicianTable"
-            label={t('Clinician Table')}
-            columns={columns}
-            data={clinicianArray}
-            orderBy="fullNameOrderable"
-            order="asc"
-            rowHover={false}
-            rowsPerPage={8}
-            searchText={searchText}
-            pagination={clinicianArray.length > 8}
-            style={{ fontSize: '14px' }}
-          />
+          <Box mx={4}>
+            <Box my={4}>
+              {isClinicAdmin() && (
+                <Button
+                  mr={4}
+                  variant="primary"
+                  onClick={handleInviteNewMember}
+                >
+                  {t('Invite New Clinic Team Member')}
+                </Button>
+              )}
+            </Box>
+
+            <Table
+              id="clinicianTable"
+              label={t('Clinician Table')}
+              columns={columns}
+              data={clinicianArray}
+              orderBy="fullNameOrderable"
+              order="asc"
+              rowHover={false}
+              rowsPerPage={rowsPerPage}
+              searchText={searchText}
+              page={page}
+              onFilter={handleTableFilter}
+              fontSize={1}
+            />
+          </Box>
         </Box>
+
+        {clinicianArray.length > rowsPerPage && (
+          <Box variant="containers.large" bg="transparent" mb={0}>
+            <Pagination
+              px="5%"
+              width="100%"
+              id="clinic-clinicians-pagination"
+              count={pageCount}
+              page={page}
+              disabled={pageCount < 2}
+              onChange={handlePageChange}
+              showFirstButton={false}
+              showLastButton={false}
+            />
+          </Box>
+        )}
       </Box>
 
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={closeDeleteDialog}
         TransitionProps={{onExited:clearSelectedUser}}
@@ -570,7 +620,7 @@ export const ClinicAdmin = (props) => {
 
       <Dialog
         id="resendInvite"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showResendInviteDialog && !!pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.created}
         onClose={closeResendInviteDialog}
         TransitionProps={{onExited:clearSelectedInvite}}
@@ -609,7 +659,7 @@ export const ClinicAdmin = (props) => {
 
       <Dialog
         id="revokeInvite"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showRevokeInviteDialog}
         onClose={closeRevokeInviteDialog}
         TransitionProps={{onExited:clearSelectedInvite}}

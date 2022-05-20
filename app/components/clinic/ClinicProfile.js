@@ -11,6 +11,7 @@ import { useFormik } from 'formik';
 import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
+import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
@@ -122,25 +123,6 @@ export const ClinicProfile = (props) => {
       mb={4}
       {...boxProps}
     >
-      <Flex
-        id="clinic-profile-header"
-        sx={{ borderBottom: baseTheme.borders.default }}
-        alignItems={'center'}
-      >
-        <Title p={4} pr={4} flexGrow={1}>
-          {t('Clinic Profile')}
-        </Title>
-        <Box>
-          <Button
-            mr={4}
-            variant="textPrimary"
-            onClick={handleNavigationAction}
-          >
-            {navigationAction.label}
-          </Button>
-        </Box>
-      </Flex>
-
       {!editing && (
         <Flex id="clinicProfileDetails" px={4} py={3} justifyContent="space-between" alignItems="center">
           <Flex>
@@ -177,7 +159,7 @@ export const ClinicProfile = (props) => {
                   buttonTitle={t('Copy Share Code')}
                   buttonText={(
                     <Icon
-                      variant="button"
+                      variant="static"
                       icon={FileCopyRoundedIcon}
                       label={t('Copy Share Code')}
                       title={t('Copy Share Code')}
@@ -193,55 +175,85 @@ export const ClinicProfile = (props) => {
             </Box>
           </Flex>
 
-          {isClinicAdmin && (
+          <Flex alignItems="center">
+            {isClinicAdmin && (
+              <Box>
+                <Button
+                  id="profileEditButton"
+                  variant="textSecondary"
+                  onClick={openClinicEdit}
+                  icon={EditRoundedIcon}
+                  iconPosition='left'
+                  iconFontSize="1.25em"
+                  iconLabel={t('Edit Clinic Profile')}
+                  fontSize={1}
+                >
+                  {t('Edit Clinic Profile')}
+                </Button>
+              </Box>
+            )}
+
             <Box>
               <Button
-                id="profileEditButton"
+                ml={3}
+                id="profileNavigationButton"
                 variant="textSecondary"
-                onClick={openClinicEdit}
-                icon={EditRoundedIcon}
+                onClick={handleNavigationAction}
+                icon={GroupRoundedIcon}
                 iconPosition='left'
-                fontSize={1}
+                iconLabel={navigationAction.label}
+                iconFontSize="1.25em"
               >
-                {t('Edit Clinic Profile')}
+                {navigationAction.label}
               </Button>
             </Box>
-          )}
+          </Flex>
         </Flex>
       )}
 
       {editing && (
-        <Box
-          as="form"
-          id="clinic-profile-update"
-          onSubmit={handleSubmit}
-        >
-          <ClinicProfileFields p={4} formikContext={formikContext} />
-
+        <>
           <Flex
-            justifyContent={['center', 'flex-end']}
-            id="clinic-profile-footer"
-            sx={{ borderTop: baseTheme.borders.default }}
+            id="clinic-profile-header"
+            sx={{ borderBottom: baseTheme.borders.default }}
             alignItems={'center'}
-            py={4}
           >
-            <Button id="cancel" variant="secondary" onClick={closeClinicEdit}>
-              {t('Cancel')}
-            </Button>
-
-            <Button
-              id="submit"
-              type="submit"
-              variant="primary"
-              ml={2}
-              mr={[0, 4]}
-              processing={isSubmitting}
-              disabled={!fieldsAreValid(keys(clinicValuesFromClinic()), validationSchema, values)}
-            >
-              {t('Save Profile')}
-            </Button>
+            <Title p={4} pr={4} flexGrow={1}>
+              {t('Clinic Profile')}
+            </Title>
           </Flex>
-        </Box>
+          <Box
+            as="form"
+            id="clinic-profile-update"
+            onSubmit={handleSubmit}
+          >
+            <ClinicProfileFields p={4} formikContext={formikContext} />
+
+            <Flex
+              justifyContent={['center', 'flex-end']}
+              id="clinic-profile-footer"
+              sx={{ borderTop: baseTheme.borders.default }}
+              alignItems={'center'}
+              py={4}
+            >
+              <Button id="cancel" variant="secondary" onClick={closeClinicEdit}>
+                {t('Cancel')}
+              </Button>
+
+              <Button
+                id="submit"
+                type="submit"
+                variant="primary"
+                ml={2}
+                mr={[0, 4]}
+                processing={isSubmitting}
+                disabled={!fieldsAreValid(keys(clinicValuesFromClinic()), validationSchema, values)}
+              >
+                {t('Save Profile')}
+              </Button>
+            </Flex>
+          </Box>
+        </>
       )}
     </Box>
   );

@@ -69,7 +69,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     border: 0,
     borderRadius: 0,
     color: colors.text.primary,
-    fontSize: fontSizes[1],
+    fontSize: 'inherit',
   };
 
   const checkboxes = {

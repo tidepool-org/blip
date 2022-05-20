@@ -120,6 +120,7 @@ export const ERR_ACCEPTING_CLINICIAN_INVITE = t('Something went wrong while acce
 export const ERR_DISMISSING_CLINICIAN_INVITE = t('Something went wrong while dismissing clinician invite.');
 export const ERR_FETCHING_CLINICS_FOR_CLINICIAN = t('Something went wrong while getting clinics for clinician.');
 export const ERR_TRIGGERING_INITIAL_CLINIC_MIGRATION = t('Something went wrong while migrating this clinic.');
+export const ERR_SENDING_PATIENT_UPLOAD_REMINDER = t('Something went wrong while sending an upload reminder to the patient.');
 
 export const ERR_BIRTHDAY_INVALID = t('Birthday is invalid.');
 export const ERR_BIRTHDAY_MISSING = t('Birthday is required.');

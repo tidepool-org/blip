@@ -26,6 +26,13 @@ export const colors = {
     primaryDisabled: '#A5ADBA',
     primarySubdued: colorPalette.primary.blueGreyMedium,
   },
+  bg: {
+    veryLow: '#E9695E',
+    low: '#F19181',
+    target: '#8DD0A9',
+    high: '#B69CE2',
+    veryHigh: '#856ACF',
+  },
   border: {
     focus: '#4C9AFF',
     default: colorPalette.extended.grays[1],

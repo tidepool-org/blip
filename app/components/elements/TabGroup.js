@@ -15,8 +15,8 @@ const StyledTab = styled(Tab)`
   min-height: auto;
   min-width: auto;
   text-transform: none;
-  padding: ${space[3]}px ${space[4]}px;
-  opacity: 0.85;
+  padding: 12px ${space[4]}px;
+  opacity: 1;
   color: ${colors.tab.primary};
 
   &.Mui-selected {
