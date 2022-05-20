@@ -2563,3 +2563,25 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
     });
   };
 }
+
+/**
+ * Send an upload reminder email to a clinic patient
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+ export function sendPatientUploadReminder(api, clinicId, patientId) {
+  return (dispatch) => {
+    dispatch(sync.sendPatientUploadReminderRequest());
+
+    api.clinics.sendPatientUploadReminder(clinicId, patientId, (err, result) => {
+      if (err) {
+        dispatch(sync.sendPatientUploadReminderFailure(
+          createActionError(ErrorMessages.ERR_SENDING_PATIENT_UPLOAD_REMINDER, err), err
+        ));
+      } else {
+        dispatch(sync.sendPatientUploadReminderSuccess(clinicId, patientId, _.get(result, 'lastUploadReminderTime', moment().toISOString())));
+      }
+    });
+  };
+}

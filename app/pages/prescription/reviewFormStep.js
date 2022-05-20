@@ -474,7 +474,7 @@ export const TherapySettings = props => {
             buttonTitle={t('Copy therapy settings order as text')}
             buttonText={(
               <Icon
-                variant="button"
+                variant="static"
                 icon={FileCopyRoundedIcon}
                 label={t('Copy therapy settings order as text')}
                 title={t('Copy therapy settings order as text')}

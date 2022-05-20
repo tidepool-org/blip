@@ -151,7 +151,7 @@ describe('ClinicianPatients', () => {
         </Provider>
       );
 
-      wrapper.find('button#patients-view-toggle').simulate('click');
+      wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
       defaultProps.trackMetric.resetHistory();
     });
 
@@ -164,7 +164,7 @@ describe('ClinicianPatients', () => {
 
     it('should open a modal for adding a new patient', done => {
       const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add a New Patient');
+      expect(addButton.text()).to.equal('Add New Patient');
 
       const dialog = () => wrapper.find('Dialog#addPatient');
 
@@ -283,26 +283,26 @@ describe('ClinicianPatients', () => {
 
     describe('showNames', function () {
       it('should show a row of data for each person', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         // 2 people plus one row for the header
         expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
       });
 
       it('should trigger a call to trackMetric', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(defaultProps.trackMetric.calledWith('Clicked Show All')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
       it('should not have instructions displayed', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
       });
     });
 
     context('show names clicked', () => {
       beforeEach(() => {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         defaultProps.trackMetric.resetHistory();
       });
 
@@ -486,7 +486,7 @@ describe('ClinicianPatients', () => {
         store.clearActions();
 
         confirmRemoveButton.simulate('click');
-        console.log('store.getActions()', store.getActions());
+
         expect(store.getActions()).to.eql([
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
         ]);

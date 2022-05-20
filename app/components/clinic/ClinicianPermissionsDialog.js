@@ -51,7 +51,7 @@ const ClinicianPermissionsDialog = props => {
   return (
     <Dialog
       id="permissionsDialog"
-      aria-labelledBy="dialog-title"
+      aria-labelledby="dialog-title"
       open={open}
       onClose={onClose}
     >
