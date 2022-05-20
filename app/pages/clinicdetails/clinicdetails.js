@@ -475,7 +475,7 @@ export const ClinicDetails = (props) => {
           </Formik>
           <Dialog
             id="migrateClinic"
-            aria-labelledBy="dialog-title"
+            aria-labelledby="dialog-title"
             open={showMigrationDialog}
             onClose={logoutPending ? noop : closeMigrationConfirmationModal}
           >
@@ -507,7 +507,7 @@ export const ClinicDetails = (props) => {
 
           <Dialog
             id="declineInvite"
-            aria-labelledBy="dialog-title"
+            aria-labelledby="dialog-title"
             open={showDeclineDialog}
             onClose={() => setShowDeclineDialog(false)}
           >

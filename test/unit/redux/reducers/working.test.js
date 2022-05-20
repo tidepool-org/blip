@@ -7235,4 +7235,102 @@ describe('dataWorkerQueryData', () => {
       });
     });
   });
+
+  describe('sendPatientUploadReminder', () => {
+    describe('request', () => {
+      it('should set sendingPatientUploadReminder.completed to null', () => {
+        expect(initialState.sendingPatientUploadReminder.completed).to.be.null;
+
+        let requestAction = actions.sync.sendPatientUploadReminderRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.sendingPatientUploadReminder.completed).to.be.null;
+
+        let successAction = actions.sync.sendPatientUploadReminderSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.sendingPatientUploadReminder.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.sendingPatientUploadReminder.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingPatientUploadReminder.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.sendPatientUploadReminderRequest();
+
+        expect(initialStateForTest.sendingPatientUploadReminder.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.sendingPatientUploadReminder.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set sendingPatientUploadReminder.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.sendingPatientUploadReminder.completed).to.be.null;
+
+        let failureAction = actions.sync.sendPatientUploadReminderFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.sendingPatientUploadReminder.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingPatientUploadReminder.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          sendingPatientUploadReminder: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.sendPatientUploadReminderFailure(error);
+
+        expect(initialStateForTest.sendingPatientUploadReminder.inProgress).to.be.true;
+        expect(initialStateForTest.sendingPatientUploadReminder.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.sendingPatientUploadReminder.inProgress).to.be.false;
+        expect(state.sendingPatientUploadReminder.notification.type).to.equal('error');
+        expect(state.sendingPatientUploadReminder.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set sendingPatientUploadReminder.completed to be true', () => {
+        expect(initialState.sendingPatientUploadReminder.completed).to.be.null;
+
+        let successAction = actions.sync.sendPatientUploadReminderSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.sendingPatientUploadReminder.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingPatientUploadReminder.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          sendingPatientUploadReminder: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.sendPatientUploadReminderSuccess('strava', 'blah');
+
+        expect(initialStateForTest.sendingPatientUploadReminder.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.sendingPatientUploadReminder.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
 });

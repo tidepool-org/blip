@@ -6,8 +6,9 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
 
     '.MuiTableCell-head': {
       paddingY: 1,
-      borderTop: borders.default,
-      borderBottom: 'none',
+      border: 'none',
+      bg: 'lightestGrey',
+      borderRadius: 'default',
     },
 
     '&.MuiTable-stickyHeader': {
@@ -31,8 +32,8 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
         borderTop: borders.default,
       },
 
-      '&:last-child .MuiTableCell-body': {
-        borderBottom: borders.default,
+      '&:first-child .MuiTableCell-body': {
+        borderTop: 'none',
       },
 
       '&.MuiTableRow-hover:hover': {
@@ -48,6 +49,10 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
         },
       },
     },
+
+    '.MuiTableSortLabel-icon': {
+      fontSize: 1,
+    },
   };
 
   return {
@@ -58,7 +63,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
       ...defaultStyles,
 
       '.MuiTableBody-root .MuiTableRow-root .MuiTableCell-body': {
-        paddingY: 2,
+        paddingY: '10px',
       },
     },
   };

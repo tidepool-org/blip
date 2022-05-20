@@ -4,6 +4,7 @@ export default ({ borders, colors, radii, space }) => {
     bg: colors.white,
     width: ['100%', '85%'],
     mb: `${space[6]}px`,
+    position: 'relative',
   };
 
   const large = {
