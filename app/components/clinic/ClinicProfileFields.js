@@ -16,7 +16,7 @@ import TextInput from '../../components/elements/TextInput';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
 import { addEmptyOption, getCommonFormikFieldProps } from '../../core/forms';
-import { clinicSizes, clinicTypes } from '../../core/clinicUtils';
+import { clinicSizes, clinicTypes, preferredBgUnits } from '../../core/clinicUtils';
 import states from '../../core/validation/states';
 
 export const ClinicProfileFields = (props) => {
@@ -173,6 +173,18 @@ export const ClinicProfileFields = (props) => {
             id="clinic-size"
             options={clinicSizes}
             {...getCommonFormikFieldProps('clinicSize', formikContext)}
+            variant="vertical"
+          />
+        </Box>
+
+        <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+          <Text as={Body2} mb={3}>
+            {t('Preferred blood glucose units')}
+          </Text>
+          <RadioGroup
+            id="preferred-bg-units"
+            options={preferredBgUnits}
+            {...getCommonFormikFieldProps('preferredBgUnits', formikContext)}
             variant="vertical"
           />
         </Box>
