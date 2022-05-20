@@ -228,7 +228,7 @@ describe('ClinicianPatients', () => {
 
     it('should prevent adding a new patient with an invalid birthday', () => {
       const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add a New Patient');
+      expect(addButton.text()).to.equal('Add New Patient');
 
       const dialog = () => wrapper.find('Dialog#addPatient');
 
