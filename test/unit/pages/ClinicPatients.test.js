@@ -49,6 +49,7 @@ describe('ClinicPatients', () => {
   });
 
   beforeEach(() => {
+    delete localStorage.activePatientFilters;
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.getPatientsForClinic.resetHistory();
     defaultProps.api.clinics.deletePatientFromClinic.resetHistory();
