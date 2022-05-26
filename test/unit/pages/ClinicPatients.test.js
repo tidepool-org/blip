@@ -20,6 +20,7 @@ import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 /* global beforeEach */
 /* global before */
 /* global after */
+/* global afterEach */
 
 const expect = chai.expect;
 const assert = chai.assert;
@@ -49,6 +50,7 @@ describe('ClinicPatients', () => {
   });
 
   beforeEach(() => {
+    delete localStorage.activePatientFilters;
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.getPatientsForClinic.resetHistory();
     defaultProps.api.clinics.deletePatientFromClinic.resetHistory();
@@ -1148,6 +1150,93 @@ describe('ClinicPatients', () => {
 
           expect(timeInRangeFilterCount()).to.have.lengthOf(1);
           expect(timeInRangeFilterCount().text()).to.equal('5');
+        });
+
+        context('persisted filter state', () => {
+          beforeEach(() => {
+            store = mockStore(tier0200ClinicState);
+
+            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().returns([
+              {
+                lastUploadDate: 14,
+                timeInRange: [
+                    'percentTimeInLow',
+                    'percentTimeInHigh'
+                ],
+                meetsGlycemicTargets: false,
+              },
+              sinon.stub()
+            ]));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            defaultProps.trackMetric.resetHistory();
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useLocalStorage');
+          });
+
+          it('should set the last upload filter on load based on the stored filters', () => {
+            const lastUploadFilterTrigger = wrapper.find('#last-upload-filter-trigger').hostNodes();
+            expect(lastUploadFilterTrigger.text()).to.equal('Last 14 days');
+          });
+
+          it('should set the time in range filters on load based on the stored filters', () => {
+            const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
+
+            // Should show 2 active time in range filters
+            const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
+            expect(timeInRangeFilterCount()).to.have.lengthOf(1);
+            expect(timeInRangeFilterCount().text()).to.equal('2');
+
+            const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+
+            // Open time in rangefilters dialog
+            timeInRangeFilterTrigger.simulate('click');
+            wrapper.update();
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.true;
+
+            // notMeetsCriteriaButton should be selected due to persisted filter state
+            const notMeetsCriteriaButton = () => dialog().find('#not-meets-glycemic-targets-filter').hostNodes();
+            expect(notMeetsCriteriaButton().is('.selected')).to.be.true;
+
+            // Ensure filter options in pre-set state
+            const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+            expect(veryLowFilter().find('input').props().checked).to.be.false;
+
+            const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+            expect(lowFilter().find('input').props().checked).to.be.true;
+
+            const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
+            expect(targetFilter().find('input').props().checked).to.be.false;
+
+            const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+            expect(highFilter().find('input').props().checked).to.be.true;
+
+            const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
+            expect(veryHighFilter().find('input').props().checked).to.be.false;
+          });
+
+          it('should fetch the initial patient based on the stored filters', () => {
+            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
+              limit: 10,
+              offset: 0,
+              sort: '+fullName',
+              'summary.lastUploadDateFrom': sinon.match.string,
+              'summary.lastUploadDateTo': sinon.match.string,
+              'summary.percentTimeInHigh': '>=0.25',
+              'summary.percentTimeInLow': '>=0.04',
+            }));
+          });
         });
 
         context('mmol/L preferredBgUnits', () => {

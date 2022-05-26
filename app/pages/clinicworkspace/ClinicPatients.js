@@ -102,7 +102,7 @@ export const ClinicPatients = (props) => {
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0200');
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
-  const [patientFetchOptions, setPatientFetchOptions] = useLocalStorage('patientFetchOptions', {});
+  const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
 
   const defaultFilterState = {
@@ -111,15 +111,20 @@ export const ClinicPatients = (props) => {
     meetsGlycemicTargets: true,
   };
 
+  const defaultPatientFetchOptions = {
+    search: '',
+    offset: 0,
+    sort: '+fullName',
+  };
+
   const bgPrefs = () => ({
     bgUnits: clinicBgUnits,
     bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
   });
 
   const bgLabels = () => generateBgRangeLabels(bgPrefs(), { condensed: true });
-  const [activeFilters, setActiveFilters] = useState(defaultFilterState);
-  const [pendingFilters, setPendingFilters] = useState(defaultFilterState);
-
+  const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState);
+  const [pendingFilters, setPendingFilters] = useState(activeFilters);
   const lastUploadDateFilterOptions = [
     { value: 1, label: t('Today') },
     { value: 2, label: t('Last 2 days') },
@@ -250,9 +255,7 @@ export const ClinicPatients = (props) => {
   useEffect(() => {
     setShowSummaryData(clinic?.tier >= 'tier0200');
     setPatientFetchOptions({
-      search: '',
-      offset: 0,
-      sort: '+fullName',
+      ...defaultPatientFetchOptions,
       limit: clinic?.tier >= 'tier0200' ? 10 : 8,
     });
   }, [clinic?.id]);
@@ -268,7 +271,6 @@ export const ClinicPatients = (props) => {
       && clinic?.id
       && !fetchingPatientsForClinic.inProgress
       && !isEmpty(patientFetchOptions)
-      && !isFirstRender
     ) {
       const fetchOptions = { ...patientFetchOptions };
       if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
@@ -277,9 +279,11 @@ export const ClinicPatients = (props) => {
   }, [loggedInUserId, patientFetchOptions]);
 
   useEffect(() => {
-    const filterOptions = { offset: 0 }
-
-    if (isFirstRender) return;
+    const filterOptions = {
+      offset: 0,
+      sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
+      limit: clinic?.tier >= 'tier0200' ? 10 : 8,
+    }
 
     if (activeFilters.lastUploadDate) {
       filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
@@ -312,7 +316,7 @@ export const ClinicPatients = (props) => {
     };
 
     setPatientFetchOptions(newPatientFetchOptions);
-  }, [activeFilters]);
+  }, [activeFilters, clinic?.tier]);
 
   function formatDecimal(val, precision) {
     if (precision === null || precision === undefined) {
@@ -993,8 +997,9 @@ export const ClinicPatients = (props) => {
   }
 
   function handleSortChange(newOrderBy) {
-    const currentOrder = patientFetchOptions.sort[0];
-    const currentOrderBy = patientFetchOptions.sort.substring(1);
+    const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
+    const currentOrder = sort[0];
+    const currentOrderBy = sort.substring(1);
     const newOrder = newOrderBy === currentOrderBy && currentOrder === '+' ? '-' : '+';
 
     setPatientFetchOptions({
@@ -1354,6 +1359,7 @@ export const ClinicPatients = (props) => {
 
     const pageCount = Math.ceil(clinic.patientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
+    const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
     return (
       <Box sx={{ position: 'relative' }}>
@@ -1366,8 +1372,8 @@ export const ClinicPatients = (props) => {
           data={values(clinic?.patients)}
           style={{fontSize: showSummaryData ? '12px' : '14px'}}
           onSort={handleSortChange}
-          order={patientFetchOptions.sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
-          orderBy={patientFetchOptions.sort.substring(1)}
+          order={sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
+          orderBy={sort.substring(1)}
         />
 
         {pageCount > 1 && (
