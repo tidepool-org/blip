@@ -1515,8 +1515,6 @@ export const PatientDataClass = createReactClass({
           source: nextProps.clinic?.preferredBgUnits ? 'preferred clinic units' : 'query params',
         };
 
-        console.log('bgUnitsOverride', bgUnitsOverride);
-
         bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
         if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
