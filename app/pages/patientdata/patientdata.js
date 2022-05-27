@@ -706,12 +706,17 @@ export const PatientDataClass = createReactClass({
     const patientSettings = _.get(this.props, 'patient.settings', {});
     let bgPrefs = this.state.bgPrefs || {};
 
+    const bgUnitsOverride = {
+      units: this.props.clinic?.preferredBgUnits || this.props.queryParams?.units,
+      source: this.props.clinic?.preferredBgUnits ? 'preferred clinic units' : 'query params',
+    };
+
     if (!bgPrefs.useDefaultRange) {
-      bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, this.props.queryParams);
+      bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, bgUnitsOverride);
       bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
       bgPrefs.useDefaultRange = true;
     } else {
-      bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
+      bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
       bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
       bgPrefs.useDefaultRange = false;
     }
@@ -1505,7 +1510,14 @@ export const PatientDataClass = createReactClass({
       // Set bgPrefs to state
       let bgPrefs = this.state.bgPrefs;
       if (!bgPrefs) {
-        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
+        const bgUnitsOverride = {
+          units: nextProps.clinic?.preferredBgUnits || nextProps.queryParams?.units,
+          source: nextProps.clinic?.preferredBgUnits ? 'preferred clinic units' : 'query params',
+        };
+
+        console.log('bgUnitsOverride', bgUnitsOverride);
+
+        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
         if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
         stateUpdates.bgPrefs = bgPrefs;
@@ -2013,6 +2025,7 @@ export function mapStateToProps(state, props) {
     pdf: state.blip.pdf,
     data: state.blip.data,
     selectedClinicId: state.blip.selectedClinicId,
+    clinic: state.blip.clinics?.[state.blip.selectedClinicId],
   };
 }
 
