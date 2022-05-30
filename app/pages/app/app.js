@@ -562,22 +562,28 @@ export class AppComponent extends React.Component {
 
     // get environment from first subdomain on API_HOST, if present
     var firstSubdomain = /(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/i
-    var environment = this.props.context.config.API_HOST.match(firstSubdomain)?.[1];
+    var environment = this.props.context.config.API_HOST?.match(firstSubdomain)?.[1];
 
-    // get hostname from first segment of window hostname
-    var hostname = _.get(window, 'location.hostname', '').split('.')[0];
+    // don't append hostname or environment for production
+    if (environment !== 'app') {
+      // get hostname from first segment of window hostname
+      var hostname = _.get(window, 'location.hostname', '').split('.')[0];
 
-    // only append hostname if different than environment (i.e. localhost connecting to qa2)
-    if (hostname && hostname !== environment) version.push(hostname);
+      // only append hostname if different than environment (i.e. localhost connecting to qa2)
+      if (hostname && hostname !== environment) version.push(hostname);
 
-    // don't append environment for production
-    if (environment !== 'app') version.push(environment);
+      version.push(environment);
+    }
 
-    if (version) {
+    // strip out any undefined values
+    version = _.compact(version);
+
+    if (version.length) {
       return (
         <Version version={version.join('-')} />
       );
     }
+
     return null;
   }
 
