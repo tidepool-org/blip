@@ -549,6 +549,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
@@ -588,6 +589,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           patient: {
             get: sinon.stub().callsArgWith(1, null, patient),
@@ -631,6 +633,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           patient: {
             get: sinon.stub().callsArgWith(1, null, patient),
@@ -674,6 +677,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           patient: {
             get: sinon.stub().callsArgWith(1, null, patient),
@@ -741,6 +745,7 @@ describe('Actions', () => {
                 login: sinon.stub().callsArgWith(2, null),
                 get: sinon.stub().callsArgWith(0, null, user),
                 getAssociatedAccounts: sinon.stub().callsArgWith(0, patientsError, { patients }),
+                logout: sinon.stub(),
               },
               patient: {
                 get: sinon.stub().callsArgWith(1, null, patient)
@@ -1152,6 +1157,21 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 400, body: 'Error!'}}},
+              {
+                type: 'LOGOUT_REQUEST',
+              },
+              {
+                meta: {
+                  WebWorker: true,
+                  origin: 'http://localhost:9876',
+                  patientId: null,
+                  worker: 'data',
+                },
+                payload: {
+                  predicate: undefined,
+                },
+                type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+              },
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1189,6 +1209,21 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 400, body: 'Error!'}}},
+              {
+                type: 'LOGOUT_REQUEST',
+              },
+              {
+                meta: {
+                  WebWorker: true,
+                  origin: 'http://localhost:9876',
+                  patientId: null,
+                  worker: 'data',
+                },
+                payload: {
+                  predicate: undefined,
+                },
+                type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+              },
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1227,6 +1262,21 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_FAILURE', error: err, meta: { apiError: {status: 400, body: 'Error!'}}},
               { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 400, body: 'Error!'}}},
+              {
+                type: 'LOGOUT_REQUEST',
+              },
+              {
+                meta: {
+                  WebWorker: true,
+                  origin: 'http://localhost:9876',
+                  patientId: null,
+                  worker: 'data',
+                },
+                payload: {
+                  predicate: undefined,
+                },
+                type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+              },
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1358,6 +1408,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}),
+            logout: sinon.stub(),
           },
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
@@ -1372,7 +1423,22 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
-          { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } },
+          {
+            type: 'LOGOUT_REQUEST',
+          },
+          {
+            meta: {
+              WebWorker: true,
+              origin: 'http://localhost:9876',
+              patientId: null,
+              worker: 'data',
+            },
+            payload: {
+              predicate: undefined,
+            },
+            type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -1401,6 +1467,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
@@ -1417,7 +1484,22 @@ describe('Actions', () => {
           { type: 'FETCH_USER_SUCCESS', payload: { user: user }},
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_FAILURE', error: err, payload: { link: null }, meta: { apiError: {status: 500, body: 'Error!'} } },
-          { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } },
+          {
+            type: 'LOGOUT_REQUEST',
+          },
+          {
+            meta: {
+              WebWorker: true,
+              origin: 'http://localhost:9876',
+              patientId: null,
+              worker: 'data',
+            },
+            payload: {
+              predicate: undefined,
+            },
+            type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -7253,5 +7335,62 @@ describe('Actions', () => {
       });
     });
 
+    describe('sendPatientUploadReminder', () => {
+      it('should trigger SEND_PATIENT_UPLOAD_REMINDER_SUCCESS and it should call clinics.triggerInitialClinicMigration once for a successful request', () => {
+        const clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        const lastUploadReminderTime = '2022-10-10T00:00:000Z';
+
+        let api = {
+          clinics: {
+            sendPatientUploadReminder: sinon.stub().callsArgWith(2, null, { id: patientId, lastUploadReminderTime }),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'SEND_PATIENT_UPLOAD_REMINDER_REQUEST' },
+          { type: 'SEND_PATIENT_UPLOAD_REMINDER_SUCCESS', payload: { clinicId, patientId, lastUploadReminderTime } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendPatientUploadReminder(api, clinicId, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.sendPatientUploadReminder.callCount).to.equal(1);
+      });
+
+      it('should trigger SEND_PATIENT_UPLOAD_REMINDER_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        let api = {
+          clinics: {
+            sendPatientUploadReminder: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_SENDING_PATIENT_UPLOAD_REMINDER);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'SEND_PATIENT_UPLOAD_REMINDER_REQUEST' },
+          { type: 'SEND_PATIENT_UPLOAD_REMINDER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendPatientUploadReminder(api, clinicId, patientId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_PATIENT_UPLOAD_REMINDER });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.sendPatientUploadReminder.callCount).to.equal(1);
+      });
+    });
   });
 });

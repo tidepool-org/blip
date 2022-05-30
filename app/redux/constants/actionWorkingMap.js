@@ -379,6 +379,11 @@ export default (type) => {
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
       return 'triggeringInitialClinicMigration';
 
+    case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
+      return 'sendingPatientUploadReminder';
+
     default:
       return null;
   }

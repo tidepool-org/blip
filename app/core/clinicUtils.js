@@ -11,6 +11,7 @@ import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { phoneRegex } from '../pages/prescription/prescriptionFormConstants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
 
 const t = i18next.t.bind(i18next);
 
@@ -61,6 +62,11 @@ export const clinicSizes = [
   { value: '1000+', label: t('1000+') },
 ];
 
+export const preferredBgUnits = [
+  { value: MGDL_UNITS, label: MGDL_UNITS },
+  { value: MMOLL_UNITS, label: MMOLL_UNITS },
+];
+
 export const clinicValuesFromClinic = (clinic) => ({
   name: get(clinic, 'name', ''),
   address: get(clinic, 'address', ''),
@@ -76,6 +82,7 @@ export const clinicValuesFromClinic = (clinic) => ({
   ],
   clinicType: get(clinic, 'clinicType', ''),
   clinicSize: get(clinic, 'clinicSize', ''),
+  preferredBgUnits: get(clinic, 'preferredBgUnits', ''),
   website: get(clinic, 'website', ''),
 });
 
@@ -118,6 +125,10 @@ export const clinicSchema = yup.object().shape({
     .string()
     .oneOf(map(clinicSizes, 'value'))
     .required(t('Please select an organization size')),
+  preferredBgUnits: yup
+    .string()
+    .oneOf(map(preferredBgUnits, 'value'))
+    .required(t('Please select your preferred BG units')),
   website: yup
     .string()
     .url(({ value }) => /^https?:\/\//.test(value)
@@ -130,6 +141,10 @@ export const patientSchema = yup.object().shape({
   id: yup.string(),
   fullName: yup.string().required(t('Please enter the patient\'s full name')),
   birthDate: yup.date()
+    .transform((value, originalValue) => {
+      value = moment(originalValue, dateFormat, true);
+      return value.isValid() ? value.toDate() : new Date('');
+    })
     .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
     .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
     .required(t('Patient\'s birthday is required')),

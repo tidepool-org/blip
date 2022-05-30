@@ -72,11 +72,13 @@ export const NavigationMenu = props => {
     label: t('Logout'),
   };
 
-  const [menuOptions, setMenuOptions] = useState([
+  const defaultMenuOptions = [
     privateWorkspaceOption,
     accountSettingsOption,
     logoutOption,
-  ]);
+  ];
+
+  const [menuOptions, setMenuOptions] = useState(defaultMenuOptions);
 
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
@@ -98,6 +100,8 @@ export const NavigationMenu = props => {
       ];
 
       setMenuOptions(options);
+    } else {
+      setMenuOptions(defaultMenuOptions)
     }
   }, [clinics, pendingReceivedClinicianInvites, isClinicProfileFormPath]);
 

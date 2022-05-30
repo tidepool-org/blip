@@ -191,7 +191,7 @@ export let Patients = translate()(class extends React.Component {
         <Box
           variant="containers.largeBordered"
           px={4}
-          pb={6}
+          mb={9}
           width={['100%', '100%']}
         >
           <ClinicianPatients {...this.props} />

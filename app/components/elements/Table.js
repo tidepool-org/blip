@@ -99,14 +99,16 @@ export const Table = props => {
     searchText,
     onSort,
     variant,
+    orderBy: orderByProp,
     pagination,
     paginationProps,
     ...tableProps
   } = props;
 
   const [order, setOrder] = useState(props.order || 'asc');
-  const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
-  const [page, setPage] = React.useState(1);
+  const [orderBy, setOrderBy] = useState(orderByProp || columns[0].field);
+
+  const [page, setPage] = React.useState(props.page);
 
   const handleRequestSort = property => {
     const isAsc = orderBy === property && order === 'asc';
@@ -148,11 +150,15 @@ export const Table = props => {
 
   useEffect(() => {
     setOrder(props.order);
-    setOrderBy(props.orderBy);
-  }, [props.order, props.orderBy]);
+    setOrderBy(orderByProp);
+  }, [props.order, orderByProp]);
+
+  useEffect(() => {
+    setPage(props.page);
+  }, [props.page]);
 
   return (
-    <TableContainer>
+    <Box as={TableContainer}>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
         <TableHead>
           <TableRow>
@@ -162,8 +168,8 @@ export const Table = props => {
 
               return (
                 <TableCell
-                  id={`${id}-header-${col.field}`}
-                  key={`${id}-header-${col.field}`}
+                  id={`${id}-header-${col.field?.replace('.', '-')}`}
+                  key={`${id}-header-${col.field?.replace('.', '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
                 >
@@ -171,10 +177,10 @@ export const Table = props => {
                     className="table-header-inner-cell"
                     as={InnerCell}
                     active={orderBy === colSortBy}
-                    direction={orderBy.split('.')[0] === colSortBy ? order : 'asc'}
+                    direction={orderBy === colSortBy ? order : 'asc'}
                     onClick={col.sortable ? createSortHandler(colSortBy) : noop}
                   >
-                    {col.title}
+                    {col.titleComponent ? <col.titleComponent /> : col.title}
                   </Box>
                 </TableCell>
               );
@@ -220,7 +226,7 @@ export const Table = props => {
         my={3}
         {...paginationProps}
       />}
-    </TableContainer>
+    </Box>
   );
 };
 

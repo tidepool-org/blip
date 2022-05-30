@@ -29,6 +29,7 @@ import {
 
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Pill from '../../components/elements/Pill';
 
@@ -51,6 +52,8 @@ export const AccessManagement = (props) => {
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
   const [sharedAccounts, setSharedAccounts] = useState([]);
@@ -58,6 +61,7 @@ export const AccessManagement = (props) => {
   const [selectedSharedAccount, setSelectedSharedAccount] = useState(null);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [popupState, setPopupState] = useState(null);
+  const rowsPerPage = 8;
 
   useEffect(() => {
     if (trackMetric) {
@@ -309,6 +313,10 @@ export const AccessManagement = (props) => {
     }
   }, [selectedSharedAccount]);
 
+  useEffect(() => {
+    setPageCount(Math.ceil(sharedAccounts.length / rowsPerPage));
+  }, [sharedAccounts]);
+
   function hasClinicRole(user){
     return indexOf(get(user, 'roles', []), 'clinic') !== -1
   }
@@ -375,6 +383,14 @@ export const AccessManagement = (props) => {
       actions.async.resendInvite(api, member.key)
     );
   }
+
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  const handleTableFilter = (data) => {
+    setPageCount(Math.ceil(data.length / rowsPerPage));
+  };
 
   const renderMember = ({ email, name }) => (
     email ? (
@@ -561,67 +577,87 @@ export const AccessManagement = (props) => {
 
   return (
     <>
-      <Box variant="containers.largeBordered">
-        <Flex
-          sx={{ borderBottom: baseTheme.borders.default }}
-          alignItems={'center'}
-          flexWrap={['wrap', 'nowrap']}
-          px={[3, 4, 5, 6]}
-        >
-          <Title flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
-            {t('Access Management')}
-          </Title>
-          <Flex width={['100%', 'auto']} justifyContent='center' pb={[3, 0]}>
-            <Button
-              id="invite-member"
-              variant="primary"
-              onClick={() => {
-                dispatch(push(`/patients/${loggedInUserId}/share/member`));
-              }}
-            >
-              {t('Invite New Member')}
-            </Button>
-            {/* Clinic invite button is hidden during clinic LMR */}
-            {/* {config.CLINICS_ENABLED && (
+      <Box mb={8}>
+        <Box variant="containers.largeBordered" mb={4}>
+          <Flex
+            sx={{ borderBottom: baseTheme.borders.default }}
+            alignItems={'center'}
+            flexWrap={['wrap', 'nowrap']}
+            px={[3, 4]}
+          >
+            <Title flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
+              {t('Access Management')}
+            </Title>
+            <Flex width={['100%', 'auto']} justifyContent='center' pb={[3, 0]}>
               <Button
-                ml={3}
-                id="invite-clinic"
-                variant="secondary"
-                className="active"
+                id="invite-member"
+                variant="primary"
                 onClick={() => {
-                  dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
+                  dispatch(push(`/patients/${loggedInUserId}/share/member`));
                 }}
               >
-                {t('Invite New Clinic')}
+                {t('Invite New Member')}
               </Button>
-            )} */}
+              {/* Clinic invite button is hidden during clinic LMR */}
+              {/* {config.CLINICS_ENABLED && (
+                <Button
+                  ml={3}
+                  id="invite-clinic"
+                  variant="secondary"
+                  className="active"
+                  onClick={() => {
+                    dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
+                  }}
+                >
+                  {t('Invite New Clinic')}
+                </Button>
+              )} */}
+            </Flex>
           </Flex>
-        </Flex>
 
-        <Body2 id="member-invites-label" px={[3, 4, 5, 6]} py={[4, 5]}>{sharedAccounts.length
-          ? t('You have invited the following members to view your data:')
-          : t('You have not invited any other members to view your data.')}
-        </Body2>
+          <Body2 id="member-invites-label" px={[3, 4]} py={[4, 5]}>{sharedAccounts.length
+            ? t('You have invited the following members to view your data:')
+            : t('You have not invited any other members to view your data.')}
+          </Body2>
 
-        {!!sharedAccounts.length && (
-          <Box px={[0, 0, 5, 6] } pb={[0, 0, 7, 8]}>
-            <Table
-              id="clinicianTable"
-              label={t('Clinician Table')}
-              columns={columns}
-              data={sharedAccounts}
-              orderBy="nameOrderable"
-              order="asc"
-              rowsPerPage={10}
-              pagination={sharedAccounts.length > 10}
-              fontSize={1}
+          {!!sharedAccounts.length && (
+            <Box px={[0, 0, 4]} pb={0}>
+              <Table
+                id="clinicianTable"
+                label={t('Clinician Table')}
+                columns={columns}
+                data={sharedAccounts}
+                orderBy="nameOrderable"
+                order="asc"
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onFilter={handleTableFilter}
+                fontSize={1}
+              />
+            </Box>
+          )}
+        </Box>
+
+        {sharedAccounts.length > rowsPerPage && (
+          <Box variant="containers.large" bg="transparent" mb={0}>
+            <Pagination
+              px="5%"
+              width="100%"
+              id="access-management-pagination"
+              count={pageCount}
+              page={page}
+              disabled={pageCount < 2}
+              onChange={handlePageChange}
+              showFirstButton={false}
+              showLastButton={false}
             />
           </Box>
         )}
       </Box>
+
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
       >
@@ -651,7 +687,7 @@ export const AccessManagement = (props) => {
       </Dialog>
       <Dialog
         id="resendInvite"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showResendInviteDialog}
         onClose={() => setShowResendInviteDialog(false)}
       >
