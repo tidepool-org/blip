@@ -9,7 +9,6 @@ import moment from 'moment';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
-import Checkbox from '../../../app/components/elements/Checkbox';
 import Popover from '../../../app/components/elements/Popover';
 import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 
@@ -248,6 +247,18 @@ describe('ClinicPatients', () => {
     },
   };
 
+  const tier0200ClinicStateMmoll = {
+    blip: {
+      ...tier0200ClinicState.blip,
+      clinics: {
+        clinicID123: {
+          ...tier0200ClinicState.blip.clinics.clinicID123,
+          preferredBgUnits: 'mmol/L',
+        },
+      },
+    },
+  };
+
   const nonAdminPatientsState = {
     blip: {
       ...hasPatientsState.blip,
@@ -422,6 +433,47 @@ describe('ClinicPatients', () => {
 
         done();
       }, 0);
+    });
+
+    it('should prevent adding a new patient with an invalid birthday', () => {
+      const addButton = wrapper.find('button#add-patient');
+      expect(addButton.text()).to.equal('Add New Patient');
+
+      const dialog = () => wrapper.find('Dialog#addPatient');
+
+      expect(dialog()).to.have.length(0);
+      addButton.simulate('click');
+      wrapper.update();
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '13/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('13/21/1999');
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '123456' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('123456');
+
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
     });
   });
 
@@ -1096,6 +1148,72 @@ describe('ClinicPatients', () => {
 
           expect(timeInRangeFilterCount()).to.have.lengthOf(1);
           expect(timeInRangeFilterCount().text()).to.equal('5');
+        });
+
+        context('mmol/L preferredBgUnits', () => {
+          beforeEach(() => {
+            store = mockStore(tier0200ClinicStateMmoll);
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            defaultProps.trackMetric.resetHistory();
+          });
+
+          it('should show the bg range filters in mmol/L units', () => {
+            const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
+
+            const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+            expect(dialog()).to.have.length(0);
+
+            // Open filters dialog
+            timeInRangeFilterTrigger.simulate('click');
+            wrapper.update();
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.true;
+
+            // Ensure filter options present and in default unchecked state
+            const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+            expect(veryLowFilter()).to.have.lengthOf(1);
+            expect(veryLowFilter().text()).contains('Severe Hypoglycemia');
+            expect(veryLowFilter().text()).contains('<1% Time below Range');
+            expect(veryLowFilter().text()).contains('<3.0 mmol/L');
+            expect(veryLowFilter().find('input').props().checked).to.be.false;
+
+            const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+            expect(lowFilter()).to.have.lengthOf(1);
+            expect(lowFilter().text()).contains('Low');
+            expect(lowFilter().text()).contains('<4% Time below Range');
+            expect(lowFilter().text()).contains('3.0-3.9 mmol/L');
+            expect(lowFilter().find('input').props().checked).to.be.false;
+
+            const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
+            expect(targetFilter()).to.have.lengthOf(1);
+            expect(targetFilter().text()).contains('Normal');
+            expect(targetFilter().text()).contains('>70% Time in Range');
+            expect(targetFilter().text()).contains('3.9-10.0 mmol/L');
+            expect(targetFilter().find('input').props().checked).to.be.false;
+
+            const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+            expect(highFilter()).to.have.lengthOf(1);
+            expect(highFilter().text()).contains('High');
+            expect(highFilter().text()).contains('<25% Time above Range');
+            expect(highFilter().text()).contains('10.0-13.9 mmol/L');
+            expect(highFilter().find('input').props().checked).to.be.false;
+
+            const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
+            expect(veryHighFilter()).to.have.lengthOf(1);
+            expect(veryHighFilter().text()).contains('Severe Hyperglycemia');
+            expect(veryHighFilter().text()).contains('<5% Time above Range');
+            expect(veryHighFilter().text()).contains('>13.9 mmol/L');
+            expect(veryHighFilter().find('input').props().checked).to.be.false;
+          });
         });
 
         it('should track how many filters are active', () => {
