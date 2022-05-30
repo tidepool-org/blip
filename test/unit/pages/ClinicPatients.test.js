@@ -473,6 +473,10 @@ describe('ClinicPatients', () => {
       patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
       expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
 
+      expect(patientForm().find('input[name="attestationSubmitted"]').prop('checked')).to.be.false;
+      patientForm().find('input[name="attestationSubmitted"]').simulate('change', { persist: noop, target: { name: 'attestationSubmitted', value: true } });
+      expect(patientForm().find('input[name="attestationSubmitted"]').prop('checked')).to.be.true;
+
       expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
 
       patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
