@@ -317,7 +317,7 @@ export const ClinicPatients = (props) => {
     };
 
     setPatientFetchOptions(newPatientFetchOptions);
-  }, [activeFilters, clinic?.tier]);
+  }, [activeFilters, clinic?.id]);
 
   function formatDecimal(val, precision) {
     if (precision === null || precision === undefined) {
