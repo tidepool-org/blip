@@ -10,6 +10,7 @@ import * as actions from '../../redux/actions';
 
 import utils from '../../core/utils';
 import personUtils from '../../core/personutils';
+import config from '../../config';
 
 import * as ErrorMessages from '../../redux/constants/errorMessages';
 import * as UserMessages from '../../redux/constants/usrMessages';
@@ -557,12 +558,32 @@ export class AppComponent extends React.Component {
   }
 
   renderVersion() {
-    var version = this.props.context.config.VERSION;
-    if (version) {
+    var version = [this.props.context.config.VERSION];
+
+    // get environment from first subdomain on API_HOST, if present
+    var firstSubdomain = /(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/i
+    var environment = this.props.context.config.API_HOST?.match(firstSubdomain)?.[1];
+
+    // don't append hostname or environment for production
+    if (environment !== 'app') {
+      // get hostname from first segment of window hostname
+      var hostname = _.get(window, 'location.hostname', '').split('.')[0];
+
+      // only append hostname if different than environment (i.e. localhost connecting to qa2)
+      if (hostname && hostname !== environment) version.push(hostname);
+
+      version.push(environment);
+    }
+
+    // strip out any undefined values
+    version = _.compact(version);
+
+    if (version.length) {
       return (
-        <Version version={version} />
+        <Version version={version.join('-')} />
       );
     }
+
     return null;
   }
 
@@ -647,7 +668,7 @@ export function mapStateToProps(state) {
         userIsCurrentPatient = true;
       }
 
-      if (_.get(user, 'preferences.displayLanguageCode')) {
+      if (config.I18N_ENABLED && _.get(user, 'preferences.displayLanguageCode')) {
         i18next.changeLanguage(user.preferences.displayLanguageCode);
       }
 

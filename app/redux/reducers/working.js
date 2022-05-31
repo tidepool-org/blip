@@ -118,6 +118,7 @@ export default (state = initialWorkingState, action) => {
     case types.DISMISS_CLINICIAN_INVITE_REQUEST:
     case types.GET_CLINICS_FOR_CLINICIAN_REQUEST:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
@@ -163,6 +164,7 @@ export default (state = initialWorkingState, action) => {
           types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST,
           types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST,
           types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
+          types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
@@ -270,6 +272,7 @@ export default (state = initialWorkingState, action) => {
     case types.DISMISS_CLINICIAN_INVITE_SUCCESS:
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -420,6 +423,7 @@ export default (state = initialWorkingState, action) => {
     case types.DISMISS_CLINICIAN_INVITE_FAILURE:
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {

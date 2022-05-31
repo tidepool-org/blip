@@ -144,6 +144,19 @@ describe('personutils', () => {
       expect(result).to.be.ok;
     });
 
+    it('should return true if person has clinician role', () => {
+      var person = {
+        profile: {
+          fullName: 'Mary Smith'
+        },
+        roles: ['clinician']
+      };
+
+      var result = personUtils.isClinicianAccount(person);
+
+      expect(result).to.be.ok;
+    });
+
     it('should return false if person has no clinic role', () => {
       var person = {
         profile: {}

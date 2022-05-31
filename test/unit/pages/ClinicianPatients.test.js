@@ -18,6 +18,7 @@ import Popover from '../../../app/components/elements/Popover';
 /* global beforeEach */
 /* global before */
 /* global after */
+/* global assert */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -132,6 +133,10 @@ describe('ClinicianPatients', () => {
         patient1,
         patient2,
       },
+      membershipPermissionsInOtherCareTeams: {
+        patient1: { view: {} },
+        patient2: { custodian: {} },
+      }
     },
   });
 
@@ -146,7 +151,7 @@ describe('ClinicianPatients', () => {
         </Provider>
       );
 
-      wrapper.find('button#patients-view-toggle').simulate('click');
+      wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
       defaultProps.trackMetric.resetHistory();
     });
 
@@ -159,13 +164,14 @@ describe('ClinicianPatients', () => {
 
     it('should open a modal for adding a new patient', done => {
       const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add a New Patient');
+      expect(addButton.text()).to.equal('Add New Patient');
 
       const dialog = () => wrapper.find('Dialog#addPatient');
 
-      expect(dialog().props().open).to.be.false;
+      expect(dialog()).to.have.length(0);
       addButton.simulate('click');
       wrapper.update();
+      expect(dialog()).to.have.length(1);
       expect(dialog().props().open).to.be.true;
 
       expect(defaultProps.trackMetric.calledWith('Clinician - Add patient')).to.be.true;
@@ -219,6 +225,47 @@ describe('ClinicianPatients', () => {
         done();
       }, 0);
     });
+
+    it('should prevent adding a new patient with an invalid birthday', () => {
+      const addButton = wrapper.find('button#add-patient');
+      expect(addButton.text()).to.equal('Add New Patient');
+
+      const dialog = () => wrapper.find('Dialog#addPatient');
+
+      expect(dialog()).to.have.length(0);
+      addButton.simulate('click');
+      wrapper.update();
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinician - Add patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '13/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('13/21/1999');
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '123456' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('123456');
+
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+    });
   });
 
   context('has patients', () => {
@@ -236,26 +283,26 @@ describe('ClinicianPatients', () => {
 
     describe('showNames', function () {
       it('should show a row of data for each person', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         // 2 people plus one row for the header
         expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
       });
 
       it('should trigger a call to trackMetric', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(defaultProps.trackMetric.calledWith('Clicked Show All')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
       it('should not have instructions displayed', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
       });
     });
 
     context('show names clicked', () => {
       beforeEach(() => {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         defaultProps.trackMetric.resetHistory();
       });
 
@@ -330,6 +377,24 @@ describe('ClinicianPatients', () => {
         expect(wrapper.find(Popover).at(0).props().open).to.be.true;
       });
 
+      it('should not show the patient edit link for non-custodial patient accounts', () => {
+        const table = wrapper.find(Table);
+        expect(table).to.have.length(1);
+        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
+        const patientRow1 = table.find('tr').at(1);
+        const patientRow2 = table.find('tr').at(2);
+
+        expect(patientRow1.text()).contains('Patient One');
+        const patient1EditButton = patientRow1.find('Button[iconLabel="Edit Patient Information"]');
+        assert(!hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient1.custodian)
+        expect(patient1EditButton).to.have.length(0);
+
+        expect(patientRow2.text()).contains('Patient Two');
+        assert(hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient2.custodian)
+        const patient2EditButton = patientRow2.find('Button[iconLabel="Edit Patient Information"]');
+        expect(patient2EditButton).to.have.length(1);
+      });
+
       it('should open a modal for patient editing when edit link is clicked', done => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
@@ -338,9 +403,10 @@ describe('ClinicianPatients', () => {
 
         const dialog = () => wrapper.find('Dialog#editPatient');
 
-        expect(dialog().props().open).to.be.false;
+        expect(dialog()).to.have.length(0);
         editButton.simulate('click');
         wrapper.update();
+        expect(dialog()).to.have.length(1);
         expect(dialog().props().open).to.be.true;
 
         expect(defaultProps.trackMetric.calledWith('Clinician - Edit patient')).to.be.true;
@@ -420,7 +486,7 @@ describe('ClinicianPatients', () => {
         store.clearActions();
 
         confirmRemoveButton.simulate('click');
-        console.log('store.getActions()', store.getActions());
+
         expect(store.getActions()).to.eql([
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
         ]);

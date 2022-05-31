@@ -95,6 +95,12 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
         && !state.working.fetchingClinicsForClinician.inProgress
         && !state.working.fetchingClinicsForClinician.completed
         && !state.working.fetchingClinicsForClinician.notification
+        || (
+          // We should also run these checks for path restrictions in the event that the clinic
+          // migration was triggered, but failed. Otherwise, a user could theoretically navigate
+          // to restricted Clinic UI without completing the migration process.
+          state.working.triggeringInitialClinicMigration.completed === false
+        )
       ) {
         const fetchers = {
           clinics: cb => dispatch(actions.async.getClinicsForClinician(api, user.userid, {}, cb)),
@@ -104,18 +110,19 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
         async.parallel(async.reflectAll(fetchers), (err, results) => {
           const errors = _.mapValues(results, ({error}) => error);
           const values = _.mapValues(results, ({value}) => value);
-          const hasError = _.some(errors, err => !_.isUndefined(err));
 
-          if (hasError) return cb();
-
+          const currentPathname = routerState.location?.pathname;
           const isClinicianAccount = personUtils.isClinicianAccount(user);
           const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
           const firstEmptyOrUnmigratedClinic = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
-          const clinicUIRoutes = [
+          const unrestrictedClinicUIRoutes = [
+            routes.clinicDetails,
+            routes.clinicianDetails,
+          ];
+
+          const restrictedClinicUIRoutes = [
             '/clinic-admin',
-            '/clinic-details',
-            '/clinician-details',
             '/clinic-details',
             '/clinic-invite',
             '/clinic-workspace',
@@ -124,7 +131,17 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
             '/prescriptions',
           ];
 
-          const isClinicUIRoute = _.some(clinicUIRoutes, route => _.startsWith(routerState.location?.pathname, route));
+          const isClinicUIRoute = _.some([...unrestrictedClinicUIRoutes, ...restrictedClinicUIRoutes], route => _.startsWith(currentPathname, route));
+          const isRestrictedClinicUIRoute = _.some(restrictedClinicUIRoutes, route => _.startsWith(currentPathname, route));
+
+          if (err || errors?.clinics) {
+            // In this case, we can't reliably know whether a user even has associated clinics,
+            // let alone the migration/profile state, so we send them to the patients page if they
+            // are on any Clinic UI route, except for the clinician account details route, where
+            // missing clinic information would be irrelevant.
+            if (isClinicUIRoute && currentPathname !== routes.clinicianDetails) dispatch(push(routes.patients));
+            return cb();
+          }
 
           if (isClinicianAccount && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
             // Navigate to the appropriate page for a clinician user or team member who needs to
@@ -134,7 +151,10 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           } else if (values.invites?.length) {
             // Redirect user to address clinic invite
             dispatch(push(!hasClinicProfile ? routes.clinicDetails : routes.workspaces));
-          } else if (!isClinicianAccount && isClinicUIRoute) {
+          } else if (
+            (isClinicUIRoute && !isClinicianAccount) ||
+            (isRestrictedClinicUIRoute && !(state.clinicFlowActive || state.selectedClinicId))
+          ) {
             // Redirect non clinic members to the patients page if they access a clinic UI page
             dispatch(push(routes.patients));
           }
@@ -142,7 +162,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           cb();
         });
       } else {
-        // Clinic UI feature is off.  Callback and continue
+        // Clinic UI feature is off. Callback and continue
         cb();
       }
     }

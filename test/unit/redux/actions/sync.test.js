@@ -2673,9 +2673,11 @@ describe('Actions', () => {
 
       it('type should equal FETCH_CLINICIANS_FROM_CLINIC_FAILURE and error should equal passed error', () => {
         let error = new Error('stink :(');
-        let action = sync.fetchCliniciansFromClinicFailure(error);
+        let apiError = new Error('apierror');
+        let action = sync.fetchCliniciansFromClinicFailure(error, apiError, 'clinicId123');
         expect(action.type).to.equal('FETCH_CLINICIANS_FROM_CLINIC_FAILURE');
         expect(action.error).to.equal(error);
+        expect(action.payload.clinicId).to.equal('clinicId123');
       });
     });
 
@@ -2847,9 +2849,11 @@ describe('Actions', () => {
 
       it('type should equal FETCH_PATIENTS_FOR_CLINIC_FAILURE and error should equal passed error', () => {
         let error = new Error('stink :(');
-        let action = sync.fetchPatientsForClinicFailure(error);
+        let apiError = new Error('apiError');
+        let action = sync.fetchPatientsForClinicFailure(error, apiError, 'clinicId123');
         expect(action.type).to.equal('FETCH_PATIENTS_FOR_CLINIC_FAILURE');
         expect(action.error).to.equal(error);
+        expect(action.payload.clinicId).to.equal('clinicId123');
       });
     });
 
@@ -3644,6 +3648,52 @@ describe('Actions', () => {
       let error = new Error('stink :(');
       let action = sync.triggerInitialClinicMigrationFailure(error);
       expect(action.type).to.equal('TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
+  describe('sendPatientUploadReminderRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.sendPatientUploadReminderRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SEND_PATIENT_UPLOAD_REMINDER_REQUEST', () => {
+      let action = sync.sendPatientUploadReminderRequest();
+      expect(action.type).to.equal('SEND_PATIENT_UPLOAD_REMINDER_REQUEST');
+    });
+  });
+
+  describe('sendPatientUploadReminderSuccess', () => {
+    const clinicId = 'clinicId';
+    const patientId = 'patientId';
+    const lastUploadReminderTime = '2022-10-10T00:00:000Z';
+
+    it('should be a TSA', () => {
+      let action = sync.sendPatientUploadReminderSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SEND_PATIENT_UPLOAD_REMINDER_SUCCESS', () => {
+      let action = sync.sendPatientUploadReminderSuccess(clinicId, patientId, lastUploadReminderTime);
+      expect(action.type).to.equal('SEND_PATIENT_UPLOAD_REMINDER_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId');
+      expect(action.payload.patientId).to.equal('patientId');
+      expect(action.payload.lastUploadReminderTime).to.equal('2022-10-10T00:00:000Z');
+    });
+  });
+
+  describe('sendPatientUploadReminderFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('clinic migration failed :(');
+      let action = sync.sendPatientUploadReminderFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SEND_PATIENT_UPLOAD_REMINDER_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.sendPatientUploadReminderFailure(error);
+      expect(action.type).to.equal('SEND_PATIENT_UPLOAD_REMINDER_FAILURE');
       expect(action.error).to.equal(error);
     });
   });

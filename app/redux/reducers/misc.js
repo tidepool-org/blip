@@ -17,6 +17,7 @@
 import _ from 'lodash';
 import update from 'immutability-helper';
 import { generateCacheTTL } from 'redux-cache';
+import moment from 'moment';
 
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
@@ -690,8 +691,22 @@ export const clinics = (state = initialState.clinics, action) => {
         return newSet;
       }, {});
       return update(state, {
-        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, patientCount: count } },
+        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, patientCount: count, lastPatientFetchTime: moment.utc().valueOf() } },
       });
+    }
+    case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE: {
+      let { error } = action;
+      if (error?.status === 403) {
+        let {
+          payload: { clinicId },
+        } = action;
+        return update(state, {
+          [clinicId]: {
+            $set: { ...state[clinicId], patients: {}, patientCount: 0 },
+          },
+        });
+      }
+      return state;
     }
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS: {
       let { clinicId, patient } = action.payload;
@@ -765,6 +780,18 @@ export const clinics = (state = initialState.clinics, action) => {
       });
       return newClinics;
     }
+    case types.FETCH_CLINICIANS_FROM_CLINIC_FAILURE: {
+      let { error } = action;
+      if (error?.status === 403) {
+        let {
+          payload: { clinicId },
+        } = action;
+        const newClinics = _.cloneDeep(state);
+        _.set(newClinics, [clinicId, 'clinicians'], {});
+        return newClinics;
+      }
+      return state;
+    }
     case types.UPDATE_CLINICIAN_SUCCESS: {
       let clinician = _.get(action.payload, 'clinician');
       let clinicId = _.get(action.payload, 'clinicId');
@@ -777,8 +804,10 @@ export const clinics = (state = initialState.clinics, action) => {
       const patient = _.get(action.payload, 'patient');
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
+      let patientCount = state[clinicId].patientCount;
+      if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) patientCount++;
       return update(state, {
-        [clinicId]: { patients: { [patientId]: { $set: patient } } },
+        [clinicId]: { patients: { [patientId]: { $set: patient } }, patientCount: { $set: patientCount } },
       });
     }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
@@ -793,6 +822,7 @@ export const clinics = (state = initialState.clinics, action) => {
       let patientId = _.get(action.payload, 'patientId');
       let newState = _.cloneDeep(state);
       delete newState[clinicId]?.patients?.[patientId];
+      if (newState[clinicId]?.patientCount) newState[clinicId].patientCount--;
       return newState;
     }
     case types.SEND_CLINICIAN_INVITE_SUCCESS: {
@@ -861,6 +891,22 @@ export const clinics = (state = initialState.clinics, action) => {
       let clinicId = _.get(action.payload, 'clinicId');
       return update(state, {
         [clinicId]: { canMigrate: { $set: false } },
+      });
+    }
+    case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        lastUploadReminderTime,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...state[clinicId].patients[patientId],
+            lastUploadReminderTime,
+          } } },
+        },
       });
     }
     case types.LOGOUT_REQUEST:

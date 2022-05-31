@@ -549,6 +549,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
@@ -588,6 +589,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           patient: {
             get: sinon.stub().callsArgWith(1, null, patient),
@@ -631,6 +633,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           patient: {
             get: sinon.stub().callsArgWith(1, null, patient),
@@ -674,6 +677,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           patient: {
             get: sinon.stub().callsArgWith(1, null, patient),
@@ -741,6 +745,7 @@ describe('Actions', () => {
                 login: sinon.stub().callsArgWith(2, null),
                 get: sinon.stub().callsArgWith(0, null, user),
                 getAssociatedAccounts: sinon.stub().callsArgWith(0, patientsError, { patients }),
+                logout: sinon.stub(),
               },
               patient: {
                 get: sinon.stub().callsArgWith(1, null, patient)
@@ -1152,6 +1157,21 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 400, body: 'Error!'}}},
+              {
+                type: 'LOGOUT_REQUEST',
+              },
+              {
+                meta: {
+                  WebWorker: true,
+                  origin: 'http://localhost:9876',
+                  patientId: null,
+                  worker: 'data',
+                },
+                payload: {
+                  predicate: undefined,
+                },
+                type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+              },
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1189,6 +1209,21 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 400, body: 'Error!'}}},
+              {
+                type: 'LOGOUT_REQUEST',
+              },
+              {
+                meta: {
+                  WebWorker: true,
+                  origin: 'http://localhost:9876',
+                  patientId: null,
+                  worker: 'data',
+                },
+                payload: {
+                  predicate: undefined,
+                },
+                type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+              },
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1227,6 +1262,21 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_FAILURE', error: err, meta: { apiError: {status: 400, body: 'Error!'}}},
               { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 400, body: 'Error!'}}},
+              {
+                type: 'LOGOUT_REQUEST',
+              },
+              {
+                meta: {
+                  WebWorker: true,
+                  origin: 'http://localhost:9876',
+                  patientId: null,
+                  worker: 'data',
+                },
+                payload: {
+                  predicate: undefined,
+                },
+                type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+              },
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1358,6 +1408,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}),
+            logout: sinon.stub(),
           },
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
@@ -1372,7 +1423,22 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
-          { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } },
+          {
+            type: 'LOGOUT_REQUEST',
+          },
+          {
+            meta: {
+              WebWorker: true,
+              origin: 'http://localhost:9876',
+              patientId: null,
+              worker: 'data',
+            },
+            payload: {
+              predicate: undefined,
+            },
+            type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -1401,6 +1467,7 @@ describe('Actions', () => {
           user: {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
           },
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
@@ -1417,7 +1484,22 @@ describe('Actions', () => {
           { type: 'FETCH_USER_SUCCESS', payload: { user: user }},
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_FAILURE', error: err, payload: { link: null }, meta: { apiError: {status: 500, body: 'Error!'} } },
-          { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } },
+          {
+            type: 'LOGOUT_REQUEST',
+          },
+          {
+            meta: {
+              WebWorker: true,
+              origin: 'http://localhost:9876',
+              patientId: null,
+              worker: 'data',
+            },
+            payload: {
+              predicate: undefined,
+            },
+            type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -3564,6 +3646,90 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
+
+      it('[401] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
+        let thisInitialState = Object.assign(initialState, {
+          loggedInUserId: 58686,
+        });
+
+        let api = {
+          patient: {
+            get: sinon.stub()
+              .callsArgWith(1, { status: 401, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_UNAUTHORIZED);
+        err.status = 401;
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_REQUEST' },
+          {
+            type: 'FETCH_PATIENT_FAILURE',
+            error: err,
+            payload: {
+              link: null,
+            },
+            meta: { apiError: { status: 401, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: thisInitialState });
+        store.dispatch(async.fetchPatient(api, 58686));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_PATIENT_UNAUTHORIZED,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
+      });
+
+      it('[401 clinician] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
+        let thisInitialState = Object.assign(initialState, {
+          loggedInUserId: 58688,
+        });
+
+        let api = {
+          patient: {
+            get: sinon.stub()
+              .callsArgWith(1, { status: 401, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_FETCHING_PATIENT_CLINICIAN_UNAUTHORIZED
+        );
+        err.status = 404;
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_REQUEST' },
+          {
+            type: 'FETCH_PATIENT_FAILURE',
+            error: err,
+            payload: {
+              link: null,
+            },
+            meta: { apiError: { status: 401, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: thisInitialState });
+        store.dispatch(async.fetchPatient(api, 58686));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_PATIENT_CLINICIAN_UNAUTHORIZED,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
+      });
     });
 
     describe('fetchAssociatedAccounts', () => {
@@ -3766,6 +3932,71 @@ describe('Actions', () => {
 
           const actions = store.getActions();
           expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
+          expectedActions[2].error = actions[2].error;
+          expect(actions).to.eql(expectedActions);
+        });
+
+        it('[403] trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to intial patient data call returning error', () => {
+          api.patientData = {
+            get: sinon.stub().callsArgWith(2, {status: 403, body: 'Error!'}, null),
+          };
+
+          let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA_UNAUTHORIZED);
+          err.status = 403;
+
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            { type: 'FETCH_SERVER_TIME_SUCCESS', payload: { serverTime } },
+            {
+              type: 'FETCH_PATIENT_DATA_FAILURE',
+              error: err,
+              meta: { apiError: { status: 403, body: 'Error!' } },
+            },
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+          let store = mockStore({
+            blip: { ...initialState, ...{ loggedInUserId: patientId } },
+          });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA_UNAUTHORIZED });
+          expectedActions[2].error = actions[2].error;
+          expect(actions).to.eql(expectedActions);
+        });
+
+        it('[403 clinician] trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to intial patient data call returning error', () => {
+          api.patientData = {
+            get: sinon.stub().callsArgWith(2, {status: 403, body: 'Error!'}, null),
+          };
+
+          let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA_CLINICIAN_UNAUTHORIZED);
+          err.status = 403;
+
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            { type: 'FETCH_SERVER_TIME_SUCCESS', payload: { serverTime } },
+            {
+              type: 'FETCH_PATIENT_DATA_FAILURE',
+              error: err,
+              meta: { apiError: { status: 403, body: 'Error!' } },
+            },
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+          let store = mockStore({
+            blip: {
+              ...initialState,
+              ...{ loggedInUserId: 'clinicianuser123' },
+            },
+          });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA_CLINICIAN_UNAUTHORIZED });
           expectedActions[2].error = actions[2].error;
           expect(actions).to.eql(expectedActions);
         });
@@ -5021,7 +5252,12 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_CLINICIANS_FROM_CLINIC_REQUEST' },
-          { type: 'FETCH_CLINICIANS_FROM_CLINIC_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          {
+            type: 'FETCH_CLINICIANS_FROM_CLINIC_FAILURE',
+            error: err,
+            meta: { apiError: { status: 500, body: 'Error!' } },
+            payload: { clinicId: clinicId },
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5031,6 +5267,46 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIANS_FROM_CLINIC });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getCliniciansFromClinic.callCount).to.equal(1);
+      });
+
+      it('[403] should trigger FETCH_CLINICIANS_FROM_CLINIC_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+
+        let api = {
+          clinics: {
+            getCliniciansFromClinic: sinon.stub()
+              .callsArgWith(2, { status: 403, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_FETCHING_CLINICIANS_FROM_CLINIC_UNAUTHORIZED
+        );
+        err.status = 403;
+
+        let expectedActions = [
+          { type: 'FETCH_CLINICIANS_FROM_CLINIC_REQUEST' },
+          {
+            type: 'FETCH_CLINICIANS_FROM_CLINIC_FAILURE',
+            error: err,
+            meta: { apiError: { status: 403, body: 'Error!' } },
+            payload: { clinicId: clinicId },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchCliniciansFromClinic(api, clinicId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message:
+            ErrorMessages.ERR_FETCHING_CLINICIANS_FROM_CLINIC_UNAUTHORIZED,
+        });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getCliniciansFromClinic.callCount).to.equal(1);
@@ -5167,6 +5443,50 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.updateClinician.callCount).to.equal(1);
       });
+
+      it('[403] should trigger UPDATE_CLINICIAN_FAILURE and it should call error once for a failed request', () => {
+        let api = {
+          clinics: {
+            updateClinician: sinon.stub()
+              .callsArgWith(3, { status: 403, body: 'Error!' }, null),
+          },
+        };
+        let updates = {
+          permissions: ['PRESCRIBER'],
+        };
+
+        let err = new Error(ErrorMessages.ERR_UPDATING_CLINICIAN_UNAUTHORIZED);
+        err.status = 403;
+
+        let expectedActions = [
+          { type: 'UPDATE_CLINICIAN_REQUEST' },
+          {
+            type: 'UPDATE_CLINICIAN_FAILURE',
+            error: err,
+            meta: { apiError: { status: 403, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.updateClinician(
+            api,
+            '5f85fbe6686e6bb9170ab5d0',
+            'clinician_id',
+            updates
+          )
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_UPDATING_CLINICIAN_UNAUTHORIZED,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.updateClinician.callCount).to.equal(1);
+      });
     });
 
     describe('deleteClinicianFromClinic', () => {
@@ -5218,6 +5538,49 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DELETING_CLINICIAN_FROM_CLINIC });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deleteClinicianFromClinic.callCount).to.equal(1);
+      });
+
+      it('[403] should trigger DELETE_CLINICIAN_FROM_CLINIC_FAILURE and it should call error once for a failed request', () => {
+        let api = {
+          clinics: {
+            deleteClinicianFromClinic: sinon.stub()
+              .callsArgWith(2, { status: 403, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_DELETING_CLINICIAN_FROM_CLINIC_UNAUTHORIZED
+        );
+        err.status = 403;
+
+        let expectedActions = [
+          { type: 'DELETE_CLINICIAN_FROM_CLINIC_REQUEST' },
+          {
+            type: 'DELETE_CLINICIAN_FROM_CLINIC_FAILURE',
+            error: err,
+            meta: { apiError: { status: 403, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.deleteClinicianFromClinic(
+            api,
+            '5f85fbe6686e6bb9170ab5d0',
+            'clinician_id'
+          )
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message:
+            ErrorMessages.ERR_DELETING_CLINICIAN_FROM_CLINIC_UNAUTHORIZED,
+        });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.deleteClinicianFromClinic.callCount).to.equal(1);
@@ -5283,6 +5646,57 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deletePatientFromClinic.callCount).to.equal(1);
+
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, error);
+      });
+
+      it('[403] should trigger DELETE_PATIENT_FROM_CLINIC_FAILURE and it should call error once for a failed request', () => {
+        const error = { status: 403, body: 'Error!' };
+        let api = {
+          clinics: {
+            deletePatientFromClinic: sinon.stub().callsArgWith(2, error, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_DELETING_CLINICIAN_FROM_CLINIC_UNAUTHORIZED
+        );
+        err.status = 403;
+
+        let expectedActions = [
+          { type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' },
+          {
+            type: 'DELETE_PATIENT_FROM_CLINIC_FAILURE',
+            error: err,
+            meta: { apiError: error },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const callback = sinon.stub();
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.deletePatientFromClinic(
+            api,
+            '5f85fbe6686e6bb9170ab5d0',
+            'patient_id',
+            callback
+          )
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message:
+            ErrorMessages.ERR_DELETING_CLINICIAN_FROM_CLINIC_UNAUTHORIZED,
+        });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.deletePatientFromClinic.callCount).to.equal(1);
@@ -5462,7 +5876,12 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
-          { type: 'FETCH_PATIENTS_FOR_CLINIC_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          {
+            type: 'FETCH_PATIENTS_FOR_CLINIC_FAILURE',
+            error: err,
+            meta: { apiError: { status: 500, body: 'Error!' } },
+            payload: { clinicId: '5f85fbe6686e6bb9170ab5d0' },
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5472,6 +5891,45 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getPatientsForClinic.callCount).to.equal(1);
+      });
+
+      it('[403] should trigger FETCH_PATIENTS_FOR_CLINIC_FAILURE and it should call error once for a failed request', () => {
+        let api = {
+          clinics: {
+            getPatientsForClinic: sinon.stub()
+              .callsArgWith(2, { status: 403, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC_UNAUTHORIZED
+        );
+        err.status = 403;
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+          {
+            type: 'FETCH_PATIENTS_FOR_CLINIC_FAILURE',
+            error: err,
+            meta: { apiError: { status: 403, body: 'Error!' } },
+            payload: { clinicId: '5f85fbe6686e6bb9170ab5d0' },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.fetchPatientsForClinic(api, '5f85fbe6686e6bb9170ab5d0')
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC_UNAUTHORIZED,
+        });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getPatientsForClinic.callCount).to.equal(1);
@@ -5605,6 +6063,49 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
+      });
+
+      it('[403] should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let patient = {
+          fullName: 'patientName',
+          email: 'patientemail',
+        };
+        let api = {
+          clinics: {
+            createClinicCustodialAccount: sinon.stub()
+              .callsArgWith(2, { status: 403, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_UNAUTHORIZED
+        );
+        err.status = 403;
+
+        let expectedActions = [
+          { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
+          {
+            type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE',
+            error: err,
+            meta: { apiError: { status: 403, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.createClinicCustodialAccount(api, clinicId, patient)
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_UNAUTHORIZED,
+        });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
@@ -5745,6 +6246,51 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.updateClinicPatient.callCount).to.equal(1);
       });
+
+      it('[403] should trigger UPDATE_CLINIC_PATIENT_FAILURE and it should call error once for a failed request', () => {
+        let patientUserId = 'patient_userId';
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let patient = {
+          id: patientUserId,
+          fullName: 'patientName',
+          email: 'patientemail',
+        };
+        let api = {
+          clinics: {
+            updateClinicPatient: sinon.stub()
+              .callsArgWith(3, { status: 403, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_UNAUTHORIZED
+        );
+        err.status = 403;
+
+        let expectedActions = [
+          { type: 'UPDATE_CLINIC_PATIENT_REQUEST' },
+          {
+            type: 'UPDATE_CLINIC_PATIENT_FAILURE',
+            error: err,
+            meta: { apiError: { status: 403, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.updateClinicPatient(api, clinicId, patientUserId, patient)
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_UNAUTHORIZED,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.updateClinicPatient.callCount).to.equal(1);
+      });
     });
 
     describe('sendClinicianInvite', () => {
@@ -5845,6 +6391,48 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.inviteClinician.callCount).to.equal(1);
       });
+
+      it('should trigger SEND_CLINICIAN_INVITE_FAILURE and it should call error once for a failed request with a 401 status', () => {
+        let clinician = {
+          email: 'clinician@example.com',
+          roles: ['CLINIC_MEMBER'],
+        };
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+
+        let api = {
+          clinics: {
+            inviteClinician: sinon.stub()
+              .callsArgWith(2, { status: 401, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_UNAUTHORIZED
+        );
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
+          {
+            type: 'SEND_CLINICIAN_INVITE_FAILURE',
+            error: err,
+            meta: { apiError: { status: 401, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendClinicianInvite(api, clinicId, clinician));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_UNAUTHORIZED,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.inviteClinician.callCount).to.equal(1);
+      });
     });
 
     describe('fetchClinicianInvite', () => {
@@ -5904,6 +6492,44 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getClinicianInvite.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_CLINICIAN_INVITE_FAILURE and it should call error once for a failed request with a 401 status', () => {
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let inviteId = 'inviteId123';
+        let api = {
+          clinics: {
+            getClinicianInvite: sinon.stub()
+              .callsArgWith(2, { status: 401, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE_UNAUTHORIZED
+        );
+        err.status = 401;
+
+        let expectedActions = [
+          { type: 'FETCH_CLINICIAN_INVITE_REQUEST' },
+          {
+            type: 'FETCH_CLINICIAN_INVITE_FAILURE',
+            error: err,
+            meta: { apiError: { status: 401, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicianInvite(api, clinicId, inviteId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITE_UNAUTHORIZED,
+        });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getClinicianInvite.callCount).to.equal(1);
@@ -6030,6 +6656,45 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.deleteClinicianInvite.callCount).to.equal(1);
       });
+
+      it('should trigger DELETE_CLINICIAN_INVITE_FAILURE and it should call error once for a failed request with a 401 status', () => {
+        let clinicId = 'clinicId123';
+        let inviteId = 'inviteIdABC';
+
+        let api = {
+          clinics: {
+            deleteClinicianInvite: sinon.stub()
+              .callsArgWith(2, { status: 401, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_DELETING_CLINICIAN_INVITE_UNAUTHORIZED
+        );
+        err.status = 401;
+
+        let expectedActions = [
+          { type: 'DELETE_CLINICIAN_INVITE_REQUEST' },
+          {
+            type: 'DELETE_CLINICIAN_INVITE_FAILURE',
+            error: err,
+            meta: { apiError: { status: 401, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deleteClinicianInvite(api, clinicId, inviteId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_DELETING_CLINICIAN_INVITE_UNAUTHORIZED,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deleteClinicianInvite.callCount).to.equal(1);
+      });
     });
 
     describe('sendClinicInvite', () => {
@@ -6146,6 +6811,45 @@ describe('Actions', () => {
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_INVITES });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getPatientInvites.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_PATIENT_INVITES_FAILURE and it should call error once for a failed request with a 401 status', () => {
+        let clinicId = 'clinicId345';
+        let invites = ['inviteId1'];
+
+        let api = {
+          clinics: {
+            getPatientInvites: sinon.stub()
+              .callsArgWith(1, { status: 401, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_FETCHING_PATIENT_INVITES_UNAUTHORIZED
+        );
+        err.status = 401;
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_INVITES_REQUEST' },
+          {
+            type: 'FETCH_PATIENT_INVITES_FAILURE',
+            error: err,
+            meta: { apiError: { status: 401, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchPatientInvites(api, clinicId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_PATIENT_INVITES_UNAUTHORIZED,
+        });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getPatientInvites.callCount).to.equal(1);
@@ -6631,5 +7335,62 @@ describe('Actions', () => {
       });
     });
 
+    describe('sendPatientUploadReminder', () => {
+      it('should trigger SEND_PATIENT_UPLOAD_REMINDER_SUCCESS and it should call clinics.triggerInitialClinicMigration once for a successful request', () => {
+        const clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        const lastUploadReminderTime = '2022-10-10T00:00:000Z';
+
+        let api = {
+          clinics: {
+            sendPatientUploadReminder: sinon.stub().callsArgWith(2, null, { id: patientId, lastUploadReminderTime }),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'SEND_PATIENT_UPLOAD_REMINDER_REQUEST' },
+          { type: 'SEND_PATIENT_UPLOAD_REMINDER_SUCCESS', payload: { clinicId, patientId, lastUploadReminderTime } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendPatientUploadReminder(api, clinicId, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.sendPatientUploadReminder.callCount).to.equal(1);
+      });
+
+      it('should trigger SEND_PATIENT_UPLOAD_REMINDER_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        let api = {
+          clinics: {
+            sendPatientUploadReminder: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_SENDING_PATIENT_UPLOAD_REMINDER);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'SEND_PATIENT_UPLOAD_REMINDER_REQUEST' },
+          { type: 'SEND_PATIENT_UPLOAD_REMINDER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendPatientUploadReminder(api, clinicId, patientId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_PATIENT_UPLOAD_REMINDER });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.sendPatientUploadReminder.callCount).to.equal(1);
+      });
+    });
   });
 });

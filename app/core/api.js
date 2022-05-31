@@ -1017,6 +1017,10 @@ api.clinics.triggerInitialClinicMigration = function(clinicId, cb) {
   return tidepool.triggerInitialClinicMigration(clinicId, cb);
 };
 
+api.clinics.sendPatientUploadReminder = function(clinicId, patientId, cb) {
+  return tidepool.sendPatientUploadReminder(clinicId, patientId, cb);
+};
+
 // ----- Errors -----
 
 api.errors = {};

@@ -131,7 +131,7 @@ const Header = translate()(class Header extends Component {
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
           <div className={dateLinkClass}>
             {this.props.title}
-            {this.props.chartType === 'basics' && (
+            {_.includes(['basics', 'daily'], this.props.chartType) && (
               <Icon
                 variant="default"
                 sx={{

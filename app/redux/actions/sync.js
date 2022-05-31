@@ -1347,13 +1347,16 @@ export function fetchCliniciansFromClinicSuccess(results) {
   };
 }
 
-export function fetchCliniciansFromClinicFailure(error, apiError) {
+export function fetchCliniciansFromClinicFailure(error, apiError, clinicId) {
   return {
     type: ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
     },
+    payload: {
+      clinicId
+    }
   };
 }
 
@@ -1479,13 +1482,16 @@ export function fetchPatientsForClinicSuccess(clinicId, patients, count) {
   };
 }
 
-export function fetchPatientsForClinicFailure(error, apiError) {
+export function fetchPatientsForClinicFailure(error, apiError, clinicId) {
   return {
     type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
     },
+    payload: {
+      clinicId
+    }
   };
 }
 
@@ -1957,6 +1963,33 @@ export function triggerInitialClinicMigrationSuccess(clinicId) {
 export function triggerInitialClinicMigrationFailure(error, apiError) {
   return {
     type: ActionTypes.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function sendPatientUploadReminderRequest() {
+  return {
+    type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
+  };
+}
+
+export function sendPatientUploadReminderSuccess(clinicId, patientId, lastUploadReminderTime) {
+  return {
+    type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      lastUploadReminderTime: lastUploadReminderTime,
+    },
+  };
+}
+
+export function sendPatientUploadReminderFailure(error, apiError) {
+  return {
+    type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
