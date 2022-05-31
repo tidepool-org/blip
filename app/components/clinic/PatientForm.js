@@ -11,10 +11,12 @@ import { Box, BoxProps } from 'rebass/styled-components';
 
 import * as actions from '../../redux/actions';
 import TextInput from '../../components/elements/TextInput';
+import Checkbox from '../../components/elements/Checkbox';
 import { getCommonFormikFieldProps } from '../../core/forms';
 import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../core/personutils';
 import { Body1 } from '../../components/elements/FontStyles';
+import baseTheme from '../../themes/baseTheme';
 
 export const PatientForm = (props) => {
   const { t, api, onFormChange, patient, trackMetric, ...boxProps } = props;
@@ -69,9 +71,11 @@ export const PatientForm = (props) => {
 
   function getFormValues(source) {
     return {
+      attestationSubmitted: get(source, 'attestationSubmitted', false),
       birthDate: get(source, 'birthDate', ''),
       email: get(source, 'email', ''),
       fullName: get(source, 'fullName', ''),
+      id: get(source, 'id'),
       mrn: get(source, 'mrn', ''),
     };
   }
@@ -149,6 +153,25 @@ export const PatientForm = (props) => {
       <Body1>
         {t('If you want your patients to upload their data from home, you must include their email address.')}
       </Body1>
+
+      {!patient?.id && (
+        <Box
+          p={2}
+          mt={3}
+          mb={2}
+          bg="lightestGrey"
+          sx={{
+            border: baseTheme.borders.default,
+            borderRadius: `${baseTheme.radii.default}px`,
+          }}
+        >
+          <Checkbox
+            {...getCommonFormikFieldProps('attestationSubmitted', formikContext, 'checked')}
+            label={t('I attest that I have obtained permission from the patient and/or the patient\'s legal guardian to use Tidepool\'s software to assist in the management of the patient\'s health care.')}
+            themeProps={{ bg: 'lightestGrey', lineHeight: 1.4 }}
+          />
+        </Box>
+      )}
     </Box>
   );
 };
