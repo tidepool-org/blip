@@ -300,18 +300,18 @@ export const ClinicPatients = (props) => {
         comparator = comparator === '<' ? '>=' : '<=';
       }
 
-      filterOptions[`summary.${summaryPeriod}.${filter}`] = comparator + value;
+      filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
     });
 
     const newPatientFetchOptions = {
       ...omit(patientFetchOptions, [
         'summary.lastUploadDateFrom',
         'summary.lastUploadDateTo',
-        `summary.${summaryPeriod}.timeInVeryLowPercent`,
-        `summary.${summaryPeriod}.timeInLowPercent`,
-        `summary.${summaryPeriod}.timeInTargetPercent`,
-        `summary.${summaryPeriod}.timeInHighPercent`,
-        `summary.${summaryPeriod}.timeInVeryHighPercent`,
+        `summary.periods.${summaryPeriod}.timeInVeryLowPercent`,
+        `summary.periods.${summaryPeriod}.timeInLowPercent`,
+        `summary.periods.${summaryPeriod}.timeInTargetPercent`,
+        `summary.periods.${summaryPeriod}.timeInHighPercent`,
+        `summary.periods.${summaryPeriod}.timeInVeryHighPercent`,
       ]),
       ...filterOptions,
     };
@@ -1015,8 +1015,8 @@ export const ClinicPatients = (props) => {
       const sortColumnLabels = {
         fullName: 'Patient details',
         'summary.lastUploadDate': 'Last upload',
-        [`summary.${summaryPeriod}.timeCGMUsePercent`]: 'CGM use',
-        [`summary.${summaryPeriod}.glucoseManagementIndicator`]: 'GMI',
+        [`summary.periods.${summaryPeriod}.timeCGMUsePercent`]: 'CGM use',
+        [`summary.periods.${summaryPeriod}.glucoseManagementIndicator`]: 'GMI',
       };
 
       trackMetric(prefixPopHealthMetric(`${sortColumnLabels[newOrderBy]} sort ${order}`), { clinicId: selectedClinicId });
@@ -1310,7 +1310,7 @@ export const ClinicPatients = (props) => {
           title: t('% CGM Use'),
           field: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
           sortable: true,
-          sortBy: `summary.${summaryPeriod}.timeCGMUsePercent`,
+          sortBy: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
           align: 'center',
           render: renderCGMUsage,
         },
@@ -1319,7 +1319,7 @@ export const ClinicPatients = (props) => {
           field: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
           align: 'center',
           sortable: true,
-          sortBy: `summary.${summaryPeriod}.glucoseManagementIndicator`,
+          sortBy: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
           render: renderGMI,
         },
         {

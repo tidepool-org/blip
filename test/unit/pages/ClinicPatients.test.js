@@ -873,21 +873,21 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           cgmUseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.14d.timeCGMUsePercent' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.periods.14d.timeCGMUsePercent' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           cgmUseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.14d.timeCGMUsePercent' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.periods.14d.timeCGMUsePercent' }));
 
           const gmiHeader = table.find('#peopleTable-header-summary-periods-14d-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.14d.glucoseManagementIndicator' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.periods.14d.glucoseManagementIndicator' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.14d.glucoseManagementIndicator' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.periods.14d.glucoseManagementIndicator' }));
         });
 
         it('should allow refreshing the patient list and maintain', () => {
@@ -1029,11 +1029,11 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 10,
             offset: 0,
             sort: '+fullName',
-            'summary.14d.timeInHighPercent': '<0.25',
-            'summary.14d.timeInLowPercent': '<0.04',
-            'summary.14d.timeInTargetPercent': '>0.7',
-            'summary.14d.timeInVeryHighPercent': '<0.05',
-            'summary.14d.timeInVeryLowPercent': '<0.01',
+            'summary.periods.14d.timeInHighPercent': '<0.25',
+            'summary.periods.14d.timeInLowPercent': '<0.04',
+            'summary.periods.14d.timeInTargetPercent': '>0.7',
+            'summary.periods.14d.timeInVeryHighPercent': '<0.05',
+            'summary.periods.14d.timeInVeryLowPercent': '<0.01',
           }));
 
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in range apply filter', sinon.match({
@@ -1137,11 +1137,11 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 10,
             offset: 0,
             sort: '+fullName',
-            'summary.14d.timeInHighPercent': '>=0.25',
-            'summary.14d.timeInLowPercent': '>=0.04',
-            'summary.14d.timeInTargetPercent': '<=0.7',
-            'summary.14d.timeInVeryHighPercent': '>=0.05',
-            'summary.14d.timeInVeryLowPercent': '>=0.01',
+            'summary.periods.14d.timeInHighPercent': '>=0.25',
+            'summary.periods.14d.timeInLowPercent': '>=0.04',
+            'summary.periods.14d.timeInTargetPercent': '<=0.7',
+            'summary.periods.14d.timeInVeryHighPercent': '>=0.05',
+            'summary.periods.14d.timeInVeryLowPercent': '>=0.01',
           }));
 
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in range apply filter', sinon.match({
@@ -1239,8 +1239,8 @@ describe('ClinicPatients', () => {
               sort: '+fullName',
               'summary.lastUploadDateFrom': sinon.match.string,
               'summary.lastUploadDateTo': sinon.match.string,
-              'summary.14d.timeInHighPercent': '>=0.25',
-              'summary.14d.timeInLowPercent': '>=0.04',
+              'summary.periods.14d.timeInHighPercent': '>=0.25',
+              'summary.periods.14d.timeInLowPercent': '>=0.04',
             }));
           });
         });
