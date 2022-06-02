@@ -102,13 +102,20 @@ export const ClinicPatients = (props) => {
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0200');
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
-  const [patientFetchOptions, setPatientFetchOptions] = useLocalStorage('patientFetchOptions', {});
+  const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
+  const summaryPeriod = '14d';
 
   const defaultFilterState = {
     lastUploadDate: null,
     timeInRange: [],
     meetsGlycemicTargets: true,
+  };
+
+  const defaultPatientFetchOptions = {
+    search: '',
+    offset: 0,
+    sort: '+fullName',
   };
 
   const bgPrefs = () => ({
@@ -117,9 +124,8 @@ export const ClinicPatients = (props) => {
   });
 
   const bgLabels = () => generateBgRangeLabels(bgPrefs(), { condensed: true });
-  const [activeFilters, setActiveFilters] = useState(defaultFilterState);
-  const [pendingFilters, setPendingFilters] = useState(defaultFilterState);
-
+  const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState);
+  const [pendingFilters, setPendingFilters] = useState(activeFilters);
   const lastUploadDateFilterOptions = [
     { value: 1, label: t('Today') },
     { value: 2, label: t('Last 2 days') },
@@ -128,19 +134,19 @@ export const ClinicPatients = (props) => {
   ];
 
   const glycemicTargetThresholds = {
-    percentTimeInVeryLow: { value: 1, comparator: '<' },
-    percentTimeInLow: { value: 4, comparator: '<' },
-    percentTimeInTarget: { value: 70, comparator: '>' },
-    percentTimeInHigh: { value: 25, comparator: '<' },
-    percentTimeInVeryHigh: { value: 5, comparator: '<' },
+    timeInVeryLowPercent: { value: 1, comparator: '<' },
+    timeInLowPercent: { value: 4, comparator: '<' },
+    timeInTargetPercent: { value: 70, comparator: '>' },
+    timeInHighPercent: { value: 25, comparator: '<' },
+    timeInVeryHighPercent: { value: 5, comparator: '<' },
   }
 
   const timeInRangeFilterOptions = [
-    { value: 'percentTimeInVeryLow', label: t('{{comparator}}{{value}}% Time below Range', glycemicTargetThresholds.percentTimeInVeryLow), tag: t('Severe Hypoglycemia'), rangeName: 'veryLow' },
-    { value: 'percentTimeInLow', label: t('{{comparator}}{{value}}% Time below Range', glycemicTargetThresholds.percentTimeInLow), tag: t('Low'), rangeName: 'low' },
-    { value: 'percentTimeInTarget', label: t('{{comparator}}{{value}}% Time in Range', glycemicTargetThresholds.percentTimeInTarget), tag: t('Normal'), rangeName: 'target' },
-    { value: 'percentTimeInHigh', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.percentTimeInHigh), tag: t('High'), rangeName: 'high' },
-    { value: 'percentTimeInVeryHigh', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.percentTimeInVeryHigh), tag: t('Severe Hyperglycemia'), rangeName: 'veryHigh' },
+    { value: 'timeInVeryLowPercent', label: t('{{comparator}}{{value}}% Time below Range', glycemicTargetThresholds.timeInVeryLowPercent), tag: t('Severe Hypoglycemia'), rangeName: 'veryLow' },
+    { value: 'timeInLowPercent', label: t('{{comparator}}{{value}}% Time below Range', glycemicTargetThresholds.timeInLowPercent), tag: t('Low'), rangeName: 'low' },
+    { value: 'timeInTargetPercent', label: t('{{comparator}}{{value}}% Time in Range', glycemicTargetThresholds.timeInTargetPercent), tag: t('Normal'), rangeName: 'target' },
+    { value: 'timeInHighPercent', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.timeInHighPercent), tag: t('High'), rangeName: 'high' },
+    { value: 'timeInVeryHighPercent', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.timeInVeryHighPercent), tag: t('Severe Hyperglycemia'), rangeName: 'veryHigh' },
   ];
 
   const lastUploadDatePopupFilterState = usePopupState({
@@ -250,9 +256,7 @@ export const ClinicPatients = (props) => {
   useEffect(() => {
     setShowSummaryData(clinic?.tier >= 'tier0200');
     setPatientFetchOptions({
-      search: '',
-      offset: 0,
-      sort: '+fullName',
+      ...defaultPatientFetchOptions,
       limit: clinic?.tier >= 'tier0200' ? 10 : 8,
     });
   }, [clinic?.id]);
@@ -268,7 +272,6 @@ export const ClinicPatients = (props) => {
       && clinic?.id
       && !fetchingPatientsForClinic.inProgress
       && !isEmpty(patientFetchOptions)
-      && !isFirstRender
     ) {
       const fetchOptions = { ...patientFetchOptions };
       if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
@@ -277,9 +280,11 @@ export const ClinicPatients = (props) => {
   }, [loggedInUserId, patientFetchOptions]);
 
   useEffect(() => {
-    const filterOptions = { offset: 0 }
-
-    if (isFirstRender) return;
+    const filterOptions = {
+      offset: 0,
+      sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
+      limit: clinic?.tier >= 'tier0200' ? 10 : 8,
+    }
 
     if (activeFilters.lastUploadDate) {
       filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
@@ -295,24 +300,24 @@ export const ClinicPatients = (props) => {
         comparator = comparator === '<' ? '>=' : '<=';
       }
 
-      filterOptions[`summary.${filter}`] = comparator + value;
+      filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
     });
 
     const newPatientFetchOptions = {
       ...omit(patientFetchOptions, [
         'summary.lastUploadDateFrom',
         'summary.lastUploadDateTo',
-        'summary.percentTimeInVeryLow',
-        'summary.percentTimeInLow',
-        'summary.percentTimeInTarget',
-        'summary.percentTimeInHigh',
-        'summary.percentTimeInVeryHigh',
+        `summary.periods.${summaryPeriod}.timeInVeryLowPercent`,
+        `summary.periods.${summaryPeriod}.timeInLowPercent`,
+        `summary.periods.${summaryPeriod}.timeInTargetPercent`,
+        `summary.periods.${summaryPeriod}.timeInHighPercent`,
+        `summary.periods.${summaryPeriod}.timeInVeryHighPercent`,
       ]),
       ...filterOptions,
     };
 
     setPatientFetchOptions(newPatientFetchOptions);
-  }, [activeFilters]);
+  }, [activeFilters, clinic?.id]);
 
   function formatDecimal(val, precision) {
     if (precision === null || precision === undefined) {
@@ -993,8 +998,9 @@ export const ClinicPatients = (props) => {
   }
 
   function handleSortChange(newOrderBy) {
-    const currentOrder = patientFetchOptions.sort[0];
-    const currentOrderBy = patientFetchOptions.sort.substring(1);
+    const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
+    const currentOrder = sort[0];
+    const currentOrderBy = sort.substring(1);
     const newOrder = newOrderBy === currentOrderBy && currentOrder === '+' ? '-' : '+';
 
     setPatientFetchOptions({
@@ -1009,8 +1015,8 @@ export const ClinicPatients = (props) => {
       const sortColumnLabels = {
         fullName: 'Patient details',
         'summary.lastUploadDate': 'Last upload',
-        'summary.percentTimeCGMUse': 'CGM use',
-        'summary.glucoseManagementIndicator': 'GMI',
+        [`summary.periods.${summaryPeriod}.timeCGMUsePercent`]: 'CGM use',
+        [`summary.periods.${summaryPeriod}.glucoseManagementIndicator`]: 'GMI',
       };
 
       trackMetric(prefixPopHealthMetric(`${sortColumnLabels[newOrderBy]} sort ${order}`), { clinicId: selectedClinicId });
@@ -1045,11 +1051,11 @@ export const ClinicPatients = (props) => {
     trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
       clinicId: selectedClinicId,
       meetsCriteria: pendingFilters.meetsGlycemicTargets,
-      severeHypo: includes(pendingFilters.timeInRange, 'percentTimeInVeryLow'),
-      hypo: includes(pendingFilters.timeInRange, 'percentTimeInLow'),
-      inRange: includes(pendingFilters.timeInRange, 'percentTimeInTarget'),
-      hyper: includes(pendingFilters.timeInRange, 'percentTimeInHigh'),
-      severeHyper: includes(pendingFilters.timeInRange, 'percentTimeInVeryHigh'),
+      severeHypo: includes(pendingFilters.timeInRange, 'timeInVeryLowPercent'),
+      hypo: includes(pendingFilters.timeInRange, 'timeInLowPercent'),
+      inRange: includes(pendingFilters.timeInRange, 'timeInTargetPercent'),
+      hyper: includes(pendingFilters.timeInRange, 'timeInHighPercent'),
+      severeHyper: includes(pendingFilters.timeInRange, 'timeInVeryHighPercent'),
     });
 
     setActiveFilters({
@@ -1106,15 +1112,15 @@ export const ClinicPatients = (props) => {
 
   const renderCGMUsage = ({ summary }) => (
     <Box classname="patient-cgm-usage">
-      <Text as="span" fontWeight="medium">{summary?.percentTimeCGMUse ? formatDecimal(summary.percentTimeCGMUse * 100) : statEmptyText}</Text>
-      {summary?.percentTimeCGMUse && <Text as="span" fontSize="10px"> %</Text>}
+      <Text as="span" fontWeight="medium">{summary?.periods?.[summaryPeriod]?.timeCGMUsePercent ? formatDecimal(summary?.periods?.[summaryPeriod]?.timeCGMUsePercent * 100) : statEmptyText}</Text>
+      {summary?.periods?.[summaryPeriod]?.timeCGMUsePercent && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
   );
 
   const renderGMI = ({ summary }) => (
     <Box classname="patient-gmi">
-      <Text as="span" fontWeight="medium">{summary?.percentTimeCGMUse >= 0.7 ? formatDecimal(summary.glucoseManagementIndicator, 1) : statEmptyText}</Text>
-      {summary?.percentTimeCGMUse >= 0.7 && <Text as="span" fontSize="10px"> %</Text>}
+      <Text as="span" fontWeight="medium">{summary?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 ? formatDecimal(summary.periods[summaryPeriod].glucoseManagementIndicator, 1) : statEmptyText}</Text>
+      {summary?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
   );
 
@@ -1123,21 +1129,20 @@ export const ClinicPatients = (props) => {
       clinicBgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value
     ));
 
-    const hoursInRange = moment(summary?.lastData).diff(moment(summary?.firstData), 'hours');
-    const cgmHours = hoursInRange * summary?.percentTimeCGMUse;
+    const cgmHours = (summary?.periods?.[summaryPeriod]?.timeCGMUseMinutes || 0) / 60;
 
     const data = {
-      veryLow: summary?.percentTimeInVeryLow,
-      low: summary?.percentTimeInLow,
-      target: summary?.percentTimeInTarget,
-      high: summary?.percentTimeInHigh,
-      veryHigh: summary?.percentTimeInVeryHigh,
+      veryLow: summary?.periods?.[summaryPeriod]?.timeInVeryLowPercent,
+      low: summary?.periods?.[summaryPeriod]?.timeInLowPercent,
+      target: summary?.periods?.[summaryPeriod]?.timeInTargetPercent,
+      high: summary?.periods?.[summaryPeriod]?.timeInHighPercent,
+      veryHigh: summary?.periods?.[summaryPeriod]?.timeInVeryHighPercent,
     };
 
     return (
       <Flex justifyContent="center">
         {cgmHours >= 24
-          ? <BgRangeSummary striped={summary?.percentTimeCGMUse < 0.7} data={data} targetRange={targetRange} bgUnits={clinicBgUnits} />
+          ? <BgRangeSummary striped={summary?.periods?.[summaryPeriod]?.timeCGMUsePercent < 0.7} data={data} targetRange={targetRange} bgUnits={clinicBgUnits} />
           : (
             <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
               <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <24 hours')}</Text>
@@ -1303,18 +1308,18 @@ export const ClinicPatients = (props) => {
         },
         {
           title: t('% CGM Use'),
-          field: 'summary.percentTimeCGMUse',
+          field: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
           sortable: true,
-          sortBy: 'summary.percentTimeCGMUse',
+          sortBy: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
           align: 'center',
           render: renderCGMUsage,
         },
         {
           title: t('% GMI'),
-          field: 'summary.glucoseManagementIndicator',
+          field: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
           align: 'center',
           sortable: true,
-          sortBy: 'summary.glucoseManagementIndicator',
+          sortBy: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
           render: renderGMI,
         },
         {
@@ -1354,6 +1359,7 @@ export const ClinicPatients = (props) => {
 
     const pageCount = Math.ceil(clinic.patientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
+    const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
     return (
       <Box sx={{ position: 'relative' }}>
@@ -1366,8 +1372,8 @@ export const ClinicPatients = (props) => {
           data={values(clinic?.patients)}
           style={{fontSize: showSummaryData ? '12px' : '14px'}}
           onSort={handleSortChange}
-          order={patientFetchOptions.sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
-          orderBy={patientFetchOptions.sort.substring(1)}
+          order={sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
+          orderBy={sort.substring(1)}
         />
 
         {pageCount > 1 && (

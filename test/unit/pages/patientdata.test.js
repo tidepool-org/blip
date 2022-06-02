@@ -2374,6 +2374,80 @@ describe('PatientData', function () {
           }));
         });
 
+        it('should set `bgPrefs` to state if with units provided via a query param', () => {
+          wrapper.setState({ bgPrefs: undefined });
+          wrapper.setProps(props);
+
+          wrapper.setState({ bgPrefs: undefined });
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            queryParams: { units: 'mmoll' },
+          });
+
+          sinon.assert.calledWith(setStateSpy, sinon.match({
+            bgPrefs: {
+              bgBounds: 'stubbed bgBounds',
+              bgClasses: { low: { boundary: 3.9 }, target: { boundary: 10 } },
+              bgUnits: 'mmol/L',
+            },
+          }));
+
+          wrapper.setState({ bgPrefs: undefined });
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            queryParams: { units: 'mgdl' },
+          });
+
+          sinon.assert.calledWith(setStateSpy, sinon.match({
+            bgPrefs: {
+              bgBounds: 'stubbed bgBounds',
+              bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
+              bgUnits: 'mg/dL',
+            },
+          }));
+        });
+
+        it('should set `bgPrefs` to state using a clinic\'s preferred BG units', () => {
+          wrapper.setState({ bgPrefs: undefined });
+          wrapper.setProps(props);
+
+          wrapper.setState({ bgPrefs: undefined });
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            clinic: { preferredBgUnits: 'mmol/L' },
+          });
+
+          sinon.assert.calledWith(setStateSpy, sinon.match({
+            bgPrefs: {
+              bgBounds: 'stubbed bgBounds',
+              bgClasses: { low: { boundary: 3.9 }, target: { boundary: 10 } },
+              bgUnits: 'mmol/L',
+            },
+          }));
+
+          wrapper.setState({ bgPrefs: undefined });
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            clinic: { preferredBgUnits: 'mg/dL' },
+          });
+
+          sinon.assert.calledWith(setStateSpy, sinon.match({
+            bgPrefs: {
+              bgBounds: 'stubbed bgBounds',
+              bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
+              bgUnits: 'mg/dL',
+            },
+          }));
+        });
+
         it('should set timePrefs if not already set to state', () => {
           wrapper.setState({ timePrefs: { timezoneAware: false } });
           setStateSpy.resetHistory();
