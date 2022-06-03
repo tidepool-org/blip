@@ -293,15 +293,18 @@ export const ClinicPatients = (props) => {
   }, [loggedInUserId, patientFetchOptions]);
 
   useEffect(() => {
-    const filterOptions = {
+    const fetchOptions = {
       offset: 0,
       sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
       limit: clinic?.tier >= 'tier0200' ? 10 : 8,
+      search: patientFetchOptions.search,
     }
 
+    if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
+
     if (activeFilters.lastUploadDate) {
-      filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-      filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
+      fetchOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+      fetchOptions['summary.lastUploadDateFrom'] = moment(fetchOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
     }
 
     forEach(activeFilters.timeInRange, filter => {
@@ -313,23 +316,10 @@ export const ClinicPatients = (props) => {
         comparator = comparator === '<' ? '>=' : '<=';
       }
 
-      filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
+      fetchOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
     });
 
-    const newPatientFetchOptions = {
-      ...omit(patientFetchOptions, [
-        'summary.lastUploadDateFrom',
-        'summary.lastUploadDateTo',
-        `summary.periods.${summaryPeriod}.timeInVeryLowPercent`,
-        `summary.periods.${summaryPeriod}.timeInLowPercent`,
-        `summary.periods.${summaryPeriod}.timeInTargetPercent`,
-        `summary.periods.${summaryPeriod}.timeInHighPercent`,
-        `summary.periods.${summaryPeriod}.timeInVeryHighPercent`,
-      ]),
-      ...filterOptions,
-    };
-
-    setPatientFetchOptions(newPatientFetchOptions);
+    setPatientFetchOptions(fetchOptions);
   }, [activeFilters, clinic?.id, summaryPeriod]);
 
   function formatDecimal(val, precision) {
@@ -617,7 +607,7 @@ export const ClinicPatients = (props) => {
                       <Button id="apply-summary-period-filter" fontSize={1} variant="textPrimary" onClick={() => {
                         const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
 
-                        trackMetric(prefixPopHealthMetric('Last upload apply filter'), {
+                        trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
                           clinicId: selectedClinicId,
                           dateRange,
                         });

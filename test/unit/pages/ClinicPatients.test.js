@@ -1158,6 +1158,74 @@ describe('ClinicPatients', () => {
           expect(timeInRangeFilterCount().text()).to.equal('5');
         });
 
+        it('should allow filtering by summary period', () => {
+          // Set some default range filters since they are affected by summary period changes
+          ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().returns([
+            {
+              timeInRange: [
+                  'timeInLowPercent',
+                  'timeInHighPercent'
+              ],
+              meetsGlycemicTargets: false,
+            },
+            sinon.stub()
+          ]));
+
+          wrapper = mount(
+            <Provider store={store}>
+              <ToastProvider>
+                <ClinicPatients {...defaultProps} />
+              </ToastProvider>
+            </Provider>
+          );
+
+          wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+
+          const summaryPeriodFilterTrigger = wrapper.find('#summary-period-filter-trigger').hostNodes();
+          expect(summaryPeriodFilterTrigger).to.have.lengthOf(1);
+
+          const popover = () => wrapper.find('#summaryPeriodFilters').hostNodes();
+          expect(popover().props().style.visibility).to.equal('hidden');
+
+          // Open filters popover
+          summaryPeriodFilterTrigger.simulate('click');
+          expect(popover().props().style.visibility).to.be.undefined;
+
+          // Ensure filter options present
+          const filterOptions = popover().find('#summary-period-filters').find('label').hostNodes();
+          expect(filterOptions).to.have.lengthOf(3);
+          expect(filterOptions.at(0).text()).to.equal('24 hours');
+          expect(filterOptions.at(0).find('input').props().value).to.equal('1d');
+
+          expect(filterOptions.at(1).text()).to.equal('7 days');
+          expect(filterOptions.at(1).find('input').props().value).to.equal('7d');
+
+          expect(filterOptions.at(2).text()).to.equal('14 days');
+          expect(filterOptions.at(2).find('input').props().value).to.equal('14d');
+
+          // Default should be 14 days
+          expect(filterOptions.at(2).find('input').props().checked).to.be.true;
+
+          // Set to 7 days
+          filterOptions.at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          const applyButton = popover().find('#apply-summary-period-filter').hostNodes();
+          applyButton.simulate('click');
+
+          // Ensure resulting patient fetch is requesting the 7 day period for time in range filters
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
+            limit: 10,
+            offset: 0,
+            sort: '+fullName',
+            'summary.periods.7d.timeInHighPercent': '>=0.25',
+            'summary.periods.7d.timeInLowPercent': '>=0.04',
+          }));
+
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Summary period apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '7 days' }));
+          ClinicPatients.__ResetDependency__('useLocalStorage');
+        });
+
         context('persisted filter state', () => {
           beforeEach(() => {
             store = mockStore(tier0200ClinicState);
