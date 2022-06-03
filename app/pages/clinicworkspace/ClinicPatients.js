@@ -104,7 +104,6 @@ export const ClinicPatients = (props) => {
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
-  const summaryPeriod = '14d';
 
   const defaultFilterState = {
     lastUploadDate: null,
@@ -148,6 +147,20 @@ export const ClinicPatients = (props) => {
     { value: 'timeInHighPercent', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.timeInHighPercent), tag: t('High'), rangeName: 'high' },
     { value: 'timeInVeryHighPercent', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.timeInVeryHighPercent), tag: t('Severe Hyperglycemia'), rangeName: 'veryHigh' },
   ];
+
+  const summaryPeriodOptions = [
+    { value: '1d', label: t('24 hours') },
+    { value: '7d', label: t('7 days') },
+    { value: '14d', label: t('14 days') },
+  ];
+
+  const [summaryPeriod, setSummaryPeriod] = useState('14d');
+  const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(summaryPeriod);
+
+  const summaryPeriodPopupFilterState = usePopupState({
+    variant: 'popover',
+    popupId: 'summaryPeriodFilters',
+  });
 
   const lastUploadDatePopupFilterState = usePopupState({
     variant: 'popover',
@@ -317,7 +330,7 @@ export const ClinicPatients = (props) => {
     };
 
     setPatientFetchOptions(newPatientFetchOptions);
-  }, [activeFilters, clinic?.id]);
+  }, [activeFilters, clinic?.id, summaryPeriod]);
 
   function formatDecimal(val, precision) {
     if (precision === null || precision === undefined) {
@@ -537,6 +550,85 @@ export const ClinicPatients = (props) => {
                       {t('Reset Filters')}
                     </Button>
                   )}
+
+                  <Flex
+                  alignItems="center"
+                  color="grays.4"
+                  pl={3}
+                  py={1}
+                  sx={{ gap: 1, borderLeft: borders.divider }}
+                  >
+                    <Text fontSize={0}>{t('View data from')}</Text>
+                  </Flex>
+
+                  <Box
+                    onClick={() => {
+                      if (!summaryPeriodPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Summary period filter open'), { clinicId: selectedClinicId });
+                    }}
+                  >
+                    <Button
+                      variant="filter"
+                      id="summary-period-filter-trigger"
+                      selected={!!activeFilters.lastUploadDate}
+                      {...bindTrigger(summaryPeriodPopupFilterState)}
+                      icon={KeyboardArrowDownRoundedIcon}
+                      iconLabel="Filter by summary period duration"
+                      fontSize={0}
+                      lineHeight={1.3}
+                    >
+                      {find(summaryPeriodOptions, { value: summaryPeriod }).label}
+                    </Button>
+                  </Box>
+
+                  <Popover
+                    minWidth="11em"
+                    closeIcon
+                    {...bindPopover(summaryPeriodPopupFilterState)}
+                    onClickCloseIcon={() => {
+                      trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
+                    }}
+                  >
+                    <DialogContent px={2} py={3} dividers>
+                      <RadioGroup
+                        id="summary-period-filters"
+                        name="summary-period-filters"
+                        options={summaryPeriodOptions}
+                        variant="vertical"
+                        fontSize={0}
+                        value={pendingSummaryPeriod || summaryPeriod}
+                        onChange={event => setPendingSummaryPeriod(event.target.value)}
+                      />
+                    </DialogContent>
+
+                    <DialogActions justifyContent="space-between" p={1}>
+                      <Button
+                        id="cancel-summary-period-filter"
+                        fontSize={1}
+                        variant="textSecondary"
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
+                          setPendingSummaryPeriod(summaryPeriod);
+                          summaryPeriodPopupFilterState.close();
+                        }}
+                      >
+                        {t('Cancel')}
+                      </Button>
+
+                      <Button id="apply-summary-period-filter" fontSize={1} variant="textPrimary" onClick={() => {
+                        const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
+
+                        trackMetric(prefixPopHealthMetric('Last upload apply filter'), {
+                          clinicId: selectedClinicId,
+                          dateRange,
+                        });
+
+                        setSummaryPeriod(pendingSummaryPeriod);
+                        summaryPeriodPopupFilterState.close();
+                      }}>
+                        {t('Apply')}
+                      </Button>
+                    </DialogActions>
+                  </Popover>
                 </>
               )}
             </Flex>
