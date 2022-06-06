@@ -13,7 +13,6 @@ import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
-import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import values from 'lodash/values';
 import without from 'lodash/without';
@@ -547,71 +546,52 @@ export const ClinicPatients = (props) => {
               justifyContent="flex-end"
             >
               {showSummaryData && showNames && (
-                <>
-                  <PopoverLabel
-                    id="patient-fetch-time-ago"
+                <Flex pr={3} py={1} mr={2} alignItems="center" sx={{ borderRight: borders.divider }}>
+                  <Icon
+                    mr={2}
+                    id="refresh-patients"
+                    variant="default"
                     icon={RefreshRoundedIcon}
-                    iconLabel={t('Refresh patients list')}
-                    iconProps={{
-                      color: fetchingPatientsForClinic.inProgress ? 'text.primaryDisabled' : 'inherit',
-                      disabled: fetchingPatientsForClinic.inProgress,
-                      iconFontSize: '18px',
-                      id: 'refresh-patients',
-                      onClick: handleRefreshPatients,
-                    }}
-                    popoverContent={(
-                      <Body1 p={3} id="last-refresh-time-ago" fontSize={1}>{timeAgoMessage}</Body1>
-                    )}
-                    ml={2}
-                    popoverProps={{
-                      anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                      },
-                      transformOrigin: {
-                        vertical: 'top',
-                        horizontal: 'center',
-                      },
-                      width: 'auto',
-                    }}
-                    triggerOnHover
+                    color={loading ? 'text.primaryDisabled' : 'inherit'}
+                    disabled={loading}
+                    label={t('Refresh patients list')}
+                    onClick={handleRefreshPatients}
                   />
 
-                  <PopoverLabel
-                    id="summary-stat-info"
-                    iconLabel={t('Summary stat info')}
-                    icon={InfoOutlinedIcon}
-                    iconProps={{
-                      id: 'summary-stat-info-trigger',
-                      iconFontSize: '18px',
-                    }}
-                    popoverContent={renderInfoPopover()}
-                    ml={2}
-                    popoverProps={{
-                      anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                      },
-                      transformOrigin: {
-                        vertical: 'top',
-                        horizontal: 'center',
-                      },
-                      width: 'auto',
-                    }}
-                    triggerOnHover
-                  />
-                </>
+                  <Text id="last-refresh-time-ago" fontSize={0}>{timeAgoMessage}</Text>
+                </Flex>
               )}
 
               <Icon
                 id="patients-view-toggle"
                 variant="default"
                 color="grays.4"
-                ml={2}
+                ml={1}
                 icon={VisibilityIcon}
                 label={t('Toggle visibility')}
                 onClick={handleToggleShowNames}
               />
+
+             <PopoverLabel
+               id="summary-stat-info-trigger"
+               iconLabel={t('Summary stat info')}
+               icon={InfoOutlinedIcon}
+               iconFontSize="18px"
+               popoverContent={renderInfoPopover()}
+               ml={2}
+               popoverProps={{
+                 anchorOrigin: {
+                   vertical: 'bottom',
+                   horizontal: 'center',
+                 },
+                 transformOrigin: {
+                   vertical: 'top',
+                   horizontal: 'center',
+                 },
+                 width: 'auto',
+               }}
+               triggerOnHover
+             />
             </Flex>
           </Flex>
         </Flex>

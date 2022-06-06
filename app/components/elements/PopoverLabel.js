@@ -17,7 +17,7 @@ const PopoverLabel = props => {
   const {
     icon,
     iconLabel,
-    iconProps,
+    iconFontSize,
     id,
     label,
     popoverContent: PopoverContent,
@@ -39,7 +39,7 @@ const PopoverLabel = props => {
         <Icon
           label={iconLabel}
           icon={icon}
-          {...iconProps}
+          fontSize={iconFontSize}
           {...(triggerOnHover ? bindHover(popupState) : bindToggle(popupState))}
         />
       </Flex>
@@ -55,7 +55,7 @@ PopoverLabel.propTypes = {
   ...FlexProps,
   icon: PropTypes.elementType.isRequired,
   iconLabel: PropTypes.string.isRequired,
-  iconProps: PropTypes.object,
+  iconFontSize: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   label: PropTypes.string,
   popoverContent: PropTypes.node,
@@ -66,7 +66,7 @@ PopoverLabel.propTypes = {
 PopoverLabel.defaultProps = {
   icon: InfoRoundedIcon,
   iconLabel: 'more info',
-  iconProps: { iconFontSize: '1em' },
+  iconFontSize: '1em',
   triggerOnHover: false,
   popoverProps: { width: '25em' },
 };
