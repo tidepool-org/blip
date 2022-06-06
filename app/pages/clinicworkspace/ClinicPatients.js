@@ -13,7 +13,6 @@ import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
-import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import values from 'lodash/values';
 import without from 'lodash/without';
