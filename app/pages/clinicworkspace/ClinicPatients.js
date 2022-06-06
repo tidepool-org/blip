@@ -549,13 +549,14 @@ export const ClinicPatients = (props) => {
               {showSummaryData && showNames && (
                 <>
                   <PopoverLabel
-                    id="refresh-patients"
+                    id="patient-fetch-time-ago"
                     icon={RefreshRoundedIcon}
                     iconLabel={t('Refresh patients list')}
                     iconProps={{
                       color: fetchingPatientsForClinic.inProgress ? 'text.primaryDisabled' : 'inherit',
                       disabled: fetchingPatientsForClinic.inProgress,
                       iconFontSize: '18px',
+                      id: 'refresh-patients',
                       onClick: handleRefreshPatients,
                     }}
                     popoverContent={(
@@ -577,10 +578,11 @@ export const ClinicPatients = (props) => {
                   />
 
                   <PopoverLabel
-                    id="summary-stat-info-trigger"
+                    id="summary-stat-info"
                     iconLabel={t('Summary stat info')}
                     icon={InfoOutlinedIcon}
                     iconProps={{
+                      id: 'summary-stat-info-trigger',
                       iconFontSize: '18px',
                     }}
                     popoverContent={renderInfoPopover()}
