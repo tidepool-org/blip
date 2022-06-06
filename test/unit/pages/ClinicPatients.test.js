@@ -598,9 +598,9 @@ describe('ClinicPatients', () => {
 
       it('should display menu when "More" icon is clicked', () => {
         const moreMenuIcon = wrapper.find('PopoverMenu').find('Icon').at(0);
-        expect(wrapper.find(Popover).at(1).props().open).to.be.false;
+        expect(wrapper.find(Popover).at(0).props().open).to.be.false;
         moreMenuIcon.simulate('click');
-        expect(wrapper.find(Popover).at(1).props().open).to.be.true;
+        expect(wrapper.find(Popover).at(0).props().open).to.be.true;
       });
 
       it('should open a modal for patient editing when edit link is clicked', done => {
@@ -893,7 +893,6 @@ describe('ClinicPatients', () => {
         it('should allow refreshing the patient list and maintain', () => {
           const refreshButton = wrapper.find('#refresh-patients').hostNodes();
           expect(refreshButton).to.have.lengthOf(1);
-
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           refreshButton.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName' }));
