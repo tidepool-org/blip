@@ -82,7 +82,7 @@ export const WorkspaceSwitcher = props => {
   };
 
   return menuOptions.length ? (
-    <Flex id="workspace-switcher" width="400px" justifyContent="center">
+    <Flex id='workspace-switcher' justifyContent={['center', 'flex-start', 'center']}>
       {menuOptions.length > 1 && (
         <>
           <Button
@@ -137,6 +137,7 @@ export const WorkspaceSwitcher = props => {
                     '&:last-child': {
                       pb: 2,
                     },
+                    textAlign: 'left',
                   }}
                 >
                   {option.label}
