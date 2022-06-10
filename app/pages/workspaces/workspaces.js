@@ -333,7 +333,7 @@ export const Workspaces = (props) => {
       </Box>
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
       >

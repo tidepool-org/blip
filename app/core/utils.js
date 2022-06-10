@@ -341,8 +341,8 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
-  var bgUnits = _.get(patientSettings, 'units.bg', queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS);
+utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, source }) => {
+  var bgUnits = _.get(patientSettings, 'units.bg', overrideUnits?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS);
 
   const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
   const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
@@ -354,11 +354,11 @@ utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
 
   // Allow overriding stored BG Unit preferences via query param
   const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
-  if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], queryParams.units)) {
-    bgUnits = queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
+  if (!_.isEmpty(overrideUnits) && overrideUnits !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], overrideUnits)) {
+    bgUnits = overrideUnits === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
     bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.low, bgUnits), bgUnits);
     bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.high, bgUnits), bgUnits);
-    console.log(`Displaying BG in ${bgUnits} from query params`);
+    console.log(`Displaying BG in ${bgUnits} from ${source}`);
   }
 
   return {

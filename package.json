@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.53.0",
+  "version": "1.54.0",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -55,7 +55,7 @@
     "@storybook/addon-viewport": "5.3.19",
     "@storybook/addons": "5.3.19",
     "@storybook/react": "5.3.19",
-    "@tidepool/viz": "1.27.0",
+    "@tidepool/viz": "1.28.0",
     "async": "2.6.1",
     "autoprefixer": "9.8.4",
     "babel-core": "7.0.0-bridge.0",
@@ -167,7 +167,7 @@
     "terser": "4.8.0",
     "terser-webpack-plugin": "2.2.1",
     "tideline": "1.26.0",
-    "tidepool-platform-client": "0.48.0",
+    "tidepool-platform-client": "0.49.0",
     "tidepool-standard-action": "0.1.1",
     "url-loader": "1.1.1",
     "webpack": "4.44.1",

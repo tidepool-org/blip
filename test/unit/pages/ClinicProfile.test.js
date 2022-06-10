@@ -88,6 +88,7 @@ describe('ClinicProfile', () => {
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
           shareCode: 'ABCD-ABCD-ABCD',
+          preferredBgUnits: 'mmol/L',
           phoneNumbers: [
             {
               number: '(888) 555-5555',
@@ -127,6 +128,7 @@ describe('ClinicProfile', () => {
           website: 'http://clinic.com',
           clinicType: 'provider_practice',
           clinicSize: '0-249',
+          preferredBgUnits: 'mmol/L',
           phoneNumbers: [
             {
               number: '(888) 555-5555',
@@ -172,14 +174,8 @@ describe('ClinicProfile', () => {
     );
   });
 
-  it('should render the header', () => {
-    const header = wrapper.find('#clinic-profile-header').hostNodes();
-    expect(header).to.have.lengthOf(1);
-    expect(header.find('h3').text()).to.equal('Clinic Profile');
-  });
-
   it('should render a link to the clinic admin page if currently on clinic workspace', () => {
-    const link = wrapper.find(Button).filter({ variant: 'textPrimary' });
+    const link = wrapper.find(Button).filter({ variant: 'textSecondary' });
     expect(link).to.have.length(1);
     expect(link.text()).to.equal('View Clinic Members');
     expect(link.props().onClick).to.be.a('function');
@@ -213,7 +209,7 @@ describe('ClinicProfile', () => {
       </Provider>
     );
 
-    const link = wrapper.find(Button).filter({ variant: 'textPrimary' });
+    const link = wrapper.find(Button).filter({ variant: 'textSecondary' });
     expect(link).to.have.length(1);
     expect(link.text()).to.equal('View Patient List');
     expect(link.props().onClick).to.be.a('function');
@@ -297,6 +293,7 @@ describe('ClinicProfile', () => {
         expect(profileForm.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
         expect(profileForm.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('provider_practice');
         expect(profileForm.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('0-249');
+        expect(profileForm.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mmol/L');
       });
 
       it('should submit updated clinic profile values', done => {
@@ -336,6 +333,9 @@ describe('ClinicProfile', () => {
         wrapper.find('input[name="clinicSize"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicSize', value: '250-499' } });
         expect(wrapper.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('250-499');
 
+        wrapper.find('input[name="preferredBgUnits"]').at(1).simulate('change', { persist: noop, target: { name: 'preferredBgUnits', value: 'mg/dL' } });
+        expect(wrapper.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mg/dL');
+
         store.clearActions();
         wrapper.find('Button#submit').simulate('submit');
 
@@ -356,6 +356,7 @@ describe('ClinicProfile', () => {
               postalCode: 'L3X 9G2',
               state: 'ON',
               website: 'http://clinic_updated.com',
+              preferredBgUnits: 'mg/dL',
             }
           );
 

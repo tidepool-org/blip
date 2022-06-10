@@ -252,7 +252,7 @@ export const ClinicInvite = (props) => {
 
       <Dialog
         id="confirmDialog"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={dialogOpen}
         onClose={handleDialogClose}
       >

@@ -326,7 +326,7 @@ export const ClinicianEdit = (props) => {
 
           <Dialog
             id="deleteDialog"
-            aria-labelledBy="dialog-title"
+            aria-labelledby="dialog-title"
             open={deleteDialogOpen}
             onClose={handleCloseDeleteDialog}
           >
@@ -361,7 +361,7 @@ export const ClinicianEdit = (props) => {
 
           <Dialog
             id="confirmDialog"
-            aria-labelledBy="dialog-title"
+            aria-labelledby="dialog-title"
             open={confirmDialogOpen}
             onClose={handleCloseConfirmDialog}
           >
