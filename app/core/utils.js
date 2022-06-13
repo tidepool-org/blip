@@ -354,6 +354,10 @@ utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, so
 
   // Allow overriding stored BG Unit preferences via query param
   const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
+
+  console.log('overrideUnits', overrideUnits);
+  console.log('bgUnitsFormatted', bgUnitsFormatted);
+
   if (!_.isEmpty(overrideUnits) && overrideUnits !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], overrideUnits)) {
     bgUnits = overrideUnits === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
     bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.low, bgUnits), bgUnits);

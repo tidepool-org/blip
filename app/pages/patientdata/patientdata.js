@@ -1509,12 +1509,14 @@ export const PatientDataClass = createReactClass({
 
       // Set bgPrefs to state
       let bgPrefs = this.state.bgPrefs;
+      console.log('bgPrefs', bgPrefs);
       if (!bgPrefs) {
         const bgUnitsOverride = {
           units: nextProps.clinic?.preferredBgUnits || nextProps.queryParams?.units,
           source: nextProps.clinic?.preferredBgUnits ? 'preferred clinic units' : 'query params',
         };
 
+        console.log('bgUnitsOverride', bgUnitsOverride);
         bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
         if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
