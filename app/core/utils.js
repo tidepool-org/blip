@@ -357,13 +357,13 @@ utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, so
   var bgClasses = {
     low: {
       boundary: utils.roundBgTarget(
-        settingsOverrideActive ? utils.translateBg(patientSettings.bgTarget.low, bgUnits) : low,
+        settingsOverrideActive && patientSettings?.bgTarget?.low ? utils.translateBg(patientSettings.bgTarget.low, bgUnits) : low,
         bgUnits
       )
     },
     target: {
       boundary: utils.roundBgTarget(
-        settingsOverrideActive ? utils.translateBg(patientSettings.bgTarget.high, bgUnits) : high,
+        settingsOverrideActive && patientSettings?.bgTarget?.high ? utils.translateBg(patientSettings.bgTarget.high, bgUnits) : high,
         bgUnits
       )
     },
