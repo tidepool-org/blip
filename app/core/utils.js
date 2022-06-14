@@ -341,29 +341,35 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, source }) => {
-  var bgUnits = _.get(patientSettings, 'units.bg', overrideUnits?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS);
+utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, source: overrideSource }) => {
+  // Allow overriding stored BG Unit preferences via query param or preferred clinic BG units
+  // If no override is specified, use patient settings units if availiable, otherwise 'mg/dL'
+  const patientSettingsBgUnits = patientSettings?.units?.bg || MGDL_UNITS;
 
+  const bgUnits = overrideUnits
+    ? (overrideUnits?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS)
+    : patientSettingsBgUnits;
+
+  const settingsOverrideActive = patientSettingsBgUnits !== bgUnits;
   const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
   const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
 
   var bgClasses = {
-    low: { boundary: utils.roundBgTarget(low, bgUnits) },
-    target: { boundary: utils.roundBgTarget(high, bgUnits) },
+    low: {
+      boundary: utils.roundBgTarget(
+        settingsOverrideActive && patientSettings?.bgTarget?.low ? utils.translateBg(patientSettings.bgTarget.low, bgUnits) : low,
+        bgUnits
+      )
+    },
+    target: {
+      boundary: utils.roundBgTarget(
+        settingsOverrideActive && patientSettings?.bgTarget?.high ? utils.translateBg(patientSettings.bgTarget.high, bgUnits) : high,
+        bgUnits
+      )
+    },
   };
 
-  // Allow overriding stored BG Unit preferences via query param
-  const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
-
-  console.log('overrideUnits', overrideUnits);
-  console.log('bgUnitsFormatted', bgUnitsFormatted);
-
-  if (!_.isEmpty(overrideUnits) && overrideUnits !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], overrideUnits)) {
-    bgUnits = overrideUnits === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
-    bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.low, bgUnits), bgUnits);
-    bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.high, bgUnits), bgUnits);
-    console.log(`Displaying BG in ${bgUnits} from ${source}`);
-  }
+  if (settingsOverrideActive) console.log(`Displaying BG in ${bgUnits} from ${overrideSource}`);
 
   return {
     bgUnits,
