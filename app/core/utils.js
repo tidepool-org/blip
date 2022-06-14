@@ -344,7 +344,6 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
 utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, source: overrideSource }) => {
   // Allow overriding stored BG Unit preferences via query param or preferred clinic BG units
   // If no override is specified, use patient settings units if availiable, otherwise 'mg/dL'
-  // const patientSettingsBgUnits = _.get(patientSettings, 'units.bg',  MGDL_UNITS);
   const patientSettingsBgUnits = patientSettings?.units?.bg;
 
   const bgUnits = overrideUnits
