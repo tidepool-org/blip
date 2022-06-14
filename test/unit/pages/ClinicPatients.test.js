@@ -20,6 +20,7 @@ import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 /* global beforeEach */
 /* global before */
 /* global after */
+/* global afterEach */
 
 const expect = chai.expect;
 const assert = chai.assert;
@@ -49,6 +50,7 @@ describe('ClinicPatients', () => {
   });
 
   beforeEach(() => {
+    delete localStorage.activePatientFilters;
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.getPatientsForClinic.resetHistory();
     defaultProps.api.clinics.deletePatientFromClinic.resetHistory();
@@ -190,11 +192,12 @@ describe('ClinicPatients', () => {
               mrn: 'mrn123',
               summary:{
                 lastUploadDate: moment().toISOString(),
-                averageGlucose: { units: MMOLL_UNITS },
-                percentTimeCGMUse: 0.85,
-                glucoseManagementIndicator: 7.75,
-                lastData: moment().toISOString(),
-                firstData: moment().subtract(23, 'hours').toISOString(),
+                periods: { '14d': {
+                  averageGlucose: { units: MMOLL_UNITS },
+                  timeCGMUsePercent: 0.85,
+                  timeCGMUseMinutes: 23 * 60,
+                  glucoseManagementIndicator: 7.75,
+                } },
               },
               permissions: { custodian : undefined }
             },
@@ -206,11 +209,12 @@ describe('ClinicPatients', () => {
               mrn: 'mrn456',
               summary: {
                 lastUploadDate: moment().subtract(1, 'day').toISOString(),
-                averageGlucose: { units: MGDL_UNITS },
-                percentTimeCGMUse: 0.70,
-                glucoseManagementIndicator: 6.5,
-                lastData: moment().toISOString(),
-                firstData: moment().subtract(7, 'days').toISOString(),
+                periods: { '14d': {
+                  averageGlucose: { units: MGDL_UNITS },
+                  timeCGMUsePercent: 0.70,
+                  timeCGMUseMinutes:  7 * 24 * 60,
+                  glucoseManagementIndicator: 6.5,
+                } },
               },
             },
             patient4: {
@@ -221,11 +225,12 @@ describe('ClinicPatients', () => {
               mrn: 'mrn789',
               summary: {
                 lastUploadDate: moment().subtract(29, 'days').toISOString(),
-                averageGlucose: { units: MMOLL_UNITS },
-                percentTimeCGMUse: 0.69,
-                glucoseManagementIndicator: undefined,
-                lastData: moment().toISOString(),
-                firstData: moment().subtract(7, 'days').toISOString(),
+                periods: { '14d': {
+                  averageGlucose: { units: MMOLL_UNITS },
+                  timeCGMUsePercent: 0.69,
+                  timeCGMUseMinutes:  7 * 24 * 60,
+                  glucoseManagementIndicator: undefined,
+                } },
               },
             },
             patient5: {
@@ -236,9 +241,12 @@ describe('ClinicPatients', () => {
               mrn: 'mrn101',
               summary: {
                 lastUploadDate: moment().subtract(30, 'days').toISOString(),
-                averageGlucose: { units: MGDL_UNITS },
-                percentTimeCGMUse: 0.69,
-                glucoseManagementIndicator: undefined,
+                periods: { '14d': {
+                  averageGlucose: { units: MGDL_UNITS },
+                  timeCGMUsePercent: 0.69,
+                  timeCGMUseMinutes:  30 * 24 * 60,
+                  glucoseManagementIndicator: undefined,
+                } },
               },
             },
           }
@@ -590,9 +598,9 @@ describe('ClinicPatients', () => {
 
       it('should display menu when "More" icon is clicked', () => {
         const moreMenuIcon = wrapper.find('PopoverMenu').find('Icon').at(0);
-        expect(wrapper.find(Popover).at(1).props().open).to.be.false;
+        expect(wrapper.find(Popover).at(0).props().open).to.be.false;
         moreMenuIcon.simulate('click');
-        expect(wrapper.find(Popover).at(1).props().open).to.be.true;
+        expect(wrapper.find(Popover).at(0).props().open).to.be.true;
       });
 
       it('should open a modal for patient editing when edit link is clicked', done => {
@@ -786,10 +794,10 @@ describe('ClinicPatients', () => {
           assert(columns.at(2).is('#peopleTable-header-summary-lastUploadDate'));
 
           expect(columns.at(3).text()).to.equal('% CGM Use');
-          assert(columns.at(3).is('#peopleTable-header-summary-percentTimeCGMUse'));
+          assert(columns.at(3).is('#peopleTable-header-summary-periods-14d-timeCGMUsePercent'));
 
           expect(columns.at(4).text()).to.equal('% GMI');
-          assert(columns.at(4).is('#peopleTable-header-summary-glucoseManagementIndicator'));
+          assert(columns.at(4).is('#peopleTable-header-summary-periods-14d-glucoseManagementIndicator'));
 
           expect(columns.at(5).text()).to.equal('% Time in Range');
           assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
@@ -861,31 +869,30 @@ describe('ClinicPatients', () => {
           lastUploadHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.lastUploadDate' }));
 
-          const cgmUseHeader = table.find('#peopleTable-header-summary-percentTimeCGMUse .MuiTableSortLabel-root').at(0);
+          const cgmUseHeader = table.find('#peopleTable-header-summary-periods-14d-timeCGMUsePercent .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           cgmUseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.percentTimeCGMUse' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.periods.14d.timeCGMUsePercent' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           cgmUseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.percentTimeCGMUse' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.periods.14d.timeCGMUsePercent' }));
 
-          const gmiHeader = table.find('#peopleTable-header-summary-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
-
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.glucoseManagementIndicator' }));
+          const gmiHeader = table.find('#peopleTable-header-summary-periods-14d-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.glucoseManagementIndicator' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.periods.14d.glucoseManagementIndicator' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          gmiHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.periods.14d.glucoseManagementIndicator' }));
         });
 
         it('should allow refreshing the patient list and maintain', () => {
           const refreshButton = wrapper.find('#refresh-patients').hostNodes();
           expect(refreshButton).to.have.lengthOf(1);
-
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           refreshButton.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName' }));
@@ -998,19 +1005,19 @@ describe('ClinicPatients', () => {
           expect(veryHighFilter().find('input').props().checked).to.be.false;
 
           // Select all filter ranges
-          veryLowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryLow-filter', checked: true } });
+          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          lowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInLow-filter', checked: true } });
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
-          targetFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInTarget-filter', checked: true } });
+          targetFilter().find('input').simulate('change', { target: { name: 'range-timeInTargetPercent-filter', checked: true } });
           expect(targetFilter().find('input').props().checked).to.be.true;
 
-          highFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInHigh-filter', checked: true } });
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
-          veryHighFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryHigh-filter', checked: true } });
+          veryHighFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryHighPercent-filter', checked: true } });
           expect(veryHighFilter().find('input').props().checked).to.be.true;
 
           // Submit the form
@@ -1021,11 +1028,11 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 10,
             offset: 0,
             sort: '+fullName',
-            'summary.percentTimeInHigh': '<0.25',
-            'summary.percentTimeInLow': '<0.04',
-            'summary.percentTimeInTarget': '>0.7',
-            'summary.percentTimeInVeryHigh': '<0.05',
-            'summary.percentTimeInVeryLow': '<0.01',
+            'summary.periods.14d.timeInHighPercent': '<0.25',
+            'summary.periods.14d.timeInLowPercent': '<0.04',
+            'summary.periods.14d.timeInTargetPercent': '>0.7',
+            'summary.periods.14d.timeInVeryHighPercent': '<0.05',
+            'summary.periods.14d.timeInVeryLowPercent': '<0.01',
           }));
 
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in range apply filter', sinon.match({
@@ -1106,19 +1113,19 @@ describe('ClinicPatients', () => {
           expect(veryHighFilter().find('input').props().checked).to.be.false;
 
           // Select all filter ranges
-          veryLowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryLow-filter', checked: true } });
+          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          lowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInLow-filter', checked: true } });
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
-          targetFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInTarget-filter', checked: true } });
+          targetFilter().find('input').simulate('change', { target: { name: 'range-timeInTargetPercent-filter', checked: true } });
           expect(targetFilter().find('input').props().checked).to.be.true;
 
-          highFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInHigh-filter', checked: true } });
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
-          veryHighFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryHigh-filter', checked: true } });
+          veryHighFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryHighPercent-filter', checked: true } });
           expect(veryHighFilter().find('input').props().checked).to.be.true;
 
           // Submit the form
@@ -1129,11 +1136,11 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 10,
             offset: 0,
             sort: '+fullName',
-            'summary.percentTimeInHigh': '>=0.25',
-            'summary.percentTimeInLow': '>=0.04',
-            'summary.percentTimeInTarget': '<=0.7',
-            'summary.percentTimeInVeryHigh': '>=0.05',
-            'summary.percentTimeInVeryLow': '>=0.01',
+            'summary.periods.14d.timeInHighPercent': '>=0.25',
+            'summary.periods.14d.timeInLowPercent': '>=0.04',
+            'summary.periods.14d.timeInTargetPercent': '<=0.7',
+            'summary.periods.14d.timeInVeryHighPercent': '>=0.05',
+            'summary.periods.14d.timeInVeryLowPercent': '>=0.01',
           }));
 
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in range apply filter', sinon.match({
@@ -1148,6 +1155,93 @@ describe('ClinicPatients', () => {
 
           expect(timeInRangeFilterCount()).to.have.lengthOf(1);
           expect(timeInRangeFilterCount().text()).to.equal('5');
+        });
+
+        context('persisted filter state', () => {
+          beforeEach(() => {
+            store = mockStore(tier0200ClinicState);
+
+            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().returns([
+              {
+                lastUploadDate: 14,
+                timeInRange: [
+                    'timeInLowPercent',
+                    'timeInHighPercent'
+                ],
+                meetsGlycemicTargets: false,
+              },
+              sinon.stub()
+            ]));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            defaultProps.trackMetric.resetHistory();
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useLocalStorage');
+          });
+
+          it('should set the last upload filter on load based on the stored filters', () => {
+            const lastUploadFilterTrigger = wrapper.find('#last-upload-filter-trigger').hostNodes();
+            expect(lastUploadFilterTrigger.text()).to.equal('Last 14 days');
+          });
+
+          it('should set the time in range filters on load based on the stored filters', () => {
+            const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
+
+            // Should show 2 active time in range filters
+            const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
+            expect(timeInRangeFilterCount()).to.have.lengthOf(1);
+            expect(timeInRangeFilterCount().text()).to.equal('2');
+
+            const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+
+            // Open time in rangefilters dialog
+            timeInRangeFilterTrigger.simulate('click');
+            wrapper.update();
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.true;
+
+            // notMeetsCriteriaButton should be selected due to persisted filter state
+            const notMeetsCriteriaButton = () => dialog().find('#not-meets-glycemic-targets-filter').hostNodes();
+            expect(notMeetsCriteriaButton().is('.selected')).to.be.true;
+
+            // Ensure filter options in pre-set state
+            const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+            expect(veryLowFilter().find('input').props().checked).to.be.false;
+
+            const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+            expect(lowFilter().find('input').props().checked).to.be.true;
+
+            const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
+            expect(targetFilter().find('input').props().checked).to.be.false;
+
+            const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+            expect(highFilter().find('input').props().checked).to.be.true;
+
+            const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
+            expect(veryHighFilter().find('input').props().checked).to.be.false;
+          });
+
+          it('should fetch the initial patient based on the stored filters', () => {
+            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
+              limit: 10,
+              offset: 0,
+              sort: '+fullName',
+              'summary.lastUploadDateFrom': sinon.match.string,
+              'summary.lastUploadDateTo': sinon.match.string,
+              'summary.periods.14d.timeInHighPercent': '>=0.25',
+              'summary.periods.14d.timeInLowPercent': '>=0.04',
+            }));
+          });
         });
 
         context('mmol/L preferredBgUnits', () => {
@@ -1249,15 +1343,15 @@ describe('ClinicPatients', () => {
 
           // Select 3 filter ranges
           const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
-          veryLowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryLow-filter', checked: true } });
+          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
           const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInLow-filter', checked: true } });
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
           const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInHigh-filter', checked: true } });
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
           // Submit the form
@@ -1326,15 +1420,15 @@ describe('ClinicPatients', () => {
 
           // Select 3 filter ranges
           const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
-          veryLowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInVeryLow-filter', checked: true } });
+          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
           const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInLow-filter', checked: true } });
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
           const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-percentTimeInHigh-filter', checked: true } });
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
           // Submit the form

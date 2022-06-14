@@ -142,12 +142,15 @@ const InviteMember = props => {
 
         <Button
           id="shareCodeInviteLink"
-          variant="textTertiary"
+          variant="textSecondary"
           mb={5}
           px={0}
           py={2}
           fontSize={0}
           onClick={handleSwitchToShareCodeInvite}
+          sx={{
+            '&:hover': { color: 'purpleMedium' }
+          }}
         >
           {t('Want to share data with a new clinic? Invite via clinic share code')}
         </Button>

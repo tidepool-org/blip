@@ -199,12 +199,15 @@ const InviteClinic = props => {
 
             <Button
               id="emailInviteLink"
-              variant="textTertiary"
+              variant="textSecondary"
               mb={5}
               px={0}
               py={2}
               fontSize={0}
               onClick={handleSwitchToEmailInvite}
+              sx={{
+                '&:hover': { color: 'purpleMedium' }
+              }}
             >
               {t('Want to share data with a new member? Invite via email address')}
             </Button>
