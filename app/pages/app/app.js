@@ -785,7 +785,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
   resendEmailVerification: actions.async.resendEmailVerification,
-  selectClinic: actions.sync.selectClinic,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -819,7 +818,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     hideBanner: dispatchProps.hideBanner,
     onResendEmailVerification: dispatchProps.resendEmailVerification.bind(null, api),
     onLogout: dispatchProps.logout.bind(null, api),
-    selectClinic: dispatchProps.selectClinic,
   });
 };
 
