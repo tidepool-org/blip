@@ -277,6 +277,7 @@ export function login(api, credentials, options, postLoginAction) {
 
                     if (!clinicMigration && values.clinics.length === 1) {
                       // Go to the clinic workspace if only one clinic
+                      dispatch(sync.selectClinic(values.clinics[0]?.clinic?.id));
                       setRedirectRoute(routes.clinicWorkspace);
                     } else {
                       // If we have an empty clinic object, go to clinic details, otherwise workspaces
