@@ -2101,6 +2101,9 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
         if (err?.status === 403) {
           errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_UNAUTHORIZED;
         }
+        if (err?.status === 409) {
+          errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
+        }
         dispatch(sync.createClinicCustodialAccountFailure(
           createActionError(errMsg, err), err
         ));
