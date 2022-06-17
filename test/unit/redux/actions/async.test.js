@@ -1071,6 +1071,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace'] } }
             ];
@@ -1113,6 +1114,7 @@ describe('Actions', () => {
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
             { type: 'LOGIN_SUCCESS', payload: { user } },
             { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace'] } }
           ];
