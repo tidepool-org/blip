@@ -277,6 +277,7 @@ export function login(api, credentials, options, postLoginAction) {
 
                     if (!clinicMigration && values.clinics.length === 1) {
                       // Go to the clinic workspace if only one clinic
+                      dispatch(sync.selectClinic(values.clinics[0]?.clinic?.id));
                       setRedirectRoute(routes.clinicWorkspace);
                     } else {
                       // If we have an empty clinic object, go to clinic details, otherwise workspaces
@@ -2100,6 +2101,9 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
         let errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT;
         if (err?.status === 403) {
           errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_UNAUTHORIZED;
+        }
+        if (err?.status === 409) {
+          errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
         }
         dispatch(sync.createClinicCustodialAccountFailure(
           createActionError(errMsg, err), err

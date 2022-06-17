@@ -128,12 +128,40 @@ describe('App', () => {
       expect(versionElems.length).to.equal(0);
     });
 
-    it('should render version when version present in config', () => {
+    it('should render version and hostname when version present in config', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4 };
       var elem = TestUtils.renderIntoDocument(<App {...props} />);
       var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
       expect(versionElems.length).to.equal(1);
+      expect(versionElems[0].innerText).to.equal('v1.4-localhost');
+    });
+
+    it('should include api enviroment in version when available', () => {
+      var props = _.clone(baseProps);
+      props.context.config = { VERSION : 1.4, API_HOST: 'qa2.development.tidepool.org' };
+      var elem = TestUtils.renderIntoDocument(<App {...props} />);
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      expect(versionElems.length).to.equal(1);
+      expect(versionElems[0].innerText).to.equal('v1.4-localhost-qa2');
+    });
+
+    it('should not include the hostname in version if it matches api environment', () => {
+      var props = _.clone(baseProps);
+      props.context.config = { VERSION : 1.4, API_HOST: 'localhost.tidepool.org' };
+      var elem = TestUtils.renderIntoDocument(<App {...props} />);
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      expect(versionElems.length).to.equal(1);
+      expect(versionElems[0].innerText).to.equal('v1.4-localhost');
+    });
+
+    it('should not include hostname or api enviroment in version for production environment', () => {
+      var props = _.clone(baseProps);
+      props.context.config = { VERSION : 1.4, API_HOST: 'app.tidepool.org' };
+      var elem = TestUtils.renderIntoDocument(<App {...props} />);
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      expect(versionElems.length).to.equal(1);
+      expect(versionElems[0].innerText).to.equal('v1.4');
     });
   });
 

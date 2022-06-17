@@ -1071,6 +1071,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace'] } }
             ];
@@ -1113,6 +1114,7 @@ describe('Actions', () => {
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
             { type: 'LOGIN_SUCCESS', payload: { user } },
             { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace'] } }
           ];
@@ -6068,7 +6070,7 @@ describe('Actions', () => {
         expect(api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
       });
 
-      it('[403] should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE and it should call error once for a failed request', () => {
+      it('[403] should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE and it should call error once for a failed request due to failed authorization', () => {
         let clinicId = '5f85fbe6686e6bb9170ab5d0';
         let patient = {
           fullName: 'patientName',
@@ -6105,6 +6107,49 @@ describe('Actions', () => {
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({
           message: ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_UNAUTHORIZED,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
+      });
+
+      it('[409] should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE and it should call error once for a failed request due to duplicate email', () => {
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let patient = {
+          fullName: 'patientName',
+          email: 'patientemail',
+        };
+        let api = {
+          clinics: {
+            createClinicCustodialAccount: sinon.stub()
+              .callsArgWith(2, { status: 409, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS
+        );
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
+          {
+            type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE',
+            error: err,
+            meta: { apiError: { status: 409, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.createClinicCustodialAccount(api, clinicId, patient)
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS,
         });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);

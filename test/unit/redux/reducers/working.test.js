@@ -2237,7 +2237,7 @@ describe('working', () => {
 
   describe('dataWorkerRemoveData', () => {
     describe('request', () => {
-      it('should leave removingData.completed unchanged', () => {
+      it('should set removingData.completed to null', () => {
         expect(initialState.removingData.completed).to.be.null;
 
         let requestAction = actions.worker.dataWorkerRemoveDataRequest();
@@ -2251,7 +2251,7 @@ describe('working', () => {
         expect(successState.removingData.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.removingData.completed).to.be.true;
+        expect(state.removingData.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
