@@ -518,37 +518,48 @@ export const ClinicAdmin = (props) => {
             <Title flexGrow={1}>
               {t('Clinic Members')}
             </Title>
-
-            <TextInput
-              themeProps={{
-                width: 'auto',
-                minWidth: '250px',
-              }}
-              fontSize="12px"
-              value={searchText}
-              placeholder={t('Search by Name')}
-              icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
-              iconLabel={t('Search')}
-              onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
-              id="search-members"
-              name="search-members"
-              onChange={handleSearchChange}
-              variant="condensed"
-            />
           </Flex>
 
           <Box mx={4}>
-            <Box my={4}>
+            {/* Flex Group 1: Search Box and Add Patient button */}
+            <Flex
+              alignItems="center"
+              my={4}
+              justifyContent="space-between"
+              width={['100%', null, 'auto']}
+              sx={{ gap: 2 }}
+            >
               {isClinicAdmin() && (
                 <Button
-                  mr={4}
+                  id="add-patient"
                   variant="primary"
                   onClick={handleInviteNewMember}
+                  fontSize={0}
+                  px={[2, 3]}
+                  lineHeight={['inherit', null, 1]}
                 >
                   {t('Invite New Clinic Team Member')}
                 </Button>
               )}
-            </Box>
+
+              <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+                <TextInput
+                  themeProps={{
+                    width: ['100%', null, '250px'],
+                  }}
+                  fontSize="12px"
+                  id="search-members"
+                  placeholder={t('Search by Name')}
+                  icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+                  iconLabel={t('Search')}
+                  onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
+                  name="search-members"
+                  onChange={handleSearchChange}
+                  value={searchText}
+                  variant="condensed"
+                />
+              </Box>
+            </Flex>
 
             <Table
               id="clinicianTable"

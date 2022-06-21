@@ -263,17 +263,17 @@ export const PatientInvites = (props) => {
 
   return (
     <>
-      <Box sx={{ position: 'absolute', top: '8px', right: 4 }}>
+      <Box mb={4} flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
         <TextInput
           themeProps={{
-            width: 'auto',
-            minWidth: '250px',
+            width: ['100%', null, '250px'],
           }}
           fontSize="12px"
+          id="search-invites"
           placeholder={t('Search by Name')}
-          icon={searchText ? CloseRoundedIcon : SearchIcon}
-          iconLabel="search"
-          onClickIcon={searchText ? handleClearSearch : null}
+          icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+          iconLabel={t('Search')}
+          onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
           name="search-invites"
           onChange={handleSearchChange}
           value={searchText}

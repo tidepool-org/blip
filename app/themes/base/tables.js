@@ -9,6 +9,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
       border: 'none',
       bg: 'lightestGrey',
       borderRadius: 'default',
+      whiteSpace: 'nowrap',
     },
 
     '&.MuiTable-stickyHeader': {
@@ -21,6 +22,16 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
         '.MuiTableCell-body': {
           borderTop: 'none',
         },
+      },
+    },
+
+    '.MuiTableCell-root:first-child': {
+      position: 'sticky',
+      left: 0,
+      zIndex: 1,
+
+      '&.MuiTableCell-body': {
+        backgroundColor: colors.white,
       },
     },
 
@@ -39,6 +50,8 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
       '&.MuiTableRow-hover:hover': {
         backgroundColor: colors.white,
         boxShadow: shadows.medium,
+        position: 'relative',
+        zIndex: 2,
 
         '.MuiTableCell-body': {
           borderColor: 'transparent',

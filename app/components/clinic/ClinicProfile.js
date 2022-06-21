@@ -132,7 +132,7 @@ export const ClinicProfile = (props) => {
           justifyContent={['center', 'space-between']}
           alignItems="center"
           sx={{
-            rowGap: 2,
+            gap: 2,
           }}
         >
           <Flex justifyContent={['flex-start']} alignItems="flex-start" width={['100%', '100%', 'auto']}>
@@ -186,7 +186,12 @@ export const ClinicProfile = (props) => {
             </Box>
           </Flex>
 
-          <Flex justifyContent={['flex-start', 'flex-start', 'flex-end']} alignItems="center" width={['100%', '100%', 'auto']}>
+          <Flex
+            justifyContent={['flex-start', 'flex-start', 'flex-end']}
+            alignItems="center"
+            width={['100%', '100%', 'auto']}
+            sx={{ gap: 3 }}
+          >
             {isClinicAdmin && (
               <Box>
                 <Button
@@ -207,14 +212,15 @@ export const ClinicProfile = (props) => {
 
             <Box>
               <Button
-                ml={3}
                 id="profileNavigationButton"
                 variant="textSecondary"
                 onClick={handleNavigationAction}
                 icon={GroupRoundedIcon}
                 iconPosition='left'
-                iconLabel={navigationAction.label}
                 iconFontSize="1.25em"
+                iconLabel={navigationAction.label}
+                fontSize={1}
+                pl={0}
               >
                 {navigationAction.label}
               </Button>
