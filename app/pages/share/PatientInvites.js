@@ -181,7 +181,7 @@ export const PatientInvites = (props) => {
     }
   }
 
-  function handleClearSearch(event) {
+  function handleClearSearch() {
     setPage(1);
     setSearchText('');
     setPageCount(Math.ceil(pendingInvites.length / rowsPerPage));

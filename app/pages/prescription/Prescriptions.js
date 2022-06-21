@@ -14,6 +14,7 @@ import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
 import keyBy from 'lodash/keyBy';
 import keys from 'lodash/keys';
 import reduce from 'lodash/reduce';
@@ -146,7 +147,7 @@ const Prescriptions = props => {
     setSearchText(event.target.value);
   }
 
-  function clearSearchText() {
+  function handleClearSearch() {
     setSearchText('');
   }
 
@@ -290,45 +291,65 @@ const Prescriptions = props => {
   // Render
   return (
     <>
-      <Box sx={{ position: 'absolute', top: '8px', right: 4 }}>
-        <TextInput
-          themeProps={{
-            width: 'auto',
-            minWidth: '250px',
-          }}
-          fontSize="12px"
-          placeholder={t('Search Entries')}
-          icon={searchText ? CloseRoundedIcon : SearchIcon}
-          iconLabel="search"
-          onClickIcon={searchText ? clearSearchText : null}
-          name="search-prescriptions"
-          onChange={handleSearchChange}
-          value={searchText}
-          variant="condensed"
-        />
-      </Box>
+      <Flex mb={4} alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={{ gap: 3 }}>
+        {/* Flex Group 1: Search Box and Add Prescription button */}
+        <Flex
+          alignItems="center"
+          justifyContent="space-between"
+          width={['100%', null, 'auto']}
+          sx={{ gap: 2 }}
+        >
+          <Button
+            id="add-prescription"
+            variant="primary"
+            onClick={handleAddNew}
+            fontSize={0}
+            px={[2, 3]}
+            lineHeight={['inherit', null, 1]}
+          >
+            {t('Add New Prescription')}
+          </Button>
 
-      <Box>
-        <Flex mb={4} justifyContent="space-between">
+          <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+            <TextInput
+              themeProps={{
+                width: ['100%', null, '250px'],
+              }}
+              fontSize="12px"
+              id="search-prescriptions"
+              placeholder={t('Search Entries')}
+              icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+              iconLabel={t('Search')}
+              onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
+              name="search-prescriptions"
+              onChange={handleSearchChange}
+              value={searchText}
+              variant="condensed"
+            />
+          </Box>
+        </Flex>
+
+        {/* Flex Group 2: Filters */}
+        <Flex
+          alignItems="center"
+          flexGrow={1}
+          flexWrap="wrap"
+          pt={0}
+          sx={{ gap: 3 }}
+        >
+          {/* Flex Group 2a: Status Filters */}
           <Flex
             alignItems="center"
             justifyContent="flex-start"
             sx={{ gap: 2 }}
+            flexWrap="wrap"
           >
-            <Button
-              variant="primary"
-              onClick={handleAddNew}
-              fontSize={0}
-            >
-                {t('Add New')}
-            </Button>
-
             <Flex
               alignItems="center"
               color={keys(prescriptionStates).length > activeStatesCount > 0 ? 'purpleMedium' : 'grays.4'}
               pl={2}
               py={1}
-              sx={{ gap: 1, borderLeft: borders.divider }}
+              sx={{ gap: 1, borderLeft: ['none', null, borders.divider] }}
             >
               {keys(prescriptionStates).length > activeStatesCount > 0  ? (
                 <Pill
@@ -459,7 +480,7 @@ const Prescriptions = props => {
             </Button>
           </DialogActions>
         </Dialog>
-      </Box>
+      </Flex>
     </>
   );
 };
