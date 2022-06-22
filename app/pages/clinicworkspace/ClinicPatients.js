@@ -13,7 +13,6 @@ import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
-import omit from 'lodash/omit';
 import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -566,92 +565,94 @@ export const ClinicPatients = (props) => {
             <Flex flexGrow={1} justifyContent="space-between">
 
               {/* Range select */}
-              <Flex
-                justifyContent="flex-start"
-                alignItems="center"
-                pt={0}
-                sx={{ gap: 3 }}
-                flexShrink={0}
-              >
+              {showSummaryData && (
                 <Flex
+                  justifyContent="flex-start"
                   alignItems="center"
-                  color="grays.4"
-                  py={1}
-                  pl={[0, 0, 3]}
-                  sx={{ borderLeft: ['none', null, borders.divider] }}
+                  pt={0}
+                  sx={{ gap: 3 }}
+                  flexShrink={0}
                 >
-                  <Text fontSize={0}>{t('View data from')}</Text>
-                </Flex>
-
-                <Box
-                  onClick={() => {
-                    if (!summaryPeriodPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Summary period filter open'), { clinicId: selectedClinicId });
-                  }}
-                >
-                  <Button
-                    variant="filter"
-                    id="summary-period-filter-trigger"
-                    selected={!!activeFilters.lastUploadDate}
-                    {...bindTrigger(summaryPeriodPopupFilterState)}
-                    icon={KeyboardArrowDownRoundedIcon}
-                    iconLabel="Filter by summary period duration"
-                    fontSize={0}
-                    lineHeight={1.3}
+                  <Flex
+                    alignItems="center"
+                    color="grays.4"
+                    py={1}
+                    pl={[0, 0, 3]}
+                    sx={{ borderLeft: ['none', null, borders.divider] }}
                   >
-                    {find(summaryPeriodOptions, { value: summaryPeriod }).label}
-                  </Button>
-                </Box>
+                    <Text fontSize={0}>{t('View data from')}</Text>
+                  </Flex>
 
-                <Popover
-                  minWidth="11em"
-                  closeIcon
-                  {...bindPopover(summaryPeriodPopupFilterState)}
-                  onClickCloseIcon={() => {
-                    trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
-                  }}
-                >
-                  <DialogContent px={2} py={3} dividers>
-                    <RadioGroup
-                      id="summary-period-filters"
-                      name="summary-period-filters"
-                      options={summaryPeriodOptions}
-                      variant="vertical"
-                      fontSize={0}
-                      value={pendingSummaryPeriod || summaryPeriod}
-                      onChange={event => setPendingSummaryPeriod(event.target.value)}
-                    />
-                  </DialogContent>
-
-                  <DialogActions justifyContent="space-between" p={1}>
+                  <Box
+                    onClick={() => {
+                      if (!summaryPeriodPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Summary period filter open'), { clinicId: selectedClinicId });
+                    }}
+                  >
                     <Button
-                      id="cancel-summary-period-filter"
-                      fontSize={1}
-                      variant="textSecondary"
-                      onClick={() => {
-                        trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
-                        setPendingSummaryPeriod(summaryPeriod);
-                        summaryPeriodPopupFilterState.close();
-                      }}
+                      variant="filter"
+                      id="summary-period-filter-trigger"
+                      selected={!!activeFilters.lastUploadDate}
+                      {...bindTrigger(summaryPeriodPopupFilterState)}
+                      icon={KeyboardArrowDownRoundedIcon}
+                      iconLabel="Filter by summary period duration"
+                      fontSize={0}
+                      lineHeight={1.3}
                     >
-                      {t('Cancel')}
+                      {find(summaryPeriodOptions, { value: summaryPeriod }).label}
                     </Button>
+                  </Box>
 
-                    <Button id="apply-summary-period-filter" fontSize={1} variant="textPrimary" onClick={() => {
-                      const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
+                  <Popover
+                    minWidth="11em"
+                    closeIcon
+                    {...bindPopover(summaryPeriodPopupFilterState)}
+                    onClickCloseIcon={() => {
+                      trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
+                    }}
+                  >
+                    <DialogContent px={2} py={3} dividers>
+                      <RadioGroup
+                        id="summary-period-filters"
+                        name="summary-period-filters"
+                        options={summaryPeriodOptions}
+                        variant="vertical"
+                        fontSize={0}
+                        value={pendingSummaryPeriod || summaryPeriod}
+                        onChange={event => setPendingSummaryPeriod(event.target.value)}
+                      />
+                    </DialogContent>
 
-                      trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
-                        clinicId: selectedClinicId,
-                        dateRange,
-                      });
+                    <DialogActions justifyContent="space-between" p={1}>
+                      <Button
+                        id="cancel-summary-period-filter"
+                        fontSize={1}
+                        variant="textSecondary"
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
+                          setPendingSummaryPeriod(summaryPeriod);
+                          summaryPeriodPopupFilterState.close();
+                        }}
+                      >
+                        {t('Cancel')}
+                      </Button>
 
-                      setSummaryPeriod(pendingSummaryPeriod);
-                      summaryPeriodPopupFilterState.close();
-                    }}>
-                      {t('Apply')}
-                    </Button>
-                  </DialogActions>
-                </Popover>
-              </Flex>
+                      <Button id="apply-summary-period-filter" fontSize={1} variant="textPrimary" onClick={() => {
+                        const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
+
+                        trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
+                          clinicId: selectedClinicId,
+                          dateRange,
+                        });
+
+                        setSummaryPeriod(pendingSummaryPeriod);
+                        summaryPeriodPopupFilterState.close();
+                      }}>
+                        {t('Apply')}
+                      </Button>
+                    </DialogActions>
+                  </Popover>
+                </Flex>
+              )}
 
               {/* Info/Visibility Icons */}
               <Flex
@@ -1204,13 +1205,13 @@ export const ClinicPatients = (props) => {
 
   const renderPatient = patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
-      <Text fontWeight="medium">{patient.fullName}</Text>
-      {patient.email && <Text fontSize=".85em">{patient.email}</Text>}
+      <Text fontSize={[1, null, 0]} fontWeight="medium">{patient.fullName}</Text>
+      {patient.email && <Text fontSize={[0, null, '10px']}>{patient.email}</Text>}
     </Box>
   );
 
   const renderPatientSecondaryInfo = patient => (
-    <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} fontSize="10px" sx={{ cursor: 'pointer' }}>
+    <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} fontSize={[0, null, '10px']} sx={{ cursor: 'pointer' }}>
       <Text sx={{ whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>
       {patient.mrn && <Text sx={{ whiteSpace: 'nowrap' }}>{t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
     </Box>
@@ -1279,7 +1280,7 @@ export const ClinicPatients = (props) => {
         {cgmHours >= 24
           ? <BgRangeSummary striped={summary?.periods?.[summaryPeriod]?.timeCGMUsePercent < 0.7} data={data} targetRange={targetRange} bgUnits={clinicBgUnits} />
           : (
-            <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
+            <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width={['155px', '200px']} height="20px">
               <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <24 hours')}</Text>
             </Flex>
           )
@@ -1343,9 +1344,9 @@ export const ClinicPatients = (props) => {
   );
 
   const renderLinkedField = (field, patient) => (
-    <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    patient[field] ? <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient[field]}</Text>
-    </Box>
+    </Box> : null
   );
 
   const renderMore = patient => {
@@ -1403,6 +1404,7 @@ export const ClinicPatients = (props) => {
         align: 'left',
         sortable: true,
         render: renderPatient,
+        className: showSummaryData ? 'no-margin' : null,
       },
       {
         title: t('Birthday'),
@@ -1416,12 +1418,14 @@ export const ClinicPatients = (props) => {
         field: 'mrn',
         align: 'left',
         render: renderLinkedField.bind(null, 'mrn'),
+        hideEmpty: true,
       },
       {
         title: '',
         field: 'more',
         render: renderMore,
         align: 'right',
+        className: 'action-menu',
       },
     ];
 

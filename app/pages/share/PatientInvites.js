@@ -197,7 +197,7 @@ export const PatientInvites = (props) => {
 
   const renderName = ({ name }) => (
     <Box>
-      <Text>{name}</Text>
+      <Text fontWeight={['medium', null, 'regular']}>{name}</Text>
     </Box>
   );
 
@@ -252,12 +252,14 @@ export const PatientInvites = (props) => {
       sortable: true,
       sortBy: 'birthday',
       render: renderBirthday,
+      className: 'justify-flex-start'
     },
     {
       title: '',
       field: 'actions',
       render: renderActions,
       align: 'left',
+      className: 'justify-flex-end action-buttons'
     },
   ];
 

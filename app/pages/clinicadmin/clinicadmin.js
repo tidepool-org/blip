@@ -13,6 +13,7 @@ import has from 'lodash/has';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import EditIcon from '@material-ui/icons/EditRounded';
 import InputIcon from '@material-ui/icons/Input';
 import SearchIcon from '@material-ui/icons/Search';
 import sundial from 'sundial';
@@ -351,17 +352,17 @@ export const ClinicAdmin = (props) => {
   );
 
   const renderStatus = ({ status }) => (
-    <Box>
-      {!isEmpty(status) ? <Pill label={status} text={status} colorPalette="greens" /> : ''}
-    </Box>
+    !isEmpty(status) ? <Box sx={{ whiteSpace: 'nowrap' }}>
+      <Pill label={status} text={status} colorPalette="greens" />
+    </Box> : null
   );
 
   const renderPermission = ({ prescriberPermission }) => (
-    <Box>
+    prescriberPermission ? <Box>
       <Text fontWeight="medium">
-        {prescriberPermission ? t('Prescriber') : ''}
+        {t('Prescriber')}
       </Text>
-    </Box>
+    </Box> : null
   );
 
   const renderRole = ({ role }) => (
@@ -388,19 +389,34 @@ export const ClinicAdmin = (props) => {
   const renderMore = props => {
     const items = [];
 
-    if (props.userId && (!props.isAdmin || !isOnlyClinicAdmin())) {
+    if (props.userId) {
       items.push({
-        icon: DeleteForeverIcon,
-        iconLabel: t('Remove User'),
+        icon: EditIcon,
+        iconLabel: t('Edit Clinician Information'),
         iconPosition: 'left',
-        id: `delete-${props.userId}`,
-        variant: 'actionListItemDanger',
+        id: `edit-${props.userId}`,
+        variant: 'actionListItem',
         onClick: _popupState => {
           _popupState.close();
-          handleDelete(props);
+          handleEdit(props.userId);
         },
-        text: t('Remove User'),
+        text: t('Edit Clinician Information'),
       });
+
+      if (!props.isAdmin || !isOnlyClinicAdmin()) {
+        items.push({
+          icon: DeleteForeverIcon,
+          iconLabel: t('Remove User'),
+          iconPosition: 'left',
+          id: `delete-${props.userId}`,
+          variant: 'actionListItemDanger',
+          onClick: _popupState => {
+            _popupState.close();
+            handleDelete(props);
+          },
+          text: t('Remove User'),
+        });
+      }
     }
 
     if (props.inviteId) {
@@ -455,6 +471,7 @@ export const ClinicAdmin = (props) => {
       sortable: true,
       sortBy: 'status',
       render: renderStatus,
+      hideEmpty: true,
     },
   ];
 
@@ -466,6 +483,7 @@ export const ClinicAdmin = (props) => {
       sortable: true,
       sortBy: 'prescriberPermission',
       render: renderPermission,
+      hideEmpty: true,
     });
   }
 
@@ -480,17 +498,18 @@ export const ClinicAdmin = (props) => {
 
   if (((isClinicAdmin()))) {
     columns.push(
-      {
-        title: '',
-        field: 'edit',
-        render: renderEdit,
-        align: 'left',
-      },
+      // {
+      //   title: '',
+      //   field: 'edit',
+      //   render: renderEdit,
+      //   align: 'left',
+      // },
       {
         title: '',
         field: 'more',
         render: renderMore,
         align: 'right',
+        className: 'action-menu',
       }
     );
   }

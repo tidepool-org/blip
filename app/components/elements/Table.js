@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import { default as Base, TableProps } from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -157,6 +158,11 @@ export const Table = props => {
     setPage(props.page);
   }, [props.page]);
 
+  const tableCellClassNames = (d, col) => cx({
+    'no-margin': col.hideEmpty && !d[col.field],
+    [col.className]: !!col.className,
+  });
+
   return (
     <Box as={TableContainer}>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
@@ -204,8 +210,22 @@ export const Table = props => {
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   size={get(col, 'size', 'medium')}
                   padding={get(col, 'padding', 'default')}
+                  className={tableCellClassNames(d, col)}
                 >
-                  {isFunction(col.render) ? col.render(d) : d[col.field]}
+                  {!(col.hideEmpty && !d[col.field]) && (
+                    <>
+                      {(col.titleComponent || col.title) && index > 0 && (
+                        <Text
+                          fontSize={['13px', '14px']}
+                          fontWeight="medium"
+                          sx={{ display: ['block', null, 'none'] }}
+                        >
+                          {col.titleComponent ? <col.titleComponent /> : col.title}
+                        </Text>
+                      )}
+                      {isFunction(col.render) ? col.render(d) : d[col.field]}
+                    </>
+                  )}
                 </TableCell>
               ))}
             </TableRow>
@@ -244,6 +264,7 @@ Table.propTypes = {
     render: PropTypes.func,
     size: PropTypes.string,
     padding: PropTypes.string,
+    hideEmpty: PropTypes.bool,
   })).isRequired,
   data: PropTypes.array.isRequired,
   emptyText: PropTypes.string,

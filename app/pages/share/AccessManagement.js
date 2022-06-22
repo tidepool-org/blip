@@ -395,18 +395,18 @@ export const AccessManagement = (props) => {
   const renderMember = ({ email, name }) => (
     email ? (
       <Box>
-        <Text>{name}</Text>
+        <Text fontWeight="medium">{name}</Text>
         <Text>{email}</Text>
       </Box>
     ) : (
       <Box>
-        <Text>{name}</Text>
+        <Text fontWeight="medium">{name}</Text>
       </Box>
     )
   );
 
   const renderStatus = ({ status }) => (
-    <Box>
+    <Box sx={{ whiteSpace: 'nowrap' }}>
       {status ? (
         <Pill
           text={status === 'pending' ? t('invite sent') : t('invite declined')}
@@ -423,11 +423,11 @@ export const AccessManagement = (props) => {
   );
 
   const renderUploadPermission = ({ uploadPermission }) => (
-    <Box>
+    uploadPermission ? <Box>
       <Text>
-        {uploadPermission ? t('Yes') : ''}
+        {t('Yes')}
       </Text>
-    </Box>
+    </Box> : null
   );
 
   const renderRole = ({ role }) => (
@@ -541,6 +541,7 @@ export const AccessManagement = (props) => {
       sortable: true,
       sortBy: 'status',
       render: renderStatus,
+      className: 'hide-if-empty',
     },
     {
       title: t('Upload Permission'),
@@ -549,6 +550,7 @@ export const AccessManagement = (props) => {
       sortable: true,
       sortBy: 'uploadPermission',
       render: renderUploadPermission,
+      hideEmpty: true,
     },
     {
       title: t('Role'),
@@ -563,6 +565,7 @@ export const AccessManagement = (props) => {
       field: 'more',
       render: renderMore,
       align: 'right',
+      className: 'action-menu',
     },
   ];
 
@@ -621,7 +624,7 @@ export const AccessManagement = (props) => {
           </Body2>
 
           {!!sharedAccounts.length && (
-            <Box px={[0, 0, 4]} pb={0}>
+            <Box px={[3, 4]} pb={0}>
               <Table
                 id="clinicianTable"
                 label={t('Clinician Table')}

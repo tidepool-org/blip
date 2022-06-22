@@ -36,13 +36,6 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
     },
 
     '.MuiTableBody-root .MuiTableRow-root': {
-      '.MuiTableCell-body': {
-        padding: 3,
-        borderColor: colors.border.default,
-        borderBottom: 'none',
-        borderTop: borders.default,
-      },
-
       '&:first-child .MuiTableCell-body': {
         borderTop: 'none',
       },
@@ -66,6 +59,81 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
     '.MuiTableSortLabel-icon': {
       fontSize: 1,
     },
+
+    // Styles for mobile cards
+    '.MuiTable-root': {
+      display: ['block', null, 'table'],
+    },
+
+    '.MuiTableHead-root': {
+      // Hide table header for mobile, but leave display on for accessibility
+      display: ['block', null, 'table-header-group'],
+      position: ['absolute', null, 'static'],
+      top: '-9999px',
+      left: '-9999px',
+    },
+
+    '.MuiTableBody-root': {
+      display: ['block', null, 'table-row-group'],
+    },
+
+
+    '.MuiTableRow-root': {
+      py: [2, null, 0],
+      px: [3, null, 0],
+      boxShadow: [shadows.medium, null, 'none'],
+      width: ['calc(100% - 6px)', null, 'auto'],
+      mt: [1, null, 0],
+      mb: [4, null, 0],
+      mx: ['auto', null, 0],
+      display: ['block', null, 'table-row'],
+      position: ['relative', null, 'static'],
+
+
+      // display: ['flex', null, 'table-row'],
+      // justifyContent: 'space-between',
+      // flexWrap: 'wrap',
+      // columnGap: '24px',
+      // rowGap: '8px',
+      // alignItems: 'center',
+
+      '.MuiTableCell-body': {
+        display: ['flex', null, 'table-cell'],
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        columnGap: '16px',
+        flexWrap: 'wrap',
+        rowGap: '8px',
+        padding: [0, null, 3],
+        mb: '6px',
+        borderColor: colors.border.default,
+        borderBottom: 'none',
+        borderTop: ['none', null, borders.default],
+
+        '&.no-margin, &:last-child': {
+          margin: 0,
+        },
+
+        '&.justify-flex-start': {
+          justifyContent: 'flex-start',
+        },
+
+        '&.justify-flex-end': {
+          justifyContent: 'flex-end',
+        },
+
+        '&.action-menu': {
+          position: ['absolute', null, 'static'],
+          top: 1,
+          right: 2,
+          zIndex: 10,
+        },
+
+        '&.action-buttons': {
+          mt: 2,
+        },
+      },
+    },
   };
 
   return {
@@ -76,7 +144,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
       ...defaultStyles,
 
       '.MuiTableBody-root .MuiTableRow-root .MuiTableCell-body': {
-        paddingY: '10px',
+        paddingY: [0, null, '10px'],
       },
     },
   };
