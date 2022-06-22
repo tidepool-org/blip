@@ -165,6 +165,7 @@ export default (state = initialWorkingState, action) => {
           types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST,
           types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
           types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
+          types.DATA_WORKER_REMOVE_DATA_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {

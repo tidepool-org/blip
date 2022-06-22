@@ -707,8 +707,8 @@ export const PatientDataClass = createReactClass({
     let bgPrefs = this.state.bgPrefs || {};
 
     const bgUnitsOverride = {
-      units: this.props.clinic?.preferredBgUnits || this.props.queryParams?.units,
-      source: this.props.clinic?.preferredBgUnits ? 'preferred clinic units' : 'query params',
+      units: this.props.queryParams?.units || this.props.clinic?.preferredBgUnits,
+      source: this.props.queryParams?.units ? 'query params' : 'preferred clinic units',
     };
 
     if (!bgPrefs.useDefaultRange) {
@@ -1509,10 +1509,11 @@ export const PatientDataClass = createReactClass({
 
       // Set bgPrefs to state
       let bgPrefs = this.state.bgPrefs;
+
       if (!bgPrefs) {
         const bgUnitsOverride = {
-          units: nextProps.clinic?.preferredBgUnits || nextProps.queryParams?.units,
-          source: nextProps.clinic?.preferredBgUnits ? 'preferred clinic units' : 'query params',
+          units: nextProps.queryParams?.units || nextProps.clinic?.preferredBgUnits,
+          source: nextProps.queryParams?.units ? 'query params' : 'preferred clinic units',
         };
 
         bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);

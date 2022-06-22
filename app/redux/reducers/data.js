@@ -54,7 +54,7 @@ const data = (state = initialState.data, action) => {
         ...initialState.data,
         cacheUntil: _.get(action.payload, 'preserveCache') ? state.cacheUntil : null,
         fetchedUntil: _.get(action.payload, 'preserveCache') ? state.fetchedUntil : null,
-        metaData: _.get(action.payload, 'preserveCache') ? state.metaData : {},
+        metaData: _.get(action.payload, 'preserveCache') ? { ...state.metaData, queryDataCount: 0 } : {},
       } });
 
     case actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS:
