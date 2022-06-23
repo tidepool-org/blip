@@ -820,7 +820,7 @@ describe('ClinicPatients', () => {
           expect(rowData(1).at(2).text()).contains('Today');
           expect(rowData(2).at(2).text()).contains('Yesterday');
           expect(rowData(3).at(2).text()).contains('30 days ago');
-          expect(rowData(4).at(2).text()).to.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/); // match YYYY-MM-DD format
+          expect(rowData(4).at(2).text().slice(-10)).to.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/); // match YYYY-MM-DD format
 
           // CGM use in fourth column
           expect(rowData(0).at(3).text()).contains(emptyStatText);
