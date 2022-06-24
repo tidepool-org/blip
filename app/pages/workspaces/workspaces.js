@@ -235,7 +235,7 @@ export const Workspaces = (props) => {
 
     trackMetric(...metric);
     dispatch(actions.sync.selectClinic(workspace?.id || null));
-    dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients'));
+    dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients', { selectedClinicId: workspace.id }));
   }
 
   const RenderClinicWorkspace = (workspace, key) => {
