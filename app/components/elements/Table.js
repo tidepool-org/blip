@@ -168,8 +168,8 @@ export const Table = props => {
 
               return (
                 <TableCell
-                  id={`${id}-header-${col.field?.replaceAll('.', '-')}`}
-                  key={`${id}-header-${col.field?.replaceAll('.', '-')}`}
+                  id={`${id}-header-${col.field?.replace(/\./g, '-')}`}
+                  key={`${id}-header-${col.field?.replace(/\./g, '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
                 >
