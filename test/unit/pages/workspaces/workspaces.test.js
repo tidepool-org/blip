@@ -239,7 +239,7 @@ describe('Workspaces', () => {
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/clinic-workspace'],
+            args: ['/clinic-workspace', { selectedClinicId: 'clinicID456' }],
             method: 'push',
           },
         },
