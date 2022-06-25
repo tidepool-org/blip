@@ -77,7 +77,7 @@ export const WorkspaceSwitcher = props => {
   const handleSelect = option => {
     trackMetric(...option.metric);
     dispatch(actions.sync.selectClinic(option.id));
-    dispatch(push(option.id ? '/clinic-workspace' : '/patients'));
+    dispatch(push(option.id ? '/clinic-workspace' : '/patients', { selectedClinicId: option.id }));
     popupState.close();
   };
 
