@@ -541,7 +541,7 @@ describe('Actions', () => {
       });
     });
 
-    describe.only('login', () => {
+    describe('login', () => {
       it('should trigger LOGIN_SUCCESS and it should call login and user.get once for a successful request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27, emailVerified: true };
