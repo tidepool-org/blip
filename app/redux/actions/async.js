@@ -749,7 +749,7 @@ export function updateUser(api, formValues) {
  */
 export function updateClinicianProfile(api, formValues) {
   return (dispatch, getState) => {
-    const { blip: { loggedInUserId, allUsersMap, pendingReceivedClinicianInvites } } = getState();
+    const { blip: { loggedInUserId, allUsersMap } } = getState();
     const loggedInUser = allUsersMap[loggedInUserId];
 
     const newUser = _.assign({},
@@ -772,10 +772,7 @@ export function updateClinicianProfile(api, formValues) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
-
-        let redirect = '/patients?justLoggedIn=true';
-        if (config.CLINICS_ENABLED && pendingReceivedClinicianInvites.length) redirect = '/workspaces';
-        dispatch(push(redirect));
+        dispatch(push('/workspaces'));
       }
     });
   };
