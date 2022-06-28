@@ -65,16 +65,6 @@ export let ClinicianDetails = translate()(class extends React.Component {
         {value: 'other', label: t('Other')}
       ]
     },
-    {
-      name: 'clinicName',
-      label: t('Clinic Name'),
-      type: 'text'
-    },
-    {
-      name: 'clinicPhone',
-      label: t('Clinic Phone Number (optional)'),
-      type: 'text'
-    }
   ]};
 
   componentDidMount() {
@@ -99,8 +89,7 @@ export let ClinicianDetails = translate()(class extends React.Component {
   canSubmit = () => {
     if (
       _.get(this,'state.formValues.fullName.length') &&
-      _.get(this,'state.formValues.clinicalRole.length') &&
-      _.get(this,'state.formValues.clinicName.length')
+      _.get(this,'state.formValues.clinicalRole.length')
     )
       {
         return true;
@@ -190,8 +179,6 @@ export let ClinicianDetails = translate()(class extends React.Component {
         fullName: formValues.fullName,
         clinic: {
           role: formValues.clinicalRole,
-          name: formValues.clinicName,
-          telephone: formValues.clinicPhone
         }
       }
     };
@@ -201,8 +188,6 @@ export let ClinicianDetails = translate()(class extends React.Component {
   validateFormValues = (formValues) => {
     var form = [
       { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
-      { type: 'clinicName', name: 'clinicName', label: 'clinic name', value: formValues.clinicName },
-      { type: 'clinicPhone', name: 'clinicPhone', label: 'clinic phone', value: formValues.clinicPhone },
       { type: 'clinicalRole', name: 'clinicalRole', label: 'clinical role', value: formValues.clinicalRole }
     ];
     var validationErrors = validateForm(form);
