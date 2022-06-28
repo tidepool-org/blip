@@ -173,10 +173,6 @@ describe('ClinicDetails', () => {
   let store = mockStore(defaultState);
 
   before(() => {
-    ClinicDetails.__Rewire__('config', {
-      CLINICS_ENABLED: true,
-    });
-
     ClinicDetails.__Rewire__('countries', {
       getNames: sinon.stub().returns({
         US: 'United States',
@@ -192,7 +188,6 @@ describe('ClinicDetails', () => {
 
   after(() => {
     ClinicDetails.__ResetDependency__('countries');
-    ClinicDetails.__ResetDependency__('config');
   });
 
   beforeEach(() => {

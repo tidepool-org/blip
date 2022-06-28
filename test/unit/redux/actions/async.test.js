@@ -721,12 +721,6 @@ describe('Actions', () => {
         let patients;
         let setAPIData;
 
-        before(() => {
-          async.__Rewire__('config', {
-            CLINICS_ENABLED: true,
-          });
-        });
-
         beforeEach(() => {
           creds = { username: 'bruce', password: 'wayne' };
 
@@ -756,10 +750,6 @@ describe('Actions', () => {
               },
             };
           };
-        });
-
-        after(() => {
-          async.__ResetDependency__('config');
         });
 
         context('clinician has no clinic invites or associated clinics', () => {
@@ -2985,16 +2975,6 @@ describe('Actions', () => {
       });
 
       context('new clinic workflow enabled and user has pending clinic invites', () => {
-        before(() => {
-          async.__Rewire__('config', {
-            CLINICS_ENABLED: true,
-          });
-        });
-
-        after(() => {
-          async.__ResetDependency__('config');
-        });
-
         it('should trigger UPDATE_USER_SUCCESS and it should call updateClinicianProfile once for a successful request and route user to workspaces view', () => {
           let loggedInUserId = 400;
           let currentUser = {

@@ -239,65 +239,60 @@ export function login(api, credentials, options, postLoginAction) {
             const userHasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
             const isClinicianAccount = personUtils.isClinicianAccount(user);
 
-            if (config.CLINICS_ENABLED) {
-              // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
-              // to the clinic workflow if a relationship with a clinic object or an invite exists.
-              const fetchers = {
-                clinics: cb => dispatch(getClinicsForClinician(api, user.userid, {}, cb)),
-                invites: cb => dispatch(fetchClinicianInvites(api, user.userid, cb)),
-                associatedAccounts: cb => dispatch(fetchAssociatedAccounts(api, cb)),
-              };
+            // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
+            // to the clinic workflow if a relationship with a clinic object or an invite exists.
+            const fetchers = {
+              clinics: cb => dispatch(getClinicsForClinician(api, user.userid, {}, cb)),
+              invites: cb => dispatch(fetchClinicianInvites(api, user.userid, cb)),
+              associatedAccounts: cb => dispatch(fetchAssociatedAccounts(api, cb)),
+            };
 
-              async.parallel(async.reflectAll(fetchers), (err, results) => {
-                const errors = _.mapValues(results, ({error}) => error);
-                const values = _.mapValues(results, ({value}) => value);
-                const hasError = err || _.some(errors, err => !_.isUndefined(err));
+            async.parallel(async.reflectAll(fetchers), (err, results) => {
+              const errors = _.mapValues(results, ({error}) => error);
+              const values = _.mapValues(results, ({value}) => value);
+              const hasError = err || _.some(errors, err => !_.isUndefined(err));
 
-                if (hasError) {
-                  if (errors) {
-                    if (errors.clinics) {
-                      handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, errors.clinics);
-                    }
-                    if (errors.invites) {
-                      handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, errors.invites);
-                    }
-                    if (errors.associatedAccounts) {
-                      handleLoginFailure(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, errors.associatedAccounts);
-                    }
-                  } else {
-                    handleLoginFailure(ErrorMessages.ERR_LOGIN, err);
+              if (hasError) {
+                if (errors) {
+                  if (errors.clinics) {
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, errors.clinics);
                   }
+                  if (errors.invites) {
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, errors.invites);
+                  }
+                  if (errors.associatedAccounts) {
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, errors.associatedAccounts);
+                  }
+                } else {
+                  handleLoginFailure(ErrorMessages.ERR_LOGIN, err);
                 }
-                else {
-                  if (values.invites?.length) {
-                    // If we have an empty clinic profile, go to clinic details, otherwise workspaces
-                    setRedirectRoute(!userHasClinicProfile ? routes.clinicDetails : routes.workspaces);
-                  } else if (values.clinics?.length) {
-                    const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
+              }
+              else {
+                if (values.invites?.length) {
+                  // If we have an empty clinic profile, go to clinic details, otherwise workspaces
+                  setRedirectRoute(!userHasClinicProfile ? routes.clinicDetails : routes.workspaces);
+                } else if (values.clinics?.length) {
+                  const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
-                    if (!clinicMigration && values.clinics.length === 1) {
-                      // Go to the clinic workspace if only one clinic
-                      dispatch(sync.selectClinic(values.clinics[0]?.clinic?.id));
-                      setRedirectRoute(routes.clinicWorkspace);
+                  if (!clinicMigration && values.clinics.length === 1) {
+                    // Go to the clinic workspace if only one clinic
+                    dispatch(sync.selectClinic(values.clinics[0]?.clinic?.id));
+                    setRedirectRoute(routes.clinicWorkspace);
+                  } else {
+                    // If we have an empty clinic object, go to clinic details, otherwise workspaces
+                    if (clinicMigration) {
+                      dispatch(sync.selectClinic(clinicMigration.clinic?.id));
+                      setRedirectRoute(routes.clinicDetails);
                     } else {
-                      // If we have an empty clinic object, go to clinic details, otherwise workspaces
-                      if (clinicMigration) {
-                        dispatch(sync.selectClinic(clinicMigration.clinic?.id));
-                        setRedirectRoute(routes.clinicDetails);
-                      } else {
-                        setRedirectRoute(routes.workspaces);
-                      }
+                      setRedirectRoute(routes.workspaces);
                     }
-                  } else {
-                    // Clinic flow is not enabled for this account
-                    skipClinicFlow();
                   }
+                } else {
+                  // Clinic flow is not enabled for this account
+                  skipClinicFlow();
                 }
-              });
-            } else {
-              // Clinic flow is not enabled
-              skipClinicFlow();
-            }
+              }
+            });
 
             function setRedirectRoute(route) {
               redirectRoute = route;

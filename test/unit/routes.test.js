@@ -297,7 +297,6 @@ describe('routes', () => {
 
     it('should fetch clinics for the user if they have not already been fetched', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -347,7 +346,6 @@ describe('routes', () => {
 
     it('should redirect user to /patients if clinic status cannot be determined due to backend error', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -416,7 +414,6 @@ describe('routes', () => {
 
     it('should redirect the user to `/clinic-details` if the first returned clinic is empty', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -476,7 +473,7 @@ describe('routes', () => {
 
     it('should redirect the user to `/clinic-details` if the first returned clinic ready to migrate', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
+      config. = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -536,7 +533,6 @@ describe('routes', () => {
 
     it('should redirect the user to `/clinic-details` if the user has a clinic invite and no clinic profile', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -591,7 +587,6 @@ describe('routes', () => {
 
     it('should redirect the user to `/workspaces` if the user has a clinic invite and has a clinic profile', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -647,7 +642,6 @@ describe('routes', () => {
 
     it('should redirect a non-clinic member user to `/patients` if they are on a Clinic UI route', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
