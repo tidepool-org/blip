@@ -113,7 +113,7 @@
     "material-ui-popup-state": "1.6.1",
     "mini-css-extract-plugin": "0.5.0",
     "mocha": "5.2.0",
-    "moment": "2.22.2",
+    "moment": "2.29.2",
     "moment-timezone": "0.5.31",
     "ms": "2.1.1",
     "object-invariant-test-helper": "0.1.1",
