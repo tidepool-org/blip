@@ -111,7 +111,7 @@ export const NavigationMenu = props => {
 
   function handleSelectWorkspace(clinicId) {
     dispatch(actions.sync.selectClinic(clinicId));
-    dispatch(push(clinicId ? '/clinic-workspace' : '/patients'));
+    dispatch(push(clinicId ? '/clinic-workspace' : '/patients', { selectedClinicId: clinicId }));
   }
 
   function handleMenuAction(menuOption) {

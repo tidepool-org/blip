@@ -291,7 +291,7 @@ describe('Actions', () => {
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user: user } },
           { type: 'VERIFY_CUSTODIAL_SUCCESS' },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true', { selectedClinicId: null } ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -562,7 +562,7 @@ describe('Actions', () => {
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user: user } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true', { selectedClinicId: null } ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -607,7 +607,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
           { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true', { selectedClinicId: null } ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -649,7 +649,7 @@ describe('Actions', () => {
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinician-details' ] } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinician-details', { selectedClinicId: null } ] } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -693,7 +693,7 @@ describe('Actions', () => {
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true', { selectedClinicId: null }] } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -788,7 +788,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinician-details' ] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinician-details', { selectedClinicId: null } ] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -823,7 +823,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true', { selectedClinicId: null }] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -870,7 +870,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details', { selectedClinicId: null } ] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -905,7 +905,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/workspaces'] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/workspaces', { selectedClinicId: null }] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -953,7 +953,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details', { selectedClinicId: null } ] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -991,7 +991,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details', { selectedClinicId: null } ] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1032,7 +1032,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/workspaces'] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/workspaces', { selectedClinicId: null }] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1073,7 +1073,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace'] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace', { selectedClinicId: 'clinic123' }] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1116,7 +1116,7 @@ describe('Actions', () => {
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
             { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
             { type: 'LOGIN_SUCCESS', payload: { user } },
-            { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace'] } }
+            { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace', { selectedClinicId: 'clinic123' }] } }
           ];
           _.each(expectedActions, (action) => {
             expect(isTSA(action)).to.be.true;
