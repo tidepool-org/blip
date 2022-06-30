@@ -214,7 +214,6 @@ export function login(api, credentials, options, postLoginAction) {
       patients: '/patients?justLoggedIn=true',
       workspaces: '/workspaces',
       clinicDetails: '/clinic-details',
-      clinicianDetails: '/clinician-details',
       clinicWorkspace: '/clinic-workspace',
     };
 
@@ -270,7 +269,7 @@ export function login(api, credentials, options, postLoginAction) {
               else {
                 if (values.invites?.length) {
                   // If we have an empty clinic profile, go to clinic details, otherwise workspaces
-                  setRedirectRoute(!userHasClinicProfile ? routes.clinicDetails : routes.workspaces);
+                  setRedirectRoute(!userHasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces);
                 } else if (values.clinics?.length) {
                   const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
@@ -282,28 +281,21 @@ export function login(api, credentials, options, postLoginAction) {
                     // If we have an empty clinic object, go to clinic details, otherwise workspaces
                     if (clinicMigration) {
                       dispatch(sync.selectClinic(clinicMigration.clinic?.id));
-                      setRedirectRoute(routes.clinicDetails);
+                      setRedirectRoute(`${routes.clinicDetails}/migrate`);
                     } else {
                       setRedirectRoute(routes.workspaces);
                     }
                   }
+                } else if (isClinicianAccount && !userHasClinicProfile) {
+                  setRedirectRoute(`${routes.clinicDetails}/profile`)
                 } else {
-                  // Clinic flow is not enabled for this account
-                  skipClinicFlow();
+                  getPatientProfile();
                 }
               }
             });
 
             function setRedirectRoute(route) {
               redirectRoute = route;
-              getPatientProfile();
-            }
-
-            function skipClinicFlow() {
-              if (isClinicianAccount && !userHasClinicProfile) {
-                redirectRoute = routes.clinicianDetails;
-              }
-
               getPatientProfile();
             }
 
@@ -730,44 +722,6 @@ export function updateUser(api, formValues) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
-      }
-    });
-  };
-}
-
-/**
- * Update Clinician Profile Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- * @param {userId} userId
- * @param  {Object} formValues
- */
-export function updateClinicianProfile(api, formValues) {
-  return (dispatch, getState) => {
-    const { blip: { loggedInUserId, allUsersMap } } = getState();
-    const loggedInUser = allUsersMap[loggedInUserId];
-
-    const newUser = _.assign({},
-      _.omit(loggedInUser, 'profile'),
-      _.omit(formValues, 'profile'),
-      { profile: _.assign({}, loggedInUser.profile, formValues.profile) }
-    );
-
-    dispatch(sync.updateUserRequest(loggedInUserId, _.omit(newUser, 'password')));
-
-    var userUpdates = _.cloneDeep(newUser);
-    if (userUpdates.username === loggedInUser.username) {
-      userUpdates = _.omit(userUpdates, 'username', 'emails');
-    }
-
-    api.user.put(userUpdates, (err, updatedUser) => {
-      if (err) {
-        dispatch(sync.updateUserFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_USER, err), err
-        ));
-      } else {
-        dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
-        dispatch(push('/workspaces'));
       }
     });
   };

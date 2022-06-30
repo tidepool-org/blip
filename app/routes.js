@@ -6,7 +6,6 @@ import { push } from 'connected-react-router';
 
 import AppComponent from './pages/app';
 import BrowserWarning from './pages/browserwarning';
-import ClinicianDetails from './pages/cliniciandetails';
 import ClinicDetails from './pages/clinicdetails';
 import ClinicAdmin from './pages/clinicadmin';
 import ClinicWorkspace from './pages/clinicworkspace';
@@ -65,7 +64,6 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
     patients: '/patients',
     workspaces: '/workspaces',
     clinicDetails: '/clinic-details',
-    clinicianDetails: '/clinician-details',
     clinicWorkspace: '/clinic-workspace',
   };
 
@@ -117,16 +115,14 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
 
           const unrestrictedClinicUIRoutes = [
             routes.clinicDetails,
-            routes.clinicianDetails,
+            routes.workspaces,
           ];
 
           const restrictedClinicUIRoutes = [
             '/clinic-admin',
-            '/clinic-details',
             '/clinic-invite',
             '/clinic-workspace',
             '/clinician-edit',
-            '/workspaces',
             '/prescriptions',
           ];
 
@@ -138,7 +134,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
             // let alone the migration/profile state, so we send them to the patients page if they
             // are on any Clinic UI route, except for the clinician account details route, where
             // missing clinic information would be irrelevant.
-            if (isClinicUIRoute && currentPathname !== routes.clinicianDetails) dispatch(push(routes.patients));
+            if (isClinicUIRoute && !_.startsWith(currentPathname, routes.clinicDetails)) dispatch(push(routes.patients));
             return cb();
           }
 
@@ -146,10 +142,12 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
             // Navigate to the appropriate page for a clinician user or team member who needs to
             // complete the setup process
             if (firstEmptyOrUnmigratedClinic) dispatch(actions.sync.selectClinic(firstEmptyOrUnmigratedClinic.clinic.id));
-            dispatch(push(state.clinicFlowActive || state.selectedClinicId ? routes.clinicDetails : routes.clinicianDetails));
+            const routeState = { selectedClinicId: state.selectedClinicId || null };
+            const routeAction = firstEmptyOrUnmigratedClinic ? 'migrate' : 'profile';
+            dispatch(push(`${routes.clinicDetails}/${routeAction}`, routeState));
           } else if (values.invites?.length) {
-            // Redirect user to address clinic invite
-            dispatch(push(!hasClinicProfile ? routes.clinicDetails : routes.workspaces));
+            // Redirect user to address clinic invite, or first fill in profile info if missing
+            dispatch(push(!hasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces));
           } else if (
             (isClinicUIRoute && !isClinicianAccount) ||
             (isRestrictedClinicUIRoute && !(state.clinicFlowActive || state.selectedClinicId))
@@ -323,9 +321,8 @@ export const getRoutes = (appContext) => {
           <Route path='/login' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
           <Route path='/terms' render={routeProps => (<Terms {...routeProps} {...props} />)} />
           <Route path='/signup' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Signup {...routeProps} {...props} /></Gate>)} />
-          <Route path='/clinician-details' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicianDetails {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-admin' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicAdmin {...routeProps} {...props} /></Gate>)} />
-          <Route path='/clinic-details' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicDetails {...routeProps} {...props} /></Gate>)} />
+          <Route path='/clinic-details/:action' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicDetails {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicInvite {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-workspace/:tab?' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicWorkspace {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinician-edit' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicianEdit {...routeProps} {...props} /></Gate>)} />
