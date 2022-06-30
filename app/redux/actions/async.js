@@ -218,6 +218,7 @@ export function login(api, credentials, options, postLoginAction) {
     };
 
     let redirectRoute = routes.patients;
+    let selectedClinicId = null;
 
     api.user.login(credentials, options, (err) => {
       if (err) {
@@ -276,12 +277,12 @@ export function login(api, credentials, options, postLoginAction) {
                   if (!clinicMigration && values.clinics.length === 1) {
                     // Go to the clinic workspace if only one clinic
                     dispatch(sync.selectClinic(values.clinics[0]?.clinic?.id));
-                    setRedirectRoute(routes.clinicWorkspace);
+                    setRedirectRoute(routes.clinicWorkspace, values.clinics[0]?.clinic?.id);
                   } else {
                     // If we have an empty clinic object, go to clinic details, otherwise workspaces
                     if (clinicMigration) {
                       dispatch(sync.selectClinic(clinicMigration.clinic?.id));
-                      setRedirectRoute(`${routes.clinicDetails}/migrate`);
+                      setRedirectRoute(`${routes.clinicDetails}/migrate`, values.clinics[0]?.clinic?.id);
                     } else {
                       setRedirectRoute(routes.workspaces);
                     }
@@ -294,8 +295,9 @@ export function login(api, credentials, options, postLoginAction) {
               }
             });
 
-            function setRedirectRoute(route) {
+            function setRedirectRoute(route, clinicId = null) {
               redirectRoute = route;
+              selectedClinicId = clinicId;
               getPatientProfile();
             }
 
@@ -322,7 +324,11 @@ export function login(api, credentials, options, postLoginAction) {
               dispatch(postLoginAction());
             }
 
-            dispatch(push(redirectRoute));
+            const redirectState = {
+              selectedClinicId,
+            };
+
+            dispatch(push(redirectRoute, redirectState));
           }
 
           function handleLoginFailure(message, err) {
