@@ -238,6 +238,7 @@ export function login(api, credentials, options, postLoginAction) {
           } else {
             const userHasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
             const isClinicianAccount = personUtils.isClinicianAccount(user);
+            const hasClinicianRole = _.includes(user.roles, 'clinician');
 
             // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
             // to the clinic workflow if a relationship with a clinic object or an invite exists.
@@ -287,8 +288,12 @@ export function login(api, credentials, options, postLoginAction) {
                       setRedirectRoute(routes.workspaces);
                     }
                   }
-                } else if (isClinicianAccount && !userHasClinicProfile) {
-                  setRedirectRoute(`${routes.clinicDetails}/profile`)
+                } else if (hasClinicianRole) {
+                  // New clinician accounts that are intended to leverage the new clinic workspace
+                  // will have the 'clinician' role assigned at signup, and should be directed to the
+                  // clinic workspace to create their clinic profile and add a clinic if they have
+                  // not already done so.
+                  setRedirectRoute(!userHasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces);
                 } else {
                   getPatientProfile();
                 }

@@ -976,7 +976,7 @@ export const clinicFlowActive = (state = initialState.clinicFlowActive, action) 
       return action.payload.clinics.length > 0 || state;
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
-      return !_.isEmpty(_.get(action.payload, ['user', 'profile', 'clinic'])) || state;
+      return _.includes(action.payload?.user?.roles, 'clinician') || state;
     case types.LOGOUT_REQUEST:
       return initialState.clinicFlowActive;
     default:
