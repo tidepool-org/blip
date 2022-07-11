@@ -10,10 +10,12 @@ import has from 'lodash/has';
 import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'rebass/styled-components';
+import AddIcon from '@material-ui/icons/Add';
 
 import {
   Title,
+  Headline,
   MediumTitle,
   Body1,
   Subheading,
@@ -41,7 +43,7 @@ export const Workspaces = (props) => {
   const { set: setToast } = useToasts();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedWorkspace, setSelectedWorkspace] = useState(null);
-  const [workspaces, setWorkspaces] = useState(null);
+  const [workspaces, setWorkspaces] = useState([]);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [popupState, setPopupState] = useState(null);
   const clinics = useSelector((state) => state.blip.clinics);
@@ -238,6 +240,10 @@ export const Workspaces = (props) => {
     dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients', { selectedClinicId: workspace.id }));
   }
 
+  function handleCreateNewClinic() {
+    dispatch(push('/clinic-details/new'));
+  }
+
   const RenderClinicWorkspace = (workspace, key) => {
     const workspaceActions = workspace.type === 'clinic' ? (
       <>
@@ -300,9 +306,9 @@ export const Workspaces = (props) => {
           flexWrap={['wrap', 'nowrap']}
           px={[3, 4, 5, 6]}
         >
-          <Title flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
+          <Headline flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
             {t('Welcome To Tidepool')}
-          </Title>
+          </Headline>
         </Flex>
 
         <Box px={[3, 4, 5, 6]} py={[3, 4, 5]}>
@@ -314,7 +320,10 @@ export const Workspaces = (props) => {
             }}
             {...props}
           >
-            <Box
+            <Flex
+              justifyContent="space-between"
+              flexWrap="wrap"
+              align="center"
               bg="lightestGrey"
               px={[3, 4]}
               py={[2, 3]}
@@ -322,12 +331,52 @@ export const Workspaces = (props) => {
                 borderBottom: baseTheme.borders.modal,
               }}
             >
-              <Subheading>{t('Clinic Workspace')}</Subheading>
-              <Body1>{t('View, share and manage patient data')}</Body1>
-            </Box>
+              <Box>
+                <Title fontWeight="medium">{t('Clinic Workspace')}</Title>
+                <Body1>{t('View, share and manage patient data')}</Body1>
+              </Box>
+
+              <Button
+                variant="textPrimary"
+                fontSize={[2, 2, 3]}
+                fontWeight="medium"
+                py={3}
+                pr={0}
+                pl={[0, 0, 3]}
+                icon={AddIcon}
+                iconPosition="left"
+                onClick={handleCreateNewClinic}
+              >
+                {t('Create a New Clinic')}
+              </Button>
+            </Flex>
+
             <Box pl={[0, 0, 5, 6]} id="workspaces-clinics-list">
               {map(workspaces, RenderClinicWorkspace)}
             </Box>
+
+            {!workspaces.length && (
+              <Box
+                id="workspaces-empty"
+                fontSize={1}
+                fontWeight="medium"
+                px={[3, 4]} py={4}
+                color="text.primary"
+              >
+                <Text fontSize={3} color="purpleBright" mb={3}>{t('Do you want to set up a Clinic account?')}</Text>
+                <Body1 mb={1}>{t('With your Clinic account, you will be able to:')}</Body1>
+
+                <Box as="ol" pl={3} mb={3} sx={{ li: { py: 1 } }}>
+                  <li>{t('Provide every member of your team with their own unique account and login credentials to access patient data.')}</li>
+                  <li>{t('Directly manage Clinic team member access.')}</li>
+                  <li>{t('Leverage a Clinic Share Code to connect with patients.')}</li>
+                  <li>{t('Switch between multiple Clinic Workspaces, as needed.')}</li>
+                  <li>{t('Create and manage access to patient accounts without requiring Tidepool Uploader.')}</li>
+                </Box>
+
+                <Button variant="primary" onClick={handleCreateNewClinic}>{t('Yes, set it up')}</Button>
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>
