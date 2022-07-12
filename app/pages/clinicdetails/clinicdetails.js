@@ -283,7 +283,9 @@ export const ClinicDetails = (props) => {
     >
       {working.fetchingClinicianInvites.completed !== null ? (
         <>
-          <Headline mb={2}>{t('Update your account')}</Headline>
+          {displayClinicianForm && (
+            <Headline mb={2}>{t('Update your account')}</Headline>
+          )}
 
           {!displayClinicForm && clinicInvite && (
             <Body1 mb={2}>
@@ -300,9 +302,11 @@ export const ClinicDetails = (props) => {
             </Body1>
           )}
 
-          <Body1 mb={4}>
-            {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
-          </Body1>
+          {displayClinicianForm &&                                                                          n         (
+            <Body1 mb={4}>
+              {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
+            </Body1>
+          )}
 
           <Formik
             initialValues={clinicValues()}
@@ -337,41 +341,43 @@ export const ClinicDetails = (props) => {
           >
             {formikContext => (
               <Form id="clinic-profile">
-                <Flex mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
-                  <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                    <TextInput
-                      {...getCommonFormikFieldProps('fullName', formikContext)}
-                      label={t('Name')}
-                      placeholder={t('Name')}
-                      variant="condensed"
-                      width="100%"
-                    />
-                  </Box>
+                {displayClinicianForm && (
+                  <Flex mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
+                    <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                      <TextInput
+                        {...getCommonFormikFieldProps('fullName', formikContext)}
+                        label={t('Name')}
+                        placeholder={t('Name')}
+                        variant="condensed"
+                        width="100%"
+                      />
+                    </Box>
 
-                  <Box flexBasis="100%" />{/* Flex row break */}
+                    <Box flexBasis="100%" />{/* Flex row break */}
 
-                  <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                    <Select
-                      {...getCommonFormikFieldProps('role', formikContext)}
-                      options={addEmptyOption(roles, t('Job Title'))}
-                      label={t('Job Title (Optional)')}
-                      variant="condensed"
-                      themeProps={{
-                        width: '100%',
-                      }}
-                    />
-                  </Box>
+                    <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                      <Select
+                        {...getCommonFormikFieldProps('role', formikContext)}
+                        options={addEmptyOption(roles, t('Job Title'))}
+                        label={t('Job Title (Optional)')}
+                        variant="condensed"
+                        themeProps={{
+                          width: '100%',
+                        }}
+                      />
+                    </Box>
 
-                  <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                    <TextInput
-                      {...getCommonFormikFieldProps('npi', formikContext)}
-                      label={t('NPI (Optional)')}
-                      placeholder={t('NPI')}
-                      variant="condensed"
-                      width="100%"
-                    />
-                  </Box>
-                </Flex>
+                    <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                      <TextInput
+                        {...getCommonFormikFieldProps('npi', formikContext)}
+                        label={t('NPI (Optional)')}
+                        placeholder={t('NPI')}
+                        variant="condensed"
+                        width="100%"
+                      />
+                    </Box>
+                  </Flex>
+                )}
 
                 {displayClinicForm && (
                   <>
