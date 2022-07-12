@@ -302,7 +302,7 @@ export const ClinicDetails = (props) => {
             </Body1>
           )}
 
-          {displayClinicianForm &&                                                                          n         (
+          {displayClinicianForm && (
             <Body1 mb={4}>
               {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
             </Body1>
