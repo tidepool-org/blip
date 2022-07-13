@@ -123,7 +123,7 @@ export const ClinicPatients = (props) => {
     bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
   });
 
-  const bgLabels = () => generateBgRangeLabels(bgPrefs());
+  const bgLabels = () => generateBgRangeLabels(bgPrefs(), {segmented: true});
   const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState);
   const [pendingFilters, setPendingFilters] = useState(activeFilters);
   const lastUploadDateFilterOptions = [
@@ -134,19 +134,49 @@ export const ClinicPatients = (props) => {
   ];
 
   const glycemicTargetThresholds = {
-    timeInVeryLowPercent: { value: 1, comparator: '>', descriptor: 'Greater than' },
-    timeInLowPercent: { value: 4, comparator: '>', descriptor: 'Greater than' },
-    timeInTargetPercent: { value: 70, comparator: '<', descriptor: 'Less than' },
-    timeInHighPercent: { value: 25, comparator: '>', descriptor: 'Greater than' },
-    timeInVeryHighPercent: { value: 5, comparator: '>', descriptor: 'Greater than' },
+    timeInVeryLowPercent: { value: 1, comparator: '>' },
+    timeInLowPercent: { value: 4, comparator: '>' },
+    timeInTargetPercent: { value: 70, comparator: '<' },
+    timeInHighPercent: { value: 25, comparator: '>' },
+    timeInVeryHighPercent: { value: 5, comparator: '>' },
   }
 
   const timeInRangeFilterOptions = [
-    { value: 'timeInVeryLowPercent', label: t('{{descriptor}} {{value}}% Time ', glycemicTargetThresholds.timeInVeryLowPercent), tag: t('Severe hypoglycemia'), rangeName: 'veryLow' },
-    { value: 'timeInLowPercent', label: t('{{descriptor}} {{value}}% Time ', glycemicTargetThresholds.timeInLowPercent), tag: t('Hypoglycemia'), rangeName: 'low' },
-    { value: 'timeInTargetPercent', label: t('{{descriptor}} {{value}}% Time ', glycemicTargetThresholds.timeInTargetPercent), tag: t('Normal'), rangeName: 'target' },
-    { value: 'timeInHighPercent', label: t('{{descriptor}} {{value}}% Time ', glycemicTargetThresholds.timeInHighPercent), tag: t('Hyperglycemia'), rangeName: 'high' },
-    { value: 'timeInVeryHighPercent', label: t('{{descriptor}} {{value}}% Time ', glycemicTargetThresholds.timeInVeryHighPercent), tag: t('Severe hyperglycemia'), rangeName: 'veryHigh' },
+    {
+      value: 'timeInVeryLowPercent',
+      threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
+      prefix: t('Greater than'),
+      tag: t('Severe hypoglycemia'),
+      rangeName: 'veryLow',
+    },
+    {
+      value: 'timeInLowPercent',
+      threshold: glycemicTargetThresholds.timeInLowPercent.value,
+      prefix: t('Greater than'),
+      tag: t('Hypoglycemia'),
+      rangeName: 'low',
+    },
+    {
+      value: 'timeInTargetPercent',
+      threshold: glycemicTargetThresholds.timeInTargetPercent.value,
+      prefix: t('Less than'),
+      tag: t('Normal'),
+      rangeName: 'target',
+    },
+    {
+      value: 'timeInHighPercent',
+      threshold: glycemicTargetThresholds.timeInHighPercent.value,
+      prefix: t('Greater than'),
+      tag: t('Hyperglycemia'),
+      rangeName: 'high',
+    },
+    {
+      value: 'timeInVeryHighPercent',
+      threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
+      prefix: t('Greater than'),
+      tag: t('Severe hyperglycemia'),
+      rangeName: 'veryHigh',
+    },
   ];
 
   const lastUploadDatePopupFilterState = usePopupState({
@@ -841,46 +871,56 @@ export const ClinicPatients = (props) => {
             </Text>
           </Flex>
 
-          {map(timeInRangeFilterOptions, ({ value, label, rangeName, tag }) => (
-            <Flex
-              id={`time-in-range-filter-${rangeName}`}
-              key={rangeName}
-              mb={3}
-              ml={2}
-              alignItems="center"
-              sx={{ gap: 2 }}
-            >
-              <Checkbox
-                id={`range-${value}-filter`}
-                name={`range-${value}-filter`}
-                key={value}
-                checked={includes([...pendingFilters.timeInRange], value)}
-                onChange={event => {
+          {map(timeInRangeFilterOptions, ({ value, rangeName, tag, threshold, prefix }) => {
+            const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels()[rangeName];
+            return (
+              <Flex
+                id={`time-in-range-filter-${rangeName}`}
+                key={rangeName}
+                mb={3}
+                ml={2}
+                alignItems="center"
+                sx={{ gap: 2 }}
+              >
+                <Checkbox
+                  id={`range-${value}-filter`}
+                  name={`range-${value}-filter`}
+                  key={value}
+                  checked={includes([...pendingFilters.timeInRange], value)}
+                  onChange={event => {
                   setPendingFilters(event.target.checked
                     ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
                     : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
-                  );
-                }}
-              />
+                    );
+                  }}
+                />
 
-              <Box>
-                <Flex as='label' htmlFor={`range-${value}-filter`} alignItems="center">
-                  <Text fontSize={1} mr={2}>
-                    {label} {`${bgLabels()[rangeName]}`}
-                  </Text>
-                  <Pill
-                    label={tag}
-                    fontSize="12px"
-                    fontWeight='normal'
-                    py="2px"
-                    sx={{ borderRadius: radii.input, textTransform: 'none' }}
-                    colorPalette={[`bg.${rangeName}`, 'white']}
-                    text={tag}
-                  />
-                </Flex>
-              </Box>
-            </Flex>
-          ))}
+                <Box>
+                  <Flex as="label" htmlFor={`range-${value}-filter`} alignItems="center">
+                    <Text fontSize={1} mr={2}>
+                      {prefix}{' '}
+                      <Text as="span" fontSize={2} fontWeight="bold">
+                        {threshold}
+                      </Text>
+                      % {t('Time')} {t(bgPrefix)}{' '}
+                      <Text as="span" fontSize={2} fontWeight="bold">
+                        {glucoseTargetValue}
+                      </Text>{' '}
+                      {suffix}
+                    </Text>
+                    <Pill
+                      label={tag}
+                      fontSize="12px"
+                      fontWeight="normal"
+                      py="2px"
+                      sx={{ borderRadius: radii.input, textTransform: 'none' }}
+                      colorPalette={[`bg.${rangeName}`, 'white']}
+                      text={tag}
+                    />
+                  </Flex>
+                </Box>
+              </Flex>
+            )})}
 
           <Button
             variant="textSecondary"

@@ -971,21 +971,21 @@ describe('ClinicPatients', () => {
           expect(lowFilter()).to.have.lengthOf(1);
           expect(lowFilter().text()).contains('Hypoglycemia');
           expect(lowFilter().text()).contains('Greater than 4% Time');
-          expect(lowFilter().text()).contains('between 54 - 70 mg/dL');
+          expect(lowFilter().text()).contains('between 54-70 mg/dL');
           expect(lowFilter().find('input').props().checked).to.be.false;
 
           const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
           expect(targetFilter()).to.have.lengthOf(1);
           expect(targetFilter().text()).contains('Normal');
           expect(targetFilter().text()).contains('Less than 70% Time');
-          expect(targetFilter().text()).contains('between 70 - 180 mg/dL');
+          expect(targetFilter().text()).contains('between 70-180 mg/dL');
           expect(targetFilter().find('input').props().checked).to.be.false;
 
           const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
           expect(highFilter()).to.have.lengthOf(1);
           expect(highFilter().text()).contains('Hyperglycemia');
           expect(highFilter().text()).contains('Greater than 25% Time');
-          expect(highFilter().text()).contains('between 180 - 250 mg/dL');
+          expect(highFilter().text()).contains('between 180-250 mg/dL');
           expect(highFilter().find('input').props().checked).to.be.false;
 
           const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
@@ -1163,21 +1163,21 @@ describe('ClinicPatients', () => {
             expect(lowFilter()).to.have.lengthOf(1);
             expect(lowFilter().text()).contains('Hypoglycemia');
             expect(lowFilter().text()).contains('Greater than 4% Time');
-            expect(lowFilter().text()).contains('between 3.0 - 3.9 mmol/L');
+            expect(lowFilter().text()).contains('between 3.0-3.9 mmol/L');
             expect(lowFilter().find('input').props().checked).to.be.false;
 
             const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
             expect(targetFilter()).to.have.lengthOf(1);
             expect(targetFilter().text()).contains('Normal');
             expect(targetFilter().text()).contains('Less than 70% Time');
-            expect(targetFilter().text()).contains('between 3.9 - 10.0 mmol/L');
+            expect(targetFilter().text()).contains('between 3.9-10.0 mmol/L');
             expect(targetFilter().find('input').props().checked).to.be.false;
 
             const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
             expect(highFilter()).to.have.lengthOf(1);
             expect(highFilter().text()).contains('Hyperglycemia');
             expect(highFilter().text()).contains('Greater than 25% Time');
-            expect(highFilter().text()).contains('between 10.0 - 13.9 mmol/L');
+            expect(highFilter().text()).contains('between 10.0-13.9 mmol/L');
             expect(highFilter().find('input').props().checked).to.be.false;
 
             const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
