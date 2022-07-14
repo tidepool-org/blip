@@ -288,7 +288,7 @@ export function login(api, credentials, options, postLoginAction) {
                       setRedirectRoute(routes.workspaces);
                     }
                   }
-                } else if (hasClinicianRole) {
+                } else if (hasClinicianRole || (isClinicianAccount && !userHasClinicProfile)) {
                   // New clinician accounts that are intended to leverage the new clinic workspace
                   // will have the 'clinician' role assigned at signup, and should be directed to the
                   // clinic workspace to create their clinic profile and add a clinic if they have
