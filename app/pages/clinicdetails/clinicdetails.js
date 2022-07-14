@@ -92,6 +92,7 @@ export const ClinicDetails = (props) => {
   const [showMigrationDialog, setShowMigrationDialog] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
   const [clinicInvite, setClinicInvite] = useState();
+  const [formikReady, setFormikReady] = useState(false);
 
   let schema = displayClinicForm ? 'clinic' : 'clinician';
   if (displayClinicForm && displayClinicianForm) schema = 'combined';
@@ -143,6 +144,10 @@ export const ClinicDetails = (props) => {
         {
           workingState: working.fetchingClinicianInvites,
           action: actions.async.fetchClinicianInvites.bind(null, api, loggedInUserId),
+        },
+        {
+          workingState: working.fetchingClinicsForClinician,
+          action: actions.async.getClinicsForClinician.bind(null, api, loggedInUserId, {}),
         },
       ], ({ workingState, action }) => {
         if (
@@ -261,6 +266,10 @@ export const ClinicDetails = (props) => {
     return () => clearTimeout(messageDelayTimer);
   }, [working.triggeringInitialClinicMigration]);
 
+  useEffect(() => {
+    setFormikReady((working.fetchingClinicianInvites.completed && working.fetchingClinicsForClinician.completed))
+  }, [working.fetchingClinicianInvites.completed, working.fetchingClinicsForClinician.completed])
+
   function openMigrationConfirmationModal() {
     setShowMigrationDialog(true);
   }
@@ -281,7 +290,7 @@ export const ClinicDetails = (props) => {
       variant="containers.mediumBordered"
       p={4}
     >
-      {working.fetchingClinicianInvites.completed !== null ? (
+      {formikReady ? (
         <>
           {displayClinicianForm && (
             <Headline mb={2}>{t('Update your account')}</Headline>
@@ -316,6 +325,8 @@ export const ClinicDetails = (props) => {
 
               if (displayClinicianForm) {
                 const profileUpdates = {
+                  // replace legacy 'clinic' role, if present, with 'clinician'
+                  roles: map(user?.roles || [], role => role === 'clinic' ? 'clinician' : role),
                   profile: {
                     fullName: values.fullName,
                     clinic: {},
