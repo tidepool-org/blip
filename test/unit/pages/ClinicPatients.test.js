@@ -1329,6 +1329,59 @@ describe('ClinicPatients', () => {
           expect(resetAllFiltersButton()).to.have.lengthOf(0);
         });
 
+        it('should clear pending filter edits when time in range filter dialog closed', () => {
+          const filterCount = () => wrapper.find('#filter-count').hostNodes();
+          expect(filterCount()).to.have.lengthOf(0);
+
+          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
+          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+
+          // Reset Filters button only shows when filters are active
+          const resetAllFiltersButton = () => wrapper.find('#reset-all-active-filters').hostNodes();
+          expect(resetAllFiltersButton()).to.have.lengthOf(0);
+
+          // Open time in range dialog
+          const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
+          expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
+
+          const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+          timeInRangeFilterTrigger.simulate('click');
+
+          // Select 3 filter ranges
+          const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
+          expect(veryLowFilter().find('input').props().checked).to.be.true;
+
+          const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
+          expect(lowFilter().find('input').props().checked).to.be.true;
+
+          const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
+          expect(highFilter().find('input').props().checked).to.be.true;
+
+          // Close dialog without applying filter
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          expect(dialog()).to.have.length(1);
+          const closeButton = dialog().find('DialogTitle button').hostNodes();
+          closeButton.simulate('click');
+          expect(dialog()).to.have.length(0);
+
+          // Re-open dialog
+          timeInRangeFilterTrigger.simulate('click');
+          expect(dialog()).to.have.length(1);
+
+          // Verify that options are not still checked
+          expect(veryLowFilter().find('input').props().checked).to.be.false;
+          expect(lowFilter().find('input').props().checked).to.be.false;
+          expect(highFilter().find('input').props().checked).to.be.false;
+
+          // Total filter count and time in range filter count should be unset
+          expect(filterCount()).to.have.lengthOf(0);
+          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+          expect(resetAllFiltersButton()).to.have.lengthOf(0);
+        });
+
         it('should send an upload reminder to a fully claimed patient account', () => {
           const table = wrapper.find(Table);
           expect(table).to.have.length(1);

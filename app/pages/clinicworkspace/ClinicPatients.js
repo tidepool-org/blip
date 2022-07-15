@@ -860,6 +860,7 @@ export const ClinicPatients = (props) => {
           }}
           onClose={() => {
             trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
+            setPendingFilters(activeFilters);
             handleCloseOverlays();
           }}
         />
