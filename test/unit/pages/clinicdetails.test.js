@@ -1,6 +1,7 @@
 import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
+import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
@@ -31,6 +32,7 @@ describe('ClinicDetails', () => {
     api: {
       clinics: {
         getClinicianInvites: sinon.stub().callsArgWith(1, null, { invitesReturn: 'success' }),
+        getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
         dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
         update: sinon.stub().callsArgWith(2, null, { canMigrate: true }),
         triggerInitialClinicMigration: sinon.stub().callsArgWith(1, null, { triggerMigrationReturn: 'success' }),
@@ -59,6 +61,7 @@ describe('ClinicDetails', () => {
     blip: {
       working: {
         fetchingClinicianInvites: defaultWorkingState,
+        fetchingClinicsForClinician: defaultWorkingState,
         updatingClinic: defaultWorkingState,
         updatingUser: defaultWorkingState,
         triggeringInitialClinicMigration: defaultWorkingState,
@@ -72,6 +75,10 @@ describe('ClinicDetails', () => {
       working: {
         ...workingState.blip.working,
         fetchingClinicianInvites: {
+          ...defaultWorkingState,
+          completed: true,
+        },
+        fetchingClinicsForClinician: {
           ...defaultWorkingState,
           completed: true,
         },
@@ -172,6 +179,20 @@ describe('ClinicDetails', () => {
 
   let store = mockStore(defaultState);
 
+  const createWrapper = (route = '', providedStore = store) => {
+    store = providedStore;
+
+    return mount(
+      <Provider store={providedStore}>
+        <ToastProvider>
+          <MemoryRouter initialEntries={[`/clinic-details/${route}`]}>
+            <Route path='/clinic-details/:action' children={() => (<ClinicDetails {...defaultProps} />)} />
+          </MemoryRouter>
+        </ToastProvider>
+      </Provider>
+    );
+  };
+
   before(() => {
     ClinicDetails.__Rewire__('countries', {
       getNames: sinon.stub().returns({
@@ -192,19 +213,13 @@ describe('ClinicDetails', () => {
 
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
-
-    wrapper = mount(
-      <Provider store={store}>
-        <ToastProvider>
-          <ClinicDetails {...defaultProps} />
-        </ToastProvider>
-      </Provider>
-    );
+    wrapper = createWrapper();
   });
 
   afterEach(() => {
     defaultProps.api.clinics.triggerInitialClinicMigration.resetHistory();
     defaultProps.api.clinics.getClinicianInvites.resetHistory();
+    defaultProps.api.clinics.getClinicsForClinician.resetHistory();
     defaultProps.api.clinics.dismissClinicianInvite.resetHistory();
     defaultProps.api.clinics.update.resetHistory();
     defaultProps.api.user.put.resetHistory();
@@ -212,89 +227,27 @@ describe('ClinicDetails', () => {
 
   context('initial fetching', () => {
     beforeEach(() => {
-      store = mockStore({
+      wrapper = createWrapper('migrate', mockStore({
         blip: {
           ...defaultState.blip,
           ...workingState.blip,
         },
-      });
-
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicDetails {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      }));
     });
 
-    it('should fetch clinician invites', () => {
+    it('should fetch clinician invites and clinics', () => {
       sinon.assert.callCount(defaultProps.api.clinics.getClinicianInvites, 1);
       sinon.assert.calledWith(defaultProps.api.clinics.getClinicianInvites, 'clinicianUserId123');
-    });
-  });
 
-  describe('dismiss invitation', () => {
-    beforeEach(() => {
-      store = mockStore(newClinicianUserInviteState);
-
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicDetails {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
-    });
-
-    it('should allow a clinician to decline a clinic invite', () => {
-      const declineDialog = () => wrapper.find('Dialog#declineInvite');
-      expect(declineDialog()).to.have.lengthOf(1);
-      expect(declineDialog().props().open).to.be.false;
-
-      const declineButton = wrapper.find('button.decline-invite');
-      expect(declineButton).to.have.lengthOf(1);
-      expect(declineButton.text()).to.equal('Decline Invite');
-
-      declineButton.simulate('click');
-      expect(declineDialog().props().open).to.be.true;
-
-      const dialogTitle = declineDialog().find('#dialog-title').hostNodes();
-      expect(dialogTitle).to.have.lengthOf(1);
-      expect(dialogTitle.text()).to.equal('Decline Example Health');
-
-      const confirmDeclineButton = declineDialog().find('Button[variant="danger"]');
-      expect(confirmDeclineButton).to.have.lengthOf(1);
-      expect(confirmDeclineButton.text()).to.equal('Decline Invite');
-
-      store.clearActions();
-      confirmDeclineButton.simulate('click');
-      expect(store.getActions()).to.eql([
-        {
-          type: 'DISMISS_CLINICIAN_INVITE_REQUEST',
-        },
-        {
-          type: 'DISMISS_CLINICIAN_INVITE_SUCCESS',
-          payload: {
-            inviteId: 'invite123',
-          },
-        },
-      ]);
+      sinon.assert.callCount(defaultProps.api.clinics.getClinicsForClinician, 1);
+      sinon.assert.calledWith(defaultProps.api.clinics.getClinicsForClinician, 'clinicianUserId123');
     });
   });
 
   describe('profile editing', () => {
     context('partial form submission', () => {
       beforeEach(() => {
-        store = mockStore(newClinicianUserInviteState);
-
-        wrapper = mount(
-          <Provider store={store}>
-            <ToastProvider>
-              <ClinicDetails {...defaultProps} />
-            </ToastProvider>
-          </Provider>
-        );
+        wrapper = createWrapper('profile', mockStore(newClinicianUserInviteState));
       });
 
       it('should present a simplified form for updating profile information', done => {
@@ -324,7 +277,7 @@ describe('ClinicDetails', () => {
                 clinic: { npi: '1234567890', role: 'endocrinologist' },
                 fullName: 'Bill Bryerson'
               },
-              roles: ['clinic'],
+              roles: ['clinician'],
               userid: 'clinicianUserId123'
             }
           );
@@ -336,7 +289,7 @@ describe('ClinicDetails', () => {
                 userId: 'clinicianUserId123',
                 updatingUser: {
                   emails: ['clinic@example.com'],
-                  roles: ['clinic'],
+                  roles: ['clinician'],
                   userid: 'clinicianUserId123',
                   username: 'clinic@example.com',
                   profile: {
@@ -366,14 +319,7 @@ describe('ClinicDetails', () => {
 
     context('full form submission', () => {
       beforeEach(() => {
-        store = mockStore(initialEmptyClinicState);
-        wrapper = mount(
-          <Provider store={store}>
-            <ToastProvider>
-              <ClinicDetails {...defaultProps} />
-            </ToastProvider>
-          </Provider>
-        );
+        wrapper = createWrapper('migrate', mockStore(initialEmptyClinicState));
       });
 
       it('should present an expanded form for updating clinician and clinic profile information, and redirect to clinic admin page', done => {
@@ -439,7 +385,7 @@ describe('ClinicDetails', () => {
                 clinic: { npi: '1234567890', role: 'endocrinologist' },
                 fullName: 'Bill Bryerson'
               },
-              roles: ['clinic'],
+              roles: ['clinician'],
               userid: 'clinicianUserId123'
             }
           );
@@ -471,7 +417,7 @@ describe('ClinicDetails', () => {
                 userId: 'clinicianUserId123',
                 updatingUser: {
                   emails: ['clinic@example.com'],
-                  roles: ['clinic'],
+                  roles: ['clinician'],
                   userid: 'clinicianUserId123',
                   username: 'clinic@example.com',
                   profile: {
@@ -509,30 +455,14 @@ describe('ClinicDetails', () => {
 
     context('pre-populate clinic team member profile fields', () => {
       it('should not populate the team member profile fields if the clinic details have not been filled out', () => {
-        store = mockStore(initialEmptyClinicState);
-        wrapper = mount(
-          <Provider store={store}>
-            <ToastProvider>
-              <ClinicDetails {...defaultProps} />
-            </ToastProvider>
-          </Provider>
-        );
-
+        wrapper = createWrapper('profile', mockStore(initialEmptyClinicState));
         expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('');
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('');
         expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('');
       });
 
       it('should populate the team member profile fields if the clinic details have been filled out', () => {
-        store = mockStore(clinicCanMigrateState);
-        wrapper = mount(
-          <Provider store={store}>
-            <ToastProvider>
-              <ClinicDetails {...defaultProps} />
-            </ToastProvider>
-          </Provider>
-        );
-
+        wrapper = createWrapper('migrate', mockStore(clinicCanMigrateState));
         expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('Clinician One');
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('front_desk');
         expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('1234567890');
@@ -541,14 +471,7 @@ describe('ClinicDetails', () => {
 
     context('clinic is ready to migrate on load', () => {
       beforeEach(() => {
-        store = mockStore(clinicCanMigrateState);
-        wrapper = mount(
-          <Provider store={store}>
-            <ToastProvider>
-              <ClinicDetails {...defaultProps} />
-            </ToastProvider>
-          </Provider>
-        );
+        wrapper = createWrapper('migrate', mockStore(clinicCanMigrateState));
       });
 
       it('should open the migration confirmation modal', () => {

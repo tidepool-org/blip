@@ -197,12 +197,12 @@ describe('Workspaces', () => {
     });
 
     it('should render the workspaces title', () => {
-      const title = wrapper.find('h3').at(0);
+      const title = wrapper.find('h2').at(0);
       expect(title.text()).to.equal('Welcome To Tidepool');
     });
 
     it('should render the workspaces section heading', () => {
-      const heading = wrapper.find('h4').at(0);
+      const heading = wrapper.find('h3').at(0);
       expect(heading.text()).to.equal('Clinic Workspace');
     });
 
