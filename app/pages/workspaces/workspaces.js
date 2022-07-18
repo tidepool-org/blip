@@ -240,7 +240,8 @@ export const Workspaces = (props) => {
     dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients', { selectedClinicId: workspace.id }));
   }
 
-  function handleCreateNewClinic() {
+  function handleCreateNewClinic(metric) {
+    trackMetric(`Clinic - Workspaces - ${metric}`);
     dispatch(actions.sync.selectClinic(null));
     dispatch(push('/clinic-details/new', { selectedClinicId: null }));
   }
@@ -347,7 +348,7 @@ export const Workspaces = (props) => {
                 pl={[0, 0, 3]}
                 icon={AddIcon}
                 iconPosition="left"
-                onClick={handleCreateNewClinic}
+                onClick={handleCreateNewClinic.bind(null, 'Create new clinic')}
               >
                 {t('Create a New Clinic')}
               </Button>
@@ -376,7 +377,13 @@ export const Workspaces = (props) => {
                   <li>{t('Create and manage access to patient accounts without requiring Tidepool Uploader.')}</li>
                 </Box>
 
-                <Button id="empty-workspace-create-clinic" variant="primary" onClick={handleCreateNewClinic}>{t('Yes, set it up')}</Button>
+                <Button
+                  id="empty-workspace-create-clinic"
+                  variant="primary"
+                  onClick={handleCreateNewClinic.bind(null, 'New clinic setup confirm')}
+                >
+                  {t('Yes, set it up')}
+                </Button>
               </Box>
             )}
           </Box>
