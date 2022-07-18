@@ -240,8 +240,8 @@ export const Workspaces = (props) => {
     dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients', { selectedClinicId: workspace.id }));
   }
 
-  function handleCreateNewClinic(metric) {
-    trackMetric(`Clinic - Workspaces - ${metric}`);
+  function handleCreateNewClinic(source) {
+    trackMetric('Clinic - Workspaces - Create new clinic', { source });
     dispatch(actions.sync.selectClinic(null));
     dispatch(push('/clinic-details/new', { selectedClinicId: null }));
   }
@@ -348,7 +348,7 @@ export const Workspaces = (props) => {
                 pl={[0, 0, 3]}
                 icon={AddIcon}
                 iconPosition="left"
-                onClick={handleCreateNewClinic.bind(null, 'Create new clinic')}
+                onClick={handleCreateNewClinic.bind(null, 'header cta')}
               >
                 {t('Create a New Clinic')}
               </Button>
@@ -380,7 +380,7 @@ export const Workspaces = (props) => {
                 <Button
                   id="empty-workspace-create-clinic"
                   variant="primary"
-                  onClick={handleCreateNewClinic.bind(null, 'New clinic setup confirm')}
+                  onClick={handleCreateNewClinic.bind(null, 'empty state cta')}
                 >
                   {t('Yes, set it up')}
                 </Button>

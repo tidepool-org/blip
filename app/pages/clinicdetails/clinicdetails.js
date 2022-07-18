@@ -342,6 +342,7 @@ export const ClinicDetails = (props) => {
                   profileUpdates.profile.clinic.npi = values.npi;
                 }
 
+                if (action === 'profile') trackMetric('Web - Clinician Details Setup');
                 dispatch(actions.async.updateUser(api, profileUpdates));
               }
 
