@@ -849,7 +849,10 @@ export const ClinicPatients = (props) => {
         id="timeInRangeDialog"
         aria-label="Time in range filters"
         open={showTimeInRangeDialog}
-        onClose={handleCloseOverlays}
+        onClose={() => {
+          setPendingFilters(activeFilters);
+          handleCloseOverlays();
+        }}
         maxWidth='lg'
       >
         <DialogTitle
