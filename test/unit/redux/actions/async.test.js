@@ -4811,31 +4811,34 @@ describe('Actions', () => {
 
     describe('createClinic', () => {
       it('should trigger CREATE_CLINICS_SUCCESS and it should call clinics.create once and redirect to "clinic-admin" for a successful request', () => {
+        let clinicianId = 'clinician123';
+
         let clinicReturn = {
           id: 'new_clinic_id'
         };
 
+        let clinics = [clinicReturn];
+
         let api = {
-          clinics: {
+            clinics: {
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics),
             create: sinon.stub().callsArgWith(1, null, clinicReturn)
           },
         };
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_REQUEST' },
+          { type: 'SELECT_CLINIC', payload: { clinicId : 'new_clinic_id' } },
           { type: 'CREATE_CLINIC_SUCCESS', payload: { clinic : clinicReturn } },
-          { type: '@@router/CALL_HISTORY_METHOD',
-            payload: { args: [ '/clinic-admin' ],
-              method: 'push',
-            },
-          }
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId, clinics } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.createClinic(api));
+        store.dispatch(async.createClinic(api, clinicReturn, clinicianId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);

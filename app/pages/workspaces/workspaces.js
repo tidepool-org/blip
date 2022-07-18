@@ -91,7 +91,7 @@ export const Workspaces = (props) => {
   }, [deletingClinicianFromClinic]);
 
   useEffect(() => {
-    handleAsyncResult(acceptingClinicianInvite, t('You’re in. You now have access to {{name}}.', {
+    handleAsyncResult(acceptingClinicianInvite, t('You\'re in. You now have access to {{name}}.', {
       name: selectedWorkspace?.name,
     }));
 
@@ -241,7 +241,8 @@ export const Workspaces = (props) => {
   }
 
   function handleCreateNewClinic() {
-    dispatch(push('/clinic-details/new'));
+    dispatch(actions.sync.selectClinic(null));
+    dispatch(push('/clinic-details/new', { selectedClinicId: null }));
   }
 
   const RenderClinicWorkspace = (workspace, key) => {
@@ -337,6 +338,7 @@ export const Workspaces = (props) => {
               </Box>
 
               <Button
+                id="workspace-create-clinic"
                 variant="textPrimary"
                 fontSize={[2, 2, 3]}
                 fontWeight="medium"
@@ -374,7 +376,7 @@ export const Workspaces = (props) => {
                   <li>{t('Create and manage access to patient accounts without requiring Tidepool Uploader.')}</li>
                 </Box>
 
-                <Button variant="primary" onClick={handleCreateNewClinic}>{t('Yes, set it up')}</Button>
+                <Button id="empty-workspace-create-clinic" variant="primary" onClick={handleCreateNewClinic}>{t('Yes, set it up')}</Button>
               </Box>
             )}
           </Box>

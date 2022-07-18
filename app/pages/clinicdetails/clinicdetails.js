@@ -105,11 +105,12 @@ export const ClinicDetails = (props) => {
   });
 
   function redirectToWorkspace() {
-    const redirectPath = isEmpty(pendingReceivedClinicianInvites) && clinics?.length === 1
+    const redirectPath = isEmpty(pendingReceivedClinicianInvites) && keys(clinics).length === 1
       ? '/clinic-workspace'
       : '/workspaces';
 
-    dispatch(push(redirectPath));
+    const redirectState = { selectedClinicId: clinics.length === 1 ? clinics[0].id : null };
+    dispatch(push(redirectPath, redirectState));
   }
 
   useEffect(() => {
@@ -193,15 +194,17 @@ export const ClinicDetails = (props) => {
   }, [working.updatingUser]);
 
   useEffect(() => {
+    let clinicAction = action === 'new' ? 'creatingClinic' : 'updatingClinic';
+
     const {
       inProgress,
       completed,
       notification,
-    } = working.updatingClinic;
+    } = working[clinicAction];
 
     const prevInProgress = get(
       previousWorking,
-      'updatingClinic.inProgress'
+      [clinicAction, 'inProgress']
     );
 
     if (!inProgress && completed !== null && prevInProgress) {
@@ -222,12 +225,10 @@ export const ClinicDetails = (props) => {
             message: t('"{{name}}" clinic created', clinic),
             variant: 'success',
           });
-
-          redirectToWorkspace();
         }
       }
     }
-  }, [working.updatingClinic]);
+  }, [working.updatingClinic, working.creatingClinic]);
 
   useEffect(() => {
     const {
@@ -293,11 +294,11 @@ export const ClinicDetails = (props) => {
       {formikReady ? (
         <>
           {displayClinicianForm && (
-            <Headline mb={2}>{t('Update your account')}</Headline>
+            <Headline id="clinician-form-header" mb={2}>{t('Update your account')}</Headline>
           )}
 
           {!displayClinicForm && clinicInvite && (
-            <Body1 mb={2}>
+            <Body1 id="clinic-invite-details" mb={2}>
               <Flex alignItems="center">
                 <NotificationIcon ml={0} mr={2} flexShrink={0} />
                 <Trans>
@@ -312,7 +313,7 @@ export const ClinicDetails = (props) => {
           )}
 
           {displayClinicianForm && (
-            <Body1 mb={4}>
+            <Body1 id="clinician-form-info" mb={4}>
               {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
             </Body1>
           )}
@@ -345,15 +346,21 @@ export const ClinicDetails = (props) => {
               }
 
               if (displayClinicForm) {
-                trackMetric('Clinic - Account created');
-                dispatch(actions.async.updateClinic(api, clinic.id, pick(values, keys(clinicValuesFromClinic()))));
+                const clinicValues = pick(values, keys(clinicValuesFromClinic()));
+
+                if (clinic?.id) {
+                  trackMetric('Clinic - Account created');
+                  dispatch(actions.async.updateClinic(api, clinic.id, clinicValues));
+                } else {
+                  dispatch(actions.async.createClinic(api, clinicValues, loggedInUserId));
+                }
               }
             }}
           >
             {formikContext => (
               <Form id="clinic-profile">
                 {displayClinicianForm && (
-                  <Flex mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
+                  <Flex id="clinician-profile-form" mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
                     <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
                       <TextInput
                         {...getCommonFormikFieldProps('fullName', formikContext)}
@@ -391,7 +398,7 @@ export const ClinicDetails = (props) => {
                 )}
 
                 {displayClinicForm && (
-                  <>
+                  <Box id="clinic-profile-form">
                     <Headline mb={2}>{t('More about your clinic')}</Headline>
                     <Body1 mb={4}>
                       {t('The information below will be displayed along with your name when you invite patients to connect and share their data remotely. Please ensure you have the correct clinic information for their verification.')}
@@ -409,7 +416,7 @@ export const ClinicDetails = (props) => {
                       error={formikContext.touched.adminAcknowledge && formikContext.errors.adminAcknowledge}
                       checked={formikContext.values.adminAcknowledge}
                     />
-                  </>
+                  </Box>
                 )}
 
                 <Flex

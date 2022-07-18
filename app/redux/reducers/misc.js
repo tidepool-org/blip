@@ -744,12 +744,7 @@ export const clinics = (state = initialState.clinics, action) => {
       delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
-    case types.CREATE_CLINIC_SUCCESS: {
-      let clinic = _.get(action.payload, 'clinic', {});
-      return update(state, {
-        [clinic.id]: { $set: { clinicians: {}, patients: {}, patientInvites: {} } },
-      });
-    }
+    case types.CREATE_CLINIC_SUCCESS:
     case types.FETCH_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic', {});
       return update(state, {

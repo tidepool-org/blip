@@ -35,6 +35,7 @@ describe('ClinicDetails', () => {
         getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
         dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
         update: sinon.stub().callsArgWith(2, null, { canMigrate: true }),
+        create: sinon.stub().callsArgWith(1, null, { id: 'newClinic123' }),
         triggerInitialClinicMigration: sinon.stub().callsArgWith(1, null, { triggerMigrationReturn: 'success' }),
       },
       user: {
@@ -63,6 +64,7 @@ describe('ClinicDetails', () => {
         fetchingClinicianInvites: defaultWorkingState,
         fetchingClinicsForClinician: defaultWorkingState,
         updatingClinic: defaultWorkingState,
+        creatingClinic: defaultWorkingState,
         updatingUser: defaultWorkingState,
         triggeringInitialClinicMigration: defaultWorkingState,
         dismissingClinicianInvite: defaultWorkingState,
@@ -222,6 +224,7 @@ describe('ClinicDetails', () => {
     defaultProps.api.clinics.getClinicsForClinician.resetHistory();
     defaultProps.api.clinics.dismissClinicianInvite.resetHistory();
     defaultProps.api.clinics.update.resetHistory();
+    defaultProps.api.clinics.create.resetHistory();
     defaultProps.api.user.put.resetHistory();
   });
 
@@ -244,8 +247,74 @@ describe('ClinicDetails', () => {
     });
   });
 
-  describe('profile editing', () => {
-    context('partial form submission', () => {
+  context('content visibility based on route action param', () => {
+    it('should render the appropriate form sections for the "/migrate" route', () => {
+      wrapper = createWrapper('migrate', mockStore(defaultState));
+
+      const clinicianFormHeader = wrapper.find('#clinician-form-header').hostNodes();
+      const clinicianFormInfo = wrapper.find('#clinician-form-info').hostNodes();
+      const clinicInviteDetails = wrapper.find('#clinic-invite-details').hostNodes();
+      const clinicianProfileForm = wrapper.find('#clinician-profile-form').hostNodes();
+      const clinicProfileForm = wrapper.find('#clinic-profile-form').hostNodes();
+
+      expect(clinicianFormHeader).to.have.lengthOf(1);
+      expect(clinicianFormInfo).to.have.lengthOf(1);
+      expect(clinicInviteDetails).to.have.lengthOf(0);
+      expect(clinicianProfileForm).to.have.lengthOf(1);
+      expect(clinicProfileForm).to.have.lengthOf(1);
+    });
+
+    it('should render the appropriate form sections for the "/profile" route', () => {
+      wrapper = createWrapper('profile', mockStore(defaultState));
+
+      const clinicianFormHeader = wrapper.find('#clinician-form-header').hostNodes();
+      const clinicianFormInfo = wrapper.find('#clinician-form-info').hostNodes();
+      const clinicInviteDetails = wrapper.find('#clinic-invite-details').hostNodes();
+      const clinicianProfileForm = wrapper.find('#clinician-profile-form').hostNodes();
+      const clinicProfileForm = wrapper.find('#clinic-profile-form').hostNodes();
+
+      expect(clinicianFormHeader).to.have.lengthOf(1);
+      expect(clinicianFormInfo).to.have.lengthOf(1);
+      expect(clinicInviteDetails).to.have.lengthOf(0);
+      expect(clinicianProfileForm).to.have.lengthOf(1);
+      expect(clinicProfileForm).to.have.lengthOf(0);
+    });
+
+    it('should render the appropriate form sections for the "/profile" route with clinic invite present', () => {
+      wrapper = createWrapper('profile', mockStore(newClinicianUserInviteState));
+
+      const clinicianFormHeader = wrapper.find('#clinician-form-header').hostNodes();
+      const clinicianFormInfo = wrapper.find('#clinician-form-info').hostNodes();
+      const clinicInviteDetails = wrapper.find('#clinic-invite-details').hostNodes();
+      const clinicianProfileForm = wrapper.find('#clinician-profile-form').hostNodes();
+      const clinicProfileForm = wrapper.find('#clinic-profile-form').hostNodes();
+
+      expect(clinicianFormHeader).to.have.lengthOf(1);
+      expect(clinicianFormInfo).to.have.lengthOf(1);
+      expect(clinicInviteDetails).to.have.lengthOf(1);
+      expect(clinicianProfileForm).to.have.lengthOf(1);
+      expect(clinicProfileForm).to.have.lengthOf(0);
+    });
+
+    it('should render the appropriate form sections for the "/new" route', () => {
+      wrapper = createWrapper('new', mockStore(defaultState));
+
+      const clinicianFormHeader = wrapper.find('#clinician-form-header').hostNodes();
+      const clinicianFormInfo = wrapper.find('#clinician-form-info').hostNodes();
+      const clinicInviteDetails = wrapper.find('#clinic-invite-details').hostNodes();
+      const clinicianProfileForm = wrapper.find('#clinician-profile-form').hostNodes();
+      const clinicProfileForm = wrapper.find('#clinic-profile-form').hostNodes();
+
+      expect(clinicianFormHeader).to.have.lengthOf(0);
+      expect(clinicianFormInfo).to.have.lengthOf(0);
+      expect(clinicInviteDetails).to.have.lengthOf(0);
+      expect(clinicianProfileForm).to.have.lengthOf(0);
+      expect(clinicProfileForm).to.have.lengthOf(1);
+    });
+  });
+
+  describe('form submission', () => {
+    context('profile form', () => {
       beforeEach(() => {
         wrapper = createWrapper('profile', mockStore(newClinicianUserInviteState));
       });
@@ -317,12 +386,12 @@ describe('ClinicDetails', () => {
       });
     });
 
-    context('full form submission', () => {
+    context('clinic migration', () => {
       beforeEach(() => {
         wrapper = createWrapper('migrate', mockStore(initialEmptyClinicState));
       });
 
-      it('should present an expanded form for updating clinician and clinic profile information, and redirect to clinic admin page', done => {
+      it('should present an expanded form for updating clinician and clinic profile information', done => {
         const profileForm = wrapper.find('form#clinic-profile');
         expect(profileForm).to.have.lengthOf(1);
 
@@ -446,6 +515,94 @@ describe('ClinicDetails', () => {
                 clinic: { canMigrate: true },
               },
             },
+          ]);
+
+          done();
+        }, 0);
+      });
+    });
+
+    context('clinic creation', () => {
+      beforeEach(() => {
+        wrapper = createWrapper('new', mockStore(defaultState));
+      });
+
+      it('should present an expanded form for adding new clinic profile information', done => {
+        const profileForm = wrapper.find('form#clinic-profile');
+        expect(profileForm).to.have.lengthOf(1);
+
+        wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'My Clinic' } });
+        expect(wrapper.find('input[name="name"]').prop('value')).to.equal('My Clinic');
+
+        wrapper.find('input[name="phoneNumbers.0.number"]').simulate('change', { persist: noop, target: { name: 'phoneNumbers.0.number', value: '(888) 555-6666' } });
+        expect(wrapper.find('input[name="phoneNumbers.0.number"]').prop('defaultValue')).to.equal('(888) 555-6666');
+
+        wrapper.find('select[name="country"]').simulate('change', { persist: noop, target: { name: 'country', value: 'US' } });
+        expect(wrapper.find('select[name="country"]').prop('value')).to.equal('US');
+
+        wrapper.find('input[name="address"]').simulate('change', { persist: noop, target: { name: 'address', value: '253 Mystreet Ave Apt. 34' } });
+        expect(wrapper.find('input[name="address"]').prop('value')).to.equal('253 Mystreet Ave Apt. 34');
+
+        wrapper.find('input[name="city"]').simulate('change', { persist: noop, target: { name: 'city', value: 'Gotham' } });
+        expect(wrapper.find('input[name="city"]').prop('value')).to.equal('Gotham');
+
+        wrapper.find('select[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'NJ' } });
+        expect(wrapper.find('select[name="state"]').prop('value')).to.equal('NJ');
+
+        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: '90210' } });
+        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('90210');
+
+        wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic.com' } });
+        expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
+
+        wrapper.find('input[name="clinicType"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
+        expect(wrapper.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('healthcare_system');
+
+        wrapper.find('input[name="clinicSize"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicSize', value: '250-499' } });
+        expect(wrapper.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('250-499');
+
+        wrapper.find('input[name="preferredBgUnits"]').at(1).simulate('change', { persist: noop, target: { name: 'preferredBgUnits', value: 'mmol/L' } });
+        expect(wrapper.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mmol/L');
+
+        wrapper.find('input[name="adminAcknowledge"]').simulate('change', { persist: noop, target: { name: 'adminAcknowledge', value: true } });
+        expect(wrapper.find('input[name="adminAcknowledge"]').prop('value')).to.be.true;
+
+        store.clearActions();
+        wrapper.find('Button#submit').simulate('submit');
+
+        setTimeout(() => {
+          sinon.assert.notCalled(defaultProps.api.user.put);
+
+          expect(defaultProps.api.clinics.create.callCount).to.equal(1);
+
+          sinon.assert.calledWith(
+            defaultProps.api.clinics.create,
+            {
+              address: '253 Mystreet Ave Apt. 34',
+              city: 'Gotham',
+              clinicSize: '250-499',
+              clinicType: 'healthcare_system',
+              country: 'US',
+              name: 'My Clinic',
+              phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
+              postalCode: '90210',
+              state: 'NJ',
+              website: 'http://clinic.com',
+              preferredBgUnits: 'mmol/L',
+            },
+          );
+
+          expect(store.getActions()).to.eql([
+            { type: 'CREATE_CLINIC_REQUEST' },
+            { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic123' } },
+            {
+              type: 'CREATE_CLINIC_SUCCESS',
+              payload: {
+                clinic: { id: 'newClinic123' },
+              },
+            },
+            { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+            { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics: { clinicsReturn: 'success' }, clinicianId: 'clinicianUserId123' } },
           ]);
 
           done();

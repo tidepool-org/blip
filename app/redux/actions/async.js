@@ -1731,8 +1731,9 @@ export function getAllClinics(api, options = {}, cb = _.noop) {
  * @param {String} [clinic.clinicType] - Clinic type
  * @param {Number} [clinic.clinicSize] - Int Lower bound for clinic size
  * @param {String} clinic.email - Primary email address for clinic
+ * @param {String} clinicianId - Id of clinician creating the clinic
  */
-export function createClinic(api, clinic) {
+export function createClinic(api, clinic, clinicianId) {
   return (dispatch) => {
     dispatch(sync.createClinicRequest());
 
@@ -1745,8 +1746,9 @@ export function createClinic(api, clinic) {
           )
         );
       } else {
+        dispatch(sync.selectClinic(clinic.id));
         dispatch(sync.createClinicSuccess(clinic));
-        dispatch(push('/clinic-admin'));
+        dispatch(getClinicsForClinician(api, clinicianId));
       }
     });
   };

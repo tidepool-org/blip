@@ -141,6 +141,14 @@ describe('Workspaces', () => {
     },
   };
 
+  const fetchedDataEmptyState = {
+    blip: {
+      ...fetchedDataState.blip,
+      clinics: {},
+      pendingReceivedClinicianInvites: [],
+    },
+  };
+
   let mountWrapper;
   let store;
 
@@ -186,7 +194,7 @@ describe('Workspaces', () => {
     });
   });
 
-  context('clinician invites fetched', () => {
+  context('clinic and invite data fetched', () => {
     beforeEach(() => {
       wrapper = mountWrapper(mockStore(fetchedDataState));
     });
@@ -204,6 +212,53 @@ describe('Workspaces', () => {
     it('should render the workspaces section heading', () => {
       const heading = wrapper.find('h3').at(0);
       expect(heading.text()).to.equal('Clinic Workspace');
+    });
+
+    it('should render a button to add a new clinic', () => {
+      const button = wrapper.find('button#workspace-create-clinic');
+      expect(button).to.have.lengthOf(1);
+      expect(button.text()).contains('Create a New Clinic');
+
+      store.clearActions();
+      button.simulate('click');
+      expect(store.getActions()).to.eql([
+        { type: 'SELECT_CLINIC', payload: { clinicId: null } },
+        {
+          type: '@@router/CALL_HISTORY_METHOD',
+          payload: {
+            args: ['/clinic-details/new', { selectedClinicId: null }],
+            method: 'push',
+          },
+        },
+      ]);
+    });
+
+    context('no clinics or invites', () => {
+      beforeEach(() => {
+        wrapper = mountWrapper(mockStore(fetchedDataEmptyState));
+      });
+
+      it('should render create clinic info and CTA', () => {
+        const emptyWorkspaces = wrapper.find('#workspaces-empty').hostNodes();
+        expect(emptyWorkspaces).to.have.lengthOf(1);
+
+        const button = wrapper.find('button#empty-workspace-create-clinic');
+        expect(button).to.have.lengthOf(1);
+        expect(button.text()).contains('Yes, set it up');
+
+        store.clearActions();
+        button.simulate('click');
+        expect(store.getActions()).to.eql([
+          { type: 'SELECT_CLINIC', payload: { clinicId: null } },
+          {
+            type: '@@router/CALL_HISTORY_METHOD',
+            payload: {
+              args: ['/clinic-details/new', { selectedClinicId: null }],
+              method: 'push',
+            },
+          },
+        ]);
+      });
     });
 
     it('should render a list of clinics and pending invites for the clinician', () => {
