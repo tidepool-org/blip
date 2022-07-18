@@ -110,6 +110,8 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
 
           const currentPathname = routerState.location?.pathname;
           const isClinicianAccount = personUtils.isClinicianAccount(user);
+          const hasClinicianRole = _.includes(user.roles, 'clinician');
+          const hasLegacyClinicRole = _.includes(user.roles, 'clinic');
           const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
           const firstEmptyOrUnmigratedClinic = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
@@ -138,13 +140,15 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
             return cb();
           }
 
-          if (isClinicianAccount && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
-            // Navigate to the appropriate page for a clinician user or team member who needs to
+          if (hasLegacyClinicRole && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
+            // Navigate to the appropriate page for a legacy clinician user or team member who needs to
             // complete the setup process
             if (firstEmptyOrUnmigratedClinic) dispatch(actions.sync.selectClinic(firstEmptyOrUnmigratedClinic.clinic.id));
             const routeState = { selectedClinicId: state.selectedClinicId || null };
             const routeAction = firstEmptyOrUnmigratedClinic ? 'migrate' : 'profile';
             dispatch(push(`${routes.clinicDetails}/${routeAction}`, routeState));
+          } else if (hasClinicianRole && !hasClinicProfile) {
+            dispatch(push(`${routes.clinicDetails}/profile`));
           } else if (values.invites?.length) {
             // Redirect user to address clinic invite, or first fill in profile info if missing
             dispatch(push(!hasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces));
