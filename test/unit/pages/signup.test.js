@@ -347,7 +347,7 @@ describe('Signup', function () {
       dateStub.reset();
     });
 
-    it('should be prepare the form values for submission of the personal signup form', function() {
+    it('should prepare the form values for submission of the personal signup form', function() {
       var props = {
         location: { pathname: '/signup/personal' },
       };
@@ -378,7 +378,7 @@ describe('Signup', function () {
       expect(formattedValues).to.eql(expectedformattedValues);
     });
 
-    it('should be prepare the form values for submission of the clinician signup form', function() {
+    it('should prepare the form values for submission of the clinician signup form', function() {
       var props = {
         location: { pathname: '/signup/clinician' },
       };
@@ -399,7 +399,7 @@ describe('Signup', function () {
         emails: [ formValues.username ],
         termsAccepted: acceptedDate,
         password: formValues.password,
-        roles: [ 'clinic' ],
+        roles: [ 'clinician' ],
       };
 
       const formattedValues = rendered.prepareFormValuesForSubmit(formValues);

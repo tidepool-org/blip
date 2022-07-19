@@ -24,7 +24,6 @@ const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
   i18nEnabled: process.env.I18N_ENABLED || false,
   rxEnabled: process.env.RX_ENABLED || false,
   pendoEnabled: process.env.PENDO_ENABLED || true,
-  clinicsEnabled: process.env.CLINICS_ENABLED || false,
 });
 
 const VERSION = pkg.version;
@@ -156,7 +155,6 @@ const plugins = [
     __I18N_ENABLED__: JSON.stringify(featureFlags.i18nEnabled),
     __RX_ENABLED__: JSON.stringify(featureFlags.rxEnabled),
     __PENDO_ENABLED__: JSON.stringify(featureFlags.pendoEnabled),
-    __CLINICS_ENABLED__: JSON.stringify(featureFlags.clinicsEnabled),
     __VERSION__: JSON.stringify(VERSION),
     __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
     __VERSION_SHA__: JSON.stringify(VERSION_SHA),

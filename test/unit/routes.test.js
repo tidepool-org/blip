@@ -26,10 +26,10 @@ import config from '../../app/config';
 
 var expect = chai.expect;
 
-function routeAction(path) {
+function routeAction(path, routeState) {
   return {
     type: '@@router/CALL_HISTORY_METHOD',
-    payload: { args: [path], method: 'push' },
+    payload: { args: [].slice.call(arguments), method: 'push' },
   };
 }
 
@@ -297,7 +297,6 @@ describe('routes', () => {
 
     it('should fetch clinics for the user if they have not already been fetched', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -347,7 +346,6 @@ describe('routes', () => {
 
     it('should redirect user to /patients if clinic status cannot be determined due to backend error', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -414,9 +412,8 @@ describe('routes', () => {
       expect(actions).to.eql(expectedActions);
     });
 
-    it('should redirect the user to `/clinic-details` if the first returned clinic is empty', () => {
+    it('should redirect the user to `/clinic-details/migrate` if the first returned clinic is empty', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -465,7 +462,7 @@ describe('routes', () => {
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
         { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
-        routeAction('/clinic-details'),
+        routeAction('/clinic-details/migrate', { selectedClinicId: null }),
       ];
 
       store.dispatch(requireAuth(api));
@@ -474,9 +471,8 @@ describe('routes', () => {
       expect(actions).to.eql(expectedActions);
     });
 
-    it('should redirect the user to `/clinic-details` if the first returned clinic ready to migrate', () => {
+    it('should redirect the user to `/clinic-details/migrate` if the first returned clinic ready to migrate', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -525,7 +521,7 @@ describe('routes', () => {
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
         { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
-        routeAction('/clinic-details'),
+        routeAction('/clinic-details/migrate', { selectedClinicId: null }),
       ];
 
       store.dispatch(requireAuth(api));
@@ -534,9 +530,8 @@ describe('routes', () => {
       expect(actions).to.eql(expectedActions);
     });
 
-    it('should redirect the user to `/clinic-details` if the user has a clinic invite and no clinic profile', () => {
+    it('should redirect the user to `/clinic-details/profile` if the user has a clinic invite and no clinic profile', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -580,7 +575,7 @@ describe('routes', () => {
         { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 'a1b2c3', clinics: [] } },
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [{ id: 'inviteId' }] } },
-        routeAction('/clinic-details'),
+        routeAction('/clinic-details/profile', { selectedClinicId: null }),
       ];
 
       store.dispatch(requireAuth(api));
@@ -591,7 +586,6 @@ describe('routes', () => {
 
     it('should redirect the user to `/workspaces` if the user has a clinic invite and has a clinic profile', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -647,7 +641,6 @@ describe('routes', () => {
 
     it('should redirect a non-clinic member user to `/patients` if they are on a Clinic UI route', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
