@@ -4810,7 +4810,7 @@ describe('Actions', () => {
     });
 
     describe('createClinic', () => {
-      it('should trigger CREATE_CLINICS_SUCCESS and it should call clinics.create once and redirect to "clinic-admin" for a successful request', () => {
+      it('should trigger CREATE_CLINICS_SUCCESS and it should call clinics.create once, select the new clinic, and get an updated clinics list for the active user', () => {
         let clinicianId = 'clinician123';
 
         let clinicReturn = {
