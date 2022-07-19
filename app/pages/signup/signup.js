@@ -425,7 +425,7 @@ export let Signup = translate()(class extends React.Component {
       }
 
       if (_.indexOf(roles, 'clinic') === -1) {
-        values.roles.push('clinic');
+        values.roles.push('clinician');
       }
     }
 

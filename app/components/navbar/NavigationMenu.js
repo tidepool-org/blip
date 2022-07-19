@@ -38,6 +38,7 @@ export const NavigationMenu = props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
+  const clinicFlowActive = useSelector((state) => state.blip.clinicFlowActive);
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
 
   const popupState = usePopupState({
@@ -85,7 +86,7 @@ export const NavigationMenu = props => {
 
     if (isClinicProfileFormPath) {
       setMenuOptions([logoutOption]);
-    } else if (userClinics.length || pendingReceivedClinicianInvites.length) {
+    } else if (clinicFlowActive) {
       const options = [
         ...map(userClinics, clinic => ({
           action: handleSelectWorkspace.bind(null, clinic.id),

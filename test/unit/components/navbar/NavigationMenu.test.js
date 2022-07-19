@@ -136,6 +136,7 @@ describe('NavigationMenu', () => {
           ],
         },
       },
+      clinicFlowActive: true,
       pendingSentInvites: [],
       selectedClinicId: 'clinicID456',
     },
@@ -484,6 +485,7 @@ describe('NavigationMenu', () => {
           pendingReceivedClinicianInvites: [
             'clinicInvite123',
           ],
+          clinicFlowActive: true,
         },
       }));
     });
