@@ -113,7 +113,7 @@ export const ClinicProfileFields = (props) => {
           )}
         </Box>
 
-        <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
           <TextInput
             {...getCommonFormikFieldProps('address', formikContext)}
             label={t('Clinic Address')}
@@ -123,7 +123,7 @@ export const ClinicProfileFields = (props) => {
           />
         </Box>
 
-        <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
           <TextInput
             {...getCommonFormikFieldProps('city', formikContext)}
             label={t('City')}
