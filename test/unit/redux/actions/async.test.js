@@ -1088,7 +1088,7 @@ describe('Actions', () => {
             expect(trackMetric.calledWith('Logged In')).to.be.true;
           });
 
-          it('should trigger LOGIN_SUCCESS and it should redirect a clinician with relationship containing a ready-to-migrate clinic object to the clinic details form', () => {
+          it('should trigger LOGIN_SUCCESS and it should redirect a legacy clinician with relationship containing a ready-to-migrate clinic object to the clinic details form', () => {
             setAPIData({
               user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
               clinics: [
@@ -1109,6 +1109,43 @@ describe('Actions', () => {
               { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/migrate', { selectedClinicId: 'clinicId123' } ] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore(initialState);
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+          });
+
+          it('should trigger LOGIN_SUCCESS and it should redirect a new clinician with relationship containing a ready-to-migrate clinic object to the clinic workspace', () => {
+            setAPIData({
+              user: { userid: 27, roles: [ 'clinician' ], profile: {}, emailVerified: true },
+              clinics: [
+                { clinic: { id: 'clinicId123', name: 'Clinic One', canMigrate: true } },
+              ],
+            });
+
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinicId123', name: 'Clinic One', canMigrate: true } }] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/workspaces', { selectedClinicId: null } ] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;

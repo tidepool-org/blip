@@ -239,6 +239,7 @@ export function login(api, credentials, options, postLoginAction) {
             const userHasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
             const isClinicianAccount = personUtils.isClinicianAccount(user);
             const hasClinicianRole = _.includes(user.roles, 'clinician');
+            const hasLegacyClinicRole = _.includes(user.roles, 'clinic');
 
             // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
             // to the clinic workflow if a relationship with a clinic object or an invite exists.
@@ -281,7 +282,7 @@ export function login(api, credentials, options, postLoginAction) {
                     setRedirectRoute(routes.clinicWorkspace, values.clinics[0]?.clinic?.id);
                   } else {
                     // If we have an empty clinic object, go to clinic details, otherwise workspaces
-                    if (clinicMigration) {
+                    if (hasLegacyClinicRole && clinicMigration) {
                       dispatch(sync.selectClinic(clinicMigration.clinic?.id));
                       setRedirectRoute(`${routes.clinicDetails}/migrate`, values.clinics[0]?.clinic?.id);
                     } else {
