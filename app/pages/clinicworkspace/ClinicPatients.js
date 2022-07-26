@@ -310,27 +310,31 @@ export const ClinicPatients = (props) => {
   }, [loggedInUserId, patientFetchOptions]);
 
   useEffect(() => {
+    const isPremiumTier = clinic?.tier >= 'tier0200';
+
     const filterOptions = {
       offset: 0,
       sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
-      limit: clinic?.tier >= 'tier0200' ? 10 : 8,
+      limit: isPremiumTier ? 10 : 8,
     }
 
-    if (activeFilters.lastUploadDate) {
-      filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-      filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
-    }
-
-    forEach(activeFilters.timeInRange, filter => {
-      let { comparator, value } = glycemicTargetThresholds[filter];
-      value = value / 100;
-
-      if (activeFilters.meetsGlycemicTargets) {
-        comparator = comparator === '<' ? '<=' : '>=';
+    if (isPremiumTier) {
+      if (activeFilters.lastUploadDate) {
+        filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+        filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
       }
 
-      filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
-    });
+      forEach(activeFilters.timeInRange, filter => {
+        let { comparator, value } = glycemicTargetThresholds[filter];
+        value = value / 100;
+
+        if (activeFilters.meetsGlycemicTargets) {
+          comparator = comparator === '<' ? '<=' : '>=';
+        }
+
+        filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
+      });
+    }
 
     const newPatientFetchOptions = {
       ...omit(patientFetchOptions, [
