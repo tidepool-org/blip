@@ -557,7 +557,7 @@ describe('ClinicPatients', () => {
             { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
           ]);
 
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { limit: 8, offset: 0, search: 'Two', sort: '+fullName' });
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { limit: 50, offset: 0, search: 'Two', sort: '+fullName' });
           done();
         }, 300);
       });
@@ -969,7 +969,7 @@ describe('ClinicPatients', () => {
           expect(refreshButton).to.have.lengthOf(1);
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           refreshButton.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '+fullName' }));
         });
 
         it('should show the time since the last patient data fetch', () => {
@@ -1012,7 +1012,7 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '+fullName', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days' }));
         });
 
@@ -1090,7 +1090,7 @@ describe('ClinicPatients', () => {
           const applyButton = dialog().find('#timeInRangeFilterConfirm').hostNodes();
           applyButton.simulate('click');
 
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 10,
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 50,
             offset: 0,
             sort: '+fullName',
             'summary.periods.14d.timeInHighPercent': '>=0.25',
@@ -1186,7 +1186,7 @@ describe('ClinicPatients', () => {
 
           it('should fetch the initial patient based on the stored filters', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
-              limit: 10,
+              limit: 50,
               offset: 0,
               sort: '+fullName',
               'summary.lastUploadDateFrom': sinon.match.string,
