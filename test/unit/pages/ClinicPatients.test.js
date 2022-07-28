@@ -131,13 +131,15 @@ describe('ClinicPatients', () => {
               email: 'patient1@test.ca',
               fullName: 'Patient One',
               birthDate: '1999-01-01' ,
+              permissions: { view : {} }
             },
             patient2: {
               id: 'patient2',
               email: 'patient2@test.ca',
               fullName: 'Patient Two',
               birthDate: '1999-02-02',
-              mrn: 'mrn123'
+              mrn: 'mrn123',
+              permissions: { custodian : {} }
             },
           },
           id: 'clinicID123',
@@ -555,7 +557,7 @@ describe('ClinicPatients', () => {
             { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
           ]);
 
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { limit: 8, offset: 0, search: 'Two', sort: '+fullName' });
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { limit: 50, offset: 0, search: 'Two', sort: '+fullName' });
           done();
         }, 300);
       });
@@ -655,6 +657,78 @@ describe('ClinicPatients', () => {
               mrn: 'mrn456',
               id: 'patient2',
               email: 'patient-two@test.ca',
+              permissions: { custodian: {} },
+            }
+          );
+
+          expect(store.getActions()).to.eql([
+            { type: 'UPDATE_CLINIC_PATIENT_REQUEST' },
+            {
+              type: 'UPDATE_CLINIC_PATIENT_SUCCESS',
+              payload: {
+                clinicId: 'clinicID123',
+                patientId: 'stubbedId',
+                patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
+              },
+            },
+          ]);
+
+          done();
+        }, 0);
+      });
+
+      it('should disable email editing for non-custodial patients', done => {
+        const table = wrapper.find(Table);
+        expect(table).to.have.length(1);
+        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
+        const editButton = table.find('tr').at(1).find('Button[iconLabel="Edit Patient Information"]');
+
+        const dialog = () => wrapper.find('Dialog#editPatient');
+
+        expect(dialog()).to.have.length(0);
+        editButton.simulate('click');
+        wrapper.update();
+        expect(dialog()).to.have.length(1);
+        expect(dialog().props().open).to.be.true;
+
+        expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
+        expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+        const patientForm = () => dialog().find('form#clinic-patient-form');
+        expect(patientForm()).to.have.lengthOf(1);
+
+        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient One');
+        patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
+        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient 2');
+
+        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
+        patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '02/02/1999' } });
+        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('02/02/1999');
+
+        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+        patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
+        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn456');
+
+        expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient1@test.ca');
+        expect(patientForm().find('input[name="email"]').prop('disabled')).to.equal(true);
+
+        store.clearActions();
+        dialog().find('Button#editPatientConfirm').simulate('click');
+
+        setTimeout(() => {
+          expect(defaultProps.api.clinics.updateClinicPatient.callCount).to.equal(1);
+
+          sinon.assert.calledWith(
+            defaultProps.api.clinics.updateClinicPatient,
+            'clinicID123',
+            'patient1',
+            {
+              fullName: 'Patient 2',
+              birthDate: '1999-02-02',
+              mrn: 'mrn456',
+              id: 'patient1',
+              email: 'patient1@test.ca',
+              permissions: { view: {} },
             }
           );
 
@@ -895,7 +969,7 @@ describe('ClinicPatients', () => {
           expect(refreshButton).to.have.lengthOf(1);
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           refreshButton.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '+fullName' }));
         });
 
         it('should show the time since the last patient data fetch', () => {
@@ -938,7 +1012,7 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 10, offset: 0, sort: '+fullName', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '+fullName', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days' }));
         });
 
@@ -1016,7 +1090,7 @@ describe('ClinicPatients', () => {
           const applyButton = dialog().find('#timeInRangeFilterConfirm').hostNodes();
           applyButton.simulate('click');
 
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 10,
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 50,
             offset: 0,
             sort: '+fullName',
             'summary.periods.14d.timeInHighPercent': '>=0.25',
@@ -1112,7 +1186,7 @@ describe('ClinicPatients', () => {
 
           it('should fetch the initial patient based on the stored filters', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
-              limit: 10,
+              limit: 50,
               offset: 0,
               sort: '+fullName',
               'summary.lastUploadDateFrom': sinon.match.string,

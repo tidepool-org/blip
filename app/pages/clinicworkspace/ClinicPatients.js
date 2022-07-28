@@ -287,7 +287,7 @@ export const ClinicPatients = (props) => {
     setShowSummaryData(clinic?.tier >= 'tier0200');
     setPatientFetchOptions({
       ...defaultPatientFetchOptions,
-      limit: clinic?.tier >= 'tier0200' ? 10 : 8,
+      limit: 50,
     });
   }, [clinic?.id]);
 
@@ -313,7 +313,7 @@ export const ClinicPatients = (props) => {
     const filterOptions = {
       offset: 0,
       sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
-      limit: clinic?.tier >= 'tier0200' ? 10 : 8,
+      limit: 50,
     }
 
     if (activeFilters.lastUploadDate) {
@@ -1414,6 +1414,8 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort.substring(1)}
+          stickyHeader
+          containerStyles={{maxHeight: '560px', overflow: 'auto'}}
         />
 
         {pageCount > 1 && (
