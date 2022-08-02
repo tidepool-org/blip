@@ -54,6 +54,8 @@ export let Patients = translate()(class extends React.Component {
     onHideWelcomeSetup: PropTypes.func.isRequired,
     onRemovePatient: PropTypes.func.isRequired,
     patients: PropTypes.array.isRequired,
+    selectedClinicId: PropTypes.string,
+    selectClinic: PropTypes.func.isRequired,
     showWelcomeMessage: PropTypes.func.isRequired,
     showingWelcomeMessage: PropTypes.bool,
     trackMetric: PropTypes.func.isRequired,
@@ -309,6 +311,10 @@ export let Patients = translate()(class extends React.Component {
     if (this.props.clearPatientInView) {
       this.props.clearPatientInView();
     }
+
+    if (this.props.selectedClinicId) {
+      this.props.selectClinic(null);
+    }
   }
 
   /**
@@ -411,6 +417,7 @@ export function mapStateToProps(state) {
     loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
     patients: _.values(patientMap),
+    selectedClinicId: state.blip.selectedClinicId,
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user,
   }
@@ -425,7 +432,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,
-  onHideWelcomeSetup: actions.sync.hideWelcomeMessage
+  onHideWelcomeSetup: actions.sync.hideWelcomeMessage,
+  selectClinic: actions.sync.selectClinic,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -437,6 +445,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       'clearPatientInView',
       'showWelcomeMessage',
       'onHideWelcomeSetup',
+      'selectClinic',
     ]),
     stateProps,
     {

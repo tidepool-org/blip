@@ -214,11 +214,11 @@ export function login(api, credentials, options, postLoginAction) {
       patients: '/patients?justLoggedIn=true',
       workspaces: '/workspaces',
       clinicDetails: '/clinic-details',
-      clinicianDetails: '/clinician-details',
       clinicWorkspace: '/clinic-workspace',
     };
 
     let redirectRoute = routes.patients;
+    let selectedClinicId = null;
 
     api.user.login(credentials, options, (err) => {
       if (err) {
@@ -238,77 +238,71 @@ export function login(api, credentials, options, postLoginAction) {
           } else {
             const userHasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
             const isClinicianAccount = personUtils.isClinicianAccount(user);
+            const hasClinicianRole = _.includes(user.roles, 'clinician');
 
-            if (config.CLINICS_ENABLED) {
-              // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
-              // to the clinic workflow if a relationship with a clinic object or an invite exists.
-              const fetchers = {
-                clinics: cb => dispatch(getClinicsForClinician(api, user.userid, {}, cb)),
-                invites: cb => dispatch(fetchClinicianInvites(api, user.userid, cb)),
-                associatedAccounts: cb => dispatch(fetchAssociatedAccounts(api, cb)),
-              };
+            // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
+            // to the clinic workflow if a relationship with a clinic object or an invite exists.
+            const fetchers = {
+              clinics: cb => dispatch(getClinicsForClinician(api, user.userid, {}, cb)),
+              invites: cb => dispatch(fetchClinicianInvites(api, user.userid, cb)),
+              associatedAccounts: cb => dispatch(fetchAssociatedAccounts(api, cb)),
+            };
 
-              async.parallel(async.reflectAll(fetchers), (err, results) => {
-                const errors = _.mapValues(results, ({error}) => error);
-                const values = _.mapValues(results, ({value}) => value);
-                const hasError = err || _.some(errors, err => !_.isUndefined(err));
+            async.parallel(async.reflectAll(fetchers), (err, results) => {
+              const errors = _.mapValues(results, ({error}) => error);
+              const values = _.mapValues(results, ({value}) => value);
+              const hasError = err || _.some(errors, err => !_.isUndefined(err));
 
-                if (hasError) {
-                  if (errors) {
-                    if (errors.clinics) {
-                      handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, errors.clinics);
-                    }
-                    if (errors.invites) {
-                      handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, errors.invites);
-                    }
-                    if (errors.associatedAccounts) {
-                      handleLoginFailure(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, errors.associatedAccounts);
-                    }
-                  } else {
-                    handleLoginFailure(ErrorMessages.ERR_LOGIN, err);
+              if (hasError) {
+                if (errors) {
+                  if (errors.clinics) {
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, errors.clinics);
                   }
-                }
-                else {
-                  if (values.invites?.length) {
-                    // If we have an empty clinic profile, go to clinic details, otherwise workspaces
-                    setRedirectRoute(!userHasClinicProfile ? routes.clinicDetails : routes.workspaces);
-                  } else if (values.clinics?.length) {
-                    const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
-
-                    if (!clinicMigration && values.clinics.length === 1) {
-                      // Go to the clinic workspace if only one clinic
-                      dispatch(sync.selectClinic(values.clinics[0]?.clinic?.id));
-                      setRedirectRoute(routes.clinicWorkspace);
-                    } else {
-                      // If we have an empty clinic object, go to clinic details, otherwise workspaces
-                      if (clinicMigration) {
-                        dispatch(sync.selectClinic(clinicMigration.clinic?.id));
-                        setRedirectRoute(routes.clinicDetails);
-                      } else {
-                        setRedirectRoute(routes.workspaces);
-                      }
-                    }
-                  } else {
-                    // Clinic flow is not enabled for this account
-                    skipClinicFlow();
+                  if (errors.invites) {
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, errors.invites);
                   }
+                  if (errors.associatedAccounts) {
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, errors.associatedAccounts);
+                  }
+                } else {
+                  handleLoginFailure(ErrorMessages.ERR_LOGIN, err);
                 }
-              });
-            } else {
-              // Clinic flow is not enabled
-              skipClinicFlow();
-            }
-
-            function setRedirectRoute(route) {
-              redirectRoute = route;
-              getPatientProfile();
-            }
-
-            function skipClinicFlow() {
-              if (isClinicianAccount && !userHasClinicProfile) {
-                redirectRoute = routes.clinicianDetails;
               }
+              else {
+                if (values.invites?.length) {
+                  // If we have an empty clinic profile, go to clinic details, otherwise workspaces
+                  setRedirectRoute(!userHasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces);
+                } else if (values.clinics?.length) {
+                  const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
+                  if (!clinicMigration && values.clinics.length === 1) {
+                    // Go to the clinic workspace if only one clinic
+                    dispatch(sync.selectClinic(values.clinics[0]?.clinic?.id));
+                    setRedirectRoute(routes.clinicWorkspace, values.clinics[0]?.clinic?.id);
+                  } else {
+                    // If we have an empty clinic object, go to clinic details, otherwise workspaces
+                    if (clinicMigration) {
+                      dispatch(sync.selectClinic(clinicMigration.clinic?.id));
+                      setRedirectRoute(`${routes.clinicDetails}/migrate`, values.clinics[0]?.clinic?.id);
+                    } else {
+                      setRedirectRoute(routes.workspaces);
+                    }
+                  }
+                } else if (hasClinicianRole || (isClinicianAccount && !userHasClinicProfile)) {
+                  // New clinician accounts that are intended to leverage the new clinic workspace
+                  // will have the 'clinician' role assigned at signup, and should be directed to the
+                  // clinic workspace to create their clinic profile and add a clinic if they have
+                  // not already done so.
+                  setRedirectRoute(!userHasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces);
+                } else {
+                  getPatientProfile();
+                }
+              }
+            });
+
+            function setRedirectRoute(route, clinicId = null) {
+              redirectRoute = route;
+              selectedClinicId = clinicId;
               getPatientProfile();
             }
 
@@ -335,7 +329,11 @@ export function login(api, credentials, options, postLoginAction) {
               dispatch(postLoginAction());
             }
 
-            dispatch(push(redirectRoute));
+            const redirectState = {
+              selectedClinicId,
+            };
+
+            dispatch(push(redirectRoute, redirectState));
           }
 
           function handleLoginFailure(message, err) {
@@ -735,47 +733,6 @@ export function updateUser(api, formValues) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
-      }
-    });
-  };
-}
-
-/**
- * Update Clinician Profile Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- * @param {userId} userId
- * @param  {Object} formValues
- */
-export function updateClinicianProfile(api, formValues) {
-  return (dispatch, getState) => {
-    const { blip: { loggedInUserId, allUsersMap, pendingReceivedClinicianInvites } } = getState();
-    const loggedInUser = allUsersMap[loggedInUserId];
-
-    const newUser = _.assign({},
-      _.omit(loggedInUser, 'profile'),
-      _.omit(formValues, 'profile'),
-      { profile: _.assign({}, loggedInUser.profile, formValues.profile) }
-    );
-
-    dispatch(sync.updateUserRequest(loggedInUserId, _.omit(newUser, 'password')));
-
-    var userUpdates = _.cloneDeep(newUser);
-    if (userUpdates.username === loggedInUser.username) {
-      userUpdates = _.omit(userUpdates, 'username', 'emails');
-    }
-
-    api.user.put(userUpdates, (err, updatedUser) => {
-      if (err) {
-        dispatch(sync.updateUserFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_USER, err), err
-        ));
-      } else {
-        dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
-
-        let redirect = '/patients?justLoggedIn=true';
-        if (config.CLINICS_ENABLED && pendingReceivedClinicianInvites.length) redirect = '/workspaces';
-        dispatch(push(redirect));
       }
     });
   };
@@ -1774,8 +1731,9 @@ export function getAllClinics(api, options = {}, cb = _.noop) {
  * @param {String} [clinic.clinicType] - Clinic type
  * @param {Number} [clinic.clinicSize] - Int Lower bound for clinic size
  * @param {String} clinic.email - Primary email address for clinic
+ * @param {String} clinicianId - Id of clinician creating the clinic
  */
-export function createClinic(api, clinic) {
+export function createClinic(api, clinic, clinicianId) {
   return (dispatch) => {
     dispatch(sync.createClinicRequest());
 
@@ -1788,8 +1746,9 @@ export function createClinic(api, clinic) {
           )
         );
       } else {
+        dispatch(sync.selectClinic(clinic.id));
         dispatch(sync.createClinicSuccess(clinic));
-        dispatch(push('/clinic-admin'));
+        dispatch(getClinicsForClinician(api, clinicianId));
       }
     });
   };

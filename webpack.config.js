@@ -24,11 +24,7 @@ const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
   i18nEnabled: process.env.I18N_ENABLED || false,
   rxEnabled: process.env.RX_ENABLED || false,
   pendoEnabled: process.env.PENDO_ENABLED || true,
-  clinicsEnabled: process.env.CLINICS_ENABLED || false,
 });
-const keycloakUrl = _.get(optional('./config/local'), 'keycloakUrl', process.env.KEYCLOAK_URL || null);
-const keycloakRealm = _.get(optional('./config/local'), 'keycloakRealm', process.env.KEYCLOAK_REALM || null);
-const keycloakClientId = _.get(optional('./config/local'), 'keycloakClientId', process.env.KEYCLOAK_CLIENTID || null);
 
 const VERSION = pkg.version;
 const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
@@ -159,10 +155,6 @@ const plugins = [
     __I18N_ENABLED__: JSON.stringify(featureFlags.i18nEnabled),
     __RX_ENABLED__: JSON.stringify(featureFlags.rxEnabled),
     __PENDO_ENABLED__: JSON.stringify(featureFlags.pendoEnabled),
-    __CLINICS_ENABLED__: JSON.stringify(featureFlags.clinicsEnabled),
-    __KEYCLOAK_URL__: JSON.stringify(keycloakUrl),
-    __KEYCLOAK_REALM__: JSON.stringify(keycloakRealm),
-    __KEYCLOAK_CLIENTID__: JSON.stringify(keycloakClientId),
     __VERSION__: JSON.stringify(VERSION),
     __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
     __VERSION_SHA__: JSON.stringify(VERSION_SHA),

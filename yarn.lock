@@ -3032,10 +3032,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.28.0":
-  version "1.28.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.28.0.tgz#e8625f4fd3b441b6baf8086feb5f56ff8ccde3c3"
-  integrity sha512-o1EWZ00rTr3QXBzg/bsvVIew6VSAt/UWkNIBiX7iO430bXBhG+HdH2ltqbBiJHuagKRJYcw10pLg5K0JdQ1EEg==
+"@tidepool/viz@1.28.0-web-1695-tir-filter-update.1":
+  version "1.28.0-web-1695-tir-filter-update.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.28.0-web-1695-tir-filter-update.1.tgz#5003b251b15caa6e5cc6b380a3a537eca242785c"
+  integrity sha512-llxZDfbNLlmbFvOoJnnYsRkb+8RsPrLLuAwjGFoXu0iVy9xy/ZaJtKmDFIV7aZ4ArxBtnE0DN8uwrPduu1163Q==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"

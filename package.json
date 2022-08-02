@@ -56,7 +56,7 @@
     "@storybook/addon-viewport": "5.3.19",
     "@storybook/addons": "5.3.19",
     "@storybook/react": "5.3.19",
-    "@tidepool/viz": "1.28.0",
+    "@tidepool/viz": "1.28.0-web-1695-tir-filter-update.1",
     "async": "2.6.1",
     "autoprefixer": "9.8.4",
     "babel-core": "7.0.0-bridge.0",
