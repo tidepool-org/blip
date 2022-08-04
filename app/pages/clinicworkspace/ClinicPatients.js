@@ -182,6 +182,7 @@ export const ClinicPatients = (props) => {
     { value: '1d', label: t('24 hours') },
     { value: '7d', label: t('7 days') },
     { value: '14d', label: t('14 days') },
+    { value: '30d', label: t('30 days') },
   ];
 
   const [summaryPeriod, setSummaryPeriod] = useState('14d');
@@ -1251,7 +1252,9 @@ export const ClinicPatients = (props) => {
       clinicBgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value
     ));
 
+    const minCgmHours = summaryPeriod === '1d' ? 12 : 24;
     const cgmHours = (summary?.periods?.[summaryPeriod]?.timeCGMUseMinutes || 0) / 60;
+    const cgmUsePercent = (summary?.periods?.[summaryPeriod]?.timeCGMUsePercent || 0);
 
     const data = {
       veryLow: summary?.periods?.[summaryPeriod]?.timeInVeryLowPercent,
@@ -1263,11 +1266,11 @@ export const ClinicPatients = (props) => {
 
     return (
       <Flex justifyContent="center">
-        {cgmHours >= 24
+        {(cgmHours >= minCgmHours)
           ? <BgRangeSummary striped={summary?.periods?.[summaryPeriod]?.timeCGMUsePercent < 0.7} data={data} targetRange={targetRange} bgUnits={clinicBgUnits} />
           : (
             <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
-              <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <24 hours')}</Text>
+            <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <{{minCgmHours}} hours', { minCgmHours })}</Text>
             </Flex>
           )
         }

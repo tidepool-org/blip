@@ -26,7 +26,7 @@ const expect = chai.expect;
 const assert = chai.assert;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicPatients', () => {
+describe.only('ClinicPatients', () => {
   let mount;
 
   let wrapper;
