@@ -3857,4 +3857,51 @@ describe('Actions', () => {
     })
   });
 
+  describe('fetchInfoRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.fetchInfoRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_INFO_REQUEST', () => {
+      let action = sync.fetchInfoRequest();
+      expect(action.type).to.equal('FETCH_INFO_REQUEST');
+    });
+  });
+
+  describe('fetchInfoSuccess', () => {
+    const info = {
+      auth: {
+        url: 'someUrl',
+        realm: 'anAwesomeRealm'
+      }
+    }
+
+    it('should be a TSA', () => {
+      let action = sync.fetchInfoSuccess(info);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_INFO_SUCCESS', () => {
+      let action = sync.fetchInfoSuccess(info);
+      expect(action.type).to.equal('FETCH_INFO_SUCCESS');
+      expect(action.payload.info).to.equal(info);
+    });
+  });
+
+  describe('fetchInfoFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('fetching info failed :(');
+      let action = sync.fetchInfoFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_INFO_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.fetchInfoFailure(error);
+      expect(action.type).to.equal('FETCH_INFO_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
 });

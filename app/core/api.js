@@ -69,6 +69,16 @@ api.server.getTime = function(cb) {
   });
 };
 
+api.server.getInfo = (cb) => {
+  api.log('GET /info');
+  tidepool.checkUploadVersions((err, resp) => {
+    if (err) {
+      return cb(err);
+    }
+    return cb(null, resp);
+  });
+};
+
 // ----- User -----
 api.user = {};
 

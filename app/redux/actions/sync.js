@@ -2062,3 +2062,28 @@ export function keycloakTokensReceived(tokens) {
     payload: { tokens },
   };
 }
+
+export function fetchInfoRequest() {
+  return {
+    type: ActionTypes.FETCH_INFO_REQUEST,
+  };
+}
+
+export function fetchInfoSuccess(info) {
+  return {
+    type: ActionTypes.FETCH_INFO_SUCCESS,
+    payload: {
+      info
+    },
+  };
+}
+
+export function fetchInfoFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_INFO_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}

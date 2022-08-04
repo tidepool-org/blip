@@ -244,12 +244,11 @@ describe('Actions', () => {
 
     describe('verifyCustodial', () => {
       it('should trigger ACKNOWLEDGE_NOTIFICATION for the confirmingSignup notification if set', () => {
-        let user = { id: 27 };
+        let user = { id: 27, emailVerified: true };
         let key = 'fakeSignupKey';
         let email = 'g@a.com';
         let birthday = '07/18/1988';
         let password = 'foobar01';
-        let creds = { username: email, password: password };
         let api = {
           user: {
             custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
@@ -280,7 +279,6 @@ describe('Actions', () => {
         let email = 'g@a.com';
         let birthday = '07/18/1988';
         let password = 'foobar01';
-        let creds = { username: email, password: password };
         let api = {
           user: {
             custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
@@ -329,7 +327,6 @@ describe('Actions', () => {
       });
 
       it('should trigger VERIFY_CUSTODIAL_FAILURE and it should call verifyCustodial once for a failed request', () => {
-        let user = { id: 27 };
         let key = 'fakeSignupKey';
         let email = 'g@a.com';
         let birthday = '07/18/1988';
@@ -7316,6 +7313,83 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.sendPatientUploadReminder.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchInfo', () => {
+      it('should trigger FETCH_INFO_SUCCESS and it should call server.getInfo once for a successful request', () => {
+        const info = {
+          auth: {
+            url: 'someUrl',
+            realm: 'awesomeRealm',
+          }
+        }
+
+        let api = {
+          server: {
+            getInfo: sinon
+              .stub()
+              .callsArgWith(0, null, info),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_INFO_REQUEST' },
+          {
+            type: 'FETCH_INFO_SUCCESS',
+            payload: { info },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.fetchInfo(api)
+        );
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.server.getInfo.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_INFO_FAILURE and it should call error once for a failed request', () => {
+
+        let api = {
+          server: {
+            getInfo: sinon
+              .stub()
+              .callsArgWith(0, { status: 500, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_INFO);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_INFO_REQUEST' },
+          {
+            type: 'FETCH_INFO_FAILURE',
+            error: err,
+            meta: { apiError: { status: 500, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.fetchInfo(api)
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_INFO,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.server.getInfo.callCount).to.equal(1);
       });
     });
   });

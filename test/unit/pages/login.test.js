@@ -31,7 +31,11 @@ describe('Login', function () {
       isInvite: false,
       onSubmit: sinon.stub(),
       trackMetric: sinon.stub(),
-      working: false
+      working: false,
+      fetchingInfo: {
+        inProgress: false
+      },
+      keycloakConfig: {}
     };
 
     it('should render without problems when required props are present', function () {
@@ -47,24 +51,28 @@ describe('Login', function () {
         completed: false,
         notification: null,
       };
-      const workingState = {
+      const storeState = {
         blip: {
           working: {
             loggingIn: defaultWorkingState,
             confirmingSignup: defaultWorkingState,
+            fetchingInfo: defaultWorkingState,
           },
+          keycloakConfig: {
+            url: 'someUrl',
+            initialized: true,
+          }
         },
       };
       const mockStore = configureStore([thunk]);
-      const store = mockStore(workingState);
-      const configMock = { KEYCLOAK_URL: 'someUrl' };
+      const store = mockStore(storeState);
+
       const keycloakMock = {
         login: sinon.stub(),
       };
       let RewiredLogin, wrapper;
 
       before(() => {
-        Login.__Rewire__('config', configMock);
         Login.__Rewire__('keycloak', keycloakMock);
         RewiredLogin = require('../../../app/pages/login/login.js').default;
         wrapper = mount(
@@ -77,7 +85,6 @@ describe('Login', function () {
       });
 
       after(() => {
-        Login.__ResetDependency__('config');
         Login.__ResetDependency__('keycloak');
       });
 
@@ -96,6 +103,10 @@ describe('Login', function () {
 
   describe('mapStateToProps', () => {
     const state = {
+      keycloakConfig: {
+        url: 'someUrl',
+        initialized: false,
+      },
       working: {
         confirmingSignup: {inProgress: false, notification: null},
         loggingIn: {inProgress: false, notification: {type: 'alert', message: 'Hi!'}}
@@ -119,6 +130,10 @@ describe('Login', function () {
 
     it('should map working.loggingIn.notification to notification', () => {
       expect(result.notification).to.equal(state.working.loggingIn.notification);
+    });
+
+    it('should map keycloakConfig to keycloakConfig', () => {
+      expect(result.keycloakConfig).to.equal(state.keycloakConfig);
     });
 
     it('should map working.confirmingSignup.notification to notification if working.loggingIn.notification is null', () => {

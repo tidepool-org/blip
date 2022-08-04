@@ -384,6 +384,11 @@ export default (type) => {
     case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
       return 'sendingPatientUploadReminder';
 
+    case types.FETCH_INFO_REQUEST:
+    case types.FETCH_INFO_SUCCESS:
+    case types.FETCH_INFO_FAILURE:
+      return 'fetchingInfo';
+
     default:
       return null;
   }

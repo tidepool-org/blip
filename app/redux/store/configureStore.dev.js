@@ -40,7 +40,6 @@ import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
 import pendoMiddleware from '../utils/pendoMiddleware';
 import { keycloakMiddleware } from '../../keycloak';
-import config from '../../config';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -72,10 +71,8 @@ if (!__DEV_TOOLS__) {
       createErrorLogger(api),
       trackingMiddleware(api),
       pendoMiddleware(api),
+      keycloakMiddleware(api),
     ];
-    if(config.KEYCLOAK_URL){
-      middlewares.push(keycloakMiddleware(api));
-    }
     return compose(
       applyMiddleware(...middlewares),
       persistState(getDebugSessionKey()),
@@ -93,10 +90,8 @@ if (!__DEV_TOOLS__) {
       trackingMiddleware(api),
       pendoMiddleware(api),
       mutationTracker(),
+      keycloakMiddleware(api),
     ];
-    if(config.KEYCLOAK_URL){
-      middlewares.push(keycloakMiddleware(api))
-    }
     return composeEnhancers(
       applyMiddleware(...middlewares),
       // We can persist debug sessions this way

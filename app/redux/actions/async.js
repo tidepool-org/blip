@@ -824,9 +824,8 @@ export function fetchUser(api, cb = _.noop) {
           ));
         }
       } else if (!utils.hasVerifiedEmail(user)) {
-        dispatch(sync.fetchUserFailure(
-          createActionError(ErrorMessages.ERR_EMAIL_NOT_VERIFIED)
-        ));
+        err = createActionError(ErrorMessages.ERR_EMAIL_NOT_VERIFIED);
+        dispatch(sync.fetchUserFailure(err));
       } else {
         dispatch(sync.fetchUserSuccess(user));
       }
@@ -2545,6 +2544,30 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
       } else {
         dispatch(sync.sendPatientUploadReminderSuccess(clinicId, patientId, _.get(result, 'lastUploadReminderTime', moment().toISOString())));
       }
+    });
+  };
+}
+
+/**
+ * Fetch server configuration information
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+ export function fetchInfo(api, cb = _.noop) {
+  return (dispatch) => {
+    dispatch(sync.fetchInfoRequest());
+
+    api.server.getInfo((err, info) => {
+      if (err) {
+        dispatch(sync.fetchInfoFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_INFO, err), err
+        ));
+      } else {
+        dispatch(sync.fetchInfoSuccess(info));
+      }
+
+      // Invoke callback if provided
+      cb(err, info);
     });
   };
 }

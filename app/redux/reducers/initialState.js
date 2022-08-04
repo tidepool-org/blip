@@ -146,6 +146,7 @@ const initialState = {
     fetchingClinicsForClinician: Object.assign({}, working),
     triggeringInitialClinicMigration: Object.assign({}, working),
     sendingPatientUploadReminder: Object.assign({}, working),
+    fetchingInfo: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {
@@ -162,6 +163,7 @@ const initialState = {
   selectedClinicId: null,
   pendingReceivedClinicianInvites: [],
   clinicFlowActive: false,
+  keycloakConfig: {},
 };
 
 export default initialState;

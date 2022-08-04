@@ -16,8 +16,9 @@ import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 import Button from '../../components/elements/Button';
+import { components as vizComponents} from '@tidepool/viz';
+const { Loader } = vizComponents;
 import { keycloak } from '../../keycloak';
-import config from '../../config';
 
 export let Login = translate()(class extends React.Component {
   static propTypes = {
@@ -29,7 +30,9 @@ export let Login = translate()(class extends React.Component {
     onSubmit: PropTypes.func.isRequired,
     seedEmail: PropTypes.string,
     trackMetric: PropTypes.func.isRequired,
-    working: PropTypes.bool.isRequired
+    working: PropTypes.bool.isRequired,
+    keycloakConfig: PropTypes.object,
+    fetchingInfo: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -63,11 +66,11 @@ export let Login = translate()(class extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
+    const { t, keycloakConfig, fetchingInfo } = this.props;
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
     var loggingIn = this.props.working;
-    var login = config.KEYCLOAK_URL ? (
+    var login = keycloakConfig.url && keycloakConfig.initialized ? (
       <Button onClick={() => keycloak.login()} disabled={loggingIn}>
         {loggingIn ? t('Logging in...') : t('Login')}
       </Button>
@@ -77,10 +80,12 @@ export let Login = translate()(class extends React.Component {
 
     return (
       <div className="login">
+        <Loader show={fetchingInfo.inProgress || (keycloakConfig.url && !keycloakConfig.initialized)} overlay={true} />
         <LoginNav
           page="login"
           hideLinks={Boolean(this.props.seedEmail)}
-          trackMetric={this.props.trackMetric} />
+          trackMetric={this.props.trackMetric}
+          keycloakConfig={this.props.keycloakConfig} />
         <LoginLogo />
         {inviteIntro}
         <div className="container-small-outer login-form">
@@ -233,6 +238,8 @@ export function mapStateToProps(state) {
   return {
     notification: state.blip.working.loggingIn.notification || state.blip.working.confirmingSignup.notification,
     working: state.blip.working.loggingIn.inProgress,
+    fetchingInfo: state.blip.working.fetchingInfo,
+    keycloakConfig: state.blip.keycloakConfig,
   };
 }
 

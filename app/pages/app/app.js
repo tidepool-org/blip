@@ -623,6 +623,10 @@ export function getFetchers(stateProps, dispatchProps, api) {
     fetchers.push(dispatchProps.fetchDataSources.bind(null, api));
   }
 
+  if (!stateProps.fetchingInfo.inProgress && !stateProps.fetchingInfo.completed) {
+    fetchers.push(dispatchProps.fetchInfo.bind(null, api));
+  }
+
   return fetchers;
 }
 
@@ -782,6 +786,7 @@ export function mapStateToProps(state) {
     userIsSupportingNonprofit,
     resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
     resentEmailVerification: state.blip.resentEmailVerification,
+    fetchingInfo: state.blip.working.fetchingInfo,
   };
 }
 
@@ -805,6 +810,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
   resendEmailVerification: actions.async.resendEmailVerification,
+  fetchInfo: actions.async.fetchInfo,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

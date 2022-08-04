@@ -7,14 +7,26 @@
 /* global context */
 /* global before */
 /* global after */
+/* global Promise */
 
+import React from 'react';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import * as ActionTypes from '../../app/redux/constants/actionTypes';
 
-import keycloak from '../../app/keycloak';
+import {
+  KeycloakWrapper,
+  __RewireAPI__ as KeycloakRewireAPI,
+  default as keycloak,
+} from '../../app/keycloak';
+import { mount } from 'enzyme';
+import { Provider } from 'react-redux';
 
-const { onKeycloakEvent, onKeycloakTokens, keycloakMiddleware } = keycloak;
+const {
+  onKeycloakEvent,
+  onKeycloakTokens,
+  keycloakMiddleware,
+} = keycloak;
 
 const expect = chai.expect;
 
@@ -198,14 +210,108 @@ describe('keycloak', () => {
   });
 
   describe('keycloakMiddleware', () => {
-    const keycloakMock = { logout: sinon.stub() };
-    keycloak.__Rewire__('keycloak', keycloakMock);
+    const keycloakMock = {
+      logout: sinon.stub(),
+    };
+    const updateKeycloakConfigMock = sinon.stub();
+
+    before(() => {
+      keycloak.__Rewire__('keycloak', keycloakMock);
+      keycloak.__Rewire__('updateKeycloakConfig', updateKeycloakConfigMock);
+    });
+
+    after(() => {
+      keycloak.__ResetDependency__('keycloak');
+      keycloak.__ResetDependency__('updateKeycloakConfig');
+    });
+
     it('should call keycloak logout on LOGOUT_REQUEST', () => {
       expect(keycloakMock.logout.callCount).to.equal(0);
       keycloakMiddleware()()(sinon.stub())({
         type: ActionTypes.LOGOUT_REQUEST,
       });
       expect(keycloakMock.logout.callCount).to.equal(1);
+    });
+
+    it('should update keycloak config if FETCH_INFO returns new config', () => {
+      expect(updateKeycloakConfigMock.callCount).to.equal(0);
+      keycloakMiddleware()()(sinon.stub())({
+        type: ActionTypes.FETCH_INFO_SUCCESS,
+        payload: {
+          info: {
+            auth: {
+              url: 'newUrl',
+            },
+          },
+        },
+      });
+      expect(updateKeycloakConfigMock.callCount).to.equal(1);
+    });
+
+    it('should not update keycloak config if FETCH_INFO returns already fetched config', () => {
+      keycloak.__Rewire__('_keycloakConfig', { url: 'newUrl' });
+      updateKeycloakConfigMock.resetHistory();
+      expect(updateKeycloakConfigMock.callCount).to.equal(0);
+      keycloakMiddleware()()(sinon.stub())({
+        type: ActionTypes.FETCH_INFO_SUCCESS,
+        payload: {
+          info: {
+            auth: {
+              url: 'newUrl',
+            },
+          },
+        },
+      });
+      expect(updateKeycloakConfigMock.callCount).to.equal(0);
+      keycloak.__ResetDependency__('_keycloakConfig');
+    });
+  });
+
+  describe('KeycloakWrapper', () => {
+    const keycloakMock = {
+      logout: sinon.stub(),
+      init: sinon.stub().returns(new Promise(sinon.stub())),
+    };
+
+    before(() => {
+      KeycloakRewireAPI.__Rewire__('keycloak', keycloakMock);
+    });
+
+    after(() => {
+      KeycloakRewireAPI.__ResetDependency__('keycloak');
+    });
+
+    it('should not initialize keycloak without keycloak url configured', () => {
+      expect(keycloakMock.init.callCount).to.equal(0);
+      let wrapper = mount(
+        <Provider store={configureStore([thunk])({ blip: {} })}>
+          <KeycloakWrapper>
+            <div>test child</div>
+          </KeycloakWrapper>
+        </Provider>
+      );
+      expect(keycloakMock.init.callCount).to.equal(0);
+    });
+
+    it('should initialize the keycloak provider if a keycloak url is configured', () => {
+      const store = configureStore([thunk])({
+        blip: {
+          keycloakConfig: {
+            url: 'someUrl',
+            realm: 'realm',
+            clientId: 'client',
+          },
+        },
+      });
+      expect(keycloakMock.init.callCount).to.equal(0);
+      let wrapper = mount(
+        <Provider store={store}>
+          <KeycloakWrapper>
+            <div>test child</div>
+          </KeycloakWrapper>
+        </Provider>
+      );
+      expect(keycloakMock.init.callCount).to.equal(1);
     });
   });
 });

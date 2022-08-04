@@ -11409,10 +11409,10 @@ karma@3.0.0:
     tmp "0.0.33"
     useragent "2.2.1"
 
-keycloak-js@17.0.0:
-  version "17.0.0"
-  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-17.0.0.tgz#d6f0b22cd6606685a59c9a3c5d41cdccaada45fa"
-  integrity sha512-NEuEur5zg9uAcY9UAz7pgBjJlJcBW2VPMss6pCIfJf8JgIMnEPHwvGQIKesCIq2N5Ut+vf7NU+ICT5Xk/qwesQ==
+keycloak-js@18.0.0:
+  version "18.0.0"
+  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-18.0.0.tgz#0825d3e2818aacf9e13cdd41f7eeae6c6114db38"
+  integrity sha512-kaD6nrzgYX3NhgwQfVEZiAzaZXua3PSBIBWGWf8fgqPgUdiO8uvYaKV1Ebf43IAB5M8kvubW+2J+eBS+UnWsuw==
   dependencies:
     base64-js "^1.5.1"
     js-sha256 "^0.9.0"

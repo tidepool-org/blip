@@ -55,10 +55,8 @@ function _createStore(api) {
     createErrorLogger(api),
     trackingMiddleware(api),
     pendoMiddleware(api),
+    keycloakMiddleware(api),
   ];
-  if(config.KEYCLOAK_URL) {
-    middlewares.push(keycloakMiddleware(api))
-  }
   const createStoreWithMiddleware = applyMiddleware(...middlewares)(createStore);
 
   const initialState = { blip: assign(blipState, loadLocalState()) };

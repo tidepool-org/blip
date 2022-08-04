@@ -40,17 +40,22 @@ describe('LoginNav', function () {
     let keycloakMock = {
       register: sinon.stub(),
     };
+    let props = {
+      trackMetric: sinon.stub(),
+      keycloakConfig: {
+        url: 'someUrl',
+        initialized: true,
+      }
+    }
 
     before(() => {
-      LoginNav.__Rewire__('config', { KEYCLOAK_URL: 'someUrl' });
       LoginNav.__Rewire__('keycloak', keycloakMock);
     });
     after(() => {
-      LoginNav.__ResetDependency__('config');
       LoginNav.__ResetDependency__('keycloak');
     });
 
-    it('should send users to keycloak register if KEYCLOAK_URL is set', () => {
+    it('should send users to keycloak register if keycloak is initialized', () => {
       const wrapper = mount(
         <BrowserRouter>
           <LoginNav {...props}></LoginNav>

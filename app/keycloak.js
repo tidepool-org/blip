@@ -1,15 +1,28 @@
 import Keycloak from 'keycloak-js/dist/keycloak.js';
-import config from './config';
+import React from 'react';
+import { ReactKeycloakProvider } from '@react-keycloak/web';
+import { useSelector, useStore } from 'react-redux';
+import _ from 'lodash';
 import * as ActionTypes from './redux/constants/actionTypes';
 import { sync, async } from './redux/actions';
 import api from './core/api';
 
 // eslint-disable-next-line new-cap
-export const keycloak = Keycloak({
-  url: config.KEYCLOAK_URL,
-  realm: config.KEYCLOAK_REALM,
-  clientId: config.KEYCLOAK_CLIENTID,
-});
+export let keycloak = null;
+
+let _keycloakConfig = {};
+
+export const updateKeycloakConfig = (info, store) => {
+  if (!_.isEqual(_keycloakConfig, info)) {
+    // eslint-disable-next-line new-cap
+    keycloak = Keycloak({
+      url: info.url,
+      realm: info.realm,
+      clientId: 'blip-localhost',
+    });
+    _keycloakConfig = info;
+  }
+};
 
 export const onKeycloakEvent = (store) => (event, error) => {
   switch (event) {
@@ -21,9 +34,14 @@ export const onKeycloakEvent = (store) => (event, error) => {
       break;
     case 'onAuthSuccess':
       store.dispatch(sync.keycloakAuthSuccess(event, error));
-      api.user.saveSession(keycloak?.tokenParsed?.sub, keycloak?.token, {
-        noRefresh: true,
-      });
+      api.user.saveSession(
+        keycloak?.tokenParsed?.sub,
+        keycloak?.token,
+        {
+          noRefresh: true,
+        },
+        () => {}
+      );
       store.dispatch(async.login(api));
       break;
     case 'onAuthError':
@@ -49,9 +67,14 @@ export const onKeycloakEvent = (store) => (event, error) => {
 export const onKeycloakTokens = (store) => (tokens) => {
   if (tokens?.token) {
     store.dispatch(sync.keycloakTokensReceived(tokens));
-    api.user.saveSession(keycloak?.tokenParsed?.sub, keycloak?.token, {
-      noRefresh: true,
-    });
+    api.user.saveSession(
+      keycloak?.tokenParsed?.sub,
+      keycloak?.token,
+      {
+        noRefresh: true,
+      },
+      () => {}
+    );
   }
 };
 
@@ -60,10 +83,43 @@ export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
     case ActionTypes.LOGOUT_REQUEST:
       keycloak.logout();
       break;
+    case ActionTypes.FETCH_INFO_SUCCESS:
+      if (!_.isEqual(_keycloakConfig, action.payload?.info?.auth)) {
+        updateKeycloakConfig(action.payload?.info?.auth, storeAPI);
+      }
+      break;
     default:
       break;
   }
   return next(action);
 };
 
-export default {keycloak, onKeycloakEvent, onKeycloakTokens, keycloakMiddleware}
+export const KeycloakWrapper = (props) => {
+  const keycloakConfig = useSelector((state) => state.blip.keycloakConfig);
+  const store = useStore();
+  let Wrapper = React.Fragment;
+  let wrapperProps = props;
+  if (keycloakConfig?.url) {
+    Wrapper = ReactKeycloakProvider;
+    wrapperProps = {
+      ...wrapperProps,
+      authClient: keycloak,
+      onEvent: onKeycloakEvent(store),
+      onTokens: onKeycloakTokens(store),
+      initOptions: {
+        //checkLoginIframe: false,
+        onLoad: 'check-sso',
+        enableLogging: true,
+        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+      }
+    };
+  }
+  return <Wrapper {...wrapperProps}>{props.children}</Wrapper>;
+};
+
+export default {
+  keycloak,
+  onKeycloakEvent,
+  onKeycloakTokens,
+  keycloakMiddleware,
+};

@@ -108,7 +108,7 @@
     "karma-sinon": "1.0.5",
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "4.0.2",
-    "keycloak-js": "17.0.0",
+    "keycloak-js": "18.0.0",
     "less": "3.12.2",
     "less-loader": "4.1.0",
     "lodash": "4.17.21",
