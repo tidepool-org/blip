@@ -102,6 +102,7 @@ export const Table = props => {
     orderBy: orderByProp,
     pagination,
     paginationProps,
+    containerStyles,
     ...tableProps
   } = props;
 
@@ -158,7 +159,7 @@ export const Table = props => {
   }, [props.page]);
 
   return (
-    <Box as={TableContainer}>
+    <Box as={TableContainer} style={containerStyles}>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
         <TableHead>
           <TableRow>
@@ -168,8 +169,8 @@ export const Table = props => {
 
               return (
                 <TableCell
-                  id={`${id}-header-${col.field?.replaceAll('.', '-')}`}
-                  key={`${id}-header-${col.field?.replaceAll('.', '-')}`}
+                  id={`${id}-header-${col.field?.replace(/\./g, '-')}`}
+                  key={`${id}-header-${col.field?.replace(/\./g, '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
                 >
@@ -261,6 +262,7 @@ Table.propTypes = {
   onSort: PropTypes.func,
   stickyHeader: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'condensed']),
+  containerStyles: PropTypes.object,
 };
 
 Table.defaultProps = {
@@ -271,6 +273,7 @@ Table.defaultProps = {
   paginationProps: {
     style: { fontSize: '14px' },
   },
+  containerStyles: {},
 };
 
 export default Table;

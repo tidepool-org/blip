@@ -23,7 +23,6 @@ const featureFlags = {
   i18nEnabled: false,
   pendoEnabled: true,
   rxEnabled: false,
-  clinicsEnabled: false,
 };
 
 const environments = {

@@ -115,9 +115,9 @@ export const ClinicProfileFields = (props) => {
 
         <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
           <TextInput
-            {...getCommonFormikFieldProps('city', formikContext)}
-            label={t('City')}
-            placeholder={t('City')}
+            {...getCommonFormikFieldProps('address', formikContext)}
+            label={t('Clinic Address')}
+            placeholder={t('Clinic Address')}
             variant="condensed"
             width="100%"
           />
@@ -125,9 +125,9 @@ export const ClinicProfileFields = (props) => {
 
         <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
           <TextInput
-            {...getCommonFormikFieldProps('address', formikContext)}
-            label={t('Clinic Address')}
-            placeholder={t('Clinic Address')}
+            {...getCommonFormikFieldProps('city', formikContext)}
+            label={t('City')}
+            placeholder={t('City')}
             variant="condensed"
             width="100%"
           />

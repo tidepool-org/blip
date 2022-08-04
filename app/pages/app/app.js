@@ -175,12 +175,6 @@ export class AppComponent extends React.Component {
       this.doFetching(nextProps);
     }
 
-    if (!this.props.clinicFlowActive && nextProps.clinicFlowActive && !selectedClinicId && _.keys(clinics).length) {
-      // We keep the selectedClinicId state at it's default 'null' if the app loads on the legacy
-      // patients page. Otherwise, we select the first available clinic.
-      if (location !== '/patients') nextProps.selectClinic(_.keys(clinics)[0]);
-    }
-
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
 
     const showUploaderBanner = authenticated && moment().isBefore('2020-10-01');
@@ -811,7 +805,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
   resendEmailVerification: actions.async.resendEmailVerification,
-  selectClinic: actions.sync.selectClinic,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -845,7 +838,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     hideBanner: dispatchProps.hideBanner,
     onResendEmailVerification: dispatchProps.resendEmailVerification.bind(null, api),
     onLogout: dispatchProps.logout.bind(null, api),
-    selectClinic: dispatchProps.selectClinic,
   });
 };
 
