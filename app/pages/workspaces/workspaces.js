@@ -341,7 +341,7 @@ export const Workspaces = (props) => {
               <Button
                 id="workspace-create-clinic"
                 variant="textPrimary"
-                fontSize={[2, 2, 3]}
+                fontSize={2}
                 fontWeight="medium"
                 py={3}
                 pr={0}
@@ -366,10 +366,9 @@ export const Workspaces = (props) => {
                 px={[3, 4]} py={4}
                 color="text.primary"
               >
-                <Text fontSize={3} color="purpleBright" mb={3}>{t('Do you want to set up a Clinic account?')}</Text>
                 <Body1 mb={1}>{t('With your Clinic account, you will be able to:')}</Body1>
 
-                <Box as="ol" pl={3} mb={3} sx={{ li: { py: 1 } }}>
+                <Box as="ol" pl={4} mb={4} sx={{ li: { py: 1 } }}>
                   <li>{t('Provide every member of your team with their own unique account and login credentials to access patient data.')}</li>
                   <li>{t('Directly manage Clinic team member access.')}</li>
                   <li>{t('Leverage a Clinic Share Code to connect with patients.')}</li>
@@ -377,13 +376,7 @@ export const Workspaces = (props) => {
                   <li>{t('Create and manage access to patient accounts without requiring Tidepool Uploader.')}</li>
                 </Box>
 
-                <Button
-                  id="empty-workspace-create-clinic"
-                  variant="primary"
-                  onClick={handleCreateNewClinic.bind(null, 'empty state cta')}
-                >
-                  {t('Yes, set it up')}
-                </Button>
+                <Body1>{t('Start by creating a new clinic.')}</Body1>
               </Box>
             )}
           </Box>
