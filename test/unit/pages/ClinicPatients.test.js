@@ -26,7 +26,7 @@ const expect = chai.expect;
 const assert = chai.assert;
 const mockStore = configureStore([thunk]);
 
-describe.only('ClinicPatients', () => {
+describe('ClinicPatients', () => {
   let mount;
 
   let wrapper;
@@ -1149,7 +1149,7 @@ describe.only('ClinicPatients', () => {
 
           // Ensure filter options present
           const filterOptions = popover().find('#summary-period-filters').find('label').hostNodes();
-          expect(filterOptions).to.have.lengthOf(3);
+          expect(filterOptions).to.have.lengthOf(4);
           expect(filterOptions.at(0).text()).to.equal('24 hours');
           expect(filterOptions.at(0).find('input').props().value).to.equal('1d');
 
@@ -1158,6 +1158,9 @@ describe.only('ClinicPatients', () => {
 
           expect(filterOptions.at(2).text()).to.equal('14 days');
           expect(filterOptions.at(2).find('input').props().value).to.equal('14d');
+
+          expect(filterOptions.at(3).text()).to.equal('30 days');
+          expect(filterOptions.at(3).find('input').props().value).to.equal('30d');
 
           // Default should be 14 days
           expect(filterOptions.at(2).find('input').props().checked).to.be.true;
@@ -1171,11 +1174,11 @@ describe.only('ClinicPatients', () => {
 
           // Ensure resulting patient fetch is requesting the 7 day period for time in range filters
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
-            limit: 10,
+            limit: 50,
             offset: 0,
             sort: '+fullName',
-            'summary.periods.7d.timeInHighPercent': '>=0.25',
-            'summary.periods.7d.timeInLowPercent': '>=0.04',
+            'summary.periods.7d.timeInHighPercent': '>0.25',
+            'summary.periods.7d.timeInLowPercent': '>0.04',
           }));
 
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Summary period apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '7 days' }));

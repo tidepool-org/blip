@@ -13,7 +13,6 @@ import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
-import omit from 'lodash/omit';
 import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -634,17 +633,24 @@ export const ClinicPatients = (props) => {
                         {t('Cancel')}
                       </Button>
 
-                      <Button id="apply-summary-period-filter" fontSize={1} variant="textPrimary" onClick={() => {
-                        const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
+                      <Button
+                        id="apply-summary-period-filter"
+                        fontSize={1}
+                        variant="textPrimary"
+                        disabled={pendingSummaryPeriod === summaryPeriod}
+                        onClick={() => {
+                          const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
 
-                        trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
-                          clinicId: selectedClinicId,
-                          dateRange,
-                        });
+                          trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
+                            clinicId: selectedClinicId,
+                            dateRange,
+                          });
 
-                        setSummaryPeriod(pendingSummaryPeriod);
-                        summaryPeriodPopupFilterState.close();
-                      }}>
+                          setLoading(true);
+                          setSummaryPeriod(pendingSummaryPeriod);
+                          summaryPeriodPopupFilterState.close();
+                        }}
+                      >
                         {t('Apply')}
                       </Button>
                     </DialogActions>
@@ -1252,9 +1258,10 @@ export const ClinicPatients = (props) => {
       clinicBgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value
     ));
 
-    const minCgmHours = summaryPeriod === '1d' ? 12 : 24;
     const cgmHours = (summary?.periods?.[summaryPeriod]?.timeCGMUseMinutes || 0) / 60;
     const cgmUsePercent = (summary?.periods?.[summaryPeriod]?.timeCGMUsePercent || 0);
+    const minCgmHours = 24;
+    const minCgmePercent = 0.7;
 
     const data = {
       veryLow: summary?.periods?.[summaryPeriod]?.timeInVeryLowPercent,
@@ -1264,13 +1271,17 @@ export const ClinicPatients = (props) => {
       veryHigh: summary?.periods?.[summaryPeriod]?.timeInVeryHighPercent,
     };
 
+    const insufficientDataText = summaryPeriod === '1d'
+      ? t('CGM Use <{{minCgmePercent}}%', { minCgmePercent: minCgmePercent * 100 })
+      : t('CGM Use <{{minCgmHours}} hours', { minCgmHours });
+
     return (
       <Flex justifyContent="center">
-        {(cgmHours >= minCgmHours)
-          ? <BgRangeSummary striped={summary?.periods?.[summaryPeriod]?.timeCGMUsePercent < 0.7} data={data} targetRange={targetRange} bgUnits={clinicBgUnits} />
+        {(summaryPeriod === '1d' && cgmUsePercent >= minCgmePercent) || (cgmHours >= minCgmHours)
+          ? <BgRangeSummary striped={cgmUsePercent < minCgmePercent} data={data} targetRange={targetRange} bgUnits={clinicBgUnits} />
           : (
             <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
-            <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <{{minCgmHours}} hours', { minCgmHours })}</Text>
+            <Text fontSize="10px" fontWeight="medium" color="grays.4">{insufficientDataText}</Text>
             </Flex>
           )
         }
