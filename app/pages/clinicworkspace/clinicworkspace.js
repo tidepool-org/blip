@@ -25,8 +25,7 @@ export const ClinicWorkspace = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const { fetchingPatientInvites } = useSelector((state) => state.blip.working);
-  const clinics = useSelector((state) => state.blip.clinics);
-  const clinic = get(clinics, selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patientInvites = values(clinic?.patientInvites);
 
   const tabIndices = {
@@ -87,7 +86,11 @@ export const ClinicWorkspace = (props) => {
   useEffect(() => {
     dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     dispatch(actions.sync.clearPatientInView());
-  }, []);
+
+    if (props.location?.state?.selectedClinicId && props.location?.state?.selectedClinicId !== selectedClinicId) {
+      dispatch(actions.sync.selectClinic(props.location?.state?.selectedClinicId));
+    }
+  }, [props.location?.state?.selectedClinicId]);
 
   function handleSelectTab(event, newValue) {
     trackMetric(tabs[newValue]?.metric, { clinicId: selectedClinicId, source: 'Workspace table' });

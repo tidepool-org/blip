@@ -602,19 +602,19 @@ export const AccessManagement = (props) => {
                 {t('Invite New Member')}
               </Button>
               {/* Clinic invite button is hidden during clinic LMR */}
-              {/* {config.CLINICS_ENABLED && (
-                <Button
-                  ml={3}
-                  id="invite-clinic"
-                  variant="secondary"
-                  className="active"
-                  onClick={() => {
-                    dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
-                  }}
-                >
-                  {t('Invite New Clinic')}
-                </Button>
-              )} */}
+              {/*
+              <Button
+                ml={3}
+                id="invite-clinic"
+                variant="secondary"
+                className="active"
+                onClick={() => {
+                  dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
+                }}
+              >
+                {t('Invite New Clinic')}
+              </Button>
+              */}
             </Flex>
           </Flex>
 

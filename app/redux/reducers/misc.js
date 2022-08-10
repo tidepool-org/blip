@@ -744,12 +744,7 @@ export const clinics = (state = initialState.clinics, action) => {
       delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
-    case types.CREATE_CLINIC_SUCCESS: {
-      let clinic = _.get(action.payload, 'clinic', {});
-      return update(state, {
-        [clinic.id]: { $set: { clinicians: {}, patients: {}, patientInvites: {} } },
-      });
-    }
+    case types.CREATE_CLINIC_SUCCESS:
     case types.FETCH_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic', {});
       return update(state, {
@@ -974,6 +969,9 @@ export const clinicFlowActive = (state = initialState.clinicFlowActive, action) 
       return action.payload.invites.length > 0 || state;
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
       return action.payload.clinics.length > 0 || state;
+    case types.FETCH_USER_SUCCESS:
+    case types.LOGIN_SUCCESS:
+      return _.includes(action.payload?.user?.roles, 'clinician') || state;
     case types.LOGOUT_REQUEST:
       return initialState.clinicFlowActive;
     default:

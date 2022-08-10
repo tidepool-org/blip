@@ -65,7 +65,7 @@ export const Headline = Styled(H2)`
 export const Title = Styled(H3)`
   font-size: ${fontSizes[props => (props.fontSize || 3)]}px;
   line-height: ${lineHeights[3]};
-  font-weight: ${fontWeights.regular};
+  font-weight: ${props => (props.fontWeight ? props.fontWeight : fontWeights.regular)};
   font-family: ${fonts.default};
   color: ${colors.text.primary};
 `;

@@ -136,6 +136,7 @@ describe('NavigationMenu', () => {
           ],
         },
       },
+      clinicFlowActive: true,
       pendingSentInvites: [],
       selectedClinicId: 'clinicID456',
     },
@@ -190,7 +191,7 @@ describe('NavigationMenu', () => {
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/patients'],
+            args: ['/patients', { selectedClinicId: null }],
             method: 'push',
           },
         },
@@ -266,7 +267,7 @@ describe('NavigationMenu', () => {
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/clinic-workspace'],
+            args: ['/clinic-workspace', { selectedClinicId: 'clinicID456' }],
             method: 'push',
           },
         },
@@ -300,7 +301,7 @@ describe('NavigationMenu', () => {
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/patients'],
+            args: ['/patients', { selectedClinicId: null }],
             method: 'push',
           },
         },
@@ -396,7 +397,7 @@ describe('NavigationMenu', () => {
           {
             type: '@@router/CALL_HISTORY_METHOD',
             payload: {
-              args: ['/patients'],
+              args: ['/patients', { selectedClinicId: null }],
               method: 'push',
             },
           },
@@ -443,7 +444,7 @@ describe('NavigationMenu', () => {
           {
             type: '@@router/CALL_HISTORY_METHOD',
             payload: {
-              args: ['/patients'],
+              args: ['/patients', { selectedClinicId: null }],
               method: 'push',
             },
           },
@@ -484,6 +485,7 @@ describe('NavigationMenu', () => {
           pendingReceivedClinicianInvites: [
             'clinicInvite123',
           ],
+          clinicFlowActive: true,
         },
       }));
     });
