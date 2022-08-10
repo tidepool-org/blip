@@ -341,7 +341,7 @@ export const Workspaces = (props) => {
               <Button
                 id="workspace-create-clinic"
                 variant="textPrimary"
-                fontSize={2}
+                fontSize={1}
                 fontWeight="medium"
                 py={3}
                 pr={0}
