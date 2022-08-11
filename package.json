@@ -135,6 +135,7 @@
     "react-redux": "7.2.0",
     "react-router-dom": "5.2.0",
     "react-scroll": "1.7.10",
+    "react-scroll-to-top": "3.0.0",
     "react-select": "2.0.0",
     "react-test-renderer": "16.12.0",
     "react-window-size-listener": "1.2.1",
