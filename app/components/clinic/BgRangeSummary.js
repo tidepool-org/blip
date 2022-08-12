@@ -43,7 +43,7 @@ export const formatValue = (inputValue, key) => {
         precision = 2;
         percentage = roundUp(percentage, precision);
       }
-      if (percentage > 0.5 && percentage < 1) {
+      if (percentage >= 0.5 && percentage < 1) {
         precision = 1;
         percentage = roundDown(percentage, precision);
       }
