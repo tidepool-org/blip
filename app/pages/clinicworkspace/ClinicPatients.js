@@ -27,8 +27,12 @@ import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import sundial from 'sundial';
+import ScrollToTop from 'react-scroll-to-top';
+import styled from 'styled-components';
+import { colors } from '../../../app/themes/baseTheme';
 
 import {
   bindPopover,
@@ -76,6 +80,14 @@ import { borders, radii } from '../../themes/baseTheme';
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 const { getLocalizedCeiling } = vizUtils.datetime;
+
+const StyledScrollToTop = styled(ScrollToTop)`
+  background-color: ${colors.purpleMedium};
+  right: 20px;
+  bottom: 70px;
+  border-radius: 20px;
+  padding-top: 4px;
+`;
 
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric, searchDebounceMs } = props;
@@ -1414,8 +1426,6 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort.substring(1)}
-          stickyHeader
-          containerStyles={{maxHeight: '560px', overflow: 'auto'}}
         />
 
         {pageCount > 1 && (
@@ -1453,6 +1463,11 @@ export const ClinicPatients = (props) => {
       {showEditPatientDialog && renderEditPatientDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
+      <StyledScrollToTop
+        smooth
+        top={600}
+        component={<ArrowUpwardIcon />}
+      />
     </div>
   );
 };
