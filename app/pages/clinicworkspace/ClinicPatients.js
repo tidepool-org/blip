@@ -260,10 +260,6 @@ export const ClinicPatients = (props) => {
   }, [sendingPatientUploadReminder]);
 
   useEffect(() => {
-    setLoading(fetchingPatientsForClinic.inProgress);
-  }, [fetchingPatientsForClinic.inProgress]);
-
-  useEffect(() => {
     const { inProgress, completed, notification } = fetchingPatientsForClinic;
 
     if (!isFirstRender && !inProgress) {
@@ -278,6 +274,7 @@ export const ClinicPatients = (props) => {
       // the user would like to see the results
       if (!showNames && patientFetchCount > 0) setShowNames(true);
       setPatientFetchCount(patientFetchCount + 1);
+      setLoading(inProgress);
     }
   }, [fetchingPatientsForClinic]);
 
