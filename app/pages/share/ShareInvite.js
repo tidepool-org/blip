@@ -82,7 +82,7 @@ const ShareInvite = (props) => {
       shareCode: '',
       uploadPermission: true,
     },
-    onSubmit: (values, { setSubmitting }) => {
+    onSubmit: (values) => {
       if (values.type === 'clinic') {
         if (clinic) {
           const permissions = {
