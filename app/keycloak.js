@@ -2,7 +2,8 @@ import Keycloak from 'keycloak-js/dist/keycloak.js';
 import React from 'react';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { useSelector, useStore } from 'react-redux';
-import _ from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import * as ActionTypes from './redux/constants/actionTypes';
 import { sync, async } from './redux/actions';
 import api from './core/api';
@@ -13,9 +14,9 @@ export let keycloak = null;
 let _keycloakConfig = {};
 
 export const updateKeycloakConfig = (info, store) => {
-  if (!_.isEqual(_keycloakConfig, info)) {
+  if (!(isEmpty(info) || isEqual(_keycloakConfig, info))) {
     // eslint-disable-next-line new-cap
-    keycloak = Keycloak({
+    keycloak = new Keycloak({
       url: info.url,
       realm: info.realm,
       clientId: 'blip-localhost',
@@ -26,13 +27,15 @@ export const updateKeycloakConfig = (info, store) => {
 
 export const onKeycloakEvent = (store) => (event, error) => {
   switch (event) {
-    case 'onReady':
+    case 'onReady': {
       store.dispatch(sync.keycloakReady(event, error));
       break;
-    case 'onInitError':
+    }
+    case 'onInitError': {
       store.dispatch(sync.keycloakInitError(event, error));
       break;
-    case 'onAuthSuccess':
+    }
+    case 'onAuthSuccess': {
       store.dispatch(sync.keycloakAuthSuccess(event, error));
       api.user.saveSession(
         keycloak?.tokenParsed?.sub,
@@ -44,21 +47,27 @@ export const onKeycloakEvent = (store) => (event, error) => {
       );
       store.dispatch(async.login(api));
       break;
-    case 'onAuthError':
+    }
+    case 'onAuthError': {
       store.dispatch(sync.keycloakAuthError(event, error));
       break;
-    case 'onAuthRefreshSuccess':
+    }
+    case 'onAuthRefreshSuccess': {
       store.dispatch(sync.keycloakAuthRefreshSuccess(event, error));
       break;
-    case 'onAuthRefreshError':
+    }
+    case 'onAuthRefreshError': {
       store.dispatch(sync.keycloakAuthRefreshError(event, error));
       break;
-    case 'onTokenExpired':
+    }
+    case 'onTokenExpired': {
       store.dispatch(sync.keycloakTokenExpired(event, error));
       break;
-    case 'onAuthLogout':
+    }
+    case 'onAuthLogout': {
       store.dispatch(sync.keycloakAuthLogout(event, error));
       break;
+    }
     default:
       break;
   }
@@ -80,14 +89,16 @@ export const onKeycloakTokens = (store) => (tokens) => {
 
 export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
   switch (action.type) {
-    case ActionTypes.LOGOUT_REQUEST:
+    case ActionTypes.LOGOUT_REQUEST: {
       keycloak.logout();
       break;
-    case ActionTypes.FETCH_INFO_SUCCESS:
-      if (!_.isEqual(_keycloakConfig, action.payload?.info?.auth)) {
+    }
+    case ActionTypes.FETCH_INFO_SUCCESS: {
+      if (!isEqual(_keycloakConfig, action.payload?.info?.auth)) {
         updateKeycloakConfig(action.payload?.info?.auth, storeAPI);
       }
       break;
+    }
     default:
       break;
   }

@@ -81,7 +81,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     objectSrc: ['blob:'],
     workerSrc: ["'self'", 'blob:'],
     childSrc: ["'self'", 'blob:', 'https://docs.google.com', 'https://app.pendo.io'],
-    frameSrc: ['https://docs.google.com', 'https://app.pendo.io'],
+    frameSrc: ['https://docs.google.com', 'https://app.pendo.io', '*.tidepool.org'],
     connectSrc: [].concat([
       process.env.API_HOST || 'localhost',
       'https://api.github.com/repos/tidepool-org/uploader/releases',

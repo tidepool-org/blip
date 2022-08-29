@@ -80,7 +80,7 @@ export let Login = translate()(class extends React.Component {
 
     return (
       <div className="login">
-        <Loader show={fetchingInfo.inProgress || (keycloakConfig.url && !keycloakConfig.initialized)} overlay={true} />
+        <Loader show={fetchingInfo.inProgress || (!!keycloakConfig.url && !keycloakConfig.initialized)} overlay={true} />
         <LoginNav
           page="login"
           hideLinks={Boolean(this.props.seedEmail)}
