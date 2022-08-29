@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -45,6 +45,15 @@ export const ClinicProfile = (props) => {
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
   const [editing, setEditing] = useState(false);
+  const buttonText = useMemo(() =>
+    <Icon
+      variant="static"
+      icon={FileCopyRoundedIcon}
+      label={t('Copy Share Code')}
+      title={t('Copy Share Code')}
+    />, [t]
+  );
+  const buttonSuccessText = useMemo(() => <span className="success">{t('✓')}</span>, [t]);
 
   const navigationAction = {
     label: isWorkspacePath ? t('View Clinic Members'): t('View Patient List'),
@@ -74,7 +83,7 @@ export const ClinicProfile = (props) => {
     if (clinic) {
       setValues(clinicValuesFromClinic(clinic))
     }
-  }, [clinic])
+  }, [clinic, setValues])
 
   useEffect(() => {
     const { inProgress, completed, notification } = updatingClinic;
@@ -97,6 +106,13 @@ export const ClinicProfile = (props) => {
       }
     }
   }, [updatingClinic]);
+
+  const getButtonText = useCallback(() => clinic?.shareCode, [clinic?.shareCode]);
+  const buttonOnClick = useCallback(() => {
+    trackMetric('Clinic - Copy clinic share code', {
+      clinicId: selectedClinicId,
+    });
+  }, [selectedClinicId]);
 
   function handleNavigationAction() {
     const source = isWorkspacePath ? undefined : 'Clinic members';
@@ -157,19 +173,10 @@ export const ClinicProfile = (props) => {
                 <Title>{clinic.shareCode}</Title>
                 <ClipboardButton
                   buttonTitle={t('Copy Share Code')}
-                  buttonText={(
-                    <Icon
-                      variant="static"
-                      icon={FileCopyRoundedIcon}
-                      label={t('Copy Share Code')}
-                      title={t('Copy Share Code')}
-                    />
-                  )}
-                  successText={<span className="success">{t('✓')}</span>}
-                  onClick={() => {
-                    trackMetric('Clinic - Copy clinic share code', { clinicId: selectedClinicId })
-                  }}
-                  getText={() => clinic.shareCode}
+                  buttonText={buttonText}
+                  successText={buttonSuccessText}
+                  onClick={buttonOnClick}
+                  getText={getButtonText}
                 />
               </Flex>
             </Box>
