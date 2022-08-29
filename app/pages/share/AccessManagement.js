@@ -590,28 +590,14 @@ export const AccessManagement = (props) => {
             </Title>
             <Flex width={['100%', 'auto']} justifyContent='center' pb={[3, 0]}>
               <Button
-                id="invite-member"
+                id="invite"
                 variant="primary"
                 onClick={() => {
-                  dispatch(push(`/patients/${loggedInUserId}/share/member`));
+                  dispatch(push(`/patients/${loggedInUserId}/share/invite`));
                 }}
               >
-                {t('Invite New Member')}
+                {t('Share Data')}
               </Button>
-              {/* Clinic invite button is hidden during clinic LMR */}
-              {/*
-              <Button
-                ml={3}
-                id="invite-clinic"
-                variant="secondary"
-                className="active"
-                onClick={() => {
-                  dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
-                }}
-              >
-                {t('Invite New Clinic')}
-              </Button>
-              */}
             </Flex>
           </Flex>
 

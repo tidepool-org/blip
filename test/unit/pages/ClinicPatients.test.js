@@ -927,11 +927,11 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           patientHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           patientHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
 
           const lastUploadHeader = table.find('#peopleTable-header-summary-lastUploadDate .MuiTableSortLabel-root').at(0);
 
@@ -969,7 +969,7 @@ describe('ClinicPatients', () => {
           expect(refreshButton).to.have.lengthOf(1);
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           refreshButton.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '+fullName' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '-summary.lastUploadDate' }));
         });
 
         it('should show the time since the last patient data fetch', () => {
@@ -1012,7 +1012,7 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '+fullName', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '-summary.lastUploadDate', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days' }));
         });
 
@@ -1092,7 +1092,7 @@ describe('ClinicPatients', () => {
 
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 50,
             offset: 0,
-            sort: '+fullName',
+            sort: '-summary.lastUploadDate',
             'summary.periods.14d.timeInHighPercent': '>=0.25',
             'summary.periods.14d.timeInLowPercent': '>=0.04',
             'summary.periods.14d.timeInTargetPercent': '<=0.7',
@@ -1176,7 +1176,7 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
             limit: 50,
             offset: 0,
-            sort: '+fullName',
+            sort: '-summary.lastUploadDate',
             'summary.periods.7d.timeInHighPercent': '>0.25',
             'summary.periods.7d.timeInLowPercent': '>0.04',
           }));
@@ -1259,7 +1259,7 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               limit: 50,
               offset: 0,
-              sort: '+fullName',
+              sort: '-summary.lastUploadDate',
               'summary.lastUploadDateFrom': sinon.match.string,
               'summary.lastUploadDateTo': sinon.match.string,
               'summary.periods.14d.timeInHighPercent': '>=0.25',

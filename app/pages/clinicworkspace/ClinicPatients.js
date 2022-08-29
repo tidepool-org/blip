@@ -113,7 +113,7 @@ export const ClinicPatients = (props) => {
   const defaultPatientFetchOptions = {
     search: '',
     offset: 0,
-    sort: '+fullName',
+    sort: showSummaryData ? '-summary.lastUploadDate' : '+fullName',
   };
 
   const bgPrefs = () => ({
