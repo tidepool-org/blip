@@ -1,4 +1,4 @@
-export default ({ colors, fonts, fontSizes }) => {
+export default ({ colors, fonts, fontSizes, breakpoints }) => {
   const listItemStyles = {
     display: 'flex',
     justifyContent: 'center',
@@ -27,6 +27,10 @@ export default ({ colors, fonts, fontSizes }) => {
     '.prev-controls, .next-controls': {
       'span .MuiSvgIcon-root': {
         fontSize: `${fontSizes[2]}px`,
+      },
+
+      [`@media(max-width: ${breakpoints[0]})`]: {
+        'button > div > div': { display: 'none' },
       },
     },
 

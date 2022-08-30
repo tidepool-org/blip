@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Flex } from 'rebass/styled-components'
+import { Flex, Box } from 'rebass/styled-components'
 import { translate } from 'react-i18next';
 import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 
@@ -46,11 +46,18 @@ export default translate()(class extends React.Component {
           flexWrap="wrap"
           justifyContent={['center', 'space-between']}
           alignItems="center"
-          sx={{ minHeight: '60px' }}
         >
-          {this.renderLogoSection()}
-          {this.renderMiddleSection()}
-          {this.renderMenuSection()}
+          <Box flex={1} minWidth={['100%', '100%', '33%']} py={[3, 3, 4]}>
+            {this.renderLogoSection()}
+          </Box>
+
+          <Box flex={1} order={[3, 2]} minWidth={['100%', '50%', '33%']} py={1}>
+            {this.renderMiddleSection()}
+          </Box>
+
+          <Box flex={1} order={[2, 3]} minWidth={['100%', '50%', '33%']} py={1}>
+            {this.renderMenuSection()}
+          </Box>
         </Flex>
 
         {showPatientListLink && (
@@ -76,9 +83,9 @@ export default translate()(class extends React.Component {
 
   renderLogoSection = () => {
     return (
-      <div className="Navbar-logoSection">
+      <Flex className="Navbar-logoSection" justifyContent={['center', 'flex-start']}>
         {this.renderLogo()}
-      </div>
+      </Flex>
     );
   };
 
@@ -134,9 +141,7 @@ export default translate()(class extends React.Component {
         ], this.props.currentPage) && personUtils.isClinicianAccount(this.props.user)
       ) {
         return (
-          <Flex flex={1} alignItems="center" justifyContent="center">
-            <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
-          </Flex>
+          <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
         );
       }
       return <div className="Navbar-patientSection"></div>;
@@ -194,9 +199,7 @@ export default translate()(class extends React.Component {
     };
 
     return (
-      <Flex flex={1} justifyContent="flex-end">
         <NavigationMenu api={this.props.api} trackMetric={this.props.trackMetric} />
-      </Flex>
     );
   };
 

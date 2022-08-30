@@ -133,41 +133,43 @@ export const ClinicianPatients = (props) => {
           <Title flexGrow={1}>
             {t('Patients')}
           </Title>
-
-          <TextInput
-            themeProps={{
-              width: 'auto',
-              minWidth: '250px',
-            }}
-            fontSize="12px"
-            id="patients-search"
-            placeholder={t('Search')}
-            icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
-            iconLabel={t('Search')}
-            onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
-            name="search-patients"
-            onChange={handleSearchChange}
-            value={searchText}
-            variant="condensed"
-          />
         </Flex>
 
         <Flex mb={4} alignItems="center" justifyContent="space-between">
           <Flex
             alignItems="center"
             justifyContent="space-between"
-            flexGrow={1}
-            pt={0}
+            width="100%"
+            sx={{ gap: 2 }}
           >
             <Button
               id="add-patient"
               variant="primary"
               onClick={handleAddPatient}
               fontSize={0}
-              mr={0}
+              px={[2, 3]}
+              lineHeight={['inherit', null, 1]}
             >
               {t('Add New Patient')}
             </Button>
+
+            <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+              <TextInput
+                themeProps={{
+                  width: ['100%', null, '250px'],
+                }}
+                fontSize="12px"
+                id="patients-search"
+                placeholder={t('Search')}
+                icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+                iconLabel={t('Search')}
+                onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
+                name="search-patients"
+                onChange={handleSearchChange}
+                value={searchText}
+                variant="condensed"
+              />
+            </Box>
 
             <Icon
               id="patients-view-toggle"
@@ -398,9 +400,9 @@ export const ClinicianPatients = (props) => {
   );
 
   const renderLinkedField = (field, patient) => (
-    <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    patient[field] ? <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient[field]}</Text>
-    </Box>
+    </Box> : null
   );
 
   const renderMore = patient => {
@@ -462,12 +464,14 @@ export const ClinicianPatients = (props) => {
         field: 'mrn',
         align: 'left',
         render: renderLinkedField.bind(null, 'mrn'),
+        hideEmpty: true,
       },
       {
         title: '',
         field: 'more',
         render: renderMore,
         align: 'right',
+        className: 'action-menu',
       },
     ];
 

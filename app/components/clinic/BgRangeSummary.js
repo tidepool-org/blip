@@ -101,7 +101,7 @@ export const BgRangeSummary = props => {
   return (
     <>
       <Box sx={{ position: 'relative' }} {...themeProps}>
-        <Flex className="range-summary-bars" width="200px" height="20px" justifyContent="center" {...bindHover(popupState)}>
+        <Flex className="range-summary-bars" width={['155px', '200px']} height="20px" justifyContent="center" {...bindHover(popupState)}>
           {map(data, (value, key) => (
               <Box className={`range-summary-bars-${key}`} key={key} bg={`bg.${key}`} width={`${value * 100}%`}/>
           ))}
