@@ -495,20 +495,27 @@ export const ClinicPatients = (props) => {
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
         limit: 50,
       }
-      if (activeFilters.lastUploadDate) {
-        filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-        filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
-      }
-      forEach(activeFilters.timeInRange, filter => {
-        let { comparator, value } = glycemicTargetThresholds[filter];
-        value = value / 100;
 
-        if (activeFilters.meetsGlycemicTargets) {
-          comparator = comparator === '<' ? '<=' : '>=';
+      const isPremiumTier = clinic?.tier >= 'tier0200';
+
+      if (isPremiumTier) {
+        if (activeFilters.lastUploadDate) {
+          filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+          filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
 
-        filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
-      });
+        forEach(activeFilters.timeInRange, filter => {
+          let { comparator, value } = glycemicTargetThresholds[filter];
+          value = value / 100;
+
+          if (activeFilters.meetsGlycemicTargets) {
+            comparator = comparator === '<' ? '<=' : '>=';
+          }
+
+          filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
+        });
+      }
+
       const newPatientFetchOptions = {
         ...omit(patientFetchOptions, [
           'summary.lastUploadDateFrom',
@@ -533,7 +540,7 @@ export const ClinicPatients = (props) => {
           setPatientFetchOptions(newPatientFetchOptions);
         }
       } else {
-        setShowSummaryData(clinic?.tier >= 'tier0200');
+        setShowSummaryData(isPremiumTier);
         setPatientFetchOptions({
           ...defaultPatientFetchOptions,
           limit: 50,
