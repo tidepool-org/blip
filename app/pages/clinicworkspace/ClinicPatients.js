@@ -538,6 +538,7 @@ export const ClinicPatients = (props) => {
           ...defaultPatientFetchOptions,
           limit: 50,
         });
+        setCurrentPage(1);
       }
     }
   }, [
