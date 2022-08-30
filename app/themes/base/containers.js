@@ -3,7 +3,6 @@ export default ({ borders, colors, radii, space }) => {
     mx: [0, 'auto'],
     bg: colors.white,
     width: ['100%', '95%'],
-    // width: auto,
     mb: `${space[6]}px`,
     position: 'relative',
   };

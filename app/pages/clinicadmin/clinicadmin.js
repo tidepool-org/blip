@@ -498,12 +498,6 @@ export const ClinicAdmin = (props) => {
 
   if (((isClinicAdmin()))) {
     columns.push(
-      // {
-      //   title: '',
-      //   field: 'edit',
-      //   render: renderEdit,
-      //   align: 'left',
-      // },
       {
         title: '',
         field: 'more',

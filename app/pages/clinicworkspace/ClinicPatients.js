@@ -1553,7 +1553,6 @@ export const ClinicPatients = (props) => {
 
         {pageCount > 1 && (
           <Pagination
-            // variant={['condensed', 'default']}
             px="5%"
             sx={{ position: 'absolute', bottom: '-50px' }}
             width="100%"

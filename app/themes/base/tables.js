@@ -77,7 +77,6 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
       display: ['block', null, 'table-row-group'],
     },
 
-
     '.MuiTableRow-root': {
       py: [2, null, 0],
       px: [3, null, 0],
@@ -88,14 +87,6 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
       mx: ['auto', null, 0],
       display: ['block', null, 'table-row'],
       position: ['relative', null, 'static'],
-
-
-      // display: ['flex', null, 'table-row'],
-      // justifyContent: 'space-between',
-      // flexWrap: 'wrap',
-      // columnGap: '24px',
-      // rowGap: '8px',
-      // alignItems: 'center',
 
       '.MuiTableCell-body': {
         display: ['flex', null, 'table-cell'],
