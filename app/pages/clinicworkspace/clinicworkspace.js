@@ -8,6 +8,7 @@ import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import values from 'lodash/values'
 import { Box } from 'rebass/styled-components';
+import { Element } from 'react-scroll';
 
 import TabGroup from '../../components/elements/TabGroup';
 import ClinicProfile from '../../components/clinic/ClinicProfile';
@@ -103,6 +104,7 @@ export const ClinicWorkspace = (props) => {
       <ClinicProfile api={api} trackMetric={trackMetric} />
 
       <Box id="clinic-workspace" alignItems="center" variant="containers.largeBordered" mb={9}>
+        <Element name="workspaceTabsTop" />
         <TabGroup
           aria-label="Clinic workspace tabs"
           id="clinic-workspace-tabs"

@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.56.0-rc.3",
+  "version": "1.56.0-rc.10",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -85,6 +85,7 @@
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-lodash": "6.0.0",
     "eslint-plugin-react": "7.20.3",
+    "eslint-plugin-react-hooks": "4.6.0",
     "file-loader": "2.0.0",
     "fixed-data-table-2": "1.0.2",
     "formik": "2.1.4",
@@ -135,6 +136,7 @@
     "react-redux": "7.2.0",
     "react-router-dom": "5.2.0",
     "react-scroll": "1.7.10",
+    "react-scroll-to-top": "3.0.0",
     "react-select": "2.0.0",
     "react-test-renderer": "16.12.0",
     "react-window-size-listener": "1.2.1",

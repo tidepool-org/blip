@@ -143,6 +143,7 @@ export const PatientForm = (props) => {
           placeholder={t('Email')}
           variant="condensed"
           width="100%"
+          disabled={patient?.id && !patient?.permissions?.custodian}
         />
       </Box>
 
