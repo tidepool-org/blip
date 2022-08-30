@@ -171,7 +171,7 @@ const plugins = [
     {
       from: 'static',
       transform: (content, path) => {
-        if (isDev) {
+        if (isDev || !path.endsWith('js')) {
          return content;
         }
 
