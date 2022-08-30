@@ -348,6 +348,15 @@ export const ClinicPatients = (props) => {
     sendingPatientUploadReminder,
   } = useSelector((state) => state.blip.working);
 
+  // TODO: remove this when upgraded to React 18
+  // force another render when fetching patients state changes
+  const [forceUpdate, setForceUpdate] = useState();
+  if(!isEqual(forceUpdate, fetchingPatientsForClinic)){
+    setForceUpdate(fetchingPatientsForClinic);
+  }
+
+  const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
+
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
   const handleAsyncResult = useCallback((workingState, successMessage) => {
@@ -393,7 +402,6 @@ export const ClinicPatients = (props) => {
     }));
   }, [handleAsyncResult, selectedPatient, sendingPatientUploadReminder, t]);
 
-  const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   useEffect(() => {
     const { inProgress, completed, notification } = fetchingPatientsForClinic;
 
@@ -449,14 +457,6 @@ export const ClinicPatients = (props) => {
   }, [clinic?.lastPatientFetchTime]);
 
   useEffect(() => {
-    setShowSummaryData(clinic?.tier >= 'tier0200');
-    setPatientFetchOptions({
-      ...defaultPatientFetchOptions,
-      limit: 50,
-    });
-  }, [clinic?.id, clinic?.tier]);
-
-  useEffect(() => {
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic]);
 
@@ -467,7 +467,7 @@ export const ClinicPatients = (props) => {
       clinic?.id &&
       !fetchingPatientsForClinic.inProgress &&
       !isEmpty(patientFetchOptions) &&
-      !isEqual(patientFetchOptions, previousFetchOptions)
+      !(patientFetchOptions === previousFetchOptions)
     ) {
       const fetchOptions = { ...patientFetchOptions };
       if (isEmpty(fetchOptions.search)) {
@@ -477,10 +477,19 @@ export const ClinicPatients = (props) => {
         actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions)
       );
     }
-  }, [api, clinic, dispatch, fetchingPatientsForClinic, loggedInUserId, patientFetchOptions, previousFetchOptions]);
+  }, [
+    api,
+    clinic,
+    dispatch,
+    fetchingPatientsForClinic,
+    loggedInUserId,
+    patientFetchOptions,
+    previousClinic?.id,
+    previousFetchOptions
+  ]);
 
   useEffect(() => {
-    if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters))){
+    if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters) && !isFirstRender)){
       const filterOptions = {
         offset: 0,
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
@@ -512,11 +521,35 @@ export const ClinicPatients = (props) => {
         ]),
         ...filterOptions,
       };
-      if(!isEqual(patientFetchOptions, newPatientFetchOptions)){
+
+      // set options pulled from localStorage
+      if (isFirstRender) {
         setPatientFetchOptions(newPatientFetchOptions);
+        return;
+      }
+
+      if (isEqual(clinic?.id, previousClinic?.id)) {
+        if (!isEqual(patientFetchOptions, newPatientFetchOptions)) {
+          setPatientFetchOptions(newPatientFetchOptions);
+        }
+      } else {
+        setShowSummaryData(clinic?.tier >= 'tier0200');
+        setPatientFetchOptions({
+          ...defaultPatientFetchOptions,
+          limit: 50,
+        });
       }
     }
-  }, [activeFilters, clinic?.id, patientFetchOptions, previousActiveFilters, previousClinic?.id, timePrefs]);
+  }, [
+    activeFilters,
+    clinic?.id,
+    clinic?.tier,
+    isFirstRender,
+    patientFetchOptions,
+    previousActiveFilters,
+    previousClinic?.id,
+    timePrefs
+  ]);
 
   function formatDecimal(val, precision) {
     if (precision === null || precision === undefined) {
