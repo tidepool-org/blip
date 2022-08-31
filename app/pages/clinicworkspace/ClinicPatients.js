@@ -542,6 +542,7 @@ export const ClinicPatients = (props) => {
       } else {
         setShowSummaryData(isPremiumTier);
         setPatientFetchOptions(newPatientFetchOptions);
+        setCurrentPage(1);
       }
     }
   }, [
