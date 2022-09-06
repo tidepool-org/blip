@@ -181,7 +181,7 @@ export const PatientInvites = (props) => {
     }
   }
 
-  function handleClearSearch(event) {
+  function handleClearSearch() {
     setPage(1);
     setSearchText('');
     setPageCount(Math.ceil(pendingInvites.length / rowsPerPage));
@@ -197,7 +197,7 @@ export const PatientInvites = (props) => {
 
   const renderName = ({ name }) => (
     <Box>
-      <Text>{name}</Text>
+      <Text fontWeight={['medium', null, 'regular']}>{name}</Text>
     </Box>
   );
 
@@ -252,28 +252,30 @@ export const PatientInvites = (props) => {
       sortable: true,
       sortBy: 'birthday',
       render: renderBirthday,
+      className: 'justify-flex-start'
     },
     {
       title: '',
       field: 'actions',
       render: renderActions,
       align: 'left',
+      className: 'justify-flex-end action-buttons'
     },
   ];
 
   return (
     <>
-      <Box sx={{ position: 'absolute', top: '8px', right: 4 }}>
+      <Box mb={4} flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
         <TextInput
           themeProps={{
-            width: 'auto',
-            minWidth: '250px',
+            width: ['100%', null, '250px'],
           }}
           fontSize="12px"
+          id="search-invites"
           placeholder={t('Search by Name')}
-          icon={searchText ? CloseRoundedIcon : SearchIcon}
-          iconLabel="search"
-          onClickIcon={searchText ? handleClearSearch : null}
+          icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+          iconLabel={t('Search')}
+          onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
           name="search-invites"
           onChange={handleSearchChange}
           value={searchText}

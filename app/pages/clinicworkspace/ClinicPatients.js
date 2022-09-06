@@ -379,85 +379,101 @@ export const ClinicPatients = (props) => {
 
     return (
       <>
-        <Box sx={{ position: 'absolute', top: '8px', right: 4 }}>
-          <TextInput
-            themeProps={{
-              width: 'auto',
-              minWidth: '250px',
-            }}
-            fontSize="12px"
-            id="patients-search"
-            placeholder={t('Search')}
-            icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
-            iconLabel={t('Search')}
-            onClickIcon={!isEmpty(search) ? handleClearSearch : null}
-            name="search-patients"
-            onChange={handleSearchChange}
-            value={search}
-            variant="condensed"
-          />
-        </Box>
-
-        <Flex mb={4} alignItems="center" justifyContent="space-between">
+        <Flex mb={4} alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={{ gap: 3 }}>
+          {/* Flex Group 1: Search Box and Add Patient button */}
           <Flex
             alignItems="center"
             justifyContent="space-between"
-            flexGrow={1}
-            pt={0}
+            width="auto"
+            flexGrow={[1, null, 0]}
+            sx={{ gap: 2 }}
           >
-            <Flex
-              alignItems="center"
-              justifyContent="flex-start"
-              sx={{ gap: 2 }}
+            <Button
+              id="add-patient"
+              variant="primary"
+              onClick={handleAddPatient}
+              fontSize={0}
+              px={[2, 3]}
+              lineHeight={['inherit', null, 1]}
             >
-              <Button
-                id="add-patient"
-                variant="primary"
-                onClick={handleAddPatient}
-                fontSize={0}
-                mr={1}
+              {t('Add New Patient')}
+            </Button>
+
+            <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+              <TextInput
+                themeProps={{
+                  width: ['100%', null, '250px'],
+                }}
+                fontSize="12px"
+                id="patients-search"
+                placeholder={t('Search')}
+                icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
+                iconLabel={t('Search')}
+                onClickIcon={!isEmpty(search) ? handleClearSearch : null}
+                name="search-patients"
+                onChange={handleSearchChange}
+                value={search}
+                variant="condensed"
+              />
+            </Box>
+          </Flex>
+
+          {/* Flex Group 2: Filters and Info Icons */}
+          <Flex
+            alignItems="center"
+            flexGrow={showSummaryData ? 1 : 0}
+            flexShrink={1}
+            flexWrap="wrap"
+            pt={0}
+            sx={{ gap: 3 }}
+          >
+            {/* Flex Group 2a: Results Filters */}
+            {showSummaryData && (
+              <Flex
+                alignItems="center"
+                justifyContent="flex-start"
+                sx={{ gap: 2 }}
+                flexWrap="wrap"
               >
-                {t('Add New Patient')}
-              </Button>
+                <Flex
+                  alignItems="center"
+                  color={activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4'}
+                  pl={[0, 0, 2]}
+                  py={1}
+                  sx={{ gap: 1, borderLeft: ['none', null, borders.divider] }}
+                  flexShrink={0}
+                >
+                  {activeFiltersCount > 0 ? (
+                    <Pill
+                      id="filter-count"
+                      label="filter count"
+                      round
+                      width="14px"
+                      lineHeight="15px"
+                      fontSize="9px"
+                      colorPalette={['purpleMedium', 'white']}
+                      text={`${activeFiltersCount}`}
+                    />
+                  ) : (
+                    <Icon
+                      id="filter-icon"
+                      variant="static"
+                      iconSrc={FilterIcon}
+                      label={t('Filter')}
+                      fontSize={1}
+                      width="14px"
+                      color={'grays.4'}
+                    />
+                  )}
+                  <Text fontSize={0}>{t('Filter By')}</Text>
+                </Flex>
 
-              {showSummaryData && (
-                <>
-                  <Flex
-                    alignItems="center"
-                    color={activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4'}
-                    pl={2}
-                    py={1}
-                    sx={{ gap: 1, borderLeft: borders.divider }}
-                  >
-                    {activeFiltersCount > 0 ? (
-                      <Pill
-                        id="filter-count"
-                        label="filter count"
-                        round
-                        width="14px"
-                        lineHeight="15px"
-                        fontSize="9px"
-                        colorPalette={['purpleMedium', 'white']}
-                        text={`${activeFiltersCount}`}
-                      />
-                    ) : (
-                      <Icon
-                        id="filter-icon"
-                        variant="static"
-                        iconSrc={FilterIcon}
-                        label={t('Filter')}
-                        fontSize={1}
-                        width="14px"
-                        color={'grays.4'}
-                      />
-                    )}
-                    <Text fontSize={0}>{t('Filter By')}</Text>
-                  </Flex>
-
+                <Flex flexShrink={0} sx={{ gap: 2 }}>
                   <Box
                     onClick={() => {
                       if (!lastUploadDatePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Last upload filter open'), { clinicId: selectedClinicId });
                     }}
+                    flexShrink={0}
                   >
                     <Button
                       variant="filter"
@@ -466,7 +482,6 @@ export const ClinicPatients = (props) => {
                       {...bindTrigger(lastUploadDatePopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
                       iconLabel="Filter by last upload"
-                      ml={2}
                       fontSize={0}
                       lineHeight={1.3}
                     >
@@ -534,134 +549,155 @@ export const ClinicPatients = (props) => {
                     variant="filter"
                     selected={!!activeFilters.timeInRange.length}
                     onClick={handleOpenTimeInRangeFilter}
-                    ml={2}
                     fontSize={0}
                     lineHeight={1.3}
+                    flexShrink={0}
                   >
-                    {t('% Time in Range')}
-                    {!!activeFilters.timeInRange.length && (
-                      <Pill
-                        id="time-in-range-filter-count"
-                        label="filter count"
-                        round
-                        width="14px"
-                        fontSize="9px"
-                        lineHeight="15px"
-                        ml={1}
-                        sx={{
-                          textAlign: 'center',
-                          display: 'inline-block',
-                        }}
-                        colorPalette={['purpleMedium', 'white']}
-                        text={`${activeFilters.timeInRange.length}`}
-                      />
-                    )}
+                    <Flex sx={{ gap: 1 }}>
+                      {t('% Time in Range')}
+                      {!!activeFilters.timeInRange.length && (
+                        <Pill
+                          id="time-in-range-filter-count"
+                          label="filter count"
+                          round
+                          width="14px"
+                          fontSize="9px"
+                          lineHeight="15px"
+                          sx={{
+                            textAlign: 'center',
+                            display: 'inline-block',
+                          }}
+                          colorPalette={['purpleMedium', 'white']}
+                          text={`${activeFilters.timeInRange.length}`}
+                        />
+                      )}
+                      </Flex>
                   </Button>
+                </Flex>
 
-                  {activeFiltersCount > 0 && (
-                    <Button
-                      id="reset-all-active-filters"
-                      variant="textSecondary"
-                      onClick={handleResetFilters}
-                      fontSize={0}
-                      color="grays.4"
-                    >
-                      {t('Reset Filters')}
-                    </Button>
-                  )}
+                {activeFiltersCount > 0 && (
+                  <Button
+                    id="reset-all-active-filters"
+                    variant="textSecondary"
+                    onClick={handleResetFilters}
+                    fontSize={0}
+                    color="grays.4"
+                    flexShrink={0}
+                    px={0}
+                  >
+                    {t('Reset Filters')}
+                  </Button>
+                )}
+              </Flex>
+            )}
 
+            {/* Flex Group 2b: Range select and Info/Visibility Icons */}
+            <Flex flexGrow={1} justifyContent="space-between" sx={{ gap: 3 }}>
+
+              {/* Range select */}
+              {showSummaryData && (
+                <Flex
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  pt={0}
+                  sx={{ gap: 3 }}
+                  flexShrink={0}
+                >
                   <Flex
                   alignItems="center"
                   color="grays.4"
-                  pl={3}
                   py={1}
-                  sx={{ gap: 1, borderLeft: borders.divider }}
-                  >
-                    <Text fontSize={0}>{t('View data from')}</Text>
-                  </Flex>
+                  pl={[0, 0, 3]}
+                  sx={{ borderLeft: ['none', null, borders.divider] }}
+                >
+                  <Text fontSize={0}>{t('View data from')}</Text>
+                </Flex>
 
-                  <Box
-                    onClick={() => {
-                      if (!summaryPeriodPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Summary period filter open'), { clinicId: selectedClinicId });
-                    }}
+                <Box
+                  onClick={() => {
+                    if (!summaryPeriodPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Summary period filter open'), { clinicId: selectedClinicId });
+                  }}
+                >
+                  <Button
+                    variant="filter"
+                    id="summary-period-filter-trigger"
+                    selected={!!activeFilters.lastUploadDate}
+                    {...bindTrigger(summaryPeriodPopupFilterState)}
+                    icon={KeyboardArrowDownRoundedIcon}
+                    iconLabel="Filter by summary period duration"
+                    fontSize={0}
+                    lineHeight={1.3}
                   >
-                    <Button
-                      variant="filter"
-                      id="summary-period-filter-trigger"
-                      selected={!!activeFilters.lastUploadDate}
-                      {...bindTrigger(summaryPeriodPopupFilterState)}
-                      icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by summary period duration"
+                    {find(summaryPeriodOptions, { value: summaryPeriod }).label}
+                  </Button>
+                </Box>
+
+                <Popover
+                  minWidth="11em"
+                  closeIcon
+                  {...bindPopover(summaryPeriodPopupFilterState)}
+                  onClickCloseIcon={() => {
+                    trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
+                  }}
+                >
+                  <DialogContent px={2} py={3} dividers>
+                    <RadioGroup
+                      id="summary-period-filters"
+                      name="summary-period-filters"
+                      options={summaryPeriodOptions}
+                      variant="vertical"
                       fontSize={0}
-                      lineHeight={1.3}
+                      value={pendingSummaryPeriod || summaryPeriod}
+                      onChange={event => setPendingSummaryPeriod(event.target.value)}
+                    />
+                  </DialogContent>
+
+                  <DialogActions justifyContent="space-between" p={1}>
+                    <Button
+                      id="cancel-summary-period-filter"
+                      fontSize={1}
+                      variant="textSecondary"
+                      onClick={() => {
+                        trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
+                        setPendingSummaryPeriod(summaryPeriod);
+                        summaryPeriodPopupFilterState.close();
+                      }}
                     >
-                      {find(summaryPeriodOptions, { value: summaryPeriod }).label}
+                      {t('Cancel')}
                     </Button>
-                  </Box>
 
-                  <Popover
-                    minWidth="11em"
-                    closeIcon
-                    {...bindPopover(summaryPeriodPopupFilterState)}
-                    onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
-                    }}
-                  >
-                    <DialogContent px={2} py={3} dividers>
-                      <RadioGroup
-                        id="summary-period-filters"
-                        name="summary-period-filters"
-                        options={summaryPeriodOptions}
-                        variant="vertical"
-                        fontSize={0}
-                        value={pendingSummaryPeriod || summaryPeriod}
-                        onChange={event => setPendingSummaryPeriod(event.target.value)}
-                      />
-                    </DialogContent>
+                    <Button
+                      id="apply-summary-period-filter"
+                      fontSize={1}
+                      variant="textPrimary"
+                      disabled={pendingSummaryPeriod === summaryPeriod}
+                      onClick={() => {
+                        const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
 
-                    <DialogActions justifyContent="space-between" p={1}>
-                      <Button
-                        id="cancel-summary-period-filter"
-                        fontSize={1}
-                        variant="textSecondary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
-                          setPendingSummaryPeriod(summaryPeriod);
-                          summaryPeriodPopupFilterState.close();
-                        }}
-                      >
-                        {t('Cancel')}
-                      </Button>
+                        trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
+                          clinicId: selectedClinicId,
+                          dateRange,
+                        });
 
-                      <Button
-                        id="apply-summary-period-filter"
-                        fontSize={1}
-                        variant="textPrimary"
-                        disabled={pendingSummaryPeriod === summaryPeriod}
-                        onClick={() => {
-                          const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
+                        setLoading(true);
+                        setSummaryPeriod(pendingSummaryPeriod);
+                        summaryPeriodPopupFilterState.close();
+                      }}
+                    >
+                      {t('Apply')}
+                    </Button>
+                  </DialogActions>
+                </Popover>
+              </Flex>
+            )}
 
-                          trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
-                            clinicId: selectedClinicId,
-                            dateRange,
-                          });
-
-                          setLoading(true);
-                          setSummaryPeriod(pendingSummaryPeriod);
-                          summaryPeriodPopupFilterState.close();
-                        }}
-                      >
-                        {t('Apply')}
-                      </Button>
-                    </DialogActions>
-                  </Popover>
-                </>
-              )}
-            </Flex>
-
+            {/* Info/Visibility Icons */}
             <Flex
               alignItems="center"
               justifyContent="flex-end"
+              flexGrow={1}
+              flexShrink={0}
+              sx={{ gap: 2 }}
             >
               {showSummaryData && showNames && (
                 <>
@@ -679,7 +715,6 @@ export const ClinicPatients = (props) => {
                     popoverContent={(
                       <Body1 p={3} id="last-refresh-time-ago" fontSize={1}>{timeAgoMessage}</Body1>
                     )}
-                    ml={2}
                     popoverProps={{
                       anchorOrigin: {
                         vertical: 'bottom',
@@ -703,7 +738,6 @@ export const ClinicPatients = (props) => {
                       iconFontSize: '18px',
                     }}
                     popoverContent={renderInfoPopover()}
-                    ml={2}
                     popoverProps={{
                       anchorOrigin: {
                         vertical: 'bottom',
@@ -724,7 +758,6 @@ export const ClinicPatients = (props) => {
                 id="patients-view-toggle"
                 variant="default"
                 color="grays.4"
-                ml={2}
                 icon={VisibilityIcon}
                 label={t('Toggle visibility')}
                 onClick={handleToggleShowNames}
@@ -732,6 +765,7 @@ export const ClinicPatients = (props) => {
             </Flex>
           </Flex>
         </Flex>
+      </Flex>
       </>
     );
   };
@@ -922,7 +956,7 @@ export const ClinicPatients = (props) => {
             variant="primary"
             processing={sendingPatientUploadReminder.inProgress}
             onClick={() => {
-              handleSendUploadReminderConfirm(selectedPatient);
+              handleSendUploadReminderConfirm();
             }}
           >
             {t('Send ')}
@@ -958,7 +992,7 @@ export const ClinicPatients = (props) => {
         />
 
         <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
-          <Flex alignItems="center" mb={3} fontSize={1}>
+          <Flex alignItems="center" mb={3} fontSize={1} fontWeight="medium">
             <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
               {t('View Patients that spend:')}
             </Text>
@@ -966,6 +1000,7 @@ export const ClinicPatients = (props) => {
 
           {map(timeInRangeFilterOptions, ({ value, rangeName, tag, threshold, prefix }) => {
             const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels()[rangeName];
+
             return (
               <Flex
                 id={`time-in-range-filter-${rangeName}`}
@@ -981,39 +1016,39 @@ export const ClinicPatients = (props) => {
                   key={value}
                   checked={includes([...pendingFilters.timeInRange], value)}
                   onChange={event => {
-                  setPendingFilters(event.target.checked
-                    ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
-                    : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
+                    setPendingFilters(event.target.checked
+                      ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
+                      : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
                     );
                   }}
                 />
 
-                <Box>
-                  <Flex as="label" htmlFor={`range-${value}-filter`} alignItems="center">
-                    <Text fontSize={1} mr={2}>
-                      {prefix}{' '}
-                      <Text as="span" fontSize={2} fontWeight="bold">
-                        {threshold}
-                      </Text>
-                      % {t('Time')} {t(bgPrefix)}{' '}
-                      <Text as="span" fontSize={2} fontWeight="bold">
-                        {glucoseTargetValue}
-                      </Text>{' '}
-                      {suffix}
+              <Box>
+                <Flex as="label" htmlFor={`range-${value}-filter`} alignItems="center">
+                  <Text fontSize={1} mr={2}>
+                    {prefix}{' '}
+                    <Text as="span" fontSize={2} fontWeight="bold">
+                      {threshold}
                     </Text>
-                    <Pill
-                      label={tag}
-                      fontSize="12px"
-                      fontWeight="normal"
-                      py="2px"
-                      sx={{ borderRadius: radii.input, textTransform: 'none' }}
-                      colorPalette={[`bg.${rangeName}`, 'white']}
-                      text={tag}
-                    />
-                  </Flex>
-                </Box>
-              </Flex>
-            )})}
+                    % {t('Time')} {t(bgPrefix)}{' '}
+                    <Text as="span" fontSize={2} fontWeight="bold">
+                      {glucoseTargetValue}
+                    </Text>{' '}
+                    {suffix}
+                  </Text>
+                  <Pill
+                    label={tag}
+                    fontSize="12px"
+                    fontWeight="normal"
+                    py="2px"
+                    sx={{ borderRadius: radii.input, textTransform: 'none' }}
+                    colorPalette={[`bg.${rangeName}`, 'white']}
+                    text={tag}
+                  />
+                </Flex>
+              </Box>
+            </Flex>
+          )})}
 
           <Button
             variant="textSecondary"
@@ -1026,7 +1061,6 @@ export const ClinicPatients = (props) => {
           >
             {t('Unselect all')}
           </Button>
-
         </DialogContent>
 
         <DialogActions justifyContent="space-between" p={2}>
@@ -1198,15 +1232,15 @@ export const ClinicPatients = (props) => {
 
   const renderPatient = patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
-      <Text fontWeight="medium">{patient.fullName}</Text>
-      {patient.email && <Text fontSize=".85em">{patient.email}</Text>}
+      <Text fontSize={[1, null, 0]} fontWeight="medium">{patient.fullName}</Text>
+      {patient.email && <Text fontSize={[0, null, '10px']}>{patient.email}</Text>}
     </Box>
   );
 
   const renderPatientSecondaryInfo = patient => (
-    <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} fontSize="10px" sx={{ cursor: 'pointer' }}>
-      <Text>{t('DOB:')} {patient.birthDate}</Text>
-      {patient.mrn && <Text>{t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
+    <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} fontSize={[0, null, '10px']} sx={{ cursor: 'pointer' }}>
+      <Text sx={{ whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>
+      {patient.mrn && <Text sx={{ whiteSpace: 'nowrap' }}>{t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
     </Box>
   );
 
@@ -1280,7 +1314,7 @@ export const ClinicPatients = (props) => {
         {(summaryPeriod === '1d' && cgmUsePercent >= minCgmePercent) || (cgmHours >= minCgmHours)
           ? <BgRangeSummary striped={cgmUsePercent < minCgmePercent} data={data} targetRange={targetRange} bgUnits={clinicBgUnits} />
           : (
-            <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
+            <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width={['155px', '200px']} height="20px">
             <Text fontSize="10px" fontWeight="medium" color="grays.4">{insufficientDataText}</Text>
             </Flex>
           )
@@ -1344,9 +1378,9 @@ export const ClinicPatients = (props) => {
   );
 
   const renderLinkedField = (field, patient) => (
-    <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    patient[field] ? <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient[field]}</Text>
-    </Box>
+    </Box> : null
   );
 
   const renderMore = patient => {
@@ -1404,6 +1438,7 @@ export const ClinicPatients = (props) => {
         align: 'left',
         sortable: true,
         render: renderPatient,
+        className: showSummaryData ? 'no-margin' : null,
       },
       {
         title: t('Birthday'),
@@ -1417,12 +1452,14 @@ export const ClinicPatients = (props) => {
         field: 'mrn',
         align: 'left',
         render: renderLinkedField.bind(null, 'mrn'),
+        hideEmpty: true,
       },
       {
         title: '',
         field: 'more',
         render: renderMore,
         align: 'right',
+        className: 'action-menu',
       },
     ];
 

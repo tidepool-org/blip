@@ -120,7 +120,7 @@ const variants = {
   inputs: inputs({ borders, colors, fonts, radii, fontSizes, fontWeights, space }),
   link: linkVariants.default,
   links: linkVariants,
-  paginators: paginators({ colors, fonts, fontSizes }),
+  paginators: paginators({ colors, fonts, fontSizes, breakpoints }),
   steppers: steppers({ colors, fonts, fontWeights, fontSizes }),
   tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
   tables: tables({ borders, colors, fonts, fontSizes, shadows }),
