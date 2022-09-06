@@ -33,7 +33,8 @@ describe('Login', function () {
       trackMetric: sinon.stub(),
       working: false,
       fetchingInfo: {
-        inProgress: false
+        inProgress: false,
+        completed: true,
       },
       keycloakConfig: {}
     };
@@ -56,7 +57,7 @@ describe('Login', function () {
           working: {
             loggingIn: defaultWorkingState,
             confirmingSignup: defaultWorkingState,
-            fetchingInfo: defaultWorkingState,
+            fetchingInfo: {...defaultWorkingState, completed: true},
           },
           keycloakConfig: {
             url: 'someUrl',
@@ -70,7 +71,8 @@ describe('Login', function () {
       const keycloakMock = {
         login: sinon.stub(),
       };
-      let RewiredLogin, wrapper;
+      let RewiredLogin;
+      let wrapper;
 
       before(() => {
         Login.__Rewire__('keycloak', keycloakMock);

@@ -70,6 +70,10 @@ export let Login = translate()(class extends React.Component {
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
     var loggingIn = this.props.working;
+    var isLoading =
+      fetchingInfo.inProgress ||
+      !(fetchingInfo.completed || !!fetchingInfo.notification) ||
+      (!!keycloakConfig.url && !keycloakConfig.initialized);
     var login = keycloakConfig.url && keycloakConfig.initialized ? (
       <Button onClick={() => keycloak.login()} disabled={loggingIn}>
         {loggingIn ? t('Logging in...') : t('Login')}
@@ -80,17 +84,18 @@ export let Login = translate()(class extends React.Component {
 
     return (
       <div className="login">
-        <Loader show={fetchingInfo.inProgress || (!!keycloakConfig.url && !keycloakConfig.initialized)} overlay={true} />
+        <Loader show={isLoading} overlay={true} />
         <LoginNav
           page="login"
           hideLinks={Boolean(this.props.seedEmail)}
           trackMetric={this.props.trackMetric}
-          keycloakConfig={this.props.keycloakConfig} />
+          keycloakConfig={this.props.keycloakConfig}
+        />
         <LoginLogo />
         {inviteIntro}
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
-            {login}
+            {isLoading ? null : login}
           </div>
         </div>
       </div>
