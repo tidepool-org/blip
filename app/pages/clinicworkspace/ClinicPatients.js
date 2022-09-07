@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -11,6 +11,7 @@ import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -27,8 +28,13 @@ import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import sundial from 'sundial';
+import ScrollToTop from 'react-scroll-to-top';
+import styled from 'styled-components';
+import { colors } from '../../../app/themes/baseTheme';
+import { scroller } from 'react-scroll';
 
 import {
   bindPopover,
@@ -67,7 +73,7 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
-import { useIsFirstRender, useLocalStorage } from '../../core/hooks';
+import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 import { dateFormat, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
@@ -76,6 +82,196 @@ import { borders, radii } from '../../themes/baseTheme';
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 const { getLocalizedCeiling } = vizUtils.datetime;
+
+const StyledScrollToTop = styled(ScrollToTop)`
+  background-color: ${colors.purpleMedium};
+  right: 20px;
+  bottom: 70px;
+  border-radius: 20px;
+  padding-top: 4px;
+`;
+
+const defaultFilterState = {
+  lastUploadDate: null,
+  timeInRange: [],
+  meetsGlycemicTargets: true,
+};
+
+const defaultPatientFetchOptions = {
+  search: '',
+  offset: 0,
+  sort: '+fullName',
+};
+
+const glycemicTargetThresholds = {
+  timeInVeryLowPercent: { value: 1, comparator: '>' },
+  timeInLowPercent: { value: 4, comparator: '>' },
+  timeInTargetPercent: { value: 70, comparator: '<' },
+  timeInHighPercent: { value: 25, comparator: '>' },
+  timeInVeryHighPercent: { value: 5, comparator: '>' },
+};
+
+const BgSummaryCell = ({ summary, clinicBgUnits, summaryPeriod, t }) => {
+  const targetRange = useMemo(
+    () =>
+      map(
+        [summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold],
+        (value) =>
+          clinicBgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value
+      ),
+    [clinicBgUnits, summary?.highGlucoseThreshold, summary?.lowGlucoseThreshold]
+  );
+
+  const cgmHours =
+    (summary?.periods?.[summaryPeriod]?.timeCGMUseMinutes || 0) / 60;
+
+  const data = useMemo(
+    () => ({
+      veryLow: summary?.periods?.[summaryPeriod]?.timeInVeryLowPercent,
+      low: summary?.periods?.[summaryPeriod]?.timeInLowPercent,
+      target: summary?.periods?.[summaryPeriod]?.timeInTargetPercent,
+      high: summary?.periods?.[summaryPeriod]?.timeInHighPercent,
+      veryHigh: summary?.periods?.[summaryPeriod]?.timeInVeryHighPercent,
+    }),
+    [summary?.periods, summaryPeriod]
+  );
+
+  return (
+    <Flex justifyContent="center">
+      {cgmHours >= 24 ? (
+        <BgRangeSummary
+          striped={summary?.periods?.[summaryPeriod]?.timeCGMUsePercent < 0.7}
+          data={data}
+          targetRange={targetRange}
+          bgUnits={clinicBgUnits}
+        />
+      ) : (
+        <Flex
+          alignItems="center"
+          justifyContent="center"
+          bg="lightestGrey"
+          width="200px"
+          height="20px"
+        >
+          <Text fontSize="10px" fontWeight="medium" color="grays.4">
+            {t('CGM Use <24 hours')}
+          </Text>
+        </Flex>
+      )}
+    </Flex>
+  );
+};
+
+const MoreMenu = ({
+  patient,
+  isClinicAdmin,
+  selectedClinicId,
+  showSummaryData,
+  t,
+  trackMetric,
+  setSelectedPatient,
+  setShowEditPatientDialog,
+  prefixPopHealthMetric,
+  setShowSendUploadReminderDialog,
+  setShowDeleteDialog,
+}) => {
+  const handleEditPatient = useCallback(
+    (patient) => {
+      trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId });
+      setSelectedPatient(patient);
+      setShowEditPatientDialog(true);
+    },
+    [
+      selectedClinicId,
+      setSelectedPatient,
+      setShowEditPatientDialog,
+      trackMetric,
+    ]
+  );
+
+  const handleSendUploadReminder = useCallback(
+    (patient) => {
+      trackMetric(prefixPopHealthMetric('Send upload reminder'), {
+        clinicId: selectedClinicId,
+      });
+      setSelectedPatient(patient);
+      setShowSendUploadReminderDialog(true);
+    },
+    [
+      prefixPopHealthMetric,
+      selectedClinicId,
+      setSelectedPatient,
+      setShowSendUploadReminderDialog,
+      trackMetric,
+    ]
+  );
+
+  const handleRemove = useCallback(
+    (patient) => {
+      trackMetric('Clinic - Remove patient', { clinicId: selectedClinicId });
+      setSelectedPatient(patient);
+      setShowDeleteDialog(true);
+    },
+    [selectedClinicId, setSelectedPatient, setShowDeleteDialog, trackMetric]
+  );
+
+  const items = useMemo(() => {
+    let arr = [];
+    arr.push({
+      icon: EditIcon,
+      iconLabel: t('Edit Patient Information'),
+      iconPosition: 'left',
+      id: `edit-${patient.id}`,
+      variant: 'actionListItem',
+      onClick: (_popupState) => {
+        _popupState.close();
+        handleEditPatient(patient);
+      },
+      text: t('Edit Patient Information'),
+    });
+
+    if (showSummaryData && patient.email && !patient.permissions?.custodian) {
+      arr.push({
+        iconSrc: SendEmailIcon,
+        iconLabel: t('Send Upload Reminder'),
+        iconPosition: 'left',
+        id: `send-upload-reminder-${patient.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleSendUploadReminder(patient);
+        },
+        text: t('Send Upload Reminder'),
+      });
+    }
+
+    if (isClinicAdmin) {
+      arr.push({
+        icon: DeleteIcon,
+        iconLabel: t('Remove Patient'),
+        iconPosition: 'left',
+        id: `delete-${patient.id}`,
+        variant: 'actionListItemDanger',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleRemove(patient);
+        },
+        text: t('Remove Patient'),
+      });
+    }
+    return arr;
+  }, [
+    handleEditPatient,
+    handleRemove,
+    handleSendUploadReminder,
+    isClinicAdmin,
+    patient,
+    showSummaryData,
+    t,
+  ]);
+
+  return <PopoverMenu id={`action-menu-${patient.id}`} items={items} />;
+};
 
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric, searchDebounceMs } = props;
@@ -104,49 +300,30 @@ export const ClinicPatients = (props) => {
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const previousClinic = usePrevious(clinic);
+  const previousFetchOptions = usePrevious(patientFetchOptions);
   const summaryPeriod = '14d';
 
-  const defaultFilterState = {
-    lastUploadDate: null,
-    timeInRange: [],
-    meetsGlycemicTargets: true,
-  };
-
-  const defaultPatientFetchOptions = {
-    search: '',
-    offset: 0,
-    sort: '+fullName',
-  };
-
-  const bgPrefs = () => ({
-    bgUnits: clinicBgUnits,
-    bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
-  });
-
-  const bgLabels = () => generateBgRangeLabels(bgPrefs(), { condensed: true });
+  const bgLabels = useMemo(
+    () =>
+      generateBgRangeLabels(
+        {
+          bgUnits: clinicBgUnits,
+          bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
+        },
+        { segmented: true }
+      ),
+    [clinicBgUnits]
+  );
   const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState);
   const [pendingFilters, setPendingFilters] = useState(activeFilters);
+  const previousActiveFilters = usePrevious(activeFilters);
   const lastUploadDateFilterOptions = [
     { value: 1, label: t('Today') },
     { value: 2, label: t('Last 2 days') },
     { value: 14, label: t('Last 14 days') },
     { value: 30, label: t('Last 30 days') },
-  ];
-
-  const glycemicTargetThresholds = {
-    timeInVeryLowPercent: { value: 1, comparator: '<' },
-    timeInLowPercent: { value: 4, comparator: '<' },
-    timeInTargetPercent: { value: 70, comparator: '>' },
-    timeInHighPercent: { value: 25, comparator: '<' },
-    timeInVeryHighPercent: { value: 5, comparator: '<' },
-  }
-
-  const timeInRangeFilterOptions = [
-    { value: 'timeInVeryLowPercent', label: t('{{comparator}}{{value}}% Time below Range', glycemicTargetThresholds.timeInVeryLowPercent), tag: t('Severe Hypoglycemia'), rangeName: 'veryLow' },
-    { value: 'timeInLowPercent', label: t('{{comparator}}{{value}}% Time below Range', glycemicTargetThresholds.timeInLowPercent), tag: t('Low'), rangeName: 'low' },
-    { value: 'timeInTargetPercent', label: t('{{comparator}}{{value}}% Time in Range', glycemicTargetThresholds.timeInTargetPercent), tag: t('Normal'), rangeName: 'target' },
-    { value: 'timeInHighPercent', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.timeInHighPercent), tag: t('High'), rangeName: 'high' },
-    { value: 'timeInVeryHighPercent', label: t('{{comparator}}{{value}}% Time above Range', glycemicTargetThresholds.timeInVeryHighPercent), tag: t('Severe Hyperglycemia'), rangeName: 'veryHigh' },
   ];
 
   const lastUploadDatePopupFilterState = usePopupState({
@@ -171,15 +348,23 @@ export const ClinicPatients = (props) => {
     sendingPatientUploadReminder,
   } = useSelector((state) => state.blip.working);
 
-  const prefixPopHealthMetric = metric => `Clinic - Population Health - ${metric}`;
+  // TODO: remove this when upgraded to React 18
+  // force another render when fetching patients state changes
+  const [forceUpdate, setForceUpdate] = useState();
+  if(!isEqual(forceUpdate, fetchingPatientsForClinic)){
+    setForceUpdate(fetchingPatientsForClinic);
+  }
 
-  function handleAsyncResult(workingState, successMessage) {
+  const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
+
+  const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
+
+  const handleAsyncResult = useCallback((workingState, successMessage) => {
     const { inProgress, completed, notification } = workingState;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
         handleCloseOverlays();
-
         setToast({
           message: successMessage,
           variant: 'success',
@@ -195,36 +380,35 @@ export const ClinicPatients = (props) => {
 
       setLoading(false);
     }
-  }
+  }, [isFirstRender, setToast]);
 
   useEffect(() => {
     handleAsyncResult(updatingClinicPatient, t('You have successfully updated a patient.'));
-  }, [updatingClinicPatient]);
+  }, [handleAsyncResult, t, updatingClinicPatient]);
 
   useEffect(() => {
     handleAsyncResult(creatingClinicCustodialAccount, t('You have successfully added a new patient.'));
-  }, [creatingClinicCustodialAccount]);
+  }, [creatingClinicCustodialAccount, handleAsyncResult, t]);
 
   useEffect(() => {
     handleAsyncResult(deletingPatientFromClinic, t('{{name}} has been removed from the clinic.', {
       name: get(selectedPatient, 'fullName', t('This patient')),
     }));
-  }, [deletingPatientFromClinic]);
+  }, [deletingPatientFromClinic, handleAsyncResult, selectedPatient, t]);
 
   useEffect(() => {
     handleAsyncResult(sendingPatientUploadReminder, t('Uploader reminder email for {{name}} has been sent.', {
       name: get(selectedPatient, 'fullName', t('this patient')),
     }));
-  }, [sendingPatientUploadReminder]);
-
-  useEffect(() => {
-    setLoading(fetchingPatientsForClinic.inProgress);
-  }, [fetchingPatientsForClinic.inProgress]);
+  }, [handleAsyncResult, selectedPatient, sendingPatientUploadReminder, t]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = fetchingPatientsForClinic;
 
-    if (!isFirstRender && !inProgress) {
+    if (
+      !(isFirstRender || inProgress) &&
+      previousFetchingPatientsForClinic?.inProgress
+    ) {
       if (completed === false) {
         setToast({
           message: get(notification, 'message'),
@@ -234,10 +418,29 @@ export const ClinicPatients = (props) => {
 
       // For subsequent patient fetches, such as When filtering or searching, we can assume that
       // the user would like to see the results
-      if (!showNames && patientFetchCount > 0) setShowNames(true);
-      setPatientFetchCount(patientFetchCount + 1);
+      if (!showNames && patientFetchCount > 0) {
+        setShowNames(true);
+      }
+      setPatientFetchCount(patientFetchCount+1);
+      let newPage = patientFetchOptions.offset / patientFetchOptions.limit + 1;
+      if (newPage !== currentPage) {
+        scroller.scrollTo('workspaceTabsTop');
+        setCurrentPage(newPage);
+      }
     }
-  }, [fetchingPatientsForClinic]);
+
+    setLoading(inProgress);
+  }, [
+    currentPage,
+    fetchingPatientsForClinic,
+    isFirstRender,
+    patientFetchCount,
+    patientFetchOptions.limit,
+    patientFetchOptions.offset,
+    previousFetchingPatientsForClinic?.inProgress,
+    setToast,
+    showNames,
+  ]);
 
   useEffect(() => {
     const patientFetchMoment = moment.utc(clinic?.lastPatientFetchTime);
@@ -254,70 +457,104 @@ export const ClinicPatients = (props) => {
   }, [clinic?.lastPatientFetchTime]);
 
   useEffect(() => {
-    setShowSummaryData(clinic?.tier >= 'tier0200');
-    setPatientFetchOptions({
-      ...defaultPatientFetchOptions,
-      limit: clinic?.tier >= 'tier0200' ? 10 : 8,
-    });
-  }, [clinic?.id]);
-
-  useEffect(() => {
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
-  }, [clinic?.preferredBgUnits]);
+  }, [clinic]);
 
   // Fetchers
   useEffect(() => {
     if (
-      loggedInUserId
-      && clinic?.id
-      && !fetchingPatientsForClinic.inProgress
-      && !isEmpty(patientFetchOptions)
+      loggedInUserId &&
+      clinic?.id &&
+      !fetchingPatientsForClinic.inProgress &&
+      !isEmpty(patientFetchOptions) &&
+      !(patientFetchOptions === previousFetchOptions)
     ) {
       const fetchOptions = { ...patientFetchOptions };
-      if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
-      dispatch(actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions));
+      if (isEmpty(fetchOptions.search)) {
+        delete fetchOptions.search;
+      }
+      dispatch(
+        actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions)
+      );
     }
-  }, [loggedInUserId, patientFetchOptions]);
+  }, [
+    api,
+    clinic,
+    dispatch,
+    fetchingPatientsForClinic,
+    loggedInUserId,
+    patientFetchOptions,
+    previousClinic?.id,
+    previousFetchOptions
+  ]);
 
   useEffect(() => {
-    const filterOptions = {
-      offset: 0,
-      sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
-      limit: clinic?.tier >= 'tier0200' ? 10 : 8,
-    }
-
-    if (activeFilters.lastUploadDate) {
-      filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-      filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
-    }
-
-    forEach(activeFilters.timeInRange, filter => {
-      let { comparator, value } = glycemicTargetThresholds[filter];
-      value = value / 100;
-
-      if (!activeFilters.meetsGlycemicTargets) {
-        // Handle 'does NOT meet' criteria case
-        comparator = comparator === '<' ? '>=' : '<=';
+    if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters) && !isFirstRender)){
+      const filterOptions = {
+        offset: 0,
+        sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
+        limit: 50,
       }
 
-      filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
-    });
+      const isPremiumTier = clinic?.tier >= 'tier0200';
 
-    const newPatientFetchOptions = {
-      ...omit(patientFetchOptions, [
-        'summary.lastUploadDateFrom',
-        'summary.lastUploadDateTo',
-        `summary.periods.${summaryPeriod}.timeInVeryLowPercent`,
-        `summary.periods.${summaryPeriod}.timeInLowPercent`,
-        `summary.periods.${summaryPeriod}.timeInTargetPercent`,
-        `summary.periods.${summaryPeriod}.timeInHighPercent`,
-        `summary.periods.${summaryPeriod}.timeInVeryHighPercent`,
-      ]),
-      ...filterOptions,
-    };
+      if (isPremiumTier) {
+        if (activeFilters.lastUploadDate) {
+          filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+          filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
+        }
 
-    setPatientFetchOptions(newPatientFetchOptions);
-  }, [activeFilters, clinic?.id]);
+        forEach(activeFilters.timeInRange, filter => {
+          let { comparator, value } = glycemicTargetThresholds[filter];
+          value = value / 100;
+
+          if (activeFilters.meetsGlycemicTargets) {
+            comparator = comparator === '<' ? '<=' : '>=';
+          }
+
+          filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
+        });
+      }
+
+      const newPatientFetchOptions = {
+        ...omit(patientFetchOptions, [
+          'summary.lastUploadDateFrom',
+          'summary.lastUploadDateTo',
+          `summary.periods.${summaryPeriod}.timeInVeryLowPercent`,
+          `summary.periods.${summaryPeriod}.timeInLowPercent`,
+          `summary.periods.${summaryPeriod}.timeInTargetPercent`,
+          `summary.periods.${summaryPeriod}.timeInHighPercent`,
+          `summary.periods.${summaryPeriod}.timeInVeryHighPercent`,
+        ]),
+        ...filterOptions,
+      };
+
+      // set options pulled from localStorage
+      if (isFirstRender) {
+        setPatientFetchOptions(newPatientFetchOptions);
+        return;
+      }
+
+      if (isEqual(clinic?.id, previousClinic?.id)) {
+        if (!isEqual(patientFetchOptions, newPatientFetchOptions)) {
+          setPatientFetchOptions(newPatientFetchOptions);
+        }
+      } else {
+        setShowSummaryData(isPremiumTier);
+        setPatientFetchOptions(newPatientFetchOptions);
+        setCurrentPage(1);
+      }
+    }
+  }, [
+    activeFilters,
+    clinic?.id,
+    clinic?.tier,
+    isFirstRender,
+    patientFetchOptions,
+    previousActiveFilters,
+    previousClinic?.id,
+    timePrefs
+  ]);
 
   function formatDecimal(val, precision) {
     if (precision === null || precision === undefined) {
@@ -336,6 +573,141 @@ export const ClinicPatients = (props) => {
     </Box>
   );
 
+  const handleRefreshPatients = useCallback(() => {
+    trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
+    let fetchOptions = { ...patientFetchOptions };
+    if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
+    dispatch(actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions));
+  }, [api, clinic?.id, dispatch, patientFetchOptions, prefixPopHealthMetric, selectedClinicId, trackMetric]);
+
+  const handleToggleShowNames = useCallback(() => {
+    const metric = showSummaryData
+      ? prefixPopHealthMetric(`${showNames ? 'Hide' : 'Show'} all icon`)
+      : `Clicked ${showNames ? 'Hide' : 'Show'} All`;
+
+    trackMetric(metric, { clinicId: selectedClinicId });
+    setShowNames(!showNames);
+  }, [prefixPopHealthMetric, selectedClinicId, showNames, showSummaryData, trackMetric]);
+
+  const handleClickPatient = useCallback(patient => {
+    return () => {
+      trackMetric('Selected PwD');
+      dispatch(push(`/patients/${patient.id}/data`));
+    }
+  }, [dispatch, trackMetric]);
+
+  function handleAddPatient() {
+    trackMetric('Clinic - Add patient', { clinicId: selectedClinicId });
+    setShowAddPatientDialog(true);
+  }
+
+  const handleAddPatientConfirm = useCallback(() => {
+    trackMetric('Clinic - Add patient confirmed', { clinicId: selectedClinicId });
+    patientFormContext?.handleSubmit();
+  }, [patientFormContext, selectedClinicId, trackMetric])
+
+  const handleEditPatientConfirm = useCallback(() => {
+    trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
+    patientFormContext?.handleSubmit();
+  }, [patientFormContext, selectedClinicId, trackMetric])
+
+  const handleSendUploadReminderConfirm = useCallback(() => {
+    trackMetric(prefixPopHealthMetric('Send upload reminder confirmed'), { clinicId: selectedClinicId });
+    dispatch(actions.async.sendPatientUploadReminder(api, selectedClinicId, selectedPatient?.id));
+  }, [api, dispatch, prefixPopHealthMetric, selectedClinicId, selectedPatient?.id, trackMetric])
+
+  function handlePatientFormChange(formikContext) {
+    setPatientFormContext({...formikContext});
+  }
+
+  function handleSearchChange(event) {
+    setSearch(event.target.value);
+    setLoading(true);
+    debounceSearch(event.target.value);
+  }
+
+  const handleSortChange = useCallback((newOrderBy) => {
+    const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
+    const currentOrder = sort[0];
+    const currentOrderBy = sort.substring(1);
+    const newOrder = newOrderBy === currentOrderBy && currentOrder === '+' ? '-' : '+';
+    setPatientFetchOptions(fetchOptions => ({
+      ...fetchOptions,
+      offset: 0,
+      sort: `${newOrder}${newOrderBy}`,
+    }));
+
+    if (showSummaryData) {
+      const order = newOrder === '+' ? 'ascending' : 'descending';
+
+      const sortColumnLabels = {
+        fullName: 'Patient details',
+        'summary.lastUploadDate': 'Last upload',
+        [`summary.periods.${summaryPeriod}.timeCGMUsePercent`]: 'CGM use',
+        [`summary.periods.${summaryPeriod}.glucoseManagementIndicator`]: 'GMI',
+      };
+
+      trackMetric(prefixPopHealthMetric(`${sortColumnLabels[newOrderBy]} sort ${order}`), { clinicId: selectedClinicId });
+    }
+  }, [patientFetchOptions.sort, prefixPopHealthMetric, selectedClinicId, showSummaryData, trackMetric]);
+
+  function handleClearSearch() {
+    setSearch('');
+    setLoading(true);
+    debounceSearch('');
+  }
+
+  const handlePageChange = useCallback((event, page) => {
+    setPatientFetchOptions({
+      ...patientFetchOptions,
+      offset: (page - 1) * patientFetchOptions.limit,
+    });
+  }, [patientFetchOptions]);
+
+  function handleResetFilters() {
+    trackMetric(prefixPopHealthMetric('Clear all filters'), { clinicId: selectedClinicId });
+    setActiveFilters(defaultFilterState);
+    setPendingFilters(defaultFilterState);
+  }
+
+  function handleOpenTimeInRangeFilter() {
+    trackMetric(prefixPopHealthMetric('Time in range filter open'), { clinicId: selectedClinicId });
+    setShowTimeInRangeDialog(true);
+  }
+
+  const handleFilterTimeInRange = useCallback(() => {
+    trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
+      clinicId: selectedClinicId,
+      meetsCriteria: pendingFilters.meetsGlycemicTargets,
+      severeHypo: includes(pendingFilters.timeInRange, 'timeInVeryLowPercent'),
+      hypo: includes(pendingFilters.timeInRange, 'timeInLowPercent'),
+      inRange: includes(pendingFilters.timeInRange, 'timeInTargetPercent'),
+      hyper: includes(pendingFilters.timeInRange, 'timeInHighPercent'),
+      severeHyper: includes(pendingFilters.timeInRange, 'timeInVeryHighPercent'),
+    });
+
+    setActiveFilters({
+      ...activeFilters,
+      meetsGlycemicTargets: pendingFilters.meetsGlycemicTargets,
+      timeInRange: pendingFilters.timeInRange,
+    });
+
+    setShowTimeInRangeDialog(false);
+  }, [
+    activeFilters,
+    pendingFilters.meetsGlycemicTargets,
+    pendingFilters.timeInRange,
+    prefixPopHealthMetric,
+    selectedClinicId,
+    setActiveFilters,
+    trackMetric
+  ]);
+
+  const handleRemovePatient = useCallback(() => {
+    trackMetric('Clinic - Remove patient confirmed', { clinicId: selectedClinicId });
+    dispatch(actions.async.deletePatientFromClinic(api, selectedClinicId, selectedPatient?.id));
+  }, [api, dispatch, selectedClinicId, selectedPatient?.id, trackMetric]);
+
   const renderHeader = () => {
     const activeFiltersCount = without([activeFilters.lastUploadDate, activeFilters.timeInRange.length], null, 0).length;
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
@@ -344,7 +716,6 @@ export const ClinicPatients = (props) => {
     let timeAgo = hoursAgo === 0 ? t('less than an') : t('over {{hoursAgo}}', { hoursAgo });
     if (hoursAgo >= 24) timeAgo = t('over 24');
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
-
     return (
       <>
         <Box sx={{ position: 'absolute', top: '8px', right: 4 }}>
@@ -618,23 +989,7 @@ export const ClinicPatients = (props) => {
     );
   };
 
-  function handleRefreshPatients() {
-    trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
-    let fetchOptions = { ...patientFetchOptions };
-    if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
-    dispatch(actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions));
-  }
-
-  function handleToggleShowNames() {
-    const metric = showSummaryData
-      ? prefixPopHealthMetric(`${showNames ? 'Hide' : 'Show'} all icon`)
-      : `Clicked ${showNames ? 'Hide' : 'Show'} All`;
-
-    trackMetric(metric, { clinicId: selectedClinicId });
-    setShowNames(!showNames);
-  }
-
-  const renderPeopleInstructions = () => {
+  const renderPeopleInstructions = useCallback(() => {
     return (
       <Text fontSize={1} py={4} mb={4} textAlign="center" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
         <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
@@ -642,9 +997,9 @@ export const ClinicPatients = (props) => {
         </Trans>
       </Text>
     );
-  };
+  }, [handleToggleShowNames]);
 
-  const renderRemoveDialog = () => {
+  const renderRemoveDialog = useCallback(() => {
     const fullName = selectedPatient?.fullName;
 
     return (
@@ -683,9 +1038,9 @@ export const ClinicPatients = (props) => {
         </DialogActions>
       </Dialog>
     );
-  };
+  }, [handleRemovePatient, selectedPatient?.fullName, showDeleteDialog, t]);
 
-  const renderAddPatientDialog = () => {
+  const renderAddPatientDialog = useCallback(() => {
     return (
       <Dialog
         id="addPatient"
@@ -717,9 +1072,17 @@ export const ClinicPatients = (props) => {
         </DialogActions>
       </Dialog>
     );
-  };
+  }, [
+    api,
+    creatingClinicCustodialAccount.inProgress,
+    handleAddPatientConfirm,
+    patientFormContext?.values,
+    showAddPatientDialog,
+    t,
+    trackMetric
+  ]);
 
-  const renderEditPatientDialog = () => {
+  const renderEditPatientDialog = useCallback(() => {
     return (
       <Dialog
         id="editPatient"
@@ -752,9 +1115,18 @@ export const ClinicPatients = (props) => {
         </DialogActions>
       </Dialog>
     );
-  };
+  }, [
+    api,
+    handleEditPatientConfirm,
+    patientFormContext?.values,
+    selectedPatient,
+    showEditPatientDialog,
+    t,
+    trackMetric,
+    updatingClinicPatient.inProgress
+  ]);
 
-  const renderSendUploadReminderDialog = () => {
+  const renderSendUploadReminderDialog = useCallback(() => {
     const formattedLastUploadReminderTime = selectedPatient?.lastUploadReminderTime && sundial.formatInTimezone(
       selectedPatient?.lastUploadReminderTime,
       timePrefs?.timezoneName || new Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -812,15 +1184,66 @@ export const ClinicPatients = (props) => {
         </DialogActions>
       </Dialog>
     );
-  };
+  }, [
+    handleSendUploadReminderConfirm,
+    prefixPopHealthMetric,
+    selectedClinicId,
+    selectedPatient,
+    sendingPatientUploadReminder.inProgress,
+    showSendUploadReminderDialog,
+    t,
+    timePrefs?.timezoneName,
+    trackMetric,
+  ]);
 
-  const renderTimeInRangeDialog = () => {
+  const renderTimeInRangeDialog = useCallback(() => {
+    const timeInRangeFilterOptions = [
+      {
+        value: 'timeInVeryLowPercent',
+        threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
+        prefix: t('Greater than'),
+        tag: t('Severe hypoglycemia'),
+        rangeName: 'veryLow',
+      },
+      {
+        value: 'timeInLowPercent',
+        threshold: glycemicTargetThresholds.timeInLowPercent.value,
+        prefix: t('Greater than'),
+        tag: t('Hypoglycemia'),
+        rangeName: 'low',
+      },
+      {
+        value: 'timeInTargetPercent',
+        threshold: glycemicTargetThresholds.timeInTargetPercent.value,
+        prefix: t('Less than'),
+        tag: t('Normal'),
+        rangeName: 'target',
+      },
+      {
+        value: 'timeInHighPercent',
+        threshold: glycemicTargetThresholds.timeInHighPercent.value,
+        prefix: t('Greater than'),
+        tag: t('Hyperglycemia'),
+        rangeName: 'high',
+      },
+      {
+        value: 'timeInVeryHighPercent',
+        threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
+        prefix: t('Greater than'),
+        tag: t('Severe hyperglycemia'),
+        rangeName: 'veryHigh',
+      },
+    ];
+
     return (
       <Dialog
         id="timeInRangeDialog"
         aria-label="Time in range filters"
         open={showTimeInRangeDialog}
-        onClose={handleCloseOverlays}
+        onClose={() => {
+          setPendingFilters(activeFilters);
+          handleCloseOverlays();
+        }}
         maxWidth='lg'
       >
         <DialogTitle
@@ -831,76 +1254,68 @@ export const ClinicPatients = (props) => {
           }}
           onClose={() => {
             trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
+            setPendingFilters(activeFilters);
             handleCloseOverlays();
           }}
         />
 
-        <DialogContent color="text.primary" pl={5} pr={6} pb={4}>
-          <Flex alignItems="center" mb={4} fontSize={1} fontWeight="medium">
-            <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>{t('View all patients that')}</Text>
-
-            <Button
-              id="meets-glycemic-targets-filter"
-              selected={!!pendingFilters.meetsGlycemicTargets}
-              variant={pendingFilters.meetsGlycemicTargets ? 'primary' : 'secondary'}
-              color={pendingFilters.meetsGlycemicTargets ? 'white' : 'grays.4'}
-              sx={{
-                borderColor: pendingFilters.meetsGlycemicTargets ? 'purpleMedium' : 'grays.1',
-                whiteSpace: 'nowrap',
-                borderRight: 0,
-                borderTopRightRadius: 0,
-                borderBottomRightRadius: 0,
-              }}
-              onClick={() => setPendingFilters({ ...pendingFilters, meetsGlycemicTargets: true })}
-            >
-              {t('meet')}
-            </Button>
-
-            <Button
-              id="not-meets-glycemic-targets-filter"
-              selected={!pendingFilters.meetsGlycemicTargets}
-              variant={!pendingFilters.meetsGlycemicTargets ? 'primary' : 'secondary'}
-              color={!pendingFilters.meetsGlycemicTargets ? 'white' : 'grays.4'}
-              sx={{
-                borderColor: !pendingFilters.meetsGlycemicTargets ? 'purpleMedium' : 'grays.1',
-                whiteSpace: 'nowrap',
-                borderLeft: 0,
-                borderTopLeftRadius: 0,
-                borderBottomLeftRadius: 0,
-              }}
-              onClick={() => setPendingFilters({ ...pendingFilters, meetsGlycemicTargets: false })}
-            >
-              {t('do NOT meet')}
-            </Button>
-
-            <Text ml={2} sx={{ whiteSpace: 'nowrap' }}>{t('the checked glycemic targets:')}</Text>
+        <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
+          <Flex alignItems="center" mb={3} fontSize={1}>
+            <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
+              {t('View Patients that spend:')}
+            </Text>
           </Flex>
 
-          {map(timeInRangeFilterOptions, ({ value, label, rangeName, tag }) => (
-            <Flex id={`time-in-range-filter-${rangeName}`} key={rangeName} mb={3} alignItems="center" sx={{ gap: 2 }}>
-              <Checkbox
-                id={`range-${value}-filter`}
-                name={`range-${value}-filter`}
-                key={value}
-                checked={includes([...pendingFilters.timeInRange], value)}
-                onChange={event => {
+          {map(timeInRangeFilterOptions, ({ value, rangeName, tag, threshold, prefix }) => {
+            const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
+            return (
+              <Flex
+                id={`time-in-range-filter-${rangeName}`}
+                key={rangeName}
+                mb={3}
+                ml={2}
+                alignItems="center"
+                sx={{ gap: 2 }}
+              >
+                <Checkbox
+                  id={`range-${value}-filter`}
+                  name={`range-${value}-filter`}
+                  key={value}
+                  checked={includes([...pendingFilters.timeInRange], value)}
+                  onChange={event => {
                   setPendingFilters(event.target.checked
                     ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
                     : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
-                  );
-                }}
-              />
+                    );
+                  }}
+                />
 
-              <Box fontWeight="medium">
-                <Flex alignItems="center">
-                  <Text fontSize={0} mr={2}>{label}</Text>
-                  <Pill label={`BG Range - ${tag}`} fontSize="10px" lineHeight="1" py="2px" sx={{ border: '1px solid', borderColor: 'grays.1', textTransform: 'none' }} colorPalette={['white', 'grays.4']} text={`${bgLabels()[rangeName]} ${clinicBgUnits}`} />
-                </Flex>
-
-                <Pill label={tag} fontSize="9px" py="2px" sx={{ borderRadius: radii.input, textTransform: 'none' }} colorPalette={[`bg.${rangeName}`, 'white']} text={tag} />
-              </Box>
-            </Flex>
-          ))}
+                <Box>
+                  <Flex as="label" htmlFor={`range-${value}-filter`} alignItems="center">
+                    <Text fontSize={1} mr={2}>
+                      {prefix}{' '}
+                      <Text as="span" fontSize={2} fontWeight="bold">
+                        {threshold}
+                      </Text>
+                      % {t('Time')} {t(bgPrefix)}{' '}
+                      <Text as="span" fontSize={2} fontWeight="bold">
+                        {glucoseTargetValue}
+                      </Text>{' '}
+                      {suffix}
+                    </Text>
+                    <Pill
+                      label={tag}
+                      fontSize="12px"
+                      fontWeight="normal"
+                      py="2px"
+                      sx={{ borderRadius: radii.input, textTransform: 'none' }}
+                      colorPalette={[`bg.${rangeName}`, 'white']}
+                      text={tag}
+                    />
+                  </Flex>
+                </Box>
+              </Flex>
+            )})}
 
           <Button
             variant="textSecondary"
@@ -914,15 +1329,12 @@ export const ClinicPatients = (props) => {
             {t('Unselect all')}
           </Button>
 
-          <Text fontSize={0} color="grays.4">
-            {t('Filter is set to view all patients that {{criteria}} meeting all selected clinical target ranges.', { criteria: pendingFilters.meetsGlycemicTargets ? t('are') : t('are NOT') })}
-          </Text>
         </DialogContent>
 
-        <DialogActions justifyContent="space-between">
+        <DialogActions justifyContent="space-between" p={2}>
           <Button
             id="timeInRangeFilterClear"
-            variant="secondary"
+            variant="textSecondary"
             onClick={() => {
               trackMetric(prefixPopHealthMetric('Time in range clear filter'), { clinicId: selectedClinicId });
               setPendingFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
@@ -935,7 +1347,7 @@ export const ClinicPatients = (props) => {
 
           <Button
             id="timeInRangeFilterConfirm"
-            variant="primary"
+            variant="textPrimary"
             onClick={handleFilterTimeInRange}
           >
             {t('Apply Filter')}
@@ -943,18 +1355,7 @@ export const ClinicPatients = (props) => {
         </DialogActions>
       </Dialog>
     );
-  };
-
-  function handleRemove(patient) {
-    trackMetric('Clinic - Remove patient', { clinicId: selectedClinicId });
-    setSelectedPatient(patient);
-    setShowDeleteDialog(true);
-  }
-
-  function handleRemovePatient() {
-    trackMetric('Clinic - Remove patient confirmed', { clinicId: selectedClinicId });
-    dispatch(actions.async.deletePatientFromClinic(api, selectedClinicId, selectedPatient?.id));
-  }
+  }, [activeFilters, bgLabels, handleFilterTimeInRange, pendingFilters, prefixPopHealthMetric, selectedClinicId, setActiveFilters, showTimeInRangeDialog, t, trackMetric]);
 
   function handleCloseOverlays() {
     setShowDeleteDialog(false);
@@ -967,140 +1368,21 @@ export const ClinicPatients = (props) => {
     })
   }
 
-  function handleClickPatient(patient) {
-    return () => {
-      trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient.id}/data`));
-    }
-  }
-
-  function handleAddPatient() {
-    trackMetric('Clinic - Add patient', { clinicId: selectedClinicId });
-    setShowAddPatientDialog(true);
-  }
-
-  function handleAddPatientConfirm() {
-    trackMetric('Clinic - Add patient confirmed', { clinicId: selectedClinicId });
-    patientFormContext?.handleSubmit();
-  }
-
-  function handleEditPatient(patient) {
-    trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId });
-    setSelectedPatient(patient);
-    setShowEditPatientDialog(true);
-  }
-
-  function handleEditPatientConfirm() {
-    trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
-    patientFormContext?.handleSubmit();
-  }
-
-  function handleSendUploadReminder(patient) {
-    trackMetric(prefixPopHealthMetric('Send upload reminder'), { clinicId: selectedClinicId });
-    setSelectedPatient(patient);
-    setShowSendUploadReminderDialog(true);
-  }
-
-  function handleSendUploadReminderConfirm() {
-    trackMetric(prefixPopHealthMetric('Send upload reminder confirmed'), { clinicId: selectedClinicId });
-    dispatch(actions.async.sendPatientUploadReminder(api, selectedClinicId, selectedPatient?.id));
-  }
-
-  function handlePatientFormChange(formikContext) {
-    setPatientFormContext({...formikContext});
-  }
-
-  function handleSearchChange(event) {
-    setSearch(event.target.value);
-    setLoading(true);
-    debounceSearch(event.target.value);
-  }
-
-  function handleSortChange(newOrderBy) {
-    const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
-    const currentOrder = sort[0];
-    const currentOrderBy = sort.substring(1);
-    const newOrder = newOrderBy === currentOrderBy && currentOrder === '+' ? '-' : '+';
-
-    setPatientFetchOptions({
-      ...patientFetchOptions,
-      offset: 0,
-      sort: `${newOrder}${newOrderBy}`,
-    });
-
-    if (showSummaryData) {
-      const order = newOrder === '+' ? 'ascending' : 'descending';
-
-      const sortColumnLabels = {
-        fullName: 'Patient details',
-        'summary.lastUploadDate': 'Last upload',
-        [`summary.periods.${summaryPeriod}.timeCGMUsePercent`]: 'CGM use',
-        [`summary.periods.${summaryPeriod}.glucoseManagementIndicator`]: 'GMI',
-      };
-
-      trackMetric(prefixPopHealthMetric(`${sortColumnLabels[newOrderBy]} sort ${order}`), { clinicId: selectedClinicId });
-    }
-  }
-
-  function handleClearSearch() {
-    setSearch('');
-    setLoading(true);
-    debounceSearch('');
-  }
-
-  function handlePageChange(event, page) {
-    setPatientFetchOptions({
-      ...patientFetchOptions,
-      offset: (page - 1) * patientFetchOptions.limit,
-    });
-  }
-
-  function handleResetFilters() {
-    trackMetric(prefixPopHealthMetric('Clear all filters'), { clinicId: selectedClinicId });
-    setActiveFilters(defaultFilterState);
-    setPendingFilters(defaultFilterState);
-  }
-
-  function handleOpenTimeInRangeFilter() {
-    trackMetric(prefixPopHealthMetric('Time in range filter open'), { clinicId: selectedClinicId });
-    setShowTimeInRangeDialog(true);
-  }
-
-  function handleFilterTimeInRange() {
-    trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
-      clinicId: selectedClinicId,
-      meetsCriteria: pendingFilters.meetsGlycemicTargets,
-      severeHypo: includes(pendingFilters.timeInRange, 'timeInVeryLowPercent'),
-      hypo: includes(pendingFilters.timeInRange, 'timeInLowPercent'),
-      inRange: includes(pendingFilters.timeInRange, 'timeInTargetPercent'),
-      hyper: includes(pendingFilters.timeInRange, 'timeInHighPercent'),
-      severeHyper: includes(pendingFilters.timeInRange, 'timeInVeryHighPercent'),
-    });
-
-    setActiveFilters({
-      ...activeFilters,
-      meetsGlycemicTargets: pendingFilters.meetsGlycemicTargets,
-      timeInRange: pendingFilters.timeInRange,
-    });
-
-    setShowTimeInRangeDialog(false);
-  }
-
-  const renderPatient = patient => (
+  const renderPatient = useCallback(patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient.fullName}</Text>
       {patient.email && <Text fontSize=".85em">{patient.email}</Text>}
     </Box>
-  );
+  ), [handleClickPatient]);
 
-  const renderPatientSecondaryInfo = patient => (
+  const renderPatientSecondaryInfo = useCallback(patient => (
     <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} fontSize="10px" sx={{ cursor: 'pointer' }}>
       <Text>{t('DOB:')} {patient.birthDate}</Text>
       {patient.mrn && <Text>{t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
     </Box>
-  );
+  ), [handleClickPatient, t]);
 
-  const renderLastUploadDate = ({ summary }) => {
+  const renderLastUploadDate = useCallback(({ summary }) => {
     let formattedLastUploadDate = statEmptyText;
     let color = 'inherit';
     let fontWeight = 'regular';
@@ -1127,50 +1409,29 @@ export const ClinicPatients = (props) => {
         <Text color={color} fontWeight={fontWeight}>{formattedLastUploadDate}</Text>
       </Box>
     );
-  };
+  }, [t, timePrefs]);
 
-  const renderCGMUsage = ({ summary }) => (
+  const renderCGMUsage = useCallback(({ summary }) => (
     <Box classname="patient-cgm-usage">
       <Text as="span" fontWeight="medium">{summary?.periods?.[summaryPeriod]?.timeCGMUsePercent ? formatDecimal(summary?.periods?.[summaryPeriod]?.timeCGMUsePercent * 100) : statEmptyText}</Text>
       {summary?.periods?.[summaryPeriod]?.timeCGMUsePercent && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
-  );
+  ), []);
 
-  const renderGMI = ({ summary }) => (
+  const renderGMI = useCallback(({ summary }) => (
     <Box classname="patient-gmi">
       <Text as="span" fontWeight="medium">{summary?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 ? formatDecimal(summary.periods[summaryPeriod].glucoseManagementIndicator, 1) : statEmptyText}</Text>
       {summary?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
-  );
+  ), []);
 
-  const renderBgRangeSummary = ({ summary }) => {
-    const targetRange = map([summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold], value => (
-      clinicBgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value
-    ));
-
-    const cgmHours = (summary?.periods?.[summaryPeriod]?.timeCGMUseMinutes || 0) / 60;
-
-    const data = {
-      veryLow: summary?.periods?.[summaryPeriod]?.timeInVeryLowPercent,
-      low: summary?.periods?.[summaryPeriod]?.timeInLowPercent,
-      target: summary?.periods?.[summaryPeriod]?.timeInTargetPercent,
-      high: summary?.periods?.[summaryPeriod]?.timeInHighPercent,
-      veryHigh: summary?.periods?.[summaryPeriod]?.timeInVeryHighPercent,
-    };
-
-    return (
-      <Flex justifyContent="center">
-        {cgmHours >= 24
-          ? <BgRangeSummary striped={summary?.periods?.[summaryPeriod]?.timeCGMUsePercent < 0.7} data={data} targetRange={targetRange} bgUnits={clinicBgUnits} />
-          : (
-            <Flex alignItems="center" justifyContent="center" bg="lightestGrey" width="200px" height="20px">
-              <Text fontSize="10px" fontWeight="medium" color="grays.4">{t('CGM Use <24 hours')}</Text>
-            </Flex>
-          )
-        }
-      </Flex>
-    );
-  };
+  const renderBgRangeSummary = useCallback(({summary}) => {
+    return <BgSummaryCell
+      summary={summary}
+      clinicBgUnits={clinicBgUnits}
+      summaryPeriod={summaryPeriod}
+      t={t} />
+  }, [clinicBgUnits, t]);
 
   const renderGlycemicEvent = (type, value) => {
     const rotation = type === 'low' ? 90 : -90;
@@ -1226,61 +1487,45 @@ export const ClinicPatients = (props) => {
     </Box>
   );
 
-  const renderLinkedField = (field, patient) => (
-    <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
-      <Text fontWeight="medium">{patient[field]}</Text>
-    </Box>
-  );
+  const renderLinkedField = useCallback((field, patient) => (
+      <Box
+        classname={`patient-${field}`}
+        onClick={handleClickPatient(patient)}
+        sx={{ cursor: 'pointer' }}
+      >
+        <Text fontWeight="medium">{patient[field]}</Text>
+      </Box>
+    ), [handleClickPatient]);
 
-  const renderMore = patient => {
-    const items = [];
+  const renderMore = useCallback((patient) => {
+    return <MoreMenu
+      patient={patient}
+      isClinicAdmin={isClinicAdmin}
+      selectedClinicId={selectedClinicId}
+      showSummaryData={showSummaryData}
+      t={t}
+      trackMetric={trackMetric}
+      setSelectedPatient={setSelectedPatient}
+      setShowEditPatientDialog={setShowEditPatientDialog}
+      prefixPopHealthMetric={prefixPopHealthMetric}
+      setShowSendUploadReminderDialog={setShowSendUploadReminderDialog}
+      setShowDeleteDialog={setShowDeleteDialog}
+    />;
+  }, [
+    isClinicAdmin,
+    selectedClinicId,
+    showSummaryData,
+    t,
+    trackMetric,
+    setSelectedPatient,
+    setShowEditPatientDialog,
+    prefixPopHealthMetric,
+    setShowSendUploadReminderDialog,
+    setShowDeleteDialog,
+  ]);
 
-    items.push({
-      icon: EditIcon,
-      iconLabel: t('Edit Patient Information'),
-      iconPosition: 'left',
-      id: `edit-${patient.id}`,
-      variant: 'actionListItem',
-      onClick: _popupState => {
-        _popupState.close();
-        handleEditPatient(patient);
-      },
-      text: t('Edit Patient Information'),
-    });
-
-    if (showSummaryData && patient.email && !patient.permissions?.custodian) items.push({
-      iconSrc: SendEmailIcon,
-      iconLabel: t('Send Upload Reminder'),
-      iconPosition: 'left',
-      id: `send-upload-reminder-${patient.id}`,
-      variant: 'actionListItem',
-      onClick: _popupState => {
-        _popupState.close();
-        handleSendUploadReminder(patient);
-      },
-      text: t('Send Upload Reminder')
-    });
-
-    if (isClinicAdmin) items.push({
-      icon: DeleteIcon,
-      iconLabel: t('Remove Patient'),
-      iconPosition: 'left',
-      id: `delete-${patient.id}`,
-      variant: 'actionListItemDanger',
-      onClick: _popupState => {
-        _popupState.close();
-        handleRemove(patient);
-      },
-      text: t('Remove Patient')
-    });
-
-    return <PopoverMenu id={`action-menu-${patient.id}`} items={items} />
-  };
-
-  const renderPeopleTable = () => {
-    const { t } = props;
-
-    const columns = [
+  const columns = useMemo(() => {
+    const cols = [
       {
         title: t('Patient Details'),
         field: 'fullName',
@@ -1308,88 +1553,108 @@ export const ClinicPatients = (props) => {
         align: 'right',
       },
     ];
-
     if (showSummaryData) {
-      columns.splice(1, 2, ...[
-        {
-          title: '',
-          field: 'patientSecondary',
-          align: 'left',
-          render: renderPatientSecondaryInfo,
-        },
-        {
-          title: t('Last Upload (CGM)'),
-          field: 'summary.lastUploadDate',
-          align: 'left',
-          sortable: true,
-          sortBy: 'summary.lastUploadDate',
-          render: renderLastUploadDate,
-        },
-        {
-          title: t('% CGM Use'),
-          field: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
-          sortable: true,
-          sortBy: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
-          align: 'center',
-          render: renderCGMUsage,
-        },
-        {
-          title: t('% GMI'),
-          field: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
-          align: 'center',
-          sortable: true,
-          sortBy: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
-          render: renderGMI,
-        },
-        {
-          title: t('% Time in Range'),
-          field: 'bgRangeSummary',
-          align: 'center',
-          render: renderBgRangeSummary,
-        },
-        // Commented out for the time being. Glycemic events will be part of a future version
-        // {
-        //   titleComponent: () => (
-        //     <PopoverLabel
-        //       label={t('Glycemic Events')}
-        //       icon={InfoOutlinedIcon}
-        //       iconFontSize="12px"
-        //       popoverContent={renderGlycemicEventsPopover()}
-        //       popoverProps={{
-        //         anchorOrigin: {
-        //           vertical: 'bottom',
-        //           horizontal: 'center',
-        //         },
-        //         transformOrigin: {
-        //           vertical: 'top',
-        //           horizontal: 'center',
-        //         },
-        //         width: 'auto',
-        //       }}
-        //       triggerOnHover
-        //     />
-        //   ),
-        //   field: 'hypoEvents',
-        //   align: 'center',
-        //   render: renderGlycemicEvents,
-        // },
-      ]);
+      cols.splice(1, 2,
+        ...[
+          {
+            title: '',
+            field: 'patientSecondary',
+            align: 'left',
+            render: renderPatientSecondaryInfo,
+          },
+          {
+            title: t('Last Upload (CGM)'),
+            field: 'summary.lastUploadDate',
+            align: 'left',
+            sortable: true,
+            sortBy: 'summary.lastUploadDate',
+            render: renderLastUploadDate,
+          },
+          {
+            title: t('% CGM Use'),
+            field: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
+            sortable: true,
+            sortBy: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
+            align: 'center',
+            render: renderCGMUsage,
+          },
+          {
+            title: t('% GMI'),
+            field: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
+            align: 'center',
+            sortable: true,
+            sortBy: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
+            render: renderGMI,
+          },
+          {
+            title: t('% Time in Range'),
+            field: 'bgRangeSummary',
+            align: 'center',
+            render: renderBgRangeSummary,
+          },
+          // Commented out for the time being. Glycemic events will be part of a future version
+          // {
+          //   titleComponent: () => (
+          //     <PopoverLabel
+          //       label={t('Glycemic Events')}
+          //       icon={InfoOutlinedIcon}
+          //       iconFontSize="12px"
+          //       popoverContent={renderGlycemicEventsPopover()}
+          //       popoverProps={{
+          //         anchorOrigin: {
+          //           vertical: 'bottom',
+          //           horizontal: 'center',
+          //         },
+          //         transformOrigin: {
+          //           vertical: 'top',
+          //           horizontal: 'center',
+          //         },
+          //         width: 'auto',
+          //       }}
+          //       triggerOnHover
+          //     />
+          //   ),
+          //   field: 'hypoEvents',
+          //   align: 'center',
+          //   render: renderGlycemicEvents,
+          // },
+        ]
+      );
     }
+    return cols;
+  }, [
+    renderBgRangeSummary,
+    renderCGMUsage,
+    renderGMI,
+    renderLastUploadDate,
+    renderLinkedField,
+    renderMore,
+    renderPatient,
+    renderPatientSecondaryInfo,
+    showSummaryData,
+    t,
+  ]);
+
+  const data = useMemo(() => values(clinic?.patients), [clinic?.patients]);
+  const tableStyle = useMemo(() => {
+    fontSize: showSummaryData ? '12px' : '14px';
+  }, [showSummaryData]);
+
+  const renderPeopleTable = useCallback(() => {
 
     const pageCount = Math.ceil(clinic.patientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
-
     return (
-      <Box sx={{ position: 'relative' }}>
+      <Box>
         <Loader show={loading} overlay={true} />
         <Table
           id={'peopleTable'}
           variant={showSummaryData ? 'condensed' : 'default'}
           label={'peopletablelabel'}
           columns={columns}
-          data={values(clinic?.patients)}
-          style={{fontSize: showSummaryData ? '12px' : '14px'}}
+          data={data}
+          style={tableStyle}
           onSort={handleSortChange}
           order={sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort.substring(1)}
@@ -1411,15 +1676,25 @@ export const ClinicPatients = (props) => {
         )}
       </Box>
     );
-  }
+  }, [
+    clinic?.patientCount,
+    columns,
+    data,
+    handlePageChange,
+    handleSortChange,
+    loading,
+    patientFetchOptions,
+    showSummaryData,
+    tableStyle,
+  ]);
 
-  const renderPeopleArea = () => {
+  const renderPeopleArea = useCallback(() => {
     if (!showNames) {
       return renderPeopleInstructions();
     } else {
       return renderPeopleTable();
     }
-  }
+  }, [renderPeopleInstructions, renderPeopleTable, showNames]);
 
   return (
     <div>
@@ -1430,6 +1705,11 @@ export const ClinicPatients = (props) => {
       {showEditPatientDialog && renderEditPatientDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
+      <StyledScrollToTop
+        smooth
+        top={600}
+        component={<ArrowUpwardIcon />}
+      />
     </div>
   );
 };

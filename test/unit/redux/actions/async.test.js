@@ -254,8 +254,13 @@ describe('Actions', () => {
           user: {
             custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
             login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, null, user)
-          }
+            get: sinon.stub().callsArgWith(0, null, user),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         let expectedAction = { type: 'ACKNOWLEDGE_NOTIFICATION', payload: { acknowledgedNotification: 'confirmingSignup' } };
@@ -280,8 +285,13 @@ describe('Actions', () => {
           user: {
             custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
             login: sinon.stub().callsArgWith(2, null),
-            get: sinon.stub().callsArgWith(0, null, user)
-          }
+            get: sinon.stub().callsArgWith(0, null, user),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
         };
 
         let expectedActions = [
@@ -289,6 +299,12 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: undefined, clinics: [] } },
+          { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
           { type: 'LOGIN_SUCCESS', payload: { user: user } },
           { type: 'VERIFY_CUSTODIAL_SUCCESS' },
           { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true', { selectedClinicId: null } ], method: 'push' } }
@@ -550,6 +566,7 @@ describe('Actions', () => {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
             logout: sinon.stub(),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
           },
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
@@ -561,6 +578,12 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: undefined, clinics: [] } },
+          { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
           { type: 'LOGIN_SUCCESS', payload: { user: user } },
           { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true', { selectedClinicId: null } ], method: 'push' } }
         ];
@@ -590,6 +613,7 @@ describe('Actions', () => {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
             logout: sinon.stub(),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
           },
           patient: {
             get: sinon.stub().callsArgWith(1, null, patient),
@@ -604,6 +628,12 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: undefined, clinics: [] } },
+          { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
           { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
@@ -626,7 +656,7 @@ describe('Actions', () => {
 
       it('should trigger LOGIN_SUCCESS and it should redirect a clinician with no clinic profile to the clinician details form', () => {
         const creds = { username: 'bruce', password: 'wayne' };
-        const user = { id: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true };
+        const user = { id: 27, roles: [ 'clinician' ], profile: {}, emailVerified: true };
         const patient = { foo: 'bar' };
 
         const api = {
@@ -634,6 +664,7 @@ describe('Actions', () => {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
             logout: sinon.stub(),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
           },
           patient: {
             get: sinon.stub().callsArgWith(1, null, patient),
@@ -648,8 +679,14 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: undefined, clinics: [] } },
+          { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
           { type: 'LOGIN_SUCCESS', payload: { user } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinician-details', { selectedClinicId: null } ] } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/profile', { selectedClinicId: null } ] } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -667,10 +704,9 @@ describe('Actions', () => {
         expect(trackMetric.calledWith('Logged In')).to.be.true;
       });
 
-
-      it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view', () => {
+      it('should trigger LOGIN_SUCCESS and it should redirect a legacy clinician with no clinic profile to the clinician details form', () => {
         const creds = { username: 'bruce', password: 'wayne' };
-        const user = { id: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true };
+        const user = { id: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true };
         const patient = { foo: 'bar' };
 
         const api = {
@@ -678,6 +714,7 @@ describe('Actions', () => {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
             logout: sinon.stub(),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
           },
           patient: {
             get: sinon.stub().callsArgWith(1, null, patient),
@@ -692,6 +729,62 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: undefined, clinics: [] } },
+          { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
+          { type: 'LOGIN_SUCCESS', payload: { user } },
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/profile', { selectedClinicId: null } ] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore(initialState);
+
+        store.dispatch(async.login(api, creds));
+
+        const actions = store.getActions();
+
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.get.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
+      });
+
+      it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view', () => {
+        const creds = { username: 'bruce', password: 'wayne' };
+        const user = { id: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true };
+        const patient = { foo: 'bar' };
+
+        const api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: undefined, clinics: [] } },
+          { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
           { type: 'LOGIN_SUCCESS', payload: { user } },
           { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true', { selectedClinicId: null }] } }
         ];
@@ -720,12 +813,6 @@ describe('Actions', () => {
         let patient;
         let patients;
         let setAPIData;
-
-        before(() => {
-          async.__Rewire__('config', {
-            CLINICS_ENABLED: true,
-          });
-        });
 
         beforeEach(() => {
           creds = { username: 'bruce', password: 'wayne' };
@@ -758,10 +845,6 @@ describe('Actions', () => {
           };
         });
 
-        after(() => {
-          async.__ResetDependency__('config');
-        });
-
         context('clinician has no clinic invites or associated clinics', () => {
           beforeEach(() => {
             setAPIData({
@@ -773,6 +856,40 @@ describe('Actions', () => {
           });
 
           it('should trigger LOGIN_SUCCESS and it should redirect a clinician with no clinic profile to the clinician details form', () => {
+            setAPIData({
+              user: { userid: 27, roles: [ 'clinician' ], profile: {}, emailVerified: true },
+            });
+
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/profile', { selectedClinicId: null } ] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore(initialState);
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+          });
+
+          it('should trigger LOGIN_SUCCESS and it should redirect a legacy clinician with no clinic profile to the clinician details form', () => {
             setAPIData({
               user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
             });
@@ -788,7 +905,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinician-details', { selectedClinicId: null } ] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/profile', { selectedClinicId: null } ] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -870,7 +987,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details', { selectedClinicId: null } ] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/profile', { selectedClinicId: null } ] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -953,7 +1070,7 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details', { selectedClinicId: null } ] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/migrate', { selectedClinicId: 'clinicId123' } ] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -971,7 +1088,7 @@ describe('Actions', () => {
             expect(trackMetric.calledWith('Logged In')).to.be.true;
           });
 
-          it('should trigger LOGIN_SUCCESS and it should redirect a clinician with relationship containing a ready-to-migrate clinic object to the clinic details form', () => {
+          it('should trigger LOGIN_SUCCESS and it should redirect a legacy clinician with relationship containing a ready-to-migrate clinic object to the clinic details form', () => {
             setAPIData({
               user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
               clinics: [
@@ -991,7 +1108,44 @@ describe('Actions', () => {
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
               { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
-              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details', { selectedClinicId: null } ] } }
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/migrate', { selectedClinicId: 'clinicId123' } ] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore(initialState);
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+          });
+
+          it('should trigger LOGIN_SUCCESS and it should redirect a new clinician with relationship containing a ready-to-migrate clinic object to the clinic workspace', () => {
+            setAPIData({
+              user: { userid: 27, roles: [ 'clinician' ], profile: {}, emailVerified: true },
+              clinics: [
+                { clinic: { id: 'clinicId123', name: 'Clinic One', canMigrate: true } },
+              ],
+            });
+
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinicId123', name: 'Clinic One', canMigrate: true } }] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/workspaces', { selectedClinicId: null } ] } }
             ];
             _.each(expectedActions, (action) => {
               expect(isTSA(action)).to.be.true;
@@ -1411,6 +1565,7 @@ describe('Actions', () => {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}),
             logout: sinon.stub(),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
           },
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
@@ -1470,6 +1625,7 @@ describe('Actions', () => {
             login: sinon.stub().callsArgWith(2, null),
             get: sinon.stub().callsArgWith(0, null, user),
             logout: sinon.stub(),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
           },
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
@@ -1484,6 +1640,12 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user }},
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: undefined, clinics: [] }},
+          { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_FAILURE', error: err, payload: { link: null }, meta: { apiError: {status: 500, body: 'Error!'} } },
           { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } },
@@ -1510,10 +1672,10 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
-        expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
-        expectedActions[4].error = actions[4].error;
-        expect(actions[5].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
-        expectedActions[5].error = actions[5].error;
+        expect(actions[10].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[10].error = actions[10].error;
+        expect(actions[11].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[11].error = actions[11].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -2896,253 +3058,6 @@ describe('Actions', () => {
 
         let store = mockStore({ blip : initialStateForTest });
         store.dispatch(async.updateUser(api, formValues));
-
-        const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_USER });
-        expectedActions[1].error = actions[1].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.put.calledWith(userUpdates)).to.be.true;
-      });
-    });
-
-    describe('updateClinicianProfile', () => {
-      it('should trigger UPDATE_USER_SUCCESS and it should call updateClinicianProfile once for a successful request and route user to patients view', () => {
-        let loggedInUserId = 400;
-        let currentUser = {
-          profile: {
-            name: 'Joe Bloggs',
-            age: 29
-          },
-          password: 'foo',
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe'
-        };
-
-        let formValues = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-        };
-
-        let updatingUser = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe'
-        };
-
-        let userUpdates = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          password: 'foo'
-        };
-
-        let updatedUser = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe',
-          password: 'foo'
-        };
-
-        let api = {
-          user: {
-            put: sinon.stub().callsArgWith(1, null, updatedUser)
-          }
-        };
-
-        let initialStateForTest = _.merge({}, initialState, { allUsersMap: { [loggedInUserId] : currentUser }, loggedInUserId: loggedInUserId });
-
-        let expectedActions = [
-          { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
-          { type: 'UPDATE_USER_SUCCESS', payload: { userId: loggedInUserId, updatedUser: updatedUser } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip : initialStateForTest });
-        store.dispatch(async.updateClinicianProfile(api, formValues));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.put.calledWith(userUpdates)).to.be.true;
-        expect(trackMetric.calledWith('Updated Account')).to.be.true;
-      });
-
-      context('new clinic workflow enabled and user has pending clinic invites', () => {
-        before(() => {
-          async.__Rewire__('config', {
-            CLINICS_ENABLED: true,
-          });
-        });
-
-        after(() => {
-          async.__ResetDependency__('config');
-        });
-
-        it('should trigger UPDATE_USER_SUCCESS and it should call updateClinicianProfile once for a successful request and route user to workspaces view', () => {
-          let loggedInUserId = 400;
-          let currentUser = {
-            profile: {
-              name: 'Joe Bloggs',
-              age: 29
-            },
-            password: 'foo',
-            emails: [
-              'joe@bloggs.com'
-            ],
-            username: 'Joe'
-          };
-
-          let formValues = {
-            profile: {
-              name: 'Joe Steven Bloggs',
-              age: 30
-            },
-          };
-
-          let updatingUser = {
-            profile: {
-              name: 'Joe Steven Bloggs',
-              age: 30
-            },
-            emails: [
-              'joe@bloggs.com'
-            ],
-            username: 'Joe'
-          };
-
-          let userUpdates = {
-            profile: {
-              name: 'Joe Steven Bloggs',
-              age: 30
-            },
-            password: 'foo'
-          };
-
-          let updatedUser = {
-            profile: {
-              name: 'Joe Steven Bloggs',
-              age: 30
-            },
-            emails: [
-              'joe@bloggs.com'
-            ],
-            username: 'Joe',
-            password: 'foo'
-          };
-
-          let api = {
-            user: {
-              put: sinon.stub().callsArgWith(1, null, updatedUser)
-            }
-          };
-
-          let initialStateForTest = _.merge(
-            {},
-            initialState,
-            {
-              allUsersMap: { [loggedInUserId] : currentUser },
-              loggedInUserId: loggedInUserId,
-              pendingReceivedClinicianInvites: [{ inviteId: 'invite123' }],
-            }
-          );
-
-          let expectedActions = [
-            { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
-            { type: 'UPDATE_USER_SUCCESS', payload: { userId: loggedInUserId, updatedUser: updatedUser } },
-            { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/workspaces' ], method: 'push' } }
-          ];
-          _.each(expectedActions, (action) => {
-            expect(isTSA(action)).to.be.true;
-          });
-
-          let store = mockStore({ blip : initialStateForTest });
-          store.dispatch(async.updateClinicianProfile(api, formValues));
-
-          const actions = store.getActions();
-          expect(actions).to.eql(expectedActions);
-          expect(api.user.put.calledWith(userUpdates)).to.be.true;
-          expect(trackMetric.calledWith('Updated Account')).to.be.true;
-        });
-      });
-
-
-      it('should trigger UPDATE_USER_FAILURE and it should call updateClinicianProfile once for a failed request', () => {
-        let loggedInUserId = 400;
-        let currentUser = {
-          profile: {
-            name: 'Joe Bloggs',
-            age: 29
-          },
-          password: 'foo',
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe'
-        };
-
-        let formValues = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          }
-        };
-
-        let updatingUser = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          emails: [
-            'joe@bloggs.com'
-          ],
-          username: 'Joe'
-        };
-
-        let userUpdates = {
-          profile: {
-            name: 'Joe Steven Bloggs',
-            age: 30
-          },
-          password: 'foo'
-        };
-        let api = {
-          user: {
-            put: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
-          }
-        };
-
-        let err = new Error(ErrorMessages.ERR_UPDATING_USER);
-        err.status = 500;
-
-        let initialStateForTest = _.merge({}, initialState, { allUsersMap: { [loggedInUserId] : currentUser }, loggedInUserId: loggedInUserId });
-
-        let expectedActions = [
-          { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
-          { type: 'UPDATE_USER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'}} }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip : initialStateForTest });
-        store.dispatch(async.updateClinicianProfile(api, formValues));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_USER });
@@ -4932,32 +4847,35 @@ describe('Actions', () => {
     });
 
     describe('createClinic', () => {
-      it('should trigger CREATE_CLINICS_SUCCESS and it should call clinics.create once and redirect to "clinic-admin" for a successful request', () => {
+      it('should trigger CREATE_CLINICS_SUCCESS and it should call clinics.create once, select the new clinic, and get an updated clinics list for the active user', () => {
+        let clinicianId = 'clinician123';
+
         let clinicReturn = {
           id: 'new_clinic_id'
         };
 
+        let clinics = [clinicReturn];
+
         let api = {
-          clinics: {
+            clinics: {
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics),
             create: sinon.stub().callsArgWith(1, null, clinicReturn)
           },
         };
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_REQUEST' },
+          { type: 'SELECT_CLINIC', payload: { clinicId : 'new_clinic_id' } },
           { type: 'CREATE_CLINIC_SUCCESS', payload: { clinic : clinicReturn } },
-          { type: '@@router/CALL_HISTORY_METHOD',
-            payload: { args: [ '/clinic-admin' ],
-              method: 'push',
-            },
-          }
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId, clinics } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.createClinic(api));
+        store.dispatch(async.createClinic(api, clinicReturn, clinicianId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);

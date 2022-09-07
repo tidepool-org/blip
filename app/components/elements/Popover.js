@@ -28,6 +28,8 @@ const PopoverContentWrapper = React.forwardRef((props, ref) => (
   <Box {...props} ref={ref} />
 ));
 
+const PaperProp = { component: PopoverContentWrapper };
+
 const Popover = props => {
   const {
     children,
@@ -45,11 +47,11 @@ const Popover = props => {
 
   React.useEffect(() => {
     setComponent(StyledPopover(useHoverPopover ? HoverPopover : Base));
-  }, []);
+  }, [useHoverPopover]);
 
   return (
     <Component
-      PaperProps={{ component: PopoverContentWrapper }}
+      PaperProps={PaperProp}
       boxshadow={boxShadow}
       margintop={marginTop}
       minwidth={minWidth}
