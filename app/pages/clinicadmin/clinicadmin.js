@@ -13,6 +13,7 @@ import has from 'lodash/has';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import EditIcon from '@material-ui/icons/EditRounded';
 import InputIcon from '@material-ui/icons/Input';
 import SearchIcon from '@material-ui/icons/Search';
 import sundial from 'sundial';
@@ -351,17 +352,17 @@ export const ClinicAdmin = (props) => {
   );
 
   const renderStatus = ({ status }) => (
-    <Box>
-      {!isEmpty(status) ? <Pill label={status} text={status} colorPalette="greens" /> : ''}
-    </Box>
+    !isEmpty(status) ? <Box sx={{ whiteSpace: 'nowrap' }}>
+      <Pill label={status} text={status} colorPalette="greens" />
+    </Box> : null
   );
 
   const renderPermission = ({ prescriberPermission }) => (
-    <Box>
+    prescriberPermission ? <Box>
       <Text fontWeight="medium">
-        {prescriberPermission ? t('Prescriber') : ''}
+        {t('Prescriber')}
       </Text>
-    </Box>
+    </Box> : null
   );
 
   const renderRole = ({ role }) => (
@@ -388,19 +389,34 @@ export const ClinicAdmin = (props) => {
   const renderMore = props => {
     const items = [];
 
-    if (props.userId && (!props.isAdmin || !isOnlyClinicAdmin())) {
+    if (props.userId) {
       items.push({
-        icon: DeleteForeverIcon,
-        iconLabel: t('Remove User'),
+        icon: EditIcon,
+        iconLabel: t('Edit Clinician Information'),
         iconPosition: 'left',
-        id: `delete-${props.userId}`,
-        variant: 'actionListItemDanger',
+        id: `edit-${props.userId}`,
+        variant: 'actionListItem',
         onClick: _popupState => {
           _popupState.close();
-          handleDelete(props);
+          handleEdit(props.userId);
         },
-        text: t('Remove User'),
+        text: t('Edit Clinician Information'),
       });
+
+      if (!props.isAdmin || !isOnlyClinicAdmin()) {
+        items.push({
+          icon: DeleteForeverIcon,
+          iconLabel: t('Remove User'),
+          iconPosition: 'left',
+          id: `delete-${props.userId}`,
+          variant: 'actionListItemDanger',
+          onClick: _popupState => {
+            _popupState.close();
+            handleDelete(props);
+          },
+          text: t('Remove User'),
+        });
+      }
     }
 
     if (props.inviteId) {
@@ -455,6 +471,7 @@ export const ClinicAdmin = (props) => {
       sortable: true,
       sortBy: 'status',
       render: renderStatus,
+      hideEmpty: true,
     },
   ];
 
@@ -466,6 +483,7 @@ export const ClinicAdmin = (props) => {
       sortable: true,
       sortBy: 'prescriberPermission',
       render: renderPermission,
+      hideEmpty: true,
     });
   }
 
@@ -482,15 +500,10 @@ export const ClinicAdmin = (props) => {
     columns.push(
       {
         title: '',
-        field: 'edit',
-        render: renderEdit,
-        align: 'left',
-      },
-      {
-        title: '',
         field: 'more',
         render: renderMore,
         align: 'right',
+        className: 'action-menu',
       }
     );
   }
@@ -518,37 +531,48 @@ export const ClinicAdmin = (props) => {
             <Title flexGrow={1}>
               {t('Clinic Members')}
             </Title>
-
-            <TextInput
-              themeProps={{
-                width: 'auto',
-                minWidth: '250px',
-              }}
-              fontSize="12px"
-              value={searchText}
-              placeholder={t('Search by Name')}
-              icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
-              iconLabel={t('Search')}
-              onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
-              id="search-members"
-              name="search-members"
-              onChange={handleSearchChange}
-              variant="condensed"
-            />
           </Flex>
 
           <Box mx={4}>
-            <Box my={4}>
+            {/* Flex Group 1: Search Box and Add Patient button */}
+            <Flex
+              alignItems="center"
+              my={4}
+              justifyContent="space-between"
+              width={['100%', null, 'auto']}
+              sx={{ gap: 2 }}
+            >
               {isClinicAdmin() && (
                 <Button
-                  mr={4}
+                  id="add-patient"
                   variant="primary"
                   onClick={handleInviteNewMember}
+                  fontSize={0}
+                  px={[2, 3]}
+                  lineHeight={['inherit', null, 1]}
                 >
                   {t('Invite New Clinic Team Member')}
                 </Button>
               )}
-            </Box>
+
+              <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+                <TextInput
+                  themeProps={{
+                    width: ['100%', null, '250px'],
+                  }}
+                  fontSize="12px"
+                  id="search-members"
+                  placeholder={t('Search by Name')}
+                  icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+                  iconLabel={t('Search')}
+                  onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
+                  name="search-members"
+                  onChange={handleSearchChange}
+                  value={searchText}
+                  variant="condensed"
+                />
+              </Box>
+            </Flex>
 
             <Table
               id="clinicianTable"

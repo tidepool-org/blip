@@ -140,13 +140,23 @@ export const ClinicProfile = (props) => {
       {...boxProps}
     >
       {!editing && (
-        <Flex id="clinicProfileDetails" px={4} py={3} justifyContent="space-between" alignItems="center">
-          <Flex>
+        <Flex
+          id="clinicProfileDetails"
+          px={4}
+          py={3}
+          flexWrap="wrap"
+          justifyContent={['center', 'space-between']}
+          alignItems="center"
+          sx={{
+            gap: 2,
+          }}
+        >
+          <Flex justifyContent={['flex-start']} alignItems="flex-start" width={['100%', '100%', 'auto']}>
             <Box mr={6}>
               <Caption color="grays.4">{t('Clinic Name')}</Caption>
-              <Title>{clinic.name}</Title>
+              <Title fontSize={[1, 2, 3]}>{clinic.name}</Title>
             </Box>
-            <Box>
+            <Box flexShrink={0}>
               <Caption color="grays.4">{t('Clinic Share Code')}</Caption>
               <Flex
                 alignContent="center"
@@ -155,6 +165,7 @@ export const ClinicProfile = (props) => {
                     border: 'none',
                     color: 'text.primary',
                     paddingTop: '.125em',
+                    paddingRight: 0,
                     fontSize: 2,
                     '&:hover,&:active': {
                       border: 'none',
@@ -170,7 +181,7 @@ export const ClinicProfile = (props) => {
                   },
                 }}
               >
-                <Title>{clinic.shareCode}</Title>
+                <Title fontSize={[1, 2, 3]} sx={{ whiteSpace: 'nowrap' }}>{clinic.shareCode}</Title>
                 <ClipboardButton
                   buttonTitle={t('Copy Share Code')}
                   buttonText={buttonText}
@@ -182,7 +193,12 @@ export const ClinicProfile = (props) => {
             </Box>
           </Flex>
 
-          <Flex alignItems="center">
+          <Flex
+            justifyContent={['flex-start', 'flex-start', 'flex-end']}
+            alignItems="center"
+            width={['100%', '100%', 'auto']}
+            sx={{ gap: 3 }}
+          >
             {isClinicAdmin && (
               <Box>
                 <Button
@@ -194,6 +210,7 @@ export const ClinicProfile = (props) => {
                   iconFontSize="1.25em"
                   iconLabel={t('Edit Clinic Profile')}
                   fontSize={1}
+                  pl={0}
                 >
                   {t('Edit Clinic Profile')}
                 </Button>
@@ -202,14 +219,15 @@ export const ClinicProfile = (props) => {
 
             <Box>
               <Button
-                ml={3}
                 id="profileNavigationButton"
                 variant="textSecondary"
                 onClick={handleNavigationAction}
                 icon={GroupRoundedIcon}
                 iconPosition='left'
-                iconLabel={navigationAction.label}
                 iconFontSize="1.25em"
+                iconLabel={navigationAction.label}
+                fontSize={1}
+                pl={0}
               >
                 {navigationAction.label}
               </Button>

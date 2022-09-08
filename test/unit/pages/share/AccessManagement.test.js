@@ -205,10 +205,10 @@ describe('AccessManagement', () => {
     );
   });
 
-  it('should render an Invite New Member button', () => {
-    const inviteButton = wrapper.find('button#invite-member');
+  it('should render a Share Data button', () => {
+    const inviteButton = wrapper.find('button#invite');
     expect(inviteButton).to.have.length(1);
-    expect(inviteButton.text()).to.equal('Invite New Member');
+    expect(inviteButton.text()).to.equal('Share Data');
     expect(inviteButton.props().onClick).to.be.a('function');
 
     const expectedActions = [
@@ -216,31 +216,7 @@ describe('AccessManagement', () => {
         type: '@@router/CALL_HISTORY_METHOD',
         payload: {
           args: [
-            `/patients/${loggedInUserId}/share/member`,
-          ],
-          method: 'push',
-        },
-      },
-    ];
-
-    inviteButton.props().onClick();
-    const actions = store.getActions();
-    expect(actions).to.eql(expectedActions);
-  });
-
-  // Skipping this test during the clinic UI LMR
-  it.skip('should render an Invite New Clinic button', () => {
-    const inviteButton = wrapper.find('button#invite-clinic');
-    expect(inviteButton).to.have.length(1);
-    expect(inviteButton.text()).to.equal('Invite new clinic');
-    expect(inviteButton.props().onClick).to.be.a('function');
-
-    const expectedActions = [
-      {
-        type: '@@router/CALL_HISTORY_METHOD',
-        payload: {
-          args: [
-            `/patients/${loggedInUserId}/share/clinic`,
+            `/patients/${loggedInUserId}/share/invite`,
           ],
           method: 'push',
         },

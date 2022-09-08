@@ -1,15 +1,15 @@
 export default ({ borders, colors, radii, space }) => {
   const defaultStyles = {
-    mx: 'auto',
+    mx: [0, 'auto'],
     bg: colors.white,
-    width: ['100%', '85%'],
+    width: ['100%', '95%'],
     mb: `${space[6]}px`,
     position: 'relative',
   };
 
   const large = {
     ...defaultStyles,
-    maxWidth: '1280px',
+    maxWidth: '1600px',
   };
 
   const medium = {

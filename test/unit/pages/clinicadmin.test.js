@@ -273,13 +273,11 @@ describe('ClinicAdmin', () => {
       expect(actions).to.eql(expectedActions);
     });
 
-    it('should render Edit and "More" icon', () => {
+    it('should render a "More" icon per row', () => {
       const table = wrapper.find(Table);
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(4); // header + 2 clinicians + 1 invite
-      expect(table.find('td')).to.have.length(15); // 5 per clinician/invite
-      const editButton = table.find(Button).at(0);
-      expect(editButton.text()).to.equal('Edit');
+      expect(table.find('td')).to.have.length(12); // 4 per clinician/invite
       expect(table.find('PopoverMenu')).to.have.length(2);
     });
 
@@ -295,14 +293,23 @@ describe('ClinicAdmin', () => {
         );
       });
 
-      it('should not render the "More" popover menu', () => {
+      it('should only allow editing clinician info within the "More" popover menu', () => {
         const table = wrapper.find(Table);
-        expect(table.find('PopoverMenu')).to.have.length(0);
+        expect(table.find('PopoverMenu')).to.have.length(1);
+        expect(table.find('PopoverMenu').find('Button')).to.have.length(1);
+        expect(table.find('PopoverMenu').find('Button').text()).to.equal('Edit Clinician Information');
       });
     });
 
-    it('should navigate to "/clinician-edit" when "Edit" button clicked', () => {
-      const editButton = wrapper.find(Table).find(Button).at(0);
+    it('should display menu when "More" icon is clicked', () => {
+      const moreMenuIcon = wrapper.find('PopoverMenu').find('Icon').at(0);
+      expect(wrapper.find(Popover).at(0).props().open).to.be.false;
+      moreMenuIcon.simulate('click');
+      expect(wrapper.find(Popover).at(0).props().open).to.be.true;
+    });
+
+    it('should navigate to "/clinician-edit" when "Edit" menu action is clicked', () => {
+      const editButton = wrapper.find('Button[iconLabel="Edit Clinician Information"]');
       store.clearActions();
       editButton.simulate('click');
       expect(store.getActions()).to.eql([
@@ -320,13 +327,6 @@ describe('ClinicAdmin', () => {
           type: '@@router/CALL_HISTORY_METHOD',
         },
       ]);
-    });
-
-    it('should display menu when "More" icon is clicked', () => {
-      const moreMenuIcon = wrapper.find('PopoverMenu').find('Icon').at(0);
-      expect(wrapper.find(Popover).at(0).props().open).to.be.false;
-      moreMenuIcon.simulate('click');
-      expect(wrapper.find(Popover).at(0).props().open).to.be.true;
     });
 
     it('should display dialog when "Remove User" is clicked', () => {

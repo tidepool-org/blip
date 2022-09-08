@@ -18,22 +18,71 @@ import { space, shadows } from '../../themes/baseTheme';
 import { utils as vizUtils } from '@tidepool/viz';
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
+const roundUp = (value, precision = 1) => {
+  let shift = 10 ** precision;
+  return Math.ceil(value * shift) / shift;
+};
+
+const roundDown = (value, precision = 1) => {
+  let shift = 10 ** precision;
+  return Math.floor(value * shift) / shift;
+};
+
+export const formatValue = (inputValue, key) => {
+  let precision = 0;
+  let percentage = inputValue * 100;
+
+  // We want to show extra precision on very small percentages so that we avoid showing 0%
+  // when there is some data there.
+  if (percentage > 0 && percentage < 0.5) {
+    precision = percentage < 0.05 ? 2 : 1;
+  }
+
+  switch (key) {
+    case 'veryLow':
+      if (percentage > 0 && percentage < 0.5) {
+        precision = 2;
+        percentage = roundUp(percentage, precision);
+      }
+      if (percentage >= 0.5 && percentage < 1) {
+        precision = 1;
+        percentage = roundDown(percentage, precision);
+      }
+      break;
+    case 'low':
+      if (percentage > 3 && percentage < 4) {
+        precision = 1;
+        percentage = roundDown(percentage, precision);
+      }
+      break;
+    case 'target':
+      if (percentage > 69 && percentage < 70) {
+        precision = 1;
+        percentage = roundDown(percentage, precision);
+      }
+      break;
+    case 'high':
+      if (percentage > 24 && percentage < 25) {
+        precision = 1;
+        percentage = roundDown(percentage, precision);
+      }
+      break;
+    case 'veryHigh':
+      if (percentage > 4 && percentage < 5) {
+        precision = 1;
+        percentage = roundDown(percentage, precision);
+      }
+      break;
+    default:
+      break;
+  }
+
+  return format(`.${precision}f`)(percentage);
+};
+
 export const BgRangeSummary = React.memo(props => {
   const { bgUnits, data, striped, targetRange, t, ...themeProps } = props;
   const formattedBgUnits = bgUnits.replace(/l$/, 'L');
-
-  const formatValue = (value) => {
-    let precision = 0;
-    const percentage = value * 100;
-
-    // We want to show extra precision on very small percentages so that we avoid showing 0%
-    // when there is some data there.
-    if (percentage > 0 && percentage < 0.5) {
-      precision = percentage < 0.05 ? 2 : 1;
-    }
-
-    return format(`.${precision}f`)(percentage);
-  }
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -62,13 +111,14 @@ export const BgRangeSummary = React.memo(props => {
 
   const popoverFlexStyle = useMemo(() => ({ gap: 3 }), []);
   const wrapperStyle = useMemo(() => ({ position: 'relative' }), []);
+  const flexWidth = useMemo(() => (['155px', '200px']),[])
 
   const bgLabels = generateBgRangeLabels(bgPrefs, { condensed: true });
 
   return (
     <>
       <Box sx={wrapperStyle} {...themeProps}>
-        <Flex className="range-summary-bars" width="200px" height="20px" justifyContent="center" {...bindHover(popupState)}>
+        <Flex className="range-summary-bars" width={flexWidth} height="20px" justifyContent="center" {...bindHover(popupState)}>
           {map(data, (value, key) => (
               <Box className={`range-summary-bars-${key}`} key={key} bg={`bg.${key}`} width={`${value * 100}%`}/>
           ))}
@@ -106,7 +156,7 @@ export const BgRangeSummary = React.memo(props => {
               <Flex key={key} flexDirection="column" alignItems="center">
                 <Flex className={`range-summary-value-${key}`} mb={2} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
                   <Text fontWeight="bold" lineHeight={1} fontSize={1}>
-                    {formatValue(value)}
+                    {formatValue(value, key)}
                   </Text>
                   <Text lineHeight={1} color="inherit" fontSize=".65em">%</Text>
                 </Flex>

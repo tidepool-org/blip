@@ -894,7 +894,7 @@ describe('ClinicPatients', () => {
           expect(rowData(1).at(2).text()).contains('Today');
           expect(rowData(2).at(2).text()).contains('Yesterday');
           expect(rowData(3).at(2).text()).contains('30 days ago');
-          expect(rowData(4).at(2).text()).to.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/); // match YYYY-MM-DD format
+          expect(rowData(4).at(2).text().slice(-10)).to.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/); // match YYYY-MM-DD format
 
           // CGM use in fourth column
           expect(rowData(0).at(3).text()).contains(emptyStatText);
@@ -927,11 +927,11 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           patientHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           patientHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
 
           const lastUploadHeader = table.find('#peopleTable-header-summary-lastUploadDate .MuiTableSortLabel-root').at(0);
 
@@ -969,7 +969,7 @@ describe('ClinicPatients', () => {
           expect(refreshButton).to.have.lengthOf(1);
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           refreshButton.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '+fullName' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '-summary.lastUploadDate' }));
         });
 
         it('should show the time since the last patient data fetch', () => {
@@ -1012,7 +1012,7 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '+fullName', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ limit: 50, offset: 0, sort: '-summary.lastUploadDate', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days' }));
         });
 
@@ -1092,7 +1092,7 @@ describe('ClinicPatients', () => {
 
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({limit: 50,
             offset: 0,
-            sort: '+fullName',
+            sort: '-summary.lastUploadDate',
             'summary.periods.14d.timeInHighPercent': '>=0.25',
             'summary.periods.14d.timeInLowPercent': '>=0.04',
             'summary.periods.14d.timeInTargetPercent': '<=0.7',
@@ -1112,6 +1112,77 @@ describe('ClinicPatients', () => {
 
           expect(timeInRangeFilterCount()).to.have.lengthOf(1);
           expect(timeInRangeFilterCount().text()).to.equal('5');
+        });
+
+        it('should allow filtering by summary period', () => {
+          // Set some default range filters since they are affected by summary period changes
+          ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().returns([
+            {
+              timeInRange: [
+                  'timeInLowPercent',
+                  'timeInHighPercent'
+              ],
+              meetsGlycemicTargets: false,
+            },
+            sinon.stub()
+          ]));
+
+          wrapper = mount(
+            <Provider store={store}>
+              <ToastProvider>
+                <ClinicPatients {...defaultProps} />
+              </ToastProvider>
+            </Provider>
+          );
+
+          wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+
+          const summaryPeriodFilterTrigger = wrapper.find('#summary-period-filter-trigger').hostNodes();
+          expect(summaryPeriodFilterTrigger).to.have.lengthOf(1);
+
+          const popover = () => wrapper.find('#summaryPeriodFilters').hostNodes();
+          expect(popover().props().style.visibility).to.equal('hidden');
+
+          // Open filters popover
+          summaryPeriodFilterTrigger.simulate('click');
+          expect(popover().props().style.visibility).to.be.undefined;
+
+          // Ensure filter options present
+          const filterOptions = popover().find('#summary-period-filters').find('label').hostNodes();
+          expect(filterOptions).to.have.lengthOf(4);
+          expect(filterOptions.at(0).text()).to.equal('24 hours');
+          expect(filterOptions.at(0).find('input').props().value).to.equal('1d');
+
+          expect(filterOptions.at(1).text()).to.equal('7 days');
+          expect(filterOptions.at(1).find('input').props().value).to.equal('7d');
+
+          expect(filterOptions.at(2).text()).to.equal('14 days');
+          expect(filterOptions.at(2).find('input').props().value).to.equal('14d');
+
+          expect(filterOptions.at(3).text()).to.equal('30 days');
+          expect(filterOptions.at(3).find('input').props().value).to.equal('30d');
+
+          // Default should be 14 days
+          expect(filterOptions.at(2).find('input').props().checked).to.be.true;
+
+          // Set to 7 days
+          filterOptions.at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          const applyButton = popover().find('#apply-summary-period-filter').hostNodes();
+          applyButton.simulate('click');
+
+          // Ensure resulting patient fetch is requesting the 7 day period for time in range filters
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
+            limit: 50,
+            offset: 0,
+            sort: '-summary.lastUploadDate',
+            'summary.periods.7d.timeInHighPercent': '>0.25',
+            'summary.periods.7d.timeInLowPercent': '>0.04',
+          }));
+
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Summary period apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '7 days' }));
+          ClinicPatients.__ResetDependency__('useLocalStorage');
         });
 
         context('persisted filter state', () => {
@@ -1188,7 +1259,7 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               limit: 50,
               offset: 0,
-              sort: '+fullName',
+              sort: '-summary.lastUploadDate',
               'summary.lastUploadDateFrom': sinon.match.string,
               'summary.lastUploadDateTo': sinon.match.string,
               'summary.periods.14d.timeInHighPercent': '>=0.25',
