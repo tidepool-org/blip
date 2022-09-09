@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, Flex } from 'rebass/styled-components';
 import map from 'lodash/map';
+import isEqual from 'lodash/isEqual';
 import { format } from 'd3-format';
 import { translate } from 'react-i18next';
 
@@ -79,7 +80,7 @@ export const formatValue = (inputValue, key) => {
   return format(`.${precision}f`)(percentage);
 };
 
-export const BgRangeSummary = props => {
+export const BgRangeSummary = React.memo(props => {
   const { bgUnits, data, striped, targetRange, t, ...themeProps } = props;
   const formattedBgUnits = bgUnits.replace(/l$/, 'L');
 
@@ -87,6 +88,8 @@ export const BgRangeSummary = props => {
     variant: 'popover',
     popupId: 'summaryPopover',
   });
+
+  const popoverProps = useMemo(() => bindPopover(popupState), [popupState]);
 
   const bgPrefs = {
     bgUnits: formattedBgUnits,
@@ -96,12 +99,26 @@ export const BgRangeSummary = props => {
     }}),
   };
 
+  const anchorOrigin = useMemo(() => ({
+    vertical: 'bottom',
+    horizontal: 'center',
+  }), []);
+
+  const transformOrigin = useMemo(() => ({
+    vertical: 'top',
+    horizontal: 'center',
+  }), []);
+
+  const popoverFlexStyle = useMemo(() => ({ gap: 3 }), []);
+  const wrapperStyle = useMemo(() => ({ position: 'relative' }), []);
+  const flexWidth = useMemo(() => (['155px', '200px']),[])
+
   const bgLabels = generateBgRangeLabels(bgPrefs, { condensed: true });
 
   return (
     <>
-      <Box sx={{ position: 'relative' }} {...themeProps}>
-        <Flex className="range-summary-bars" width={['155px', '200px']} height="20px" justifyContent="center" {...bindHover(popupState)}>
+      <Box sx={wrapperStyle} {...themeProps}>
+        <Flex className="range-summary-bars" width={flexWidth} height="20px" justifyContent="center" {...bindHover(popupState)}>
           {map(data, (value, key) => (
               <Box className={`range-summary-bars-${key}`} key={key} bg={`bg.${key}`} width={`${value * 100}%`}/>
           ))}
@@ -124,23 +141,17 @@ export const BgRangeSummary = props => {
 
       <Popover
         className='range-summary-data'
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
+        anchorOrigin={anchorOrigin}
+        transformOrigin={transformOrigin}
         width="auto"
         height="auto"
         marginTop={`${space[1]}px`}
         boxShadow={shadows.small}
-        {...bindPopover(popupState)}
+        {...popoverProps}
         useHoverPopover
       >
         <Box px={2} py={1}>
-          <Flex mb={1} sx={{ gap: 3 }} justifyContent="space-between" flexWrap="nowrap">
+          <Flex mb={1} sx={popoverFlexStyle} justifyContent="space-between" flexWrap="nowrap">
             {map(data, (value, key) => (
               <Flex key={key} flexDirection="column" alignItems="center">
                 <Flex className={`range-summary-value-${key}`} mb={2} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
@@ -159,7 +170,7 @@ export const BgRangeSummary = props => {
       </Popover>
     </>
   );
-};
+}, isEqual);
 
 BgRangeSummary.propTypes = {
   bgUnits: PropTypes.string.isRequired,
