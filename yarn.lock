@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.28.0-web-1695-tir-filter-update.1":
-  version "1.28.0-web-1695-tir-filter-update.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.28.0-web-1695-tir-filter-update.1.tgz#5003b251b15caa6e5cc6b380a3a537eca242785c"
-  integrity sha512-llxZDfbNLlmbFvOoJnnYsRkb+8RsPrLLuAwjGFoXu0iVy9xy/ZaJtKmDFIV7aZ4ArxBtnE0DN8uwrPduu1163Q==
+"@tidepool/viz@1.29.0":
+  version "1.29.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.29.0.tgz#25593db9982cceb08f3ee25fa25f6b1bc085a055"
+  integrity sha512-3nPCBWsYtptI4RvFxempnf2wFa/0bp162PemMVOSBaOZ6MxEqCKBFgC9PborrJpd3dj8CG/us6PSL5GGF/wbyA==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -7858,6 +7858,11 @@ eslint-plugin-lodash@6.0.0:
   integrity sha512-iuxToisjIYAJdxWtW8OamFyc3yAsGCjU5WokvuBfTc/k5XdWOp9fAmzw+aFjj520/QXspCc8//xJpqkhYUj4qw==
   dependencies:
     lodash "^4.17.15"
+
+eslint-plugin-react-hooks@4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.6.0.tgz#4c3e697ad95b77e93f8646aaa1630c1ba607edd3"
+  integrity sha512-oFc7Itz9Qxh2x4gNHStv3BqJq54ExXmfC+a1NjAta66IAN87Wu0R/QArgIS9qKzX3dXKPI9H5crl9QchNMY9+g==
 
 eslint-plugin-react@7.20.3:
   version "7.20.3"
@@ -15471,6 +15476,11 @@ react-router@5.2.0:
     react-is "^16.6.0"
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
+
+react-scroll-to-top@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-scroll-to-top/-/react-scroll-to-top-3.0.0.tgz#002984419d4d10fdb5654c9e3dd3341f81209a60"
+  integrity sha512-I/k45Ujai097du59tHBbzGxN7Lyc6K8Uc3IChq6HMXaBfB8N/rrfm055T5Yv0DWfVpf6pOFaBmhD3LOfH5unGw==
 
 react-scroll@1.7.10:
   version "1.7.10"

@@ -87,7 +87,7 @@ const StyledTable = styled(Base)`
   }
 `;
 
-export const Table = props => {
+export const Table = React.memo(props => {
   const {
     columns,
     data,
@@ -249,7 +249,7 @@ export const Table = props => {
       />}
     </Box>
   );
-};
+});
 
 Table.propTypes = {
   ...TableProps,
