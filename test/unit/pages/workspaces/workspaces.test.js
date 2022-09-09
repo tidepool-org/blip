@@ -238,26 +238,10 @@ describe('Workspaces', () => {
         wrapper = mountWrapper(mockStore(fetchedDataEmptyState));
       });
 
-      it('should render create clinic info and CTA', () => {
+      it('should render new clinic creation info', () => {
         const emptyWorkspaces = wrapper.find('#workspaces-empty').hostNodes();
         expect(emptyWorkspaces).to.have.lengthOf(1);
-
-        const button = wrapper.find('button#empty-workspace-create-clinic');
-        expect(button).to.have.lengthOf(1);
-        expect(button.text()).contains('Yes, set it up');
-
-        store.clearActions();
-        button.simulate('click');
-        expect(store.getActions()).to.eql([
-          { type: 'SELECT_CLINIC', payload: { clinicId: null } },
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: {
-              args: ['/clinic-details/new', { selectedClinicId: null }],
-              method: 'push',
-            },
-          },
-        ]);
+        expect(emptyWorkspaces.text()).contains('Start by creating a new clinic.');
       });
     });
 
