@@ -155,7 +155,7 @@
     "rollbar-sourcemap-webpack-plugin": "2.11.4",
     "salinity": "0.0.8",
     "script-loader": "0.7.2",
-    "shelljs": "0.8.3",
+    "shelljs": "0.8.5",
     "sinon": "6.2.0",
     "source-map-loader": "0.2.4",
     "storybook-addon-designs": "5.2.0",
