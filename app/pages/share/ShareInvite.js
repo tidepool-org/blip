@@ -216,7 +216,7 @@ const ShareInvite = (props) => {
   };
 
   const backButtonText =
-    values.type === 'clinic' ? (clinic ? t('Cancel') : t('Back')) : t('Cancel');
+    (values.type === 'clinic' && !!clinic) ? t('Back') : t('Cancel');
   const submitButtonText =
     values.type === 'clinic'
       ? clinic
