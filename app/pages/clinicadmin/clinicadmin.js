@@ -1,62 +1,76 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
-import keys from 'lodash/keys';
+import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map';
-import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
+import filter from 'lodash/filter';
 import find from 'lodash/find';
+import has from 'lodash/has';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import SearchIcon from '@material-ui/icons/Search';
-import InputIcon from '@material-ui/icons/Input';
+import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import InputIcon from '@material-ui/icons/Input';
+import SearchIcon from '@material-ui/icons/Search';
+import sundial from 'sundial';
+
 import {
   Title,
   MediumTitle,
   Body1,
 } from '../../components/elements/FontStyles';
+
 import TextInput from '../../components/elements/TextInput';
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Pill from '../../components/elements/Pill';
+
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from '../../components/elements/Dialog';
+
+import ClinicProfile from '../../components/clinic/ClinicProfile';
 import { useToasts } from '../../providers/ToastProvider';
-import personUtils from '../../core/personutils';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { usePrevious } from '../../core/hooks';
+import config from '../../config';
 
 export const ClinicAdmin = (props) => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const [searchText, setSearchText] = useState('');
-  const [selectedClinic, setSelectedClinic] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-
-  useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Clinic - View clinician list');
-    }
-  }, []);
-
+  const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
+  const [showRevokeInviteDialog, setShowRevokeInviteDialog] = useState(false);
+  const [selectedInvite, setSelectedInvite] = useState(null);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
-  const fetchingClinicsForClinician = working.fetchingClinicsForClinician;
   const fetchingCliniciansFromClinic = working.fetchingCliniciansFromClinic;
-  const allUsers = useSelector((state) => state.blip.allUsersMap);
+  const clinic = get(clinics, selectedClinicId);
+  const pendingSentClinicianInvites = useSelector((state) => state.blip.pendingSentClinicianInvites);
+  const timePrefs = useSelector((state) => state.blip.timePrefs);
+  const [clinicianArray, setClinicianArray] = useState([]);
+  const [userRolesInClinic, setUserRolesInClinic] = useState([]);
+  const rowsPerPage = 8;
+
+  const isClinicAdmin = () => includes(userRolesInClinic, 'CLINIC_ADMIN');
+  const isOnlyClinicAdmin = () => filter(clinicianArray, { isAdmin: true, inviteId: undefined }).length === 1;
 
   useEffect(() => {
     const {
@@ -68,18 +82,20 @@ export const ClinicAdmin = (props) => {
       previousWorking,
       'resendingClinicianInvite.inProgress'
     );
-    if (!inProgress && completed && prevInProgress) {
+    if (!inProgress && prevInProgress) {
+      if (completed) {
+        setToast({
+          message: t('Clinician invite resent to {{email}}.', { email: selectedInvite?.email }),
+          variant: 'success',
+        });
+      }
       if (notification) {
         setToast({
           message: notification.message,
           variant: 'danger',
         });
-      } else {
-        setToast({
-          message: t('Clinician invite resent.'),
-          variant: 'success',
-        });
       }
+      closeResendInviteDialog();
     }
   }, [working.resendingClinicianInvite]);
 
@@ -93,18 +109,22 @@ export const ClinicAdmin = (props) => {
       previousWorking,
       'deletingClinicianInvite.inProgress'
     );
-    if (!inProgress && completed && prevInProgress) {
+    if (!inProgress && prevInProgress) {
+      if (completed) {
+        setToast({
+          message: t('Clinician invite to {{email}} has been revoked.', {
+            email: selectedInvite?.email,
+          }),
+          variant: 'success',
+        });
+      }
       if (notification) {
         setToast({
           message: notification.message,
           variant: 'danger',
         });
-      } else {
-        setToast({
-          message: t('Clinician invite deleted.'),
-          variant: 'success',
-        });
       }
+      closeRevokeInviteDialog();
     }
   }, [working.deletingClinicianInvite]);
 
@@ -118,119 +138,210 @@ export const ClinicAdmin = (props) => {
       previousWorking,
       'deletingClinicianFromClinic.inProgress'
     );
-    if (!inProgress && completed && prevInProgress) {
+    if (!inProgress && prevInProgress) {
+      if (completed) {
+        setToast({
+          message: t('Clinician removed from clinic.'),
+          variant: 'success',
+        });
+      }
       if (notification) {
         setToast({
           message: notification.message,
           variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('Clinician removed from clinic.'),
-          variant: 'success',
         });
       }
     }
   }, [working.deletingClinicianFromClinic]);
 
   useEffect(() => {
-    if (
-      !fetchingClinicsForClinician.inProgress &&
-      !fetchingClinicsForClinician.completed &&
-      !fetchingClinicsForClinician.notification
-    ) {
-      dispatch(actions.async.getClinicsForClinician(api, loggedInUserId));
-    } else {
-      if (keys(clinics).length) {
-        setSelectedClinic(keys(clinics)[0]);
-      }
-      if (
-        !fetchingCliniciansFromClinic.inProgress &&
-        !fetchingCliniciansFromClinic.completed &&
-        !fetchingCliniciansFromClinic.notification
-      ) {
-        forEach(clinics, (clinic) => {
-          dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id));
+    const { inProgress, notification } = working.fetchingClinicianInvite;
+    const prevInProgress = get(
+      previousWorking,
+      'fetchingClinicianInvite.inProgress'
+    );
+    if (!inProgress && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
         });
       }
     }
-  }, [
-    loggedInUserId,
-    fetchingClinicsForClinician,
-    fetchingCliniciansFromClinic,
-  ]);
+  }, [working.fetchingClinicianInvite]);
 
-  const clinicianArray = map(
-    get(clinics, [selectedClinic, 'clinicians'], {}),
+  useEffect(() => {
+    const { inProgress, notification } = working.fetchingCliniciansFromClinic;
+    const prevInProgress = get(
+      previousWorking,
+      'fetchingCliniciansFromClinic.inProgress'
+    );
+    if (!inProgress && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      }
+    }
+  }, [working.fetchingCliniciansFromClinic]);
+
+  useEffect(() => {
+    if (
+      loggedInUserId &&
+      clinic?.id &&
+      !fetchingCliniciansFromClinic.inProgress
+    ) {
+      dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id, { limit: 1000, offset: 0 }));
+    }
+  }, [loggedInUserId, clinic?.id]);
+
+  const getClinicianArray = () => map(
+    get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
-      const { roles, email, id: clinicianId, inviteId } = clinician;
-      const user = get(allUsers, clinicianId, {});
-      const role = includes(roles, 'CLINIC_ADMIN')
-        ? t('Clinic Admin')
-        : includes(roles, 'CLINIC_MEMBER')
-        ? t('Clinic Member')
-        : '';
+      const { roles, email, id: clinicianId, inviteId, name = '' } = clinician;
+      let role = '';
+
+      if (includes(roles, 'CLINIC_ADMIN')) {
+        role = t('Clinic Admin');
+      } else if (includes(roles, 'CLINIC_MEMBER')) {
+        role = t('Clinic Member');
+      }
+
       return {
-        fullName: personUtils.fullName(user),
-        fullNameOrderable: (personUtils.fullName(user) || '').toLowerCase(),
+        fullName: name,
+        fullNameOrderable: name.toLowerCase(),
         role,
         prescriberPermission: includes(roles, 'PRESCRIBER'),
+        isAdmin: includes(roles, 'CLINIC_ADMIN'),
         userId: clinicianId,
-        inviteId: inviteId,
+        inviteId,
+        status: inviteId ? t('invite sent') : '',
         email,
         roles,
       };
     }
   );
 
-  const userRolesInClinic = get(
-    find(clinicianArray, { userId: loggedInUserId }),
-    'roles',
-    []
-  );
+  useEffect(() => {
+    setClinicianArray(getClinicianArray());
+    setUserRolesInClinic()
+  }, [clinic]);
+
+  useEffect(() => {
+    setUserRolesInClinic(get(find(clinicianArray, { userId: loggedInUserId }), 'roles', []));
+    setPageCount(Math.ceil(clinicianArray.length / rowsPerPage));
+  }, [clinicianArray]);
+
 
   function closeDeleteDialog() {
     setShowDeleteDialog(false);
+  }
+
+  function clearSelectedUser() {
     setSelectedUser(null);
   }
 
-  function handleSearchChange(event) {
-    setSearchText(event.target.value);
+  function closeResendInviteDialog() {
+    setShowResendInviteDialog(false);
+  }
+
+  function closeRevokeInviteDialog() {
+    setShowRevokeInviteDialog(false);
+  }
+
+  function clearSelectedInvite() {
+    setSelectedInvite(null);
+  }
+
+  function handleInviteNewMember() {
+    trackMetric('Clinic - Invite new clinic team member', { clinicId: selectedClinicId });
+    dispatch(push('/clinic-invite', { clinicId: selectedClinicId }));
   }
 
   function handleEdit(userId) {
+    trackMetric('Clinic - Edit clinic team member', { clinicId: selectedClinicId });
+
     dispatch(
       push('/clinician-edit', {
         clinicianId: userId,
-        clinicId: selectedClinic,
+        clinicId: selectedClinicId,
       })
     );
   }
 
-  function handleDelete(selectedClinicianId) {
-    trackMetric('Clinic - Remove clinician');
+  function handleDelete(selectedClinician) {
+    trackMetric('Clinic - Remove clinic team member', { clinicId: selectedClinicId });
+    setSelectedUser(selectedClinician);
+    setShowDeleteDialog(true);
+  }
+
+  function handleConfirmDelete(selectedClinicianId) {
+    trackMetric('Clinic - Remove clinic team member confirmed', { clinicId: selectedClinicId });
+
     dispatch(
       actions.async.deleteClinicianFromClinic(
         api,
-        selectedClinic,
+        selectedClinicId,
         selectedClinicianId
       )
     );
   }
 
-  function handleResendInvite(inviteId) {
-    trackMetric('Clinic - Resend clinician invite');
-    dispatch(
-      actions.async.resendClinicianInvite(api, selectedClinic, inviteId)
-    );
+  function handleResendInvite(invite) {
+    trackMetric('Clinic - Resend clinic team invite', { clinicId: selectedClinicId });
+    setSelectedInvite(invite);
+
+    if(!has(pendingSentClinicianInvites, invite.inviteId)){
+      dispatch(
+        actions.async.fetchClinicianInvite(
+          api,
+          selectedClinicId,
+          invite.inviteId
+        )
+      );
+    }
+
+    setShowResendInviteDialog(true);
   }
 
-  function handleDeleteInvite(inviteId) {
-    trackMetric('Clinic - Delete clinician invite');
-    dispatch(
-      actions.async.deleteClinicianInvite(api, selectedClinic, inviteId)
-    );
+  function handleConfirmResendInvite(inviteId) {
+    trackMetric('Clinic - Resend clinic team invite confirmed', { clinicId: selectedClinicId });
+    dispatch(actions.async.resendClinicianInvite(api, selectedClinicId, inviteId));
   }
+
+  function handleRevokeInvite(invite) {
+    trackMetric('Clinic - Remove clinic team invite', { clinicId: selectedClinicId });
+    setSelectedInvite(invite);
+    setShowRevokeInviteDialog(true);
+  }
+
+  function handleConfirmRevokeInvite(inviteId) {
+    trackMetric('Clinic - Remove clinic team invite confirmed', { clinicId: selectedClinicId });
+    dispatch(actions.async.deleteClinicianInvite(api, selectedClinicId, inviteId));
+  }
+
+  function handleSearchChange(event) {
+    setPage(1);
+    setSearchText(event.target.value);
+    if (isEmpty(event.target.value)) {
+      setPageCount(Math.ceil(clinicianArray.length / rowsPerPage));
+    }
+  }
+
+  function handleClearSearch(event) {
+    setPage(1);
+    setSearchText('');
+    setPageCount(Math.ceil(clinicianArray.length / rowsPerPage));
+  }
+
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  const handleTableFilter = (data) => {
+    console.log('handleTableFilter', data);
+  };
 
   const renderClinician = ({ fullName, email }) => (
     <Box>
@@ -239,9 +350,9 @@ export const ClinicAdmin = (props) => {
     </Box>
   );
 
-  const renderStatus = ({ inviteId }) => (
+  const renderStatus = ({ status }) => (
     <Box>
-      {inviteId ? <Pill text={t('invite sent')} colorPalette="greens" /> : ''}
+      {!isEmpty(status) ? <Pill label={status} text={status} colorPalette="greens" /> : ''}
     </Box>
   );
 
@@ -275,49 +386,55 @@ export const ClinicAdmin = (props) => {
   };
 
   const renderMore = props => {
-    let items;
-    if (props.userId) {
-      items = [
-        {
-          icon: DeleteForeverIcon,
-          iconLabel: t('Remove User'),
-          iconPosition: 'left',
-          id: `delete-${props.userId}`,
-          variant: 'actionListItemDanger',
-          onClick: () => {
-            setSelectedUser(props);
-            setShowDeleteDialog(true);
-          },
-          text: t('Remove User'),
+    const items = [];
+
+    if (props.userId && (!props.isAdmin || !isOnlyClinicAdmin())) {
+      items.push({
+        icon: DeleteForeverIcon,
+        iconLabel: t('Remove User'),
+        iconPosition: 'left',
+        id: `delete-${props.userId}`,
+        variant: 'actionListItemDanger',
+        onClick: _popupState => {
+          _popupState.close();
+          handleDelete(props);
         },
-      ];
+        text: t('Remove User'),
+      });
     }
+
     if (props.inviteId) {
-      items = [
+      items.push(...[
         {
           icon: InputIcon,
-          iconLabel: t('Resend Invitation'),
+          iconLabel: t('Resend Invite'),
           iconPosition: 'left',
           id: `resendInvite-${props.inviteId}`,
           variant: 'actionListItem',
-          onClick: () => handleResendInvite(props.inviteId),
-          text: t('Resend Invitation'),
+          onClick: _popupState => {
+            _popupState.close();
+            handleResendInvite(props);
+          },
+          text: t('Resend Invite'),
         },
         {
           icon: DeleteForeverIcon,
-          iconLabel: t('Delete Invitation'),
+          iconLabel: t('Revoke Invite'),
           iconPosition: 'left',
           id: `deleteInvite-${props.inviteId}`,
           variant: 'actionListItemDanger',
-          onClick: () => handleDeleteInvite(props.inviteId),
-          text: t('Delete item'),
+          onClick: _popupState => {
+            _popupState.close();
+            handleRevokeInvite(props);
+          },
+          text: t('Revoke Invite'),
         },
-      ];
+      ]);
     }
 
-    return (
+    return items.length ? (
       <PopoverMenu id="action-menu" items={items} />
-    );
+    ) : '';
   };
 
   const columns = [
@@ -333,31 +450,35 @@ export const ClinicAdmin = (props) => {
     },
     {
       title: t('Status'),
-      field: 'inviteSent',
+      field: 'status',
       align: 'left',
       sortable: true,
-      sortBy: 'inviteSent',
+      sortBy: 'status',
       render: renderStatus,
     },
-    {
+  ];
+
+  if (config.RX_ENABLED) {
+    columns.push({
       title: t('Permission'),
       field: 'prescriberPermission',
       align: 'left',
       sortable: true,
       sortBy: 'prescriberPermission',
       render: renderPermission,
-    },
-    {
-      title: t('Role'),
-      field: 'role',
-      align: 'left',
-      sortable: true,
-      sortBy: 'role',
-      render: renderRole,
-    },
-  ];
+    });
+  }
 
-  if (includes(userRolesInClinic, 'CLINIC_ADMIN')) {
+  columns.push({
+    title: t('Role'),
+    field: 'role',
+    align: 'left',
+    sortable: true,
+    sortBy: 'role',
+    render: renderRole,
+  });
+
+  if (((isClinicAdmin()))) {
     columns.push(
       {
         title: '',
@@ -369,214 +490,205 @@ export const ClinicAdmin = (props) => {
         title: '',
         field: 'more',
         render: renderMore,
-        align: 'left',
+        align: 'right',
       }
     );
   }
 
+  const formattedInviteDate =
+    pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.modified &&
+    sundial.formatInTimezone(
+      pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.modified,
+      timePrefs?.timezoneName ||
+        new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      'MM/DD/YYYY [at] h:mm a'
+    );
+
   return (
     <>
-      <Box
-        mx="auto"
-        my={2}
-        p={4}
-        bg="white"
-        width={[1, 0.75, 0.75, 0.5]}
-        sx={{
-          border: baseTheme.borders.default,
-          borderRadius: baseTheme.radii.default,
-        }}
-      >
-        <Flex alignItems="flex-start">
-          <Title py={4} pr={4}>
-            {t('Clinic Profile')}
-          </Title>
-          <Box flexDirection="column" flexGrow="1">
-            <TextInput
-              name="clinic_name"
-              label={t('Clinic name')}
-              disabled={true}
-              value={get(clinics, [selectedClinic, 'name'])}
-              width="100%"
-              themeProps={{
-                px: 2,
-                pb: 2,
-                sx: {
-                  '&& input:disabled': {
-                    color: baseTheme.colors.text.primary,
-                    bg: 'white',
-                  },
-                },
-              }}
-            ></TextInput>
-            <TextInput
-              name="clinic_address"
-              label={t('Clinic address')}
-              disabled={true}
-              value={get(clinics, [selectedClinic, 'address'])}
-              width="100%"
-              color={baseTheme.colors.text.primary}
-              bg="white"
-              themeProps={{
-                px: 2,
-                sx: {
-                  '&& input:disabled': {
-                    color: baseTheme.colors.text.primary,
-                    bg: 'white',
-                  },
-                },
-              }}
-            ></TextInput>
-          </Box>
-          <Box flexDirection="column" flexGrow="1">
-            <Box>
-              <TextInput
-                name="clinic_contact"
-                label={t('Clinic contact')}
-                disabled={true}
-                value={get(clinics, [selectedClinic, 'email'])}
-                width="100%"
-                themeProps={{
-                  px: 2,
-                  pb: 2,
-                  sx: {
-                    '&& input:disabled': {
-                      color: baseTheme.colors.text.primary,
-                      bg: 'white',
-                    },
-                  },
-                }}
-              ></TextInput>
-            </Box>
-            <Box>
-              <TextInput
-                name="clinic_cityzip"
-                label={t('City, State, Zipcode')}
-                disabled={true}
-                value={`${get(clinics, [
-                  selectedClinic,
-                  'city',
-                ])}, ${get(clinics, [
-                  selectedClinic,
-                  'state',
-                ])}, ${get(clinics, [selectedClinic, 'postalCode'])}`}
-                width="100%"
-                themeProps={{
-                  px: 2,
-                  sx: {
-                    '&& input:disabled': {
-                      color: baseTheme.colors.text.primary,
-                      bg: 'white',
-                    },
-                  },
-                }}
-              ></TextInput>
-            </Box>
-          </Box>
-          <Box flexDirection="column" flexGrow="1">
-            <TextInput
-              name="clinic_sharecode"
-              label={t('Clinic share code')}
-              disabled={true}
-              value={get(clinics, [selectedClinic, 'shareCode'])}
-              width="100%"
-              themeProps={{
-                px: 2,
-                pb: 2,
-                sx: {
-                  '&& input:disabled': {
-                    color: baseTheme.colors.text.primary,
-                    bg: 'white',
-                  },
-                },
-              }}
-            ></TextInput>
-          </Box>
-        </Flex>
-      </Box>
-      <Box
-        mx="auto"
-        my={2}
-        bg="white"
-        width={[1, 0.75, 0.75, 0.5]}
-        sx={{
-          border: baseTheme.borders.default,
-          borderRadius: baseTheme.radii.default,
-        }}
-      >
-        <Flex
-          sx={{ borderBottom: baseTheme.borders.default }}
-          alignItems={'center'}
-        >
-          <Title p={4} flexGrow={1}>
-            {t('Access Management')}
-          </Title>
-          <Box>
-            <Button
-              mr={4}
-              variant="primary"
-              onClick={() => {
-                dispatch(push('/clinic-invite', { clinicId: selectedClinic }));
-              }}
-            >
-              {t('Invite new clinic team member')}
-            </Button>
-          </Box>
-        </Flex>
+      <ClinicProfile api={api} trackMetric={trackMetric} />
+      <Box mb={8}>
+        <Box variant="containers.largeBordered" mb={4}>
+          <Flex
+            px={4}
+            py={2}
+            sx={{ borderBottom: baseTheme.borders.default }}
+            alignItems={'center'}
+          >
+            <Title flexGrow={1}>
+              {t('Clinic Members')}
+            </Title>
 
-        <Box mx={4}>
-          <TextInput
-            themeProps={{
-              minWidth: '250px',
-              py: 3,
-            }}
-            placeholder={t('search')}
-            icon={SearchIcon}
-            id="search-members"
-            name="search-members"
-            onChange={handleSearchChange}
-            variant="condensed"
-          />
-          <Table
-            id="clinicianTable"
-            label={t('Clinician Table')}
-            columns={columns}
-            data={clinicianArray}
-            orderBy="fullNameOrderable"
-            order="asc"
-            searchText={searchText}
-            rowsPerPage={8}
-            pagination={true}
-            style={{ fontSize: '14px' }}
-          />
+            <TextInput
+              themeProps={{
+                width: 'auto',
+                minWidth: '250px',
+              }}
+              fontSize="12px"
+              value={searchText}
+              placeholder={t('Search by Name')}
+              icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+              iconLabel={t('Search')}
+              onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
+              id="search-members"
+              name="search-members"
+              onChange={handleSearchChange}
+              variant="condensed"
+            />
+          </Flex>
+
+          <Box mx={4}>
+            <Box my={4}>
+              {isClinicAdmin() && (
+                <Button
+                  mr={4}
+                  variant="primary"
+                  onClick={handleInviteNewMember}
+                >
+                  {t('Invite New Clinic Team Member')}
+                </Button>
+              )}
+            </Box>
+
+            <Table
+              id="clinicianTable"
+              label={t('Clinician Table')}
+              columns={columns}
+              data={clinicianArray}
+              orderBy="fullNameOrderable"
+              order="asc"
+              rowHover={false}
+              rowsPerPage={rowsPerPage}
+              searchText={searchText}
+              page={page}
+              onFilter={handleTableFilter}
+              fontSize={1}
+            />
+          </Box>
         </Box>
+
+        {clinicianArray.length > rowsPerPage && (
+          <Box variant="containers.large" bg="transparent" mb={0}>
+            <Pagination
+              px="5%"
+              width="100%"
+              id="clinic-clinicians-pagination"
+              count={pageCount}
+              page={page}
+              disabled={pageCount < 2}
+              onChange={handlePageChange}
+              showFirstButton={false}
+              showLastButton={false}
+            />
+          </Box>
+        )}
       </Box>
+
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={closeDeleteDialog}
+        TransitionProps={{onExited:clearSelectedUser}}
       >
         <DialogTitle onClose={closeDeleteDialog}>
-          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: selectedUser?.fullName })}</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: selectedUser?.fullName || selectedUser?.email })}</MediumTitle>
         </DialogTitle>
+
         <DialogContent>
           <Body1>
-            {t('{{name}} will lose all access to this clinic workspace and patient list. Are you sure you want to remove this user?', { name: selectedUser?.fullName })}
+            {t('{{name}} will lose all access to this clinic workspace and patient list. Are you sure you want to remove this user?', { name: selectedUser?.fullName || selectedUser?.email })}
           </Body1>
         </DialogContent>
+
         <DialogActions>
           <Button variant="secondary" onClick={closeDeleteDialog}>
             {t('Cancel')}
           </Button>
+
           <Button
             variant="danger"
             onClick={() => {
-              handleDelete(selectedUser.userId);
+              handleConfirmDelete(selectedUser.userId);
               closeDeleteDialog();
             }}
           >
             {t('Remove User')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        id="resendInvite"
+        aria-labelledby="dialog-title"
+        open={showResendInviteDialog && !!pendingSentClinicianInvites?.[selectedInvite?.inviteId]?.created}
+        onClose={closeResendInviteDialog}
+        TransitionProps={{onExited:clearSelectedInvite}}
+      >
+        <DialogTitle onClose={closeResendInviteDialog}>
+          <MediumTitle id="dialog-title">{t('Confirm Resending Invite')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Body1>
+          <Trans>
+            <Text>
+              You invited <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text> to your clinic on <Text as='span' fontWeight='bold'>{{inviteDate: formattedInviteDate}}</Text>.
+            </Text>
+            <Text>
+              Are you sure you want to resend this invite?
+            </Text>
+          </Trans>
+          </Body1>
+        </DialogContent>
+
+        <DialogActions>
+          <Button variant="secondary" onClick={closeResendInviteDialog}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            variant="primary"
+            processing={working.resendingClinicianInvite.inProgress}
+            onClick={() => handleConfirmResendInvite(selectedInvite.inviteId)}
+          >
+            {t('Resend Invite')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        id="revokeInvite"
+        aria-labelledby="dialog-title"
+        open={showRevokeInviteDialog}
+        onClose={closeRevokeInviteDialog}
+        TransitionProps={{onExited:clearSelectedInvite}}
+      >
+        <DialogTitle onClose={closeRevokeInviteDialog}>
+          <MediumTitle id="dialog-title">{t('Confirm Revoking Invite')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Body1>
+          <Trans>
+            <Text>
+              Are you sure you want to revoke this invite to <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text>?
+            </Text>
+          </Trans>
+          </Body1>
+        </DialogContent>
+
+        <DialogActions>
+          <Button variant="secondary" onClick={closeRevokeInviteDialog}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            variant="danger"
+            processing={working.deletingClinicianInvite.inProgress}
+            onClick={() => handleConfirmRevokeInvite(selectedInvite.inviteId)}
+          >
+            {t('Revoke Invite')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -17,6 +17,7 @@ const expect = chai.expect;
 
 describe('DeviceSelection', () => {
   const props = {
+    chartType: 'basics',
     devices: [
       { id: 'device1' },
       { id: 'device2' }
@@ -26,6 +27,7 @@ describe('DeviceSelection', () => {
     },
     updateChartPrefs: sinon.stub(),
     removeGeneratedPDFS: sinon.stub(),
+    trackMetric: sinon.stub(),
   };
 
   let wrapper;
@@ -35,6 +37,7 @@ describe('DeviceSelection', () => {
 
   afterEach(() => {
     props.updateChartPrefs.reset();
+    props.trackMetric.resetHistory();
   });
 
   it('should render without errors when provided all required props', () => {
@@ -98,13 +101,14 @@ describe('DeviceSelection', () => {
     expect(wrapper.find('Checkbox').length).to.equal(3);
   });
 
-  it('should call updateChartPrefs and removeGeneratedPDFS on Checkbox change adding or removing devices', () => {
+  it('should call updateChartPrefs and removeGeneratedPDFS and trackMetric on Checkbox change adding or removing devices', () => {
     const checkboxes = wrapper.find('Checkbox');
     const checkbox1 = checkboxes.at(0).find('input');
     const checkbox2 = checkboxes.at(1).find('input');
 
     sinon.assert.callCount(props.updateChartPrefs, 0);
     sinon.assert.callCount(props.removeGeneratedPDFS, 0);
+    sinon.assert.callCount(props.trackMetric, 0);
 
     checkbox1.simulate('change', {
       target: { value: 'device1', checked: false },
@@ -116,6 +120,7 @@ describe('DeviceSelection', () => {
       sinon.match({ excludedDevices: ['device1'] })
     );
     sinon.assert.callCount(props.removeGeneratedPDFS, 1);
+    sinon.assert.calledWith(props.trackMetric, 'Clicked Basics filter device off');
 
     wrapper.setProps({ chartPrefs: { excludedDevices: ['device1'] } });
 
@@ -144,6 +149,7 @@ describe('DeviceSelection', () => {
       sinon.match({ excludedDevices: ['device2'] })
     );
     sinon.assert.callCount(props.removeGeneratedPDFS, 3);
+    sinon.assert.calledWith(props.trackMetric, 'Clicked Basics filter device on');
 
     wrapper.setProps({
       chartPrefs: { excludedDevices: ['device2'] },
@@ -159,5 +165,17 @@ describe('DeviceSelection', () => {
       sinon.match({ excludedDevices: [] })
     );
     sinon.assert.callCount(props.removeGeneratedPDFS, 4);
+  });
+
+  it('should track a metric when device selection accordion is collapsed or expanded', () => {
+    const collapseIcon = wrapper.find('.MuiExpansionPanelSummary-expandIcon').hostNodes();
+    expect(collapseIcon).to.have.lengthOf(1);
+
+    sinon.assert.callCount(props.trackMetric, 0);
+    collapseIcon.simulate('click');
+    sinon.assert.calledWith(props.trackMetric, 'Click expanded - Basics - Filter devices');
+
+    collapseIcon.simulate('click');
+    sinon.assert.calledWith(props.trackMetric, 'Click collapsed - Basics - Filter devices');
   });
 });

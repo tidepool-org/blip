@@ -44,9 +44,7 @@ const fieldsetPropTypes = {
 
 const emptyValueText = t('Not specified');
 
-const patientRows = values => {
-  const formikContext = useFormikContext();
-
+const patientRows = (values, formikContext) => {
   return [
     {
       label: t('Email'),
@@ -88,8 +86,7 @@ const patientRows = values => {
   ];
 };
 
-const therapySettingsRows = (pump) => {
-  const formikContext = useFormikContext();
+const therapySettingsRows = (pump, formikContext) => {
   const { values } = formikContext;
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits');
   const thresholds = warningThresholds(pump, bgUnits, values);
@@ -302,8 +299,9 @@ export const PatientInfo = props => {
 
   const nameStep = [0, 1];
   const currentStep = [4, 0];
+  const formikContext = useFormikContext();
 
-  const { values } = useFormikContext();
+  const { values } = formikContext;
 
   const {
     firstName,
@@ -311,7 +309,7 @@ export const PatientInfo = props => {
   } = values;
 
   const patientName = [firstName, lastName].join(' ');
-  const rows = patientRows(values);
+  const rows = patientRows(values, formikContext);
 
   const Row = ({ label, value, step, initialFocusedInput, error }) => (
     <Flex mb={4} justifyContent="space-between" alignItems="center">
@@ -363,7 +361,8 @@ export const TherapySettings = props => {
   const therapySettingsStep = [3, 0];
   const currentStep = [4, 0];
 
-  const { values } = useFormikContext();
+  const formikContext = useFormikContext();
+  const { values } = formikContext;
 
   const {
     firstName,
@@ -372,7 +371,7 @@ export const TherapySettings = props => {
 
   const patientName = [firstName, lastName].join(' ');
 
-  const rows = therapySettingsRows(pump);
+  const rows = therapySettingsRows(pump, formikContext);
 
   const Row = ({ label, value, warning, id, index, error }) => {
     let rowValues = isArray(value) ? value : [value];
@@ -474,7 +473,7 @@ export const TherapySettings = props => {
             buttonTitle={t('Copy therapy settings order as text')}
             buttonText={(
               <Icon
-                variant="button"
+                variant="static"
                 icon={FileCopyRoundedIcon}
                 label={t('Copy therapy settings order as text')}
                 title={t('Copy therapy settings order as text')}
@@ -487,8 +486,8 @@ export const TherapySettings = props => {
                 label: t('Name'),
                 value: patientName,
               },
-              ...patientRows(values),
-            ], therapySettingsRows(pump, values))}
+              ...patientRows(values, formikContext),
+            ], therapySettingsRows(pump, formikContext))}
           />
         </Box>
       </Flex>

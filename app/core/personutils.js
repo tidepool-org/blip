@@ -45,8 +45,9 @@ personUtils.isPatient = (person) => {
   return Boolean(personUtils.patientInfo(person));
 };
 
-personUtils.isClinic = (user) => {
-  return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
+personUtils.isClinicianAccount = (user) => {
+  const userRoles = _.get(user, 'roles', []);
+  return _.intersection(userRoles, ['clinic', 'migrated_clinic', 'clinician']).length > 0 || user?.isClinicMember;
 };
 
 personUtils.isDataDonationAccount = (account) => {
@@ -184,5 +185,34 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
 
   return validationErrors;
 };
+
+personUtils.accountInfoFromClinicPatient = clinicPatient => ({
+  permissions: clinicPatient.permissions,
+  emails: clinicPatient.email ? [clinicPatient.email] : undefined,
+  profile: _.omitBy({
+    emails: clinicPatient.email ? [clinicPatient.email] : undefined,
+    fullName: clinicPatient.fullName,
+    patient: _.omitBy({
+      birthday: clinicPatient.birthDate,
+      mrn: clinicPatient.mrn,
+    }, _.isEmpty),
+  }, _.isEmpty),
+  userid: clinicPatient.id,
+  username: clinicPatient.email,
+});
+
+personUtils.clinicPatientFromAccountInfo = patient => ({
+  permissions: patient.permissions,
+  id: patient.userid,
+  email: patient.username,
+  fullName: personUtils.patientFullName(patient),
+  birthDate: _.get(patient, 'profile.patient.birthday'),
+  mrn: _.get(patient, 'profile.patient.mrn'),
+});
+
+personUtils.combinedAccountAndClinicPatient = (
+  patient = {},
+  clinicPatient = {}
+) => _.defaultsDeep(personUtils.accountInfoFromClinicPatient(clinicPatient), patient);
 
 module.exports = personUtils;

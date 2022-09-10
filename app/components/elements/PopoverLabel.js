@@ -17,10 +17,11 @@ const PopoverLabel = props => {
   const {
     icon,
     iconLabel,
+    iconProps,
     id,
     label,
     popoverContent: PopoverContent,
-    popoverWidth,
+    popoverProps,
     triggerOnHover,
     ...wrapperProps
   } = props;
@@ -33,16 +34,17 @@ const PopoverLabel = props => {
 
   return (
     <React.Fragment>
-      <Flex color="text.primary" bg="white" {...wrapperProps}>
+      <Flex alignItems="center" color="text.primary" bg="inherit" {...wrapperProps}>
         {label && <Text mr={2}>{label}</Text>}
         <Icon
           label={iconLabel}
           icon={icon}
+          {...iconProps}
           {...(triggerOnHover ? bindHover(popupState) : bindToggle(popupState))}
         />
       </Flex>
 
-      <Popover width={popoverWidth} {...bindPopover(popupState)}>
+      <Popover {...bindPopover(popupState)} useHoverPopover={triggerOnHover} {...popoverProps}>
         {React.cloneElement(PopoverContent, {})}
       </Popover>
     </React.Fragment>
@@ -53,18 +55,20 @@ PopoverLabel.propTypes = {
   ...FlexProps,
   icon: PropTypes.elementType.isRequired,
   iconLabel: PropTypes.string.isRequired,
+  iconProps: PropTypes.object,
   id: PropTypes.string.isRequired,
   label: PropTypes.string,
   popoverContent: PropTypes.node,
-  popoverWidth: PropTypes.string.isRequired,
   triggerOnHover: PropTypes.bool,
+  popoverProps: PropTypes.object,
 };
 
 PopoverLabel.defaultProps = {
   icon: InfoRoundedIcon,
   iconLabel: 'more info',
-  popoverWidth: '25em',
+  iconProps: { iconFontSize: '1em' },
   triggerOnHover: false,
+  popoverProps: { width: '25em' },
 };
 
 export default PopoverLabel;

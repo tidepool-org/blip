@@ -8,6 +8,7 @@ import toUpper from 'lodash/toUpper';
 import random from 'lodash/random';
 import SearchIcon from '@material-ui/icons/Search';
 import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import { Flex, Box, Text } from 'rebass/styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
@@ -83,11 +84,18 @@ const renderMore = ({ patient }) => (
   <Icon variant="button" icon={MoreHorizRoundedIcon} label="More actions" onClick={action(`"More actions" called for ${patient.name}`)} />
 );
 
+const RoleTitleComponent = () => (
+  <Flex flexWrap="nowrap" alignItems="center">
+    <Text mr={1}>Role</Text>
+    <Icon fontSize={1} variant="default" icon={InfoOutlinedIcon} onClick={action('Popover with some info')} />
+  </Flex>
+);
+
 const columns = [
   { title: 'Patient', field: 'patient', align: 'left', sortable: true, sortBy: 'patient.name', render: renderPatient, searchable: true, searchBy: ['patient.name', 'patient.email'] },
   { title: 'Status', field: 'status', align: 'left', sortable: true, render: renderStatus, searchable: true },
   { title: 'Permission', field: 'permission', align: 'left' },
-  { title: 'Role', field: 'role', align: 'left' },
+  { title: 'Role', field: 'role', align: 'left', titleComponent: RoleTitleComponent },
   { title: 'Edit', field: 'edit', render: renderEdit, align: 'left' },
   { title: '', field: 'more', render: renderMore, align: 'left' },
 ];

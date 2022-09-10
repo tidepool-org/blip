@@ -23,10 +23,12 @@ import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
+import { Flex } from 'rebass/styled-components';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import DeviceSelection from './deviceSelection';
+import Button from '../elements/Button';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -41,7 +43,6 @@ const FoodTooltip = vizComponents.FoodTooltip;
 const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
 
 import Header from './header';
-import Footer from './footer';
 
 const DailyChart = translate()(class DailyChart extends Component {
   static propTypes = {
@@ -116,9 +117,9 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.unmountChart();
   };
 
-  mountChart = () => {
+  mountChart = (props = this.props) => {
     this.log('Mounting...');
-    this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(this.props, this.chartOpts))
+    this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(props, this.chartOpts))
       .setupPools();
     this.bindEvents();
   };
@@ -171,11 +172,12 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   };
 
-  rerenderChart = (props = this.props) => {
+  rerenderChart = (updates = {}) => {
+    const chartProps = { ...this.props, ...updates };
     this.log('Rerendering...');
     this.unmountChart();
-    this.mountChart();
-    this.initializeChart(props);
+    this.mountChart(chartProps);
+    this.initializeChart(chartProps);
     this.chart.emitter.emit('inTransition', false);
   };
 
@@ -264,9 +266,13 @@ class Daily extends Component {
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
     const wrappedInstance = _.get(this.refs, 'chart.wrappedInstance');
+    const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
 
-    if (wrappedInstance && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
-      wrappedInstance.rerenderChart(nextProps);
+    if (wrappedInstance) {
+      const updates = {};
+      if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
+      if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) updates.bgClasses = nextProps.data.bgPrefs.bgClasses;
+      if (!_.isEmpty(updates)) wrappedInstance.rerenderChart(updates);
     }
   };
 
@@ -294,6 +300,7 @@ class Daily extends Component {
           iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
           onClickBasics={this.props.onSwitchToBasics}
+          onClickChartDates={this.props.onClickChartDates}
           onClickTrends={this.handleClickTrends}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
@@ -307,6 +314,12 @@ class Daily extends Component {
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {dataQueryComplete && this.renderChart()}
+
+              <Flex mt={3} mb={5} pl="40px">
+                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
+                  {this.props.t('Refresh')}
+                </Button>
+              </Flex>
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -320,23 +333,21 @@ class Daily extends Component {
               <Stats
                 bgPrefs={bgPrefs}
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 stats={this.props.stats}
+                trackMetric={this.props.trackMetric}
               />
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 devices={_.get(this.props, 'data.metaData.devices', [])}
-                updateChartPrefs={this.props.updateChartPrefs}
                 removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                trackMetric={this.props.trackMetric}
+                updateChartPrefs={this.props.updateChartPrefs}
               />
             </div>
           </div>
         </div>
-        <Footer
-          chartType={this.chartType}
-          onClickRefresh={this.props.onClickRefresh}
-          ref="footer"
-        />
         {this.state.hoveredBolus && <BolusTooltip
           position={{
             top: this.state.hoveredBolus.top,

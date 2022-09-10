@@ -5,6 +5,7 @@
 /* global context */
 /* global beforeEach */
 /* global afterEach */
+/* global before */
 
 var React = require('react');
 var _ = require('lodash');
@@ -127,12 +128,40 @@ describe('App', () => {
       expect(versionElems.length).to.equal(0);
     });
 
-    it('should render version when version present in config', () => {
+    it('should render version and hostname when version present in config', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4 };
       var elem = TestUtils.renderIntoDocument(<App {...props} />);
       var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
       expect(versionElems.length).to.equal(1);
+      expect(versionElems[0].innerText).to.equal('v1.4-localhost');
+    });
+
+    it('should include api enviroment in version when available', () => {
+      var props = _.clone(baseProps);
+      props.context.config = { VERSION : 1.4, API_HOST: 'qa2.development.tidepool.org' };
+      var elem = TestUtils.renderIntoDocument(<App {...props} />);
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      expect(versionElems.length).to.equal(1);
+      expect(versionElems[0].innerText).to.equal('v1.4-localhost-qa2');
+    });
+
+    it('should not include the hostname in version if it matches api environment', () => {
+      var props = _.clone(baseProps);
+      props.context.config = { VERSION : 1.4, API_HOST: 'localhost.tidepool.org' };
+      var elem = TestUtils.renderIntoDocument(<App {...props} />);
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      expect(versionElems.length).to.equal(1);
+      expect(versionElems[0].innerText).to.equal('v1.4-localhost');
+    });
+
+    it('should not include hostname or api enviroment in version for production environment', () => {
+      var props = _.clone(baseProps);
+      props.context.config = { VERSION : 1.4, API_HOST: 'app.tidepool.org' };
+      var elem = TestUtils.renderIntoDocument(<App {...props} />);
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      expect(versionElems.length).to.equal(1);
+      expect(versionElems[0].innerText).to.equal('v1.4');
     });
   });
 
@@ -293,19 +322,27 @@ describe('App', () => {
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {custodian:{}} });
+      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: { custodian: {} } });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
 
-      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {custodian:{}} });
+      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: { custodian: {} } });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
+
+      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: { custodian:{}} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(1);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {} });
+      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
-      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {} });
+      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: {} });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
+
+      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
       expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
     });
@@ -800,6 +837,35 @@ describe('App', () => {
         sinon.assert.callCount(props.context.trackMetric, 1);
       });
     });
+
+    context('doFetching', () => {
+      let initialProps = _.assign({}, baseProps, {
+        authenticated: false,
+        fetchers: [sinon.stub()],
+        location: 'page1',
+      });
+      let wrapper;
+      before(() => {
+        wrapper = shallow(<App {...initialProps} />);
+        initialProps.fetchers[0].reset();
+      });
+      afterEach(() => {
+        initialProps.fetchers[0].reset();
+      });
+      it('when neither authenticated nor page changes, it should not run fetchers', () => {
+        wrapper.setProps({ test: true });
+        sinon.assert.callCount(initialProps.fetchers[0], 0);
+      });
+      it('when user becomes authenticated, it should run any pending fetchers', () => {
+        wrapper.setProps({ authenticated: true });
+        sinon.assert.callCount(initialProps.fetchers[0], 1);
+      });
+      it('when page transitions, it should run any pending fetchers', () => {
+        wrapper.setProps({ location: 'page2' });
+        sinon.assert.callCount(initialProps.fetchers[0], 1);
+      });
+    });
+
   });
 
   describe('isPatientVisibleInNavbar', () => {
@@ -932,6 +998,18 @@ describe('App', () => {
           resendingEmailVerification: {inProgress: false},
         },
         resentEmailVerification: false,
+        selectedClinicId: null,
+        clinicFlowActive: true,
+        clinics: {
+          clinic123: {
+            id: 'clinic123',
+            patients: {
+              d4e5f6: {
+                permissions: { view: {}, upload: {} },
+              },
+            },
+          },
+        },
       };
       const result = mapStateToProps({blip: loggedIn});
 
@@ -941,6 +1019,18 @@ describe('App', () => {
 
       it('should map isLoggedIn to authenticated', () => {
         expect(result.authenticated).to.equal(loggedIn.isLoggedIn);
+      });
+
+      it('should map clinicFlowActive to clinicFlowActive', () => {
+        expect(result.clinicFlowActive).to.equal(loggedIn.clinicFlowActive);
+      });
+
+      it('should map clinics to clinics', () => {
+        expect(result.clinics).to.equal(loggedIn.clinics);
+      });
+
+      it('should map selectedClinicId to selectedClinicId', () => {
+        expect(result.selectedClinicId).to.equal(loggedIn.selectedClinicId);
       });
 
       it('should map working.fetchingUser to fetchingUser', () => {
@@ -1024,6 +1114,68 @@ describe('App', () => {
 
         it('should return correct permsOfLoggedInUser permissions', () => {
           expect(careTeamMemberUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
+        });
+      });
+
+      context('Clinic team member with upload permissions', () => {
+        const clinicTeamMemberUpload = {
+          allUsersMap: {
+            a1b2c3: {
+              termsAccepted: 'today'
+            },
+            d4e5f6: {},
+          },
+          currentPatientInViewId: 'd4e5f6',
+          loggedIn: true,
+          loggedInUserId: 'a1b2c3',
+          notification: {
+            key: 'fetchingPatient',
+            link: {
+              to: '/patients/foo',
+              text: 'Sorry!'
+            },
+            status: 405
+          },
+          permissionsOfMembersInTargetCareTeam: {},
+          membershipPermissionsInOtherCareTeams: {
+            d4e5f6: {
+              view: {},
+            }
+          },
+          dataDonationAccounts: [],
+          datasources: [],
+          showingDonateBanner: null,
+          showingDexcomConnectBanner: null,
+          working: {
+            fetchingUser: {inProgress: false},
+            fetchingPendingSentInvites: {inProgress: false},
+            updatingDataDonationAccounts: {inProgress: false},
+            fetchingPatient: {inProgress: false, notification: {type: 'error'}},
+            loggingOut: {inProgress: false},
+            resendingEmailVerification: {inProgress: false},
+          },
+          selectedClinicId: 'clinic123',
+          clinicFlowActive: true,
+          clinics: {
+            clinic123: {
+              id: 'clinic123',
+              patients: {
+                d4e5f6: {
+                  permissions: { view: {}, upload: {} },
+                },
+              },
+            },
+          },
+        };
+
+        it('should return correct permsOfLoggedInUser permissions when viewing in clinic context', () => {
+          const clinicTeamMemberUploadResult = mapStateToProps({blip: clinicTeamMemberUpload});
+          expect(clinicTeamMemberUploadResult.permsOfLoggedInUser).to.eql({ view: {}, upload: {} });
+        });
+
+        it('should return correct permsOfLoggedInUser permissions when viewing in legacy clinician account context', () => {
+          const clinicTeamMemberUploadResult = mapStateToProps({ blip: { ...clinicTeamMemberUpload, selectedClinicId: null } });
+          expect(clinicTeamMemberUploadResult.permsOfLoggedInUser).to.eql({ view: {} });
         });
       });
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import map from 'lodash/map';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
@@ -20,6 +21,7 @@ const PopoverMenu = props => {
     anchorOrigin,
     icon,
     iconLabel,
+    iconSrc,
     id,
     items,
     popoverWidth,
@@ -39,6 +41,7 @@ const PopoverMenu = props => {
         color="text.primary"
         label="info"
         icon={icon}
+        iconSrc={iconSrc}
         variant="button"
         active={popupState.isOpen}
         {...triggerProps}
@@ -52,8 +55,10 @@ const PopoverMenu = props => {
       >
         {map(items, item => (
           <Button
+            className="action-list-item"
             disabled={item.disabled}
-            icon={item.icon}
+            icon={item.processing ? CircularProgress : item.icon}
+            iconSrc={item.processing ? null : item.iconSrc}
             iconLabel={item.iconLabel}
             iconPosition={item.iconPosition}
             id={item.id}
@@ -80,11 +85,13 @@ PopoverMenu.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape({
     disabled: PropTypes.bool,
     icon: PropTypes.elementType,
+    iconSrc: PropTypes.string,
     iconLabel: PropTypes.string,
     iconPosition: PropTypes.oneOf(['left', 'right']).isRequired,
     id: PropTypes.string.isRequired,
     variant: PropTypes.oneOf(['actionListItem', 'actionListItemDanger']).isRequired,
     onClick: PropTypes.func,
+    processing: PropTypes.bool,
     text: PropTypes.string.isRequired,
   })).isRequired,
   popoverWidth: PropTypes.string.isRequired,

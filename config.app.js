@@ -23,7 +23,7 @@
 /* global __ABOUT_MAX_LENGTH__ */
 /* global __I18N_ENABLED__ */
 /* global __RX_ENABLED__ */
-/* global __CLINICS_ENABLED__ */
+/* global __PENDO_ENABLED__ */
 /* global __VERSION__ */
 
 function booleanFromText(value, defaultValue) {
@@ -57,7 +57,7 @@ const config = {
   ABOUT_MAX_LENGTH: integerFromText(__ABOUT_MAX_LENGTH__, 256),
   I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false),
   RX_ENABLED: booleanFromText(__RX_ENABLED__, false),
-  CLINICS_ENABLED: booleanFromText(__CLINICS_ENABLED__, false),
+  PENDO_ENABLED: booleanFromText(__PENDO_ENABLED__, true),
 }
 
 if (__DEV__) {

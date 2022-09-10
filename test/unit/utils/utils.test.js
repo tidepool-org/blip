@@ -3,6 +3,7 @@
 /* global it */
 /* global context */
 /* global sinon */
+/* global afterEach */
 
 import _ from 'lodash';
 import utils from '../../../app/core/utils';
@@ -533,6 +534,27 @@ describe('utils', () => {
         latestWinRelease: 'https://github.com/tidepool-org/uploader/releases/latest/download/tidepool-uploader-setup-2.0.2.exe',
         latestMacRelease: 'https://github.com/tidepool-org/uploader/releases/latest/download/tidepool-uploader-2.0.2.dmg',
       });
+    });
+  });
+
+  describe('readableStatName', function() {
+    it('should return a readable name for stats, and fall back to the argument provided if no readable name exists', function() {
+      expect(utils.readableStatName('readingsInRange')).to.equal('Readings in range');
+      expect(utils.readableStatName('timeInAuto')).to.equal('Time in automation');
+      expect(utils.readableStatName('timeInOverride')).to.equal('Time in activity');
+      expect(utils.readableStatName('timeInRange')).to.equal('Time in range');
+      expect(utils.readableStatName('totalInsulin')).to.equal('Insulin ratio');
+      expect(utils.readableStatName('foo')).to.equal('foo');
+    });
+  });
+
+  describe('readableChartName', function() {
+    it('should return a readable name for charts, and fall back to the argument provided if no readable name exists', function() {
+      expect(utils.readableChartName('basics')).to.equal('Basics');
+      expect(utils.readableChartName('bgLog')).to.equal('BG log');
+      expect(utils.readableChartName('daily')).to.equal('Daily');
+      expect(utils.readableChartName('trends')).to.equal('Trends');
+      expect(utils.readableChartName('bar')).to.equal('bar');
     });
   });
 });

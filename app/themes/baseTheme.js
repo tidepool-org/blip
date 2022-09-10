@@ -2,6 +2,7 @@ import colorPalette from './colorPalette';
 import avatars from './base/avatars';
 import banners from './base/banners';
 import buttons from './base/buttons';
+import containers from './base/containers';
 import icons from './base/icons';
 import inputs from './base/inputs';
 import links from './base/links';
@@ -22,32 +23,53 @@ export const colors = {
   text: {
     link: colorPalette.primary.purpleBright,
     primary: colorPalette.primary.blueGreyDark,
-    primaryDisabled: colorPalette.primary.blueGreyLight,
+    primaryDisabled: '#A5ADBA',
     primarySubdued: colorPalette.primary.blueGreyMedium,
   },
+  bg: {
+    veryLow: '#E9695E',
+    low: '#F19181',
+    target: '#8DD0A9',
+    high: '#B69CE2',
+    veryHigh: '#856ACF',
+  },
   border: {
-    webkitFocus: '#005fcc',
+    focus: '#4C9AFF',
     default: colorPalette.extended.grays[1],
     divider: colorPalette.extended.grays[0],
+    dividerDark: colorPalette.extended.grays[1],
     modal: colorPalette.extended.grays[0],
+    inputLight: '#DFE2E6',
+    inputDark: '#A6B1BB',
   },
   feedback: {
     info: colorPalette.primary.purpleMedium,
-    warning: '#FFAB00',
-    danger: '#DE350C',
+    warning: '#FFC400',
+    danger: '#EC4C47',
     success: '#47B881',
   },
   stat: {
     border: '#75849F',
     text: '#727375',
   },
+  status: {
+    pending: ['#E2FFEE', '#006644'],
+    declined: ['#FFECEE', '#DD2C00'],
+  },
+  tab: {
+    primary: '#66788A',
+    disabled: '#A5ADBA',
+    selected: colorPalette.primary.purpleMedium,
+  },
 };
 
 export const borders = {
   default: `1px solid ${colors.border.default}`,
-  input: `1px solid ${colors.border.default}`,
+  input: `1px solid ${colors.border.inputLight}`,
+  inputDark: `1px solid ${colors.border.inputDark}`,
   modal: `1px solid ${colors.border.modal}`,
   divider: `2px solid ${colors.border.divider}`,
+  dividerDark: `2px solid ${colors.border.dividerDark}`,
 };
 
 export const fonts = {
@@ -67,13 +89,6 @@ export const fontWeights = {
 
 export const lineHeights = [1, 1.25, 1.33, 1.5, 1.75, 2];
 
-export const mediaQueries = {
-  phone: '@media screen and (max-width: 512px)',
-  tablet: '@media screen and (max-width: 767px)',
-  laptop: '@media screen and (max-width: 1024px)',
-  desktop: '@media screen and (min-width: 1280px)',
-};
-
 export const radii = {
   large: 8,
   default: 4,
@@ -85,6 +100,7 @@ export const shadows = {
   small: '0px 0px 1px rgba(67, 90, 111, 0.47)',
   medium: '0px 0px 4px rgba(67, 90, 111, 0.4)',
   large: '0px 3px 6px rgba(67, 90, 111, 0.301);',
+  focus: `0px 0px 0px 2px ${colors.border.focus}`,
 };
 
 export const space = [0, 4, 8, 16, 24, 32, 48, 64, 96, 128];
@@ -100,7 +116,7 @@ const linkVariants = links({ colors, fonts });
 const variants = {
   avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
   banners: banners({ colors, fonts, fontSizes, fontWeights }),
-  icons: icons({ colors, fontSizes, radii, space }),
+  icons: icons({ colors, fontSizes, radii, space, shadows }),
   inputs: inputs({ borders, colors, fonts, radii, fontSizes, fontWeights, space }),
   link: linkVariants.default,
   links: linkVariants,
@@ -109,11 +125,22 @@ const variants = {
   tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
   tables: tables({ borders, colors, fonts, fontSizes, shadows }),
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
+  containers: containers({ borders, colors, radii, space }),
 };
 
 export default {
   breakpoints,
-  buttons: buttons({ colors, borders, fontSizes, radii, fonts, space, fontWeights, lineHeights }),
+  buttons: buttons({
+    colors,
+    borders,
+    fontSizes,
+    radii,
+    fonts,
+    space,
+    fontWeights,
+    lineHeights,
+    shadows,
+  }),
   variants,
   borders,
   colors,
@@ -122,7 +149,6 @@ export default {
   fontWeights,
   forms: forms({ colors }),
   lineHeights,
-  mediaQueries,
   radii,
   shadows,
   space,

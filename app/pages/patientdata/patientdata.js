@@ -45,6 +45,7 @@ import baseTheme from '../../themes/baseTheme';
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
+import ChartDateModal from '../../components/ChartDateModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import Button from '../../components/elements/Button';
 
@@ -62,6 +63,7 @@ import {
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
+const { isCustomBgRange } = vizUtils.bg;
 
 export const PatientDataClass = createReactClass({
   displayName: 'PatientData',
@@ -146,6 +148,9 @@ export const PatientDataClass = createReactClass({
           focusedSmbgRangeAvg: null,
           showingCbgDateTraces: false,
           touched: false,
+          stats: {
+            excludeDaysWithoutBolus: false,
+          },
         },
         bgLog: {
           bgSource: 'smbg',
@@ -165,7 +170,6 @@ export const PatientDataClass = createReactClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
-      queryDataCount: 0,
       fetchEarlierDataCount: 0,
       loading: true,
       transitioningChartType: false,
@@ -200,7 +204,7 @@ export const PatientDataClass = createReactClass({
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
-        {datesDialog}
+        {this.state.datesDialogOpen && datesDialog}
         {printDialog}
         <Loader show={showLoader} />
       </div>
@@ -307,11 +311,20 @@ export const PatientDataClass = createReactClass({
   },
 
   renderDatesDialog: function() {
+    const isDaily = this.state.chartType === 'daily';
+    const DatePickerComponent = isDaily ? ChartDateModal : ChartDateRangeModal;
+
+    const extraProps = isDaily ? {
+      id: 'chart-date-dialog',
+      defaultDate: _.get(this.state, 'chartEndpoints.current.0'),
+    } : {
+      id: 'chart-dates-dialog',
+      defaultDates: _.get(this.state, 'chartEndpoints.current'),
+    };
+
     return (
-      <ChartDateRangeModal
+      <DatePickerComponent
         chartType={this.state.chartType}
-        defaultDates={_.get(this.state, 'chartEndpoints.current')}
-        id="chart-dates-dialog"
         mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
         open={this.state.datesDialogOpen}
         onClose={this.closeDatesDialog}
@@ -339,11 +352,18 @@ export const PatientDataClass = createReactClass({
           } else {
             this.closeDatesDialog();
           }
-          this.updateChart(this.state.chartType, endDate, dates, updateOpts);
+
+          const updateActionMap = {
+            basics: this.updateChart.bind(this, 'basics', endDate, dates, updateOpts),
+            daily: this.handleSwitchToDaily.bind(this, endDate),
+          }
+
+          updateActionMap[this.state.chartType]?.();
         }}
         processing={this.state.datesDialogProcessing}
         timePrefs={this.state.timePrefs}
         trackMetric={this.props.trackMetric}
+        {...extraProps}
       />
     );
   },
@@ -446,7 +466,7 @@ export const PatientDataClass = createReactClass({
         chartPrefs: this.state.chartPrefs[this.state.chartType],
         data: this.props.data,
         aggregations,
-        stats,
+        stats: _.map(stats, stat => _.omit(stat, 'children')),
       }, `data-${this.state.chartType}.json`);
     };
 
@@ -498,12 +518,14 @@ export const PatientDataClass = createReactClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updatingDatum={this.props.updatingDatum}
-            queryDataCount={this.state.queryDataCount}
+            queryDataCount={this.getMetaData('queryDataCount')}
+            key={this.state.chartKey}
             ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
@@ -529,7 +551,8 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            queryDataCount={this.state.queryDataCount}
+            queryDataCount={this.getMetaData('queryDataCount')}
+            key={this.state.chartKey}
             ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
@@ -540,7 +563,7 @@ export const PatientDataClass = createReactClass({
             chartPrefs={this.state.chartPrefs}
             data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
-            isClinicAccount={personUtils.isClinic(this.props.user)}
+            isClinicianAccount={personUtils.isClinicianAccount(this.props.user)}
             loading={this.state.loading}
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
@@ -557,13 +580,49 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            queryDataCount={this.state.queryDataCount}
+            queryDataCount={this.getMetaData('queryDataCount')}
+            key={this.state.chartKey}
             ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
       case 'settings':
         return this.renderSettings();
     }
+  },
+
+  renderDefaultBgRangeCheckbox: function(props, state) {
+    const { t } = props;
+
+    return (
+      <Box p={2} sx={{
+        borderTop: '1px solid',
+        borderColor: 'grays.1',
+      }}>
+        <PopoverLabel
+          id="use-default-bg-range"
+          label={(
+            <Checkbox
+              checked={!!this.state.bgPrefs?.useDefaultRange}
+              label={t('Use default BG ranges')}
+              onChange={this.toggleDefaultBgRange}
+              themeProps={{
+                color: 'stat.text',
+              }}
+            />
+          )}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                <strong>{t('This patient has set a custom BG target range.')}</strong>
+              </Paragraph2>
+              <Paragraph2>
+                {t('If this option is checked, the target ranges for this view will be updated to the default ranges.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+      </Box>
+    );
   },
 
   renderExcludeEmptyBolusDaysCheckbox: function(props, state) {
@@ -575,10 +634,10 @@ export const PatientDataClass = createReactClass({
         borderColor: 'grays.1',
       }}>
         <PopoverLabel
-          id='exclude-bolus-info'
+          id="exclude-bolus-info"
           label={(
             <Checkbox
-              checked={_.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
+              checked={_.get(state, ['chartPrefs', state.chartType, 'stats', 'excludeDaysWithoutBolus'])}
               label={t('Exclude days with no boluses')}
               onChange={this.toggleDaysWithoutBoluses}
               themeProps={{
@@ -634,9 +693,39 @@ export const PatientDataClass = createReactClass({
     }
 
     const prefs = _.cloneDeep(this.state.chartPrefs);
-    prefs.basics.stats.excludeDaysWithoutBolus = !prefs.basics.stats.excludeDaysWithoutBolus;
-    if (prefs.basics.stats.excludeDaysWithoutBolus) this.props.trackMetric('Basics exclude days without boluses');
+    prefs[this.state.chartType].stats.excludeDaysWithoutBolus = !prefs[this.state.chartType].stats.excludeDaysWithoutBolus;
+    if (prefs[this.state.chartType].stats.excludeDaysWithoutBolus) this.props.trackMetric(`${_.capitalize(this.state.chartType)} exclude days without boluses`);
     this.updateChartPrefs(prefs, false, true, true);
+  },
+
+  toggleDefaultBgRange: function(e, value) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const patientSettings = _.get(this.props, 'patient.settings', {});
+    let bgPrefs = this.state.bgPrefs || {};
+
+    const bgUnitsOverride = {
+      units: this.props.queryParams?.units || this.props.clinic?.preferredBgUnits,
+      source: this.props.queryParams?.units ? 'query params' : 'preferred clinic units',
+    };
+
+    if (!bgPrefs.useDefaultRange) {
+      bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, bgUnitsOverride);
+      bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+      bgPrefs.useDefaultRange = true;
+    } else {
+      bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+      bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+      bgPrefs.useDefaultRange = false;
+    }
+
+    if (bgPrefs.useDefaultRange) this.props.trackMetric(`${_.capitalize(this.state.chartType)} - use default BG range`);
+
+    this.setState({ bgPrefs }, () => {
+      this.updateChartPrefs({}, false, true, true);
+    });
   },
 
   closeDatesDialog: function() {
@@ -676,20 +765,26 @@ export const PatientDataClass = createReactClass({
     const bgSource = this.getMetaData('bgSources.current');
     const endpoints = this.getCurrentData('endpoints');
     const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
-
     const stats = [];
 
     _.forOwn(statsData, (data, statType) => {
       const stat = getStatDefinition(data, statType, {
         bgSource,
+        collapsible: !_.includes(['averageGlucose', 'standardDev'], statType),
         days: endpoints.activeDays || endpoints.days,
         bgPrefs,
         manufacturer,
       });
 
-      if (statType === 'totalInsulin' && chartType === 'basics') {
+      if (this.state.isCustomBgRange && !props.isUserPatient && _.includes(['timeInRange', 'readingsInRange'], statType)) {
+        stat.children = this.renderDefaultBgRangeCheckbox(props, state);
+      }
+
+      if (statType === 'totalInsulin' && _.includes(['basics', 'trends'], chartType)) {
         // We nest the averageDailyDose stat within the totalInsulin stat
         stat.title = props.t('Avg. Daily Insulin Ratio');
+        stat.collapsedTitle = props.t('Avg. Daily Insulin');
+
         delete stat.dataFormat.title;
         delete stat.data.dataPaths.title;
 
@@ -721,7 +816,13 @@ export const PatientDataClass = createReactClass({
               }
             }}
           >
-            <Stats stats={[ averageDailyDoseStat ]} chartPrefs={state.chartPrefs} bgPrefs={bgPrefs} />
+            <Stats
+              bgPrefs={bgPrefs}
+              chartPrefs={state.chartPrefs}
+              persistState={false}
+              stats={[ averageDailyDoseStat ]}
+              trackMetric={this.props.trackMetric}
+            />
           </Box>
         );
 
@@ -773,7 +874,7 @@ export const PatientDataClass = createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
-        excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
+        excludeDaysWithoutBolus: _.get(this.state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
         ...commonQueries,
       };
     }
@@ -836,6 +937,9 @@ export const PatientDataClass = createReactClass({
     const newEndpoints = this.getChartEndpoints(datetimeLocation, {
       setEndToLocalCeiling: forceChartDataUpdate || !isDaily,
     });
+
+    const endpointsChanged = newEndpoints && !_.isEqual(newEndpoints, this.state.endpoints);
+    if (!endpointsChanged) return;
 
     const newDatetimeLocation = isDaily
       ? moment.utc(datetimeLocation).subtract(12, 'hours').toISOString()
@@ -947,9 +1051,9 @@ export const PatientDataClass = createReactClass({
     const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
-    const updateOpts = { updateChartEndpoints: true };
+    const updateOpts = { updateChartEndpoints: true, forceRemountAfterQuery: true };
     if (datetime && mostRecentDatumTime) {
-      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs));
     }
 
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
@@ -1046,24 +1150,9 @@ export const PatientDataClass = createReactClass({
       e.preventDefault();
     }
 
-    var refresh = this.props.onRefresh;
-    if (refresh) {
-      this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
-
-      this.setState({
-        ...this.getInitialState(),
-        bgPrefs: undefined,
-        chartType: undefined,
-        chartEndpoints: undefined,
-        datetimeLocation: undefined,
-        mostRecentDatetimeLocation: undefined,
-        endpoints: undefined,
-        refreshChartType: this.state.chartType,
-      }, () => {
-        refresh(this.props.currentPatientInViewId);
-        this.props.removeGeneratedPDFS();
-      });
-    }
+    // Prior to refetching data, we need to remove current data from the data worker
+    // Refetch will occur in UNSAFE_componentWillRecieveProps after data worker is emptied
+    this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
   },
 
   updateBasicsSettings: function(patientId, settings, canUpdateSettings) {
@@ -1095,6 +1184,7 @@ export const PatientDataClass = createReactClass({
         this.queryData(undefined, queryOpts);
       } else if (queryStats || queryAggregations) {
         const query = {
+          bgPrefs: _.get(this.state, 'bgPrefs'),
           endpoints: _.get(this.state, 'chartEndpoints.current'),
           stats: queryStats ? this.getStatsByChartType() : undefined,
           aggregationsByDate: queryAggregations ? this.getAggregationsByChartType() : undefined,
@@ -1161,6 +1251,10 @@ export const PatientDataClass = createReactClass({
         aggregations = 'basals, boluses, fingersticks, siteChanges';
         break;
 
+      case 'trends':
+        aggregations = 'boluses';
+        break;
+
       default:
         aggregations = undefined;
         break;
@@ -1189,6 +1283,7 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.standardDev);
         stats.push(commonStats.coefficientOfVariation);
         stats.push(commonStats.bgExtents);
         break;
@@ -1217,6 +1312,8 @@ export const PatientDataClass = createReactClass({
         smbgSelected && stats.push(commonStats.readingsInRange);
         stats.push(commonStats.averageGlucose);
         cbgSelected && stats.push(commonStats.sensorUsage);
+        stats.push(commonStats.totalInsulin);
+        stats.push(commonStats.averageDailyDose);
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
         isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
@@ -1325,6 +1422,7 @@ export const PatientDataClass = createReactClass({
 
   updateChart: function(chartType, datetimeLocation, endpoints, opts = {}) {
     _.defaults(opts, {
+      forceRemountAfterQuery: false,
       showLoading: true,
       mostRecentDatetimeLocation: datetimeLocation,
     });
@@ -1346,11 +1444,12 @@ export const PatientDataClass = createReactClass({
 
     if (!this.state.mostRecentDatetimeLocation) state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
 
-    const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
+    const cb = (opts.forceRemountAfterQuery || chartTypeChanged || endpointsChanged || datetimeLocationChanged)
       ? this.queryData.bind(this, opts.query, {
         showLoading: opts.showLoading,
         updateChartEndpoints: opts.updateChartEndpoints,
         transitioningChartType: chartTypeChanged,
+        forceRemountAfterQuery: opts.forceRemountAfterQuery,
       }) : undefined;
 
     this.setState(state, cb);
@@ -1384,6 +1483,25 @@ export const PatientDataClass = createReactClass({
     const patientData = _.get(nextProps, 'data.metaData.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
+    // Handle data refresh
+    if (this.props.removingData.inProgress && nextProps.removingData.completed) {
+      setTimeout(() => {
+        this.setState({
+          ...this.getInitialState(),
+          bgPrefs: undefined,
+          chartType: undefined,
+          chartEndpoints: undefined,
+          datetimeLocation: undefined,
+          mostRecentDatetimeLocation: undefined,
+          endpoints: undefined,
+          refreshChartType: this.state.chartType,
+        }, () => {
+          this.props.onRefresh(this.props.currentPatientInViewId);
+          this.props.removeGeneratedPDFS();
+        });
+      });
+    }
+
     // Hold processing until patient is fetched (ensuring settings are accessible) AND patient data exists
     if (patientSettings && patientData) {
       let stateUpdates = {};
@@ -1391,9 +1509,16 @@ export const PatientDataClass = createReactClass({
 
       // Set bgPrefs to state
       let bgPrefs = this.state.bgPrefs;
+
       if (!bgPrefs) {
-        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
+        const bgUnitsOverride = {
+          units: nextProps.queryParams?.units || nextProps.clinic?.preferredBgUnits,
+          source: nextProps.queryParams?.units ? 'query params' : 'preferred clinic units',
+        };
+
+        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+        if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
         stateUpdates.bgPrefs = bgPrefs;
       }
 
@@ -1406,14 +1531,14 @@ export const PatientDataClass = createReactClass({
       }
 
       // Perform initial query of upload data to prepare for setting inital chart type
-      if (this.state.queryDataCount < 1) {
+      if (this.getMetaData('queryDataCount', 0, nextProps) < 1) {
         this.queryData({
           types: {
             upload: {
               select: 'id,deviceId,deviceTags',
             },
           },
-          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
+          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices,queryDataCount',
           excludedDevices: undefined,
           timePrefs,
           bgPrefs,
@@ -1432,10 +1557,6 @@ export const PatientDataClass = createReactClass({
           window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
         }
 
-        if (_.get(nextProps, 'data.query.types')) {
-          stateUpdates.queryDataCount = this.state.queryDataCount + 1;
-        }
-
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
         if (this.props.queryingData.inProgress) {
           if (_.get(nextProps, 'data.query.updateChartEndpoints')) {
@@ -1452,6 +1573,12 @@ export const PatientDataClass = createReactClass({
           if (isTransitioning || wasTransitioning) {
             stateUpdates.transitioningChartType = false;
             hideLoadingTimeout = 250;
+          }
+
+          const forceRemountAfterQuery = _.get(nextProps, 'data.query.forceRemountAfterQuery');
+          if (forceRemountAfterQuery) {
+            // Updating the key of a component forces a remount
+            stateUpdates.chartKey = _.get(nextProps, 'data.metaData.queryDataCount');
           }
         }
 
@@ -1544,7 +1671,7 @@ export const PatientDataClass = createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,devices,excludedDevices',
+      metaData: 'bgSources,devices,excludedDevices,queryDataCount',
     });
 
     if (this.state.queryingData) return;
@@ -1557,6 +1684,7 @@ export const PatientDataClass = createReactClass({
       excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
+      forceRemountAfterQuery: options.forceRemountAfterQuery,
     };
 
     const activeDays = _.get(this.state, ['chartPrefs', this.state.chartType, 'activeDays']);
@@ -1611,6 +1739,8 @@ export const PatientDataClass = createReactClass({
             cbg: {},
             smbg: {},
           };
+
+          chartQuery.aggregationsByDate = 'boluses';
           break;
       }
 
@@ -1753,8 +1883,9 @@ export const PatientDataClass = createReactClass({
 
     this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
 
-    const patientID = this.props.currentPatientInViewId;
-    this.props.trackMetric('Fetched earlier patient data', { patientID, count });
+    const properties = { patientID: this.props.currentPatientInViewId, count };
+    if (this.props.selectedClinicId) properties.clinicId = this.props.selectedClinicId;
+    this.props.trackMetric('Fetched earlier patient data', properties);
   },
 
   hideLoading: function(timeout = 0) {
@@ -1783,8 +1914,9 @@ export const PatientDataClass = createReactClass({
         this.props.trackMetric('Web - Medtronic Import URL Param', { medtronic });
       }
 
-      const patientID = nextProps.currentPatientInViewId;
-      this.props.trackMetric('Fetched initial patient data', { patientID });
+      const properties = { patientID: nextProps.currentPatientInViewId };
+      if (this.props.selectedClinicId) properties.clinicId = this.props.selectedClinicId;
+      this.props.trackMetric('Fetched initial patient data', properties);
       this.props.trackMetric('Viewed Data');
     }
 
@@ -1854,9 +1986,21 @@ export function mapStateToProps(state, props) {
       }
       // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
       else {
-        if (!_.isEmpty(state.blip.membershipPermissionsInOtherCareTeams)) {
-          permsOfLoggedInUser = state.blip.membershipPermissionsInOtherCareTeams[state.blip.currentPatientInViewId];
-        }
+        permsOfLoggedInUser = state.blip.selectedClinicId
+        ? _.get(
+          state.blip.clinics,
+          [
+            state.blip.selectedClinicId,
+            'patients',
+            state.blip.currentPatientInViewId,
+            'permissions',
+          ],
+          {}
+        ) : _.get(
+          state.blip.membershipPermissionsInOtherCareTeams,
+          state.blip.currentPatientInViewId,
+          {}
+        );
       }
     }
   }
@@ -1873,11 +2017,14 @@ export function mapStateToProps(state, props) {
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
     addingData: state.blip.working.addingData,
+    removingData: state.blip.working.removingData,
     updatingDatum: state.blip.working.updatingDatum,
     queryingData: state.blip.working.queryingData,
     generatingPDF: state.blip.working.generatingPDF,
     pdf: state.blip.pdf,
     data: state.blip.data,
+    selectedClinicId: state.blip.selectedClinicId,
+    clinic: state.blip.clinics?.[state.blip.selectedClinicId],
   };
 }
 

@@ -5,8 +5,10 @@ export default ({ colors, fonts, fontWeights, fontSizes }) => {
     fontSize: `${fontSizes[1]}px`,
 
     '.tabs': {
-      fontWeight: fontWeights.medium,
+      fontSize: '18px',
+      fontWeight: fontWeights.regular,
       height: '100%',
+      color: colors.text.primary,
     },
   };
 

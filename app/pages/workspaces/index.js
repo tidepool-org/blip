@@ -13,4 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-module.exports = require('./cliniciandetails');
+module.exports = require('./workspaces');

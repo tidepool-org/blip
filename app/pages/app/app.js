@@ -10,6 +10,7 @@ import * as actions from '../../redux/actions';
 
 import utils from '../../core/utils';
 import personUtils from '../../core/personutils';
+import config from '../../config';
 
 import * as ErrorMessages from '../../redux/constants/errorMessages';
 import * as UserMessages from '../../redux/constants/usrMessages';
@@ -72,6 +73,7 @@ export class AppComponent extends React.Component {
       personUtils: PropTypes.object.isRequired,
       trackMetric: PropTypes.func.isRequired,
     }).isRequired,
+    selectedClinicId: PropTypes.string,
     showingDonateBanner: PropTypes.bool,
     showingDexcomConnectBanner: PropTypes.bool,
     showingShareDataBanner: PropTypes.bool,
@@ -162,9 +164,14 @@ export class AppComponent extends React.Component {
       userIsSupportingNonprofit,
       patient,
       authenticated,
+      clinics,
+      selectedClinicId,
     } = nextProps;
 
-    if (!utils.isOnSamePage(this.props, nextProps)) {
+    if (
+      !utils.isOnSamePage(this.props, nextProps) ||
+      this.props.authenticated !== authenticated
+    ) {
       this.doFetching(nextProps);
     }
 
@@ -302,10 +309,14 @@ export class AppComponent extends React.Component {
             patient={patient}
             fetchingPatient={this.props.fetchingPatient}
             currentPage={this.props.location}
+            clinicFlowActive={this.props.clinicFlowActive}
+            clinics={this.props.clinics}
             getUploadUrl={getUploadUrl}
             onLogout={this.props.onLogout}
             trackMetric={this.props.context.trackMetric}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+            api={this.props.context.api}
+            selectedClinicId={this.props.selectedClinicId}
             ref="navbar"/>
           </div>
         );
@@ -448,19 +459,21 @@ export class AppComponent extends React.Component {
 
     const {
       patient,
+      clinicPatient,
       permsOfLoggedInUser,
       onResendEmailVerification,
       resendEmailVerificationInProgress,
       resentEmailVerification,
     } = this.props;
     if (_.has(permsOfLoggedInUser, 'custodian')) {
-      if (!_.has(patient, 'username')) {
+      const combinedPatient = personUtils.combinedAccountAndClinicPatient(patient, clinicPatient);
+      if (_.isNil(combinedPatient.username)) {
         this.props.context.trackMetric('Banner displayed Add Email');
         return (
           <div className="App-addemailbanner">
             <AddEmailBanner
               trackMetric={this.props.context.trackMetric}
-              patient={patient}
+              patient={combinedPatient}
             />
           </div>
         );
@@ -470,7 +483,7 @@ export class AppComponent extends React.Component {
           <div className="App-sendverificationbanner">
             <SendVerificationBanner
               trackMetric={this.props.context.trackMetric}
-              patient={patient}
+              patient={combinedPatient}
               resendVerification={onResendEmailVerification}
               resendEmailVerificationInProgress={resendEmailVerificationInProgress}
               resentEmailVerification={resentEmailVerification}
@@ -539,12 +552,32 @@ export class AppComponent extends React.Component {
   }
 
   renderVersion() {
-    var version = this.props.context.config.VERSION;
-    if (version) {
+    var version = [this.props.context.config.VERSION];
+
+    // get environment from first subdomain on API_HOST, if present
+    var firstSubdomain = /(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/i
+    var environment = this.props.context.config.API_HOST?.match(firstSubdomain)?.[1];
+
+    // don't append hostname or environment for production
+    if (environment !== 'app') {
+      // get hostname from first segment of window hostname
+      var hostname = _.get(window, 'location.hostname', '').split('.')[0];
+
+      // only append hostname if different than environment (i.e. localhost connecting to qa2)
+      if (hostname && hostname !== environment) version.push(hostname);
+
+      version.push(environment);
+    }
+
+    // strip out any undefined values
+    version = _.compact(version);
+
+    if (version.length) {
       return (
-        <Version version={version} />
+        <Version version={version.join('-')} />
       );
     }
+
     return null;
   }
 
@@ -600,6 +633,7 @@ export function getFetchers(stateProps, dispatchProps, api) {
 export function mapStateToProps(state) {
   let user = null;
   let patient = null;
+  let clinicPatient;
   let permissions = null;
   let permsOfLoggedInUser = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
@@ -614,7 +648,7 @@ export function mapStateToProps(state) {
   if (userHasSharedData) {
     let userCareTeam = Object.values(_.get(state, 'blip.allUsersMap'));
     userHasSharedDataWithClinician = userCareTeam.some(user => {
-      return personUtils.isClinic(user);
+      return personUtils.isClinicianAccount(user);
     });
   }
 
@@ -628,7 +662,7 @@ export function mapStateToProps(state) {
         userIsCurrentPatient = true;
       }
 
-      if (_.get(user, 'preferences.displayLanguageCode')) {
+      if (config.I18N_ENABLED && _.get(user, 'preferences.displayLanguageCode')) {
         i18next.changeLanguage(user.preferences.displayLanguageCode);
       }
 
@@ -643,16 +677,27 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         null
       );
+      clinicPatient = _.get(state.blip.clinics, [state.blip.selectedClinicId, 'patients', state.blip.currentPatientInViewId]);
       permissions = _.get(
         state.blip.permissionsOfMembersInTargetCareTeam,
         state.blip.currentPatientInViewId,
         {}
       );
-      permsOfLoggedInUser = _.get(
-        state.blip.membershipPermissionsInOtherCareTeams,
-        state.blip.currentPatientInViewId,
-        {}
-      );
+      permsOfLoggedInUser = state.blip.selectedClinicId
+        ? _.get(
+          state.blip.clinics,
+          [
+            state.blip.selectedClinicId,
+            'patients',
+            state.blip.currentPatientInViewId,
+            'permissions',
+          ],
+          {}
+        ) : _.get(
+          state.blip.membershipPermissionsInOtherCareTeams,
+          state.blip.currentPatientInViewId,
+          {}
+        );
     }
 
     // Check to see if a data-donating patient has selected a nonprofit to support
@@ -707,6 +752,9 @@ export function mapStateToProps(state) {
 
   return {
     authenticated: state.blip.isLoggedIn,
+    clinics: state.blip.clinics,
+    clinicFlowActive: state.blip.clinicFlowActive,
+    clinicPatient,
     fetchingUser: state.blip.working.fetchingUser,
     fetchingDataSources: state.blip.working.fetchingDataSources,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
@@ -718,6 +766,7 @@ export function mapStateToProps(state) {
     user: user,
     patient: patient ? { permissions, ...patient } : null,
     permsOfLoggedInUser: permsOfLoggedInUser,
+    selectedClinicId: state.blip.selectedClinicId,
     showingDonateBanner: state.blip.showingDonateBanner,
     showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
     showingShareDataBanner: state.blip.showingShareDataBanner,
@@ -760,7 +809,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.api;
-  return Object.assign({}, _.pick(ownProps, ['children']), stateProps, {
+  return Object.assign({}, _.pick(ownProps, ['children', 'history']), stateProps, {
     context: {
       DEBUG: ownProps.DEBUG,
       api: ownProps.api,
@@ -788,7 +837,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     showBanner: dispatchProps.showBanner,
     hideBanner: dispatchProps.hideBanner,
     onResendEmailVerification: dispatchProps.resendEmailVerification.bind(null, api),
-    onLogout: dispatchProps.logout.bind(null, api)
+    onLogout: dispatchProps.logout.bind(null, api),
   });
 };
 

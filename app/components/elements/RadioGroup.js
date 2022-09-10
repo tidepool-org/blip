@@ -156,7 +156,7 @@ RadioGroup.propTypes = {
   variant: PropTypes.oneOf(['horizontal', 'vertical', 'verticalBordered']),
   options: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       label: PropTypes.string.isRequired,
     }),
   ).isRequired,
@@ -167,6 +167,7 @@ RadioGroup.propTypes = {
 RadioGroup.defaultProps = {
   variant: 'vertical',
   color: colors.text.default,
+  fontSize: 1,
 };
 
 export default RadioGroup;

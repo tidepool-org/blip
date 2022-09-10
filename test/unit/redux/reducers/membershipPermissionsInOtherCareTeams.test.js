@@ -106,6 +106,30 @@ describe('membershipPermissionsInOtherCareTeams', () => {
       expect(state.a1b2c3).to.be.undefined;
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
+
+    describe('createVCACustodialAccountSuccess', () => {
+      it('should add membership to the hash map', () => {
+        let patient = {
+          userid: 'a1b2c3',
+        };
+
+        let initialStateForTest = {};
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.createVCACustodialAccountSuccess(patient.userid, patient);
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(Object.keys(state).length).to.equal(1);
+        expect(Object.keys(state.a1b2c3).length).to.equal(3);
+        console.log(state.a1b2c3)
+        expect(state.a1b2c3.custodian).to.exist;
+        expect(state.a1b2c3.view).to.exist;
+        expect(state.a1b2c3.upload).to.exist;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
   });
 
   describe('logoutRequest', () => {

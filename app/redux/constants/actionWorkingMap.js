@@ -32,10 +32,10 @@ export default (type) => {
     case types.FETCH_PATIENT_DATA_FAILURE:
       return 'fetchingPatientData';
 
-    case types.FETCH_PRESCRIPTIONS_REQUEST:
-    case types.FETCH_PRESCRIPTIONS_SUCCESS:
-    case types.FETCH_PRESCRIPTIONS_FAILURE:
-      return 'fetchingPrescriptions';
+    case types.FETCH_CLINIC_PRESCRIPTIONS_REQUEST:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_FAILURE:
+      return 'fetchingClinicPrescriptions';
 
     case types.CREATE_PRESCRIPTION_REQUEST:
     case types.CREATE_PRESCRIPTION_SUCCESS:
@@ -130,6 +130,16 @@ export default (type) => {
     case types.SEND_INVITE_SUCCESS:
     case types.SEND_INVITE_FAILURE:
       return 'sendingInvite';
+
+    case types.SEND_CLINIC_INVITE_REQUEST:
+    case types.SEND_CLINIC_INVITE_SUCCESS:
+    case types.SEND_CLINIC_INVITE_FAILURE:
+      return 'sendingClinicInvite';
+
+    case types.RESEND_INVITE_REQUEST:
+    case types.RESEND_INVITE_SUCCESS:
+    case types.RESEND_INVITE_FAILURE:
+      return 'resendingInvite';
 
     case types.CANCEL_SENT_INVITE_REQUEST:
     case types.CANCEL_SENT_INVITE_SUCCESS:
@@ -239,6 +249,11 @@ export default (type) => {
     case types.FETCH_CLINIC_FAILURE:
       return 'fetchingClinic';
 
+    case types.FETCH_CLINICS_BY_IDS_REQUEST:
+    case types.FETCH_CLINICS_BY_IDS_SUCCESS:
+    case types.FETCH_CLINICS_BY_IDS_FAILURE:
+      return 'fetchingClinicsByIds';
+
     case types.UPDATE_CLINIC_REQUEST:
     case types.UPDATE_CLINIC_SUCCESS:
     case types.UPDATE_CLINIC_FAILURE:
@@ -264,20 +279,30 @@ export default (type) => {
     case types.DELETE_CLINICIAN_FROM_CLINIC_FAILURE:
       return 'deletingClinicianFromClinic';
 
+    case types.DELETE_PATIENT_FROM_CLINIC_REQUEST:
+    case types.DELETE_PATIENT_FROM_CLINIC_SUCCESS:
+    case types.DELETE_PATIENT_FROM_CLINIC_FAILURE:
+      return 'deletingPatientFromClinic';
+
     case types.FETCH_PATIENTS_FOR_CLINIC_REQUEST:
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS:
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
       return 'fetchingPatientsForClinic';
 
-    case types.CREATE_CUSTODIAL_ACCOUNT_REQUEST:
-    case types.CREATE_CUSTODIAL_ACCOUNT_SUCCESS:
-    case types.CREATE_CUSTODIAL_ACCOUNT_FAILURE:
-      return 'creatingCustodialAccount';
-
     case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
     case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
       return 'fetchingPatientFromClinic';
+
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE:
+      return 'creatingClinicCustodialAccount';
+
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE:
+      return 'creatingVCACustodialAccount';
 
     case types.UPDATE_CLINIC_PATIENT_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_SUCCESS:
@@ -288,6 +313,11 @@ export default (type) => {
     case types.SEND_CLINICIAN_INVITE_SUCCESS:
     case types.SEND_CLINICIAN_INVITE_FAILURE:
       return 'sendingClinicianInvite';
+
+    case types.FETCH_CLINICIAN_INVITE_REQUEST:
+    case types.FETCH_CLINICIAN_INVITE_SUCCESS:
+    case types.FETCH_CLINICIAN_INVITE_FAILURE:
+      return 'fetchingClinicianInvite';
 
     case types.RESEND_CLINICIAN_INVITE_REQUEST:
     case types.RESEND_CLINICIAN_INVITE_SUCCESS:
@@ -308,6 +338,11 @@ export default (type) => {
     case types.ACCEPT_PATIENT_INVITATION_SUCCESS:
     case types.ACCEPT_PATIENT_INVITATION_FAILURE:
       return 'acceptingPatientInvitation';
+
+    case types.DELETE_PATIENT_INVITATION_REQUEST:
+    case types.DELETE_PATIENT_INVITATION_SUCCESS:
+    case types.DELETE_PATIENT_INVITATION_FAILURE:
+      return 'deletingPatientInvitation';
 
     case types.UPDATE_PATIENT_PERMISSIONS_REQUEST:
     case types.UPDATE_PATIENT_PERMISSIONS_SUCCESS:
@@ -338,6 +373,16 @@ export default (type) => {
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
       return 'fetchingClinicsForClinician';
+
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
+      return 'triggeringInitialClinicMigration';
+
+    case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
+      return 'sendingPatientUploadReminder';
 
     default:
       return null;

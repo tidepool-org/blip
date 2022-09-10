@@ -8,13 +8,16 @@ import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
+import { Flex } from 'rebass/styled-components';
 
 import Header from './header';
 import SubNav from './trendssubnav';
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
-import Footer from './footer';
 import DeviceSelection from './deviceSelection';
+import Button from '../elements/Button';
+import Checkbox from '../elements/Checkbox';
+import { colors } from '../../themes/baseTheme';
 
 import {
   components as vizComponents,
@@ -367,6 +370,7 @@ const Trends = translate()(class Trends extends PureComponent {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.smbgRangeOverlay = prefs.trends.smbgRangeOverlay ? false : true;
     this.props.updateChartPrefs(prefs, false);
+    this.props.trackMetric(`clicked Trends range and average ${prefs.trends.smbgRangeOverlay ? 'on' : 'off'}`);
   }
 
   toggleDay(day) {
@@ -383,18 +387,29 @@ const Trends = translate()(class Trends extends PureComponent {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.smbgGrouped = prefs.trends.smbgGrouped ? false : true;
     this.props.updateChartPrefs(prefs, false);
+    this.props.trackMetric(`clicked Trends group ${prefs.trends.smbgGrouped ? 'on' : 'off'}`);
   }
 
   toggleLines() {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.smbgLines = prefs.trends.smbgLines ? false : true;
     this.props.updateChartPrefs(prefs, false);
+    this.props.trackMetric(`clicked Trends lines ${prefs.trends.smbgLines ? 'on' : 'off'}`);
   }
 
   toggleDisplayFlags(flag, value) {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.cbgFlags[flag] = value;
     this.props.updateChartPrefs(prefs, false);
+
+    const flagMetrics = {
+      cbg100Enabled: encodeURIComponent('100% readings'),
+      cbg80Enabled: encodeURIComponent('80% readings'),
+      cbg50Enabled: encodeURIComponent('50% readings'),
+      cbgMedianEnabled: 'median',
+    }
+
+    this.props.trackMetric(`clicked Trends ${flagMetrics[flag]} ${value ? 'on' : 'off'}`);
   }
 
   toggleWeekdays(allActive) {
@@ -429,6 +444,25 @@ const Trends = translate()(class Trends extends PureComponent {
     const { currentPatientInViewId, t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'trends';
     const statsToRender = this.props.stats.filter((stat) => stat.id !== 'bgExtents');
+    const cbgFlags = this.props.chartPrefs.trends.cbgFlags;
+
+    const checkboxStyles = {
+      themeProps: {
+        color: 'stat.text',
+        mr: 3,
+        sx: {
+          '&:last-child': { marginRight: 0 },
+          backgroundColor: 'inherit',
+          display: 'inline-flex !important',
+          lineHeight: '1em',
+        }
+      },
+      backgroundColor: 'white',
+      sx: {
+        boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
+        color: colors.grays[2],
+      },
+    };
 
     return (
       <div id="tidelineMain" className="trends grid">
@@ -441,6 +475,85 @@ const Trends = translate()(class Trends extends PureComponent {
               <div id="tidelineContainer" className="patient-data-chart-trends">
                 {dataQueryComplete && this.renderChart()}
               </div>
+
+              <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" alignItems="center" justifyContent="space-between">
+                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
+                  {t('Refresh')}
+                </Button>
+
+                <Flex
+                  variant="inputs.checkboxGroup.horizontal"
+                  alignItems="center"
+                  bg="lightestGrey"
+                  px={3}
+                  py={2}
+                >
+                  {this.props.chartPrefs.trends.showingCbg && (
+                    <>
+                      <Checkbox
+                        label={t('100% of Readings')}
+                        name="hundred"
+                        checked={cbgFlags.cbg100Enabled}
+                        onChange={this.toggleDisplayFlags.bind(this, 'cbg100Enabled', !cbgFlags.cbg100Enabled)}
+                        {...checkboxStyles}
+                      />
+
+                      <Checkbox
+                        label={t('80% of Readings')}
+                        name="eighty"
+                        checked={cbgFlags.cbg80Enabled}
+                        onChange={this.toggleDisplayFlags.bind(this, 'cbg80Enabled', !cbgFlags.cbg80Enabled)}
+                        {...checkboxStyles}
+                      />
+
+                      <Checkbox
+                        label={t('50% of Readings')}
+                        name="fifty"
+                        checked={cbgFlags.cbg50Enabled}
+                        onChange={this.toggleDisplayFlags.bind(this, 'cbg50Enabled', !cbgFlags.cbg50Enabled)}
+                        {...checkboxStyles}
+                      />
+
+                      <Checkbox
+                        label={t('Median')}
+                        name="median"
+                        checked={cbgFlags.cbgMedianEnabled}
+                        onChange={this.toggleDisplayFlags.bind(this, 'cbgMedianEnabled', !cbgFlags.cbgMedianEnabled)}
+                        {...checkboxStyles}
+                      />
+                    </>
+                  )}
+
+                  {this.props.chartPrefs.trends.showingSmbg && (
+                    <>
+                      <Checkbox
+                        label={t('Range & Average')}
+                        name="overlayCheckbox"
+                        checked={this.props.chartPrefs.trends.smbgRangeOverlay}
+                        onChange={this.toggleBoxOverlay}
+                        {...checkboxStyles}
+                      />
+
+                      <Checkbox
+                        label={t('Group')}
+                        name="groupCheckbox"
+                        checked={this.props.chartPrefs.trends.smbgGrouped}
+                        onChange={this.toggleGrouping}
+                        {...checkboxStyles}
+                      />
+
+                      <Checkbox
+                        label={t('Lines')}
+                        name="linesCheckbox"
+                        checked={this.props.chartPrefs.trends.smbgLines}
+                        onChange={this.toggleLines}
+                        {...checkboxStyles}
+                      />
+                    </>
+                  )}
+                </Flex>
+              </Flex>
+
               {dataQueryComplete && this.renderFocusedCbgDateTraceLabel()}
               {dataQueryComplete && this.renderFocusedSMBGPointLabel()}
               {dataQueryComplete && this.renderFocusedRangeLabels()}
@@ -462,33 +575,21 @@ const Trends = translate()(class Trends extends PureComponent {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 stats={statsToRender}
+                trackMetric={this.props.trackMetric}
               />
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 devices={_.get(this.props, 'data.metaData.devices', [])}
-                updateChartPrefs={this.props.updateChartPrefs}
                 removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                trackMetric={this.props.trackMetric}
+                updateChartPrefs={this.props.updateChartPrefs}
               />
             </div>
           </div>
         </div>
-        <Footer
-         chartType={this.chartType}
-         onClickBoxOverlay={this.toggleBoxOverlay}
-         onClickGroup={this.toggleGrouping}
-         onClickLines={this.toggleLines}
-         onClickRefresh={this.props.onClickRefresh}
-         boxOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
-         grouped={this.props.chartPrefs.trends.smbgGrouped}
-         showingLines={this.props.chartPrefs.trends.smbgLines}
-         showingCbg={this.props.chartPrefs.trends.showingCbg}
-         showingSmbg={this.props.chartPrefs.trends.showingSmbg}
-         displayFlags={this.props.chartPrefs.trends.cbgFlags}
-         toggleDisplayFlags={this.toggleDisplayFlags}
-         currentPatientInViewId={currentPatientInViewId}
-         ref="footer" />
          <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );

@@ -25,16 +25,20 @@ import createLogger from 'redux-logger';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import mutationTracker from 'redux-immutable-state-invariant';
 import qhistory from 'qhistory';
+import assign from 'lodash/assign';
+import throttle from 'lodash/throttle';
 import { stringify, parse } from 'qs';
 
 import Worker from 'worker-loader?inline!./../../worker/index';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
+import { loadLocalState, saveLocalState } from './localStorage';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
+import pendoMiddleware from '../utils/pendoMiddleware';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -66,6 +70,7 @@ if (!__DEV_TOOLS__) {
         routerMiddleware(history),
         createErrorLogger(api),
         trackingMiddleware(api),
+        pendoMiddleware(api),
       ),
       persistState(getDebugSessionKey()),
     );
@@ -81,6 +86,7 @@ if (!__DEV_TOOLS__) {
         routerMiddleware(history),
         createErrorLogger(api),
         trackingMiddleware(api),
+        pendoMiddleware(api),
         mutationTracker(),
       ),
       // We can persist debug sessions this way
@@ -89,10 +95,15 @@ if (!__DEV_TOOLS__) {
   }
 }
 
-let initialState = { blip: blipState };
-
 function _createStore(api) {
-  let store = createStore(reducer, initialState, enhancer(api));
+  const initialState = { blip: assign(blipState, loadLocalState()) };
+  const store = createStore(reducer, initialState, enhancer(api));
+
+  store.subscribe(throttle(() => {
+    saveLocalState({
+      selectedClinicId: store.getState().blip?.selectedClinicId,
+    });
+  }, 1000));
 
   if (module.hot) {
     module.hot.accept('../reducers', () =>

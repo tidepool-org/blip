@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { default as Base, TableProps } from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
@@ -85,7 +86,7 @@ const StyledTable = styled(Base)`
   }
 `;
 
-export const Table = props => {
+export const Table = React.memo(props => {
   const {
     columns,
     data,
@@ -96,25 +97,27 @@ export const Table = props => {
     rowHover,
     rowsPerPage,
     searchText,
+    onSort,
     variant,
+    orderBy: orderByProp,
     pagination,
     paginationProps,
+    containerStyles,
     ...tableProps
   } = props;
 
   const [order, setOrder] = useState(props.order || 'asc');
-  const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
-  const [page, setPage] = React.useState(1);
+  const [orderBy, setOrderBy] = useState(orderByProp || columns[0].field);
 
-  const handleRequestSort = (event, property) => {
+  const [page, setPage] = React.useState(props.page);
+
+  const handleRequestSort = property => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const createSortHandler = (property) => (event) => {
-    handleRequestSort(event, property);
-  };
+  const createSortHandler = property => () => (onSort || handleRequestSort)(property);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
@@ -124,7 +127,7 @@ export const Table = props => {
     if (isFunction(tableProps.onClickRow)) tableProps.onClickRow(datum);
   };
 
-  const sortedData = stableSort(data, getComparator(order, orderBy));
+  const sortedData = isFunction(onSort) ? data : stableSort(data, getComparator(order, orderBy));
 
   const searchFields = filter(
     flatten(map(columns, col => col.searchable && (col.searchBy || col.field))),
@@ -146,8 +149,17 @@ export const Table = props => {
     setPage(1);
   }, [searchText, filteredData.length, rowsPerPage]);
 
+  useEffect(() => {
+    setOrder(props.order);
+    setOrderBy(orderByProp);
+  }, [props.order, orderByProp]);
+
+  useEffect(() => {
+    setPage(props.page);
+  }, [props.page]);
+
   return (
-    <>
+    <Box as={TableContainer} style={containerStyles}>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
         <TableHead>
           <TableRow>
@@ -157,18 +169,19 @@ export const Table = props => {
 
               return (
                 <TableCell
-                  id={`${id}-header-${col.field}`}
-                  key={`${id}-header-${col.field}`}
+                  id={`${id}-header-${col.field?.replace(/\./g, '-')}`}
+                  key={`${id}-header-${col.field?.replace(/\./g, '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
                 >
                   <Box
+                    className="table-header-inner-cell"
                     as={InnerCell}
                     active={orderBy === colSortBy}
-                    direction={orderBy.split('.')[0] === colSortBy ? order : 'asc'}
+                    direction={orderBy === colSortBy ? order : 'asc'}
                     onClick={col.sortable ? createSortHandler(colSortBy) : noop}
                   >
-                    {col.title}
+                    {col.titleComponent ? <col.titleComponent /> : col.title}
                   </Box>
                 </TableCell>
               );
@@ -201,7 +214,7 @@ export const Table = props => {
         </TableBody>
       </Box>
 
-      {pagedData.length === 0 && emptyText && <Text p={3} fontSize={1} color="text.primary" textAlign="center">{emptyText}</Text>}
+      {pagedData.length === 0 && emptyText && <Text p={3} fontSize={1} color="text.primary" className="table-empty-text" textAlign="center">{emptyText}</Text>}
 
       {pagination && <Pagination
         id={`${id}-pagination`}
@@ -214,9 +227,9 @@ export const Table = props => {
         my={3}
         {...paginationProps}
       />}
-    </>
+    </Box>
   );
-};
+});
 
 Table.propTypes = {
   ...TableProps,
@@ -246,8 +259,10 @@ Table.propTypes = {
   rowHover: PropTypes.bool,
   rowsPerPage: PropTypes.number,
   searchText: PropTypes.string,
+  onSort: PropTypes.func,
   stickyHeader: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'condensed']),
+  containerStyles: PropTypes.object,
 };
 
 Table.defaultProps = {
@@ -258,6 +273,7 @@ Table.defaultProps = {
   paginationProps: {
     style: { fontSize: '14px' },
   },
+  containerStyles: {},
 };
 
 export default Table;

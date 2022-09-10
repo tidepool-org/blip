@@ -49,7 +49,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_REQUEST:
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_DATA_REQUEST:
-    case types.FETCH_PRESCRIPTIONS_REQUEST:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_REQUEST:
     case types.CREATE_PRESCRIPTION_REQUEST:
     case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
     case types.DELETE_PRESCRIPTION_REQUEST:
@@ -69,6 +69,8 @@ export default (state = initialWorkingState, action) => {
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST:
     case types.REQUEST_PASSWORD_RESET_REQUEST:
     case types.SEND_INVITE_REQUEST:
+    case types.SEND_CLINIC_INVITE_REQUEST:
+    case types.RESEND_INVITE_REQUEST:
     case types.CANCEL_SENT_INVITE_REQUEST:
     case types.ACCEPT_RECEIVED_INVITE_REQUEST:
     case types.REJECT_RECEIVED_INVITE_REQUEST:
@@ -90,30 +92,37 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_REQUEST:
     case types.CREATE_CLINIC_REQUEST:
     case types.FETCH_CLINIC_REQUEST:
+    case types.FETCH_CLINICS_BY_IDS_REQUEST:
     case types.UPDATE_CLINIC_REQUEST:
     case types.FETCH_CLINICIANS_FROM_CLINIC_REQUEST:
     case types.FETCH_CLINICIAN_REQUEST:
     case types.UPDATE_CLINICIAN_REQUEST:
     case types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST:
+    case types.DELETE_PATIENT_FROM_CLINIC_REQUEST:
     case types.FETCH_PATIENTS_FOR_CLINIC_REQUEST:
-    case types.CREATE_CUSTODIAL_ACCOUNT_REQUEST:
     case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_REQUEST:
     case types.SEND_CLINICIAN_INVITE_REQUEST:
+    case types.FETCH_CLINICIAN_INVITE_REQUEST:
     case types.RESEND_CLINICIAN_INVITE_REQUEST:
     case types.DELETE_CLINICIAN_INVITE_REQUEST:
     case types.FETCH_PATIENT_INVITES_REQUEST:
     case types.ACCEPT_PATIENT_INVITATION_REQUEST:
+    case types.DELETE_PATIENT_INVITATION_REQUEST:
     case types.UPDATE_PATIENT_PERMISSIONS_REQUEST:
     case types.FETCH_CLINICS_FOR_PATIENT_REQUEST:
     case types.FETCH_CLINICIAN_INVITES_REQUEST:
     case types.ACCEPT_CLINICIAN_INVITE_REQUEST:
     case types.DISMISS_CLINICIAN_INVITE_REQUEST:
     case types.GET_CLINICS_FOR_CLINICIAN_REQUEST:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
-          return update(initialWorkingState, {
+          return update(state, {
             [key]: {
               $set: {
                 inProgress: true,
@@ -139,12 +148,24 @@ export default (state = initialWorkingState, action) => {
           types.CREATE_PRESCRIPTION_REVISION_REQUEST,
           types.UPDATE_CLINICIAN_REQUEST,
           types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST,
-          types.CREATE_CUSTODIAL_ACCOUNT_REQUEST,
+          types.DELETE_PATIENT_FROM_CLINIC_REQUEST,
+          types.FETCH_PATIENTS_FOR_CLINIC_REQUEST,
           types.SEND_CLINICIAN_INVITE_REQUEST,
+          types.FETCH_CLINICIAN_INVITE_REQUEST,
+          types.SEND_INVITE_REQUEST,
+          types.SEND_CLINIC_INVITE_REQUEST,
+          types.RESEND_INVITE_REQUEST,
           types.DELETE_CLINICIAN_INVITE_REQUEST,
           types.ACCEPT_PATIENT_INVITATION_REQUEST,
+          types.DELETE_PATIENT_INVITATION_REQUEST,
           types.ACCEPT_CLINICIAN_INVITE_REQUEST,
           types.DISMISS_CLINICIAN_INVITE_REQUEST,
+          types.SET_MEMBER_PERMISSIONS_REQUEST,
+          types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST,
+          types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST,
+          types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
+          types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
+          types.DATA_WORKER_REMOVE_DATA_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
@@ -182,7 +203,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_DATA_SUCCESS:
-    case types.FETCH_PRESCRIPTIONS_SUCCESS:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS:
     case types.CREATE_PRESCRIPTION_SUCCESS:
     case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
     case types.DELETE_PRESCRIPTION_SUCCESS:
@@ -202,6 +223,8 @@ export default (state = initialWorkingState, action) => {
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
     case types.REQUEST_PASSWORD_RESET_SUCCESS:
     case types.SEND_INVITE_SUCCESS:
+    case types.SEND_CLINIC_INVITE_SUCCESS:
+    case types.RESEND_INVITE_SUCCESS:
     case types.CANCEL_SENT_INVITE_SUCCESS:
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
     case types.REJECT_RECEIVED_INVITE_SUCCESS:
@@ -224,26 +247,33 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_SUCCESS:
     case types.CREATE_CLINIC_SUCCESS:
     case types.FETCH_CLINIC_SUCCESS:
+    case types.FETCH_CLINICS_BY_IDS_SUCCESS:
     case types.UPDATE_CLINIC_SUCCESS:
     case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS:
     case types.FETCH_CLINICIAN_SUCCESS:
     case types.UPDATE_CLINICIAN_SUCCESS:
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS:
+    case types.DELETE_PATIENT_FROM_CLINIC_SUCCESS:
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS:
-    case types.CREATE_CUSTODIAL_ACCOUNT_SUCCESS:
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_SUCCESS:
     case types.SEND_CLINICIAN_INVITE_SUCCESS:
+    case types.FETCH_CLINICIAN_INVITE_SUCCESS:
     case types.RESEND_CLINICIAN_INVITE_SUCCESS:
     case types.DELETE_CLINICIAN_INVITE_SUCCESS:
     case types.FETCH_PATIENT_INVITES_SUCCESS:
     case types.ACCEPT_PATIENT_INVITATION_SUCCESS:
+    case types.DELETE_PATIENT_INVITATION_SUCCESS:
     case types.UPDATE_PATIENT_PERMISSIONS_SUCCESS:
     case types.FETCH_CLINICS_FOR_PATIENT_SUCCESS:
     case types.FETCH_CLINICIAN_INVITES_SUCCESS:
     case types.ACCEPT_CLINICIAN_INVITE_SUCCESS:
     case types.DISMISS_CLINICIAN_INVITE_SUCCESS:
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -258,7 +288,7 @@ export default (state = initialWorkingState, action) => {
           });
         } else if (action.type === types.DATA_WORKER_REMOVE_DATA_SUCCESS) {
           const queryingDataWorkingKey = actionWorkingMap(types.DATA_WORKER_QUERY_DATA_SUCCESS);
-          return update(initialWorkingState, {
+          return update(state, {
             [queryingDataWorkingKey]: {
               $set: initialState.working[queryingDataWorkingKey],
             },
@@ -272,7 +302,7 @@ export default (state = initialWorkingState, action) => {
           });
         } else if (action.type === types.REMOVE_GENERATED_PDFS) {
           const generatingPDFWorkingKey = actionWorkingMap(types.GENERATE_PDF_SUCCESS);
-          return update(initialWorkingState, {
+          return update(state, {
             [generatingPDFWorkingKey]: {
               $set: initialState.working[generatingPDFWorkingKey],
             },
@@ -285,6 +315,17 @@ export default (state = initialWorkingState, action) => {
                 notification: _.get(action, ['payload', 'notification'], null),
                 completed: true,
                 prescriptionId: _.get(action, ['payload', 'prescription', 'id']),
+              }
+            }
+          });
+        } else if (action.type === types.FETCH_CLINIC_SUCCESS) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: false,
+                notification: _.get(action, ['payload', 'notification'], null),
+                completed: true,
+                clinicId: _.get(action, ['payload', 'clinic', 'id']),
               }
             }
           });
@@ -315,7 +356,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
-    case types.FETCH_PRESCRIPTIONS_FAILURE:
+    case types.FETCH_CLINIC_PRESCRIPTIONS_FAILURE:
     case types.CREATE_PRESCRIPTION_FAILURE:
     case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
     case types.DELETE_PRESCRIPTION_FAILURE:
@@ -334,6 +375,8 @@ export default (state = initialWorkingState, action) => {
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE:
     case types.REQUEST_PASSWORD_RESET_FAILURE:
     case types.SEND_INVITE_FAILURE:
+    case types.SEND_CLINIC_INVITE_FAILURE:
+    case types.RESEND_INVITE_FAILURE:
     case types.CANCEL_SENT_INVITE_FAILURE:
     case types.ACCEPT_RECEIVED_INVITE_FAILURE:
     case types.REJECT_RECEIVED_INVITE_FAILURE:
@@ -355,26 +398,33 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FAILURE:
     case types.CREATE_CLINIC_FAILURE:
     case types.FETCH_CLINIC_FAILURE:
+    case types.FETCH_CLINICS_BY_IDS_FAILURE:
     case types.UPDATE_CLINIC_FAILURE:
     case types.FETCH_CLINICIANS_FROM_CLINIC_FAILURE:
     case types.FETCH_CLINICIAN_FAILURE:
     case types.UPDATE_CLINICIAN_FAILURE:
     case types.DELETE_CLINICIAN_FROM_CLINIC_FAILURE:
+    case types.DELETE_PATIENT_FROM_CLINIC_FAILURE:
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
-    case types.CREATE_CUSTODIAL_ACCOUNT_FAILURE:
     case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
+    case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE:
+    case types.CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_FAILURE:
     case types.SEND_CLINICIAN_INVITE_FAILURE:
+    case types.FETCH_CLINICIAN_INVITE_FAILURE:
     case types.RESEND_CLINICIAN_INVITE_FAILURE:
     case types.DELETE_CLINICIAN_INVITE_FAILURE:
     case types.FETCH_PATIENT_INVITES_FAILURE:
     case types.ACCEPT_PATIENT_INVITATION_FAILURE:
+    case types.DELETE_PATIENT_INVITATION_FAILURE:
     case types.UPDATE_PATIENT_PERMISSIONS_FAILURE:
     case types.FETCH_CLINICS_FOR_PATIENT_FAILURE:
     case types.FETCH_CLINICIAN_INVITES_FAILURE:
     case types.ACCEPT_CLINICIAN_INVITE_FAILURE:
     case types.DISMISS_CLINICIAN_INVITE_FAILURE:
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
+    case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -392,6 +442,20 @@ export default (state = initialWorkingState, action) => {
       } else {
         return state;
       }
+
+    case types.SELECT_CLINIC:
+      const newState = _.cloneDeep(state);
+      _.forEach([
+        'fetchingCliniciansFromClinic',
+        'fetchingClinicPrescriptions',
+        'fetchingPatientsForClinic',
+        'fetchingPatientInvites',
+      ], key => _.set(newState, key, {
+        inProgress: false,
+        notification: null,
+        completed: null,
+      }));
+      return newState;
 
     default:
       return state;

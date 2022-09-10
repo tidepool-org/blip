@@ -341,25 +341,35 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
-  var bgUnits = _.get(patientSettings, 'units.bg', MGDL_UNITS);
+utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, source: overrideSource }) => {
+  // Allow overriding stored BG Unit preferences via query param or preferred clinic BG units
+  // If no override is specified, use patient settings units if availiable, otherwise 'mg/dL'
+  const patientSettingsBgUnits = patientSettings?.units?.bg || MGDL_UNITS;
 
+  const bgUnits = overrideUnits
+    ? (overrideUnits?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS)
+    : patientSettingsBgUnits;
+
+  const settingsOverrideActive = patientSettingsBgUnits !== bgUnits;
   const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
   const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
 
   var bgClasses = {
-    low: { boundary: utils.roundBgTarget(low, bgUnits) },
-    target: { boundary: utils.roundBgTarget(high, bgUnits) },
+    low: {
+      boundary: utils.roundBgTarget(
+        settingsOverrideActive && patientSettings?.bgTarget?.low ? utils.translateBg(patientSettings.bgTarget.low, bgUnits) : low,
+        bgUnits
+      )
+    },
+    target: {
+      boundary: utils.roundBgTarget(
+        settingsOverrideActive && patientSettings?.bgTarget?.high ? utils.translateBg(patientSettings.bgTarget.high, bgUnits) : high,
+        bgUnits
+      )
+    },
   };
 
-  // Allow overriding stored BG Unit preferences via query param
-  const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
-  if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], queryParams.units)) {
-    bgUnits = queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
-    bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.low, bgUnits), bgUnits);
-    bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.high, bgUnits), bgUnits);
-    console.log(`Displaying BG in ${bgUnits} from query params`);
-  }
+  if (settingsOverrideActive) console.log(`Displaying BG in ${bgUnits} from ${overrideSource}`);
 
   return {
     bgUnits,
@@ -408,5 +418,20 @@ utils.getUploaderDownloadURL = (releases) => {
     latestMacRelease: latestMacRelease,
   };
 }
+
+utils.readableStatName = statId => ({
+  readingsInRange: 'Readings in range',
+  timeInAuto: 'Time in automation',
+  timeInOverride: 'Time in activity',
+  timeInRange: 'Time in range',
+  totalInsulin: 'Insulin ratio',
+}[statId] || statId);
+
+utils.readableChartName = chartType => ({
+  basics: 'Basics',
+  bgLog: 'BG log',
+  daily: 'Daily',
+  trends: 'Trends',
+}[chartType] || chartType);
 
 export default utils;

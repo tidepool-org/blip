@@ -16,6 +16,7 @@ import Checkbox from '../../../app/components/elements/Checkbox';
 /* global beforeEach */
 /* global before */
 /* global after */
+/* global context */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -29,6 +30,7 @@ describe('ClinicianEdit', () => {
     t: sinon.stub().callsFake((string) => string),
     api: {
       clinics: {
+        getCliniciansFromClinic: sinon.stub(),
         updateClinician: sinon.stub().callsArgWith(3, null, {}),
       },
     },
@@ -40,10 +42,12 @@ describe('ClinicianEdit', () => {
       'useLocation',
       sinon.stub().returns({ state: {} })
     );
+    ClinicianEdit.__Rewire__('config', { RX_ENABLED: true });
   });
 
   after(() => {
     mount.cleanUp();
+    ClinicianEdit.__ResetDependency__('config');
   });
 
   const defaultWorkingState = {
@@ -111,6 +115,7 @@ describe('ClinicianEdit', () => {
       },
       loggedInUserId: 'clinicianUserId123',
       pendingSentInvites: [],
+      selectedClinicId: 'clinicID456',
     },
   });
 
@@ -129,6 +134,10 @@ describe('ClinicianEdit', () => {
   });
 
   const noClinicianState = { state: {} };
+
+  const missingClinicianState = {
+    state: { clinicId: 'clinicID456', clinicianId: 'clinicianUserIdMissing' },
+  };
 
   const clinicianState = {
     state: { clinicId: 'clinicID456', clinicianId: 'clinicianUserId123' },
@@ -206,17 +215,15 @@ describe('ClinicianEdit', () => {
       wrapper
         .find('input[type="radio"]')
         .at(1)
-        .simulate('change', {
-          target: { name: 'clinician-type', value: 'CLINIC_MEMBER' },
-        });
+        .simulate('change', { persist: _.noop, target: { name: 'clinicianType', value: 'CLINIC_MEMBER' } });
       expect(wrapper.find(RadioGroup).props().value).to.equal('CLINIC_MEMBER');
     });
 
     it('should set prescriber permission when prescriber checkbox clicked', () => {
       expect(wrapper.find(Checkbox).props().checked).to.be.false;
       wrapper
-        .find('input[type="checkbox"]')
-        .simulate('change', { target: { checked: true } });
+        .find('input[type="checkbox"]').at(0)
+        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', value: true } });
       expect(wrapper.find(Checkbox).props().checked).to.be.true;
     });
 
@@ -228,7 +235,7 @@ describe('ClinicianEdit', () => {
 
     it('should navigate to "clinic-admin" when back button pushed without edit', () => {
       expect(store.getActions()).to.eql([]);
-      wrapper.find('Button#back').simulate('click');
+      wrapper.find('Button#cancel').simulate('click');
       expect(store.getActions()).to.eql([
         {
           type: '@@router/CALL_HISTORY_METHOD',
@@ -243,31 +250,92 @@ describe('ClinicianEdit', () => {
     it('should show confirm dialog when navigating without saving', () => {
       wrapper
         .find('input[type="checkbox"]')
-        .simulate('change', { target: { checked: true } });
+        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', checked: true } });
       expect(wrapper.find('Dialog#confirmDialog').props().open).to.be.false;
-      wrapper.find('Button#back').simulate('click');
+      wrapper.find('Button#cancel').simulate('click');
       expect(wrapper.find('Dialog#confirmDialog').props().open).to.be.true;
     });
 
-    it('should update clinician and redirect to "clinic-admin" on save', () => {
+    it('should update clinician and redirect to "clinic-admin" on save', (done) => {
       expect(store.getActions()).to.eql([]);
       expect(defaultProps.api.clinics.updateClinician.callCount).to.equal(0);
-      wrapper.find('Button#save').simulate('click');
-      expect(defaultProps.api.clinics.updateClinician.callCount).to.equal(1);
-      expect(store.getActions()).to.eql([
-        { type: 'UPDATE_CLINICIAN_REQUEST' },
-        {
-          type: 'UPDATE_CLINICIAN_SUCCESS',
-          payload: {
-            'clinicId': 'clinicID456',
-            'clinicianId': 'clinicianUserId123',
-            'clinician': {
-              'id': 'clinicianUserId123',
-              'roles': ['CLINIC_ADMIN'],
+
+      wrapper
+        .find('input[type="radio"]')
+        .at(1)
+        .simulate('change', { persist: _.noop, target: { name: 'clinicianType', value: 'CLINIC_MEMBER' } });
+
+      wrapper
+        .find('input[type="checkbox"]').at(0)
+        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', value: true } });
+
+      wrapper.find('Button#submit').simulate('submit');
+      setTimeout(() => {
+        expect(defaultProps.api.clinics.updateClinician.callCount).to.equal(1);
+        sinon.assert.calledWith(
+          defaultProps.api.clinics.updateClinician,
+          'clinicID456',
+          'clinicianUserId123',
+          { id: 'clinicianUserId123', roles: ['CLINIC_MEMBER', 'PRESCRIBER'] },
+        );
+
+        expect(store.getActions()).to.eql([
+          { type: 'UPDATE_CLINICIAN_REQUEST' },
+          {
+            type: 'UPDATE_CLINICIAN_SUCCESS',
+            payload: {
+              'clinicId': 'clinicID456',
+              'clinicianId': 'clinicianUserId123',
+              'clinician': {
+                'id': 'clinicianUserId123',
+                'roles': ['CLINIC_MEMBER', 'PRESCRIBER'],
+              },
             },
           },
-        },
-      ]);
+        ]);
+
+        done();
+      });
+    });
+
+    it('should render permissions details when trigger text is clicked', () => {
+      const permissionsDialog = () => wrapper.find('Dialog#permissionsDialog');
+      expect(permissionsDialog().props().open).to.be.false;
+
+      wrapper.find('Button[variant="textPrimary"]').simulate('click');
+      expect(permissionsDialog().props().open).to.be.true;
+
+      expect(permissionsDialog().find('#dialog-title').hostNodes().text()).to.equal('Clinician Roles and Permissions');
+    });
+  });
+
+  context('clinicians not fetched', () => {
+    before(() => {
+      ClinicianEdit.__Rewire__(
+        'useLocation',
+        sinon.stub().returns(missingClinicianState)
+      );
+    });
+
+    after(() => {
+      ClinicianEdit.__ResetDependency__('useLocation');
+    });
+
+    it('should fetch clinicians for a clinic if not already fetched', () => {
+      const initialState = { ...fetchedDataState };
+      initialState.blip.working.fetchingCliniciansFromClinic.completed = false;
+      store = mockStore(initialState);
+
+      defaultProps.trackMetric.resetHistory();
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicianEdit {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      sinon.assert.calledWith(defaultProps.api.clinics.getCliniciansFromClinic, 'clinicID456', { limit: 1000, offset: 0 });
     });
   });
 });

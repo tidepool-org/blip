@@ -5,7 +5,7 @@ export default {
     purpleLight: '#DCE0F9',
     purpleMedium: '#617DFF',
     purpleDark: '#271B46',
-    purpleBright: '#6582FF',
+    purpleBright: '#6784FA',
     blueGreyDark: '#4F6A92',
     blueGreyMedium: '#7E98C3',
     blueGreyLight: '#A6B1BB',

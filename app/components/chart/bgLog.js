@@ -24,6 +24,7 @@ import sundial from 'sundial';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
+import { Flex } from 'rebass/styled-components';
 
 import Stats from './stats';
 import DeviceSelection from './deviceSelection';
@@ -31,13 +32,15 @@ import DeviceSelection from './deviceSelection';
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
 const chartBgLogFactory = tidelineBlip.twoweek;
+import Button from '../elements/Button';
+import Checkbox from '../elements/Checkbox';
+import { colors } from '../../themes/baseTheme';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const Loader = vizComponents.Loader;
 const { getLocalizedCeiling } = vizUtils.datetime;
 
 import Header from './header';
-import Footer from './footer';
 
 class BgLogChart extends Component {
   static propTypes = {
@@ -46,13 +49,14 @@ class BgLogChart extends Component {
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     patient: PropTypes.object,
+    showingValues: PropTypes.bool,
     // handlers
     onDatetimeLocationChange: PropTypes.func.isRequired,
     onMostRecent: PropTypes.func.isRequired,
     onClickValues: PropTypes.func.isRequired,
     onSelectSMBG: PropTypes.func.isRequired,
     onTransition: PropTypes.func.isRequired,
-    isClinicAccount: PropTypes.bool.isRequired,
+    isClinicianAccount: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -67,7 +71,7 @@ class BgLogChart extends Component {
   };
 
   mount = (props = this.props) => {
-    this.mountChart(ReactDOM.findDOMNode(this));
+    this.mountChart(ReactDOM.findDOMNode(this), props);
     this.initializeChart(props.data, props.initialDatetimeLocation, props.showingValues);
   };
 
@@ -75,10 +79,9 @@ class BgLogChart extends Component {
     this.unmountChart();
   };
 
-  mountChart = (node, chartOpts) => {
+  mountChart = (node, props = {}) => {
     this.log('Mounting...');
-    chartOpts = chartOpts || {};
-    this.chart = chartBgLogFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
+    this.chart = chartBgLogFactory(node, props);
     this.chart.node = node;
     this.bindEvents();
   };
@@ -88,19 +91,21 @@ class BgLogChart extends Component {
     if (this.chart) this.chart.destroy();
   };
 
-  remountChart = (props = this.props) => {
+  remountChart = (updates = {}) => {
+    const chartProps = { ...this.props, ...updates };
     this.log('Remounting...');
     this.unmountChart();
-    this.mount(props);
+    this.mount(chartProps);
     this.chart.emitter.emit('inTransition', false);
   }
 
-  rerenderChart = (props = this.props) => {
+  rerenderChart = (updates = {}) => {
+    const chartProps = { ...this.props, ...updates };
     this.log('Rerendering...');
     this.chart.clear();
     this.bindEvents();
-    this.chart.load(props.data, props.initialDatetimeLocation);
-    if (props.showingValues) {
+    this.chart.load(chartProps.data, chartProps.initialDatetimeLocation);
+    if (chartProps.showingValues) {
       this.showValues();
     } else {
       this.hideValues();
@@ -127,7 +132,7 @@ class BgLogChart extends Component {
       this.chart.load(data);
     }
 
-    if (this.props.isClinicAccount || showingValues) {
+    if (this.props.isClinicianAccount || showingValues) {
       this.chart.showValues();
     }
   };
@@ -177,7 +182,7 @@ class BgLog extends Component {
     chartPrefs: PropTypes.object.isRequired,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
-    isClinicAccount: PropTypes.bool.isRequired,
+    isClinicianAccount: PropTypes.bool.isRequired,
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
     onClickNoDataRefresh: PropTypes.func.isRequired,
@@ -207,7 +212,7 @@ class BgLog extends Component {
     return {
       atMostRecent: false,
       inTransition: false,
-      showingValues: this.props.isClinicAccount,
+      showingValues: this.props.isClinicianAccount,
       title: '',
     };
   };
@@ -215,12 +220,14 @@ class BgLog extends Component {
   UNSAFE_componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
-    if (this.refs.chart && (loadingJustCompleted || newDataRecieved)) {
-      this.refs.chart.rerenderChart(_.assign(
-        {},
-        nextProps,
-        { showingValues: this.state.showingValues },
-      ));
+    const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
+
+    if (this.refs.chart) {
+      if (loadingJustCompleted || newDataRecieved) this.refs.chart.rerenderChart({ data: nextProps.data });
+
+      if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) {
+        this.refs.chart.remountChart({ bgClasses: nextProps.data.bgPrefs.bgClasses });
+      }
     }
   };
 
@@ -231,8 +238,18 @@ class BgLog extends Component {
   };
 
   render = () => {
+    const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'bgLog';
     let renderedContent;
+
+    const checkboxStyles = {
+      themeProps: { color: 'stat.text' },
+      backgroundColor: 'white',
+      sx: {
+        boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
+        color: colors.grays[2],
+      },
+    };
 
     if (dataQueryComplete) {
       renderedContent = this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart();
@@ -246,6 +263,28 @@ class BgLog extends Component {
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {renderedContent}
+
+              <Flex mt={4} mb={5} pl="50px" pr="30px" alignItems="center" justifyContent="space-between">
+                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
+                  {t('Refresh')}
+                </Button>
+
+                <Flex
+                  variant="inputs.checkboxGroup.horizontal"
+                  alignItems="center"
+                  bg="lightestGrey"
+                  px={3}
+                  py={2}
+                >
+                  <Checkbox
+                    label={t('Values')}
+                    name="valuesCheckbox"
+                    checked={this.state.showingValues}
+                    onChange={this.toggleValues}
+                    {...checkboxStyles}
+                  />
+                </Flex>
+              </Flex>
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -253,25 +292,21 @@ class BgLog extends Component {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 stats={this.props.stats}
+                trackMetric={this.props.trackMetric}
               />
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 devices={_.get(this.props, 'data.metaData.devices', [])}
-                updateChartPrefs={this.props.updateChartPrefs}
                 removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                trackMetric={this.props.trackMetric}
+                updateChartPrefs={this.props.updateChartPrefs}
               />
             </div>
           </div>
         </div>
-        <Footer
-          chartType={this.isMissingSMBG() ? 'no-data' : this.chartType}
-          onClickValues={this.toggleValues}
-          onClickRefresh={this.props.onClickRefresh}
-          showingValues={this.state.showingValues}
-          ref="footer"
-        />
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
@@ -284,6 +319,7 @@ class BgLog extends Component {
         bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
         data={this.props.data}
+        showingValues={this.state.showingValues}
         timePrefs={_.get(this.props, 'data.timePrefs', {})}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
@@ -292,7 +328,7 @@ class BgLog extends Component {
         onSelectSMBG={this.handleSelectSMBG}
         onTransition={this.handleInTransition}
         ref="chart"
-        isClinicAccount={this.props.isClinicAccount} />
+        isClinicianAccount={this.props.isClinicianAccount} />
     );
   };
 
@@ -369,11 +405,7 @@ class BgLog extends Component {
   };
 
   handleWindowResize = () => {
-    this.refs.chart && this.refs.chart.remountChart(_.assign(
-      {},
-      this.props,
-      { showingValues: this.state.showingValues },
-    ));
+    this.refs.chart && this.refs.chart.remountChart();
   };
 
   isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.metaData.latestDatumByType.smbg'));
