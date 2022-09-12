@@ -82,6 +82,16 @@ export let Login = translate()(class extends React.Component {
       <div className="login-simpleform">{form}</div>
     );
 
+    // for those accepting an invite, forward to keycloak login when available
+    if (
+      this.props.isInvite &&
+      keycloakConfig.initialized &&
+      !loggingIn &&
+      !this.props.isAuthenticated
+    ) {
+      keycloak.login({ loginHint: this.props.seedEmail });
+    }
+
     return (
       <div className="login">
         <Loader show={isLoading} overlay={true} />
@@ -259,8 +269,10 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let signupKey = utils.getSignupKey(ownProps.location);
   let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
   let api = ownProps.api;
+  let isAuthenticated = api.user.isAuthenticated();
   return Object.assign({}, stateProps, dispatchProps, {
     fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail }, api),
+    isAuthenticated: isAuthenticated,
     isInvite: isInvite,
     seedEmail: seedEmail,
     trackMetric: ownProps.trackMetric,

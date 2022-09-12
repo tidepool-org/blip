@@ -10,8 +10,7 @@ import { DIABETES_DATA_TYPES } from '../../core/constants';
 import * as sync from './sync.js';
 import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
-import config from '../../config';
-
+import { keycloak } from '../../keycloak';
 import { push } from 'connected-react-router';
 import { worker } from '.';
 
@@ -136,7 +135,12 @@ export function verifyCustodial(api, signupKey, signupEmail, birthday, password)
           createActionError(errorMessage, err), err, signupKey
         ));
       } else {
-        dispatch(login(api, {username: signupEmail, password: password}, null, sync.verifyCustodialSuccess));
+        const { blip: { keycloakConfig } } = getState();
+        if (keycloakConfig.initialized) {
+          keycloak.login({ loginHint: signupEmail, redirectUri: window.location.origin + '/login' });
+        } else {
+          dispatch(login(api, { username: signupEmail, password: password }, null, sync.verifyCustodialSuccess));
+        }
       }
     })
   };
