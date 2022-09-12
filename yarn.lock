@@ -3014,10 +3014,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.29.0":
-  version "1.29.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.29.0.tgz#25593db9982cceb08f3ee25fa25f6b1bc085a055"
-  integrity sha512-3nPCBWsYtptI4RvFxempnf2wFa/0bp162PemMVOSBaOZ6MxEqCKBFgC9PborrJpd3dj8CG/us6PSL5GGF/wbyA==
+"@tidepool/viz@1.30.0-rc.1":
+  version "1.30.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.30.0-rc.1.tgz#4c553e5d3014062ab9b4ae559b77ef26637e242d"
+  integrity sha512-7tlMo5apxa1iRdMTnPtXNTPtW6L4yrUi1mngc3yVxWMXdRokB9eFGOY6d3rsvPf+gt/OgfYA652L5+yRVQl7pw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -3036,7 +3036,7 @@
     intl "1.2.5"
     lodash "4.17.21"
     memorystream "0.3.1"
-    moment "2.22.2"
+    moment "2.29.4"
     moment-timezone "0.5.21"
     parse-svg-path "0.1.2"
     prop-types "15.6.2"
@@ -12584,11 +12584,6 @@ moment-timezone@0.5.35:
   integrity sha512-cY/pBOEXepQvlgli06ttCTKcIf8cD1nmNwOKQQAdHBqYApQSpAqotBMX0RJZNgMp6i0PlZuf1mFtnlyEkwyvFw==
   dependencies:
     moment ">= 2.9.0"
-
-moment@2.22.2:
-  version "2.22.2"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
-  integrity sha1-PCV/mDn8DpP/UxSWMiOeuQeD/2Y=
 
 moment@2.29.4, "moment@>= 2.6.0", "moment@>= 2.9.0", moment@>=1.6.0, moment@^2.18.1:
   version "2.29.4"
