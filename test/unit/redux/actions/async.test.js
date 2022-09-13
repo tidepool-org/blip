@@ -75,7 +75,7 @@ describe('Actions', () => {
           id: 27,
         };
 
-        const initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId } });
+        const initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId } });
 
         const api = {
           user: {
@@ -264,7 +264,7 @@ describe('Actions', () => {
 
         let expectedAction = { type: 'ACKNOWLEDGE_NOTIFICATION', payload: { acknowledgedNotification: 'confirmingSignup' } };
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { working: { confirmingSignup: { notification: 'hi' } } } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { working: { confirmingSignup: { notification: 'hi' } } } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
@@ -311,7 +311,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { working: { confirmingSignup: { notification: null } } } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { working: { confirmingSignup: { notification: null } } } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
@@ -348,7 +348,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { working: { confirmingSignup: { notification: null } } } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { working: { confirmingSignup: { notification: null } } } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
@@ -439,7 +439,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
@@ -472,7 +472,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
@@ -505,7 +505,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate, user.id));
@@ -540,7 +540,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
@@ -1728,7 +1728,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.setupDataStorage(api, patient));
@@ -1760,7 +1760,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.setupDataStorage(api, patient));

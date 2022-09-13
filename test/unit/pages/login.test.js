@@ -36,7 +36,8 @@ describe('Login', function () {
         inProgress: false,
         completed: true,
       },
-      keycloakConfig: {}
+      keycloakConfig: {},
+      api: { user: { isAuthenticated: sinon.stub().returns(false) } }
     };
 
     it('should render without problems when required props are present', function () {
