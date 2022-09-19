@@ -614,7 +614,7 @@ export const ClinicPatients = (props) => {
     trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
     let fetchOptions = { ...patientFetchOptions };
     if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
-    dispatch(actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions));
+    dispatch(actions.async.fetchPatientsForClinic(api, clinic?.id, fetchOptions));
   }, [api, clinic?.id, dispatch, patientFetchOptions, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
   const handleToggleShowNames = useCallback(() => {
@@ -1809,7 +1809,7 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleTable = useCallback(() => {
 
-    const pageCount = Math.ceil(clinic.patientCount / patientFetchOptions.limit);
+    const pageCount = Math.ceil(clinic?.patientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
     return (
