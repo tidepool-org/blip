@@ -349,7 +349,7 @@ export const ClinicPatients = (props) => {
       ),
     [clinicBgUnits]
   );
-  const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState);
+  const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState, true);
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
 
@@ -2036,8 +2036,7 @@ ho
   const tableStyle = useMemo(() => ({ fontSize: showSummaryData ? '12px' : '14px' }), [showSummaryData]);
 
   const renderPeopleTable = useCallback(() => {
-
-    const pageCount = Math.ceil(clinic.patientCount / patientFetchOptions.limit);
+    const pageCount = Math.ceil(clinic?.patientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
     return (
