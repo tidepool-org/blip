@@ -13,8 +13,11 @@ import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
+import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
+import reduce from 'lodash/reduce';
+import reject from 'lodash/reject';
 import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -95,6 +98,7 @@ const defaultFilterState = {
   lastUploadDate: null,
   timeInRange: [],
   meetsGlycemicTargets: true,
+  patientTags: [],
 };
 
 const glycemicTargetThresholds = {
@@ -103,6 +107,20 @@ const glycemicTargetThresholds = {
   timeInTargetPercent: { value: 70, comparator: '<' },
   timeInHighPercent: { value: 25, comparator: '>' },
   timeInVeryHighPercent: { value: 5, comparator: '>' },
+};
+
+const PatientTagsDialog = ({ patient, tags, t }) => {
+  return (
+    <Flex flexWrap="wrap">
+      {map(tags, tag => (
+        <Pill
+          id={tag.id}
+          label={tag.id}
+          text={tag.name}
+        />
+      ))}
+    </Flex>
+  );
 };
 
 const BgSummaryCell = ({ summary, clinicBgUnits, summaryPeriod, t }) => {
@@ -332,8 +350,9 @@ export const ClinicPatients = (props) => {
     [clinicBgUnits]
   );
   const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState);
-  const [pendingFilters, setPendingFilters] = useState(activeFilters);
+  const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
+
   const lastUploadDateFilterOptions = [
     { value: 1, label: t('Today') },
     { value: 2, label: t('Last 2 days') },
@@ -348,6 +367,13 @@ export const ClinicPatients = (props) => {
     { value: '30d', label: t('30 days') },
   ];
 
+  const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
+
+  const patientTagsFilterOptions = useMemo(
+    () => map(clinic?.patientTags, ({ id, name }) => ({ id, label: name })),
+    [clinic?.patientTags]
+  );
+
   const [summaryPeriod, setSummaryPeriod] = useState('14d');
   const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(summaryPeriod);
   const previousSummaryPeriod = usePrevious(summaryPeriod);
@@ -358,6 +384,11 @@ export const ClinicPatients = (props) => {
   });
 
   const lastUploadDatePopupFilterState = usePopupState({
+    variant: 'popover',
+    popupId: 'lastUploadDateFilters',
+  });
+
+  const patientTagsPopupFilterState = usePopupState({
     variant: 'popover',
     popupId: 'lastUploadDateFilters',
   });
@@ -585,7 +616,7 @@ export const ClinicPatients = (props) => {
     clinic?.tier,
     defaultPatientFetchOptions.sort,
     isFirstRender,
-    patientFetchOptions,
+    patientFetchOptions, // TODO: wondering why we have this here. Could be a bad loop, given that we update this within this method.
     previousActiveFilters,
     previousClinic?.id,
     previousSummaryPeriod,
@@ -746,7 +777,12 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   const renderHeader = () => {
-    const activeFiltersCount = without([activeFilters.lastUploadDate, activeFilters.timeInRange.length], null, 0).length;
+    const activeFiltersCount = without([
+      activeFilters.lastUploadDate,
+      activeFilters.timeInRange.length,
+      activeFilters.patientTags.length,
+    ], null, 0).length;
+
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
     let timeAgoUnits = hoursAgo < 2 ? t('hour') : t('hours');
@@ -949,6 +985,138 @@ export const ClinicPatients = (props) => {
                       )}
                       </Flex>
                   </Button>
+
+                  <Box
+                    onClick={() => {
+                      if (!patientTagsPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('patient tags filter open'), { clinicId: selectedClinicId });
+                    }}
+                    flexShrink={0}
+                  >
+                    <Button
+                      variant="filter"
+                      id="patient-tags-filter-trigger"
+                      selected={activeFilters.patientTags.length > 0}
+                      {...bindTrigger(patientTagsPopupFilterState)}
+                      icon={KeyboardArrowDownRoundedIcon}
+                      iconLabel="Filter by patient tags"
+                      fontSize={0}
+                      lineHeight={1.3}
+                    >
+                      <Flex sx={{ gap: 1 }}>
+                        {t('Patient Tags')}
+                        {!!activeFilters.patientTags.length && (
+                          <Pill
+                            id="patient-tags-filter-count"
+                            label="filter count"
+                            round
+                            width="14px"
+                            fontSize="9px"
+                            lineHeight="15px"
+                            sx={{
+                              textAlign: 'center',
+                              display: 'inline-block',
+                            }}
+                            colorPalette={['purpleMedium', 'white']}
+                            text={`${activeFilters.patientTags.length}`}
+                          />
+                        )}
+                      </Flex>
+                    </Button>
+                  </Box>
+
+                  <Popover
+                    minWidth="11em"
+                    closeIcon
+                    {...bindPopover(patientTagsPopupFilterState)}
+                    onClickCloseIcon={() => {
+                      trackMetric(prefixPopHealthMetric('patient tags filter close'), { clinicId: selectedClinicId });
+                    }}
+                  >
+                    <DialogContent px={2} py={3} dividers>
+                      <Box variant="containers.extraSmall">
+                        <Box alignItems="center" mb={3} fontSize={1} fontWeight="medium">
+                          <Text color="text.primary" sx={{ whiteSpace: 'nowrap' }}>
+                            {t('Filter by Patient Tags')}
+                          </Text>
+                        </Box>
+
+                        <Box mb={1} fontSize={0} fontWeight="medium">
+                          <Text>{t('Selected Tags')}</Text>
+
+                          <Flex flexWrap="wrap" sx={{ gap: 1 }}>
+                            {map(pendingFilters.patientTags, tagId => (
+                              <Flex
+                                alignItems="center"
+                                justifyContent="space-between"
+                                bg="purpleMedium"
+                                color="white"
+                                sx={{ borderRadius: 'default' }}
+                              >
+                                <Text>{patientTags[tagId].name}</Text>
+
+                                <Icon
+                                  className="remove-patient-tag-filter"
+                                  variant="default"
+                                  color="white"
+                                  icon={CloseRoundedIcon}
+                                  label={t('Remove patient tag fiter')}
+                                  onClick={() => {
+                                    setPendingFilters({ ...pendingFilters, patientTags: without(pendingFilters.patientTags, tagId) });
+                                  }}
+                                />
+                              </Flex>
+                            ))}
+                          </Flex>
+
+                        </Box>
+
+                        <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
+                          <Text>{t('Other Tags')}</Text>
+
+                          <Flex flexWrap="wrap" sx={{ gap: 1 }}>
+                            {map(
+                              reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)),
+                              ({ id, label }) => (
+                                <Button
+                                  bg="lightGrey"
+                                  color="primary"
+                                  onClick={() => {
+                                    setPendingFilters({ ...pendingFilters, patientTags: [...pendingFilters.patientTags, id] });
+                                  }}
+                                >
+                                  {label}
+                                </Button>
+                              )
+                            )}
+                          </Flex>
+                        </Box>
+                      </Box>
+                    </DialogContent>
+
+                    <DialogActions justifyContent="space-between" p={1}>
+                      <Button
+                        id="clear-patietnt-tags-filter"
+                        fontSize={1}
+                        variant="textSecondary"
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('patient tags clear filter'), { clinicId: selectedClinicId });
+                          setPendingFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
+                          setActiveFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
+                          patientTagsPopupFilterState.close();
+                        }}
+                      >
+                        {t('Clear')}
+                      </Button>
+
+                      <Button id="apply-last-upload-filter" disabled={!pendingFilters.patientTags} fontSize={1} variant="textPrimary" onClick={() => {
+                        trackMetric(prefixPopHealthMetric('patient tags apply filter'), { clinicId: selectedClinicId });
+                        setActiveFilters(pendingFilters);
+                        patientTagsPopupFilterState.close();
+                      }}>
+                        {t('Apply')}
+                      </Button>
+                    </DialogActions>
+                  </Popover>
                 </Flex>
 
                 {activeFiltersCount > 0 && (
@@ -1572,14 +1740,77 @@ export const ClinicPatients = (props) => {
       <Text as="span" fontWeight="medium">{summary?.periods?.[summaryPeriod]?.timeCGMUsePercent ? formatDecimal(summary?.periods?.[summaryPeriod]?.timeCGMUsePercent * 100) : statEmptyText}</Text>
       {summary?.periods?.[summaryPeriod]?.timeCGMUsePercent && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
-  ), [ summaryPeriod]);
+  ), [summaryPeriod]);
 
   const renderGMI = useCallback(({ summary }) => (
     <Box classname="patient-gmi">
       <Text as="span" fontWeight="medium">{summary?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 ? formatDecimal(summary.periods[summaryPeriod].glucoseManagementIndicator, 1) : statEmptyText}</Text>
       {summary?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
-  ), [ summaryPeriod]);
+  ), [summaryPeriod]);
+
+  const renderPatientTags = useCallback(patient => {
+    const maxCharsDisplayed = 30;
+    const visibleTags = [];
+    const hiddenTags = [];
+
+    reduce(patient.tags, (remainingChars, tagId) => {
+      const tag = patientTags?.[tagId];
+      if (tag?.name) {
+        if(tag.name.length <= remainingChars) {
+          visibleTags.push(tag);
+          return remainingChars - tag.name.length;
+        } else {
+          hiddenTags.push(tag)
+        }
+      }
+
+      return remainingChars;
+    }, maxCharsDisplayed);
+
+    return (
+      <Flex classname="patient-tags" sx={{ gap: 1 }}>
+        {map(visibleTags, tag => (
+          <Pill
+            sx={{ whiteSpace: 'nowrap' }}
+            as="span"
+            fontWeight="medium"
+            id={tag.id}
+            key={tag.id}
+            label={tag.name || ''}
+            text={tag.name || ''}
+          />
+        ))}
+
+        {!!hiddenTags.length && (
+          <PopoverLabel
+          id="summary-stat-info"
+          iconLabel={t('Summary stat info')}
+          icon={InfoOutlinedIcon}
+          iconProps={{
+            id: 'summary-stat-info-trigger',
+            iconFontSize: '18px',
+          }}
+          label={`+${hiddenTags.length}`}
+          popoverContent={<PatientTagsDialog patient={patient} tags={hiddenTags} />}
+          popoverProps={{
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'center',
+            },
+            transformOrigin: {
+              vertical: 'top',
+              horizontal: 'center',
+            },
+            width: 'auto',
+          }}
+          triggerOnHover
+        />
+        )}
+      </Flex>
+
+    );
+  }, [patientTags]);
 
   const renderBgRangeSummary = useCallback(({summary}) => {
     return <BgSummaryCell
@@ -1593,7 +1824,7 @@ export const ClinicPatients = (props) => {
     const rotation = type === 'low' ? 90 : -90;
     const color = type === 'low' ? 'bg.veryLow' : 'bg.veryHigh';
     const visibility = value > 0 ? 'visible' : 'hidden';
-
+ho
     return (
       <Flex alignItems="center" sx={{ visibility, gap: '2px' }}>
         <Icon
@@ -1746,6 +1977,12 @@ export const ClinicPatients = (props) => {
             render: renderGMI,
           },
           {
+            title: t('Patient Tags'),
+            field: 'tags',
+            align: 'left',
+            render: renderPatientTags,
+          },
+          {
             title: t('% Time in Range'),
             field: 'bgRangeSummary',
             align: 'center',
@@ -1796,9 +2033,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const data = useMemo(() => values(clinic?.patients), [clinic?.patients]);
-  const tableStyle = useMemo(() => {
-    fontSize: showSummaryData ? '12px' : '14px';
-  }, [showSummaryData]);
+  const tableStyle = useMemo(() => ({ fontSize: showSummaryData ? '12px' : '14px' }), [showSummaryData]);
 
   const renderPeopleTable = useCallback(() => {
 
