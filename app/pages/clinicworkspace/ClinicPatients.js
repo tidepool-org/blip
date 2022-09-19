@@ -115,6 +115,7 @@ const PatientTagsDialog = ({ patient, tags, t }) => {
       {map(tags, tag => (
         <Pill
           id={tag.id}
+          key={tag.id}
           label={tag.id}
           text={tag.name}
         />
@@ -567,6 +568,10 @@ export const ClinicPatients = (props) => {
         if (activeFilters.lastUploadDate) {
           filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
           filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
+        }
+
+        if (activeFilters.patientTags.length) {
+          filterOptions['tags'] = activeFilters.patientTags;
         }
 
         forEach(activeFilters.timeInRange, filter => {
@@ -1824,7 +1829,7 @@ export const ClinicPatients = (props) => {
     const rotation = type === 'low' ? 90 : -90;
     const color = type === 'low' ? 'bg.veryLow' : 'bg.veryHigh';
     const visibility = value > 0 ? 'visible' : 'hidden';
-ho
+
     return (
       <Flex alignItems="center" sx={{ visibility, gap: '2px' }}>
         <Icon
