@@ -872,6 +872,10 @@ export const ClinicPatients = (props) => {
                     onClickCloseIcon={() => {
                       trackMetric(prefixPopHealthMetric('Last upload filter close'), { clinicId: selectedClinicId });
                     }}
+                    onClose={() => {
+                      lastUploadDatePopupFilterState.close();
+                      setPendingFilters(activeFilters);
+                    }}
                   >
                     <DialogContent px={2} py={3} dividers>
                       <RadioGroup
@@ -997,7 +1001,6 @@ export const ClinicPatients = (props) => {
                   <Button
                     variant="filter"
                     id="summary-period-filter-trigger"
-                    selected={!!activeFilters.lastUploadDate}
                     {...bindTrigger(summaryPeriodPopupFilterState)}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by summary period duration"
@@ -1014,6 +1017,10 @@ export const ClinicPatients = (props) => {
                   {...bindPopover(summaryPeriodPopupFilterState)}
                   onClickCloseIcon={() => {
                     trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
+                  }}
+                  onClose={() => {
+                    summaryPeriodPopupFilterState.close();
+                    setPendingSummaryPeriod(summaryPeriod);
                   }}
                 >
                   <DialogContent px={2} py={3} dividers>
