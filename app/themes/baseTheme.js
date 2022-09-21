@@ -10,6 +10,7 @@ import steppers from './base/steppers';
 import tabGroups from './base/tabGroups';
 import paginators from './base/paginators';
 import tables from './base/tables';
+import tags from './base/tags';
 import toasts from './base/toasts';
 import forms from './base/forms';
 
@@ -124,6 +125,7 @@ const variants = {
   steppers: steppers({ colors, fonts, fontWeights, fontSizes }),
   tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
   tables: tables({ borders, colors, fonts, fontSizes, shadows }),
+  tags: tags({ colors, fonts, radii, fontWeights }),
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
   containers: containers({ borders, colors, radii, space }),
 };

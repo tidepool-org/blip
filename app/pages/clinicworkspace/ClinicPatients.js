@@ -54,6 +54,7 @@ import {
 import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
+import { TagList } from '../../components/elements/Tag';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import BgRangeSummary from '../../components/clinic/BgRangeSummary';
@@ -107,21 +108,6 @@ const glycemicTargetThresholds = {
   timeInTargetPercent: { value: 70, comparator: '<' },
   timeInHighPercent: { value: 25, comparator: '>' },
   timeInVeryHighPercent: { value: 5, comparator: '>' },
-};
-
-const PatientTagsDialog = ({ patient, tags, t }) => {
-  return (
-    <Flex flexWrap="wrap">
-      {map(tags, tag => (
-        <Pill
-          id={tag.id}
-          key={tag.id}
-          label={tag.id}
-          text={tag.name}
-        />
-      ))}
-    </Flex>
-  );
 };
 
 const BgSummaryCell = ({ summary, clinicBgUnits, summaryPeriod, t }) => {
@@ -584,12 +570,15 @@ export const ClinicPatients = (props) => {
 
           filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
         });
+
+        if (!showSummaryData) setShowSummaryData(isPremiumTier);
       }
 
       const newPatientFetchOptions = {
         ...omit(patientFetchOptions, [
           'summary.lastUploadDateFrom',
           'summary.lastUploadDateTo',
+          'tags',
           `summary.periods.${summaryPeriod}.timeInVeryLowPercent`,
           `summary.periods.${summaryPeriod}.timeInLowPercent`,
           `summary.periods.${summaryPeriod}.timeInTargetPercent`,
@@ -610,7 +599,6 @@ export const ClinicPatients = (props) => {
           setPatientFetchOptions(newPatientFetchOptions);
         }
       } else {
-        setShowSummaryData(isPremiumTier);
         setPatientFetchOptions(newPatientFetchOptions);
         setCurrentPage(1);
       }
@@ -1047,53 +1035,30 @@ export const ClinicPatients = (props) => {
 
                         <Box mb={1} fontSize={0} fontWeight="medium">
                           <Text>{t('Selected Tags')}</Text>
-
-                          <Flex flexWrap="wrap" sx={{ gap: 1 }}>
-                            {map(pendingFilters.patientTags, tagId => (
-                              <Flex
-                                alignItems="center"
-                                justifyContent="space-between"
-                                bg="purpleMedium"
-                                color="white"
-                                sx={{ borderRadius: 'default' }}
-                              >
-                                <Text>{patientTags[tagId].name}</Text>
-
-                                <Icon
-                                  className="remove-patient-tag-filter"
-                                  variant="default"
-                                  color="white"
-                                  icon={CloseRoundedIcon}
-                                  label={t('Remove patient tag fiter')}
-                                  onClick={() => {
-                                    setPendingFilters({ ...pendingFilters, patientTags: without(pendingFilters.patientTags, tagId) });
-                                  }}
-                                />
-                              </Flex>
-                            ))}
-                          </Flex>
-
+                          <TagList
+                            tags={map(pendingFilters.patientTags, tagId => patientTags?.[tagId])}
+                            tagProps={{
+                              onClick: tagId => {
+                                setPendingFilters({ ...pendingFilters, patientTags: without(pendingFilters.patientTags, tagId) });
+                              },
+                              icon: CloseRoundedIcon,
+                              iconFontSize: 1,
+                              color: 'white',
+                              backgroundColor: 'purpleMedium',
+                            }}
+                          />
                         </Box>
 
                         <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
-                          <Text>{t('Other Tags')}</Text>
-
-                          <Flex flexWrap="wrap" sx={{ gap: 1 }}>
-                            {map(
-                              reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)),
-                              ({ id, label }) => (
-                                <Button
-                                  bg="lightGrey"
-                                  color="primary"
-                                  onClick={() => {
-                                    setPendingFilters({ ...pendingFilters, patientTags: [...pendingFilters.patientTags, id] });
-                                  }}
-                                >
-                                  {label}
-                                </Button>
-                              )
-                            )}
-                          </Flex>
+                          <Text>{t('Available Tags')}</Text>
+                          <TagList
+                            tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)), ({ id }) => patientTags?.[id])}
+                            tagProps={{
+                              onClick: tagId => {
+                                setPendingFilters({ ...pendingFilters, patientTags: [...pendingFilters.patientTags, tagId] });
+                              },
+                            }}
+                          />
                         </Box>
                       </Box>
                     </DialogContent>
@@ -1755,65 +1720,8 @@ export const ClinicPatients = (props) => {
   ), [summaryPeriod]);
 
   const renderPatientTags = useCallback(patient => {
-    const maxCharsDisplayed = 30;
-    const visibleTags = [];
-    const hiddenTags = [];
-
-    reduce(patient.tags, (remainingChars, tagId) => {
-      const tag = patientTags?.[tagId];
-      if (tag?.name) {
-        if(tag.name.length <= remainingChars) {
-          visibleTags.push(tag);
-          return remainingChars - tag.name.length;
-        } else {
-          hiddenTags.push(tag)
-        }
-      }
-
-      return remainingChars;
-    }, maxCharsDisplayed);
-
     return (
-      <Flex classname="patient-tags" sx={{ gap: 1 }}>
-        {map(visibleTags, tag => (
-          <Pill
-            sx={{ whiteSpace: 'nowrap' }}
-            as="span"
-            fontWeight="medium"
-            id={tag.id}
-            key={tag.id}
-            label={tag.name || ''}
-            text={tag.name || ''}
-          />
-        ))}
-
-        {!!hiddenTags.length && (
-          <PopoverLabel
-          id="summary-stat-info"
-          iconLabel={t('Summary stat info')}
-          icon={InfoOutlinedIcon}
-          iconProps={{
-            id: 'summary-stat-info-trigger',
-            iconFontSize: '18px',
-          }}
-          label={`+${hiddenTags.length}`}
-          popoverContent={<PatientTagsDialog patient={patient} tags={hiddenTags} />}
-          popoverProps={{
-            anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'center',
-            },
-            transformOrigin: {
-              vertical: 'top',
-              horizontal: 'center',
-            },
-            width: 'auto',
-          }}
-          triggerOnHover
-        />
-        )}
-      </Flex>
-
+      <TagList tagProps={{ variant: 'compact' }} tags={map(patient.tags, tagId => patientTags?.[tagId])} maxCharactersVisible={30} />
     );
   }, [patientTags]);
 
