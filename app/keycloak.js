@@ -121,7 +121,7 @@ export const KeycloakWrapper = (props) => {
         //checkLoginIframe: false,
         onLoad: 'check-sso',
         enableLogging: true,
-        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+        silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
       }
     };
   }

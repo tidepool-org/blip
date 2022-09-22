@@ -240,7 +240,7 @@ export let Login = translate()(class extends React.Component {
  */
 
 let getFetchers = (dispatchProps, ownProps, other, api) => {
-  if (other.signupKey) {
+  if (other.signupKey && !other.confirmingSignup.inProgress) {
     return [
       dispatchProps.confirmSignup.bind(null, api, other.signupKey, other.signupEmail)
     ];
@@ -255,6 +255,7 @@ export function mapStateToProps(state) {
     working: state.blip.working.loggingIn.inProgress,
     fetchingInfo: state.blip.working.fetchingInfo,
     keycloakConfig: state.blip.keycloakConfig,
+    confirmingSignup: state.blip.working.confirmingSignup,
   };
 }
 
@@ -271,7 +272,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let api = ownProps.api;
   let isAuthenticated = api.user.isAuthenticated();
   return Object.assign({}, stateProps, dispatchProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail }, api),
+    fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail, confirmingSignup: stateProps.confirmingSignup }, api),
     isAuthenticated: isAuthenticated,
     isInvite: isInvite,
     seedEmail: seedEmail,
