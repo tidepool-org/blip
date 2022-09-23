@@ -5,8 +5,10 @@ import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
 import { format } from 'd3-format';
 import moment from 'moment';
+import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
 import forEach from 'lodash/forEach';
+import filter from 'lodash/filter';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
@@ -16,11 +18,11 @@ import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
-import reduce from 'lodash/reduce';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Text } from 'rebass/styled-components';
+import AddIcon from '@material-ui/icons/Add';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
 import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
@@ -285,6 +287,134 @@ const MoreMenu = ({
   return <PopoverMenu id={`action-menu-${patient.id}`} items={items} />;
 };
 
+const PatientTags = ({
+  api,
+  patient,
+  patientTags,
+  patientTagsFilterOptions,
+  prefixPopHealthMetric,
+  selectedClinicId,
+  selectedPatient,
+  setSelectedPatient,
+  t,
+  trackMetric,
+}) => {
+  const dispatch = useDispatch();
+  const defaultPatientTags = patient.tags || [];
+  const [pendingPatientTags, setPendingPatientTags] = useState(defaultPatientTags)
+
+  const addPatientTagsPopupState = usePopupState({
+    variant: 'popover',
+    popupId: `add-patient-tags-${patient.id}`,
+  });
+
+  return !!patient?.tags?.length ? (
+    <TagList tagProps={{ variant: 'compact' }} tags={compact(map(patient.tags, tagId => patientTags?.[tagId]))} maxCharactersVisible={30} />
+  ) : (
+    <Flex>
+      <Button
+        variant="textPrimary"
+        px={0}
+        color="grays.4"
+        fontWeight="medium"
+        fontSize="10px"
+        icon={AddIcon}
+        iconLabel={t('Add')}
+        iconPosition="left"
+        iconFontSize="16px"
+        selected={addPatientTagsPopupState.isOpen && selectedPatient.id === patient.id}
+        {...bindTrigger(addPatientTagsPopupState)}
+        onClick={() => {
+          setSelectedPatient(patient);
+          addPatientTagsPopupState.open();
+        }}
+      >
+        {t('Add')}
+      </Button>
+
+      <Popover
+        minWidth="11em"
+        closeIcon
+        {...bindPopover(addPatientTagsPopupState)}
+        onClickCloseIcon={() => {
+          trackMetric(prefixPopHealthMetric('add patient tags dialog close'), { clinicId: selectedClinicId });
+        }}
+        onClose={() => {
+          addPatientTagsPopupState.close();
+          setSelectedPatient(null);
+        }}
+      >
+        <DialogContent px={2} py={3} dividers>
+          <Box variant="containers.extraSmall">
+            <Box alignItems="center" mb={3} fontSize={1} fontWeight="medium">
+              <Text color="text.primary" sx={{ whiteSpace: 'nowrap' }}>
+                {t('Assign Patient Tags')}
+              </Text>
+            </Box>
+
+            <Box mb={1} fontSize={0} fontWeight="medium">
+              <Text>{t('Selected Tags')}</Text>
+              <TagList
+                tags={map(pendingPatientTags, tagId => patientTags?.[tagId])}
+                tagProps={{
+                  onClickIcon: tagId => {
+                    setPendingPatientTags(without(pendingPatientTags, tagId));
+                  },
+                  icon: CloseRoundedIcon,
+                  iconColor: 'white',
+                  iconFontSize: 1,
+                  color: 'white',
+                  backgroundColor: 'purpleMedium',
+                }}
+              />
+            </Box>
+
+            <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
+              <Text>{t('Available Tags')}</Text>
+              <TagList
+                tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingPatientTags, id)), ({ id }) => patientTags?.[id])}
+                tagProps={{
+                  onClick: tagId => {
+                    setPendingPatientTags([...pendingPatientTags, tagId]);
+                  },
+                }}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+
+        <DialogActions justifyContent="space-between" p={1}>
+          <Button
+            id="clear-patient-tags-dialog"
+            fontSize={1}
+            variant="textSecondary"
+            onClick={() => {
+              trackMetric(prefixPopHealthMetric('add patient tags dialog clear'), { clinicId: selectedClinicId });
+              setPendingPatientTags(defaultPatientTags);
+              setSelectedPatient(null);
+              addPatientTagsPopupState.close();
+            }}
+          >
+            {t('Clear')}
+          </Button>
+
+          <Button id="apply-patient-tags-dialog" disabled={!pendingPatientTags.length} fontSize={1} variant="textPrimary" onClick={() => {
+            trackMetric(prefixPopHealthMetric('add patient tags dialog apply'), { clinicId: selectedClinicId });
+
+            dispatch(
+              actions.async.updateClinicPatient(api, selectedClinicId, patient.id, { ...patient, tags: pendingPatientTags })
+            );
+
+            addPatientTagsPopupState.close();
+          }}>
+            {t('Apply')}
+          </Button>
+        </DialogActions>
+      </Popover>
+    </Flex>
+  );
+};
+
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric, searchDebounceMs } = props;
   const isFirstRender = useIsFirstRender();
@@ -298,6 +428,7 @@ export const ClinicPatients = (props) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
+  const [showEditClinicPatientTagsDialog, setShowEditClinicPatientTagsDialog] = useState(false);
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
@@ -337,6 +468,8 @@ export const ClinicPatients = (props) => {
   );
   const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState, true);
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
+  const [pendingClinicPatientTags, setPendingClinicPatientTags] = useState({ added: [], deleted: [] }); // TODO: split into separate states
+  const [pendingNewClinicPatientTag, setPendingNewClinicPatientTag] = useState('');
   const previousActiveFilters = usePrevious(activeFilters);
 
   const lastUploadDateFilterOptions = [
@@ -394,6 +527,7 @@ export const ClinicPatients = (props) => {
     updatingClinicPatient,
     creatingClinicCustodialAccount,
     sendingPatientUploadReminder,
+    updatingClinicPatientTags,
   } = useSelector((state) => state.blip.working);
 
   // TODO: remove this when upgraded to React 18
@@ -537,7 +671,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   useEffect(() => {
-    if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters) && !isFirstRender && isEqual(summaryPeriod, previousSummaryPeriod))){
+    if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters) && !isFirstRender && isEqual(summaryPeriod, previousSummaryPeriod))) {
       const filterOptions = {
         offset: 0,
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
@@ -569,8 +703,6 @@ export const ClinicPatients = (props) => {
 
           filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
         });
-
-        if (!showSummaryData) setShowSummaryData(isPremiumTier);
       }
 
       const newPatientFetchOptions = {
@@ -598,6 +730,7 @@ export const ClinicPatients = (props) => {
           setPatientFetchOptions(newPatientFetchOptions);
         }
       } else {
+        setShowSummaryData(isPremiumTier);
         setPatientFetchOptions(newPatientFetchOptions);
         setCurrentPage(1);
       }
@@ -670,6 +803,13 @@ export const ClinicPatients = (props) => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric])
+
+  const handleEditClinicPatientTagsConfirm = useCallback((tags) => {
+    trackMetric('Clinic - Edit patient tags confirmed', { clinicId: selectedClinicId });
+    console.log('tags', tags);
+    // TODO: wire up clinic patient tags api and make the call
+    // dispatch(actions.async.updateClinicPatientTags(api, selectedClinicId, tags));
+  }, [selectedClinicId, trackMetric])
 
   const handleSendUploadReminderConfirm = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Send upload reminder confirmed'), { clinicId: selectedClinicId });
@@ -1037,10 +1177,11 @@ export const ClinicPatients = (props) => {
                           <TagList
                             tags={map(pendingFilters.patientTags, tagId => patientTags?.[tagId])}
                             tagProps={{
-                              onClick: tagId => {
+                              onClickIcon: tagId => {
                                 setPendingFilters({ ...pendingFilters, patientTags: without(pendingFilters.patientTags, tagId) });
                               },
                               icon: CloseRoundedIcon,
+                              iconColor: 'white',
                               iconFontSize: 1,
                               color: 'white',
                               backgroundColor: 'purpleMedium',
@@ -1064,7 +1205,7 @@ export const ClinicPatients = (props) => {
 
                     <DialogActions justifyContent="space-between" p={1}>
                       <Button
-                        id="clear-patietnt-tags-filter"
+                        id="clear-patient-tags-filter"
                         fontSize={1}
                         variant="textSecondary"
                         onClick={() => {
@@ -1077,7 +1218,7 @@ export const ClinicPatients = (props) => {
                         {t('Clear')}
                       </Button>
 
-                      <Button id="apply-last-upload-filter" disabled={!pendingFilters.patientTags} fontSize={1} variant="textPrimary" onClick={() => {
+                      <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags} fontSize={1} variant="textPrimary" onClick={() => {
                         trackMetric(prefixPopHealthMetric('patient tags apply filter'), { clinicId: selectedClinicId });
                         setActiveFilters(pendingFilters);
                         patientTagsPopupFilterState.close();
@@ -1085,6 +1226,28 @@ export const ClinicPatients = (props) => {
                         {t('Apply')}
                       </Button>
                     </DialogActions>
+
+                    {isClinicAdmin && (
+                      <DialogActions
+                        p={1}
+                        justifyContent="space-between"
+                        sx={{ borderTop: borders.divider }}
+                      >
+                        <Button
+                          id="show-edit-clinic-patient-tags-dialog"
+                          icon={EditIcon}
+                          iconPosition="left"
+                          fontSize={1}
+                          variant="textPrimary"
+                          onClick={() => {
+                            setShowEditClinicPatientTagsDialog(true);
+                          }}
+                        >
+                          {t('Edit Available Patient Tags')}
+                        </Button>
+
+                      </DialogActions>
+                    )}
                   </Popover>
                 </Flex>
 
@@ -1419,6 +1582,93 @@ export const ClinicPatients = (props) => {
     updatingClinicPatient.inProgress
   ]);
 
+  const renderEditClinicPatientTagsDialog = useCallback(() => {
+    return (
+      <Dialog
+        id="editClinicPatientTags"
+        aria-labelledby="dialog-title"
+        open={showEditClinicPatientTagsDialog}
+        onClose={handleCloseOverlays}
+      >
+        <DialogTitle divider={false} onClose={handleCloseOverlays}>
+          <Body1 fontWeight="medium">{t('Available Patient Tags')}</Body1>
+        </DialogTitle>
+
+        <DialogContent>
+          {/* TODO: Use Formik input with validation */}
+          <TextInput
+            themeProps={{
+              width: ['100%', null, '250px'],
+            }}
+            fontSize="12px"
+            id="patient-tag-input"
+            placeholder={t('Add a new tag...')}
+            icon={AddIcon}
+            iconLabel={t('Add Tag')}
+            onClickIcon={() => {
+              setPendingClinicPatientTags({
+                ...pendingClinicPatientTags,
+                added: [...pendingClinicPatientTags.added, pendingNewClinicPatientTag],
+              });
+              setPendingNewClinicPatientTag('');
+            }}
+            name="patient-tag-input"
+            onChange={e => {
+              setPendingNewClinicPatientTag(e.target.value);
+            }}
+            value={pendingNewClinicPatientTag}
+            variant="condensed"
+          />
+
+          <TagList
+            tags={filter(clinic?.patientTags, ({id}) => !includes(pendingClinicPatientTags.deleted, id))}
+            tagProps={{
+              icon: DeleteIcon,
+              onClickIcon: tagId => {
+                setPendingClinicPatientTags({
+                  ...pendingClinicPatientTags,
+                  deleted: [...pendingClinicPatientTags.deleted, tagId],
+                });
+              },
+            }}
+          />
+        </DialogContent>
+
+        <DialogActions justifyContent="space-between" p={1}>
+          <Button
+            id="editClinicPatientTagsCancel"
+            variant="textSecondary"
+            fontSize={1}
+            onClick={() => {
+              setPendingClinicPatientTags(clinic?.patientTags);
+              handleCloseOverlays();
+            }}
+          >
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="editClinicPatientTagsConfirm"
+            variant="textPrimary"
+            fontSize={1}
+            onClick={handleEditClinicPatientTagsConfirm}
+            processing={updatingClinicPatientTags?.inProgress}
+          >
+            {t('Save')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [
+    clinic?.patientTags,
+    handleEditClinicPatientTagsConfirm,
+    pendingClinicPatientTags,
+    pendingNewClinicPatientTag,
+    showEditClinicPatientTagsDialog,
+    t,
+    updatingClinicPatientTags?.inProgress // TODO: no need for existential check once wired up to redux
+  ]);
+
   const renderSendUploadReminderDialog = useCallback(() => {
     const formattedLastUploadReminderTime = selectedPatient?.lastUploadReminderTime && sundial.formatInTimezone(
       selectedPatient?.lastUploadReminderTime,
@@ -1458,10 +1708,13 @@ export const ClinicPatients = (props) => {
           </Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={() => {
-            trackMetric(prefixPopHealthMetric('Send upload reminder declined'), { clinicId: selectedClinicId });
-            handleCloseOverlays();
-          }}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              trackMetric(prefixPopHealthMetric('Send upload reminder declined'), { clinicId: selectedClinicId });
+              handleCloseOverlays();
+            }}
+            >
             {t('Cancel')}
           </Button>
           <Button
@@ -1654,11 +1907,12 @@ export const ClinicPatients = (props) => {
     setShowDeleteDialog(false);
     setShowAddPatientDialog(false);
     setShowEditPatientDialog(false);
+    setShowEditClinicPatientTagsDialog(false);
     setShowTimeInRangeDialog(false);
     setShowSendUploadReminderDialog(false);
     setTimeout(() => {
       setSelectedPatient(null);
-    })
+    });
   }
 
   const renderPatient = useCallback(patient => (
@@ -1718,11 +1972,30 @@ export const ClinicPatients = (props) => {
     </Box>
   ), [summaryPeriod]);
 
-  const renderPatientTags = useCallback(patient => {
-    return (
-      <TagList tagProps={{ variant: 'compact' }} tags={map(patient.tags, tagId => patientTags?.[tagId])} maxCharactersVisible={30} />
-    );
-  }, [patientTags]);
+  const renderPatientTags = useCallback(patient => (
+    <PatientTags
+      api={api}
+      patient={patient}
+      patientTags={patientTags}
+      patientTagsFilterOptions={patientTagsFilterOptions}
+      prefixPopHealthMetric={prefixPopHealthMetric}
+      selectedClinicId={selectedClinicId}
+      selectedPatient={selectedPatient}
+      setSelectedPatient={setSelectedPatient}
+      t={t}
+      trackMetric={trackMetric}
+    />
+  ), [
+    api,
+    patientTags,
+    patientTagsFilterOptions,
+    prefixPopHealthMetric,
+    selectedClinicId,
+    selectedPatient,
+    setSelectedPatient,
+    t,
+    trackMetric,
+  ]);
 
   const renderBgRangeSummary = useCallback(({summary}) => {
     return <BgSummaryCell
@@ -1939,6 +2212,7 @@ export const ClinicPatients = (props) => {
     renderMore,
     renderPatient,
     renderPatientSecondaryInfo,
+    renderPatientTags,
     showSummaryData,
     summaryPeriod,
     t,
@@ -2012,6 +2286,7 @@ export const ClinicPatients = (props) => {
       {showEditPatientDialog && renderEditPatientDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
+      {showEditClinicPatientTagsDialog && renderEditClinicPatientTagsDialog()}
       <StyledScrollToTop
         smooth
         top={600}
