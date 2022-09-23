@@ -1,28 +1,54 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import omitBy from 'lodash/omitBy'
+import get from 'lodash/get';
+import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
+import keyBy from 'lodash/keyBy';
+import map from 'lodash/map';
+import omitBy from 'lodash/omitBy';
+import reject from 'lodash/reject';
+import without from 'lodash/without';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
-import { Box, BoxProps } from 'rebass/styled-components';
+import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
+import { Box, Text, BoxProps } from 'rebass/styled-components';
 
 import * as actions from '../../redux/actions';
 import TextInput from '../../components/elements/TextInput';
+import { TagList } from '../../components/elements/Tag';
 import { getCommonFormikFieldProps } from '../../core/forms';
 import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../core/personutils';
 import { Body1 } from '../../components/elements/FontStyles';
+import { borders } from '../../themes/baseTheme';
+
+function getFormValues(source) {
+  return {
+    birthDate: get(source, 'birthDate', ''),
+    email: get(source, 'email', ''),
+    fullName: get(source, 'fullName', ''),
+    mrn: get(source, 'mrn', ''),
+    tags: get(source, 'tags', []),
+  };
+}
+
+function emptyValuesFilter(value, key) {
+  // We want to allow sending an empty `tags` array. Otherwise, strip empty fields from payload.
+  return key !== 'tags' && isEmpty(value);
+}
 
 export const PatientForm = (props) => {
   const { t, api, onFormChange, patient, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics[selectedClinicId]);
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
+  const showTags = clinic?.tier >= 'tier0200' && !!clinic?.patientTags?.length;
+  const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient),
@@ -34,21 +60,21 @@ export const PatientForm = (props) => {
         edit: {
           clinic: {
             handler: 'updateClinicPatient',
-            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values) }, isEmpty)],
+            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values) }, emptyValuesFilter)],
           },
           vca: {
             handler: 'updatePatient',
-            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values) }, isEmpty))],
+            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values) }, emptyValuesFilter))],
           },
         },
         create: {
           clinic: {
             handler: 'createClinicCustodialAccount',
-            args: () => [selectedClinicId, omitBy(values, isEmpty)],
+            args: () => [selectedClinicId, omitBy(values, emptyValuesFilter)],
           },
           vca: {
             handler: 'createVCACustodialAccount',
-            args: () => [accountInfoFromClinicPatient(omitBy(values, isEmpty)).profile],
+            args: () => [accountInfoFromClinicPatient(omitBy(values, emptyValuesFilter)).profile],
           },
         }
       }
@@ -63,18 +89,10 @@ export const PatientForm = (props) => {
   });
 
   const {
-    values,
+    setFieldValue,
     setValues,
+    values,
   } = formikContext;
-
-  function getFormValues(source) {
-    return {
-      birthDate: get(source, 'birthDate', ''),
-      email: get(source, 'email', ''),
-      fullName: get(source, 'fullName', ''),
-      mrn: get(source, 'mrn', ''),
-    };
-  }
 
   useEffect(() => {
     // set form field values and store initial patient values on patient load
@@ -91,6 +109,7 @@ export const PatientForm = (props) => {
     <Box
       as="form"
       id="clinic-patient-form"
+      {...boxProps}
     >
       <Box mb={4}>
         <TextInput
@@ -150,6 +169,44 @@ export const PatientForm = (props) => {
       <Body1>
         {t('If you want your patients to upload their data from home, you must include their email address.')}
       </Body1>
+
+      {showTags && (
+        <Box
+          mt={3}
+          pt={3}
+          sx={{
+            borderTop: borders.divider,
+          }}
+        >
+          <Box mb={1} fontSize={0} fontWeight="medium">
+            <Text>{t('Assigned Patient Tags')}</Text>
+            <TagList
+              tags={map(values.tags, tagId => clinicPatientTags[tagId])}
+              tagProps={{
+                onClick: tagId => {
+                  setFieldValue('tags', without(values.tags, tagId));
+                },
+                icon: CloseRoundedIcon,
+                iconFontSize: 1,
+                color: 'white',
+                backgroundColor: 'purpleMedium',
+              }}
+            />
+          </Box>
+
+          <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
+            <Text>{t('Available Patient Tags')}</Text>
+            <TagList
+              tags={map(reject(clinic?.patientTags, ({ id }) => includes(values.tags, id)), ({ id }) => clinicPatientTags?.[id])}
+              tagProps={{
+                onClick: tagId => {
+                  setFieldValue('tags', [...values.tags, tagId]);
+                },
+              }}
+            />
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };
