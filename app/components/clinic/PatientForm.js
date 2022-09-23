@@ -183,10 +183,11 @@ export const PatientForm = (props) => {
             <TagList
               tags={map(values.tags, tagId => clinicPatientTags[tagId])}
               tagProps={{
-                onClick: tagId => {
+                onClickIcon: tagId => {
                   setFieldValue('tags', without(values.tags, tagId));
                 },
                 icon: CloseRoundedIcon,
+                iconColor: 'white',
                 iconFontSize: 1,
                 color: 'white',
                 backgroundColor: 'purpleMedium',
