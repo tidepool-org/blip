@@ -71,6 +71,7 @@ const Popover = props => {
             position: 'absolute !important',
             top: 1,
             right: 1,
+            zIndex: 1,
           }}
         />
       )}
