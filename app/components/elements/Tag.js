@@ -20,16 +20,17 @@ export const Tag = props => {
   const {
     id,
     icon,
+    iconColor,
     iconLabel,
     iconPosition,
     iconFontSize,
     iconSrc,
     name,
-    variant,
     onClick,
+    onClickIcon,
+    variant,
     ...themeProps
   } = props;
-
 
   const isLeftIcon = iconPosition === 'left';
   const flexDirection = isLeftIcon ? 'row-reverse' : 'row';
@@ -52,7 +53,20 @@ export const Tag = props => {
       </Text>
 
       {(icon || iconSrc) && (
-        <Icon tabIndex={-1} className="icon" fontSize={iconFontSize} mr={iconMargins.right} ml={iconMargins.left} theme={baseTheme} variant="static" icon={icon} iconSrc={iconSrc} label={iconLabel} />
+        <Icon
+          onClick={onClickIcon?.bind(null, id)}
+          tabIndex={-1}
+          className="icon"
+          fontSize={iconFontSize}
+          mr={iconMargins.right}
+          ml={iconMargins.left}
+          theme={baseTheme}
+          variant={onClickIcon ? 'default' : 'static'}
+          color={iconColor}
+          icon={icon}
+          iconSrc={iconSrc}
+          label={iconLabel}
+        />
       )}
     </Flex>
   );
