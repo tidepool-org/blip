@@ -308,29 +308,40 @@ const PatientTags = ({
     popupId: `add-patient-tags-${patient.id}`,
   });
 
+  const anchorOrigin = useMemo(() => ({
+    vertical: 'bottom',
+    horizontal: 'center',
+  }), []);
+
+  const transformOrigin = useMemo(() => ({
+    vertical: 'top',
+    horizontal: 'center',
+  }), []);
+
   return !!patient?.tags?.length ? (
     <TagList tagProps={{ variant: 'compact' }} tags={compact(map(patient.tags, tagId => patientTags?.[tagId]))} maxCharactersVisible={30} />
   ) : (
-    <Flex>
-      <Button
-        variant="textPrimary"
-        px={0}
-        color="grays.4"
-        fontWeight="medium"
-        fontSize="10px"
-        icon={AddIcon}
-        iconLabel={t('Add')}
-        iconPosition="left"
-        iconFontSize="16px"
-        selected={addPatientTagsPopupState.isOpen && selectedPatient.id === patient.id}
-        {...bindTrigger(addPatientTagsPopupState)}
-        onClick={() => {
-          setSelectedPatient(patient);
-          addPatientTagsPopupState.open();
-        }}
-      >
-        {t('Add')}
-      </Button>
+    <React.Fragment>
+      <Box {...bindTrigger(addPatientTagsPopupState)}>
+        <Button
+          variant="textPrimary"
+          px={0}
+          color="grays.4"
+          fontWeight="medium"
+          fontSize="10px"
+          icon={AddIcon}
+          iconLabel={t('Add')}
+          iconPosition="left"
+          iconFontSize="16px"
+          selected={addPatientTagsPopupState.isOpen && selectedPatient?.id === patient?.id}
+          onClick={() => {
+            setSelectedPatient(patient);
+            addPatientTagsPopupState.open();
+          }}
+        >
+          {t('Add')}
+        </Button>
+      </Box>
 
       <Popover
         minWidth="11em"
@@ -343,6 +354,8 @@ const PatientTags = ({
           addPatientTagsPopupState.close();
           setSelectedPatient(null);
         }}
+        anchorOrigin={anchorOrigin}
+        transformOrigin={transformOrigin}
       >
         <DialogContent px={2} py={3} dividers>
           <Box variant="containers.extraSmall">
@@ -411,7 +424,7 @@ const PatientTags = ({
           </Button>
         </DialogActions>
       </Popover>
-    </Flex>
+    </React.Fragment>
   );
 };
 
