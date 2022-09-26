@@ -26,11 +26,11 @@ import { borders } from '../../themes/baseTheme';
 
 function getFormValues(source) {
   return {
-    birthDate: get(source, 'birthDate', ''),
-    email: get(source, 'email', ''),
-    fullName: get(source, 'fullName', ''),
-    mrn: get(source, 'mrn', ''),
-    tags: get(source, 'tags', []),
+    birthDate: source?.birthDate || '',
+    email: source?.email || '',
+    fullName: source?.fullName || '',
+    mrn: source?.mrn || '',
+    tags: source?.tags || [],
   };
 }
 
