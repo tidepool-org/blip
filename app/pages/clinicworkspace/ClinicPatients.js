@@ -365,34 +365,40 @@ const PatientTags = ({
               </Text>
             </Box>
 
-            <Box mb={1} fontSize={0} fontWeight="medium">
-              <Text>{t('Selected Tags')}</Text>
-              <TagList
-                tags={map(pendingPatientTags, tagId => patientTags?.[tagId])}
-                tagProps={{
-                  onClickIcon: tagId => {
-                    setPendingPatientTags(without(pendingPatientTags, tagId));
-                  },
-                  icon: CloseRoundedIcon,
-                  iconColor: 'white',
-                  iconFontSize: 1,
-                  color: 'white',
-                  backgroundColor: 'purpleMedium',
-                }}
-              />
-            </Box>
+            {!!pendingPatientTags?.length && (
+              <Box mb={1} fontSize={0} fontWeight="medium">
+                <Text>{t('Selected Tags')}</Text>
 
-            <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
-              <Text>{t('Available Tags')}</Text>
-              <TagList
-                tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingPatientTags, id)), ({ id }) => patientTags?.[id])}
-                tagProps={{
-                  onClick: tagId => {
-                    setPendingPatientTags([...pendingPatientTags, tagId]);
-                  },
-                }}
-              />
-            </Box>
+                <TagList
+                  tags={map(pendingPatientTags, tagId => patientTags?.[tagId])}
+                  tagProps={{
+                    onClickIcon: tagId => {
+                      setPendingPatientTags(without(pendingPatientTags, tagId));
+                    },
+                    icon: CloseRoundedIcon,
+                    iconColor: 'white',
+                    iconFontSize: 1,
+                    color: 'white',
+                    backgroundColor: 'purpleMedium',
+                  }}
+                />
+              </Box>
+            )}
+
+            {pendingPatientTags?.length < patientTagsFilterOptions.length && (
+              <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
+                {!!pendingPatientTags?.length && <Text>{t('Available Tags')}</Text>}
+
+                <TagList
+                  tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingPatientTags, id)), ({ id }) => patientTags?.[id])}
+                  tagProps={{
+                    onClick: tagId => {
+                      setPendingPatientTags([...pendingPatientTags, tagId]);
+                    },
+                  }}
+                />
+              </Box>
+            )}
           </Box>
         </DialogContent>
 
@@ -1185,34 +1191,40 @@ export const ClinicPatients = (props) => {
                           </Text>
                         </Box>
 
-                        <Box mb={1} fontSize={0} fontWeight="medium">
-                          <Text>{t('Selected Tags')}</Text>
-                          <TagList
-                            tags={map(pendingFilters.patientTags, tagId => patientTags?.[tagId])}
-                            tagProps={{
-                              onClickIcon: tagId => {
-                                setPendingFilters({ ...pendingFilters, patientTags: without(pendingFilters.patientTags, tagId) });
-                              },
-                              icon: CloseRoundedIcon,
-                              iconColor: 'white',
-                              iconFontSize: 1,
-                              color: 'white',
-                              backgroundColor: 'purpleMedium',
-                            }}
-                          />
-                        </Box>
+                        {!!pendingFilters.patientTags.length && (
+                          <Box mb={1} fontSize={0} fontWeight="medium">
+                            <Text>{t('Selected Tags')}</Text>
 
-                        <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
-                          <Text>{t('Available Tags')}</Text>
-                          <TagList
-                            tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)), ({ id }) => patientTags?.[id])}
-                            tagProps={{
-                              onClick: tagId => {
-                                setPendingFilters({ ...pendingFilters, patientTags: [...pendingFilters.patientTags, tagId] });
-                              },
-                            }}
-                          />
-                        </Box>
+                            <TagList
+                              tags={map(pendingFilters.patientTags, tagId => patientTags?.[tagId])}
+                              tagProps={{
+                                onClickIcon: tagId => {
+                                  setPendingFilters({ ...pendingFilters, patientTags: without(pendingFilters.patientTags, tagId) });
+                                },
+                                icon: CloseRoundedIcon,
+                                iconColor: 'white',
+                                iconFontSize: 1,
+                                color: 'white',
+                                backgroundColor: 'purpleMedium',
+                              }}
+                            />
+                          </Box>
+                        )}
+
+                        {pendingFilters.patientTags.length < patientTagsFilterOptions.length && (
+                          <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
+                            {!!pendingFilters.patientTags.length && <Text>{t('Available Tags')}</Text>}
+
+                            <TagList
+                              tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)), ({ id }) => patientTags?.[id])}
+                              tagProps={{
+                                onClick: tagId => {
+                                  setPendingFilters({ ...pendingFilters, patientTags: [...pendingFilters.patientTags, tagId] });
+                                },
+                              }}
+                            />
+                          </Box>
+                        )}
                       </Box>
                     </DialogContent>
 

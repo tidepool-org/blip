@@ -178,34 +178,40 @@ export const PatientForm = (props) => {
             borderTop: borders.divider,
           }}
         >
-          <Box mb={1} fontSize={0} fontWeight="medium">
-            <Text>{t('Assigned Patient Tags')}</Text>
-            <TagList
-              tags={map(values.tags, tagId => clinicPatientTags[tagId])}
-              tagProps={{
-                onClickIcon: tagId => {
-                  setFieldValue('tags', without(values.tags, tagId));
-                },
-                icon: CloseRoundedIcon,
-                iconColor: 'white',
-                iconFontSize: 1,
-                color: 'white',
-                backgroundColor: 'purpleMedium',
-              }}
-            />
-          </Box>
+          {!!values.tags.length && (
+            <Box mb={1} fontSize={0} fontWeight="medium">
+              <Text>{t('Assigned Patient Tags')}</Text>
 
-          <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
-            <Text>{t('Available Patient Tags')}</Text>
-            <TagList
-              tags={map(reject(clinic?.patientTags, ({ id }) => includes(values.tags, id)), ({ id }) => clinicPatientTags?.[id])}
-              tagProps={{
-                onClick: tagId => {
-                  setFieldValue('tags', [...values.tags, tagId]);
-                },
-              }}
-            />
-          </Box>
+              <TagList
+                tags={map(values.tags, tagId => clinicPatientTags[tagId])}
+                tagProps={{
+                  onClickIcon: tagId => {
+                    setFieldValue('tags', without(values.tags, tagId));
+                  },
+                  icon: CloseRoundedIcon,
+                  iconColor: 'white',
+                  iconFontSize: 1,
+                  color: 'white',
+                  backgroundColor: 'purpleMedium',
+                }}
+              />
+            </Box>
+          )}
+
+          {values.tags.length < (clinic?.patientTags || []).length && (
+            <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
+              <Text>{t('Available Patient Tags')}</Text>
+
+              <TagList
+                tags={map(reject(clinic?.patientTags, ({ id }) => includes(values.tags, id)), ({ id }) => clinicPatientTags?.[id])}
+                tagProps={{
+                  onClick: tagId => {
+                    setFieldValue('tags', [...values.tags, tagId]);
+                  },
+                }}
+              />
+            </Box>
+          )}
         </Box>
       )}
     </Box>
