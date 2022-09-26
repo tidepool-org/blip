@@ -211,7 +211,7 @@ export function acceptTerms(api, acceptedDate, userId) {
  * @param  {?Function} postLoginAction optionalArgument action to call after login success
  */
 export function login(api, credentials, options, postLoginAction) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.loginRequest());
 
     const routes = {
@@ -222,7 +222,7 @@ export function login(api, credentials, options, postLoginAction) {
     };
 
     let redirectRoute = routes.patients;
-    let selectedClinicId = null;
+    let { blip: { selectedClinicId = null } } = getState();
 
     api.user.login(credentials, options, (err) => {
       if (err) {
@@ -280,10 +280,13 @@ export function login(api, credentials, options, postLoginAction) {
                 } else if (values.clinics?.length) {
                   const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
-                  if (!clinicMigration && values.clinics.length === 1) {
-                    // Go to the clinic workspace if only one clinic
-                    dispatch(sync.selectClinic(values.clinics[0]?.clinic?.id));
-                    setRedirectRoute(routes.clinicWorkspace, values.clinics[0]?.clinic?.id);
+                  if (!clinicMigration && (values.clinics.length === 1 || selectedClinicId)) {
+                    // Go to the clinic workspace if only one clinic or there is a currently selected clinic
+                    if (values.clinics.length === 1) {
+                      selectedClinicId = values.clinics[0]?.clinic?.id;
+                    }
+                    dispatch(sync.selectClinic(selectedClinicId));
+                    setRedirectRoute(routes.clinicWorkspace, selectedClinicId);
                   } else {
                     // If we have an empty clinic object, go to clinic details, otherwise workspaces
                     if (hasLegacyClinicRole && clinicMigration) {
@@ -307,7 +310,9 @@ export function login(api, credentials, options, postLoginAction) {
 
             function setRedirectRoute(route, clinicId = null) {
               redirectRoute = route;
-              selectedClinicId = clinicId;
+              if (clinicId) {
+                selectedClinicId = clinicId;
+              }
               getPatientProfile();
             }
 
