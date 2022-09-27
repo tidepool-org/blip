@@ -122,6 +122,8 @@ export const ERR_FETCHING_CLINICS_FOR_CLINICIAN = t('Something went wrong while 
 export const ERR_TRIGGERING_INITIAL_CLINIC_MIGRATION = t('Something went wrong while migrating this clinic.');
 export const ERR_SENDING_PATIENT_UPLOAD_REMINDER = t('Something went wrong while sending an upload reminder to the patient.');
 export const ERR_CREATING_CLINIC_PATIENT_TAG = t('Something went wrong while creating the patient tag.');
+export const ERR_CREATING_CLINIC_PATIENT_TAG_MAX_EXCEEDED = t('Sorry, you already have the maximum number of patient tags.');
+export const ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE = t('Sorry, you already have a tag with that name.');
 export const ERR_UPDATING_CLINIC_PATIENT_TAG = t('Something went wrong while updating the patient tag.');
 export const ERR_DELETING_CLINIC_PATIENT_TAG = t('Something went wrong while deleting the patient tag.');
 

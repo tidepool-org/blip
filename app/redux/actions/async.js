@@ -2562,10 +2562,18 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
   return (dispatch) => {
     dispatch(sync.createClinicPatientTagRequest());
 
-    api.clinics.createClinicPatientTag(api, clinicId, patientTag, (err, patientTags) => {
+    api.clinics.createClinicPatientTag(clinicId, patientTag, (err, patientTags) => {
       if (err) {
+        let message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG;
+
+        if (err.status === 422) {
+          message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_MAX_EXCEEDED;
+        } else if (err.status === 409) {
+          message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE;
+        }
+
         dispatch(sync.createClinicPatientTagFailure(
-          createActionError(ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG, err), err
+          createActionError(message, err), err
         ));
       } else {
         dispatch(sync.createClinicPatientTagSuccess(clinicId, patientTags));
@@ -2587,10 +2595,16 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
   return (dispatch) => {
     dispatch(sync.updateClinicPatientTagRequest());
 
-    api.clinics.updateClinicPatientTag(api, clinicId, patientTagId, patientTag, (err, patientTags) => {
+    api.clinics.updateClinicPatientTag(clinicId, patientTagId, patientTag, (err, patientTags) => {
       if (err) {
+        let message = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG;
+
+        if (err.status === 409) {
+          message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE;
+        }
+
         dispatch(sync.updateClinicPatientTagFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG, err), err
+          createActionError(message, err), err
         ));
       } else {
         dispatch(sync.updateClinicPatientTagSuccess(clinicId, patientTags));
@@ -2610,7 +2624,7 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
   return (dispatch) => {
     dispatch(sync.deleteClinicPatientTagRequest());
 
-    api.clinics.deleteClinicPatientTag(api, clinicId, patientTagId, (err, patientTags) => {
+    api.clinics.deleteClinicPatientTag(clinicId, patientTagId, (err, patientTags) => {
       if (err) {
         dispatch(sync.deleteClinicPatientTagFailure(
           createActionError(ErrorMessages.ERR_DELETING_CLINIC_PATIENT_TAG, err), err

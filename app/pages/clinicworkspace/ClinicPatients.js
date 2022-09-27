@@ -8,7 +8,6 @@ import moment from 'moment';
 import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
 import forEach from 'lodash/forEach';
-import filter from 'lodash/filter';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
@@ -17,6 +16,7 @@ import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
+import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
@@ -289,6 +289,7 @@ const MoreMenu = ({
 
 const PatientTags = ({
   api,
+  isClinicAdmin,
   patient,
   patientTags,
   patientTagsFilterOptions,
@@ -296,6 +297,7 @@ const PatientTags = ({
   selectedClinicId,
   selectedPatient,
   setSelectedPatient,
+  setShowClinicPatientTagsDialog,
   t,
   trackMetric,
 }) => {
@@ -429,6 +431,29 @@ const PatientTags = ({
             {t('Apply')}
           </Button>
         </DialogActions>
+
+
+        {isClinicAdmin && (
+          <DialogActions
+            p={1}
+            justifyContent="space-between"
+            sx={{ borderTop: borders.divider }}
+          >
+            <Button
+              id="show-edit-clinic-patient-tags-dialog"
+              icon={EditIcon}
+              iconPosition="left"
+              fontSize={1}
+              variant="textPrimary"
+              onClick={() => {
+                setShowClinicPatientTagsDialog(true);
+              }}
+            >
+              {t('Edit Available Patient Tags')}
+            </Button>
+
+          </DialogActions>
+        )}
       </Popover>
     </React.Fragment>
   );
@@ -445,14 +470,17 @@ export const ClinicPatients = (props) => {
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeleteClinicPatientTagDialog, setShowDeleteClinicPatientTagDialog] = useState(false);
+  const [showUpdateClinicPatientTagDialog, setShowUpdateClinicPatientTagDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
-  const [showEditClinicPatientTagsDialog, setShowEditClinicPatientTagsDialog] = useState(false);
+  const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
@@ -487,8 +515,8 @@ export const ClinicPatients = (props) => {
   );
   const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState, true);
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
-  const [pendingClinicPatientTags, setPendingClinicPatientTags] = useState({ added: [], deleted: [] }); // TODO: split into separate states
   const [pendingNewClinicPatientTag, setPendingNewClinicPatientTag] = useState('');
+  const [pendingUpdatedClinicPatientTag, setPendingUpdatedClinicPatientTag] = useState('');
   const previousActiveFilters = usePrevious(activeFilters);
 
   const lastUploadDateFilterOptions = [
@@ -546,7 +574,9 @@ export const ClinicPatients = (props) => {
     updatingClinicPatient,
     creatingClinicCustodialAccount,
     sendingPatientUploadReminder,
-    updatingClinicPatientTags,
+    creatingClinicPatientTag,
+    updatingClinicPatientTag,
+    deletingClinicPatientTag,
   } = useSelector((state) => state.blip.working);
 
   // TODO: remove this when upgraded to React 18
@@ -560,12 +590,12 @@ export const ClinicPatients = (props) => {
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
-  const handleAsyncResult = useCallback((workingState, successMessage) => {
+  const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification } = workingState;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
-        handleCloseOverlays();
+        onComplete();
         setToast({
           message: successMessage,
           variant: 'success',
@@ -596,6 +626,18 @@ export const ClinicPatients = (props) => {
       name: get(selectedPatient, 'fullName', t('This patient')),
     }));
   }, [deletingPatientFromClinic, handleAsyncResult, selectedPatient, t]);
+
+  useEffect(() => {
+    handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => setPendingNewClinicPatientTag(''));
+  }, [creatingClinicPatientTag, handleAsyncResult, t]);
+
+  useEffect(() => {
+    handleAsyncResult(updatingClinicPatientTag, t('Tag updated.'), handleCloseClinicPatientTagUpdateDialog);
+  }, [updatingClinicPatientTag, handleAsyncResult, t]);
+
+  useEffect(() => {
+    handleAsyncResult(deletingClinicPatientTag, t('Tag removed.'), handleCloseClinicPatientTagUpdateDialog);
+  }, [deletingClinicPatientTag, handleAsyncResult, t]);
 
   useEffect(() => {
     handleAsyncResult(sendingPatientUploadReminder, t('Uploader reminder email for {{name}} has been sent.', {
@@ -816,24 +858,44 @@ export const ClinicPatients = (props) => {
   const handleAddPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Add patient confirmed', { clinicId: selectedClinicId });
     patientFormContext?.handleSubmit();
-  }, [patientFormContext, selectedClinicId, trackMetric])
+  }, [patientFormContext, selectedClinicId, trackMetric]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
     patientFormContext?.handleSubmit();
-  }, [patientFormContext, selectedClinicId, trackMetric])
+  }, [patientFormContext, selectedClinicId, trackMetric]);
 
-  const handleEditClinicPatientTagsConfirm = useCallback((tags) => {
-    trackMetric('Clinic - Edit patient tags confirmed', { clinicId: selectedClinicId });
-    console.log('tags', tags);
-    // TODO: wire up clinic patient tags api and make the call
-    // dispatch(actions.async.updateClinicPatientTags(api, selectedClinicId, tags));
-  }, [selectedClinicId, trackMetric])
+  const handleCreateClinicPatientTag = useCallback(() => {
+    trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });
+    dispatch(actions.async.createClinicPatientTag(api, selectedClinicId, { name: pendingNewClinicPatientTag }));
+  }, [api, dispatch, pendingNewClinicPatientTag, selectedClinicId, trackMetric]);
+
+  const handleUpdateClinicPatientTag = useCallback(tagId => {
+    trackMetric('Clinic - Update patient tag', { clinicId: selectedClinicId });
+    setSelectedPatientTag(patientTags[tagId]);
+    setShowUpdateClinicPatientTagDialog(true);
+  }, [selectedClinicId, patientTags, trackMetric]);
+
+  const handleUpdateClinicPatientTagConfirm = useCallback(() => {
+    trackMetric('Clinic - Update patient tag confirm', { clinicId: selectedClinicId });
+    dispatch(actions.async.updateClinicPatientTag(api, selectedClinicId, selectedPatientTag?.id, { name: pendingUpdatedClinicPatientTag }));
+  }, [api, dispatch, pendingUpdatedClinicPatientTag, selectedClinicId, selectedPatientTag?.id, trackMetric]);
+
+  const handleDeleteClinicPatientTag = useCallback(tagId => {
+    trackMetric('Clinic - Delete patient tag', { clinicId: selectedClinicId });
+    setSelectedPatientTag(patientTags[tagId]);
+    setShowDeleteClinicPatientTagDialog(true);
+  }, [selectedClinicId, patientTags, trackMetric])
+
+  const handleDeleteClinicPatientTagConfirm = useCallback(() => {
+    trackMetric('Clinic - Delete patient tag confirm', { clinicId: selectedClinicId });
+    dispatch(actions.async.deleteClinicPatientTag(api, selectedClinicId, selectedPatientTag?.id));
+  }, [api, dispatch, selectedClinicId, selectedPatientTag?.id, trackMetric]);
 
   const handleSendUploadReminderConfirm = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Send upload reminder confirmed'), { clinicId: selectedClinicId });
     dispatch(actions.async.sendPatientUploadReminder(api, selectedClinicId, selectedPatient?.id));
-  }, [api, dispatch, prefixPopHealthMetric, selectedClinicId, selectedPatient?.id, trackMetric])
+  }, [api, dispatch, prefixPopHealthMetric, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   function handlePatientFormChange(formikContext) {
     setPatientFormContext({...formikContext});
@@ -1265,7 +1327,7 @@ export const ClinicPatients = (props) => {
                           fontSize={1}
                           variant="textPrimary"
                           onClick={() => {
-                            setShowEditClinicPatientTagsDialog(true);
+                            setShowClinicPatientTagsDialog(true);
                           }}
                         >
                           {t('Edit Available Patient Tags')}
@@ -1499,6 +1561,7 @@ export const ClinicPatients = (props) => {
             <Body1>
               Are you sure you want to remove patient: {{fullName}} from your list?
             </Body1>
+
             <Body1>
               You will no longer be able to see or comment on their data.
             </Body1>
@@ -1509,6 +1572,7 @@ export const ClinicPatients = (props) => {
           <Button id="patientRemoveCancel" variant="secondary" onClick={handleCloseOverlays}>
             {t('Cancel')}
           </Button>
+
           <Button
             id="patientRemoveConfirm"
             variant="danger"
@@ -1520,6 +1584,92 @@ export const ClinicPatients = (props) => {
       </Dialog>
     );
   }, [handleRemovePatient, selectedPatient?.fullName, showDeleteDialog, t]);
+
+  const renderUpdateClinicPatientTagDialog = useCallback(() => {
+    const name = selectedPatientTag?.name;
+
+    return (
+      <Dialog
+        id="updatePatientTag"
+        aria-labelledby="dialog-title"
+        open={showUpdateClinicPatientTagDialog}
+        onClose={handleCloseClinicPatientTagUpdateDialog}
+      >
+        <DialogTitle onClose={handleCloseClinicPatientTagUpdateDialog}>
+          <MediumTitle id="dialog-title">{t('Remove "{{name}}"', { name })}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-update-patient-tag-confirm">
+            <Body1>
+              Are you sure you want to update the tag: <strong>{{name}}</strong>?
+            </Body1>
+
+            <Body1>
+              This tag will also be updated for any patients who have been tagged with it.
+            </Body1>
+          </Trans>
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="patientTagUpdateCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="patientTagUpdateConfirm"
+            variant="danger"
+            onClick={handleUpdateClinicPatientTagConfirm}
+          >
+            {t('Update')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [handleUpdateClinicPatientTagConfirm, selectedPatientTag?.name, showUpdateClinicPatientTagDialog, t]);
+
+  const renderDeleteClinicPatientTagDialog = useCallback(() => {
+    const name = selectedPatientTag?.name;
+
+    return (
+      <Dialog
+        id="deletePatientTag"
+        aria-labelledby="dialog-title"
+        open={showDeleteClinicPatientTagDialog}
+        onClose={handleCloseClinicPatientTagUpdateDialog}
+      >
+        <DialogTitle onClose={handleCloseClinicPatientTagUpdateDialog}>
+          <MediumTitle id="dialog-title">{t('Remove "{{name}}"', { name })}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-tag-confirm">
+            <Body1>
+              Are you sure you want to remove the tag: <strong>{{name}}</strong> from the clinic?
+            </Body1>
+
+            <Body1>
+              This tag will also be removed from any patients who have been tagged with it.
+            </Body1>
+          </Trans>
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="patientTagRemoveCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="patientTagRemoveConfirm"
+            variant="danger"
+            onClick={handleDeleteClinicPatientTagConfirm}
+          >
+            {t('Remove')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [handleDeleteClinicPatientTagConfirm, selectedPatientTag?.name, showDeleteClinicPatientTagDialog, t]);
 
   const renderAddPatientDialog = useCallback(() => {
     return (
@@ -1607,12 +1757,12 @@ export const ClinicPatients = (props) => {
     updatingClinicPatient.inProgress
   ]);
 
-  const renderEditClinicPatientTagsDialog = useCallback(() => {
+  const renderClinicPatientTagsDialog = useCallback(() => {
     return (
       <Dialog
         id="editClinicPatientTags"
         aria-labelledby="dialog-title"
-        open={showEditClinicPatientTagsDialog}
+        open={showClinicPatientTagsDialog}
         onClose={handleCloseOverlays}
       >
         <DialogTitle divider={false} onClose={handleCloseOverlays}>
@@ -1630,13 +1780,7 @@ export const ClinicPatients = (props) => {
             placeholder={t('Add a new tag...')}
             icon={AddIcon}
             iconLabel={t('Add Tag')}
-            onClickIcon={() => {
-              setPendingClinicPatientTags({
-                ...pendingClinicPatientTags,
-                added: [...pendingClinicPatientTags.added, pendingNewClinicPatientTag],
-              });
-              setPendingNewClinicPatientTag('');
-            }}
+            onClickIcon={handleCreateClinicPatientTag.bind(null, pendingNewClinicPatientTag)}
             name="patient-tag-input"
             onChange={e => {
               setPendingNewClinicPatientTag(e.target.value);
@@ -1646,52 +1790,24 @@ export const ClinicPatients = (props) => {
           />
 
           <TagList
-            tags={filter(clinic?.patientTags, ({id}) => !includes(pendingClinicPatientTags.deleted, id))}
+            tags={clinic?.patientTags}
             tagProps={{
               icon: DeleteIcon,
-              onClickIcon: tagId => {
-                setPendingClinicPatientTags({
-                  ...pendingClinicPatientTags,
-                  deleted: [...pendingClinicPatientTags.deleted, tagId],
-                });
-              },
+              onClickIcon: tagId => handleDeleteClinicPatientTag(tagId),
+              onDoubleClick: tagId => handleUpdateClinicPatientTag(tagId),
             }}
           />
         </DialogContent>
-
-        <DialogActions justifyContent="space-between" p={1}>
-          <Button
-            id="editClinicPatientTagsCancel"
-            variant="textSecondary"
-            fontSize={1}
-            onClick={() => {
-              setPendingClinicPatientTags(clinic?.patientTags);
-              handleCloseOverlays();
-            }}
-          >
-            {t('Cancel')}
-          </Button>
-
-          <Button
-            id="editClinicPatientTagsConfirm"
-            variant="textPrimary"
-            fontSize={1}
-            onClick={handleEditClinicPatientTagsConfirm}
-            processing={updatingClinicPatientTags?.inProgress}
-          >
-            {t('Save')}
-          </Button>
-        </DialogActions>
       </Dialog>
     );
   }, [
     clinic?.patientTags,
-    handleEditClinicPatientTagsConfirm,
-    pendingClinicPatientTags,
+    handleCreateClinicPatientTag,
+    handleUpdateClinicPatientTag,
+    handleDeleteClinicPatientTag,
     pendingNewClinicPatientTag,
-    showEditClinicPatientTagsDialog,
+    showClinicPatientTagsDialog,
     t,
-    updatingClinicPatientTags?.inProgress // TODO: no need for existential check once wired up to redux
   ]);
 
   const renderSendUploadReminderDialog = useCallback(() => {
@@ -1932,11 +2048,22 @@ export const ClinicPatients = (props) => {
     setShowDeleteDialog(false);
     setShowAddPatientDialog(false);
     setShowEditPatientDialog(false);
-    setShowEditClinicPatientTagsDialog(false);
+    setShowClinicPatientTagsDialog(false);
     setShowTimeInRangeDialog(false);
     setShowSendUploadReminderDialog(false);
+
     setTimeout(() => {
       setSelectedPatient(null);
+      setPendingNewClinicPatientTag('');
+    });
+  }
+
+  function handleCloseClinicPatientTagUpdateDialog() {
+    setShowDeleteClinicPatientTagDialog(false);
+    setShowUpdateClinicPatientTagDialog(false);
+
+    setTimeout(() => {
+      setSelectedPatientTag(null);
     });
   }
 
@@ -2000,6 +2127,7 @@ export const ClinicPatients = (props) => {
   const renderPatientTags = useCallback(patient => (
     <PatientTags
       api={api}
+      isClinicAdmin={isClinicAdmin}
       patient={patient}
       patientTags={patientTags}
       patientTagsFilterOptions={patientTagsFilterOptions}
@@ -2007,17 +2135,20 @@ export const ClinicPatients = (props) => {
       selectedClinicId={selectedClinicId}
       selectedPatient={selectedPatient}
       setSelectedPatient={setSelectedPatient}
+      setShowClinicPatientTagsDialog={setShowClinicPatientTagsDialog}
       t={t}
       trackMetric={trackMetric}
     />
   ), [
     api,
+    isClinicAdmin,
     patientTags,
     patientTagsFilterOptions,
     prefixPopHealthMetric,
     selectedClinicId,
     selectedPatient,
     setSelectedPatient,
+    setShowClinicPatientTagsDialog,
     t,
     trackMetric,
   ]);
@@ -2307,11 +2438,13 @@ export const ClinicPatients = (props) => {
       {renderHeader()}
       {clinic && renderPeopleArea()}
       {renderRemoveDialog()}
+      {showDeleteClinicPatientTagDialog && renderDeleteClinicPatientTagDialog()}
+      {showUpdateClinicPatientTagDialog && renderUpdateClinicPatientTagDialog()}
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
-      {showEditClinicPatientTagsDialog && renderEditClinicPatientTagsDialog()}
+      {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}
       <StyledScrollToTop
         smooth
         top={600}

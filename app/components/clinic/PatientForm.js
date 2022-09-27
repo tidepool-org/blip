@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import compact from 'lodash/compact';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
@@ -183,7 +184,7 @@ export const PatientForm = (props) => {
               <Text>{t('Assigned Patient Tags')}</Text>
 
               <TagList
-                tags={map(values.tags, tagId => clinicPatientTags[tagId])}
+                tags={compact(map(values.tags, tagId => clinicPatientTags[tagId]))}
                 tagProps={{
                   onClickIcon: tagId => {
                     setFieldValue('tags', without(values.tags, tagId));

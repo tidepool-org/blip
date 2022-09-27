@@ -28,7 +28,9 @@ export const Tag = props => {
     name,
     onClick,
     onClickIcon,
+    onDoubleClick,
     variant,
+    sx = {},
     ...themeProps
   } = props;
 
@@ -40,12 +42,19 @@ export const Tag = props => {
     right: isLeftIcon ? 1 : 0,
   };
 
+  const styles = {
+    cursor: (onClick || onDoubleClick) ? 'pointer' : 'default',
+    ...sx,
+  };
+
   return (
     <Flex
       id={id}
       variant={`tags.${variant}`}
       onClick={onClick?.bind(null, id)}
+      onDoubleClick={onDoubleClick?.bind(null, id)}
       flexDirection={flexDirection}
+      sx={styles}
       {...themeProps}
     >
       <Text className="tag-text" as="span">

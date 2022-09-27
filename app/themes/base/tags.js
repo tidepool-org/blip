@@ -1,6 +1,6 @@
 export default ({ colors, fonts, radii, fontWeights }) => {
   const text = {
-    cursor: 'default',
+    cursor: 'inherit',
     whiteSpace: 'nowrap',
   };
 
