@@ -2053,7 +2053,7 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
  * @param {String} [patient.mrn] - The medical record number of the patient
  * @param {String} [patient.email] - The email address of the patient
  */
- export function createClinicCustodialAccount(api, clinicId, patient) {
+export function createClinicCustodialAccount(api, clinicId, patient) {
   return (dispatch) => {
     dispatch(sync.createClinicCustodialAccountRequest());
     api.clinics.createClinicCustodialAccount(clinicId, patient, (err, result) => {
@@ -2085,7 +2085,7 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
  * @param {String} profile.patient.birthDate - YYYY-MM-DD
  * @param {String} [profile.patient.mrn] - The medical record number of the patient
  */
- export function createVCACustodialAccount(api, profile) {
+export function createVCACustodialAccount(api, profile) {
   return (dispatch) => {
     dispatch(sync.createVCACustodialAccountRequest());
     api.user.createCustodialAccount(profile, (err, result) => {
@@ -2172,7 +2172,7 @@ export function sendClinicianInvite(api, clinicId, clinician) {
  * @param {String} clinicId - clinic ID
  * @param {Object} inviteId - clinician Invite object
  */
- export function fetchClinicianInvite(api, clinicId, inviteId) {
+export function fetchClinicianInvite(api, clinicId, inviteId) {
   return (dispatch) => {
     dispatch(sync.fetchClinicianInviteRequest());
 
@@ -2250,7 +2250,7 @@ export function deleteClinicianInvite(api, clinicId, inviteId) {
  * @param {Object} permissions - permissions to be given
  * @param {String} patientId - id of the patient sending the invite
  */
- export function sendClinicInvite(api, shareCode, permissions, patientId) {
+export function sendClinicInvite(api, shareCode, permissions, patientId) {
   return (dispatch) => {
     dispatch(sync.sendClinicInviteRequest());
 
@@ -2490,7 +2490,7 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
  * @param {Object} api - an instance of the API wrapper
  * @param {String} shareCode - Share code of the clinic
  */
- export function fetchClinicByShareCode(api, shareCode) {
+export function fetchClinicByShareCode(api, shareCode) {
   return (dispatch) => {
     dispatch(sync.fetchClinicRequest());
 
@@ -2512,7 +2512,7 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
  */
- export function triggerInitialClinicMigration(api, clinicId) {
+export function triggerInitialClinicMigration(api, clinicId) {
   return (dispatch) => {
     dispatch(sync.triggerInitialClinicMigrationRequest());
 
@@ -2534,7 +2534,7 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
  */
- export function sendPatientUploadReminder(api, clinicId, patientId) {
+export function sendPatientUploadReminder(api, clinicId, patientId) {
   return (dispatch) => {
     dispatch(sync.sendPatientUploadReminderRequest());
 
@@ -2545,6 +2545,78 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
         ));
       } else {
         dispatch(sync.sendPatientUploadReminderSuccess(clinicId, patientId, _.get(result, 'lastUploadReminderTime', moment().toISOString())));
+      }
+    });
+  };
+}
+
+/**
+ * Create a patient tag for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} patientTag - the tag to create
+ * @param {String} patientTag.name - the tag name
+ */
+export function createClinicPatientTag(api, clinicId, patientTag) {
+  return (dispatch) => {
+    dispatch(sync.createClinicPatientTagRequest());
+
+    api.clinics.createClinicPatientTag(api, clinicId, patientTag, (err, patientTags) => {
+      if (err) {
+        dispatch(sync.createClinicPatientTagFailure(
+          createActionError(ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG, err), err
+        ));
+      } else {
+        dispatch(sync.createClinicPatientTagSuccess(clinicId, patientTags));
+      }
+    });
+  };
+}
+
+/**
+ * Update a patient tag for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientTagId - Id of the tag
+ * @param {Object} patientTag - the updated tag
+ * @param {String} patientTag.name - the tag name
+ */
+export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) {
+  return (dispatch) => {
+    dispatch(sync.updateClinicPatientTagRequest());
+
+    api.clinics.updateClinicPatientTag(api, clinicId, patientTagId, patientTag, (err, patientTags) => {
+      if (err) {
+        dispatch(sync.updateClinicPatientTagFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG, err), err
+        ));
+      } else {
+        dispatch(sync.updateClinicPatientTagSuccess(clinicId, patientTags));
+      }
+    });
+  };
+}
+
+/**
+ * Delete a patient tag for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientTagId - Id of the tag to delete
+ */
+export function deleteClinicPatientTag(api, clinicId, patientTagId) {
+  return (dispatch) => {
+    dispatch(sync.deleteClinicPatientTagRequest());
+
+    api.clinics.deleteClinicPatientTag(api, clinicId, patientTagId, (err, patientTags) => {
+      if (err) {
+        dispatch(sync.deleteClinicPatientTagFailure(
+          createActionError(ErrorMessages.ERR_DELETING_CLINIC_PATIENT_TAG, err), err
+        ));
+      } else {
+        dispatch(sync.deleteClinicPatientTagSuccess(clinicId, patientTags));
       }
     });
   };
