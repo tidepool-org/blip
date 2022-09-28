@@ -25,13 +25,13 @@ import { accountInfoFromClinicPatient } from '../../core/personutils';
 import { Body1 } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 
-function getFormValues(source) {
+function getFormValues(source, clinicPatientTags) {
   return {
     birthDate: source?.birthDate || '',
     email: source?.email || '',
     fullName: source?.fullName || '',
     mrn: source?.mrn || '',
-    tags: source?.tags || [],
+    tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
   };
 }
 
@@ -52,7 +52,7 @@ export const PatientForm = (props) => {
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
   const formikContext = useFormik({
-    initialValues: getFormValues(patient),
+    initialValues: getFormValues(patient, clinicPatientTags),
     onSubmit: values => {
       const action = patient?.id ? 'edit' : 'create';
       const context = selectedClinicId ? 'clinic' : 'vca';
@@ -61,11 +61,11 @@ export const PatientForm = (props) => {
         edit: {
           clinic: {
             handler: 'updateClinicPatient',
-            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values) }, emptyValuesFilter)],
+            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter)],
           },
           vca: {
             handler: 'updatePatient',
-            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values) }, emptyValuesFilter))],
+            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter))],
           },
         },
         create: {
@@ -97,14 +97,14 @@ export const PatientForm = (props) => {
 
   useEffect(() => {
     // set form field values and store initial patient values on patient load
-    const patientValues = getFormValues(patient);
+    const patientValues = getFormValues(patient, clinicPatientTags);
     setValues(patientValues);
     setInitialValues(patientValues);
-  }, [patient]);
+  }, [patient, clinicPatientTags]);
 
   useEffect(() => {
     onFormChange(formikContext);
-  }, [values]);
+  }, [values, clinicPatientTags]);
 
   return (
     <Box
@@ -174,14 +174,13 @@ export const PatientForm = (props) => {
       {showTags && (
         <Box
           mt={3}
-          pt={3}
           sx={{
-            borderTop: borders.divider,
+            borderTop: borders.default,
           }}
         >
           {!!values.tags.length && (
-            <Box mb={1} fontSize={0} fontWeight="medium">
-              <Text>{t('Assigned Patient Tags')}</Text>
+            <Box mt={3} mb={1} fontSize={0}>
+              <Text mb={1} fontWeight="medium" color="text.primary">{t('Assigned Patient Tags')}</Text>
 
               <TagList
                 tags={compact(map(values.tags, tagId => clinicPatientTags[tagId]))}
@@ -200,8 +199,8 @@ export const PatientForm = (props) => {
           )}
 
           {values.tags.length < (clinic?.patientTags || []).length && (
-            <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
-              <Text>{t('Available Patient Tags')}</Text>
+            <Box alignItems="center" mb={1} mt={3} fontSize={0} >
+              <Text mb={1} fontWeight="medium" color="text.primary">{t('Available Patient Tags')}</Text>
 
               <TagList
                 tags={map(reject(clinic?.patientTags, ({ id }) => includes(values.tags, id)), ({ id }) => clinicPatientTags?.[id])}
