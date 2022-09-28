@@ -63,7 +63,10 @@ export const Tag = props => {
 
       {(icon || iconSrc) && (
         <Icon
-          onClick={onClickIcon?.bind(null, id)}
+          onClick={e => {
+            e.stopPropagation();
+            return onClickIcon?.call(null, id);
+          }}
           tabIndex={-1}
           className="icon"
           fontSize={iconFontSize}
