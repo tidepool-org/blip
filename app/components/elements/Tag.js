@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
+import compact from 'lodash/compact';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
@@ -111,11 +112,11 @@ export const TagList = props => {
   if (maxCharactersVisible) {
     reduce(tags, (remainingChars, { name = '' }, i) => {
       const tagArray = (name.length <= remainingChars) ? visibleTags : hiddenTags;
-      tagArray.push(tags[i]);
+      if (tags[i]) tagArray.push(tags[i]);
       return remainingChars - name.length;
     }, maxCharactersVisible);
   } else {
-    visibleTags.push(...tags);
+    visibleTags.push(...compact(tags));
   }
 
   const popupState = usePopupState({

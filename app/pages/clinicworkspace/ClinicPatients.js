@@ -301,7 +301,7 @@ const PatientTags = ({
   trackMetric,
 }) => {
   const dispatch = useDispatch();
-  const defaultPatientTags = patient.tags || [];
+  const defaultPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
   const [pendingPatientTags, setPendingPatientTags] = useState(defaultPatientTags)
 
   const addPatientTagsPopupState = usePopupState({
@@ -319,8 +319,10 @@ const PatientTags = ({
     horizontal: 'center',
   }), []);
 
-  return !!patient?.tags?.length ? (
-    <TagList tagProps={{ variant: 'compact' }} tags={compact(map(patient.tags, tagId => patientTags?.[tagId]))} maxCharactersVisible={30} />
+  const filteredPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
+
+  return !!filteredPatientTags.length ? (
+    <TagList tagProps={{ variant: 'compact' }} tags={map(filteredPatientTags, tagId => patientTags?.[tagId])} maxCharactersVisible={30} />
   ) : (
     <React.Fragment>
       <Box {...bindTrigger(addPatientTagsPopupState)}>
