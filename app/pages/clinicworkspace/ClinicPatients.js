@@ -16,7 +16,6 @@ import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
-import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
@@ -38,8 +37,8 @@ import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from 'styled-components';
-import { colors } from '../../../app/themes/baseTheme';
 import { scroller } from 'react-scroll';
+import { Formik, Form } from 'formik';
 
 import {
   bindPopover,
@@ -80,10 +79,10 @@ import {
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
-import { fieldsAreValid } from '../../core/forms';
-import { dateFormat, patientSchema as validationSchema } from '../../core/clinicUtils';
+import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
+import { dateFormat, patientSchema as validationSchema, clinicPatientTagSchema } from '../../core/clinicUtils';
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
-import { borders, radii } from '../../themes/baseTheme';
+import { borders, radii, colors } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
@@ -369,7 +368,7 @@ const PatientTags = ({
 
             {!!pendingPatientTags?.length && (
               <Box mb={1} fontSize={0} fontWeight="medium">
-                <Text>{t('Selected Tags')}</Text>
+                <Text fontSize="10px" color="grays.4">{t('Selected Tags')}</Text>
 
                 <TagList
                   tags={map(pendingPatientTags, tagId => patientTags?.[tagId])}
@@ -388,8 +387,8 @@ const PatientTags = ({
             )}
 
             {pendingPatientTags?.length < patientTagsFilterOptions.length && (
-              <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
-                {!!pendingPatientTags?.length && <Text>{t('Available Tags')}</Text>}
+              <Box alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
+                {!!pendingPatientTags?.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
 
                 <TagList
                   tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingPatientTags, id)), ({ id }) => patientTags?.[id])}
@@ -483,6 +482,7 @@ export const ClinicPatients = (props) => {
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
+  const [clinicPatientTagFormContext, setClinicPatientTagFormContext] = useState();
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0200');
@@ -628,8 +628,8 @@ export const ClinicPatients = (props) => {
   }, [deletingPatientFromClinic, handleAsyncResult, selectedPatient, t]);
 
   useEffect(() => {
-    handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => setPendingNewClinicPatientTag(''));
-  }, [creatingClinicPatientTag, handleAsyncResult, t]);
+    handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => clinicPatientTagFormContext.resetForm());
+  }, [clinicPatientTagFormContext, creatingClinicPatientTag, handleAsyncResult, t]);
 
   useEffect(() => {
     handleAsyncResult(updatingClinicPatientTag, t('Tag updated.'), handleCloseClinicPatientTagUpdateDialog);
@@ -865,10 +865,10 @@ export const ClinicPatients = (props) => {
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric]);
 
-  const handleCreateClinicPatientTag = useCallback(() => {
+  const handleCreateClinicPatientTag = useCallback(tag => {
     trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });
-    dispatch(actions.async.createClinicPatientTag(api, selectedClinicId, { name: pendingNewClinicPatientTag }));
-  }, [api, dispatch, pendingNewClinicPatientTag, selectedClinicId, trackMetric]);
+    dispatch(actions.async.createClinicPatientTag(api, selectedClinicId, tag));
+  }, [api, dispatch, selectedClinicId, trackMetric]);
 
   const handleUpdateClinicPatientTag = useCallback(tagId => {
     trackMetric('Clinic - Update patient tag', { clinicId: selectedClinicId });
@@ -876,10 +876,10 @@ export const ClinicPatients = (props) => {
     setShowUpdateClinicPatientTagDialog(true);
   }, [selectedClinicId, patientTags, trackMetric]);
 
-  const handleUpdateClinicPatientTagConfirm = useCallback(() => {
+  const handleUpdateClinicPatientTagConfirm = useCallback(tag => {
     trackMetric('Clinic - Update patient tag confirm', { clinicId: selectedClinicId });
-    dispatch(actions.async.updateClinicPatientTag(api, selectedClinicId, selectedPatientTag?.id, { name: pendingUpdatedClinicPatientTag }));
-  }, [api, dispatch, pendingUpdatedClinicPatientTag, selectedClinicId, selectedPatientTag?.id, trackMetric]);
+    dispatch(actions.async.updateClinicPatientTag(api, selectedClinicId, selectedPatientTag?.id, tag));
+  }, [api, dispatch, selectedClinicId, selectedPatientTag?.id, trackMetric]);
 
   const handleDeleteClinicPatientTag = useCallback(tagId => {
     trackMetric('Clinic - Delete patient tag', { clinicId: selectedClinicId });
@@ -1255,7 +1255,7 @@ export const ClinicPatients = (props) => {
 
                         {!!pendingFilters.patientTags.length && (
                           <Box mb={1} fontSize={0} fontWeight="medium">
-                            <Text>{t('Selected Tags')}</Text>
+                            <Text fontSize="10px" color="grays.4">{t('Selected Tags')}</Text>
 
                             <TagList
                               tags={map(pendingFilters.patientTags, tagId => patientTags?.[tagId])}
@@ -1274,8 +1274,8 @@ export const ClinicPatients = (props) => {
                         )}
 
                         {pendingFilters.patientTags.length < patientTagsFilterOptions.length && (
-                          <Box alignItems="center" mb={1} fontSize={0} fontWeight="medium" >
-                            {!!pendingFilters.patientTags.length && <Text>{t('Available Tags')}</Text>}
+                          <Box alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
+                            {!!pendingFilters.patientTags.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
 
                             <TagList
                               tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)), ({ id }) => patientTags?.[id])}
@@ -1586,7 +1586,7 @@ export const ClinicPatients = (props) => {
   }, [handleRemovePatient, selectedPatient?.fullName, showDeleteDialog, t]);
 
   const renderUpdateClinicPatientTagDialog = useCallback(() => {
-    const name = selectedPatientTag?.name;
+    const name = selectedPatientTag?.name || '';
 
     return (
       <Dialog
@@ -1596,34 +1596,60 @@ export const ClinicPatients = (props) => {
         onClose={handleCloseClinicPatientTagUpdateDialog}
       >
         <DialogTitle onClose={handleCloseClinicPatientTagUpdateDialog}>
-          <MediumTitle id="dialog-title">{t('Remove "{{name}}"', { name })}</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Update "{{name}}"', { name })}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent>
-          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-update-patient-tag-confirm">
-            <Body1>
-              Are you sure you want to update the tag: <strong>{{name}}</strong>?
-            </Body1>
+        <Formik
+          initialValues={{ name }}
+          onSubmit={(tag, context) => {
+            setClinicPatientTagFormContext(context);
+            handleUpdateClinicPatientTagConfirm(tag);
+          }}
+          validationSchema={clinicPatientTagSchema}
+        >
+          {patientTagFormikContext => (
+            <Form id="patient-tag-update">
+              <DialogContent>
+                <Flex mb={3} sx={{ gap: 2 }}>
+                  <TextInput
+                    themeProps={{
+                      width: '100%',
+                      sx: { input: { height: '22px', py: '0 !important' } },
+                      flex: 1,
+                    }}
+                    fontSize="12px"
+                    maxLength={20}
+                    placeholder={t('Add a new tag...')}
+                    description={t('You can add up to 10 tags per clinic')}
+                    captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
+                    onClickIcon={() => patientTagFormikContext.handleSubmit()}
+                    variant="condensed"
+                    {...getCommonFormikFieldProps('name', patientTagFormikContext)}
+                  />
+                </Flex>
 
-            <Body1>
-              This tag will also be updated for any patients who have been tagged with it.
-            </Body1>
-          </Trans>
-        </DialogContent>
+                <Body1>
+                  This tag will also be updated for any patients who have been tagged with it.
+                </Body1>
+              </DialogContent>
 
-        <DialogActions>
-          <Button id="patientTagUpdateCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog}>
-            {t('Cancel')}
-          </Button>
+              <DialogActions>
+                <Button id="patientTagUpdateCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog}>
+                  {t('Cancel')}
+                </Button>
 
-          <Button
-            id="patientTagUpdateConfirm"
-            variant="danger"
-            onClick={handleUpdateClinicPatientTagConfirm}
-          >
-            {t('Update')}
-          </Button>
-        </DialogActions>
+                <Button
+                  id="patient-tag-update-confirm"
+                  disabled={!patientTagFormikContext.values.name.trim().length || !patientTagFormikContext.isValid}
+                  type="submit"
+                  variant="primary"
+                >
+                  {t('Update')}
+                </Button>
+              </DialogActions>
+            </Form>
+          )}
+        </Formik>
       </Dialog>
     );
   }, [handleUpdateClinicPatientTagConfirm, selectedPatientTag?.name, showUpdateClinicPatientTagDialog, t]);
@@ -1765,39 +1791,68 @@ export const ClinicPatients = (props) => {
         open={showClinicPatientTagsDialog}
         onClose={handleCloseOverlays}
       >
-        <DialogTitle divider={false} onClose={handleCloseOverlays}>
-          <Body1 fontWeight="medium">{t('Available Patient Tags')}</Body1>
-        </DialogTitle>
+        <Box variant="containers.extraSmall" mb={0} width={['100%', '100%']}>
+          <DialogTitle divider={false} onClose={handleCloseOverlays}>
+            <Body1 fontWeight="medium">{t('Available Patient Tags')}</Body1>
+          </DialogTitle>
 
-        <DialogContent>
-          {/* TODO: Use Formik input with validation */}
-          <TextInput
-            themeProps={{
-              width: ['100%', null, '250px'],
-            }}
-            fontSize="12px"
-            id="patient-tag-input"
-            placeholder={t('Add a new tag...')}
-            icon={AddIcon}
-            iconLabel={t('Add Tag')}
-            onClickIcon={handleCreateClinicPatientTag.bind(null, pendingNewClinicPatientTag)}
-            name="patient-tag-input"
-            onChange={e => {
-              setPendingNewClinicPatientTag(e.target.value);
-            }}
-            value={pendingNewClinicPatientTag}
-            variant="condensed"
-          />
+          <DialogContent pt={0} divider={false}>
+            <Formik
+              initialValues={{ name: '' }}
+              onSubmit={(tag, context) => {
+                setClinicPatientTagFormContext(context);
+                handleCreateClinicPatientTag(tag);
+              }}
+              validationSchema={clinicPatientTagSchema}
+            >
+              {patientTagFormikContext => (
+                <Form id="patient-tag-add">
 
-          <TagList
-            tags={clinic?.patientTags}
-            tagProps={{
-              icon: DeleteIcon,
-              onClickIcon: tagId => handleDeleteClinicPatientTag(tagId),
-              onDoubleClick: tagId => handleUpdateClinicPatientTag(tagId),
-            }}
-          />
-        </DialogContent>
+                  <Flex mb={3} sx={{ gap: 2 }}>
+                    <TextInput
+                      themeProps={{
+                        width: '100%',
+                        sx: { input: { height: '22px', py: '0 !important' } },
+                        flex: 1,
+                      }}
+                      disabled={clinic?.patientTags?.length >= 10}
+                      fontSize="12px"
+                      maxLength={20}
+                      placeholder={t('Add a new tag...')}
+                      description={t('You can add up to 10 tags per clinic')}
+                      captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
+                      onClickIcon={() => patientTagFormikContext.handleSubmit()}
+                      variant="condensed"
+                      {...getCommonFormikFieldProps('name', patientTagFormikContext)}
+                    />
+
+                    <Button
+                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= 10 || !patientTagFormikContext.isValid}
+                      type="submit"
+                      height="24px"
+                      alignSelf="flex-start"
+                    >
+                      {t('Add')}
+                    </Button>
+                  </Flex>
+                </Form>
+              )}
+            </Formik>
+
+            <Text mb={2} color="text.primary" fontWeight="medium" fontSize={0}>
+              {t('Click a tag\'s text to rename it, or click the trash can icon to delete it.')}
+            </Text>
+
+            <TagList
+              tags={clinic?.patientTags}
+              tagProps={{
+                icon: DeleteIcon,
+                onClickIcon: tagId => handleDeleteClinicPatientTag(tagId),
+                onClick: tagId => handleUpdateClinicPatientTag(tagId),
+              }}
+            />
+          </DialogContent>
+        </Box>
       </Dialog>
     );
   }, [
@@ -1805,7 +1860,6 @@ export const ClinicPatients = (props) => {
     handleCreateClinicPatientTag,
     handleUpdateClinicPatientTag,
     handleDeleteClinicPatientTag,
-    pendingNewClinicPatientTag,
     showClinicPatientTagsDialog,
     t,
   ]);
@@ -2063,6 +2117,7 @@ export const ClinicPatients = (props) => {
     setShowUpdateClinicPatientTagDialog(false);
 
     setTimeout(() => {
+      clinicPatientTagFormContext.resetForm()
       setSelectedPatientTag(null);
     });
   }
