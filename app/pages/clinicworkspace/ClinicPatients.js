@@ -5,7 +5,6 @@ import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
 import { format } from 'd3-format';
 import moment from 'moment';
-import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
 import forEach from 'lodash/forEach';
 import find from 'lodash/find';
@@ -517,8 +516,6 @@ export const ClinicPatients = (props) => {
   );
   const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState, true);
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
-  const [pendingNewClinicPatientTag, setPendingNewClinicPatientTag] = useState('');
-  const [pendingUpdatedClinicPatientTag, setPendingUpdatedClinicPatientTag] = useState('');
   const previousActiveFilters = usePrevious(activeFilters);
 
   const lastUploadDateFilterOptions = [
@@ -592,6 +589,16 @@ export const ClinicPatients = (props) => {
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
+  const handleCloseClinicPatientTagUpdateDialog = useCallback(() => {
+    setShowDeleteClinicPatientTagDialog(false);
+    setShowUpdateClinicPatientTagDialog(false);
+
+    setTimeout(() => {
+      clinicPatientTagFormContext.resetForm()
+      setSelectedPatientTag(null);
+    });
+  }, [clinicPatientTagFormContext]);
+
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification } = workingState;
 
@@ -635,11 +642,11 @@ export const ClinicPatients = (props) => {
 
   useEffect(() => {
     handleAsyncResult(updatingClinicPatientTag, t('Tag updated.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [updatingClinicPatientTag, handleAsyncResult, t]);
+  }, [updatingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, t]);
 
   useEffect(() => {
     handleAsyncResult(deletingClinicPatientTag, t('Tag removed.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [deletingClinicPatientTag, handleAsyncResult, t]);
+  }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, t]);
 
   useEffect(() => {
     handleAsyncResult(sendingPatientUploadReminder, t('Uploader reminder email for {{name}} has been sent.', {
@@ -1654,7 +1661,7 @@ export const ClinicPatients = (props) => {
         </Formik>
       </Dialog>
     );
-  }, [handleUpdateClinicPatientTagConfirm, selectedPatientTag?.name, showUpdateClinicPatientTagDialog, t]);
+  }, [handleUpdateClinicPatientTagConfirm, handleCloseClinicPatientTagUpdateDialog, selectedPatientTag?.name, showUpdateClinicPatientTagDialog, t]);
 
   const renderDeleteClinicPatientTagDialog = useCallback(() => {
     const name = selectedPatientTag?.name;
@@ -1697,7 +1704,7 @@ export const ClinicPatients = (props) => {
         </DialogActions>
       </Dialog>
     );
-  }, [handleDeleteClinicPatientTagConfirm, selectedPatientTag?.name, showDeleteClinicPatientTagDialog, t]);
+  }, [handleDeleteClinicPatientTagConfirm, handleCloseClinicPatientTagUpdateDialog, selectedPatientTag?.name, showDeleteClinicPatientTagDialog, t]);
 
   const renderAddPatientDialog = useCallback(() => {
     return (
@@ -2110,17 +2117,6 @@ export const ClinicPatients = (props) => {
 
     setTimeout(() => {
       setSelectedPatient(null);
-      setPendingNewClinicPatientTag('');
-    });
-  }
-
-  function handleCloseClinicPatientTagUpdateDialog() {
-    setShowDeleteClinicPatientTagDialog(false);
-    setShowUpdateClinicPatientTagDialog(false);
-
-    setTimeout(() => {
-      clinicPatientTagFormContext.resetForm()
-      setSelectedPatientTag(null);
     });
   }
 
