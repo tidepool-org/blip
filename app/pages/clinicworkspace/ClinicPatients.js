@@ -601,7 +601,7 @@ export const ClinicPatients = (props) => {
     setShowUpdateClinicPatientTagDialog(false);
 
     setTimeout(() => {
-      clinicPatientTagFormContext.resetForm()
+      clinicPatientTagFormContext?.resetForm()
       setSelectedPatientTag(null);
     });
   }, [clinicPatientTagFormContext]);
@@ -644,7 +644,7 @@ export const ClinicPatients = (props) => {
   }, [deletingPatientFromClinic, handleAsyncResult, selectedPatient, t]);
 
   useEffect(() => {
-    handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => clinicPatientTagFormContext.resetForm());
+    handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
   }, [clinicPatientTagFormContext, creatingClinicPatientTag, handleAsyncResult, t]);
 
   useEffect(() => {
