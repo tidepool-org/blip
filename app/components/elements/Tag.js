@@ -1,11 +1,14 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { translate } from 'react-i18next';
 import { Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
 import compact from 'lodash/compact';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import reduce from 'lodash/reduce';
+import EditIcon from '@material-ui/icons/EditRounded';
+
 
 import {
   usePopupState,
@@ -13,9 +16,9 @@ import {
   bindPopover,
 } from 'material-ui-popup-state/hooks';
 
-import Popover from './Popover';
 import Icon from './Icon';
-import baseTheme, { space, shadows } from '../../themes/baseTheme';
+import Popover from './Popover';
+import baseTheme from '../../themes/baseTheme';
 
 export const Tag = props => {
   const {
@@ -103,8 +106,8 @@ Tag.defaultProps = {
   variant: 'default',
 };
 
-export const TagList = props => {
-  const { tags, maxCharactersVisible, tagProps, ...themeProps } = props;
+export const TagList = translate()(props => {
+  const { tags, onClickEdit, maxCharactersVisible, tagProps, t, ...themeProps } = props;
 
   const visibleTags = [];
   const hiddenTags = [];
@@ -126,15 +129,32 @@ export const TagList = props => {
 
   const anchorOrigin = useMemo(() => ({
     vertical: 'bottom',
-    horizontal: 'center',
+    horizontal: 'left',
   }), []);
 
   const transformOrigin = useMemo(() => ({
     vertical: 'top',
-    horizontal: 'center',
+    horizontal: 'left',
   }), []);
 
-  const triggerFontSize = tagProps.variant === 'compact' ? '10px' : '12px';
+  const editIconFontSize = tagProps.variant === 'compact' ? '12px' : '14px';
+  const popoverTriggerFontSize = tagProps.variant === 'compact' ? '10px' : '12px';
+  const popoverMarginTop = tagProps.variant === 'compact' ? '18px' : '24px';
+
+  const EditTagsIcon = () => (
+    <Icon
+      variant="default"
+      color="text.primary"
+      icon={EditIcon}
+      fontWeight="medium"
+      fontSize={editIconFontSize}
+      label={t('Edit tags')}
+      onClick={() => {
+        popupState.close();
+        onClickEdit();
+      }}
+    />
+  );
 
   return (
     <Flex
@@ -153,6 +173,10 @@ export const TagList = props => {
         />
       ))}
 
+      {!hiddenTags.length && !!onClickEdit && (
+        <EditTagsIcon />
+      )}
+
       {!!hiddenTags.length && (
         <React.Fragment>
           <Text
@@ -160,7 +184,7 @@ export const TagList = props => {
             color="text.primary"
             fontWeight="medium"
             fontFamily="default"
-            fontSize={triggerFontSize}
+            fontSize={popoverTriggerFontSize}
             lineHeight="normal"
             whiteSpace="nowrap"
             sx={{ cursor: 'default' }}
@@ -173,8 +197,10 @@ export const TagList = props => {
             useHoverPopover
             anchorOrigin={anchorOrigin}
             transformOrigin={transformOrigin}
-            marginTop={`${space[2]}px`}
-            boxShadow={shadows.small}
+            marginTop={`-${popoverMarginTop}`}
+            marginLeft={'-4px'}
+            border={0}
+            boxShadow={'none'}
             {...bindPopover(popupState)}
           >
             <Flex
@@ -193,17 +219,22 @@ export const TagList = props => {
                   {...tagProps}
                 />
               ))}
+
+              {!!onClickEdit && (
+                <EditTagsIcon />
+              )}
             </Flex>
           </Popover>
         </React.Fragment>
       )}
     </Flex>
   );
-};
+});
 
 TagList.propTypes = {
   ...FlexProps,
   maxCharactersVisible: PropTypes.number,
+  onClickEdit: PropTypes.func,
   tags: PropTypes.arrayOf(PropTypes.shape(pick(Tag.propTypes, ['name', 'id']))),
   tagProps: PropTypes.shape(omit(Tag.propTypes, ['name', 'id'])),
 };

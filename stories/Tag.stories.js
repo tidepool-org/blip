@@ -47,6 +47,7 @@ const maxCharactersVisible = () => number('Max Characters Visible', 20);
 export const TagListStory = () => (
   <React.Fragment>
     <TagList
+      onClickEdit={action('Edit clicked')}
       tagProps={{
         onClick: action('Tag clicked'),
         variant: tagVariant(),

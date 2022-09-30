@@ -174,6 +174,12 @@ const BgSummaryCell = ({ summary, clinicBgUnits, summaryPeriod, t }) => {
   );
 };
 
+const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog) => {
+  trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId });
+  setSelectedPatient(patient);
+  setShowEditPatientDialog(true);
+};
+
 const MoreMenu = ({
   patient,
   isClinicAdmin,
@@ -187,19 +193,9 @@ const MoreMenu = ({
   setShowSendUploadReminderDialog,
   setShowDeleteDialog,
 }) => {
-  const handleEditPatient = useCallback(
-    (patient) => {
-      trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId });
-      setSelectedPatient(patient);
-      setShowEditPatientDialog(true);
-    },
-    [
-      selectedClinicId,
-      setSelectedPatient,
-      setShowEditPatientDialog,
-      trackMetric,
-    ]
-  );
+  const handleEditPatient = useCallback(() => {
+    editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog);
+  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
 
   const handleSendUploadReminder = useCallback(
     (patient) => {
@@ -296,6 +292,7 @@ const PatientTags = ({
   selectedPatient,
   setSelectedPatient,
   setShowClinicPatientTagsDialog,
+  setShowEditPatientDialog,
   t,
   trackMetric,
 }) => {
@@ -320,8 +317,17 @@ const PatientTags = ({
 
   const filteredPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
 
+  const handleEditPatient = useCallback(() => {
+    editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog);
+  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
+
   return !!filteredPatientTags.length ? (
-    <TagList tagProps={{ variant: 'compact' }} tags={map(filteredPatientTags, tagId => patientTags?.[tagId])} maxCharactersVisible={30} />
+    <TagList
+      maxCharactersVisible={30}
+      onClickEdit={handleEditPatient}
+      tagProps={{ variant: 'compact' }}
+      tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
+    />
   ) : (
     <React.Fragment>
       <Box {...bindTrigger(addPatientTagsPopupState)}>
@@ -2189,6 +2195,7 @@ export const ClinicPatients = (props) => {
       selectedPatient={selectedPatient}
       setSelectedPatient={setSelectedPatient}
       setShowClinicPatientTagsDialog={setShowClinicPatientTagsDialog}
+      setShowEditPatientDialog={setShowEditPatientDialog}
       t={t}
       trackMetric={trackMetric}
     />
