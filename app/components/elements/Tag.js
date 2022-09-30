@@ -107,7 +107,7 @@ Tag.defaultProps = {
 };
 
 export const TagList = translate()(props => {
-  const { tags, onClickEdit, maxCharactersVisible, tagProps, t, ...themeProps } = props;
+  const { popupId, tags, onClickEdit, maxCharactersVisible, tagProps, t, ...themeProps } = props;
 
   const visibleTags = [];
   const hiddenTags = [];
@@ -124,7 +124,7 @@ export const TagList = translate()(props => {
 
   const popupState = usePopupState({
     variant: 'popover',
-    popupId: 'demoPopover',
+    popupId,
   });
 
   const anchorOrigin = useMemo(() => ({
@@ -237,9 +237,11 @@ TagList.propTypes = {
   onClickEdit: PropTypes.func,
   tags: PropTypes.arrayOf(PropTypes.shape(pick(Tag.propTypes, ['name', 'id']))),
   tagProps: PropTypes.shape(omit(Tag.propTypes, ['name', 'id'])),
+  popupId: PropTypes.string.isRequired,
 };
 
 TagList.defaultProps = {
+  popupId: 'tagListOverflow',
   tagVariant: 'default',
   tags: [],
   tagProps: {},

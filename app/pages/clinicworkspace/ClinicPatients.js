@@ -324,6 +324,7 @@ const PatientTags = ({
   return !!filteredPatientTags.length ? (
     <TagList
       maxCharactersVisible={30}
+      popupId={`tags-overflow-${patient?.id}`}
       onClickEdit={handleEditPatient}
       tagProps={{ variant: 'compact' }}
       tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}

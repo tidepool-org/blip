@@ -47,7 +47,9 @@ const maxCharactersVisible = () => number('Max Characters Visible', 20);
 export const TagListStory = () => (
   <React.Fragment>
     <TagList
+      marginBottom={3}
       onClickEdit={action('Edit clicked')}
+      popupId="tagListOne"
       tagProps={{
         onClick: action('Tag clicked'),
         variant: tagVariant(),
@@ -62,6 +64,23 @@ export const TagListStory = () => (
         { name: 'Tag Six', id: 'tag6' },
         { name: 'Tag Seven', id: 'tag7' },
         { name: 'Tag Eight', id: 'tag8' },
+        { name: 'Tag Nine', id: 'tag9' },
+        { name: 'Tag Ten', id: 'tag10' },
+      ]}
+    />
+
+    <TagList
+      onClickEdit={action('Edit clicked')}
+      popupId="tagListTwo"
+      tagProps={{
+        onClick: action('Tag clicked'),
+        variant: tagVariant(),
+      }}
+      maxCharactersVisible={maxCharactersVisible()}
+      tags={[
+        { name: 'Tag Five', id: 'tag5' },
+        { name: 'Tag Six', id: 'tag6' },
+        { name: 'Tag Seven', id: 'tag7' },
         { name: 'Tag Nine', id: 'tag9' },
         { name: 'Tag Ten', id: 'tag10' },
       ]}
