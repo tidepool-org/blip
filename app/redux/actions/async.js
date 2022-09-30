@@ -219,6 +219,7 @@ export function login(api, credentials, options, postLoginAction) {
       workspaces: '/workspaces',
       clinicDetails: '/clinic-details',
       clinicWorkspace: '/clinic-workspace',
+      profile: '/profile',
     };
 
     let redirectRoute = routes.patients;
@@ -244,6 +245,7 @@ export function login(api, credentials, options, postLoginAction) {
             const isClinicianAccount = personUtils.isClinicianAccount(user);
             const hasClinicianRole = _.includes(user.roles, 'clinician');
             const hasLegacyClinicRole = _.includes(user.roles, 'clinic');
+            const userHasFullName = !_.isEmpty(user.profile.fullName);
 
             // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
             // to the clinic workflow if a relationship with a clinic object or an invite exists.
@@ -302,6 +304,8 @@ export function login(api, credentials, options, postLoginAction) {
                   // clinic workspace to create their clinic profile and add a clinic if they have
                   // not already done so.
                   setRedirectRoute(!userHasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces);
+                } else if (!userHasFullName) {
+                  setRedirectRoute(routes.profile);
                 } else {
                   getPatientProfile();
                 }

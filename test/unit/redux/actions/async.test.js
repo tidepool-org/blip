@@ -244,7 +244,7 @@ describe('Actions', () => {
 
     describe('verifyCustodial', () => {
       it('should trigger ACKNOWLEDGE_NOTIFICATION for the confirmingSignup notification if set', () => {
-        let user = { id: 27, emailVerified: true };
+        let user = { id: 27, emailVerified: true, profile: { fullName: ''} };
         let key = 'fakeSignupKey';
         let email = 'g@a.com';
         let birthday = '07/18/1988';
@@ -274,7 +274,7 @@ describe('Actions', () => {
       });
 
       it('should trigger VERIFY_CUSTODIAL_SUCCESS and it should call verifyCustodial once for a successful request', () => {
-        let user = { id: 27, emailVerified: true };
+        let user = { id: 27, emailVerified: true, profile: { fullName: 'someName'} };
         let key = 'fakeSignupKey';
         let email = 'g@a.com';
         let birthday = '07/18/1988';
@@ -557,7 +557,7 @@ describe('Actions', () => {
     describe('login', () => {
       it('should trigger LOGIN_SUCCESS and it should call login and user.get once for a successful request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27, emailVerified: true };
+        let user = { id: 27, emailVerified: true, profile: { fullName: 'bruce wayne'} };
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, null),
@@ -600,7 +600,7 @@ describe('Actions', () => {
 
       it('should trigger LOGIN_SUCCESS and it should call login, user.get and patient.get once for a successful request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27, profile: { patient: true }, emailVerified: true };
+        let user = { id: 27, profile: { patient: true, fullName: 'bruce wayne' }, emailVerified: true };
         let patient = { foo: 'bar' };
 
         let api = {
@@ -649,9 +649,60 @@ describe('Actions', () => {
         expect(trackMetric.calledWith('Logged In')).to.be.true;
       });
 
+      it('should trigger LOGIN_SUCCESS and it should redirect a user with no fullName to the profile form', () => {
+        let creds = { username: 'bruce', password: 'wayne' };
+        let user = { id: 27, profile: { patient: true, fullName: '' }, emailVerified: true };
+        let patient = { foo: 'bar' };
+
+        let api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: undefined, clinics: [] } },
+          { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
+          { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/profile', { selectedClinicId: null } ], method: 'push' } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+
+        store.dispatch(async.login(api, creds));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.get.callCount).to.equal(1);
+        expect(api.patient.get.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
+      });
+
       it('should trigger LOGIN_SUCCESS and it should redirect a clinician with no clinic profile to the clinician details form', () => {
         const creds = { username: 'bruce', password: 'wayne' };
-        const user = { id: 27, roles: [ 'clinician' ], profile: {}, emailVerified: true };
+        const user = { id: 27, roles: [ 'clinician' ], profile: { fullName: 'bruce wayne' }, emailVerified: true };
         const patient = { foo: 'bar' };
 
         const api = {
@@ -751,7 +802,7 @@ describe('Actions', () => {
 
       it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view', () => {
         const creds = { username: 'bruce', password: 'wayne' };
-        const user = { id: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true };
+        const user = { id: 27, roles: ['clinic'], profile: { clinic: true, fullName: 'bruce wayne' }, emailVerified: true };
         const patient = { foo: 'bar' };
 
         const api = {
@@ -921,7 +972,7 @@ describe('Actions', () => {
 
           it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view', () => {
             setAPIData({
-              user: { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true }
+              user: { userid: 27, roles: ['clinic'], profile: { clinic: true, fullName: 'bruce wayne' }, emailVerified: true }
             });
 
             const expectedActions = [
