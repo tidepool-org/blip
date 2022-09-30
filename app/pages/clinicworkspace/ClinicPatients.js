@@ -287,8 +287,7 @@ export const ClinicPatients = (props) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const clinics = useSelector((state) => state.blip.clinics);
-  const clinic = get(clinics, selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
