@@ -287,8 +287,7 @@ export const ClinicPatients = (props) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const clinics = useSelector((state) => state.blip.clinics);
-  const clinic = get(clinics, selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -614,7 +613,7 @@ export const ClinicPatients = (props) => {
     trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
     let fetchOptions = { ...patientFetchOptions };
     if (isEmpty(fetchOptions.search)) delete fetchOptions.search;
-    dispatch(actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions));
+    dispatch(actions.async.fetchPatientsForClinic(api, clinic?.id, fetchOptions));
   }, [api, clinic?.id, dispatch, patientFetchOptions, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
   const handleToggleShowNames = useCallback(() => {
@@ -872,6 +871,10 @@ export const ClinicPatients = (props) => {
                     onClickCloseIcon={() => {
                       trackMetric(prefixPopHealthMetric('Last upload filter close'), { clinicId: selectedClinicId });
                     }}
+                    onClose={() => {
+                      lastUploadDatePopupFilterState.close();
+                      setPendingFilters(activeFilters);
+                    }}
                   >
                     <DialogContent px={2} py={3} dividers>
                       <RadioGroup
@@ -997,7 +1000,6 @@ export const ClinicPatients = (props) => {
                   <Button
                     variant="filter"
                     id="summary-period-filter-trigger"
-                    selected={!!activeFilters.lastUploadDate}
                     {...bindTrigger(summaryPeriodPopupFilterState)}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by summary period duration"
@@ -1014,6 +1016,10 @@ export const ClinicPatients = (props) => {
                   {...bindPopover(summaryPeriodPopupFilterState)}
                   onClickCloseIcon={() => {
                     trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
+                  }}
+                  onClose={() => {
+                    summaryPeriodPopupFilterState.close();
+                    setPendingSummaryPeriod(summaryPeriod);
                   }}
                 >
                   <DialogContent px={2} py={3} dividers>
@@ -1802,7 +1808,7 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleTable = useCallback(() => {
 
-    const pageCount = Math.ceil(clinic.patientCount / patientFetchOptions.limit);
+    const pageCount = Math.ceil(clinic?.patientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
     return (

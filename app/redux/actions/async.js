@@ -244,7 +244,7 @@ export function login(api, credentials, options, postLoginAction) {
             // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
             // to the clinic workflow if a relationship with a clinic object or an invite exists.
             const fetchers = {
-              clinics: cb => dispatch(getClinicsForClinician(api, user.userid, {}, cb)),
+              clinics: cb => dispatch(getClinicsForClinician(api, user.userid, { limit: 1000, offset: 0 }, cb)),
               invites: cb => dispatch(fetchClinicianInvites(api, user.userid, cb)),
               associatedAccounts: cb => dispatch(fetchAssociatedAccounts(api, cb)),
             };
@@ -1749,7 +1749,7 @@ export function createClinic(api, clinic, clinicianId) {
       } else {
         dispatch(sync.selectClinic(clinic.id));
         dispatch(sync.createClinicSuccess(clinic));
-        dispatch(getClinicsForClinician(api, clinicianId));
+        dispatch(getClinicsForClinician(api, clinicianId, { limit: 1000, offset: 0 }));
       }
     });
   };

@@ -121,7 +121,7 @@ export const ClinicWorkspace = (props) => {
           }}
         >
           <Box id="patientsTab">
-            {selectedTab === 0 && <ClinicPatients {...props} />}
+            {selectedTab === 0 && <ClinicPatients key={clinic?.id} {...props} />}
           </Box>
 
           <Box id="invitesTab">
