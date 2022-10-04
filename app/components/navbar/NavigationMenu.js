@@ -122,7 +122,7 @@ export const NavigationMenu = props => {
   }
 
   return (
-    <Flex id="navigation-menu" width="auto" justifyContent="flex-end">
+    <Flex id="navigation-menu" width="auto" justifyContent={['center', 'flex-end']}>
       <Button
         id="navigation-menu-trigger"
         variant="textPrimary"

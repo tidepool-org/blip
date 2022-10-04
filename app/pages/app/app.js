@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
 import moment from 'moment';
+import { Box } from 'rebass/styled-components';
 
 import * as actions from '../../redux/actions';
 
@@ -302,7 +303,7 @@ export class AppComponent extends React.Component {
           getUploadUrl = this.props.context.api.getUploadUrl.bind(this.props.context.api);
         }
         return (
-         <div className="App-navbar">
+         <Box className="App-navbar" variant="containers.large" bg="transparent" mb={0} py={2}>
           <Navbar
             user={this.props.user}
             fetchingUser={_.get(this.props.fetchingUser, 'inProgress')}
@@ -318,7 +319,7 @@ export class AppComponent extends React.Component {
             api={this.props.context.api}
             selectedClinicId={this.props.selectedClinicId}
             ref="navbar"/>
-          </div>
+          </Box>
         );
       }
     }

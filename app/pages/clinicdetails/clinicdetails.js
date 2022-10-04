@@ -148,7 +148,7 @@ export const ClinicDetails = (props) => {
         },
         {
           workingState: working.fetchingClinicsForClinician,
-          action: actions.async.getClinicsForClinician.bind(null, api, loggedInUserId, {}),
+          action: actions.async.getClinicsForClinician.bind(null, api, loggedInUserId, { limit: 1000, offset: 0 }),
         },
       ], ({ workingState, action }) => {
         if (
