@@ -100,7 +100,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
         )
       ) {
         const fetchers = {
-          clinics: cb => dispatch(actions.async.getClinicsForClinician(api, user.userid, {}, cb)),
+          clinics: cb => dispatch(actions.async.getClinicsForClinician(api, user.userid, { limit: 1000, offset: 0 }, cb)),
           invites: cb => dispatch(actions.async.fetchClinicianInvites(api, user.userid, cb)),
         };
 

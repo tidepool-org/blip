@@ -96,7 +96,7 @@ export const Workspaces = (props) => {
     }));
 
     // Refetch clinician clinics to include newly-accepeted invitation
-    if (acceptingClinicianInvite.completed) dispatch(actions.async.getClinicsForClinician(api, loggedInUserId));
+    if (acceptingClinicianInvite.completed) dispatch(actions.async.getClinicsForClinician(api, loggedInUserId, { limit: 1000, offset: 0 }));
   }, [acceptingClinicianInvite]);
 
   useEffect(() => {
