@@ -361,6 +361,7 @@ const PatientTags = ({
         }}
         onClose={() => {
           addPatientTagsPopupState.close();
+          setPendingPatientTags(defaultPatientTags);
           setSelectedPatient(null);
         }}
         anchorOrigin={anchorOrigin}
@@ -417,13 +418,13 @@ const PatientTags = ({
             fontSize={1}
             variant="textSecondary"
             onClick={() => {
-              trackMetric(prefixPopHealthMetric('add patient tags dialog clear'), { clinicId: selectedClinicId });
+              trackMetric(prefixPopHealthMetric('add patient tags dialog cancel'), { clinicId: selectedClinicId });
               setPendingPatientTags(defaultPatientTags);
               setSelectedPatient(null);
               addPatientTagsPopupState.close();
             }}
           >
-            {t('Clear')}
+            {t('Cancel')}
           </Button>
 
           <Button id="apply-patient-tags-dialog" disabled={!pendingPatientTags.length} fontSize={1} variant="textPrimary" onClick={() => {
@@ -1263,6 +1264,10 @@ export const ClinicPatients = (props) => {
                     {...bindPopover(patientTagsPopupFilterState)}
                     onClickCloseIcon={() => {
                       trackMetric(prefixPopHealthMetric('patient tags filter close'), { clinicId: selectedClinicId });
+                    }}
+                    onClose={() => {
+                      patientTagsPopupFilterState.close();
+                      setPendingFilters(activeFilters);
                     }}
                   >
                     <DialogContent px={2} py={3} dividers>
