@@ -44,7 +44,7 @@ export const PatientForm = (props) => {
   const { t, api, onFormChange, patient, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics[selectedClinicId]);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
