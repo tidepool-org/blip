@@ -174,8 +174,8 @@ const BgSummaryCell = ({ summary, clinicBgUnits, summaryPeriod, t }) => {
   );
 };
 
-const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog) => {
-  trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId });
+const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
+  trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
   setShowEditPatientDialog(true);
 };
@@ -194,7 +194,7 @@ const MoreMenu = ({
   setShowDeleteDialog,
 }) => {
   const handleEditPatient = useCallback(() => {
-    editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog);
+    editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'action menu');
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
 
   const handleSendUploadReminder = useCallback(
@@ -318,7 +318,7 @@ const PatientTags = ({
   const filteredPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
 
   const handleEditPatient = useCallback(() => {
-    editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog);
+    editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'tag list');
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
 
   return !!filteredPatientTags.length ? (
@@ -344,6 +344,7 @@ const PatientTags = ({
           iconFontSize="16px"
           selected={addPatientTagsPopupState.isOpen && selectedPatient?.id === patient?.id}
           onClick={() => {
+            trackMetric(prefixPopHealthMetric('Assign patient tag'), { clinicId: selectedClinicId });
             setSelectedPatient(patient);
             addPatientTagsPopupState.open();
           }}
@@ -357,7 +358,7 @@ const PatientTags = ({
         closeIcon
         {...bindPopover(addPatientTagsPopupState)}
         onClickCloseIcon={() => {
-          trackMetric(prefixPopHealthMetric('add patient tags dialog close'), { clinicId: selectedClinicId });
+          trackMetric(prefixPopHealthMetric('Assign patient tag close'), { clinicId: selectedClinicId });
         }}
         onClose={() => {
           addPatientTagsPopupState.close();
@@ -418,7 +419,7 @@ const PatientTags = ({
             fontSize={1}
             variant="textSecondary"
             onClick={() => {
-              trackMetric(prefixPopHealthMetric('add patient tags dialog cancel'), { clinicId: selectedClinicId });
+              trackMetric(prefixPopHealthMetric('Assign patient tag cancel'), { clinicId: selectedClinicId });
               setPendingPatientTags(defaultPatientTags);
               setSelectedPatient(null);
               addPatientTagsPopupState.close();
@@ -428,7 +429,7 @@ const PatientTags = ({
           </Button>
 
           <Button id="apply-patient-tags-dialog" disabled={!pendingPatientTags.length} fontSize={1} variant="textPrimary" onClick={() => {
-            trackMetric(prefixPopHealthMetric('add patient tags dialog apply'), { clinicId: selectedClinicId });
+            trackMetric(prefixPopHealthMetric('Assign patient tag confirm'), { clinicId: selectedClinicId });
 
             dispatch(
               actions.async.updateClinicPatient(api, selectedClinicId, patient.id, { ...patient, tags: pendingPatientTags })
@@ -454,6 +455,7 @@ const PatientTags = ({
               fontSize={1}
               variant="textPrimary"
               onClick={() => {
+                trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Assign tag menu' });
                 setShowClinicPatientTagsDialog(true);
               }}
             >
@@ -597,7 +599,8 @@ export const ClinicPatients = (props) => {
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
-  const handleCloseClinicPatientTagUpdateDialog = useCallback(() => {
+  const handleCloseClinicPatientTagUpdateDialog = useCallback(metric => {
+    if (metric) trackMetric(prefixPopHealthMetric(metric, { clinicId: selectedClinicId }));
     setShowDeleteClinicPatientTagDialog(false);
     setShowUpdateClinicPatientTagDialog(false);
 
@@ -605,7 +608,7 @@ export const ClinicPatients = (props) => {
       clinicPatientTagFormContext?.resetForm()
       setSelectedPatientTag(null);
     });
-  }, [clinicPatientTagFormContext]);
+  }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification } = workingState;
@@ -879,8 +882,14 @@ export const ClinicPatients = (props) => {
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
+    const updatedTags = [...(patientFormContext?.values?.tags || [])];
+    const existingTags = [...(selectedPatient?.tags || [])];
+
+    if (!isEqual(updatedTags.sort(), existingTags.sort())) {
+      trackMetric(prefixPopHealthMetric('Edit patient tags confirm'), { clinicId: selectedClinicId });
+    }
     patientFormContext?.handleSubmit();
-  }, [patientFormContext, selectedClinicId, trackMetric]);
+  }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
   const handleCreateClinicPatientTag = useCallback(tag => {
     trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });
@@ -888,26 +897,26 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, trackMetric]);
 
   const handleUpdateClinicPatientTag = useCallback(tagId => {
-    trackMetric('Clinic - Update patient tag', { clinicId: selectedClinicId });
+    trackMetric(prefixPopHealthMetric('Edit clinic tags update'), { clinicId: selectedClinicId });
     setSelectedPatientTag(patientTags[tagId]);
     setShowUpdateClinicPatientTagDialog(true);
-  }, [selectedClinicId, patientTags, trackMetric]);
+  }, [selectedClinicId, patientTags, trackMetric, prefixPopHealthMetric]);
 
   const handleUpdateClinicPatientTagConfirm = useCallback(tag => {
-    trackMetric('Clinic - Update patient tag confirm', { clinicId: selectedClinicId });
+    trackMetric(prefixPopHealthMetric('Edit clinic tags confirm update tag'), { clinicId: selectedClinicId });
     dispatch(actions.async.updateClinicPatientTag(api, selectedClinicId, selectedPatientTag?.id, tag));
-  }, [api, dispatch, selectedClinicId, selectedPatientTag?.id, trackMetric]);
+  }, [api, dispatch, selectedClinicId, selectedPatientTag?.id, trackMetric, prefixPopHealthMetric]);
 
   const handleDeleteClinicPatientTag = useCallback(tagId => {
-    trackMetric('Clinic - Delete patient tag', { clinicId: selectedClinicId });
+    trackMetric(prefixPopHealthMetric('Edit clinic tags delete'), { clinicId: selectedClinicId });
     setSelectedPatientTag(patientTags[tagId]);
     setShowDeleteClinicPatientTagDialog(true);
-  }, [selectedClinicId, patientTags, trackMetric])
+  }, [selectedClinicId, patientTags, trackMetric, prefixPopHealthMetric])
 
   const handleDeleteClinicPatientTagConfirm = useCallback(() => {
-    trackMetric('Clinic - Delete patient tag confirm', { clinicId: selectedClinicId });
+    trackMetric(prefixPopHealthMetric('Edit clinic tags confirm delete tag'), { clinicId: selectedClinicId });
     dispatch(actions.async.deleteClinicPatientTag(api, selectedClinicId, selectedPatientTag?.id));
-  }, [api, dispatch, selectedClinicId, selectedPatientTag?.id, trackMetric]);
+  }, [api, dispatch, selectedClinicId, selectedPatientTag?.id, trackMetric, prefixPopHealthMetric]);
 
   const handleSendUploadReminderConfirm = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Send upload reminder confirmed'), { clinicId: selectedClinicId });
@@ -1263,7 +1272,7 @@ export const ClinicPatients = (props) => {
                     closeIcon
                     {...bindPopover(patientTagsPopupFilterState)}
                     onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('patient tags filter close'), { clinicId: selectedClinicId });
+                      trackMetric(prefixPopHealthMetric('Patient tag filter close'), { clinicId: selectedClinicId });
                     }}
                     onClose={() => {
                       patientTagsPopupFilterState.close();
@@ -1321,7 +1330,7 @@ export const ClinicPatients = (props) => {
                         fontSize={1}
                         variant="textSecondary"
                         onClick={() => {
-                          trackMetric(prefixPopHealthMetric('patient tags clear filter'), { clinicId: selectedClinicId });
+                          trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
                           setPendingFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
                           setActiveFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
                           patientTagsPopupFilterState.close();
@@ -1331,7 +1340,7 @@ export const ClinicPatients = (props) => {
                       </Button>
 
                       <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags} fontSize={1} variant="textPrimary" onClick={() => {
-                        trackMetric(prefixPopHealthMetric('patient tags apply filter'), { clinicId: selectedClinicId });
+                        trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
                         setActiveFilters(pendingFilters);
                         patientTagsPopupFilterState.close();
                       }}>
@@ -1352,6 +1361,7 @@ export const ClinicPatients = (props) => {
                           fontSize={1}
                           variant="textPrimary"
                           onClick={() => {
+                            trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
                             setShowClinicPatientTagsDialog(true);
                           }}
                         >
@@ -1662,7 +1672,7 @@ export const ClinicPatients = (props) => {
               </DialogContent>
 
               <DialogActions>
-                <Button id="patientTagUpdateCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog}>
+                <Button id="patientTagUpdateCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog.bind(null, 'Edit clinic tags cancel update tag')}>
                   {t('Cancel')}
                 </Button>
 
@@ -1709,7 +1719,7 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="patientTagRemoveCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog}>
+          <Button id="patientTagRemoveCancel" variant="secondary" onClick={handleCloseClinicPatientTagUpdateDialog.bind(null, 'Edit clinic tags cancel delete tag')}>
             {t('Cancel')}
           </Button>
 
@@ -1775,7 +1785,10 @@ export const ClinicPatients = (props) => {
         open={showEditPatientDialog}
         onClose={handleCloseOverlays}
       >
-        <DialogTitle onClose={handleCloseOverlays}>
+        <DialogTitle onClose={() => {
+          trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId });
+          handleCloseOverlays()
+        }}>
           <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
         </DialogTitle>
 
@@ -1784,7 +1797,10 @@ export const ClinicPatients = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="editPatientCancel" variant="secondary" onClick={handleCloseOverlays}>
+          <Button id="editPatientCancel" variant="secondary" onClick={() => {
+            trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId });
+            handleCloseOverlays()
+          }}>
             {t('Cancel')}
           </Button>
 
@@ -1804,6 +1820,7 @@ export const ClinicPatients = (props) => {
     api,
     handleEditPatientConfirm,
     patientFormContext?.values,
+    selectedClinicId,
     selectedPatient,
     showEditPatientDialog,
     t,
@@ -1817,10 +1834,18 @@ export const ClinicPatients = (props) => {
         id="editClinicPatientTags"
         aria-labelledby="dialog-title"
         open={showClinicPatientTagsDialog}
-        onClose={handleCloseOverlays}
+        onClose={() => {
+          handleCloseOverlays();
+        }}
       >
         <Box variant="containers.extraSmall" mb={0} width={['100%', '100%']}>
-          <DialogTitle divider={false} onClose={handleCloseOverlays}>
+          <DialogTitle
+            divider={false}
+            onClose={() => {
+              trackMetric(prefixPopHealthMetric('Edit clinic tags close'), { clinicId: selectedClinicId });
+              handleCloseOverlays();
+            }}
+          >
             <Body1 fontWeight="medium">{t('Available Patient Tags')}</Body1>
           </DialogTitle>
 
@@ -1828,6 +1853,7 @@ export const ClinicPatients = (props) => {
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(tag, context) => {
+                trackMetric(prefixPopHealthMetric('Edit clinic tags add'), { clinicId: selectedClinicId });
                 setClinicPatientTagFormContext(context);
                 handleCreateClinicPatientTag(tag);
               }}
@@ -1835,7 +1861,6 @@ export const ClinicPatients = (props) => {
             >
               {patientTagFormikContext => (
                 <Form id="patient-tag-add">
-
                   <Flex mb={3} sx={{ gap: 2 }}>
                     <TextInput
                       themeProps={{
@@ -1888,7 +1913,10 @@ export const ClinicPatients = (props) => {
     handleCreateClinicPatientTag,
     handleUpdateClinicPatientTag,
     handleDeleteClinicPatientTag,
+    prefixPopHealthMetric,
+    selectedClinicId,
     showClinicPatientTagsDialog,
+    trackMetric,
     t,
   ]);
 
