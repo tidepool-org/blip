@@ -565,7 +565,7 @@ export const ClinicPatients = (props) => {
 
   const patientTagsPopupFilterState = usePopupState({
     variant: 'popover',
-    popupId: 'lastUploadDateFilters',
+    popupId: 'patientTagFilters',
   });
 
   const debounceSearch = useCallback(debounce(search => {

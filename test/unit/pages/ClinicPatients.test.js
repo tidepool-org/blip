@@ -109,6 +109,9 @@ describe('ClinicPatients', () => {
         updatingClinicPatient: defaultWorkingState,
         creatingClinicCustodialAccount: defaultWorkingState,
         sendingPatientUploadReminder: defaultWorkingState,
+        creatingClinicPatientTag: defaultWorkingState,
+        updatingClinicPatientTag: defaultWorkingState,
+        deletingClinicPatientTag: defaultWorkingState,
       },
     },
   };
@@ -426,6 +429,7 @@ describe('ClinicPatients', () => {
             birthDate: '1999-11-21',
             mrn: '123456',
             email: 'patient@test.ca',
+            tags: [],
           }
         );
 
@@ -658,6 +662,7 @@ describe('ClinicPatients', () => {
               id: 'patient2',
               email: 'patient-two@test.ca',
               permissions: { custodian: {} },
+              tags: [],
             }
           );
 
@@ -729,6 +734,7 @@ describe('ClinicPatients', () => {
               id: 'patient1',
               email: 'patient1@test.ca',
               permissions: { view: {} },
+              tags: [],
             }
           );
 
@@ -873,8 +879,11 @@ describe('ClinicPatients', () => {
           expect(columns.at(4).text()).to.equal('% GMI');
           assert(columns.at(4).is('#peopleTable-header-summary-periods-14d-glucoseManagementIndicator'));
 
-          expect(columns.at(5).text()).to.equal('% Time in Range');
-          assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
+          expect(columns.at(5).text()).to.equal('Patient Tags');
+          assert(columns.at(5).is('#peopleTable-header-tags'));
+
+          expect(columns.at(6).text()).to.equal('% Time in Range');
+          assert(columns.at(6).is('#peopleTable-header-bgRangeSummary'));
 
           const rows = table.find('tbody tr');
           expect(rows).to.have.lengthOf(5);
@@ -909,14 +918,14 @@ describe('ClinicPatients', () => {
           expect(rowData(3).at(4).text()).contains(emptyStatText);
 
           // BG summary in sixth column
-          expect(rowData(0).at(5).text()).contains('CGM Use <24 hours'); // empty summary
-          expect(rowData(1).at(5).text()).contains('CGM Use <24 hours'); // 23 hours of data
+          expect(rowData(0).at(6).text()).contains('CGM Use <24 hours'); // empty summary
+          expect(rowData(1).at(6).text()).contains('CGM Use <24 hours'); // 23 hours of data
 
-          expect(rowData(2).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
-          expect(rowData(2).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(0); // normal bars
+          expect(rowData(2).at(6).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
+          expect(rowData(2).at(6).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(0); // normal bars
 
-          expect(rowData(3).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
-          expect(rowData(3).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(1); // striped bars for <70% cgm use
+          expect(rowData(3).at(6).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
+          expect(rowData(3).at(6).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(1); // striped bars for <70% cgm use
         });
 
         it('should refetch patients with updated sort parameter when name, last upload, gmi, or cgm use headers are clicked', () => {
@@ -1122,6 +1131,7 @@ describe('ClinicPatients', () => {
                   'timeInLowPercent',
                   'timeInHighPercent'
               ],
+              patientTags: [],
               meetsGlycemicTargets: false,
             },
             sinon.stub()
@@ -1196,6 +1206,7 @@ describe('ClinicPatients', () => {
                     'timeInLowPercent',
                     'timeInHighPercent'
                 ],
+                patientTags: [],
                 meetsGlycemicTargets: true,
               },
               sinon.stub()
