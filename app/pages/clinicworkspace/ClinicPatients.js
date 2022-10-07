@@ -333,6 +333,7 @@ const PatientTags = ({
     <React.Fragment>
       <Box {...bindTrigger(addPatientTagsPopupState)}>
         <Button
+          id="add-tags-to-patient-trigger"
           variant="textPrimary"
           px={0}
           color="grays.4"
@@ -377,7 +378,7 @@ const PatientTags = ({
             </Box>
 
             {!!pendingPatientTags?.length && (
-              <Box mb={1} fontSize={0} fontWeight="medium">
+              <Box className='selected-tags' mb={1} fontSize={0} fontWeight="medium">
                 <Text fontSize="10px" color="grays.4">{t('Selected Tags')}</Text>
 
                 <TagList
@@ -397,7 +398,7 @@ const PatientTags = ({
             )}
 
             {pendingPatientTags?.length < patientTagsFilterOptions.length && (
-              <Box alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
+              <Box className='available-tags' alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
                 {!!pendingPatientTags?.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
 
                 <TagList
@@ -1288,7 +1289,7 @@ export const ClinicPatients = (props) => {
                         </Box>
 
                         {!!pendingFilters.patientTags.length && (
-                          <Box mb={1} fontSize={0} fontWeight="medium">
+                          <Box id="selected-tag-filters" mb={1} fontSize={0} fontWeight="medium">
                             <Text fontSize="10px" color="grays.4">{t('Selected Tags')}</Text>
 
                             <TagList
@@ -1308,7 +1309,7 @@ export const ClinicPatients = (props) => {
                         )}
 
                         {pendingFilters.patientTags.length < patientTagsFilterOptions.length && (
-                          <Box alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
+                          <Box id="available-tag-filters" alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
                             {!!pendingFilters.patientTags.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
 
                             <TagList
@@ -1339,7 +1340,7 @@ export const ClinicPatients = (props) => {
                         {t('Clear')}
                       </Button>
 
-                      <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags} fontSize={1} variant="textPrimary" onClick={() => {
+                      <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags?.length} fontSize={1} variant="textPrimary" onClick={() => {
                         trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
                         setActiveFilters(pendingFilters);
                         patientTagsPopupFilterState.close();
@@ -1660,7 +1661,6 @@ export const ClinicPatients = (props) => {
                     placeholder={t('Add a new tag...')}
                     description={t('You can add up to 10 tags per clinic')}
                     captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
-                    onClickIcon={() => patientTagFormikContext.handleSubmit()}
                     variant="condensed"
                     {...getCommonFormikFieldProps('name', patientTagFormikContext)}
                   />
@@ -1874,7 +1874,6 @@ export const ClinicPatients = (props) => {
                       placeholder={t('Add a new tag...')}
                       description={t('You can add up to 10 tags per clinic')}
                       captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
-                      onClickIcon={() => patientTagFormikContext.handleSubmit()}
                       variant="condensed"
                       {...getCommonFormikFieldProps('name', patientTagFormikContext)}
                     />

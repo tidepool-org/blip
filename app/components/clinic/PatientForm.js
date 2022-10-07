@@ -179,7 +179,7 @@ export const PatientForm = (props) => {
           }}
         >
           {!!values.tags.length && (
-            <Box mt={3} mb={1} fontSize={0}>
+            <Box className='selected-tags' mt={3} mb={1} fontSize={0}>
               <Text mb={1} fontWeight="medium" color="text.primary">{t('Assigned Patient Tags')}</Text>
 
               <TagList
@@ -199,7 +199,7 @@ export const PatientForm = (props) => {
           )}
 
           {values.tags.length < (clinic?.patientTags || []).length && (
-            <Box alignItems="center" mb={1} mt={3} fontSize={0} >
+            <Box className='available-tags' alignItems="center" mb={1} mt={3} fontSize={0} >
               <Text mb={1} fontWeight="medium" color="text.primary">{t('Available Patient Tags')}</Text>
 
               <TagList

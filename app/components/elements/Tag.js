@@ -143,6 +143,7 @@ export const TagList = translate()(props => {
 
   const EditTagsIcon = () => (
     <Icon
+      className="edit-tags-trigger"
       variant="default"
       color="text.primary"
       icon={EditIcon}
