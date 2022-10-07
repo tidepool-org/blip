@@ -7357,7 +7357,7 @@ describe('Actions', () => {
     });
 
     describe('createClinicPatientTag', () => {
-      it('should trigger CREATE_CLINIC_PATIENT_TAG_SUCCESS and it should call clinics.triggerInitialClinicMigration once for a successful request', () => {
+      it('should trigger CREATE_CLINIC_PATIENT_TAG_SUCCESS and it should call clinics.createClinicPatientTag once for a successful request', () => {
         const clinicId = 'clinicId1';
         const patientTag = { name: 'patientTag1' };
 
@@ -7472,7 +7472,7 @@ describe('Actions', () => {
     });
 
     describe('updateClinicPatientTag', () => {
-      it('should trigger UPDATE_CLINIC_PATIENT_TAG_SUCCESS and it should call clinics.triggerInitialClinicMigration once for a successful request', () => {
+      it('should trigger UPDATE_CLINIC_PATIENT_TAG_SUCCESS and it should call clinics.updateClinicPatientTag once for a successful request', () => {
         const clinicId = 'clinicId1';
         const patientTagId = 'patientTagId1';
         const patientTag = { name: 'patientTag1' };
@@ -7561,7 +7561,7 @@ describe('Actions', () => {
     });
 
     describe('deleteClinicPatientTag', () => {
-      it('should trigger DELETE_CLINIC_PATIENT_TAG_SUCCESS and it should call clinics.triggerInitialClinicMigration once for a successful request', () => {
+      it('should trigger DELETE_CLINIC_PATIENT_TAG_SUCCESS and it should call clinics.deleteClinicPatientTag once for a successful request', () => {
         const clinicId = 'clinicId1';
         const patientTagId = 'patientTagId1';
 

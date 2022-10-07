@@ -9,7 +9,6 @@ import pick from 'lodash/pick';
 import reduce from 'lodash/reduce';
 import EditIcon from '@material-ui/icons/EditRounded';
 
-
 import {
   usePopupState,
   bindHover,
