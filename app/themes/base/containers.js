@@ -22,6 +22,11 @@ export default ({ borders, colors, radii, space }) => {
     maxWidth: '600px',
   };
 
+  const extraSmall = {
+    ...defaultStyles,
+    maxWidth: '320px',
+  };
+
   const bordered = {
     borderLeft: ['none', borders.default],
     borderRight: ['none', borders.default],
@@ -44,6 +49,11 @@ export default ({ borders, colors, radii, space }) => {
     small,
     smallBordered: {
       ...small,
+      ...bordered,
+    },
+    extraSmall,
+    extraSmallBordered: {
+      ...extraSmall,
       ...bordered,
     },
   };

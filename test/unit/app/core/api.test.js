@@ -67,6 +67,9 @@ describe('api', () => {
       getClinicByShareCode: sinon.stub(),
       triggerInitialClinicMigration: sinon.stub(),
       sendPatientUploadReminder: sinon.stub(),
+      createClinicPatientTag: sinon.stub(),
+      updateClinicPatientTag: sinon.stub(),
+      deleteClinicPatientTag: sinon.stub(),
     };
 
     rollbar = {
@@ -127,6 +130,9 @@ describe('api', () => {
     tidepool.getClinicByShareCode.resetHistory();
     tidepool.triggerInitialClinicMigration.resetHistory();
     tidepool.sendPatientUploadReminder.resetHistory();
+    tidepool.createClinicPatientTag.resetHistory();
+    tidepool.updateClinicPatientTag.resetHistory();
+    tidepool.deleteClinicPatientTag.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -885,6 +891,34 @@ describe('api', () => {
         const clinicId = 'clinicId123';
         api.clinics.sendPatientUploadReminder(clinicId, patientId, cb);
         sinon.assert.calledWith(tidepool.sendPatientUploadReminder, clinicId, patientId, cb);
+      });
+    });
+    describe('clinics.createClinicPatientTag', () => {
+      it('should call tidepool.createClinicPatientTag with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const patientTag = { name: 'patientTag123' };
+        api.clinics.createClinicPatientTag(clinicId, patientTag, cb);
+        sinon.assert.calledWith(tidepool.createClinicPatientTag, clinicId, patientTag, cb);
+      });
+    });
+    describe('clinics.updateClinicPatientTag', () => {
+      it('should call tidepool.updateClinicPatientTag with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const patientTagId = 'patientTagId123';
+        const patientTag = { name: 'patientTag123' };
+        api.clinics.updateClinicPatientTag(clinicId, patientTagId, patientTag, cb);
+        sinon.assert.calledWith(tidepool.updateClinicPatientTag, clinicId, patientTagId, patientTag, cb);
+      });
+    });
+    describe('clinics.deleteClinicPatientTag', () => {
+      it('should call tidepool.deleteClinicPatientTag with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const patientTagId = 'patientTagId123';
+        api.clinics.deleteClinicPatientTag(clinicId, patientTagId, cb);
+        sinon.assert.calledWith(tidepool.deleteClinicPatientTag, clinicId, patientTagId, cb);
       });
     });
   });
