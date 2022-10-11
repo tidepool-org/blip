@@ -823,7 +823,7 @@ export const ClinicPatients = (props) => {
     clinic?.tier,
     defaultPatientFetchOptions.sort,
     isFirstRender,
-    patientFetchOptions, // TODO: wondering why we have this here. Could be a bad loop, given that we update this within this method.
+    patientFetchOptions,
     previousActiveFilters,
     previousClinic?.id,
     previousSummaryPeriod,
