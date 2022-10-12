@@ -92,6 +92,12 @@ export let Login = translate()(class extends React.Component {
       keycloak.login({ loginHint: this.props.seedEmail });
     }
 
+    // forward to keycloak login when available
+    if(keycloakConfig.initialized && !loggingIn && !this.props.isAuthenticated){
+      keycloak.login();
+      return (<></>);
+    }
+
     return (
       <div className="login">
         <Loader show={isLoading} overlay={true} />

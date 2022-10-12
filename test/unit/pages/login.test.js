@@ -91,14 +91,7 @@ describe('Login', function () {
         Login.__ResetDependency__('keycloak');
       });
 
-      it('should render a login button instead of a form', () => {
-        expect(wrapper.find('.login-simpleform').length).to.equal(0);
-        expect(wrapper.find('Button').length).to.equal(1);
-      });
-
-      it('should execute keycloak login when clicked', () => {
-        expect(keycloakMock.login.callCount).to.equal(0);
-        wrapper.find('Button').simulate('click');
+      it('should forward a user to keycloak login when initialized', () => {
         expect(keycloakMock.login.callCount).to.equal(1);
       });
     });
