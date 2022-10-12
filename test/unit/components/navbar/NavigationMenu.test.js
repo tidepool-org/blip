@@ -504,7 +504,7 @@ describe('NavigationMenu', () => {
 
   context('clinician profile form page', () => {
     before(() => {
-      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinician-details' }));
+      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details/profile' }));
       mount = createMount();
     });
 
@@ -523,9 +523,9 @@ describe('NavigationMenu', () => {
     });
   });
 
-  context('clinic profile form page', () => {
+  context('clinic migration form page', () => {
     before(() => {
-      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details' }));
+      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details/migrate' }));
       mount = createMount();
     });
 
