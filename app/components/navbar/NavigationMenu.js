@@ -107,7 +107,7 @@ export const NavigationMenu = props => {
   }, [clinics, pendingReceivedClinicianInvites, isClinicProfileFormPath]);
 
   useEffect(() => {
-    setIsClinicProfileFormPath(includes(['/clinic-details', '/clinician-details'], pathname));
+    setIsClinicProfileFormPath(includes(['/clinic-details/profile', '/clinic-details/migrate'], pathname));
   }, [pathname]);
 
   function handleSelectWorkspace(clinicId) {
