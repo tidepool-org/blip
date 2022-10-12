@@ -586,6 +586,54 @@ describe('clinics', () => {
     });
   });
 
+  describe('createClinicPatientTagSuccess', () => {
+    it('should update `patientTags` in state', () => {
+      let clinicId = 'clinicId123';
+      let patientTags = ['patientTag123'];
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patientTags: [],
+        },
+      };
+      let action = actions.sync.createClinicPatientTagSuccess(clinicId, patientTags);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patientTags).to.eql(patientTags);
+    });
+  });
+
+  describe('updateClinicPatientTagSuccess', () => {
+    it('should update `patientTags` in state', () => {
+      let clinicId = 'clinicId123';
+      let patientTags = ['patientTag456'];
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patientTags: ['patientTag123'],
+        },
+      };
+      let action = actions.sync.updateClinicPatientTagSuccess(clinicId, patientTags);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patientTags).to.eql(patientTags);
+    });
+  });
+
+  describe('deleteClinicPatientTagSuccess', () => {
+    it('should update `patientTags` in state', () => {
+      let clinicId = 'clinicId123';
+      let patientTags = ['patientTag123'];
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patientTags: ['patientTag123', 'patientTag456'],
+        },
+      };
+      let action = actions.sync.deleteClinicPatientTagSuccess(clinicId, patientTags);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patientTags).to.eql(patientTags);
+    });
+  });
+
   describe('logoutRequest', () => {
     it('should set clinics to initial state', () => {
       let initialStateForTest = {

@@ -8,8 +8,16 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
       paddingY: 1,
       border: 'none',
       bg: 'lightestGrey',
-      borderRadius: 'default',
+      borderRadius: 0,
       whiteSpace: 'nowrap',
+
+      '&:first-child': {
+        borderRadius: '4px 0 0 4px',
+      },
+
+      '&:last-child': {
+        borderRadius: '0 4px 4px 0',
+      },
     },
 
     '&.MuiTable-stickyHeader': {

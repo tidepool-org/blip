@@ -904,6 +904,18 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const {
+        clinicId,
+        patientTags,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $set: patientTags } },
+      });
+    }
     case types.LOGOUT_REQUEST:
       return initialState.clinics;
     default:

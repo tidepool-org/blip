@@ -1031,6 +1031,18 @@ api.clinics.sendPatientUploadReminder = function(clinicId, patientId, cb) {
   return tidepool.sendPatientUploadReminder(clinicId, patientId, cb);
 };
 
+api.clinics.createClinicPatientTag = function(clinicId, patientTag, cb) {
+  return tidepool.createClinicPatientTag(clinicId, patientTag, cb);
+};
+
+api.clinics.updateClinicPatientTag = function(clinicId, patientTagId, patientTag, cb) {
+  return tidepool.updateClinicPatientTag(clinicId, patientTagId, patientTag, cb);
+};
+
+api.clinics.deleteClinicPatientTag = function(clinicId, patientTagId, cb) {
+  return tidepool.deleteClinicPatientTag(clinicId, patientTagId, cb);
+};
+
 // ----- Errors -----
 
 api.errors = {};

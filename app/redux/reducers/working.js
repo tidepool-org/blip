@@ -119,6 +119,9 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FOR_CLINICIAN_REQUEST:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
     case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
+    case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.DELETE_CLINIC_PATIENT_TAG_REQUEST:
     case types.FETCH_INFO_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
@@ -167,6 +170,9 @@ export default (state = initialWorkingState, action) => {
           types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
           types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
           types.DATA_WORKER_REMOVE_DATA_REQUEST,
+          types.CREATE_CLINIC_PATIENT_TAG_REQUEST,
+          types.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
+          types.DELETE_CLINIC_PATIENT_TAG_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
@@ -275,6 +281,9 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
     case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.FETCH_INFO_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
@@ -427,6 +436,9 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
     case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
+    case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
+    case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:
+    case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
     case types.FETCH_INFO_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
