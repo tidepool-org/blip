@@ -180,7 +180,7 @@ export let Patients = translate()(class extends React.Component {
       return null;
     }
 
-    if (!utils.isChrome()) {
+    if (!utils.isSupportedBrowser()) {
       return <BrowserWarning
         trackMetric={this.props.trackMetric} />;
     }
