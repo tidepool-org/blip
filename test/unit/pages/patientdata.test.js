@@ -2493,6 +2493,32 @@ describe('PatientData', function () {
           });
         });
 
+        it('should query for intial data and force remount if `data.metaData.queryDataCount < 1` and state.chartKey > 0', () => {
+          const queryDataSpy = sinon.spy(instance, 'queryData');
+          sinon.assert.notCalled(queryDataSpy);
+
+          wrapper.setState({chartKey: 1});
+
+          wrapper.setProps(_.assign(props, {
+            data: {
+              metaData: { patientId: '40', queryDataCount: 0 },
+            },
+          }));
+
+          sinon.assert.calledWithMatch(queryDataSpy, {
+            types: {
+              upload: {
+                select: 'id,deviceId,deviceTags',
+              },
+            },
+            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices,queryDataCount',
+            excludedDevices: undefined,
+            timePrefs: sinon.match.object,
+            bgPrefs: sinon.match.object,
+            forceRemountAfterQuery: true,
+          });
+        });
+
         context('querying data is completed', () => {
           const completedDataQueryProps = _.assign({}, props, {
             queryingData: {

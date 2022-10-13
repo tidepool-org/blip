@@ -3697,4 +3697,136 @@ describe('Actions', () => {
       expect(action.error).to.equal(error);
     });
   });
+
+  describe('createClinicPatientTagRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.createClinicPatientTagRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal CREATE_CLINIC_PATIENT_TAG_REQUEST', () => {
+      let action = sync.createClinicPatientTagRequest();
+      expect(action.type).to.equal('CREATE_CLINIC_PATIENT_TAG_REQUEST');
+    });
+  });
+
+  describe('createClinicPatientTagSuccess', () => {
+    const clinicId = 'clinicId';
+    const patientTags = 'patientTags';
+
+    it('should be a TSA', () => {
+      let action = sync.createClinicPatientTagSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal CREATE_CLINIC_PATIENT_TAG_SUCCESS', () => {
+      let action = sync.createClinicPatientTagSuccess(clinicId, patientTags);
+      expect(action.type).to.equal('CREATE_CLINIC_PATIENT_TAG_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId');
+      expect(action.payload.patientTags).to.equal('patientTags');
+    });
+  });
+
+  describe('createClinicPatientTagFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('clinic tag operation failed :(');
+      let action = sync.createClinicPatientTagFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal CREATE_CLINIC_PATIENT_TAG_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.createClinicPatientTagFailure(error);
+      expect(action.type).to.equal('CREATE_CLINIC_PATIENT_TAG_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
+  describe('updateClinicPatientTagRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.updateClinicPatientTagRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal UPDATE_CLINIC_PATIENT_TAG_REQUEST', () => {
+      let action = sync.updateClinicPatientTagRequest();
+      expect(action.type).to.equal('UPDATE_CLINIC_PATIENT_TAG_REQUEST');
+    });
+  });
+
+  describe('updateClinicPatientTagSuccess', () => {
+    const clinicId = 'clinicId';
+    const patientTags = 'patientTags';
+
+    it('should be a TSA', () => {
+      let action = sync.updateClinicPatientTagSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal UPDATE_CLINIC_PATIENT_TAG_SUCCESS', () => {
+      let action = sync.updateClinicPatientTagSuccess(clinicId, patientTags);
+      expect(action.type).to.equal('UPDATE_CLINIC_PATIENT_TAG_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId');
+      expect(action.payload.patientTags).to.equal('patientTags');
+    });
+  });
+
+  describe('updateClinicPatientTagFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('clinic tag operation failed :(');
+      let action = sync.updateClinicPatientTagFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal UPDATE_CLINIC_PATIENT_TAG_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.updateClinicPatientTagFailure(error);
+      expect(action.type).to.equal('UPDATE_CLINIC_PATIENT_TAG_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
+  describe('deleteClinicPatientTagRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.deleteClinicPatientTagRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal DELETE_CLINIC_PATIENT_TAG_REQUEST', () => {
+      let action = sync.deleteClinicPatientTagRequest();
+      expect(action.type).to.equal('DELETE_CLINIC_PATIENT_TAG_REQUEST');
+    });
+  });
+
+  describe('deleteClinicPatientTagSuccess', () => {
+    const clinicId = 'clinicId';
+    const patientTags = 'patientTags';
+
+    it('should be a TSA', () => {
+      let action = sync.deleteClinicPatientTagSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal DELETE_CLINIC_PATIENT_TAG_SUCCESS', () => {
+      let action = sync.deleteClinicPatientTagSuccess(clinicId, patientTags);
+      expect(action.type).to.equal('DELETE_CLINIC_PATIENT_TAG_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId');
+      expect(action.payload.patientTags).to.equal('patientTags');
+    });
+  });
+
+  describe('deleteClinicPatientTagFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('clinic tag operation failed :(');
+      let action = sync.deleteClinicPatientTagFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal DELETE_CLINIC_PATIENT_TAG_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.deleteClinicPatientTagFailure(error);
+      expect(action.type).to.equal('DELETE_CLINIC_PATIENT_TAG_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
 });
