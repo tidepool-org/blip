@@ -69,7 +69,7 @@ utils.getIn = (obj, props, notFound) => {
 
 utils.isSupportedBrowser = () => {
   var userAgent = navigator.userAgent.toLowerCase();
-  return (userAgent.indexOf('chrome') > -1 && userAgent.indexOf('opr') === -1 && userAgent.indexOf('mobi'));
+  return (userAgent.indexOf('chrome') > -1 && userAgent.indexOf('opr') === -1 && userAgent.indexOf('mobi') === -1);
 };
 
 utils.isMobile = () => {
