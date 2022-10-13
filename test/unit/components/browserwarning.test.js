@@ -32,7 +32,7 @@ describe('BrowserWarning', function () {
       var elem = TestUtils.renderIntoDocument(browserWarningElem);
       expect(elem).to.be.ok;
       expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Chrome Required - Screen Displayed')).to.be.true;
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
     });
 
     it('should fire metric when google play clicked', function() {
@@ -43,7 +43,7 @@ describe('BrowserWarning', function () {
       var elem = TestUtils.renderIntoDocument(browserWarningElem);
       var playButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'playstore-badge');
       expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Chrome Required - Screen Displayed')).to.be.true;
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
       TestUtils.Simulate.click(playButton);
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('No Data - Clicked Android')).to.be.true;
@@ -58,7 +58,7 @@ describe('BrowserWarning', function () {
       var elem = TestUtils.renderIntoDocument(browserWarningElem);
       var appStoreButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'appstore-badge');
       expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Chrome Required - Screen Displayed')).to.be.true;
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
       TestUtils.Simulate.click(appStoreButton);
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('No Data - Clicked iOS')).to.be.true;
