@@ -54,7 +54,7 @@ export default translate()(class BrowserWarning extends Component {
       self.props.trackMetric('Clicked Download Chrome');
     };
     var handleClickEdge = function() {
-      self.props.trackMetric('Clicked Download Chrome');
+      self.props.trackMetric('Clicked Download Edge');
     };
     var handleClickiOS = function() {
       self.props.trackMetric('No Data - Clicked iOS', {}, () => {
@@ -77,10 +77,10 @@ export default translate()(class BrowserWarning extends Component {
 
     if (!utils.isMobile()) {
       downloadBrowserCopy = (<div>
-        <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickChrome} target="_blank" rel="noreferrer noopener">
+        <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" className= "chromeBrowserLink" onClick={handleClickChrome} target="_blank" rel="noreferrer noopener">
           <div className="browser-warning-chrome-image"></div>
         </a>
-        <a href="https://www.microsoft.com/en-us/edge" onClick={handleClickEdge} target="_blank" rel="noreferrer noopener">
+        <a href="https://www.microsoft.com/en-us/edge" className= "edgeBrowserLink" onClick={handleClickEdge} target="_blank" rel="noreferrer noopener">
           <div className="browser-warning-edge-image"></div>
         </a>
         {copyButton}
