@@ -85,7 +85,7 @@ export default translate()(class BrowserWarning extends Component {
         </a>
         {copyButton}
         <Trans className="browser-warning-text" i18nKey="html.browser-warning-text">
-          and paste it into <span className="dark-text">Chrome or Edge</span> to see this page on <span className="browser-warning-nowrap">your desktop computer.</span>
+          Paste the copied URL into <span className="dark-text">Chrome or Edge</span>... 
         </Trans>
         <div className="blip-link-text-wrap">
           <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
