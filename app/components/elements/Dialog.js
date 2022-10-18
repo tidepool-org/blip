@@ -38,6 +38,9 @@ export const DialogTitle = props => {
           onClick={onClose}
           icon={CloseRoundedIcon}
           variant="button"
+          sx={{
+            zIndex: 1,
+          }}
         />
       )}
     </Flex>

@@ -384,6 +384,21 @@ export default (type) => {
     case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
       return 'sendingPatientUploadReminder';
 
+    case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
+      return 'creatingClinicPatientTag';
+
+    case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:
+      return 'updatingClinicPatientTag';
+
+    case types.DELETE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
+      return 'deletingClinicPatientTag';
+
     default:
       return null;
   }

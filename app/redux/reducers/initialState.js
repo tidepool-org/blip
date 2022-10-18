@@ -146,6 +146,9 @@ const initialState = {
     fetchingClinicsForClinician: Object.assign({}, working),
     triggeringInitialClinicMigration: Object.assign({}, working),
     sendingPatientUploadReminder: Object.assign({}, working),
+    creatingClinicPatientTag: Object.assign({}, working),
+    updatingClinicPatientTag: Object.assign({}, working),
+    deletingClinicPatientTag: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {

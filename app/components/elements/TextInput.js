@@ -7,7 +7,7 @@ import cx from 'classnames';
 
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
-import { shadows } from '../../themes/baseTheme';
+import { fontWeights, shadows } from '../../themes/baseTheme';
 
 
 const StyledWrapper = styled(Flex)`
@@ -41,6 +41,8 @@ export const TextInput = (props) => {
     placeholder,
     error,
     warning,
+    description,
+    captionProps,
     ...inputProps
   } = props;
 
@@ -53,7 +55,7 @@ export const TextInput = (props) => {
     <Box width={width} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption className={inputClasses}>{label}</Caption>
+          <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
         </Label>
       )}
       <StyledWrapper variant={`inputs.text.${variant}`}>
@@ -79,14 +81,10 @@ export const TextInput = (props) => {
         )}
         {suffix && <Text className="suffix">{suffix}</Text>}
       </StyledWrapper>
-      {error && (
-        <Caption ml={2} mt={2} className={inputClasses}>
-          {error}
-        </Caption>
-      )}
-      {!error && warning && (
-        <Caption ml={2} mt={2} className={inputClasses}>
-          {warning}
+
+      {(error || warning || description) && (
+        <Caption ml={2} mt={2} className={inputClasses} {...captionProps}>
+          {error || warning || description}
         </Caption>
       )}
     </Box>
