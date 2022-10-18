@@ -35,13 +35,13 @@ import * as actions from './redux/actions';
 import { AccessManagement, ShareInvite } from './pages/share';
 
 /**
- * This function checks if the user is using chrome - if they are not it will redirect
+ * This function checks if the user is using a supported browser - if they are not it will redirect
  * the user to a browser warning page
  *
  * @param  {Function} next
  */
-export const requireChrome = (next, ...args) => (dispatch) => {
-  if (!utils.isChrome()) {
+export const requireSupportedBrowser = (next, ...args) => (dispatch) => {
+  if (!utils.isSupportedBrowser()) {
     dispatch(push('/browser-warning'));
   } else {
     !!next && dispatch(next(...args));
@@ -312,7 +312,7 @@ export const getRoutes = (appContext) => {
   const boundRequireAuth = requireAuth.bind(null, api);
   const boundRequireNotVerified = requireNotVerified.bind(null, api);
   const boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
-  const boundRequireChrome = requireChrome.bind(null, boundRequireAuth);
+  const boundRequireSupportedBrowser = requireSupportedBrowser.bind(null, boundRequireAuth);
   const boundEnsureNoAuth = ensureNoAuth.bind(null, api);
   const boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
   const authenticatedFallbackRoute = state.selectedClinicId ? '/workspaces' : '/patients';
@@ -337,10 +337,10 @@ export const getRoutes = (appContext) => {
           <Route exact path='/patients/new' render={routeProps => (<Gate onEnter={boundRequireAuthAndNoPatient} key={routeProps.match.path}><PatientNew {...routeProps} {...props} /></Gate>)} />
           {config.RX_ENABLED && <Route exact path='/prescriptions/new' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
           {config.RX_ENABLED && <Route exact path='/prescriptions/:id' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
-          <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowser} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><AccessManagement {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share/invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ShareInvite {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowser} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
           <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/request-password-from-uploader' render={routeProps => (<Gate onEnter={boundOnUploaderPasswordReset} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />

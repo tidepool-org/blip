@@ -13,13 +13,13 @@ import _ from 'lodash';
 import utils from '../../app/core/utils';
 
 import {
-  requireChrome,
   requireAuth,
   requireAuthAndNoPatient,
   requireNoAuth,
   requireNotVerified,
   onUploaderPasswordReset,
   ensureNoAuth,
+  requireSupportedBrowser,
 } from '../../app/routes';
 
 import config from '../../app/config';
@@ -61,16 +61,16 @@ describe('routes', () => {
     cb.resetHistory();
   });
 
-  describe('requireChrome', () => {
+  describe('requireSupportedBrowser', () => {
     let next = sinon.stub().returns( (dispatch) => {} );
 
     afterEach(()=>{
       next.resetHistory();
     });
 
-    it('should not redirect and call cb when isChrome is true', () => {
-      sinon.stub(utils, 'isChrome');
-      utils.isChrome.returns(true);
+    it('should not redirect and call cb when isSupportedBrowser is true', () => {
+      sinon.stub(utils, 'isSupportedBrowser');
+      utils.isSupportedBrowser.returns(true);
 
       let args = { additional: 'args' };
 
@@ -80,19 +80,19 @@ describe('routes', () => {
 
       let expectedActions = [];
 
-      store.dispatch(requireChrome(next, {...args}));
+      store.dispatch(requireSupportedBrowser(next, {...args}));
 
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
-      expect(utils.isChrome.callCount).to.equal(1);
+      expect(utils.isSupportedBrowser.callCount).to.equal(1);
       expect(next.callCount).to.equal(1);
       expect(next.calledWith({ ...args })).to.be.true;
-      utils.isChrome.restore();
+      utils.isSupportedBrowser.restore();
     });
 
-    it('should redirect and not call cb when isChrome is false', () => {
-      sinon.stub(utils, 'isChrome');
-      utils.isChrome.returns(false);
+    it('should redirect and not call cb when isSupportedBrowser is false', () => {
+      sinon.stub(utils, 'isSupportedBrowser');
+      utils.isSupportedBrowser.returns(false);
 
       let args = { additional: 'args' };
 
@@ -102,13 +102,13 @@ describe('routes', () => {
 
       let expectedActions = [routeAction('/browser-warning')];
 
-      store.dispatch(requireChrome(cb, {...args}));
+      store.dispatch(requireSupportedBrowser(cb, {...args}));
 
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
-      expect(utils.isChrome.callCount).to.equal(1);
+      expect(utils.isSupportedBrowser.callCount).to.equal(1);
       expect(next.callCount).to.equal(0);
-      utils.isChrome.restore();
+      utils.isSupportedBrowser.restore();
     });
   });
 
