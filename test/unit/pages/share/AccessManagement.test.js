@@ -21,7 +21,7 @@ import { Dialog } from '../../../../app/components/elements/Dialog';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('AccessManagement', () => {
+describe('AccessManagement', () => {
   let mount;
 
   let wrapper;
