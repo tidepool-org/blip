@@ -141,6 +141,7 @@ describe('clinicUtils', function() {
         'birthDate',
         'email',
         'mrn',
+        'tags',
       ]);
     });
   });

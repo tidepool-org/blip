@@ -123,7 +123,6 @@ describe('membershipPermissionsInOtherCareTeams', () => {
 
         expect(Object.keys(state).length).to.equal(1);
         expect(Object.keys(state.a1b2c3).length).to.equal(3);
-        console.log(state.a1b2c3)
         expect(state.a1b2c3.custodian).to.exist;
         expect(state.a1b2c3.view).to.exist;
         expect(state.a1b2c3.upload).to.exist;

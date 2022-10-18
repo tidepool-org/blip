@@ -136,6 +136,12 @@ export const clinicSchema = yup.object().shape({
     ),
 });
 
+export const clinicPatientTagSchema = yup.object().shape({
+  name: yup.string()
+    .max(20, t('Tag name max length is ${max} characters'))
+    .matches(/^[\x21-\x7E\s]*$/, t('Only standard characters are allowed'))
+})
+
 export const patientSchema = yup.object().shape({
   fullName: yup.string().required(t('Please enter the patient\'s full name')),
   birthDate: yup.date()
@@ -148,4 +154,7 @@ export const patientSchema = yup.object().shape({
     .required(t('Patient\'s birthday is required')),
   mrn: yup.string(),
   email: yup.string().email(t('Please enter a valid email address')),
+  tags: yup.array().of(
+    yup.string()
+  ),
 });

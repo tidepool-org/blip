@@ -1996,3 +1996,81 @@ export function sendPatientUploadReminderFailure(error, apiError) {
     },
   };
 }
+
+export function createClinicPatientTagRequest() {
+  return {
+    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_REQUEST,
+  };
+}
+
+export function createClinicPatientTagSuccess(clinicId, patientTags) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientTags: patientTags,
+    },
+  };
+}
+
+export function createClinicPatientTagFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function updateClinicPatientTagRequest() {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
+  };
+}
+
+export function updateClinicPatientTagSuccess(clinicId, patientTags) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_PATIENT_TAG_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientTags: patientTags,
+    },
+  };
+}
+
+export function updateClinicPatientTagFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_PATIENT_TAG_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deleteClinicPatientTagRequest() {
+  return {
+    type: ActionTypes.DELETE_CLINIC_PATIENT_TAG_REQUEST,
+  };
+}
+
+export function deleteClinicPatientTagSuccess(clinicId, patientTags) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_PATIENT_TAG_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientTags: patientTags,
+    },
+  };
+}
+
+export function deleteClinicPatientTagFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_PATIENT_TAG_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
