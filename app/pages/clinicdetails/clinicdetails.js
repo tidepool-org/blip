@@ -347,10 +347,10 @@ export const ClinicDetails = (props) => {
               }
 
               if (displayClinicForm) {
+                trackMetric('Clinic - Account created');
                 const clinicValues = pick(values, keys(clinicValuesFromClinic()));
 
                 if (clinic?.id) {
-                  trackMetric('Clinic - Account created');
                   dispatch(actions.async.updateClinic(api, clinic.id, clinicValues));
                 } else {
                   dispatch(actions.async.createClinic(api, clinicValues, loggedInUserId));
