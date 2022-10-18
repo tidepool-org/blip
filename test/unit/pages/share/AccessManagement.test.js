@@ -21,7 +21,7 @@ import { Dialog } from '../../../../app/components/elements/Dialog';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('AccessManagement', () => {
+describe.only('AccessManagement', () => {
   let mount;
 
   let wrapper;
@@ -302,8 +302,8 @@ describe('AccessManagement', () => {
         { upload: undefined, view: {} }
       );
 
-      // Click remove account button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Remove account');
+      // Click Remove Care Team Member button to open confirmation modal
+      expect(popoverActionButtons.at(1).text()).contains('Remove Care Team Member');
       expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();
@@ -354,8 +354,8 @@ describe('AccessManagement', () => {
         { upload: undefined, view: {} }
       );
 
-      // Click remove account button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Remove account');
+      // Click Remove Care Team Member button to open confirmation modal
+      expect(popoverActionButtons.at(1).text()).contains('Remove Care Team Member');
       expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();
@@ -504,8 +504,8 @@ describe('AccessManagement', () => {
         { upload: undefined, view: {} }
       );
 
-      // Click remove account button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Remove clinic');
+      // Click Remove Clinic button to open confirmation modal
+      expect(popoverActionButtons.at(1).text()).contains('Remove Clinic');
       expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();
