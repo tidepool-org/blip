@@ -283,7 +283,6 @@ const MoreMenu = ({
 
 const PatientTags = ({
   api,
-  isClinicAdmin,
   patient,
   patientTags,
   patientTagsFilterOptions,
@@ -442,29 +441,25 @@ const PatientTags = ({
           </Button>
         </DialogActions>
 
-
-        {isClinicAdmin && (
-          <DialogActions
-            p={1}
-            justifyContent="space-between"
-            sx={{ borderTop: borders.divider }}
+        <DialogActions
+          p={1}
+          justifyContent="space-between"
+          sx={{ borderTop: borders.divider }}
+        >
+          <Button
+            id="show-edit-clinic-patient-tags-dialog"
+            icon={EditIcon}
+            iconPosition="left"
+            fontSize={1}
+            variant="textPrimary"
+            onClick={() => {
+              trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Assign tag menu' });
+              setShowClinicPatientTagsDialog(true);
+            }}
           >
-            <Button
-              id="show-edit-clinic-patient-tags-dialog"
-              icon={EditIcon}
-              iconPosition="left"
-              fontSize={1}
-              variant="textPrimary"
-              onClick={() => {
-                trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Assign tag menu' });
-                setShowClinicPatientTagsDialog(true);
-              }}
-            >
-              {t('Edit Available Patient Tags')}
-            </Button>
-
-          </DialogActions>
-        )}
+            {t('Edit Available Patient Tags')}
+          </Button>
+        </DialogActions>
       </Popover>
     </React.Fragment>
   );
@@ -1349,28 +1344,26 @@ export const ClinicPatients = (props) => {
                       </Button>
                     </DialogActions>
 
-                    {isClinicAdmin && (
-                      <DialogActions
-                        p={1}
-                        justifyContent="space-between"
-                        sx={{ borderTop: borders.divider }}
+                    <DialogActions
+                      p={1}
+                      justifyContent="space-between"
+                      sx={{ borderTop: borders.divider }}
+                    >
+                      <Button
+                        id="show-edit-clinic-patient-tags-dialog"
+                        icon={EditIcon}
+                        iconPosition="left"
+                        fontSize={1}
+                        variant="textPrimary"
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+                          setShowClinicPatientTagsDialog(true);
+                        }}
                       >
-                        <Button
-                          id="show-edit-clinic-patient-tags-dialog"
-                          icon={EditIcon}
-                          iconPosition="left"
-                          fontSize={1}
-                          variant="textPrimary"
-                          onClick={() => {
-                            trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
-                            setShowClinicPatientTagsDialog(true);
-                          }}
-                        >
-                          {t('Edit Available Patient Tags')}
-                        </Button>
+                        {t('Edit Available Patient Tags')}
+                      </Button>
 
-                      </DialogActions>
-                    )}
+                    </DialogActions>
                   </Popover>
                 </Flex>
 
@@ -1892,14 +1885,17 @@ export const ClinicPatients = (props) => {
             </Formik>
 
             <Text mb={2} color="text.primary" fontWeight="medium" fontSize={0}>
-              {t('Click a tag\'s text to rename it, or click the trash can icon to delete it.')}
+              {isClinicAdmin
+                ? t('Click a tag\'s text to rename it, or click the trash can icon to delete it.')
+                : t('Click a tag\'s text to rename it.')
+              }
             </Text>
 
             <TagList
               tags={clinic?.patientTags}
               tagProps={{
-                icon: DeleteIcon,
-                onClickIcon: tagId => handleDeleteClinicPatientTag(tagId),
+                icon: isClinicAdmin ? DeleteIcon : undefined,
+                onClickIcon: isClinicAdmin ? tagId => handleDeleteClinicPatientTag(tagId) : undefined,
                 onClick: tagId => handleUpdateClinicPatientTag(tagId),
               }}
             />
@@ -1912,6 +1908,7 @@ export const ClinicPatients = (props) => {
     handleCreateClinicPatientTag,
     handleUpdateClinicPatientTag,
     handleDeleteClinicPatientTag,
+    isClinicAdmin,
     prefixPopHealthMetric,
     selectedClinicId,
     showClinicPatientTagsDialog,
@@ -2226,7 +2223,6 @@ export const ClinicPatients = (props) => {
   const renderPatientTags = useCallback(patient => (
     <PatientTags
       api={api}
-      isClinicAdmin={isClinicAdmin}
       patient={patient}
       patientTags={patientTags}
       patientTagsFilterOptions={patientTagsFilterOptions}
@@ -2241,7 +2237,6 @@ export const ClinicPatients = (props) => {
     />
   ), [
     api,
-    isClinicAdmin,
     patientTags,
     patientTagsFilterOptions,
     prefixPopHealthMetric,
