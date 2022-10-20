@@ -6,6 +6,7 @@ import { translate, Trans } from 'react-i18next';
 import { format } from 'd3-format';
 import moment from 'moment';
 import debounce from 'lodash/debounce';
+import difference from 'lodash/difference';
 import forEach from 'lodash/forEach';
 import find from 'lodash/find';
 import get from 'lodash/get';
@@ -659,6 +660,15 @@ export const ClinicPatients = (props) => {
   useEffect(() => {
     handleAsyncResult(deletingClinicPatientTag, t('Tag removed.'), handleCloseClinicPatientTagUpdateDialog);
   }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, t]);
+
+  useEffect(() => {
+    // If a tag is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
+    const missingTagsInFilter = difference(activeFilters.patientTags, map(patientTags, 'id'));
+    if (missingTagsInFilter.length) {
+      setActiveFilters({ ...activeFilters, patientTags: without(activeFilters.patientTags, ...missingTagsInFilter) });
+      setPendingFilters({ ...pendingFilters, patientTags: without(activeFilters.patientTags, ...missingTagsInFilter) });
+    }
+  }, [patientTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     handleAsyncResult(sendingPatientUploadReminder, t('Uploader reminder email for {{name}} has been sent.', {
