@@ -445,7 +445,7 @@ export const AccessManagement = (props) => {
       : t('Allow upload permission');
 
       const removeLabel = t('Remove {{memberType}}', {
-        memberType: member.type,
+        memberType: member.type === 'account' ? t('Care Team Member') : t('Clinic'),
       });
 
       items.push({
