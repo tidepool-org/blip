@@ -8,6 +8,7 @@ import filter from 'lodash/filter';
 import has from 'lodash/has';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
+import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
 import DashboardRoundedIcon from '@material-ui/icons/DashboardRounded';
 import SupervisedUserCircleRoundedIcon from '@material-ui/icons/SupervisedUserCircleRounded';
@@ -88,7 +89,7 @@ export const NavigationMenu = props => {
       setMenuOptions([logoutOption]);
     } else if (clinicFlowActive) {
       const options = [
-        ...map(userClinics, clinic => ({
+        ...map(sortBy(userClinics, clinic => clinic.name.toLowerCase()), clinic => ({
           action: handleSelectWorkspace.bind(null, clinic.id),
           icon: DashboardRoundedIcon,
           label: t('{{name}} Workspace', { name: clinic.name }),
