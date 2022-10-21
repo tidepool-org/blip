@@ -1094,7 +1094,7 @@
   "With diabetes, any time in range is hard to achieve! This shows the percentage of time your CGM was in range, which can help you see how you are doing overall. We will only show a number if there is enough data - readings for at least 75% of the day in the one day view, and 75% of the day for at least half of the days shown in the two week view.": "",
   "Within this basal segment, we are omitting a suspend event that didn't end. This may have resulted from changing the date & time settings on the device or switching to a new device. As a result, this basal segment may be inaccurate.": "",
   "Workout Correction Range": "",
-  "Would you like to set up data storage for someone’s diabetes data?": "",
+  "Would you like to set up data storage for yourself or for someone else's diabetes data?": "",
   "Wrong username or password.": "",
   "year": "",
   "Year": "",

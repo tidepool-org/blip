@@ -113,7 +113,7 @@ export let Patients = translate()(class extends React.Component {
         <div>
           {t('Tidepool provides free, secure data storage for diabetes data.')}
           <br />
-          {t('Would you like to set up data storage for you or someone else\'s diabetes data?')}
+          {t('Would you like to set up data storage for yourself or for someone else\'s diabetes data?')}
         </div>
         <div className="patients-welcomesetup-actions">
           <button className="btn btn-tertiary" onClick={handleClickNo}>{t('No, not now')}</button>
