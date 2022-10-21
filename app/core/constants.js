@@ -34,7 +34,7 @@ export const DATA_DONATION_NONPROFITS = () => [
   { value: 'ADCES', label: t('ADCES Foundation') },
   { value: 'BT1', label: t('Beyond Type 1') },
   { value: 'CWD', label: t('Children with Diabetes') },
-  { value: 'CDN', label: t('College Diabetes Network') },
+  { value: 'CDN', label: t('The Diabetes Link') },
   { value: 'DYF', label: t('Diabetes Youth Families (DYF)') },
   { value: 'DIABETESSISTERS', label: t('DiabetesSisters') },
   { value: 'DIATRIBE', label: t('The diaTribe Foundation') },
