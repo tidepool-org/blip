@@ -8,6 +8,7 @@ import filter from 'lodash/filter';
 import find from 'lodash/find';
 import has from 'lodash/has';
 import map from 'lodash/map';
+import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
@@ -61,7 +62,7 @@ export const WorkspaceSwitcher = props => {
       const hidePrivateWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
 
       const options = [
-        ...map(userClinics, clinic => ({
+        ...map(sortBy(userClinics, clinic => clinic.name.toLowerCase()), clinic => ({
           id: clinic.id,
           label: t('{{name}} Workspace', { name: clinic.name }),
           metric: ['Clinic - Workspace Switcher - Go to clinic workspace', { clinicId: clinic.id }],
