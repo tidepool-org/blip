@@ -1170,7 +1170,7 @@
   "With your Clinic account, you will be able to:": "",
   "Within this basal segment, we are omitting a suspend event that didn't end. This may have resulted from changing the date & time settings on the device or switching to a new device. As a result, this basal segment may be inaccurate.": "Dans ce segment basal, nous omettons un événement de suspension qui ne s'est pas terminé. Cela peut être dû à un changement des paramètres de date et d'heure sur l'appareil ou à un changement d'appareil. Par conséquent, ce segment basal peut être inexact.",
   "Workout Correction Range": "Plage de correction de l'entraînement",
-  "Would you like to set up data storage for someone’s diabetes data?": "Désirez-vous configurer le stockage de données pour une personne diabétique?",
+  "Would you like to set up data storage for yourself or for someone else's diabetes data?": "Désirez-vous configurer le stockage de données pour une personne diabétique?",
   "Wrong username or password.": "Mauvais nom d'utilisateur ou de mot de passe.",
   "year": "année",
   "Year": "Année",
