@@ -300,6 +300,10 @@ const PatientTags = ({
   const defaultPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
   const [pendingPatientTags, setPendingPatientTags] = useState(defaultPatientTags)
 
+  useEffect(() => {
+    setPendingPatientTags(reject(patient?.tags || [], tagId => !patientTags[tagId]));
+  }, [patient?.tags, patientTags]);
+
   const addPatientTagsPopupState = usePopupState({
     variant: 'popover',
     popupId: `add-patient-tags-${patient.id}`,
