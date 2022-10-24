@@ -327,7 +327,7 @@ const PatientTags = ({
 
   return !!filteredPatientTags.length ? (
     <TagList
-      maxCharactersVisible={30}
+      maxCharactersVisible={20}
       popupId={`tags-overflow-${patient?.id}`}
       onClickEdit={handleEditPatient}
       tagProps={{ variant: 'compact' }}

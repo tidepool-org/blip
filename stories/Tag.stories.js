@@ -1,4 +1,5 @@
 import React from 'react';
+import { Box } from 'rebass/styled-components';
 
 import { action } from '@storybook/addon-actions';
 import { withDesign } from 'storybook-addon-designs';
@@ -45,7 +46,7 @@ TagStory.story = {
 const maxCharactersVisible = () => number('Max Characters Visible', 20);
 
 export const TagListStory = () => (
-  <React.Fragment>
+  <Box sx={{ maxWidth: '300px' }}>
     <TagList
       marginBottom={3}
       onClickEdit={action('Edit clicked')}
@@ -85,7 +86,7 @@ export const TagListStory = () => (
         { name: 'Tag Ten', id: 'tag10' },
       ]}
     />
-  </React.Fragment>
+  </Box>
 );
 
 TagListStory.story = {
