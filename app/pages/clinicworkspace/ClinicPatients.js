@@ -974,7 +974,8 @@ export const ClinicPatients = (props) => {
             <Flex flexGrow={1} justifyContent="space-between" sx={{ gap: 3 }}>
 
               {/* Range select */}
-              {/* {showSummaryData && (
+              {/* {showSummaryData && ( */}
+              {false && ( // temporarily disable the summary period dropdown until backend is deployed.
                 <Flex
                   justifyContent="flex-start"
                   alignItems="center"
@@ -1070,7 +1071,7 @@ export const ClinicPatients = (props) => {
                   </DialogActions>
                 </Popover>
               </Flex>
-            )} */}
+            )}
 
             {/* Info/Visibility Icons */}
             <Flex
