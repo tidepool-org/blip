@@ -7299,7 +7299,7 @@ describe('Actions', () => {
     });
 
     describe('sendPatientUploadReminder', () => {
-      it('should trigger SEND_PATIENT_UPLOAD_REMINDER_SUCCESS and it should call clinics.triggerInitialClinicMigration once for a successful request', () => {
+      it('should trigger SEND_PATIENT_UPLOAD_REMINDER_SUCCESS and it should call clinics.sendPatientUploadReminder once for a successful request', () => {
         const clinicId = 'clinicId1';
         const patientId = 'patientId1';
         const lastUploadReminderTime = '2022-10-10T00:00:000Z';
@@ -7353,6 +7353,268 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.sendPatientUploadReminder.callCount).to.equal(1);
+      });
+    });
+
+    describe('createClinicPatientTag', () => {
+      it('should trigger CREATE_CLINIC_PATIENT_TAG_SUCCESS and it should call clinics.createClinicPatientTag once for a successful request', () => {
+        const clinicId = 'clinicId1';
+        const patientTag = { name: 'patientTag1' };
+
+        let api = {
+          clinics: {
+            createClinicPatientTag: sinon.stub().callsArgWith(2, null, [patientTag]),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'CREATE_CLINIC_PATIENT_TAG_REQUEST' },
+          { type: 'CREATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [patientTag] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createClinicPatientTag(api, clinicId, patientTag));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.createClinicPatientTag.callCount).to.equal(1);
+      });
+
+      it('should trigger CREATE_CLINIC_PATIENT_TAG_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId1';
+        const patientTag = { name: 'patientTag1' };
+        let api = {
+          clinics: {
+            createClinicPatientTag: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'CREATE_CLINIC_PATIENT_TAG_REQUEST' },
+          { type: 'CREATE_CLINIC_PATIENT_TAG_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createClinicPatientTag(api, clinicId, patientTag));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.createClinicPatientTag.callCount).to.equal(1);
+      });
+
+      it('should trigger CREATE_CLINIC_PATIENT_TAG_FAILURE and it should call error once for a failed request due to duplicate tag', () => {
+        let clinicId = 'clinicId1';
+        const patientTag = { name: 'patientTag1' };
+        let api = {
+          clinics: {
+            createClinicPatientTag: sinon.stub().callsArgWith(2, {status: 409, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE);
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'CREATE_CLINIC_PATIENT_TAG_REQUEST' },
+          { type: 'CREATE_CLINIC_PATIENT_TAG_FAILURE', error: err, meta: { apiError: {status: 409, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createClinicPatientTag(api, clinicId, patientTag));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.createClinicPatientTag.callCount).to.equal(1);
+      });
+
+      it('should trigger CREATE_CLINIC_PATIENT_TAG_FAILURE and it should call error once for a failed request due to maximum tags exceeded', () => {
+        let clinicId = 'clinicId1';
+        const patientTag = { name: 'patientTag1' };
+        let api = {
+          clinics: {
+            createClinicPatientTag: sinon.stub().callsArgWith(2, {status: 422, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_MAX_EXCEEDED);
+        err.status = 422;
+
+        let expectedActions = [
+          { type: 'CREATE_CLINIC_PATIENT_TAG_REQUEST' },
+          { type: 'CREATE_CLINIC_PATIENT_TAG_FAILURE', error: err, meta: { apiError: {status: 422, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createClinicPatientTag(api, clinicId, patientTag));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_MAX_EXCEEDED });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.createClinicPatientTag.callCount).to.equal(1);
+      });
+    });
+
+    describe('updateClinicPatientTag', () => {
+      it('should trigger UPDATE_CLINIC_PATIENT_TAG_SUCCESS and it should call clinics.updateClinicPatientTag once for a successful request', () => {
+        const clinicId = 'clinicId1';
+        const patientTagId = 'patientTagId1';
+        const patientTag = { name: 'patientTag1' };
+
+        let api = {
+          clinics: {
+            updateClinicPatientTag: sinon.stub().callsArgWith(3, null, [patientTag]),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_CLINIC_PATIENT_TAG_REQUEST' },
+          { type: 'UPDATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [patientTag] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.updateClinicPatientTag(api, clinicId, patientTagId, patientTag));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.updateClinicPatientTag.callCount).to.equal(1);
+      });
+
+      it('should trigger UPDATE_CLINIC_PATIENT_TAG_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId1';
+        const patientTagId = 'patientTagId1';
+        const patientTag = { name: 'patientTag1' };
+        let api = {
+          clinics: {
+            updateClinicPatientTag: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'UPDATE_CLINIC_PATIENT_TAG_REQUEST' },
+          { type: 'UPDATE_CLINIC_PATIENT_TAG_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.updateClinicPatientTag(api, clinicId, patientTagId, patientTag));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.updateClinicPatientTag.callCount).to.equal(1);
+      });
+
+      it('should trigger UPDATE_CLINIC_PATIENT_TAG_FAILURE and it should call error once for a failed request due to duplicate tag', () => {
+        let clinicId = 'clinicId1';
+        const patientTagId = 'patientTagId1';
+        const patientTag = { name: 'patientTag1' };
+        let api = {
+          clinics: {
+            updateClinicPatientTag: sinon.stub().callsArgWith(3, {status: 409, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG_DUPLICATE);
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'UPDATE_CLINIC_PATIENT_TAG_REQUEST' },
+          { type: 'UPDATE_CLINIC_PATIENT_TAG_FAILURE', error: err, meta: { apiError: {status: 409, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.updateClinicPatientTag(api, clinicId, patientTagId, patientTag));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG_DUPLICATE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.updateClinicPatientTag.callCount).to.equal(1);
+      });
+    });
+
+    describe('deleteClinicPatientTag', () => {
+      it('should trigger DELETE_CLINIC_PATIENT_TAG_SUCCESS and it should call clinics.deleteClinicPatientTag once for a successful request', () => {
+        const clinicId = 'clinicId1';
+        const patientTagId = 'patientTagId1';
+
+        let api = {
+          clinics: {
+            deleteClinicPatientTag: sinon.stub().callsArgWith(2, null, []),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'DELETE_CLINIC_PATIENT_TAG_REQUEST' },
+          { type: 'DELETE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deleteClinicPatientTag(api, clinicId, patientTagId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deleteClinicPatientTag.callCount).to.equal(1);
+      });
+
+      it('should trigger DELETE_CLINIC_PATIENT_TAG_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId1';
+        const patientTagId = 'patientTagId1';
+        const patientTag = { name: 'patientTag1' };
+        let api = {
+          clinics: {
+            deleteClinicPatientTag: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_DELETING_CLINIC_PATIENT_TAG);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'DELETE_CLINIC_PATIENT_TAG_REQUEST' },
+          { type: 'DELETE_CLINIC_PATIENT_TAG_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deleteClinicPatientTag(api, clinicId, patientTagId, patientTag));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DELETING_CLINIC_PATIENT_TAG });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deleteClinicPatientTag.callCount).to.equal(1);
       });
     });
   });

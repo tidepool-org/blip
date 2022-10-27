@@ -14,10 +14,12 @@ const StyledPopover = (Component) => styled(Component)`
   .MuiPopover-paper {
     font-family: ${fonts.default};
     margin-top: ${({ margintop = `${space[2]}px` }) => margintop};
+    margin-left: ${({ marginleft = 0 }) => marginleft};
     margin-bottom: ${space[2]}px;
-    border: ${borders.modal};
+    border: ${({ border = borders.modal }) => border};
+    background-color: ${({ backgroundcolor = 'white' }) => backgroundcolor};
     box-shadow: ${({ boxshadow = shadows.large }) => boxshadow};
-    border-radius: ${radii.default}px;
+    border-radius: ${({ borderradius = `${radii.default}px` }) => borderradius};  ;
     width: ${({ width }) => width};
     min-width: ${({ minwidth }) => minwidth};
     max-width: calc(100% - ${space[5]}px);
@@ -37,7 +39,11 @@ const Popover = props => {
     PaperProps,
     useHoverPopover,
     minWidth,
+    backgroundColor,
+    border,
+    borderRadius,
     boxShadow,
+    marginLeft,
     marginTop,
     onClickCloseIcon,
     ...popoverProps
@@ -52,7 +58,11 @@ const Popover = props => {
   return (
     <Component
       PaperProps={PaperProp}
+      backgroundcolor={backgroundColor}
+      border={border}
+      borderradius={borderRadius}
       boxshadow={boxShadow}
+      marginleft={marginLeft}
       margintop={marginTop}
       minwidth={minWidth}
       {...popoverProps}
@@ -71,6 +81,7 @@ const Popover = props => {
             position: 'absolute !important',
             top: 1,
             right: 1,
+            zIndex: 1,
           }}
         />
       )}

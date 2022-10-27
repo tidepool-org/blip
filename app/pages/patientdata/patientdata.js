@@ -1542,6 +1542,7 @@ export const PatientDataClass = createReactClass({
           excludedDevices: undefined,
           timePrefs,
           bgPrefs,
+          forceRemountAfterQuery: this.state.chartKey > 0
         });
       }
 
