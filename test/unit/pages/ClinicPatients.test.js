@@ -1299,7 +1299,7 @@ describe('ClinicPatients', () => {
           expect(timeInRangeFilterCount().text()).to.equal('5');
         });
 
-        it('should allow filtering by summary period', () => {
+        it.skip('should allow filtering by summary period', () => {
           // Set some default range filters since they are affected by summary period changes
           ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().returns([
             {
