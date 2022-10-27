@@ -349,7 +349,7 @@ const PatientTags = ({
           iconFontSize="16px"
           selected={addPatientTagsPopupState.isOpen && selectedPatient?.id === patient?.id}
           onClick={() => {
-            trackMetric(prefixPopHealthMetric('Assign patient tag'), { clinicId: selectedClinicId });
+            trackMetric(prefixPopHealthMetric('Assign patient tag open'), { clinicId: selectedClinicId });
             setSelectedPatient(patient);
             addPatientTagsPopupState.open();
           }}
