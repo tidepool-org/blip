@@ -424,7 +424,7 @@ export let Signup = translate()(class extends React.Component {
         values.termsAccepted = sundial.utcDateString();
       }
 
-      if (_.indexOf(roles, 'clinic') === -1) {
+      if (_.indexOf(roles, 'clinician') === -1) {
         values.roles.push('clinician');
       }
     }
