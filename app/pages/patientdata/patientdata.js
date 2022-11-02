@@ -2016,6 +2016,10 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
+  if (stateProps.selectedClinicId && !stateProps.fetchingPatientFromClinic.inProgress && !stateProps.fetchingPatientFromClinic.completed) {
+    fetchers.push(dispatchProps.fetchPatientFromClinic.bind(null, api, stateProps.selectedClinicId, ownProps.match.params.id));
+  }
+
   return fetchers;
 }
 
@@ -2036,15 +2040,32 @@ export function mapStateToProps(state, props) {
         state.blip.currentPatientInViewId,
         null
       );
+
       permissions = _.get(
         state.blip.permissionsOfMembersInTargetCareTeam,
         state.blip.currentPatientInViewId,
         {}
       );
+
+      if (patient && state.blip.selectedClinicId) {
+        _.set(
+          patient,
+          'profile.patient.mrn',
+          _.get(state.blip, [
+            'clinics',
+            state.blip.selectedClinicId,
+            'patients',
+            state.blip.currentPatientInViewId,
+            'mrn'
+          ])
+        );
+      }
+
       // if the logged-in user is viewing own data, we pass through their own permissions as permsOfLoggedInUser
       if (state.blip.currentPatientInViewId === state.blip.loggedInUserId) {
         permsOfLoggedInUser = permissions;
       }
+
       // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
       else {
         permsOfLoggedInUser = state.blip.selectedClinicId
@@ -2074,6 +2095,7 @@ export function mapStateToProps(state, props) {
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
+    fetchingPatientFromClinic: state.blip.working.fetchingPatientFromClinic,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
@@ -2099,6 +2121,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
+  fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
