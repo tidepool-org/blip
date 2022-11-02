@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.59.0",
+  "version": "1.60.0-web-1877-copy-text-mrn.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -55,7 +55,7 @@
     "@storybook/addon-viewport": "5.3.19",
     "@storybook/addons": "5.3.19",
     "@storybook/react": "5.3.19",
-    "@tidepool/viz": "1.31.0",
+    "@tidepool/viz": "1.32.0-web-1877-copy-text-mrn.1",
     "async": "2.6.4",
     "autoprefixer": "9.8.4",
     "babel-core": "7.0.0-bridge.0",
