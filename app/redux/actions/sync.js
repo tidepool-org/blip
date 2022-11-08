@@ -1110,11 +1110,12 @@ export function fetchDataSourcesRequest() {
   };
 }
 
-export function fetchDataSourcesSuccess(dataSources) {
+export function fetchDataSourcesSuccess(dataSources, userId) {
   return {
     type: ActionTypes.FETCH_DATA_SOURCES_SUCCESS,
     payload: {
       dataSources,
+      userId,
     },
   };
 }

@@ -159,7 +159,7 @@ const initialState = {
     bgUnits: MGDL_UNITS
   },
   dataDonationAccounts: [],
-  dataSources: [],
+  dataSources: {},
   authorizedDataSource: null,
   clinics: {},
   selectedClinicId: null,

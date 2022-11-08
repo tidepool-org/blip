@@ -369,10 +369,9 @@ api.user.custodialConfirmSignUp = function(key, birthday, password, callback) {
   return tidepool.custodialSignupConfirm(key, birthday, password, callback);
 };
 
-api.user.getDataSources = function(cb) {
+api.user.getDataSources = function(userId, cb) {
   api.log('GET /v1/users/:userId/data_sources');
-
-  tidepool.getDataSourcesForUser(tidepool.getUserId(), cb);
+  tidepool.getDataSourcesForUser(userId, cb);
 };
 
 api.user.createRestrictedToken = function(request, cb) {

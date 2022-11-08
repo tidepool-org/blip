@@ -499,6 +499,7 @@ var PatientInfo = translate()(class extends React.Component {
           <div className="PatientPage-sectionTitle">{t('My Data Sources')}</div>
           <div className="PatientInfo-content">
             <DataSources
+              patient={this.props.patient}
               dataSources={this.props.dataSources}
               fetchDataSources={this.props.fetchDataSources}
               connectDataSource={this.props.connectDataSource}
