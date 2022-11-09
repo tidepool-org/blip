@@ -2,12 +2,14 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { translate, Trans } from 'react-i18next';
+import { Flex } from 'rebass/styled-components';
 import cx from 'classnames';
 import GitHub from 'github-api';
 import ModalOverlay from '../modaloverlay';
 import utils from '../../core/utils';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import logoSrc from '../uploaderbutton/images/T-logo-dark-512x512.png';
+import UploaderButton from '../uploaderbutton'
 
 const github = new GitHub();
 
@@ -75,10 +77,11 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
             </div>
           </div>
         </div>,
-        <div className='ModalOverlay-controls' key={'div2'}>
-          <a className={winReleaseClasses} href={`${this.state.latestWinRelease}`} disabled={!this.state.latestWinRelease}>{t('Download for PC')}</a>
-          <a className={macReleaseClasses} href={`${this.state.latestMacRelease}`} disabled={!this.state.latestMacRelease}>{t('Download for Mac')}</a>
-        </div>,
+        <Flex mt={2} justifyContent="center">
+          <UploaderButton
+            buttonText={t('Get the Tidepool Uploader')}
+          />
+        </Flex>,
       ]
     }
 

@@ -17,7 +17,7 @@ import {
 
 import Icon from './Icon';
 import Popover from './Popover';
-import baseTheme from '../../themes/baseTheme';
+import baseTheme, { shadows } from '../../themes/baseTheme';
 
 export const Tag = props => {
   const {
@@ -107,7 +107,7 @@ Tag.defaultProps = {
 
 export const TagList = translate()(props => {
   const { popupId, tags, onClickEdit, maxCharactersVisible, tagProps, t, ...themeProps } = props;
-
+  const anchorRef = React.useRef();
   const visibleTags = [];
   const hiddenTags = [];
 
@@ -138,7 +138,7 @@ export const TagList = translate()(props => {
 
   const editIconFontSize = tagProps.variant === 'compact' ? '12px' : '14px';
   const popoverTriggerFontSize = tagProps.variant === 'compact' ? '10px' : '12px';
-  const popoverMarginTop = tagProps.variant === 'compact' ? '18px' : '24px';
+  const flexWrap = maxCharactersVisible ? 'nowrap' : 'wrap';
 
   const EditTagsIcon = () => (
     <Icon
@@ -158,9 +158,10 @@ export const TagList = translate()(props => {
 
   return (
     <Flex
+      ref={anchorRef}
       className="tag-list"
       alignItems="center"
-      flexWrap="wrap"
+      flexWrap={flexWrap}
       sx={{ gap: 1 }}
       {...themeProps}
     >
@@ -172,10 +173,6 @@ export const TagList = translate()(props => {
           {...tagProps}
         />
       ))}
-
-      {!hiddenTags.length && !!onClickEdit && (
-        <EditTagsIcon />
-      )}
 
       {!!hiddenTags.length && (
         <React.Fragment>
@@ -197,11 +194,12 @@ export const TagList = translate()(props => {
             useHoverPopover
             anchorOrigin={anchorOrigin}
             transformOrigin={transformOrigin}
-            marginTop={`-${popoverMarginTop}`}
-            marginLeft={'-4px'}
-            border={0}
-            boxShadow={'none'}
+            marginTop="4px"
+            marginLeft={0}
+            borderRadius={0}
+            boxShadow={shadows.small}
             {...bindPopover(popupState)}
+            anchorEl={anchorRef.current}
           >
             <Flex
               classname="tag-list-overflow"
@@ -219,13 +217,13 @@ export const TagList = translate()(props => {
                   {...tagProps}
                 />
               ))}
-
-              {!!onClickEdit && (
-                <EditTagsIcon />
-              )}
             </Flex>
           </Popover>
         </React.Fragment>
+      )}
+
+      {!!onClickEdit && (
+        <EditTagsIcon />
       )}
     </Flex>
   );

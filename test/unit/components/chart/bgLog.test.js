@@ -126,6 +126,11 @@ describe('BG Log', () => {
       expect(loader().props().show).to.be.true;
     });
 
+    it('should render the clipboard copy button', () => {
+      const button = wrapper.find('ClipboardButton');
+      expect(button.length).to.equal(1);
+    });
+
     it('should render the stats', () => {
       const stats = wrapper.find('Stats');
       expect(stats.length).to.equal(1);
@@ -140,6 +145,14 @@ describe('BG Log', () => {
       expect(baseProps.onClickPrint.callCount).to.equal(0);
       printLink.simulate('click');
       expect(baseProps.onClickPrint.callCount).to.equal(1);
+    });
+  });
+
+  describe('handleCopyBgLogClicked', () => {
+    it('should track metric with source param when called', () => {
+      instance.handleCopyBgLogClicked();
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', { source: 'BG Log' });
     });
   });
 

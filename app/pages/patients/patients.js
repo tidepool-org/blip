@@ -113,7 +113,7 @@ export let Patients = translate()(class extends React.Component {
         <div>
           {t('Tidepool provides free, secure data storage for diabetes data.')}
           <br />
-          {t('Would you like to set up data storage for someone’s diabetes data?')}
+          {t('Would you like to set up data storage for yourself or for someone else\'s diabetes data?')}
         </div>
         <div className="patients-welcomesetup-actions">
           <button className="btn btn-tertiary" onClick={handleClickNo}>{t('No, not now')}</button>
@@ -180,7 +180,7 @@ export let Patients = translate()(class extends React.Component {
       return null;
     }
 
-    if (!utils.isChrome()) {
+    if (!utils.isSupportedBrowser()) {
       return <BrowserWarning
         trackMetric={this.props.trackMetric} />;
     }

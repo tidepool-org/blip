@@ -464,6 +464,47 @@ describe('PatientData', function () {
           expect(props.trackMetric.callCount).to.equal(callCount + 1);
           expect(props.trackMetric.calledWith('Clicked No Data Get Blip Notes')).to.be.true;
         });
+
+        it('should track click on Dexcom Connect link', function() {
+          var props = {
+            currentPatientInViewId: '40',
+            isUserPatient: true,
+            patient: {
+              userid: '40',
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            removingData: { inProgress: false },
+            generatingPDF: { inProgress: false },
+            pdf: {},
+            history: { push: sinon.stub() },
+            trackMetric: sinon.stub()
+          };
+
+          wrapper = mount(<PatientData {...props} />);
+
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
+
+          wrapper.update();
+
+          var link = wrapper.find('#dexcom-connect-link').hostNodes();
+          var callCount = props.trackMetric.callCount;
+
+          link.simulate('click');
+
+          expect(props.history.push.callCount).to.equal(1);
+          sinon.assert.calledWith(props.history.push, '/patients/40/profile?dexcomConnect=patient-empty-data');
+
+          expect(props.trackMetric.callCount).to.equal(callCount + 1);
+          expect(props.trackMetric.calledWith('Clicked No Data Connect Dexcom')).to.be.true;
+        });
       });
     });
 

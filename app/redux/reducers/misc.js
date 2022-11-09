@@ -312,6 +312,13 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       return update(state, { [action.payload.userId]: { $merge: action.payload.updatedUser }});
     case types.UPDATE_PATIENT_SUCCESS:
       return update(state, { [action.payload.updatedPatient.userid]: { $merge: action.payload.updatedPatient }});
+    case types.UPDATE_CLINIC_PATIENT_SUCCESS: {
+      const patientId = _.get(action.payload, 'patientId');
+      return update(state, {
+        // Remove stored user cache key so any changes are pulled in on next data view
+        $unset: [`${patientId}_cacheUntil`],
+      });
+    }
     case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
       return update(state, { [action.payload.patientId]: { $set: action.payload.patient }});
     case types.UPDATE_SETTINGS_SUCCESS:

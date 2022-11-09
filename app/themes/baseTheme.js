@@ -21,12 +21,6 @@ export const colors = {
   ...colorPalette.secondary,
   ...colorPalette.neutrals,
   ...colorPalette.extended,
-  text: {
-    link: colorPalette.primary.purpleBright,
-    primary: colorPalette.primary.blueGreyDark,
-    primaryDisabled: '#A5ADBA',
-    primarySubdued: colorPalette.primary.blueGreyMedium,
-  },
   bg: {
     veryLow: '#E9695E',
     low: '#F19181',
@@ -42,6 +36,9 @@ export const colors = {
     modal: colorPalette.extended.grays[0],
     inputLight: '#DFE2E6',
     inputDark: '#A6B1BB',
+  },
+  brand: {
+    dexcom: '#56A846',
   },
   feedback: {
     info: colorPalette.primary.purpleMedium,
@@ -61,6 +58,12 @@ export const colors = {
     primary: '#66788A',
     disabled: '#A5ADBA',
     selected: colorPalette.primary.purpleMedium,
+  },
+  text: {
+    link: colorPalette.primary.purpleBright,
+    primary: colorPalette.primary.blueGreyDark,
+    primaryDisabled: '#A5ADBA',
+    primarySubdued: colorPalette.primary.blueGreyMedium,
   },
 };
 

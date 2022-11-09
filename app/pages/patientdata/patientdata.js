@@ -40,7 +40,9 @@ import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-import baseTheme from '../../themes/baseTheme';
+import baseTheme, { fontWeights, borders, radii } from '../../themes/baseTheme';
+import { Body1, Title } from '../../components/elements/FontStyles';
+import DexcomLogoIcon from '../../core/icons/DexcomLogo.svg';
 
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
@@ -51,7 +53,7 @@ import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
 
-import { Box } from 'rebass/styled-components';
+import { Box, Flex } from 'rebass/styled-components';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Paragraph2 } from '../../components/elements/FontStyles';
@@ -263,6 +265,10 @@ export const PatientDataClass = createReactClass({
     var handleClickBlipNotes = function() {
       self.props.trackMetric('Clicked No Data Get Blip Notes');
     };
+    var handleClickDexcomConnect = function() {
+      self.props.trackMetric('Clicked No Data Connect Dexcom');
+      self.props.history.push(`/patients/${self.props.currentPatientInViewId}/profile?dexcomConnect=patient-empty-data`);
+    };
     var handleClickLaunch = function(e) {
       if (e) {
         e.preventDefault();
@@ -275,17 +281,71 @@ export const PatientDataClass = createReactClass({
     if (this.props.isUserPatient) {
       content = (
         <Trans className="patient-data-uploader-message" i18nKey="html.patientdata-uploaded-message">
-          <h1>To see your data, you’ll need the Tidepool Uploader</h1>
-          <UploaderButton
-            onClick={handleClickUpload}
-            buttonText='Get the Tidepool Uploader' />
-          <p>Already have the Tidepool Uploader? Launch it <a className="uploader-color-override" href='' onClick={handleClickLaunch} title="Upload data">here</a></p>
-          <p>To upload Dexcom with iPhone, get <a href={URL_TIDEPOOL_MOBILE_APP_STORE} className="uploader-color-override" target="_blank" rel="noreferrer noopener" onClick={handleClickBlipNotes}>Tidepool Mobile</a></p>
-          <p className="patient-no-data-help">
-            Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
-            <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
-          </p>
-        </Trans>
+            <Box
+              variant="containers.smallBordered"
+              py={[3, 5, 6]}
+              px={[2, 3]}
+              sx={{
+                borderTop: ['none', borders.default],
+                borderBottom: ['none', borders.default],
+              }}
+            >
+              <Title mb={3} fontSize={3} fontWeight={fontWeights.medium}>To upload your data, install Tidepool Uploader</Title>
+
+              <UploaderButton
+                onClick={handleClickUpload}
+                buttonText={t('Get the Tidepool Uploader')}
+              />
+
+              <Body1 color="mediumGrey" fontWeight={fontWeights.medium} mt={3} mb={6}>
+                If you already have Tidepool Uploader, launch it <a className="uploader-color-override" href='' onClick={handleClickLaunch} title="Upload data">here</a>
+              </Body1>
+
+              <Flex
+                py={1}
+                px={1}
+                mb={4}
+                alignItems="center"
+                sx={{
+                  gap: 9,
+                  display: 'inline-flex !important',
+                  border: borders.input,
+                  borderRadius: radii.large,
+                }}
+              >
+                <Body1 ml={2} color="mediumGrey" fontWeight={fontWeights.medium}>
+                  Sync CGM Data
+                </Body1>
+
+                <Button
+                  id='dexcom-connect-link'
+                  variant="textPrimary"
+                  color="brand.dexcom"
+                  fontWeight="medium"
+                  iconSrc={DexcomLogoIcon}
+                  label={t('Connect with Dexcom')}
+                  pr={0}
+                  sx={{
+                    '&:hover': { color: 'brand.dexcom' },
+                    '.icon': { top: '-2px', left: '-2px' },
+                  }}
+                  onClick={handleClickDexcomConnect}
+                >
+                  Connect With
+                </Button>
+
+              </Flex>
+
+              <Body1 color="mediumGrey" fontWeight={fontWeights.medium}>
+                To upload Dexcom with iPhone, get <a href={URL_TIDEPOOL_MOBILE_APP_STORE} className="uploader-color-override" target="_blank" rel="noreferrer noopener" onClick={handleClickBlipNotes}>Tidepool Mobile</a>
+              </Body1>
+            </Box>
+
+            <p className="patient-no-data-help">
+              Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
+              <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
+            </p>
+          </Trans>
       );
     }
 
@@ -1956,6 +2016,10 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
+  if (stateProps.selectedClinicId && !stateProps.fetchingPatientFromClinic.inProgress && !stateProps.fetchingPatientFromClinic.completed) {
+    fetchers.push(dispatchProps.fetchPatientFromClinic.bind(null, api, stateProps.selectedClinicId, ownProps.match.params.id));
+  }
+
   return fetchers;
 }
 
@@ -1976,15 +2040,32 @@ export function mapStateToProps(state, props) {
         state.blip.currentPatientInViewId,
         null
       );
+
       permissions = _.get(
         state.blip.permissionsOfMembersInTargetCareTeam,
         state.blip.currentPatientInViewId,
         {}
       );
+
+      if (patient && state.blip.selectedClinicId) {
+        _.set(
+          patient,
+          'profile.patient.mrn',
+          _.get(state.blip, [
+            'clinics',
+            state.blip.selectedClinicId,
+            'patients',
+            state.blip.currentPatientInViewId,
+            'mrn'
+          ])
+        );
+      }
+
       // if the logged-in user is viewing own data, we pass through their own permissions as permsOfLoggedInUser
       if (state.blip.currentPatientInViewId === state.blip.loggedInUserId) {
         permsOfLoggedInUser = permissions;
       }
+
       // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
       else {
         permsOfLoggedInUser = state.blip.selectedClinicId
@@ -2014,6 +2095,7 @@ export function mapStateToProps(state, props) {
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
+    fetchingPatientFromClinic: state.blip.working.fetchingPatientFromClinic,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
@@ -2039,6 +2121,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
+  fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
@@ -2062,6 +2145,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
+    history: ownProps.history,
     uploadUrl: api.getUploadUrl(),
     onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom, medtronic }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),

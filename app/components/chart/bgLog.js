@@ -24,7 +24,7 @@ import sundial from 'sundial';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'rebass/styled-components';
 
 import Stats from './stats';
 import DeviceSelection from './deviceSelection';
@@ -37,7 +37,8 @@ import Checkbox from '../elements/Checkbox';
 import { colors } from '../../themes/baseTheme';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
-const Loader = vizComponents.Loader;
+const { ClipboardButton, Loader } = vizComponents;
+const { bgLogText } = vizUtils.text;
 const { getLocalizedCeiling } = vizUtils.datetime;
 
 import Header from './header';
@@ -289,6 +290,13 @@ class BgLog extends Component {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
+              <Box mb={2}>
+                <ClipboardButton
+                  buttonTitle={t('For email or notes')}
+                  onSuccess={this.handleCopyBgLogClicked}
+                  getText={bgLogText.bind(this, this.props.patient, this.props.data, this.props.stats)}
+                />
+              </Box>
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
@@ -525,6 +533,10 @@ class BgLog extends Component {
       this.refs.chart.showValues();
     }
     this.setState({showingValues: !this.state.showingValues});
+  };
+
+  handleCopyBgLogClicked = () => {
+    this.props.trackMetric('Clicked Copy Settings', { source: 'BG Log' });
   };
 }
 
