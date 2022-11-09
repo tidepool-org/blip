@@ -50,7 +50,6 @@ describe('DataSources', () => {
     disconnectDataSource: sinon.stub(),
     authorizedDataSource: {},
     trackMetric: sinon.stub(),
-    patient: { userid: 'patient123' },
   };
 
   let wrapper;

@@ -1602,17 +1602,17 @@ export function updateShareDataBannerSeen(api, patientId) {
  *
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchDataSources(api, userId) {
+export function fetchDataSources(api) {
   return (dispatch) => {
     dispatch(sync.fetchDataSourcesRequest());
 
-    api.user.getDataSources(userId, (err, dataSources) => {
+    api.user.getDataSources((err, dataSources) => {
       if (err) {
         dispatch(sync.fetchDataSourcesFailure(
           createActionError(ErrorMessages.ERR_FETCHING_DATA_SOURCES, err), err
         ));
       } else {
-        dispatch(sync.fetchDataSourcesSuccess(dataSources, userId));
+        dispatch(sync.fetchDataSourcesSuccess(dataSources));
       }
     });
   };

@@ -624,9 +624,8 @@ export const dataDonationAccounts = (state = initialState.dataDonationAccounts, 
 export const dataSources = (state = initialState.dataSources, action) => {
   switch (action.type) {
     case types.FETCH_DATA_SOURCES_SUCCESS:
-      const dataSources = _.get(action.payload, 'dataSources', []);
-      const userId = _.get(action.payload, 'userId');
-      return update(state, { $merge: { [userId]: dataSources } });
+      let dataSources = _.get(action.payload, 'dataSources', []);
+      return update(state, { $set: dataSources });
     case types.LOGOUT_REQUEST:
       return [];
     default:
@@ -637,7 +636,7 @@ export const dataSources = (state = initialState.dataSources, action) => {
 export const authorizedDataSource = (state = initialState.authorizedDataSource, action) => {
   switch (action.type) {
     case types.CONNECT_DATA_SOURCE_SUCCESS:
-      const authorizedDataSource = _.get(action.payload, 'authorizedDataSource', {});
+      let authorizedDataSource = _.get(action.payload, 'authorizedDataSource', {});
       return update(state, { $set: authorizedDataSource });
     case types.LOGOUT_REQUEST:
       return {};

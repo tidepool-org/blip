@@ -621,7 +621,7 @@ export function getFetchers(stateProps, dispatchProps, api) {
   }
 
   if (stateProps.authenticated && !stateProps.fetchingDataSources.inProgress && !stateProps.fetchingDataSources.completed) {
-    fetchers.push(dispatchProps.fetchDataSources.bind(null, api, stateProps.user?.userid));
+    fetchers.push(dispatchProps.fetchDataSources.bind(null, api));
   }
 
   return fetchers;

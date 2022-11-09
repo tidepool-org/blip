@@ -4563,8 +4563,6 @@ describe('Actions', () => {
 
     describe('fetchDataSources', () => {
       it('should trigger FETCH_DATA_SOURCES_SUCCESS and it should call error once for a successful request', () => {
-        let userId = 'user123';
-
         let dataSources = [
           { id: 'strava' },
           { id: 'fitbit' },
@@ -4572,7 +4570,7 @@ describe('Actions', () => {
 
         let api = {
           user: {
-            getDataSources: sinon.stub().callsArgWith(1, null, dataSources)
+            getDataSources: sinon.stub().callsArgWith(0, null, dataSources)
           }
         };
 
@@ -4585,7 +4583,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchDataSources(api, userId));
+        store.dispatch(async.fetchDataSources(api));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -4593,11 +4591,9 @@ describe('Actions', () => {
       });
 
       it('should trigger FETCH_DATA_SOURCES_FAILURE and it should call error once for a failed request', () => {
-        let userId = 'user123';
-
         let api = {
           user: {
-            getDataSources: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null)
+            getDataSources: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null)
           }
         };
 
@@ -4612,7 +4608,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchDataSources(api, userId));
+        store.dispatch(async.fetchDataSources(api));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_DATA_SOURCES });

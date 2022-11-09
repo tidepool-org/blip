@@ -20,7 +20,6 @@ import { scroller } from 'react-scroll';
 import { translate, Trans } from 'react-i18next';
 
 import sundial from 'sundial';
-import { patient } from '../../core/api';
 
 const DATA_SOURCE_STATE_DISCONNECTED = 'disconnected';
 const DATA_SOURCE_STATE_CONNECTED = 'connected';
@@ -30,14 +29,13 @@ const DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED = 'unauthenticated';
 
 export default translate()(class DataSources extends Component {
   static propTypes = {
-    dataSources: PropTypes.object.isRequired,
+    dataSources: PropTypes.array.isRequired,
     fetchDataSources: PropTypes.func.isRequired,
     connectDataSource: PropTypes.func.isRequired,
     disconnectDataSource: PropTypes.func.isRequired,
     authorizedDataSource: PropTypes.object,
     trackMetric: PropTypes.func.isRequired,
     queryParams: PropTypes.object.isRequired,
-    patient: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -81,7 +79,7 @@ export default translate()(class DataSources extends Component {
   }
 
   getDataSourceForProvider(provider) {
-    return _.head(_.filter(this.props.dataSources[this.props.patient.userid], provider.dataSourceFilter));
+    return _.head(_.filter(this.props.dataSources, provider.dataSourceFilter));
   }
 
   calculateState(dataSource) {
@@ -295,7 +293,7 @@ export default translate()(class DataSources extends Component {
 
   fetchDataSourcesTimeout() {
     this.setState({ fetchDataSourcesTimeoutId: null });
-    this.props.fetchDataSources(this.props.patient.userid);
+    this.props.fetchDataSources();
   }
 
   timeAgoInterval() {
@@ -321,7 +319,7 @@ export default translate()(class DataSources extends Component {
 
       this.setState({ popups, popupIntervalId });
 
-      this.props.fetchDataSources(this.props.patient.userid);
+      this.props.fetchDataSources();
     }
   }
 });

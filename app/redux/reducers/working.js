@@ -172,7 +172,6 @@ export default (state = initialWorkingState, action) => {
           types.CREATE_CLINIC_PATIENT_TAG_REQUEST,
           types.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
           types.DELETE_CLINIC_PATIENT_TAG_REQUEST,
-          types.FETCH_DATA_SOURCES_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
