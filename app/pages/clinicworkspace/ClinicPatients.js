@@ -843,7 +843,7 @@ export const ClinicPatients = (props) => {
 
   // Provide latest patient state for the edit form upon fetch
   useEffect(() => {
-    if (fetchingPatientFromClinic.completed && selectedPatient.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
+    if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
   }, [fetchingPatientFromClinic]);
 
   function formatDecimal(val, precision) {
