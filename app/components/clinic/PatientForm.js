@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
-import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
@@ -57,7 +56,6 @@ export const PatientForm = (props) => {
   const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const { fetchingPatientFromClinic } = useSelector((state) => state.blip.working);
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
@@ -89,7 +87,7 @@ export const PatientForm = (props) => {
       label: t('Error connecting to'),
     },
     unknown: {
-      color: 'feedback.danger',
+      color: 'mediumGrey',
       icon: ErrorOutlineRoundedIcon,
       label: t('Unknown connection to'),
     },
@@ -158,25 +156,10 @@ export const PatientForm = (props) => {
     setDisableConnectDexcom(isEmpty(values.email));
   }, [values.email]);
 
-  // Fetchers
+  // Pull the patient on load to ensure the most recent dexcom connection state is made available
   useEffect(() => {
-    if (selectedClinicId) {
-      forEach([
-        {
-          workingState: fetchingPatientFromClinic,
-          action: actions.async.fetchPatientFromClinic.bind(null, api, selectedClinicId, patient.id),
-        },
-      ], ({ workingState, action }) => {
-        if (
-          !workingState.inProgress &&
-          !workingState.completed &&
-          !workingState.notification
-        ) {
-          dispatch(action());
-        }
-      });
-    }
-  }, [api, dispatch, fetchingPatientFromClinic, patient.id, selectedClinicId]);
+    if (selectedClinicId && patient?.id) dispatch(actions.async.fetchPatientFromClinic.bind(null, api, selectedClinicId, patient.id)())
+  }, []);
 
   const handleResendDexcomConnectEmail = () => {
     trackMetric('Clinic - Resend Dexcom connect email', { clinicId: selectedClinicId })

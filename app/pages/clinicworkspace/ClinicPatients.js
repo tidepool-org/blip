@@ -579,6 +579,7 @@ export const ClinicPatients = (props) => {
   }, searchDebounceMs), [patientFetchOptions]);
 
   const {
+    fetchingPatientFromClinic,
     fetchingPatientsForClinic,
     deletingPatientFromClinic,
     updatingClinicPatient,
@@ -839,6 +840,11 @@ export const ClinicPatients = (props) => {
     summaryPeriod,
     timePrefs,
   ]);
+
+  // Provide latest patient state for the edit form upon fetch
+  useEffect(() => {
+    if (fetchingPatientFromClinic.completed && selectedPatient.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
+  }, [fetchingPatientFromClinic]);
 
   function formatDecimal(val, precision) {
     if (precision === null || precision === undefined) {
