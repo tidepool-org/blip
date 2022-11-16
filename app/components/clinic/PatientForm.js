@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
+import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
@@ -33,7 +34,9 @@ import Icon from '../elements/Icon';
 import DexcomLogoIcon from '../../core/icons/DexcomLogo.svg';
 
 function getFormValues(source, clinicPatientTags, disableDexcom) {
-  const connectDexcom = (!!source?.dexcomConnectState || (!disableDexcom && source?.connectDexcom)) || false;
+  const hasDexcomDataSource = !!find(source?.dataSources, { providerName: 'dexcom' });
+  const connectDexcom = (hasDexcomDataSource || (!disableDexcom && source?.connectDexcom)) || false;
+  const addDexcomDataSource = connectDexcom && !hasDexcomDataSource;
 
   return {
     birthDate: source?.birthDate || '',
@@ -42,7 +45,10 @@ function getFormValues(source, clinicPatientTags, disableDexcom) {
     mrn: source?.mrn || '',
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     connectDexcom,
-    dexcomConnectState: connectDexcom ? source?.dexcomConnectState || 'pending' : undefined,
+    dataSources: addDexcomDataSource ? [
+      ...source?.dataSources || [],
+      { providerName: 'dexcom', state: 'pending' },
+    ] : source?.dataSources || [],
   };
 }
 
@@ -61,9 +67,10 @@ export const PatientForm = (props) => {
   const [initialValues, setInitialValues] = useState({});
   const showTags = clinic?.tier >= 'tier0200' && !!clinic?.patientTags?.length;
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const showConnectDexcom = !!selectedClinicId && !patient?.dexcomConnectState;
+  const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
+  const showConnectDexcom = !!selectedClinicId && !dexcomDataSource;
   const [disableConnectDexcom, setDisableConnectDexcom] = useState(false);
-  const showDexcomConnectState = !!selectedClinicId && !!patient?.dexcomConnectState;
+  const showDexcomConnectState = !!selectedClinicId && !!dexcomDataSource?.state;
 
   const dexcomConnectStateUI = {
     pending: {
@@ -93,8 +100,8 @@ export const PatientForm = (props) => {
     },
   };
 
-  const dexcomConnectState = includes(keys(dexcomConnectStateUI), patient?.dexcomConnectState)
-    ? patient.dexcomConnectState
+  const dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
+    ? dexcomDataSource.state
     : 'unknown';
 
   const formikContext = useFormik({

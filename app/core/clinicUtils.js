@@ -155,7 +155,12 @@ export const patientSchema = yup.object().shape({
   mrn: yup.string(),
   email: yup.string().email(t('Please enter a valid email address')),
   connectDexcom: yup.boolean(),
-  dexcomConnectState: yup.string().oneOf(['pending', 'connected', 'error', 'disconnected']),
+  dataSources: yup.array().of(
+    yup.object().shape({
+      providerName: yup.string(),
+      state: yup.string().oneOf(['pending', 'connected', 'error', 'disconnected']),
+    }),
+  ),
   tags: yup.array().of(
     yup.string()
   ),
