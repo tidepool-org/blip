@@ -19,7 +19,7 @@ export const updateKeycloakConfig = (info, store) => {
     keycloak = new Keycloak({
       url: info.url,
       realm: info.realm,
-      clientId: 'blip-localhost',
+      clientId: 'blip',
     });
     _keycloakConfig = info;
   }
