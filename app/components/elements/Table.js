@@ -180,7 +180,6 @@ export const Table = React.memo(props => {
                   key={`${id}-header-${col.field?.replace(/\./g, '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
-
                 >
                   <Box
                     className="table-header-inner-cell"
