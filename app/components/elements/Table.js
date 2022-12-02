@@ -72,6 +72,7 @@ const StyledTable = styled(Base)`
     color: inherit;
     font-size: inherit;
     font-family: inherit;
+    background-clip: padding-box;
   }
 
   .MuiTableCell-stickyHeader {
