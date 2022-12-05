@@ -75,7 +75,7 @@ describe('Actions', () => {
           id: 27,
         };
 
-        const initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId } });
+        const initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId } });
 
         const api = {
           user: {
@@ -244,12 +244,11 @@ describe('Actions', () => {
 
     describe('verifyCustodial', () => {
       it('should trigger ACKNOWLEDGE_NOTIFICATION for the confirmingSignup notification if set', () => {
-        let user = { id: 27 };
+        let user = { id: 27, emailVerified: true, profile: { fullName: ''} };
         let key = 'fakeSignupKey';
         let email = 'g@a.com';
         let birthday = '07/18/1988';
         let password = 'foobar01';
-        let creds = { username: email, password: password };
         let api = {
           user: {
             custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
@@ -265,7 +264,7 @@ describe('Actions', () => {
 
         let expectedAction = { type: 'ACKNOWLEDGE_NOTIFICATION', payload: { acknowledgedNotification: 'confirmingSignup' } };
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { working: { confirmingSignup: { notification: 'hi' } } } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { working: { confirmingSignup: { notification: 'hi' } } } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
@@ -275,12 +274,11 @@ describe('Actions', () => {
       });
 
       it('should trigger VERIFY_CUSTODIAL_SUCCESS and it should call verifyCustodial once for a successful request', () => {
-        let user = { id: 27, emailVerified: true };
+        let user = { id: 27, emailVerified: true, profile: { fullName: 'someName'} };
         let key = 'fakeSignupKey';
         let email = 'g@a.com';
         let birthday = '07/18/1988';
         let password = 'foobar01';
-        let creds = { username: email, password: password };
         let api = {
           user: {
             custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
@@ -313,7 +311,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { working: { confirmingSignup: { notification: null } } } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { working: { confirmingSignup: { notification: null } } } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
@@ -329,7 +327,6 @@ describe('Actions', () => {
       });
 
       it('should trigger VERIFY_CUSTODIAL_FAILURE and it should call verifyCustodial once for a failed request', () => {
-        let user = { id: 27 };
         let key = 'fakeSignupKey';
         let email = 'g@a.com';
         let birthday = '07/18/1988';
@@ -351,7 +348,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { working: { confirmingSignup: { notification: null } } } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { working: { confirmingSignup: { notification: null } } } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.verifyCustodial(api, key, email, birthday, password));
@@ -442,7 +439,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
@@ -475,7 +472,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
@@ -508,7 +505,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate, user.id));
@@ -543,7 +540,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
@@ -560,7 +557,7 @@ describe('Actions', () => {
     describe('login', () => {
       it('should trigger LOGIN_SUCCESS and it should call login and user.get once for a successful request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27, emailVerified: true };
+        let user = { id: 27, emailVerified: true, profile: { fullName: 'bruce wayne'} };
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, null),
@@ -591,8 +588,6 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-
-
         let store = mockStore({ blip: initialState });
         store.dispatch(async.login(api, creds));
 
@@ -605,7 +600,7 @@ describe('Actions', () => {
 
       it('should trigger LOGIN_SUCCESS and it should call login, user.get and patient.get once for a successful request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27, profile: { patient: true }, emailVerified: true };
+        let user = { id: 27, profile: { patient: true, fullName: 'bruce wayne' }, emailVerified: true };
         let patient = { foo: 'bar' };
 
         let api = {
@@ -654,9 +649,60 @@ describe('Actions', () => {
         expect(trackMetric.calledWith('Logged In')).to.be.true;
       });
 
+      it('should trigger LOGIN_SUCCESS and it should redirect a user with no fullName to the profile form', () => {
+        let creds = { username: 'bruce', password: 'wayne' };
+        let user = { id: 27, profile: { patient: true, fullName: '' }, emailVerified: true };
+        let patient = { foo: 'bar' };
+
+        let api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user),
+            logout: sinon.stub(),
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients: [] }),
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+          clinics: {
+            getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: undefined, clinics: [] } },
+          { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+          { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
+          { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/profile', { selectedClinicId: null } ], method: 'push' } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+
+        store.dispatch(async.login(api, creds));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.get.callCount).to.equal(1);
+        expect(api.patient.get.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
+      });
+
       it('should trigger LOGIN_SUCCESS and it should redirect a clinician with no clinic profile to the clinician details form', () => {
         const creds = { username: 'bruce', password: 'wayne' };
-        const user = { id: 27, roles: [ 'clinician' ], profile: {}, emailVerified: true };
+        const user = { id: 27, roles: [ 'clinician' ], profile: { fullName: 'bruce wayne' }, emailVerified: true };
         const patient = { foo: 'bar' };
 
         const api = {
@@ -692,7 +738,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        const store = mockStore(initialState);
+        const store = mockStore({ blip: initialState });
 
         store.dispatch(async.login(api, creds));
 
@@ -742,7 +788,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        const store = mockStore(initialState);
+        const store = mockStore({ blip: initialState });
 
         store.dispatch(async.login(api, creds));
 
@@ -756,7 +802,7 @@ describe('Actions', () => {
 
       it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view', () => {
         const creds = { username: 'bruce', password: 'wayne' };
-        const user = { id: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true };
+        const user = { id: 27, roles: ['clinic'], profile: { clinic: true, fullName: 'bruce wayne' }, emailVerified: true };
         const patient = { foo: 'bar' };
 
         const api = {
@@ -792,7 +838,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        const store = mockStore(initialState);
+        const store = mockStore({ blip: initialState });
 
         store.dispatch(async.login(api, creds));
 
@@ -877,7 +923,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -911,7 +957,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -926,7 +972,7 @@ describe('Actions', () => {
 
           it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view', () => {
             setAPIData({
-              user: { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true }
+              user: { userid: 27, roles: ['clinic'], profile: { clinic: true, fullName: 'bruce wayne' }, emailVerified: true }
             });
 
             const expectedActions = [
@@ -946,7 +992,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -993,7 +1039,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -1028,7 +1074,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -1076,7 +1122,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -1114,7 +1160,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -1151,7 +1197,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -1192,7 +1238,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -1233,7 +1279,7 @@ describe('Actions', () => {
               expect(isTSA(action)).to.be.true;
             });
 
-            const store = mockStore(initialState);
+            const store = mockStore({ blip: initialState });
 
             store.dispatch(async.login(api, creds));
 
@@ -1244,6 +1290,56 @@ describe('Actions', () => {
             expect(api.user.get.callCount).to.equal(1);
             expect(trackMetric.calledWith('Logged In')).to.be.true;
           });
+        });
+
+        it('should trigger LOGIN_SUCCESS and it should redirect a clinician with an existing selected clinic to the clinic workspace view', () => {
+          setAPIData({
+            user: { userid: 27, roles: ['clinic'], profile: { clinic: true, patient: undefined }, emailVerified: true },
+            clinics: [
+              { clinic: { id: 'clinic123', name: 'Clinic One' } },
+              { clinic: { id: 'clinic456', name: 'Clinic Two' } },
+            ],
+            patients: [],
+            invites: [],
+          });
+
+          const expectedActions = [
+            { type: 'LOGIN_REQUEST' },
+            { type: 'FETCH_USER_REQUEST' },
+            { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+            { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+            { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
+              { clinic: { id: 'clinic123', name: 'Clinic One' } },
+              { clinic: { id: 'clinic456', name: 'Clinic Two' } },
+            ] }},
+            { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+            { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+            { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+            { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic456' } },
+            { type: 'LOGIN_SUCCESS', payload: { user } },
+            { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace', { selectedClinicId: 'clinic456' }] } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+
+          const store = mockStore(
+            _.extend(
+              {},
+              { blip: initialState },
+              { blip: { selectedClinicId: 'clinic456' } }
+            )
+          );
+
+          store.dispatch(async.login(api, creds));
+
+          const actions = store.getActions();
+
+          expect(actions).to.eql(expectedActions);
+          expect(api.user.login.calledWith(creds)).to.be.true;
+          expect(api.user.get.callCount).to.equal(1);
+          expect(trackMetric.calledWith('Logged In')).to.be.true;
         });
 
         it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a single relationship containing non-empty clinic object to the workspaces view', () => {
@@ -1276,7 +1372,7 @@ describe('Actions', () => {
             expect(isTSA(action)).to.be.true;
           });
 
-          const store = mockStore(initialState);
+          const store = mockStore({ blip: initialState });
 
           store.dispatch(async.login(api, creds));
 
@@ -1731,7 +1827,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.setupDataStorage(api, patient));
@@ -1763,7 +1859,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        let initialStateForTest = _.merge({}, { blip: initialState }, { blip: { loggedInUserId: loggedInUserId } });
 
         let store = mockStore(initialStateForTest);
         store.dispatch(async.setupDataStorage(api, patient));
@@ -7615,6 +7711,83 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.deleteClinicPatientTag.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchInfo', () => {
+      it('should trigger FETCH_INFO_SUCCESS and it should call server.getInfo once for a successful request', () => {
+        const info = {
+          auth: {
+            url: 'someUrl',
+            realm: 'awesomeRealm',
+          }
+        }
+
+        let api = {
+          server: {
+            getInfo: sinon
+              .stub()
+              .callsArgWith(0, null, info),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_INFO_REQUEST' },
+          {
+            type: 'FETCH_INFO_SUCCESS',
+            payload: { info },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.fetchInfo(api)
+        );
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.server.getInfo.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_INFO_FAILURE and it should call error once for a failed request', () => {
+
+        let api = {
+          server: {
+            getInfo: sinon
+              .stub()
+              .callsArgWith(0, { status: 500, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_INFO);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_INFO_REQUEST' },
+          {
+            type: 'FETCH_INFO_FAILURE',
+            error: err,
+            meta: { apiError: { status: 500, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.fetchInfo(api)
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_INFO,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.server.getInfo.callCount).to.equal(1);
       });
     });
   });

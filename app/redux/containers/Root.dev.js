@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { hot, setConfig } from 'react-hot-loader';
 import { ThemeProvider } from 'styled-components';
+import { KeycloakWrapper } from '../../keycloak';
 
 import baseTheme from '../../themes/baseTheme';
 import { history } from '../store/configureStore.dev';
@@ -17,11 +18,13 @@ class Root extends Component {
       <ThemeProvider theme={baseTheme}>
         <ToastProvider>
           <Provider store={store}>
-            <div>
-              <ConnectedRouter history={history}>
-                {routing}
-              </ConnectedRouter>
-            </div>
+            <KeycloakWrapper>
+              <div>
+                <ConnectedRouter history={history}>
+                  {routing}
+                </ConnectedRouter>
+              </div>
+            </KeycloakWrapper>
           </Provider>
         </ToastProvider>
       </ThemeProvider>

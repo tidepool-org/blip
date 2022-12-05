@@ -39,6 +39,7 @@ import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
 import pendoMiddleware from '../utils/pendoMiddleware';
+import { keycloakMiddleware } from '../../keycloak';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -63,32 +64,36 @@ const workerMiddleware = createWorkerMiddleware(worker);
 let enhancer;
 if (!__DEV_TOOLS__) {
   enhancer = (api) => {
+    const middlewares = [
+      workerMiddleware,
+      thunkMiddleware,
+      routerMiddleware(history),
+      createErrorLogger(api),
+      trackingMiddleware(api),
+      pendoMiddleware(api),
+      keycloakMiddleware(api),
+    ];
     return compose(
-      applyMiddleware(
-        workerMiddleware,
-        thunkMiddleware,
-        routerMiddleware(history),
-        createErrorLogger(api),
-        trackingMiddleware(api),
-        pendoMiddleware(api),
-      ),
+      applyMiddleware(...middlewares),
       persistState(getDebugSessionKey()),
     );
   }
 } else {
   enhancer = (api) => {
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+    const middlewares = [
+      workerMiddleware,
+      thunkMiddleware,
+      loggerMiddleware,
+      routerMiddleware(history),
+      createErrorLogger(api),
+      trackingMiddleware(api),
+      pendoMiddleware(api),
+      mutationTracker(),
+      keycloakMiddleware(api),
+    ];
     return composeEnhancers(
-      applyMiddleware(
-        workerMiddleware,
-        thunkMiddleware,
-        loggerMiddleware,
-        routerMiddleware(history),
-        createErrorLogger(api),
-        trackingMiddleware(api),
-        pendoMiddleware(api),
-        mutationTracker(),
-      ),
+      applyMiddleware(...middlewares),
       // We can persist debug sessions this way
       persistState(getDebugSessionKey()),
     );
