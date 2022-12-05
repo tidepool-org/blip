@@ -18467,10 +18467,10 @@ tideline@1.26.0:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.51.0-web-1372-keycloak.3:
-  version "0.51.0-web-1372-keycloak.3"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.51.0-web-1372-keycloak.3.tgz#5a3011e09fea0c1a08b9f916dcdf383e3072e06c"
-  integrity sha512-8iQPWX2mmAqMgWDXFZm/LZmtQAJhI4kM7P4AgPibGp2+t24bZUupZhK0SBryvFiOQsx9yQQtSpAtrrcNfXurRQ==
+tidepool-platform-client@0.51.0:
+  version "0.51.0"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.51.0.tgz#d91aeb0a6be31f05e237b604d28c52fbdd062397"
+  integrity sha512-BjIapTJwpNswHkWdbD9QKycZEyNYSKjndFmzkLh0Uueh2IPhSsd1YJVNHIMFwCcpw9Qg5/PikOZ9Sp2FLLHVug==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
