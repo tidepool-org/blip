@@ -693,8 +693,8 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
       let { clinicId, patients, count } = action.payload;
-      const newPatientSet = _.reduce(patients, (newSet, patient) => {
-        newSet[patient.id] = patient
+      const newPatientSet = _.reduce(patients, (newSet, patient, i) => {
+        newSet[patient.id] = { ...patient, sortIndex: i };
         return newSet;
       }, {});
       return update(state, {
