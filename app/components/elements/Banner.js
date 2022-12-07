@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Flex, Text, FlexProps } from 'rebass/styled-components';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
+import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
-import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
+import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import noop from 'lodash/noop';
 
 import baseTheme from '../../themes/baseTheme';
@@ -14,9 +15,10 @@ const Banner = (props) => {
   const { label, variant, message, dismissable, onDismiss, ...themeProps } = props;
 
   const iconMap = {
-    default: InfoRoundedIcon,
-    warning: WarningRoundedIcon,
     danger: ErrorRoundedIcon,
+    info: InfoRoundedIcon,
+    warning: WarningRoundedIcon,
+    success: CheckCircleRoundedIcon,
   };
 
   const TypeIcon = iconMap[variant];
@@ -27,10 +29,11 @@ const Banner = (props) => {
       {...themeProps}
       variant={`banners.${variant}`}
     >
-      <Flex px={2} flexGrow={1} justifyContent="center">
+      <Flex px={2} flexGrow={1} alignItems="center" justifyContent="center">
         <Icon mr={2} theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />
         <Text className="message">{message}</Text>
       </Flex>
+
       {dismissable && (
         <Icon
           className="close-icon"
@@ -46,14 +49,14 @@ const Banner = (props) => {
 Banner.propTypes = {
   ...FlexProps,
   message: PropTypes.string.isRequired,
-  variant: PropTypes.oneOf(['default', 'warning', 'danger']),
+  variant: PropTypes.oneOf(['default', 'warning', 'danger', 'success']),
   label: PropTypes.string.isRequired,
   dismissable: PropTypes.bool,
   onDismiss: PropTypes.func,
 };
 
 Banner.defaultProps = {
-  variant: 'default',
+  variant: 'info',
   dismissable: true,
   onDismiss: noop,
 };

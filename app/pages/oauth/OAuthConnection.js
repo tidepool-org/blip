@@ -1,30 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import { useParams, useLocation } from 'react-router-dom';
 import capitalize from 'lodash/capitalize';
 import includes from 'lodash/includes';
+import { Box, Flex } from 'rebass/styled-components';
+import { components as vizComponents } from '@tidepool/viz';
 
-import { useToasts } from '../../providers/ToastProvider';
+import Banner from '../../components/elements/Banner';
+import Button from '../../components/elements/Button';
+import { Title, Subheading, Body1 } from '../../components/elements/FontStyles';
 
+const { Loader } = vizComponents;
 
 export const OAuthConnection = (props) => {
   const { t, trackMetric } = props;
-  const { set: setToast } = useToasts();
   const { providerName, status } = useParams();
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search)
   const dispatch = useDispatch();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId)
+  const [isCustodial, setIsCustodial] = useState();
   const allowedProviderNames = ['dexcom'];
+  const [authStatus, setAuthStatus] = useState();
 
   console.log('loggedInUserId', loggedInUserId);
 
-  const statusHandler = {
+  const statusContent = {
     authorized: {
-      toast: {
+      status: 'authorized',
+      subheading: t('Thank you for connecting with Tidepool!'),
+      message: t('We hope you enjoy your Tidepool experience.'),
+      banner: {
         message: t('You have successfully connected your {{providerName}} account to Tidepool.', {
           providerName: capitalize(providerName),
         }),
@@ -32,7 +41,10 @@ export const OAuthConnection = (props) => {
       },
     },
     declined: {
-      toast: {
+      status: 'declined',
+      subheading: t('You can always decide connect at a later time.'),
+      message: t('We hope you enjoy your Tidepool experience.'),
+      banner: {
         message: t('You have declined connecting your {{providerName}} account to Tidepool.', {
           providerName: capitalize(providerName),
         }),
@@ -40,7 +52,9 @@ export const OAuthConnection = (props) => {
       },
     },
     error: {
-      toast: {
+      status: 'error',
+      subheading: t('Hmm... That didn\'t work. Please try again.'),
+      banner: {
         message: t('We were unable to determine your connection status to Tidepool.'),
         variant: 'danger',
       },
@@ -48,53 +62,85 @@ export const OAuthConnection = (props) => {
   };
 
   useEffect(() => {
-    console.log('queryParams.has(\'signupEmail\')', queryParams.has('signupEmail'), queryParams.get('signupEmail'));
-    console.log('queryParams.has(\'signupKey\')', queryParams.has('signupKey'), queryParams.get('signupKey'));
-    const canClaimCustodialAccount = queryParams.has('signupEmail') && queryParams.has('signupKey');
+    setIsCustodial(queryParams.has('signupEmail') && queryParams.has('signupKey'));
 
-    console.log('canClaimCustodialAccount', canClaimCustodialAccount);
-
-    if (trackMetric) {
-      trackMetric('Oauth - Connection', { providerName, status });
-    }
-
-    // Can we simply redirect to '/login' with the any query params set?
-
-    // 1. If signup query params are present, confirmSignup 409 response will redirect to verification-with-password, which will log out the user if necessary and allow custodial account completion
-    // 1a. Well... auth users will be immediately redirected, and confirmSignup will not be called
-    // 1b. Also... perhaps the user does not want to claim -- may need some UI here on this page after all, and treat this as analogous to a 'claim account' email they would have received in other flows
-
-    // 2. If signup query params are absent, a redirect to '/login' should be sufficient, as the user is an already claimed account, and, if already authenticated, will be redirected to the default landing page
-
-    // In light of above:
-    // If signup query params are present, we cannot redirect to login UNTIL they confirm that they want to claim the account
-    // If signup query params are absent, we can safely redirect to login automatically if we choose.
-
-    // We could leave it up to the user in all cases, have a 'Proceed to Tidepool' link that would redirect to the base (`/`) url,
-    // or the /login?signupKey=... path (with some extra messaging on this page for claiming accounts lifted from email copy) if applicable
-
-
-    if (includes(allowedProviderNames, providerName) && statusHandler[status]) {
-      setToast(statusHandler[status].toast);
-      console.log('loggedInUserId at load', loggedInUserId);
-      // dispatch(push('/login', { providerName, status }))
+    if (includes(allowedProviderNames, providerName) && statusContent[status]) {
+      setAuthStatus(statusContent[status]);
     } else {
-      setToast(statusHandler.error.toast);
-      // dispatch(push('/login'));
+      setAuthStatus(statusContent.error)
     }
+
+    trackMetric('Oauth - Connection', { providerName, status, isCustodial });
   }, []);
 
-  return (
-    <div>
-      <p>{loggedInUserId}</p>
-      <p>
-        {providerName}
-      </p>
-      <p>
-        {status}
-      </p>
-    </div>
-  );
+  const handleClickClaimAccount = () => {
+    trackMetric('Oauth - Connection - Claim Account', { providerName, status });
+    console.log('redirect', `/login?${queryParams.toString()}`);
+    // dispatch(push(`/login?${queryParams.toString()}`));
+  };
+
+  return authStatus ? (
+    <>
+      <Banner {...authStatus.banner} dismissable={false} />
+
+      <Box
+        variant="containers.smallBordered"
+        bg="white"
+        mt={[0,4,5,6]}
+        p={4}
+        sx={{
+          textAlign: 'center'
+        }}
+      >
+        <Title>
+          {t('Connection {{status}}', {status: capitalize(authStatus.status)})}
+        </Title>
+
+        <Subheading mb={3}>
+          {authStatus.subheading}
+        </Subheading>
+
+        {authStatus.message && (
+          <Body1 mb={2}>
+            {authStatus.message}
+          </Body1>
+        )}
+
+        {authStatus.status === 'error' && (
+          <Trans i18nKey="html.oauth-support-message">
+            <Body1 mb={3}>
+              If this problem persists, please contact our support team at <a href="mailto:support@tidepool.org?Subject=Tidepool%20connection%20error" target="_blank" rel="noreferrer noopener">support@tidepool.org</a>.
+            </Body1>
+          </Trans>
+        )}
+
+        {isCustodial && authStatus.status !== 'error' && (
+          <Box>
+            {/* <Body1 mb={3}>
+              {t('Your Tidepool account is all set for use by your care provider, but you haven\'t claimed access for yourself yet.')}
+            </Body1> */}
+
+            <Body1 mb={3}>
+              {t('If you\'d like to take ownership of your free account to view and upload data from home, please click the button below.')}
+            </Body1>
+
+            <Body1 mb={4}>
+              {t('Your care provider will still have access to your account once you claim it.')}
+            </Body1>
+
+            <Flex justifyContent="center">
+              <Button
+                variant="primary"
+                onClick={handleClickClaimAccount}
+              >
+                {t('Claim My Account')}
+              </Button>
+            </Flex>
+          </Box>
+        )}
+      </Box>
+    </>
+  ) : <Loader />;
 };
 
 OAuthConnection.propTypes = {
