@@ -20,10 +20,15 @@ const nonceMiddleware = (req, res, next) => {
     console.log('Caching static HTML');
     global.html = fs.readFileSync(`${staticDir}/index.html`, 'utf8');
   }
+  if (!global.ssoHtml) {
+    console.log('Caching static HTML');
+    global.ssoHtml = fs.readFileSync(`${staticDir}/silent-check-sso.html`, 'utf8');
+  }
 
   // Set a unique nonce for each request
   res.locals.nonce = crypto.randomBytes(16).toString('base64');
   res.locals.htmlWithNonces = global.html.replace(/<(script)/g, `<$1 nonce="${res.locals.nonce}"`);
+  res.locals.ssoHtmlWithNonces = global.ssoHtml.replace(/<(script)/g, `<$1 nonce="${res.locals.nonce}"`);
   next();
 }
 
@@ -81,9 +86,9 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     objectSrc: ['blob:'],
     workerSrc: ["'self'", 'blob:'],
     childSrc: ["'self'", 'blob:', 'https://docs.google.com', 'https://app.pendo.io'],
-    frameSrc: ['https://docs.google.com', 'https://app.pendo.io'],
+    frameSrc: ['https://docs.google.com', 'https://app.pendo.io', '*.tidepool.org', 'localhost:*'],
     connectSrc: [].concat([
-      process.env.API_HOST || 'localhost',
+      process.env.API_HOST || 'localhost:*',
       'https://api.github.com/repos/tidepool-org/uploader/releases',
       'https://static.zdassets.com',
       'https://ekr.zdassets.com',
@@ -99,7 +104,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://data.pendo.io',
       'https://pendo-static-5707274877534208.storage.googleapis.com',
     ]),
-    frameAncestors: ['https://app.pendo.io']
+    frameAncestors: ['https://app.pendo.io', '*.tidepool.org', 'localhost:*']
   },
   reportOnly: false,
 }));
@@ -107,6 +112,10 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
 app.use(bodyParser.json({
   type: ['json', 'application/csp-report'],
 }));
+
+app.get('/silent-check-sso.html', (req, res) => {
+  res.send(res.locals.ssoHtmlWithNonces);
+});
 
 app.use(express.static(staticDir, { index: false }));
 

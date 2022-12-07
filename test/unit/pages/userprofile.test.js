@@ -3,17 +3,18 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-dom/test-utils');
+import React from 'react';
 import mutationTracker from 'object-invariant-test-helper';
+import { mount } from 'enzyme';
+import i18next from '../../../app/core/language';
 
-var expect = chai.expect;
-
-var UserProfile = require('../../../app/pages/userprofile').UserProfile;
+import { UserProfile, UserProfileClass } from '../../../app/pages/userprofile';
 import { mapStateToProps } from '../../../app/pages/userprofile';
+import { ToastProvider } from '../../../app/providers/ToastProvider';
 
 var assert = chai.assert;
 var expect = chai.expect;
+const t = i18next.t.bind(i18next);
 
 describe('UserProfile', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -27,10 +28,12 @@ describe('UserProfile', function () {
         fetchingUser: false,
         history: {},
         onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        login: sinon.stub(),
+        user: {profile: {}},
+        t,
       };
-      var elem = React.createElement(UserProfile, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      let wrapper = mount(<ToastProvider><UserProfileClass {...props}/></ToastProvider>)
       expect(console.error.callCount).to.equal(0);
     });
   });
@@ -43,11 +46,11 @@ describe('UserProfile', function () {
             fullName: 'Gordon Dent'
           },
           username: 'foo@bar.com'
-        }
+        },
+        t,
       };
-      var elem = React.createElement(UserProfile, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getWrappedInstance().state;
+      let wrapper = mount(<UserProfileClass {...props}/>);
+      let state = wrapper.state();
 
       expect(state.formValues.username).to.equal('foo@bar.com');
       expect(state.formValues.fullName).to.equal('Gordon Dent');
@@ -61,15 +64,17 @@ describe('UserProfile', function () {
         history: {
           goBack: sinon.stub()
         },
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        user: { profile: {} },
+        t
       };
-      var elem = React.createElement(UserProfile, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      var backButton = TestUtils.findRenderedDOMComponentWithClass(render, 'js-back');
+
+      let wrapper = mount(<ToastProvider><UserProfileClass {...props} /></ToastProvider>);
+      let backButton = wrapper.find('.js-back');
 
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.history.goBack.callCount).to.equal(0);
-      TestUtils.Simulate.click(backButton);
+      backButton.simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.history.goBack.callCount).to.equal(1);
     });

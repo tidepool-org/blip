@@ -399,6 +399,11 @@ export default (type) => {
     case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
       return 'deletingClinicPatientTag';
 
+    case types.FETCH_INFO_REQUEST:
+    case types.FETCH_INFO_SUCCESS:
+    case types.FETCH_INFO_FAILURE:
+      return 'fetchingInfo';
+
     default:
       return null;
   }

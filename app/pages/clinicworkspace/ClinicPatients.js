@@ -598,6 +598,8 @@ export const ClinicPatients = (props) => {
   }
 
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
+  const previousDeletingPatientFromClinic = usePrevious(deletingPatientFromClinic);
+  const previousSendingPatientUploadReminder = usePrevious(sendingPatientUploadReminder);
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
@@ -644,12 +646,6 @@ export const ClinicPatients = (props) => {
   }, [creatingClinicCustodialAccount, handleAsyncResult, t]);
 
   useEffect(() => {
-    handleAsyncResult(deletingPatientFromClinic, t('{{name}} has been removed from the clinic.', {
-      name: get(selectedPatient, 'fullName', t('This patient')),
-    }));
-  }, [deletingPatientFromClinic, handleAsyncResult, selectedPatient, t]);
-
-  useEffect(() => {
     handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
   }, [clinicPatientTagFormContext, creatingClinicPatientTag, handleAsyncResult, t]);
 
@@ -671,10 +667,80 @@ export const ClinicPatients = (props) => {
   }, [patientTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    handleAsyncResult(sendingPatientUploadReminder, t('Uploader reminder email for {{name}} has been sent.', {
+    const { inProgress, completed, notification } = deletingPatientFromClinic;
+    const successMessage = t('{{name}} has been removed from the clinic.', {
+      name: get(selectedPatient, 'fullName', t('This patient')),
+    });
+
+    if (
+      !isFirstRender &&
+      !inProgress &&
+      previousDeletingPatientFromClinic?.inProgress
+    ) {
+      if (completed) {
+        handleCloseOverlays();
+        setToast({
+          message: successMessage,
+          variant: 'success',
+        });
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+
+      setLoading(false);
+    }
+  }, [
+    deletingPatientFromClinic,
+    handleAsyncResult,
+    isFirstRender,
+    previousDeletingPatientFromClinic?.inProgress,
+    selectedPatient,
+    setToast,
+    t,
+  ]);
+
+  useEffect(() => {
+    const { inProgress, completed, notification } = sendingPatientUploadReminder;
+    const successMessage = t('Uploader reminder email for {{name}} has been sent.', {
       name: get(selectedPatient, 'fullName', t('this patient')),
-    }));
-  }, [handleAsyncResult, selectedPatient, sendingPatientUploadReminder, t]);
+    });
+
+    if (
+      !isFirstRender &&
+      !inProgress &&
+      previousSendingPatientUploadReminder?.inProgress
+    ) {
+      if (completed) {
+        handleCloseOverlays();
+        setToast({
+          message: successMessage,
+          variant: 'success',
+        });
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+
+      setLoading(false);
+    }
+  }, [
+    handleAsyncResult,
+    isFirstRender,
+    previousSendingPatientUploadReminder?.inProgress,
+    selectedPatient,
+    sendingPatientUploadReminder,
+    setToast,
+    t,
+  ]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = fetchingPatientsForClinic;

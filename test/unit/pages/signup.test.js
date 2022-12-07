@@ -11,20 +11,29 @@ import React, { createElement } from 'react';
 import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
 import sundial from 'sundial';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 import { BrowserRouter } from 'react-router-dom';
-import { Signup } from '../../../app/pages/signup';
+import Signup, { Signup as SignupFunction } from '../../../app/pages/signup';
 import { mapStateToProps } from '../../../app/pages/signup';
+import merge from 'lodash/merge';
 
 var assert = chai.assert;
 var expect = chai.expect;
 
 describe('Signup', function () {
   it('should be exposed as a module and be of type function', function() {
-    expect(Signup).to.be.a('function');
+    expect(SignupFunction).to.be.a('function');
   });
 
   let props = {
-    location: { pathname: 'signup' }
+    location: { pathname: 'signup' },
+    fetchingInfo: {
+      inProgress: false,
+      completed: true,
+    },
+    keycloakConfig: {},
   };
 
   let wrapper;
@@ -33,7 +42,7 @@ describe('Signup', function () {
       createElement(
         props => (
           <BrowserRouter>
-            <Signup {...props} />
+            <SignupFunction {...props} />
           </BrowserRouter>
         ), props )
     );
@@ -113,7 +122,7 @@ describe('Signup', function () {
         location: { pathname: 'signup' },
       };
       wrapper.setProps(props);
-      wrapper.find(Signup).instance().getWrappedInstance().setState({madeSelection:true});
+      wrapper.find(SignupFunction).instance().getWrappedInstance().setState({madeSelection:true});
       wrapper.update();
       var signupForm = wrapper.find('.signup-form');
       expect(signupForm.length).to.equal(1);
@@ -127,7 +136,7 @@ describe('Signup', function () {
       };
 
       wrapper.setProps(props);
-      wrapper.find(Signup).instance().getWrappedInstance().setState({madeSelection:true, selected: 'personal'});
+      wrapper.find(SignupFunction).instance().getWrappedInstance().setState({madeSelection:true, selected: 'personal'});
       wrapper.update()
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
@@ -142,7 +151,7 @@ describe('Signup', function () {
 
       wrapper.setProps(props);
 
-      wrapper.find(Signup).instance().getWrappedInstance().setState({ madeSelection: true, selected: 'clinician'});
+      wrapper.find(SignupFunction).instance().getWrappedInstance().setState({ madeSelection: true, selected: 'clinician'});
       wrapper.update();
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
@@ -193,10 +202,10 @@ describe('Signup', function () {
       expect(link.length).to.equal(1);
 
       link.simulate('click');
-      expect(wrapper.find(Signup).instance().getWrappedInstance().state.selected).to.equal('clinician');
+      expect(wrapper.find(SignupFunction).instance().getWrappedInstance().state.selected).to.equal('clinician');
 
       link.simulate('click');
-      expect(wrapper.find(Signup).instance().getWrappedInstance().state.selected).to.equal('personal');
+      expect(wrapper.find(SignupFunction).instance().getWrappedInstance().state.selected).to.equal('personal');
     });
 
     it('should render the proper submit button text for each signup form', function() {
@@ -237,21 +246,86 @@ describe('Signup', function () {
     });
   });
 
+  describe('keycloak enabled', () => {
+    const defaultWorkingState = {
+      inProgress: false,
+      completed: false,
+      notification: null,
+    };
+    let storeState = {
+      blip: {
+        working: {
+          signingUp: defaultWorkingState,
+          fetchingInfo: { ...defaultWorkingState, completed: true },
+        },
+        keycloakConfig: {},
+      },
+    };
+    const mockStore = configureStore([thunk]);
+    let store = mockStore(storeState);
+    const keycloakMock = {
+      register: sinon.stub(),
+    };
+    let RewiredSignup;
+    let wrapper;
+
+    before(() => {
+      Signup.__Rewire__('keycloak', keycloakMock);
+      RewiredSignup = require('../../../app/pages/signup/signup.js').default;
+      wrapper = mount(
+        createElement(
+          (props) => (
+            <Provider store={store}>
+              <BrowserRouter>
+                <RewiredSignup {...props} />
+              </BrowserRouter>
+            </Provider>
+          ),
+          props
+        )
+      );
+    });
+
+    after(() => {
+      Signup.__ResetDependency__('keycloak');
+    });
+
+    it('should send the user to keycloak signup if keycloak is initialized', () => {
+      expect(keycloakMock.register.callCount).to.equal(0);
+      storeState = merge(storeState, {
+        blip: { keycloakConfig: { initialized: true } },
+      });
+      store = mockStore(storeState);
+      wrapper.setProps({
+        keycloakConfig: {
+          url: 'keycloakUrl',
+          initialized: true,
+        },
+      });
+      expect(keycloakMock.register.callCount).to.equal(1);
+    });
+  });
+
   describe('initial state', function() {
     it('should return expected initial state', function() {
       var props = {
         inviteEmail: 'gordonmdent@gmail.com',
         location: { pathname: 'signup' },
+        fetchingInfo: {
+          inProgress: false,
+          completed: true,
+        },
+        keycloakConfig: {},
       };
       wrapper = mount(
         createElement(
           props => (
             <BrowserRouter>
-              <Signup {...props} />
+              <SignupFunction {...props} />
             </BrowserRouter>
           ), props )
       );
-      var render = wrapper.find(Signup).instance().getWrappedInstance();
+      var render = wrapper.find(SignupFunction).instance().getWrappedInstance();
       var state = render.state;
 
       expect(state.loading).to.equal(false); // once rendered, loading has been set to false
@@ -327,11 +401,11 @@ describe('Signup', function () {
 
       const input = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
       expect(input.length).to.equal(1);
-      expect(wrapper.find(Signup).instance().getWrappedInstance().state.formValues).to.eql({});
+      expect(wrapper.find(SignupFunction).instance().getWrappedInstance().state.formValues).to.eql({});
 
       input.simulate('change', { target: { name: 'username', value: username } });
 
-      expect(wrapper.find(Signup).instance().getWrappedInstance().state.formValues).to.eql({ username });
+      expect(wrapper.find(SignupFunction).instance().getWrappedInstance().state.formValues).to.eql({ username });
     });
   });
 
@@ -361,7 +435,7 @@ describe('Signup', function () {
       };
 
       wrapper.setProps(props);
-      const rendered = wrapper.find(Signup).instance().getWrappedInstance();
+      const rendered = wrapper.find(SignupFunction).instance().getWrappedInstance();
 
       const expectedformattedValues = {
         username: formValues.username,
@@ -392,7 +466,7 @@ describe('Signup', function () {
       };
 
       wrapper.setProps(props);
-      var rendered = wrapper.find(Signup).instance().getWrappedInstance();
+      var rendered = wrapper.find(SignupFunction).instance().getWrappedInstance();
 
       const expectedformattedValues = {
         username: formValues.username,
