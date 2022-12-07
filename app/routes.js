@@ -16,6 +16,7 @@ import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
 import Login from './pages/login';
 import { PrescriptionForm } from './pages/prescription';
+import OAuthConnection from './pages/oauth/OAuthConnection';
 import PatientData from './pages/patientdata';
 import PatientNew from './pages/patientnew';
 import PatientProfile from './pages/patientprofile/patientprofile';
@@ -343,6 +344,7 @@ export const getRoutes = (appContext) => {
           <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowser} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
           <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
+          <Route path='/oauth/:providerName/:status' render={routeProps => (<OAuthConnection {...routeProps} {...props} />)} />
           <Route path='/request-password-from-uploader' render={routeProps => (<Gate onEnter={boundOnUploaderPasswordReset} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
