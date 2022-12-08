@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
 import { useParams, useLocation } from 'react-router-dom';
@@ -21,12 +21,9 @@ export const OAuthConnection = (props) => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search)
   const dispatch = useDispatch();
-  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId)
   const [isCustodial, setIsCustodial] = useState();
   const allowedProviderNames = ['dexcom'];
   const [authStatus, setAuthStatus] = useState();
-
-  console.log('loggedInUserId', loggedInUserId);
 
   const statusContent = {
     authorized: {
@@ -75,8 +72,7 @@ export const OAuthConnection = (props) => {
 
   const handleClickClaimAccount = () => {
     trackMetric('Oauth - Connection - Claim Account', { providerName, status });
-    console.log('redirect', `/login?${queryParams.toString()}`);
-    // dispatch(push(`/login?${queryParams.toString()}`));
+    dispatch(push(`/login?${queryParams.toString()}`));
   };
 
   return authStatus ? (
@@ -92,7 +88,7 @@ export const OAuthConnection = (props) => {
           textAlign: 'center'
         }}
       >
-        <Title>
+        <Title mb={2}>
           {t('Connection {{status}}', {status: capitalize(authStatus.status)})}
         </Title>
 
@@ -101,7 +97,7 @@ export const OAuthConnection = (props) => {
         </Subheading>
 
         {authStatus.message && (
-          <Body1 mb={2}>
+          <Body1 mb={3}>
             {authStatus.message}
           </Body1>
         )}
@@ -116,10 +112,6 @@ export const OAuthConnection = (props) => {
 
         {isCustodial && authStatus.status !== 'error' && (
           <Box>
-            {/* <Body1 mb={3}>
-              {t('Your Tidepool account is all set for use by your care provider, but you haven\'t claimed access for yourself yet.')}
-            </Body1> */}
-
             <Body1 mb={3}>
               {t('If you\'d like to take ownership of your free account to view and upload data from home, please click the button below.')}
             </Body1>
