@@ -151,7 +151,7 @@ export let Signup = translate()(class extends React.Component {
   };
 
   render() {
-    const { keycloakConfig, fetchingInfo } = this.props;
+    const { keycloakConfig, fetchingInfo, inviteEmail } = this.props;
     let form = this.renderForm();
     let inviteIntro = this.renderInviteIntroduction();
     let typeSelection = this.renderTypeSelection();
@@ -160,7 +160,11 @@ export let Signup = translate()(class extends React.Component {
       (!!keycloakConfig.url && !keycloakConfig.initialized);
 
     if(keycloakConfig.initialized){
-      keycloak.register();
+      if (inviteEmail) {
+        keycloak.register({ loginHint: inviteEmail });
+      } else {
+        keycloak.register();
+      }
     }
 
     let content = isLoading || keycloakConfig.initialized ? null : (
