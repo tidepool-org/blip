@@ -36,6 +36,7 @@ describe('ClinicPatients', () => {
     searchDebounceMs: 0,
     api: {
       clinics: {
+        getPatientFromClinic: sinon.stub(),
         getPatientsForClinic: sinon.stub(),
         deletePatientFromClinic: sinon.stub(),
         createClinicCustodialAccount: sinon.stub().callsArgWith(2, null, { id: 'stubbedId' }),
@@ -55,6 +56,7 @@ describe('ClinicPatients', () => {
   beforeEach(() => {
     delete localStorage.activePatientFilters;
     defaultProps.trackMetric.resetHistory();
+    defaultProps.api.clinics.getPatientFromClinic.resetHistory();
     defaultProps.api.clinics.getPatientsForClinic.resetHistory();
     defaultProps.api.clinics.deletePatientFromClinic.resetHistory();
     defaultProps.api.clinics.createClinicCustodialAccount.resetHistory();
@@ -107,6 +109,7 @@ describe('ClinicPatients', () => {
       },
       selectedClinicId: 'clinicID123',
       working: {
+        fetchingPatientFromClinic: defaultWorkingState,
         fetchingPatientsForClinic: completedState,
         deletingPatientFromClinic: defaultWorkingState,
         updatingClinicPatient: defaultWorkingState,
@@ -437,6 +440,7 @@ describe('ClinicPatients', () => {
           'clinicID123',
           {
             fullName: 'Patient Name',
+            connectDexcom: false,
             birthDate: '1999-11-21',
             mrn: '123456',
             email: 'patient@test.ca',
@@ -668,6 +672,7 @@ describe('ClinicPatients', () => {
             'patient2',
             {
               fullName: 'Patient 2',
+              connectDexcom: false,
               birthDate: '1999-01-01',
               mrn: 'mrn456',
               id: 'patient2',
@@ -740,6 +745,7 @@ describe('ClinicPatients', () => {
             'patient1',
             {
               fullName: 'Patient 2',
+              connectDexcom: false,
               birthDate: '1999-02-02',
               mrn: 'mrn456',
               id: 'patient1',
@@ -1966,6 +1972,7 @@ describe('ClinicPatients', () => {
                 email: 'patient2@test.ca',
                 fullName: 'Patient Two',
                 birthDate: '1999-02-02',
+                connectDexcom: false,
                 mrn: 'mrn123',
                 permissions: { custodian : undefined },
                 summary: {

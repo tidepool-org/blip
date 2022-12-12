@@ -176,8 +176,6 @@ export const PatientForm = (props) => {
   function handleAsyncResult(workingState, successMessage) {
     const { inProgress, completed, notification } = workingState;
 
-    console.log('workingState', workingState);
-
     if (!isFirstRender && !inProgress) {
       if (completed) {
         setShowResendDexcomConnectRequest(false);

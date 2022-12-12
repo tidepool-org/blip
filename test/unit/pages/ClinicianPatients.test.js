@@ -67,7 +67,7 @@ describe('ClinicianPatients', () => {
       },
       access: {
         leaveGroup: sinon.stub(),
-      }
+      },
     },
   };
 
@@ -115,6 +115,7 @@ describe('ClinicianPatients', () => {
       loggedInUserId,
       allUsersMap: { clinicianUserId123 },
       working: {
+        updatingClinicPatient: defaultWorkingState,
         fetchingAssociatedAccounts: completedState,
         removingMembershipInOtherCareTeam: defaultWorkingState,
         updatingPatient: defaultWorkingState,
