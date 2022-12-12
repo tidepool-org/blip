@@ -2074,3 +2074,94 @@ export function deleteClinicPatientTagFailure(error, apiError) {
     },
   };
 }
+
+export function keycloakReady(event, error){
+  return {
+    type: ActionTypes.KEYCLOAK_READY,
+    payload: { error, event },
+  };
+}
+
+export function keycloakInitError(event, error){
+  return {
+    type: ActionTypes.KEYCLOAK_INIT_ERROR,
+    error: error,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthSuccess(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_SUCCESS,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthError(event, error){
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_ERROR,
+    error: error,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthRefreshSuccess(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_REFRESH_SUCCESS,
+    payload: { event, error }
+  };
+}
+
+export function keycloakAuthRefreshError(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_REFRESH_ERROR,
+    error: error,
+    payload: { error, event },
+  };
+}
+
+export function keycloakTokenExpired(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_TOKEN_EXPIRED,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthLogout(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_LOGOUT,
+    payload: { error, event },
+  };
+}
+
+export function keycloakTokensReceived(tokens) {
+  return {
+    type: ActionTypes.KEYCLOAK_TOKENS_RECEIVED,
+    payload: { tokens },
+  };
+}
+
+export function fetchInfoRequest() {
+  return {
+    type: ActionTypes.FETCH_INFO_REQUEST,
+  };
+}
+
+export function fetchInfoSuccess(info) {
+  return {
+    type: ActionTypes.FETCH_INFO_SUCCESS,
+    payload: {
+      info
+    },
+  };
+}
+
+export function fetchInfoFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_INFO_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
