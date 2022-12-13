@@ -1011,7 +1011,8 @@ export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
         return _.get(action.payload, 'info.auth', {});
       }
     case types.KEYCLOAK_READY:
-      return _.extend({}, state, { initialized: true });
+      let logoutUrl = _.get(action.payload, 'logoutUrl', '');
+      return _.extend({}, state, { initialized: true, logoutUrl });
     default:
       return state;
   }
