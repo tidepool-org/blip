@@ -40,17 +40,23 @@ const asyncMock = {
   login: sinon.stub().returns(sinon.stub().callsFake(0)),
 };
 
+const keycloakMock = {
+  createLogoutUrl: sinon.stub().returns('keycloakLogoutUrl')
+};
+
 describe('keycloak', () => {
   const mockStore = configureStore([thunk]);
 
   before(() => {
     keycloak.__Rewire__('api', apiMock);
     keycloak.__Rewire__('async', asyncMock);
+    keycloak.__Rewire__('keycloak', keycloakMock);
   });
 
   after(() => {
     keycloak.__ResetDependency__('api');
     keycloak.__ResetDependency__('async');
+    keycloak.__ResetDependency__('keycloak');
   });
 
   beforeEach(() => {
@@ -73,6 +79,7 @@ describe('keycloak', () => {
           payload: {
             event: 'onReady',
             error: null,
+            logoutUrl: 'keycloakLogoutUrl'
           },
         },
       ];
@@ -223,14 +230,6 @@ describe('keycloak', () => {
     after(() => {
       keycloak.__ResetDependency__('keycloak');
       keycloak.__ResetDependency__('updateKeycloakConfig');
-    });
-
-    it('should call keycloak logout on LOGOUT_REQUEST', () => {
-      expect(keycloakMock.logout.callCount).to.equal(0);
-      keycloakMiddleware()()(sinon.stub())({
-        type: ActionTypes.LOGOUT_REQUEST,
-      });
-      expect(keycloakMock.logout.callCount).to.equal(1);
     });
 
     it('should update keycloak config if FETCH_INFO returns new config', () => {

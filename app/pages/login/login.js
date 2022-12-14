@@ -19,6 +19,7 @@ import Button from '../../components/elements/Button';
 import { components as vizComponents} from '@tidepool/viz';
 const { Loader } = vizComponents;
 import { keycloak } from '../../keycloak';
+let win = window;
 
 export let Login = translate()(class extends React.Component {
   static propTypes = {
@@ -89,12 +90,17 @@ export let Login = translate()(class extends React.Component {
       !loggingIn &&
       !this.props.isAuthenticated
     ) {
-      keycloak.login({ loginHint: this.props.seedEmail });
+      keycloak.login({
+        loginHint: this.props.seedEmail,
+        redirectUri: win.location.origin
+      });
     }
 
     // forward to keycloak login when available
     if(keycloakConfig.initialized && !loggingIn && !this.props.isAuthenticated){
-      keycloak.login();
+      keycloak.login({
+        redirectUri: win.location.origin
+      });
       return (<></>);
     }
 

@@ -77,6 +77,7 @@ describe('Login', function () {
 
       before(() => {
         Login.__Rewire__('keycloak', keycloakMock);
+        Login.__Rewire__('win', { location: { origin: 'testOrigin' } });
         RewiredLogin = require('../../../app/pages/login/login.js').default;
         wrapper = mount(
           <Provider store={store}>
@@ -89,10 +90,12 @@ describe('Login', function () {
 
       after(() => {
         Login.__ResetDependency__('keycloak');
+        Login.__ResetDependency__('win');
       });
 
       it('should forward a user to keycloak login when initialized', () => {
         expect(keycloakMock.login.callCount).to.equal(1);
+        expect(keycloakMock.login.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
       });
     });
   });

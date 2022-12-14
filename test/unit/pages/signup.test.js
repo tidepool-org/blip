@@ -275,6 +275,7 @@ describe('Signup', function () {
 
     before(() => {
       Signup.__Rewire__('keycloak', keycloakMock);
+      Signup.__Rewire__('win', { location: { origin: 'testOrigin' } });
       RewiredSignup = require('../../../app/pages/signup/signup.js').default;
       wrapper = mount(
         createElement(
@@ -292,6 +293,7 @@ describe('Signup', function () {
 
     after(() => {
       Signup.__ResetDependency__('keycloak');
+      Signup.__ResetDependency__('win');
     });
 
     it('should send the user to keycloak signup if keycloak is initialized', () => {
@@ -307,6 +309,7 @@ describe('Signup', function () {
         },
       });
       expect(keycloakMock.register.callCount).to.equal(1);
+      expect(keycloakMock.register.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
     });
 
     it('should provide loginHint if inviteEmail is provided', () => {

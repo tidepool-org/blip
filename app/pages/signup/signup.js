@@ -20,6 +20,7 @@ import { components as vizComponents} from '@tidepool/viz';
 const { Loader } = vizComponents;
 
 import check from './images/check.svg';
+let win = window;
 
 export let Signup = translate()(class extends React.Component {
   static propTypes = {
@@ -160,11 +161,13 @@ export let Signup = translate()(class extends React.Component {
       (!!keycloakConfig.url && !keycloakConfig.initialized);
 
     if(keycloakConfig.initialized){
-      if (inviteEmail) {
-        keycloak.register({ loginHint: inviteEmail });
-      } else {
-        keycloak.register();
+      let options = {
+        redirectUri: win.location.origin
+      };
+      if(inviteEmail){
+        options.loginHint = inviteEmail;
       }
+      keycloak.register(options);
     }
 
     let content = isLoading || keycloakConfig.initialized ? null : (
