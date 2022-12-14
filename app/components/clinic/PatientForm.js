@@ -88,9 +88,9 @@ export const PatientForm = (props) => {
   const { updatingClinicPatient } = useSelector((state) => state.blip.working);
 
   const formattedLastRequestedDexcomConnectDate =
-    patient?.lastRequestedDexcomConnect?.time &&
+    patient?.lastRequestedDexcomConnectTime &&
     sundial.formatInTimezone(
-      patient?.lastRequestedDexcomConnect?.time,
+      patient?.lastRequestedDexcomConnectTime,
       timePrefs?.timezoneName ||
         new Intl.DateTimeFormat().resolvedOptions().timeZone,
       'MM/DD/YYYY [at] h:mm a'
@@ -161,6 +161,13 @@ export const PatientForm = (props) => {
         trackMetric(`${selectedClinicId ? 'Clinic' : 'Clinician'} - add patient email saved`);
       }
 
+      // TODO: need to send this in ClinicPatients after patient is successfully added
+      // Need to set formik submit state here as done on resend handler
+      const sendDexcomConnectRequest = values.connectDexcom && !patient?.lastRequestedDexcomConnectTime;
+      if (context === 'clinic' && sendDexcomConnectRequest) {
+        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, patient.id))
+      }
+
       dispatch(actions.async[actionMap[action][context].handler](api, ...actionMap[action][context].args()));
     },
     validationSchema,
@@ -214,7 +221,7 @@ export const PatientForm = (props) => {
     // console.log('errors.email', errors.email);
     // console.log('touched', touched);
     // const hasValidEmail = !isEmpty(values.email) && (touched.email && !errors.email)
-    const hasValidEmail = !isEmpty(values.email) && !errors.email
+    const hasValidEmail = !isEmpty(values.email) && !errors.email;
 
     // console.log('hasValidEmail', hasValidEmail);
     setDisableConnectDexcom(!hasValidEmail);
@@ -241,10 +248,7 @@ export const PatientForm = (props) => {
   function handleResendDexcomConnectEmailConfirm() {
     trackMetric('Clinic - Resend Dexcom connect email confirm', { clinicId: selectedClinicId })
     formikContext.setStatus('resendingDexcomConnect');
-
-    dispatch(
-      actions.async.updateClinicPatient(api, selectedClinicId, patient.id, omitBy({ ...patient, lastRequestedDexcomConnect: { ...patient.lastRequestedDexcomConnect, resendRequest: true } }, emptyValuesFilter))
-    );
+    dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, patient.id));
   }
 
   return (

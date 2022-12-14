@@ -180,7 +180,7 @@ describe('ClinicPatients', () => {
               email: 'patient1@test.ca',
               fullName: 'patient1',
               birthDate: '1999-01-01',
-              lastRequestedDexcomConnect: { time: '2021-10-19T16:27:59.504Z' },
+              lastRequestedDexcomConnectTime: '2021-10-19T16:27:59.504Z',
               dataSources: [
                 { providerName: 'dexcom', state: 'pending' },
               ],
