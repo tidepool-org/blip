@@ -269,6 +269,10 @@ describe('Signup', function () {
     let RewiredSignup;
     let wrapper;
 
+    afterEach(() => {
+      keycloakMock.register.reset();
+    });
+
     before(() => {
       Signup.__Rewire__('keycloak', keycloakMock);
       Signup.__Rewire__('win', { location: { origin: 'testOrigin' } });
@@ -307,6 +311,25 @@ describe('Signup', function () {
       expect(keycloakMock.register.callCount).to.equal(1);
       expect(keycloakMock.register.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
     });
+
+    it('should provide loginHint if inviteEmail is provided', () => {
+      expect(keycloakMock.register.callCount).to.equal(0);
+      storeState = merge(storeState, {
+        blip: { keycloakConfig: { initialized: true } },
+      });
+      store = mockStore(storeState);
+      wrapper.setProps({
+        inviteEmail: 'someEmail@provider.com',
+        keycloakConfig: {
+          url: 'keycloakUrl',
+          initialized: true,
+        },
+      });
+      expect(keycloakMock.register.callCount).to.equal(1);
+      expect(keycloakMock.register.calledWith({loginHint: 'someEmail@provider.com'}));
+    });
+
+
   });
 
   describe('initial state', function() {
