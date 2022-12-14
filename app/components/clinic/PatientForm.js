@@ -167,10 +167,12 @@ export const PatientForm = (props) => {
   });
 
   const {
+    errors,
+    isSubmitting,
     setFieldValue,
     setValues,
+    touched,
     values,
-    isSubmitting,
   } = formikContext;
 
   function handleAsyncResult(workingState, successMessage) {
@@ -207,7 +209,17 @@ export const PatientForm = (props) => {
   }, [values, clinicPatientTags, isSubmitting]);
 
   useEffect(() => {
-    setDisableConnectDexcom(isEmpty(values.email));
+    // console.log('values.email', values.email);
+    // console.log('values.connectDexcom', values.connectDexcom);
+    // console.log('errors.email', errors.email);
+    // console.log('touched', touched);
+    // const hasValidEmail = !isEmpty(values.email) && (touched.email && !errors.email)
+    const hasValidEmail = !isEmpty(values.email) && !errors.email
+
+    // console.log('hasValidEmail', hasValidEmail);
+    setDisableConnectDexcom(!hasValidEmail);
+
+    // setFieldValue('connectDexcom', !)
   }, [values.email]);
 
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
@@ -346,6 +358,7 @@ export const PatientForm = (props) => {
 
       {showConnectDexcom && (
         <Box
+          id="connectDexcomWrapper"
           mt={3}
           pt={3}
           sx={{
@@ -385,6 +398,7 @@ export const PatientForm = (props) => {
 
       {showDexcomConnectState && (
         <Box
+          id="connectDexcomStatusWrapper"
           mt={3}
           pt={3}
           color={dexcomConnectStateUI[dexcomConnectState].color}
@@ -418,6 +432,7 @@ export const PatientForm = (props) => {
               {t('Patient has received an email to authorize Dexcom data sharing with Tidepool but they have not taken any action yet.')}
 
               <Button
+                id="resendDexcomConnectRequestTrigger"
                 variant="textPrimary"
                 onClick={handleResendDexcomConnectEmail}
                 fontSize={0}

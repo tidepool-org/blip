@@ -197,6 +197,9 @@ describe('ClinicianPatients', () => {
       patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
       expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
 
+      // should not show the dexcom connection section
+      expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
+
       store.clearActions();
       dialog().find('Button#addPatientConfirm').simulate('click');
 
@@ -431,6 +434,9 @@ describe('ClinicianPatients', () => {
         expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient2@test.ca');
         patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
         expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
+
+        // should not show the dexcom connection section
+        expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
 
         store.clearActions();
         dialog().find('Button#editPatientConfirm').simulate('click');
