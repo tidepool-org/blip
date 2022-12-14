@@ -2563,6 +2563,28 @@ export function sendPatientUploadReminder(api, clinicId, patientId) {
 }
 
 /**
+ * Send a dexcom connect reqeust email to a clinic patient
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function sendPatientDexcomConnectRequest(api, clinicId, patientId) {
+  return (dispatch) => {
+    dispatch(sync.sendPatientDexcomConnectRequestRequest());
+
+    api.clinics.sendPatientDexcomConnectRequest(clinicId, patientId, (err, result) => {
+      if (err) {
+        dispatch(sync.sendPatientDexcomConnectRequestFailure(
+          createActionError(ErrorMessages.ERR_SENDING_PATIENT_DEXCOM_CONNECT_REQUEST, err), err
+        ));
+      } else {
+        dispatch(sync.sendPatientDexcomConnectRequestSuccess(clinicId, patientId, _.get(result, 'lastRequestedDexcomConnectTime', moment().toISOString())));
+      }
+    });
+  };
+}
+
+/**
  * Create a patient tag for a clinic
  *
  * @param {Object} api - an instance of the API wrapper

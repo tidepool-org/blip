@@ -911,6 +911,22 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        lastRequestedDexcomConnectTime,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...state[clinicId].patients[patientId],
+            lastRequestedDexcomConnectTime,
+          } } },
+        },
+      });
+    }
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS: {
