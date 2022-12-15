@@ -600,6 +600,8 @@ export const ClinicPatients = (props) => {
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   const previousDeletingPatientFromClinic = usePrevious(deletingPatientFromClinic);
   const previousSendingPatientUploadReminder = usePrevious(sendingPatientUploadReminder);
+  const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
+  const previousCreatingClinicCustodialAccount = usePrevious(creatingClinicCustodialAccount);
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
@@ -615,9 +617,9 @@ export const ClinicPatients = (props) => {
   }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
-    const { inProgress, completed, notification } = workingState;
+    const { inProgress, completed, notification, prevInProgress } = workingState;
 
-    if (!isFirstRender && !inProgress) {
+    if (!isFirstRender && !inProgress && prevInProgress !== false) {
       if (completed) {
         onComplete();
         setToast({
@@ -638,24 +640,42 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   useEffect(() => {
-    handleAsyncResult(updatingClinicPatient, t('You have successfully updated a patient.'), () => {
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), () => {
       handleCloseOverlays();
 
       if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
         dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
       }
     });
-  }, [handleAsyncResult, t, updatingClinicPatient, patientFormContext?.status]);
+  }, [
+    api,
+    dispatch,
+    selectedClinicId,
+    handleAsyncResult,
+    t,
+    updatingClinicPatient,
+    patientFormContext?.status,
+    previousUpdatingClinicPatient?.inProgress,
+  ]);
 
   useEffect(() => {
-    handleAsyncResult(creatingClinicCustodialAccount, t('You have successfully added a new patient.'), () => {
+    handleAsyncResult({ ...creatingClinicCustodialAccount, prevInProgress: previousCreatingClinicCustodialAccount?.inProgress }, t('You have successfully added a new patient.'), () => {
       handleCloseOverlays();
 
       if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
         dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, creatingClinicCustodialAccount.patientId));
       }
     });
-  }, [creatingClinicCustodialAccount, handleAsyncResult, patientFormContext?.status, t]);
+  }, [
+    api,
+    dispatch,
+    selectedClinicId,
+    handleAsyncResult,
+    t,
+    creatingClinicCustodialAccount,
+    patientFormContext?.status,
+    previousCreatingClinicCustodialAccount?.inProgress,
+  ]);
 
   useEffect(() => {
     handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
@@ -679,80 +699,21 @@ export const ClinicPatients = (props) => {
   }, [patientTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const { inProgress, completed, notification } = deletingPatientFromClinic;
     const successMessage = t('{{name}} has been removed from the clinic.', {
       name: get(selectedPatient, 'fullName', t('This patient')),
     });
 
-    if (
-      !isFirstRender &&
-      !inProgress &&
-      previousDeletingPatientFromClinic?.inProgress
-    ) {
-      if (completed) {
-        handleCloseOverlays();
-        setToast({
-          message: successMessage,
-          variant: 'success',
-        });
-      }
+    handleAsyncResult({ ...deletingPatientFromClinic, prevInProgress: previousDeletingPatientFromClinic?.inProgress }, successMessage);
+  }, [handleAsyncResult, selectedPatient, deletingPatientFromClinic, previousDeletingPatientFromClinic?.inProgress, t]);
 
-      if (completed === false) {
-        setToast({
-          message: get(notification, 'message'),
-          variant: 'danger',
-        });
-      }
-
-      setLoading(false);
-    }
-  }, [
-    deletingPatientFromClinic,
-    handleAsyncResult,
-    isFirstRender,
-    previousDeletingPatientFromClinic?.inProgress,
-    selectedPatient,
-    setToast,
-    t,
-  ]);
 
   useEffect(() => {
-    const { inProgress, completed, notification } = sendingPatientUploadReminder;
     const successMessage = t('Uploader reminder email for {{name}} has been sent.', {
       name: get(selectedPatient, 'fullName', t('this patient')),
     });
 
-    if (
-      !isFirstRender &&
-      !inProgress &&
-      previousSendingPatientUploadReminder?.inProgress
-    ) {
-      if (completed) {
-        handleCloseOverlays();
-        setToast({
-          message: successMessage,
-          variant: 'success',
-        });
-      }
-
-      if (completed === false) {
-        setToast({
-          message: get(notification, 'message'),
-          variant: 'danger',
-        });
-      }
-
-      setLoading(false);
-    }
-  }, [
-    handleAsyncResult,
-    isFirstRender,
-    previousSendingPatientUploadReminder?.inProgress,
-    selectedPatient,
-    sendingPatientUploadReminder,
-    setToast,
-    t,
-  ]);
+    handleAsyncResult({ ...sendingPatientUploadReminder, prevInProgress: previousSendingPatientUploadReminder?.inProgress }, successMessage);
+  }, [handleAsyncResult, selectedPatient, sendingPatientUploadReminder, previousSendingPatientUploadReminder?.inProgress, t]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = fetchingPatientsForClinic;
