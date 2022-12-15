@@ -638,16 +638,24 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   useEffect(() => {
-    // updatingClinicPatient state could also complete when resending the dexcom connect email,
-    // so we only need to make sure that the patient form is in a submitting state before handling
-    if (patientFormContext?.isSubmitting) {
-      handleAsyncResult(updatingClinicPatient, t('You have successfully updated a patient.'));
-    }
-  }, [handleAsyncResult, t, updatingClinicPatient, patientFormContext?.isSubmitting]);
+    handleAsyncResult(updatingClinicPatient, t('You have successfully updated a patient.'), () => {
+      handleCloseOverlays();
+
+      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
+        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
+      }
+    });
+  }, [handleAsyncResult, t, updatingClinicPatient, patientFormContext?.status]);
 
   useEffect(() => {
-    handleAsyncResult(creatingClinicCustodialAccount, t('You have successfully added a new patient.'));
-  }, [creatingClinicCustodialAccount, handleAsyncResult, t]);
+    handleAsyncResult(creatingClinicCustodialAccount, t('You have successfully added a new patient.'), () => {
+      handleCloseOverlays();
+
+      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
+        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, creatingClinicCustodialAccount.patientId));
+      }
+    });
+  }, [creatingClinicCustodialAccount, handleAsyncResult, patientFormContext?.status, t]);
 
   useEffect(() => {
     handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());

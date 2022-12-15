@@ -343,6 +343,21 @@ export default (state = initialWorkingState, action) => {
               }
             }
           });
+        } else if (_.includes([
+          types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS,
+          types.UPDATE_CLINIC_PATIENT_SUCCESS,
+          types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS,
+        ], action.type)) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: false,
+                notification: _.get(action, ['payload', 'notification'], null),
+                completed: true,
+                patientId: _.get(action, ['payload', 'patientId']),
+              }
+            }
+          });
         } else {
           return update(state, {
             [key]: {
