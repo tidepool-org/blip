@@ -7334,6 +7334,104 @@ describe('dataWorkerQueryData', () => {
     });
   });
 
+  describe('sendPatientDexcomConnectRequest', () => {
+    describe('request', () => {
+      it('should set sendingPatientDexcomConnectRequest.completed to null', () => {
+        expect(initialState.sendingPatientDexcomConnectRequest.completed).to.be.null;
+
+        let requestAction = actions.sync.sendPatientDexcomConnectRequestRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.sendingPatientDexcomConnectRequest.completed).to.be.null;
+
+        let successAction = actions.sync.sendPatientDexcomConnectRequestSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.sendingPatientDexcomConnectRequest.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.sendingPatientDexcomConnectRequest.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingPatientDexcomConnectRequest.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.sendPatientDexcomConnectRequestRequest();
+
+        expect(initialStateForTest.sendingPatientDexcomConnectRequest.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.sendingPatientDexcomConnectRequest.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set sendingPatientDexcomConnectRequest.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.sendingPatientDexcomConnectRequest.completed).to.be.null;
+
+        let failureAction = actions.sync.sendPatientDexcomConnectRequestFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.sendingPatientDexcomConnectRequest.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingPatientDexcomConnectRequest.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          sendingPatientDexcomConnectRequest: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.sendPatientDexcomConnectRequestFailure(error);
+
+        expect(initialStateForTest.sendingPatientDexcomConnectRequest.inProgress).to.be.true;
+        expect(initialStateForTest.sendingPatientDexcomConnectRequest.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.sendingPatientDexcomConnectRequest.inProgress).to.be.false;
+        expect(state.sendingPatientDexcomConnectRequest.notification.type).to.equal('error');
+        expect(state.sendingPatientDexcomConnectRequest.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set sendingPatientDexcomConnectRequest.completed to be true', () => {
+        expect(initialState.sendingPatientDexcomConnectRequest.completed).to.be.null;
+
+        let successAction = actions.sync.sendPatientDexcomConnectRequestSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.sendingPatientDexcomConnectRequest.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingPatientDexcomConnectRequest.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          sendingPatientDexcomConnectRequest: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.sendPatientDexcomConnectRequestSuccess('strava', 'blah');
+
+        expect(initialStateForTest.sendingPatientDexcomConnectRequest.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.sendingPatientDexcomConnectRequest.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
   describe('createClinicPatientTag', () => {
     describe('request', () => {
       it('should set creatingClinicPatientTag.completed to null', () => {

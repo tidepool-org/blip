@@ -44,6 +44,7 @@ describe('ClinicPatients', () => {
         createClinicCustodialAccount: sinon.stub().callsArgWith(2, null, { id: 'stubbedId' }),
         updateClinicPatient: sinon.stub().callsArgWith(3, null, { id: 'stubbedId', stubbedUpdates: 'foo' }),
         sendPatientUploadReminder: sinon.stub().callsArgWith(2, null, { lastUploadReminderTime: '2022-02-02T00:00:00.000Z'}),
+        sendPatientDexcomConnectRequest: sinon.stub().callsArgWith(2, null, { lastRequestedDexcomConnectTime: '2022-02-02T00:00:00.000Z'}),
         createClinicPatientTag: sinon.stub(),
         updateClinicPatientTag: sinon.stub(),
         deleteClinicPatientTag: sinon.stub(),
@@ -62,6 +63,7 @@ describe('ClinicPatients', () => {
     defaultProps.api.clinics.getPatientsForClinic.resetHistory();
     defaultProps.api.clinics.deletePatientFromClinic.resetHistory();
     defaultProps.api.clinics.createClinicCustodialAccount.resetHistory();
+    defaultProps.api.clinics.sendPatientDexcomConnectRequest.resetHistory();
     defaultProps.api.clinics.updateClinicPatient.resetHistory();
   });
 
@@ -117,6 +119,7 @@ describe('ClinicPatients', () => {
         updatingClinicPatient: defaultWorkingState,
         creatingClinicCustodialAccount: defaultWorkingState,
         sendingPatientUploadReminder: defaultWorkingState,
+        sendingPatientDexcomConnectRequest: defaultWorkingState,
         creatingClinicPatientTag: defaultWorkingState,
         updatingClinicPatientTag: defaultWorkingState,
         deletingClinicPatientTag: defaultWorkingState,
@@ -911,7 +914,7 @@ describe('ClinicPatients', () => {
           expect(patientForm().find('input[name="connectDexcom"]').find('input').props().disabled).to.be.false;
         });
 
-        it('should disable the dexcom connect checkbox if email is cleared', () => {
+        it('should disable and uncheck the dexcom connect checkbox if email is cleared', () => {
           // Set the email and check the dexcom request box
           patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
           expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
@@ -925,6 +928,7 @@ describe('ClinicPatients', () => {
           expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
 
           expect(patientForm().find('input[name="connectDexcom"]').find('input').props().disabled).to.be.true;
+          expect(patientForm().find('input[name="connectDexcom"]').find('input').props().checked).to.be.false;
         });
       });
 
@@ -1020,17 +1024,14 @@ describe('ClinicPatients', () => {
 
           const expectedActions = [
             {
-              type: 'UPDATE_CLINIC_PATIENT_REQUEST',
+              type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST',
             },
             {
-              type: 'UPDATE_CLINIC_PATIENT_SUCCESS',
+              type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS',
               payload: {
                 clinicId: 'clinicID123',
-                patient: {
-                  id: 'stubbedId',
-                  stubbedUpdates: 'foo',
-                },
-                patientId: 'stubbedId',
+                lastRequestedDexcomConnectTime: '2022-02-02T00:00:00.000Z',
+                patientId: 'patient1',
               },
             },
           ];
@@ -1039,7 +1040,7 @@ describe('ClinicPatients', () => {
           resendInvite.props().onClick();
           expect(store.getActions()).to.eql(expectedActions);
           sinon.assert.calledWith(
-            defaultProps.api.clinics.updateClinicPatient,
+            defaultProps.api.clinics.sendPatientDexcomConnectRequest,
             'clinicID123',
             'patient1'
           );

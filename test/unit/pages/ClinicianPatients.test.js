@@ -120,6 +120,7 @@ describe('ClinicianPatients', () => {
         removingMembershipInOtherCareTeam: defaultWorkingState,
         updatingPatient: defaultWorkingState,
         creatingVCACustodialAccount: defaultWorkingState,
+        sendingPatientDexcomConnectRequest: defaultWorkingState,
       },
     },
   };
