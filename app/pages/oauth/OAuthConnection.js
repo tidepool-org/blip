@@ -52,14 +52,17 @@ export const OAuthConnection = (props) => {
       status: 'error',
       subheading: t('Hmm... That didn\'t work. Please try again.'),
       banner: {
-        message: t('We were unable to determine your connection status to Tidepool.'),
+        message: t('We were unable to determine your {{providerName}} connection status.', {
+          providerName: capitalize(providerName),
+        }),
         variant: 'danger',
       },
     },
   };
 
   useEffect(() => {
-    setIsCustodial(queryParams.has('signupEmail') && queryParams.has('signupKey'));
+    const custodialSignup = queryParams.has('signupEmail') && queryParams.has('signupKey');
+    setIsCustodial(custodialSignup);
 
     if (includes(allowedProviderNames, providerName) && statusContent[status]) {
       setAuthStatus(statusContent[status]);
@@ -67,7 +70,7 @@ export const OAuthConnection = (props) => {
       setAuthStatus(statusContent.error)
     }
 
-    trackMetric('Oauth - Connection', { providerName, status, isCustodial });
+    trackMetric('Oauth - Connection', { providerName, status, custodialSignup });
   }, []);
 
   const handleClickClaimAccount = () => {
@@ -77,7 +80,7 @@ export const OAuthConnection = (props) => {
 
   return authStatus ? (
     <>
-      <Banner {...authStatus.banner} dismissable={false} />
+      <Banner id={`banner-oauth-${authStatus.status}`} {...authStatus.banner} dismissable={false} />
 
       <Box
         variant="containers.smallBordered"
@@ -88,16 +91,16 @@ export const OAuthConnection = (props) => {
           textAlign: 'center'
         }}
       >
-        <Title mb={2}>
+        <Title id="oauth-heading" mb={2}>
           {t('Connection {{status}}', {status: capitalize(authStatus.status)})}
         </Title>
 
-        <Subheading mb={3}>
+        <Subheading id="oauth-subheading" mb={3}>
           {authStatus.subheading}
         </Subheading>
 
         {authStatus.message && (
-          <Body1 mb={3}>
+          <Body1 id="oauth-message" mb={3}>
             {authStatus.message}
           </Body1>
         )}
@@ -122,6 +125,7 @@ export const OAuthConnection = (props) => {
 
             <Flex justifyContent="center">
               <Button
+                id="oauth-claim-account-button"
                 variant="primary"
                 onClick={handleClickClaimAccount}
               >
@@ -136,7 +140,6 @@ export const OAuthConnection = (props) => {
 };
 
 OAuthConnection.propTypes = {
-  api: PropTypes.object.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
 
