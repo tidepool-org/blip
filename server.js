@@ -89,6 +89,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     frameSrc: ['https://docs.google.com', 'https://app.pendo.io', '*.tidepool.org', 'localhost:*'],
     connectSrc: [].concat([
       process.env.API_HOST || 'localhost:*',
+      process.env.REALM_HOST,
       'https://api.github.com/repos/tidepool-org/uploader/releases',
       'https://static.zdassets.com',
       'https://ekr.zdassets.com',
@@ -103,7 +104,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://app.pendo.io',
       'https://data.pendo.io',
       'https://pendo-static-5707274877534208.storage.googleapis.com',
-    ]),
+    ]).filter(src => src !== undefined),
     frameAncestors: ['https://app.pendo.io', '*.tidepool.org', 'localhost:*']
   },
   reportOnly: false,
