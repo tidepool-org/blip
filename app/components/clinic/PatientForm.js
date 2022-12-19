@@ -161,8 +161,13 @@ export const PatientForm = (props) => {
         trackMetric(`${selectedClinicId ? 'Clinic' : 'Clinician'} - add patient email saved`);
       }
 
-      if (context === 'clinic' && values.connectDexcom && !patient?.lastRequestedDexcomConnectTime) {
-        trackMetric('Clinic - Request dexcom connection for patient', { clinicId: selectedClinicId })
+      const emailUpdated = initialValues.email && values.email && (initialValues.email !== values.email);
+
+      if (context === 'clinic' && values.connectDexcom && (!patient?.lastRequestedDexcomConnectTime || emailUpdated)) {
+        trackMetric('Clinic - Request dexcom connection for patient', {
+          clinicId: selectedClinicId,
+          reason: emailUpdated ? 'email updated' : 'initial connection request',
+        })
         formikHelpers.setStatus('sendingDexcomConnectRequest');
       }
 
