@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.57.0-web-1372-keycloak.2",
+  "version": "1.58.0-web-1850-dexcom-custodial-connect.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
