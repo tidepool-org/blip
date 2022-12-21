@@ -142,6 +142,8 @@ describe('clinicUtils', function() {
         'email',
         'mrn',
         'tags',
+        'connectDexcom',
+        'dataSources',
       ]);
     });
   });

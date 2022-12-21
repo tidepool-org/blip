@@ -587,6 +587,25 @@ describe('clinics', () => {
     });
   });
 
+  describe('sendPatientDexcomConnectRequestSuccess', () => {
+    it('should update patient `lastRequestedDexcomConnectTime` in state', () => {
+      let clinicId = 'clinicId123';
+      let patientId = 'patientId123';
+      const lastRequestedDexcomConnectTime = '2022-10-10T00:00:000Z';
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patients: {
+            [patientId]: {},
+          },
+        },
+      };
+      let action = actions.sync.sendPatientDexcomConnectRequestSuccess(clinicId, patientId, lastRequestedDexcomConnectTime);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients.patientId123.lastRequestedDexcomConnectTime).to.eql(lastRequestedDexcomConnectTime);
+    });
+  });
+
   describe('createClinicPatientTagSuccess', () => {
     it('should update `patientTags` in state', () => {
       let clinicId = 'clinicId123';

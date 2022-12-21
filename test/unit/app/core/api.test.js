@@ -67,6 +67,7 @@ describe('api', () => {
       getClinicByShareCode: sinon.stub(),
       triggerInitialClinicMigration: sinon.stub(),
       sendPatientUploadReminder: sinon.stub(),
+      sendPatientDexcomConnectRequest: sinon.stub(),
       createClinicPatientTag: sinon.stub(),
       updateClinicPatientTag: sinon.stub(),
       deleteClinicPatientTag: sinon.stub(),
@@ -131,6 +132,7 @@ describe('api', () => {
     tidepool.getClinicByShareCode.resetHistory();
     tidepool.triggerInitialClinicMigration.resetHistory();
     tidepool.sendPatientUploadReminder.resetHistory();
+    tidepool.sendPatientDexcomConnectRequest.resetHistory();
     tidepool.createClinicPatientTag.resetHistory();
     tidepool.updateClinicPatientTag.resetHistory();
     tidepool.deleteClinicPatientTag.resetHistory();
@@ -931,6 +933,15 @@ describe('api', () => {
         const clinicId = 'clinicId123';
         api.clinics.sendPatientUploadReminder(clinicId, patientId, cb);
         sinon.assert.calledWith(tidepool.sendPatientUploadReminder, clinicId, patientId, cb);
+      });
+    });
+    describe('clinics.sendPatientDexcomConnectRequest', () => {
+      it('should call tidepool.sendPatientDexcomConnectRequest with the appropriate args', () => {
+        const cb = sinon.stub();
+        const patientId = 'patientId123';
+        const clinicId = 'clinicId123';
+        api.clinics.sendPatientDexcomConnectRequest(clinicId, patientId, cb);
+        sinon.assert.calledWith(tidepool.sendPatientDexcomConnectRequest, clinicId, patientId, cb);
       });
     });
     describe('clinics.createClinicPatientTag', () => {

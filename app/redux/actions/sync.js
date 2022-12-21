@@ -1997,6 +1997,33 @@ export function sendPatientUploadReminderFailure(error, apiError) {
   };
 }
 
+export function sendPatientDexcomConnectRequestRequest() {
+  return {
+    type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST,
+  };
+}
+
+export function sendPatientDexcomConnectRequestSuccess(clinicId, patientId, lastRequestedDexcomConnectTime) {
+  return {
+    type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      lastRequestedDexcomConnectTime: lastRequestedDexcomConnectTime,
+    },
+  };
+}
+
+export function sendPatientDexcomConnectRequestFailure(error, apiError) {
+  return {
+    type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function createClinicPatientTagRequest() {
   return {
     type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_REQUEST,
