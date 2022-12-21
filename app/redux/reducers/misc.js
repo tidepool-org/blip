@@ -693,8 +693,8 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
       let { clinicId, patients, count } = action.payload;
-      const newPatientSet = _.reduce(patients, (newSet, patient) => {
-        newSet[patient.id] = patient
+      const newPatientSet = _.reduce(patients, (newSet, patient, i) => {
+        newSet[patient.id] = { ...patient, sortIndex: i };
         return newSet;
       }, {});
       return update(state, {
@@ -717,10 +717,11 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS: {
       let { clinicId, patient } = action.payload;
+      const existingSortIndex = state[clinicId].patients[patient.id]?.sortIndex;
       return update(state, {
         [clinicId]: { patients: { $set: {
           ...state[clinicId].patients,
-          [patient.id]: patient
+          [patient.id]: { ...patient, sortIndex: existingSortIndex }
         } } }
       });
     }
@@ -807,9 +808,14 @@ export const clinics = (state = initialState.clinics, action) => {
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
       let patientCount = state[clinicId].patientCount;
+
+      // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
+      // list for easy visibility of the newly created patient.
+      const existingSortIndex = state[clinicId].patients[patientId]?.sortIndex || -1;
+
       if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) patientCount++;
       return update(state, {
-        [clinicId]: { patients: { [patientId]: { $set: patient } }, patientCount: { $set: patientCount } },
+        [clinicId]: { patients: { [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } }, patientCount: { $set: patientCount } },
       });
     }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
@@ -1005,7 +1011,8 @@ export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
         return _.get(action.payload, 'info.auth', {});
       }
     case types.KEYCLOAK_READY:
-      return _.extend({}, state, { initialized: true });
+      let logoutUrl = _.get(action.payload, 'logoutUrl', '');
+      return _.extend({}, state, { initialized: true, logoutUrl });
     default:
       return state;
   }

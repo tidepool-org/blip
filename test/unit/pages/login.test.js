@@ -4,6 +4,7 @@
 /* global it */
 /* global before */
 /* global after */
+/* global afterEach */
 
 import React from'react';
 import mutationTracker from 'object-invariant-test-helper';
@@ -14,6 +15,8 @@ import Login, { Login as LoginFunction, mapStateToProps } from'../../../app/page
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+
+import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
 
 let assert = chai.assert;
 let expect = chai.expect;
@@ -37,7 +40,13 @@ describe('Login', function () {
         completed: true,
       },
       keycloakConfig: {},
-      api: { user: { isAuthenticated: sinon.stub().returns(false) } }
+      api: {
+        user: {
+          isAuthenticated: sinon.stub().returns(false),
+          confirmSignUp: sinon.stub().callsArgWith(1, null),
+        }
+      },
+      location: {},
     };
 
     it('should render without problems when required props are present', function () {
@@ -77,6 +86,7 @@ describe('Login', function () {
 
       before(() => {
         Login.__Rewire__('keycloak', keycloakMock);
+        Login.__Rewire__('win', { location: { origin: 'testOrigin' } });
         RewiredLogin = require('../../../app/pages/login/login.js').default;
         wrapper = mount(
           <Provider store={store}>
@@ -89,10 +99,117 @@ describe('Login', function () {
 
       after(() => {
         Login.__ResetDependency__('keycloak');
+        Login.__ResetDependency__('win');
+      });
+
+      afterEach(() => {
+        keycloakMock.login.reset();
+        store.clearActions();
       });
 
       it('should forward a user to keycloak login when initialized', () => {
         expect(keycloakMock.login.callCount).to.equal(1);
+        expect(keycloakMock.login.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
+      });
+
+      describe('when claiming an account', () => {
+        it('should forward user to verification-with-password if signupEmail+signupKey present and 409 on confirm', () => {
+          let claimProps = {
+            ...props,
+            api: {
+              user: {
+                isAuthenticated: sinon.stub().returns(false),
+                confirmSignUp: sinon.stub().callsArgWith(1, {status: 409}),
+              }
+            },
+            location: {
+              query: {
+                signupEmail: 'someEmail@example.com',
+                signupKey: 'somerandomsignupkey',
+              },
+            },
+          };
+          let err = new Error(ErrorMessages.ERR_CONFIRMING_SIGNUP);
+          err.status = 409;
+
+          let expectedActions = [
+            {
+              type: 'CONFIRM_SIGNUP_REQUEST',
+            },
+            {
+              type: 'CONFIRM_SIGNUP_FAILURE',
+              error: err,
+              meta: {
+                apiError: {
+                  status: 409,
+                },
+              },
+              payload: {
+                signupKey: 'somerandomsignupkey',
+              },
+            },
+            {
+              type: '@@router/CALL_HISTORY_METHOD',
+              payload: {
+                args: [
+                  '/verification-with-password?signupKey=somerandomsignupkey&signupEmail=someEmail@example.com',
+                ],
+                method: 'push',
+              },
+            },
+          ];
+
+          wrapper = mount(
+            <Provider store={store}>
+              <BrowserRouter>
+                <RewiredLogin {...claimProps} />
+              </BrowserRouter>
+            </Provider>
+          );
+
+          let actions = store.getActions();
+          expect(actions[1].error).to.deep.include({
+            message: ErrorMessages.ERR_CONFIRMING_SIGNUP,
+          });
+          expectedActions[1].error = actions[1].error;
+          expect(actions).to.eql(expectedActions);
+          expect(keycloakMock.login.callCount).to.equal(0);
+          expect(claimProps.api.user.confirmSignUp.callCount).to.equal(1);
+        });
+
+        it('should confirm signup if signupEmail+signupKey present and no error on confirm', () => {
+          let claimProps = {
+            ...props,
+            location: {
+              query: {
+                signupEmail: 'someEmail@example.com',
+                signupKey: 'somerandomsignupkey',
+              },
+            },
+          };
+
+          let expectedActions = [
+            {
+              type: 'CONFIRM_SIGNUP_REQUEST',
+            },
+            {
+              type: 'CONFIRM_SIGNUP_SUCCESS',
+            }
+          ];
+
+          wrapper = mount(
+            <Provider store={store}>
+              <BrowserRouter>
+                <RewiredLogin {...claimProps} />
+              </BrowserRouter>
+            </Provider>
+          );
+
+          let actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+          expect(keycloakMock.login.callCount).to.equal(0);
+          expect(claimProps.api.user.confirmSignUp.callCount).to.equal(1);
+        });
       });
     });
   });

@@ -17,6 +17,7 @@ import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
+import orderBy from 'lodash/orderBy';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import without from 'lodash/without';
@@ -2550,7 +2551,7 @@ export const ClinicPatients = (props) => {
     t,
   ]);
 
-  const data = useMemo(() => values(clinic?.patients), [clinic?.patients]);
+  const data = useMemo(() => orderBy(values(clinic?.patients), 'sortIndex'), [clinic?.patients]);
   const tableStyle = useMemo(() => ({ fontSize: showSummaryData ? '12px' : '14px' }), [showSummaryData]);
 
   const renderPeopleTable = useCallback(() => {

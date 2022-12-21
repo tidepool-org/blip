@@ -50,9 +50,11 @@ describe('LoginNav', function () {
 
     before(() => {
       LoginNav.__Rewire__('keycloak', keycloakMock);
+      LoginNav.__Rewire__('win', { location: { origin: 'testOrigin' } });
     });
     after(() => {
       LoginNav.__ResetDependency__('keycloak');
+      LoginNav.__ResetDependency__('win');
     });
 
     it('should send users to keycloak register if keycloak is initialized', () => {
@@ -65,6 +67,7 @@ describe('LoginNav', function () {
       expect(keycloakMock.register.callCount).to.equal(0);
       link.simulate('click');
       expect(keycloakMock.register.callCount).to.equal(1);
+      expect(keycloakMock.register.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
     });
   });
 });

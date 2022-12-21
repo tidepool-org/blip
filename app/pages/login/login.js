@@ -19,6 +19,7 @@ import Button from '../../components/elements/Button';
 import { components as vizComponents} from '@tidepool/viz';
 const { Loader } = vizComponents;
 import { keycloak } from '../../keycloak';
+let win = window;
 
 export let Login = translate()(class extends React.Component {
   static propTypes = {
@@ -33,6 +34,9 @@ export let Login = translate()(class extends React.Component {
     working: PropTypes.bool.isRequired,
     keycloakConfig: PropTypes.object,
     fetchingInfo: PropTypes.object.isRequired,
+    location: PropTypes.object.isRequired,
+    signupEmail: PropTypes.string,
+    signupKey: PropTypes.string,
   };
 
   constructor(props) {
@@ -66,7 +70,7 @@ export let Login = translate()(class extends React.Component {
   };
 
   render() {
-    const { t, keycloakConfig, fetchingInfo } = this.props;
+    const { t, keycloakConfig, fetchingInfo, signupEmail, signupKey } = this.props;
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
     var loggingIn = this.props.working;
@@ -74,6 +78,7 @@ export let Login = translate()(class extends React.Component {
       fetchingInfo.inProgress ||
       !(fetchingInfo.completed || !!fetchingInfo.notification) ||
       (!!keycloakConfig.url && !keycloakConfig.initialized);
+    var isClaimFlow = !!signupEmail && !!signupKey;
     var login = keycloakConfig.url && keycloakConfig.initialized ? (
       <Button onClick={() => keycloak.login()} disabled={loggingIn}>
         {loggingIn ? t('Logging in...') : t('Login')}
@@ -87,15 +92,26 @@ export let Login = translate()(class extends React.Component {
       this.props.isInvite &&
       keycloakConfig.initialized &&
       !loggingIn &&
-      !this.props.isAuthenticated
+      !this.props.isAuthenticated &&
+      !isClaimFlow
     ) {
-      keycloak.login({ loginHint: this.props.seedEmail });
+      keycloak.login({
+        loginHint: this.props.seedEmail,
+        redirectUri: win.location.origin
+      });
     }
 
     // forward to keycloak login when available
-    if(keycloakConfig.initialized && !loggingIn && !this.props.isAuthenticated){
-      keycloak.login();
-      return (<></>);
+    if (
+      keycloakConfig.initialized &&
+      !loggingIn &&
+      !this.props.isAuthenticated &&
+      !isClaimFlow
+    ) {
+      keycloak.login({
+        redirectUri: win.location.origin,
+      });
+      return <></>;
     }
 
     return (
@@ -272,9 +288,12 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  let seedEmail = utils.getInviteEmail(ownProps.location) || utils.getSignupEmail(ownProps.location);
-  let signupKey = utils.getSignupKey(ownProps.location);
-  let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
+  let location = ownProps.location;
+  let signupEmail = utils.getSignupEmail(location);
+  let inviteEmail = utils.getInviteEmail(location);
+  let seedEmail = inviteEmail || signupEmail;
+  let signupKey = utils.getSignupKey(location);
+  let isInvite = !_.isEmpty(inviteEmail);
   let api = ownProps.api;
   let isAuthenticated = api.user.isAuthenticated();
   return Object.assign({}, stateProps, dispatchProps, {
@@ -284,7 +303,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     seedEmail: seedEmail,
     trackMetric: ownProps.trackMetric,
     onSubmit: dispatchProps.onSubmit.bind(null, api),
-    location: ownProps.location
+    location: location,
+    signupEmail: signupEmail,
+    signupKey: signupKey,
   });
 };
 

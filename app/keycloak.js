@@ -28,7 +28,10 @@ export const updateKeycloakConfig = (info, store) => {
 export const onKeycloakEvent = (store) => (event, error) => {
   switch (event) {
     case 'onReady': {
-      store.dispatch(sync.keycloakReady(event, error));
+      let logoutUrl = keycloak.createLogoutUrl({
+        redirectUri: window.location.origin
+      });
+      store.dispatch(sync.keycloakReady(event, error, logoutUrl));
       break;
     }
     case 'onInitError': {
@@ -89,10 +92,6 @@ export const onKeycloakTokens = (store) => (tokens) => {
 
 export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
   switch (action.type) {
-    case ActionTypes.LOGOUT_REQUEST: {
-      keycloak.logout();
-      break;
-    }
     case ActionTypes.FETCH_INFO_SUCCESS: {
       if (!isEqual(_keycloakConfig, action.payload?.info?.auth)) {
         updateKeycloakConfig(action.payload?.info?.auth, storeAPI);

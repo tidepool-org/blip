@@ -48,10 +48,11 @@ describe('clinics', () => {
       let initialStateForTest = {};
       let clinicId = 'clinicId123';
       let clinic = { id: clinicId };
-      let patients = [{ id: 'patientId123' }];
+      let patients = [{ id: 'patientId123' }, { id: 'patientId456' }];
       let action = actions.sync.fetchPatientsForClinicSuccess(clinicId, patients);
       let state = reducer(initialStateForTest, action);
-      expect(state[clinic.id].patients.patientId123).to.eql({ id: 'patientId123' });
+      expect(state[clinic.id].patients.patientId123).to.eql({ id: 'patientId123', sortIndex: 0 });
+      expect(state[clinic.id].patients.patientId456).to.eql({ id: 'patientId456', sortIndex: 1 });
     });
   });
 
