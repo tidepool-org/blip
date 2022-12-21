@@ -70,6 +70,7 @@ describe('api', () => {
       createClinicPatientTag: sinon.stub(),
       updateClinicPatientTag: sinon.stub(),
       deleteClinicPatientTag: sinon.stub(),
+      saveSession: sinon.stub(),
     };
 
     rollbar = {
@@ -133,6 +134,7 @@ describe('api', () => {
     tidepool.createClinicPatientTag.resetHistory();
     tidepool.updateClinicPatientTag.resetHistory();
     tidepool.deleteClinicPatientTag.resetHistory();
+    tidepool.saveSession.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -375,12 +377,16 @@ describe('api', () => {
     });
 
     describe('login', () => {
-      it('should set the user config in Rollbar', () => {
-        const cb = sinon.stub();
-        const user = {
-          username: 'user@account.com',
-        }
+      const cb = sinon.stub();
+      const user = {
+        username: 'user@account.com',
+      };
 
+      afterEach(() => {
+        cb.resetHistory();
+      });
+
+      it('should set the user config in Rollbar', () => {
         api.user.login(user, cb);
 
         sinon.assert.calledOnce(rollbar.configure);
@@ -393,6 +399,16 @@ describe('api', () => {
             },
           },
         });
+      });
+
+      it('should not attempt to login a user who is already logged in', () => {
+        tidepool.isLoggedIn.returns(true);
+        sinon.assert.notCalled(tidepool.isLoggedIn);
+        api.user.login(user, cb);
+        sinon.assert.calledOnce(tidepool.isLoggedIn);
+        sinon.assert.notCalled(tidepool.login);
+        sinon.assert.calledOnce(cb);
+        tidepool.isLoggedIn.resetBehavior();
       });
     });
 
@@ -408,6 +424,30 @@ describe('api', () => {
             person: null,
           },
         });
+      });
+    });
+
+    describe('saveSession', () => {
+      const cb = sinon.stub();
+      const userId = 'userID123';
+      const token = 'sessionToken';
+      const options = { some: 'option' };
+
+      it('should set the appropriate session information', () => {
+        api.user.saveSession(userId, token, options, cb);
+        sinon.assert.calledOnce(tidepool.saveSession);
+        sinon.assert.calledWith(
+          tidepool.saveSession,
+          userId,
+          token,
+          options
+        );
+      });
+
+      it('should allow omitting options', () => {
+        api.user.saveSession(userId, token, cb);
+        sinon.assert.calledOnce(tidepool.saveSession);
+        sinon.assert.calledWith(tidepool.saveSession, userId, token, {});
       });
     });
   });

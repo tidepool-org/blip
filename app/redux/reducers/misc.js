@@ -1003,3 +1003,17 @@ export const clinicFlowActive = (state = initialState.clinicFlowActive, action) 
       return state;
   }
 };
+
+export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
+  switch (action.type) {
+    case types.FETCH_INFO_SUCCESS:
+      if (!_.isMatch(state, action?.payload?.info?.auth)) {
+        return _.get(action.payload, 'info.auth', {});
+      }
+    case types.KEYCLOAK_READY:
+      let logoutUrl = _.get(action.payload, 'logoutUrl', '');
+      return _.extend({}, state, { initialized: true, logoutUrl });
+    default:
+      return state;
+  }
+};

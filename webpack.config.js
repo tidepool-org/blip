@@ -20,6 +20,7 @@ const isProd = (process.env.NODE_ENV === 'production');
 // Get config from local config file or process.env
 const linkedPackages = (isDev || isTest) ? _.get(optional('./config/local'), 'linkedPackages', {}) : {};
 const apiHost = _.get(optional('./config/local'), 'apiHost', process.env.API_HOST || null);
+const uploadApi = _.get(optional('./config/local'), 'uploadApi', process.env.UPLOAD_API || null);
 const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
   i18nEnabled: process.env.I18N_ENABLED || false,
   rxEnabled: process.env.RX_ENABLED || false,
@@ -145,7 +146,7 @@ const plugins = [
     'process.env': {
       'NODE_ENV': isDev ? JSON.stringify('development') : JSON.stringify('production'),
     },
-    __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
+    __UPLOAD_API__: JSON.stringify(uploadApi),
     __API_HOST__: JSON.stringify(apiHost),
     __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
     __LATEST_TERMS__: JSON.stringify(process.env.LATEST_TERMS || null),
@@ -170,7 +171,7 @@ const plugins = [
     {
       from: 'static',
       transform: (content, path) => {
-        if (isDev) {
+        if (isDev || !path.endsWith('js')) {
          return content;
         }
 

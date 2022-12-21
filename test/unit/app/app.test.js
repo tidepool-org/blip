@@ -996,6 +996,7 @@ describe('App', () => {
           fetchingPatient: {inProgress: false, notification: {type: 'error'}},
           loggingOut: {inProgress: false},
           resendingEmailVerification: {inProgress: false},
+          fetchingInfo: {inProgress: false},
         },
         resentEmailVerification: false,
         selectedClinicId: null,
@@ -1236,11 +1237,16 @@ describe('App', () => {
             inProgress: false,
             completed: null,
           },
+          fetchingInfo: {
+            inProgress: false,
+            completed: null,
+          },
         };
 
         const dispatchProps = {
           fetchUser: sinon.stub().returns('fetchUser'),
           fetchDataSources: sinon.stub().returns('fetchDataSources'),
+          fetchInfo: sinon.stub().returns('fetchInfo'),
         };
 
         const api = {};
@@ -1251,11 +1257,13 @@ describe('App', () => {
           expect(result[0]()).to.equal('fetchUser');
           expect(result[1]).to.be.a('function');
           expect(result[1]()).to.equal('fetchDataSources');
+          expect(result[2]).to.be.a('function');
+          expect(result[2]()).to.equal('fetchInfo');
         });
 
         it('should only add the user and data source fetchers if fetches are not already in progress or completed', () => {
           const standardResult = getFetchers(stateProps, dispatchProps, api);
-          expect(standardResult.length).to.equal(2);
+          expect(standardResult.length).to.equal(3);
 
           const inProgressResult = getFetchers({
             authenticated: true,
@@ -1267,6 +1275,10 @@ describe('App', () => {
               inProgress: true,
               completed: null,
             },
+            fetchingInfo: {
+              inProgress: true,
+              completed: null,
+            }
           }, dispatchProps, api);
 
           expect(inProgressResult.length).to.equal(0);
@@ -1281,13 +1293,17 @@ describe('App', () => {
               inProgress: false,
               completed: true,
             },
+            fetchingInfo: {
+              inProgress: false,
+              completed: true,
+            }
           }, dispatchProps, api);
           expect(completedResult.length).to.equal(0);
         });
 
         it('should return an array containing the data sources fetcher from dispatchProps, but only if authenticated', () => {
           const result = getFetchers(_.assign({}, stateProps, { authenticated: false } ), dispatchProps, api);
-          expect(result[1]).to.be.undefined;
+          expect(result[2]).to.be.undefined;
 
           const loggedInResult = getFetchers(_.assign({}, stateProps, { authenticated: true } ), dispatchProps, api);
           expect(loggedInResult[1]).to.be.a('function');

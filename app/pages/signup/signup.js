@@ -15,8 +15,12 @@ import { URL_TERMS_OF_USE, URL_PRIVACY_POLICY } from '../../core/constants';
 import utils from '../../core/utils';
 import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
+import { keycloak } from '../../keycloak';
+import { components as vizComponents} from '@tidepool/viz';
+const { Loader } = vizComponents;
 
 import check from './images/check.svg';
+let win = window;
 
 export let Signup = translate()(class extends React.Component {
   static propTypes = {
@@ -148,16 +152,37 @@ export let Signup = translate()(class extends React.Component {
   };
 
   render() {
+    const { keycloakConfig, fetchingInfo, inviteEmail } = this.props;
     let form = this.renderForm();
     let inviteIntro = this.renderInviteIntroduction();
     let typeSelection = this.renderTypeSelection();
+    let isLoading = fetchingInfo.inProgress ||
+      !(fetchingInfo.completed || !!fetchingInfo.notification) ||
+      (!!keycloakConfig.url && !keycloakConfig.initialized);
+
+    if(keycloakConfig.initialized){
+      let options = {
+        redirectUri: win.location.origin
+      };
+      if(inviteEmail){
+        options.loginHint = inviteEmail;
+      }
+      keycloak.register(options);
+    }
+
+    let content = isLoading || keycloakConfig.initialized ? null : (
+      <>
+        <LoginLogo />
+        {inviteIntro}
+        {typeSelection}
+        {form}
+      </>
+    );
     if (!this.state.loading) {
       return (
         <div className="signup">
-          <LoginLogo />
-          {inviteIntro}
-          {typeSelection}
-          {form}
+          <Loader show={isLoading} overlay={true} />
+          {content}
         </div>
       );
     }
@@ -441,6 +466,8 @@ export function mapStateToProps(state) {
   return {
     notification: state.blip.working.signingUp.notification,
     working: state.blip.working.signingUp.inProgress,
+    fetchingInfo: state.blip.working.fetchingInfo,
+    keycloakConfig: state.blip.keycloakConfig,
   };
 }
 

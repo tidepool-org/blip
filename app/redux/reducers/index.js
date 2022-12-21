@@ -57,6 +57,7 @@ import {
   pendingSentClinicianInvites,
   pendingReceivedClinicianInvites,
   clinicFlowActive,
+  keycloakConfig,
 } from './misc';
 
 export default combineReducers({
@@ -96,6 +97,7 @@ export default combineReducers({
   pendingSentClinicianInvites,
   pendingReceivedClinicianInvites,
   clinicFlowActive,
+  keycloakConfig,
   pdf,
   data,
   working,

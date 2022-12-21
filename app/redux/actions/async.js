@@ -10,12 +10,13 @@ import { DIABETES_DATA_TYPES } from '../../core/constants';
 import * as sync from './sync.js';
 import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
-import config from '../../config';
-
+import { keycloak } from '../../keycloak';
 import { push } from 'connected-react-router';
 import { worker } from '.';
 
 import utils from '../../core/utils';
+
+let win = window;
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
@@ -136,7 +137,12 @@ export function verifyCustodial(api, signupKey, signupEmail, birthday, password)
           createActionError(errorMessage, err), err, signupKey
         ));
       } else {
-        dispatch(login(api, {username: signupEmail, password: password}, null, sync.verifyCustodialSuccess));
+        const { blip: { keycloakConfig } } = getState();
+        if (keycloakConfig.initialized) {
+          keycloak.login({ loginHint: signupEmail, redirectUri: win.location.origin + '/login' });
+        } else {
+          dispatch(login(api, { username: signupEmail, password: password }, null, sync.verifyCustodialSuccess));
+        }
       }
     })
   };
@@ -207,7 +213,7 @@ export function acceptTerms(api, acceptedDate, userId) {
  * @param  {?Function} postLoginAction optionalArgument action to call after login success
  */
 export function login(api, credentials, options, postLoginAction) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.loginRequest());
 
     const routes = {
@@ -215,10 +221,11 @@ export function login(api, credentials, options, postLoginAction) {
       workspaces: '/workspaces',
       clinicDetails: '/clinic-details',
       clinicWorkspace: '/clinic-workspace',
+      profile: '/profile',
     };
 
     let redirectRoute = routes.patients;
-    let selectedClinicId = null;
+    let { blip: { selectedClinicId = null } } = getState();
 
     api.user.login(credentials, options, (err) => {
       if (err) {
@@ -240,6 +247,7 @@ export function login(api, credentials, options, postLoginAction) {
             const isClinicianAccount = personUtils.isClinicianAccount(user);
             const hasClinicianRole = _.includes(user.roles, 'clinician');
             const hasLegacyClinicRole = _.includes(user.roles, 'clinic');
+            const userHasFullName = !_.isEmpty(user.profile.fullName);
 
             // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
             // to the clinic workflow if a relationship with a clinic object or an invite exists.
@@ -276,10 +284,13 @@ export function login(api, credentials, options, postLoginAction) {
                 } else if (values.clinics?.length) {
                   const clinicMigration = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
-                  if (!clinicMigration && values.clinics.length === 1) {
-                    // Go to the clinic workspace if only one clinic
-                    dispatch(sync.selectClinic(values.clinics[0]?.clinic?.id));
-                    setRedirectRoute(routes.clinicWorkspace, values.clinics[0]?.clinic?.id);
+                  if (!clinicMigration && (values.clinics.length === 1 || selectedClinicId)) {
+                    // Go to the clinic workspace if only one clinic or there is a currently selected clinic
+                    if (values.clinics.length === 1) {
+                      selectedClinicId = values.clinics[0]?.clinic?.id;
+                    }
+                    dispatch(sync.selectClinic(selectedClinicId));
+                    setRedirectRoute(routes.clinicWorkspace, selectedClinicId);
                   } else {
                     // If we have an empty clinic object, go to clinic details, otherwise workspaces
                     if (hasLegacyClinicRole && clinicMigration) {
@@ -295,6 +306,8 @@ export function login(api, credentials, options, postLoginAction) {
                   // clinic workspace to create their clinic profile and add a clinic if they have
                   // not already done so.
                   setRedirectRoute(!userHasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces);
+                } else if (!userHasFullName) {
+                  setRedirectRoute(routes.profile);
                 } else {
                   getPatientProfile();
                 }
@@ -303,7 +316,9 @@ export function login(api, credentials, options, postLoginAction) {
 
             function setRedirectRoute(route, clinicId = null) {
               redirectRoute = route;
-              selectedClinicId = clinicId;
+              if (clinicId) {
+                selectedClinicId = clinicId;
+              }
               getPatientProfile();
             }
 
@@ -357,12 +372,16 @@ export function login(api, credentials, options, postLoginAction) {
  */
 export function logout(api) {
   return (dispatch, getState) => {
-    const { blip: { currentPatientInViewId } } = getState();
+    const { blip: { currentPatientInViewId, keycloakConfig } } = getState();
     dispatch(sync.logoutRequest());
     dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     api.user.logout(() => {
       dispatch(sync.logoutSuccess());
-      dispatch(push('/'));
+      if(keycloakConfig.logoutUrl){
+        win.location.assign(keycloakConfig.logoutUrl);
+      } else {
+        dispatch(push('/'));
+      }
     });
   }
 }
@@ -825,9 +844,8 @@ export function fetchUser(api, cb = _.noop) {
           ));
         }
       } else if (!utils.hasVerifiedEmail(user)) {
-        dispatch(sync.fetchUserFailure(
-          createActionError(ErrorMessages.ERR_EMAIL_NOT_VERIFIED)
-        ));
+        err = createActionError(ErrorMessages.ERR_EMAIL_NOT_VERIFIED);
+        dispatch(sync.fetchUserFailure(err));
       } else {
         dispatch(sync.fetchUserSuccess(user));
       }
@@ -2632,6 +2650,30 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
       } else {
         dispatch(sync.deleteClinicPatientTagSuccess(clinicId, patientTags));
       }
+    });
+  };
+}
+
+/**
+ * Fetch server configuration information
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+ export function fetchInfo(api, cb = _.noop) {
+  return (dispatch) => {
+    dispatch(sync.fetchInfoRequest());
+
+    api.server.getInfo((err, info) => {
+      if (err) {
+        dispatch(sync.fetchInfoFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_INFO, err), err
+        ));
+      } else {
+        dispatch(sync.fetchInfoSuccess(info));
+      }
+
+      // Invoke callback if provided
+      cb(err, info);
     });
   };
 }

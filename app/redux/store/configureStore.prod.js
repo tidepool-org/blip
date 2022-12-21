@@ -34,6 +34,8 @@ import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
 import pendoMiddleware from '../utils/pendoMiddleware';
+import { keycloak, keycloakMiddleware } from '../../keycloak';
+import config from '../../config';
 
 export const history = qhistory(createBrowserHistory(), stringify, parse);
 
@@ -46,14 +48,16 @@ const worker = new Worker;
 const workerMiddleware = createWorkerMiddleware(worker);
 
 function _createStore(api) {
-  const createStoreWithMiddleware = applyMiddleware(
+  const middlewares = [
     workerMiddleware,
     thunkMiddleware,
     routerMiddleware(history),
     createErrorLogger(api),
     trackingMiddleware(api),
     pendoMiddleware(api),
-  )(createStore);
+    keycloakMiddleware(api),
+  ];
+  const createStoreWithMiddleware = applyMiddleware(...middlewares)(createStore);
 
   const initialState = { blip: assign(blipState, loadLocalState()) };
   const store = createStoreWithMiddleware(reducer, initialState);

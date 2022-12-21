@@ -34,10 +34,12 @@ const environments = {
 };
 
 const apiHost = environments.dev;
+const uploadApi = apiHost;
 
 module.exports = {
   listLinkedPackages: () => console.log(Object.keys(linkedPackages).join(',')),
   linkedPackages,
   featureFlags,
   apiHost,
+  uploadApi,
 };
