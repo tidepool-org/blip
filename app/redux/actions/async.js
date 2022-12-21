@@ -16,6 +16,8 @@ import { worker } from '.';
 
 import utils from '../../core/utils';
 
+let win = window;
+
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
   if (apiError) {
@@ -137,7 +139,7 @@ export function verifyCustodial(api, signupKey, signupEmail, birthday, password)
       } else {
         const { blip: { keycloakConfig } } = getState();
         if (keycloakConfig.initialized) {
-          keycloak.login({ loginHint: signupEmail, redirectUri: window.location.origin + '/login' });
+          keycloak.login({ loginHint: signupEmail, redirectUri: win.location.origin + '/login' });
         } else {
           dispatch(login(api, { username: signupEmail, password: password }, null, sync.verifyCustodialSuccess));
         }
@@ -370,12 +372,16 @@ export function login(api, credentials, options, postLoginAction) {
  */
 export function logout(api) {
   return (dispatch, getState) => {
-    const { blip: { currentPatientInViewId } } = getState();
+    const { blip: { currentPatientInViewId, keycloakConfig } } = getState();
     dispatch(sync.logoutRequest());
     dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     api.user.logout(() => {
       dispatch(sync.logoutSuccess());
-      dispatch(push('/'));
+      if(keycloakConfig.logoutUrl){
+        win.location.assign(keycloakConfig.logoutUrl);
+      } else {
+        dispatch(push('/'));
+      }
     });
   }
 }

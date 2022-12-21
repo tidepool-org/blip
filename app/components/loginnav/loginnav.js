@@ -6,6 +6,8 @@ import { keycloak } from '../../keycloak';
 import { translate } from 'react-i18next';
 var Link = require('react-router-dom').Link;
 
+let win = window;
+
 var LoginNav = translate()(class extends React.Component {
   static propTypes = {
     page: PropTypes.string,
@@ -46,7 +48,9 @@ var LoginNav = translate()(class extends React.Component {
       self.props.trackMetric('Clicked Sign Up Link');
       if (keycloakConfig.initialized) {
         e.preventDefault();
-        keycloak.register();
+        keycloak.register({
+          redirectUri: win.location.origin
+        });
       }
     };
 
@@ -59,7 +63,9 @@ var LoginNav = translate()(class extends React.Component {
         self.props.trackMetric('Clicked Log In Link');
         if(keycloakConfig.initialized) {
           e.preventDefault();
-          keycloak.login();
+          keycloak.login({
+            redirectUri: win.location.origin
+          });
         }
       };
     }

@@ -1781,6 +1781,20 @@ describe('Actions', () => {
     });
 
     describe('logout', () => {
+      let winMock = {
+        location: {
+          assign: sinon.stub()
+        }
+      };
+
+      before(() => {
+        async.__Rewire__('win', winMock);
+      });
+
+      after(() => {
+        async.__ResetDependency__('win');
+      });
+
       it('should trigger LOGOUT_SUCCESS and it should call logout once for a successful request', () => {
         let api = {
           user: {
@@ -1806,6 +1820,39 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.user.logout.callCount).to.equal(1);
         expect(trackMetric.calledWith('Logged Out')).to.be.true;
+      });
+
+      it('should trigger LOGOUT_SUCCESS, call logout once, and set window location if keycloak configured for a successful request', () => {
+        let api = {
+          user: {
+            logout: sinon.stub().callsArgWith(0, null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'LOGOUT_REQUEST' },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub', patientId: 'abc123' }, payload: { predicate: undefined } },
+          { type: 'LOGOUT_SUCCESS' }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({
+          blip: {
+            ...initialState,
+            currentPatientInViewId: 'abc123',
+            keycloakConfig: { logoutUrl: 'keycloakLogoutUrl' },
+          },
+        });
+        store.dispatch(async.logout(api));
+
+        const actions = store.getActions();
+        actions[1].meta.origin = 'originStub';
+
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.logout.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged Out')).to.be.true;
+        expect(winMock.location.assign.calledOnceWith('keycloakLogoutUrl')).to.be.true;
       });
     });
 
