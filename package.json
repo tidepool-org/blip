@@ -171,7 +171,7 @@
     "terser": "4.8.1",
     "terser-webpack-plugin": "2.2.1",
     "tideline": "1.26.0",
-    "tidepool-platform-client": "0.52.0-rc.1",
+    "tidepool-platform-client": "0.52.0-rc.2",
     "tidepool-standard-action": "0.1.1",
     "url-loader": "1.1.1",
     "webpack": "4.44.1",
