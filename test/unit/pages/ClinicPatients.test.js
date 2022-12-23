@@ -202,6 +202,7 @@ describe('ClinicPatients', () => {
               email: 'patient3@test.ca',
               fullName: 'patient3',
               birthDate: '1999-01-01',
+              lastRequestedDexcomConnectTime: '2021-10-19T16:27:59.504Z',
               dataSources: [
                 { providerName: 'dexcom', state: 'disconnected' },
               ],
@@ -998,7 +999,7 @@ describe('ClinicPatients', () => {
           expect(stateWrapper().text()).includes('Unknown connection to');
         });
 
-        it('should allow resending a pending dexcom connection reminder', () => {
+        it.only('should allow resending a pending dexcom connection reminder', () => {
           const stateWrapper = () => patientForm().find('#connectDexcomStatusWrapper').hostNodes();
           const resendButton = () => stateWrapper().find('#resendDexcomConnectRequestTrigger').hostNodes();
 
@@ -1007,6 +1008,13 @@ describe('ClinicPatients', () => {
           expect(stateWrapper().text()).includes('Connected with');
           expect(resendButton()).to.have.lengthOf(0);
 
+          // Show for disconnected state
+          getPatientForm(2);
+          expect(stateWrapper()).to.have.lengthOf(1);
+          expect(stateWrapper().text()).includes('Disconnected from');
+          expect(resendButton()).to.have.lengthOf(1);
+
+          // Show for pending state
           getPatientForm(0);
           expect(stateWrapper()).to.have.lengthOf(1);
           expect(stateWrapper().text()).includes('Pending connection');
