@@ -477,7 +477,7 @@ export const PatientForm = (props) => {
                   handleResendDexcomConnectEmailConfirm();
                 }}
               >
-                {t('Resend Dexcom Connection Request')}
+                {t('Resend Request')}
               </Button>
             </DialogActions>
           </Dialog>
