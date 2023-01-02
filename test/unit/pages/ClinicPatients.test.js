@@ -999,7 +999,7 @@ describe('ClinicPatients', () => {
           expect(stateWrapper().text()).includes('Unknown connection to');
         });
 
-        it.only('should allow resending a pending dexcom connection reminder', () => {
+        it('should allow resending a pending dexcom connection reminder', () => {
           const stateWrapper = () => patientForm().find('#connectDexcomStatusWrapper').hostNodes();
           const resendButton = () => stateWrapper().find('#resendDexcomConnectRequestTrigger').hostNodes();
 
