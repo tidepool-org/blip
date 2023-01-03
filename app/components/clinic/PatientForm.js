@@ -238,7 +238,7 @@ export const PatientForm = (props) => {
   }, [sendingPatientDexcomConnectRequest]);
 
   function handleResendDexcomConnectEmail() {
-    trackMetric('Clinic - Resend Dexcom connect email', { clinicId: selectedClinicId })
+    trackMetric('Clinic - Resend Dexcom connect email', { clinicId: selectedClinicId, dexcomConnectState })
     setShowResendDexcomConnectRequest(true);
   }
 
@@ -444,6 +444,22 @@ export const PatientForm = (props) => {
             </Body0>
           )}
 
+          {dexcomConnectState === 'disconnected' && (
+            <Body0 mt={2} fontWeight="medium" color={colors.mediumGrey} sx={{ display: 'inline-block', lineHeight: '0.5 !important'}}>
+              {t('Patient has disconnected their Dexcom data sharing authorization with Tidepool. Would you like to send a new connection request?')}
+
+              <Button
+                id="resendDexcomConnectRequestTrigger"
+                variant="textPrimary"
+                onClick={handleResendDexcomConnectEmail}
+                fontSize={0}
+                sx={{ display: 'inline-block !important'}}
+              >
+                {t('Send email')}
+              </Button>
+            </Body0>
+          )}
+
           <Dialog
             id="resendDexcomConnectRequest"
             aria-labelledby="dialog-title"
@@ -477,7 +493,7 @@ export const PatientForm = (props) => {
                   handleResendDexcomConnectEmailConfirm();
                 }}
               >
-                {t('Resend Dexcom Connection Request')}
+                {t('Resend Request')}
               </Button>
             </DialogActions>
           </Dialog>
