@@ -917,6 +917,22 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        lastRequestedDexcomConnectTime,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...state[clinicId].patients[patientId],
+            lastRequestedDexcomConnectTime,
+          } } },
+        },
+      });
+    }
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS: {
@@ -999,6 +1015,20 @@ export const clinicFlowActive = (state = initialState.clinicFlowActive, action) 
       return _.includes(action.payload?.user?.roles, 'clinician') || state;
     case types.LOGOUT_REQUEST:
       return initialState.clinicFlowActive;
+    default:
+      return state;
+  }
+};
+
+export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
+  switch (action.type) {
+    case types.FETCH_INFO_SUCCESS:
+      if (!_.isMatch(state, action?.payload?.info?.auth)) {
+        return _.get(action.payload, 'info.auth', {});
+      }
+    case types.KEYCLOAK_READY:
+      let logoutUrl = _.get(action.payload, 'logoutUrl', '');
+      return _.extend({}, state, { initialized: true, logoutUrl });
     default:
       return state;
   }

@@ -580,6 +580,7 @@ export const ClinicPatients = (props) => {
   }, searchDebounceMs), [patientFetchOptions]);
 
   const {
+    fetchingPatientFromClinic,
     fetchingPatientsForClinic,
     deletingPatientFromClinic,
     updatingClinicPatient,
@@ -598,6 +599,10 @@ export const ClinicPatients = (props) => {
   }
 
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
+  const previousDeletingPatientFromClinic = usePrevious(deletingPatientFromClinic);
+  const previousSendingPatientUploadReminder = usePrevious(sendingPatientUploadReminder);
+  const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
+  const previousCreatingClinicCustodialAccount = usePrevious(creatingClinicCustodialAccount);
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
@@ -613,9 +618,9 @@ export const ClinicPatients = (props) => {
   }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
-    const { inProgress, completed, notification } = workingState;
+    const { inProgress, completed, notification, prevInProgress } = workingState;
 
-    if (!isFirstRender && !inProgress) {
+    if (!isFirstRender && !inProgress && prevInProgress !== false) {
       if (completed) {
         onComplete();
         setToast({
@@ -636,18 +641,42 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   useEffect(() => {
-    handleAsyncResult(updatingClinicPatient, t('You have successfully updated a patient.'));
-  }, [handleAsyncResult, t, updatingClinicPatient]);
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), () => {
+      handleCloseOverlays();
+
+      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
+        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
+      }
+    });
+  }, [
+    api,
+    dispatch,
+    selectedClinicId,
+    handleAsyncResult,
+    t,
+    updatingClinicPatient,
+    patientFormContext?.status,
+    previousUpdatingClinicPatient?.inProgress,
+  ]);
 
   useEffect(() => {
-    handleAsyncResult(creatingClinicCustodialAccount, t('You have successfully added a new patient.'));
-  }, [creatingClinicCustodialAccount, handleAsyncResult, t]);
+    handleAsyncResult({ ...creatingClinicCustodialAccount, prevInProgress: previousCreatingClinicCustodialAccount?.inProgress }, t('You have successfully added a new patient.'), () => {
+      handleCloseOverlays();
 
-  useEffect(() => {
-    handleAsyncResult(deletingPatientFromClinic, t('{{name}} has been removed from the clinic.', {
-      name: get(selectedPatient, 'fullName', t('This patient')),
-    }));
-  }, [deletingPatientFromClinic, handleAsyncResult, selectedPatient, t]);
+      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
+        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, creatingClinicCustodialAccount.patientId));
+      }
+    });
+  }, [
+    api,
+    dispatch,
+    selectedClinicId,
+    handleAsyncResult,
+    t,
+    creatingClinicCustodialAccount,
+    patientFormContext?.status,
+    previousCreatingClinicCustodialAccount?.inProgress,
+  ]);
 
   useEffect(() => {
     handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
@@ -671,10 +700,21 @@ export const ClinicPatients = (props) => {
   }, [patientTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    handleAsyncResult(sendingPatientUploadReminder, t('Uploader reminder email for {{name}} has been sent.', {
+    const successMessage = t('{{name}} has been removed from the clinic.', {
+      name: get(selectedPatient, 'fullName', t('This patient')),
+    });
+
+    handleAsyncResult({ ...deletingPatientFromClinic, prevInProgress: previousDeletingPatientFromClinic?.inProgress }, successMessage);
+  }, [handleAsyncResult, selectedPatient, deletingPatientFromClinic, previousDeletingPatientFromClinic?.inProgress, t]);
+
+
+  useEffect(() => {
+    const successMessage = t('Uploader reminder email for {{name}} has been sent.', {
       name: get(selectedPatient, 'fullName', t('this patient')),
-    }));
-  }, [handleAsyncResult, selectedPatient, sendingPatientUploadReminder, t]);
+    });
+
+    handleAsyncResult({ ...sendingPatientUploadReminder, prevInProgress: previousSendingPatientUploadReminder?.inProgress }, successMessage);
+  }, [handleAsyncResult, selectedPatient, sendingPatientUploadReminder, previousSendingPatientUploadReminder?.inProgress, t]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = fetchingPatientsForClinic;
@@ -840,6 +880,11 @@ export const ClinicPatients = (props) => {
     summaryPeriod,
     timePrefs,
   ]);
+
+  // Provide latest patient state for the edit form upon fetch
+  useEffect(() => {
+    if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
+  }, [fetchingPatientFromClinic]);
 
   function formatDecimal(val, precision) {
     if (precision === null || precision === undefined) {

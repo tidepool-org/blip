@@ -1,15 +1,19 @@
 var React = require('react');
 
 import PropTypes from 'prop-types';
+import { keycloak } from '../../keycloak';
 
 import { translate } from 'react-i18next';
 var Link = require('react-router-dom').Link;
+
+let win = window;
 
 var LoginNav = translate()(class extends React.Component {
   static propTypes = {
     page: PropTypes.string,
     hideLinks: PropTypes.bool,
-    trackMetric: PropTypes.func.isRequired
+    trackMetric: PropTypes.func.isRequired,
+    keycloakConfig: PropTypes.object,
   };
 
   render() {
@@ -35,13 +39,19 @@ var LoginNav = translate()(class extends React.Component {
 
 
     var self = this;
-    const {page, t} = this.props;
+    const {page, t, keycloakConfig} = this.props;
     var href = '/signup';
     var className = 'js-signup-link';
     var icon = 'icon-add';
     var text = t('Sign up');
-    var handleClick = function() {
+    var handleClick = function (e) {
       self.props.trackMetric('Clicked Sign Up Link');
+      if (keycloakConfig.initialized) {
+        e.preventDefault();
+        keycloak.register({
+          redirectUri: win.location.origin
+        });
+      }
     };
 
     if (page === 'signup') {
@@ -49,15 +59,22 @@ var LoginNav = translate()(class extends React.Component {
       className = 'js-login-link';
       icon = 'icon-login';
       text = t('Log in');
-      handleClick = function() {
+      handleClick = function(e) {
         self.props.trackMetric('Clicked Log In Link');
+        if(keycloakConfig.initialized) {
+          e.preventDefault();
+          keycloak.login({
+            redirectUri: win.location.origin
+          });
+        }
       };
     }
 
     return (
-      <Link
-        to={href}
-        className={className}><i className={icon}></i>{' ' + text}</Link>
+      <Link to={href} className={className} onClick={handleClick}>
+        <i className={icon}></i>
+        {' ' + text}
+      </Link>
     );
   };
 });

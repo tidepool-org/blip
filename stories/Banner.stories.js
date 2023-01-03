@@ -24,6 +24,7 @@ export default {
 const bannerText = () => text('Banner Text', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.');
 const bannerTextDanger = () => text('Banner Text Danger', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.');
 const bannerTextWarning = () => text('Banner Text Warning', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.');
+const bannerTextSuccess = () => text('Banner Text Success', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.');
 
 function createBanner(message, variant, dismissable = true) {
   return { message, variant, dismissable };
@@ -31,12 +32,14 @@ function createBanner(message, variant, dismissable = true) {
 
 export const BannerStory = () => {
   const [alerts, setAlerts] = useState([
-    createBanner(bannerText(), 'default'),
-    createBanner(bannerText(), 'default', false),
+    createBanner(bannerText(), 'info'),
+    createBanner(bannerText(), 'info', false),
     createBanner(bannerTextWarning(), 'warning'),
     createBanner(bannerTextWarning(), 'warning', false),
     createBanner(bannerTextDanger(), 'danger'),
     createBanner(bannerTextDanger(), 'danger', false),
+    createBanner(bannerTextSuccess(), 'success'),
+    createBanner(bannerTextSuccess(), 'success', false),
   ]);
 
   const handleDismissed = index => {

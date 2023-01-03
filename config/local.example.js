@@ -26,6 +26,7 @@ const featureFlags = {
 };
 
 const environments = {
+  local: 'http://localhost:31500',
   dev: 'https://dev1.dev.tidepool.org',
   qa1: 'https://qa1.development.tidepool.org',
   qa2: 'https://qa2.development.tidepool.org',
@@ -34,10 +35,12 @@ const environments = {
 };
 
 const apiHost = environments.dev;
+const uploadApi = apiHost;
 
 module.exports = {
   listLinkedPackages: () => console.log(Object.keys(linkedPackages).join(',')),
   linkedPackages,
   featureFlags,
   apiHost,
+  uploadApi,
 };

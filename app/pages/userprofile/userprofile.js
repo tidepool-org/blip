@@ -28,16 +28,19 @@ import { validateForm } from '../../core/validation';
 import config from '../../config';
 
 import SimpleForm from '../../components/simpleform';
+import ToastContext from '../../providers/ToastProvider';
 
 // A different namespace than the default can be specified in translate()
-export var UserProfile = translate()(class extends React.Component {
+export var UserProfileClass = class extends React.Component {
   static propTypes = {
     fetchingUser: PropTypes.bool.isRequired,
     history: PropTypes.object.isRequired,
     onSubmit: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
+    login: PropTypes.func.isRequired,
     user: PropTypes.object
   };
+  static contextType = ToastContext;
 
   formInputs = () => {
     const {t} = this.props;
@@ -79,6 +82,18 @@ export var UserProfile = translate()(class extends React.Component {
   };
 
   componentDidMount() {
+    const { user: { profile: { fullName } }, t } = this.props;
+    if (_.isEmpty(fullName)) {
+      this.context.set({
+        message: t('Please enter your full name.'),
+        autoHideDuration: null,
+      });
+      this.setState({
+        validationErrors: {
+          fullName: t('Full name is required.')
+        }
+      });
+    }
     if (this.props.trackMetric) {
       this.props.trackMetric('Viewed Account Edit');
     }
@@ -87,6 +102,10 @@ export var UserProfile = translate()(class extends React.Component {
   UNSAFE_componentWillReceiveProps(nextProps) {
     // Keep form values in sync with upstream changes
     this.setState({formValues: this.formValuesFromUser(nextProps.user)});
+    if(_.isEmpty(this.props.user.profile.fullName) && !_.isEmpty(nextProps.user.profile.fullName)){
+      this.context.clear();
+      this.props.login();
+    }
   }
 
   componentWillUnmount() {
@@ -239,8 +258,12 @@ export var UserProfile = translate()(class extends React.Component {
     validationErrors: {},
     notification: null
   };
-});
+};
 
+// We need to apply the contextType prop to use the Toast provider with create-react-class.
+// This produces an issue with the current enzyme mounting and breaks unit tests.
+// Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
+export const UserProfile = translate()(props => <UserProfileClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -262,13 +285,16 @@ export function mapStateToProps(state) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  updateUser: actions.async.updateUser
+  updateUser: actions.async.updateUser,
+  login: actions.async.login,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.api;
   return Object.assign({}, _.pick(ownProps, ['history', 'trackMetric']), stateProps, {
     onSubmit: dispatchProps.updateUser.bind(null, api),
+    login: dispatchProps.login.bind(null, api),
   });
 };
+
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(UserProfile);

@@ -119,9 +119,11 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FOR_CLINICIAN_REQUEST:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
     case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.DELETE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.FETCH_INFO_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
@@ -168,6 +170,7 @@ export default (state = initialWorkingState, action) => {
           types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST,
           types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
           types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
+          types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST,
           types.DATA_WORKER_REMOVE_DATA_REQUEST,
           types.CREATE_CLINIC_PATIENT_TAG_REQUEST,
           types.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
@@ -280,9 +283,11 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
     case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.FETCH_INFO_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -335,6 +340,21 @@ export default (state = initialWorkingState, action) => {
                 notification: _.get(action, ['payload', 'notification'], null),
                 completed: true,
                 clinicId: _.get(action, ['payload', 'clinic', 'id']),
+              }
+            }
+          });
+        } else if (_.includes([
+          types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS,
+          types.UPDATE_CLINIC_PATIENT_SUCCESS,
+          types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS,
+        ], action.type)) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: false,
+                notification: _.get(action, ['payload', 'notification'], null),
+                completed: true,
+                patientId: _.get(action, ['payload', 'patientId']),
               }
             }
           });
@@ -434,9 +454,11 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
     case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
+    case types.FETCH_INFO_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {

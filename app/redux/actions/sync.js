@@ -1997,6 +1997,33 @@ export function sendPatientUploadReminderFailure(error, apiError) {
   };
 }
 
+export function sendPatientDexcomConnectRequestRequest() {
+  return {
+    type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST,
+  };
+}
+
+export function sendPatientDexcomConnectRequestSuccess(clinicId, patientId, lastRequestedDexcomConnectTime) {
+  return {
+    type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      lastRequestedDexcomConnectTime: lastRequestedDexcomConnectTime,
+    },
+  };
+}
+
+export function sendPatientDexcomConnectRequestFailure(error, apiError) {
+  return {
+    type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function createClinicPatientTagRequest() {
   return {
     type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_REQUEST,
@@ -2068,6 +2095,97 @@ export function deleteClinicPatientTagSuccess(clinicId, patientTags) {
 export function deleteClinicPatientTagFailure(error, apiError) {
   return {
     type: ActionTypes.DELETE_CLINIC_PATIENT_TAG_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function keycloakReady(event, error, logoutUrl){
+  return {
+    type: ActionTypes.KEYCLOAK_READY,
+    payload: { error, event, logoutUrl },
+  };
+}
+
+export function keycloakInitError(event, error){
+  return {
+    type: ActionTypes.KEYCLOAK_INIT_ERROR,
+    error: error,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthSuccess(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_SUCCESS,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthError(event, error){
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_ERROR,
+    error: error,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthRefreshSuccess(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_REFRESH_SUCCESS,
+    payload: { event, error }
+  };
+}
+
+export function keycloakAuthRefreshError(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_REFRESH_ERROR,
+    error: error,
+    payload: { error, event },
+  };
+}
+
+export function keycloakTokenExpired(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_TOKEN_EXPIRED,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthLogout(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_LOGOUT,
+    payload: { error, event },
+  };
+}
+
+export function keycloakTokensReceived(tokens) {
+  return {
+    type: ActionTypes.KEYCLOAK_TOKENS_RECEIVED,
+    payload: { tokens },
+  };
+}
+
+export function fetchInfoRequest() {
+  return {
+    type: ActionTypes.FETCH_INFO_REQUEST,
+  };
+}
+
+export function fetchInfoSuccess(info) {
+  return {
+    type: ActionTypes.FETCH_INFO_SUCCESS,
+    payload: {
+      info
+    },
+  };
+}
+
+export function fetchInfoFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_INFO_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,

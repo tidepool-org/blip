@@ -15,6 +15,11 @@ import { validateForm } from '../../core/validation';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
+import Button from '../../components/elements/Button';
+import { components as vizComponents} from '@tidepool/viz';
+const { Loader } = vizComponents;
+import { keycloak } from '../../keycloak';
+let win = window;
 
 export let Login = translate()(class extends React.Component {
   static propTypes = {
@@ -26,7 +31,12 @@ export let Login = translate()(class extends React.Component {
     onSubmit: PropTypes.func.isRequired,
     seedEmail: PropTypes.string,
     trackMetric: PropTypes.func.isRequired,
-    working: PropTypes.bool.isRequired
+    working: PropTypes.bool.isRequired,
+    keycloakConfig: PropTypes.object,
+    fetchingInfo: PropTypes.object.isRequired,
+    location: PropTypes.object.isRequired,
+    signupEmail: PropTypes.string,
+    signupKey: PropTypes.string,
   };
 
   constructor(props) {
@@ -60,20 +70,64 @@ export let Login = translate()(class extends React.Component {
   };
 
   render() {
+    const { t, keycloakConfig, fetchingInfo, signupEmail, signupKey } = this.props;
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
+    var loggingIn = this.props.working;
+    var isLoading =
+      fetchingInfo.inProgress ||
+      !(fetchingInfo.completed || !!fetchingInfo.notification) ||
+      (!!keycloakConfig.url && !keycloakConfig.initialized);
+    var isClaimFlow = !!signupEmail && !!signupKey;
+    var login = keycloakConfig.url && keycloakConfig.initialized ? (
+      <Button onClick={() => keycloak.login()} disabled={loggingIn}>
+        {loggingIn ? t('Logging in...') : t('Login')}
+      </Button>
+    ) : (
+      <div className="login-simpleform">{form}</div>
+    );
+
+    // for those accepting an invite, forward to keycloak login when available
+    if (
+      this.props.isInvite &&
+      keycloakConfig.initialized &&
+      !loggingIn &&
+      !this.props.isAuthenticated &&
+      !isClaimFlow
+    ) {
+      keycloak.login({
+        loginHint: this.props.seedEmail,
+        redirectUri: win.location.origin
+      });
+    }
+
+    // forward to keycloak login when available
+    if (
+      keycloakConfig.initialized &&
+      !loggingIn &&
+      !this.props.isAuthenticated &&
+      !isClaimFlow
+    ) {
+      keycloak.login({
+        redirectUri: win.location.origin,
+      });
+      return <></>;
+    }
 
     return (
       <div className="login">
+        <Loader show={isLoading} overlay={true} />
         <LoginNav
           page="login"
           hideLinks={Boolean(this.props.seedEmail)}
-          trackMetric={this.props.trackMetric} />
+          trackMetric={this.props.trackMetric}
+          keycloakConfig={this.props.keycloakConfig}
+        />
         <LoginLogo />
         {inviteIntro}
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
-            <div className="login-simpleform">{form}</div>
+            {isLoading ? null : login}
           </div>
         </div>
       </div>
@@ -208,7 +262,7 @@ export let Login = translate()(class extends React.Component {
  */
 
 let getFetchers = (dispatchProps, ownProps, other, api) => {
-  if (other.signupKey) {
+  if (other.signupKey && !other.confirmingSignup.inProgress) {
     return [
       dispatchProps.confirmSignup.bind(null, api, other.signupKey, other.signupEmail)
     ];
@@ -221,6 +275,9 @@ export function mapStateToProps(state) {
   return {
     notification: state.blip.working.loggingIn.notification || state.blip.working.confirmingSignup.notification,
     working: state.blip.working.loggingIn.inProgress,
+    fetchingInfo: state.blip.working.fetchingInfo,
+    keycloakConfig: state.blip.keycloakConfig,
+    confirmingSignup: state.blip.working.confirmingSignup,
   };
 }
 
@@ -231,17 +288,24 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  let seedEmail = utils.getInviteEmail(ownProps.location) || utils.getSignupEmail(ownProps.location);
-  let signupKey = utils.getSignupKey(ownProps.location);
-  let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
+  let location = ownProps.location;
+  let signupEmail = utils.getSignupEmail(location);
+  let inviteEmail = utils.getInviteEmail(location);
+  let seedEmail = inviteEmail || signupEmail;
+  let signupKey = utils.getSignupKey(location);
+  let isInvite = !_.isEmpty(inviteEmail);
   let api = ownProps.api;
+  let isAuthenticated = api.user.isAuthenticated();
   return Object.assign({}, stateProps, dispatchProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail }, api),
+    fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail, confirmingSignup: stateProps.confirmingSignup }, api),
+    isAuthenticated: isAuthenticated,
     isInvite: isInvite,
     seedEmail: seedEmail,
     trackMetric: ownProps.trackMetric,
     onSubmit: dispatchProps.onSubmit.bind(null, api),
-    location: ownProps.location
+    location: location,
+    signupEmail: signupEmail,
+    signupKey: signupKey,
   });
 };
 

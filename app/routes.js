@@ -16,6 +16,7 @@ import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
 import Login from './pages/login';
 import { PrescriptionForm } from './pages/prescription';
+import OAuthConnection from './pages/oauth/OAuthConnection';
 import PatientData from './pages/patientdata';
 import PatientNew from './pages/patientnew';
 import PatientProfile from './pages/patientprofile/patientprofile';
@@ -33,6 +34,7 @@ import config from './config';
 
 import * as actions from './redux/actions';
 import { AccessManagement, ShareInvite } from './pages/share';
+import * as ErrorMessages from './redux/constants/errorMessages';
 
 /**
  * This function checks if the user is using a supported browser - if they are not it will redirect
@@ -250,14 +252,16 @@ export const requireNotVerified = (api, cb = _.noop) => (dispatch, getState) => 
   } else {
     dispatch(actions.async.fetchUser(api, (err, user) => {
       if (err) {
-        // we expect a 401 Unauthorized when navigating to /email-verification
-        // when not logged in (e.g., in a new tab after initial sign-up)
-        if (err.status === 401) {
-          return cb();
+        if(err.message !== ErrorMessages.ERR_EMAIL_NOT_VERIFIED){
+          // we expect a 401 Unauthorized when navigating to /email-verification
+          // when not logged in (e.g., in a new tab after initial sign-up)
+          if (err.status === 401) {
+            return cb();
+          }
+          const error = new Error('Error getting user at /email-verification');
+          error.originalError = err;
+          throw error;
         }
-        const error = new Error('Error getting user at /email-verification');
-        error.originalError = err;
-        throw error;
       }
 
       checkIfVerified(user);
@@ -343,6 +347,7 @@ export const getRoutes = (appContext) => {
           <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowser} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
           <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
+          <Route path='/oauth/:providerName/:status' render={routeProps => (<OAuthConnection {...routeProps} {...props} />)} />
           <Route path='/request-password-from-uploader' render={routeProps => (<Gate onEnter={boundOnUploaderPasswordReset} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />

@@ -3698,6 +3698,52 @@ describe('Actions', () => {
     });
   });
 
+  describe('sendPatientDexcomConnectRequestRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.sendPatientDexcomConnectRequestRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST', () => {
+      let action = sync.sendPatientDexcomConnectRequestRequest();
+      expect(action.type).to.equal('SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST');
+    });
+  });
+
+  describe('sendPatientDexcomConnectRequestSuccess', () => {
+    const clinicId = 'clinicId';
+    const patientId = 'patientId';
+    const lastRequestedDexcomConnectTime = '2022-10-10T00:00:000Z';
+
+    it('should be a TSA', () => {
+      let action = sync.sendPatientDexcomConnectRequestSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS', () => {
+      let action = sync.sendPatientDexcomConnectRequestSuccess(clinicId, patientId, lastRequestedDexcomConnectTime);
+      expect(action.type).to.equal('SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId');
+      expect(action.payload.patientId).to.equal('patientId');
+      expect(action.payload.lastRequestedDexcomConnectTime).to.equal('2022-10-10T00:00:000Z');
+    });
+  });
+
+  describe('sendPatientDexcomConnectRequestFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('clinic migration failed :(');
+      let action = sync.sendPatientDexcomConnectRequestFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.sendPatientDexcomConnectRequestFailure(error);
+      expect(action.type).to.equal('SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
   describe('createClinicPatientTagRequest', () => {
     it('should be a TSA', () => {
       let action = sync.createClinicPatientTagRequest();
@@ -3829,4 +3875,211 @@ describe('Actions', () => {
       expect(action.error).to.equal(error);
     });
   });
+
+  describe('keycloakReady', () => {
+    it('should be a TSA', () => {
+      let event = 'onReady';
+      let error = null;
+      let action = sync.keycloakReady(event, error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal KEYCLOAK_READY', () => {
+      let event = 'onReady';
+      let error = null;
+      let action = sync.keycloakReady(event, error);
+      expect(action.type).to.equal('KEYCLOAK_READY');
+      expect(action.payload.error).to.be.null;
+      expect(action.payload.event).to.equal(event);
+    })
+  });
+
+  describe('keycloakInitError', () => {
+    it('should be a TSA', () => {
+      let event = 'onInitError';
+      let error = new Error('Keycloak Init Failure');
+      let action = sync.keycloakInitError(event, error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal KEYCLOAK_INIT_ERROR', () => {
+      let event = 'onInitError';
+      let error = new Error('Keycloak Init Failure');
+      let action = sync.keycloakInitError(event, error);
+      expect(action.type).to.equal('KEYCLOAK_INIT_ERROR');
+      expect(action.payload.error).to.be.equal(error);
+      expect(action.payload.event).to.equal(event)
+    })
+  });
+
+  describe('keycloakAuthSuccess', () => {
+    it('should be a TSA', () => {
+      let event = 'onAuthSuccess';
+      let error = null;
+      let action = sync.keycloakAuthSuccess(event, error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal KEYCLOAK_AUTH_SUCCESS', () => {
+      let event = 'onAuthSuccess';
+      let error = null;
+      let action = sync.keycloakAuthSuccess(event, error);
+      expect(action.type).to.equal('KEYCLOAK_AUTH_SUCCESS');
+      expect(action.payload.error).to.be.null;
+      expect(action.payload.event).to.equal(event);
+    })
+  });
+
+  describe('keycloakAuthError', () => {
+    it('should be a TSA', () => {
+      let event = 'onAuthError';
+      let error = new Error('Keycloak Auth Failure');
+      let action = sync.keycloakAuthError(event, error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal KEYCLOAK_AUTH_ERROR', () => {
+      let event = 'onAuthError';
+      let error = new Error('Keycloak Auth Failure');
+      let action = sync.keycloakAuthError(event, error);
+      expect(action.type).to.equal('KEYCLOAK_AUTH_ERROR');
+      expect(action.payload.error).to.be.equal(error);
+      expect(action.payload.event).to.equal(event);
+    })
+  });
+
+  describe('keycloakAuthRefreshSuccess', () => {
+    it('should be a TSA', () => {
+      let event = 'onAuthRefreshSuccess';
+      let error = null;
+      let action = sync.keycloakAuthRefreshSuccess(event, error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal KEYCLOAK_AUTH_REFRESH_SUCCESS', () => {
+      let event = 'onAuthRefreshSuccess';
+      let error = null;
+      let action = sync.keycloakAuthRefreshSuccess(event, error);
+      expect(action.type).to.equal('KEYCLOAK_AUTH_REFRESH_SUCCESS');
+      expect(action.payload.error).to.be.null;
+      expect(action.payload.event).to.equal(event);
+    })
+  });
+
+  describe('keycloakAuthRefreshError', () => {
+    it('should be a TSA', () => {
+      let event = 'onAuthRefreshError';
+      let error = new Error('Keycloak Auth Refresh Failure');
+      let action = sync.keycloakAuthRefreshError(event, error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal KEYCLOAK_AUTH_REFRESH_ERROR', () => {
+      let event = 'onAuthRefreshError';
+      let error = new Error('Keycloak Auth Refresh Failure');
+      let action = sync.keycloakAuthRefreshError(event, error);
+      expect(action.type).to.equal('KEYCLOAK_AUTH_REFRESH_ERROR');
+      expect(action.payload.error).to.be.equal(error);
+      expect(action.payload.event).to.equal(event);
+    })
+  });
+
+  describe('keycloakTokenExpired', () => {
+    it('should be a TSA', () => {
+      let event = 'onTokenExpired';
+      let error = null;
+      let action = sync.keycloakTokenExpired(event, error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal KEYCLOAK_TOKEN_EXPIRED', () => {
+      let event = 'onTokenExpired';
+      let error = null;
+      let action = sync.keycloakTokenExpired(event, error);
+      expect(action.type).to.equal('KEYCLOAK_TOKEN_EXPIRED');
+      expect(action.payload.error).to.be.null;
+      expect(action.payload.event).to.equal(event);
+    })
+  });
+
+  describe('keycloakAuthLogout', () => {
+    it('should be a TSA', () => {
+      let event = 'onAuthLogout';
+      let error = null;
+      let action = sync.keycloakAuthLogout(event, error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal KEYCLOAK_AUTH_LOGOUT', () => {
+      let event = 'onAuthLogout';
+      let error = null;
+      let action = sync.keycloakAuthLogout(event, error);
+      expect(action.type).to.equal('KEYCLOAK_AUTH_LOGOUT');
+      expect(action.payload.error).to.be.null;
+      expect(action.payload.event).to.equal(event);
+    })
+  });
+
+  describe('keycloakTokensReceived', () => {
+    it('should be a TSA', () => {
+      let tokens = {token: 'token123'}
+      let action = sync.keycloakTokensReceived(tokens);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal KEYCLOAK_TOKENS_RECEIVED', () => {
+      let tokens = {token: 'token123'}
+      let action = sync.keycloakTokensReceived(tokens);
+      expect(action.type).to.equal('KEYCLOAK_TOKENS_RECEIVED');
+      expect(action.payload.tokens.token).to.equal('token123');
+    })
+  });
+
+  describe('fetchInfoRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.fetchInfoRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_INFO_REQUEST', () => {
+      let action = sync.fetchInfoRequest();
+      expect(action.type).to.equal('FETCH_INFO_REQUEST');
+    });
+  });
+
+  describe('fetchInfoSuccess', () => {
+    const info = {
+      auth: {
+        url: 'someUrl',
+        realm: 'anAwesomeRealm'
+      }
+    }
+
+    it('should be a TSA', () => {
+      let action = sync.fetchInfoSuccess(info);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_INFO_SUCCESS', () => {
+      let action = sync.fetchInfoSuccess(info);
+      expect(action.type).to.equal('FETCH_INFO_SUCCESS');
+      expect(action.payload.info).to.equal(info);
+    });
+  });
+
+  describe('fetchInfoFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('fetching info failed :(');
+      let action = sync.fetchInfoFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_INFO_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.fetchInfoFailure(error);
+      expect(action.type).to.equal('FETCH_INFO_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
 });

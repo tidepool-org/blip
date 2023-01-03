@@ -384,6 +384,11 @@ export default (type) => {
     case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
       return 'sendingPatientUploadReminder';
 
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE:
+      return 'sendingPatientDexcomConnectRequest';
+
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
@@ -398,6 +403,11 @@ export default (type) => {
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
       return 'deletingClinicPatientTag';
+
+    case types.FETCH_INFO_REQUEST:
+    case types.FETCH_INFO_SUCCESS:
+    case types.FETCH_INFO_FAILURE:
+      return 'fetchingInfo';
 
     default:
       return null;

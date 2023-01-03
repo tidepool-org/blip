@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
+import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keyBy from 'lodash/keyBy';
+import keys from 'lodash/keys';
 import map from 'lodash/map';
 import omitBy from 'lodash/omitBy';
 import reject from 'lodash/reject';
@@ -14,46 +16,121 @@ import without from 'lodash/without';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
-import { Box, Text, BoxProps } from 'rebass/styled-components';
+import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
+import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
+import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import sundial from 'sundial';
 
 import * as actions from '../../redux/actions';
+import Checkbox from '../../components/elements/Checkbox';
 import TextInput from '../../components/elements/TextInput';
+import Button from '../../components/elements/Button';
 import { TagList } from '../../components/elements/Tag';
+import { useToasts } from '../../providers/ToastProvider';
 import { getCommonFormikFieldProps } from '../../core/forms';
+import { useIsFirstRender } from '../../core/hooks';
 import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../core/personutils';
-import { Body1 } from '../../components/elements/FontStyles';
-import { borders } from '../../themes/baseTheme';
+import { Body0, Body1, MediumTitle } from '../../components/elements/FontStyles';
+import { borders, colors } from '../../themes/baseTheme';
+import Icon from '../elements/Icon';
+import DexcomLogoIcon from '../../core/icons/DexcomLogo.svg';
 
-function getFormValues(source, clinicPatientTags) {
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '../../components/elements/Dialog';
+
+function getFormValues(source, clinicPatientTags, disableDexcom) {
+  const hasDexcomDataSource = !!find(source?.dataSources, { providerName: 'dexcom' });
+  const connectDexcom = (hasDexcomDataSource || (!disableDexcom && source?.connectDexcom)) || false;
+  const addDexcomDataSource = connectDexcom && !hasDexcomDataSource;
+
   return {
     birthDate: source?.birthDate || '',
     email: source?.email || '',
     fullName: source?.fullName || '',
     mrn: source?.mrn || '',
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
+    connectDexcom,
+    dataSources: addDexcomDataSource ? [
+      ...source?.dataSources || [],
+      { providerName: 'dexcom', state: 'pending' },
+    ] : source?.dataSources || [],
   };
 }
 
 function emptyValuesFilter(value, key) {
   // We want to allow sending an empty `tags` array. Otherwise, strip empty fields from payload.
-  return key !== 'tags' && isEmpty(value);
+  return !includes(['tags', 'connectDexcom'], key) && isEmpty(value);
 }
 
 export const PatientForm = (props) => {
   const { t, api, onFormChange, patient, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
+  const isFirstRender = useIsFirstRender();
+  const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const timePrefs = useSelector((state) => state.blip.timePrefs);
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
   const showTags = clinic?.tier >= 'tier0200' && !!clinic?.patientTags?.length;
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
+  const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
+  const showConnectDexcom = !!selectedClinicId && !dexcomDataSource;
+  const [disableConnectDexcom, setDisableConnectDexcom] = useState(false);
+  const showDexcomConnectState = !!selectedClinicId && !!dexcomDataSource?.state;
+  const [showResendDexcomConnectRequest, setShowResendDexcomConnectRequest] = useState(false);
+  const { sendingPatientDexcomConnectRequest } = useSelector((state) => state.blip.working);
+
+  const formattedLastRequestedDexcomConnectDate =
+    patient?.lastRequestedDexcomConnectTime &&
+    sundial.formatInTimezone(
+      patient?.lastRequestedDexcomConnectTime,
+      timePrefs?.timezoneName ||
+        new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      'MM/DD/YYYY [at] h:mm a'
+    );
+
+  const dexcomConnectStateUI = {
+    pending: {
+      color: 'mediumGrey',
+      icon: ErrorOutlineRoundedIcon,
+      label: t('Pending connection with'),
+    },
+    connected: {
+      color: 'brand.dexcom',
+      icon: CheckCircleRoundedIcon,
+      label: t('Connected with'),
+    },
+    disconnected: {
+      color: 'mediumGrey',
+      icon: ErrorOutlineRoundedIcon,
+      label: t('Disconnected from'),
+    },
+    error: {
+      color: 'feedback.danger',
+      icon: ErrorOutlineRoundedIcon,
+      label: t('Error connecting to'),
+    },
+    unknown: {
+      color: 'mediumGrey',
+      icon: ErrorOutlineRoundedIcon,
+      label: t('Unknown connection to'),
+    },
+  };
+
+  const dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
+    ? dexcomDataSource.state
+    : 'unknown';
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags),
-    onSubmit: values => {
+    onSubmit: (values, formikHelpers) => {
       const action = patient?.id ? 'edit' : 'create';
       const context = selectedClinicId ? 'clinic' : 'vca';
 
@@ -61,7 +138,7 @@ export const PatientForm = (props) => {
         edit: {
           clinic: {
             handler: 'updateClinicPatient',
-            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter)],
+            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags, disableConnectDexcom) }, emptyValuesFilter)],
           },
           vca: {
             handler: 'updatePatient',
@@ -71,7 +148,7 @@ export const PatientForm = (props) => {
         create: {
           clinic: {
             handler: 'createClinicCustodialAccount',
-            args: () => [selectedClinicId, omitBy(values, emptyValuesFilter)],
+            args: () => [selectedClinicId, omitBy(getFormValues(values, clinicPatientTags, disableConnectDexcom), emptyValuesFilter)],
           },
           vca: {
             handler: 'createVCACustodialAccount',
@@ -84,16 +161,50 @@ export const PatientForm = (props) => {
         trackMetric(`${selectedClinicId ? 'Clinic' : 'Clinician'} - add patient email saved`);
       }
 
+      const emailUpdated = initialValues.email && values.email && (initialValues.email !== values.email);
+
+      if (context === 'clinic' && values.connectDexcom && (!patient?.lastRequestedDexcomConnectTime || emailUpdated)) {
+        trackMetric('Clinic - Request dexcom connection for patient', {
+          clinicId: selectedClinicId,
+          reason: emailUpdated ? 'email updated' : 'initial connection request',
+        })
+        formikHelpers.setStatus('sendingDexcomConnectRequest');
+      }
+
       dispatch(actions.async[actionMap[action][context].handler](api, ...actionMap[action][context].args()));
     },
     validationSchema,
   });
 
   const {
+    errors,
     setFieldValue,
     setValues,
+    status,
     values,
   } = formikContext;
+
+  function handleAsyncResult(workingState, successMessage) {
+    const { inProgress, completed, notification } = workingState;
+
+    if (!isFirstRender && !inProgress) {
+      if (completed) {
+        setShowResendDexcomConnectRequest(false);
+
+        setToast({
+          message: successMessage,
+          variant: 'success',
+        });
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+    }
+  }
 
   useEffect(() => {
     // set form field values and store initial patient values on patient load
@@ -104,7 +215,38 @@ export const PatientForm = (props) => {
 
   useEffect(() => {
     onFormChange(formikContext);
-  }, [values, clinicPatientTags]);
+  }, [values, clinicPatientTags, status]);
+
+  useEffect(() => {
+    const hasValidEmail = !isEmpty(values.email) && !errors.email;
+    setDisableConnectDexcom(!hasValidEmail);
+
+    if (values.connectDexcom && !hasValidEmail) {
+      setFieldValue('connectDexcom', false);
+    }
+  }, [values.email, errors.email]);
+
+  // Pull the patient on load to ensure the most recent dexcom connection state is made available
+  useEffect(() => {
+    if (selectedClinicId && patient?.id) dispatch(actions.async.fetchPatientFromClinic.bind(null, api, selectedClinicId, patient.id)())
+  }, []);
+
+  useEffect(() => {
+    handleAsyncResult(sendingPatientDexcomConnectRequest, t('Dexcom connection request to {{email}} has been resent.', {
+      email: patient?.email,
+    }));
+  }, [sendingPatientDexcomConnectRequest]);
+
+  function handleResendDexcomConnectEmail() {
+    trackMetric('Clinic - Resend Dexcom connect email', { clinicId: selectedClinicId })
+    setShowResendDexcomConnectRequest(true);
+  }
+
+  function handleResendDexcomConnectEmailConfirm() {
+    trackMetric('Clinic - Resend Dexcom connect email confirm', { clinicId: selectedClinicId });
+    formikContext.setStatus('resendingDexcomConnectRequest');
+    dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, patient.id));
+  }
 
   return (
     <Box
@@ -156,7 +298,7 @@ export const PatientForm = (props) => {
         />
       </Box>
 
-      <Box mb={4}>
+      <Box mb={2}>
         <TextInput
           {...getCommonFormikFieldProps('email', formikContext)}
           label={t('Email (optional)')}
@@ -167,9 +309,9 @@ export const PatientForm = (props) => {
         />
       </Box>
 
-      <Body1>
+      <Body0 fontWeight="medium">
         {t('If you want your patients to upload their data from home, you must include their email address.')}
-      </Body1>
+      </Body0>
 
       {showTags && (
         <Box
@@ -214,6 +356,134 @@ export const PatientForm = (props) => {
           )}
         </Box>
       )}
+
+      {showConnectDexcom && (
+        <Box
+          id="connectDexcomWrapper"
+          mt={3}
+          pt={3}
+          sx={{
+            borderTop: borders.default,
+          }}
+        >
+          <Checkbox
+            {...getCommonFormikFieldProps('connectDexcom', formikContext, 'checked')}
+            disabled={disableConnectDexcom}
+            label={(
+              <Flex
+                alignItems="center"
+              >
+                <Text mr={1} mt={1} fontSize={0}>
+                  {t('Connect with')}
+                </Text>
+
+                <Icon
+                  variant="static"
+                  iconSrc={DexcomLogoIcon}
+                  sx={{
+                    img: {
+                      filter: disableConnectDexcom ? 'saturate(0%) brightness(130%)' : 'none',
+                    },
+                  }}
+                  label="Dexcom"
+                />
+              </Flex>
+            )}
+          />
+
+          <Body0 mt={1} fontWeight="medium">
+            {t('If this box is checked, patient will receive an email to authorize sharing Dexcom data with Tidepool.')}
+          </Body0>
+        </Box>
+      )}
+
+      {showDexcomConnectState && (
+        <Box
+          id="connectDexcomStatusWrapper"
+          mt={3}
+          pt={3}
+          color={dexcomConnectStateUI[dexcomConnectState].color}
+          sx={{
+            borderTop: borders.default,
+          }}
+        >
+          <Flex
+            alignItems="center"
+          >
+            <Icon
+              variant="static"
+              icon={dexcomConnectStateUI[dexcomConnectState].icon}
+              label={`${dexcomConnectStateUI[dexcomConnectState].label} Dexcom`}
+              sx={dexcomConnectStateUI[dexcomConnectState].iconStyles}
+            />
+
+            <Text mx={1} mt={1} fontSize={0}>
+              {dexcomConnectStateUI[dexcomConnectState].label}
+            </Text>
+
+            <Icon
+              variant="static"
+              iconSrc={DexcomLogoIcon}
+              label="Dexcom"
+            />
+          </Flex>
+
+          {dexcomConnectState === 'pending' && (
+            <Body0 mt={2} fontWeight="medium" color={colors.mediumGrey} sx={{ display: 'inline-block', lineHeight: '0.5 !important'}}>
+              {t('Patient has received an email to authorize Dexcom data sharing with Tidepool but they have not taken any action yet.')}
+
+              <Button
+                id="resendDexcomConnectRequestTrigger"
+                variant="textPrimary"
+                onClick={handleResendDexcomConnectEmail}
+                fontSize={0}
+                sx={{ display: 'inline-block !important'}}
+              >
+                {t('Resend email')}
+              </Button>
+            </Body0>
+          )}
+
+          <Dialog
+            id="resendDexcomConnectRequest"
+            aria-labelledby="dialog-title"
+            open={showResendDexcomConnectRequest}
+            onClose={() => setShowResendDexcomConnectRequest(false)}
+          >
+            <DialogTitle onClose={() => setShowResendDexcomConnectRequest(false)}>
+              <MediumTitle id="dialog-title">{t('Confirm Resending Connection Request')}</MediumTitle>
+            </DialogTitle>
+            <DialogContent>
+              <Body1>
+                <Trans>
+                  <Text>
+                    You requested <Text as='span' fontWeight='bold'>{{patient: patient?.fullName || patient?.email}}</Text> to connect to <Text as='span' fontWeight='bold'>Dexcom</Text> on <Text as='span' fontWeight='bold'>{{requestDate: formattedLastRequestedDexcomConnectDate}}</Text>.
+                  </Text>
+                  <Text>
+                    Are you sure you want to resend this connection request?
+                  </Text>
+                </Trans>
+              </Body1>
+            </DialogContent>
+            <DialogActions>
+              <Button variant="secondary" onClick={() => setShowResendDexcomConnectRequest(false)}>
+                {t('Cancel')}
+              </Button>
+              <Button
+                className="resend-dexcom-connect-request"
+                variant="primary"
+                processing={sendingPatientDexcomConnectRequest.inProgress}
+                onClick={() => {
+                  handleResendDexcomConnectEmailConfirm();
+                }}
+              >
+                {t('Resend Dexcom Connection Request')}
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </Box>
+      )}
+
     </Box>
   );
 };
