@@ -81,6 +81,7 @@ export const PatientForm = (props) => {
   const showTags = clinic?.tier >= 'tier0200' && !!clinic?.patientTags?.length;
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
+  const dexcomAuthDeclined = patient?.lastDeclinedDexcomConnectTime > patient?.lastRequestedDexcomConnectTime;
   const showConnectDexcom = !!selectedClinicId && !dexcomDataSource;
   const [disableConnectDexcom, setDisableConnectDexcom] = useState(false);
   const showDexcomConnectState = !!selectedClinicId && !!dexcomDataSource?.state;
@@ -91,6 +92,15 @@ export const PatientForm = (props) => {
     patient?.lastRequestedDexcomConnectTime &&
     sundial.formatInTimezone(
       patient?.lastRequestedDexcomConnectTime,
+      timePrefs?.timezoneName ||
+        new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      'MM/DD/YYYY [at] h:mm a'
+    );
+
+  const formattedLastDeclinedDexcomConnectDate =
+    patient?.lastDeclinedDexcomConnectTime &&
+    sundial.formatInTimezone(
+      patient?.lastDeclinedDexcomConnectTime,
       timePrefs?.timezoneName ||
         new Intl.DateTimeFormat().resolvedOptions().timeZone,
       'MM/DD/YYYY [at] h:mm a'
@@ -163,10 +173,11 @@ export const PatientForm = (props) => {
 
       const emailUpdated = initialValues.email && values.email && (initialValues.email !== values.email);
 
-      if (context === 'clinic' && values.connectDexcom && (!patient?.lastRequestedDexcomConnectTime || emailUpdated)) {
+      if (context === 'clinic' && values.connectDexcom && (!patient?.lastRequestedDexcomConnectTime || emailUpdated || dexcomAuthDeclined)) {
+        let requestInstance = dexcomAuthDeclined ? 'post-decline' : 'initial';
         trackMetric('Clinic - Request dexcom connection for patient', {
           clinicId: selectedClinicId,
-          reason: emailUpdated ? 'email updated' : 'initial connection request',
+          reason: emailUpdated ? 'email updated' : `${requestInstance} connection request`,
         })
         formikHelpers.setStatus('sendingDexcomConnectRequest');
       }
@@ -394,6 +405,16 @@ export const PatientForm = (props) => {
           <Body0 mt={1} fontWeight="medium">
             {t('If this box is checked, patient will receive an email to authorize sharing Dexcom data with Tidepool.')}
           </Body0>
+
+          {dexcomAuthDeclined && (
+            <Body0 mt={1} fontWeight="medium">
+              <Trans>
+                <Text>
+                  <Text as='span' fontWeight='bold'>Note:</Text> This patient declined a previous connect request on <Text as='span' fontWeight='bold'>{{declineDate: formattedLastDeclinedDexcomConnectDate}}</Text>.
+                </Text>
+              </Trans>
+            </Body0>
+          )}
         </Box>
       )}
 
