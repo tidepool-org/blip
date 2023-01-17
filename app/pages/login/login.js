@@ -77,7 +77,7 @@ export let Login = translate()(class extends React.Component {
     var isLoading =
       fetchingInfo.inProgress ||
       !(fetchingInfo.completed || !!fetchingInfo.notification) ||
-      (!!keycloakConfig.url && !keycloakConfig.initialized);
+      (!!keycloakConfig.url && !keycloakConfig.initialized && !keycloakConfig.error);
     var isClaimFlow = !!signupEmail && !!signupKey;
     var login = keycloakConfig.url && keycloakConfig.initialized ? (
       <Button onClick={() => keycloak.login()} disabled={loggingIn}>
@@ -86,6 +86,10 @@ export let Login = translate()(class extends React.Component {
     ) : (
       <div className="login-simpleform">{form}</div>
     );
+
+    if(keycloakConfig.error){
+      login = (<div>Keycloak Initialization Error: {keycloakConfig.error}</div>)
+    }
 
     // for those accepting an invite, forward to keycloak login when available
     if (
