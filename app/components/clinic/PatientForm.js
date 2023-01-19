@@ -112,7 +112,7 @@ export const PatientForm = (props) => {
     pendingExpired: {
       color: 'mediumGrey',
       icon: ErrorOutlineRoundedIcon,
-      label: t('Expired pending connection with'),
+      label: t('Pending connection expired with'),
     },
     connected: {
       color: 'brand.dexcom',
