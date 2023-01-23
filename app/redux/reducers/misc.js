@@ -1031,7 +1031,6 @@ export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
       let logoutUrl = _.get(action.payload, 'logoutUrl', '');
       return _.extend({}, state, { initialized: true, logoutUrl });
     case types.KEYCLOAK_AUTH_ERROR:
-    case types.KEYCLOAK_AUTH_ERROR:
       let error = _.get(action.payload, 'error', {});
       let message = _.get(error, 'error', null);
       return _.extend({}, state, { error: message });

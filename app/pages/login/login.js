@@ -87,10 +87,6 @@ export let Login = translate()(class extends React.Component {
       <div className="login-simpleform">{form}</div>
     );
 
-    if(keycloakConfig.error){
-      login = (<div>Keycloak Initialization Error: {keycloakConfig.error}</div>)
-    }
-
     // for those accepting an invite, forward to keycloak login when available
     if (
       this.props.isInvite &&
@@ -107,10 +103,12 @@ export let Login = translate()(class extends React.Component {
 
     // forward to keycloak login when available
     if (
-      keycloakConfig.initialized &&
-      !loggingIn &&
-      !this.props.isAuthenticated &&
-      !isClaimFlow
+      (
+        keycloakConfig.initialized &&
+        !loggingIn &&
+        !this.props.isAuthenticated &&
+        !isClaimFlow
+      ) || keycloakConfig?.error === 'access_denied'
     ) {
       keycloak.login({
         redirectUri: win.location.origin,
