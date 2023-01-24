@@ -18467,10 +18467,10 @@ tideline@1.26.0:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.52.0-web-1850-dexcom-custodial-connect.1:
-  version "0.52.0-web-1850-dexcom-custodial-connect.1"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.52.0-web-1850-dexcom-custodial-connect.1.tgz#5b9e7bd51c8ca97a0f55a31dffc09207feadbe99"
-  integrity sha512-FNGB8x+au0OMrBVKpdeTai15sDR9G+6ZYM/eaMwyB6dr5E2dBP6OmuFbTPwo7HZ3ymn4ik43YV3HV3iilD0DzQ==
+tidepool-platform-client@0.52.0:
+  version "0.52.0"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.52.0.tgz#72503419e934abfc146f2afddefa5bcdab49f3be"
+  integrity sha512-lh8MB2IF+6bjR4dlNUQmO0dZXre8T7bMFft7nhfe70OHVZDw/V+DVHDE9ly9lLbLZrKTmuc+bhlb1wf6FM66/w==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"

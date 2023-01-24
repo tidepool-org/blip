@@ -39,7 +39,7 @@ export const OAuthConnection = (props) => {
     },
     declined: {
       status: 'declined',
-      subheading: t('You can always decide connect at a later time.'),
+      subheading: t('You can always decide to connect at a later time.'),
       message: t('We hope you enjoy your Tidepool experience.'),
       banner: {
         message: t('You have declined connecting your {{providerName}} account to Tidepool.', {
