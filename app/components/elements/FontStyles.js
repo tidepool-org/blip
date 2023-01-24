@@ -96,6 +96,13 @@ export const Body1 = Styled(Text)`
   color: ${props => (props.color ? props.color : colors.text.primary)};
 `;
 
+export const Body0 = Styled(Text)`
+  font-size: ${fontSizes[0]}px;
+  line-height: ${lineHeights[2]};
+  font-family: ${fonts.default};
+  color: ${props => (props.color ? props.color : colors.text.primary)};
+`;
+
 export const Paragraph2 = Styled(Body2)`
   margin-bottom: 1em;
   &:last-child {

@@ -3698,6 +3698,52 @@ describe('Actions', () => {
     });
   });
 
+  describe('sendPatientDexcomConnectRequestRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.sendPatientDexcomConnectRequestRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST', () => {
+      let action = sync.sendPatientDexcomConnectRequestRequest();
+      expect(action.type).to.equal('SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST');
+    });
+  });
+
+  describe('sendPatientDexcomConnectRequestSuccess', () => {
+    const clinicId = 'clinicId';
+    const patientId = 'patientId';
+    const lastRequestedDexcomConnectTime = '2022-10-10T00:00:000Z';
+
+    it('should be a TSA', () => {
+      let action = sync.sendPatientDexcomConnectRequestSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS', () => {
+      let action = sync.sendPatientDexcomConnectRequestSuccess(clinicId, patientId, lastRequestedDexcomConnectTime);
+      expect(action.type).to.equal('SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId');
+      expect(action.payload.patientId).to.equal('patientId');
+      expect(action.payload.lastRequestedDexcomConnectTime).to.equal('2022-10-10T00:00:000Z');
+    });
+  });
+
+  describe('sendPatientDexcomConnectRequestFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('clinic migration failed :(');
+      let action = sync.sendPatientDexcomConnectRequestFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.sendPatientDexcomConnectRequestFailure(error);
+      expect(action.type).to.equal('SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
   describe('createClinicPatientTagRequest', () => {
     it('should be a TSA', () => {
       let action = sync.createClinicPatientTagRequest();

@@ -39,16 +39,21 @@ export const onKeycloakEvent = (store) => (event, error) => {
       break;
     }
     case 'onAuthSuccess': {
-      store.dispatch(sync.keycloakAuthSuccess(event, error));
-      api.user.saveSession(
-        keycloak?.tokenParsed?.sub,
-        keycloak?.token,
-        {
-          noRefresh: true,
-        },
-        () => {}
-      );
-      store.dispatch(async.login(api));
+      const isOauthRedirectRoute = /^\/oauth\//.test(window?.location?.pathname);
+
+      // We don't trigger the login (and subsequent redirects) on the oauth redirect landing page
+      if (!isOauthRedirectRoute) {
+        store.dispatch(sync.keycloakAuthSuccess(event, error));
+        api.user.saveSession(
+          keycloak?.tokenParsed?.sub,
+          keycloak?.token,
+          {
+            noRefresh: true,
+          },
+          () => {}
+        );
+        store.dispatch(async.login(api));
+      }
       break;
     }
     case 'onAuthError': {

@@ -2,21 +2,14 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
   const common = {
     color: colors.white,
     display: 'flex',
-    flexFlow: 'row',
-    height: '40px',
-    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingRight: 12,
-    paddingLeft: 16,
+    padding: 2,
 
     '.message': {
       fontFamily: fonts.default,
       fontSize: fontSizes[1],
       fontWeight: fontWeights.medium,
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
     },
 
     '.close-icon': {
@@ -26,7 +19,7 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
   };
 
   return {
-    default: {
+    info: {
       ...common,
       backgroundColor: colors.feedback.info,
     },
@@ -37,6 +30,10 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
     danger: {
       ...common,
       backgroundColor: colors.feedback.danger,
+    },
+    success: {
+      ...common,
+      backgroundColor: colors.feedback.success,
     },
   };
 };
