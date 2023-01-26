@@ -77,7 +77,7 @@ export let Login = translate()(class extends React.Component {
     var isLoading =
       fetchingInfo.inProgress ||
       !(fetchingInfo.completed || !!fetchingInfo.notification) ||
-      (!!keycloakConfig.url && !keycloakConfig.initialized);
+      (!!keycloakConfig.url && !keycloakConfig.initialized && !keycloakConfig.error);
     var isClaimFlow = !!signupEmail && !!signupKey;
     var login = keycloakConfig.url && keycloakConfig.initialized ? (
       <Button onClick={() => keycloak.login()} disabled={loggingIn}>
@@ -103,10 +103,12 @@ export let Login = translate()(class extends React.Component {
 
     // forward to keycloak login when available
     if (
-      keycloakConfig.initialized &&
-      !loggingIn &&
-      !this.props.isAuthenticated &&
-      !isClaimFlow
+      (
+        keycloakConfig.initialized &&
+        !loggingIn &&
+        !this.props.isAuthenticated &&
+        !isClaimFlow
+      ) || keycloakConfig?.error === 'access_denied'
     ) {
       keycloak.login({
         redirectUri: win.location.origin,
