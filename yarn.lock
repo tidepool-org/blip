@@ -6625,6 +6625,11 @@ custom-event@~1.0.0:
   resolved "https://registry.yarnpkg.com/custom-event/-/custom-event-1.0.1.tgz#5d02a46850adf1b4a317946a3928fccb5bfd0425"
   integrity sha1-XQKkaFCt8bSjF5RqOSj8y1v9BCU=
 
+custom-protocol-check@1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/custom-protocol-check/-/custom-protocol-check-1.4.0.tgz#87b579f6519d48adf55f539d774f7e026bae35e7"
+  integrity sha512-eMTyp8AKnE5eo+mKNqG3743eb5ZND5LhBgf9F8BN2tVdhSBnOCHH7me7iTcv0BUDhUW2dBQiHWLWMy776yZW1A==
+
 custom-protocol-detection@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/custom-protocol-detection/-/custom-protocol-detection-1.0.1.tgz#41c82717b2bcccead86a7e5506cb48636667de0b"
