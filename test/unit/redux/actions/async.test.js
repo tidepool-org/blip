@@ -4103,7 +4103,7 @@ describe('Actions', () => {
           }).callCount).to.equal(1);
         });
 
-        it.only('should fetch the patient data 30 days prior to the latest diabetes datum time returned', () => {
+        it('should fetch the patient data 30 days prior to the latest diabetes datum time returned', () => {
           let store = mockStore({ blip: {
             ...initialState,
           }, router: { location: { pathname: `data/${patientId}` } } });
