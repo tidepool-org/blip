@@ -7,7 +7,6 @@ import { Subheading, Title } from '../../components/elements/FontStyles';
 import Button from '../../components/elements/Button';
 
 let launched = false;
-let win = window;
 
 const UploadRedirect = (props) => {
   const { t } = props;
@@ -30,10 +29,6 @@ const UploadRedirect = (props) => {
     }
   }
 
-  const handleClose = () => {
-    win.close();
-  };
-
   return (
     <Flex justifyContent="center" alignItems="center" height="75vh">
       <Box>
@@ -52,7 +47,7 @@ const UploadRedirect = (props) => {
               </Subheading>
               <Subheading mb="20px">
                 <Trans>
-                  Once Tidepool Uploader has launched, you can <a id="close_browser" onClick={handleClose} style={{ cursor: 'pointer' }}>click here</a> to close this window.
+                  Once Tidepool Uploader has launched, you can close this window.
                 </Trans>
               </Subheading>
               <a id="launch_uploader" href={linkUrl}>
