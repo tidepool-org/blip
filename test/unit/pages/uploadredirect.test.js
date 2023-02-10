@@ -29,18 +29,15 @@ describe('UploadRedirect', () => {
   };
 
   let store = mockStore({});
-  let win = { close: sinon.stub() };
   let customProtocolCheckStub = sinon.stub().callsArg(2);
 
   before(() => {
     mount = createMount();
-    UploadRedirect.__Rewire__('win', win);
     UploadRedirect.__Rewire__('customProtocolCheck', customProtocolCheckStub);
   });
 
   after(() => {
     mount.cleanUp();
-    UploadRedirect.__ResetDependency__('win');
     UploadRedirect.__ResetDependency__('customProtocolCheck');
   });
 
@@ -49,7 +46,6 @@ describe('UploadRedirect', () => {
   });
 
   beforeEach(() => {
-    win.close.resetHistory();
     customProtocolCheckStub.resetHistory();
 
     createWrapper = (hash = '') => {
@@ -97,12 +93,6 @@ describe('UploadRedirect', () => {
 
     it("shouldn't run the protocol check when component is rendered a second time", () => {
       expect(customProtocolCheckStub.notCalled).to.be.true;
-    });
-
-    it('should close the window when close link is clicked', () => {
-      let closeAnchor = wrapper.find('#close_browser');
-      closeAnchor.simulate('click');
-      expect(win.close.calledOnce).to.be.true;
     });
 
     it('should have a link with custom protocol URL attached', () => {
