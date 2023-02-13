@@ -256,7 +256,7 @@ export class AppComponent extends React.Component {
         this.props.showBanner('dexcom');
 
         if (this.props.context.trackMetric && !this.state.dexcomConnectBanner.metricTracked) {
-          this.props.context.trackMetric('Dexcom OAuth banner displayed');
+          this.props.context.trackMetric('Dexcom OAuth banner displayed', { clinicId: nextProps.selectedClinicId, dexcomConnectState: dexcomDataSource?.state });
           bannerStateUpdates.metricTracked = true;
         }
 

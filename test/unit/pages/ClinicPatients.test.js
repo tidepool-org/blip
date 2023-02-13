@@ -11,7 +11,6 @@ import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
 import Popover from '../../../app/components/elements/Popover';
 import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
-import { Dialog } from '../../../app/components/elements/Dialog';
 import Button from '../../../app/components/elements/Button';
 
 /* global chai */
