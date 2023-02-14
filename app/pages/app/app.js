@@ -351,8 +351,6 @@ export class AppComponent extends React.Component {
 
     let prioritizedBanner;
 
-    console.log('prioritizedBanners', prioritizedBanners);
-
     if (prioritizedBanners.length > 0) {
       prioritizedBanner = prioritizedBanners[0];
       const dexcomDataSource = this.props.userDexcomDataSource || this.props.patientDexcomDataSource;
