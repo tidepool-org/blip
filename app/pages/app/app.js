@@ -168,6 +168,7 @@ export class AppComponent extends React.Component {
       userIsSupportingNonprofit,
       patient,
       authenticated,
+      currentPatientInViewId,
     } = nextProps;
 
     if (
@@ -193,7 +194,7 @@ export class AppComponent extends React.Component {
 
       if (showShareDataBanner) {
         this.props.showBanner('sharedata');
-        updateShareDataBannerSeen(patient.userid);
+        updateShareDataBannerSeen(currentPatientInViewId);
       } else if (showingShareDataBanner) {
         this.props.hideBanner('sharedata');
       }
@@ -349,6 +350,8 @@ export class AppComponent extends React.Component {
     );
 
     let prioritizedBanner;
+
+    console.log('prioritizedBanners', prioritizedBanners);
 
     if (prioritizedBanners.length > 0) {
       prioritizedBanner = prioritizedBanners[0];

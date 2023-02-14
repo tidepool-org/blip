@@ -24,11 +24,16 @@
 
 import React from 'react';
 import { mount } from 'enzyme';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 
 import { DexcomBanner } from '../../../app/components/dexcombanner';
+import { ToastProvider } from '../../../app/providers/ToastProvider';
 import { URL_DEXCOM_CONNECT_INFO } from '../../../app/core/constants';
 
 const expect = chai.expect;
+const mockStore = configureStore([thunk]);
 
 describe('DexcomBanner', () => {
   const props = {
@@ -39,12 +44,32 @@ describe('DexcomBanner', () => {
     push: sinon.stub(),
   };
 
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: false,
+    notification: null,
+  };
+
+  const blipState = {
+    blip: {
+      working: {
+        sendingPatientDexcomConnectRequest: defaultWorkingState,
+      },
+    },
+  };
+
+  let store = mockStore(blipState);
+
   let wrapper;
   beforeEach(() => {
     wrapper = mount(
-      <DexcomBanner
-        {...props}
-      />
+      <Provider store={store}>
+        <ToastProvider>
+          <DexcomBanner
+            {...props}
+          />
+        </ToastProvider>
+      </Provider>
     );
   });
 
@@ -97,13 +122,13 @@ describe('DexcomBanner', () => {
   });
 
   it('should call the submit handler when the dexcom button is clicked', () => {
-    const button = wrapper.find('button');
+    const button = wrapper.find('.dexcomBanner-action button');
     button.simulate('click');
     sinon.assert.calledOnce(props.onClick);
   });
 
   it('should track the metrics when the dexcom button is clicked', () => {
-    const button = wrapper.find('button');
+    const button = wrapper.find('.dexcomBanner-action button');
     button.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);
     sinon.assert.calledWith(props.trackMetric, 'clicked get started on Dexcom banner');
@@ -136,7 +161,7 @@ describe('DexcomBanner', () => {
 
     it('should render a get started button', () => {
       const expectedText = 'Get Started'
-      const button = wrapper.find('button');
+      const button = wrapper.find('.dexcomBanner-action button');
 
       expect(button).to.have.length(1);
       expect(button.text()).contains(expectedText);
