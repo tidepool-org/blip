@@ -93,7 +93,7 @@ export const DexcomBanner = translate()((props) => {
   };
 
   const handleDismiss = () => {
-    onClose(patient.userid);
+    onClose(clinicPatient?.id || patient?.userid);
     clinicPatient && dispatch(sync.dismissBanner('dexcom'));
 
     if (trackMetric) {
@@ -108,7 +108,7 @@ export const DexcomBanner = translate()((props) => {
   };
 
   const handleSubmit = () => {
-    onClick(patient.userid);
+    onClick(clinicPatient?.id || patient?.userid);
     let metric = 'clicked get started on Dexcom banner';
     let source = 'banner';
 

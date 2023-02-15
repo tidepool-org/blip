@@ -816,6 +816,24 @@ describe('App', () => {
 
         sinon.assert.callCount(props.context.trackMetric, 2);
       });
+
+      it('should prioritize over other banners, but only if connection is in error state', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingUploaderBanner: true,
+          showingDexcomConnectBanner: true,
+        });
+
+        expect(wrapper.find('.App-uploaderbanner')).to.have.lengthOf(1);
+        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(0);
+
+        wrapper.setProps({ patientDexcomDataSource: { state: 'error' } })
+
+        expect(wrapper.find('.App-uploaderbanner')).to.have.lengthOf(0);
+        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
+      });
     });
 
     context('share data banner is showing', () => {
