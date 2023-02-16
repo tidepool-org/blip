@@ -20,7 +20,6 @@ import {
 import initialState from '../../../app/redux/reducers/initialState';
 
 import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
-import { wrap } from 'lodash';
 
 var App = require('../../../app/pages/app/app.js').AppComponent;
 var api = require('../../../app/core/api');
