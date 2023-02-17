@@ -41,6 +41,7 @@ export class AppComponent extends React.Component {
   static propTypes = {
     authenticated: PropTypes.bool.isRequired,
     children: PropTypes.object.isRequired,
+    currentPatientInViewId: PropTypes.string,
     fetchers: PropTypes.array.isRequired,
     fetchingPatient: PropTypes.bool.isRequired,
     fetchingPendingSentInvites: PropTypes.bool.isRequired,
@@ -97,11 +98,11 @@ export class AppComponent extends React.Component {
     super(props);
 
     this.state = {
-      dexcomShowBannerMetricTracked: false,
-      donateShowBannerMetricTracked: false,
-      shareDataBannerMetricTracked: false,
-      updateTypeBannerMetricTracked: false,
-      uploaderBannerMetricTracked: false,
+      uploaderBanner: { priority: 1, metricTrackedForPatient: {} },
+      shareDataBanner: { priority: 2, metricTrackedForPatient: {} },
+      donateBanner: { priority: 3, metricTrackedForPatient: {} },
+      dexcomConnectBanner: { priority: 4, metricTrackedForPatient: {} },
+      updateTypeBanner: { priority: 5, metricTrackedForPatient: {} },
     }
   }
 
@@ -159,14 +160,15 @@ export class AppComponent extends React.Component {
       location,
       userHasData,
       userHasConnectedDataSources,
+      userDexcomDataSource,
+      patientDexcomDataSource,
       userHasSharedDataWithClinician,
       userHasDiabetesType,
       userIsCurrentPatient,
       userIsSupportingNonprofit,
       patient,
       authenticated,
-      clinics,
-      selectedClinicId,
+      currentPatientInViewId,
     } = nextProps;
 
     if (
@@ -177,91 +179,84 @@ export class AppComponent extends React.Component {
     }
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
-
     const showUploaderBanner = authenticated && moment().isBefore('2020-10-01');
-    let displayUploaderBanner = false;
 
     if (showingUploaderBanner !== false) {
       if (showUploaderBanner) {
         this.props.showBanner('uploader');
-        displayUploaderBanner = true;
-
-        if (this.props.context.trackMetric && !this.state.uploaderShowBannerMetricTracked) {
-          this.props.context.trackMetric('Uploader banner displayed');
-          this.setState({ uploaderShowBannerMetricTracked: true });
-        }
       } else if (showingUploaderBanner) {
         this.props.hideBanner('uploader');
       }
     }
 
-    let displayShareDataBanner = false;
-
-    if (showingShareDataBanner !== false && !displayUploaderBanner) {
+    if (showingShareDataBanner !== false) {
       const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician && !seenShareDataBannerMax;
+
       if (showShareDataBanner) {
         this.props.showBanner('sharedata');
-        displayShareDataBanner = true;
-        updateShareDataBannerSeen(patient.userid);
-
-        if (this.props.context.trackMetric && !this.state.shareDataBannerMetricTracked) {
-          this.props.context.trackMetric('Share Data banner displayed');
-          this.setState({ shareDataBannerMetricTracked: true });
-        }
+        updateShareDataBannerSeen(currentPatientInViewId);
       } else if (showingShareDataBanner) {
         this.props.hideBanner('sharedata');
       }
     }
 
-    let displayDonateBanner = false;
-
-    if (showingDonateBanner !== false && !displayUploaderBanner && !displayShareDataBanner) {
+    if (showingDonateBanner !== false) {
       const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
-          if (showDonateBanner) {
-            this.props.showBanner('donate');
-            displayDonateBanner = true;
 
-            if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
-              this.props.context.trackMetric('Big Data banner displayed');
-              this.setState({ donateShowBannerMetricTracked: true });
-            }
-          } else if (showingDonateBanner) {
-            this.props.hideBanner('donate');
-          }
-        }
+      if (showDonateBanner) {
+        this.props.showBanner('donate');
+      } else if (showingDonateBanner) {
+        this.props.hideBanner('donate');
+      }
+    }
 
-    let displayDexcomConnectBanner = false;
+    const dexcomDataSource = userDexcomDataSource || patientDexcomDataSource;
 
-    if (showingDexcomConnectBanner !== false && !displayUploaderBanner && !displayShareDataBanner && !displayDonateBanner) {
-      const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
+    if (showingDexcomConnectBanner !== false) {
+      let showDexcomBanner;
+      let dexcomBannerWasAcknowledged;
+
+      if (userIsCurrentPatient) {
+        // Hide the Dexcom banner if the currently logged-in patient has already interacted with the
+        // banner and there hasn't been a Dexcom data source update since
+        const dexcomDataSourceModifiedTime = dexcomDataSource?.modifiedTime || '';
+        const dismissedBannerTime = _.get(nextProps, 'user.preferences.dismissedDexcomConnectBannerTime', '');
+        const clickedBannerTime = _.get(nextProps, 'user.preferences.clickedDexcomConnectBannerTime', '');
+        const latestBannerInteractionTime = _.max([dismissedBannerTime, clickedBannerTime]);
+
+        dexcomBannerWasAcknowledged = !_.isEmpty(dexcomDataSourceModifiedTime)
+         ? latestBannerInteractionTime > dexcomDataSourceModifiedTime
+         : !_.isEmpty(latestBannerInteractionTime);
+      }
+
+      const isDexcomErrorState = dexcomDataSource?.state === 'error';
+      const bannerStateUpdates = { display: true };
+
+      // Give the Dexcom banner highest priority if the connection state is 'error'
+      if (isDexcomErrorState) bannerStateUpdates.priority = 0;
+
+      if (isBannerRoute && !dexcomBannerWasAcknowledged) {
+        showDexcomBanner = isDexcomErrorState || (userIsCurrentPatient && !userHasConnectedDataSources);
+      }
+
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
-        displayDexcomConnectBanner = true;
-
-        if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
-          this.props.context.trackMetric('Dexcom OAuth banner displayed');
-          this.setState({ dexcomShowBannerMetricTracked: true });
-        }
+        this.setState({ dexcomConnectBanner: { ...this.state.dexcomConnectBanner, ...bannerStateUpdates } });
       } else if (showingDexcomConnectBanner) {
         this.props.hideBanner('dexcom');
       }
     }
 
-    if (showingUpdateTypeBanner !== false && !displayUploaderBanner && !displayShareDataBanner && !displayDonateBanner && !displayDexcomConnectBanner) {
-      const showUpdateTypeBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources && !userHasDiabetesType;
+    if (showingUpdateTypeBanner !== false) {
+      const showUpdateTypeBanner = isBannerRoute && userIsCurrentPatient && !userHasDiabetesType;
+
       if (showUpdateTypeBanner) {
         this.props.showBanner('updatetype');
-
-        if (this.props.context.trackMetric && !this.state.updateTypeShowBannerMetricTracked) {
-          this.props.context.trackMetric('Update Type banner displayed');
-          this.setState({ updateTypeShowBannerMetricTracked: true });
-        }
       } else if (showingUpdateTypeBanner) {
         this.props.hideBanner('updatetype');
       }
     }
   }
-
 
   /**
    * Render Functions
@@ -326,6 +321,65 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderBanner() {
+    const banners = [
+      'uploaderBanner',
+      'shareDataBanner',
+      'donateBanner',
+      'dexcomConnectBanner',
+      'updateTypeBanner',
+    ];
+
+    const prioritizedBanners = _.orderBy(
+      _.filter(
+        _.map(banners, name => {
+          const capitalizedName = _.upperFirst(name);
+          const renderMethodKey = `render${capitalizedName}`;
+          const displayStateKey = `showing${capitalizedName}`;
+
+          return {
+            name,
+            ...this.state[name],
+            render: this[renderMethodKey].bind(this),
+            display: this.props[displayStateKey],
+          };
+        }),
+        { display: true }
+      ),
+      ['priority']
+    );
+
+    let prioritizedBanner;
+
+    if (prioritizedBanners.length > 0) {
+      prioritizedBanner = prioritizedBanners[0];
+      const dexcomDataSource = this.props.userDexcomDataSource || this.props.patientDexcomDataSource;
+
+      // Track metric for displaying the prioritized banner, but only once per patient ID per session
+      if (
+        this.props.context.trackMetric &&
+        this.props.currentPatientInViewId &&
+        !this.state[prioritizedBanner.name]?.metricTrackedForPatient[this.props.currentPatientInViewId]
+      ) {
+        const newBannerState = { ...this.state[prioritizedBanner.name] };
+        newBannerState.metricTrackedForPatient[this.props.currentPatientInViewId] = true;
+        this.setState({ [prioritizedBanner.name]: newBannerState });
+
+        const bannerMetricsArgs = {
+          uploaderBanner: ['Uploader banner displayed'],
+          shareDataBanner: ['Share Data banner displayed'],
+          donateBanner: ['Big Data banner displayed'],
+          dexcomConnectBanner: ['Dexcom OAuth banner displayed', { clinicId: this.props.selectedClinicId, dexcomConnectState: dexcomDataSource?.state }],
+          updateTypeBanner: ['Update Type banner displayed'],
+        };
+
+        this.props.context.trackMetric(...bannerMetricsArgs[prioritizedBanner.name]);
+      }
+    }
+
+    return prioritizedBanner?.render() || null;
+  }
+
   renderShareDataBanner() {
     this.props.context.log('Rendering share data banner');
 
@@ -383,21 +437,21 @@ export class AppComponent extends React.Component {
   renderDexcomConnectBanner() {
     this.props.context.log('Rendering dexcom connect banner');
 
-    const {
-      showingDexcomConnectBanner,
-      onClickDexcomConnectBanner,
-      onDismissDexcomConnectBanner,
-      patient,
-    } = this.props;
-
-    if (showingDexcomConnectBanner) {
+    if (this.props.showingDexcomConnectBanner) {
       return (
         <div className="App-dexcombanner">
           <DexcomBanner
-            onClick={onClickDexcomConnectBanner}
-            onClose={onDismissDexcomConnectBanner}
+            api={this.props.context.api}
+            clinicPatient={this.props.clinicPatient}
+            onClick={this.props.userIsCurrentPatient ? this.props.onClickDexcomConnectBanner : _.noop}
+            onClose={this.props.userIsCurrentPatient ? this.props.onDismissDexcomConnectBanner : _.noop}
             trackMetric={this.props.context.trackMetric}
-            patient={patient} />
+            patient={this.props.patient}
+            dataSourceState={this.props.userDexcomDataSource?.state || this.props.patientDexcomDataSource?.state}
+            userIsCurrentPatient={this.props.userIsCurrentPatient}
+            isClinicPatient={this.props.clinicFlowActive && this.props.selectedClinicId && !this.props.userIsCurrentPatient}
+            selectedClinicId={this.props.selectedClinicId}
+          />
         </div>
       );
     }
@@ -587,11 +641,7 @@ export class AppComponent extends React.Component {
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
-    var donatebanner = this.renderDonateBanner();
-    var dexcombanner = this.renderDexcomConnectBanner();
-    var sharedatabanner = this.renderShareDataBanner();
-    var updatetypebanner = this.renderUpdateTypeBanner();
-    var uploaderbanner = this.renderUploaderBanner();
+    var banner = this.renderBanner();
     var emailbanner = this.renderAddEmailBanner();
     var footer = this.renderFooter();
 
@@ -601,11 +651,7 @@ export class AppComponent extends React.Component {
         {emailbanner}
         {navbar}
         {notification}
-        {donatebanner}
-        {dexcombanner}
-        {sharedatabanner}
-        {updatetypebanner}
-        {uploaderbanner}
+        {banner}
         {this.props.children}
         {footer}
       </div>
@@ -638,11 +684,14 @@ export function getFetchers(stateProps, dispatchProps, api) {
 export function mapStateToProps(state) {
   let user = null;
   let patient = null;
+  let patientDexcomDataSource;
   let clinicPatient;
   let permissions = null;
   let permsOfLoggedInUser = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
-  let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
+  let dataSources = _.get(state, 'blip.dataSources', []);
+  let userHasConnectedDataSources = dataSources.length > 0;
+  let userDexcomDataSource = _.find(dataSources, { providerName: 'dexcom' });
   let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
   let userHasSharedDataWithClinician = false;
   let userIsSupportingNonprofit = false;
@@ -682,12 +731,15 @@ export function mapStateToProps(state) {
         state.blip.currentPatientInViewId,
         null
       );
+
       clinicPatient = _.get(state.blip.clinics, [state.blip.selectedClinicId, 'patients', state.blip.currentPatientInViewId]);
+
       permissions = _.get(
         state.blip.permissionsOfMembersInTargetCareTeam,
         state.blip.currentPatientInViewId,
         {}
       );
+
       permsOfLoggedInUser = state.blip.selectedClinicId
         ? _.get(
           state.blip.clinics,
@@ -703,6 +755,10 @@ export function mapStateToProps(state) {
           state.blip.currentPatientInViewId,
           {}
         );
+
+      if (clinicPatient) {
+        patientDexcomDataSource = _.find(clinicPatient.dataSources, { providerName: 'dexcom' });
+      }
     }
 
     // Check to see if a data-donating patient has selected a nonprofit to support
@@ -760,6 +816,7 @@ export function mapStateToProps(state) {
     clinics: state.blip.clinics,
     clinicFlowActive: state.blip.clinicFlowActive,
     clinicPatient,
+    currentPatientInViewId: state.blip.currentPatientInViewId,
     fetchingUser: state.blip.working.fetchingUser,
     fetchingDataSources: state.blip.working.fetchingDataSources,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
@@ -783,6 +840,8 @@ export function mapStateToProps(state) {
     userHasDiabetesType,
     userIsDonor,
     userHasConnectedDataSources,
+    userDexcomDataSource,
+    patientDexcomDataSource,
     userHasSharedDataWithClinician,
     userIsSupportingNonprofit,
     resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
