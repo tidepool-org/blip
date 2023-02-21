@@ -5,12 +5,25 @@ import customProtocolCheck from 'custom-protocol-check';
 import { Redirect } from 'react-router-dom';
 import { Subheading, Title } from '../../components/elements/FontStyles';
 import Button from '../../components/elements/Button';
+import UAParser from 'ua-parser-js';
 
 let launched = false;
 
 const UploadRedirect = (props) => {
   const { t } = props;
   const linkUrl = `tidepooluploader://localhost/keycloak-redirect${props.location.hash}`;
+  const ua = new UAParser().getResult();
+  let openText = 'Open Tidepool Uploader';
+  switch (ua.browser.name) {
+    case 'Firefox':
+      openText = 'Open Link'
+      break;
+    case 'Edge':
+      openText = 'Open'
+      break;
+    default:
+      break;
+  }
 
   if (!props.location.hash) {
     return <Redirect to="/login" />;
@@ -37,7 +50,7 @@ const UploadRedirect = (props) => {
             <Flex alignItems="center" flexDirection="column">
               <Title mb="10px">
                 <Trans>
-                  Click <Text as="span" fontWeight="bold">Open Tidepool Uploader</Text> on the dialog shown by your browser
+                  Click <Text as="span" fontWeight="bold">{openText}</Text> on the dialog shown by your browser
                 </Trans>
               </Title>
               <Subheading mb="10px">

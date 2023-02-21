@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import { Title } from '../../../app/components/elements/FontStyles';
 import UploadRedirect from '../../../app/pages/uploadredirect';
 
 /* global chai */
@@ -90,6 +91,38 @@ describe('UploadRedirect', () => {
         )
       ).to.be.true;
     });
+
+    it('should contain Chrome specific open text in Chrome', () => {
+      let title = wrapper.find(Title);
+      expect(title.text()).to.include('Click Open Tidepool Uploader on the dialog')
+    });
+
+    context('in Firefox', () => {
+      before(() => {
+        UploadRedirect.__Rewire__('UAParser', () => ({getResult:()=>({browser:{name:'Firefox'}})}))
+      })
+      after(()=>{
+        UploadRedirect.__ResetDependency__('UAParser')
+      })
+      it('should contain Firefox specific open text in Firefox', () => {
+        let title = wrapper.find(Title);
+        expect(title.text()).to.include('Click Open Link on the dialog')
+      });
+    });
+
+    context('in Edge', () => {
+      before(() => {
+        UploadRedirect.__Rewire__('UAParser', () => ({getResult:()=>({browser:{name:'Edge'}})}))
+      })
+      after(()=>{
+        UploadRedirect.__ResetDependency__('UAParser')
+      })
+      it('should contain Edge specific open text in Edge', () => {
+        let title = wrapper.find(Title);
+        expect(title.text()).to.include('Click Open on the dialog')
+      });
+    });
+
 
     it("shouldn't run the protocol check when component is rendered a second time", () => {
       expect(customProtocolCheckStub.notCalled).to.be.true;
