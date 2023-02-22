@@ -113,7 +113,8 @@ export const KeycloakWrapper = (props) => {
   const store = useStore();
   let Wrapper = React.Fragment;
   let wrapperProps = props;
-  if (keycloakConfig?.url) {
+  const isOauthRedirectRoute = /^(\/upload-redirect)/.test(window?.location?.pathname);
+  if (keycloakConfig?.url && !isOauthRedirectRoute) {
     Wrapper = ReactKeycloakProvider;
     wrapperProps = {
       ...wrapperProps,

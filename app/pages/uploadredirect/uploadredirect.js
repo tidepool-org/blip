@@ -6,11 +6,13 @@ import { Redirect } from 'react-router-dom';
 import { Subheading, Title } from '../../components/elements/FontStyles';
 import Button from '../../components/elements/Button';
 import UAParser from 'ua-parser-js';
+import { useIsFirstRender } from '../../core/hooks';
 
 let launched = false;
 
 const UploadRedirect = (props) => {
   const { t } = props;
+  const isFirstRender = useIsFirstRender();
   const linkUrl = `tidepooluploader://localhost/keycloak-redirect${props.location.hash}`;
   const ua = new UAParser().getResult();
   let openText = 'Open Tidepool Uploader';
@@ -21,6 +23,8 @@ const UploadRedirect = (props) => {
     case 'Edge':
       openText = 'Open'
       break;
+    case 'Safari':
+      openText = 'Allow'
     default:
       break;
   }
@@ -29,7 +33,7 @@ const UploadRedirect = (props) => {
     return <Redirect to="/login" />;
   }
 
-  if (!launched) {
+  if (!launched && isFirstRender) {
     if (props.location.hash) {
       customProtocolCheck(
         linkUrl,
