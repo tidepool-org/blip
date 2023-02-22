@@ -21,6 +21,8 @@ const UploadRedirect = (props) => {
     case 'Edge':
       openText = 'Open'
       break;
+    case 'Safari':
+      openText = 'Allow'
     default:
       break;
   }
