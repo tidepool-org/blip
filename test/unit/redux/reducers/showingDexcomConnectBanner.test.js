@@ -71,6 +71,22 @@ describe('showingDexcomConnectBanner', () => {
     });
   });
 
+  describe('dataWorkerRemoveDataRequest', () => {
+    it('should set state to null', () => {
+      let initialStateForTest = true;
+
+      let action = actions.worker.dataWorkerRemoveDataRequest();
+
+      let intermediate = reducer(initialStateForTest, action);
+
+      expect(intermediate).to.be.null;
+
+      let nextState = reducer(null, action);
+
+      expect(nextState).to.be.null;
+    });
+  });
+
   describe('logoutReqest', () => {
     it('should set state to null', () => {
       let initialStateForTest = true;
@@ -103,45 +119,23 @@ describe('showingDexcomConnectBanner', () => {
     });
   });
 
-  describe('fetchUserSuccess', () => {
-    it('should set state to false if user clicked the banner', () => {
-      let initialStateForTest = true;
+  describe('fetchPatientFromClinicSuccess', () => {
+    it('should set state to true if patient has a dexcom data source in an error state', () => {
+      let initialStateForTest = null;
 
-      const user = {
-        preferences: {
-          clickedDexcomConnectBannerTime: 'today',
-        },
+      const patient = {
+        dataSources: [{ providerName: 'dexcom', state: 'error' }],
       };
 
-      let action = actions.sync.fetchUserSuccess(user);
+      let action = actions.sync.fetchPatientFromClinicSuccess('clinicId', patient);
 
       let intermediate = reducer(initialStateForTest, action);
 
-      expect(intermediate).to.be.false;
+      expect(intermediate).to.be.true;
 
       let nextState = reducer(null, action);
 
-      expect(nextState).to.be.false;
-    });
-
-    it('should set state to false if user dismissed the banner', () => {
-      let initialStateForTest = true;
-
-      const user = {
-        preferences: {
-          dismissedDexcomConnectBannerTime: 'today',
-        },
-      };
-
-      let action = actions.sync.fetchUserSuccess(user);
-
-      let intermediate = reducer(initialStateForTest, action);
-
-      expect(intermediate).to.be.false;
-
-      let nextState = reducer(null, action);
-
-      expect(nextState).to.be.false;
+      expect(nextState).to.be.true;
     });
   });
 });
