@@ -9,6 +9,7 @@ import get from 'lodash/get';
 import map from 'lodash/map';
 import includes from 'lodash/includes';
 import cloneDeep from 'lodash/cloneDeep';
+import filter from 'lodash/filter';
 import * as yup from 'yup';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import { components as vizComponents } from '@tidepool/viz';
@@ -52,25 +53,38 @@ export const ClinicianEdit = (props) => {
   const { updatingClinician, fetchingCliniciansFromClinic } = useSelector((state) => state.blip.working);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const selectedClinic = get(location, 'state.clinicId', false);
-
-  const selectedClinician = useSelector((state) =>
-    get(state, [
-      'blip',
-      'clinics',
-      selectedClinic,
-      'clinicians',
-      selectedClinicianId,
-    ])
+  const clinicians = useSelector((state) =>
+    get(state, ['blip', 'clinics', selectedClinic, 'clinicians'])
   );
+  const selectedClinician = get(clinicians, selectedClinicianId);
 
   const selectedClinicianRoles = selectedClinician?.roles;
   const clinicianName = selectedClinician?.name;
+  const adminCount = filter(clinicians, { roles: ['CLINIC_ADMIN'] }).length;
+  const userId = useSelector((state) => state.blip.loggedInUserId);
+  const isOnlyClinicAdmin = adminCount === 1 && userId === selectedClinicianId;
+  let deleteSubmitText,
+    deleteCancelText = t('Cancel');
+  let deleteTitle = t('Remove {{clinicianName}}', { clinicianName });
+  let deleteBody = t(
+    '{{clinicianName}} will lose all access to this clinic workspace and its patient list. Are you sure you want to remove this user?',
+    { clinicianName }
+  );
+
+  if (isOnlyClinicAdmin) {
+    deleteTitle = t('Unable to remove yourself');
+    deleteBody = t('Before you remove yourself from this Clinic account, please assign Admin permissions to at least one other Clinic member.');
+    deleteCancelText = t('OK');
+  } else {
+    deleteSubmitText = t('Remove User');
+  }
 
   const clinicAdminDesc = (
     <>
       <Title mt="-0.25em">{t('Clinic Admin')}</Title>
       <Body1>
         {t('Clinic admins have complete access to a workspace and can manage patients, clinicians and the clinic profile.')}
+        {isOnlyClinicAdmin && <><br/>{t('You cannot remove your admin permissions if you are the only clinic admin.')}</>}
       </Body1>
     </>
   );
@@ -270,6 +284,7 @@ export const ClinicianEdit = (props) => {
             <RadioGroup
               id="clinician-type"
               options={typeOptions}
+              disabled={isOnlyClinicAdmin}
               {...getCommonFormikFieldProps('clinicianType', formikContext)}
               variant="verticalBordered"
               sx={{
@@ -331,12 +346,12 @@ export const ClinicianEdit = (props) => {
             onClose={handleCloseDeleteDialog}
           >
             <DialogTitle onClose={handleCloseDeleteDialog}>
-              <MediumTitle id="dialog-title">{t('Remove {{clinicianName}}', { clinicianName })}</MediumTitle>
+              <MediumTitle id="dialog-title">{deleteTitle}</MediumTitle>
             </DialogTitle>
 
             <DialogContent>
               <Body1>
-                {t('{{clinicianName}} will lose all access to this clinic workspace and its patient list. Are you sure you want to remove this user?', { clinicianName })}
+                {deleteBody}
               </Body1>
             </DialogContent>
 
@@ -346,16 +361,17 @@ export const ClinicianEdit = (props) => {
                 variant="secondary"
                 onClick={handleCloseDeleteDialog}
               >
-                {t('Cancel')}
+                {deleteCancelText}
               </Button>
-
-              <Button
-                id="deleteDialogRemove"
-                variant="danger"
-                onClick={handleConfirmDeleteDialog}
-              >
-                {t('Remove User')}
-              </Button>
+              {deleteSubmitText && (
+                <Button
+                  id="deleteDialogRemove"
+                  variant="danger"
+                  onClick={handleConfirmDeleteDialog}
+                >
+                  {deleteSubmitText}
+                </Button>
+              )}
             </DialogActions>
           </Dialog>
 

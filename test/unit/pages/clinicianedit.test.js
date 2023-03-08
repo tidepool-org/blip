@@ -96,6 +96,7 @@ describe('ClinicianEdit', () => {
         clinicID456: {
           clinicians: {
             clinicianUserId123: {
+              name:'clinician_user_name',
               id:'clinicianUserId123',
               roles: ['CLINIC_MEMBER'],
             },
@@ -119,12 +120,29 @@ describe('ClinicianEdit', () => {
     },
   });
 
+  const fetchedLastAdminState = _.merge({}, fetchedDataState, {
+    blip: {
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              roles: ['CLINIC_ADMIN'],
+            },
+          },
+        },
+      },
+    },
+  });
+
   const fetchedAdminState = _.merge({}, fetchedDataState, {
     blip: {
       clinics: {
         clinicID456: {
           clinicians: {
             clinicianUserId123: {
+              roles: ['CLINIC_ADMIN'],
+            },
+            clinicianUserId456: {
               roles: ['CLINIC_ADMIN'],
             },
           },
@@ -228,9 +246,46 @@ describe('ClinicianEdit', () => {
     });
 
     it('should show confirmation dialog when delete clicked', () => {
-      expect(wrapper.find('Dialog#deleteDialog').props().open).to.be.false;
+      let deleteDialog = () => wrapper.find('Dialog#deleteDialog');
+      expect(deleteDialog().props().open).to.be.false;
       wrapper.find('div[color="feedback.danger"]').at(0).simulate('click');
-      expect(wrapper.find('Dialog#deleteDialog').props().open).to.be.true;
+      expect(deleteDialog().props().open).to.be.true;
+      expect(deleteDialog().find('DialogTitle').text()).to.equal('Remove clinician_user_name');
+      expect(deleteDialog().find('Button#deleteDialogCancel')).to.have.lengthOf(1);
+      expect(deleteDialog().find('Button#deleteDialogRemove')).to.have.lengthOf(1);
+    });
+
+    context('user is last admin', () => {
+      beforeEach(() => {
+        store = mockStore(fetchedLastAdminState);
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicianEdit {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+      });
+
+      it("should prevent user from removing themselves if they're the last admin", () => {
+        let deleteDialog = () => wrapper.find('Dialog#deleteDialog');
+        expect(deleteDialog().props().open).to.be.false;
+        wrapper.find('div[color="feedback.danger"]').at(0).simulate('click');
+        expect(deleteDialog().props().open).to.be.true;
+        expect(deleteDialog().find('DialogTitle').text()).to.equal(
+          'Unable to remove yourself'
+        );
+        expect(
+          deleteDialog().find('Button#deleteDialogCancel')
+        ).to.have.lengthOf(1);
+        expect(
+          deleteDialog().find('Button#deleteDialogRemove')
+        ).to.have.lengthOf(0);
+      });
+
+      it("should prevent user from changing permissions if they're the last admin", () => {
+        expect(wrapper.find('RadioGroup').props().disabled).to.be.true;
+      });
     });
 
     it('should navigate to "clinic-admin" when back button pushed without edit', () => {
@@ -276,7 +331,7 @@ describe('ClinicianEdit', () => {
           defaultProps.api.clinics.updateClinician,
           'clinicID456',
           'clinicianUserId123',
-          { id: 'clinicianUserId123', roles: ['CLINIC_MEMBER', 'PRESCRIBER'] },
+          {name: 'clinician_user_name', id: 'clinicianUserId123', roles: ['CLINIC_MEMBER', 'PRESCRIBER'] },
         );
 
         expect(store.getActions()).to.eql([
@@ -287,6 +342,7 @@ describe('ClinicianEdit', () => {
               'clinicId': 'clinicID456',
               'clinicianId': 'clinicianUserId123',
               'clinician': {
+                'name': 'clinician_user_name',
                 'id': 'clinicianUserId123',
                 'roles': ['CLINIC_MEMBER', 'PRESCRIBER'],
               },
