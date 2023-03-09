@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import { Title } from '../../../app/components/elements/FontStyles';
 import UploadRedirect from '../../../app/pages/uploadredirect';
 
 /* global chai */
@@ -29,18 +30,15 @@ describe('UploadRedirect', () => {
   };
 
   let store = mockStore({});
-  let win = { close: sinon.stub() };
   let customProtocolCheckStub = sinon.stub().callsArg(2);
 
   before(() => {
     mount = createMount();
-    UploadRedirect.__Rewire__('win', win);
     UploadRedirect.__Rewire__('customProtocolCheck', customProtocolCheckStub);
   });
 
   after(() => {
     mount.cleanUp();
-    UploadRedirect.__ResetDependency__('win');
     UploadRedirect.__ResetDependency__('customProtocolCheck');
   });
 
@@ -49,7 +47,6 @@ describe('UploadRedirect', () => {
   });
 
   beforeEach(() => {
-    win.close.resetHistory();
     customProtocolCheckStub.resetHistory();
 
     createWrapper = (hash = '') => {
@@ -95,14 +92,40 @@ describe('UploadRedirect', () => {
       ).to.be.true;
     });
 
-    it("shouldn't run the protocol check when component is rendered a second time", () => {
-      expect(customProtocolCheckStub.notCalled).to.be.true;
+    it('should contain Chrome specific open text in Chrome', () => {
+      let title = wrapper.find(Title);
+      expect(title.text()).to.include('Click Open Tidepool Uploader on the dialog')
     });
 
-    it('should close the window when close link is clicked', () => {
-      let closeAnchor = wrapper.find('#close_browser');
-      closeAnchor.simulate('click');
-      expect(win.close.calledOnce).to.be.true;
+    context('in Firefox', () => {
+      before(() => {
+        UploadRedirect.__Rewire__('UAParser', () => ({getResult:()=>({browser:{name:'Firefox'}})}))
+      })
+      after(()=>{
+        UploadRedirect.__ResetDependency__('UAParser')
+      })
+      it('should contain Firefox specific open text in Firefox', () => {
+        let title = wrapper.find(Title);
+        expect(title.text()).to.include('Click Open Link on the dialog')
+      });
+    });
+
+    context('in Edge', () => {
+      before(() => {
+        UploadRedirect.__Rewire__('UAParser', () => ({getResult:()=>({browser:{name:'Edge'}})}))
+      })
+      after(()=>{
+        UploadRedirect.__ResetDependency__('UAParser')
+      })
+      it('should contain Edge specific open text in Edge', () => {
+        let title = wrapper.find(Title);
+        expect(title.text()).to.include('Click Open on the dialog')
+      });
+    });
+
+
+    it("shouldn't run the protocol check when component is rendered a second time", () => {
+      expect(customProtocolCheckStub.notCalled).to.be.true;
     });
 
     it('should have a link with custom protocol URL attached', () => {

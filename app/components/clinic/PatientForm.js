@@ -86,6 +86,7 @@ export const PatientForm = (props) => {
       color: 'mediumGrey',
       icon: ErrorOutlineRoundedIcon,
       label: t('Pending connection with'),
+      showRegionalNote: true,
     },
     pendingReconnect: {
       color: 'mediumGrey',
@@ -96,6 +97,7 @@ export const PatientForm = (props) => {
       color: 'mediumGrey',
       icon: ErrorOutlineRoundedIcon,
       label: t('Pending connection expired with'),
+      showRegionalNote: true,
     },
     connected: {
       color: 'brand.dexcom',
@@ -111,11 +113,13 @@ export const PatientForm = (props) => {
       color: 'feedback.danger',
       icon: ErrorOutlineRoundedIcon,
       label: t('Error connecting to'),
+      showRegionalNote: true,
     },
     unknown: {
       color: 'mediumGrey',
       icon: ErrorOutlineRoundedIcon,
       label: t('Unknown connection to'),
+      showRegionalNote: true,
     },
   };
 
@@ -246,6 +250,14 @@ export const PatientForm = (props) => {
     trackMetric('Clinic - Resend Dexcom connect email confirm', { clinicId: selectedClinicId, source: 'patientForm' });
     formikContext.setStatus('resendingDexcomConnectRequest');
     dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, patient.id));
+  }
+
+  function renderRegionalNote() {
+    return (
+      <Body0 fontWeight="medium" color={colors.mediumGrey} sx={{ lineHeight: '1.5 !important', fontStyle: 'italic'}}>
+        {t('For US Dexcom Users Only')}
+      </Body0>
+    );
   }
 
   return (
@@ -394,6 +406,8 @@ export const PatientForm = (props) => {
           <Body0 mt={1} fontWeight="medium">
             {t('If this box is checked, patient will receive an email to authorize sharing Dexcom data with Tidepool.')}
           </Body0>
+
+          {renderRegionalNote()}
         </Box>
       )}
 
@@ -507,6 +521,8 @@ export const PatientForm = (props) => {
               </Button>
             </Body0>
           )}
+
+          {dexcomConnectStateUI[dexcomConnectState].showRegionalNote && renderRegionalNote()}
 
           <ResendDexcomConnectRequestDialog
             api={api}

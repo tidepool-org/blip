@@ -4115,10 +4115,11 @@ describe('Actions', () => {
           expect(api.patientData.get.callCount).to.equal(3);
 
           // Should set the start date based on the latest smbg, even though the pump settings and upload are more recent
+          // End date should use the most recent date (the upload) to ensure they are still fetched
           expect(api.patientData.get.withArgs(patientId, {
             ...options,
             startDate: '2017-12-31T00:00:00.000Z',
-            endDate: '2018-01-31T00:00:00.000Z',
+            endDate: '2018-06-02T00:00:00.000Z',
           }).callCount).to.equal(1);
         });
       });
