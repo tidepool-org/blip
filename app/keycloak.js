@@ -39,8 +39,7 @@ export const onKeycloakEvent = (store) => (event, error) => {
       break;
     }
     case 'onAuthSuccess': {
-      const isOauthRedirectRoute = /^\/oauth\//.test(window?.location?.pathname);
-
+      const isOauthRedirectRoute = /^(\/oauth\/|\/upload-redirect)/.test(window?.location?.pathname);
       // We don't trigger the login (and subsequent redirects) on the oauth redirect landing page
       if (!isOauthRedirectRoute) {
         store.dispatch(sync.keycloakAuthSuccess(event, error));
@@ -114,7 +113,8 @@ export const KeycloakWrapper = (props) => {
   const store = useStore();
   let Wrapper = React.Fragment;
   let wrapperProps = props;
-  if (keycloakConfig?.url) {
+  const isOauthRedirectRoute = /^(\/upload-redirect)/.test(window?.location?.pathname);
+  if (keycloakConfig?.url && !isOauthRedirectRoute) {
     Wrapper = ReactKeycloakProvider;
     wrapperProps = {
       ...wrapperProps,

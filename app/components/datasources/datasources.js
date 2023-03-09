@@ -116,7 +116,7 @@ export default translate()(class DataSources extends Component {
 
   calculateErrorMessage(error) {
     const { t } = this.props;
-    if (error.code && error.code === DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED) {
+    if (error?.code && error.code === DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED) {
       return t('Login expired - try signing out & in again');
     }
     return t('An unknown error occurred');

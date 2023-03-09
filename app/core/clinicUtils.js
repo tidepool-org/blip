@@ -66,6 +66,8 @@ export const preferredBgUnits = [
   { value: MMOLL_UNITS, label: MMOLL_UNITS },
 ];
 
+export const maxClinicPatientTags = 20;
+
 export const clinicValuesFromClinic = (clinic) => ({
   name: get(clinic, 'name', ''),
   address: get(clinic, 'address', ''),

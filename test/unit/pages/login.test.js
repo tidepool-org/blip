@@ -112,6 +112,29 @@ describe('Login', function () {
         expect(keycloakMock.login.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
       });
 
+      describe('when error from declining TOS', () => {
+        it('should forward to keycloak login', () => {
+          let errorProps = {
+            ...props,
+            keycloakConfig: {
+              error: 'access_denied',
+            },
+          };
+
+          wrapper = mount(
+            <Provider store={store}>
+              <BrowserRouter>
+                <RewiredLogin {...errorProps} />
+              </BrowserRouter>
+            </Provider>
+          );
+
+          expect(keycloakMock.login.callCount).to.equal(1);
+          expect(keycloakMock.login.calledWith({ redirectUri: 'testOrigin' }))
+            .to.be.true;
+        });
+      });
+
       describe('when claiming an account', () => {
         it('should forward user to verification-with-password if signupEmail+signupKey present and 409 on confirm', () => {
           let claimProps = {

@@ -53,6 +53,7 @@ export const notification = (state = initialState.notification, action) => {
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
     case types.ADD_CLINICIAN_TO_CLINIC_FAILURE:
     case types.CREATE_CLINIC_FAILURE:
+    case types.KEYCLOAK_INIT_ERROR:
       const err = _.get(action, 'error', null);
       if (err) {
         return {
@@ -104,7 +105,7 @@ export const showingDonateBanner = (state = initialState.showingDonateBanner, ac
       const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDonateYourDataBannerTime');
       return dismissedBanner ? false : state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'donate') ? null : state;
+      return (action.payload.type === 'donate') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -118,12 +119,12 @@ export const showingDexcomConnectBanner = (state = initialState.showingDexcomCon
       return (action.payload.type === 'dexcom' && state !== false) ? true : state;
     case types.DISMISS_BANNER:
       return (action.payload.type === 'dexcom') ? false : state;
-    case types.FETCH_USER_SUCCESS:
-      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDexcomConnectBannerTime');
-      const clickedBanner = _.get(action.payload, 'user.preferences.clickedDexcomConnectBannerTime');
-      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
+      const patientDexcomDataSourceConnectState = (_.find(action.payload.patient?.dataSources, { providerName: 'dexcom' }) || {}).state;
+      return patientDexcomDataSourceConnectState === 'error' || state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'dexcom') ? null : state;
+      return (action.payload.type === 'dexcom') ? null : state;
+    case types.DATA_WORKER_REMOVE_DATA_REQUEST:
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -142,7 +143,7 @@ export const showingUpdateTypeBanner = (state = initialState.showingUpdateTypeBa
       const clickedBanner = _.get(action.payload, 'user.preferences.clickedUpdateTypeBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'updatetype') ? null : state;
+      return (action.payload.type === 'updatetype') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -161,7 +162,7 @@ export const showingUploaderBanner = (state = initialState.showingUploaderBanner
       const clickedBanner = _.get(action.payload, 'user.preferences.clickedUploaderBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'uploader') ? null : state;
+      return (action.payload.type === 'uploader') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -180,7 +181,7 @@ export const showingShareDataBanner = (state = initialState.showingShareDataBann
       const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'sharedata') ? null : state;
+      return (action.payload.type === 'sharedata') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -1029,6 +1030,10 @@ export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
     case types.KEYCLOAK_READY:
       let logoutUrl = _.get(action.payload, 'logoutUrl', '');
       return _.extend({}, state, { initialized: true, logoutUrl });
+    case types.KEYCLOAK_AUTH_ERROR:
+      let error = _.get(action.payload, 'error', {});
+      let message = _.get(error, 'error', null);
+      return _.extend({}, state, { error: message });
     default:
       return state;
   }
