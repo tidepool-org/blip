@@ -718,7 +718,7 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS: {
       let { clinicId, patient } = action.payload;
-      const existingSortIndex = state[clinicId].patients[patient.id]?.sortIndex;
+      const existingSortIndex = state[clinicId]?.patients?.[patient.id]?.sortIndex;
       return update(state, {
         [clinicId]: { patients: { $set: {
           ...state[clinicId].patients,
@@ -812,7 +812,7 @@ export const clinics = (state = initialState.clinics, action) => {
 
       // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
       // list for easy visibility of the newly created patient.
-      const existingSortIndex = state[clinicId].patients[patientId]?.sortIndex || -1;
+      const existingSortIndex = state[clinicId]?.patients?.[patientId]?.sortIndex || -1;
 
       if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) patientCount++;
       return update(state, {
