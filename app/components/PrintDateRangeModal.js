@@ -56,11 +56,13 @@ export const PrintDateRangeModal = (props) => {
     });
   };
 
+  const agpDaysOptions = [7, 14];
   const basicsDaysOptions = [14, 21, 30, 90];
-  const bgLogDaysOptions = [14, 21,30, 90];
+  const bgLogDaysOptions = [14, 21, 30, 90];
   const dailyDaysOptions = [14, 21, 30, 90];
 
   const defaultDates = () => ({
+    agp: getLastNDays(agpDaysOptions[1], 'agp'),
     basics: getLastNDays(basicsDaysOptions[0], 'basics'),
     bgLog: getLastNDays(bgLogDaysOptions[2], 'bgLog'),
     daily: getLastNDays(dailyDaysOptions[0], 'daily'),
@@ -70,12 +72,14 @@ export const PrintDateRangeModal = (props) => {
     datePickerOpen: false,
     dates: defaultDates(),
     enabled: {
+      agp: true,
       basics: true,
       bgLog: true,
       daily: true,
       settings: true,
     },
     errors: {
+      agp: false,
       basics: false,
       bgLog: false,
       daily: false,
@@ -93,6 +97,7 @@ export const PrintDateRangeModal = (props) => {
   const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
 
   const presetDateRanges = {
+    agp: useMemo(() => map(agpDaysOptions, days => getLastNDays(days, 'agp')), [open]),
     basics: useMemo(() => map(basicsDaysOptions, days => getLastNDays(days, 'basics')), [open]),
     bgLog: useMemo(() => map(bgLogDaysOptions, days => getLastNDays(days, 'bgLog')), [open]),
     daily: useMemo(() => map(dailyDaysOptions, days => getLastNDays(days, 'daily')), [open]),
@@ -107,8 +112,9 @@ export const PrintDateRangeModal = (props) => {
     : false
   );
 
-  const validateDates = ({ basics, bgLog, daily }) => {
+  const validateDates = ({ agp, basics, bgLog, daily }) => {
     const validationErrors = {
+      agp: enabled.agp && validateDatesSet(agp),
       basics: enabled.basics && validateDatesSet(basics),
       bgLog: enabled.bgLog && validateDatesSet(bgLog),
       daily: enabled.daily && validateDatesSet(daily),
@@ -119,7 +125,7 @@ export const PrintDateRangeModal = (props) => {
 
   const validateChartEnabled = () => {
     const validationErrors = {
-      general: (!enabled.basics && !enabled.bgLog && !enabled.daily && !enabled.settings)
+      general: (!enabled.agp && !enabled.basics && !enabled.bgLog && !enabled.daily && !enabled.settings)
         ? t('Please enable at least one chart to print')
         : false,
     };
@@ -172,6 +178,11 @@ export const PrintDateRangeModal = (props) => {
       key: 'bgLog',
     },
     {
+      daysOptions: agpDaysOptions,
+      header: t('AGP Chart'),
+      key: 'agp',
+    },
+    {
       header: t('Device Settings'),
       key: 'settings',
     },
@@ -196,6 +207,7 @@ export const PrintDateRangeModal = (props) => {
     if (!isEqual(validationErrors, defaults.errors)) return;
 
     const printOpts = {
+      agp: { endpoints: formatDateEndpoints(dates.agp), disabled: !enabled.agp },
       basics: { endpoints: formatDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
       daily: { endpoints: formatDateEndpoints(dates.daily), disabled: !enabled.daily },
@@ -212,6 +224,7 @@ export const PrintDateRangeModal = (props) => {
     };
 
     const metrics = {
+      agp: printOpts.agp.disabled ? 'disabled' : getDateRangeMetric(agpDaysOptions, 'agp'),
       basics: printOpts.basics.disabled ? 'disabled' : getDateRangeMetric(basicsDaysOptions, 'basics'),
       bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(bgLogDaysOptions, 'bgLog'),
       daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(dailyDaysOptions, 'daily'),
@@ -340,6 +353,7 @@ export const PrintDateRangeModal = (props) => {
 PrintDateRangeModal.propTypes = {
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDates: PropTypes.shape({
+    agp: PropTypes.number,
     basics: PropTypes.number,
     bgLog: PropTypes.number,
     daily: PropTypes.number,

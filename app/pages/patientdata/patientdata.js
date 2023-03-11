@@ -96,6 +96,8 @@ export const PatientDataClass = createReactClass({
     queryingData: PropTypes.object.isRequired,
     queryParams: PropTypes.object.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
+    generateAGPImagesSuccess: PropTypes.func.isRequired,
+    generateAGPImagesFailure: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateBasicsSettings: PropTypes.func.isRequired,
     updatingDatum: PropTypes.object.isRequired,
@@ -157,6 +159,9 @@ export const PatientDataClass = createReactClass({
         bgLog: {
           bgSource: 'smbg',
           extentSize: 14,
+        },
+        agp: {
+          bgSource: 'cbg',
         },
         settings: {
           touched: false,
@@ -433,6 +438,7 @@ export const PatientDataClass = createReactClass({
       <PrintDateRangeModal
         id="print-dialog"
         mostRecentDatumDates={{
+          agp: this.getMostRecentDatumTimeByChartType(this.props, 'agp'),
           basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),
           bgLog: this.getMostRecentDatumTimeByChartType(this.props, 'bgLog'),
           daily: this.getMostRecentDatumTimeByChartType(this.props, 'daily'),
@@ -907,6 +913,15 @@ export const PatientDataClass = createReactClass({
     return stats;
   },
 
+  generateAGPImages: async function(props = this.props) {
+    try {
+      const images = await vizUtils.agp.generateAGPSVGDataURLS({ ...props.pdf.data });
+      props.generateAGPImagesSuccess(images)
+    } catch(e) {
+      props.generateAGPImagesFailure(e);
+    }
+  },
+
   generatePDF: function(props = this.props, state = this.state, pdfOpts = {}) {
     const patientSettings = _.get(props, 'patient.settings', {});
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
@@ -914,7 +929,7 @@ export const PatientDataClass = createReactClass({
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
-    const opts = {
+    const opts = props.pdf.opts || {
       patient: pdfPatient,
       ..._.mapValues(pdfOpts, chartType => ({ disabled: chartType.disabled })),
     };
@@ -926,54 +941,69 @@ export const PatientDataClass = createReactClass({
       excludedDevices: state.chartPrefs.excludedDevices,
     };
 
-    const queries = {};
+    let queries = props.pdf.queries;
 
-    if (!opts.basics.disabled) {
-      queries.basics = {
-        endpoints: pdfOpts.basics.endpoints,
-        aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-        bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
-        stats: this.getStatsByChartType('basics'),
-        excludeDaysWithoutBolus: _.get(this.state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
-        ...commonQueries,
-      };
-    }
+    if (!queries) {
+      queries = {};
 
-    if (!opts.bgLog.disabled) {
-      queries.bgLog = {
-        endpoints: pdfOpts.bgLog.endpoints,
-        aggregationsByDate: 'dataByDate',
-        stats: this.getStatsByChartType('bgLog'),
-        types: { smbg: {} },
-        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
-        ...commonQueries,
-      };
-    }
+      if (!opts.basics.disabled) {
+        queries.basics = {
+          endpoints: pdfOpts.basics.endpoints,
+          aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
+          bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+          stats: this.getStatsByChartType('basics'),
+          excludeDaysWithoutBolus: _.get(this.state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
+          ...commonQueries,
+        };
+      }
 
-    if (!opts.daily.disabled) {
-      queries.daily = {
-        endpoints: pdfOpts.daily.endpoints,
-        aggregationsByDate: 'dataByDate, statsByDate',
-        stats: this.getStatsByChartType('daily'),
-        types: {
-          basal: {},
-          bolus: {},
-          cbg: {},
-          deviceEvent: {},
-          food: {},
-          message: {},
-          smbg: {},
-          wizard: {},
-        },
-        bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
-        ...commonQueries,
-      };
-    }
+      if (!opts.bgLog.disabled) {
+        queries.bgLog = {
+          endpoints: pdfOpts.bgLog.endpoints,
+          aggregationsByDate: 'dataByDate',
+          stats: this.getStatsByChartType('bgLog'),
+          types: { smbg: {} },
+          bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+          ...commonQueries,
+        };
+      }
 
-    if (!opts.settings.disabled) {
-      queries.settings = {
-        ...commonQueries,
-      };
+      if (!opts.daily.disabled) {
+        queries.daily = {
+          endpoints: pdfOpts.daily.endpoints,
+          aggregationsByDate: 'dataByDate, statsByDate',
+          stats: this.getStatsByChartType('daily'),
+          types: {
+            basal: {},
+            bolus: {},
+            cbg: {},
+            deviceEvent: {},
+            food: {},
+            message: {},
+            smbg: {},
+            wizard: {},
+          },
+          bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
+          ...commonQueries,
+        };
+      }
+
+      if (!opts.agp.disabled) {
+        queries.agp = {
+          endpoints: pdfOpts.agp.endpoints,
+          aggregationsByDate: 'dataByDate',
+          bgSource: _.get(this.state.chartPrefs, 'agp.bgSource'),
+          stats: this.getStatsByChartType('agp'),
+          types: { cbg: {} },
+          ...commonQueries,
+        };
+      }
+
+      if (!opts.settings.disabled) {
+        queries.settings = {
+          ...commonQueries,
+        };
+      }
     }
 
     this.log('Generating PDF with', queries, opts);
@@ -987,6 +1017,7 @@ export const PatientDataClass = createReactClass({
       queries,
       opts,
       this.props.currentPatientInViewId,
+      props.data,
     );
   },
 
@@ -1367,6 +1398,14 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.coefficientOfVariation);
         break;
 
+      case 'agp':
+        stats.push(commonStats.timeInRange);
+        stats.push(commonStats.averageGlucose);
+        stats.push(commonStats.sensorUsage);
+        stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.coefficientOfVariation);
+        break;
+
       case 'trends':
         cbgSelected && stats.push(commonStats.timeInRange);
         smbgSelected && stats.push(commonStats.readingsInRange);
@@ -1442,6 +1481,12 @@ export const PatientDataClass = createReactClass({
       case 'bgLog':
         latestDatums = getLatestDatums([
           'smbg',
+        ]);
+        break;
+
+      case 'agp':
+        latestDatums = getLatestDatums([
+          'cbg',
         ]);
         break;
 
@@ -1669,6 +1714,15 @@ export const PatientDataClass = createReactClass({
         if (this.state.datesDialogFetchingData) {
           this.closeDatesDialog();
         }
+      }
+
+      const needsAGPImagesGenerated = this.props.pdf?.opts?.agp?.disabled === undefined && nextProps.pdf?.opts?.agp?.disabled === false && !_.isObject(nextProps.pdf.images);
+      const agpImagesGenerated = !_.isObject(this.props.pdf.opts?.svgDataURLS) && _.isObject(nextProps.pdf.opts?.svgDataURLS);
+
+      if (needsAGPImagesGenerated) {
+        this.generateAGPImages(nextProps);
+      } else if (agpImagesGenerated) {
+        this.generatePDF(nextProps, this.state, this.state.printDialogPDFOpts);
       }
     }
   },
@@ -2126,6 +2180,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
+  generateAGPImagesSuccess: actions.sync.generateAGPImagesSuccess,
+  generateAGPImagesFailure: actions.sync.generateAGPImagesFailure,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
@@ -2141,6 +2197,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     'generatePDFRequest',
     'processPatientDataRequest',
     'removeGeneratedPDFS',
+    'generateAGPImagesSuccess',
+    'generateAGPImagesFailure',
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {

@@ -2192,3 +2192,29 @@ export function fetchInfoFailure(error, apiError) {
     },
   };
 }
+
+export function generateAGPImagesRequest(data, opts, queries, patientId) {
+  return {
+    type: ActionTypes.GENERATE_AGP_IMAGES_REQUEST,
+    payload: {
+      data,
+      opts,
+      patientId, // TODO: Do we need this?
+      queries,
+    },
+  };
+}
+
+export function generateAGPImagesSuccess(images) {
+  return {
+    type: ActionTypes.GENERATE_AGP_IMAGES_SUCCESS,
+    payload: { images },
+  };
+}
+
+export function generateAGPImagesFailure(error) {
+  return {
+    type: ActionTypes.GENERATE_AGP_IMAGES_FAILURE,
+    error,
+  };
+}
