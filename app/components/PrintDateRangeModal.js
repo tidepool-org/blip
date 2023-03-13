@@ -178,13 +178,13 @@ export const PrintDateRangeModal = (props) => {
       key: 'bgLog',
     },
     {
+      header: t('Device Settings'),
+      key: 'settings',
+    },
+    {
       daysOptions: agpDaysOptions,
       header: t('AGP Chart'),
       key: 'agp',
-    },
-    {
-      header: t('Device Settings'),
-      key: 'settings',
     },
   ];
 
