@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
@@ -6,7 +7,7 @@ import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 import { Flex, Box, Text } from 'rebass/styled-components';
-import { Label, Switch } from '@rebass/forms/styled-components';
+import { Switch } from '@rebass/forms/styled-components';
 import moment from 'moment-timezone';
 
 import Button from './elements/Button';
@@ -20,6 +21,7 @@ import {
 import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
 import i18next from '../core/language';
 import { borders } from '../themes/baseTheme';
+import { useLocalStorage } from '../core/hooks';
 
 const t = i18next.t.bind(i18next);
 
@@ -35,6 +37,10 @@ export const PrintDateRangeModal = (props) => {
     timePrefs: { timezoneName = 'UTC' },
     trackMetric,
   } = props;
+
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const enabledChartsLocalKey = `${loggedInUserId}_PDFChartsEnabled`;
+  const defaultRangesLocalKey = `${loggedInUserId}_PDFChartsSelectedRangeIndices`;
 
   const endOfToday = useMemo(() => moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
 
@@ -56,16 +62,25 @@ export const PrintDateRangeModal = (props) => {
     });
   };
 
-  const agpDaysOptions = [7, 14];
-  const basicsDaysOptions = [14, 21, 30, 90];
-  const bgLogDaysOptions = [14, 21, 30, 90];
-  const dailyDaysOptions = [14, 21, 30, 90];
+  const presetDaysOptions = {
+    agp: [7, 14],
+    basics: [14, 21, 30, 90],
+    bgLog: [14, 21, 30, 90],
+    daily: [14, 21, 30, 90],
+  };
+
+  const [rangePresets, setRangePresets] = useLocalStorage(defaultRangesLocalKey, {
+    agp: 1,
+    basics: 0,
+    bgLog: 2,
+    daily: 0,
+  });
 
   const defaultDates = () => ({
-    agp: getLastNDays(agpDaysOptions[1], 'agp'),
-    basics: getLastNDays(basicsDaysOptions[0], 'basics'),
-    bgLog: getLastNDays(bgLogDaysOptions[2], 'bgLog'),
-    daily: getLastNDays(dailyDaysOptions[0], 'daily'),
+    agp: getLastNDays(presetDaysOptions.agp[rangePresets.agp], 'agp'),
+    basics: getLastNDays(presetDaysOptions.basics[rangePresets.basics], 'basics'),
+    bgLog: getLastNDays(presetDaysOptions.bgLog[rangePresets.bgLog], 'bgLog'),
+    daily: getLastNDays(presetDaysOptions.daily[rangePresets.daily], 'daily'),
   });
 
   const defaults = useMemo(() => ({
@@ -95,16 +110,16 @@ export const PrintDateRangeModal = (props) => {
   }), [mostRecentDatumDates]);
 
   const [dates, setDates] = useState(defaults.dates);
-  const [enabled, setEnabled] = useState(defaults.enabled);
+  const [enabled, setEnabled] = useLocalStorage(enabledChartsLocalKey, defaults.enabled, true);
   const [errors, setErrors] = useState(defaults.errors);
   const [submitted, setSubmitted] = useState(defaults.submitted);
   const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
 
   const presetDateRanges = {
-    agp: useMemo(() => map(agpDaysOptions, days => getLastNDays(days, 'agp')), [open]),
-    basics: useMemo(() => map(basicsDaysOptions, days => getLastNDays(days, 'basics')), [open]),
-    bgLog: useMemo(() => map(bgLogDaysOptions, days => getLastNDays(days, 'bgLog')), [open]),
-    daily: useMemo(() => map(dailyDaysOptions, days => getLastNDays(days, 'daily')), [open]),
+    agp: useMemo(() => map(presetDaysOptions.agp, days => getLastNDays(days, 'agp')), [open]),
+    basics: useMemo(() => map(presetDaysOptions.basics, days => getLastNDays(days, 'basics')), [open]),
+    bgLog: useMemo(() => map(presetDaysOptions.bgLog, days => getLastNDays(days, 'bgLog')), [open]),
+    daily: useMemo(() => map(presetDaysOptions.daily, days => getLastNDays(days, 'daily')), [open]),
   };
 
   const datesMatchPreset = (dates, presetDates) => {
@@ -140,17 +155,17 @@ export const PrintDateRangeModal = (props) => {
   // Panels
   const panels = [
     {
-      daysOptions: basicsDaysOptions,
+      daysOptions: presetDaysOptions.basics,
       header: t('Basics Chart'),
       key: 'basics',
     },
     {
-      daysOptions: dailyDaysOptions,
+      daysOptions: presetDaysOptions.daily,
       header: t('Daily Charts'),
       key: 'daily',
     },
     {
-      daysOptions: bgLogDaysOptions,
+      daysOptions: presetDaysOptions.bgLog,
       header: t('BG Log Chart'),
       key: 'bgLog',
     },
@@ -159,7 +174,7 @@ export const PrintDateRangeModal = (props) => {
       key: 'settings',
     },
     {
-      daysOptions: agpDaysOptions,
+      daysOptions: presetDaysOptions.agp,
       header: t('AGP Report'),
       key: 'agp',
     },
@@ -171,6 +186,11 @@ export const PrintDateRangeModal = (props) => {
   ] : []);
 
   // Handlers
+  const handleClickPreset = (key, days, presetIndex) => {
+    setDates({ ...dates, [key]: getLastNDays(days, key) });
+    setRangePresets({ ...rangePresets, [key]: presetIndex })
+  };
+
   const handleSubmit = () => {
     setSubmitted(true);
 
@@ -201,10 +221,10 @@ export const PrintDateRangeModal = (props) => {
     };
 
     const metrics = {
-      agp: printOpts.agp.disabled ? 'disabled' : getDateRangeMetric(agpDaysOptions, 'agp'),
-      basics: printOpts.basics.disabled ? 'disabled' : getDateRangeMetric(basicsDaysOptions, 'basics'),
-      bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(bgLogDaysOptions, 'bgLog'),
-      daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(dailyDaysOptions, 'daily'),
+      agp: printOpts.agp.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.agp, 'agp'),
+      basics: printOpts.basics.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.basics, 'basics'),
+      bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.bgLog, 'bgLog'),
+      daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.daily, 'daily'),
       settings: printOpts.settings.disabled ? 'disabled' : 'enabled',
     };
 
@@ -221,7 +241,6 @@ export const PrintDateRangeModal = (props) => {
     if (open) {
       setDatePickerOpen(defaults.datePickerOpen);
       setDates(defaults.dates);
-      setEnabled(defaults.enabled);
       setErrors(defaults.errors);
       setSubmitted(defaults.submitted);
     }
@@ -283,7 +302,7 @@ export const PrintDateRangeModal = (props) => {
                           key={`days-${panel.key}-${i}`}
                           value={days}
                           selected={datesMatchPreset(dates[panel.key], presetDateRanges[panel.key][i])}
-                          onClick={() => setDates({ ...dates, [panel.key]: getLastNDays(days, panel.key) })}
+                          onClick={() => handleClickPreset(panel.key, days, i)}
                         >
                           {days} days
                         </Button>
