@@ -68,7 +68,7 @@ export const ClinicianEdit = (props) => {
       indexOf(clinician.roles, 'CLINIC_ADMIN') !== -1 &&
       isUndefined(clinician.inviteId)
   );
-  const adminCount = filter(activeAdmins, { roles: ['CLINIC_ADMIN'] }).length;
+  const adminCount = activeAdmins.length;
   const userId = useSelector((state) => state.blip.loggedInUserId);
   const isOnlyClinicAdmin = adminCount === 1 && userId === selectedClinicianId;
   let deleteSubmitText,
