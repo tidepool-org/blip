@@ -991,7 +991,7 @@ export const PatientDataClass = createReactClass({
       if (!opts.agp.disabled) {
         queries.agp = {
           endpoints: pdfOpts.agp.endpoints,
-          aggregationsByDate: 'dataByDate',
+          aggregationsByDate: 'dataByDate, statsByDate',
           bgSource: _.get(this.state.chartPrefs, 'agp.bgSource'),
           stats: this.getStatsByChartType('agp'),
           types: { cbg: {} },
