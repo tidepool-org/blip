@@ -455,6 +455,8 @@ export const PatientDataClass = createReactClass({
           const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString()
           const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
 
+          let setStateCallback = this.generatePDF;
+
           if (startDate < fetchedUntil) {
             this.fetchEarlierData({
               returnData: false,
@@ -470,12 +472,12 @@ export const PatientDataClass = createReactClass({
               this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`);
             }
 
-            this.setState({ printDialogPDFOpts: opts });
-          } else {
-            this.setState({ printDialogPDFOpts: opts }, () => {
-              this.generatePDF();
-            });
+            setStateCallback = _.noop;
           }
+
+          this.setState({ printDialogPDFOpts: opts }, () => {
+            setStateCallback();
+          });
         }}
         processing={this.state.printDialogProcessing}
         timePrefs={this.state.timePrefs}
