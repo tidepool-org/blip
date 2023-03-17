@@ -450,7 +450,8 @@ export const PatientDataClass = createReactClass({
           this.setState({ printDialogProcessing: true })
 
           // Determine the earliest startDate needed to fetch data to.
-          const earliestPrintDate = _.min(_.at(opts, _.map(_.keys(opts), key => `${key}.endpoints.0`)));
+          const enabledOpts = _.filter(opts, { disabled: false });
+          const earliestPrintDate = _.min(_.at(enabledOpts, _.map(_.keys(enabledOpts), key => `${key}.endpoints.0`)));
           const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString()
           const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
 
@@ -471,7 +472,9 @@ export const PatientDataClass = createReactClass({
 
             this.setState({ printDialogPDFOpts: opts });
           } else {
-            this.generatePDF(this.props, this.state, opts);
+            this.setState({ printDialogPDFOpts: opts }, () => {
+              this.generatePDF();
+            });
           }
         }}
         processing={this.state.printDialogProcessing}
@@ -923,17 +926,13 @@ export const PatientDataClass = createReactClass({
     }
   },
 
-  generatePDF: function(props = this.props, state = this.state, pdfOpts = {}) {
+  generatePDF: function(props = this.props, state = this.state) {
     const patientSettings = _.get(props, 'patient.settings', {});
+    const printDialogPDFOpts = state.printDialogPDFOpts || {};
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
     const pdfPatient = _.assign({}, props.patient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
-
-    const opts = props.pdf.opts || {
-      patient: pdfPatient,
-      ..._.mapValues(pdfOpts, chartType => ({ disabled: chartType.disabled })),
-    };
 
     const commonQueries = {
       bgPrefs: state.bgPrefs,
@@ -942,72 +941,68 @@ export const PatientDataClass = createReactClass({
       excludedDevices: state.chartPrefs.excludedDevices,
     };
 
-    let queries = props.pdf.queries;
+    const queries = {};
 
-    if (!queries) {
-      queries = {};
-
-      if (!opts.basics.disabled) {
-        queries.basics = {
-          endpoints: pdfOpts.basics.endpoints,
-          aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-          bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
-          stats: this.getStatsByChartType('basics'),
-          excludeDaysWithoutBolus: _.get(this.state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
-          ...commonQueries,
-        };
-      }
-
-      if (!opts.bgLog.disabled) {
-        queries.bgLog = {
-          endpoints: pdfOpts.bgLog.endpoints,
-          aggregationsByDate: 'dataByDate',
-          stats: this.getStatsByChartType('bgLog'),
-          types: { smbg: {} },
-          bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
-          ...commonQueries,
-        };
-      }
-
-      if (!opts.daily.disabled) {
-        queries.daily = {
-          endpoints: pdfOpts.daily.endpoints,
-          aggregationsByDate: 'dataByDate, statsByDate',
-          stats: this.getStatsByChartType('daily'),
-          types: {
-            basal: {},
-            bolus: {},
-            cbg: {},
-            deviceEvent: {},
-            food: {},
-            message: {},
-            smbg: {},
-            wizard: {},
-          },
-          bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
-          ...commonQueries,
-        };
-      }
-
-      if (!opts.agp.disabled) {
-        queries.agp = {
-          endpoints: pdfOpts.agp.endpoints,
-          aggregationsByDate: 'dataByDate, statsByDate',
-          bgSource: _.get(this.state.chartPrefs, 'agp.bgSource'),
-          stats: this.getStatsByChartType('agp'),
-          types: { cbg: {} },
-          ...commonQueries,
-        };
-      }
-
-      if (!opts.settings.disabled) {
-        queries.settings = {
-          ...commonQueries,
-        };
-      }
+    if (!printDialogPDFOpts.basics.disabled) {
+      queries.basics = {
+        endpoints: printDialogPDFOpts.basics.endpoints,
+        aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
+        bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
+        stats: this.getStatsByChartType('basics'),
+        excludeDaysWithoutBolus: _.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
+        ...commonQueries,
+      };
     }
 
-    this.log('Generating PDF with', queries, opts);
+    if (!printDialogPDFOpts.bgLog.disabled) {
+      queries.bgLog = {
+        endpoints: printDialogPDFOpts.bgLog.endpoints,
+        aggregationsByDate: 'dataByDate',
+        stats: this.getStatsByChartType('bgLog'),
+        types: { smbg: {} },
+        bgSource: _.get(state.chartPrefs, 'bgLog.bgSource'),
+        ...commonQueries,
+      };
+    }
+
+    if (!printDialogPDFOpts.daily.disabled) {
+      queries.daily = {
+        endpoints: printDialogPDFOpts.daily.endpoints,
+        aggregationsByDate: 'dataByDate, statsByDate',
+        stats: this.getStatsByChartType('daily'),
+        types: {
+          basal: {},
+          bolus: {},
+          cbg: {},
+          deviceEvent: {},
+          food: {},
+          message: {},
+          smbg: {},
+          wizard: {},
+        },
+        bgSource: _.get(state.chartPrefs, 'daily.bgSource'),
+        ...commonQueries,
+      };
+    }
+
+    if (!printDialogPDFOpts.agp.disabled) {
+      queries.agp = {
+        endpoints: printDialogPDFOpts.agp.endpoints,
+        aggregationsByDate: 'dataByDate, statsByDate',
+        bgSource: _.get(state.chartPrefs, 'agp.bgSource'),
+        stats: this.getStatsByChartType('agp'),
+        types: { cbg: {} },
+        ...commonQueries,
+      };
+    }
+
+    if (!printDialogPDFOpts.settings.disabled) {
+      queries.settings = {
+        ...commonQueries,
+      };
+    }
+
+    this.log('Generating PDF with', queries, printDialogPDFOpts);
 
     window.downloadPDFDataQueries = () => {
       console.save(queries, 'PDFDataQueries.json');
@@ -1016,7 +1011,10 @@ export const PatientDataClass = createReactClass({
     props.generatePDFRequest(
       'combined',
       queries,
-      opts,
+      {
+        ...printDialogPDFOpts,
+        patient: pdfPatient,
+      },
       this.props.currentPatientInViewId,
       props.data,
     );
@@ -1707,7 +1705,7 @@ export const PatientDataClass = createReactClass({
 
         // If new data was fetched to support requested PDF dates, kick off pdf generation.
         if (this.state.printDialogPDFOpts) {
-          this.generatePDF(nextProps, this.state, this.state.printDialogPDFOpts);
+          this.generatePDF(nextProps);
         }
 
         // If new data was fetched to support new chart dates,
@@ -1723,7 +1721,10 @@ export const PatientDataClass = createReactClass({
       if (needsAGPImagesGenerated) {
         this.generateAGPImages(nextProps);
       } else if (agpImagesGenerated) {
-        this.generatePDF(nextProps, this.state, this.state.printDialogPDFOpts);
+        this.generatePDF(nextProps, {
+          ...this.state,
+          printDialogPDFOpts: nextProps.pdf.opts,
+        });
       }
     }
   },
