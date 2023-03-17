@@ -42,6 +42,8 @@ describe('PatientData', function () {
     dataWorkerRemoveDataRequest: sinon.stub(),
     dataWorkerRemoveDataSuccess: sinon.stub(),
     dataWorkerQueryDataRequest: sinon.stub(),
+    generateAGPImagesSuccess: sinon.stub(),
+    generateAGPImagesFailure: sinon.stub(),
     fetchers: [],
     fetchingPatient: false,
     fetchingPatientData: false,
@@ -1050,6 +1052,7 @@ describe('PatientData', function () {
         expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
 
         expect(dialogProps.mostRecentDatumDates).to.be.an('object').and.have.keys([
+          'agp',
           'basics',
           'bgLog',
           'daily',
@@ -1122,6 +1125,9 @@ describe('PatientData', function () {
     it('should return the default `chartPrefs` state for each data view', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       expect(wrapper.state().chartPrefs).to.eql({
+        agp: {
+          bgSource: 'cbg',
+        },
         basics: {
           stats: {
             excludeDaysWithoutBolus: false,
@@ -2774,6 +2780,7 @@ describe('PatientData', function () {
             const generatePDFSpy = sinon.spy(instance, 'generatePDF');
 
             const pdfOpts = {
+              agp: {},
               basics: {},
               bgLog: {},
               daily: {},
@@ -3371,6 +3378,7 @@ describe('PatientData', function () {
       undefined,
       undefined,
       {
+        agp: { endpoints: 'agp endpoints'},
         basics: { endpoints: 'basics endpoints'},
         bgLog: { endpoints: 'bgLog endpoints'},
         daily: { endpoints: 'daily endpoints'},
@@ -3390,6 +3398,7 @@ describe('PatientData', function () {
       sinon.assert.calledWith(defaultProps.generatePDFRequest,
         'combined',
         {
+          agp: sinon.match.object,
           basics: sinon.match.object,
           daily: sinon.match.object,
           bgLog: sinon.match.object,
@@ -3397,6 +3406,7 @@ describe('PatientData', function () {
         },
         {
           patient: sinon.match(defaultProps.patient),
+          agp: sinon.match.object,
           basics: sinon.match.object,
           daily: sinon.match.object,
           bgLog: sinon.match.object,

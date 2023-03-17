@@ -437,6 +437,7 @@ export const PatientDataClass = createReactClass({
     return (
       <PrintDateRangeModal
         id="print-dialog"
+        loggedInUserId={this.props.user?.userid}
         mostRecentDatumDates={{
           agp: this.getMostRecentDatumTimeByChartType(this.props, 'agp'),
           basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),

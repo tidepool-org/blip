@@ -36,9 +36,9 @@ export const PrintDateRangeModal = (props) => {
     processing,
     timePrefs: { timezoneName = 'UTC' },
     trackMetric,
+    loggedInUserId,
   } = props;
 
-  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const enabledChartsLocalKey = `${loggedInUserId}_PDFChartsEnabled`;
   const defaultRangesLocalKey = `${loggedInUserId}_PDFChartsSelectedRangeIndices`;
 
@@ -273,6 +273,7 @@ export const PrintDateRangeModal = (props) => {
               mb={3}
             >
               <Flex
+                id={`${panel.key}-header`}
                 mb={enabled[panel.key] && panel.daysOptions ? 2 : 0}
                 pb={enabled[panel.key] && panel.daysOptions ? 3 : 0}
                 sx={{ borderBottom: enabled[panel.key] && panel.daysOptions ? borders.input : 'none' }}
@@ -288,7 +289,7 @@ export const PrintDateRangeModal = (props) => {
               </Flex>
 
               {enabled[panel.key] && panel.daysOptions && (
-                <Box>
+                <Box id={`${panel.key}-content`}>
                   <Box mb={3}>
                     <Body0 mb={2}>{t('Number of days (most recent)')}</Body0>
 
@@ -314,7 +315,7 @@ export const PrintDateRangeModal = (props) => {
                     <Body0 mb={2}>{t('Or select a custom date range ({{maxDays}} days max)', { maxDays })}</Body0>
 
                     <DateRangePicker
-                      id={`date-range-picker-${panel.key}`}
+                      key={`date-range-picker-${panel.key}`}
                       startDate={dates[panel.key].startDate}
                       startDateId={`${[panel.key]}-start-date`}
                       endDate={dates[panel.key].endDate}
