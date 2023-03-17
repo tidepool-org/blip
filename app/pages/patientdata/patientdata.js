@@ -921,7 +921,7 @@ export const PatientDataClass = createReactClass({
 
   generateAGPImages: async function(props = this.props) {
     try {
-      const images = await vizUtils.agp.generateAGPSVGDataURLS({ ...props.pdf.data.agp });
+      const images = await vizUtils.agp.generateAGPSVGDataURLS({ ...props.pdf.data?.agp });
       props.generateAGPImagesSuccess(images)
     } catch(e) {
       props.generateAGPImagesFailure(e);
@@ -940,14 +940,14 @@ export const PatientDataClass = createReactClass({
       bgPrefs: state.bgPrefs,
       metaData: 'latestPumpUpload, bgSources',
       timePrefs: state.timePrefs,
-      excludedDevices: state.chartPrefs.excludedDevices,
+      excludedDevices: state.chartPrefs?.excludedDevices,
     };
 
     const queries = {};
 
-    if (!printDialogPDFOpts.basics.disabled) {
+    if (!printDialogPDFOpts.basics?.disabled) {
       queries.basics = {
-        endpoints: printDialogPDFOpts.basics.endpoints,
+        endpoints: printDialogPDFOpts.basics?.endpoints,
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
@@ -956,9 +956,9 @@ export const PatientDataClass = createReactClass({
       };
     }
 
-    if (!printDialogPDFOpts.bgLog.disabled) {
+    if (!printDialogPDFOpts.bgLog?.disabled) {
       queries.bgLog = {
-        endpoints: printDialogPDFOpts.bgLog.endpoints,
+        endpoints: printDialogPDFOpts.bgLog?.endpoints,
         aggregationsByDate: 'dataByDate',
         stats: this.getStatsByChartType('bgLog'),
         types: { smbg: {} },
@@ -967,9 +967,9 @@ export const PatientDataClass = createReactClass({
       };
     }
 
-    if (!printDialogPDFOpts.daily.disabled) {
+    if (!printDialogPDFOpts.daily?.disabled) {
       queries.daily = {
-        endpoints: printDialogPDFOpts.daily.endpoints,
+        endpoints: printDialogPDFOpts.daily?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         stats: this.getStatsByChartType('daily'),
         types: {
@@ -987,9 +987,9 @@ export const PatientDataClass = createReactClass({
       };
     }
 
-    if (!printDialogPDFOpts.agp.disabled) {
+    if (!printDialogPDFOpts.agp?.disabled) {
       queries.agp = {
-        endpoints: printDialogPDFOpts.agp.endpoints,
+        endpoints: printDialogPDFOpts.agp?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         bgSource: _.get(state.chartPrefs, 'agp.bgSource'),
         stats: this.getStatsByChartType('agp'),
@@ -998,7 +998,7 @@ export const PatientDataClass = createReactClass({
       };
     }
 
-    if (!printDialogPDFOpts.settings.disabled) {
+    if (!printDialogPDFOpts.settings?.disabled) {
       queries.settings = {
         ...commonQueries,
       };
