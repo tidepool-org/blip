@@ -2193,13 +2193,12 @@ export function fetchInfoFailure(error, apiError) {
   };
 }
 
-export function generateAGPImagesRequest(data, opts, queries, patientId) {
+export function generateAGPImagesRequest(data, opts, queries) {
   return {
     type: ActionTypes.GENERATE_AGP_IMAGES_REQUEST,
     payload: {
       data,
       opts,
-      patientId, // TODO: Do we need this?
       queries,
     },
   };

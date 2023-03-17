@@ -42,7 +42,7 @@ export default class PDFWorker {
     switch (action.type) {
       case actionTypes.GENERATE_PDF_REQUEST: {
         const { type, opts, queries, data = {} } = action.payload;
-        const { origin, patientId } = action.meta;
+        const { origin } = action.meta;
 
         if (queries) {
           // AGP report requires images to be generated on the main thread by Plotly in order to
@@ -54,7 +54,7 @@ export default class PDFWorker {
 
             if (!opts.agp.disabled) {
               // Return early if the intent is still to generate the AGP report
-              return this.requestAGPImages(data.agp, opts, queries, patientId, postMessage);
+              return this.requestAGPImages(data, opts, queries, postMessage);
             }
           }
 
@@ -95,8 +95,8 @@ export default class PDFWorker {
     }
   }
 
-  requestAGPImages(data, opts, query, patientId, postMessage) {
-    postMessage(syncActions.generateAGPImagesRequest(data, opts, query, patientId))
+  requestAGPImages(data, opts, query, postMessage) {
+    postMessage(syncActions.generateAGPImagesRequest(data, opts, query))
   }
 
   generatePDF(data, opts, origin, type, postMessage) {

@@ -921,7 +921,7 @@ export const PatientDataClass = createReactClass({
 
   generateAGPImages: async function(props = this.props) {
     try {
-      const images = await vizUtils.agp.generateAGPSVGDataURLS({ ...props.pdf.data });
+      const images = await vizUtils.agp.generateAGPSVGDataURLS({ ...props.pdf.data.agp });
       props.generateAGPImagesSuccess(images)
     } catch(e) {
       props.generateAGPImagesFailure(e);
@@ -1018,7 +1018,7 @@ export const PatientDataClass = createReactClass({
         patient: pdfPatient,
       },
       this.props.currentPatientInViewId,
-      props.data,
+      props.pdf?.data,
     );
   },
 
