@@ -27,7 +27,7 @@ import Promise from 'bluebird';
 import PDFWorker from '../../../app/worker/PDFWorker';
 import * as actions from '../../../app/redux/actions/worker';
 
-describe('PDFWorker', () => {
+describe.only('PDFWorker', () => {
   let Worker;
   const importer = sinon.stub();
   const renderer = sinon.stub().usingPromise(Promise);

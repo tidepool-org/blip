@@ -26,7 +26,7 @@ import mutationTracker from 'object-invariant-test-helper';
 import * as actionTypes from '../../../../app/redux/constants/actionTypes';
 import reducer from '../../../../app/redux/reducers/pdf';
 
-describe('pdf reducer', () => {
+describe.only('pdf reducer', () => {
   it('should return the initial state of {}', () => {
     expect(reducer(undefined, {})).to.deep.equal({});
   });
@@ -50,6 +50,24 @@ describe('pdf reducer', () => {
         bgLog: pdfObject,
         daily: pdfObject,
       });
+
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
+  describe('GENERATE_AGP_IMAGES_FAILURE', () => {
+    it('should reset to the initial state of {}', () => {
+      const pdfObject = {
+        url: 'someUrl',
+        blob: 'someBlob',
+      };
+
+      const initialState = { bgLog: pdfObject };
+      const tracked = mutationTracker.trackObj(initialState);
+
+      expect(reducer(initialState, {
+        type: actionTypes.GENERATE_AGP_IMAGES_FAILURE,
+      })).to.deep.equal({});
 
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
