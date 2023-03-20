@@ -41,7 +41,8 @@ export default class PDFWorker {
 
     switch (action.type) {
       case actionTypes.GENERATE_PDF_REQUEST: {
-        const { type, opts, queries, data = {} } = action.payload;
+        const { type, queries, data = {} } = action.payload;
+        const opts = { ...action.payload.opts }
         const { origin } = action.meta;
 
         if (queries) {
