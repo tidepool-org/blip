@@ -267,7 +267,7 @@ describe('keycloak', () => {
       keycloak.__ResetDependency__('_keycloakConfig');
     });
 
-    it('should call keycloak.updateToken() when action has 401 or 403 error', () => {
+    it('should call keycloak.updateToken() when action has 401 error', () => {
       const action401 = {
         type: 'SOME_ACTION',
         error: {
@@ -278,6 +278,14 @@ describe('keycloak', () => {
         },
       };
 
+      expect(keycloakMock.updateToken.callCount).to.equal(0);
+      keycloakMiddleware()()(sinon.stub())(action401);
+      expect(keycloakMock.updateToken.callCount).to.equal(1);
+      sinon.assert.calledWithExactly(keycloakMock.updateToken, -1);
+      keycloakMock.updateToken.resetHistory();
+    });
+
+    it('should call keycloak.updateToken() when action has 403 error', () => {
       const action403 = {
         type: 'SOME_ACTION',
         error: {
@@ -289,12 +297,8 @@ describe('keycloak', () => {
       };
 
       expect(keycloakMock.updateToken.callCount).to.equal(0);
-      keycloakMiddleware()()(sinon.stub())(action401);
-      expect(keycloakMock.updateToken.callCount).to.equal(1);
-      sinon.assert.calledWithExactly(keycloakMock.updateToken, -1);
-
       keycloakMiddleware()()(sinon.stub())(action403);
-      expect(keycloakMock.updateToken.callCount).to.equal(2);
+      expect(keycloakMock.updateToken.callCount).to.equal(1);
       sinon.assert.calledWithExactly(keycloakMock.updateToken, -1);
     });
   });
