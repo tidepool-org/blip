@@ -387,6 +387,23 @@ export function logout(api) {
 }
 
 /**
+ * Logged out Async Action Creator
+ *
+ * @param {Object} api an instance of the API wrapper
+ */
+export function loggedOut(api) {
+  return (dispatch, getState) => {
+    const { blip: { currentPatientInViewId } } = getState();
+    dispatch(sync.logoutRequest());
+    dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+    api.user.logout(() => {
+      dispatch(sync.logoutSuccess());
+      dispatch(push('/logged-out'));
+    })
+  }
+}
+
+/**
  * Setup data storage Async Action Creator
  *
  * @param  {Object} api an instance of the API wrapper

@@ -28,6 +28,7 @@ import UserProfile from './pages/userprofile';
 import VerificationWithPassword from './pages/verificationwithpassword';
 import Gate from './components/gate';
 import UploadRedirect from './pages/uploadredirect';
+import LoggedOut from './pages/loggedout';
 
 import utils from './core/utils';
 import personUtils from './core/personutils';
@@ -353,6 +354,7 @@ export const getRoutes = (appContext) => {
           <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
           <Route path="/upload-redirect" render={routeProps => (<UploadRedirect {...routeProps} {...props} />)} />
+          <Route path="/logged-out" render={routeProps => (<LoggedOut {...routeProps} {...props}/>)} />
           <Route>
             { api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to='/login' /> }
           </Route>
