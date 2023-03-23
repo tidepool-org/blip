@@ -233,6 +233,15 @@ describe('ClinicPatients', () => {
                 { providerName: 'foo', state: 'connected' },
               ],
             },
+            patient7: {
+              id: 'patient7',
+              email: 'patient7@test.ca',
+              fullName: 'patient7',
+              birthDate: '1999-01-01',
+              dataSources: [
+                { providerName: 'dexcom', state: 'pendingReconnect' },
+              ],
+            },
           },
         },
       },
@@ -979,7 +988,7 @@ describe('ClinicPatients', () => {
 
           getPatientForm(0);
           expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Pending connection');
+          expect(stateWrapper().text()).includes('Pending connection with');
 
           getPatientForm(1);
           expect(stateWrapper()).to.have.lengthOf(1);
@@ -996,6 +1005,35 @@ describe('ClinicPatients', () => {
           getPatientForm(4);
           expect(stateWrapper()).to.have.lengthOf(1);
           expect(stateWrapper().text()).includes('Unknown connection to');
+
+          getPatientForm(6);
+          expect(stateWrapper()).to.have.lengthOf(1);
+          expect(stateWrapper().text()).includes('Pending reconnection with');
+        });
+
+        it('should have a valid form state for all legitimate dexcom connection states', () => {
+          const stateWrapper = () => patientForm().find('#connectDexcomStatusWrapper').hostNodes();
+          const submitButton = () => wrapper.find('#editPatientConfirm').hostNodes();
+
+          getPatientForm(0);
+          expect(stateWrapper().text()).includes('Pending connection with');
+          expect(submitButton().prop('disabled')).to.be.false;
+
+          getPatientForm(1);
+          expect(stateWrapper().text()).includes('Connected with');
+          expect(submitButton().prop('disabled')).to.be.false;
+
+          getPatientForm(2);
+          expect(stateWrapper().text()).includes('Disconnected from');
+          expect(submitButton().prop('disabled')).to.be.false;
+
+          getPatientForm(3);
+          expect(stateWrapper().text()).includes('Error connecting to');
+          expect(submitButton().prop('disabled')).to.be.false;
+
+          getPatientForm(6);
+          expect(stateWrapper().text()).includes('Pending reconnection with');
+          expect(submitButton().prop('disabled')).to.be.false;
         });
 
         it('should allow resending a pending dexcom connection reminder', () => {
