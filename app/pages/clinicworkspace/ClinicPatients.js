@@ -2462,18 +2462,18 @@ export const ClinicPatients = (props) => {
           },
           {
             title: t('% CGM Use'),
-            field: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
+            field: 'timeCGMUsePercent',
             sortable: true,
-            sortBy: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
+            sortBy: 'timeCGMUsePercent',
             align: 'center',
             render: renderCGMUsage,
           },
           {
             title: t('% GMI'),
-            field: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
+            field: 'glucoseManagementIndicator',
             align: 'center',
             sortable: true,
-            sortBy: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
+            sortBy: 'glucoseManagementIndicator',
             render: renderGMI,
           },
           {
