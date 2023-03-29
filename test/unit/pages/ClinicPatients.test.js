@@ -288,13 +288,13 @@ describe('ClinicPatients', () => {
                   dates: {
                     lastUploadDate: moment().toISOString(),
                   },
+                  periods: { '14d': {
+                    averageGlucose: { units: MMOLL_UNITS },
+                    timeCGMUsePercent: 0.85,
+                    timeCGMUseMinutes: 23 * 60,
+                    glucoseManagementIndicator: 7.75,
+                  } },
                 },
-                periods: { '14d': {
-                  averageGlucose: { units: MMOLL_UNITS },
-                  timeCGMUsePercent: 0.85,
-                  timeCGMUseMinutes: 23 * 60,
-                  glucoseManagementIndicator: 7.75,
-                } },
               },
               permissions: { custodian : undefined },
               tags: ['tag1', 'tag2'],
@@ -310,13 +310,13 @@ describe('ClinicPatients', () => {
                   dates: {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
                   },
+                  periods: { '14d': {
+                    averageGlucose: { units: MGDL_UNITS },
+                    timeCGMUsePercent: 0.70,
+                    timeCGMUseMinutes:  7 * 24 * 60,
+                    glucoseManagementIndicator: 6.5,
+                  } },
                 },
-                periods: { '14d': {
-                  averageGlucose: { units: MGDL_UNITS },
-                  timeCGMUsePercent: 0.70,
-                  timeCGMUseMinutes:  7 * 24 * 60,
-                  glucoseManagementIndicator: 6.5,
-                } },
               },
               tags: ['tag1', 'tag2', 'tag3'],
             },
@@ -331,13 +331,13 @@ describe('ClinicPatients', () => {
                   dates: {
                     lastUploadDate: moment().subtract(29, 'days').toISOString(),
                   },
+                  periods: { '14d': {
+                    averageGlucose: { units: MMOLL_UNITS },
+                    timeCGMUsePercent: 0.69,
+                    timeCGMUseMinutes:  7 * 24 * 60,
+                    glucoseManagementIndicator: undefined,
+                  } },
                 },
-                periods: { '14d': {
-                  averageGlucose: { units: MMOLL_UNITS },
-                  timeCGMUsePercent: 0.69,
-                  timeCGMUseMinutes:  7 * 24 * 60,
-                  glucoseManagementIndicator: undefined,
-                } },
               },
             },
             patient5: {
@@ -351,13 +351,13 @@ describe('ClinicPatients', () => {
                   dates: {
                     lastUploadDate: moment().subtract(30, 'days').toISOString(),
                   },
+                  periods: { '14d': {
+                    averageGlucose: { units: MGDL_UNITS },
+                    timeCGMUsePercent: 0.69,
+                    timeCGMUseMinutes:  30 * 24 * 60,
+                    glucoseManagementIndicator: undefined,
+                  } },
                 },
-                periods: { '14d': {
-                  averageGlucose: { units: MGDL_UNITS },
-                  timeCGMUsePercent: 0.69,
-                  timeCGMUseMinutes:  30 * 24 * 60,
-                  glucoseManagementIndicator: undefined,
-                } },
               },
             },
           }
@@ -1159,10 +1159,10 @@ describe('ClinicPatients', () => {
           assert(columns.at(1).is('#peopleTable-header-lastUploadDate'));
 
           expect(columns.at(2).text()).to.equal('% CGM Use');
-          assert(columns.at(2).is('#peopleTable-header-summary-periods-14d-timeCGMUsePercent'));
+          assert(columns.at(2).is('#peopleTable-header-timeCGMUsePercent'));
 
           expect(columns.at(3).text()).to.equal('% GMI');
-          assert(columns.at(3).is('#peopleTable-header-summary-periods-14d-glucoseManagementIndicator'));
+          assert(columns.at(3).is('#peopleTable-header-glucoseManagementIndicator'));
 
           expect(columns.at(4).text()).to.equal('Patient Tags');
           assert(columns.at(4).is('#peopleTable-header-tags'));
@@ -1255,25 +1255,25 @@ describe('ClinicPatients', () => {
           lastUploadHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastUploadDate' }));
 
-          const cgmUseHeader = table.find('#peopleTable-header-summary-periods-14d-timeCGMUsePercent .MuiTableSortLabel-root').at(0);
+          const cgmUseHeader = table.find('#peopleTable-header-timeCGMUsePercent .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           cgmUseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.periods.14d.timeCGMUsePercent' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeCGMUsePercent' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           cgmUseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.periods.14d.timeCGMUsePercent' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeCGMUsePercent' }));
 
-          const gmiHeader = table.find('#peopleTable-header-summary-periods-14d-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
-
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+summary.periods.14d.glucoseManagementIndicator' }));
+          const gmiHeader = table.find('#peopleTable-header-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-summary.periods.14d.glucoseManagementIndicator' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          gmiHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-glucoseManagementIndicator' }));
         });
 
         it('should allow refreshing the patient list and maintain', () => {
@@ -1324,7 +1324,7 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sort: '-lastUploadDate', 'summary.lastUploadDateFrom': sinon.match.string, 'summary.lastUploadDateTo': sinon.match.string }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sort: '-lastUploadDate', 'cgm.lastUploadDateFrom': sinon.match.string, 'cgm.lastUploadDateTo': sinon.match.string }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days' }));
         });
 
@@ -1549,11 +1549,11 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
             ...defaultFetchOptions,
             sort: '-lastUploadDate',
-            'summary.periods.14d.timeInHighPercent': '>=0.25',
-            'summary.periods.14d.timeInLowPercent': '>=0.04',
-            'summary.periods.14d.timeInTargetPercent': '<=0.7',
-            'summary.periods.14d.timeInVeryHighPercent': '>=0.05',
-            'summary.periods.14d.timeInVeryLowPercent': '>=0.01',
+            'cgm.timeInHighPercent': '>=0.25',
+            'cgm.timeInLowPercent': '>=0.04',
+            'cgm.timeInTargetPercent': '<=0.7',
+            'cgm.timeInVeryHighPercent': '>=0.05',
+            'cgm.timeInVeryLowPercent': '>=0.01',
           }));
 
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in range apply filter', sinon.match({
@@ -1633,8 +1633,8 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
             ...defaultFetchOptions,
             sort: '-lastUploadDate',
-            'summary.periods.7d.timeInHighPercent': '>0.25',
-            'summary.periods.7d.timeInLowPercent': '>0.04',
+            'cgm.timeInHighPercent': '>0.25',
+            'cgm.timeInLowPercent': '>0.04',
           }));
 
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Summary period apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '7 days' }));
@@ -1735,10 +1735,10 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               ...defaultFetchOptions,
               sort: '-lastUploadDate',
-              'summary.lastUploadDateFrom': sinon.match.string,
-              'summary.lastUploadDateTo': sinon.match.string,
-              'summary.periods.14d.timeInHighPercent': '>=0.25',
-              'summary.periods.14d.timeInLowPercent': '>=0.04',
+              'cgm.lastUploadDateFrom': sinon.match.string,
+              'cgm.lastUploadDateTo': sinon.match.string,
+              'cgm.timeInHighPercent': '>=0.25',
+              'cgm.timeInLowPercent': '>=0.04',
             }));
           });
         });
@@ -2241,17 +2241,17 @@ describe('ClinicPatients', () => {
                 summary: {
                   cgmStats: {
                     dates: {
-                      lastUploadDate: sinon.match.string
+                      lastUploadDate: sinon.match.string,
+                    },
+                    periods: {
+                      '14d': {
+                        averageGlucose: { units: 'mmol/L' },
+                        glucoseManagementIndicator: 7.75,
+                        timeCGMUseMinutes: 1380,
+                        timeCGMUsePercent: 0.85,
+                      },
                     },
                   },
-                  periods: {
-                    '14d': {
-                      averageGlucose: { units: 'mmol/L' },
-                      glucoseManagementIndicator: 7.75,
-                      timeCGMUseMinutes: 1380,
-                      timeCGMUsePercent: 0.85
-                    }
-                  }
                 },
                 tags: ['tag3'],
               }

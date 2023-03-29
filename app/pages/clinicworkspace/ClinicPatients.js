@@ -831,8 +831,8 @@ export const ClinicPatients = (props) => {
 
       if (isPremiumTier) {
         if (activeFilters.lastUploadDate) {
-          filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-          filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
+          filterOptions['cgm.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+          filterOptions['cgm.lastUploadDateFrom'] = moment(filterOptions['cgm.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
 
         if (activeFilters.patientTags.length) {
@@ -847,20 +847,20 @@ export const ClinicPatients = (props) => {
             comparator = comparator === '<' ? '<=' : '>=';
           }
 
-          filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
+          filterOptions[`cgm.${filter}`] = comparator + value;
         });
       }
 
       const newPatientFetchOptions = {
         ...omit(patientFetchOptions, [
-          'summary.lastUploadDateFrom',
-          'summary.lastUploadDateTo',
+          'cgm.lastUploadDateFrom',
+          'cgm.lastUploadDateTo',
           'tags',
-          `summary.periods.${summaryPeriod}.timeInVeryLowPercent`,
-          `summary.periods.${summaryPeriod}.timeInLowPercent`,
-          `summary.periods.${summaryPeriod}.timeInTargetPercent`,
-          `summary.periods.${summaryPeriod}.timeInHighPercent`,
-          `summary.periods.${summaryPeriod}.timeInVeryHighPercent`,
+          'cgm.timeInVeryLowPercent',
+          'cgm.timeInLowPercent',
+          'cgm.timeInTargetPercent',
+          'cgm.timeInHighPercent',
+          'cgm.timeInVeryHighPercent',
         ]),
         ...filterOptions,
       };
