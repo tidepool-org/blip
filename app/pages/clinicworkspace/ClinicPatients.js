@@ -517,7 +517,8 @@ export const ClinicPatients = (props) => {
     () => ({
       search: '',
       offset: 0,
-      sort: showSummaryData ? '-summary.lastUploadDate' : '+fullName',
+      sort: showSummaryData ? '-lastUploadDate' : '+fullName',
+      sortType: 'cgm',
     }),
     [showSummaryData]
   );
@@ -814,6 +815,8 @@ export const ClinicPatients = (props) => {
       const filterOptions = {
         offset: 0,
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
+        sortType: patientFetchOptions.sortType || defaultPatientFetchOptions.sortType,
+        sortPeriod: summaryPeriod,
         limit: 50,
         search: patientFetchOptions.search,
       }
@@ -2234,24 +2237,19 @@ export const ClinicPatients = (props) => {
   const renderPatient = useCallback(patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontSize={[1, null, 0]} fontWeight="medium">{patient.fullName}</Text>
-      {patient.email && <Text fontSize={[0, null, '10px']}>{patient.email}</Text>}
+      {showSummaryData && <Text as="span" fontSize={[0, null, '10px']} sx={{ whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>}
+      {showSummaryData && patient.mrn && <Text as="span" fontSize={[0, null, '10px']} sx={{ whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
+      {!showSummaryData && patient.email && <Text fontSize={[0, null, '10px']}>{patient.email}</Text>}
     </Box>
   ), [handleClickPatient]);
-
-  const renderPatientSecondaryInfo = useCallback(patient => (
-    <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} fontSize={[0, null, '10px']} sx={{ cursor: 'pointer' }}>
-      <Text sx={{ whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>
-      {patient.mrn && <Text sx={{ whiteSpace: 'nowrap' }}>{t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
-    </Box>
-  ), [handleClickPatient, t]);
 
   const renderLastUploadDate = useCallback(({ summary }) => {
     let formattedLastUploadDate = statEmptyText;
     let color = 'inherit';
     let fontWeight = 'regular';
 
-    if (summary?.lastUploadDate) {
-      const lastUploadDateMoment = moment.utc(summary.lastUploadDate);
+    if (summary?.cgmStats?.dates?.lastUploadDate) {
+      const lastUploadDateMoment = moment.utc(summary.cgmStats.dates.lastUploadDate);
       const endOfToday = moment.utc(getLocalizedCeiling(new Date().toISOString(), timePrefs));
       const daysAgo = endOfToday.diff(lastUploadDateMoment, 'days', true);
       formattedLastUploadDate = lastUploadDateMoment.format(dateFormat);
@@ -2451,17 +2449,11 @@ export const ClinicPatients = (props) => {
       cols.splice(1, 2,
         ...[
           {
-            title: '',
-            field: 'patientSecondary',
-            align: 'left',
-            render: renderPatientSecondaryInfo,
-          },
-          {
             title: t('Last Upload (CGM)'),
-            field: 'summary.lastUploadDate',
+            field: 'lastUploadDate',
             align: 'left',
             sortable: true,
-            sortBy: 'summary.lastUploadDate',
+            sortBy: 'lastUploadDate',
             render: renderLastUploadDate,
           },
           {
@@ -2530,7 +2522,6 @@ export const ClinicPatients = (props) => {
     renderLinkedField,
     renderMore,
     renderPatient,
-    renderPatientSecondaryInfo,
     renderPatientTags,
     showSummaryData,
     summaryPeriod,
