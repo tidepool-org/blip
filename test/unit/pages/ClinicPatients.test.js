@@ -1591,10 +1591,11 @@ describe('ClinicPatients', () => {
         });
 
         context('summary period filtering', () => {
-          before(() => {
-            // Set some default range filters since they are affected by summary period changes
-            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().returns([
-              {
+          let mockedLocalStorage;
+
+          beforeEach(() => {
+            mockedLocalStorage = {
+              activePatientFilters: {
                 timeInRange: [
                     'timeInLowPercent',
                     'timeInHighPercent'
@@ -1602,8 +1603,15 @@ describe('ClinicPatients', () => {
                 patientTags: [],
                 meetsGlycemicTargets: false,
               },
-              sinon.stub()
-            ]));
+              activePatientSummaryPeriod: '14d',
+            };
+
+            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
 
             wrapper = mount(
               <Provider store={store}>
@@ -1616,7 +1624,7 @@ describe('ClinicPatients', () => {
             wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
           });
 
-          after(() => {
+          afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
           });
 
@@ -1676,7 +1684,7 @@ describe('ClinicPatients', () => {
             const popover = () => wrapper.find('#summaryPeriodFilters').hostNodes();
             expect(popover().props().style.visibility).to.equal('hidden');
 
-            const applyButton = popover().find('#apply-summary-period-filter').hostNodes();
+            const applyButton = () => popover().find('#apply-summary-period-filter').hostNodes();
 
             // Open filters popover
             summaryPeriodFilterTrigger.simulate('click');
@@ -1688,43 +1696,49 @@ describe('ClinicPatients', () => {
             // Default should be 14 days
             expect(filterOptions().at(2).find('input').props().checked).to.be.true;
 
-            const table = wrapper.find(Table);
-            expect(table).to.have.length(1);
+            const table = () => wrapper.find(Table);
+            expect(table()).to.have.length(1);
 
-            const rows = table.find('tbody tr');
-            expect(rows).to.have.lengthOf(5);
+            const rows = () => table().find('tbody tr');
+            expect(rows()).to.have.lengthOf(5);
 
-            const rowData = row => rows.at(row).find('.MuiTableCell-root');
+            const rowData = row => rows().at(row).find('.MuiTableCell-root');
 
             expect(rowData(2).at(3).text()).contains('6.5 %'); // shows for 14 days
 
-            // Set to 30 days
+            // Open filters popover and set to 30 days
+            summaryPeriodFilterTrigger.simulate('click');
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '30d' } });
             expect(filterOptions().at(3).find('input').props().checked).to.be.true;
-            applyButton.simulate('click');
+            applyButton().simulate('click');
+            console.log('mockedLocalStorage', mockedLocalStorage);
             expect(rowData(2).at(3).text()).contains('7.5 %'); // shows for 30 days
 
-            // Set to 7 days
+            // Open filters popover and set to 7 days
+            summaryPeriodFilterTrigger.simulate('click');
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
             expect(filterOptions().at(1).find('input').props().checked).to.be.true;
-            applyButton.simulate('click');
+            applyButton().simulate('click');
+            console.log('mockedLocalStorage', mockedLocalStorage);
             expect(rowData(2).at(3).text()).contains(emptyStatText); // hidden for 7 days
 
-            // Set to 1 day
+            // Open filters popover and set to 1 day
+            summaryPeriodFilterTrigger.simulate('click');
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '1d' } });
             expect(filterOptions().at(0).find('input').props().checked).to.be.true;
-            applyButton.simulate('click');
+            applyButton().simulate('click');
             expect(rowData(2).at(3).text()).contains(emptyStatText); // hidden for 1 day
-
           });
         });
 
         context('persisted filter state', () => {
+          let mockedLocalStorage;
+
           beforeEach(() => {
             store = mockStore(tier0200ClinicState);
 
-            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().returns([
-              {
+            mockedLocalStorage = {
+              activePatientFilters: {
                 lastUploadDate: 14,
                 timeInRange: [
                     'timeInLowPercent',
@@ -1733,8 +1747,15 @@ describe('ClinicPatients', () => {
                 patientTags: ['tag2'],
                 meetsGlycemicTargets: true,
               },
-              sinon.stub()
-            ]));
+              activePatientSummaryPeriod: '14d',
+            };
+
+            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
 
             wrapper = mount(
               <Provider store={store}>
