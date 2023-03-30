@@ -1461,8 +1461,7 @@ export const ClinicPatients = (props) => {
             <Flex flexGrow={1} justifyContent="space-between" sx={{ gap: 3 }}>
 
               {/* Range select */}
-              {/* {showSummaryData && ( */}
-              {false && ( // temporarily disable the summary period dropdown until backend is deployed.
+              {showSummaryData && (
                 <Flex
                   justifyContent="flex-start"
                   alignItems="center"
@@ -2283,12 +2282,27 @@ export const ClinicPatients = (props) => {
     </Box>
   ), [summaryPeriod]);
 
-  const renderGMI = useCallback(({ summary }) => (
-    <Box classname="patient-gmi">
-      <Text as="span" fontWeight="medium">{summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 ? formatDecimal(summary.cgmStats?.periods[summaryPeriod].glucoseManagementIndicator, 1) : statEmptyText}</Text>
-      {summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 && <Text as="span" fontSize="10px"> %</Text>}
-    </Box>
-  ), [summaryPeriod]);
+  const renderGMI = useCallback(({ summary }) => {
+    const cgmUsePercent = (summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent || 0);
+    const cgmHours = (summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUseMinutes || 0) / 60;
+    const gmi = summary?.cgmStats?.periods?.[summaryPeriod]?.glucoseManagementIndicator;
+    const minCgmHours = 24;
+    const minCgmPercent = 0.7;
+
+    let formattedGMI = gmi ? formatDecimal(gmi, 1) : statEmptyText;
+
+    if (includes(['1d', '7d'], summaryPeriod)
+      || cgmUsePercent < minCgmPercent
+      || cgmHours < minCgmHours
+    ) formattedGMI = statEmptyText;
+
+    return (
+      <Box classname="patient-gmi">
+        <Text as="span" fontWeight="medium">{formattedGMI}</Text>
+        {formattedGMI !== statEmptyText && <Text as="span" fontSize="10px"> %</Text>}
+      </Box>
+    );
+  }, [summaryPeriod]);
 
   const renderPatientTags = useCallback(patient => (
     <PatientTags
