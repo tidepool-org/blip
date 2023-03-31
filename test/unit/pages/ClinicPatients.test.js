@@ -284,6 +284,11 @@ describe('ClinicPatients', () => {
               birthDate: '1999-02-02',
               mrn: 'mrn123',
               summary:{
+                bgmStats: {
+                  dates: {
+                    lastUploadDate: moment().subtract(1, 'day').toISOString(),
+                  },
+                },
                 cgmStats: {
                   dates: {
                     lastUploadDate: moment().toISOString(),
@@ -415,7 +420,7 @@ describe('ClinicPatients', () => {
     },
   };
 
-  const defaultFetchOptions = { limit: 50, offset: 0, sortPeriod: '14d', sortType: 'cgm' };
+  const defaultFetchOptions = { limit: 50, offset: 0, period: '14d', sortPeriod: '14d', sortType: 'cgm' };
 
   context('on mount', () => {
     beforeEach(() => {
@@ -1175,7 +1180,7 @@ describe('ClinicPatients', () => {
           expect(columns.at(0).text()).to.equal('Patient Details');
           assert(columns.at(0).is('#peopleTable-header-fullName'));
 
-          expect(columns.at(1).text()).to.equal('Last Upload (CGM)');
+          expect(columns.at(1).text()).to.equal('Last Upload');
           assert(columns.at(1).is('#peopleTable-header-lastUploadDate'));
 
           expect(columns.at(2).text()).to.equal('% CGM Use');
@@ -1202,9 +1207,10 @@ describe('ClinicPatients', () => {
 
           // Last upload date in second column
           expect(rowData(0).at(1).text()).contains(emptyStatText);
-          expect(rowData(1).at(1).text()).contains('Today');
-          expect(rowData(2).at(1).text()).contains('Yesterday');
-          expect(rowData(3).at(1).text()).contains('30 days ago');
+          expect(rowData(1).at(1).text()).contains('CGM: Today');
+          expect(rowData(1).at(1).text()).contains('BGM: Yesterday');
+          expect(rowData(2).at(1).text()).contains('CGM: Yesterday');
+          expect(rowData(3).at(1).text()).contains('CGM: 30 days ago');
           expect(rowData(4).at(1).text().slice(-10)).to.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/); // match YYYY-MM-DD format
 
           // CGM use in third column
@@ -1265,16 +1271,6 @@ describe('ClinicPatients', () => {
           patientHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
 
-          const lastUploadHeader = table.find('#peopleTable-header-lastUploadDate .MuiTableSortLabel-root').at(0);
-
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          lastUploadHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+lastUploadDate' }));
-
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          lastUploadHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastUploadDate' }));
-
           const cgmUseHeader = table.find('#peopleTable-header-timeCGMUsePercent .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
@@ -1321,30 +1317,40 @@ describe('ClinicPatients', () => {
           expect(popover().props().style.visibility).to.be.undefined;
 
           // Ensure filter options present
-          const filterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
-          expect(filterOptions).to.have.lengthOf(4);
-          expect(filterOptions.at(0).text()).to.equal('Today');
-          expect(filterOptions.at(0).find('input').props().value).to.equal('1');
+          const typeFilterOptions = popover().find('#last-upload-type').find('label').hostNodes();
+          expect(typeFilterOptions).to.have.lengthOf(2);
+          expect(typeFilterOptions.at(0).text()).to.equal('CGM');
+          expect(typeFilterOptions.at(0).find('input').props().value).to.equal('cgm');
 
-          expect(filterOptions.at(1).text()).to.equal('Last 2 days');
-          expect(filterOptions.at(1).find('input').props().value).to.equal('2');
+          expect(typeFilterOptions.at(1).text()).to.equal('BGM');
+          expect(typeFilterOptions.at(1).find('input').props().value).to.equal('bgm');
 
-          expect(filterOptions.at(2).text()).to.equal('Last 14 days');
-          expect(filterOptions.at(2).find('input').props().value).to.equal('14');
+          // Ensure period filter options present
+          const periodFilterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
+          expect(periodFilterOptions).to.have.lengthOf(4);
+          expect(periodFilterOptions.at(0).text()).to.equal('Today');
+          expect(periodFilterOptions.at(0).find('input').props().value).to.equal('1');
 
-          expect(filterOptions.at(3).text()).to.equal('Last 30 days');
-          expect(filterOptions.at(3).find('input').props().value).to.equal('30');
+          expect(periodFilterOptions.at(1).text()).to.equal('Last 2 days');
+          expect(periodFilterOptions.at(1).find('input').props().value).to.equal('2');
+
+          expect(periodFilterOptions.at(2).text()).to.equal('Last 14 days');
+          expect(periodFilterOptions.at(2).find('input').props().value).to.equal('14');
+
+          expect(periodFilterOptions.at(3).text()).to.equal('Last 30 days');
+          expect(periodFilterOptions.at(3).find('input').props().value).to.equal('30');
 
           // Apply button disabled until selection made
           const applyButton = () => popover().find('#apply-last-upload-filter').hostNodes();
           expect(applyButton().props().disabled).to.be.true;
 
-          filterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
+          typeFilterOptions.at(1).find('input').last().simulate('change', { target: { name: 'last-upload-type', value: 'bgm' } });
+          periodFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
           expect(applyButton().props().disabled).to.be.false;
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sort: '-lastUploadDate', 'cgm.lastUploadDateFrom': sinon.match.string, 'cgm.lastUploadDateTo': sinon.match.string }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sortType: 'bgm', sort: '-lastUploadDate', 'bgm.lastUploadDateFrom': sinon.match.string, 'bgm.lastUploadDateTo': sinon.match.string }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days' }));
         });
 
@@ -1668,6 +1674,7 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               ...defaultFetchOptions,
               sort: '-lastUploadDate',
+              period: '7d',
               sortPeriod: '7d',
               'cgm.timeInHighPercent': '>0.25',
               'cgm.timeInLowPercent': '>0.04',
@@ -1834,10 +1841,9 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               ...defaultFetchOptions,
               sort: '-lastUploadDate',
-              'cgm.lastUploadDateFrom': sinon.match.string,
-              'cgm.lastUploadDateTo': sinon.match.string,
               'cgm.timeInHighPercent': '>=0.25',
               'cgm.timeInLowPercent': '>=0.04',
+              tags: sinon.match.array,
             }));
           });
         });
@@ -1922,15 +1928,20 @@ describe('ClinicPatients', () => {
           const popover = () => wrapper.find('#lastUploadDateFilters').hostNodes();
           lastUploadFilterTrigger.simulate('click');
 
-          const filterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
-          expect(filterOptions).to.have.lengthOf(4);
+          const typeFilterOptions = popover().find('#last-upload-type').find('label').hostNodes();
+          expect(typeFilterOptions).to.have.lengthOf(2);
 
-          filterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
+          const periodFilterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
+          expect(periodFilterOptions).to.have.lengthOf(4);
+
+          typeFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'last-upload-type', value: 'cgm' } });
+          periodFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
           popover().find('#apply-last-upload-filter').hostNodes().simulate('click');
 
           // Filter count should be 1
           expect(filterCount()).to.have.lengthOf(1);
           expect(filterCount().text()).to.equal('1');
+          console.log(2);
 
           // Set time in range filter
           const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
@@ -1997,10 +2008,14 @@ describe('ClinicPatients', () => {
           const popover = () => wrapper.find('#lastUploadDateFilters').hostNodes();
           lastUploadFilterTrigger.simulate('click');
 
-          const filterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
-          expect(filterOptions).to.have.lengthOf(4);
+          const typeFilterOptions = popover().find('#last-upload-type').find('label').hostNodes();
+          expect(typeFilterOptions).to.have.lengthOf(2);
 
-          filterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
+          const periodFilterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
+          expect(periodFilterOptions).to.have.lengthOf(4);
+
+          typeFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'last-upload-type', value: 'cgm' } });
+          periodFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
           popover().find('#apply-last-upload-filter').hostNodes().simulate('click');
 
           // Filter count should be 1
@@ -2338,6 +2353,11 @@ describe('ClinicPatients', () => {
                 mrn: 'mrn123',
                 permissions: { custodian : undefined },
                 summary: {
+                  bgmStats: {
+                    dates: {
+                      lastUploadDate: sinon.match.string,
+                    },
+                  },
                   cgmStats: {
                     dates: {
                       lastUploadDate: sinon.match.string,
