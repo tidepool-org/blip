@@ -1307,6 +1307,7 @@ export const ClinicPatients = (props) => {
                           trackMetric(prefixPopHealthMetric('Last upload apply filter'), {
                             clinicId: selectedClinicId,
                             dateRange,
+                            type: pendingFilters.lastUploadType,
                           });
 
                           setActiveFilters(pendingFilters);
@@ -1590,11 +1591,9 @@ export const ClinicPatients = (props) => {
                       variant="textPrimary"
                       disabled={pendingSummaryPeriod === activeSummaryPeriod}
                       onClick={() => {
-                        const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
-
                         trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
                           clinicId: selectedClinicId,
-                          dateRange,
+                          summaryPeriod: pendingSummaryPeriod,
                         });
 
                         setActiveSummaryPeriod(pendingSummaryPeriod);
