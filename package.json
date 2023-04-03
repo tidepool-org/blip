@@ -12,7 +12,7 @@
     "cleanViz": "./node_modules/.bin/rimraf ${TIDEPOOL_DOCKER_VIZ_DIR:-'../viz'}/dist/*",
     "startWithViz": "npm run cleanViz; ./node_modules/concurrently/bin/concurrently.js --kill-others --names viz,blip \"npm run watchViz\" \"while ! test -f ${TIDEPOOL_DOCKER_VIZ_DIR:-'../viz'}'/dist/index.js'; do sleep 1; done; npm run start\"",
     "startLocal": "if node -e 'require(\"./config/local\").listLinkedPackages()' | grep -qF '@tidepool/viz'; then npm run startWithViz; else npm run start; fi",
-    "build": "NODE_ENV=production npm run build-app && npm run build-config",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' NODE_ENV=production npm run build-app && npm run build-config",
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
     "server": "node server",
