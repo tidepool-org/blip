@@ -3044,10 +3044,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.33.0-rc.2":
-  version "1.33.0-rc.2"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.33.0-rc.2.tgz#c2a9662e0891ea74e4223a13e9242ee258ff6c1f"
-  integrity sha512-q8lOjjzSqZKQvfKJ4n/08DoxHRjFvMWIg821AFsCygjZJf7Y+Q1jxxWWsW5L/YrTccda583/FN/nnF1Kq8lmRA==
+"@tidepool/viz@1.33.0-rc.3":
+  version "1.33.0-rc.3"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.33.0-rc.3.tgz#ead99ec8866d6bf27fdc6f8ae2095c29984b6093"
+  integrity sha512-h3tNA/EZnICPVwO/h9HVsJHBRnj/TljMcq/GcS5D5ASjbzx2YreMbnT5/2rrAig/OlFjPwHMe/pK0l9GZEgnBw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -3069,7 +3069,7 @@
     moment "2.29.4"
     moment-timezone "0.5.21"
     parse-svg-path "0.1.2"
-    plotly.js-dist-min "2.20.0"
+    plotly.js-basic-dist-min "2.20.0"
     prop-types "15.6.2"
     react "16.12.0"
     react-clipboard.js "2.0.16"
@@ -14392,10 +14392,10 @@ pkg-up@2.0.0:
   dependencies:
     find-up "^2.1.0"
 
-plotly.js-dist-min@2.20.0:
+plotly.js-basic-dist-min@2.20.0:
   version "2.20.0"
-  resolved "https://registry.yarnpkg.com/plotly.js-dist-min/-/plotly.js-dist-min-2.20.0.tgz#431994a062b27c64f736772c57bd1231418fef65"
-  integrity sha512-zhSRwOed3y/cekPWvzOtdc3AVOmHbDpUry5FNITw2IRKkRirRv7SdWvM7YVqqQd4dTsLHKGDuza+3GoR6+45ZQ==
+  resolved "https://registry.yarnpkg.com/plotly.js-basic-dist-min/-/plotly.js-basic-dist-min-2.20.0.tgz#9dcb93259b54cecde2faf9df466b5b901291a070"
+  integrity sha512-9lg4HsNtazmev5t/BNiA8iDcQcuuVOI4zyt2pgeZvout2eYIhDcYqT9X4+1UquSPUNTt72xsphFzRCX300jDVw==
 
 pn@^1.1.0:
   version "1.1.0"
