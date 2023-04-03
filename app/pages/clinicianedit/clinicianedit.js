@@ -10,6 +10,8 @@ import map from 'lodash/map';
 import includes from 'lodash/includes';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
+import indexOf from 'lodash/indexOf';
+import isUndefined from 'lodash/isUndefined';
 import * as yup from 'yup';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import { components as vizComponents } from '@tidepool/viz';
@@ -60,7 +62,13 @@ export const ClinicianEdit = (props) => {
 
   const selectedClinicianRoles = selectedClinician?.roles;
   const clinicianName = selectedClinician?.name;
-  const adminCount = filter(clinicians, { roles: ['CLINIC_ADMIN'] }).length;
+  const activeAdmins = filter(
+    clinicians,
+    (clinician) =>
+      indexOf(clinician.roles, 'CLINIC_ADMIN') !== -1 &&
+      isUndefined(clinician.inviteId)
+  );
+  const adminCount = activeAdmins.length;
   const userId = useSelector((state) => state.blip.loggedInUserId);
   const isOnlyClinicAdmin = adminCount === 1 && userId === selectedClinicianId;
   let deleteSubmitText,

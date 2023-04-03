@@ -2192,3 +2192,28 @@ export function fetchInfoFailure(error, apiError) {
     },
   };
 }
+
+export function generateAGPImagesRequest(data, opts, queries) {
+  return {
+    type: ActionTypes.GENERATE_AGP_IMAGES_REQUEST,
+    payload: {
+      data,
+      opts,
+      queries,
+    },
+  };
+}
+
+export function generateAGPImagesSuccess(images) {
+  return {
+    type: ActionTypes.GENERATE_AGP_IMAGES_SUCCESS,
+    payload: { images },
+  };
+}
+
+export function generateAGPImagesFailure(error) {
+  return {
+    type: ActionTypes.GENERATE_AGP_IMAGES_FAILURE,
+    error,
+  };
+}
