@@ -123,45 +123,49 @@ const BgSummaryCell = ({ summary, clinicBgUnits, summaryPeriod, t }) => {
   const targetRange = useMemo(
     () =>
       map(
-        [summary?.lowGlucoseThreshold, summary?.highGlucoseThreshold],
+        [summary?.cgmStats?.config?.lowGlucoseThreshold, summary?.cgmStats?.config?.highGlucoseThreshold],
         (value) =>
           clinicBgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value
       ),
-    [clinicBgUnits, summary?.highGlucoseThreshold, summary?.lowGlucoseThreshold]
+    [
+      clinicBgUnits,
+      summary?.cgmStats?.config?.highGlucoseThreshold,
+      summary?.cgmStats?.config?.lowGlucoseThreshold,
+    ]
   );
 
   const cgmHours =
-    (summary?.periods?.[summaryPeriod]?.timeCGMUseMinutes || 0) / 60;
+    (summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUseMinutes || 0) / 60;
 
   const data = useMemo(
     () => ({
-      veryLow: summary?.periods?.[summaryPeriod]?.timeInVeryLowPercent,
-      low: summary?.periods?.[summaryPeriod]?.timeInLowPercent,
-      target: summary?.periods?.[summaryPeriod]?.timeInTargetPercent,
-      high: summary?.periods?.[summaryPeriod]?.timeInHighPercent,
-      veryHigh: summary?.periods?.[summaryPeriod]?.timeInVeryHighPercent,
+      veryLow: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInVeryLowPercent,
+      low: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInLowPercent,
+      target: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercent,
+      high: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInHighPercent,
+      veryHigh: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInVeryHighPercent,
     }),
-    [summary?.periods, summaryPeriod]
+    [summary?.cgmStats?.periods, summaryPeriod]
   );
 
-  const cgmUsePercent = (summary?.periods?.[summaryPeriod]?.timeCGMUsePercent || 0);
+  const cgmUsePercent = (summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent || 0);
   const minCgmHours = 24;
-  const minCgmePercent = 0.7;
+  const minCgmPercent = 0.7;
 
   const insufficientDataText = useMemo(
     () =>
       summaryPeriod === '1d'
-        ? t('CGM Use <{{minCgmePercent}}%', { minCgmePercent: minCgmePercent * 100 })
+        ? t('CGM Use <{{minCgmPercent}}%', { minCgmPercent: minCgmPercent * 100 })
         : t('CGM Use <{{minCgmHours}} hours', { minCgmHours }),
     [summaryPeriod, t]
   );
 
   return (
     <Flex justifyContent="center">
-      {(summaryPeriod === '1d' && cgmUsePercent >= minCgmePercent) || (cgmHours >= minCgmHours)
+      {(summaryPeriod === '1d' && cgmUsePercent >= minCgmPercent) || (cgmHours >= minCgmHours)
         ? (
         <BgRangeSummary
-          striped={summary?.periods?.[summaryPeriod]?.timeCGMUsePercent < 0.7}
+          striped={summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent < minCgmPercent}
           data={data}
           targetRange={targetRange}
           bgUnits={clinicBgUnits}
@@ -517,7 +521,8 @@ export const ClinicPatients = (props) => {
     () => ({
       search: '',
       offset: 0,
-      sort: showSummaryData ? '-summary.lastUploadDate' : '+fullName',
+      sort: showSummaryData ? '-lastUploadDate' : '+fullName',
+      sortType: 'cgm',
     }),
     [showSummaryData]
   );
@@ -814,6 +819,8 @@ export const ClinicPatients = (props) => {
       const filterOptions = {
         offset: 0,
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
+        sortType: patientFetchOptions.sortType || defaultPatientFetchOptions.sortType,
+        sortPeriod: summaryPeriod,
         limit: 50,
         search: patientFetchOptions.search,
       }
@@ -824,8 +831,8 @@ export const ClinicPatients = (props) => {
 
       if (isPremiumTier) {
         if (activeFilters.lastUploadDate) {
-          filterOptions['summary.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-          filterOptions['summary.lastUploadDateFrom'] = moment(filterOptions['summary.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
+          filterOptions['cgm.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+          filterOptions['cgm.lastUploadDateFrom'] = moment(filterOptions['cgm.lastUploadDateTo']).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
 
         if (activeFilters.patientTags.length) {
@@ -840,20 +847,20 @@ export const ClinicPatients = (props) => {
             comparator = comparator === '<' ? '<=' : '>=';
           }
 
-          filterOptions[`summary.periods.${summaryPeriod}.${filter}`] = comparator + value;
+          filterOptions[`cgm.${filter}`] = comparator + value;
         });
       }
 
       const newPatientFetchOptions = {
         ...omit(patientFetchOptions, [
-          'summary.lastUploadDateFrom',
-          'summary.lastUploadDateTo',
+          'cgm.lastUploadDateFrom',
+          'cgm.lastUploadDateTo',
           'tags',
-          `summary.periods.${summaryPeriod}.timeInVeryLowPercent`,
-          `summary.periods.${summaryPeriod}.timeInLowPercent`,
-          `summary.periods.${summaryPeriod}.timeInTargetPercent`,
-          `summary.periods.${summaryPeriod}.timeInHighPercent`,
-          `summary.periods.${summaryPeriod}.timeInVeryHighPercent`,
+          'cgm.timeInVeryLowPercent',
+          'cgm.timeInLowPercent',
+          'cgm.timeInTargetPercent',
+          'cgm.timeInHighPercent',
+          'cgm.timeInVeryHighPercent',
         ]),
         ...filterOptions,
       };
@@ -2234,24 +2241,19 @@ export const ClinicPatients = (props) => {
   const renderPatient = useCallback(patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontSize={[1, null, 0]} fontWeight="medium">{patient.fullName}</Text>
-      {patient.email && <Text fontSize={[0, null, '10px']}>{patient.email}</Text>}
+      {showSummaryData && <Text as="span" fontSize={[0, null, '10px']} sx={{ whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>}
+      {showSummaryData && patient.mrn && <Text as="span" fontSize={[0, null, '10px']} sx={{ whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
+      {!showSummaryData && patient.email && <Text fontSize={[0, null, '10px']}>{patient.email}</Text>}
     </Box>
   ), [handleClickPatient]);
-
-  const renderPatientSecondaryInfo = useCallback(patient => (
-    <Box classname="patient-secondary-info" onClick={handleClickPatient(patient)} fontSize={[0, null, '10px']} sx={{ cursor: 'pointer' }}>
-      <Text sx={{ whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>
-      {patient.mrn && <Text sx={{ whiteSpace: 'nowrap' }}>{t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
-    </Box>
-  ), [handleClickPatient, t]);
 
   const renderLastUploadDate = useCallback(({ summary }) => {
     let formattedLastUploadDate = statEmptyText;
     let color = 'inherit';
     let fontWeight = 'regular';
 
-    if (summary?.lastUploadDate) {
-      const lastUploadDateMoment = moment.utc(summary.lastUploadDate);
+    if (summary?.cgmStats?.dates?.lastUploadDate) {
+      const lastUploadDateMoment = moment.utc(summary.cgmStats.dates.lastUploadDate);
       const endOfToday = moment.utc(getLocalizedCeiling(new Date().toISOString(), timePrefs));
       const daysAgo = endOfToday.diff(lastUploadDateMoment, 'days', true);
       formattedLastUploadDate = lastUploadDateMoment.format(dateFormat);
@@ -2276,15 +2278,15 @@ export const ClinicPatients = (props) => {
 
   const renderCGMUsage = useCallback(({ summary }) => (
     <Box classname="patient-cgm-usage">
-      <Text as="span" fontWeight="medium">{summary?.periods?.[summaryPeriod]?.timeCGMUsePercent ? formatDecimal(summary?.periods?.[summaryPeriod]?.timeCGMUsePercent * 100) : statEmptyText}</Text>
-      {summary?.periods?.[summaryPeriod]?.timeCGMUsePercent && <Text as="span" fontSize="10px"> %</Text>}
+      <Text as="span" fontWeight="medium">{summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent ? formatDecimal(summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent * 100) : statEmptyText}</Text>
+      {summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
   ), [summaryPeriod]);
 
   const renderGMI = useCallback(({ summary }) => (
     <Box classname="patient-gmi">
-      <Text as="span" fontWeight="medium">{summary?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 ? formatDecimal(summary.periods[summaryPeriod].glucoseManagementIndicator, 1) : statEmptyText}</Text>
-      {summary?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 && <Text as="span" fontSize="10px"> %</Text>}
+      <Text as="span" fontWeight="medium">{summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 ? formatDecimal(summary.cgmStats?.periods[summaryPeriod].glucoseManagementIndicator, 1) : statEmptyText}</Text>
+      {summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
   ), [summaryPeriod]);
 
@@ -2451,33 +2453,27 @@ export const ClinicPatients = (props) => {
       cols.splice(1, 2,
         ...[
           {
-            title: '',
-            field: 'patientSecondary',
-            align: 'left',
-            render: renderPatientSecondaryInfo,
-          },
-          {
             title: t('Last Upload (CGM)'),
-            field: 'summary.lastUploadDate',
+            field: 'lastUploadDate',
             align: 'left',
             sortable: true,
-            sortBy: 'summary.lastUploadDate',
+            sortBy: 'lastUploadDate',
             render: renderLastUploadDate,
           },
           {
             title: t('% CGM Use'),
-            field: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
+            field: 'timeCGMUsePercent',
             sortable: true,
-            sortBy: `summary.periods.${summaryPeriod}.timeCGMUsePercent`,
+            sortBy: 'timeCGMUsePercent',
             align: 'center',
             render: renderCGMUsage,
           },
           {
             title: t('% GMI'),
-            field: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
+            field: 'glucoseManagementIndicator',
             align: 'center',
             sortable: true,
-            sortBy: `summary.periods.${summaryPeriod}.glucoseManagementIndicator`,
+            sortBy: 'glucoseManagementIndicator',
             render: renderGMI,
           },
           {
@@ -2530,7 +2526,6 @@ export const ClinicPatients = (props) => {
     renderLinkedField,
     renderMore,
     renderPatient,
-    renderPatientSecondaryInfo,
     renderPatientTags,
     showSummaryData,
     summaryPeriod,
