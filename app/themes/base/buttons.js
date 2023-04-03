@@ -262,9 +262,9 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
       border: borders.input,
       borderColor: colors.grays[1],
       borderRadius: radii.full,
-      fontSize: `${fontSizes[1]}px`,
+      fontSize: `${fontSizes[0]}px`,
       fontWeight: fontWeights.medium,
-      padding: `7px ${space[5]}px`,
+      padding: `${space[1]}px ${space[4]}px`,
 
       '&.processing': {
         color: colors.white,
@@ -272,12 +272,12 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
         borderColor: colors.purpleMedium,
 
         '.MuiCircularProgress-root': {
-          width: `${fontSizes[2]}px !important`,
-          height: `${fontSizes[2]}px !important`,
+          width: `${fontSizes[1]}px !important`,
+          height: `${fontSizes[1]}px !important`,
         },
       },
       '.icon': {
-        fontSize: `${fontSizes[2]}px`,
+        fontSize: `${fontSizes[1]}px`,
       },
       '&:hover': {
         borderColor: colors.grays[2],
