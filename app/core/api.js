@@ -331,8 +331,10 @@ api.user.put = function(user, cb) {
   const profile = profileFromUser(user);
   const preferences = preferencesFromUser(user);
 
+  const accountUpdates = _.pick(account, 'username', 'password', 'emails', 'termsAccepted');
+
   async.series({
-    account: tidepool.updateCurrentUser.bind(tidepool, account),
+    account: !_.isEmpty(accountUpdates) ? tidepool.updateCurrentUser.bind(tidepool, account) : (cb) => cb(null, account),
     profile: tidepool.addOrUpdateProfile.bind(tidepool, user.userid, profile),
     preferences: tidepool.addOrUpdatePreferences.bind(tidepool, user.userid, preferences)
   },
