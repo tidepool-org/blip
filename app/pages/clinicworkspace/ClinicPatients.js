@@ -119,7 +119,7 @@ const glycemicTargetThresholds = {
   timeInVeryHighPercent: { value: 5, comparator: '>' },
 };
 
-const BgSummaryCell = ({ summary, clinicBgUnits, summaryPeriod, t }) => {
+const BgSummaryCell = ({ summary, clinicBgUnits, activeSummaryPeriod, t }) => {
   const targetRange = useMemo(
     () =>
       map(
@@ -135,37 +135,37 @@ const BgSummaryCell = ({ summary, clinicBgUnits, summaryPeriod, t }) => {
   );
 
   const cgmHours =
-    (summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUseMinutes || 0) / 60;
+    (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUseMinutes || 0) / 60;
 
   const data = useMemo(
     () => ({
-      veryLow: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInVeryLowPercent,
-      low: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInLowPercent,
-      target: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercent,
-      high: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInHighPercent,
-      veryHigh: summary?.cgmStats?.periods?.[summaryPeriod]?.timeInVeryHighPercent,
+      veryLow: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryLowPercent,
+      low: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInLowPercent,
+      target: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInTargetPercent,
+      high: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInHighPercent,
+      veryHigh: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryHighPercent,
     }),
-    [summary?.cgmStats?.periods, summaryPeriod]
+    [summary?.cgmStats?.periods, activeSummaryPeriod]
   );
 
-  const cgmUsePercent = (summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent || 0);
+  const cgmUsePercent = (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent || 0);
   const minCgmHours = 24;
   const minCgmPercent = 0.7;
 
   const insufficientDataText = useMemo(
     () =>
-      summaryPeriod === '1d'
+      activeSummaryPeriod === '1d'
         ? t('CGM Use <{{minCgmPercent}}%', { minCgmPercent: minCgmPercent * 100 })
         : t('CGM Use <{{minCgmHours}} hours', { minCgmHours }),
-    [summaryPeriod, t]
+    [activeSummaryPeriod, t]
   );
 
   return (
     <Flex justifyContent="center">
-      {(summaryPeriod === '1d' && cgmUsePercent >= minCgmPercent) || (cgmHours >= minCgmHours)
+      {(activeSummaryPeriod === '1d' && cgmUsePercent >= minCgmPercent) || (cgmHours >= minCgmHours)
         ? (
         <BgRangeSummary
-          striped={summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent < minCgmPercent}
+          striped={summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent < minCgmPercent}
           data={data}
           targetRange={targetRange}
           bgUnits={clinicBgUnits}
@@ -563,9 +563,10 @@ export const ClinicPatients = (props) => {
     [clinic?.patientTags]
   );
 
-  const [summaryPeriod, setSummaryPeriod] = useState('14d');
-  const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(summaryPeriod);
-  const previousSummaryPeriod = usePrevious(summaryPeriod);
+  const defaultSummaryPeriod = '14d';
+  const [activeSummaryPeriod, setActiveSummaryPeriod] = useLocalStorage('activePatientSummaryPeriod', defaultSummaryPeriod);
+  const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(activeSummaryPeriod);
+  const previousSummaryPeriod = usePrevious(activeSummaryPeriod);
 
   const summaryPeriodPopupFilterState = usePopupState({
     variant: 'popover',
@@ -815,12 +816,12 @@ export const ClinicPatients = (props) => {
   ]);
 
   useEffect(() => {
-    if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters) && !isFirstRender && isEqual(summaryPeriod, previousSummaryPeriod))) {
+    if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters) && !isFirstRender && isEqual(activeSummaryPeriod, previousSummaryPeriod))) {
       const filterOptions = {
         offset: 0,
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
         sortType: patientFetchOptions.sortType || defaultPatientFetchOptions.sortType,
-        sortPeriod: summaryPeriod,
+        sortPeriod: activeSummaryPeriod,
         limit: 50,
         search: patientFetchOptions.search,
       }
@@ -891,7 +892,7 @@ export const ClinicPatients = (props) => {
     previousActiveFilters,
     previousClinic?.id,
     previousSummaryPeriod,
-    summaryPeriod,
+    activeSummaryPeriod,
     timePrefs,
   ]);
 
@@ -1020,13 +1021,13 @@ export const ClinicPatients = (props) => {
       const sortColumnLabels = {
         fullName: 'Patient details',
         'summary.lastUploadDate': 'Last upload',
-        [`summary.periods.${summaryPeriod}.timeCGMUsePercent`]: 'CGM use',
-        [`summary.periods.${summaryPeriod}.glucoseManagementIndicator`]: 'GMI',
+        [`summary.periods.${activeSummaryPeriod}.timeCGMUsePercent`]: 'CGM use',
+        [`summary.periods.${activeSummaryPeriod}.glucoseManagementIndicator`]: 'GMI',
       };
 
       trackMetric(prefixPopHealthMetric(`${sortColumnLabels[newOrderBy]} sort ${order}`), { clinicId: selectedClinicId });
     }
-  }, [defaultPatientFetchOptions.sort, patientFetchOptions.sort, prefixPopHealthMetric, selectedClinicId, showSummaryData, summaryPeriod, trackMetric]);
+  }, [defaultPatientFetchOptions.sort, patientFetchOptions.sort, prefixPopHealthMetric, selectedClinicId, showSummaryData, activeSummaryPeriod, trackMetric]);
 
   function handleClearSearch() {
     setSearch('');
@@ -1461,8 +1462,7 @@ export const ClinicPatients = (props) => {
             <Flex flexGrow={1} justifyContent="space-between" sx={{ gap: 3 }}>
 
               {/* Range select */}
-              {/* {showSummaryData && ( */}
-              {false && ( // temporarily disable the summary period dropdown until backend is deployed.
+              {showSummaryData && (
                 <Flex
                   justifyContent="flex-start"
                   alignItems="center"
@@ -1494,7 +1494,7 @@ export const ClinicPatients = (props) => {
                     fontSize={0}
                     lineHeight={1.3}
                   >
-                    {find(summaryPeriodOptions, { value: summaryPeriod }).label}
+                    {find(summaryPeriodOptions, { value: activeSummaryPeriod }).label}
                   </Button>
                 </Box>
 
@@ -1507,7 +1507,7 @@ export const ClinicPatients = (props) => {
                   }}
                   onClose={() => {
                     summaryPeriodPopupFilterState.close();
-                    setPendingSummaryPeriod(summaryPeriod);
+                    setPendingSummaryPeriod(activeSummaryPeriod);
                   }}
                 >
                   <DialogContent px={2} py={3} dividers>
@@ -1517,7 +1517,7 @@ export const ClinicPatients = (props) => {
                       options={summaryPeriodOptions}
                       variant="vertical"
                       fontSize={0}
-                      value={pendingSummaryPeriod || summaryPeriod}
+                      value={pendingSummaryPeriod || activeSummaryPeriod}
                       onChange={event => setPendingSummaryPeriod(event.target.value)}
                     />
                   </DialogContent>
@@ -1529,7 +1529,7 @@ export const ClinicPatients = (props) => {
                       variant="textSecondary"
                       onClick={() => {
                         trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
-                        setPendingSummaryPeriod(summaryPeriod);
+                        setPendingSummaryPeriod(activeSummaryPeriod);
                         summaryPeriodPopupFilterState.close();
                       }}
                     >
@@ -1540,7 +1540,7 @@ export const ClinicPatients = (props) => {
                       id="apply-summary-period-filter"
                       fontSize={1}
                       variant="textPrimary"
-                      disabled={pendingSummaryPeriod === summaryPeriod}
+                      disabled={pendingSummaryPeriod === activeSummaryPeriod}
                       onClick={() => {
                         const dateRange = find(summaryPeriodOptions, { value: pendingSummaryPeriod }).label;
 
@@ -1549,7 +1549,7 @@ export const ClinicPatients = (props) => {
                           dateRange,
                         });
 
-                        setSummaryPeriod(pendingSummaryPeriod);
+                        setActiveSummaryPeriod(pendingSummaryPeriod);
                         summaryPeriodPopupFilterState.close();
                       }}
                     >
@@ -2278,17 +2278,32 @@ export const ClinicPatients = (props) => {
 
   const renderCGMUsage = useCallback(({ summary }) => (
     <Box classname="patient-cgm-usage">
-      <Text as="span" fontWeight="medium">{summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent ? formatDecimal(summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent * 100) : statEmptyText}</Text>
-      {summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent && <Text as="span" fontSize="10px"> %</Text>}
+      <Text as="span" fontWeight="medium">{summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent ? formatDecimal(summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent * 100) : statEmptyText}</Text>
+      {summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent && <Text as="span" fontSize="10px"> %</Text>}
     </Box>
-  ), [summaryPeriod]);
+  ), [activeSummaryPeriod]);
 
-  const renderGMI = useCallback(({ summary }) => (
-    <Box classname="patient-gmi">
-      <Text as="span" fontWeight="medium">{summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 ? formatDecimal(summary.cgmStats?.periods[summaryPeriod].glucoseManagementIndicator, 1) : statEmptyText}</Text>
-      {summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent >= 0.7 && <Text as="span" fontSize="10px"> %</Text>}
-    </Box>
-  ), [summaryPeriod]);
+  const renderGMI = useCallback(({ summary }) => {
+    const cgmUsePercent = (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent || 0);
+    const cgmHours = (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUseMinutes || 0) / 60;
+    const gmi = summary?.cgmStats?.periods?.[activeSummaryPeriod]?.glucoseManagementIndicator;
+    const minCgmHours = 24;
+    const minCgmPercent = 0.7;
+
+    let formattedGMI = gmi ? formatDecimal(gmi, 1) : statEmptyText;
+
+    if (includes(['1d', '7d'], activeSummaryPeriod)
+      || cgmUsePercent < minCgmPercent
+      || cgmHours < minCgmHours
+    ) formattedGMI = statEmptyText;
+
+    return (
+      <Box classname="patient-gmi">
+        <Text as="span" fontWeight="medium">{formattedGMI}</Text>
+        {formattedGMI !== statEmptyText && <Text as="span" fontSize="10px"> %</Text>}
+      </Box>
+    );
+  }, [activeSummaryPeriod]);
 
   const renderPatientTags = useCallback(patient => (
     <PatientTags
@@ -2322,9 +2337,9 @@ export const ClinicPatients = (props) => {
     return <BgSummaryCell
       summary={summary}
       clinicBgUnits={clinicBgUnits}
-      summaryPeriod={summaryPeriod}
+      activeSummaryPeriod={activeSummaryPeriod}
       t={t} />
-  }, [clinicBgUnits, summaryPeriod, t]);
+  }, [clinicBgUnits, activeSummaryPeriod, t]);
 
   const renderGlycemicEvent = (type, value) => {
     const rotation = type === 'low' ? 90 : -90;
@@ -2528,7 +2543,7 @@ export const ClinicPatients = (props) => {
     renderPatient,
     renderPatientTags,
     showSummaryData,
-    summaryPeriod,
+    activeSummaryPeriod,
     t,
   ]);
 
