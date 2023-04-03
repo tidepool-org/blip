@@ -4082,4 +4082,54 @@ describe('Actions', () => {
     });
   });
 
+
+  describe('generateAGPImagesRequest', () => {
+    const data = 'data';
+    const opts = 'opts';
+    const queries = 'queries';
+
+    it('should be a TSA', () => {
+      let action = sync.generateAGPImagesRequest(data, opts, queries);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal GENERATE_AGP_IMAGES_REQUEST', () => {
+      let action = sync.generateAGPImagesRequest(data, opts, queries);
+      expect(action.type).to.equal('GENERATE_AGP_IMAGES_REQUEST');
+      expect(action.payload.data).to.equal(data);
+      expect(action.payload.opts).to.equal(opts);
+      expect(action.payload.queries).to.equal(queries);
+    });
+  });
+
+  describe('generateAGPImagesSuccess', () => {
+    const images = 'images';
+
+    it('should be a TSA', () => {
+      let action = sync.generateAGPImagesSuccess(images);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal GENERATE_AGP_IMAGES_SUCCESS', () => {
+      let action = sync.generateAGPImagesSuccess(images);
+      expect(action.type).to.equal('GENERATE_AGP_IMAGES_SUCCESS');
+      expect(action.payload.images).to.equal(images);
+    });
+  });
+
+  describe('generateAGPImagesFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('fetching info failed :(');
+      let action = sync.generateAGPImagesFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal GENERATE_AGP_IMAGES_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.generateAGPImagesFailure(error);
+      expect(action.type).to.equal('GENERATE_AGP_IMAGES_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
 });

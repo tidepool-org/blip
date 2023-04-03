@@ -65,6 +65,7 @@ export const onKeycloakEvent = (store) => (event, error) => {
     }
     case 'onAuthRefreshError': {
       store.dispatch(sync.keycloakAuthRefreshError(event, error));
+      store.dispatch(async.loggedOut(api));
       break;
     }
     case 'onTokenExpired': {
@@ -73,6 +74,7 @@ export const onKeycloakEvent = (store) => (event, error) => {
     }
     case 'onAuthLogout': {
       store.dispatch(sync.keycloakAuthLogout(event, error));
+      store.dispatch(async.loggedOut(api));
       break;
     }
     default:
@@ -103,6 +105,16 @@ export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
       break;
     }
     default:
+      if (
+        action?.error?.status === 401 ||
+        action?.error?.originalError?.status === 401 ||
+        action?.error?.status === 403 ||
+        action?.error?.originalError?.status === 403
+      ) {
+        // on any action with a 401 or 403, we try to refresh to keycloak token to verify
+        // if the user is still logged in
+        keycloak.updateToken(-1);
+      }
       break;
   }
   return next(action);
