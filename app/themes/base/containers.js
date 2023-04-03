@@ -7,6 +7,12 @@ export default ({ borders, colors, radii, space }) => {
     position: 'relative',
   };
 
+  const fluid = {
+    ...defaultStyles,
+    mx: [0, 'auto'],
+    width: ['100%', 'auto%'],
+  };
+
   const large = {
     ...defaultStyles,
     maxWidth: '1600px',
@@ -36,6 +42,11 @@ export default ({ borders, colors, radii, space }) => {
   };
 
   return {
+    fluid,
+    fluidBordered: {
+      ...fluid,
+      ...bordered,
+    },
     large,
     largeBordered: {
       ...large,

@@ -8,6 +8,7 @@ import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import has from 'lodash/has';
 import indexOf from 'lodash/indexOf';
+import isUndefined from 'lodash/isUndefined';
 import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
@@ -169,7 +170,12 @@ export const Workspaces = (props) => {
         nameOrderable: clinic.name.toLowerCase(),
         type: 'clinic',
         isAdmin: indexOf(clinic.clinicians[loggedInUserId].roles, 'CLINIC_ADMIN') >= 0,
-        adminCount: filter(clinic.clinicians, {roles: ['CLINIC_ADMIN']}).length
+        activeAdminCount: filter(
+          clinic.clinicians,
+          (clinician) =>
+            indexOf(clinician.roles, 'CLINIC_ADMIN') !== -1 &&
+            isUndefined(clinician.inviteId)
+        ).length,
       })), 'nameOrderable'),
       ...sortBy(map(pendingReceivedClinicianInvites, invite => ({
         id: invite.clinicId,
@@ -188,7 +194,7 @@ export const Workspaces = (props) => {
       let title, submitText, body, cancelText = t('Cancel');
 
       if (selectedWorkspace.type === 'clinic') {
-        if (selectedWorkspace.adminCount === 1 && selectedWorkspace.isAdmin){
+        if (selectedWorkspace.activeAdminCount === 1 && selectedWorkspace.isAdmin){
           title = t('Unable to leave {{name}}', { name: selectedWorkspace.name });
           body = t('Before you remove yourself from {{name}}, please assign Admin permissions to at least one other Clinic member.', {name: selectedWorkspace.name });
           cancelText = t('OK');

@@ -151,6 +151,21 @@ describe('ClinicianEdit', () => {
     },
   });
 
+  const fetchedAdminInvitedState = _.merge({}, fetchedAdminState, {
+    blip: {
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId456: {
+              inviteId: 'some-awesome-inviteId-here',
+            },
+          },
+        },
+      },
+    },
+
+  })
+
   const noClinicianState = { state: {} };
 
   const missingClinicianState = {
@@ -258,6 +273,39 @@ describe('ClinicianEdit', () => {
     context('user is last admin', () => {
       beforeEach(() => {
         store = mockStore(fetchedLastAdminState);
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicianEdit {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+      });
+
+      it("should prevent user from removing themselves if they're the last admin", () => {
+        let deleteDialog = () => wrapper.find('Dialog#deleteDialog');
+        expect(deleteDialog().props().open).to.be.false;
+        wrapper.find('div[color="feedback.danger"]').at(0).simulate('click');
+        expect(deleteDialog().props().open).to.be.true;
+        expect(deleteDialog().find('DialogTitle').text()).to.equal(
+          'Unable to remove yourself'
+        );
+        expect(
+          deleteDialog().find('Button#deleteDialogCancel')
+        ).to.have.lengthOf(1);
+        expect(
+          deleteDialog().find('Button#deleteDialogRemove')
+        ).to.have.lengthOf(0);
+      });
+
+      it("should prevent user from changing permissions if they're the last admin", () => {
+        expect(wrapper.find('RadioGroup').props().disabled).to.be.true;
+      });
+    });
+
+    context('user is last admin with another admin invited', () => {
+      beforeEach(() => {
+        store = mockStore(fetchedAdminInvitedState);
         wrapper = mount(
           <Provider store={store}>
             <ToastProvider>
