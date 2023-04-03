@@ -1718,7 +1718,6 @@ describe('ClinicPatients', () => {
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '30d' } });
             expect(filterOptions().at(3).find('input').props().checked).to.be.true;
             applyButton().simulate('click');
-            console.log('mockedLocalStorage', mockedLocalStorage);
             expect(rowData(2).at(3).text()).contains('7.5 %'); // shows for 30 days
 
             // Open filters popover and set to 7 days
@@ -1726,7 +1725,6 @@ describe('ClinicPatients', () => {
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
             expect(filterOptions().at(1).find('input').props().checked).to.be.true;
             applyButton().simulate('click');
-            console.log('mockedLocalStorage', mockedLocalStorage);
             expect(rowData(2).at(3).text()).contains(emptyStatText); // hidden for 7 days
 
             // Open filters popover and set to 1 day
@@ -1941,7 +1939,6 @@ describe('ClinicPatients', () => {
           // Filter count should be 1
           expect(filterCount()).to.have.lengthOf(1);
           expect(filterCount().text()).to.equal('1');
-          console.log(2);
 
           // Set time in range filter
           const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
