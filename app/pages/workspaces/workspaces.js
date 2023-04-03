@@ -7,6 +7,8 @@ import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import has from 'lodash/has';
+import indexOf from 'lodash/indexOf';
+import isUndefined from 'lodash/isUndefined';
 import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
@@ -136,6 +138,27 @@ export const Workspaces = (props) => {
     }
   }, [loggedInUserId]);
 
+  useEffect(() => {
+    if (loggedInUserId && Object.keys(clinics).length && isFirstRender) {
+      const userClinics = filter(values(clinics), ({ clinicians }) =>
+        has(clinicians, loggedInUserId)
+      );
+      const singleAdminClinics = filter(
+        userClinics,
+        ({ clinicians }) =>
+          filter(clinicians, { roles: ['CLINIC_ADMIN'] }).length === 1
+      );
+      // clinics with one admin could have unfetched clinician lists
+      forEach(singleAdminClinics, (clinic) => {
+        dispatch(
+          actions.async.fetchCliniciansFromClinic(api, clinic.id, {
+            limit: 1000,
+          })
+        );
+      });
+    }
+  }, [api, clinics, dispatch, isFirstRender, loggedInUserId]);
+
   // Populate workspaces with fetched results
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
@@ -146,6 +169,13 @@ export const Workspaces = (props) => {
         name: clinic.name,
         nameOrderable: clinic.name.toLowerCase(),
         type: 'clinic',
+        isAdmin: indexOf(clinic.clinicians[loggedInUserId].roles, 'CLINIC_ADMIN') >= 0,
+        activeAdminCount: filter(
+          clinic.clinicians,
+          (clinician) =>
+            indexOf(clinician.roles, 'CLINIC_ADMIN') !== -1 &&
+            isUndefined(clinician.inviteId)
+        ).length,
       })), 'nameOrderable'),
       ...sortBy(map(pendingReceivedClinicianInvites, invite => ({
         id: invite.clinicId,
@@ -157,16 +187,22 @@ export const Workspaces = (props) => {
     ];
 
     setWorkspaces(userWorkspaces);
-  }, [clinics, pendingReceivedClinicianInvites]);
+  }, [clinics, loggedInUserId, pendingReceivedClinicianInvites]);
 
   useEffect(() => {
     if (selectedWorkspace) {
-      let title, submitText, body;
+      let title, submitText, body, cancelText = t('Cancel');
 
       if (selectedWorkspace.type === 'clinic') {
-        title = t('Leave {{name}}', { name: selectedWorkspace.name });
-        submitText = t('Leave Clinic');
-        body = t('You will lose all access to {{name}} and its patient list. Are you sure you want to leave this clinic?', { name: selectedWorkspace.name });
+        if (selectedWorkspace.activeAdminCount === 1 && selectedWorkspace.isAdmin){
+          title = t('Unable to leave {{name}}', { name: selectedWorkspace.name });
+          body = t('Before you remove yourself from {{name}}, please assign Admin permissions to at least one other Clinic member.', {name: selectedWorkspace.name });
+          cancelText = t('OK');
+        } else {
+          title = t('Leave {{name}}', { name: selectedWorkspace.name });
+          submitText = t('Leave Clinic');
+          body = t('You will lose all access to {{name}} and its patient list. Are you sure you want to leave this clinic?', { name: selectedWorkspace.name });
+        }
       } else if (selectedWorkspace.type === 'clinician_invitation') {
         title = t('Decline {{name}}', { name: selectedWorkspace.name });
         submitText = t('Decline Invite');
@@ -177,6 +213,7 @@ export const Workspaces = (props) => {
         title,
         body,
         submitText,
+        cancelText,
       })
     }
   }, [selectedWorkspace]);
@@ -398,18 +435,20 @@ export const Workspaces = (props) => {
         </DialogContent>
         <DialogActions>
           <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>
-            {t('Cancel')}
+            {deleteDialogContent?.cancelText}
           </Button>
-          <Button
-            className="remove-account-access"
-            variant="danger"
-            processing={deletingClinicianFromClinic.inProgress}
-            onClick={() => {
-              handleConfirmDelete(selectedWorkspace);
-            }}
-          >
-            {deleteDialogContent?.submitText}
-          </Button>
+          {deleteDialogContent?.submitText && (
+            <Button
+              className="remove-account-access"
+              variant="danger"
+              processing={deletingClinicianFromClinic.inProgress}
+              onClick={() => {
+                handleConfirmDelete(selectedWorkspace);
+              }}
+            >
+              {deleteDialogContent?.submitText}
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </>
