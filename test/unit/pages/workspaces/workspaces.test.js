@@ -33,6 +33,7 @@ describe('Workspaces', () => {
         deleteClinicianFromClinic: sinon.stub().callsArgWith(2, null, { deleteClinicianReturn: 'success' }),
         acceptClinicianInvite: sinon.stub().callsArgWith(2, null, { acceptInvite: 'success' }),
         dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
+        getCliniciansFromClinic: sinon.stub().callsArgWith(2, null, { cliniciansReturn: 'success' }),
       },
     },
   };
@@ -59,6 +60,7 @@ describe('Workspaces', () => {
 
   const defaultState = {
     blip: {
+      clinics: {},
       working: {
         fetchingClinicianInvites: defaultWorkingState,
         fetchingClinicsForClinician: defaultWorkingState,
@@ -107,6 +109,10 @@ describe('Workspaces', () => {
               id: 'clinicianUserId123',
               roles: ['CLINIC_MEMBER'],
             },
+            clinicianUserId456: {
+              id: 'clinicianUserId456',
+              roles: ['CLINIC_ADMIN'],
+            }
           },
           patients: {},
           id: 'clinicID456',
@@ -148,6 +154,65 @@ describe('Workspaces', () => {
       pendingReceivedClinicianInvites: [],
     },
   };
+
+  const fetchedDataLastAdminState = {
+    blip: {
+      ...fetchedDataState.blip,
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_ADMIN'],
+            }
+          },
+          patients: {},
+          id: 'clinicID456',
+          address: '1 Address Ln, City Zip',
+          name: 'new_clinic_name',
+          email: 'new_clinic_email_address@example.com',
+          phoneNumbers: [
+            {
+              number: '(888) 555-5555',
+              type: 'Office',
+            },
+          ],
+        },
+      },
+    }
+  }
+
+  const fetchedDataLastAdminInvitedState = {
+    blip: {
+      ...fetchedDataState.blip,
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_ADMIN'],
+            },
+            clinicianUserId456: {
+              id: 'clinicianUserId456',
+              roles: ['CLINIC_ADMIN'],
+              inviteId: 'invite_id_456',
+            }
+          },
+          patients: {},
+          id: 'clinicID456',
+          address: '1 Address Ln, City Zip',
+          name: 'new_clinic_name',
+          email: 'new_clinic_email_address@example.com',
+          phoneNumbers: [
+            {
+              number: '(888) 555-5555',
+              type: 'Office',
+            },
+          ],
+        },
+      },
+    }
+  }
 
   let mountWrapper;
   let store;
@@ -321,6 +386,60 @@ describe('Workspaces', () => {
           },
         },
       ]);
+    });
+
+    it('should prevent the last admin clinician from leaving a clinic', () => {
+      wrapper = mountWrapper(mockStore(fetchedDataLastAdminState));
+      const clinic = wrapper.find('div.workspace-item-clinic').at(0);
+
+      const deleteDialog = () => wrapper.find('Dialog');
+      expect(deleteDialog()).to.have.lengthOf(1);
+      expect(deleteDialog().props().open).to.be.false;
+
+      const leaveButton = clinic.find('Button[variant="secondary"]');
+      expect(leaveButton).to.have.lengthOf(1);
+      expect(leaveButton.text()).to.equal('Leave Clinic');
+
+      leaveButton.simulate('click');
+      expect(deleteDialog().props().open).to.be.true;
+
+      const dialogTitle = deleteDialog().find('#dialog-title').hostNodes();
+      expect(dialogTitle).to.have.lengthOf(1);
+      expect(dialogTitle.text()).to.equal('Unable to leave new_clinic_name');
+
+      const confirmLeaveButton = deleteDialog().find('Button[variant="danger"]');
+      expect(confirmLeaveButton).to.have.lengthOf(0);
+
+      const cancelLeaveButton = deleteDialog().find('Button[variant="secondary"]');
+      expect(cancelLeaveButton).to.have.lengthOf(1);
+      expect(cancelLeaveButton.text()).to.equal('OK');
+    });
+
+    it('should prevent the last admin clinician from leaving a clinic with invited clinic admins', () => {
+      wrapper = mountWrapper(mockStore(fetchedDataLastAdminInvitedState));
+      const clinic = wrapper.find('div.workspace-item-clinic').at(0);
+
+      const deleteDialog = () => wrapper.find('Dialog');
+      expect(deleteDialog()).to.have.lengthOf(1);
+      expect(deleteDialog().props().open).to.be.false;
+
+      const leaveButton = clinic.find('Button[variant="secondary"]');
+      expect(leaveButton).to.have.lengthOf(1);
+      expect(leaveButton.text()).to.equal('Leave Clinic');
+
+      leaveButton.simulate('click');
+      expect(deleteDialog().props().open).to.be.true;
+
+      const dialogTitle = deleteDialog().find('#dialog-title').hostNodes();
+      expect(dialogTitle).to.have.lengthOf(1);
+      expect(dialogTitle.text()).to.equal('Unable to leave new_clinic_name');
+
+      const confirmLeaveButton = deleteDialog().find('Button[variant="danger"]');
+      expect(confirmLeaveButton).to.have.lengthOf(0);
+
+      const cancelLeaveButton = deleteDialog().find('Button[variant="secondary"]');
+      expect(cancelLeaveButton).to.have.lengthOf(1);
+      expect(cancelLeaveButton.text()).to.equal('OK');
     });
 
     it('should allow a clinician to accept a clinic invite', () => {

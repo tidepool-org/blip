@@ -1856,6 +1856,35 @@ describe('Actions', () => {
       });
     });
 
+    describe('loggedOut', () => {
+      it('should trigger LOGOUT_SUCCESS and it should call logout once for a successful request', () => {
+        let api = {
+          user: {
+            logout: sinon.stub().callsArgWith(0, null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'LOGOUT_REQUEST' },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub', patientId: 'abc123' }, payload: { predicate: undefined } },
+          { type: 'LOGOUT_SUCCESS' },
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/logged-out' ], method: 'push' } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: { ...initialState, currentPatientInViewId: 'abc123' } });
+        store.dispatch(async.loggedOut(api));
+
+        const actions = store.getActions();
+        actions[1].meta.origin = 'originStub';
+
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.logout.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged Out')).to.be.true;
+      });
+    });
+
     describe('setupDataStorage', () => {
       it('should trigger SETUP_DATA_STORAGE_SUCCESS and it should call setupDataStorage once for a successful request', () => {
         let loggedInUserId = 500;
