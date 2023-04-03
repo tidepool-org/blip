@@ -104,6 +104,7 @@ export let Login = translate()(class extends React.Component {
     // forward to keycloak login when available
     if (
       (
+        !this.props.isInvite &&
         keycloakConfig.initialized &&
         !loggingIn &&
         !this.props.isAuthenticated &&
