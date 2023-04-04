@@ -166,8 +166,8 @@ export const BgRangeSummary = React.memo(props => {
           </Flex>
 
           <Flex alignItems="flex-end" justifyContent="space-between" flexWrap="nowrap">
-            <Text lineHeight={0} color="grays.4" fontSize="10px">{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
-            <Flex alignItems="flex-end" justifyContent="flex-start" flexWrap="nowrap" sx={{ gap: 1}}>
+            <Text className={'range-summary-bg-units'} lineHeight={0} color="grays.4" fontSize="10px">{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
+            <Flex className={'range-summary-cgm-use'} alignItems="flex-end" justifyContent="flex-start" flexWrap="nowrap" sx={{ gap: 1}}>
               <Text lineHeight={0} color="text.primary" fontSize="10px" fontWeight="medium">{t('% CGM Use: ')}</Text>
               <Text lineHeight="10px" color="text.primary" fontSize="12px" fontWeight="bold">{t('{{cgmUsePercent}} %', { cgmUsePercent })}</Text>
             </Flex>

@@ -30,6 +30,7 @@ describe('BgRangeSummary', () => {
       veryHigh: .15,
     },
     striped: false,
+    cgmUsePercent: 78,
     targetRange: [60, 190],
   };
 
@@ -106,6 +107,12 @@ describe('BgRangeSummary', () => {
 
     const veryHighRange = popover().find('.range-summary-range-veryHigh').hostNodes();
     expect(veryHighRange.text()).to.equal('>250');
+
+    const bgUnits = popover().find('.range-summary-bg-units').hostNodes();
+    expect(bgUnits.text()).to.equal('Units in mg/dL');
+
+    const cgmUse = popover().find('.range-summary-cgm-use').hostNodes();
+    expect(cgmUse.text()).to.equal('% CGM Use: 78 %');
   });
 });
 

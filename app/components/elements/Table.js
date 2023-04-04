@@ -183,7 +183,7 @@ export const Table = React.memo(props => {
                   key={`${id}-header-${col.field?.replace(/\./g, '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
-                  className={tableCellClassNames(null, col)}
+                  className={tableCellClassNames(undefined, col)}
                 >
                   <Box
                     className="table-header-inner-cell"
