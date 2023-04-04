@@ -4,8 +4,8 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
   };
 
   const groupTag = {
-    paddingLeft: [0, null, 3],
-    paddingRight: 0,
+    paddingLeft: 0,
+    paddingRight: [0, null, 3],
   };
 
   const groupLeft = {
