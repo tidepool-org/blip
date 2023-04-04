@@ -160,7 +160,7 @@ export const patientSchema = yup.object().shape({
   dataSources: yup.array().of(
     yup.object().shape({
       providerName: yup.string(),
-      state: yup.string().oneOf(['pending', 'connected', 'error', 'disconnected']),
+      state: yup.string().oneOf(['pending', 'pendingReconnect', 'connected', 'error', 'disconnected']),
     }),
   ),
   tags: yup.array().of(
