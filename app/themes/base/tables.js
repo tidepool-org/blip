@@ -3,6 +3,11 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
     boxShadow: `inset 0 -2px 0 ${colors.grays[4]}`,
   };
 
+  const groupSpacer = {
+    paddingLeft: [0, null, 2],
+    paddingRight: [0, null, 2],
+  };
+
   const groupTag = {
     paddingLeft: 0,
     paddingRight: [0, null, 3],
@@ -41,6 +46,10 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
 
       '&:last-child': {
         borderRadius: '0 4px 4px 0',
+      },
+
+      '&.group-spacer': {
+        ...groupSpacer,
       },
 
       '&.group-tag': {
@@ -174,6 +183,10 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
 
         '&.action-buttons': {
           mt: 2,
+        },
+
+        '&.group-spacer': {
+          ...groupSpacer,
         },
 
         '&.group-tag': {

@@ -19,6 +19,7 @@ import map from 'lodash/map';
 import omit from 'lodash/omit';
 import orderBy from 'lodash/orderBy';
 import reject from 'lodash/reject';
+import sum from 'lodash/sum';
 import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -93,7 +94,7 @@ import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import { borders, radii, colors } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
-const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
+const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
 const { getLocalizedCeiling } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
@@ -561,6 +562,7 @@ export const ClinicPatients = (props) => {
     { value: 2, label: t('Last 2 days') },
     { value: 14, label: t('Last 14 days') },
     { value: 30, label: t('Last 30 days') },
+    { value: 1000, label: t('Last 1000 days') },
   ];
 
   const summaryPeriodOptions = [
@@ -2426,6 +2428,38 @@ export const ClinicPatients = (props) => {
       t={t} />
   }, [clinicBgUnits, activeSummaryPeriod, t]);
 
+  const renderAverageGlucose = ({ summary }) => {
+    console.log('summary', summary);
+    const averageGlucose = summary?.bgmStats.periods?.[activeSummaryPeriod]?.averageGlucose;
+    console.log('averageGlucose', averageGlucose);
+    const bgPrefs = {
+      bgUnits: averageGlucose.units,
+    };
+
+    const {
+      timeInHighRecords = 0,
+      timeInLowRecords = 0,
+      timeInTargetRecords = 0,
+      timeInVeryHighRecords = 0,
+      timeInVeryLowRecords = 0,
+    } = summary?.bgmStats.periods?.[activeSummaryPeriod]
+
+    const readingsPerDay = sum([
+      timeInHighRecords,
+      timeInLowRecords,
+      timeInTargetRecords,
+      timeInVeryHighRecords,
+      timeInVeryLowRecords,
+    ]);
+
+    return (
+      <Box>
+        <Text fontSize={[1, null, 0]} fontWeight="medium">{formatBgValue(averageGlucose.value, bgPrefs)}</Text>
+        <Text fontSize={[0, null, '10px']}>{t('{{readingsPerDay}} readings/day', { readingsPerDay })}</Text>
+      </Box>
+    );
+  };
+
   const renderGlycemicEvent = (type, value) => {
     const rotation = type === 'low' ? 90 : -90;
     const color = type === 'low' ? 'bg.veryLow' : 'bg.veryHigh';
@@ -2451,33 +2485,6 @@ export const ClinicPatients = (props) => {
       {renderGlycemicEvent('low', summary?.hypoGlycemicEvents)}
       {renderGlycemicEvent('high', summary?.hyperGlycemicEvents)}
     </Flex>
-  );
-
-  const renderGlycemicEventsPopover = () => (
-    <Box p={1}>
-      <Flex alignItems="center" sx={{ gap: '2px' }}>
-        <Icon
-          fontSize={1}
-          sx={{ transform: 'rotate(90deg)' }}
-          icon={DoubleArrowIcon}
-          color="bg.veryLow"
-          label="low"
-          variant="static"
-        />
-        <Text color="text.primary" fontSize="10px">{t('(Hypo event description)')}</Text>
-      </Flex>
-      <Flex alignItems="center" sx={{ gap: '2px' }}>
-        <Icon
-          fontSize={1}
-          sx={{ transform: 'rotate(-90deg)' }}
-          icon={DoubleArrowIcon}
-          color="bg.veryHigh"
-          label="high"
-          variant="static"
-        />
-        <Text color="text.primary" fontSize="10px">{t('(Hyper event description)')}</Text>
-      </Flex>
-    </Box>
   );
 
   const renderLinkedField = useCallback((field, patient) => (
@@ -2585,6 +2592,33 @@ export const ClinicPatients = (props) => {
             field: 'bgRangeSummary',
             align: 'center',
             render: renderBgRangeSummary,
+            className: 'group-right',
+          },
+          {
+            field: 'spacer',
+            className: 'group-spacer',
+          },
+          {
+            field: 'bgmTag',
+            align: 'left',
+            className: 'group-tag',
+            tag: t('BGM'),
+          },
+          {
+            sortBy: 'averageGlucose',
+            title: t('Avg. Glucose ({{bgUnits}})', { bgUnits: clinicBgUnits }),
+            field: 'averageGlucose',
+            align: 'left',
+            sortable: true,
+            sortBy: 'averageGlucose',
+            render: renderAverageGlucose,
+            className: 'group-left',
+          },
+          {
+            title: t('BG Events'),
+            field: 'bgEvents',
+            align: 'left',
+            // render: renderBGEvents,
             className: 'group-right',
           },
           // Commented out for the time being. Glycemic events will be part of a future version
