@@ -81,7 +81,7 @@ export const formatValue = (inputValue, key) => {
 };
 
 export const BgRangeSummary = React.memo(props => {
-  const { bgUnits, data, striped, targetRange, t, ...themeProps } = props;
+  const { bgUnits, cgmUsePercent, data, striped, targetRange, t, ...themeProps } = props;
   const formattedBgUnits = bgUnits.replace(/l$/, 'L');
 
   const popupState = usePopupState({
@@ -151,21 +151,27 @@ export const BgRangeSummary = React.memo(props => {
         useHoverPopover
       >
         <Box px={2} py={1}>
-          <Flex mb={1} sx={popoverFlexStyle} justifyContent="space-between" flexWrap="nowrap">
+          <Flex mb="12px" sx={popoverFlexStyle} justifyContent="space-between" flexWrap="nowrap">
             {map(data, (value, key) => (
-              <Flex key={key} flexDirection="column" alignItems="center">
-                <Flex className={`range-summary-value-${key}`} mb={2} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
-                  <Text fontWeight="bold" lineHeight={1} fontSize={1}>
+              <Flex key={key} flexDirection="column" justifyContent="center" alignItems="center">
+                <Flex className={`range-summary-value-${key}`} mb={1} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
+                  <Text fontWeight="bold" lineHeight={0} fontSize={1}>
                     {formatValue(value, key)}
                   </Text>
-                  <Text lineHeight={1} color="inherit" fontSize=".65em">%</Text>
+                  <Text color="inherit" fontSize="9px" fontWeight="bold">%</Text>
                 </Flex>
                 <Text className={`range-summary-range-${key}`} fontWeight="medium" lineHeight={1} color="grays.4" fontSize="9px">{bgLabels[key]}</Text>
               </Flex>
             ))}
           </Flex>
 
-          <Text lineHeight={1} color="grays.4" fontSize="8px">{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
+          <Flex alignItems="flex-end" justifyContent="space-between" flexWrap="nowrap">
+            <Text lineHeight={0} color="grays.4" fontSize="10px">{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
+            <Flex alignItems="flex-end" justifyContent="flex-start" flexWrap="nowrap" sx={{ gap: 1}}>
+              <Text lineHeight={0} color="text.primary" fontSize="10px" fontWeight="medium">{t('% CGM Use: ')}</Text>
+              <Text lineHeight="10px" color="text.primary" fontSize="12px" fontWeight="bold">{t('{{cgmUsePercent}} %', { cgmUsePercent })}</Text>
+            </Flex>
+          </Flex>
         </Box>
       </Popover>
     </>
@@ -174,6 +180,7 @@ export const BgRangeSummary = React.memo(props => {
 
 BgRangeSummary.propTypes = {
   bgUnits: PropTypes.string.isRequired,
+  cgmUsePercent: PropTypes.number.isRequired,
   data: PropTypes.shape({
     veryLow: PropTypes.number,
     low: PropTypes.number,
