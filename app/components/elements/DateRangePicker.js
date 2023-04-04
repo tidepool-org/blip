@@ -39,7 +39,7 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
 
   .DateRangePicker_picker {
     box-shadow: ${shadows.small};
-    margin-top: ${space[3]}px;
+    margin-top: ${space[2]}px;
   }
 
   .DateRangePickerInput_clearDates {

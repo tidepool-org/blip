@@ -24,6 +24,15 @@ const pdf = (state = {}, action) => {
     case actionTypes.GENERATE_PDF_SUCCESS:
       return update(state, { $merge: action.payload.pdf });
 
+    case actionTypes.GENERATE_AGP_IMAGES_REQUEST:
+      return update(state, { $merge: action.payload });
+
+    case actionTypes.GENERATE_AGP_IMAGES_SUCCESS: {
+      let newOpts = { ...state.opts, svgDataURLS: action.payload.images };
+      return update(state, { $merge: { opts: newOpts } });
+    }
+
+    case actionTypes.GENERATE_AGP_IMAGES_FAILURE:
     case actionTypes.REMOVE_GENERATED_PDFS:
       return update(state, { $set: {} });
 
