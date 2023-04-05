@@ -650,8 +650,12 @@ export function updatePatient(api, patient) {
 
     api.patient.put(patient, (err, updatedPatient) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_UPDATING_PATIENT;
+        if(err?.status === 409) {
+          errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
+        }
         dispatch(sync.updatePatientFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_PATIENT, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.updatePatientSuccess(updatedPatient));
@@ -2129,8 +2133,12 @@ export function createVCACustodialAccount(api, profile) {
     dispatch(sync.createVCACustodialAccountRequest());
     api.user.createCustodialAccount(profile, (err, result) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT;
+        if (err?.status === 409) {
+          errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
+        }
         dispatch(sync.createVCACustodialAccountFailure(
-          createActionError(ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.createVCACustodialAccountSuccess(result.userid, result));
@@ -2160,6 +2168,9 @@ export function updateClinicPatient(api, clinicId, patientId, patient) {
         let errMsg = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT;
         if (err?.status === 403) {
           errMsg = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_UNAUTHORIZED;
+        }
+        if (err?.status === 409) {
+          errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
         }
         dispatch(sync.updateClinicPatientFailure(
           createActionError(errMsg, err), err

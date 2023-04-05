@@ -2896,6 +2896,41 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.patient.put.calledWith(patient)).to.be.true;
       });
+
+      it('[409] should trigger UPDATE_PATIENT_FAILURE and it should call updatePatient once for a failed request due to duplicate email', () => {
+        let patient = { name: 'Bruce' };
+        let api = {
+          patient: {
+            put: sinon.stub().callsArgWith(1, { status: 409, body: 'Error!' }),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS);
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'UPDATE_PATIENT_REQUEST' },
+          {
+            type: 'UPDATE_PATIENT_FAILURE',
+            error: err,
+            meta: { apiError: { status: 409, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.updatePatient(api, patient));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.put.calledWith(patient)).to.be.true;
+      });
     });
 
     describe('updatePreferences', () => {
@@ -6311,6 +6346,45 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.user.createCustodialAccount.callCount).to.equal(1);
       });
+
+      it('[409] should trigger CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE and it should call error once for a failed request due to duplicate email', () => {
+        let patient = {
+          fullName: 'patientName',
+          email: 'patientemail',
+        };
+        let api = {
+          user: {
+            createCustodialAccount: sinon
+              .stub()
+              .callsArgWith(1, { status: 409, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS);
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST' },
+          {
+            type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE',
+            error: err,
+            meta: { apiError: { status: 409, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createVCACustodialAccount(api, patient));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.createCustodialAccount.callCount).to.equal(1);
+      });
     });
 
     describe('updateClinicPatient', () => {
@@ -6422,6 +6496,51 @@ describe('Actions', () => {
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({
           message: ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_UNAUTHORIZED,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.updateClinicPatient.callCount).to.equal(1);
+      });
+
+      it('[409] should trigger UPDATE_CLINIC_PATIENT_FAILURE and it should call error once for a failed request due to duplicate email', () => {
+        let patientUserId = 'patient_userId';
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let patient = {
+          id: patientUserId,
+          fullName: 'patientName',
+          email: 'patientemail',
+        };
+        let api = {
+          clinics: {
+            updateClinicPatient: sinon.stub()
+              .callsArgWith(3, { status: 409, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS
+        );
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'UPDATE_CLINIC_PATIENT_REQUEST' },
+          {
+            type: 'UPDATE_CLINIC_PATIENT_FAILURE',
+            error: err,
+            meta: { apiError: { status: 409, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.updateClinicPatient(api, clinicId, patientUserId, patient)
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS,
         });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
