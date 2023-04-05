@@ -2295,7 +2295,7 @@ export const ClinicPatients = (props) => {
       {showSummaryData && patient.mrn && <Text as="span" fontSize={[0, null, '10px']} sx={{ whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
       {!showSummaryData && patient.email && <Text fontSize={[0, null, '10px']}>{patient.email}</Text>}
     </Box>
-  ), [handleClickPatient]);
+  ), [handleClickPatient, showSummaryData, t]);
 
   const renderLastUploadDate = useCallback(({ summary }) => {
     const getFormattedLastUploadDate = date => {
@@ -2428,64 +2428,48 @@ export const ClinicPatients = (props) => {
       t={t} />
   }, [clinicBgUnits, activeSummaryPeriod, t]);
 
-  const renderAverageGlucose = ({ summary }) => {
-    console.log('summary', summary);
-    const averageGlucose = summary?.bgmStats.periods?.[activeSummaryPeriod]?.averageGlucose;
-    console.log('averageGlucose', averageGlucose);
+  const renderAverageGlucose = useCallback(({ summary }) => {
+    const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucose;
+    const averageDailyRecords = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageDailyRecords;
+
     const bgPrefs = {
-      bgUnits: averageGlucose.units,
+      bgUnits: averageGlucose?.units,
     };
 
-    const {
-      timeInHighRecords = 0,
-      timeInLowRecords = 0,
-      timeInTargetRecords = 0,
-      timeInVeryHighRecords = 0,
-      timeInVeryLowRecords = 0,
-    } = summary?.bgmStats.periods?.[activeSummaryPeriod]
-
-    const readingsPerDay = sum([
-      timeInHighRecords,
-      timeInLowRecords,
-      timeInTargetRecords,
-      timeInVeryHighRecords,
-      timeInVeryLowRecords,
-    ]);
-
-    return (
+    return averageGlucose ? (
       <Box>
-        <Text fontSize={[1, null, 0]} fontWeight="medium">{formatBgValue(averageGlucose.value, bgPrefs)}</Text>
-        <Text fontSize={[0, null, '10px']}>{t('{{readingsPerDay}} readings/day', { readingsPerDay })}</Text>
+        <Text fontSize={[1, null, 0]} fontWeight="medium">{formatBgValue(averageGlucose?.value, bgPrefs)}</Text>
+        <Text fontSize={[0, null, '10px']}>{t('{{averageDailyRecords}} readings/day', { averageDailyRecords })}</Text>
       </Box>
-    );
-  };
+    ) : null;
+  }, [activeSummaryPeriod, t]);;
 
-  const renderGlycemicEvent = (type, value) => {
+  const renderBGEvent = (type, value) => {
     const rotation = type === 'low' ? 90 : -90;
     const color = type === 'low' ? 'bg.veryLow' : 'bg.veryHigh';
     const visibility = value > 0 ? 'visible' : 'hidden';
 
     return (
-      <Flex alignItems="center" sx={{ visibility, gap: '2px' }}>
+      <Flex alignItems="flex-end" sx={{ visibility, gap: '1px' }}>
         <Icon
           fontSize={1}
-          sx={{ transform: `rotate(${rotation}deg)` }}
+          sx={{ transform: `rotate(${rotation}deg)`, top: '-2px' }}
           icon={DoubleArrowIcon}
           color={color}
           label={type}
           variant="static"
         />
-        <Text fontWeight="medium" fontSize="10px">{value}</Text>
+        <Text fontWeight="medium" fontSize={0}>{value}</Text>
       </Flex>
     );
   };
 
-  const renderGlycemicEvents = ({ summary }) => (
-    <Flex alignContent="center" justifyContent="center" sx={{ gap: 3 }}>
-      {renderGlycemicEvent('low', summary?.hypoGlycemicEvents)}
-      {renderGlycemicEvent('high', summary?.hyperGlycemicEvents)}
+  const renderBGEvents = useCallback(({ summary }) => (
+    <Flex alignContent="center" justifyContent="center" sx={{ gap: 2 }}>
+      {renderBGEvent('low', summary?.bgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryLowRecords)}
+      {renderBGEvent('high', summary?.bgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryHighRecords)}
     </Flex>
-  );
+  ), [activeSummaryPeriod]);
 
   const renderLinkedField = useCallback((field, patient) => (
       <Box
@@ -2605,7 +2589,6 @@ export const ClinicPatients = (props) => {
             tag: t('BGM'),
           },
           {
-            sortBy: 'averageGlucose',
             title: t('Avg. Glucose ({{bgUnits}})', { bgUnits: clinicBgUnits }),
             field: 'averageGlucose',
             align: 'left',
@@ -2618,40 +2601,17 @@ export const ClinicPatients = (props) => {
             title: t('BG Events'),
             field: 'bgEvents',
             align: 'left',
-            // render: renderBGEvents,
+            render: renderBGEvents,
             className: 'group-right',
           },
-          // Commented out for the time being. Glycemic events will be part of a future version
-          // {
-          //   titleComponent: () => (
-          //     <PopoverLabel
-          //       label={t('Glycemic Events')}
-          //       icon={InfoOutlinedIcon}
-          //       iconFontSize="12px"
-          //       popoverContent={renderGlycemicEventsPopover()}
-          //       popoverProps={{
-          //         anchorOrigin: {
-          //           vertical: 'bottom',
-          //           horizontal: 'center',
-          //         },
-          //         transformOrigin: {
-          //           vertical: 'top',
-          //           horizontal: 'center',
-          //         },
-          //         width: 'auto',
-          //       }}
-          //       triggerOnHover
-          //     />
-          //   ),
-          //   field: 'hypoEvents',
-          //   align: 'center',
-          //   render: renderGlycemicEvents,
-          // },
         ]
       );
     }
     return cols;
   }, [
+    clinicBgUnits,
+    renderAverageGlucose,
+    renderBGEvents,
     renderBgRangeSummary,
     renderGMI,
     renderLastUploadDate,
@@ -2660,7 +2620,6 @@ export const ClinicPatients = (props) => {
     renderPatient,
     renderPatientTags,
     showSummaryData,
-    activeSummaryPeriod,
     t,
   ]);
 
