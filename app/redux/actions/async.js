@@ -765,8 +765,12 @@ export function updateUser(api, formValues) {
 
     api.user.put(userUpdates, (err, updatedUser) => {
       if (err) {
+        let errMsg = ErrorMessages.ERR_UPDATING_USER;
+        if (err?.status === 409) {
+          errMsg = ErrorMessages.ERR_UPDATING_USER_EMAIL_IN_USE;
+        }
         dispatch(sync.updateUserFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_USER, err), err
+          createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
