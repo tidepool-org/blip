@@ -1017,15 +1017,18 @@ export const ClinicPatients = (props) => {
     debounceSearch(event.target.value);
   }
 
-  const handleSortChange = useCallback((newOrderBy) => {
+  const handleSortChange = useCallback((newOrderBy, field) => {
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
+    const [fieldKey, sortType = 'cgm'] = field.split('.').reverse();
     const currentOrder = sort[0];
     const currentOrderBy = sort.substring(1);
     const newOrder = newOrderBy === currentOrderBy && currentOrder === '+' ? '-' : '+';
+
     setPatientFetchOptions(fetchOptions => ({
       ...fetchOptions,
       offset: 0,
       sort: `${newOrder}${newOrderBy}`,
+      sortType,
     }));
 
     if (showSummaryData) {
@@ -2564,7 +2567,7 @@ export const ClinicPatients = (props) => {
           },
           {
             title: t('GMI'),
-            field: 'glucoseManagementIndicator',
+            field: 'cgm.glucoseManagementIndicator',
             align: 'left',
             sortable: true,
             sortBy: 'glucoseManagementIndicator',
@@ -2590,7 +2593,7 @@ export const ClinicPatients = (props) => {
           },
           {
             title: t('Avg. Glucose ({{bgUnits}})', { bgUnits: clinicBgUnits }),
-            field: 'averageGlucose',
+            field: 'bgm.averageGlucose',
             align: 'left',
             sortable: true,
             sortBy: 'averageGlucose',

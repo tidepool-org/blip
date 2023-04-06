@@ -122,7 +122,7 @@ export const Table = React.memo(props => {
     setOrderBy(property);
   };
 
-  const createSortHandler = property => () => (onSort || handleRequestSort)(property);
+  const createSortHandler = (property, field) => () => (onSort || handleRequestSort)(property, field);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
@@ -190,7 +190,7 @@ export const Table = React.memo(props => {
                     as={InnerCell}
                     active={orderBy === colSortBy}
                     direction={orderBy === colSortBy ? order : 'asc'}
-                    onClick={col.sortable ? createSortHandler(colSortBy) : noop}
+                    onClick={col.sortable ? createSortHandler(colSortBy, col.field) : noop}
                   >
                     {col.tag && (
                       <Pill
