@@ -349,7 +349,7 @@ const PatientTags = ({
 
   return !!filteredPatientTags.length ? (
     <TagList
-      maxCharactersVisible={20}
+      maxCharactersVisible={16}
       popupId={`tags-overflow-${patient?.id}`}
       onClickEdit={handleEditPatient}
       tagProps={{ variant: 'compact' }}
@@ -562,7 +562,6 @@ export const ClinicPatients = (props) => {
     { value: 2, label: t('Last 2 days') },
     { value: 14, label: t('Last 14 days') },
     { value: 30, label: t('Last 30 days') },
-    { value: 1000, label: t('Last 1000 days') },
   ];
 
   const summaryPeriodOptions = [
@@ -907,6 +906,7 @@ export const ClinicPatients = (props) => {
     clinic?.id,
     clinic?.tier,
     defaultPatientFetchOptions.sort,
+    defaultPatientFetchOptions.sortType,
     isFirstRender,
     patientFetchOptions,
     previousActiveFilters,
@@ -925,7 +925,6 @@ export const ClinicPatients = (props) => {
     <Box px={4} py={3} maxWidth="600px">
       <Trans id="summary-stat-info" i18nKey="html.summary-stat-info">
         <Paragraph1><strong>% CGM Use</strong>, <strong>GMI</strong>, and <strong>% Time in Range</strong> are calculated using the last 2 weeks’ worth of CGM data, where available.</Paragraph1>
-        <Paragraph1>A future release will include summary calculations for BGM data.</Paragraph1>
         <Paragraph1><strong>Warning:</strong> % CGM Use, GMI, and % Time in Range may not match the patient profile if older data is added after the summary statistics have already been calculated.</Paragraph1>
       </Trans>
     </Box>
@@ -1630,7 +1629,7 @@ export const ClinicPatients = (props) => {
                     iconProps={{
                       color: fetchingPatientsForClinic.inProgress ? 'text.primaryDisabled' : 'inherit',
                       disabled: fetchingPatientsForClinic.inProgress,
-                      iconFontSize: '18px',
+                      fontSize: '20px',
                       id: 'refresh-patients',
                       onClick: handleRefreshPatients,
                     }}
@@ -1657,7 +1656,7 @@ export const ClinicPatients = (props) => {
                     icon={InfoOutlinedIcon}
                     iconProps={{
                       id: 'summary-stat-info-trigger',
-                      iconFontSize: '18px',
+                      fontSize: '18px',
                     }}
                     popoverContent={renderInfoPopover()}
                     popoverProps={{
@@ -2447,9 +2446,11 @@ export const ClinicPatients = (props) => {
     ) : null;
   }, [activeSummaryPeriod, t]);;
 
-  const renderBGEvent = (type, value) => {
+  const renderBGEvent = useCallback((type, { summary }) => {
     const rotation = type === 'low' ? 90 : -90;
     const color = type === 'low' ? 'bg.veryLow' : 'bg.veryHigh';
+    const field = type === 'low' ? 'timeInVeryLowRecords' : 'timeInVeryHighRecords';
+    const value = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.[field];
     const visibility = value > 0 ? 'visible' : 'hidden';
 
     return (
@@ -2465,14 +2466,34 @@ export const ClinicPatients = (props) => {
         <Text fontWeight="medium" fontSize={0}>{value}</Text>
       </Flex>
     );
-  };
+  }, [activeSummaryPeriod]);
 
-  const renderBGEvents = useCallback(({ summary }) => (
-    <Flex alignContent="center" justifyContent="center" sx={{ gap: 2 }}>
-      {renderBGEvent('low', summary?.bgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryLowRecords)}
-      {renderBGEvent('high', summary?.bgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryHighRecords)}
-    </Flex>
-  ), [activeSummaryPeriod]);
+  const BGEventsInfo = () => (
+    <Box p={1}>
+      <Flex alignItems="center" sx={{ gap: '2px' }}>
+        <Icon
+          fontSize={1}
+          sx={{ transform: 'rotate(90deg)' }}
+          icon={DoubleArrowIcon}
+          color="bg.veryLow"
+          label="low"
+          variant="static"
+        />
+        <Text color="text.primary" fontSize={1}>{t('(Hypo event description)')}</Text>
+      </Flex>
+      <Flex alignItems="center" sx={{ gap: '2px' }}>
+        <Icon
+          fontSize={1}
+          sx={{ transform: 'rotate(-90deg)' }}
+          icon={DoubleArrowIcon}
+          color="bg.veryHigh"
+          label="high"
+          variant="static"
+        />
+        <Text color="text.primary" fontSize={1}>{t('(Hyper event description)')}</Text>
+      </Flex>
+    </Box>
+  );
 
   const renderLinkedField = useCallback((field, patient) => (
       <Box
@@ -2601,10 +2622,46 @@ export const ClinicPatients = (props) => {
             className: 'group-left',
           },
           {
-            title: t('BG Events'),
-            field: 'bgEvents',
+            title: t('Lows'),
+            field: 'bgm.timeInVeryLowRecords',
             align: 'left',
-            render: renderBGEvents,
+            sortable: true,
+            sortBy: 'timeInVeryLowRecords',
+            render: renderBGEvent.bind(null, 'low'),
+            className: 'group-center',
+          },
+          {
+            title: t('Highs'),
+            field: 'bgm.timeInVeryHighRecords',
+            align: 'left',
+            sortable: true,
+            sortBy: 'timeInVeryHighRecords',
+            render: renderBGEvent.bind(null, 'high'),
+            className: 'group-center',
+          },
+          {
+            titleComponent: () => (
+              <PopoverLabel
+                icon={InfoOutlinedIcon}
+                iconProps={{
+                  fontSize: '16px',
+                }}
+                popoverContent={<BGEventsInfo />}
+                popoverProps={{
+                  anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                  },
+                  transformOrigin: {
+                    vertical: 'top',
+                    horizontal: 'center',
+                  },
+                  width: 'auto',
+                }}
+                triggerOnHover
+              />
+            ),
+            align: 'left',
             className: 'group-right',
           },
         ]
@@ -2614,7 +2671,7 @@ export const ClinicPatients = (props) => {
   }, [
     clinicBgUnits,
     renderAverageGlucose,
-    renderBGEvents,
+    renderBGEvent,
     renderBgRangeSummary,
     renderGMI,
     renderLastUploadDate,

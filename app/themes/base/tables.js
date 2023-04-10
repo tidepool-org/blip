@@ -10,7 +10,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
 
   const groupTag = {
     paddingLeft: 0,
-    paddingRight: [0, null, 3],
+    paddingRight: [0, null, 2],
   };
 
   const groupLeft = {
@@ -19,8 +19,8 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
   };
 
   const groupCenter = {
-    paddingLeft: [0, null, 2],
-    paddingRight: [0, null, 2],
+    paddingLeft: [0, null, 1],
+    paddingRight: [0, null, 1],
   };
 
   const groupRight = {
