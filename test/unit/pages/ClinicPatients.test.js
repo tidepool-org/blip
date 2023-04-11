@@ -302,7 +302,7 @@ describe('ClinicPatients', () => {
                 },
               },
               permissions: { custodian : undefined },
-              tags: ['tag1', 'tag2'],
+              tags: ['tag1'],
             },
             patient3: {
               id: 'patient3',
@@ -1190,7 +1190,7 @@ describe('ClinicPatients', () => {
           assert(columns.at(3).is('#peopleTable-header-cgmTag'));
 
           expect(columns.at(4).text()).to.equal('GMI');
-          assert(columns.at(4).is('#peopleTable-header-glucoseManagementIndicator'));
+          assert(columns.at(4).is('#peopleTable-header-cgm-glucoseManagementIndicator'));
 
           expect(columns.at(5).text()).to.equal('% Time in Range');
           assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
@@ -1215,8 +1215,8 @@ describe('ClinicPatients', () => {
 
           // Patient tags in third column
           expect(rowData(0).at(2).text()).contains('Add'); // Add tag link when no tags avail
-          expect(rowData(1).at(2).text()).contains(['test tag 1', 'test tag 2'].join(''));
-          expect(rowData(2).at(2).text()).contains(['test tag 1', 'test tag 2', '+1'].join('')); // +1 for tag overflow
+          expect(rowData(1).at(2).text()).contains('test tag 1');
+          expect(rowData(2).at(2).text()).contains(['test tag 1', '+2'].join('')); // +1 for tag overflow
 
           // GMI in fifth column
           expect(rowData(0).at(4).text()).contains(emptyStatText);// GMI undefined
@@ -1237,8 +1237,9 @@ describe('ClinicPatients', () => {
           expect(popover().props().style.visibility).to.be.undefined;
 
           const overflowTags = popover().find('.tag-text').hostNodes();
-          expect(overflowTags).to.have.length(1);
-          expect(overflowTags.at(0).text()).to.equal('test tag 3');
+          expect(overflowTags).to.have.length(2);
+          expect(overflowTags.at(0).text()).to.equal('test tag 2');
+          expect(overflowTags.at(1).text()).to.equal('test tag 3');
 
           // BG summary in sixth column
           expect(rowData(0).at(5).text()).contains('CGM Use <24 hours'); // empty summary
@@ -1265,7 +1266,7 @@ describe('ClinicPatients', () => {
           patientHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
 
-          const gmiHeader = table.find('#peopleTable-header-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
+          const gmiHeader = table.find('#peopleTable-header-cgm-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
@@ -2272,7 +2273,7 @@ describe('ClinicPatients', () => {
           const rows = table.find('tbody tr');
           const rowData = row => rows.at(row).find('.MuiTableCell-root');
 
-          expect(rowData(1).at(2).text()).contains(['test tag 1', 'test tag 2'].join(''));
+          expect(rowData(1).at(2).text()).contains('test tag 1');
           const editTagsTrigger = rowData(1).find('.edit-tags-trigger').hostNodes();
           expect(editTagsTrigger).to.have.length(1);
 
@@ -2292,21 +2293,20 @@ describe('ClinicPatients', () => {
 
           // Check existing selected tags
           const selectedTags = () => patientForm().find('.selected-tags').find('.tag-text').hostNodes();
-          expect(selectedTags()).to.have.lengthOf(2);
+          expect(selectedTags()).to.have.lengthOf(1);
           expect(selectedTags().at(0).text()).to.equal('test tag 1');
-          expect(selectedTags().at(1).text()).to.equal('test tag 2');
 
           // Ensure available tag options present
           const availableTags = () => patientForm().find('.available-tags').find('.tag-text').hostNodes();
-          expect(availableTags()).to.have.lengthOf(1);
-          expect(availableTags().at(0).text()).to.equal('test tag 3');
+          expect(availableTags()).to.have.lengthOf(2);
+          expect(availableTags().at(0).text()).to.equal('test tag 2');
+          expect(availableTags().at(1).text()).to.equal('test tag 3');
 
           // Add tag 3
           patientForm().find('#tag3').hostNodes().simulate('click');
 
-          // Remove tags 1 and 2
+          // Remove tag 1
           patientForm().find('#tag1').find('.icon').hostNodes().simulate('click');
-          patientForm().find('#tag2').find('.icon').hostNodes().simulate('click');
 
           expect(selectedTags()).to.have.lengthOf(1);
           expect(selectedTags().at(0).text()).to.equal('test tag 3');
