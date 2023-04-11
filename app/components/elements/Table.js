@@ -122,7 +122,8 @@ export const Table = React.memo(props => {
     setOrderBy(property);
   };
 
-  const createSortHandler = (property, field) => () => (onSort || handleRequestSort)(property, field);
+  const createSortHandler = (property, field) => () =>
+    (onSort || handleRequestSort)(property, field);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
