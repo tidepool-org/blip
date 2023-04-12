@@ -19,7 +19,7 @@ import _ from 'lodash';
 import * as actionTypes from '../constants/actionTypes';
 
 /* PDF Worker */
-export function generatePDFRequest(type, queries, opts, patientId) {
+export function generatePDFRequest(type, queries, opts, patientId, data) {
   return {
     type: actionTypes.GENERATE_PDF_REQUEST,
     meta: { WebWorker: true, worker: 'pdf', origin: document.location.origin, patientId },
@@ -27,6 +27,7 @@ export function generatePDFRequest(type, queries, opts, patientId) {
       type,
       queries,
       opts,
+      data,
     },
   };
 }
