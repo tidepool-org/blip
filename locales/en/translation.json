@@ -237,7 +237,7 @@
   "Carbs (g)": "",
   "CGM": "",
   "CGM data will be synced from Dexcom": "",
-  "CGM Use <{{minCgmePercent}}%": "",
+  "CGM Use <{{minCgmPercent}}%": "",
   "CGM Use <{{minCgmHours}} hours": "",
   "Change": "",
   "Change Cartridge": "",
