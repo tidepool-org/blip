@@ -237,7 +237,7 @@
   "Carbs (g)": "Glucides (g)",
   "CGM": "SGC",
   "CGM data will be synced from Dexcom": "Les données SGC seront synchronisées à partir de Dexcom",
-  "CGM Use <{{minCgmePercent}}%": "",
+  "CGM Use <{{minCgmPercent}}%": "",
   "CGM Use <{{minCgmHours}} hours": "",
   "Change": "Changer",
   "Change Cartridge": "Changer de cartouche",
