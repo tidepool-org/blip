@@ -1137,6 +1137,7 @@ export const ClinicPatients = (props) => {
 
   const renderHeader = () => {
     const activeFiltersCount = without([
+      activeFilters.timeCGMUsePercent,
       activeFilters.lastUploadDate,
       activeFilters.timeInRange.length,
       activeFilters.patientTags.length,
@@ -1571,8 +1572,8 @@ export const ClinicPatients = (props) => {
                       </Box>
 
                       <RadioGroup
-                        id="cgm-use-type"
-                        name="cgm-use-type"
+                        id="cgm-use"
+                        name="cgm-use"
                         options={cgmUseFilterOptions}
                         variant="vertical"
                         fontSize={0}
@@ -1606,6 +1607,7 @@ export const ClinicPatients = (props) => {
                         onClick={() => {
                           trackMetric(prefixPopHealthMetric('CGM use apply filter'), {
                             clinicId: selectedClinicId,
+                            filter: pendingFilters.timeCGMUsePercent,
                           });
 
                           setActiveFilters(pendingFilters);
