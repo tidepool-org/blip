@@ -500,7 +500,7 @@
   "html.signup-invited": "<0> Ha sido invitado a Tidepool. </0> <1> Regístrese para ver la invitación. </1>",
   "html.signup-personal": "Si usted es un personal medico que tiene diabetes y desea rastrear y administrar sus datos personales sobre diabetes, cree una <1> cuenta personal </1> separada.",
   "html.signup-terms-of-use": "Acepto los <1> Términos de uso </1> y <3> Política de privacidad </3>",
-  "html.summary-stat-info": "<0><0>% CGM Use</0>, <2>GMI</2>, and <4>% Time in Range</4> are calculated using the last 2 weeks’ worth of CGM data, where available.</0><1><0>Warning:</0> % CGM Use, GMI, and % Time in Range may not match the patient profile if older data is added after the summary statistics have already been calculated.</1>",
+  "html.summary-stat-info": "<0><0>Warning:</0> % CGM Use, GMI, and % Time in Range may not match the patient profile if older data is added after the summary statistics have already been calculated.</0>",
   "html.terms-accept-of-age": "Tengo 18 años o más y acepto los<1> Términos de uso de las aplicaciones de Tidepool </1> y <3> Política de privacidad </3>",
   "html.terms-accept-on-behalf": "Acepto que mi hijo de 13 a 17 años puede usar las aplicaciones de Tidepool y acepto que también están sujetos a los términos de las <1> Condiciones de uso de las aplicaciones de Tidepool </1> y <3> Política de privacidad </3>",
   "html.terms-of-use-updated": "Los Términos de uso y la Política de privacidad han cambiado desde la última vez que usó Tidepool. <1> </1> Debe aceptar los cambios para continuar.",

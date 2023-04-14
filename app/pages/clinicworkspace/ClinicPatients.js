@@ -933,7 +933,6 @@ export const ClinicPatients = (props) => {
   const renderInfoPopover = () => (
     <Box px={4} py={3} maxWidth="600px">
       <Trans id="summary-stat-info" i18nKey="html.summary-stat-info">
-        <Paragraph1><strong>% CGM Use</strong>, <strong>GMI</strong>, and <strong>% Time in Range</strong> are calculated using the last 2 weeks’ worth of CGM data, where available.</Paragraph1>
         <Paragraph1><strong>Warning:</strong> % CGM Use, GMI, and % Time in Range may not match the patient profile if older data is added after the summary statistics have already been calculated.</Paragraph1>
       </Trans>
     </Box>
@@ -2498,9 +2497,10 @@ export const ClinicPatients = (props) => {
           label="low"
           variant="static"
         />
-        <Text color="text.primary" fontSize={1}>{t('(Hypo event description)')}</Text>
+        <Text color="text.primary" fontSize={0}>{t('Low Events are a count of any BGM readings that are below 54 mg/dL')}</Text>
       </Flex>
-      <Flex alignItems="center" sx={{ gap: '2px' }}>
+
+      <Flex alignItems="center" sx={{ gap: '2px' }} mb={2}>
         <Icon
           fontSize={1}
           sx={{ transform: 'rotate(-90deg)' }}
@@ -2509,8 +2509,10 @@ export const ClinicPatients = (props) => {
           label="high"
           variant="static"
         />
-        <Text color="text.primary" fontSize={1}>{t('(Hyper event description)')}</Text>
+        <Text color="text.primary" fontSize={0}>{t('High Events are a count of any BGM readings that are above 250 mg/dL')}</Text>
       </Flex>
+
+      <Text color="text.primary" fontSize={0}>{t('Events are summed up over the currently selected time duration')}</Text>
     </Box>
   );
 
