@@ -1500,6 +1500,39 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Patient tag filter apply', sinon.match({ clinicId: 'clinicID123' }));
         });
 
+        it('should allow filtering by cgm use', () => {
+          const cgmUseFilterTrigger = wrapper.find('#cgm-use-filter-trigger').hostNodes();
+          expect(cgmUseFilterTrigger).to.have.lengthOf(1);
+
+          const popover = () => wrapper.find('#cgmUseFilters').hostNodes();
+          expect(popover().props().style.visibility).to.equal('hidden');
+
+          // Open filters popover
+          cgmUseFilterTrigger.simulate('click');
+          expect(popover().props().style.visibility).to.be.undefined;
+
+          // Ensure filter options present
+          const cgmUseFilterOptions = popover().find('#cgm-use').find('label').hostNodes();
+          expect(cgmUseFilterOptions).to.have.lengthOf(2);
+          expect(cgmUseFilterOptions.at(0).text()).to.equal('Less than 70%');
+          expect(cgmUseFilterOptions.at(0).find('input').props().value).to.equal('<0.7');
+
+          expect(cgmUseFilterOptions.at(1).text()).to.equal('70% or more');
+          expect(cgmUseFilterOptions.at(1).find('input').props().value).to.equal('>=0.7');
+
+          // Apply button disabled until selection made
+          const applyButton = () => popover().find('#apply-cgm-use-filter').hostNodes();
+          expect(applyButton().props().disabled).to.be.true;
+
+          cgmUseFilterOptions.at(1).find('input').last().simulate('change', { target: { name: 'cgm-use', value: '<0.7' } });
+          expect(applyButton().props().disabled).to.be.false;
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          applyButton().simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sortType: 'cgm', 'cgm.timeCGMUsePercent': '<0.7' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - CGM use apply filter', sinon.match({ clinicId: 'clinicID123', filter: '<0.7' }));
+        });
+
         describe('managing clinic patient tags', () => {
           let filterPopover, editTagsDialog, patientTagsFilterTrigger, patientTagsEditTrigger;
 
