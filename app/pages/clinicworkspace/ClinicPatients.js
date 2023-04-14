@@ -2451,7 +2451,10 @@ export const ClinicPatients = (props) => {
 
   const renderAverageGlucose = useCallback(({ summary }) => {
     const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucose;
-    const averageDailyRecords = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageDailyRecords;
+    let averageDailyRecords = Math.round(summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageDailyRecords);
+    const averageDailyRecordsUnits = averageDailyRecords > 1 ? 'readings/day' : 'reading/day';
+    if (averageDailyRecords === 0) averageDailyRecords = '>1';
+    const averageDailyRecordsText = t('{{averageDailyRecords}} {{averageDailyRecordsUnits}}', { averageDailyRecords, averageDailyRecordsUnits });
 
     const bgPrefs = {
       bgUnits: averageGlucose?.units,
@@ -2460,7 +2463,7 @@ export const ClinicPatients = (props) => {
     return averageGlucose ? (
       <Box>
         <Text fontSize={[1, null, 0]} fontWeight="medium">{formatBgValue(averageGlucose?.value, bgPrefs)}</Text>
-        <Text fontSize={[0, null, '10px']}>{t('{{averageDailyRecords}} readings/day', { averageDailyRecords })}</Text>
+        <Text fontSize={[0, null, '10px']}>{averageDailyRecordsText}</Text>
       </Box>
     ) : null;
   }, [activeSummaryPeriod, t]);;
