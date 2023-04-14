@@ -846,7 +846,7 @@ export const ClinicPatients = (props) => {
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
         sortType: defaultPatientFetchOptions.sortType,
         sortPeriod: activeSummaryPeriod,
-        period: activeSummaryPeriod,
+        filterPeriod: activeSummaryPeriod,
         limit: 50,
         search: patientFetchOptions.search,
       }
