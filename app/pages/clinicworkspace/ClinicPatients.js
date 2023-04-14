@@ -537,6 +537,15 @@ export const ClinicPatients = (props) => {
     [showSummaryData]
   );
 
+  const defaultSortOrders = useMemo(() => ({
+    fullName: 'asc',
+    birthDate: 'asc',
+    glucoseManagementIndicator: 'desc',
+    averageGlucose: 'desc',
+    timeInVeryLowRecords: 'desc',
+    timeInVeryHighRecords: 'desc',
+  }), []);
+
   const bgLabels = useMemo(
     () =>
       generateBgRangeLabels(
@@ -1021,7 +1030,8 @@ export const ClinicPatients = (props) => {
     const [fieldKey, sortType = 'cgm'] = field.split('.').reverse();
     const currentOrder = sort[0];
     const currentOrderBy = sort.substring(1);
-    const newOrder = newOrderBy === currentOrderBy && currentOrder === '+' ? '-' : '+';
+    let newOrder = defaultSortOrders[fieldKey] === 'desc' ? '-' : '+';
+    if (newOrderBy === currentOrderBy) newOrder = currentOrder === '+' ? '-' : '+';
 
     setPatientFetchOptions(fetchOptions => ({
       ...fetchOptions,
@@ -1042,7 +1052,16 @@ export const ClinicPatients = (props) => {
 
       trackMetric(prefixPopHealthMetric(`${sortColumnLabels[newOrderBy]} sort ${order}`), { clinicId: selectedClinicId });
     }
-  }, [defaultPatientFetchOptions.sort, patientFetchOptions.sort, prefixPopHealthMetric, selectedClinicId, showSummaryData, activeSummaryPeriod, trackMetric]);
+  }, [
+    defaultPatientFetchOptions.sort,
+    defaultSortOrders,
+    patientFetchOptions.sort,
+    prefixPopHealthMetric,
+    selectedClinicId,
+    showSummaryData,
+    activeSummaryPeriod,
+    trackMetric,
+  ]);
 
   function handleClearSearch() {
     setSearch('');
@@ -2539,6 +2558,7 @@ export const ClinicPatients = (props) => {
         field: 'fullName',
         align: 'left',
         sortable: true,
+        defaultOrder: defaultSortOrders.fullName,
         render: renderPatient,
         className: showSummaryData ? 'no-margin' : null,
       },
@@ -2547,6 +2567,7 @@ export const ClinicPatients = (props) => {
         field: 'birthDate',
         align: 'left',
         sortable: true,
+        defaultOrder: defaultSortOrders.birthDate,
         render: renderLinkedField.bind(null, 'birthDate'),
       },
       {
@@ -2571,7 +2592,6 @@ export const ClinicPatients = (props) => {
             title: t('Last Upload'),
             field: 'lastUploadDate',
             align: 'left',
-            sortable: false,
             render: renderLastUploadDate,
           },
           {
@@ -2591,6 +2611,7 @@ export const ClinicPatients = (props) => {
             field: 'cgm.glucoseManagementIndicator',
             align: 'left',
             sortable: true,
+            defaultOrder: defaultSortOrders.glucoseManagementIndicator,
             sortBy: 'glucoseManagementIndicator',
             render: renderGMI,
             className: 'group-left',
@@ -2617,6 +2638,7 @@ export const ClinicPatients = (props) => {
             field: 'bgm.averageGlucose',
             align: 'left',
             sortable: true,
+            defaultOrder: defaultSortOrders.averageGlucose,
             sortBy: 'averageGlucose',
             render: renderAverageGlucose,
             className: 'group-left',
@@ -2626,6 +2648,7 @@ export const ClinicPatients = (props) => {
             field: 'bgm.timeInVeryLowRecords',
             align: 'left',
             sortable: true,
+            defaultOrder: defaultSortOrders.timeInVeryLowRecords,
             sortBy: 'timeInVeryLowRecords',
             render: renderBGEvent.bind(null, 'low'),
             className: 'group-center',
@@ -2635,6 +2658,7 @@ export const ClinicPatients = (props) => {
             field: 'bgm.timeInVeryHighRecords',
             align: 'left',
             sortable: true,
+            defaultOrder: defaultSortOrders.timeInVeryHighRecords,
             sortBy: 'timeInVeryHighRecords',
             render: renderBGEvent.bind(null, 'high'),
             className: 'group-center',

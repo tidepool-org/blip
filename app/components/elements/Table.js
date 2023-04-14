@@ -190,7 +190,7 @@ export const Table = React.memo(props => {
                     className="table-header-inner-cell"
                     as={InnerCell}
                     active={orderBy === colSortBy}
-                    direction={orderBy === colSortBy ? order : 'asc'}
+                    direction={orderBy === colSortBy ? order : col.defaultOrder || 'asc'}
                     onClick={col.sortable ? createSortHandler(colSortBy, col.field) : noop}
                   >
                     {col.tag && (
