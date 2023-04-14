@@ -19,7 +19,6 @@ import map from 'lodash/map';
 import omit from 'lodash/omit';
 import orderBy from 'lodash/orderBy';
 import reject from 'lodash/reject';
-import sum from 'lodash/sum';
 import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -70,6 +69,7 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
 import FilterIcon from '../../core/icons/FilterIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
+import utils from '../../core/utils';
 
 import {
   Dialog,
@@ -2455,18 +2455,15 @@ export const ClinicPatients = (props) => {
     const averageDailyRecordsUnits = averageDailyRecords > 1 ? 'readings/day' : 'reading/day';
     if (averageDailyRecords === 0) averageDailyRecords = '>1';
     const averageDailyRecordsText = t('{{averageDailyRecords}} {{averageDailyRecordsUnits}}', { averageDailyRecords, averageDailyRecordsUnits });
-
-    const bgPrefs = {
-      bgUnits: averageGlucose?.units,
-    };
+    const bgPrefs = { bgUnits: clinicBgUnits };
 
     return averageGlucose ? (
       <Box>
-        <Text fontSize={[1, null, 0]} fontWeight="medium">{formatBgValue(averageGlucose?.value, bgPrefs)}</Text>
+        <Text fontSize={[1, null, 0]} fontWeight="medium">{formatBgValue(utils.translateBg(averageGlucose?.value, clinicBgUnits), bgPrefs)}</Text>
         <Text fontSize={[0, null, '10px']}>{averageDailyRecordsText}</Text>
       </Box>
     ) : null;
-  }, [activeSummaryPeriod, t]);;
+  }, [clinicBgUnits, activeSummaryPeriod, t]);;
 
   const renderBGEvent = useCallback((type, { summary }) => {
     const rotation = type === 'low' ? 90 : -90;

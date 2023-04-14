@@ -297,6 +297,12 @@ describe('ClinicPatients', () => {
                   dates: {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
                   },
+                  periods: { '14d': {
+                    averageGlucose: { units: MMOLL_UNITS, value: 10.5 },
+                    averageDailyRecords: 0.25,
+                    timeInVeryLowRecords: 1,
+                    timeInVeryHighRecords: 2,
+                  } },
                 },
                 cgmStats: {
                   dates: {
@@ -320,6 +326,17 @@ describe('ClinicPatients', () => {
               birthDate: '1999-03-03',
               mrn: 'mrn456',
               summary: {
+                bgmStats: {
+                  dates: {
+                    lastUploadDate: moment().subtract(1, 'day').toISOString(),
+                  },
+                  periods: { '14d': {
+                    averageGlucose: { units: MMOLL_UNITS, value: 11.5 },
+                    averageDailyRecords: 1.25,
+                    timeInVeryLowRecords: 3,
+                    timeInVeryHighRecords: 4,
+                  } },
+                },
                 cgmStats: {
                   dates: {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
@@ -361,6 +378,17 @@ describe('ClinicPatients', () => {
               birthDate: '1999-04-04',
               mrn: 'mrn789',
               summary: {
+                bgmStats: {
+                  dates: {
+                    lastUploadDate: moment().subtract(1, 'day').toISOString(),
+                  },
+                  periods: { '14d': {
+                    averageGlucose: { units: MMOLL_UNITS, value: 12.5 },
+                    averageDailyRecords: 1.5,
+                    timeInVeryLowRecords: 0,
+                    timeInVeryHighRecords: 0,
+                  } },
+                },
                 cgmStats: {
                   dates: {
                     lastUploadDate: moment().subtract(29, 'days').toISOString(),
@@ -1233,6 +1261,18 @@ describe('ClinicPatients', () => {
           expect(columns.at(5).text()).to.equal('% Time in Range');
           assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
 
+          expect(columns.at(7).text()).to.equal('BGM');
+          assert(columns.at(7).is('#peopleTable-header-bgmTag'));
+
+          expect(columns.at(8).text()).to.equal('Avg. Glucose (mg/dL)');
+          assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucose'));
+
+          expect(columns.at(9).text()).to.equal('Lows');
+          assert(columns.at(9).is('#peopleTable-header-bgm-timeInVeryLowRecords'));
+
+          expect(columns.at(10).text()).to.equal('Highs');
+          assert(columns.at(10).is('#peopleTable-header-bgm-timeInVeryHighRecords'));
+
           const rows = table.find('tbody tr');
           expect(rows).to.have.lengthOf(5);
 
@@ -1288,9 +1328,30 @@ describe('ClinicPatients', () => {
 
           expect(rowData(3).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
           expect(rowData(3).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(1); // striped bars for <70% cgm use
+
+          // Average glucose and readings/day in ninth column
+          expect(rowData(0).at(8).text()).contains('');
+          expect(rowData(1).at(8).text()).contains('189'); // 10.5 mmol/L -> mg/dL
+          expect(rowData(1).at(8).text()).contains('>1 reading/day');
+          expect(rowData(2).at(8).text()).contains('207'); // 11.5 mmol/L -> mg/dL
+          expect(rowData(2).at(8).text()).contains('1 reading/day');
+          expect(rowData(3).at(8).text()).contains('225'); // 12.5 mmol/L -> mg/dL
+          expect(rowData(3).at(8).text()).contains('2 readings/day');
+
+          // Low events in tenth column
+          expect(rowData(0).at(9).text()).contains('');
+          expect(rowData(1).at(9).text()).contains('1');
+          expect(rowData(2).at(9).text()).contains('3');
+          expect(rowData(3).at(9).text()).contains('0');
+
+          // Low events in eleventh column
+          expect(rowData(0).at(10).text()).contains('');
+          expect(rowData(1).at(10).text()).contains('2');
+          expect(rowData(2).at(10).text()).contains('4');
+          expect(rowData(3).at(10).text()).contains('0');
         });
 
-        it('should refetch patients with updated sort parameter when name or gmi headers are clicked', () => {
+        it('should refetch patients with updated sort parameter when sortable column headers are clicked', () => {
           const table = wrapper.find(Table);
           expect(table).to.have.length(1);
 
@@ -1308,11 +1369,41 @@ describe('ClinicPatients', () => {
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-glucoseManagementIndicator' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-glucoseManagementIndicator', sortType: 'cgm' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator', sortType: 'cgm' }));
+
+          const averageGlucoseHeader = table.find('#peopleTable-header-bgm-averageGlucose .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          averageGlucoseHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-averageGlucose', sortType: 'bgm' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          averageGlucoseHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+averageGlucose', sortType: 'bgm' }));
+
+          const lowsHeader = table.find('#peopleTable-header-bgm-timeInVeryLowRecords .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lowsHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeInVeryLowRecords', sortType: 'bgm' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lowsHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeInVeryLowRecords', sortType: 'bgm' }));
+
+          const highsHeader = table.find('#peopleTable-header-bgm-timeInVeryHighRecords .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          highsHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeInVeryHighRecords', sortType: 'bgm' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          highsHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeInVeryHighRecords', sortType: 'bgm' }));
         });
 
         it('should allow refreshing the patient list and maintain', () => {
@@ -2376,6 +2467,12 @@ describe('ClinicPatients', () => {
                     dates: {
                       lastUploadDate: sinon.match.string,
                     },
+                    periods: { '14d': {
+                      averageGlucose: { units: MMOLL_UNITS, value: 10.5 },
+                      averageDailyRecords: 0.25,
+                      timeInVeryLowRecords: 1,
+                      timeInVeryHighRecords: 2,
+                    } },
                   },
                   cgmStats: {
                     dates: {
