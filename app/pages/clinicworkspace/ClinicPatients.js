@@ -106,6 +106,7 @@ const StyledScrollToTop = styled(ScrollToTop)`
 `;
 
 const defaultFilterState = {
+  timeCGMUsePercent: null,
   lastUploadDate: null,
   lastUploadType: null,
   timeInRange: [],
@@ -561,6 +562,11 @@ export const ClinicPatients = (props) => {
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
 
+  const cgmUseFilterOptions = [
+    { value: '<0.7', label: t('Less than 70%') },
+    { value: '>=0.7', label: t('70% or more') },
+  ];
+
   const lastUploadTypeFilterOptions = [
     { value: 'cgm', label: t('CGM') },
     { value: 'bgm', label: t('BGM') },
@@ -605,6 +611,11 @@ export const ClinicPatients = (props) => {
   const patientTagsPopupFilterState = usePopupState({
     variant: 'popover',
     popupId: 'patientTagFilters',
+  });
+
+  const cgmUsePopupFilterState = usePopupState({
+    variant: 'popover',
+    popupId: 'cgmUseFilters',
   });
 
   const debounceSearch = useCallback(debounce(search => {
@@ -876,6 +887,10 @@ export const ClinicPatients = (props) => {
 
           filterOptions[`cgm.${filter}`] = comparator + value;
         });
+
+        if (activeFilters.timeCGMUsePercent) {
+          filterOptions['cgm.timeCGMUsePercent'] = activeFilters.timeCGMUsePercent;
+        }
       }
 
       const newPatientFetchOptions = {
@@ -885,6 +900,7 @@ export const ClinicPatients = (props) => {
           'cgm.lastUploadDateFrom',
           'cgm.lastUploadDateTo',
           'tags',
+          'cgm.timeCGMUsePercent',
           'cgm.timeInVeryLowPercent',
           'cgm.timeInLowPercent',
           'cgm.timeInTargetPercent',
@@ -1121,6 +1137,7 @@ export const ClinicPatients = (props) => {
 
   const renderHeader = () => {
     const activeFiltersCount = without([
+      activeFilters.timeCGMUsePercent,
       activeFilters.lastUploadDate,
       activeFilters.timeInRange.length,
       activeFilters.patientTags.length,
@@ -1347,6 +1364,8 @@ export const ClinicPatients = (props) => {
                     variant="filter"
                     selected={!!activeFilters.timeInRange.length}
                     onClick={handleOpenTimeInRangeFilter}
+                    icon={KeyboardArrowDownRoundedIcon}
+                    iconLabel="Filter by Time In Range"
                     fontSize={0}
                     lineHeight={1.3}
                     flexShrink={0}
@@ -1510,6 +1529,93 @@ export const ClinicPatients = (props) => {
                         {t('Edit Available Patient Tags')}
                       </Button>
 
+                    </DialogActions>
+                  </Popover>
+
+                  <Box
+                    onClick={() => {
+                      if (!cgmUsePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('CGM Use filter open'), { clinicId: selectedClinicId });
+                    }}
+                    flexShrink={0}
+                  >
+                    <Button
+                      variant="filter"
+                      id="cgm-use-filter-trigger"
+                      selected={!!activeFilters.timeCGMUsePercent}
+                      {...bindTrigger(cgmUsePopupFilterState)}
+                      icon={KeyboardArrowDownRoundedIcon}
+                      iconLabel="Filter by cgm use"
+                      fontSize={0}
+                      lineHeight={1.3}
+                    >
+                      {activeFilters.timeCGMUsePercent ? find(cgmUseFilterOptions, { value: activeFilters.timeCGMUsePercent })?.label : t('% CGM Use')}
+                    </Button>
+                  </Box>
+
+                  <Popover
+                    minWidth="11em"
+                    closeIcon
+                    {...bindPopover(cgmUsePopupFilterState)}
+                    onClickCloseIcon={() => {
+                      trackMetric(prefixPopHealthMetric('CGM Use filter close'), { clinicId: selectedClinicId });
+                    }}
+                    onClose={() => {
+                      cgmUsePopupFilterState.close();
+                      setPendingFilters(activeFilters);
+                    }}
+                  >
+                    <DialogContent px={2} pt={3} pb={2} dividers>
+                      <Box alignItems="center" mb={2}>
+                        <Text color="grays.4" fontWeight="medium" fontSize={0} sx={{ whiteSpace: 'nowrap' }}>
+                          {t('% CGM Use')}
+                        </Text>
+                      </Box>
+
+                      <RadioGroup
+                        id="cgm-use"
+                        name="cgm-use"
+                        options={cgmUseFilterOptions}
+                        variant="vertical"
+                        fontSize={0}
+                        value={pendingFilters.timeCGMUsePercent || activeFilters.timeCGMUsePercent}
+                        onChange={event => {
+                          setPendingFilters({ ...pendingFilters, timeCGMUsePercent: event.target.value || null });
+                        }}
+                      />
+                    </DialogContent>
+
+                    <DialogActions justifyContent="space-between" p={1}>
+                      <Button
+                        id="clear-cgm-use-filter"
+                        fontSize={1}
+                        variant="textSecondary"
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('CGM use clear filter'), { clinicId: selectedClinicId });
+                          setPendingFilters({ ...activeFilters, cgmUse: defaultFilterState.timeCGMUsePercent });
+                          setActiveFilters({ ...activeFilters, cgmUse: defaultFilterState.timeCGMUsePercent });
+                          cgmUsePopupFilterState.close();
+                        }}
+                      >
+                        {t('Clear')}
+                      </Button>
+
+                      <Button
+                        id="apply-cgm-use-filter"
+                        disabled={!pendingFilters.timeCGMUsePercent}
+                        fontSize={1}
+                        variant="textPrimary"
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('CGM use apply filter'), {
+                            clinicId: selectedClinicId,
+                            filter: pendingFilters.timeCGMUsePercent,
+                          });
+
+                          setActiveFilters(pendingFilters);
+                          cgmUsePopupFilterState.close();
+                        }}
+                      >
+                        {t('Apply')}
+                      </Button>
                     </DialogActions>
                   </Popover>
                 </Flex>
@@ -2456,9 +2562,13 @@ export const ClinicPatients = (props) => {
     const averageDailyRecordsText = t('{{averageDailyRecords}} {{averageDailyRecordsUnits}}', { averageDailyRecords, averageDailyRecordsUnits });
     const bgPrefs = { bgUnits: clinicBgUnits };
 
+    const formattedAverageGlucose = clinicBgUnits === averageGlucose?.units
+      ? formatBgValue(averageGlucose?.value, bgPrefs)
+      : formatBgValue(utils.translateBg(averageGlucose?.value, clinicBgUnits), bgPrefs);
+
     return averageGlucose ? (
       <Box>
-        <Text fontSize={[1, null, 0]} fontWeight="medium">{formatBgValue(utils.translateBg(averageGlucose?.value, clinicBgUnits), bgPrefs)}</Text>
+        <Text fontSize={[1, null, 0]} fontWeight="medium">{formattedAverageGlucose}</Text>
         <Text fontSize={[0, null, '10px']}>{averageDailyRecordsText}</Text>
       </Box>
     ) : null;
