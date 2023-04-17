@@ -56,7 +56,7 @@ export const BgRange = () => {
 
   return (
     <Flex justifyContent="center">
-      <BgRangeSummary data={data} targetRange={targetRange} bgUnits={bgUnits} />
+      <BgRangeSummary data={data} targetRange={targetRange} cgmUsePercent={summaryData.timeCGMUse * 100} bgUnits={bgUnits} />
     </Flex>
   );
 };

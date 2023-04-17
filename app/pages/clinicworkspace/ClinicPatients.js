@@ -120,6 +120,13 @@ const glycemicTargetThresholds = {
   timeInVeryHighPercent: { value: 5, comparator: '>' },
 };
 
+function formatDecimal(val, precision) {
+  if (precision === null || precision === undefined) {
+    return format('d')(val);
+  }
+  return format(`.${precision}f`)(val);
+}
+
 const BgSummaryCell = ({ summary, clinicBgUnits, activeSummaryPeriod, t }) => {
   const targetRange = useMemo(
     () =>
@@ -166,8 +173,9 @@ const BgSummaryCell = ({ summary, clinicBgUnits, activeSummaryPeriod, t }) => {
       {(activeSummaryPeriod === '1d' && cgmUsePercent >= minCgmPercent) || (cgmHours >= minCgmHours)
         ? (
         <BgRangeSummary
-          striped={summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent < minCgmPercent}
+          striped={cgmUsePercent < minCgmPercent}
           data={data}
+          cgmUsePercent={formatDecimal(cgmUsePercent * 100)}
           targetRange={targetRange}
           bgUnits={clinicBgUnits}
         />
@@ -910,13 +918,6 @@ export const ClinicPatients = (props) => {
   useEffect(() => {
     if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
   }, [fetchingPatientFromClinic]);
-
-  function formatDecimal(val, precision) {
-    if (precision === null || precision === undefined) {
-      return format('d')(val);
-    }
-    return format(`.${precision}f`)(val);
-  }
 
   const renderInfoPopover = () => (
     <Box px={4} py={3} maxWidth="600px">
@@ -2367,13 +2368,6 @@ export const ClinicPatients = (props) => {
     );
   }, [t, timePrefs]);
 
-  const renderCGMUsage = useCallback(({ summary }) => (
-    <Box classname="patient-cgm-usage">
-      <Text as="span" fontWeight="medium">{summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent ? formatDecimal(summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent * 100) : statEmptyText}</Text>
-      {summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent && <Text as="span" fontSize="10px"> %</Text>}
-    </Box>
-  ), [activeSummaryPeriod]);
-
   const renderGMI = useCallback(({ summary }) => {
     const cgmUsePercent = (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent || 0);
     const cgmHours = (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUseMinutes || 0) / 60;
@@ -2566,32 +2560,32 @@ export const ClinicPatients = (props) => {
             render: renderLastUploadDate,
           },
           {
-            title: t('% CGM Use'),
-            field: 'timeCGMUsePercent',
-            sortable: true,
-            sortBy: 'timeCGMUsePercent',
-            align: 'center',
-            render: renderCGMUsage,
-          },
-          {
-            title: t('% GMI'),
-            field: 'glucoseManagementIndicator',
-            align: 'center',
-            sortable: true,
-            sortBy: 'glucoseManagementIndicator',
-            render: renderGMI,
-          },
-          {
             title: t('Patient Tags'),
             field: 'tags',
             align: 'left',
             render: renderPatientTags,
           },
           {
+            field: 'cgmTag',
+            align: 'left',
+            className: 'group-tag',
+            tag: t('CGM'),
+          },
+          {
+            title: t('GMI'),
+            field: 'glucoseManagementIndicator',
+            align: 'left',
+            sortable: true,
+            sortBy: 'glucoseManagementIndicator',
+            render: renderGMI,
+            className: 'group-left',
+          },
+          {
             title: t('% Time in Range'),
             field: 'bgRangeSummary',
             align: 'center',
             render: renderBgRangeSummary,
+            className: 'group-right',
           },
           // Commented out for the time being. Glycemic events will be part of a future version
           // {
@@ -2625,7 +2619,6 @@ export const ClinicPatients = (props) => {
     return cols;
   }, [
     renderBgRangeSummary,
-    renderCGMUsage,
     renderGMI,
     renderLastUploadDate,
     renderLinkedField,

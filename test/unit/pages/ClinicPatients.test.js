@@ -1221,14 +1221,14 @@ describe('ClinicPatients', () => {
           expect(columns.at(1).text()).to.equal('Last Upload');
           assert(columns.at(1).is('#peopleTable-header-lastUploadDate'));
 
-          expect(columns.at(2).text()).to.equal('% CGM Use');
-          assert(columns.at(2).is('#peopleTable-header-timeCGMUsePercent'));
+          expect(columns.at(2).text()).to.equal('Patient Tags');
+          assert(columns.at(2).is('#peopleTable-header-tags'));
 
-          expect(columns.at(3).text()).to.equal('% GMI');
-          assert(columns.at(3).is('#peopleTable-header-glucoseManagementIndicator'));
+          expect(columns.at(3).text()).to.equal('CGM');
+          assert(columns.at(3).is('#peopleTable-header-cgmTag'));
 
-          expect(columns.at(4).text()).to.equal('Patient Tags');
-          assert(columns.at(4).is('#peopleTable-header-tags'));
+          expect(columns.at(4).text()).to.equal('GMI');
+          assert(columns.at(4).is('#peopleTable-header-glucoseManagementIndicator'));
 
           expect(columns.at(5).text()).to.equal('% Time in Range');
           assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
@@ -1251,25 +1251,19 @@ describe('ClinicPatients', () => {
           expect(rowData(3).at(1).text()).contains('CGM: 30 days ago');
           expect(rowData(4).at(1).text().slice(-10)).to.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/); // match YYYY-MM-DD format
 
-          // CGM use in third column
-          expect(rowData(0).at(2).text()).contains(emptyStatText);
-          expect(rowData(1).at(2).text()).contains('85 %');
-          expect(rowData(2).at(2).text()).contains('70 %');
-          expect(rowData(3).at(2).text()).contains('69 %');
+          // Patient tags in third column
+          expect(rowData(0).at(2).text()).contains('Add'); // Add tag link when no tags avail
+          expect(rowData(1).at(2).text()).contains(['test tag 1', 'test tag 2'].join(''));
+          expect(rowData(2).at(2).text()).contains(['test tag 1', 'test tag 2', '+1'].join('')); // +1 for tag overflow
 
-          // GMI in fourth column
-          expect(rowData(0).at(3).text()).contains(emptyStatText);// GMI undefined
-          expect(rowData(1).at(3).text()).contains(emptyStatText); // <24h cgm use shows empty text
-          expect(rowData(2).at(3).text()).contains('6.5 %');
-          expect(rowData(3).at(3).text()).contains(emptyStatText); // <70% cgm use
-
-          // Tags in fifth column
-          expect(rowData(0).at(4).text()).contains('Add'); // Add tag link when no tags avail
-          expect(rowData(1).at(4).text()).contains(['test tag 1', 'test tag 2'].join(''));
-          expect(rowData(2).at(4).text()).contains(['test tag 1', 'test tag 2', '+1'].join('')); // +1 for tag overflow
+          // GMI in fifth column
+          expect(rowData(0).at(4).text()).contains(emptyStatText);// GMI undefined
+          expect(rowData(1).at(4).text()).contains(emptyStatText); // <24h cgm use shows empty text
+          expect(rowData(2).at(4).text()).contains('6.5 %');
+          expect(rowData(3).at(4).text()).contains(emptyStatText); // <70% cgm use
 
           // Ensure tags hidden by overflow are visible on hover
-          const tagOverflowTrigger = rowData(2).at(4).find('.tag-overflow-trigger').hostNodes();
+          const tagOverflowTrigger = rowData(2).at(2).find('.tag-overflow-trigger').hostNodes();
           expect(tagOverflowTrigger).to.have.length(1);
 
           const popover = () => wrapper.find('#tags-overflow-patient3').hostNodes();
@@ -1295,7 +1289,7 @@ describe('ClinicPatients', () => {
           expect(rowData(3).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(1); // striped bars for <70% cgm use
         });
 
-        it('should refetch patients with updated sort parameter when name, last upload, gmi, or cgm use headers are clicked', () => {
+        it('should refetch patients with updated sort parameter when name or gmi headers are clicked', () => {
           const table = wrapper.find(Table);
           expect(table).to.have.length(1);
 
@@ -1308,16 +1302,6 @@ describe('ClinicPatients', () => {
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           patientHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
-
-          const cgmUseHeader = table.find('#peopleTable-header-timeCGMUsePercent .MuiTableSortLabel-root').at(0);
-
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          cgmUseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeCGMUsePercent' }));
-
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          cgmUseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeCGMUsePercent' }));
 
           const gmiHeader = table.find('#peopleTable-header-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
 
@@ -1749,28 +1733,28 @@ describe('ClinicPatients', () => {
 
             const rowData = row => rows().at(row).find('.MuiTableCell-root');
 
-            expect(rowData(2).at(3).text()).contains('6.5 %'); // shows for 14 days
+            expect(rowData(2).at(4).text()).contains('6.5 %'); // shows for 14 days
 
             // Open filters popover and set to 30 days
             summaryPeriodFilterTrigger.simulate('click');
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '30d' } });
             expect(filterOptions().at(3).find('input').props().checked).to.be.true;
             applyButton().simulate('click');
-            expect(rowData(2).at(3).text()).contains('7.5 %'); // shows for 30 days
+            expect(rowData(2).at(4).text()).contains('7.5 %'); // shows for 30 days
 
             // Open filters popover and set to 7 days
             summaryPeriodFilterTrigger.simulate('click');
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
             expect(filterOptions().at(1).find('input').props().checked).to.be.true;
             applyButton().simulate('click');
-            expect(rowData(2).at(3).text()).contains(emptyStatText); // hidden for 7 days
+            expect(rowData(2).at(4).text()).contains(emptyStatText); // hidden for 7 days
 
             // Open filters popover and set to 1 day
             summaryPeriodFilterTrigger.simulate('click');
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '1d' } });
             expect(filterOptions().at(0).find('input').props().checked).to.be.true;
             applyButton().simulate('click');
-            expect(rowData(2).at(3).text()).contains(emptyStatText); // hidden for 1 day
+            expect(rowData(2).at(4).text()).contains(emptyStatText); // hidden for 1 day
           });
         });
 
@@ -2259,7 +2243,7 @@ describe('ClinicPatients', () => {
             const rows = table.find('tbody tr');
             const rowData = row => rows.at(row).find('.MuiTableCell-root');
 
-            expect(rowData(0).at(4).text()).contains('Add'); // Add tag link when no tags avail
+            expect(rowData(0).at(2).text()).contains('Add'); // Add tag link when no tags avail
             const addTagsTrigger = rowData(0).find('#add-tags-to-patient-trigger').hostNodes();
             expect(addTagsTrigger).to.have.length(1);
 
@@ -2326,7 +2310,7 @@ describe('ClinicPatients', () => {
           const rows = table.find('tbody tr');
           const rowData = row => rows.at(row).find('.MuiTableCell-root');
 
-          expect(rowData(1).at(4).text()).contains(['test tag 1', 'test tag 2'].join(''));
+          expect(rowData(1).at(2).text()).contains(['test tag 1', 'test tag 2'].join(''));
           const editTagsTrigger = rowData(1).find('.edit-tags-trigger').hostNodes();
           expect(editTagsTrigger).to.have.length(1);
 
