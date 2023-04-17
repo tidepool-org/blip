@@ -2562,9 +2562,13 @@ export const ClinicPatients = (props) => {
     const averageDailyRecordsText = t('{{averageDailyRecords}} {{averageDailyRecordsUnits}}', { averageDailyRecords, averageDailyRecordsUnits });
     const bgPrefs = { bgUnits: clinicBgUnits };
 
+    const formattedAverageGlucose = clinicBgUnits === averageGlucose?.units
+      ? formatBgValue(averageGlucose?.value, bgPrefs)
+      : formatBgValue(utils.translateBg(averageGlucose?.value, clinicBgUnits), bgPrefs);
+
     return averageGlucose ? (
       <Box>
-        <Text fontSize={[1, null, 0]} fontWeight="medium">{formatBgValue(utils.translateBg(averageGlucose?.value, clinicBgUnits), bgPrefs)}</Text>
+        <Text fontSize={[1, null, 0]} fontWeight="medium">{formattedAverageGlucose}</Text>
         <Text fontSize={[0, null, '10px']}>{averageDailyRecordsText}</Text>
       </Box>
     ) : null;

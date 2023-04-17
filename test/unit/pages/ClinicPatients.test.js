@@ -2009,6 +2009,25 @@ describe('ClinicPatients', () => {
             defaultProps.trackMetric.resetHistory();
           });
 
+          it('should show the bgm average glucose in mmol/L units', () => {
+            const table = wrapper.find(Table);
+            expect(table).to.have.length(1);
+
+            const columns = table.find('.MuiTableCell-head');
+
+            expect(columns.at(8).text()).to.equal('Avg. Glucose (mmol/L)');
+            assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucose'));
+
+            const rows = table.find('tbody tr');
+            expect(rows).to.have.lengthOf(5);
+
+            const rowData = row => rows.at(row).find('.MuiTableCell-root');
+
+            expect(rowData(1).at(8).text()).contains('10.5');
+            expect(rowData(2).at(8).text()).contains('11.5');
+            expect(rowData(3).at(8).text()).contains('12.5');
+          });
+
           it('should show the bg range filters in mmol/L units', () => {
             const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
 
