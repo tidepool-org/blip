@@ -297,6 +297,12 @@ describe('ClinicPatients', () => {
                   dates: {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
                   },
+                  periods: { '14d': {
+                    averageGlucose: { units: MMOLL_UNITS, value: 10.5 },
+                    averageDailyRecords: 0.25,
+                    timeInVeryLowRecords: 1,
+                    timeInVeryHighRecords: 2,
+                  } },
                 },
                 cgmStats: {
                   dates: {
@@ -311,7 +317,7 @@ describe('ClinicPatients', () => {
                 },
               },
               permissions: { custodian : undefined },
-              tags: ['tag1', 'tag2'],
+              tags: ['tag1'],
             },
             patient3: {
               id: 'patient3',
@@ -320,6 +326,17 @@ describe('ClinicPatients', () => {
               birthDate: '1999-03-03',
               mrn: 'mrn456',
               summary: {
+                bgmStats: {
+                  dates: {
+                    lastUploadDate: moment().subtract(1, 'day').toISOString(),
+                  },
+                  periods: { '14d': {
+                    averageGlucose: { units: MMOLL_UNITS, value: 11.5 },
+                    averageDailyRecords: 1.25,
+                    timeInVeryLowRecords: 3,
+                    timeInVeryHighRecords: 4,
+                  } },
+                },
                 cgmStats: {
                   dates: {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
@@ -361,6 +378,17 @@ describe('ClinicPatients', () => {
               birthDate: '1999-04-04',
               mrn: 'mrn789',
               summary: {
+                bgmStats: {
+                  dates: {
+                    lastUploadDate: moment().subtract(1, 'day').toISOString(),
+                  },
+                  periods: { '14d': {
+                    averageGlucose: { units: MMOLL_UNITS, value: 12.5 },
+                    averageDailyRecords: 1.5,
+                    timeInVeryLowRecords: 0,
+                    timeInVeryHighRecords: 0,
+                  } },
+                },
                 cgmStats: {
                   dates: {
                     lastUploadDate: moment().subtract(29, 'days').toISOString(),
@@ -429,7 +457,7 @@ describe('ClinicPatients', () => {
     },
   };
 
-  const defaultFetchOptions = { limit: 50, offset: 0, period: '14d', sortPeriod: '14d', sortType: 'cgm' };
+  const defaultFetchOptions = { limit: 50, offset: 0, filterPeriod: '14d', sortPeriod: '14d', sortType: 'cgm' };
 
   context('on mount', () => {
     beforeEach(() => {
@@ -1228,10 +1256,22 @@ describe('ClinicPatients', () => {
           assert(columns.at(3).is('#peopleTable-header-cgmTag'));
 
           expect(columns.at(4).text()).to.equal('GMI');
-          assert(columns.at(4).is('#peopleTable-header-glucoseManagementIndicator'));
+          assert(columns.at(4).is('#peopleTable-header-cgm-glucoseManagementIndicator'));
 
           expect(columns.at(5).text()).to.equal('% Time in Range');
           assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
+
+          expect(columns.at(7).text()).to.equal('BGM');
+          assert(columns.at(7).is('#peopleTable-header-bgmTag'));
+
+          expect(columns.at(8).text()).to.equal('Avg. Glucose (mg/dL)');
+          assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucose'));
+
+          expect(columns.at(9).text()).to.equal('Lows');
+          assert(columns.at(9).is('#peopleTable-header-bgm-timeInVeryLowRecords'));
+
+          expect(columns.at(10).text()).to.equal('Highs');
+          assert(columns.at(10).is('#peopleTable-header-bgm-timeInVeryHighRecords'));
 
           const rows = table.find('tbody tr');
           expect(rows).to.have.lengthOf(5);
@@ -1253,8 +1293,8 @@ describe('ClinicPatients', () => {
 
           // Patient tags in third column
           expect(rowData(0).at(2).text()).contains('Add'); // Add tag link when no tags avail
-          expect(rowData(1).at(2).text()).contains(['test tag 1', 'test tag 2'].join(''));
-          expect(rowData(2).at(2).text()).contains(['test tag 1', 'test tag 2', '+1'].join('')); // +1 for tag overflow
+          expect(rowData(1).at(2).text()).contains('test tag 1');
+          expect(rowData(2).at(2).text()).contains(['test tag 1', '+2'].join('')); // +1 for tag overflow
 
           // GMI in fifth column
           expect(rowData(0).at(4).text()).contains(emptyStatText);// GMI undefined
@@ -1275,8 +1315,9 @@ describe('ClinicPatients', () => {
           expect(popover().props().style.visibility).to.be.undefined;
 
           const overflowTags = popover().find('.tag-text').hostNodes();
-          expect(overflowTags).to.have.length(1);
-          expect(overflowTags.at(0).text()).to.equal('test tag 3');
+          expect(overflowTags).to.have.length(2);
+          expect(overflowTags.at(0).text()).to.equal('test tag 2');
+          expect(overflowTags.at(1).text()).to.equal('test tag 3');
 
           // BG summary in sixth column
           expect(rowData(0).at(5).text()).contains('CGM Use <24 hours'); // empty summary
@@ -1287,9 +1328,30 @@ describe('ClinicPatients', () => {
 
           expect(rowData(3).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
           expect(rowData(3).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(1); // striped bars for <70% cgm use
+
+          // Average glucose and readings/day in ninth column
+          expect(rowData(0).at(8).text()).contains('');
+          expect(rowData(1).at(8).text()).contains('189'); // 10.5 mmol/L -> mg/dL
+          expect(rowData(1).at(8).text()).contains('>1 reading/day');
+          expect(rowData(2).at(8).text()).contains('207'); // 11.5 mmol/L -> mg/dL
+          expect(rowData(2).at(8).text()).contains('1 reading/day');
+          expect(rowData(3).at(8).text()).contains('225'); // 12.5 mmol/L -> mg/dL
+          expect(rowData(3).at(8).text()).contains('2 readings/day');
+
+          // Low events in tenth column
+          expect(rowData(0).at(9).text()).contains('');
+          expect(rowData(1).at(9).text()).contains('1');
+          expect(rowData(2).at(9).text()).contains('3');
+          expect(rowData(3).at(9).text()).contains('0');
+
+          // Low events in eleventh column
+          expect(rowData(0).at(10).text()).contains('');
+          expect(rowData(1).at(10).text()).contains('2');
+          expect(rowData(2).at(10).text()).contains('4');
+          expect(rowData(3).at(10).text()).contains('0');
         });
 
-        it('should refetch patients with updated sort parameter when name or gmi headers are clicked', () => {
+        it('should refetch patients with updated sort parameter when sortable column headers are clicked', () => {
           const table = wrapper.find(Table);
           expect(table).to.have.length(1);
 
@@ -1303,15 +1365,45 @@ describe('ClinicPatients', () => {
           patientHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
 
-          const gmiHeader = table.find('#peopleTable-header-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
+          const gmiHeader = table.find('#peopleTable-header-cgm-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-glucoseManagementIndicator', sortType: 'cgm' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           gmiHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-glucoseManagementIndicator' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator', sortType: 'cgm' }));
+
+          const averageGlucoseHeader = table.find('#peopleTable-header-bgm-averageGlucose .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          averageGlucoseHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-averageGlucose', sortType: 'bgm' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          averageGlucoseHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+averageGlucose', sortType: 'bgm' }));
+
+          const lowsHeader = table.find('#peopleTable-header-bgm-timeInVeryLowRecords .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lowsHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeInVeryLowRecords', sortType: 'bgm' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lowsHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeInVeryLowRecords', sortType: 'bgm' }));
+
+          const highsHeader = table.find('#peopleTable-header-bgm-timeInVeryHighRecords .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          highsHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeInVeryHighRecords', sortType: 'bgm' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          highsHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeInVeryHighRecords', sortType: 'bgm' }));
         });
 
         it('should allow refreshing the patient list and maintain', () => {
@@ -1696,7 +1788,7 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               ...defaultFetchOptions,
               sort: '-lastUploadDate',
-              period: '7d',
+              filterPeriod: '7d',
               sortPeriod: '7d',
               'cgm.timeInHighPercent': '>0.25',
               'cgm.timeInLowPercent': '>0.04',
@@ -2310,7 +2402,7 @@ describe('ClinicPatients', () => {
           const rows = table.find('tbody tr');
           const rowData = row => rows.at(row).find('.MuiTableCell-root');
 
-          expect(rowData(1).at(2).text()).contains(['test tag 1', 'test tag 2'].join(''));
+          expect(rowData(1).at(2).text()).contains('test tag 1');
           const editTagsTrigger = rowData(1).find('.edit-tags-trigger').hostNodes();
           expect(editTagsTrigger).to.have.length(1);
 
@@ -2330,21 +2422,20 @@ describe('ClinicPatients', () => {
 
           // Check existing selected tags
           const selectedTags = () => patientForm().find('.selected-tags').find('.tag-text').hostNodes();
-          expect(selectedTags()).to.have.lengthOf(2);
+          expect(selectedTags()).to.have.lengthOf(1);
           expect(selectedTags().at(0).text()).to.equal('test tag 1');
-          expect(selectedTags().at(1).text()).to.equal('test tag 2');
 
           // Ensure available tag options present
           const availableTags = () => patientForm().find('.available-tags').find('.tag-text').hostNodes();
-          expect(availableTags()).to.have.lengthOf(1);
-          expect(availableTags().at(0).text()).to.equal('test tag 3');
+          expect(availableTags()).to.have.lengthOf(2);
+          expect(availableTags().at(0).text()).to.equal('test tag 2');
+          expect(availableTags().at(1).text()).to.equal('test tag 3');
 
           // Add tag 3
           patientForm().find('#tag3').hostNodes().simulate('click');
 
-          // Remove tags 1 and 2
+          // Remove tag 1
           patientForm().find('#tag1').find('.icon').hostNodes().simulate('click');
-          patientForm().find('#tag2').find('.icon').hostNodes().simulate('click');
 
           expect(selectedTags()).to.have.lengthOf(1);
           expect(selectedTags().at(0).text()).to.equal('test tag 3');
@@ -2376,6 +2467,12 @@ describe('ClinicPatients', () => {
                     dates: {
                       lastUploadDate: sinon.match.string,
                     },
+                    periods: { '14d': {
+                      averageGlucose: { units: MMOLL_UNITS, value: 10.5 },
+                      averageDailyRecords: 0.25,
+                      timeInVeryLowRecords: 1,
+                      timeInVeryHighRecords: 2,
+                    } },
                   },
                   cgmStats: {
                     dates: {

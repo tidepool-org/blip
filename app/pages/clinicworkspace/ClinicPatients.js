@@ -69,6 +69,7 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
 import FilterIcon from '../../core/icons/FilterIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
+import utils from '../../core/utils';
 
 import {
   Dialog,
@@ -93,7 +94,7 @@ import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import { borders, radii, colors } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
-const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
+const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
 const { getLocalizedCeiling } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
@@ -348,7 +349,7 @@ const PatientTags = ({
 
   return !!filteredPatientTags.length ? (
     <TagList
-      maxCharactersVisible={20}
+      maxCharactersVisible={16}
       popupId={`tags-overflow-${patient?.id}`}
       onClickEdit={handleEditPatient}
       tagProps={{ variant: 'compact' }}
@@ -535,6 +536,15 @@ export const ClinicPatients = (props) => {
     }),
     [showSummaryData]
   );
+
+  const defaultSortOrders = useMemo(() => ({
+    fullName: 'asc',
+    birthDate: 'asc',
+    glucoseManagementIndicator: 'desc',
+    averageGlucose: 'desc',
+    timeInVeryLowRecords: 'desc',
+    timeInVeryHighRecords: 'desc',
+  }), []);
 
   const bgLabels = useMemo(
     () =>
@@ -836,7 +846,7 @@ export const ClinicPatients = (props) => {
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
         sortType: defaultPatientFetchOptions.sortType,
         sortPeriod: activeSummaryPeriod,
-        period: activeSummaryPeriod,
+        filterPeriod: activeSummaryPeriod,
         limit: 50,
         search: patientFetchOptions.search,
       }
@@ -905,6 +915,7 @@ export const ClinicPatients = (props) => {
     clinic?.id,
     clinic?.tier,
     defaultPatientFetchOptions.sort,
+    defaultPatientFetchOptions.sortType,
     isFirstRender,
     patientFetchOptions,
     previousActiveFilters,
@@ -922,8 +933,6 @@ export const ClinicPatients = (props) => {
   const renderInfoPopover = () => (
     <Box px={4} py={3} maxWidth="600px">
       <Trans id="summary-stat-info" i18nKey="html.summary-stat-info">
-        <Paragraph1><strong>% CGM Use</strong>, <strong>GMI</strong>, and <strong>% Time in Range</strong> are calculated using the last 2 weeks’ worth of CGM data, where available.</Paragraph1>
-        <Paragraph1>A future release will include summary calculations for BGM data.</Paragraph1>
         <Paragraph1><strong>Warning:</strong> % CGM Use, GMI, and % Time in Range may not match the patient profile if older data is added after the summary statistics have already been calculated.</Paragraph1>
       </Trans>
     </Box>
@@ -1015,15 +1024,19 @@ export const ClinicPatients = (props) => {
     debounceSearch(event.target.value);
   }
 
-  const handleSortChange = useCallback((newOrderBy) => {
+  const handleSortChange = useCallback((newOrderBy, field) => {
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
+    const [fieldKey, sortType = 'cgm'] = field.split('.').reverse();
     const currentOrder = sort[0];
     const currentOrderBy = sort.substring(1);
-    const newOrder = newOrderBy === currentOrderBy && currentOrder === '+' ? '-' : '+';
+    let newOrder = defaultSortOrders[fieldKey] === 'desc' ? '-' : '+';
+    if (newOrderBy === currentOrderBy) newOrder = currentOrder === '+' ? '-' : '+';
+
     setPatientFetchOptions(fetchOptions => ({
       ...fetchOptions,
       offset: 0,
       sort: `${newOrder}${newOrderBy}`,
+      sortType,
     }));
 
     if (showSummaryData) {
@@ -1038,7 +1051,16 @@ export const ClinicPatients = (props) => {
 
       trackMetric(prefixPopHealthMetric(`${sortColumnLabels[newOrderBy]} sort ${order}`), { clinicId: selectedClinicId });
     }
-  }, [defaultPatientFetchOptions.sort, patientFetchOptions.sort, prefixPopHealthMetric, selectedClinicId, showSummaryData, activeSummaryPeriod, trackMetric]);
+  }, [
+    defaultPatientFetchOptions.sort,
+    defaultSortOrders,
+    patientFetchOptions.sort,
+    prefixPopHealthMetric,
+    selectedClinicId,
+    showSummaryData,
+    activeSummaryPeriod,
+    trackMetric,
+  ]);
 
   function handleClearSearch() {
     setSearch('');
@@ -1625,7 +1647,7 @@ export const ClinicPatients = (props) => {
                     iconProps={{
                       color: fetchingPatientsForClinic.inProgress ? 'text.primaryDisabled' : 'inherit',
                       disabled: fetchingPatientsForClinic.inProgress,
-                      iconFontSize: '18px',
+                      fontSize: '20px',
                       id: 'refresh-patients',
                       onClick: handleRefreshPatients,
                     }}
@@ -1652,7 +1674,7 @@ export const ClinicPatients = (props) => {
                     icon={InfoOutlinedIcon}
                     iconProps={{
                       id: 'summary-stat-info-trigger',
-                      iconFontSize: '18px',
+                      fontSize: '18px',
                     }}
                     popoverContent={renderInfoPopover()}
                     popoverProps={{
@@ -2293,7 +2315,7 @@ export const ClinicPatients = (props) => {
       {showSummaryData && patient.mrn && <Text as="span" fontSize={[0, null, '10px']} sx={{ whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
       {!showSummaryData && patient.email && <Text fontSize={[0, null, '10px']}>{patient.email}</Text>}
     </Box>
-  ), [handleClickPatient]);
+  ), [handleClickPatient, showSummaryData, t]);
 
   const renderLastUploadDate = useCallback(({ summary }) => {
     const getFormattedLastUploadDate = date => {
@@ -2426,34 +2448,45 @@ export const ClinicPatients = (props) => {
       t={t} />
   }, [clinicBgUnits, activeSummaryPeriod, t]);
 
-  const renderGlycemicEvent = (type, value) => {
+  const renderAverageGlucose = useCallback(({ summary }) => {
+    const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucose;
+    let averageDailyRecords = Math.round(summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageDailyRecords);
+    const averageDailyRecordsUnits = averageDailyRecords > 1 ? 'readings/day' : 'reading/day';
+    if (averageDailyRecords === 0) averageDailyRecords = '>1';
+    const averageDailyRecordsText = t('{{averageDailyRecords}} {{averageDailyRecordsUnits}}', { averageDailyRecords, averageDailyRecordsUnits });
+    const bgPrefs = { bgUnits: clinicBgUnits };
+
+    return averageGlucose ? (
+      <Box>
+        <Text fontSize={[1, null, 0]} fontWeight="medium">{formatBgValue(utils.translateBg(averageGlucose?.value, clinicBgUnits), bgPrefs)}</Text>
+        <Text fontSize={[0, null, '10px']}>{averageDailyRecordsText}</Text>
+      </Box>
+    ) : null;
+  }, [clinicBgUnits, activeSummaryPeriod, t]);;
+
+  const renderBGEvent = useCallback((type, { summary }) => {
     const rotation = type === 'low' ? 90 : -90;
     const color = type === 'low' ? 'bg.veryLow' : 'bg.veryHigh';
+    const field = type === 'low' ? 'timeInVeryLowRecords' : 'timeInVeryHighRecords';
+    const value = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.[field];
     const visibility = value > 0 ? 'visible' : 'hidden';
 
     return (
-      <Flex alignItems="center" sx={{ visibility, gap: '2px' }}>
+      <Flex alignItems="flex-end" sx={{ visibility, gap: '1px' }}>
         <Icon
           fontSize={1}
-          sx={{ transform: `rotate(${rotation}deg)` }}
+          sx={{ transform: `rotate(${rotation}deg)`, top: '-2px' }}
           icon={DoubleArrowIcon}
           color={color}
           label={type}
           variant="static"
         />
-        <Text fontWeight="medium" fontSize="10px">{value}</Text>
+        <Text fontWeight="medium" fontSize={0}>{value}</Text>
       </Flex>
     );
-  };
+  }, [activeSummaryPeriod]);
 
-  const renderGlycemicEvents = ({ summary }) => (
-    <Flex alignContent="center" justifyContent="center" sx={{ gap: 3 }}>
-      {renderGlycemicEvent('low', summary?.hypoGlycemicEvents)}
-      {renderGlycemicEvent('high', summary?.hyperGlycemicEvents)}
-    </Flex>
-  );
-
-  const renderGlycemicEventsPopover = () => (
+  const BGEventsInfo = () => (
     <Box p={1}>
       <Flex alignItems="center" sx={{ gap: '2px' }}>
         <Icon
@@ -2464,9 +2497,10 @@ export const ClinicPatients = (props) => {
           label="low"
           variant="static"
         />
-        <Text color="text.primary" fontSize="10px">{t('(Hypo event description)')}</Text>
+        <Text color="text.primary" fontSize={0}>{t('Low Events are a count of any BGM readings that are below 54 mg/dL')}</Text>
       </Flex>
-      <Flex alignItems="center" sx={{ gap: '2px' }}>
+
+      <Flex alignItems="center" sx={{ gap: '2px' }} mb={2}>
         <Icon
           fontSize={1}
           sx={{ transform: 'rotate(-90deg)' }}
@@ -2475,8 +2509,10 @@ export const ClinicPatients = (props) => {
           label="high"
           variant="static"
         />
-        <Text color="text.primary" fontSize="10px">{t('(Hyper event description)')}</Text>
+        <Text color="text.primary" fontSize={0}>{t('High Events are a count of any BGM readings that are above 250 mg/dL')}</Text>
       </Flex>
+
+      <Text color="text.primary" fontSize={0}>{t('Events are summed up over the currently selected time duration')}</Text>
     </Box>
   );
 
@@ -2524,6 +2560,7 @@ export const ClinicPatients = (props) => {
         field: 'fullName',
         align: 'left',
         sortable: true,
+        defaultOrder: defaultSortOrders.fullName,
         render: renderPatient,
         className: showSummaryData ? 'no-margin' : null,
       },
@@ -2532,6 +2569,7 @@ export const ClinicPatients = (props) => {
         field: 'birthDate',
         align: 'left',
         sortable: true,
+        defaultOrder: defaultSortOrders.birthDate,
         render: renderLinkedField.bind(null, 'birthDate'),
       },
       {
@@ -2556,7 +2594,6 @@ export const ClinicPatients = (props) => {
             title: t('Last Upload'),
             field: 'lastUploadDate',
             align: 'left',
-            sortable: false,
             render: renderLastUploadDate,
           },
           {
@@ -2573,9 +2610,10 @@ export const ClinicPatients = (props) => {
           },
           {
             title: t('GMI'),
-            field: 'glucoseManagementIndicator',
+            field: 'cgm.glucoseManagementIndicator',
             align: 'left',
             sortable: true,
+            defaultOrder: defaultSortOrders.glucoseManagementIndicator,
             sortBy: 'glucoseManagementIndicator',
             render: renderGMI,
             className: 'group-left',
@@ -2587,37 +2625,79 @@ export const ClinicPatients = (props) => {
             render: renderBgRangeSummary,
             className: 'group-right',
           },
-          // Commented out for the time being. Glycemic events will be part of a future version
-          // {
-          //   titleComponent: () => (
-          //     <PopoverLabel
-          //       label={t('Glycemic Events')}
-          //       icon={InfoOutlinedIcon}
-          //       iconFontSize="12px"
-          //       popoverContent={renderGlycemicEventsPopover()}
-          //       popoverProps={{
-          //         anchorOrigin: {
-          //           vertical: 'bottom',
-          //           horizontal: 'center',
-          //         },
-          //         transformOrigin: {
-          //           vertical: 'top',
-          //           horizontal: 'center',
-          //         },
-          //         width: 'auto',
-          //       }}
-          //       triggerOnHover
-          //     />
-          //   ),
-          //   field: 'hypoEvents',
-          //   align: 'center',
-          //   render: renderGlycemicEvents,
-          // },
+          {
+            field: 'spacer',
+            className: 'group-spacer',
+          },
+          {
+            field: 'bgmTag',
+            align: 'left',
+            className: 'group-tag',
+            tag: t('BGM'),
+          },
+          {
+            title: t('Avg. Glucose ({{bgUnits}})', { bgUnits: clinicBgUnits }),
+            field: 'bgm.averageGlucose',
+            align: 'left',
+            sortable: true,
+            defaultOrder: defaultSortOrders.averageGlucose,
+            sortBy: 'averageGlucose',
+            render: renderAverageGlucose,
+            className: 'group-left',
+          },
+          {
+            title: t('Lows'),
+            field: 'bgm.timeInVeryLowRecords',
+            align: 'left',
+            sortable: true,
+            defaultOrder: defaultSortOrders.timeInVeryLowRecords,
+            sortBy: 'timeInVeryLowRecords',
+            render: renderBGEvent.bind(null, 'low'),
+            className: 'group-center',
+          },
+          {
+            title: t('Highs'),
+            field: 'bgm.timeInVeryHighRecords',
+            align: 'left',
+            sortable: true,
+            defaultOrder: defaultSortOrders.timeInVeryHighRecords,
+            sortBy: 'timeInVeryHighRecords',
+            render: renderBGEvent.bind(null, 'high'),
+            className: 'group-center',
+          },
+          {
+            titleComponent: () => (
+              <PopoverLabel
+                icon={InfoOutlinedIcon}
+                iconProps={{
+                  fontSize: '16px',
+                }}
+                popoverContent={<BGEventsInfo />}
+                popoverProps={{
+                  anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                  },
+                  transformOrigin: {
+                    vertical: 'top',
+                    horizontal: 'center',
+                  },
+                  width: 'auto',
+                }}
+                triggerOnHover
+              />
+            ),
+            align: 'left',
+            className: 'group-right',
+          },
         ]
       );
     }
     return cols;
   }, [
+    clinicBgUnits,
+    renderAverageGlucose,
+    renderBGEvent,
     renderBgRangeSummary,
     renderGMI,
     renderLastUploadDate,
@@ -2626,7 +2706,6 @@ export const ClinicPatients = (props) => {
     renderPatient,
     renderPatientTags,
     showSummaryData,
-    activeSummaryPeriod,
     t,
   ]);
 
