@@ -57,7 +57,7 @@
     "@storybook/addon-viewport": "5.3.19",
     "@storybook/addons": "5.3.19",
     "@storybook/react": "5.3.19",
-    "@tidepool/viz": "1.33.0-rc.3",
+    "@tidepool/viz": "1.33.2",
     "async": "2.6.4",
     "autoprefixer": "9.8.4",
     "babel-core": "7.0.0-bridge.0",

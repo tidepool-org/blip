@@ -9,6 +9,7 @@ import noop from 'lodash/noop';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import { Switch } from '@rebass/forms/styled-components';
 import moment from 'moment-timezone';
+import { Element, scroller } from 'react-scroll';
 
 import Button from './elements/Button';
 import DateRangePicker from './elements/DateRangePicker';
@@ -257,13 +258,13 @@ export const PrintDateRangeModal = (props) => {
   }, [enabled, dates]);
 
   return (
-    <Dialog id="printDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
+    <Dialog id="printDateRangePicker" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
       <DialogContent divider={false} minWidth="643px" py={0} px={3}>
         {map(panels, panel => (
-          <>
+          <Element name={`${panel.key}-wrapper`}>
             <Box
               key={panel.key}
               variant="containers.fluidBordered"
@@ -326,7 +327,15 @@ export const PrintDateRangeModal = (props) => {
                         (moment.isMoment(dates[panel.key].endDate) && dates[panel.key].endDate.diff(day, 'days') >= maxDays) ||
                         (moment.isMoment(dates[panel.key].startDate) && dates[panel.key].startDate.diff(day, 'days') <= -maxDays)
                       )}
-                      onFocusChange={input => setDatePickerOpen({ ...datePickerOpen, [panel.key]: !!input })}
+                      onFocusChange={input => {
+                        setDatePickerOpen({ ...datePickerOpen, [panel.key]: !!input });
+                        if (input) scroller.scrollTo(`${panel.key}-wrapper`, {
+                          delay: 0,
+                          containerId: 'printDateRangePickerInner',
+                          duration: 250,
+                          smooth: true,
+                        });
+                      }}
                       themeProps={{
                         minHeight: datePickerOpen[panel.key] ? '310px' : undefined,
                       }}
@@ -340,7 +349,7 @@ export const PrintDateRangeModal = (props) => {
                 {errors[panel.key]}
               </Caption>
             )}
-          </>
+          </Element>
         ))}
         {errors.general && (
           <Caption mx={5} mt={2} color="feedback.danger" id="general-print-error">
