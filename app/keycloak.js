@@ -8,10 +8,19 @@ import * as ActionTypes from './redux/constants/actionTypes';
 import { sync, async } from './redux/actions';
 import api from './core/api';
 
-// eslint-disable-next-line new-cap
 export let keycloak = null;
 
 let _keycloakConfig = {};
+let refreshTimeout = null;
+
+export const setTokenRefresh = (keycloak) => {
+  if (refreshTimeout) {
+    clearTimeout(refreshTimeout);
+    refreshTimeout = null;
+  }
+  var expiresIn = (keycloak.tokenParsed['exp'] - new Date().getTime() / 1000 + keycloak.timeSkew) * 1000;
+  refreshTimeout = setTimeout(() => { keycloak.updateToken(-1); }, expiresIn - 10000);
+};
 
 export const updateKeycloakConfig = (info, store) => {
   if (!(isEmpty(info) || isEqual(_keycloakConfig, info))) {
@@ -93,6 +102,7 @@ export const onKeycloakTokens = (store) => (tokens) => {
       },
       () => {}
     );
+    setTokenRefresh(keycloak);
   }
 };
 
