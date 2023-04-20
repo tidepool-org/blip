@@ -27,7 +27,7 @@ export const UploaderBanner = translate()((props) => {
     window.open('https://support.tidepool.org/hc/en-us/articles/360029368552-Installing-Tidepool-Uploader');
 
     if (trackMetric) {
-      trackMetric('clicked learn more Uploader Install banner');
+      trackMetric('clicked learn more on Uploader Install banner');
     }
   };
 
