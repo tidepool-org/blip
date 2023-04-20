@@ -159,6 +159,7 @@ export class AppComponent extends React.Component {
       showingUploaderBanner,
       location,
       userHasData,
+      userHasPumpData,
       userHasConnectedDataSources,
       userDexcomDataSource,
       patientDexcomDataSource,
@@ -166,7 +167,6 @@ export class AppComponent extends React.Component {
       userHasDiabetesType,
       userIsCurrentPatient,
       userIsSupportingNonprofit,
-      patient,
       authenticated,
       currentPatientInViewId,
     } = nextProps;
@@ -179,9 +179,9 @@ export class AppComponent extends React.Component {
     }
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
-    const showUploaderBanner = authenticated && moment().isBefore('2020-10-01');
 
     if (showingUploaderBanner !== false) {
+      const showUploaderBanner = isBannerRoute && userIsCurrentPatient && !!userDexcomDataSource && !userHasPumpData;
       if (showUploaderBanner) {
         this.props.showBanner('uploader');
       } else if (showingUploaderBanner) {
@@ -697,6 +697,7 @@ export function mapStateToProps(state) {
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
+  let userHasPumpData = false;
   let userHasDiabetesType = false;
 
   if (userHasSharedData) {
@@ -711,6 +712,7 @@ export function mapStateToProps(state) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
 
       userHasData = _.get(state, 'blip.data.metaData.patientId') === state.blip.loggedInUserId && _.get(state, 'blip.data.metaData.size', 0) > 0;
+      userHasPumpData = _.filter(_.get(state, 'blip.data.metaData.devices', []), { pump: true }).length > 0;
 
       if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
         userIsCurrentPatient = true;
@@ -837,6 +839,7 @@ export function mapStateToProps(state) {
     showingUploaderBanner: state.blip.showingUploaderBanner,
     userIsCurrentPatient,
     userHasData,
+    userHasPumpData,
     userHasDiabetesType,
     userIsDonor,
     userHasConnectedDataSources,

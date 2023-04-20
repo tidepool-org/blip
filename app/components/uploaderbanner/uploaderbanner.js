@@ -21,13 +21,13 @@ export const UploaderBanner = translate()((props) => {
     }
   };
 
-  const handleClickUpdateGuide = () => {
+  const handleClickInstallGuide = () => {
     onClick(user.userid);
 
-    window.open('https://support.tidepool.org/hc/en-us/articles/360047528891-Updating-Tidepool-Uploader');
+    window.open('https://support.tidepool.org/hc/en-us/articles/360029368552-Installing-Tidepool-Uploader');
 
     if (trackMetric) {
-      trackMetric('clicked learn more Uploader Version Warning banner');
+      trackMetric('clicked learn more Uploader Install banner');
     }
   };
 
@@ -37,7 +37,7 @@ export const UploaderBanner = translate()((props) => {
     window.open('https://www.tidepool.org/download');
 
     if (trackMetric) {
-      trackMetric('clicked get started on Uploader Version Warning banner');
+      trackMetric('clicked get started on Uploader Install banner');
     }
   }
 
@@ -46,12 +46,12 @@ export const UploaderBanner = translate()((props) => {
       <div className="container-box-inner">
         <div className="uploaderBanner-message">
           <div className="message-text">
-            {t('Alert: Starting 9/15/2020 the minimum supported version of the Uploader will be V2.31.0.')}
+            {t('If you\'ll be uploading your devices at home, download the latest version of Tidepool Uploader.')}
           </div>
           <a
-            onClick={handleClickUpdateGuide}
+            onClick={handleClickInstallGuide}
             className="message-link"
-            >{t('See the Update Guide')}
+            >{t('See the Install Guide')}
           </a>
         </div>
         <div className="uploaderBanner-action">
