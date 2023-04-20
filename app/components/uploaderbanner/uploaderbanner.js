@@ -17,7 +17,7 @@ export const UploaderBanner = translate()((props) => {
     onClose(user.userid);
 
     if (trackMetric) {
-      trackMetric('dismiss Uploader Version Warning banner');
+      trackMetric('dismiss Uploader Install banner');
     }
   };
 
