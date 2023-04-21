@@ -1320,7 +1320,7 @@ describe('ClinicPatients', () => {
           expect(overflowTags.at(1).text()).to.equal('test tag 3');
 
           // BG summary in sixth column
-          expect(rowData(0).at(5).text()).contains('CGM Use <24 hours'); // empty summary
+          expect(rowData(0).at(5).text()).to.not.contain('CGM Use <24 hours'); // no cgm stats
           expect(rowData(1).at(5).text()).contains('CGM Use <24 hours'); // 23 hours of data
 
           expect(rowData(2).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
