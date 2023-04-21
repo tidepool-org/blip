@@ -190,7 +190,7 @@ const BgSummaryCell = ({ summary, clinicBgUnits, activeSummaryPeriod, t }) => {
           height="20px"
         >
           <Text fontSize="10px" fontWeight="medium" color="grays.4">
-            {insufficientDataText}
+            {cgmUsePercent === 0 ? '' : insufficientDataText}
           </Text>
         </Flex>
       )}
