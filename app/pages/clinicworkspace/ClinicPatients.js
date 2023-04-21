@@ -1591,8 +1591,8 @@ export const ClinicPatients = (props) => {
                         variant="textSecondary"
                         onClick={() => {
                           trackMetric(prefixPopHealthMetric('CGM use clear filter'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, cgmUse: defaultFilterState.timeCGMUsePercent });
-                          setActiveFilters({ ...activeFilters, cgmUse: defaultFilterState.timeCGMUsePercent });
+                          setPendingFilters({ ...activeFilters, timeCGMUsePercent: defaultFilterState.timeCGMUsePercent });
+                          setActiveFilters({ ...activeFilters, timeCGMUsePercent: defaultFilterState.timeCGMUsePercent });
                           cgmUsePopupFilterState.close();
                         }}
                       >
