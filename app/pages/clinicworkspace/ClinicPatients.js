@@ -855,7 +855,7 @@ export const ClinicPatients = (props) => {
       const filterOptions = {
         offset: 0,
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
-        sortType: defaultPatientFetchOptions.sortType,
+        sortType: patientFetchOptions.sortType || defaultPatientFetchOptions.sortType,
         sortPeriod: activeSummaryPeriod,
         filterPeriod: activeSummaryPeriod,
         limit: 50,
@@ -2558,7 +2558,7 @@ export const ClinicPatients = (props) => {
     const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucose;
     let averageDailyRecords = Math.round(summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageDailyRecords);
     const averageDailyRecordsUnits = averageDailyRecords > 1 ? 'readings/day' : 'reading/day';
-    if (averageDailyRecords === 0) averageDailyRecords = '>1';
+    if (averageDailyRecords === 0) averageDailyRecords = '<1';
     const averageDailyRecordsText = t('{{averageDailyRecords}} {{averageDailyRecordsUnits}}', { averageDailyRecords, averageDailyRecordsUnits });
     const bgPrefs = { bgUnits: clinicBgUnits };
 

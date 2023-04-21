@@ -1332,7 +1332,7 @@ describe('ClinicPatients', () => {
           // Average glucose and readings/day in ninth column
           expect(rowData(0).at(8).text()).contains('');
           expect(rowData(1).at(8).text()).contains('189'); // 10.5 mmol/L -> mg/dL
-          expect(rowData(1).at(8).text()).contains('>1 reading/day');
+          expect(rowData(1).at(8).text()).contains('<1 reading/day');
           expect(rowData(2).at(8).text()).contains('207'); // 11.5 mmol/L -> mg/dL
           expect(rowData(2).at(8).text()).contains('1 reading/day');
           expect(rowData(3).at(8).text()).contains('225'); // 12.5 mmol/L -> mg/dL
