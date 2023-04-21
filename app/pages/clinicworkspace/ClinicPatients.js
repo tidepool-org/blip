@@ -2607,7 +2607,11 @@ export const ClinicPatients = (props) => {
           label="low"
           variant="static"
         />
-        <Text color="text.primary" fontSize={0}>{t('Low Events are a count of any BGM readings that are below 54 mg/dL')}</Text>
+        <Text color="text.primary" fontSize={0}>
+          {t('Low Events are a count of any BGM readings that are below {{threshold}}', {
+            threshold: clinicBgUnits === MGDL_UNITS ? '54 mg/dL' : '3.0 mmol/L'
+          })}
+        </Text>
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '2px' }} mb={2}>
@@ -2619,7 +2623,11 @@ export const ClinicPatients = (props) => {
           label="high"
           variant="static"
         />
-        <Text color="text.primary" fontSize={0}>{t('High Events are a count of any BGM readings that are above 250 mg/dL')}</Text>
+        <Text color="text.primary" fontSize={0}>
+          {t('High Events are a count of any BGM readings that are above {{threshold}}', {
+            threshold: clinicBgUnits === MGDL_UNITS ? '250 mg/dL' : '13.9 mmol/L'
+          })}
+        </Text>
       </Flex>
 
       <Text color="text.primary" fontSize={0}>{t('Events are summed up over the currently selected time duration')}</Text>
