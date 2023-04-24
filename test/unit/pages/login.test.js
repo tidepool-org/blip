@@ -44,9 +44,14 @@ describe('Login', function () {
         user: {
           isAuthenticated: sinon.stub().returns(false),
           confirmSignUp: sinon.stub().callsArgWith(1, null),
-        }
+        },
       },
       location: {},
+      routerState: {
+        location: {
+          query: {},
+        },
+      },
     };
 
     it('should render without problems when required props are present', function () {
@@ -110,6 +115,34 @@ describe('Login', function () {
       it('should forward a user to keycloak login when initialized', () => {
         expect(keycloakMock.login.callCount).to.equal(1);
         expect(keycloakMock.login.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
+      });
+
+      it('should include a destination if provided in router state', () => {
+        let destStoreState = {
+          ...storeState,
+          router: {
+            location: {
+              query: {
+                dest: '/a_destination'
+              }
+            }
+          }
+        };
+        let destStore = mockStore(destStoreState);
+
+        wrapper = mount(
+          <Provider store={destStore}>
+            <BrowserRouter>
+              <RewiredLogin {...props} />
+            </BrowserRouter>
+          </Provider>
+        );
+        expect(keycloakMock.login.callCount).to.equal(1);
+        expect(
+          keycloakMock.login.calledWith({
+            redirectUri: 'testOrigin/a_destination',
+          })
+        ).to.be.true;
       });
 
       describe('when error from declining TOS', () => {

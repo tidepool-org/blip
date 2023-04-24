@@ -72,7 +72,11 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
   };
 
   if (!api.user.isAuthenticated()) {
-    dispatch(push('/login'));
+    let dest = '';
+    if (routerState?.location?.pathname) {
+      dest = `?dest=${encodeURIComponent(routerState.location.pathname)}`;
+    }
+    dispatch(push(`/login${dest}`));
   } else {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     if (!_.isEmpty(user)) {
@@ -167,7 +171,47 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           cb();
         });
       } else {
-        // Clinic UI feature is off. Callback and continue
+        // if we've already fetched clinic information, we can use current state to check
+        // for route restriction based on account type and clinic selection
+        if (
+          !state.working.fetchingClinicsForClinician.inProgress &&
+          state.working.fetchingClinicsForClinician.completed &&
+          !state.working.fetchingClinicsForClinician.notification
+        ) {
+          const currentPathname = routerState?.location?.pathname;
+          const isClinicianAccount = personUtils.isClinicianAccount(user);
+
+          const unrestrictedClinicUIRoutes = [routes.workspaces];
+
+          const requireSelectedClinicUIRoutes = [
+            '/clinic-admin',
+            '/clinic-details',
+            '/clinic-invite',
+            '/clinic-workspace',
+            '/clinician-edit',
+            '/prescriptions',
+          ];
+
+          const isClinicUIRoute = _.some(
+            [...unrestrictedClinicUIRoutes, ...requireSelectedClinicUIRoutes],
+            (route) => _.startsWith(currentPathname, route)
+          );
+          const isRestrictedClinicUIRoute = _.some(
+            requireSelectedClinicUIRoutes,
+            (route) => _.startsWith(currentPathname, route)
+          );
+
+          if (isClinicUIRoute && !isClinicianAccount) {
+            dispatch(push(routes.patients));
+          } else {
+            if (
+              isRestrictedClinicUIRoute &&
+              !(state.clinicFlowActive || state.selectedClinicId)
+            ) {
+              dispatch(push(routes.workspaces));
+            }
+          }
+        }
         cb();
       }
     }
