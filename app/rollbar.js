@@ -4,12 +4,17 @@ import Rollbar from 'rollbar';
 let rollbar = {};
 
 if (__PROD__) {
+  let environment = window.location.host;
+  if (__API_HOST__) {
+    const url = new URL(__API_HOST__);
+    environment = url.host;
+  }
   rollbar = new Rollbar({
       accessToken: __ROLLBAR_POST_CLIENT_TOKEN__,
       captureUncaught: true,
       captureUnhandledRejections: true,
       payload: {
-          environment: __API_HOST__ || `${window.location.protocol}//${window.location.host}`,
+          environment,
           client: {
             javascript: {
               /* eslint-disable camelcase */
