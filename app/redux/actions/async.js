@@ -225,7 +225,15 @@ export function login(api, credentials, options, postLoginAction) {
     };
 
     let redirectRoute = routes.patients;
-    let { blip: { selectedClinicId = null } } = getState();
+    let {
+      blip: { selectedClinicId = null },
+      router: routerState,
+    } = getState();
+    let dest = routerState?.location?.query?.dest;
+    let hasDest = dest && dest !== '/';
+    if (hasDest) {
+      redirectRoute = dest;
+    }
 
     api.user.login(credentials, options, (err) => {
       if (err) {
@@ -315,7 +323,7 @@ export function login(api, credentials, options, postLoginAction) {
             });
 
             function setRedirectRoute(route, clinicId = null) {
-              redirectRoute = route;
+              redirectRoute = hasDest ? dest : route;
               if (clinicId) {
                 selectedClinicId = clinicId;
               }

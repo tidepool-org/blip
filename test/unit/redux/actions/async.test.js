@@ -1544,6 +1544,57 @@ describe('Actions', () => {
             expect(actions).to.eql(expectedActions);
           });
         });
+
+        it('should trigger LOGIN_SUCCESS and redirect to a destination if one is present', () => {
+          setAPIData({
+            user: { userid: 27, roles: ['clinic'], profile: { clinic: true, patient: undefined }, emailVerified: true },
+            clinics: [
+              { clinic: { id: 'clinic123', name: 'Clinic One' } },
+              { clinic: { id: 'clinic456', name: 'Clinic Two' } },
+            ],
+            patients: [],
+            invites: [],
+          });
+
+          const expectedActions = [
+            { type: 'LOGIN_REQUEST' },
+            { type: 'FETCH_USER_REQUEST' },
+            { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+            { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+            { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
+              { clinic: { id: 'clinic123', name: 'Clinic One' } },
+              { clinic: { id: 'clinic456', name: 'Clinic Two' } },
+            ] }},
+            { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+            { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+            { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+            { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic456' } },
+            { type: 'LOGIN_SUCCESS', payload: { user } },
+            { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/newDestination', { selectedClinicId: 'clinic456' }] } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+
+          const store = mockStore(
+            _.extend(
+              {},
+              { blip: initialState },
+              { blip: { selectedClinicId: 'clinic456' } },
+              { router: { location: { query: { dest: '/newDestination' } } } },
+            )
+          );
+
+          store.dispatch(async.login(api, creds));
+
+          const actions = store.getActions();
+
+          expect(actions).to.eql(expectedActions);
+          expect(api.user.login.calledWith(creds)).to.be.true;
+          expect(api.user.get.callCount).to.equal(1);
+          expect(trackMetric.calledWith('Logged In')).to.be.true;
+        });
       });
 
       it('[400] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request', () => {

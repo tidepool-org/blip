@@ -138,6 +138,27 @@ describe('routes', () => {
       expect(actions).to.eql(expectedActions);
     });
 
+    it('should update route to /login with dest if user is not authenticated and destination available', () => {
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(false),
+          get: sinon.stub(),
+        },
+      };
+
+      let store = mockStore({
+        blip: {},
+        router: { location: { pathname: '/otherDestination' } },
+      });
+
+      let expectedActions = [routeAction('/login?dest=%2FotherDestination')];
+
+      store.dispatch(requireAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
     it('should not update route if user is authenticated and has accepted the latest terms', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
       let user = {
@@ -693,6 +714,89 @@ describe('routes', () => {
 
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
+    });
+
+    describe('clinic information already fetched', () => {
+      it('should redirect user to `/patients` if trying to access clinic pages as non-clinician', () => {
+        config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(true),
+            get: sinon.stub(),
+          },
+        };
+
+        let store = mockStore({
+          blip: {
+            loggedInUserId: 'user123',
+            allUsersMap: {
+              user123: {
+                profile: {},
+                termsAccepted: '2015-01-01T00:00:00-08:00',
+              },
+            },
+            working: {
+              fetchingClinicsForClinician: {
+                inProgress: false,
+                completed: true,
+                notification: false,
+              },
+              triggeringInitialClinicMigration: {
+                completed: null,
+              },
+            },
+          },
+          router: { location: { pathname: '/workspaces' } },
+        });
+
+        let expectedActions = [routeAction('/patients')];
+
+        store.dispatch(requireAuth(api));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+
+      it('should redirect user to `/workspaces` if clinic-specific page with no selected clinic', () => {
+        config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(true),
+            get: sinon.stub(),
+          },
+        };
+
+        let store = mockStore({
+          blip: {
+            loggedInUserId: 'user123',
+            allUsersMap: {
+              user123: {
+                profile: {},
+                termsAccepted: '2015-01-01T00:00:00-08:00',
+                isClinicMember: true,
+              },
+            },
+            working: {
+              fetchingClinicsForClinician: {
+                inProgress: false,
+                completed: true,
+                notification: false,
+              },
+              triggeringInitialClinicMigration: {
+                completed: null,
+              },
+            },
+          },
+          router: { location: { pathname: '/clinic-admin' } },
+        });
+
+        let expectedActions = [routeAction('/workspaces')];
+
+        store.dispatch(requireAuth(api));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
     });
   });
 
