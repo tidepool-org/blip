@@ -196,11 +196,34 @@ describe('keycloak', () => {
   });
 
   describe('onKeycloakTokens', () => {
-    const onTokens = onKeycloakTokens(store);
+    const keycloakMock = {
+      logout: sinon.stub(),
+      init: sinon.stub().returns(new Promise(sinon.stub())),
+      tokenParsed: {
+        exp: 5000,
+      },
+      timeSkew: 2,
+      updateToken: sinon.stub(),
+    };
+    var clock;
+
     beforeEach(() => {
       store.clearActions();
     });
-    it('should dispatch keycloakTokensReceived and call saveSession', () => {
+
+    before(() => {
+      KeycloakRewireAPI.__Rewire__('keycloak', keycloakMock);
+      clock = sinon.useFakeTimers();
+    });
+
+    after(() => {
+      KeycloakRewireAPI.__ResetDependency__('keycloak');
+      clock.restore();
+    });
+
+    const onTokens = onKeycloakTokens(store);
+
+    it('should dispatch keycloakTokensReceived, call saveSession, and set up refresh timeout', () => {
       const tokens = { token: 'tokenValue' };
       const expectedActions = [
         {
@@ -214,6 +237,9 @@ describe('keycloak', () => {
       onTokens(tokens);
       expect(store.getActions()).to.eql(expectedActions);
       expect(apiMock.user.saveSession.callCount).to.equal(1);
+      clock.next();
+      expect(keycloakMock.updateToken.callCount).to.equal(1);
+      expect(keycloakMock.updateToken.calledWithExactly(-1)).to.be.true;
     });
   });
 
