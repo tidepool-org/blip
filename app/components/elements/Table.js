@@ -9,7 +9,6 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { Box, Text, BoxProps } from 'rebass/styled-components';
-import Pagination from './Pagination';
 import map from 'lodash/map';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
@@ -20,7 +19,11 @@ import filter from 'lodash/filter';
 import isFunction from 'lodash/isFunction';
 import styled from 'styled-components';
 
+import Pagination from './Pagination';
+import Pill from './Pill';
+import { radii } from '../../themes/baseTheme';
 import i18next from '../../core/language';
+
 const t = i18next.t.bind(i18next);
 
 function descendingComparator(a, b, orderBy) {
@@ -119,7 +122,8 @@ export const Table = React.memo(props => {
     setOrderBy(property);
   };
 
-  const createSortHandler = property => () => (onSort || handleRequestSort)(property);
+  const createSortHandler = (property, field) => () =>
+    (onSort || handleRequestSort)(property, field);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
@@ -160,7 +164,7 @@ export const Table = React.memo(props => {
     setPage(props.page);
   }, [props.page]);
 
-  const tableCellClassNames = (d, col) => cx({
+  const tableCellClassNames = (d = {}, col) => cx({
     'no-margin': col.hideEmpty && !d[col.field],
     [col.className]: !!col.className,
   });
@@ -180,14 +184,31 @@ export const Table = React.memo(props => {
                   key={`${id}-header-${col.field?.replace(/\./g, '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
+                  className={tableCellClassNames(undefined, col)}
                 >
                   <Box
                     className="table-header-inner-cell"
                     as={InnerCell}
                     active={orderBy === colSortBy}
-                    direction={orderBy === colSortBy ? order : 'asc'}
-                    onClick={col.sortable ? createSortHandler(colSortBy) : noop}
+                    direction={orderBy === colSortBy ? order : col.defaultOrder || 'asc'}
+                    onClick={col.sortable ? createSortHandler(colSortBy, col.field) : noop}
                   >
+                    {col.tag && (
+                      <Pill
+                        label={col.tag}
+                        fontSize="9px"
+                        fontWeight="medium"
+                        py="1px"
+                        px="3px"
+                        sx={{
+                          borderRadius: radii.input,
+                          textTransform: 'none',
+                        }}
+                        colorPalette={['grays.4', 'white']}
+                        text={col.tag}
+                      />
+                    )}
+
                     {col.titleComponent ? <col.titleComponent /> : col.title}
                   </Box>
                 </TableCell>
@@ -267,6 +288,7 @@ Table.propTypes = {
     size: PropTypes.string,
     padding: PropTypes.string,
     hideEmpty: PropTypes.bool,
+    tag: PropTypes.string,
   })).isRequired,
   data: PropTypes.array.isRequired,
   emptyText: PropTypes.string,
