@@ -1182,7 +1182,7 @@
   "Yes, Patient requires in-person CPT training": "",
   "Yesterday": "",
   "You are a doctor, a clinic or other healthcare provider that wants to use Tidepool to help people in your care.": "",
-  "You can add up to 10 tags per clinic": "",
+  "You can add up to {{maxClinicPatientTags}} tags per clinic": "",
   "You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you’ll select now.": "",
   "You have been invited to see {{name}}'s data!": "",
   "You have invited the following members to view your data:": "",

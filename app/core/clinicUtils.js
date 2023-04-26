@@ -66,6 +66,8 @@ export const preferredBgUnits = [
   { value: MMOLL_UNITS, label: MMOLL_UNITS },
 ];
 
+export const maxClinicPatientTags = 20;
+
 export const clinicValuesFromClinic = (clinic) => ({
   name: get(clinic, 'name', ''),
   address: get(clinic, 'address', ''),
@@ -158,7 +160,7 @@ export const patientSchema = yup.object().shape({
   dataSources: yup.array().of(
     yup.object().shape({
       providerName: yup.string(),
-      state: yup.string().oneOf(['pending', 'connected', 'error', 'disconnected']),
+      state: yup.string().oneOf(['pending', 'pendingReconnect', 'connected', 'error', 'disconnected']),
     }),
   ),
   tags: yup.array().of(

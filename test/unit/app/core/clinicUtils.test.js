@@ -34,6 +34,10 @@ describe('clinicUtils', function() {
     expect(clinicUtils.dateRegex).to.eql(/^(.*)[-|/](.*)[-|/](.*)$/);
   });
 
+  it('should export the `maxClinicPatientTags`', function() {
+    expect(clinicUtils.maxClinicPatientTags).to.equal(20);
+  });
+
   it('should return all clinicTypes options', () => {
     expect(clinicUtils.clinicTypes).to.eql([
       { value: 'provider_practice', label: 'Provider Practice' },

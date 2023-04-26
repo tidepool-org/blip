@@ -54,10 +54,34 @@ describe('UserProfile', function () {
 
       expect(state.formValues.username).to.equal('foo@bar.com');
       expect(state.formValues.fullName).to.equal('Gordon Dent');
+
+      expect(wrapper.find('input[name="username"]').props()['disabled']).to.be.false;
+      expect(wrapper.find('input[name="password"]').props()['disabled']).to.be.false;
       expect(Object.keys(state.validationErrors).length).to.equal(0);
       expect(state.notification).to.equal(null);
     });
 
+    it('should have username and password disabled for brokered accounts', function() {
+      var props = {
+        user: {
+          roles: ['brokered'],
+          profile: {
+            fullName: 'Gordon Dent'
+          },
+          username: 'foo@bar.com'
+        },
+        t,
+      };
+      let wrapper = mount(<UserProfileClass {...props}/>);
+      let state = wrapper.state();
+
+      expect(state.formValues.username).to.equal('foo@bar.com');
+      expect(state.formValues.fullName).to.equal('Gordon Dent');
+      expect(wrapper.find('input[name="username"]').props()['disabled']).to.be.true;
+      expect(wrapper.find('input[name="password"]').props()['disabled']).to.be.true;
+      expect(Object.keys(state.validationErrors).length).to.equal(0);
+      expect(state.notification).to.equal(null);
+    });
 
     it('should take a step back through history on clicking back button', function() {
       var props = {

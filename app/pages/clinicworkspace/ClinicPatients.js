@@ -81,7 +81,14 @@ import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
-import { dateFormat, patientSchema as validationSchema, clinicPatientTagSchema } from '../../core/clinicUtils';
+
+import {
+  dateFormat,
+  patientSchema as validationSchema,
+  clinicPatientTagSchema,
+  maxClinicPatientTags
+} from '../../core/clinicUtils';
+
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import { borders, radii, colors } from '../../themes/baseTheme';
 
@@ -1713,7 +1720,7 @@ export const ClinicPatients = (props) => {
                     fontSize="12px"
                     maxLength={20}
                     placeholder={t('Add a new tag...')}
-                    description={t('You can add up to 10 tags per clinic')}
+                    description={t('You can add up to {{maxClinicPatientTags}} tags per clinic', { maxClinicPatientTags })}
                     captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                     variant="condensed"
                     {...getCommonFormikFieldProps('name', patientTagFormikContext)}
@@ -1922,18 +1929,18 @@ export const ClinicPatients = (props) => {
                         sx: { input: { height: '22px', py: '0 !important' } },
                         flex: 1,
                       }}
-                      disabled={clinic?.patientTags?.length >= 10}
+                      disabled={clinic?.patientTags?.length >= maxClinicPatientTags}
                       fontSize="12px"
                       maxLength={20}
                       placeholder={t('Add a new tag...')}
-                      description={t('You can add up to 10 tags per clinic')}
+                      description={t('You can add up to {{maxClinicPatientTags}} tags per clinic', { maxClinicPatientTags })}
                       captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                       variant="condensed"
                       {...getCommonFormikFieldProps('name', patientTagFormikContext)}
                     />
 
                     <Button
-                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= 10 || !patientTagFormikContext.isValid}
+                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid}
                       type="submit"
                       height="24px"
                       alignSelf="flex-start"

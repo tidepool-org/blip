@@ -387,6 +387,23 @@ export function logout(api) {
 }
 
 /**
+ * Logged out Async Action Creator
+ *
+ * @param {Object} api an instance of the API wrapper
+ */
+export function loggedOut(api) {
+  return (dispatch, getState) => {
+    const { blip: { currentPatientInViewId } } = getState();
+    dispatch(sync.logoutRequest());
+    dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+    api.user.logout(() => {
+      dispatch(sync.logoutSuccess());
+      dispatch(push('/logged-out'));
+    })
+  }
+}
+
+/**
  * Setup data storage Async Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
@@ -1062,16 +1079,18 @@ export function fetchPatientData(api, options, id) {
             // diabetes datum time and going back 30 days
             const diabetesDatums = _.reject(latestDatums, d => _.includes(['food', 'upload', 'pumpSettings'], d.type));
             const latestDiabetesDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
+            const latestDatumTime = _.max(_.map(latestDatums, d => (d.time)));
 
             // If we have no latest diabetes datum time, we fall back to use the server time as the
             // ideal end date.
             const fetchFromTime = latestDiabetesDatumTime || serverTime;
+            const fetchToTime = latestDatumTime || serverTime;
 
             options.startDate = moment.utc(fetchFromTime).subtract(30, 'days').startOf('day').toISOString();
 
             // We add a 1 day buffer to the end date since we can get `time` fields that are slightly
             // in the future due to timezones or incorrect device and/or computer time upon upload.
-            options.endDate = moment.utc(fetchFromTime).add(1, 'days').toISOString();
+            options.endDate = moment.utc(fetchToTime).add(1, 'days').toISOString();
 
             // We want to make sure the latest upload, which may be beyond the data range we'll be
             // fetching, is stored so we can include it with the fetched results

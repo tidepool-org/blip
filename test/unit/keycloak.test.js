@@ -38,6 +38,7 @@ const apiMock = {
 
 const asyncMock = {
   login: sinon.stub().returns(sinon.stub().callsFake(0)),
+  loggedOut: sinon.stub().returns(sinon.stub()),
 };
 
 const keycloakMock = {
@@ -195,11 +196,34 @@ describe('keycloak', () => {
   });
 
   describe('onKeycloakTokens', () => {
-    const onTokens = onKeycloakTokens(store);
+    const keycloakMock = {
+      logout: sinon.stub(),
+      init: sinon.stub().returns(new Promise(sinon.stub())),
+      tokenParsed: {
+        exp: 5000,
+      },
+      timeSkew: 2,
+      updateToken: sinon.stub(),
+    };
+    var clock;
+
     beforeEach(() => {
       store.clearActions();
     });
-    it('should dispatch keycloakTokensReceived and call saveSession', () => {
+
+    before(() => {
+      KeycloakRewireAPI.__Rewire__('keycloak', keycloakMock);
+      clock = sinon.useFakeTimers();
+    });
+
+    after(() => {
+      KeycloakRewireAPI.__ResetDependency__('keycloak');
+      clock.restore();
+    });
+
+    const onTokens = onKeycloakTokens(store);
+
+    it('should dispatch keycloakTokensReceived, call saveSession, and set up refresh timeout', () => {
       const tokens = { token: 'tokenValue' };
       const expectedActions = [
         {
@@ -213,12 +237,16 @@ describe('keycloak', () => {
       onTokens(tokens);
       expect(store.getActions()).to.eql(expectedActions);
       expect(apiMock.user.saveSession.callCount).to.equal(1);
+      clock.next();
+      expect(keycloakMock.updateToken.callCount).to.equal(1);
+      expect(keycloakMock.updateToken.calledWithExactly(-1)).to.be.true;
     });
   });
 
   describe('keycloakMiddleware', () => {
     const keycloakMock = {
       logout: sinon.stub(),
+      updateToken: sinon.stub(),
     };
     const updateKeycloakConfigMock = sinon.stub();
 
@@ -263,6 +291,41 @@ describe('keycloak', () => {
       });
       expect(updateKeycloakConfigMock.callCount).to.equal(0);
       keycloak.__ResetDependency__('_keycloakConfig');
+    });
+
+    it('should call keycloak.updateToken() when action has 401 error', () => {
+      const action401 = {
+        type: 'SOME_ACTION',
+        error: {
+          status: 401,
+          originalError:{
+            status: 401,
+          },
+        },
+      };
+
+      expect(keycloakMock.updateToken.callCount).to.equal(0);
+      keycloakMiddleware()()(sinon.stub())(action401);
+      expect(keycloakMock.updateToken.callCount).to.equal(1);
+      sinon.assert.calledWithExactly(keycloakMock.updateToken, -1);
+      keycloakMock.updateToken.resetHistory();
+    });
+
+    it('should call keycloak.updateToken() when action has 403 error', () => {
+      const action403 = {
+        type: 'SOME_ACTION',
+        error: {
+          status: 403,
+          originalError:{
+            status: 403,
+          },
+        },
+      };
+
+      expect(keycloakMock.updateToken.callCount).to.equal(0);
+      keycloakMiddleware()()(sinon.stub())(action403);
+      expect(keycloakMock.updateToken.callCount).to.equal(1);
+      sinon.assert.calledWithExactly(keycloakMock.updateToken, -1);
     });
   });
 

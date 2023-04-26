@@ -1182,7 +1182,7 @@
   "Yes, Patient requires in-person CPT training": "Oui, le patient requiert une formation pratique en personne",
   "Yesterday": "",
   "You are a doctor, a clinic or other healthcare provider that wants to use Tidepool to help people in your care.": "Vous êtes un médecin, une clinique ou un autre prestataire de soins de la santé qui voulez utiliser Tidepool pour les personnes dont vous vous occupés.",
-  "You can add up to 10 tags per clinic": "",
+  "You can add up to {{maxClinicPatientTags}} tags per clinic": "",
   "You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you’ll select now.": "Vous pouvez choisir comment Tidepool Loop mesure le pic d'activité de l'insuline selon l'un des deux modèles d'insuline que vous allez sélectionner maintenant.",
   "You have been invited to see {{name}}'s data!": "Vous avez été invité à consulter les données de {{name}}!",
   "You have invited the following members to view your data:": "Vous avez invité les membres suivants à consulter vos données:",

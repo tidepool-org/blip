@@ -24,7 +24,9 @@ describe('api', () => {
       getCurrentUser: sinon.stub(),
       getAssociatedUsersDetails: sinon.stub(),
       updateCustodialUser: sinon.stub(),
+      updateCurrentUser: sinon.stub(),
       addOrUpdateProfile: sinon.stub(),
+      addOrUpdatePreferences: sinon.stub(),
       signupStart: sinon.stub(),
       login: sinon.stub().callsArgWith(2, null, { userid: currentUserId }),
       logout: sinon.stub().callsArgWith(0, null),
@@ -90,7 +92,9 @@ describe('api', () => {
     tidepool.getAssociatedUsersDetails.resetHistory();
     tidepool.findProfile.resetHistory();
     tidepool.updateCustodialUser.resetHistory();
+    tidepool.updateCurrentUser.resetHistory();
     tidepool.addOrUpdateProfile.resetHistory();
+    tidepool.addOrUpdatePreferences.resetHistory();
     tidepool.signupStart.resetHistory();
     tidepool.login.resetHistory();
     tidepool.logout.resetHistory();
@@ -319,6 +323,110 @@ describe('api', () => {
               email: 'user@account.com',
               username: 'user@account.com',
             },
+          },
+        });
+      });
+    });
+
+    describe('put', () => {
+      before(() => {
+        tidepool.updateCurrentUser.callsArgWith(1, null, {
+          username: 'awesomeUsername2',
+        });
+        tidepool.addOrUpdateProfile.callsArgWith(2, null, {
+          here: 'be more dragons',
+        });
+        tidepool.addOrUpdatePreferences.callsArgWith(2, null, {
+          stuff: 'they really like',
+        });
+      });
+
+      beforeEach(() => {
+        tidepool.updateCurrentUser.resetHistory();
+        tidepool.addOrUpdateProfile.resetHistory();
+        tidepool.addOrUpdatePreferences.resetHistory();
+      });
+
+      after(() => {
+        tidepool.updateCurrentUser.reset();
+        tidepool.addOrUpdateProfile.reset();
+        tidepool.addOrUpdatePreferences.reset();
+      });
+
+      it('should update account, profile and preferences', () => {
+        const cb = sinon.stub();
+
+        api.user.put(
+          {
+            userid: 'bestUserIdEver',
+            username: 'awesomeUsername',
+            password: 'rockinPassword',
+            emails: ['awesomeUsername'],
+            profile: {
+              here: 'be dragons',
+            },
+            preferences: {
+              stuff: 'they like',
+            },
+          },
+          cb
+        );
+
+        sinon.assert.calledWith(tidepool.updateCurrentUser, {
+          username: 'awesomeUsername',
+          password: 'rockinPassword',
+          emails: ['awesomeUsername'],
+        });
+        sinon.assert.calledWith(tidepool.addOrUpdateProfile, 'bestUserIdEver', {
+          here: 'be dragons',
+        });
+        sinon.assert.calledWith(
+          tidepool.addOrUpdatePreferences,
+          'bestUserIdEver',
+          { stuff: 'they like' }
+        );
+        sinon.assert.calledWith(cb, null, {
+          username: 'awesomeUsername2',
+          profile: {
+            here: 'be more dragons',
+          },
+          preferences: {
+            stuff: 'they really like',
+          },
+        });
+      });
+
+      it('should only make user update call if necessary', () => {
+        const cb = sinon.stub();
+
+        api.user.put(
+          {
+            userid: 'bestUserIdEver',
+            profile: {
+              here: 'be dragons',
+            },
+            preferences: {
+              stuff: 'they like',
+            },
+          },
+          cb
+        );
+
+        sinon.assert.notCalled(tidepool.updateCurrentUser);
+        sinon.assert.calledWith(tidepool.addOrUpdateProfile, 'bestUserIdEver', {
+          here: 'be dragons',
+        });
+        sinon.assert.calledWith(
+          tidepool.addOrUpdatePreferences,
+          'bestUserIdEver',
+          { stuff: 'they like' }
+        );
+        sinon.assert.calledWith(cb, null, {
+          profile: {
+            here: 'be more dragons',
+          },
+          preferences: {
+            stuff: 'they really like',
           },
         });
       });

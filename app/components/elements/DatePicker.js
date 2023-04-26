@@ -38,7 +38,7 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
 
   .SingleDatePicker_picker {
     box-shadow: ${shadows.small};
-    margin-top: ${space[3]}px;
+    margin-top: ${space[2]}px;
   }
 
   .SingleDatePickerInput_clearDate {

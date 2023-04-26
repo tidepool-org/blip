@@ -8,10 +8,19 @@ import * as ActionTypes from './redux/constants/actionTypes';
 import { sync, async } from './redux/actions';
 import api from './core/api';
 
-// eslint-disable-next-line new-cap
 export let keycloak = null;
 
 let _keycloakConfig = {};
+let refreshTimeout = null;
+
+export const setTokenRefresh = (keycloak) => {
+  if (refreshTimeout) {
+    clearTimeout(refreshTimeout);
+    refreshTimeout = null;
+  }
+  var expiresIn = (keycloak.tokenParsed['exp'] - new Date().getTime() / 1000 + keycloak.timeSkew) * 1000;
+  refreshTimeout = setTimeout(() => { keycloak.updateToken(-1); }, expiresIn - 10000);
+};
 
 export const updateKeycloakConfig = (info, store) => {
   if (!(isEmpty(info) || isEqual(_keycloakConfig, info))) {
@@ -39,8 +48,7 @@ export const onKeycloakEvent = (store) => (event, error) => {
       break;
     }
     case 'onAuthSuccess': {
-      const isOauthRedirectRoute = /^\/oauth\//.test(window?.location?.pathname);
-
+      const isOauthRedirectRoute = /^(\/oauth\/|\/upload-redirect)/.test(window?.location?.pathname);
       // We don't trigger the login (and subsequent redirects) on the oauth redirect landing page
       if (!isOauthRedirectRoute) {
         store.dispatch(sync.keycloakAuthSuccess(event, error));
@@ -66,6 +74,7 @@ export const onKeycloakEvent = (store) => (event, error) => {
     }
     case 'onAuthRefreshError': {
       store.dispatch(sync.keycloakAuthRefreshError(event, error));
+      store.dispatch(async.loggedOut(api));
       break;
     }
     case 'onTokenExpired': {
@@ -74,6 +83,7 @@ export const onKeycloakEvent = (store) => (event, error) => {
     }
     case 'onAuthLogout': {
       store.dispatch(sync.keycloakAuthLogout(event, error));
+      store.dispatch(async.loggedOut(api));
       break;
     }
     default:
@@ -92,6 +102,7 @@ export const onKeycloakTokens = (store) => (tokens) => {
       },
       () => {}
     );
+    setTokenRefresh(keycloak);
   }
 };
 
@@ -104,6 +115,16 @@ export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
       break;
     }
     default:
+      if (
+        action?.error?.status === 401 ||
+        action?.error?.originalError?.status === 401 ||
+        action?.error?.status === 403 ||
+        action?.error?.originalError?.status === 403
+      ) {
+        // on any action with a 401 or 403, we try to refresh to keycloak token to verify
+        // if the user is still logged in
+        keycloak.updateToken(-1);
+      }
       break;
   }
   return next(action);
@@ -114,7 +135,8 @@ export const KeycloakWrapper = (props) => {
   const store = useStore();
   let Wrapper = React.Fragment;
   let wrapperProps = props;
-  if (keycloakConfig?.url) {
+  const isOauthRedirectRoute = /^(\/upload-redirect)/.test(window?.location?.pathname);
+  if (keycloakConfig?.url && !isOauthRedirectRoute) {
     Wrapper = ReactKeycloakProvider;
     wrapperProps = {
       ...wrapperProps,

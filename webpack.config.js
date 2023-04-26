@@ -274,6 +274,7 @@ module.exports = {
     minimizer: [
       new TerserPlugin({
         terserOptions: {
+          parallel: true,
           output: { comments: false },
           compress: {
             inline: false,

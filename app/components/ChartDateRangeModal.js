@@ -191,7 +191,7 @@ export const ChartDateRangeModal = (props) => {
               onFocusChange={input => setDatePickerOpen(!!input)}
               themeProps={{
                 minWidth: '580px',
-                minHeight: datePickerOpen ? '350px' : undefined,
+                minHeight: datePickerOpen ? '326px' : undefined,
               }}
             />
           </Box>
@@ -202,11 +202,11 @@ export const ChartDateRangeModal = (props) => {
           )}
         </Box>
       </DialogContent>
-      <DialogActions justifyContent="space-between" py={2}>
+      <DialogActions justifyContent="space-between" py="12px">
         <Button variant="textSecondary" className="chart-dates-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>
-        <Button variant="textPrimary" className="chart-dates-submit" processing={processing} onClick={handleSubmit}>
+        <Button variant="primary" className="chart-dates-submit" processing={processing} onClick={handleSubmit}>
           {t('Apply')}
         </Button>
       </DialogActions>

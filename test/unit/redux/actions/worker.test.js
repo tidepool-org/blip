@@ -33,15 +33,17 @@ describe('worker action creators', () => {
       type: 'combined',
       queries: {},
       opts: {},
+      data: {}
     };
 
     const {
       type,
       queries,
       opts,
+      data,
     } = payload;
 
-    const action = worker.generatePDFRequest(type, queries, opts, patientId);
+    const action = worker.generatePDFRequest(type, queries, opts, patientId, data);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -55,6 +57,7 @@ describe('worker action creators', () => {
           type,
           queries,
           opts,
+          data,
         },
       });
     });

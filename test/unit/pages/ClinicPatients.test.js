@@ -11,7 +11,6 @@ import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
 import Popover from '../../../app/components/elements/Popover';
 import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
-import { Dialog } from '../../../app/components/elements/Dialog';
 import Button from '../../../app/components/elements/Button';
 
 /* global chai */
@@ -202,6 +201,7 @@ describe('ClinicPatients', () => {
               email: 'patient3@test.ca',
               fullName: 'patient3',
               birthDate: '1999-01-01',
+              lastRequestedDexcomConnectTime: '2021-10-19T16:27:59.504Z',
               dataSources: [
                 { providerName: 'dexcom', state: 'disconnected' },
               ],
@@ -231,6 +231,15 @@ describe('ClinicPatients', () => {
               birthDate: '1999-01-01',
               dataSources: [
                 { providerName: 'foo', state: 'connected' },
+              ],
+            },
+            patient7: {
+              id: 'patient7',
+              email: 'patient7@test.ca',
+              fullName: 'patient7',
+              birthDate: '1999-01-01',
+              dataSources: [
+                { providerName: 'dexcom', state: 'pendingReconnect' },
               ],
             },
           },
@@ -979,7 +988,7 @@ describe('ClinicPatients', () => {
 
           getPatientForm(0);
           expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Pending connection');
+          expect(stateWrapper().text()).includes('Pending connection with');
 
           getPatientForm(1);
           expect(stateWrapper()).to.have.lengthOf(1);
@@ -996,6 +1005,35 @@ describe('ClinicPatients', () => {
           getPatientForm(4);
           expect(stateWrapper()).to.have.lengthOf(1);
           expect(stateWrapper().text()).includes('Unknown connection to');
+
+          getPatientForm(6);
+          expect(stateWrapper()).to.have.lengthOf(1);
+          expect(stateWrapper().text()).includes('Pending reconnection with');
+        });
+
+        it('should have a valid form state for all legitimate dexcom connection states', () => {
+          const stateWrapper = () => patientForm().find('#connectDexcomStatusWrapper').hostNodes();
+          const submitButton = () => wrapper.find('#editPatientConfirm').hostNodes();
+
+          getPatientForm(0);
+          expect(stateWrapper().text()).includes('Pending connection with');
+          expect(submitButton().prop('disabled')).to.be.false;
+
+          getPatientForm(1);
+          expect(stateWrapper().text()).includes('Connected with');
+          expect(submitButton().prop('disabled')).to.be.false;
+
+          getPatientForm(2);
+          expect(stateWrapper().text()).includes('Disconnected from');
+          expect(submitButton().prop('disabled')).to.be.false;
+
+          getPatientForm(3);
+          expect(stateWrapper().text()).includes('Error connecting to');
+          expect(submitButton().prop('disabled')).to.be.false;
+
+          getPatientForm(6);
+          expect(stateWrapper().text()).includes('Pending reconnection with');
+          expect(submitButton().prop('disabled')).to.be.false;
         });
 
         it('should allow resending a pending dexcom connection reminder', () => {
@@ -1007,6 +1045,13 @@ describe('ClinicPatients', () => {
           expect(stateWrapper().text()).includes('Connected with');
           expect(resendButton()).to.have.lengthOf(0);
 
+          // Show for disconnected state
+          getPatientForm(2);
+          expect(stateWrapper()).to.have.lengthOf(1);
+          expect(stateWrapper().text()).includes('Disconnected from');
+          expect(resendButton()).to.have.lengthOf(1);
+
+          // Show for pending state
           getPatientForm(0);
           expect(stateWrapper()).to.have.lengthOf(1);
           expect(stateWrapper().text()).includes('Pending connection');

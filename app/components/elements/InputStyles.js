@@ -24,8 +24,8 @@ export const DatePicker = styled(Box)`
 
   .DateInput {
     input {
-      font: ${fontWeights.regular} ${fontSizes[1]}px ${fonts.default};
-      padding: ${space[3]}px;
+      font: ${fontWeights.regular} ${fontSizes[0]}px ${fonts.default};
+      padding: 12px 0 12px 12px;
       border-bottom: 0;
       color: ${colors.text.primary};
     }
@@ -42,46 +42,46 @@ export const DatePicker = styled(Box)`
 
   .DayPickerNavigation_button {
     position: absolute;
-    top: ${space[2]}px;
+    top: ${space[1]}px;
 
     > span {
-      font-size: ${fontSizes[4]}px;
+      font-size: ${fontSizes[3]}px;
     }
 
     &:first-child {
-      left: ${space[3]}px;
+      left: ${space[2]}px;
     }
 
     &:last-child {
-      right: ${space[3]}px;
+      right: ${space[2]}px;
     }
   }
 
   .CalendarMonth_caption {
     color: ${colors.text.primary};
-    padding: ${space[2]}px;
-    margin-bottom: ${space[5]}px;
+    padding: ${space[1]}px;
+    margin-bottom: ${space[4]}px;
     border-bottom: ${borders.default};
 
     strong {
       font-weight: ${fontWeights.regular};
-      font-size: ${fontSizes[2]}px;
+      font-size: ${fontSizes[1]}px;
     }
   }
 
   .DayPicker_weekHeader {
-    top: ${space[6]}px;
+    top: ${space[5]}px;
     color: ${colors.text.primary};
     font-weight: ${fontWeights.medium};
 
     small {
-      font-size: ${fontSizes[1]}px;
+      font-size: ${fontSizes[0]}px;
     }
   }
 
   .CalendarDay {
     color: ${colors.text.primary};
-    font-size: ${fontSizes[1]}px;
+    font-size: ${fontSizes[0]}px;
     border: 0;
 
     &.CalendarDay__outside {

@@ -39,4 +39,16 @@ describe('keycloakConfig', () => {
       expect(state.initialized).to.be.true;
     });
   });
+
+  describe('keycloakAuthError', () => {
+    it('should set error message on state', () => {
+      let initialStateForTest = {};
+
+      let action = actions.sync.keycloakAuthError('authError', {
+        error: 'access_denied',
+      });
+      let state = reducer(initialStateForTest, action);
+      expect(state.error).to.equal('access_denied');
+    });
+  });
 });

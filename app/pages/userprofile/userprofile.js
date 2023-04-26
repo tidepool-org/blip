@@ -43,12 +43,30 @@ export var UserProfileClass = class extends React.Component {
   static contextType = ToastContext;
 
   formInputs = () => {
-    const {t} = this.props;
+    const { t, user } = this.props;
+    const userRoles = _.get(user, 'roles', []);
+    const isBrokeredAccount =
+      _.intersection(userRoles, ['brokered']).length > 0;
     const inputs = [
-      {name: 'fullName', label: t('Full name'), type: 'text'},
-      {name: 'username', label: t('Email'), type: 'email'},
-      {name: 'password', label: t('Password'), type: 'password'},
-      {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
+      { name: 'fullName', label: t('Full name'), type: 'text' },
+      {
+        name: 'username',
+        label: t('Email'),
+        type: 'email',
+        disabled: isBrokeredAccount,
+      },
+      {
+        name: 'password',
+        label: t('Password'),
+        type: 'password',
+        disabled: isBrokeredAccount,
+      },
+      {
+        name: 'passwordConfirm',
+        label: t('Confirm password'),
+        type: 'password',
+        disabled: isBrokeredAccount,
+      },
     ];
 
     if (config.I18N_ENABLED) {

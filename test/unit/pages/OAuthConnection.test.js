@@ -149,7 +149,7 @@ describe('OAuthConnection', () => {
 
     it('should render the appropriate heading and subheading', () => {
       expect(wrapper.find('#oauth-heading').hostNodes().text()).to.equal('Connection Declined');
-      expect(wrapper.find('#oauth-subheading').hostNodes().text()).to.equal('You can always decide connect at a later time.');
+      expect(wrapper.find('#oauth-subheading').hostNodes().text()).to.equal('You can always decide to connect at a later time.');
     });
 
     it('should render the appropriate message text', () => {
