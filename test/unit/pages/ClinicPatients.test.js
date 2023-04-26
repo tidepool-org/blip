@@ -263,13 +263,13 @@ describe('ClinicPatients', () => {
     },
   };
 
-  const tier0200ClinicState = {
+  const tier0300ClinicState = {
     blip: {
       ...hasPatientsState.blip,
       clinics: {
         clinicID123: {
           ...hasPatientsState.blip.clinics.clinicID123,
-          tier: 'tier0200',
+          tier: 'tier0300',
           patientTags: [
             { id: 'tag1', name: 'test tag 1'},
             { id: 'tag2', name: 'test tag 2'},
@@ -428,12 +428,12 @@ describe('ClinicPatients', () => {
     },
   };
 
-  const tier0200ClinicStateMmoll = {
+  const tier0300ClinicStateMmoll = {
     blip: {
-      ...tier0200ClinicState.blip,
+      ...tier0300ClinicState.blip,
       clinics: {
         clinicID123: {
-          ...tier0200ClinicState.blip.clinics.clinicID123,
+          ...tier0300ClinicState.blip.clinics.clinicID123,
           preferredBgUnits: 'mmol/L',
         },
       },
@@ -1220,9 +1220,9 @@ describe('ClinicPatients', () => {
         });
       });
 
-      context('tier0200 clinic', () => {
+      context('tier0300 clinic', () => {
         beforeEach(() => {
-          store = mockStore(tier0200ClinicState);
+          store = mockStore(tier0300ClinicState);
 
           wrapper = mount(
             <Provider store={store}>
@@ -1887,7 +1887,7 @@ describe('ClinicPatients', () => {
           let mockedLocalStorage;
 
           beforeEach(() => {
-            store = mockStore(tier0200ClinicState);
+            store = mockStore(tier0300ClinicState);
 
             mockedLocalStorage = {
               activePatientFilters: {
@@ -1995,7 +1995,7 @@ describe('ClinicPatients', () => {
 
         context('mmol/L preferredBgUnits', () => {
           beforeEach(() => {
-            store = mockStore(tier0200ClinicStateMmoll);
+            store = mockStore(tier0300ClinicStateMmoll);
 
             wrapper = mount(
               <Provider store={store}>

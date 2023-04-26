@@ -520,7 +520,7 @@ export const ClinicPatients = (props) => {
   const [clinicPatientTagFormContext, setClinicPatientTagFormContext] = useState();
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
-  const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0200');
+  const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0300');
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
@@ -864,7 +864,7 @@ export const ClinicPatients = (props) => {
 
       if (isEmpty(filterOptions.search)) delete filterOptions.search;
 
-      const isPremiumTier = clinic?.tier >= 'tier0200';
+      const isPremiumTier = clinic?.tier >= 'tier0300';
 
       if (isPremiumTier) {
         if (activeFilters.lastUploadDate && activeFilters.lastUploadType) {
