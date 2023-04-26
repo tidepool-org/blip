@@ -37,6 +37,7 @@ export let Login = translate()(class extends React.Component {
     location: PropTypes.object.isRequired,
     signupEmail: PropTypes.string,
     signupKey: PropTypes.string,
+    routerState: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -70,7 +71,7 @@ export let Login = translate()(class extends React.Component {
   };
 
   render() {
-    const { t, keycloakConfig, fetchingInfo, signupEmail, signupKey } = this.props;
+    const { t, keycloakConfig, fetchingInfo, signupEmail, signupKey, routerState } = this.props;
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
     var loggingIn = this.props.working;
@@ -86,6 +87,12 @@ export let Login = translate()(class extends React.Component {
     ) : (
       <div className="login-simpleform">{form}</div>
     );
+    const dest = routerState?.location?.query?.dest;
+    const hasDest = dest && dest !== '/';
+    let redirectUri = win.location.origin;
+    if (hasDest) {
+      redirectUri += dest;
+    }
 
     // for those accepting an invite, forward to keycloak login when available
     if (
@@ -97,7 +104,7 @@ export let Login = translate()(class extends React.Component {
     ) {
       keycloak.login({
         loginHint: this.props.seedEmail,
-        redirectUri: win.location.origin
+        redirectUri: redirectUri,
       });
     }
 
@@ -112,7 +119,7 @@ export let Login = translate()(class extends React.Component {
       ) || keycloakConfig?.error === 'access_denied'
     ) {
       keycloak.login({
-        redirectUri: win.location.origin,
+        redirectUri: redirectUri,
       });
       return <></>;
     }
@@ -281,6 +288,7 @@ export function mapStateToProps(state) {
     fetchingInfo: state.blip.working.fetchingInfo,
     keycloakConfig: state.blip.keycloakConfig,
     confirmingSignup: state.blip.working.confirmingSignup,
+    routerState: state.router,
   };
 }
 

@@ -70,6 +70,7 @@ export const ERR_FETCHING_SETTINGS = t('Something went wrong while fetching pati
 export const ERR_UPDATING_SETTINGS = t('Something went wrong while saving patient settings.');
 export const ERR_UPDATING_PATIENT_BG_UNITS = t('Something went wrong while saving patient BG unit settings.');
 export const ERR_UPDATING_USER = t('Something went wrong while updating user account.');
+export const ERR_UPDATING_USER_EMAIL_IN_USE = t('That e-mail address is already in use.');
 export const ERR_YOUR_ACCOUNT_NOT_CONFIGURED = t('Sorry! It appears that your account hasn\'t been fully set up.');
 export const ERR_GENERATING_PDF = t('Something went wrong while generating your report.');
 export const ERR_ADDING_DATA = t('Something went wrong while processing your data.');

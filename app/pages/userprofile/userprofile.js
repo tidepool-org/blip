@@ -34,6 +34,7 @@ import ToastContext from '../../providers/ToastProvider';
 export var UserProfileClass = class extends React.Component {
   static propTypes = {
     fetchingUser: PropTypes.bool.isRequired,
+    updatingUser: PropTypes.object.isRequired,
     history: PropTypes.object.isRequired,
     onSubmit: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
@@ -118,11 +119,26 @@ export var UserProfileClass = class extends React.Component {
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
+    const {t} = this.props;
     // Keep form values in sync with upstream changes
     this.setState({formValues: this.formValuesFromUser(nextProps.user)});
     if(_.isEmpty(this.props.user.profile.fullName) && !_.isEmpty(nextProps.user.profile.fullName)){
       this.context.clear();
       this.props.login();
+    }
+    let updatingUser = this.props.updatingUser;
+    if (
+      updatingUser.inProgress &&
+      !nextProps.updatingUser.inProgress &&
+      nextProps.updatingUser.completed
+    ) {
+      this.setState({
+        notification: { type: 'success', message: t('All changes saved.') },
+      });
+
+      this.messageTimeoutId = setTimeout(() => {
+        this.setState({ notification: null });
+      }, this.MESSAGE_TIMEOUT);
     }
   }
 
@@ -178,6 +194,7 @@ export var UserProfileClass = class extends React.Component {
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={t('Save')}
+        submitDisabled={this.props.updatingUser.inProgress}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
         disabled={disabled}/>
@@ -256,19 +273,9 @@ export var UserProfileClass = class extends React.Component {
   };
 
   submitFormValues = (formValues) => {
-    const {t} = this.props;
-    var self = this;
     var submit = this.props.onSubmit;
 
-    // Save optimistically
     submit(formValues);
-    this.setState({
-      notification: {type: 'success', message: t('All changes saved.')}
-    });
-
-    this.messageTimeoutId = setTimeout(function() {
-      self.setState({notification: null});
-    }, this.MESSAGE_TIMEOUT);
   };
 
   state = {
@@ -298,7 +305,8 @@ export function mapStateToProps(state) {
 
   return {
     user: user,
-    fetchingUser: state.blip.working.fetchingUser.inProgress
+    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    updatingUser: state.blip.working.updatingUser,
   };
 }
 
