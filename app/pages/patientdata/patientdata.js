@@ -612,6 +612,7 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
+            onClickPrint={this.handleClickPrint}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
