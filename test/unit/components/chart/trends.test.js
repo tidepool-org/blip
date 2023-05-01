@@ -27,7 +27,7 @@ var expect = chai.expect;
 import React from 'react';
 import _ from 'lodash';
 import Trends from '../../../../app/components/chart/trends';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../../app/core/language';
@@ -91,6 +91,7 @@ describe('Trends', () => {
     mostRecentDatetimeLocation: '2019-11-27T16:00:00.000Z',
     onClickRefresh: sinon.stub(),
     onClickNoDataRefresh: sinon.stub(),
+    onClickPrint: sinon.stub(),
     onSwitchToBasics: sinon.stub(),
     onSwitchToDaily: sinon.stub(),
     onSwitchToBgLog: sinon.stub(),
@@ -115,6 +116,7 @@ describe('Trends', () => {
   })
 
   afterEach(() => {
+    baseProps.onClickPrint.reset();
     baseProps.onUpdateChartDateRange.reset();
     baseProps.updateChartPrefs.reset();
     baseProps.trackMetric.reset();
@@ -129,6 +131,38 @@ describe('Trends', () => {
 
       wrapper.setProps({ loading: true });
       expect(loader().props().show).to.be.true;
+    });
+
+    it('should have a print button and icon and call onClickPrint when clicked if CGM source is active', () => {
+      const mountedWrapper = mount(<Trends.WrappedComponent {...{
+        ...baseProps, chartPrefs: { trends: {
+          ...baseProps.chartPrefs.trends,
+          showingCbg: true,
+          showingSmbg: false,
+        } },
+      }} />);
+
+      const printLink = mountedWrapper.find('.printview-print-icon');
+      expect(printLink.length).to.equal(1);
+      expect(printLink.hasClass('patient-data-subnav-hidden')).to.be.false;
+
+      expect(baseProps.onClickPrint.callCount).to.equal(0);
+      printLink.simulate('click');
+      expect(baseProps.onClickPrint.callCount).to.equal(1);
+    });
+
+    it('should have a not have print button when BGM data source is active', () => {
+      const mountedWrapper = mount(<Trends.WrappedComponent {...{
+        ...baseProps, chartPrefs: { trends: {
+          ...baseProps.chartPrefs.trends,
+          showingCbg: false,
+          showingSmbg: true,
+        } },
+      }} />);
+
+      const printLink = mountedWrapper.find('.printview-print-icon');
+      expect(printLink.length).to.equal(1);
+      expect(printLink.hasClass('patient-data-subnav-hidden')).to.be.true;
     });
 
     it('should render the clipboard copy button', () => {

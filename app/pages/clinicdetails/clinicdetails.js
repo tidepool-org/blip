@@ -46,7 +46,7 @@ countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
 
 const clinicianSchema = yup.object().shape({
   fullName: yup.string().required(t('Name is required')),
-  role: yup.string().oneOf([...map(roles, 'value'), '']),
+  role: yup.string().oneOf([...map(roles, 'value'), '']).required(t('Job Title is required')),
   npi: yup
     .string()
     .test('npiFormat', t('NPI must be 10 digits'), npi => !npi || /^\d{10}$/.test(npi)),
@@ -378,7 +378,7 @@ export const ClinicDetails = (props) => {
                       <Select
                         {...getCommonFormikFieldProps('role', formikContext)}
                         options={addEmptyOption(roles, t('Job Title'))}
-                        label={t('Job Title (Optional)')}
+                        label={t('Job Title')}
                         variant="condensed"
                         themeProps={{
                           width: '100%',
