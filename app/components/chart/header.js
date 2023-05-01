@@ -13,6 +13,7 @@ const Header = translate()(class Header extends Component {
     patient: PropTypes.object,
     title: PropTypes.string.isRequired,
     chartType: PropTypes.string.isRequired,
+    chartPrefs: PropTypes.object,
     inTransition: PropTypes.bool.isRequired,
     atMostRecent: PropTypes.bool.isRequired,
     iconBack: PropTypes.string,
@@ -38,6 +39,8 @@ const Header = translate()(class Header extends Component {
     const { t } = this.props;
 
     const printViews = ['basics', 'daily', 'bgLog', 'settings'];
+    if (this.props.chartPrefs?.trends?.showingCbg) printViews.push('trends');
+
     const showPrintLink = _.includes(printViews, this.props.chartType);
 
     const basicsLinkClass = cx({
