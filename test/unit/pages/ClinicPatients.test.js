@@ -457,7 +457,7 @@ describe('ClinicPatients', () => {
     },
   };
 
-  const defaultFetchOptions = { limit: 50, offset: 0, filterPeriod: '14d', sortPeriod: '14d', sortType: 'cgm' };
+  const defaultFetchOptions = { limit: 50, offset: 0, period: '14d', sortType: 'cgm' };
 
   context('on mount', () => {
     beforeEach(() => {
@@ -1821,8 +1821,7 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               ...defaultFetchOptions,
               sort: '-lastUploadDate',
-              filterPeriod: '7d',
-              sortPeriod: '7d',
+              period: '7d',
               'cgm.timeInHighPercent': '>0.25',
               'cgm.timeInLowPercent': '>0.04',
             }));
