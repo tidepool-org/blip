@@ -3044,10 +3044,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.34.0-web-1593-daily-view-offset-date-stats.1":
-  version "1.34.0-web-1593-daily-view-offset-date-stats.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.34.0-web-1593-daily-view-offset-date-stats.1.tgz#f836258c46b9b380d67aac613aaa115c4d4c8cd3"
-  integrity sha512-UrA2wSkJT3WGLViezZVsDvEmDh7fX8nb39ABFT92jG+xgAQx9gMGU0EntNbbFVGavMiq2/y5XWgV2K3YuNaX7A==
+"@tidepool/viz@1.34.0-mrn.1":
+  version "1.34.0-mrn.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.34.0-mrn.1.tgz#8f45b971afca7f560ea8d78908a9b3a0803a6bc9"
+  integrity sha512-f+efOGqqkzKq9eha9a3Az9JNW8GCfBEfns2U470DCxKk8TwIEM7pDMBtm2dRCRDCHyRB2XmKt1/7oaiSNcuTRQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
