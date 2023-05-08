@@ -867,7 +867,6 @@ export const ClinicPatients = (props) => {
 
       if (isPremiumTier) {
         if (activeFilters.lastUploadDate && activeFilters.lastUploadType) {
-          filterOptions.sortType = activeFilters.lastUploadType;
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateFrom`] = moment(filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`]).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
