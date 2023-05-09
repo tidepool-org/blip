@@ -651,6 +651,9 @@ export const ClinicPatients = (props) => {
   const previousSendingPatientUploadReminder = usePrevious(sendingPatientUploadReminder);
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousCreatingClinicCustodialAccount = usePrevious(creatingClinicCustodialAccount);
+  const previousCreatingClinicPatientTag = usePrevious(creatingClinicPatientTag);
+  const previousUpdatingClinicPatientTag = usePrevious(updatingClinicPatientTag);
+  const previousDeletingClinicPatientTag = usePrevious(deletingClinicPatientTag);
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
@@ -727,16 +730,16 @@ export const ClinicPatients = (props) => {
   ]);
 
   useEffect(() => {
-    handleAsyncResult(creatingClinicPatientTag, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
-  }, [clinicPatientTagFormContext, creatingClinicPatientTag, handleAsyncResult, t]);
+    handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
+  }, [clinicPatientTagFormContext, creatingClinicPatientTag, handleAsyncResult, previousCreatingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult(updatingClinicPatientTag, t('Tag updated.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [updatingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, t]);
+    handleAsyncResult({ ...updatingClinicPatientTag, prevInProgress: previousUpdatingClinicPatientTag?.inProgress }, t('Tag updated.'), handleCloseClinicPatientTagUpdateDialog);
+  }, [updatingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousUpdatingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult(deletingClinicPatientTag, t('Tag removed.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, t]);
+    handleAsyncResult({ ...deletingClinicPatientTag, prevInProgress: previousDeletingClinicPatientTag?.inProgress }, t('Tag removed.'), handleCloseClinicPatientTagUpdateDialog);
+  }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousDeletingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
     // If a tag is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
