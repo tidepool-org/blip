@@ -1247,7 +1247,7 @@ describe('ClinicPatients', () => {
           assert(columns.at(0).is('#peopleTable-header-fullName'));
 
           expect(columns.at(1).text()).to.equal('Last Upload');
-          assert(columns.at(1).is('#peopleTable-header-lastUploadDate'));
+          assert(columns.at(1).is('#peopleTable-header-cgm-lastUploadDate'));
 
           expect(columns.at(2).text()).to.equal('Patient Tags');
           assert(columns.at(2).is('#peopleTable-header-tags'));
@@ -1364,6 +1364,16 @@ describe('ClinicPatients', () => {
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           patientHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
+
+          const lastUploadDateHeader = table.find('#peopleTable-header-cgm-lastUploadDate .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lastUploadDateHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastUploadDate', sortType: 'cgm' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lastUploadDateHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+lastUploadDate', sortType: 'cgm' }));
 
           const gmiHeader = table.find('#peopleTable-header-cgm-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
 
