@@ -40,8 +40,6 @@ export const PrintDateRangeModal = (props) => {
     loggedInUserId,
   } = props;
 
-  console.log('mostRecentDatumDates', mostRecentDatumDates);
-
   const enabledChartsLocalKey = `${loggedInUserId}_PDFChartsEnabled`;
   const defaultRangesLocalKey = `${loggedInUserId}_PDFChartsSelectedRangeIndices`;
 
