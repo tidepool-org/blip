@@ -543,6 +543,7 @@ export const ClinicPatients = (props) => {
     birthDate: 'asc',
     glucoseManagementIndicator: 'desc',
     averageGlucose: 'desc',
+    lastUploadDate: 'desc',
     timeInVeryLowRecords: 'desc',
     timeInVeryHighRecords: 'desc',
   }), []);
@@ -867,7 +868,8 @@ export const ClinicPatients = (props) => {
 
       if (isPremiumTier) {
         if (activeFilters.lastUploadDate && activeFilters.lastUploadType) {
-          filterOptions.sortType = activeFilters.lastUploadType;
+          // If we are currently sorting by lastUpload date, ensure the sortType matches the selected filter type
+          if (filterOptions.sort.indexOf('lastUploadDate') === 1) filterOptions.sortType = activeFilters.lastUploadType;
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateFrom`] = moment(filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`]).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
@@ -2709,8 +2711,11 @@ export const ClinicPatients = (props) => {
         ...[
           {
             title: t('Last Upload'),
-            field: 'lastUploadDate',
+            field: `${activeFilters.lastUploadType || 'cgm'}.lastUploadDate`,
             align: 'left',
+            sortable: true,
+            defaultOrder: defaultSortOrders.lastUploadDate,
+            sortBy: 'lastUploadDate',
             render: renderLastUploadDate,
           },
           {
@@ -2823,6 +2828,7 @@ export const ClinicPatients = (props) => {
     renderPatient,
     renderPatientTags,
     showSummaryData,
+    patientFetchOptions,
     t,
   ]);
 
