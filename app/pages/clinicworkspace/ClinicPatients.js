@@ -867,7 +867,8 @@ export const ClinicPatients = (props) => {
       const isPremiumTier = clinic?.tier >= 'tier0200';
 
       if (isPremiumTier) {
-        // If we are currently sorting by lastUpload date, ensure the sortType matches the selected filter type
+        // If we are currently sorting by lastUpload date, ensure the sortType matches the filter
+        // type if available, or falls back to the default sortType
         if (filterOptions.sort.indexOf('lastUploadDate') === 1) {
           filterOptions.sortType = activeFilters.lastUploadType || defaultPatientFetchOptions.sortType;
         }
