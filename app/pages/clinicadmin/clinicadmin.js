@@ -340,10 +340,6 @@ export const ClinicAdmin = (props) => {
     setPage(newValue);
   };
 
-  const handleTableFilter = (data) => {
-    console.log('handleTableFilter', data);
-  };
-
   const renderClinician = ({ fullName, email }) => (
     <Box>
       <Text fontWeight="medium">{fullName}</Text>
@@ -585,7 +581,6 @@ export const ClinicAdmin = (props) => {
               rowsPerPage={rowsPerPage}
               searchText={searchText}
               page={page}
-              onFilter={handleTableFilter}
               fontSize={1}
             />
           </Box>
