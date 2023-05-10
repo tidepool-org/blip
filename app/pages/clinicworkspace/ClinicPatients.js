@@ -867,9 +867,12 @@ export const ClinicPatients = (props) => {
       const isPremiumTier = clinic?.tier >= 'tier0200';
 
       if (isPremiumTier) {
+        // If we are currently sorting by lastUpload date, ensure the sortType matches the selected filter type
+        if (filterOptions.sort.indexOf('lastUploadDate') === 1) {
+          filterOptions.sortType = activeFilters.lastUploadType || defaultPatientFetchOptions.sortType;
+        }
+
         if (activeFilters.lastUploadDate && activeFilters.lastUploadType) {
-          // If we are currently sorting by lastUpload date, ensure the sortType matches the selected filter type
-          if (filterOptions.sort.indexOf('lastUploadDate') === 1) filterOptions.sortType = activeFilters.lastUploadType;
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateFrom`] = moment(filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`]).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
