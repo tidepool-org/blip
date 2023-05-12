@@ -7856,6 +7856,11 @@ escape-string-regexp@1.0.5, escape-string-regexp@^1.0.2, escape-string-regexp@^1
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
 
+escape-string-regexp@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz#14ba83a5d373e3d311e5afca29cf5bfad965bf34"
+  integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
+
 escodegen@1.8.x:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/escodegen/-/escodegen-1.8.1.tgz#5a5b53af4693110bebb0867aa3430dd3b70a1018"
@@ -11713,6 +11718,32 @@ latest-version@^3.0.0:
   integrity sha1-ogU4P+oyKzO1rjsYq+4NwvNW7hU=
   dependencies:
     package-json "^4.0.0"
+
+launchdarkly-js-client-sdk@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/launchdarkly-js-client-sdk/-/launchdarkly-js-client-sdk-3.1.3.tgz#e046439f0e4f0bfd6d38b9eaa4420a6e40ffc0c7"
+  integrity sha512-/JR/ri8z3bEj9RFTTKDjd+con4F1MsWUea1MmBDtFj4gDA0l9NDm1KzhMKiIeoBdmB2rSaeFYe4CaYOEp8IryA==
+  dependencies:
+    escape-string-regexp "^4.0.0"
+    launchdarkly-js-sdk-common "5.0.3"
+
+launchdarkly-js-sdk-common@5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/launchdarkly-js-sdk-common/-/launchdarkly-js-sdk-common-5.0.3.tgz#345f899f5779be8b03d6599978c855eb838d8b7f"
+  integrity sha512-wKG8UsVbPVq8+7eavgAm5CVmulQWN6Ddod2ZoA3euZ1zPvJPwIQ2GrOYaCJr3cFrrMIX+nQyBJHBHYxUAPcM+Q==
+  dependencies:
+    base64-js "^1.3.0"
+    fast-deep-equal "^2.0.1"
+    uuid "^8.0.0"
+
+launchdarkly-react-client-sdk@3.0.6:
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/launchdarkly-react-client-sdk/-/launchdarkly-react-client-sdk-3.0.6.tgz#5c694a4a013757d2afb5213efd28d9c16af1595e"
+  integrity sha512-r7gSshScugjnJB4lJ6mAOMKpV4Pj/wUks3tsRHdfeXgER9jPdxmZOAkm0besMjK0S7lfQdjxJ2KIXrh+Mn1sQA==
+  dependencies:
+    hoist-non-react-statics "^3.3.2"
+    launchdarkly-js-client-sdk "^3.1.3"
+    lodash.camelcase "^4.3.0"
 
 lazy-cache@^0.2.3:
   version "0.2.7"
@@ -19556,6 +19587,11 @@ uuid@^3.0.0, uuid@^3.0.1, uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
+
+uuid@^8.0.0:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 v8-compile-cache@2.0.3:
   version "2.0.3"
