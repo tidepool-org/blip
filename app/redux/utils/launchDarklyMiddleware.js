@@ -11,8 +11,8 @@ import * as ActionTypes from '../constants/actionTypes';
 
 const trackingActions = [ActionTypes.LOGIN_SUCCESS, ActionTypes.SELECT_CLINIC, ActionTypes.LOGOUT_SUCCESS];
 
-const defaultUserContext = { key: 'init' };
-const defaultClinicContext = { key: 'init' };
+const defaultUserContext = { key: 'anon' };
+const defaultClinicContext = { key: 'none' };
 
 export const ldContext = {
   kind: 'multi',
@@ -22,7 +22,7 @@ export const ldContext = {
 
 export const ldClient = LDClient.initialize(__LAUNCHDARKLY_CLIENT_TOKEN__, ldContext);
 
-const launchDarklyMiddleware = (api, win = window) => (storeAPI) => (next) => (action) => {
+const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
   const { getState } = storeAPI;
   const {
     router: { location },
@@ -108,7 +108,7 @@ const launchDarklyMiddleware = (api, win = window) => (storeAPI) => (next) => (a
   }
 
   ldClient?.identify(ldContext, null, () => {
-    console.log('New context\'s flags available for', ldContext);
+    console.log('New flags available for context', ldContext);
   });
 
   return next(action);
