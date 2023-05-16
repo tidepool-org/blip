@@ -20,7 +20,7 @@ export const ldContext = {
   clinic: defaultClinicContext,
 }
 
-const ldClient = LDClient.initialize(__LAUNCHDARKLY_CLIENT_TOKEN__, ldContext);
+export const ldClient = LDClient.initialize(__LAUNCHDARKLY_CLIENT_TOKEN__, ldContext);
 
 const launchDarklyMiddleware = (api, win = window) => (storeAPI) => (next) => (action) => {
   const { getState } = storeAPI;

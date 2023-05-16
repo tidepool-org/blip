@@ -19,7 +19,6 @@ import React from 'react';
 import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
-import { asyncWithLDProvider } from 'launchdarkly-react-client-sdk';
 
 import './core/language'; // Set the language before loading components
 import blipCreateStore from './redux/store';
@@ -30,7 +29,6 @@ import config from './config';
 import api from './core/api';
 import personUtils from './core/personutils';
 import detectTouchScreen from './core/notouch';
-import { ldContext } from '../app/redux/utils/launchDarklyMiddleware';
 
 /* global __DEV_TOOLS__ */
 
@@ -81,15 +79,8 @@ appContext.init = callback => {
 };
 
 appContext.render = async Component => {
-  const LDProvider = await asyncWithLDProvider({
-    clientSideID: __LAUNCHDARKLY_CLIENT_TOKEN__,
-    context: ldContext,
-  });
-
   render(
-    <LDProvider>
-      <Component store={appContext.store} routing={appContext.routing} />,
-    </LDProvider>,
+    <Component store={appContext.store} routing={appContext.routing} />,
     document.getElementById('app'),
   );
 };
