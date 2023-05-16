@@ -40,6 +40,7 @@ import ScrollToTop from 'react-scroll-to-top';
 import styled from 'styled-components';
 import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import {
   bindPopover,
@@ -527,6 +528,8 @@ export const ClinicPatients = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const previousClinic = usePrevious(clinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
+
+  const { showBgmStats } = useFlags();
 
   const defaultPatientFetchOptions = useMemo(
     () => ({
@@ -2738,73 +2741,76 @@ export const ClinicPatients = (props) => {
             render: renderBgRangeSummary,
             className: 'group-right',
           },
-          {
-            field: 'spacer',
-            className: 'group-spacer',
-          },
-          {
-            field: 'bgmTag',
-            align: 'left',
-            className: 'group-tag',
-            tag: t('BGM'),
-          },
-          {
-            title: t('Avg. Glucose ({{bgUnits}})', { bgUnits: clinicBgUnits }),
-            field: 'bgm.averageGlucose',
-            align: 'left',
-            sortable: true,
-            defaultOrder: defaultSortOrders.averageGlucose,
-            sortBy: 'averageGlucose',
-            render: renderAverageGlucose,
-            className: 'group-left',
-          },
-          {
-            title: t('Lows'),
-            field: 'bgm.timeInVeryLowRecords',
-            align: 'left',
-            sortable: true,
-            defaultOrder: defaultSortOrders.timeInVeryLowRecords,
-            sortBy: 'timeInVeryLowRecords',
-            render: renderBGEvent.bind(null, 'low'),
-            className: 'group-center',
-          },
-          {
-            title: t('Highs'),
-            field: 'bgm.timeInVeryHighRecords',
-            align: 'left',
-            sortable: true,
-            defaultOrder: defaultSortOrders.timeInVeryHighRecords,
-            sortBy: 'timeInVeryHighRecords',
-            render: renderBGEvent.bind(null, 'high'),
-            className: 'group-center',
-          },
-          {
-            titleComponent: () => (
-              <PopoverLabel
-                icon={InfoOutlinedIcon}
-                iconProps={{
-                  fontSize: '16px',
-                }}
-                popoverContent={<BGEventsInfo />}
-                popoverProps={{
-                  anchorOrigin: {
-                    vertical: 'bottom',
-                    horizontal: 'center',
-                  },
-                  transformOrigin: {
-                    vertical: 'top',
-                    horizontal: 'center',
-                  },
-                  width: 'auto',
-                }}
-                triggerOnHover
-              />
-            ),
-            align: 'left',
-            className: 'group-right',
-          },
         ]
       );
+
+      if (showBgmStats) cols.push(...[
+        {
+          field: 'spacer',
+          className: 'group-spacer',
+        },
+        {
+          field: 'bgmTag',
+          align: 'left',
+          className: 'group-tag',
+          tag: t('BGM'),
+        },
+        {
+          title: t('Avg. Glucose ({{bgUnits}})', { bgUnits: clinicBgUnits }),
+          field: 'bgm.averageGlucose',
+          align: 'left',
+          sortable: true,
+          defaultOrder: defaultSortOrders.averageGlucose,
+          sortBy: 'averageGlucose',
+          render: renderAverageGlucose,
+          className: 'group-left',
+        },
+        {
+          title: t('Lows'),
+          field: 'bgm.timeInVeryLowRecords',
+          align: 'left',
+          sortable: true,
+          defaultOrder: defaultSortOrders.timeInVeryLowRecords,
+          sortBy: 'timeInVeryLowRecords',
+          render: renderBGEvent.bind(null, 'low'),
+          className: 'group-center',
+        },
+        {
+          title: t('Highs'),
+          field: 'bgm.timeInVeryHighRecords',
+          align: 'left',
+          sortable: true,
+          defaultOrder: defaultSortOrders.timeInVeryHighRecords,
+          sortBy: 'timeInVeryHighRecords',
+          render: renderBGEvent.bind(null, 'high'),
+          className: 'group-center',
+        },
+        {
+          titleComponent: () => (
+            <PopoverLabel
+              icon={InfoOutlinedIcon}
+              iconProps={{
+                fontSize: '16px',
+              }}
+              popoverContent={<BGEventsInfo />}
+              popoverProps={{
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                },
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'center',
+                },
+                width: 'auto',
+              }}
+              triggerOnHover
+            />
+          ),
+          align: 'left',
+          className: 'group-right',
+        },
+      ]);
     }
     return cols;
   }, [
@@ -2819,6 +2825,7 @@ export const ClinicPatients = (props) => {
     renderPatient,
     renderPatientTags,
     showSummaryData,
+    showBgmStats,
     t,
   ]);
 
