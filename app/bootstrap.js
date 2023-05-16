@@ -13,8 +13,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-/* global __LAUNCHDARKLY_CLIENT_TOKEN__ */
-
 import React from 'react';
 import { render } from 'react-dom';
 import bows from 'bows';
@@ -78,7 +76,7 @@ appContext.init = callback => {
   beginInit();
 };
 
-appContext.render = async Component => {
+appContext.render = Component => {
   render(
     <Component store={appContext.store} routing={appContext.routing} />,
     document.getElementById('app'),
