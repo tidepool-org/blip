@@ -2,8 +2,9 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global before */
 
-import React from 'react';
+import React, { createElement } from 'react';
 import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
 import i18next from '../../../app/core/language';
@@ -121,6 +122,84 @@ describe('UserProfile', function () {
       backButton.simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.history.goBack.callCount).to.equal(1);
+    });
+  });
+
+  describe('componentWillRecieveProps', () => {
+    let wrapper;
+
+    var props = {
+      fetchingUser: false,
+      updatingUser: {
+        inProgress: false,
+        completed: false,
+        notification: null,
+      },
+      history: { location: { state: {} } },
+      onSubmit: sinon.stub(),
+      trackMetric: sinon.stub(),
+      login: sinon.stub(),
+      user: { profile: {} },
+      t,
+    };
+
+    before(() => {
+      wrapper = mount(
+        createElement(
+          (props) => (
+            <ToastProvider>
+              <UserProfileClass {...props} />
+            </ToastProvider>
+          ),
+          props
+        )
+      );
+    });
+
+    it('should login when fullName is filled out', () => {
+      let nextProps = { user: { profile: { fullName: 'new fullname' } } };
+      wrapper.setProps(nextProps);
+
+      expect(props.login.callCount).to.equal(1);
+    });
+
+    it('should not login when fullName is filled out if coming from upload-launch', () => {
+      let baseProps = {
+        history: { location: { state: { referrer: 'upload-launch' } } },
+      };
+      wrapper.setProps(baseProps);
+      let nextProps = { user: { profile: { fullName: 'new fullname' } } };
+      props.login.resetHistory();
+      wrapper.setProps(nextProps);
+
+      expect(props.login.callCount).to.equal(0);
+    });
+
+    it('should call push when profile updated and coming from upload-launch', () => {
+      let baseProps = {
+        ...props,
+        history: { location: { state: { referrer: 'upload-launch' } } },
+        push: sinon.stub(),
+        updatingUser: {
+          inProgress: true,
+          completed: false,
+          notification: null,
+        },
+      };
+      wrapper.setProps(baseProps);
+
+      expect(baseProps.push.callCount).to.equal(0);
+
+      let nextProps = { updatingUser: { inProgress: false, completed: true } };
+      wrapper.setProps(nextProps);
+
+      expect(baseProps.push.callCount).to.equal(1);
+      expect(
+        baseProps.push.calledWithMatch({
+          pathname: '/upload-redirect',
+          state: { referrer: 'profile' },
+        })
+      ).to.be.true;
     });
   });
 

@@ -74,7 +74,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
   if (!api.user.isAuthenticated()) {
     let dest = '';
     if (routerState?.location?.pathname) {
-      dest = `?dest=${encodeURIComponent(routerState.location.pathname)}`;
+      dest = `?dest=${encodeURIComponent(routerState.location.pathname + routerState.location.hash)}`;
     }
     dispatch(push(`/login${dest}`));
   } else {
@@ -397,7 +397,7 @@ export const getRoutes = (appContext) => {
           <Route path='/request-password-from-uploader' render={routeProps => (<Gate onEnter={boundOnUploaderPasswordReset} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
-          <Route path="/upload-redirect" render={routeProps => (<UploadRedirect {...routeProps} {...props} />)} />
+          <Route path="/upload-redirect" render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UploadRedirect {...routeProps} {...props} /></Gate>)} />
           <Route path="/logged-out" render={routeProps => (<LoggedOut {...routeProps} {...props}/>)} />
           <Route>
             { api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to='/login' /> }

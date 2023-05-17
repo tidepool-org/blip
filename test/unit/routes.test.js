@@ -148,7 +148,7 @@ describe('routes', () => {
 
       let store = mockStore({
         blip: {},
-        router: { location: { pathname: '/otherDestination' } },
+        router: { location: { pathname: '/otherDestination', hash: '' } },
       });
 
       let expectedActions = [routeAction('/login?dest=%2FotherDestination')];
