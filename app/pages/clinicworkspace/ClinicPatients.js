@@ -507,6 +507,7 @@ export const ClinicPatients = (props) => {
   const [showDeleteClinicPatientTagDialog, setShowDeleteClinicPatientTagDialog] = useState(false);
   const [showUpdateClinicPatientTagDialog, setShowUpdateClinicPatientTagDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
+  const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
@@ -1001,6 +1002,11 @@ export const ClinicPatients = (props) => {
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
+  function handleConfigureTideDashboard() {
+    trackMetric('Clinic - Show Tide Dashboard Config Dialog', { clinicId: selectedClinicId });
+    setShowTideDashboardConfigDialog(true);
+  }
+
   const handleCreateClinicPatientTag = useCallback(tag => {
     trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });
     dispatch(actions.async.createClinicPatientTag(api, selectedClinicId, tag));
@@ -1161,6 +1167,7 @@ export const ClinicPatients = (props) => {
             justifyContent="space-between"
             width="auto"
             flexGrow={[1, null, 0]}
+            flexWrap="wrap"
             sx={{ gap: 2 }}
           >
             <Button
@@ -1174,22 +1181,36 @@ export const ClinicPatients = (props) => {
               {t('Add New Patient')}
             </Button>
 
-            <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
-              <TextInput
-                themeProps={{
-                  width: ['100%', null, '250px'],
-                }}
-                fontSize="12px"
-                id="patients-search"
-                placeholder={t('Search')}
-                icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
-                iconLabel={t('Search')}
-                onClickIcon={!isEmpty(search) ? handleClearSearch : null}
-                name="search-patients"
-                onChange={handleSearchChange}
-                value={search}
-                variant="condensed"
-              />
+            <Box flex={1} flexBasis="fit-content" sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+              <Flex justifyContent="space-between" alignContent="center" sx={{ gap: 2 }}>
+                <Button
+                  flexShrink={0}
+                  id="open-tide-dashboard"
+                  variant="tertiary"
+                  onClick={handleConfigureTideDashboard}
+                  tag={t('New')}
+                  fontSize={0}
+                  px={2}
+                >
+                  {t('Tide Dashboard View')}
+                </Button>
+
+                <TextInput
+                  themeProps={{
+                    width: ['100%', null, '250px'],
+                  }}
+                  fontSize="12px"
+                  id="patients-search"
+                  placeholder={t('Search')}
+                  icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
+                  iconLabel={t('Search')}
+                  onClickIcon={!isEmpty(search) ? handleClearSearch : null}
+                  name="search-patients"
+                  onChange={handleSearchChange}
+                  value={search}
+                  variant="condensed"
+                />
+              </Flex>
             </Box>
           </Flex>
 
@@ -2356,7 +2377,7 @@ export const ClinicPatients = (props) => {
                     fontSize="12px"
                     fontWeight="normal"
                     py="2px"
-                    sx={{ borderRadius: radii.input, textTransform: 'none' }}
+                    sx={{ borderRadius: radii.input }}
                     colorPalette={[`bg.${rangeName}`, 'white']}
                     text={tag}
                   />
