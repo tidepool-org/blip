@@ -66,6 +66,21 @@ export const preferredBgUnits = [
   { value: MMOLL_UNITS, label: MMOLL_UNITS },
 ];
 
+export const lastUploadDateFilterOptions = [
+  { value: 1, label: t('Today') },
+  { value: 2, label: t('Last 2 days') },
+  { value: 7, label: t('Last 7 days') },
+  { value: 14, label: t('Last 14 days') },
+  { value: 30, label: t('Last 30 days') },
+];
+
+export const summaryPeriodOptions = [
+  { value: '1d', label: t('24 hours') },
+  { value: '7d', label: t('7 days') },
+  { value: '14d', label: t('14 days') },
+  { value: '30d', label: t('30 days') },
+];
+
 export const maxClinicPatientTags = 20;
 
 export const clinicValuesFromClinic = (clinic) => ({
@@ -163,6 +178,20 @@ export const patientSchema = yup.object().shape({
       state: yup.string().oneOf(['pending', 'pendingReconnect', 'connected', 'error', 'disconnected']),
     }),
   ),
+  tags: yup.array().of(
+    yup.string()
+  ),
+});
+
+export const tideDashboardConfigSchema = yup.object().shape({
+  period: yup
+    .string()
+    .oneOf(map(summaryPeriodOptions, 'value'))
+    .required(t('Please select a duration period')),
+  lastUpload: yup
+    .number()
+    .oneOf(map(lastUploadDateFilterOptions, 'value'))
+    .required(t('Please select a last upload date option')),
   tags: yup.array().of(
     yup.string()
   ),
