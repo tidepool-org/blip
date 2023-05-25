@@ -88,6 +88,7 @@ import {
   dateFormat,
   patientSchema as validationSchema,
   clinicPatientTagSchema,
+  tideDashboardConfigSchema,
   maxClinicPatientTags
 } from '../../core/clinicUtils';
 
@@ -524,6 +525,7 @@ export const ClinicPatients = (props) => {
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0300');
+  const [showTideDashBoard, setShowTideDashBoard] = useState(clinic?.tier >= 'tier0300');
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
@@ -640,6 +642,7 @@ export const ClinicPatients = (props) => {
     creatingClinicPatientTag,
     updatingClinicPatientTag,
     deletingClinicPatientTag,
+    fetchingTideDashboardPatients,
   } = useSelector((state) => state.blip.working);
 
   // TODO: remove this when upgraded to React 18
@@ -928,6 +931,7 @@ export const ClinicPatients = (props) => {
         }
       } else {
         setShowSummaryData(isPremiumTier);
+        setShowTideDashBoard(isPremiumTier);
         setPatientFetchOptions(newPatientFetchOptions);
         setCurrentPage(1);
       }
@@ -1187,37 +1191,39 @@ export const ClinicPatients = (props) => {
               {t('Add New Patient')}
             </Button>
 
-            <Box flex={1} flexBasis="fit-content" sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
-              <Flex justifyContent="space-between" alignContent="center" sx={{ gap: 2 }}>
-                <Button
-                  flexShrink={0}
-                  id="open-tide-dashboard"
-                  variant="tertiary"
-                  onClick={handleConfigureTideDashboard}
-                  tag={t('New')}
-                  fontSize={0}
-                  px={2}
-                >
-                  {t('Tide Dashboard View')}
-                </Button>
+              <Box flex={1} flexBasis="fit-content" sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+                <Flex justifyContent="space-between" alignContent="center" sx={{ gap: 2 }}>
+                  {showTideDashBoard && (
+                    <Button
+                      flexShrink={0}
+                      id="open-tide-dashboard"
+                      variant="tertiary"
+                      onClick={handleConfigureTideDashboard}
+                      tag={t('New')}
+                      fontSize={0}
+                      px={2}
+                    >
+                      {t('Tide Dashboard View')}
+                    </Button>
+                  )}
 
-                <TextInput
-                  themeProps={{
-                    width: ['100%', null, '250px'],
-                  }}
-                  fontSize="12px"
-                  id="patients-search"
-                  placeholder={t('Search')}
-                  icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
-                  iconLabel={t('Search')}
-                  onClickIcon={!isEmpty(search) ? handleClearSearch : null}
-                  name="search-patients"
-                  onChange={handleSearchChange}
-                  value={search}
-                  variant="condensed"
-                />
-              </Flex>
-            </Box>
+                  <TextInput
+                    themeProps={{
+                      width: ['100%', null, '250px'],
+                    }}
+                    fontSize="12px"
+                    id="patients-search"
+                    placeholder={t('Search')}
+                    icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
+                    iconLabel={t('Search')}
+                    onClickIcon={!isEmpty(search) ? handleClearSearch : null}
+                    name="search-patients"
+                    onChange={handleSearchChange}
+                    value={search}
+                    variant="condensed"
+                  />
+                </Flex>
+              </Box>
           </Flex>
 
           {/* Flex Group 2: Filters and Info Icons */}
@@ -2125,8 +2131,8 @@ export const ClinicPatients = (props) => {
             id="configureTideDashboardConfirm"
             variant="primary"
             onClick={handleAddPatientConfirm}
-            processing={creatingClinicCustodialAccount.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+            processing={fetchingTideDashboardPatients.inProgress}
+            disabled={!fieldsAreValid(keys(tideDashboardFormContext?.values), tideDashboardConfigSchema, tideDashboardFormContext?.values)}
           >
             {t('Next')}
           </Button>
@@ -2135,9 +2141,9 @@ export const ClinicPatients = (props) => {
     );
   }, [
     api,
-    creatingClinicCustodialAccount.inProgress,
+    fetchingTideDashboardPatients.inProgress,
     handleAddPatientConfirm,
-    patientFormContext?.values,
+    tideDashboardFormContext?.values,
     showTideDashboardConfigDialog,
     t,
     trackMetric
@@ -2959,7 +2965,7 @@ export const ClinicPatients = (props) => {
       {showUpdateClinicPatientTagDialog && renderUpdateClinicPatientTagDialog()}
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
-      {showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
+      {showTideDashBoard && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}
