@@ -96,6 +96,7 @@ Tag.propTypes = {
   iconSrc: PropTypes.string,
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  selected: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'compact']),
 };
 
@@ -106,7 +107,17 @@ Tag.defaultProps = {
 };
 
 export const TagList = translate()(props => {
-  const { popupId, tags, onClickEdit, maxCharactersVisible, tagProps, t, ...themeProps } = props;
+  const {
+    popupId,
+    tags,
+    onClickEdit,
+    maxCharactersVisible,
+    tagProps,
+    selectedTagProps,
+    t,
+    ...themeProps
+  } = props;
+
   const anchorRef = React.useRef();
   const visibleTags = [];
   const hiddenTags = [];
@@ -171,6 +182,7 @@ export const TagList = translate()(props => {
           key={tag.id}
           name={tag.name}
           {...tagProps}
+          {...(tag.selected ? selectedTagProps : {})}
         />
       ))}
 
@@ -215,6 +227,7 @@ export const TagList = translate()(props => {
                   key={tag.id}
                   name={tag.name}
                   {...tagProps}
+                  {...(tag.selected ? selectedTagProps : {})}
                 />
               ))}
             </Flex>
@@ -243,6 +256,7 @@ TagList.defaultProps = {
   tagVariant: 'default',
   tags: [],
   tagProps: {},
+  selectedTagProps: {},
 };
 
 export default Tag;
