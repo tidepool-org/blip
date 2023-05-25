@@ -192,7 +192,6 @@ export const tideDashboardConfigSchema = yup.object().shape({
     .number()
     .oneOf(map(lastUploadDateFilterOptions, 'value'))
     .required(t('Please select a last upload date option')),
-  tags: yup.array().of(
-    yup.string()
-  ),
+  tags: yup.array().of(yup.string())
+    .min(1, t('Please select at least one tag')),
 });

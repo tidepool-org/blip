@@ -16,14 +16,16 @@ import { TagList } from '../../components/elements/Tag';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { useToasts } from '../../providers/ToastProvider';
 import { useIsFirstRender, useLocalStorage } from '../../core/hooks';
-import { getCommonFormikFieldProps } from '../../core/forms';
+import { getCommonFormikFieldProps, getFieldError } from '../../core/forms';
 import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, lastUploadDateFilterOptions } from '../../core/clinicUtils';
-import { Body0 } from '../../components/elements/FontStyles';
+import { Body0, Caption } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 
 function getFormValues(config, clinicPatientTags) {
   return {
-    tags: reject(config?.tags || [], tagId => !clinicPatientTags?.[tagId]),
+    period: null,
+    lastUpload: null,
+    tags: config?.tags ? reject(config.tags, tagId => !clinicPatientTags?.[tagId]) : null,
   };
 }
 
@@ -42,6 +44,7 @@ export const TideDashboardConfigForm = (props) => {
   const formikContext = useFormik({
     initialValues: getFormValues(config, clinicPatientTags),
     onSubmit: (values, formikHelpers) => {
+      // TODO: convert last upload values to timestamp params
       dispatch(actions.async.fetchTideDashboard(api, selectedClinicId, values));
     },
     validationSchema,
@@ -50,8 +53,8 @@ export const TideDashboardConfigForm = (props) => {
   const {
     errors,
     setFieldValue,
+    setFieldTouched,
     setValues,
-    status,
     values,
   } = formikContext;
 
@@ -106,7 +109,8 @@ export const TideDashboardConfigForm = (props) => {
           }))}
           tagProps={{
             onClick: tagId => {
-              setFieldValue('tags', [...values.tags, tagId]);
+              setFieldTouched('tags', true, true);
+              setFieldValue('tags', [...(values.tags || []), tagId]);
             },
             sx: { userSelect: 'none' }
           }}
@@ -118,6 +122,12 @@ export const TideDashboardConfigForm = (props) => {
             backgroundColor: 'purpleMedium',
           }}
         />
+
+        {getFieldError('tags', formikContext) && (
+          <Caption ml={2} mt={2} color="feedback.danger">
+            {errors.tags}
+          </Caption>
+        )}
       </Box>
 
       <Box sx={{ borderTop: borders.default }} py={3}>
