@@ -151,6 +151,7 @@ const initialState = {
     updatingClinicPatientTag: Object.assign({}, working),
     deletingClinicPatientTag: Object.assign({}, working),
     fetchingInfo: Object.assign({}, working),
+    fetchingTideDashboardPatients: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {

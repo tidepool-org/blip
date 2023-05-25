@@ -2193,6 +2193,31 @@ export function fetchInfoFailure(error, apiError) {
   };
 }
 
+export function fetchTideDashboardPatientsRequest() {
+  return {
+    type: ActionTypes.FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST,
+  };
+}
+
+export function fetchTideDashboardPatientsSuccess(results) {
+  return {
+    type: ActionTypes.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS,
+    payload: {
+      results: results,
+    },
+  };
+}
+
+export function fetchTideDashboardPatientsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function generateAGPImagesRequest(data, opts, queries) {
   return {
     type: ActionTypes.GENERATE_AGP_IMAGES_REQUEST,

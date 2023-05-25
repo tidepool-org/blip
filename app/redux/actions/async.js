@@ -2743,3 +2743,29 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
     });
   };
 }
+
+/**
+ * Fetch Patients for Tide Dashboard Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} [options] - search options
+ * @param {Number} [options.period] - period to sort by (1d|7d|14d|30d)
+ * @param {Number} [options.lastUploadDateFrom] - ISO date for start of last upload date filter range
+ * @param {Number} [options.lastUploadDateTo] - ISO date for end of last upload date filter range
+ */
+ export function fetchTideDashboardPatients(api, clinidId, options) {
+  return (dispatch) => {
+    dispatch(sync.fetchTideDashboardPatientsRequest());
+
+    api.server.getInfo((err, info) => {
+      if (err) {
+        dispatch(sync.fetchTideDashboardPatientsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_INFO, err), err
+        ));
+      } else {
+        dispatch(sync.fetchTideDashboardPatientsSuccess(info));
+      }
+    });
+  };
+}
