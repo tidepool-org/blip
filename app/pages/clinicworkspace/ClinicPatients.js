@@ -1009,9 +1009,14 @@ export const ClinicPatients = (props) => {
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
   function handleConfigureTideDashboard() {
-    trackMetric('Clinic - Show Tide Dashboard Config Dialog', { clinicId: selectedClinicId });
+    trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId });
     setShowTideDashboardConfigDialog(true);
   }
+
+  const handleConfigureTideDashboardConfirm = useCallback(() => {
+    trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId });
+    tideDashboardFormContext?.handleSubmit();
+  }, [tideDashboardFormContext, selectedClinicId, trackMetric]);
 
   const handleCreateClinicPatientTag = useCallback(tag => {
     trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });
@@ -2130,7 +2135,7 @@ export const ClinicPatients = (props) => {
           <Button
             id="configureTideDashboardConfirm"
             variant="primary"
-            onClick={handleAddPatientConfirm}
+            onClick={handleConfigureTideDashboardConfirm}
             processing={fetchingTideDashboardPatients.inProgress}
             disabled={!fieldsAreValid(keys(tideDashboardFormContext?.values), tideDashboardConfigSchema, tideDashboardFormContext?.values)}
           >
@@ -2142,7 +2147,7 @@ export const ClinicPatients = (props) => {
   }, [
     api,
     fetchingTideDashboardPatients.inProgress,
-    handleAddPatientConfirm,
+    handleConfigureTideDashboardConfirm,
     tideDashboardFormContext?.values,
     showTideDashboardConfigDialog,
     t,

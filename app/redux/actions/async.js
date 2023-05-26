@@ -2754,11 +2754,11 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  * @param {Number} [options.lastUploadDateFrom] - ISO date for start of last upload date filter range
  * @param {Number} [options.lastUploadDateTo] - ISO date for end of last upload date filter range
  */
- export function fetchTideDashboardPatients(api, clinidId, options) {
+ export function fetchTideDashboardPatients(api, clinicId, options) {
   return (dispatch) => {
     dispatch(sync.fetchTideDashboardPatientsRequest());
 
-    api.server.getInfo((err, info) => {
+    api.clinics.getPatientsForTideDashboard(clinicId, options, (err, info) => {
       if (err) {
         dispatch(sync.fetchTideDashboardPatientsFailure(
           createActionError(ErrorMessages.ERR_FETCHING_INFO, err), err
