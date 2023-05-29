@@ -1038,3 +1038,14 @@ export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
       return state;
   }
 };
+
+export const tideDashboard = (state = initialState.tideDashboard, action) => {
+  switch (action.type) {
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
+      return action?.payload?.results || initialState.tideDashboard;
+    case types.LOGOUT_REQUEST:
+      return initialState.tideDashboard;
+    default:
+      return state;
+  }
+};

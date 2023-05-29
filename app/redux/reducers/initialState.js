@@ -169,6 +169,7 @@ const initialState = {
   pendingReceivedClinicianInvites: [],
   clinicFlowActive: false,
   keycloakConfig: {},
+  tideDashboard: null,
 };
 
 export default initialState;

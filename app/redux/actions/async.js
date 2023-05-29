@@ -15,6 +15,7 @@ import { push } from 'connected-react-router';
 import { worker } from '.';
 
 import utils from '../../core/utils';
+import mockTideDashboardPatients from '../../../test/fixtures/mockTideDashboardPatients.json';
 
 let win = window;
 
@@ -2757,6 +2758,11 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  export function fetchTideDashboardPatients(api, clinicId, options) {
   return (dispatch) => {
     dispatch(sync.fetchTideDashboardPatientsRequest());
+
+    // TODO: delete temp mocked data response
+    if (options.mockData) {
+      return dispatch(sync.fetchTideDashboardPatientsSuccess(mockTideDashboardPatients));
+    }
 
     api.clinics.getPatientsForTideDashboard(clinicId, options, (err, info) => {
       if (err) {

@@ -1,0 +1,58 @@
+{
+  "config": {
+    "clinicId": "clinicID123",
+    "clinicianId": "clinicianID123",
+    "period": "14d",
+    "lastUploadDateFrom": "2023-05-16T04:00:00.000Z",
+    "lastUploadDateTo": "2023-05-30T04:00:00.000Z",
+    "tags": [
+      "646f7f0408e23bc18d91caa7",
+      "643f0674dbbc8aa9fad54c78",
+      "63d98f3dda7008171a96ab04"
+    ],
+    "filters": {
+      "timeInVeryLowPercent": ">0.01",
+      "timeInLowPercent": ">0.04",
+      "dropInTimeInTargetPercent": ">0.15",
+      "timeInTargetPercent": "<0.7",
+      "timeCGMUsePercent": "<0.7"
+    }
+  },
+  "results": {
+    "timeInVeryLowPercent": [
+      {
+        "patient": {
+          "id": "patientID123",
+          "name": "Micah Ortiz"
+        },
+        "averageGlucose": {
+          "units": "mmol/L",
+          "value": 10.3
+        },
+        "glucoseManagementIndicator": 7.5,
+        "timeInVeryLowPercent": 0.03,
+        "timeInLowPercent": 0.07,
+        "timeInTargetPercent": 0.08,
+        "timeInTargetPercentDelta": 0.07,
+        "timeInHighPercent": 0.08,
+        "timeInVeryHighPercent": 0.02,
+        "timeCGMUsePercent": 0.89
+      }
+    ],
+    "timeInLowPercent": [
+
+    ],
+    "dropInTimeInTargetPercent": [
+
+    ],
+    "timeInTargetPercent": [
+
+    ],
+    "timeCGMUsePercent": [
+
+    ],
+    "meetingTargets": [
+
+    ]
+  }
+}
