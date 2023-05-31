@@ -331,7 +331,12 @@ export const getRoutes = (appContext) => {
           path="/"
           render={({ location }) => {
             if (ReactGA.isInitialized) {
-              ReactGA.send({ hitType: 'pageview', page: location?.pathname + location?.search + location?.hash });
+              ReactGA.send({
+                hitType: 'pageview',
+                page: location?.pathname + location?.search + location?.hash,
+                'page_search': location.search,
+                'page_hash': location.hash,
+              });
             }
             return null;
           }}
