@@ -14,6 +14,7 @@
  */
 
 import React from 'react';
+import ReactGA from 'react-ga4';
 import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
@@ -28,7 +29,7 @@ import api from './core/api';
 import personUtils from './core/personutils';
 import detectTouchScreen from './core/notouch';
 
-/* global __DEV_TOOLS__ */
+/* global __DEV_TOOLS__, __REACT_APP_GAID__ */
 
 // For React developer tools
 window.React = React;
@@ -59,6 +60,7 @@ appContext.props = {
 };
 
 appContext.init = callback => {
+  __REACT_APP_GAID__ && ReactGA.initialize(__REACT_APP_GAID__, { gtagOptions: { 'send_page_view': false } });
 
   function beginInit() {
     initNoTouch();

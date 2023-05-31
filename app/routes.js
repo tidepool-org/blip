@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import ReactGA from 'react-ga4';
 import async from 'async';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { push } from 'connected-react-router';
@@ -326,6 +327,16 @@ export const getRoutes = (appContext) => {
   return (
     <Route path='/' {...props} render={routeProps => (
       <AppComponent {...routeProps} {...props}>
+        <Route
+          path="/"
+          render={({ location }) => {
+            if (ReactGA.isInitialized) {
+              ReactGA.send({ hitType: 'pageview', page: location?.pathname + location?.search + location?.hash });
+            }
+            return null;
+          }}
+        />
+
         <Switch>
           <Route exact path='/' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
           <Route path='/login' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />

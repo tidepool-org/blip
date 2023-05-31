@@ -21,6 +21,7 @@ const isProd = (process.env.NODE_ENV === 'production');
 const linkedPackages = (isDev || isTest) ? _.get(optional('./config/local'), 'linkedPackages', {}) : {};
 const apiHost = _.get(optional('./config/local'), 'apiHost', process.env.API_HOST || null);
 const uploadApi = _.get(optional('./config/local'), 'uploadApi', process.env.UPLOAD_API || null);
+const reactAppGAID = _.get(optional('./config/local'), 'reactAppGAID', process.env.REACT_APP_GAID || null);
 const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
   i18nEnabled: process.env.I18N_ENABLED || false,
   rxEnabled: process.env.RX_ENABLED || false,
@@ -158,6 +159,7 @@ const plugins = [
     __PENDO_ENABLED__: JSON.stringify(featureFlags.pendoEnabled),
     __VERSION__: JSON.stringify(VERSION),
     __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
+    __REACT_APP_GAID__: JSON.stringify(reactAppGAID),
     __VERSION_SHA__: JSON.stringify(VERSION_SHA),
     __DEV__: isDev,
     __TEST__: isTest,
