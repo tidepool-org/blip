@@ -168,7 +168,6 @@ export let Signup = translate()(class extends React.Component {
       if(inviteEmail){
         options.loginHint = inviteEmail;
       }
-      keycloak.register(options);
 
       if (ReactGA.isInitialized) {
         ReactGA.event({
@@ -177,6 +176,8 @@ export let Signup = translate()(class extends React.Component {
           label: inviteEmail ? 'Has inviteEmail' : 'No inviteEmail',
         });
       }
+
+      keycloak.register(options);
     }
 
     let content = isLoading || keycloakConfig.initialized ? null : (
