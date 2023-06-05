@@ -43,9 +43,10 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       });
       const optionalVisitorProperties = {};
       const optionalAccountProperties = {};
+      let clinic = null;
       if (!isEmpty(clinicianOf)) {
         if (clinicianOf.length === 1) {
-          const clinic = clinicianOf[0];
+          clinic = clinicianOf[0];
           optionalVisitorProperties.permission = includes(
             clinic?.clinicians?.[user.userid]?.roles,
             'CLINIC_ADMIN'
@@ -59,13 +60,14 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
       initialize({
         visitor: {
-          id: `${env}-${user.userid}`,
+          id: user.userid,
           role,
           application: 'Web',
+          environment: env,
           ...optionalVisitorProperties,
         },
         account: {
-          id: `${env}-tidepool`,
+          id: clinic ? clinic.id : user.userid,
           ...optionalAccountProperties,
         },
       });
@@ -82,7 +84,10 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
           visitor: {
             permission: null,
           },
-          account: { clinic: null },
+          account: {
+            id: user.userid,
+            clinic: null,
+          },
         });
       } else {
         const selectedClinic = clinics[clinicId];
@@ -95,7 +100,10 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
               ? 'administrator'
               : 'member',
           },
-          account: { clinic: selectedClinic?.name },
+          account: {
+            id: clinicId,
+            clinic: selectedClinic?.name,
+          },
         });
       }
       break;
