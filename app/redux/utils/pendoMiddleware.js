@@ -13,6 +13,7 @@ const environments = {
   'qa1.development.tidepool.org': 'qa1',
   'qa2.development.tidepool.org': 'qa2',
   'int-app.tidepool.org': 'int',
+  'external.integration.tidepool.org': 'int',
   'app.tidepool.org': 'prd',
   localhost: 'local',
 };
@@ -53,6 +54,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
           )
             ? 'administrator'
             : 'member';
+          optionalVisitorProperties.domain = user.username.split('@')[1];
           optionalAccountProperties.clinic = clinic?.name;
         }
       }
