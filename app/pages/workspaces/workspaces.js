@@ -14,6 +14,9 @@ import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import AddIcon from '@material-ui/icons/Add';
+import { generateSSOLinkUri } from '../../keycloak';
+
+const win = window;
 
 import {
   Title,
@@ -21,6 +24,7 @@ import {
   MediumTitle,
   Body1,
   Subheading,
+  Paragraph1,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
@@ -183,6 +187,7 @@ export const Workspaces = (props) => {
         name: invite.creator?.clinicName,
         nameOrderable: invite.creator?.clinicName?.toLowerCase(),
         type: invite.type,
+        restrictions: invite.restrictions,
       })), 'nameOrderable'),
     ];
 
@@ -284,17 +289,49 @@ export const Workspaces = (props) => {
   }
 
   const RenderClinicWorkspace = (workspace, key) => {
-    const workspaceActions = workspace.type === 'clinic' ? (
-      <>
-        <Button variant='secondary' onClick={handleLeaveClinic.bind(null, workspace)}>{t('Leave Clinic')}</Button>
-        <Button ml={[3]} onClick={handleGoToWorkspace.bind(null, workspace)}>{t('Go To Workspace')}</Button>
-      </>
-    ) : (
-      <>
-        <Button variant='secondary' onClick={handleDeclineInvite.bind(null, workspace)}>{t('Decline')}</Button>
-        <Button ml={[3]} onClick={handleAcceptInvite.bind(null, workspace)}>{t('Accept Invite')}</Button>
-      </>
-    );
+    let workspaceActions = [];
+    let errorText = '';
+    if(workspace.type === 'clinic') {
+      workspaceActions.push((
+        <Button variant='secondary' onClick={handleLeaveClinic.bind(null, workspace)} key='leave'>
+          {t('Leave Clinic')}
+        </Button>
+        ), (
+        <Button ml={[3]} onClick={handleGoToWorkspace.bind(null, workspace)} key='goto'>
+          {t('Go To Workspace')}
+        </Button>
+        ),
+      )
+    } else {
+      workspaceActions.push(
+        <Button variant='secondary' onClick={handleDeclineInvite.bind(null, workspace)} key='decline'>
+          {t('Decline')}
+        </Button>
+      );
+      if(workspace.restrictions?.canAccept){
+        workspaceActions.push(
+          <Button ml={[3]} onClick={handleAcceptInvite.bind(null, workspace)} key='accept'>
+            {t('Accept Invite')}
+          </Button>
+        );
+      } else {
+        if(workspace.restrictions?.requiredIdp) {
+          errorText = t('This clinic requires Single Sign-On (SSO) in order to accept the invite.');
+          workspaceActions.push(
+            <Button ml={[3]} onClick={()=>{window.location.href = generateSSOLinkUri(workspace.restrictions.requiredIdp, win.origin)}} key='enable'>
+              {t('Enable SSO')}
+            </Button>
+          )
+        } else {
+          errorText = t('Your account doesn\'t satisfy the security requirements. Please contact this clinic\'s IT administrator.');
+          workspaceActions.push(
+            <Button ml={[3]} disabled={true} key='accept'>
+              {t('Accept Invite')}
+            </Button>
+          )
+        }
+      }
+    }
 
     return (
       <Flex
@@ -310,15 +347,22 @@ export const Workspaces = (props) => {
           borderBottom: baseTheme.borders.divider,
           '&:last-child': {
             borderBottom: 'none',
-          }
+          },
         }}
       >
-        <Flex className='workspace-details' alignItems="center" pb={[2,4]} mr={2}>
-          <Subheading>{workspace.name}</Subheading>
-          {workspace.type === 'clinician_invitation' && <NotificationIcon />}
+        <Flex flexDirection="column" pb={errorText ? [2, 3] : [2, 4]} mr={2}>
+          <Flex className="workspace-details" alignItems="center">
+            <Subheading>{workspace.name}</Subheading>
+            {workspace.type === 'clinician_invitation' && <NotificationIcon />}
+          </Flex>
+          {errorText && (
+            <Paragraph1 classname="workspace-error" color="feedback.danger" fontWeight="medium">
+              {errorText}
+            </Paragraph1>
+          )}
         </Flex>
         <Flex
-          className='workspace-actions'
+          className="workspace-actions"
           justifyContent="flex-start"
           width={['100%', 'auto']}
           pb={4}

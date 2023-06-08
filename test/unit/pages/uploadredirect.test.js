@@ -29,7 +29,18 @@ describe('UploadRedirect', () => {
     t: sinon.stub().callsFake((string) => string),
   };
 
-  let store = mockStore({});
+  let store = mockStore({
+    blip: {
+      allUsersMap: {
+        user123: {
+          profile: {
+            fullName: 'cool user'
+          }
+        }
+      },
+      loggedInUserId: 'user123'
+    }
+  });
   let customProtocolCheckStub = sinon.stub().callsArg(2);
 
   before(() => {
@@ -123,7 +134,6 @@ describe('UploadRedirect', () => {
       });
     });
 
-
     it("shouldn't run the protocol check when component is rendered a second time", () => {
       expect(customProtocolCheckStub.notCalled).to.be.true;
     });
@@ -135,5 +145,71 @@ describe('UploadRedirect', () => {
         'tidepooluploader://localhost/keycloak-redirect#someloginhash'
       );
     });
+
+    context('from profile form', () => {
+      before(() => {
+        defaultProps = {
+          ...defaultProps,
+          location: {
+            state: {
+              referrer: 'profile',
+            },
+          },
+        };
+      });
+
+      beforeEach(() => {
+        wrapper = createWrapper();
+      });
+
+      it('should contain thank you text', () => {
+        let title = wrapper.find(Title);
+        expect(title.text()).to.include(
+          'Thank you for completing your account registration'
+        );
+      });
+    });
+
+    context('user has no fullName', () => {
+      before(() => {
+        store = mockStore({
+          blip: {
+            allUsersMap: {
+              user123: {
+                profile: {},
+              },
+            },
+            loggedInUserId: 'user123',
+          },
+        });
+      });
+
+      beforeEach(() => {
+        store.clearActions();
+        wrapper = createWrapper();
+      });
+
+      it('should forward the user to the user profile', () => {
+        let expectedActions = [
+          {
+            type: '@@router/CALL_HISTORY_METHOD',
+            payload: {
+              method: 'push',
+              args: [
+                {
+                  pathname: '/profile',
+                  state: {
+                    referrer: 'upload-launch',
+                  },
+                },
+              ],
+            },
+          },
+        ];
+        let actions = store.getActions();
+        expect(actions).to.deep.equal(expectedActions);
+      });
+    });
+
   });
 });
