@@ -8,8 +8,7 @@ import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
 import i18next from '../../../app/core/language';
 
-import { UserProfile, UserProfileClass } from '../../../app/pages/userprofile';
-import { mapStateToProps } from '../../../app/pages/userprofile';
+import { UserProfile, UserProfileClass, mapStateToProps } from '../../../app/pages/userprofile';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 
 var assert = chai.assert;
@@ -26,6 +25,11 @@ describe('UserProfile', function () {
       console.error = sinon.stub();
       var props = {
         fetchingUser: false,
+        updatingUser: {
+          inProgress: false,
+          completed: false,
+          notification: null,
+        },
         history: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
@@ -34,6 +38,38 @@ describe('UserProfile', function () {
         t,
       };
       let wrapper = mount(<ToastProvider><UserProfileClass {...props}/></ToastProvider>)
+      expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should render without problems when user is logging out', function () {
+      let render = (properties) =>
+        mount(
+          React.createElement(
+            (props) => (
+              <ToastProvider>
+                <UserProfileClass {...props} />
+              </ToastProvider>
+            ),
+            properties
+          )
+        );
+      console.error = sinon.stub();
+      var props = {
+        fetchingUser: false,
+        updatingUser: {
+          inProgress: false,
+          completed: false,
+          notification: null,
+        },
+        history: {},
+        onSubmit: sinon.stub(),
+        trackMetric: sinon.stub(),
+        login: sinon.stub(),
+        user: { profile: {} },
+        t,
+      };
+      let wrapper = render(props)
+      wrapper.setProps({ user: null });
       expect(console.error.callCount).to.equal(0);
     });
   });
@@ -48,6 +84,11 @@ describe('UserProfile', function () {
           username: 'foo@bar.com'
         },
         t,
+        updatingUser: {
+          inProgress: false,
+          completed: false,
+          notification: null,
+        },
       };
       let wrapper = mount(<UserProfileClass {...props}/>);
       let state = wrapper.state();
@@ -71,6 +112,11 @@ describe('UserProfile', function () {
           username: 'foo@bar.com'
         },
         t,
+        updatingUser: {
+          inProgress: false,
+          completed: false,
+          notification: null,
+        },
       };
       let wrapper = mount(<UserProfileClass {...props}/>);
       let state = wrapper.state();
@@ -90,7 +136,12 @@ describe('UserProfile', function () {
         },
         trackMetric: sinon.stub(),
         user: { profile: {} },
-        t
+        t,
+        updatingUser: {
+          inProgress: false,
+          completed: false,
+          notification: null,
+        },
       };
 
       let wrapper = mount(<ToastProvider><UserProfileClass {...props} /></ToastProvider>);
@@ -111,7 +162,12 @@ describe('UserProfile', function () {
       },
       loggedInUserId: 'a1b2c3',
       working: {
-        fetchingUser: {inProgress: false}
+        fetchingUser: {inProgress: false},
+        updatingUser: {
+          inProgress: false,
+          completed: false,
+          notification: null,
+        },
       }
     };
 
@@ -132,6 +188,10 @@ describe('UserProfile', function () {
 
     it('should map working.fetchingUser.inProgress to fetchingUser', () => {
       expect(result.fetchingUser).to.equal(state.working.fetchingUser.inProgress);
+    });
+
+    it('should map working.updatingUser to updatingUser', () => {
+      expect(result.updatingUser).to.deep.equal(state.working.updatingUser);
     });
   });
 });

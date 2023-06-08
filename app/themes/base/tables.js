@@ -1,4 +1,33 @@
 export default ({ borders, colors, fonts, fontSizes, shadows }) => {
+  const groupHeader = {
+    boxShadow: `inset 0 -2px 0 ${colors.grays[4]}`,
+  };
+
+  const groupSpacer = {
+    paddingLeft: [0, null, 2],
+    paddingRight: [0, null, 2],
+  };
+
+  const groupTag = {
+    paddingLeft: 0,
+    paddingRight: [0, null, 2],
+  };
+
+  const groupLeft = {
+    paddingLeft: 0,
+    paddingRight: [0, null, 1],
+  };
+
+  const groupCenter = {
+    paddingLeft: [0, null, 1],
+    paddingRight: [0, null, 1],
+  };
+
+  const groupRight = {
+    paddingLeft: [0, null, 1],
+    paddingRight: 0,
+  };
+
   const defaultStyles = {
     color: colors.text.primary,
     fontFamily: fonts.default,
@@ -17,6 +46,30 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
 
       '&:last-child': {
         borderRadius: '0 4px 4px 0',
+      },
+
+      '&.group-spacer': {
+        ...groupSpacer,
+      },
+
+      '&.group-tag': {
+        ...groupHeader,
+        ...groupTag,
+      },
+
+      '&.group-left': {
+        ...groupHeader,
+        ...groupLeft,
+      },
+
+      '&.group-center': {
+        ...groupHeader,
+        ...groupCenter,
+      },
+
+      '&.group-right': {
+        ...groupHeader,
+        ...groupRight,
       },
     },
 
@@ -130,6 +183,26 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
 
         '&.action-buttons': {
           mt: 2,
+        },
+
+        '&.group-spacer': {
+          ...groupSpacer,
+        },
+
+        '&.group-tag': {
+          ...groupTag,
+        },
+
+        '&.group-left': {
+          ...groupLeft,
+        },
+
+        '&.group-center': {
+          ...groupCenter,
+        },
+
+        '&.group-right': {
+          ...groupRight,
         },
       },
     },
