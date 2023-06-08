@@ -62,7 +62,7 @@ describe('UserProfile', function () {
           completed: false,
           notification: null,
         },
-        history: {},
+        history: { location: { state: {} } },
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         login: sinon.stub(),
