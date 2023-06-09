@@ -206,7 +206,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           } else {
             if (
               isRestrictedClinicUIRoute &&
-              !(state.clinicFlowActive || state.selectedClinicId)
+              !(state.clinicFlowActive && state.selectedClinicId)
             ) {
               dispatch(push(routes.workspaces));
             }
