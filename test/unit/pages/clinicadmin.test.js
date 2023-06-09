@@ -259,9 +259,6 @@ describe('ClinicAdmin', () => {
           payload: {
             args: [
               '/clinic-invite',
-              {
-                clinicId: 'clinicID456',
-              },
             ],
             method: 'push',
           },
