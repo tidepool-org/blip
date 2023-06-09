@@ -2081,19 +2081,21 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
 
   // if is clinician user viewing a patient's data with no selected clinic
   // we need to check clinics for patient and then select the relevant clinic
+
+  let clinicToSelect = null;
+  _.forEach(stateProps.clinics, (clinic, clinicId) => {
+    let patient = _.get(clinic.patients, ownProps.match.params.id, null);
+    if (patient) {
+      clinicToSelect = clinicId;
+    }
+  });
+
   if (
     personUtils.isClinicianAccount(stateProps.user) &&
     stateProps.user.userid !== ownProps.match.params.id &&
-    !stateProps.selectedClinicId &&
+    (!stateProps.selectedClinicId || stateProps.selectedClinicId !== clinicToSelect) &&
     !stateProps.fetchingPatientFromClinic.inProgress
   ) {
-    let clinicToSelect = null;
-    _.forEach(stateProps.clinics, (clinic, clinicId) => {
-      let patient = _.get(clinic.patients, ownProps.match.params.id, null);
-      if (patient) {
-        clinicToSelect = clinicId;
-      }
-    });
     if (clinicToSelect) {
       dispatchProps.selectClinic(clinicToSelect);
     } else {
