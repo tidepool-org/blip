@@ -131,8 +131,10 @@ export const ClinicDetails = (props) => {
           // clinic patients have not been migrated, we open the prompt to complete the migration
           openMigrationConfirmationModal();
         } else {
-          // If there is no reason for the user to be here, we redirect them appropriately
-          redirectToWorkspace();
+          if (action !== 'new') {
+            // If there is no reason for the user to be here, we redirect them appropriately
+            redirectToWorkspace();
+          }
         }
       }
     }
