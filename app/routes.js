@@ -192,10 +192,16 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
             '/prescriptions',
           ];
 
+          const isCreateNewClinicRoute = _.startsWith(
+            currentPathname,
+            '/clinic-details/new'
+          );
+
           const isClinicUIRoute = _.some(
             [...unrestrictedClinicUIRoutes, ...requireSelectedClinicUIRoutes],
             (route) => _.startsWith(currentPathname, route)
           );
+
           const isRestrictedClinicUIRoute = _.some(
             requireSelectedClinicUIRoutes,
             (route) => _.startsWith(currentPathname, route)
@@ -206,7 +212,10 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           } else {
             if (
               isRestrictedClinicUIRoute &&
-              !(state.clinicFlowActive && state.selectedClinicId)
+              !(
+                state.clinicFlowActive &&
+                (state.selectedClinicId || isCreateNewClinicRoute)
+              )
             ) {
               dispatch(push(routes.workspaces));
             }
