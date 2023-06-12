@@ -93,6 +93,7 @@ export const ClinicDetails = (props) => {
   const [logoutPending, setLogoutPending] = useState(false);
   const [clinicInvite, setClinicInvite] = useState();
   const [formikReady, setFormikReady] = useState(false);
+  const previousSubmitting = usePrevious(submitting);
 
   let schema = displayClinicForm ? 'clinic' : 'clinician';
   if (displayClinicForm && displayClinicianForm) schema = 'combined';
@@ -131,7 +132,7 @@ export const ClinicDetails = (props) => {
           // clinic patients have not been migrated, we open the prompt to complete the migration
           openMigrationConfirmationModal();
         } else {
-          if (action !== 'new') {
+          if (action !== 'new' || (action === 'new' && previousSubmitting)) {
             // If there is no reason for the user to be here, we redirect them appropriately
             redirectToWorkspace();
           }
