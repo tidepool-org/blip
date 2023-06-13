@@ -273,7 +273,10 @@ export const ensureNoAuth = (api, cb = _.noop) => () => {
  * @param  {Object} api
  */
 export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
-  const { blip: state } = getState();
+  const { blip: state, router: routerState } = getState();
+  if (routerState?.location?.query?.ssoEnabled === 'true') {
+    dispatch(actions.sync.setSSOEnabledDisplay(true));
+  }
   if (api.user.isAuthenticated()) {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     const isClinicianAccount = personUtils.isClinicianAccount(user);
