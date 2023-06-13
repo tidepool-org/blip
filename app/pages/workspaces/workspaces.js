@@ -55,6 +55,17 @@ export const Workspaces = (props) => {
   const clinics = useSelector((state) => state.blip.clinics);
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const ssoEnabledDisplay = useSelector((state) => state.blip.ssoEnabledDisplay);
+
+  if (ssoEnabledDisplay && isFirstRender) {
+    setToast({
+      message: t(
+        'You have successfully enabled SSO. You may now accept clinic workspace invites that require SSO.'
+      ),
+      variant: 'success',
+    });
+    dispatch(actions.sync.setSSOEnabledDisplay(false));
+  }
 
   const {
     fetchingClinicianInvites,
@@ -318,7 +329,7 @@ export const Workspaces = (props) => {
         if(workspace.restrictions?.requiredIdp) {
           errorText = t('This clinic requires Single Sign-On (SSO) in order to accept the invite.');
           workspaceActions.push(
-            <Button ml={[3]} onClick={()=>{window.location.href = generateSSOLinkUri(workspace.restrictions.requiredIdp, win.origin)}} key='enable'>
+            <Button ml={[3]} onClick={()=>{window.location.href = generateSSOLinkUri(workspace.restrictions.requiredIdp, `${win.origin}?ssoEnabled=true`)}} key='enable'>
               {t('Enable SSO')}
             </Button>
           )

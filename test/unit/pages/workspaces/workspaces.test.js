@@ -585,5 +585,21 @@ describe('Workspaces', () => {
       );
     });
 
+    it('should set SSO enabled display state to false if it is true', () => {
+      wrapper = mountWrapper(
+        mockStore({
+          blip: { ...fetchedClinicInvitesState.blip, ssoEnabledDisplay: true },
+        })
+      );
+
+      expect(store.getActions()).to.eql([
+        {
+          type: 'SET_SSO_ENABLED_DISPLAY',
+          payload: {
+            value: false,
+          },
+        },
+      ]);
+    });
   });
 });

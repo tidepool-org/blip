@@ -1038,3 +1038,12 @@ export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
       return state;
   }
 };
+
+export const ssoEnabledDisplay = (state = initialState.ssoEnabledDisplay, action) => {
+  switch (action.type) {
+    case types.SET_SSO_ENABLED_DISPLAY:
+      return action.payload.value;
+    default:
+      return state;
+  }
+};
