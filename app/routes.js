@@ -180,6 +180,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
         ) {
           const currentPathname = routerState?.location?.pathname;
           const isClinicianAccount = personUtils.isClinicianAccount(user);
+          const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
 
           const unrestrictedClinicUIRoutes = [routes.workspaces];
 
@@ -195,6 +196,11 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           const isCreateNewClinicRoute = _.startsWith(
             currentPathname,
             '/clinic-details/new'
+          );
+
+          const isClinicProfileRoute = _.startsWith(
+            currentPathname,
+            '/clinic-details/profile'
           );
 
           const isClinicUIRoute = _.some(
@@ -214,7 +220,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
               isRestrictedClinicUIRoute &&
               !(
                 state.clinicFlowActive &&
-                (state.selectedClinicId || isCreateNewClinicRoute)
+                (state.selectedClinicId || isCreateNewClinicRoute || (isClinicProfileRoute && !hasClinicProfile))
               )
             ) {
               dispatch(push(routes.workspaces));
