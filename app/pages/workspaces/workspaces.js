@@ -60,7 +60,7 @@ export const Workspaces = (props) => {
   if (ssoEnabledDisplay && isFirstRender) {
     setToast({
       message: t(
-        'You have successfully enabled SSO. You may now accept clinic workspace invites that require SSO.'
+        'You have successfully linked your account. You may now accept clinic workspace invites that require SSO.'
       ),
       variant: 'success',
     });
@@ -327,10 +327,10 @@ export const Workspaces = (props) => {
         );
       } else {
         if(workspace.restrictions?.requiredIdp) {
-          errorText = t('This clinic requires Single Sign-On (SSO) in order to accept the invite.');
+          errorText = t('Single Sign-On (SSO) is required to join this Clinic. Please link your account to enable SSO.');
           workspaceActions.push(
             <Button ml={[3]} onClick={()=>{window.location.href = generateSSOLinkUri(workspace.restrictions.requiredIdp, `${win.origin}?ssoEnabled=true`)}} key='enable'>
-              {t('Enable SSO')}
+              {t('Link Account')}
             </Button>
           )
         } else {
