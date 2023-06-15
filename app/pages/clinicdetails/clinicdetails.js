@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
@@ -94,6 +94,8 @@ export const ClinicDetails = (props) => {
   const [clinicInvite, setClinicInvite] = useState();
   const [formikReady, setFormikReady] = useState(false);
   const previousSubmitting = usePrevious(submitting);
+  const location = useLocation();
+  const isUploadLaunch = location.state?.referrer === 'upload-launch';
 
   let schema = displayClinicForm ? 'clinic' : 'clinician';
   if (displayClinicForm && displayClinicianForm) schema = 'combined';
@@ -191,7 +193,16 @@ export const ClinicDetails = (props) => {
           variant: 'success',
         });
 
-        redirectToWorkspace();
+        if (isUploadLaunch) {
+          dispatch(
+            push({
+              pathname: '/upload-redirect',
+              state: { referrer: 'profile' },
+            })
+          );
+        } else {
+          redirectToWorkspace();
+        }
       }
     }
   }, [working.updatingUser]);
