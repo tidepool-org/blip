@@ -124,7 +124,7 @@ export var UserProfileClass = class extends React.Component {
     const isUploadLaunch = this.props.history.location.state?.referrer === 'upload-launch';
     // Keep form values in sync with upstream changes
     this.setState({formValues: this.formValuesFromUser(nextProps.user)});
-    if(_.isEmpty(this.props.user.profile.fullName) && !_.isEmpty(nextProps.user.profile.fullName)){
+    if(_.isEmpty(this.props.user?.profile?.fullName) && !_.isEmpty(nextProps.user?.profile?.fullName)){
       this.context.clear();
       if (!isUploadLaunch) {
         this.props.login();

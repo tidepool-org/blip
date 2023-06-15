@@ -192,7 +192,7 @@ const BgSummaryCell = ({ summary, clinicBgUnits, activeSummaryPeriod, t }) => {
           height="20px"
         >
           <Text fontSize="10px" fontWeight="medium" color="grays.4">
-            {insufficientDataText}
+            {cgmUsePercent === 0 ? '' : insufficientDataText}
           </Text>
         </Flex>
       )}
@@ -548,6 +548,7 @@ export const ClinicPatients = (props) => {
     birthDate: 'asc',
     glucoseManagementIndicator: 'desc',
     averageGlucose: 'desc',
+    lastUploadDate: 'desc',
     timeInVeryLowRecords: 'desc',
     timeInVeryHighRecords: 'desc',
   }), []);
@@ -864,9 +865,8 @@ export const ClinicPatients = (props) => {
       const filterOptions = {
         offset: 0,
         sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
-        sortType: defaultPatientFetchOptions.sortType,
-        sortPeriod: activeSummaryPeriod,
-        filterPeriod: activeSummaryPeriod,
+        sortType: patientFetchOptions.sortType || defaultPatientFetchOptions.sortType,
+        period: activeSummaryPeriod,
         limit: 50,
         search: patientFetchOptions.search,
       }
@@ -876,8 +876,13 @@ export const ClinicPatients = (props) => {
       const isPremiumTier = clinic?.tier >= 'tier0300';
 
       if (isPremiumTier) {
+        // If we are currently sorting by lastUpload date, ensure the sortType matches the filter
+        // type if available, or falls back to the default sortType
+        if (filterOptions.sort.indexOf('lastUploadDate') === 1) {
+          filterOptions.sortType = activeFilters.lastUploadType || defaultPatientFetchOptions.sortType;
+        }
+
         if (activeFilters.lastUploadDate && activeFilters.lastUploadType) {
-          filterOptions.sortType = activeFilters.lastUploadType;
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateFrom`] = moment(filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`]).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
@@ -1633,8 +1638,8 @@ export const ClinicPatients = (props) => {
                         variant="textSecondary"
                         onClick={() => {
                           trackMetric(prefixPopHealthMetric('CGM use clear filter'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, cgmUse: defaultFilterState.timeCGMUsePercent });
-                          setActiveFilters({ ...activeFilters, cgmUse: defaultFilterState.timeCGMUsePercent });
+                          setPendingFilters({ ...activeFilters, timeCGMUsePercent: defaultFilterState.timeCGMUsePercent });
+                          setActiveFilters({ ...activeFilters, timeCGMUsePercent: defaultFilterState.timeCGMUsePercent });
                           cgmUsePopupFilterState.close();
                         }}
                       >
@@ -2641,7 +2646,7 @@ export const ClinicPatients = (props) => {
     const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucose;
     let averageDailyRecords = Math.round(summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageDailyRecords);
     const averageDailyRecordsUnits = averageDailyRecords > 1 ? 'readings/day' : 'reading/day';
-    if (averageDailyRecords === 0) averageDailyRecords = '>1';
+    if (averageDailyRecords === 0) averageDailyRecords = '<1';
     const averageDailyRecordsText = t('{{averageDailyRecords}} {{averageDailyRecordsUnits}}', { averageDailyRecords, averageDailyRecordsUnits });
     const bgPrefs = { bgUnits: clinicBgUnits };
 
@@ -2690,7 +2695,11 @@ export const ClinicPatients = (props) => {
           label="low"
           variant="static"
         />
-        <Text color="text.primary" fontSize={0}>{t('Low Events are a count of any BGM readings that are below 54 mg/dL')}</Text>
+        <Text color="text.primary" fontSize={0}>
+          {t('Low Events are a count of any BGM readings that are below {{threshold}}', {
+            threshold: clinicBgUnits === MGDL_UNITS ? '54 mg/dL' : '3.0 mmol/L'
+          })}
+        </Text>
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '2px' }} mb={2}>
@@ -2702,7 +2711,11 @@ export const ClinicPatients = (props) => {
           label="high"
           variant="static"
         />
-        <Text color="text.primary" fontSize={0}>{t('High Events are a count of any BGM readings that are above 250 mg/dL')}</Text>
+        <Text color="text.primary" fontSize={0}>
+          {t('High Events are a count of any BGM readings that are above {{threshold}}', {
+            threshold: clinicBgUnits === MGDL_UNITS ? '250 mg/dL' : '13.9 mmol/L'
+          })}
+        </Text>
       </Flex>
 
       <Text color="text.primary" fontSize={0}>{t('Events are summed up over the currently selected time duration')}</Text>
@@ -2785,8 +2798,11 @@ export const ClinicPatients = (props) => {
         ...[
           {
             title: t('Last Upload'),
-            field: 'lastUploadDate',
+            field: `${activeFilters.lastUploadType || 'cgm'}.lastUploadDate`,
             align: 'left',
+            sortable: true,
+            defaultOrder: defaultSortOrders.lastUploadDate,
+            sortBy: 'lastUploadDate',
             render: renderLastUploadDate,
           },
           {
@@ -2899,6 +2915,7 @@ export const ClinicPatients = (props) => {
     renderPatient,
     renderPatientTags,
     showSummaryData,
+    patientFetchOptions,
     t,
   ]);
 

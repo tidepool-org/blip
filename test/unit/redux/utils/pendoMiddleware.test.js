@@ -130,13 +130,18 @@ describe('pendoMiddleware', () => {
         blip: {
           clinics: {
             clinicID123: {
+              id: 'clinicID123',
               clinicians: { userID345: { roles: ['CLINIC_ADMIN'] } },
               name: 'Mock Clinic Name',
             },
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['clinician'] },
+            userID345: {
+              userid: 'userID345',
+              roles: ['clinician'],
+              username: 'user345@example.com'
+            },
           },
         },
       },
@@ -144,18 +149,21 @@ describe('pendoMiddleware', () => {
     const expectedConfig = {
       account: {
         clinic: 'Mock Clinic Name',
-        id: 'local-tidepool',
+        id: 'clinicID123',
       },
       visitor: {
         application: 'Web',
-        id: 'local-userID345',
+        environment: 'local',
+        id: 'userID345',
         permission: 'administrator',
         role: 'personal',
+        domain: 'example.com',
       },
     };
     expect(winMock.pendo.initialize.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
     expect(winMock.pendo.initialize.callCount).to.equal(1);
+    expect(winMock.pendo.initialize.getCall(0).args[0]).to.eql(expectedConfig);
     expect(winMock.pendo.initialize.calledWith(expectedConfig)).to.be.true;
   });
 
@@ -189,17 +197,19 @@ describe('pendoMiddleware', () => {
     });
     const expectedConfig = {
       account: {
-        id: 'local-tidepool',
+        id: 'userID345',
       },
       visitor: {
         application: 'Web',
-        id: 'local-userID345',
+        environment: 'local',
+        id: 'userID345',
         role: 'personal',
       },
     };
     expect(winMock.pendo.initialize.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
     expect(winMock.pendo.initialize.callCount).to.equal(1);
+    expect(winMock.pendo.initialize.getCall(0).args[0]).to.eql(expectedConfig);
     expect(winMock.pendo.initialize.calledWith(expectedConfig)).to.be.true;
   });
 
@@ -216,13 +226,20 @@ describe('pendoMiddleware', () => {
         blip: {
           clinics: {
             clinicID123: {
-              clinicians: { userID345: { roles: ['CLINIC_ADMIN'] } },
+              id: 'clinicID123',
+              clinicians: {
+                userID345: { roles: ['CLINIC_ADMIN'] },
+              },
               name: 'Mock Clinic Name',
             },
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['clinician'] },
+            userID345: {
+              userid: 'userID345',
+              roles: ['clinician'],
+              username: 'userID345@example.com',
+            },
           },
         },
       },
@@ -230,11 +247,13 @@ describe('pendoMiddleware', () => {
     const expectedProdConfig = {
       account: {
         clinic: 'Mock Clinic Name',
-        id: 'prd-tidepool',
+        id: 'clinicID123',
       },
       visitor: {
         application: 'Web',
-        id: 'prd-userID345',
+        domain: 'example.com',
+        environment: 'prd',
+        id: 'userID345',
         permission: 'administrator',
         role: 'personal',
       },
@@ -242,11 +261,13 @@ describe('pendoMiddleware', () => {
     const expectedQA1Config = {
       account: {
         clinic: 'Mock Clinic Name',
-        id: 'qa1-tidepool',
+        id: 'clinicID123',
       },
       visitor: {
         application: 'Web',
-        id: 'qa1-userID345',
+        domain: 'example.com',
+        environment: 'qa1',
+        id: 'userID345',
         permission: 'administrator',
         role: 'personal',
       },
@@ -264,12 +285,14 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.initialize.callCount).to.equal(0);
     pendoMiddleware(api, prdWinMock)(getStateObj)(next)(loginSuccess);
     expect(winMock.pendo.initialize.callCount).to.equal(1);
+    expect(winMock.pendo.initialize.getCall(0).args[0]).to.eql(expectedProdConfig);
     expect(winMock.pendo.initialize.calledWith(expectedProdConfig)).to.be.true;
     winMock.pendo.initialize.resetHistory();
 
     expect(winMock.pendo.initialize.callCount).to.equal(0);
     pendoMiddleware(api, qa1WinMock)(getStateObj)(next)(loginSuccess);
     expect(winMock.pendo.initialize.callCount).to.equal(1);
+    expect(winMock.pendo.initialize.getCall(0).args[0]).to.eql(expectedQA1Config);
     expect(winMock.pendo.initialize.calledWith(expectedQA1Config)).to.be.true;
   });
 
@@ -296,7 +319,11 @@ describe('pendoMiddleware', () => {
           },
           loggedInUserId: 'userID345',
           allUsersMap: {
-            userID345: { userid: 'userID345', roles: ['clinician'] },
+            userID345: {
+              userid: 'userID345',
+              roles: ['clinician'],
+              username: 'userID345@example.com',
+            },
           },
         },
       },
@@ -304,6 +331,7 @@ describe('pendoMiddleware', () => {
     const expectedConfig = {
       account: {
         clinic: 'Other Mock Clinic',
+        id: 'clinicID987',
       },
       visitor: {
         permission: 'member',
@@ -312,6 +340,7 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(selectClinic);
     expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+    expect(winMock.pendo.updateOptions.getCall(0).args[0]).to.eql(expectedConfig);
     expect(winMock.pendo.updateOptions.calledWith(expectedConfig)).to.be.true;
   });
 
@@ -346,6 +375,7 @@ describe('pendoMiddleware', () => {
     const expectedConfig = {
       account: {
         clinic: null,
+        id: 'userID345',
       },
       visitor: {
         permission: null,

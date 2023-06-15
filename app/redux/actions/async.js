@@ -2052,7 +2052,7 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
  * @param {Number} [options.limit] - results per page
  * @param {Number} [options.sort] - directionally prefixed field to sort by (e.g. +name or -name)
  * @param {Number} [options.sortType] - type of bg data to sort by (cgm|bgm)
- * @param {Number} [options.sortPeriod] - summary period to sort by (1d|7d|14d|30d)
+ * @param {Number} [options.period] - summary period to sort by (1d|7d|14d|30d)
  */
 export function fetchPatientsForClinic(api, clinicId, options = {}) {
   return (dispatch) => {
