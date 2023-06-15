@@ -11,6 +11,7 @@ import { Subheading, Title } from '../../components/elements/FontStyles';
 import Button from '../../components/elements/Button';
 import UAParser from 'ua-parser-js';
 import { useIsFirstRender } from '../../core/hooks';
+import personUtils from '../../core/personutils';
 
 let launched = false;
 
@@ -20,6 +21,8 @@ const UploadRedirect = (props) => {
     (state) => state?.blip?.allUsersMap?.[state?.blip?.loggedInUserId]
   );
   const userHasFullName = !isEmpty(user?.profile?.fullName);
+  const userHasClinicProfile = !isEmpty(user?.profile?.clinic);
+  const isClinicianAccount = personUtils.isClinicianAccount(user);
   const { t } = props;
   const isFirstRender = useIsFirstRender();
   const fromProfile = props.location.state?.referrer === 'profile';
@@ -44,9 +47,18 @@ const UploadRedirect = (props) => {
   }
 
   if (!userHasFullName) {
-    dispatch(
-      push({ pathname: '/profile', state: { referrer: 'upload-launch' } })
-    );
+    if (isClinicianAccount && !userHasClinicProfile) {
+      dispatch(
+        push({
+          pathname: '/clinic-details/profile',
+          state: { referrer: 'upload-launch' },
+        })
+      );
+    } else {
+      dispatch(
+        push({ pathname: '/profile', state: { referrer: 'upload-launch' } })
+      );
+    }
     return null;
   }
 

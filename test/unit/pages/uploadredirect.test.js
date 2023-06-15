@@ -211,5 +211,47 @@ describe('UploadRedirect', () => {
       });
     });
 
+    context('clinician has no clinic profile', () => {
+      before(() => {
+        store = mockStore({
+          blip: {
+            allUsersMap: {
+              user123: {
+                isClinicMember: true,
+                profile: {},
+              },
+            },
+            loggedInUserId: 'user123',
+          },
+        });
+      });
+
+      beforeEach(() => {
+        store.clearActions();
+        wrapper = createWrapper();
+      });
+
+      it('should forward the user to the clinician profile', () => {
+        let expectedActions = [
+          {
+            type: '@@router/CALL_HISTORY_METHOD',
+            payload: {
+              method: 'push',
+              args: [
+                {
+                  pathname: '/clinic-details/profile',
+                  state: {
+                    referrer: 'upload-launch',
+                  },
+                },
+              ],
+            },
+          },
+        ];
+        let actions = store.getActions();
+        expect(actions).to.deep.equal(expectedActions);
+      });
+    });
+
   });
 });
