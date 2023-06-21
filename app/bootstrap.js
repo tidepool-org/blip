@@ -41,11 +41,11 @@ export let appContext = {
   config: config
 };
 
-// This anonymous function must remain in ES5 format because
-// the argument parameter used is not bound when using arrow functions
-// See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
-appContext.trackMetric = function() {
-  const args = Array.prototype.slice.call(arguments);
+appContext.trackMetric = (...args) => {
+  let selectedClinicId = appContext.store?.getState()?.blip?.selectedClinicId;
+  if (selectedClinicId) {
+    _.defaultsDeep(args, [, { clinicId: selectedClinicId }]);
+  }
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };
 

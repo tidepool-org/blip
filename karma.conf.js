@@ -14,6 +14,7 @@ const testWebpackConf = _.assign({}, webpackConf, {
       __TEST__: true,
       __PROD__: false,
       __I18N_ENABLED__: 'false',
+      __DEV_TOOLS__: false,
     }),
   ],
 });
