@@ -72,7 +72,11 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
   };
 
   if (!api.user.isAuthenticated()) {
-    dispatch(push('/login'));
+    let dest = '';
+    if (routerState?.location?.pathname) {
+      dest = `?dest=${encodeURIComponent(routerState.location.pathname + routerState.location.hash)}`;
+    }
+    dispatch(push(`/login${dest}`));
   } else {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     if (!_.isEmpty(user)) {
@@ -167,7 +171,62 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           cb();
         });
       } else {
-        // Clinic UI feature is off. Callback and continue
+        // if we've already fetched clinic information, we can use current state to check
+        // for route restriction based on account type and clinic selection
+        if (
+          !state.working.fetchingClinicsForClinician.inProgress &&
+          state.working.fetchingClinicsForClinician.completed &&
+          !state.working.fetchingClinicsForClinician.notification
+        ) {
+          const currentPathname = routerState?.location?.pathname;
+          const isClinicianAccount = personUtils.isClinicianAccount(user);
+          const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+
+          const unrestrictedClinicUIRoutes = [routes.workspaces];
+
+          const requireSelectedClinicUIRoutes = [
+            '/clinic-admin',
+            '/clinic-details',
+            '/clinic-invite',
+            '/clinic-workspace',
+            '/clinician-edit',
+            '/prescriptions',
+          ];
+
+          const isCreateNewClinicRoute = _.startsWith(
+            currentPathname,
+            '/clinic-details/new'
+          );
+
+          const isClinicProfileRoute = _.startsWith(
+            currentPathname,
+            '/clinic-details/profile'
+          );
+
+          const isClinicUIRoute = _.some(
+            [...unrestrictedClinicUIRoutes, ...requireSelectedClinicUIRoutes],
+            (route) => _.startsWith(currentPathname, route)
+          );
+
+          const isRestrictedClinicUIRoute = _.some(
+            requireSelectedClinicUIRoutes,
+            (route) => _.startsWith(currentPathname, route)
+          );
+
+          if (isClinicUIRoute && !isClinicianAccount) {
+            dispatch(push(routes.patients));
+          } else {
+            if (
+              isRestrictedClinicUIRoute &&
+              !(
+                state.clinicFlowActive &&
+                (state.selectedClinicId || isCreateNewClinicRoute || (isClinicProfileRoute && !hasClinicProfile))
+              )
+            ) {
+              dispatch(push(routes.workspaces));
+            }
+          }
+        }
         cb();
       }
     }
@@ -220,7 +279,10 @@ export const ensureNoAuth = (api, cb = _.noop) => () => {
  * @param  {Object} api
  */
 export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
-  const { blip: state } = getState();
+  const { blip: state, router: routerState } = getState();
+  if (routerState?.location?.query?.ssoEnabled === 'true') {
+    dispatch(actions.sync.setSSOEnabledDisplay(true));
+  }
   if (api.user.isAuthenticated()) {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     const isClinicianAccount = personUtils.isClinicianAccount(user);
@@ -353,7 +415,7 @@ export const getRoutes = (appContext) => {
           <Route path='/request-password-from-uploader' render={routeProps => (<Gate onEnter={boundOnUploaderPasswordReset} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
-          <Route path="/upload-redirect" render={routeProps => (<UploadRedirect {...routeProps} {...props} />)} />
+          <Route path="/upload-redirect" render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UploadRedirect {...routeProps} {...props} /></Gate>)} />
           <Route path="/logged-out" render={routeProps => (<LoggedOut {...routeProps} {...props}/>)} />
           <Route>
             { api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to='/login' /> }

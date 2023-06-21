@@ -612,6 +612,7 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
+            onClickPrint={this.handleClickPrint}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
@@ -2078,6 +2079,39 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchPatientFromClinic.bind(null, api, stateProps.selectedClinicId, ownProps.match.params.id));
   }
 
+  // if is clinician user viewing a patient's data with no selected clinic
+  // we need to check clinics for patient and then select the relevant clinic
+
+  let clinicToSelect = null;
+  _.forEach(stateProps.clinics, (clinic, clinicId) => {
+    let patient = _.get(clinic.patients, ownProps.match.params.id, null);
+    if (patient) {
+      clinicToSelect = clinicId;
+    }
+  });
+
+  if (
+    personUtils.isClinicianAccount(stateProps.user) &&
+    stateProps.user.userid !== ownProps.match.params.id &&
+    (!stateProps.selectedClinicId || stateProps.selectedClinicId !== clinicToSelect) &&
+    !stateProps.fetchingPatientFromClinic.inProgress
+  ) {
+    if (clinicToSelect) {
+      dispatchProps.selectClinic(clinicToSelect);
+    } else {
+      _.forEach(stateProps.clinics, (clinic, clinicId) => {
+        fetchers.push(
+          dispatchProps.fetchPatientFromClinic.bind(
+            null,
+            api,
+            clinicId,
+            ownProps.match.params.id
+          )
+        );
+      });
+    }
+  }
+
   return fetchers;
 }
 
@@ -2166,6 +2200,7 @@ export function mapStateToProps(state, props) {
     data: state.blip.data,
     selectedClinicId: state.blip.selectedClinicId,
     clinic: state.blip.clinics?.[state.blip.selectedClinicId],
+    clinics: state.blip.clinics,
   };
 }
 
@@ -2186,6 +2221,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
   generateAGPImagesSuccess: actions.sync.generateAGPImagesSuccess,
   generateAGPImagesFailure: actions.sync.generateAGPImagesFailure,
+  selectClinic: actions.sync.selectClinic,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
@@ -2203,6 +2239,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     'removeGeneratedPDFS',
     'generateAGPImagesSuccess',
     'generateAGPImagesFailure',
+    'selectClinic',
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {

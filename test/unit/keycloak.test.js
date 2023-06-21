@@ -26,6 +26,7 @@ const {
   onKeycloakEvent,
   onKeycloakTokens,
   keycloakMiddleware,
+  generateSSOLinkUri
 } = keycloak;
 
 const expect = chai.expect;
@@ -374,6 +375,38 @@ describe('keycloak', () => {
         </Provider>
       );
       expect(keycloakMock.init.callCount).to.equal(1);
+    });
+  });
+
+  describe('generateSSOLinkUri', () => {
+    const keycloakMock = {
+      authServerUrl: 'http://keycloakauthserverurl',
+      realm: 'keycloakRealm',
+      tokenParsed: {
+        // eslint-disable-next-line camelcase
+        session_state: 'keycloakSessionState',
+      },
+      clientId: 'keycloakClientId',
+    };
+
+    before(() => {
+      keycloak.__Rewire__('keycloak', keycloakMock);
+    });
+
+    after(() => {
+      keycloak.__ResetDependency__('keycloak');
+    });
+
+    it('should return a SSO Uri', () => {
+      expect(
+       generateSSOLinkUri(
+          'anIdp',
+          'aRedirectUri',
+          'providedNonce'
+        )
+      ).to.equal(
+        'http://keycloakauthserverurl/realms/keycloakRealm/broker/anIdp/link?nonce=providedNonce&hash=9poE5eoZoNI83tBnkjtE_v-LgE4nAa0jZTFjBaOvG8w&client_id=keycloakClientId&redirect_uri=aRedirectUri'
+      );
     });
   });
 });

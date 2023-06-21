@@ -3,16 +3,29 @@ import { translate, Trans } from 'react-i18next';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import customProtocolCheck from 'custom-protocol-check';
 import { Redirect } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
+import { useDispatch } from 'react-redux';
+import { isEmpty } from 'lodash';
 import { Subheading, Title } from '../../components/elements/FontStyles';
 import Button from '../../components/elements/Button';
 import UAParser from 'ua-parser-js';
 import { useIsFirstRender } from '../../core/hooks';
+import personUtils from '../../core/personutils';
 
 let launched = false;
 
 const UploadRedirect = (props) => {
+  const dispatch = useDispatch();
+  const user = useSelector(
+    (state) => state?.blip?.allUsersMap?.[state?.blip?.loggedInUserId]
+  );
+  const userHasFullName = !isEmpty(user?.profile?.fullName);
+  const userHasClinicProfile = !isEmpty(user?.profile?.clinic);
+  const isClinicianAccount = personUtils.isClinicianAccount(user);
   const { t } = props;
   const isFirstRender = useIsFirstRender();
+  const fromProfile = props.location.state?.referrer === 'profile';
   const linkUrl = `tidepooluploader://localhost/keycloak-redirect${props.location.hash}`;
   const ua = new UAParser().getResult();
   let openText = 'Open Tidepool Uploader';
@@ -29,12 +42,28 @@ const UploadRedirect = (props) => {
       break;
   }
 
-  if (!props.location.hash) {
+  if (!props.location.hash && !fromProfile) {
     return <Redirect to="/login" />;
   }
 
+  if (!userHasFullName) {
+    if (isClinicianAccount && !userHasClinicProfile) {
+      dispatch(
+        push({
+          pathname: '/clinic-details/profile',
+          state: { referrer: 'upload-launch' },
+        })
+      );
+    } else {
+      dispatch(
+        push({ pathname: '/profile', state: { referrer: 'upload-launch' } })
+      );
+    }
+    return null;
+  }
+
   if (!launched && isFirstRender) {
-    if (props.location.hash) {
+    if (props.location.hash || fromProfile) {
       customProtocolCheck(
         linkUrl,
         () => {},
@@ -53,9 +82,17 @@ const UploadRedirect = (props) => {
           <Box>
             <Flex alignItems="center" flexDirection="column">
               <Title mb="10px">
-                <Trans>
-                  Click <Text as="span" fontWeight="bold">{openText}</Text> on the dialog shown by your browser
-                </Trans>
+                {
+                  fromProfile ? (
+                    <Trans>
+                      Thank you for completing your account registration. Click <Text as="span" fontWeight="bold">{openText}</Text> on the dialog shown by your browser and <Text as="span" fontWeight="bold">log in</Text> again.
+                    </Trans>
+                    ) : (
+                    <Trans>
+                      Click <Text as="span" fontWeight="bold">{openText}</Text> on the dialog shown by your browser
+                    </Trans>
+                  )
+                }
               </Title>
               <Subheading mb="10px">
                 <Trans>

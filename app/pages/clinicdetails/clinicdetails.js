@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
@@ -46,7 +46,7 @@ countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
 
 const clinicianSchema = yup.object().shape({
   fullName: yup.string().required(t('Name is required')),
-  role: yup.string().oneOf([...map(roles, 'value'), '']),
+  role: yup.string().oneOf([...map(roles, 'value'), '']).required(t('Job Title is required')),
   npi: yup
     .string()
     .test('npiFormat', t('NPI must be 10 digits'), npi => !npi || /^\d{10}$/.test(npi)),
@@ -93,6 +93,9 @@ export const ClinicDetails = (props) => {
   const [logoutPending, setLogoutPending] = useState(false);
   const [clinicInvite, setClinicInvite] = useState();
   const [formikReady, setFormikReady] = useState(false);
+  const previousSubmitting = usePrevious(submitting);
+  const location = useLocation();
+  const isUploadLaunch = location.state?.referrer === 'upload-launch';
 
   let schema = displayClinicForm ? 'clinic' : 'clinician';
   if (displayClinicForm && displayClinicianForm) schema = 'combined';
@@ -131,8 +134,10 @@ export const ClinicDetails = (props) => {
           // clinic patients have not been migrated, we open the prompt to complete the migration
           openMigrationConfirmationModal();
         } else {
-          // If there is no reason for the user to be here, we redirect them appropriately
-          redirectToWorkspace();
+          if (action !== 'new' || (action === 'new' && previousSubmitting)) {
+            // If there is no reason for the user to be here, we redirect them appropriately
+            redirectToWorkspace();
+          }
         }
       }
     }
@@ -188,7 +193,16 @@ export const ClinicDetails = (props) => {
           variant: 'success',
         });
 
-        redirectToWorkspace();
+        if (isUploadLaunch) {
+          dispatch(
+            push({
+              pathname: '/upload-redirect',
+              state: { referrer: 'profile' },
+            })
+          );
+        } else {
+          redirectToWorkspace();
+        }
       }
     }
   }, [working.updatingUser]);
@@ -378,7 +392,7 @@ export const ClinicDetails = (props) => {
                       <Select
                         {...getCommonFormikFieldProps('role', formikContext)}
                         options={addEmptyOption(roles, t('Job Title'))}
-                        label={t('Job Title (Optional)')}
+                        label={t('Job Title')}
                         variant="condensed"
                         themeProps={{
                           width: '100%',

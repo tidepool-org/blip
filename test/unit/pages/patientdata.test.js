@@ -11,7 +11,7 @@
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
-import _ from 'lodash';
+import _, { forEach } from 'lodash';
 import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
@@ -4761,9 +4761,17 @@ describe('PatientData', function () {
       fetchPatientData: sinon.stub().returns('fetchPatientData'),
       fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
+      fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
+      selectClinic: sinon.stub().returns('selectClinic'),
     };
 
     const api = {};
+
+    afterEach(() => {
+      forEach(dispatchProps, (stub) => {
+        stub.resetHistory();
+      });
+    });
 
     it('should return an array containing the patient and patient data fetchers from dispatchProps', () => {
       const result = getFetchers(dispatchProps, ownProps, stateProps, api);
@@ -4810,6 +4818,155 @@ describe('PatientData', function () {
       expect(completedResult.length).to.equal(2);
       expect(completedResult[0]()).to.equal('fetchPatient');
       expect(completedResult[1]()).to.equal('fetchPatientData');
+    });
+
+    it('should fetch patients from clinics if a clinician is viewing a patient without a selected clinic', () => {
+      const fetchPatientsResult = getFetchers(dispatchProps, ownProps, {
+        user: {
+          userid: 'clinician123',
+          isClinicMember: true,
+        },
+        clinics: {
+          clinic1234: {
+            patients: {},
+          },
+          clinic6789: {
+            patients: {},
+          },
+        },
+        selectedClinicId: null,
+        fetchingPatientFromClinic: {
+          inProgress: false,
+        },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      });
+
+      expect(fetchPatientsResult.length).to.equal(4);
+      expect(fetchPatientsResult[0]()).to.equal('fetchPatient');
+      expect(fetchPatientsResult[1]()).to.equal('fetchPatientData');
+      expect(fetchPatientsResult[2]()).to.equal('fetchPatientFromClinic');
+      expect(fetchPatientsResult[3]()).to.equal('fetchPatientFromClinic');
+    });
+
+    it('should select correct clinic if a clinician is viewing a patient with a different selected clinic', () => {
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+      const fetchPatientsResult = getFetchers(dispatchProps, ownProps, {
+        user: {
+          userid: 'clinician123',
+          isClinicMember: true,
+        },
+        clinics: {
+          clinic1234: {
+            patients: { '12345': {} },
+          },
+          clinic6789: {
+            patients: {},
+          },
+        },
+        selectedClinicId: 'clinic6789',
+        fetchingPatientFromClinic: {
+          inProgress: false,
+        },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      });
+
+      expect(fetchPatientsResult.length).to.equal(3);
+      expect(fetchPatientsResult[0]()).to.equal('fetchPatient');
+      expect(fetchPatientsResult[1]()).to.equal('fetchPatientData');
+      expect(fetchPatientsResult[2]()).to.equal('fetchPatientFromClinic');
+      expect(dispatchProps.selectClinic.callCount).to.equal(1);
+      expect(dispatchProps.selectClinic.calledWith('clinic1234')).to.be.true;
+    });
+
+    it('should fetch patients from clinics if a clinician is viewing a patient with a different selected clinic', () => {
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+      const fetchPatientsResult = getFetchers(dispatchProps, ownProps, {
+        user: {
+          userid: 'clinician123',
+          isClinicMember: true,
+        },
+        clinics: {
+          clinic1234: {
+            patients: {},
+          },
+          clinic6789: {
+            patients: {},
+          },
+        },
+        selectedClinicId: 'clinic6789',
+        fetchingPatientFromClinic: {
+          inProgress: false,
+        },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      });
+
+      expect(fetchPatientsResult.length).to.equal(5);
+      expect(fetchPatientsResult[0]()).to.equal('fetchPatient');
+      expect(fetchPatientsResult[1]()).to.equal('fetchPatientData');
+      expect(fetchPatientsResult[2]()).to.equal('fetchPatientFromClinic');
+      expect(fetchPatientsResult[3]()).to.equal('fetchPatientFromClinic');
+      expect(fetchPatientsResult[4]()).to.equal('fetchPatientFromClinic');
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+    });
+
+    it('should select a clinic if a matching patient record is found', () => {
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+      const selectClinicResult = getFetchers(dispatchProps, ownProps, {
+        user: {
+          userid: 'clinician123',
+          isClinicMember: true,
+        },
+        clinics: {
+          clinic1234: {
+            patients: {},
+          },
+          clinic6789: {
+            patients: {
+              12345: {
+                patient: {},
+              },
+            },
+          },
+        },
+        selectedClinicId: null,
+        fetchingPatientFromClinic: {
+          inProgress: false,
+        },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      });
+
+      expect(selectClinicResult.length).to.equal(2);
+      expect(selectClinicResult[0]()).to.equal('fetchPatient');
+      expect(selectClinicResult[1]()).to.equal('fetchPatientData');
+      expect(dispatchProps.selectClinic.callCount).to.equal(1);
     });
   });
 
