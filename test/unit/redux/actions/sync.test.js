@@ -4132,4 +4132,16 @@ describe('Actions', () => {
     });
   });
 
+  describe('setSSOEnabledDisplay', () => {
+    it('should be a TSA', () => {
+      let action = sync.setSSOEnabledDisplay(true);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_SSO_ENABLED_DISPLAY', () => {
+      let action = sync.setSSOEnabledDisplay('set_value');
+      expect(action.type).to.equal('SET_SSO_ENABLED_DISPLAY');
+      expect(action.payload.value).to.equal('set_value');
+    });
+  });
 });

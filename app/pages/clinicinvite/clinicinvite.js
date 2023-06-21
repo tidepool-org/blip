@@ -5,7 +5,6 @@ import { translate } from 'react-i18next';
 import { Box, Flex } from 'rebass/styled-components';
 import { useFormik } from 'formik';
 import { push } from 'connected-react-router';
-import { useLocation } from 'react-router-dom';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import * as yup from 'yup';
@@ -43,8 +42,6 @@ export const ClinicInvite = (props) => {
   const { set: setToast } = useToasts();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
-  const location = useLocation();
-  const selectedClinic = get(location, 'state.clinicId', false);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const { sendingClinicianInvite } = useSelector((state) => state.blip.working);
 
@@ -102,7 +99,7 @@ export const ClinicInvite = (props) => {
         metricProperties.access = 'PRESCRIBER';
       }
 
-      dispatch(actions.async.sendClinicianInvite(api, selectedClinic, { email, roles }))
+      dispatch(actions.async.sendClinicianInvite(api, selectedClinicId, { email, roles }))
       trackMetric('Clinic - Invite member', metricProperties);
     },
     validationSchema,
@@ -115,7 +112,7 @@ export const ClinicInvite = (props) => {
     values,
   } = formikContext;
 
-  if (!selectedClinic) {
+  if (!selectedClinicId) {
     dispatch(push('/clinic-admin'));
   }
 

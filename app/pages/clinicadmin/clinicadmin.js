@@ -257,7 +257,7 @@ export const ClinicAdmin = (props) => {
 
   function handleInviteNewMember() {
     trackMetric('Clinic - Invite new clinic team member', { clinicId: selectedClinicId });
-    dispatch(push('/clinic-invite', { clinicId: selectedClinicId }));
+    dispatch(push('/clinic-invite'));
   }
 
   function handleEdit(userId) {
