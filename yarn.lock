@@ -3044,10 +3044,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.34.0-mrn.1":
-  version "1.34.0-mrn.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.34.0-mrn.1.tgz#8f45b971afca7f560ea8d78908a9b3a0803a6bc9"
-  integrity sha512-f+efOGqqkzKq9eha9a3Az9JNW8GCfBEfns2U470DCxKk8TwIEM7pDMBtm2dRCRDCHyRB2XmKt1/7oaiSNcuTRQ==
+"@tidepool/viz@1.34.0":
+  version "1.34.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.34.0.tgz#1da3249a1e8cdca293ab83e941b2b578d0c5ac74"
+  integrity sha512-SQ+6IpDBOnKFTdaubcecxog5IJcqE4NNOus4GEzvOetuG7z0TioeK1vJxpA3ZJFLBbREMKJNweJ0mu1o988NcA==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"

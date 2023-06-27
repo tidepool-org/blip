@@ -170,6 +170,7 @@ const initialState = {
   clinicFlowActive: false,
   keycloakConfig: {},
   tideDashboard: null,
+  ssoEnabledDisplay: false,
 };
 
 export default initialState;

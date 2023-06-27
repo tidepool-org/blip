@@ -1045,6 +1045,13 @@ export const tideDashboard = (state = initialState.tideDashboard, action) => {
       return action?.payload?.results || initialState.tideDashboard;
     case types.LOGOUT_REQUEST:
       return initialState.tideDashboard;
+  }
+};
+
+export const ssoEnabledDisplay = (state = initialState.ssoEnabledDisplay, action) => {
+  switch (action.type) {
+    case types.SET_SSO_ENABLED_DISPLAY:
+      return action.payload.value;
     default:
       return state;
   }

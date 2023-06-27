@@ -2242,3 +2242,10 @@ export function generateAGPImagesFailure(error) {
     error,
   };
 }
+
+export function setSSOEnabledDisplay(value) {
+  return {
+    type: ActionTypes.SET_SSO_ENABLED_DISPLAY,
+    payload: { value },
+  };
+}

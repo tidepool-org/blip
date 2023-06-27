@@ -180,6 +180,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
         ) {
           const currentPathname = routerState?.location?.pathname;
           const isClinicianAccount = personUtils.isClinicianAccount(user);
+          const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
 
           const unrestrictedClinicUIRoutes = [routes.workspaces];
 
@@ -192,10 +193,21 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
             '/prescriptions',
           ];
 
+          const isCreateNewClinicRoute = _.startsWith(
+            currentPathname,
+            '/clinic-details/new'
+          );
+
+          const isClinicProfileRoute = _.startsWith(
+            currentPathname,
+            '/clinic-details/profile'
+          );
+
           const isClinicUIRoute = _.some(
             [...unrestrictedClinicUIRoutes, ...requireSelectedClinicUIRoutes],
             (route) => _.startsWith(currentPathname, route)
           );
+
           const isRestrictedClinicUIRoute = _.some(
             requireSelectedClinicUIRoutes,
             (route) => _.startsWith(currentPathname, route)
@@ -206,7 +218,10 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           } else {
             if (
               isRestrictedClinicUIRoute &&
-              !(state.clinicFlowActive || state.selectedClinicId)
+              !(
+                state.clinicFlowActive &&
+                (state.selectedClinicId || isCreateNewClinicRoute || (isClinicProfileRoute && !hasClinicProfile))
+              )
             ) {
               dispatch(push(routes.workspaces));
             }
@@ -264,7 +279,10 @@ export const ensureNoAuth = (api, cb = _.noop) => () => {
  * @param  {Object} api
  */
 export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
-  const { blip: state } = getState();
+  const { blip: state, router: routerState } = getState();
+  if (routerState?.location?.query?.ssoEnabled === 'true') {
+    dispatch(actions.sync.setSSOEnabledDisplay(true));
+  }
   if (api.user.isAuthenticated()) {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     const isClinicianAccount = personUtils.isClinicianAccount(user);

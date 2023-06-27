@@ -563,10 +563,10 @@ describe('Workspaces', () => {
         .at(0);
       const acceptButton = invite.find('Button[variant="primary"]');
       expect(acceptButton).to.have.lengthOf(1);
-      expect(acceptButton.text()).to.equal('Enable SSO');
+      expect(acceptButton.text()).to.equal('Link Account');
       const error = wrapper.find('div[color="feedback.danger"]');
       expect(error.text()).to.equal(
-        'This clinic requires Single Sign-On (SSO) in order to accept the invite.'
+        'Single Sign-On (SSO) is required to join this Clinic. Please link your account to enable SSO.'
       );
     });
 
@@ -585,5 +585,21 @@ describe('Workspaces', () => {
       );
     });
 
+    it('should set SSO enabled display state to false if it is true', () => {
+      wrapper = mountWrapper(
+        mockStore({
+          blip: { ...fetchedClinicInvitesState.blip, ssoEnabledDisplay: true },
+        })
+      );
+
+      expect(store.getActions()).to.eql([
+        {
+          type: 'SET_SSO_ENABLED_DISPLAY',
+          payload: {
+            value: false,
+          },
+        },
+      ]);
+    });
   });
 });
