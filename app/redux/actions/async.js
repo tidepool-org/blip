@@ -2761,7 +2761,15 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
 
     // TODO: delete temp mocked data response
     if (options.mockData) {
-      return dispatch(sync.fetchTideDashboardPatientsSuccess(mockTideDashboardPatients));
+      return setTimeout(() => {
+        return dispatch(sync.fetchTideDashboardPatientsSuccess({
+          ...mockTideDashboardPatients,
+          config: {
+            ...mockTideDashboardPatients.config,
+            ...options,
+          }
+        }));
+      }, 2000);
     }
 
     api.clinics.getPatientsForTideDashboard(clinicId, options, (err, info) => {
