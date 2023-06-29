@@ -17,6 +17,7 @@
 
 import _  from 'lodash';
 import sundial from 'sundial';
+import { format } from 'd3-format';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 import { utils as vizUtils } from '@tidepool/viz';
@@ -433,5 +434,12 @@ utils.readableChartName = chartType => ({
   daily: 'Daily',
   trends: 'Trends',
 }[chartType] || chartType);
+
+utils.formatDecimal = (val, precision) => {
+  if (precision === null || precision === undefined) {
+    return format('d')(val);
+  }
+  return format(`.${precision}f`)(val);
+};
 
 export default utils;

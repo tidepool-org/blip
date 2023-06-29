@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
-import { format } from 'd3-format';
 import moment from 'moment';
 import debounce from 'lodash/debounce';
 import difference from 'lodash/difference';
@@ -59,7 +58,7 @@ import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
-import BgRangeSummary from '../../components/clinic/BgRangeSummary';
+import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
 import TideDashboardConfigForm from '../../components/clinic/TideDashboardConfigForm';
 import Pill from '../../components/elements/Pill';
@@ -92,7 +91,7 @@ import {
   maxClinicPatientTags
 } from '../../core/clinicUtils';
 
-import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
+import { MGDL_UNITS } from '../../core/constants';
 import { borders, radii, colors } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
@@ -122,82 +121,6 @@ const glycemicTargetThresholds = {
   timeInTargetPercent: { value: 70, comparator: '<' },
   timeInHighPercent: { value: 25, comparator: '>' },
   timeInVeryHighPercent: { value: 5, comparator: '>' },
-};
-
-function formatDecimal(val, precision) {
-  if (precision === null || precision === undefined) {
-    return format('d')(val);
-  }
-  return format(`.${precision}f`)(val);
-}
-
-const BgSummaryCell = ({ summary, clinicBgUnits, activeSummaryPeriod, t }) => {
-  const targetRange = useMemo(
-    () =>
-      map(
-        [summary?.cgmStats?.config?.lowGlucoseThreshold, summary?.cgmStats?.config?.highGlucoseThreshold],
-        (value) =>
-          clinicBgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value
-      ),
-    [
-      clinicBgUnits,
-      summary?.cgmStats?.config?.highGlucoseThreshold,
-      summary?.cgmStats?.config?.lowGlucoseThreshold,
-    ]
-  );
-
-  const cgmHours =
-    (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUseMinutes || 0) / 60;
-
-  const data = useMemo(
-    () => ({
-      veryLow: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryLowPercent,
-      low: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInLowPercent,
-      target: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInTargetPercent,
-      high: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInHighPercent,
-      veryHigh: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryHighPercent,
-    }),
-    [summary?.cgmStats?.periods, activeSummaryPeriod]
-  );
-
-  const cgmUsePercent = (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent || 0);
-  const minCgmHours = 24;
-  const minCgmPercent = 0.7;
-
-  const insufficientDataText = useMemo(
-    () =>
-      activeSummaryPeriod === '1d'
-        ? t('CGM Use <{{minCgmPercent}}%', { minCgmPercent: minCgmPercent * 100 })
-        : t('CGM Use <{{minCgmHours}} hours', { minCgmHours }),
-    [activeSummaryPeriod, t]
-  );
-
-  return (
-    <Flex justifyContent="center">
-      {(activeSummaryPeriod === '1d' && cgmUsePercent >= minCgmPercent) || (cgmHours >= minCgmHours)
-        ? (
-        <BgRangeSummary
-          striped={cgmUsePercent < minCgmPercent}
-          data={data}
-          cgmUsePercent={formatDecimal(cgmUsePercent * 100)}
-          targetRange={targetRange}
-          bgUnits={clinicBgUnits}
-        />
-      ) : (
-        <Flex
-          alignItems="center"
-          justifyContent="center"
-          bg="lightestGrey"
-          width={['155px', '200px']}
-          height="20px"
-        >
-          <Text fontSize="10px" fontWeight="medium" color="grays.4">
-            {cgmUsePercent === 0 ? '' : insufficientDataText}
-          </Text>
-        </Flex>
-      )}
-    </Flex>
-  );
 };
 
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
@@ -1014,7 +937,7 @@ export const ClinicPatients = (props) => {
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
   function handleConfigureTideDashboard() {
-    trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId });
+    trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId, source: 'Patients list' });
     setShowTideDashboardConfigDialog(true);
   }
 
@@ -2591,7 +2514,7 @@ export const ClinicPatients = (props) => {
     const minCgmHours = 24;
     const minCgmPercent = 0.7;
 
-    let formattedGMI = gmi ? formatDecimal(gmi, 1) : statEmptyText;
+    let formattedGMI = gmi ? utils.formatDecimal(gmi, 1) : statEmptyText;
 
     if (includes(['1d', '7d'], activeSummaryPeriod)
       || cgmUsePercent < minCgmPercent
@@ -2636,10 +2559,11 @@ export const ClinicPatients = (props) => {
 
   const renderBgRangeSummary = useCallback(({summary}) => {
     return <BgSummaryCell
-      summary={summary}
+      summary={summary?.cgmStats?.periods?.[activeSummaryPeriod]}
+      config={summary?.cgmStats?.config}
       clinicBgUnits={clinicBgUnits}
       activeSummaryPeriod={activeSummaryPeriod}
-      t={t} />
+    />
   }, [clinicBgUnits, activeSummaryPeriod, t]);
 
   const renderAverageGlucose = useCallback(({ summary }) => {
