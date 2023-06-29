@@ -23,6 +23,7 @@ import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, la
 import { Body0, Caption } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 import { pick } from 'lodash';
+import { push } from 'connected-react-router';
 
 const { getLocalizedCeiling } = vizUtils.datetime;
 
@@ -54,7 +55,7 @@ export const TideDashboardConfigForm = (props) => {
       options.mockData = true; // TODO: delete temp mocked data response
       options.lastUploadDateTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
       options.lastUploadDateFrom = moment(options.lastUploadDateTo).subtract(values.lastUpload, 'days').toISOString();
-      dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, options));
+      dispatch(push('/dashboard/tide'));
 
       setConfig({
         ...config,
