@@ -1,10 +1,15 @@
 {
   "config": {
+    "schemaVersion": 1,
     "clinicId": "clinicID123",
     "clinicianId": "clinicianID123",
     "period": "14d",
     "lastUploadDateFrom": "2023-05-16T04:00:00.000Z",
     "lastUploadDateTo": "2023-05-30T04:00:00.000Z",
+    "highGlucoseThreshold": 10,
+    "lowGlucoseThreshold": 3.9,
+    "veryHighGlucoseThreshold": 13.9,
+    "veryLowGlucoseThreshold": 3,
     "tags": [
       "646f7f0408e23bc18d91caa7",
       "643f0674dbbc8aa9fad54c78",
