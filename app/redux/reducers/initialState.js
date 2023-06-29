@@ -169,7 +169,7 @@ const initialState = {
   pendingReceivedClinicianInvites: [],
   clinicFlowActive: false,
   keycloakConfig: {},
-  tideDashboard: null,
+  tideDashboardPatients: {},
   ssoEnabledDisplay: false,
 };
 
