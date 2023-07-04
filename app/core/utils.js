@@ -442,4 +442,66 @@ utils.formatDecimal = (val, precision) => {
   return format(`.${precision}f`)(val);
 };
 
+utils.roundUp = (value, precision = 1) => {
+  let shift = 10 ** precision;
+  return Math.ceil(value * shift) / shift;
+};
+
+utils.roundDown = (value, precision = 1) => {
+  let shift = 10 ** precision;
+  return Math.floor(value * shift) / shift;
+};
+
+utils.customRoundedPercentage = (inputValue, key) => {
+  let precision = 0;
+  let percentage = inputValue * 100;
+
+  // We want to show extra precision on very small percentages so that we avoid showing 0%
+  // when there is some data there.
+  if (percentage > 0 && percentage < 0.5) {
+    precision = percentage < 0.05 ? 2 : 1;
+  }
+
+  switch (key) {
+    case 'veryLow':
+      if (percentage > 0 && percentage < 0.5) {
+        precision = 2;
+        percentage = utils.roundUp(percentage, precision);
+      }
+      if (percentage >= 0.5 && percentage < 1) {
+        precision = 1;
+        percentage = utils.roundDown(percentage, precision);
+      }
+      break;
+    case 'low':
+      if (percentage > 3 && percentage < 4) {
+        precision = 1;
+        percentage = utils.roundDown(percentage, precision);
+      }
+      break;
+    case 'target':
+      if (percentage > 69 && percentage < 70) {
+        precision = 1;
+        percentage = utils.roundDown(percentage, precision);
+      }
+      break;
+    case 'high':
+      if (percentage > 24 && percentage < 25) {
+        precision = 1;
+        percentage = utils.roundDown(percentage, precision);
+      }
+      break;
+    case 'veryHigh':
+      if (percentage > 4 && percentage < 5) {
+        precision = 1;
+        percentage = utils.roundDown(percentage, precision);
+      }
+      break;
+    default:
+      break;
+  }
+
+  return format(`.${precision}f`)(percentage);
+};
+
 export default utils;
