@@ -10,8 +10,10 @@ import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
-import { Box, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'rebass/styled-components';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
+import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import ScrollToTop from 'react-scroll-to-top';
@@ -25,9 +27,11 @@ import {
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
+import PatientForm from '../../components/clinic/PatientForm';
 import TideDashboardConfigForm from '../../components/clinic/TideDashboardConfigForm';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PopoverMenu from '../../components/elements/PopoverMenu';
+import DeltaBar from '../../components/elements/DeltaBar';
 import utils from '../../core/utils';
 
 import {
@@ -48,10 +52,11 @@ import {
 } from '../../core/clinicUtils';
 
 import { MGDL_UNITS } from '../../core/constants';
-import { colors } from '../../themes/baseTheme';
+import { colors, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
+const { formatDateRange } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -98,7 +103,7 @@ const MoreMenu = ({
     t,
   ]);
 
-  return <PopoverMenu id={`action-menu-${patient.id}`} items={items} />;
+  return <PopoverMenu id={`action-menu-${patient.id}`} items={items} icon={MoreVertRoundedIcon} />;
 };
 
 
@@ -109,6 +114,7 @@ const TideDashboardSection = props => {
     dispatch,
     patients,
     patientTags,
+    section,
     selectedClinicId,
     setSelectedPatient,
     setShowEditPatientDialog,
@@ -176,38 +182,21 @@ const TideDashboardSection = props => {
     );
   }, [config?.period]);
 
-  const renderTimeInLowPercent = useCallback(summary => {
-    const timeInLowPercent = (summary?.timeInLowPercent || 0);
-    let formattedTimeInLowPercent = timeInLowPercent ? utils.formatDecimal(timeInLowPercent * 100, 1) : statEmptyText;
+  const renderTimeInPercent = useCallback((summaryKey, summary) => {
+    const formattingKeyMap = {
+      timeCGMUsePercent: 'target',
+      timeInVeryLowPercent: 'veryLow',
+      timeInLowPercent: 'low',
+      timeInTargetPercent: 'target',
+    }
+
+    const rawValue = (summary?.[summaryKey]);
+    let formattedValue = rawValue ? utils.customRoundedPercentage(rawValue, formattingKeyMap[summaryKey]) : statEmptyText;
 
     return (
-      <Box classname="patient-sensor-usage">
-        <Text as="span" fontWeight="medium">{formattedTimeInLowPercent}</Text>
-        {formattedTimeInLowPercent !== statEmptyText && <Text as="span" fontSize="10px"> %</Text>}
-      </Box>
-    );
-  }, []);
-
-  const renderTimeInVeryLowPercent = useCallback(summary => {
-    const timeInVeryLowPercent = (summary?.timeInVeryLowPercent || 0);
-    let formattedTimeInVeryLowPercent = timeInVeryLowPercent ? utils.formatDecimal(timeInVeryLowPercent * 100, 1) : statEmptyText;
-
-    return (
-      <Box classname="patient-sensor-usage">
-        <Text as="span" fontWeight="medium">{formattedTimeInVeryLowPercent}</Text>
-        {formattedTimeInVeryLowPercent !== statEmptyText && <Text as="span" fontSize="10px"> %</Text>}
-      </Box>
-    );
-  }, []);
-
-  const renderSensorUsage = useCallback(summary => {
-    const cgmUsePercent = (summary?.timeCGMUsePercent || 0);
-    let formattedSensorUsage = cgmUsePercent ? utils.formatDecimal(cgmUsePercent * 100) : statEmptyText;
-
-    return (
-      <Box classname="patient-sensor-usage">
-        <Text as="span" fontWeight="medium">{formattedSensorUsage}</Text>
-        {formattedSensorUsage !== statEmptyText && <Text as="span" fontSize="10px"> %</Text>}
+      <Box classname={`patient-${summaryKey}`}>
+        <Text as="span" fontWeight="medium">{formattedValue}</Text>
+        {formattedValue !== statEmptyText && <Text as="span" fontSize="10px"> %</Text>}
       </Box>
     );
   }, []);
@@ -217,7 +206,7 @@ const TideDashboardSection = props => {
 
     return (
       <TagList
-          maxCharactersVisible={16}
+          maxCharactersVisible={12}
           popupId={`tags-overflow-${patient?.id}`}
           tagProps={{ variant: 'compact' }}
           tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
@@ -227,11 +216,22 @@ const TideDashboardSection = props => {
 
   const renderBgRangeSummary = useCallback(summary => {
     return <BgSummaryCell
-      summary={summary}
-      clinicBgUnits={clinicBgUnits}
-      activeSummaryPeriod={config?.period}
-      t={t} />
-  }, [clinicBgUnits, config?.period, t]);
+    summary={summary}
+    config={config}
+    clinicBgUnits={clinicBgUnits}
+    activeSummaryPeriod={config?.period}
+  />
+  }, [clinicBgUnits, config]);
+
+  const renderTimeInTargetPercentDelta = useCallback(summary => {
+    const timeInTargetPercentDelta = (summary?.timeInTargetPercentDelta);
+
+    return timeInTargetPercentDelta ? (
+      <DeltaBar fontWeight="medium" delta={timeInTargetPercentDelta * 100} max={30} />
+    ) : (
+      <Text as="span" fontWeight="medium">{statEmptyText}</Text>
+    );
+  }, []);
 
   const renderMore = useCallback(({ patient }) => {
     return <MoreMenu
@@ -250,6 +250,14 @@ const TideDashboardSection = props => {
     setSelectedPatient,
     setShowEditPatientDialog,
   ]);
+
+  const veryLowGlucoseThreshold = clinicBgUnits === MGDL_UNITS
+    ? utils.translateBg(config?.veryLowGlucoseThreshold, MGDL_UNITS)
+    : utils.formatDecimal(config?.veryLowGlucoseThreshold, 1);
+
+  const lowGlucoseThreshold = clinicBgUnits === MGDL_UNITS
+    ? utils.translateBg(config?.lowGlucoseThreshold, MGDL_UNITS)
+    : utils.formatDecimal(config?.lowGlucoseThreshold, 1);
 
   const columns = useMemo(() => {
     const cols = [
@@ -275,25 +283,37 @@ const TideDashboardSection = props => {
         title: t('% CGM Use'),
         field: 'timeCGMUsePercent',
         align: 'center',
-        render: renderSensorUsage,
+        render: renderTimeInPercent.bind(null, 'timeCGMUsePercent'),
       },
       {
-        title: t('% Time below 54'), // TODO: threshold in clinic BG units
+        title: t(`% Time below ${veryLowGlucoseThreshold}`),
         field: 'timeInVeryLowPercent',
         align: 'center',
-        render: renderTimeInVeryLowPercent,
+        render: renderTimeInPercent.bind(null, 'timeInVeryLowPercent'),
       },
       {
-        title: t('% Time below 70'), // TODO: threshold in clinic BG units
+        title: t(`% Time below ${lowGlucoseThreshold}`),
         field: 'timeInLowPercent',
         align: 'center',
-        render: renderTimeInLowPercent,
+        render: renderTimeInPercent.bind(null, 'timeInLowPercent'),
+      },
+      {
+        title: t('% Time in Range'),
+        field: 'timeInTargetPercent',
+        align: 'center',
+        render: renderTimeInPercent.bind(null, 'timeInTargetPercent'),
       },
       {
         title: t('% Time in Range'),
         field: 'bgRangeSummary',
         align: 'center',
         render: renderBgRangeSummary,
+      },
+      {
+        title: t('% Change in TIR'),
+        field: 'timeInTargetPercentDelta',
+        align: 'center',
+        render: renderTimeInTargetPercentDelta,
       },
       {
         title: t('Tags'),
@@ -312,26 +332,57 @@ const TideDashboardSection = props => {
 
     return cols;
   }, [
+    lowGlucoseThreshold,
     renderAverageGlucose,
     renderBgRangeSummary,
     renderGMI,
     renderMore,
     renderPatientName,
     renderPatientTags,
-    renderSensorUsage,
+    renderTimeInPercent,
+    renderTimeInTargetPercentDelta,
     t,
+    veryLowGlucoseThreshold,
   ]);
 
+  console.log('config', config);
+
+  const sectionLabelsMap = {
+    timeInVeryLowPercent: t('> 1% below {{veryLowGlucoseThreshold}} {{clinicBgUnits}}', {
+      veryLowGlucoseThreshold,
+      clinicBgUnits,
+    }),
+    timeInLowPercent: t('> 4% below {{lowGlucoseThreshold}} {{clinicBgUnits}}', {
+      lowGlucoseThreshold,
+      clinicBgUnits,
+    }),
+    dropInTimeInTargetPercent: t('Drop in Time in Range > 15%'),
+    timeInTargetPercent: t('Time in Range < 70%'),
+    timeCGMUsePercent: t('CGM Wear Time < 70%'),
+    meetingTargets: t('Meeting Targets'),
+  };
+
   return (
-    <Table
-      id={'peopleTable'}
-      variant="condensed"
-      label={'peopletablelabel'}
-      columns={columns}
-      data={patients}
-      style={{ fontSize: '12px' }}
-      onSort={handleSortChange}
-    />
+    <Box mb={4}>
+      <Text
+        color="purples.9"
+        fontSize={1}
+        fontWeight="medium"
+        mb={2}
+      >
+        {sectionLabelsMap[section]}
+      </Text>
+
+      <Table
+        id={`dashboard-table-${section}`}
+        variant="tableGroup"
+        label={'peopletablelabel'}
+        columns={columns}
+        data={patients}
+        style={{ fontSize: '12px' }}
+        onSort={handleSortChange}
+      />
+    </Box>
   );
 };
 
@@ -347,12 +398,13 @@ export const TideDashboard = (props) => {
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
+  const clinicianDashboardConfig = localConfig?.[loggedInUserId]; // TODO: key by user Id and clinic ID since tags will vary
 
   const {
     fetchingPatientFromClinic,
@@ -381,28 +433,40 @@ export const TideDashboard = (props) => {
           variant: 'danger',
         });
       }
+
+      setLoading(false);
     }
+
   }, [isFirstRender, setToast]);
+
+  const fetchDashboardPatients = useCallback(() => {
+    const options = clinicianDashboardConfig;
+    options.mockData = true; // TODO: delete temp mocked data response
+    if (options) {
+      setLoading(true);
+      dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, options));
+    }
+  }, [api, dispatch, clinicianDashboardConfig, selectedClinicId])
 
   useEffect(() => {
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic]);
 
   useEffect(() => {
-    const options = localConfig?.[loggedInUserId];
-    options.mockData = true; // TODO: delete temp mocked data response
-    if (options) {
-      dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, options));
-    }
-  }, [api, dispatch, localConfig, selectedClinicId, loggedInUserId]);
-
-  useEffect(() => {
-    handleAsyncResult({ ...fetchingTideDashboardPatients, prevInProgress: previousFetchingTideDashboardPatients?.inProgress }, null, () => setLoading(false));
+    handleAsyncResult({ ...fetchingTideDashboardPatients, prevInProgress: previousFetchingTideDashboardPatients?.inProgress }, null, handleCloseOverlays);
   }, [fetchingTideDashboardPatients, handleAsyncResult, previousFetchingTideDashboardPatients?.inProgress]);
 
   function handlePatientFormChange(formikContext) {
     setPatientFormContext({...formikContext});
   }
+
+  useEffect(() => {
+    if (clinicianDashboardConfig) {
+      fetchDashboardPatients();
+    } else {
+      setShowTideDashboardConfigDialog(true);
+    }
+  }, []);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
@@ -423,17 +487,53 @@ export const TideDashboard = (props) => {
   const handleConfigureTideDashboardConfirm = useCallback(() => {
     trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId });
     tideDashboardFormContext?.handleSubmit();
-  }, [tideDashboardFormContext, selectedClinicId, trackMetric]);
+    fetchDashboardPatients();
+  }, [fetchDashboardPatients, tideDashboardFormContext, selectedClinicId, trackMetric]);
 
   function handleTideDashboardConfigFormChange(formikContext) {
     setTideDashboardFormContext({...formikContext});
   }
 
   const renderHeader = () => (
-    <Box>
-      <Title>{t('TIDE Dashboard')}</Title>
-      <Body1>{'April 3 - April 9, 2023'}</Body1>
-    </Box>
+    <Flex
+      mb={3}
+      justifyContent="space-between"
+      alignItems="center"
+      flexWrap="wrap"
+      sx={{ rowGap: 2, columnGap: 3 }}
+    >
+      <Flex sx={{ gap: 3 }}>
+        <Title fontWeight="medium" fontSize="18px">{t('TIDE Dashboard')}</Title>
+
+        <Text
+          as={Flex}
+          fontSize={0}
+          fontWeight="medium"
+          height="24px"
+          bg="white"
+          color={loading ? 'white' : 'text.primary'}
+          alignContent="center"
+          flexWrap="wrap"
+          px={2}
+          sx={{ borderRadius: radii.medium }}
+        >
+          {formatDateRange(config?.lastUploadDateFrom, config?.lastUploadDateTo, null, 'MMMM')}
+        </Text>
+      </Flex>
+
+      <Button
+        variant="filter"
+        icon={KeyboardArrowDownRoundedIcon}
+        iconLabel="Open dashboard config"
+        onClick={handleConfigureTideDashboard}
+        fontSize={1}
+        lineHeight={5}
+        px={3}
+        sx= {{ border: 'none' }}
+      >
+          {t('Filter Patients')}
+      </Button>
+    </Flex>
   )
 
   const renderTideDashboardConfigDialog = useCallback(() => {
@@ -461,7 +561,7 @@ export const TideDashboard = (props) => {
             processing={fetchingTideDashboardPatients.inProgress}
             disabled={!fieldsAreValid(keys(tideDashboardFormContext?.values), tideDashboardConfigSchema, tideDashboardFormContext?.values)}
           >
-            {t('Next')}
+            {t('Apply')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -529,6 +629,7 @@ export const TideDashboard = (props) => {
 
   function handleCloseOverlays() {
     setShowTideDashboardConfigDialog(false);
+    setShowEditPatientDialog(false);
 
     setTimeout(() => {
       setSelectedPatient(null);
@@ -562,6 +663,7 @@ export const TideDashboard = (props) => {
         {map(sections, section => (
           <TideDashboardSection
             key={section}
+            section={section}
             id={`group-${section}`}
             patients={patientGroups[section]}
             {...sectionProps}
@@ -586,11 +688,13 @@ export const TideDashboard = (props) => {
     <Box
       id="tide-dashboard"
       alignItems="center"
-      variant="containers.largeBordered"
+      variant="containers.large"
+      bg="transparent"
       minHeight="80vh"
-      mb={9}
+      mb={8}
+      px={3}
     >
-      <Loader show={loading} overlay={true} />
+      <Loader show={loading} overlay={!!patientGroups} />
       {renderHeader()}
       {patientGroups && renderPatientGroups()}
       {showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
