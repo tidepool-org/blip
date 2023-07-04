@@ -403,8 +403,8 @@ export const TideDashboard = (props) => {
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
+  const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const clinicianDashboardConfig = localConfig?.[loggedInUserId]; // TODO: key by user Id and clinic ID since tags will vary
 
   const {
     fetchingPatientFromClinic,
@@ -439,14 +439,14 @@ export const TideDashboard = (props) => {
 
   }, [isFirstRender, setToast]);
 
-  const fetchDashboardPatients = useCallback(() => {
-    const options = clinicianDashboardConfig;
-    options.mockData = true; // TODO: delete temp mocked data response
+  const fetchDashboardPatients = useCallback((config) => {
+    const options = config || localConfig?.[localConfigKey];
     if (options) {
+      options.mockData = true; // TODO: delete temp mocked data response
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, options));
     }
-  }, [api, dispatch, clinicianDashboardConfig, selectedClinicId])
+  }, [api, dispatch, localConfig, localConfigKey, selectedClinicId])
 
   useEffect(() => {
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
@@ -461,7 +461,7 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    if (clinicianDashboardConfig) {
+    if (localConfig?.[localConfigKey]) {
       fetchDashboardPatients();
     } else {
       setShowTideDashboardConfigDialog(true);
@@ -487,7 +487,7 @@ export const TideDashboard = (props) => {
   const handleConfigureTideDashboardConfirm = useCallback(() => {
     trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId });
     tideDashboardFormContext?.handleSubmit();
-    fetchDashboardPatients();
+    fetchDashboardPatients(tideDashboardFormContext?.values);
   }, [fetchDashboardPatients, tideDashboardFormContext, selectedClinicId, trackMetric]);
 
   function handleTideDashboardConfigFormChange(formikContext) {

@@ -456,6 +456,7 @@ export const ClinicPatients = (props) => {
   const previousClinic = usePrevious(clinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
+  const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
 
   const defaultPatientFetchOptions = useMemo(
     () => ({
@@ -938,7 +939,7 @@ export const ClinicPatients = (props) => {
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
   function handleConfigureTideDashboard() {
-    if (tideDashboardConfig[loggedInUserId]) {
+    if (tideDashboardConfig[localConfigKey]) {
       trackMetric('Clinic - Navigate to Tide Dashboard', { clinicId: selectedClinicId, source: 'Patients list' });
       dispatch(push('/dashboard/tide'));
     } else {
