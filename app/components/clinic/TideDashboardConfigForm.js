@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import get from 'lodash/get';
 import moment from 'moment';
 import includes from 'lodash/includes';
@@ -38,6 +39,7 @@ function getFormValues(config, clinicPatientTags) {
 export const TideDashboardConfigForm = (props) => {
   const { t, api, onFormChange, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -47,6 +49,7 @@ export const TideDashboardConfigForm = (props) => {
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const [config, setConfig] = useLocalStorage('tideDashboardConfig', {});
   const { fetchingTideDashboardPatients } = useSelector((state) => state.blip.working);
+  const isDashboardPage = (pathname === '/dashboard/tide');
 
   const formikContext = useFormik({
     initialValues: getFormValues(config?.[loggedInUserId], clinicPatientTags),
@@ -55,7 +58,7 @@ export const TideDashboardConfigForm = (props) => {
       options.mockData = true; // TODO: delete temp mocked data response
       options.lastUploadDateTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
       options.lastUploadDateFrom = moment(options.lastUploadDateTo).subtract(values.lastUpload, 'days').toISOString();
-      dispatch(push('/dashboard/tide'));
+      if (!isDashboardPage) dispatch(push('/dashboard/tide'));
 
       setConfig({
         ...config,
@@ -76,12 +79,6 @@ export const TideDashboardConfigForm = (props) => {
     const { inProgress, completed, notification } = workingState;
 
     if (!isFirstRender && !inProgress) {
-      if (completed) {
-        // TODO: add onComplete prop an fire it, so that we can control whether or not we need to
-        // redirect, as is the case when on the patients list, or simply allow the current view to
-        // re-render with the new data, and close the modal
-      }
-
       if (completed === false) {
         setToast({
           message: get(notification, 'message'),
