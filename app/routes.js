@@ -70,6 +70,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
     workspaces: '/workspaces',
     clinicDetails: '/clinic-details',
     clinicWorkspace: '/clinic-workspace',
+    dashboard: '/dashboard',
   };
 
   if (!api.user.isAuthenticated()) {
@@ -192,6 +193,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
             '/clinic-workspace',
             '/clinician-edit',
             '/prescriptions',
+            routes.dashboard,
           ];
 
           const isCreateNewClinicRoute = _.startsWith(
