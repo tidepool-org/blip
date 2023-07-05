@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate } from 'react-i18next';
+import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEqual from 'lodash/isEqual';
@@ -18,9 +19,15 @@ import EditIcon from '@material-ui/icons/EditRounded';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from 'styled-components';
+
+import {
+  bindPopover,
+  bindTrigger,
+  usePopupState,
+} from 'material-ui-popup-state/hooks';
+
 import {
   MediumTitle,
-  Body1,
   Title,
 } from '../../components/elements/FontStyles';
 
@@ -30,7 +37,9 @@ import { TagList } from '../../components/elements/Tag';
 import PatientForm from '../../components/clinic/PatientForm';
 import TideDashboardConfigForm from '../../components/clinic/TideDashboardConfigForm';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
+import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
+import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import utils from '../../core/utils';
 
@@ -66,7 +75,7 @@ const StyledScrollToTop = styled(ScrollToTop)`
   padding-top: 4px;
 `;
 
-const prefixPopHealthMetric = metric => `Clinic - Population Health - ${metric}`;
+const prefixTideDashboardMetric = metric => `Clinic - Tide Dashboard - ${metric}`;
 
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
   trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
@@ -74,7 +83,7 @@ const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric,
   setShowEditPatientDialog(true);
 };
 
-const MoreMenu = ({
+const MoreMenu = React.memo(({
   patient,
   selectedClinicId,
   t,
@@ -104,10 +113,102 @@ const MoreMenu = ({
   ]);
 
   return <PopoverMenu id={`action-menu-${patient.id}`} items={items} icon={MoreVertRoundedIcon} />;
-};
+});
+
+const SortPopover = React.memo(props => {
+  const {
+    section,
+    sections,
+    selectedClinicId,
+    setSections,
+    trackMetric,
+    t,
+  } = props;
+
+  const id = `sort-${section.groupKey}`;
+  const invertSortLabels = section.groupKey === 'dropInTimeInTargetPercent';
+
+  const sortOptions = [
+    { value: invertSortLabels ? 'desc' : 'asc', label: t('Low → High') },
+    { value: invertSortLabels ? 'asc' : 'desc', label: t('High → Low') },
+  ];
+
+  if (invertSortLabels) sortOptions.reverse();
+
+  const sortPopupFilterState = usePopupState({
+    variant: 'popover',
+    popupId: `${id}-popup`,
+  });
+
+  return (
+    <Flex>
+      <Box
+        onClick={() => {
+          if (!sortPopupFilterState.isOpen) trackMetric(prefixTideDashboardMetric('Sort popover opened'), { clinicId: selectedClinicId, section: section.groupKey });
+        }}
+        flexShrink={0}
+      >
+        <Button
+          variant="textSecondary"
+          id={`${id}-popup-trigger`}
+          selected={sortPopupFilterState.isOpen}
+          {...bindTrigger(sortPopupFilterState)}
+          icon={KeyboardArrowDownRoundedIcon}
+          iconLabel="Update sort order"
+          fontSize={0}
+          fontWeight="medium"
+          lineHeight={1.3}
+        >
+          {t('Sort')} {find(sortOptions, { value: section.sortDirection })?.label}
+        </Button>
+      </Box>
+
+      <Popover
+        // minWidth="10em"
+        closeIcon
+        {...bindPopover(sortPopupFilterState)}
+        onClickCloseIcon={() => {
+          trackMetric(prefixTideDashboardMetric('Sort popover closed'), {
+            clinicId: selectedClinicId,
+            section: section.groupKey,
+          });
+        }}
+        onClose={() => {
+          sortPopupFilterState.close();
+        }}
+      >
+        <DialogContent px={2} py={3} dividers>
+          <RadioGroup
+            id={`${id}-options`}
+            name={`${id}-options`}
+            options={sortOptions}
+            variant="vertical"
+            fontSize={0}
+            value={section.sortDirection}
+            onChange={event => {
+              trackMetric(prefixTideDashboardMetric('Sort popover updated'), {
+                clinicId: selectedClinicId,
+                section: section.groupKey,
+                sort: event.target.value,
+              });
+
+              const updatedSections = map(sections, sectionState => (sectionState.groupKey === section.groupKey
+                ? {...sectionState, sortDirection: event.target.value}
+                : sectionState
+              ));
+
+              setSections(updatedSections);
+              sortPopupFilterState.close();
+            }}
+          />
+        </DialogContent>
+      </Popover>
+    </Flex>
+  )
+})
 
 
-const TideDashboardSection = props => {
+const TideDashboardSection = React.memo(props => {
   const {
     clinicBgUnits,
     config,
@@ -115,7 +216,9 @@ const TideDashboardSection = props => {
     patients,
     patientTags,
     section,
+    sections,
     selectedClinicId,
+    setSections,
     setSelectedPatient,
     setShowEditPatientDialog,
     t,
@@ -123,15 +226,6 @@ const TideDashboardSection = props => {
   } = props;
 
   const statEmptyText = '--';
-
-  const handleSortChange = useCallback((newOrderBy, field) => {
-    console.log('sortChange', field, newOrderBy);
-    // TODO: proper metric...
-    trackMetric(prefixPopHealthMetric('NEW SORT'), { clinicId: selectedClinicId });
-  }, [
-    selectedClinicId,
-    trackMetric,
-  ]);
 
   const handleClickPatient = useCallback(patient => {
     return () => {
@@ -241,7 +335,7 @@ const TideDashboardSection = props => {
       trackMetric={trackMetric}
       setSelectedPatient={setSelectedPatient}
       setShowEditPatientDialog={setShowEditPatientDialog}
-      prefixPopHealthMetric={prefixPopHealthMetric}
+      prefixTideDashboardMetric={prefixTideDashboardMetric}
     />;
   }, [
     selectedClinicId,
@@ -345,8 +439,6 @@ const TideDashboardSection = props => {
     veryLowGlucoseThreshold,
   ]);
 
-  console.log('config', config);
-
   const sectionLabelsMap = {
     timeInVeryLowPercent: t('> 1% below {{veryLowGlucoseThreshold}} {{clinicBgUnits}}', {
       veryLowGlucoseThreshold,
@@ -363,15 +455,26 @@ const TideDashboardSection = props => {
   };
 
   return (
-    <Box mb={4}>
-      <Text
-        color="purples.9"
-        fontSize={1}
-        fontWeight="medium"
-        mb={2}
-      >
-        {sectionLabelsMap[section]}
-      </Text>
+    <Box id={`dashboard-section-${section.groupKey}`} mb={4}>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Text
+          color="purples.9"
+          fontSize={1}
+          fontWeight="medium"
+          mb={2}
+          >
+          {sectionLabelsMap[section.groupKey]}
+        </Text>
+
+        <SortPopover
+          section={section}
+          sections={sections}
+          selectedClinicId={selectedClinicId}
+          setSections={setSections}
+          trackMetric={trackMetric}
+          t={t}
+        />
+      </Flex>
 
       <Table
         id={`dashboard-table-${section}`}
@@ -380,11 +483,12 @@ const TideDashboardSection = props => {
         columns={columns}
         data={patients}
         style={{ fontSize: '12px' }}
-        onSort={handleSortChange}
+        order={section.sortDirection}
+        orderBy={section.sortKey}
       />
     </Box>
   );
-};
+}, ((prevProps, nextProps) => (prevProps.section.sortDirection === nextProps.section.sortDirection)));
 
 export const TideDashboard = (props) => {
   const { t, api, trackMetric } = props;
@@ -414,6 +518,17 @@ export const TideDashboard = (props) => {
 
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousFetchingTideDashboardPatients = usePrevious(fetchingTideDashboardPatients);
+
+  const defaultSections = [
+    { groupKey: 'timeInVeryLowPercent', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+    { groupKey: 'timeInLowPercent', sortDirection: 'desc', sortKey: 'timeInLowPercent' },
+    { groupKey: 'dropInTimeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
+    { groupKey: 'timeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
+    { groupKey: 'timeCGMUsePercent', sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
+    { groupKey: 'meetingTargets', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+  ];
+
+  const [sections, setSections] = useState(defaultSections);
 
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
@@ -474,7 +589,7 @@ export const TideDashboard = (props) => {
     const existingTags = [...(selectedPatient?.tags || [])];
 
     if (!isEqual(updatedTags.sort(), existingTags.sort())) {
-      trackMetric(prefixPopHealthMetric('Edit patient tags confirm'), { clinicId: selectedClinicId });
+      trackMetric(prefixTideDashboardMetric('Edit patient tags confirm'), { clinicId: selectedClinicId });
     }
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags]);
@@ -642,30 +757,22 @@ export const TideDashboard = (props) => {
       config,
       dispatch,
       patientTags,
+      sections,
       selectedClinicId,
+      setSections,
       setSelectedPatient,
       setShowEditPatientDialog,
       t,
       trackMetric,
     };
 
-    const sections = [
-      'timeInVeryLowPercent',
-      'timeInLowPercent',
-      'dropInTimeInTargetPercent',
-      'timeInTargetPercent',
-      'timeCGMUsePercent',
-      'meetingTargets',
-    ];
-
     return (
       <Box id="tide-dashboard-patient-groups">
         {map(sections, section => (
           <TideDashboardSection
-            key={section}
+            key={section.groupKey}
             section={section}
-            id={`group-${section}`}
-            patients={patientGroups[section]}
+            patients={patientGroups[section.groupKey]}
             {...sectionProps}
           />
         ))}
@@ -677,6 +784,7 @@ export const TideDashboard = (props) => {
     dispatch,
     patientGroups,
     patientTags,
+    sections,
     selectedClinicId,
     setSelectedPatient,
     setShowEditPatientDialog,
