@@ -124,7 +124,7 @@ export const TagList = translate()(props => {
 
   if (maxCharactersVisible) {
     reduce(tags, (remainingChars, { name = '' }, i) => {
-      const tagArray = (name.length <= remainingChars) ? visibleTags : hiddenTags;
+      const tagArray = (name.length <= remainingChars || i === 0) ? visibleTags : hiddenTags;
       if (tags[i]) tagArray.push(tags[i]);
       return remainingChars - name.length;
     }, maxCharactersVisible);
