@@ -65,8 +65,8 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
           alignItems="center"
           justifyContent="center"
           bg="lightestGrey"
-          width={['155px', '200px']}
-          height="20px"
+          width={['155px', '175px']}
+          height="18px"
         >
           <Text fontSize="10px" fontWeight="medium" color="grays.4">
             {cgmUsePercent === 0 ? '' : insufficientDataText}
