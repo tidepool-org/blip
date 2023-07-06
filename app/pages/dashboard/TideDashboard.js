@@ -466,14 +466,15 @@ const TideDashboardSection = React.memo(props => {
           {sectionLabelsMap[section.groupKey]}
         </Text>
 
-        <SortPopover
+        {/* Commenting out sort functionality for now */}
+        {/* <SortPopover
           section={section}
           sections={sections}
           selectedClinicId={selectedClinicId}
           setSections={setSections}
           trackMetric={trackMetric}
           t={t}
-        />
+        /> */}
       </Flex>
 
       <Table
