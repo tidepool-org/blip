@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.68.0-web-2392-fetch-only-required-data-types.1",
+  "version": "1.68.0-rc.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/karma/bin/karma start",
