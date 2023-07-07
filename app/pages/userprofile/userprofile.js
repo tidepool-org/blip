@@ -18,6 +18,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { push } from 'connected-react-router';
 
 import * as actions from '../../redux/actions';
 
@@ -120,11 +121,14 @@ export var UserProfileClass = class extends React.Component {
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     const {t} = this.props;
+    const isUploadLaunch = this.props.history.location.state?.referrer === 'upload-launch';
     // Keep form values in sync with upstream changes
     this.setState({formValues: this.formValuesFromUser(nextProps.user)});
-    if(_.isEmpty(this.props.user.profile.fullName) && !_.isEmpty(nextProps.user.profile.fullName)){
+    if(_.isEmpty(this.props.user?.profile?.fullName) && !_.isEmpty(nextProps.user?.profile?.fullName)){
       this.context.clear();
-      this.props.login();
+      if (!isUploadLaunch) {
+        this.props.login();
+      }
     }
     let updatingUser = this.props.updatingUser;
     if (
@@ -139,6 +143,13 @@ export var UserProfileClass = class extends React.Component {
       this.messageTimeoutId = setTimeout(() => {
         this.setState({ notification: null });
       }, this.MESSAGE_TIMEOUT);
+
+      if (isUploadLaunch) {
+        this.props.push({
+          pathname: '/upload-redirect',
+          state: { referrer: 'profile' },
+        });
+      }
     }
   }
 
@@ -313,6 +324,7 @@ export function mapStateToProps(state) {
 let mapDispatchToProps = dispatch => bindActionCreators({
   updateUser: actions.async.updateUser,
   login: actions.async.login,
+  push,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -320,6 +332,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, _.pick(ownProps, ['history', 'trackMetric']), stateProps, {
     onSubmit: dispatchProps.updateUser.bind(null, api),
     login: dispatchProps.login.bind(null, api),
+    push: dispatchProps.push,
   });
 };
 

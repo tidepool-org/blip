@@ -6,7 +6,7 @@ import { checkCacheValid } from 'redux-cache';
 
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
-import { DIABETES_DATA_TYPES } from '../../core/constants';
+import { ALL_FETCHED_DATA_TYPES, DIABETES_DATA_TYPES } from '../../core/constants';
 import * as sync from './sync.js';
 import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
@@ -1030,6 +1030,7 @@ export function fetchPatientData(api, options, id) {
     returnData: false,
     useCache: true,
     initial: true,
+    type: ALL_FETCHED_DATA_TYPES.join(','),
   });
 
   let latestUpload;
@@ -2051,7 +2052,7 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
  * @param {Number} [options.limit] - results per page
  * @param {Number} [options.sort] - directionally prefixed field to sort by (e.g. +name or -name)
  * @param {Number} [options.sortType] - type of bg data to sort by (cgm|bgm)
- * @param {Number} [options.sortPeriod] - summary period to sort by (1d|7d|14d|30d)
+ * @param {Number} [options.period] - summary period to sort by (1d|7d|14d|30d)
  */
 export function fetchPatientsForClinic(api, clinicId, options = {}) {
   return (dispatch) => {

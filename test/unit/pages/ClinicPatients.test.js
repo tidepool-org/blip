@@ -457,7 +457,7 @@ describe('ClinicPatients', () => {
     },
   };
 
-  const defaultFetchOptions = { limit: 50, offset: 0, filterPeriod: '14d', sortPeriod: '14d', sortType: 'cgm' };
+  const defaultFetchOptions = { limit: 50, offset: 0, period: '14d', sortType: 'cgm' };
 
   context('on mount', () => {
     beforeEach(() => {
@@ -1247,7 +1247,7 @@ describe('ClinicPatients', () => {
           assert(columns.at(0).is('#peopleTable-header-fullName'));
 
           expect(columns.at(1).text()).to.equal('Last Upload');
-          assert(columns.at(1).is('#peopleTable-header-lastUploadDate'));
+          assert(columns.at(1).is('#peopleTable-header-cgm-lastUploadDate'));
 
           expect(columns.at(2).text()).to.equal('Patient Tags');
           assert(columns.at(2).is('#peopleTable-header-tags'));
@@ -1320,7 +1320,7 @@ describe('ClinicPatients', () => {
           expect(overflowTags.at(1).text()).to.equal('test tag 3');
 
           // BG summary in sixth column
-          expect(rowData(0).at(5).text()).contains('CGM Use <24 hours'); // empty summary
+          expect(rowData(0).at(5).text()).to.not.contain('CGM Use <24 hours'); // no cgm stats
           expect(rowData(1).at(5).text()).contains('CGM Use <24 hours'); // 23 hours of data
 
           expect(rowData(2).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
@@ -1332,7 +1332,7 @@ describe('ClinicPatients', () => {
           // Average glucose and readings/day in ninth column
           expect(rowData(0).at(8).text()).contains('');
           expect(rowData(1).at(8).text()).contains('189'); // 10.5 mmol/L -> mg/dL
-          expect(rowData(1).at(8).text()).contains('>1 reading/day');
+          expect(rowData(1).at(8).text()).contains('<1 reading/day');
           expect(rowData(2).at(8).text()).contains('207'); // 11.5 mmol/L -> mg/dL
           expect(rowData(2).at(8).text()).contains('1 reading/day');
           expect(rowData(3).at(8).text()).contains('225'); // 12.5 mmol/L -> mg/dL
@@ -1364,6 +1364,16 @@ describe('ClinicPatients', () => {
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           patientHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
+
+          const lastUploadDateHeader = table.find('#peopleTable-header-cgm-lastUploadDate .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lastUploadDateHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastUploadDate', sortType: 'cgm' }));
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          lastUploadDateHeader.simulate('click');
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+lastUploadDate', sortType: 'cgm' }));
 
           const gmiHeader = table.find('#peopleTable-header-cgm-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
 
@@ -1821,8 +1831,7 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               ...defaultFetchOptions,
               sort: '-lastUploadDate',
-              filterPeriod: '7d',
-              sortPeriod: '7d',
+              period: '7d',
               'cgm.timeInHighPercent': '>0.25',
               'cgm.timeInLowPercent': '>0.04',
             }));

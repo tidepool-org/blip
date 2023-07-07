@@ -168,6 +168,7 @@ const initialState = {
   pendingReceivedClinicianInvites: [],
   clinicFlowActive: false,
   keycloakConfig: {},
+  ssoEnabledDisplay: false,
 };
 
 export default initialState;
