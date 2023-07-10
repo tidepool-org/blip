@@ -249,16 +249,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows, radii }) => {
       color: `${colors.purples[9]} !important`,
       fontSize: '10px !important',
       py: [0, null, '6px'],
-      px: [2, null, null, null, 1],
       whiteSpace: 'nowrap',
-
-      '&:first-child': {
-        pl: 3,
-      },
-
-      '&:last-child': {
-        pr: 3,
-      },
 
       '&.no-padding': {
         px: 0,
