@@ -236,7 +236,12 @@ const TideDashboardSection = React.memo(props => {
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
-      <Text fontSize={[1, null, 0]} fontWeight="medium">{patient.fullName}</Text>
+      <Text fontSize={[1, null, 0]} fontWeight="medium"  sx={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      }}>
+        {patient.fullName}
+      </Text>
     </Box>
   ), [handleClickPatient]);
 
@@ -360,6 +365,7 @@ const TideDashboardSection = React.memo(props => {
         field: 'patient.fullName',
         align: 'left',
         render: renderPatientName,
+        width: 160,
       },
       {
         title: t('Avg. Glucose'),
@@ -374,25 +380,25 @@ const TideDashboardSection = React.memo(props => {
         render: renderGMI,
       },
       {
-        title: t('% CGM Use'),
+        title: t('CGM Use'),
         field: 'timeCGMUsePercent',
         align: 'center',
         render: renderTimeInPercent.bind(null, 'timeCGMUsePercent'),
       },
       {
-        title: t(`% Time below ${veryLowGlucoseThreshold}`),
+        title: t(`Time below ${veryLowGlucoseThreshold}`),
         field: 'timeInVeryLowPercent',
         align: 'center',
         render: renderTimeInPercent.bind(null, 'timeInVeryLowPercent'),
       },
       {
-        title: t(`% Time below ${lowGlucoseThreshold}`),
+        title: t(`Time below ${lowGlucoseThreshold}`),
         field: 'timeInLowPercent',
         align: 'center',
         render: renderTimeInPercent.bind(null, 'timeInLowPercent'),
       },
       {
-        title: t('% Time in Range'),
+        title: t('Time in Range'),
         field: 'timeInTargetPercent',
         align: 'center',
         render: renderTimeInPercent.bind(null, 'timeInTargetPercent'),
@@ -402,25 +408,29 @@ const TideDashboardSection = React.memo(props => {
         field: 'bgRangeSummary',
         align: 'center',
         render: renderBgRangeSummary,
+        width: 207,
       },
       {
         title: t('% Change in TIR'),
         field: 'timeInTargetPercentDelta',
         align: 'center',
         render: renderTimeInTargetPercentDelta,
+        width: 140,
       },
       {
         title: t('Tags'),
         field: 'patient.tags',
         align: 'left',
         render: renderPatientTags,
+        width: 170,
       },
       {
         title: '',
         field: 'more',
         render: renderMore,
         align: 'right',
-        className: 'action-menu',
+        width: 28,
+        className: 'action-menu no-padding',
       },
     ];
 
