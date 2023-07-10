@@ -185,6 +185,7 @@ export const Table = React.memo(props => {
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
                   className={tableCellClassNames(undefined, col)}
+                  width={col.width}
                 >
                   <Box
                     className="table-header-inner-cell"
