@@ -241,6 +241,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows, radii }) => {
   const tableGroupStyles = {
     ...condensedStyles,
     ...roundedStyles,
+    tableLayout: ['auto', null, null, null, 'fixed'],
 
     '.MuiTableCell-head': {
       backgroundColor: 'white',
@@ -248,13 +249,21 @@ export default ({ borders, colors, fonts, fontSizes, shadows, radii }) => {
       color: `${colors.purples[9]} !important`,
       fontSize: '10px !important',
       py: [0, null, '6px'],
-      px: 3,
+      px: [2, null, null, null, 1],
       whiteSpace: 'nowrap',
+
+      '&.no-padding': {
+        paddingX: 0,
+      },
     },
 
     '.MuiTableCell-body': {
       borderColor: `${colors.lightestGrey} !important`,
       whiteSpace: 'nowrap',
+
+      '&.no-padding': {
+        paddingX: 0,
+      },
     },
 
     '.MuiTableBody-root .MuiTableRow-root .MuiTableCell-body': {
