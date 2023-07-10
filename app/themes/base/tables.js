@@ -252,8 +252,16 @@ export default ({ borders, colors, fonts, fontSizes, shadows, radii }) => {
       px: [2, null, null, null, 1],
       whiteSpace: 'nowrap',
 
+      '&:first-child': {
+        pl: 3,
+      },
+
+      '&:last-child': {
+        pr: 3,
+      },
+
       '&.no-padding': {
-        paddingX: 0,
+        px: 0,
       },
     },
 
