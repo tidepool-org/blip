@@ -41,11 +41,10 @@ const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
         blip: { clinics, allUsersMap, loggedInUserId },
       } = getState();
       const user = allUsersMap[loggedInUserId];
-      console.log('user', user);
-      const role = indexOf(user?.roles, 'clinic') !== -1 ? 'clinician' : 'personal'; // TBD: what if role === 'clinician'?
+      const role = indexOf(user?.roles, 'clinic') !== -1 ? 'clinician' : 'personal';
 
       ldContext.user = {
-        key: user?.userid,
+        key: role === 'clinician' ? user?.userid : defaultUserContext.key,
         role,
         application: 'Web',
       };
@@ -57,6 +56,7 @@ const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
       if (!isEmpty(clinicianOf)) {
         if (clinicianOf.length === 1) {
           const clinic = clinicianOf[0];
+
           ldContext.user.permission = includes(clinic?.clinicians?.[user.userid]?.roles,'CLINIC_ADMIN')
             ? 'administrator'
             : 'member';
