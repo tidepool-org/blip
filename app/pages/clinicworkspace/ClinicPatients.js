@@ -528,7 +528,7 @@ export const ClinicPatients = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const previousClinic = usePrevious(clinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
-  const showBgmStats = ldClient.variation('showBGMStats', false);
+  const showTideDashboard = ldClient.variation('showTideDashboard', false);
 
   const defaultPatientFetchOptions = useMemo(
     () => ({
@@ -2756,11 +2756,6 @@ export const ClinicPatients = (props) => {
             render: renderBgRangeSummary,
             className: 'group-right',
           },
-        ]
-      );
-
-      if (showBgmStats) cols.splice(-1, 0,
-        ...[
           {
             field: 'spacer',
             className: 'group-spacer',
@@ -2842,7 +2837,6 @@ export const ClinicPatients = (props) => {
     renderPatient,
     renderPatientTags,
     showSummaryData,
-    showBgmStats,
     patientFetchOptions,
     t,
   ]);
