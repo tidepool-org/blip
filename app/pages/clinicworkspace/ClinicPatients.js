@@ -80,6 +80,7 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
+import { ldClient } from '../../redux/utils/launchDarklyMiddleware';
 import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 
@@ -457,6 +458,7 @@ export const ClinicPatients = (props) => {
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
+  const showTideDashboard = ldClient.variation('showTideDashboard', false);
 
   const defaultPatientFetchOptions = useMemo(
     () => ({

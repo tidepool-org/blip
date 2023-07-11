@@ -4,7 +4,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
-import moment from 'moment';
 import { Box } from 'rebass/styled-components';
 
 import * as actions from '../../redux/actions';
