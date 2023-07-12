@@ -27,6 +27,7 @@ export const DeltaBar = React.memo(props => {
       >
         {map(values, (value, i) => (
           <Flex
+            key={`delta-value-${i}`}
             py="6px"
             flexBasis="50%"
             flexDirection={i === 0 ? 'row' : 'row-reverse'}
