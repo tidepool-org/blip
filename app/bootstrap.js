@@ -84,6 +84,10 @@ appContext.render = async Component => {
   const LDProvider = await asyncWithLDProvider({
     clientSideID: __LAUNCHDARKLY_CLIENT_TOKEN__,
     context: ldContext,
+    options: { streaming: true },
+    flags: {
+      'showTideDashboard': false,
+    },
   });
 
   render(
