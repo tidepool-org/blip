@@ -19,6 +19,7 @@ import EditIcon from '@material-ui/icons/EditRounded';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from 'styled-components';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import {
   bindPopover,
@@ -520,6 +521,9 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
+  const { showTideDashboard } = useFlags();
+  const ldClient = useLDClient();
+  const ldContext = ldClient.getContext();
 
   const {
     fetchingPatientFromClinic,
@@ -577,6 +581,14 @@ export const TideDashboard = (props) => {
   useEffect(() => {
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic]);
+
+  useEffect(() => {
+    const tier = ldContext?.clinic?.tier;
+
+    if (tier && (!showTideDashboard || tier < 'tier0300')) {
+      dispatch(push('/clinic-workspace'));
+    }
+  }, [ldContext, showTideDashboard, dispatch]);
 
   useEffect(() => {
     handleAsyncResult({ ...fetchingTideDashboardPatients, prevInProgress: previousFetchingTideDashboardPatients?.inProgress }, null, handleCloseOverlays);
