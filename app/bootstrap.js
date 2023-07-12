@@ -13,13 +13,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+/* global __LAUNCHDARKLY_CLIENT_TOKEN__ */
+
 import React from 'react';
 import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
+import { asyncWithLDProvider } from 'launchdarkly-react-client-sdk';
 
 import './core/language'; // Set the language before loading components
 import blipCreateStore from './redux/store';
+import { ldContext } from './redux/utils/launchDarklyMiddleware';
 
 import { getRoutes } from './routes';
 
@@ -76,13 +80,19 @@ appContext.init = callback => {
   beginInit();
 };
 
-appContext.render = Component => {
+appContext.render = async Component => {
+  const LDProvider = await asyncWithLDProvider({
+    clientSideID: __LAUNCHDARKLY_CLIENT_TOKEN__,
+    context: ldContext,
+  });
+
   render(
-    <Component store={appContext.store} routing={appContext.routing} />,
+    <LDProvider>
+      <Component store={appContext.store} routing={appContext.routing} />,
+    </LDProvider>,
     document.getElementById('app'),
   );
 };
-
 
 /**
  * Application start function. This is what should be called

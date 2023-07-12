@@ -5,8 +5,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
 import { Box } from 'rebass/styled-components';
+import { withLDConsumer } from 'launchdarkly-react-client-sdk';
 
 import * as actions from '../../redux/actions';
+import { ldContext } from '../../redux/utils/launchDarklyMiddleware';
 
 import utils from '../../core/utils';
 import personUtils from '../../core/personutils';
@@ -169,6 +171,12 @@ export class AppComponent extends React.Component {
       authenticated,
       currentPatientInViewId,
     } = nextProps;
+
+    const ldClientContext = nextProps.ldClient?.getContext();
+
+    if ((ldContext?.user?.key !== ldClientContext.user?.key) || (ldContext?.clinic?.key !== ldClientContext.clinic?.key)) {
+      nextProps.ldClient?.identify(ldContext);
+    }
 
     if (
       !utils.isOnSamePage(this.props, nextProps) ||
@@ -877,7 +885,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.api;
-  return Object.assign({}, _.pick(ownProps, ['children', 'history']), stateProps, {
+  return Object.assign({}, _.pick(ownProps, ['children', 'history', 'ldClient', 'flags']), stateProps, {
     context: {
       DEBUG: ownProps.DEBUG,
       api: ownProps.api,
@@ -909,4 +917,4 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   });
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(AppComponent);
+export default withLDConsumer()(connect(mapStateToProps, mapDispatchToProps, mergeProps)(AppComponent));

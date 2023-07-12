@@ -11719,7 +11719,7 @@ latest-version@^3.0.0:
   dependencies:
     package-json "^4.0.0"
 
-launchdarkly-js-client-sdk@3.1.3:
+launchdarkly-js-client-sdk@^3.1.3:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/launchdarkly-js-client-sdk/-/launchdarkly-js-client-sdk-3.1.3.tgz#e046439f0e4f0bfd6d38b9eaa4420a6e40ffc0c7"
   integrity sha512-/JR/ri8z3bEj9RFTTKDjd+con4F1MsWUea1MmBDtFj4gDA0l9NDm1KzhMKiIeoBdmB2rSaeFYe4CaYOEp8IryA==
@@ -11735,6 +11735,15 @@ launchdarkly-js-sdk-common@5.0.3:
     base64-js "^1.3.0"
     fast-deep-equal "^2.0.1"
     uuid "^8.0.0"
+
+launchdarkly-react-client-sdk@3.0.7:
+  version "3.0.7"
+  resolved "https://registry.yarnpkg.com/launchdarkly-react-client-sdk/-/launchdarkly-react-client-sdk-3.0.7.tgz#54c60223fdcbbfe7636c763c6ed3fbc033816346"
+  integrity sha512-P80GrwvT30eMjRgFtXn1iw6bHdgUA32OX6GpNsJMUbaTMgnrfNyf7D2Zqc07XggHe5aNTumqgArVmOZt7p2Egg==
+  dependencies:
+    hoist-non-react-statics "^3.3.2"
+    launchdarkly-js-client-sdk "^3.1.3"
+    lodash.camelcase "^4.3.0"
 
 lazy-cache@^0.2.3:
   version "0.2.7"

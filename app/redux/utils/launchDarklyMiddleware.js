@@ -1,11 +1,10 @@
 import filter from 'lodash/filter';
 import includes from 'lodash/includes';
-import indexOf from 'lodash/indexOf';
 import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
-import * as LDClient from 'launchdarkly-js-client-sdk';
 
 import * as ActionTypes from '../constants/actionTypes';
+import personUtils from '../../core/personutils';
 
 /* global __LAUNCHDARKLY_CLIENT_TOKEN__ */
 
@@ -19,8 +18,6 @@ export const ldContext = {
   user: defaultUserContext,
   clinic: defaultClinicContext,
 }
-
-export const ldClient = LDClient.initialize(__LAUNCHDARKLY_CLIENT_TOKEN__, ldContext);
 
 const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
   const { getState } = storeAPI;
@@ -41,7 +38,7 @@ const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
         blip: { clinics, allUsersMap, loggedInUserId },
       } = getState();
       const user = allUsersMap[loggedInUserId];
-      const role = indexOf(user?.roles, 'clinic') !== -1 ? 'clinician' : 'personal';
+      const role = personUtils.isClinicianAccount(user) ? 'clinician' : 'personal';
 
       ldContext.user = {
         key: role === 'clinician' ? user?.userid : defaultUserContext.key,
@@ -57,7 +54,7 @@ const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
         if (clinicianOf.length === 1) {
           const clinic = clinicianOf[0];
 
-          ldContext.user.permission = includes(clinic?.clinicians?.[user.userid]?.roles,'CLINIC_ADMIN')
+          ldContext.user.permission = includes(clinic?.clinicians?.[user.userid]?.roles, 'CLINIC_ADMIN')
             ? 'administrator'
             : 'member';
 
@@ -106,10 +103,6 @@ const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
     default:
       break;
   }
-
-  ldClient?.identify(ldContext, null, () => {
-    console.log('New flags available for context', ldContext);
-  });
 
   return next(action);
 };
