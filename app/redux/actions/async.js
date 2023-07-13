@@ -6,7 +6,7 @@ import { checkCacheValid } from 'redux-cache';
 
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
-import { DIABETES_DATA_TYPES } from '../../core/constants';
+import { ALL_FETCHED_DATA_TYPES, DIABETES_DATA_TYPES } from '../../core/constants';
 import * as sync from './sync.js';
 import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
@@ -1030,6 +1030,7 @@ export function fetchPatientData(api, options, id) {
     returnData: false,
     useCache: true,
     initial: true,
+    type: ALL_FETCHED_DATA_TYPES.join(','),
   });
 
   let latestUpload;

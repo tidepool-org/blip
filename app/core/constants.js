@@ -66,6 +66,18 @@ export const DIABETES_DATA_TYPES = [
   'food',
 ];
 
+export const ALL_FETCHED_DATA_TYPES = [
+  ...DIABETES_DATA_TYPES,
+  'cgmSettings',
+  'deviceEvent',
+  'insulin',
+  'physicalActivity',
+  'pumpSettings',
+  'reportedState',
+  'upload',
+  'water',
+];
+
 export const MGDL_UNITS = t('mg/dL');
 export const MMOLL_UNITS = t('mmol/L');
 export const MGDL_PER_MMOLL = 18.01559;
