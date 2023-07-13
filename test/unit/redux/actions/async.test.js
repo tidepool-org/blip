@@ -21,7 +21,7 @@ import initialState from '../../../../app/redux/reducers/initialState';
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS } from '../../../../app/core/constants';
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS, ALL_FETCHED_DATA_TYPES } from '../../../../app/core/constants';
 
 // need to require() async in order to rewire utils inside
 const async = require('../../../../app/redux/actions/async');
@@ -4315,6 +4315,7 @@ describe('Actions', () => {
             ...options,
             startDate: '2017-12-31T00:00:00.000Z',
             endDate: '2018-06-02T00:00:00.000Z',
+            type: ALL_FETCHED_DATA_TYPES.join(','),
           }).callCount).to.equal(1);
         });
       });

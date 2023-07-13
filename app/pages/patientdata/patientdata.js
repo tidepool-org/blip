@@ -2127,11 +2127,11 @@ export function mapStateToProps(state, props) {
     }
 
     if (state.blip.currentPatientInViewId) {
-      patient = _.get(
+      patient = _.cloneDeep(_.get(
         state.blip.allUsersMap,
         state.blip.currentPatientInViewId,
         null
-      );
+      ));
 
       permissions = _.get(
         state.blip.permissionsOfMembersInTargetCareTeam,
