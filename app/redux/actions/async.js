@@ -2773,13 +2773,13 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
       }, 2000);
     }
 
-    api.clinics.getPatientsForTideDashboard(clinicId, options, (err, info) => {
+    api.clinics.getPatientsForTideDashboard(clinicId, options, (err, results) => {
       if (err) {
         dispatch(sync.fetchTideDashboardPatientsFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_INFO, err), err
+          createActionError(ErrorMessages.ERR_FETCHING_TIDE_DASHBOARD_PATIENTS, err), err
         ));
       } else {
-        dispatch(sync.fetchTideDashboardPatientsSuccess(info));
+        dispatch(sync.fetchTideDashboardPatientsSuccess(results));
       }
     });
   };
