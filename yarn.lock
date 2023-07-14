@@ -3044,13 +3044,13 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.34.0":
-  version "1.34.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.34.0.tgz#1da3249a1e8cdca293ab83e941b2b578d0c5ac74"
-  integrity sha512-SQ+6IpDBOnKFTdaubcecxog5IJcqE4NNOus4GEzvOetuG7z0TioeK1vJxpA3ZJFLBbREMKJNweJ0mu1o988NcA==
+"@tidepool/viz@1.35.0-web-2479-ssr-pdf.1":
+  version "1.35.0-web-2479-ssr-pdf.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.35.0-web-2479-ssr-pdf.1.tgz#a6784cf0ef2cd0b3383c7e77c899582d43388072"
+  integrity sha512-jGbyG/EzwuHOxNpCkdF3fE4ZK6ip7C3+Y1bJr8DbjgDxXembVp1mMLAd20ZzOOA93c8b7C1uzI9yOJLgioasVQ==
   dependencies:
     bluebird "3.5.2"
-    bows "1.7.0"
+    bows "1.7.2"
     classnames "2.2.6"
     crossfilter2 "1.5.2"
     d3-array "1.2.4"
@@ -3807,7 +3807,7 @@ amdefine@>=0.0.4:
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
 
-andlog@^1.0.0:
+andlog@^1.0.0, andlog@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/andlog/-/andlog-1.0.2.tgz#0e77a44f62a782be3a78a7527beb5761c183f044"
   integrity sha512-ne6ibcbv3wqZHzbXarG7NfOpU2ai5ao6429ocq1betBBDDx7KE7R6k0IIeaT29JNko0lA88yVzHRRuxX2wpkHQ==
@@ -4924,6 +4924,13 @@ bows@1.7.0:
   integrity sha1-o1mO2c72GnoMqxpyQPKRZUhl7HY=
   dependencies:
     andlog "^1.0.0"
+
+bows@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/bows/-/bows-1.7.2.tgz#4deb95d5b78049794cce925a869155b722d2d516"
+  integrity sha512-AeIQNXbTstXOPjIBol9oTnaaO/2ByuExio0AEIx8vqOIJnAAWFfbWWzh7YPiSKYAxJNTjcy+J+xH2jCRb460Yw==
+  dependencies:
+    andlog "^1.0.2"
 
 bowser@2.9.0:
   version "2.9.0"

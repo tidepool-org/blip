@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -21,6 +22,7 @@ import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
+import Plotly from 'plotly.js-basic-dist-min';
 
 import _ from 'lodash';
 import bows from 'bows';
@@ -923,7 +925,23 @@ export const PatientDataClass = createReactClass({
   generateAGPImages: async function(props = this.props) {
     try {
       const images = await vizUtils.agp.generateAGPSVGDataURLS({ ...props.pdf.data?.agp });
-      props.generateAGPImagesSuccess(images)
+      const promises = _.map(images, async (image, key) => {
+        if (_.isArray(image)) {
+          const processedArray = await Promise.all(
+            _.map(image, async (img) => {
+              return await Plotly.toImage(img, { format: 'svg' });
+            })
+          );
+          return [key, processedArray];
+        } else {
+          const processedValue = await Plotly.toImage(image, { format: 'svg' });
+          return [key, processedValue];
+        }
+      });
+      const processedEntries = await Promise.all(promises);
+      const processedObj = _.fromPairs(processedEntries);
+
+      props.generateAGPImagesSuccess(processedObj);
     } catch(e) {
       props.generateAGPImagesFailure(e);
     }
