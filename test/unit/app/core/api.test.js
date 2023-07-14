@@ -73,6 +73,7 @@ describe('api', () => {
       createClinicPatientTag: sinon.stub(),
       updateClinicPatientTag: sinon.stub(),
       deleteClinicPatientTag: sinon.stub(),
+      getPatientsForTideDashboard: sinon.stub(),
       saveSession: sinon.stub(),
     };
 
@@ -1078,6 +1079,15 @@ describe('api', () => {
         const patientTagId = 'patientTagId123';
         api.clinics.deleteClinicPatientTag(clinicId, patientTagId, cb);
         sinon.assert.calledWith(tidepool.deleteClinicPatientTag, clinicId, patientTagId, cb);
+      });
+    });
+    describe('clinics.getPatientsForTideDashboard', () => {
+      it('should call tidepool.getPatientsForTideDashboard with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const options = 'options123';
+        api.clinics.getPatientsForTideDashboard(clinicId, options, cb);
+        sinon.assert.calledWith(tidepool.getPatientsForTideDashboard, clinicId, options, cb);
       });
     });
   });

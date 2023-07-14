@@ -64,6 +64,25 @@ describe('clinicUtils', function() {
     ]);
   });
 
+  it('should return all lastUploadDateFilterOptions options', () => {
+    expect(clinicUtils.lastUploadDateFilterOptions).to.eql([
+      { value: 1, label: 'Today' },
+      { value: 2, label: 'Last 2 days' },
+      { value: 7, label: 'Last 7 days' },
+      { value: 14, label: 'Last 14 days' },
+      { value: 30, label: 'Last 30 days' },
+    ]);
+  });
+
+  it('should return all summaryPeriodOptions options', () => {
+    expect(clinicUtils.summaryPeriodOptions).to.eql([
+      { value: '1d', label: '24 hours' },
+      { value: '7d', label: '7 days' },
+      { value: '14d', label: '14 days' },
+      { value: '30d', label: '30 days' },
+    ]);
+  });
+
   describe('clinicValuesFromClinic', () => {
     it('should return default values for any missing clinic fields', () => {
       const emptyClinic = {};
@@ -148,6 +167,18 @@ describe('clinicUtils', function() {
         'tags',
         'connectDexcom',
         'dataSources',
+      ]);
+    });
+  });
+
+  describe('tideDashboardConfigSchema', () => {
+    it('should return a yup schema for clinic fields', () => {
+      expect(clinicUtils.tideDashboardConfigSchema).to.be.an('object');
+
+      expect(clinicUtils.tideDashboardConfigSchema._nodes).to.be.an('array').and.have.members([
+        'period',
+        'lastUpload',
+        'tags',
       ]);
     });
   });
