@@ -122,6 +122,7 @@ describe('ClinicPatients', () => {
         creatingClinicPatientTag: defaultWorkingState,
         updatingClinicPatientTag: defaultWorkingState,
         deletingClinicPatientTag: defaultWorkingState,
+        fetchingTideDashboardPatients: defaultWorkingState,
       },
     },
   };

@@ -1039,6 +1039,15 @@ export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
   }
 };
 
+export const tideDashboard = (state = initialState.tideDashboard, action) => {
+  switch (action.type) {
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
+      return action?.payload?.results || initialState.tideDashboard;
+    case types.LOGOUT_REQUEST:
+      return initialState.tideDashboard;
+  }
+};
+
 export const ssoEnabledDisplay = (state = initialState.ssoEnabledDisplay, action) => {
   switch (action.type) {
     case types.SET_SSO_ENABLED_DISPLAY:

@@ -200,10 +200,7 @@ export const Table = React.memo(props => {
                         fontWeight="medium"
                         py="1px"
                         px="3px"
-                        sx={{
-                          borderRadius: radii.input,
-                          textTransform: 'none',
-                        }}
+                        sx={{ borderRadius: radii.input }}
                         colorPalette={['grays.4', 'white']}
                         text={col.tag}
                       />

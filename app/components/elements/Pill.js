@@ -23,7 +23,7 @@ const Pill = (props) => {
   const bg = variant === 'inverse' ? darkShade : lightShade;
   const borderRadius = round ? '100%' : 4;
   const height = round ? width : 'auto';
-  const lineHeight = round ? width : 'inherit';
+  const lineHeight = round ? width : '1em';
 
   return (
     <Text
@@ -34,7 +34,7 @@ const Pill = (props) => {
       as="span"
       px={round ? 0 : 2}
       py={round ? 0 : 1}
-      sx={{ borderRadius, textTransform: 'upperCase', ...sx }}
+      sx={{ borderRadius, ...sx }}
       color={color}
       bg={bg}
       width={width}

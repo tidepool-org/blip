@@ -61,6 +61,7 @@ import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import BgRangeSummary from '../../components/clinic/BgRangeSummary';
 import PatientForm from '../../components/clinic/PatientForm';
+import TideDashboardConfigForm from '../../components/clinic/TideDashboardConfigForm';
 import Pill from '../../components/elements/Pill';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import PopoverLabel from '../../components/elements/PopoverLabel';
@@ -87,6 +88,7 @@ import {
   dateFormat,
   patientSchema as validationSchema,
   clinicPatientTagSchema,
+  tideDashboardConfigSchema,
   maxClinicPatientTags
 } from '../../core/clinicUtils';
 
@@ -507,6 +509,7 @@ export const ClinicPatients = (props) => {
   const [showDeleteClinicPatientTagDialog, setShowDeleteClinicPatientTagDialog] = useState(false);
   const [showUpdateClinicPatientTagDialog, setShowUpdateClinicPatientTagDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
+  const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
@@ -517,10 +520,12 @@ export const ClinicPatients = (props) => {
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
+  const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
   const [clinicPatientTagFormContext, setClinicPatientTagFormContext] = useState();
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0300');
+  const [showTideDashBoard, setShowTideDashBoard] = useState(clinic?.tier >= 'tier0300');
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
@@ -638,6 +643,7 @@ export const ClinicPatients = (props) => {
     creatingClinicPatientTag,
     updatingClinicPatientTag,
     deletingClinicPatientTag,
+    fetchingTideDashboardPatients,
   } = useSelector((state) => state.blip.working);
 
   // TODO: remove this when upgraded to React 18
@@ -930,6 +936,7 @@ export const ClinicPatients = (props) => {
         }
       } else {
         setShowSummaryData(isPremiumTier);
+        setShowTideDashBoard(isPremiumTier);
         setPatientFetchOptions(newPatientFetchOptions);
         setCurrentPage(1);
       }
@@ -1006,6 +1013,16 @@ export const ClinicPatients = (props) => {
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
+  function handleConfigureTideDashboard() {
+    trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId });
+    setShowTideDashboardConfigDialog(true);
+  }
+
+  const handleConfigureTideDashboardConfirm = useCallback(() => {
+    trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId });
+    tideDashboardFormContext?.handleSubmit();
+  }, [tideDashboardFormContext, selectedClinicId, trackMetric]);
+
   const handleCreateClinicPatientTag = useCallback(tag => {
     trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });
     dispatch(actions.async.createClinicPatientTag(api, selectedClinicId, tag));
@@ -1040,6 +1057,10 @@ export const ClinicPatients = (props) => {
 
   function handlePatientFormChange(formikContext) {
     setPatientFormContext({...formikContext});
+  }
+
+  function handleTideDashboardConfigFormChange(formikContext) {
+    setTideDashboardFormContext({...formikContext});
   }
 
   function handleSearchChange(event) {
@@ -1166,6 +1187,7 @@ export const ClinicPatients = (props) => {
             justifyContent="space-between"
             width="auto"
             flexGrow={[1, null, 0]}
+            flexWrap="wrap"
             sx={{ gap: 2 }}
           >
             <Button
@@ -1179,23 +1201,39 @@ export const ClinicPatients = (props) => {
               {t('Add New Patient')}
             </Button>
 
-            <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
-              <TextInput
-                themeProps={{
-                  width: ['100%', null, '250px'],
-                }}
-                fontSize="12px"
-                id="patients-search"
-                placeholder={t('Search')}
-                icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
-                iconLabel={t('Search')}
-                onClickIcon={!isEmpty(search) ? handleClearSearch : null}
-                name="search-patients"
-                onChange={handleSearchChange}
-                value={search}
-                variant="condensed"
-              />
-            </Box>
+              <Box flex={1} flexBasis="fit-content" sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+                <Flex justifyContent="space-between" alignContent="center" sx={{ gap: 2 }}>
+                  {showTideDashBoard && (
+                    <Button
+                      flexShrink={0}
+                      id="open-tide-dashboard"
+                      variant="tertiary"
+                      onClick={handleConfigureTideDashboard}
+                      tag={t('New')}
+                      fontSize={0}
+                      px={2}
+                    >
+                      {t('Tide Dashboard View')}
+                    </Button>
+                  )}
+
+                  <TextInput
+                    themeProps={{
+                      width: ['100%', null, '250px'],
+                    }}
+                    fontSize="12px"
+                    id="patients-search"
+                    placeholder={t('Search')}
+                    icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
+                    iconLabel={t('Search')}
+                    onClickIcon={!isEmpty(search) ? handleClearSearch : null}
+                    name="search-patients"
+                    onChange={handleSearchChange}
+                    value={search}
+                    variant="condensed"
+                  />
+                </Flex>
+              </Box>
           </Flex>
 
           {/* Flex Group 2: Filters and Info Icons */}
@@ -1281,7 +1319,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={3} pb={2} dividers>
+                    <DialogContent px={2} py={3} dividers>
                       <Box alignItems="center" mb={2}>
                         <Text color="grays.4" fontWeight="medium" fontSize={0} sx={{ whiteSpace: 'nowrap' }}>
                           {t('Device Type')}
@@ -1302,7 +1340,7 @@ export const ClinicPatients = (props) => {
 
                       <Box
                         alignItems="center"
-                        mt={1}
+                        mt={3}
                         mb={2}
                         pt={3}
                         sx={{
@@ -1320,6 +1358,7 @@ export const ClinicPatients = (props) => {
                         options={lastUploadDateFilterOptions}
                         variant="vertical"
                         fontSize={0}
+                        mb={3}
                         value={pendingFilters.lastUploadDate || activeFilters.lastUploadDate}
                         onChange={event => {
                           setPendingFilters({ ...pendingFilters, lastUploadDate: parseInt(event.target.value) || null });
@@ -1572,7 +1611,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={3} pb={2} dividers>
+                    <DialogContent px={2} py={3} dividers>
                       <Box alignItems="center" mb={2}>
                         <Text color="grays.4" fontWeight="medium" fontSize={0} sx={{ whiteSpace: 'nowrap' }}>
                           {t('% CGM Use')}
@@ -2080,6 +2119,46 @@ export const ClinicPatients = (props) => {
     updatingClinicPatient.inProgress
   ]);
 
+  const renderTideDashboardConfigDialog = useCallback(() => {
+    return (
+      <Dialog
+        id="addPatient"
+        aria-labelledby="dialog-title"
+        open={showTideDashboardConfigDialog}
+        onClose={handleCloseOverlays}
+        maxWidth="sm"
+      >
+        <DialogTitle onClose={handleCloseOverlays}>
+          <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <TideDashboardConfigForm api={api} trackMetric={trackMetric} onFormChange={handleTideDashboardConfigFormChange} />
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            id="configureTideDashboardConfirm"
+            variant="primary"
+            onClick={handleConfigureTideDashboardConfirm}
+            processing={fetchingTideDashboardPatients.inProgress}
+            disabled={!fieldsAreValid(keys(tideDashboardFormContext?.values), tideDashboardConfigSchema, tideDashboardFormContext?.values)}
+          >
+            {t('Next')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [
+    api,
+    fetchingTideDashboardPatients.inProgress,
+    handleConfigureTideDashboardConfirm,
+    tideDashboardFormContext?.values,
+    showTideDashboardConfigDialog,
+    t,
+    trackMetric
+  ]);
+
   const renderClinicPatientTagsDialog = useCallback(() => {
     return (
       <Dialog
@@ -2361,7 +2440,7 @@ export const ClinicPatients = (props) => {
                     fontSize="12px"
                     fontWeight="normal"
                     py="2px"
-                    sx={{ borderRadius: radii.input, textTransform: 'none' }}
+                    sx={{ borderRadius: radii.input }}
                     colorPalette={[`bg.${rangeName}`, 'white']}
                     text={tag}
                   />
@@ -2416,6 +2495,7 @@ export const ClinicPatients = (props) => {
     setShowClinicPatientTagsDialog(false);
     setShowTimeInRangeDialog(false);
     setShowSendUploadReminderDialog(false);
+    setShowTideDashboardConfigDialog(false);
 
     setTimeout(() => {
       setSelectedPatient(null);
@@ -2907,6 +2987,7 @@ export const ClinicPatients = (props) => {
       {showUpdateClinicPatientTagDialog && renderUpdateClinicPatientTagDialog()}
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
+      {showTideDashBoard && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}
