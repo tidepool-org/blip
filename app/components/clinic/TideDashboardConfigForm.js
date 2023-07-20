@@ -33,7 +33,7 @@ function getFormValues(config, clinicPatientTags) {
   };
 }
 
-export const TideDashboardConfigForm = (props) => {
+export const TideDashboardConfigForm = props => {
   const { t, api, onFormChange, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
   const { pathname } = useLocation();
@@ -115,7 +115,6 @@ export const TideDashboardConfigForm = (props) => {
         <Body0 fontWeight="medium" mb={2}>{t('Select Duration')}</Body0>
 
         <RadioGroup
-          id="summary-period-select"
           options={summaryPeriodOptions}
           {...getCommonFormikFieldProps('period', formikContext)}
           variant="vertical"
@@ -126,7 +125,6 @@ export const TideDashboardConfigForm = (props) => {
         <Body0 fontWeight="medium" mb={2}>{t('Select Last Upload Date')}</Body0>
 
         <RadioGroup
-          id="summary-period-select"
           options={lastUploadDateFilterOptions}
           {...getCommonFormikFieldProps('lastUpload', formikContext)}
           variant="vertical"

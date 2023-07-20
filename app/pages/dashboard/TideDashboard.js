@@ -230,7 +230,7 @@ const TideDashboardSection = React.memo(props => {
   const handleClickPatient = useCallback(patient => {
     return () => {
       trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient.id}/data`));
+      dispatch(push(`/patients/${patient.id}/data?chart=trends`));
     }
   }, [dispatch, trackMetric]);
 
@@ -465,14 +465,15 @@ const TideDashboardSection = React.memo(props => {
   };
 
   return (
-    <Box id={`dashboard-section-${section.groupKey}`} mb={4}>
+    <Box className='dashboard-section' id={`dashboard-section-${section.groupKey}`} mb={4}>
       <Flex justifyContent="space-between" alignItems="center">
         <Text
+          className='dashboard-section-label'
           color="purples.9"
           fontSize={1}
           fontWeight="medium"
           mb={2}
-          >
+        >
           {sectionLabelsMap[section.groupKey]}
         </Text>
 
@@ -488,6 +489,7 @@ const TideDashboardSection = React.memo(props => {
       </Flex>
 
       <Table
+        className='dashboard-table'
         id={`dashboard-table-${section}`}
         variant="tableGroup"
         label={'peopletablelabel'}
@@ -516,7 +518,7 @@ export const TideDashboard = (props) => {
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
-  const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
+  const [clinicBgUnits, setClinicBgUnits] = useState(clinic?.preferredBgUnits || MGDL_UNITS);
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
@@ -566,7 +568,7 @@ export const TideDashboard = (props) => {
   }, [isFirstRender, setToast]);
 
   const fetchDashboardPatients = useCallback((config) => {
-    const options = config || localConfig?.[localConfigKey];
+    const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
       options.mockData = true; // TODO: delete temp mocked data response
       setLoading(true);
@@ -611,7 +613,7 @@ export const TideDashboard = (props) => {
   }
 
   const handleConfigureTideDashboardConfirm = useCallback(() => {
-    trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId });
+    trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId, source: 'Tide dashboard' });
     tideDashboardFormContext?.handleSubmit();
     fetchDashboardPatients(tideDashboardFormContext?.values);
   }, [fetchDashboardPatients, tideDashboardFormContext, selectedClinicId, trackMetric]);
@@ -648,6 +650,7 @@ export const TideDashboard = (props) => {
       </Flex>
 
       <Button
+        id="update-dashboard-config"
         variant="filter"
         icon={KeyboardArrowDownRoundedIcon}
         iconLabel="Open dashboard config"
@@ -665,7 +668,7 @@ export const TideDashboard = (props) => {
   const renderTideDashboardConfigDialog = useCallback(() => {
     return (
       <Dialog
-        id="addPatient"
+        id="tideDashboardConfig"
         aria-labelledby="dialog-title"
         open={showTideDashboardConfigDialog}
         onClose={handleCloseOverlays}
