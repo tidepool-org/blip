@@ -885,7 +885,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.api;
-  return Object.assign({}, _.pick(ownProps, ['children', 'history', 'ldClient', 'flags']), stateProps, {
+  return Object.assign({}, _.pick(ownProps, ['children', 'history', 'ldClient']), stateProps, {
     context: {
       DEBUG: ownProps.DEBUG,
       api: ownProps.api,
