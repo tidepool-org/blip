@@ -18,6 +18,7 @@ import {
   getFetchers,
 } from '../../../app/pages/app/app.js';
 import initialState from '../../../app/redux/reducers/initialState';
+import LDClientMock from '../../fixtures/LDClientMock';
 
 import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
 
@@ -42,6 +43,7 @@ describe('App', () => {
       trackMetric: sinon.stub(),
     },
     updateShareDataBannerSeen: sinon.stub(),
+    ldClient: new LDClientMock(),
   };
 
   describe('constructor', () => {

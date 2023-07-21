@@ -172,9 +172,13 @@ export class AppComponent extends React.Component {
       currentPatientInViewId,
     } = nextProps;
 
+    // Send new context to the LaunchDarkly client context whenever the logged-in user ID or
+    // selected clinic ID changes
     const ldClientContext = nextProps.ldClient?.getContext();
-
-    if ((ldContext?.user?.key !== ldClientContext.user?.key) || (ldContext?.clinic?.key !== ldClientContext.clinic?.key)) {
+    if (
+      (ldContext?.user?.key !== ldClientContext.user?.key) ||
+      (ldContext?.clinic?.key !== ldClientContext.clinic?.key)
+    ) {
       nextProps.ldClient?.identify(ldContext);
     }
 
