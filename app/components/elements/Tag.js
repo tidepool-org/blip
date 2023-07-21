@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
+import cx from 'classnames';
 import compact from 'lodash/compact';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -33,6 +34,7 @@ export const Tag = props => {
     onClickIcon,
     onDoubleClick,
     variant,
+    selected,
     sx = {},
     ...themeProps
   } = props;
@@ -50,6 +52,11 @@ export const Tag = props => {
     ...sx,
   };
 
+  const classNames = cx({
+    selected,
+    'tag-text': true,
+  });
+
   return (
     <Flex
       id={id}
@@ -60,7 +67,7 @@ export const Tag = props => {
       sx={styles}
       {...themeProps}
     >
-      <Text className="tag-text" as="span">
+      <Text className={classNames} as="span">
         {name}
       </Text>
 
@@ -181,6 +188,7 @@ export const TagList = translate()(props => {
           id={tag.id}
           key={tag.id}
           name={tag.name}
+          selected={tag.selected}
           {...tagProps}
           {...(tag.selected ? selectedTagProps : {})}
         />

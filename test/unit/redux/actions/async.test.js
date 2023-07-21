@@ -8176,5 +8176,81 @@ describe('Actions', () => {
         expect(api.server.getInfo.callCount).to.equal(1);
       });
     });
+
+    describe('fetchTideDashboardPatients', () => {
+      it('should trigger FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS and it should call server.getInfo once for a successful request', () => {
+        const clinicId = 'clinic123';
+        const options = { bar: 'baz' };
+        const results = [ {foo: 'bar'} ];
+
+        let api = {
+          clinics: {
+            getPatientsForTideDashboard: sinon
+              .stub()
+              .callsArgWith(2, null, results),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST' },
+          {
+            type: 'FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS',
+            payload: { results },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.fetchTideDashboardPatients(api, clinicId, options)
+        );
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getPatientsForTideDashboard.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE and it should call error once for a failed request', () => {
+        const clinicId = 'clinic123';
+        const options = { bar: 'baz' };
+
+        let api = {
+          clinics: {
+            getPatientsForTideDashboard: sinon
+              .stub()
+              .callsArgWith(2, { status: 500, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_TIDE_DASHBOARD_PATIENTS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST' },
+          {
+            type: 'FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE',
+            error: err,
+            meta: { apiError: { status: 500, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(
+          async.fetchTideDashboardPatients(api, clinicId, options)
+        );
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_TIDE_DASHBOARD_PATIENTS,
+        });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getPatientsForTideDashboard.callCount).to.equal(1);
+      });
+    });
   });
 });

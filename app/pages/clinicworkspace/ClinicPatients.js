@@ -815,7 +815,7 @@ export const ClinicPatients = (props) => {
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateFrom`] = moment(filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`]).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
 
-        if (activeFilters.patientTags.length) {
+        if (activeFilters.patientTags?.length) {
           filterOptions['tags'] = activeFilters.patientTags;
         }
 
@@ -951,7 +951,7 @@ export const ClinicPatients = (props) => {
   }
 
   const handleConfigureTideDashboardConfirm = useCallback(() => {
-    trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId });
+    trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId, source: 'Patients list' });
     tideDashboardFormContext?.handleSubmit();
   }, [tideDashboardFormContext, selectedClinicId, trackMetric]);
 
@@ -1100,9 +1100,9 @@ export const ClinicPatients = (props) => {
     const activeFiltersCount = without([
       activeFilters.timeCGMUsePercent,
       activeFilters.lastUploadDate,
-      activeFilters.timeInRange.length,
-      activeFilters.patientTags.length,
-    ], null, 0).length;
+      activeFilters.timeInRange?.length,
+      activeFilters.patientTags?.length,
+    ], null, 0, undefined).length;
 
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
@@ -1341,7 +1341,7 @@ export const ClinicPatients = (props) => {
                   <Button
                     id="time-in-range-filter-trigger"
                     variant="filter"
-                    selected={!!activeFilters.timeInRange.length}
+                    selected={!!activeFilters.timeInRange?.length}
                     onClick={handleOpenTimeInRangeFilter}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by Time In Range"
@@ -1351,7 +1351,7 @@ export const ClinicPatients = (props) => {
                   >
                     <Flex sx={{ gap: 1 }}>
                       {t('% Time in Range')}
-                      {!!activeFilters.timeInRange.length && (
+                      {!!activeFilters.timeInRange?.length && (
                         <Pill
                           id="time-in-range-filter-count"
                           label="filter count"
@@ -1364,7 +1364,7 @@ export const ClinicPatients = (props) => {
                             display: 'inline-block',
                           }}
                           colorPalette={['purpleMedium', 'white']}
-                          text={`${activeFilters.timeInRange.length}`}
+                          text={`${activeFilters.timeInRange?.length}`}
                         />
                       )}
                       </Flex>
@@ -1379,7 +1379,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       variant="filter"
                       id="patient-tags-filter-trigger"
-                      selected={activeFilters.patientTags.length > 0}
+                      selected={activeFilters.patientTags?.length > 0}
                       {...bindTrigger(patientTagsPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
                       iconLabel="Filter by patient tags"
@@ -1388,7 +1388,7 @@ export const ClinicPatients = (props) => {
                     >
                       <Flex sx={{ gap: 1 }}>
                         {t('Patient Tags')}
-                        {!!activeFilters.patientTags.length && (
+                        {!!activeFilters.patientTags?.length && (
                           <Pill
                             id="patient-tags-filter-count"
                             label="filter count"
@@ -1401,7 +1401,7 @@ export const ClinicPatients = (props) => {
                               display: 'inline-block',
                             }}
                             colorPalette={['purpleMedium', 'white']}
-                            text={`${activeFilters.patientTags.length}`}
+                            text={`${activeFilters.patientTags?.length}`}
                           />
                         )}
                       </Flex>
@@ -1428,7 +1428,7 @@ export const ClinicPatients = (props) => {
                           </Text>
                         </Box>
 
-                        {!!pendingFilters.patientTags.length && (
+                        {!!pendingFilters.patientTags?.length && (
                           <Box id="selected-tag-filters" mb={1} fontSize={0} fontWeight="medium">
                             <Text fontSize="10px" color="grays.4">{t('Selected Tags')}</Text>
 
@@ -1448,9 +1448,9 @@ export const ClinicPatients = (props) => {
                           </Box>
                         )}
 
-                        {pendingFilters.patientTags.length < patientTagsFilterOptions.length && (
+                        {pendingFilters.patientTags?.length < patientTagsFilterOptions?.length && (
                           <Box id="available-tag-filters" alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
-                            {!!pendingFilters.patientTags.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
+                            {!!pendingFilters.patientTags?.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
 
                             <TagList
                               tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)), ({ id }) => patientTags?.[id])}
@@ -1651,7 +1651,7 @@ export const ClinicPatients = (props) => {
                     fontSize={0}
                     lineHeight={1.3}
                   >
-                    {find(summaryPeriodOptions, { value: activeSummaryPeriod }).label}
+                    {find(summaryPeriodOptions, { value: activeSummaryPeriod })?.label}
                   </Button>
                 </Box>
 
@@ -2054,7 +2054,7 @@ export const ClinicPatients = (props) => {
   const renderTideDashboardConfigDialog = useCallback(() => {
     return (
       <Dialog
-        id="addPatient"
+        id="tideDashboardConfig"
         aria-labelledby="dialog-title"
         open={showTideDashboardConfigDialog}
         onClose={handleCloseOverlays}
