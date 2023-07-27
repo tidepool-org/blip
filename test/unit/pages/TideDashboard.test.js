@@ -222,7 +222,7 @@ describe('TideDashboard', () => {
       expect(dialog().props().open).to.be.true;
     });
 
-    it('should fetch dashboard results if the confuration is set', () => {
+    it('should fetch dashboard results if the configuration is set', () => {
       store = mockStore(noResultsState);
 
       mockedLocalStorage = {
