@@ -1,10 +1,15 @@
 {
   "config": {
+    "schemaVersion": 1,
     "clinicId": "clinicID123",
     "clinicianId": "clinicianID123",
     "period": "14d",
     "lastUploadDateFrom": "2023-05-16T04:00:00.000Z",
     "lastUploadDateTo": "2023-05-30T04:00:00.000Z",
+    "highGlucoseThreshold": 10,
+    "lowGlucoseThreshold": 3.9,
+    "veryHighGlucoseThreshold": 13.9,
+    "veryLowGlucoseThreshold": 3,
     "tags": [
       "646f7f0408e23bc18d91caa7",
       "643f0674dbbc8aa9fad54c78",
@@ -21,374 +26,504 @@
   "results": {
     "timeInVeryLowPercent": [
       {
-        "patient": {
-          "userId": "7d17c2c2c5",
-          "fullName": "Sherilyn Fuzzard"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 11.8
+          "value": 5.4
         },
-        "glucoseManagementIndicator": 0.06515,
-        "timeInVeryLowPercent": 0.08444,
-        "timeInLowPercent": 0.11075,
-        "timeInTargetPercentDelta": -0.10684,
-        "timeInHighPercent": 0.32181,
-        "timeInVeryHighPercent": 0.12669,
-        "timeInTargetPercent": 0.35631,
-        "timeCGMUsePercent": 0.9965
+        "glucoseManagementIndicator": 12.2,
+        "timeInVeryLowPercent": 0.0305,
+        "timeInLowPercent": 0.16864,
+        "timeInTargetPercentDelta": -0.10284,
+        "timeInHighPercent": 0.06832,
+        "timeInVeryHighPercent": 0.02459,
+        "timeInTargetPercent": 0.70795,
+        "timeCGMUsePercent": 0.84325,
+        "timeCGMUseMinutes": 2792,
+        "patient": {
+          "email": null,
+          "id": "6da2c016-263b-92db-1c3e-11ed92f5be4b",
+          "fullName": "Charmane Fassman",
+          "tags": [
+            "646f7edb08e23bc18d91caa5",
+            "646f7efd08e23bc18d91caa6",
+            "6455353c299ee2ccddbdbe94",
+            "643f0674dbbc8aa9fad54c78"
+          ]
+        }
       },
       {
-        "patient": {
-          "userId": "d8cd0dc6d3",
-          "fullName": "Daniela Heartfield"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 12.1
+          "value": 12.8
         },
-        "glucoseManagementIndicator": 0.09352,
-        "timeInVeryLowPercent": 0.02331,
-        "timeInLowPercent": 0.10752,
-        "timeInTargetPercentDelta": -0.07919,
-        "timeInHighPercent": 0.1023,
-        "timeInVeryHighPercent": 0.10775,
-        "timeInTargetPercent": 0.65912,
-        "timeCGMUsePercent": 0.83044
+        "glucoseManagementIndicator": 13.5,
+        "timeInVeryLowPercent": 0.03817,
+        "timeInLowPercent": 0.12279,
+        "timeInTargetPercentDelta": 0.17968,
+        "timeInHighPercent": 0.10668,
+        "timeInVeryHighPercent": 0.11175,
+        "timeInTargetPercent": 0.62061,
+        "timeCGMUsePercent": 0.51835,
+        "timeCGMUseMinutes": 16712,
+        "patient": {
+          "email": null,
+          "id": "edb2acd19d",
+          "fullName": "Lora Painter",
+          "tags": [
+            "646f7ed208e23bc18d91caa3"
+          ]
+        }
       },
       {
-        "patient": {
-          "userId": "4a09b4db-eaef-12b1-caa9-f0ab05839e74",
-          "fullName": "Rafa Moyle"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 8.4
+          "value": 7.5
         },
-        "glucoseManagementIndicator": 0.12607,
-        "timeInVeryLowPercent": 0.03158,
-        "timeInLowPercent": 0.11516,
-        "timeInTargetPercentDelta": -0.13692,
-        "timeInHighPercent": 0.16472,
-        "timeInVeryHighPercent": 0.07451,
-        "timeInTargetPercent": 0.61403,
-        "timeCGMUsePercent": 0.75985
+        "glucoseManagementIndicator": 6.6,
+        "timeInVeryLowPercent": 0.01134,
+        "timeInLowPercent": 0.18651,
+        "timeInTargetPercentDelta": -0.04606,
+        "timeInHighPercent": 0.26302,
+        "timeInVeryHighPercent": 0.06066,
+        "timeInTargetPercent": 0.47847,
+        "timeCGMUsePercent": 0.58711,
+        "timeCGMUseMinutes": 16558,
+        "patient": {
+          "email": "cphilipsson2@g.co",
+          "id": "a57f1b5e-a0f2-2fb9-bbea-48cb06cc6bf8",
+          "fullName": "Carlo Philipsson",
+          "tags": [
+            "643f0674dbbc8aa9fad54c78",
+            "646f7ed708e23bc18d91caa4",
+            "646f7f0408e23bc18d91caa7",
+            "63d811e11710f10c0422ce6d"
+          ]
+        }
       }
     ],
     "timeInLowPercent": [
       {
-        "patient": {
-          "userId": "f2e49bcd-7d1d-47cd-ebbe-3fc8edd6e542",
-          "fullName": "Luci Otley"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 8.4
+          "value": 4.3
         },
-        "glucoseManagementIndicator": 0.04302,
-        "timeInVeryLowPercent": 0.00536,
-        "timeInLowPercent": 0.19049,
-        "timeInTargetPercentDelta": -0.00785,
-        "timeInHighPercent": 0.00564,
-        "timeInVeryHighPercent": 0.14813,
-        "timeInTargetPercent": 0.65038,
-        "timeCGMUsePercent": 0.84286
+        "glucoseManagementIndicator": 6.2,
+        "timeInVeryLowPercent": 0.00857,
+        "timeInLowPercent": 0.08968,
+        "timeInTargetPercentDelta": 0.03184,
+        "timeInHighPercent": 0.10683,
+        "timeInVeryHighPercent": 0.11735,
+        "timeInTargetPercent": 0.67757,
+        "timeCGMUsePercent": 0.52826,
+        "timeCGMUseMinutes": 16629,
+        "patient": {
+          "email": null,
+          "id": "afb4bad7-156f-ffed-fe6a-681c88ac6303",
+          "fullName": "Elmo Jouning",
+          "tags": [
+            "646f7ed708e23bc18d91caa4",
+            "645a9fc9d59edded4e573496",
+            "63d811e11710f10c0422ce6d",
+            "645a9c5dd59edded4e573495"
+          ]
+        }
       },
       {
-        "patient": {
-          "userId": "230312dd-f94a-90bc-6f1c-2a1c27eea6f7",
-          "fullName": "Annetta Paiton"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 6.4
+          "value": 6.8
         },
-        "glucoseManagementIndicator": 0.10982,
-        "timeInVeryLowPercent": 0.00184,
-        "timeInLowPercent": 0.12803,
-        "timeInTargetPercentDelta": -0.09123,
-        "timeInHighPercent": 0.00632,
-        "timeInVeryHighPercent": 0.08085,
-        "timeInTargetPercent": 0.78296,
-        "timeCGMUsePercent": 0.52086
+        "glucoseManagementIndicator": 5.2,
+        "timeInVeryLowPercent": 0.006,
+        "timeInLowPercent": 0.0852,
+        "timeInTargetPercentDelta": 0.19731,
+        "timeInHighPercent": 0.1703,
+        "timeInVeryHighPercent": 0.06778,
+        "timeInTargetPercent": 0.67072,
+        "timeCGMUsePercent": 0.95941,
+        "timeCGMUseMinutes": 8474,
+        "patient": {
+          "email": null,
+          "id": "c9ddb1ec-efca-6bb3-f596-ff9d5eeb7155",
+          "fullName": "Joni Caccavari",
+          "tags": [
+            "63d811e11710f10c0422ce6d"
+          ]
+        }
       },
       {
-        "patient": {
-          "userId": "911ae60d-65fd-f871-3c17-f5809bdf0de3",
-          "fullName": "Desi Redhole"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 7.8
+          "value": 8.8
         },
-        "glucoseManagementIndicator": 0.10185,
-        "timeInVeryLowPercent": 0.00879,
-        "timeInLowPercent": 0.16607,
-        "timeInTargetPercentDelta": 0.10659,
-        "timeInHighPercent": 0.18563,
-        "timeInVeryHighPercent": 0.00488,
-        "timeInTargetPercent": 0.63463,
-        "timeCGMUsePercent": 0.96638
+        "glucoseManagementIndicator": 5,
+        "timeInVeryLowPercent": 0.00839,
+        "timeInLowPercent": 0.05639,
+        "timeInTargetPercentDelta": 0.18036,
+        "timeInHighPercent": 0.17419,
+        "timeInVeryHighPercent": 0.06036,
+        "timeInTargetPercent": 0.70067,
+        "timeCGMUsePercent": 0.66064,
+        "timeCGMUseMinutes": 5279,
+        "patient": {
+          "email": null,
+          "id": "41abaec7-aafb-2561-8217-f8e51b4dc7bc",
+          "fullName": "Guinna Turfrey",
+          "tags": [
+            "646f7efd08e23bc18d91caa6",
+            "643f0674dbbc8aa9fad54c78"
+          ]
+        }
       }
     ],
     "dropInTimeInTargetPercent": [
       {
-        "patient": {
-          "userId": "13eaa809dd",
-          "fullName": "Brear Creasey"
-        },
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 10.6
-        },
-        "glucoseManagementIndicator": 0.11879,
-        "timeInVeryLowPercent": 0.00678,
-        "timeInLowPercent": 0.06772,
-        "timeInTargetPercentDelta": -0.17166,
-        "timeInHighPercent": 0.0364,
-        "timeInVeryHighPercent": 0.06608,
-        "timeInTargetPercent": 0.82302,
-        "timeCGMUsePercent": 0.99522
-      },
-      {
-        "patient": {
-          "userId": "cc4b081b69",
-          "fullName": "Fred Girdler"
-        },
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 13.1
-        },
-        "glucoseManagementIndicator": 0.1096,
-        "timeInVeryLowPercent": 0.01197,
-        "timeInLowPercent": 0.06526,
-        "timeInTargetPercentDelta": -0.17208,
-        "timeInHighPercent": 0.03778,
-        "timeInVeryHighPercent": 0.13503,
-        "timeInTargetPercent": 0.74996,
-        "timeCGMUsePercent": 0.59049
-      },
-      {
-        "patient": {
-          "userId": "d0f1b8d5-9d2b-0aae-7d69-9eaa1a77847d",
-          "fullName": "Leroi Buttner"
-        },
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 8.6
-        },
-        "glucoseManagementIndicator": 0.1477,
-        "timeInVeryLowPercent": 0.00956,
-        "timeInLowPercent": 0.09568,
-        "timeInTargetPercentDelta": -0.28204,
-        "timeInHighPercent": 0.09877,
-        "timeInVeryHighPercent": 0.05782,
-        "timeInTargetPercent": 0.73817,
-        "timeCGMUsePercent": 0.58497
-      }
-    ],
-    "timeInTargetPercent": [
-      {
-        "patient": {
-          "userId": "d8afcb4128",
-          "fullName": "Mozelle Westmacott"
-        },
         "averageGlucose": {
           "units": "mmol/L",
           "value": 12.2
         },
-        "glucoseManagementIndicator": 0.09612,
-        "timeInVeryLowPercent": 0.01084,
-        "timeInLowPercent": 0.09596,
-        "timeInTargetPercentDelta": 0.05579,
-        "timeInVeryHighPercent": 0.03094,
-        "timeInTargetPercent": 0.42848,
-        "timeInHighPercent": 0.43378,
-        "timeCGMUsePercent": 0.52306
+        "glucoseManagementIndicator": 9,
+        "timeInVeryLowPercent": 0.00678,
+        "timeInLowPercent": 0.08231,
+        "timeInTargetPercentDelta": -0.26325,
+        "timeInHighPercent": 0.02705,
+        "timeInVeryHighPercent": 0.01329,
+        "timeInTargetPercent": 0.87057,
+        "timeCGMUsePercent": 0.73861,
+        "timeCGMUseMinutes": 2652,
+        "patient": {
+          "email": "bwant0@ca.gov",
+          "id": "aadb07fd-7c4e-17ff-fde3-fe3620e4af66",
+          "fullName": "Bella Want",
+          "tags": [
+            "646f7edb08e23bc18d91caa5",
+            "646f7efd08e23bc18d91caa6"
+          ]
+        }
       },
       {
-        "patient": {
-          "userId": "be2fea34bf",
-          "fullName": "Nickie Comins"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 7.1
+          "value": 5.5
         },
-        "glucoseManagementIndicator": 0.09472,
-        "timeInVeryLowPercent": 0.01545,
-        "timeInLowPercent": 0.09821,
-        "timeInTargetPercentDelta": 0.17045,
-        "timeInVeryHighPercent": 0.12664,
-        "timeInTargetPercent": 0.52218,
-        "timeInHighPercent": 0.23752,
-        "timeCGMUsePercent": 0.99753
+        "glucoseManagementIndicator": 4.7,
+        "timeInVeryLowPercent": 0.00318,
+        "timeInLowPercent": 0.04043,
+        "timeInTargetPercentDelta": -0.24255,
+        "timeInHighPercent": 0.15522,
+        "timeInVeryHighPercent": 0.0378,
+        "timeInTargetPercent": 0.76337,
+        "timeCGMUsePercent": 0.84527,
+        "timeCGMUseMinutes": 5027,
+        "patient": {
+          "email": null,
+          "id": "232d91e6-a8a5-1b82-fa8e-7ee7ee64175e",
+          "fullName": "Lillian Denizet",
+          "tags": [
+            "63d98f3dda7008171a96ab04"
+          ]
+        }
       },
       {
-        "patient": {
-          "userId": "0dbabba8-39c3-2be4-9b1b-dedd57f1ac27",
-          "fullName": "Jonah Gasticke"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 6.1
+          "value": 10.5
         },
-        "glucoseManagementIndicator": 0.04398,
-        "timeInVeryLowPercent": 0.01447,
-        "timeInLowPercent": 0.04789,
-        "timeInTargetPercentDelta": 0.03526,
-        "timeInVeryHighPercent": 0.14009,
-        "timeInTargetPercent": 0.49131,
-        "timeInHighPercent": 0.30624,
-        "timeCGMUsePercent": 0.75489
+        "glucoseManagementIndicator": 7,
+        "timeInVeryLowPercent": 0.00585,
+        "timeInLowPercent": 0.09144,
+        "timeInTargetPercentDelta": -0.24536,
+        "timeInHighPercent": 0.13199,
+        "timeInVeryHighPercent": 0.12039,
+        "timeInTargetPercent": 0.65033,
+        "timeCGMUsePercent": 0.78854,
+        "timeCGMUseMinutes": 2248,
+        "patient": {
+          "email": "dfarrens2@jiathis.com",
+          "id": "ce60556a00",
+          "fullName": "Darell Farrens",
+          "tags": [
+            "646f7ed208e23bc18d91caa3",
+            "646f7edb08e23bc18d91caa5",
+            "6455353c299ee2ccddbdbe94",
+            "645a9c5dd59edded4e573495"
+          ]
+        }
       }
     ],
-    "timeCGMUsePercent": [
+    "timeInTargetPercent": [
       {
-        "patient": {
-          "userId": "06eae3cea5",
-          "fullName": "Ara Birchwood"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 6.5
+          "value": 13.9
         },
-        "glucoseManagementIndicator": 0.04205,
-        "timeInVeryLowPercent": 0.01031,
-        "timeInLowPercent": 0.06556,
-        "timeInTargetPercentDelta": 0.04358,
-        "timeInHighPercent": 0.04508,
-        "timeInVeryHighPercent": 0.14543,
-        "timeInTargetPercent": 0.73362,
-        "timeCGMUsePercent": 0.51792
+        "glucoseManagementIndicator": 14.2,
+        "timeInVeryLowPercent": 0.01048,
+        "timeInLowPercent": 0.07943,
+        "timeInTargetPercentDelta": 0.17848,
+        "timeInVeryHighPercent": 0.08869,
+        "timeInTargetPercent": 0.41722,
+        "timeInHighPercent": 0.40418,
+        "timeCGMUsePercent": 0.51255,
+        "timeCGMUseMinutes": 11292,
+        "patient": {
+          "email": "kmcgettigan0@stumbleupon.com",
+          "id": "bff01ff10c",
+          "fullName": "Karlik McGettigan",
+          "tags": [
+            "646f7efd08e23bc18d91caa6"
+          ]
+        }
       },
       {
-        "patient": {
-          "userId": "068917baae",
-          "fullName": "Bevvy Benge"
-        },
         "averageGlucose": {
           "units": "mmol/L",
           "value": 8.3
         },
-        "glucoseManagementIndicator": 0.14359,
-        "timeInVeryLowPercent": 0.00595,
-        "timeInLowPercent": 0.00105,
-        "timeInTargetPercentDelta": 0.05055,
-        "timeInHighPercent": 0.12923,
-        "timeInVeryHighPercent": 0.07345,
-        "timeInTargetPercent": 0.79032,
-        "timeCGMUsePercent": 0.64992
+        "glucoseManagementIndicator": 7.8,
+        "timeInVeryLowPercent": 0.00249,
+        "timeInLowPercent": 0.07275,
+        "timeInTargetPercentDelta": -0.18461,
+        "timeInVeryHighPercent": 0.13173,
+        "timeInTargetPercent": 0.48289,
+        "timeInHighPercent": 0.31014,
+        "timeCGMUsePercent": 0.94926,
+        "timeCGMUseMinutes": 16676,
+        "patient": {
+          "email": null,
+          "id": "f5f83754-ba29-c5b7-ed38-eedcfecc40a5",
+          "fullName": "Janos von Grollmann",
+          "tags": [
+            "646f7ed208e23bc18d91caa3"
+          ]
+        }
       },
       {
-        "patient": {
-          "userId": "2ffaba5473",
-          "fullName": "Zacharia McGuiness"
-        },
         "averageGlucose": {
           "units": "mmol/L",
-          "value": 13.4
+          "value": 8.8
         },
-        "glucoseManagementIndicator": 0.13804,
-        "timeInVeryLowPercent": 0.00728,
-        "timeInLowPercent": 0.02393,
-        "timeInTargetPercentDelta": -0.07141,
-        "timeInHighPercent": 0.23408,
-        "timeInVeryHighPercent": 0.11561,
-        "timeInTargetPercent": 0.6191,
-        "timeCGMUsePercent": 0.6048
+        "glucoseManagementIndicator": 4.3,
+        "timeInVeryLowPercent": 0.0045,
+        "timeInLowPercent": 0.09458,
+        "timeInTargetPercentDelta": -0.00095,
+        "timeInVeryHighPercent": 0.03048,
+        "timeInTargetPercent": 0.41832,
+        "timeInHighPercent": 0.45212,
+        "timeCGMUsePercent": 0.71619,
+        "timeCGMUseMinutes": 6827,
+        "patient": {
+          "email": "glanigan2@slideshare.net",
+          "id": "db04c628-f6c3-5e19-aeef-586a96377bb6",
+          "fullName": "Goldie Lanigan",
+          "tags": [
+            "63d811e11710f10c0422ce6d",
+            "64388096dbbc8aa9fad54c6a",
+            "645a9c5dd59edded4e573495",
+            "6455353c299ee2ccddbdbe94"
+          ]
+        }
+      }
+    ],
+    "timeCGMUsePercent": [
+      {
+        "averageGlucose": {
+          "units": "mmol/L",
+          "value": 11.4
+        },
+        "glucoseManagementIndicator": 4.5,
+        "timeInVeryLowPercent": 0.00451,
+        "timeInLowPercent": 0.01583,
+        "timeInTargetPercentDelta": 0.16357,
+        "timeInHighPercent": 0.10612,
+        "timeInVeryHighPercent": 0.11757,
+        "timeInTargetPercent": 0.75597,
+        "timeCGMUsePercent": 0.56799,
+        "timeCGMUseMinutes": 17916,
+        "patient": {
+          "email": null,
+          "id": "bb48f32a2e",
+          "fullName": "Paxton Healing",
+          "tags": [
+            "643f0674dbbc8aa9fad54c78",
+            "646f7ed208e23bc18d91caa3"
+          ]
+        }
+      },
+      {
+        "averageGlucose": {
+          "units": "mmol/L",
+          "value": 8.8
+        },
+        "glucoseManagementIndicator": 4.6,
+        "timeInVeryLowPercent": 0.01024,
+        "timeInLowPercent": 0.00851,
+        "timeInTargetPercentDelta": 0.14827,
+        "timeInHighPercent": 0.01502,
+        "timeInVeryHighPercent": 0.09336,
+        "timeInTargetPercent": 0.87287,
+        "timeCGMUsePercent": 0.68536,
+        "timeCGMUseMinutes": 558,
+        "patient": {
+          "email": "smeasham1@liveinternet.ru",
+          "id": "f0990d87-4dde-cd4c-0eb6-c77972b82f6a",
+          "fullName": "Sherline Measham",
+          "tags": [
+            "645a9fc9d59edded4e573496"
+          ]
+        }
+      },
+      {
+        "averageGlucose": {
+          "units": "mmol/L",
+          "value": 9.9
+        },
+        "glucoseManagementIndicator": 9.1,
+        "timeInVeryLowPercent": 0.00295,
+        "timeInLowPercent": 0.02865,
+        "timeInTargetPercentDelta": 0.01674,
+        "timeInHighPercent": 0.2488,
+        "timeInVeryHighPercent": 0.11035,
+        "timeInTargetPercent": 0.60925,
+        "timeCGMUsePercent": 0.65913,
+        "timeCGMUseMinutes": 2849,
+        "patient": {
+          "email": null,
+          "id": "4fc3e747-a200-da53-2ed2-6c656e514eb6",
+          "fullName": "Berty Terbrug",
+          "tags": [
+            "64388096dbbc8aa9fad54c6a",
+            "643f0674dbbc8aa9fad54c78",
+            "646f7f0408e23bc18d91caa7",
+            "63d811e41710f10c0422ce6f"
+          ]
+        }
       }
     ],
     "meetingTargets": [
       {
-        "patient": {
-          "userId": "80896dbb-74bf-0af6-57f6-960092368a8d",
-          "fullName": "Elfrida Cardnell"
+        "averageGlucose": {
+          "units": "mmol/L",
+          "value": 7.4
         },
+        "glucoseManagementIndicator": 8.6,
+        "timeInVeryLowPercent": 0.00088,
+        "timeInLowPercent": 0.01365,
+        "timeInTargetPercentDelta": -0.07124,
+        "timeInVeryHighPercent": 0.03443,
+        "timeInTargetPercent": 0.7406,
+        "timeInHighPercent": 0.21044,
+        "timeCGMUsePercent": 0.72922,
+        "timeCGMUseMinutes": 7300,
+        "patient": {
+          "email": null,
+          "id": "ecabff50-0698-ec3d-f2b9-b9d3720cbe14",
+          "fullName": "Denys Ickov",
+          "tags": [
+            "646f7edb08e23bc18d91caa5",
+            "64388096dbbc8aa9fad54c6a",
+            "643f0674dbbc8aa9fad54c78"
+          ]
+        }
+      },
+      {
+        "averageGlucose": {
+          "units": "mmol/L",
+          "value": 5
+        },
+        "glucoseManagementIndicator": 12.1,
+        "timeInVeryLowPercent": 0.00607,
+        "timeInLowPercent": 0.03211,
+        "timeInTargetPercentDelta": 0.00661,
+        "timeInVeryHighPercent": 0.03149,
+        "timeInTargetPercent": 0.73621,
+        "timeInHighPercent": 0.19412,
+        "timeCGMUsePercent": 0.57113,
+        "timeCGMUseMinutes": 14935,
+        "patient": {
+          "email": "jstopforth1@earthlink.net",
+          "id": "ea8ab4da-d4ed-bc6a-dec3-6aa170a99d49",
+          "fullName": "Judah Stopforth",
+          "tags": [
+            "63d98f3dda7008171a96ab04",
+            "646f7ed208e23bc18d91caa3"
+          ]
+        }
+      },
+      {
+        "averageGlucose": {
+          "units": "mmol/L",
+          "value": 7.3
+        },
+        "glucoseManagementIndicator": 6.9,
+        "timeInVeryLowPercent": 0.00253,
+        "timeInLowPercent": 0.0209,
+        "timeInTargetPercentDelta": 0.01694,
+        "timeInVeryHighPercent": 0.01245,
+        "timeInTargetPercent": 0.72142,
+        "timeInHighPercent": 0.2427,
+        "timeCGMUsePercent": 0.95117,
+        "timeCGMUseMinutes": 19174,
+        "patient": {
+          "email": "jslatcher2@army.mil",
+          "id": "61f9e3fc-befc-f0eb-5c6a-7692a077c6af",
+          "fullName": "Johna Slatcher",
+          "tags": [
+            "64388096dbbc8aa9fad54c6a",
+            "646f7f0408e23bc18d91caa7",
+            "63d811e11710f10c0422ce6d",
+            "645a9c5dd59edded4e573495"
+          ]
+        }
+      },
+      {
+        "averageGlucose": {
+          "units": "mmol/L",
+          "value": 13.8
+        },
+        "glucoseManagementIndicator": 14.9,
+        "timeInVeryLowPercent": 0.00237,
+        "timeInLowPercent": 0.02924,
+        "timeInTargetPercentDelta": 0.01988,
+        "timeInVeryHighPercent": 0.03874,
+        "timeInTargetPercent": 0.71342,
+        "timeInHighPercent": 0.21623,
+        "timeCGMUsePercent": 0.93859,
+        "timeCGMUseMinutes": 10117,
+        "patient": {
+          "email": "estangoe3@google.de",
+          "id": "bc2780be-aca1-e9b1-471e-3bffff719cfe",
+          "fullName": "Emelda Stangoe",
+          "tags": [
+            "646f7ed208e23bc18d91caa3",
+            "646f7ed708e23bc18d91caa4"
+          ]
+        }
+      },
+      {
         "averageGlucose": {
           "units": "mmol/L",
           "value": 12.6
         },
-        "glucoseManagementIndicator": 0.11052,
-        "timeInVeryLowPercent": 0.00555,
-        "timeInLowPercent": 0.01897,
-        "timeInTargetPercentDelta": 0.0968,
-        "timeInVeryHighPercent": 0.0257,
-        "timeInTargetPercent": 0.75388,
-        "timeInHighPercent": 0.1959,
-        "timeCGMUsePercent": 0.60615
-      },
-      {
+        "glucoseManagementIndicator": 10.6,
+        "timeInVeryLowPercent": 0.00679,
+        "timeInLowPercent": 0.02242,
+        "timeInTargetPercentDelta": 0.17636,
+        "timeInVeryHighPercent": 0.04112,
+        "timeInTargetPercent": 0.72535,
+        "timeInHighPercent": 0.20432,
+        "timeCGMUsePercent": 0.78663,
+        "timeCGMUseMinutes": 3024,
         "patient": {
-          "userId": "a93afa00-5a77-a08d-eebf-ace799fef3ca",
-          "fullName": "Tomlin Dowley"
-        },
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 6.9
-        },
-        "glucoseManagementIndicator": 0.1313,
-        "timeInVeryLowPercent": 0.00119,
-        "timeInLowPercent": 0.01014,
-        "timeInTargetPercentDelta": 0.03734,
-        "timeInVeryHighPercent": 0.03946,
-        "timeInTargetPercent": 0.75017,
-        "timeInHighPercent": 0.19904,
-        "timeCGMUsePercent": 0.9828
-      },
-      {
-        "patient": {
-          "userId": "29c2cf3d-4a4d-d8b1-34d4-4773dde3b721",
-          "fullName": "Corrinne Reisen"
-        },
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 13.4
-        },
-        "glucoseManagementIndicator": 0.12364,
-        "timeInVeryLowPercent": 0.00083,
-        "timeInLowPercent": 0.01323,
-        "timeInTargetPercentDelta": -0.04085,
-        "timeInVeryHighPercent": 0.04507,
-        "timeInTargetPercent": 0.70102,
-        "timeInHighPercent": 0.23985,
-        "timeCGMUsePercent": 0.98187
-      },
-      {
-        "patient": {
-          "userId": "ba4c0af1-db44-9fff-eeb1-de531eeaf40d",
-          "fullName": "Juliane Fallanche"
-        },
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 11.1
-        },
-        "glucoseManagementIndicator": 0.1324,
-        "timeInVeryLowPercent": 0.00113,
-        "timeInLowPercent": 0.01125,
-        "timeInTargetPercentDelta": -0.08731,
-        "timeInVeryHighPercent": 0.04872,
-        "timeInTargetPercent": 0.79454,
-        "timeInHighPercent": 0.14436,
-        "timeCGMUsePercent": 0.58988
-      },
-      {
-        "patient": {
-          "userId": "a9cd07130d",
-          "fullName": "Clementius Ingray"
-        },
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 13
-        },
-        "glucoseManagementIndicator": 0.05754,
-        "timeInVeryLowPercent": 0.00553,
-        "timeInLowPercent": 0.02851,
-        "timeInTargetPercentDelta": 0.02371,
-        "timeInVeryHighPercent": 0.02434,
-        "timeInTargetPercent": 0.71857,
-        "timeInHighPercent": 0.22305,
-        "timeCGMUsePercent": 0.88498
+          "email": "wgambles4@ameblo.jp",
+          "id": "726b865e-010e-9dda-70af-dad119d53dd7",
+          "fullName": "Willie Gambles",
+          "tags": [
+            "645a9c5dd59edded4e573495",
+            "6455353c299ee2ccddbdbe94",
+            "646f7f0408e23bc18d91caa7"
+          ]
+        }
       }
     ]
   }

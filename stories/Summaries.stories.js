@@ -2,9 +2,11 @@ import React from 'react';
 import { Flex } from 'rebass/styled-components';
 import { withDesign } from 'storybook-addon-designs';
 import { ThemeProvider } from 'styled-components';
+import random from 'lodash/random';
 
 import baseTheme from '../app/themes/baseTheme';
 import BgRangeSummary from '../app/components/clinic/BgRangeSummary';
+import DeltaBar from '../app/components/elements/DeltaBar';
 
 /* eslint-disable max-len */
 
@@ -67,6 +69,26 @@ BgRange.story = {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/file/d9vb4OAXEkiAf7jbCLkJ0L/%5BShared-with-Dev%5D-Population-Health-Designs?node-id=1127%3A1618',
+    },
+  },
+};
+
+export const DeltaBarStory = () => {
+  const delta = random(-20, 20, true);
+
+  return (
+    <Flex justifyContent="center">
+      <DeltaBar fontSize={0} color="text.primary" fontWeight="medium" delta={delta} max={35} />
+    </Flex>
+  );
+};
+
+DeltaBarStory.story = {
+  name: 'DeltaBarSummary',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/G1OLUTmiRoki2xoPG1U4L7/Pop-Health%3A-Stanford-Release?type=design&node-id=2022-274&mode=design&t=uKsIAluiYXMlwnwp-0',
     },
   },
 };

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
-import { format } from 'd3-format';
 import moment from 'moment';
 import debounce from 'lodash/debounce';
 import difference from 'lodash/difference';
@@ -59,7 +58,7 @@ import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
-import BgRangeSummary from '../../components/clinic/BgRangeSummary';
+import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
 import TideDashboardConfigForm from '../../components/clinic/TideDashboardConfigForm';
 import Pill from '../../components/elements/Pill';
@@ -92,7 +91,7 @@ import {
   maxClinicPatientTags
 } from '../../core/clinicUtils';
 
-import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
+import { MGDL_UNITS } from '../../core/constants';
 import { borders, radii, colors } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
@@ -122,82 +121,6 @@ const glycemicTargetThresholds = {
   timeInTargetPercent: { value: 70, comparator: '<' },
   timeInHighPercent: { value: 25, comparator: '>' },
   timeInVeryHighPercent: { value: 5, comparator: '>' },
-};
-
-function formatDecimal(val, precision) {
-  if (precision === null || precision === undefined) {
-    return format('d')(val);
-  }
-  return format(`.${precision}f`)(val);
-}
-
-const BgSummaryCell = ({ summary, clinicBgUnits, activeSummaryPeriod, t }) => {
-  const targetRange = useMemo(
-    () =>
-      map(
-        [summary?.cgmStats?.config?.lowGlucoseThreshold, summary?.cgmStats?.config?.highGlucoseThreshold],
-        (value) =>
-          clinicBgUnits === MGDL_UNITS ? value * MGDL_PER_MMOLL : value
-      ),
-    [
-      clinicBgUnits,
-      summary?.cgmStats?.config?.highGlucoseThreshold,
-      summary?.cgmStats?.config?.lowGlucoseThreshold,
-    ]
-  );
-
-  const cgmHours =
-    (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUseMinutes || 0) / 60;
-
-  const data = useMemo(
-    () => ({
-      veryLow: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryLowPercent,
-      low: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInLowPercent,
-      target: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInTargetPercent,
-      high: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInHighPercent,
-      veryHigh: summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeInVeryHighPercent,
-    }),
-    [summary?.cgmStats?.periods, activeSummaryPeriod]
-  );
-
-  const cgmUsePercent = (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent || 0);
-  const minCgmHours = 24;
-  const minCgmPercent = 0.7;
-
-  const insufficientDataText = useMemo(
-    () =>
-      activeSummaryPeriod === '1d'
-        ? t('CGM Use <{{minCgmPercent}}%', { minCgmPercent: minCgmPercent * 100 })
-        : t('CGM Use <{{minCgmHours}} hours', { minCgmHours }),
-    [activeSummaryPeriod, t]
-  );
-
-  return (
-    <Flex justifyContent="center">
-      {(activeSummaryPeriod === '1d' && cgmUsePercent >= minCgmPercent) || (cgmHours >= minCgmHours)
-        ? (
-        <BgRangeSummary
-          striped={cgmUsePercent < minCgmPercent}
-          data={data}
-          cgmUsePercent={formatDecimal(cgmUsePercent * 100)}
-          targetRange={targetRange}
-          bgUnits={clinicBgUnits}
-        />
-      ) : (
-        <Flex
-          alignItems="center"
-          justifyContent="center"
-          bg="lightestGrey"
-          width={['155px', '200px']}
-          height="20px"
-        >
-          <Text fontSize="10px" fontWeight="medium" color="grays.4">
-            {cgmUsePercent === 0 ? '' : insufficientDataText}
-          </Text>
-        </Flex>
-      )}
-    </Flex>
-  );
 };
 
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
@@ -532,6 +455,8 @@ export const ClinicPatients = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const previousClinic = usePrevious(clinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
+  const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
+  const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
 
   const defaultPatientFetchOptions = useMemo(
     () => ({
@@ -887,7 +812,7 @@ export const ClinicPatients = (props) => {
           filterOptions[`${activeFilters.lastUploadType}.lastUploadDateFrom`] = moment(filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`]).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
 
-        if (activeFilters.patientTags.length) {
+        if (activeFilters.patientTags?.length) {
           filterOptions['tags'] = activeFilters.patientTags;
         }
 
@@ -1014,12 +939,17 @@ export const ClinicPatients = (props) => {
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
   function handleConfigureTideDashboard() {
-    trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId });
-    setShowTideDashboardConfigDialog(true);
+    if (tideDashboardConfig[localConfigKey]) {
+      trackMetric('Clinic - Navigate to Tide Dashboard', { clinicId: selectedClinicId, source: 'Patients list' });
+      dispatch(push('/dashboard/tide'));
+    } else {
+      trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId, source: 'Patients list' });
+      setShowTideDashboardConfigDialog(true);
+    }
   }
 
   const handleConfigureTideDashboardConfirm = useCallback(() => {
-    trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId });
+    trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId, source: 'Patients list' });
     tideDashboardFormContext?.handleSubmit();
   }, [tideDashboardFormContext, selectedClinicId, trackMetric]);
 
@@ -1168,9 +1098,9 @@ export const ClinicPatients = (props) => {
     const activeFiltersCount = without([
       activeFilters.timeCGMUsePercent,
       activeFilters.lastUploadDate,
-      activeFilters.timeInRange.length,
-      activeFilters.patientTags.length,
-    ], null, 0).length;
+      activeFilters.timeInRange?.length,
+      activeFilters.patientTags?.length,
+    ], null, 0, undefined).length;
 
     const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
@@ -1409,7 +1339,7 @@ export const ClinicPatients = (props) => {
                   <Button
                     id="time-in-range-filter-trigger"
                     variant="filter"
-                    selected={!!activeFilters.timeInRange.length}
+                    selected={!!activeFilters.timeInRange?.length}
                     onClick={handleOpenTimeInRangeFilter}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by Time In Range"
@@ -1419,7 +1349,7 @@ export const ClinicPatients = (props) => {
                   >
                     <Flex sx={{ gap: 1 }}>
                       {t('% Time in Range')}
-                      {!!activeFilters.timeInRange.length && (
+                      {!!activeFilters.timeInRange?.length && (
                         <Pill
                           id="time-in-range-filter-count"
                           label="filter count"
@@ -1432,7 +1362,7 @@ export const ClinicPatients = (props) => {
                             display: 'inline-block',
                           }}
                           colorPalette={['purpleMedium', 'white']}
-                          text={`${activeFilters.timeInRange.length}`}
+                          text={`${activeFilters.timeInRange?.length}`}
                         />
                       )}
                       </Flex>
@@ -1447,7 +1377,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       variant="filter"
                       id="patient-tags-filter-trigger"
-                      selected={activeFilters.patientTags.length > 0}
+                      selected={activeFilters.patientTags?.length > 0}
                       {...bindTrigger(patientTagsPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
                       iconLabel="Filter by patient tags"
@@ -1456,7 +1386,7 @@ export const ClinicPatients = (props) => {
                     >
                       <Flex sx={{ gap: 1 }}>
                         {t('Patient Tags')}
-                        {!!activeFilters.patientTags.length && (
+                        {!!activeFilters.patientTags?.length && (
                           <Pill
                             id="patient-tags-filter-count"
                             label="filter count"
@@ -1469,7 +1399,7 @@ export const ClinicPatients = (props) => {
                               display: 'inline-block',
                             }}
                             colorPalette={['purpleMedium', 'white']}
-                            text={`${activeFilters.patientTags.length}`}
+                            text={`${activeFilters.patientTags?.length}`}
                           />
                         )}
                       </Flex>
@@ -1496,7 +1426,7 @@ export const ClinicPatients = (props) => {
                           </Text>
                         </Box>
 
-                        {!!pendingFilters.patientTags.length && (
+                        {!!pendingFilters.patientTags?.length && (
                           <Box id="selected-tag-filters" mb={1} fontSize={0} fontWeight="medium">
                             <Text fontSize="10px" color="grays.4">{t('Selected Tags')}</Text>
 
@@ -1516,9 +1446,9 @@ export const ClinicPatients = (props) => {
                           </Box>
                         )}
 
-                        {pendingFilters.patientTags.length < patientTagsFilterOptions.length && (
+                        {pendingFilters.patientTags?.length < patientTagsFilterOptions?.length && (
                           <Box id="available-tag-filters" alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
-                            {!!pendingFilters.patientTags.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
+                            {!!pendingFilters.patientTags?.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
 
                             <TagList
                               tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)), ({ id }) => patientTags?.[id])}
@@ -1719,7 +1649,7 @@ export const ClinicPatients = (props) => {
                     fontSize={0}
                     lineHeight={1.3}
                   >
-                    {find(summaryPeriodOptions, { value: activeSummaryPeriod }).label}
+                    {find(summaryPeriodOptions, { value: activeSummaryPeriod })?.label}
                   </Button>
                 </Box>
 
@@ -2122,7 +2052,7 @@ export const ClinicPatients = (props) => {
   const renderTideDashboardConfigDialog = useCallback(() => {
     return (
       <Dialog
-        id="addPatient"
+        id="tideDashboardConfig"
         aria-labelledby="dialog-title"
         open={showTideDashboardConfigDialog}
         onClose={handleCloseOverlays}
@@ -2591,7 +2521,7 @@ export const ClinicPatients = (props) => {
     const minCgmHours = 24;
     const minCgmPercent = 0.7;
 
-    let formattedGMI = gmi ? formatDecimal(gmi, 1) : statEmptyText;
+    let formattedGMI = gmi ? utils.formatDecimal(gmi, 1) : statEmptyText;
 
     if (includes(['1d', '7d'], activeSummaryPeriod)
       || cgmUsePercent < minCgmPercent
@@ -2636,10 +2566,11 @@ export const ClinicPatients = (props) => {
 
   const renderBgRangeSummary = useCallback(({summary}) => {
     return <BgSummaryCell
-      summary={summary}
+      summary={summary?.cgmStats?.periods?.[activeSummaryPeriod]}
+      config={summary?.cgmStats?.config}
       clinicBgUnits={clinicBgUnits}
       activeSummaryPeriod={activeSummaryPeriod}
-      t={t} />
+    />
   }, [clinicBgUnits, activeSummaryPeriod, t]);
 
   const renderAverageGlucose = useCallback(({ summary }) => {

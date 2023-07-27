@@ -6,12 +6,12 @@
 
 import _ from 'lodash';
 
-import { tideDashboard as reducer } from '../../../../app/redux/reducers/misc';
+import { tideDashboardPatients as reducer } from '../../../../app/redux/reducers/misc';
 import * as actions from '../../../../app/redux/actions/index';
 
 var expect = chai.expect;
 
-describe('tideDashboard', () => {
+describe('tideDashboardPatients', () => {
   describe('fetchTideDashboardPatientsSuccess', () => {
     it('should set state to patients', () => {
       let initialStateForTest = null;
@@ -34,7 +34,7 @@ describe('tideDashboard', () => {
 
       let state = reducer(initialStateForTest, action);
 
-      expect(state).to.be.null;
+      expect(state).to.eql({});
     });
   });
 });

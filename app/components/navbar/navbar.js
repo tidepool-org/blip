@@ -37,7 +37,10 @@ export default translate()(class extends React.Component {
   render() {
     const { t } = this.props;
     const patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
-    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage);
+    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && (
+      /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage) ||
+      /^\/dashboard\//.test(this.props.currentPage)
+    );
 
     return (
       <>
@@ -137,7 +140,7 @@ export default translate()(class extends React.Component {
           '/clinic-workspace/patients',
           '/clinic-workspace/invites',
           '/clinic-workspace/prescriptions',
-          '/clinician-edit'
+          '/clinician-edit',
         ], this.props.currentPage) && personUtils.isClinicianAccount(this.props.user)
       ) {
         return (

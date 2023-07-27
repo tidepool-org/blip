@@ -1,4 +1,4 @@
-export default ({ borders, colors, fonts, fontSizes, shadows }) => {
+export default ({ borders, colors, fonts, fontSizes, shadows, radii }) => {
   const groupHeader = {
     boxShadow: `inset 0 -2px 0 ${colors.grays[4]}`,
   };
@@ -97,6 +97,9 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
     },
 
     '.MuiTableBody-root .MuiTableRow-root': {
+      backgroundColor: 'white',
+      borderRadius: [radii.medium, null, 0],
+
       '&:first-child .MuiTableCell-body': {
         borderTop: 'none',
       },
@@ -109,6 +112,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
 
         '.MuiTableCell-body': {
           borderColor: 'transparent',
+          borderCollapse: 'initial',
         },
 
         '+ .MuiTableRow-root .MuiTableCell-body': {
@@ -208,16 +212,70 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
     },
   };
 
+  const condensedStyles = {
+    ...defaultStyles,
+
+    '.MuiTableBody-root .MuiTableRow-root .MuiTableCell-body': {
+      paddingY: [0, null, 2],
+    },
+  };
+
+  const roundedStyles = {
+    '.MuiTableRow-root:last-child .MuiTableCell-body:first-child': {
+      borderBottomLeftRadius: radii.medium,
+    },
+
+    '.MuiTableCell-head:first-child': {
+      borderTopLeftRadius: radii.medium,
+    },
+
+    '.MuiTableRow-root:last-child .MuiTableCell-body:last-child': {
+      borderBottomRightRadius: radii.medium,
+    },
+
+    '.MuiTableCell-head:last-child': {
+      borderTopRightRadius: radii.medium,
+    },
+  };
+
+  const tableGroupStyles = {
+    ...condensedStyles,
+    ...roundedStyles,
+    tableLayout: ['auto', null, null, null, 'fixed'],
+
+    '.MuiTableCell-head': {
+      backgroundColor: 'white',
+      borderColor: `${colors.lightestGrey} !important`,
+      color: `${colors.purples[9]} !important`,
+      fontSize: '10px !important',
+      py: [0, null, '6px'],
+      whiteSpace: 'nowrap',
+
+      '&.no-padding': {
+        px: 0,
+      },
+    },
+
+    '.MuiTableCell-body': {
+      borderColor: `${colors.lightestGrey} !important`,
+      whiteSpace: 'nowrap',
+
+      '&.no-padding': {
+        paddingX: 0,
+      },
+    },
+
+    '.MuiTableBody-root .MuiTableRow-root .MuiTableCell-body': {
+      backgroundColor: 'white',
+      paddingY: 0,
+    },
+  };
+
   return {
     default: {
       ...defaultStyles,
     },
-    condensed: {
-      ...defaultStyles,
-
-      '.MuiTableBody-root .MuiTableRow-root .MuiTableCell-body': {
-        paddingY: [0, null, '10px'],
-      },
-    },
+    condensed: condensedStyles,
+    tableGroup: tableGroupStyles,
   };
 };

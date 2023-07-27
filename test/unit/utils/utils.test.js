@@ -557,4 +557,80 @@ describe('utils', () => {
       expect(utils.readableChartName('bar')).to.equal('bar');
     });
   });
+
+  describe('formatDecimal', function() {
+    it('should format a float to the provided precision, or nearest integer if no precision provided', function() {
+      expect(utils.formatDecimal(1.23456, 2)).to.equal('1.23');
+      expect(utils.formatDecimal(1.23456, 3)).to.equal('1.235');
+      expect(utils.formatDecimal(1.23456)).to.equal('1');
+    });
+  });
+
+  describe('roundUp', function() {
+    it('should round a float up to the provided precision, or 1 decimal place if no precision provided', function() {
+      expect(utils.roundUp(1.23456, 2)).to.equal(1.24);
+      expect(utils.roundUp(1.23456, 3)).to.equal(1.235);
+      expect(utils.roundUp(1.23456)).to.equal(1.3);
+    });
+  });
+
+  describe('roundDown', function() {
+    it('should round a float up to the provided precision, or 1 decimal place if no precision provided', function() {
+      expect(utils.roundDown(1.23456, 2)).to.equal(1.23);
+      expect(utils.roundDown(1.23456, 3)).to.equal(1.234);
+      expect(utils.roundDown(1.23456)).to.equal(1.2);
+    });
+  });
+
+  describe('customRoundedPercentage', () => {
+    it('should round up for `veryLow` between 0 and 0.5 percent with 0.01 precision', () => {
+      expect(utils.customRoundedPercentage(0.00001, 'veryLow')).to.equal('0.01');
+      expect(utils.customRoundedPercentage(0.00052, 'veryLow')).to.equal('0.06');
+      expect(utils.customRoundedPercentage(0.00242, 'veryLow')).to.equal('0.25');
+      expect(utils.customRoundedPercentage(0.00436, 'veryLow')).to.equal('0.44');
+    });
+    it('should round down for `veryLow` from 0.5 up to 1 percent with 0.1 precision', () => {
+      expect(utils.customRoundedPercentage(0.005, 'veryLow')).to.equal('0.5');
+      expect(utils.customRoundedPercentage(0.0068, 'veryLow')).to.equal('0.6');
+      expect(utils.customRoundedPercentage(0.0082, 'veryLow')).to.equal('0.8');
+      expect(utils.customRoundedPercentage(0.0132, 'veryLow')).to.equal('1');
+      expect(utils.customRoundedPercentage(0.015, 'veryLow')).to.equal('2');
+    });
+    it('should round down for `low` between 3 and 4 percent with 0.1 precision', () => {
+      expect(utils.customRoundedPercentage(0.0327, 'low')).to.equal('3.2');
+      expect(utils.customRoundedPercentage(0.0384, 'low')).to.equal('3.8');
+      expect(utils.customRoundedPercentage(0.025, 'low')).to.equal('3');
+      expect(utils.customRoundedPercentage(0.0462, 'low')).to.equal('5');
+    });
+    it('should round down for `target` between 69 and 70 percent with 0.1 precision', () => {
+      expect(utils.customRoundedPercentage(0.6999, 'target')).to.equal('69.9');
+      expect(utils.customRoundedPercentage(0.6942, 'target')).to.equal('69.4');
+      expect(utils.customRoundedPercentage(0.685, 'target')).to.equal('69');
+      expect(utils.customRoundedPercentage(0.705, 'target')).to.equal('71');
+    });
+    it('should round down for `high` between 24 and 25 percent with 0.1 precision', () => {
+      expect(utils.customRoundedPercentage(0.2499, 'high')).to.equal('24.9');
+      expect(utils.customRoundedPercentage(0.2442, 'high')).to.equal('24.4');
+      expect(utils.customRoundedPercentage(0.235, 'high')).to.equal('24');
+      expect(utils.customRoundedPercentage(0.255, 'high')).to.equal('26');
+    });
+    it('should round down for `veryHigh` between 4 and 5 percent with 0.1 precision', () => {
+      expect(utils.customRoundedPercentage(0.0499, 'veryHigh')).to.equal('4.9');
+      expect(utils.customRoundedPercentage(0.0442, 'veryHigh')).to.equal('4.4');
+      expect(utils.customRoundedPercentage(0.035, 'veryHigh')).to.equal('4');
+      expect(utils.customRoundedPercentage(0.055, 'veryHigh')).to.equal('6');
+    });
+    it('should use normal rounding with 1.0 precision for other values over 0.5 percent', () => {
+      expect(utils.customRoundedPercentage(0.26459, 'veryHigh')).to.equal('26');
+      expect(utils.customRoundedPercentage(0.00589, 'low')).to.equal('1');
+    });
+    it('should use normal rounding with 0.1 precision for other values under 0.5 and over 0.05', () => {
+      expect(utils.customRoundedPercentage(0.0043, 'veryHigh')).to.equal('0.4');
+      expect(utils.customRoundedPercentage(0.0035, 'high')).to.equal('0.4');
+    });
+    it('should use normal rounding with 0.01 precision for values under 0.05', () => {
+      expect(utils.customRoundedPercentage(0.00043, 'veryHigh')).to.equal('0.04');
+      expect(utils.customRoundedPercentage(0.00025, 'high')).to.equal('0.03');
+    });
+  });
 });
