@@ -10,6 +10,7 @@ import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
+import LDClientMock from '../../fixtures/LDClientMock';
 
 /* global chai */
 /* global sinon */
@@ -42,6 +43,20 @@ describe('TideDashboard', () => {
 
   before(() => {
     mount = createMount();
+
+  });
+
+  beforeEach(() => {
+    TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
+
+    TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+      showTideDashboard: true,
+    }));
+  });
+
+  afterEach(() => {
+    TideDashboard.__ResetDependency__('useLDClient');
+    TideDashboard.__ResetDependency__('useFlags');
   });
 
   const sampleTags = [
@@ -89,6 +104,7 @@ describe('TideDashboard', () => {
               type: 'Office',
             },
           ],
+          tier: 'tier0300',
         },
       },
       tideDashboardPatients: {},
@@ -147,6 +163,30 @@ describe('TideDashboard', () => {
     },
   };
 
+  const tier0200ClinicState = {
+    blip: {
+      ...hasResultsState.blip,
+      clinics: {
+        clinicID123: {
+          ...hasResultsState.blip.clinics.clinicID123,
+          tier: 'tier0200',
+        },
+      },
+    },
+  };
+
+  const tier0300ClinicState = {
+    blip: {
+      ...hasResultsState.blip,
+      clinics: {
+        clinicID123: {
+          ...hasResultsState.blip.clinics.clinicID123,
+          tier: 'tier0300',
+        },
+      },
+    },
+  };
+
   const useLocalStorageRewire = mocked => sinon.stub().callsFake(key => {
     defaults(mocked, { [key]: {} })
     return [
@@ -191,6 +231,8 @@ describe('TideDashboard', () => {
 
   afterEach(() => {
     store.clearActions();
+    TideDashboard.__ResetDependency__('useFlags');
+    TideDashboard.__ResetDependency__('useLDClient');
     TideDashboard.__ResetDependency__('useLocalStorage');
     TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
     TideDashboardConfigForm.__ResetDependency__('useLocation');
@@ -201,6 +243,50 @@ describe('TideDashboard', () => {
   });
 
   context('on mount', () => {
+    it('should redirect back to the clinic workspace if LD `showTideDashboard` flag is false ', () => {
+      store = mockStore(tier0300ClinicState);
+      store.clearActions();
+
+      TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock({ clinic : {
+        tier: 'tier0300'
+      }})));
+
+      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+        showTideDashboard: false,
+      }));
+
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      expect(store.getActions()[0]).to.eql({
+        payload: { args: ['/clinic-workspace'], method: 'push' },
+        type: '@@router/CALL_HISTORY_METHOD',
+      });
+    });
+
+    it('should redirect back to the clinic workspace if clinic tier < 300', () => {
+      store = mockStore(tier0200ClinicState);
+      store.clearActions();
+
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      expect(store.getActions()[0]).to.eql({
+        payload: { args: ['/clinic-workspace'], method: 'push' },
+        type: '@@router/CALL_HISTORY_METHOD',
+      });
+    });
+
     it('should open the config dialog if the configuration is not set', () => {
       store = mockStore(noResultsState);
       mockedLocalStorage = {};
@@ -277,8 +363,8 @@ describe('TideDashboard', () => {
 
       const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
       expect(dashboardSectionLabels).to.have.length(6);
-      expect(dashboardSectionLabels.at(0).text()).to.equal('> 1% below 54 mg/dL');
-      expect(dashboardSectionLabels.at(1).text()).to.equal('> 4% below 70 mg/dL');
+      expect(dashboardSectionLabels.at(0).text()).to.equal('Time below 54 mg/dL > 1%');
+      expect(dashboardSectionLabels.at(1).text()).to.equal('Time below 70 mg/dL > 4%');
       expect(dashboardSectionLabels.at(2).text()).to.equal('Drop in Time in Range > 15%');
       expect(dashboardSectionLabels.at(3).text()).to.equal('Time in Range < 70%');
       expect(dashboardSectionLabels.at(4).text()).to.equal('CGM Wear Time < 70%');
@@ -433,8 +519,8 @@ describe('TideDashboard', () => {
 
         const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
         expect(dashboardSectionLabels).to.have.length(6);
-        expect(dashboardSectionLabels.at(0).text()).to.equal('> 1% below 3.0 mmol/L');
-        expect(dashboardSectionLabels.at(1).text()).to.equal('> 4% below 3.9 mmol/L');
+        expect(dashboardSectionLabels.at(0).text()).to.equal('Time below 3.0 mmol/L > 1%');
+        expect(dashboardSectionLabels.at(1).text()).to.equal('Time below 3.9 mmol/L > 4%');
 
         const dashboardSectionTables = dashboardSections.find('.dashboard-table').hostNodes();
         const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);

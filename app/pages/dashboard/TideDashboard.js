@@ -451,11 +451,11 @@ const TideDashboardSection = React.memo(props => {
   ]);
 
   const sectionLabelsMap = {
-    timeInVeryLowPercent: t('> 1% below {{veryLowGlucoseThreshold}} {{clinicBgUnits}}', {
+    timeInVeryLowPercent: t('Time below {{veryLowGlucoseThreshold}} {{clinicBgUnits}} > 1%', {
       veryLowGlucoseThreshold,
       clinicBgUnits,
     }),
-    timeInLowPercent: t('> 4% below {{lowGlucoseThreshold}} {{clinicBgUnits}}', {
+    timeInLowPercent: t('Time below {{lowGlucoseThreshold}} {{clinicBgUnits}} > 4%', {
       lowGlucoseThreshold,
       clinicBgUnits,
     }),
@@ -578,18 +578,25 @@ export const TideDashboard = (props) => {
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, options));
     }
-  }, [api, dispatch, localConfig, localConfigKey, selectedClinicId])
+  }, [api, dispatch, localConfig, localConfigKey, selectedClinicId]);
 
   useEffect(() => {
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic]);
 
   useEffect(() => {
-    const tier = ldContext?.clinic?.tier;
-
-    if (tier && (!showTideDashboard || tier < 'tier0300')) {
-      dispatch(push('/clinic-workspace'));
+    if (clinic) {
+      if (clinic.tier < 'tier0300') {
+        dispatch(push('/clinic-workspace'));
+      } else {
+        setClinicBgUnits((clinic.preferredBgUnits || MGDL_UNITS));
+      }
     }
+  }, [clinic, ldContext, ldClient,, dispatch, localConfig, localConfigKey, showTideDashboard, fetchDashboardPatients]);
+
+  useEffect(() => {
+    // Redirect to the workspace if the LD clinic context is set and showTideDashboard flag is false
+    if (ldContext?.clinic?.tier && !showTideDashboard) dispatch(push('/clinic-workspace'));
   }, [ldContext, showTideDashboard, dispatch]);
 
   useEffect(() => {

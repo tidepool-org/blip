@@ -81,7 +81,6 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
-import { ldClient } from '../../redux/utils/launchDarklyMiddleware';
 import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 

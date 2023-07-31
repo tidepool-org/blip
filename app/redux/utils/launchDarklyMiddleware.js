@@ -10,13 +10,13 @@ import personUtils from '../../core/personutils';
 
 const trackingActions = [ActionTypes.LOGIN_SUCCESS, ActionTypes.SELECT_CLINIC, ActionTypes.LOGOUT_SUCCESS];
 
-const defaultUserContext = { key: 'anon' };
 const defaultClinicContext = { key: 'none' };
+const defaultUserContext = { key: 'anon' };
 
 export const ldContext = {
   kind: 'multi',
-  user: defaultUserContext,
   clinic: defaultClinicContext,
+  user: defaultUserContext,
 }
 
 const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
