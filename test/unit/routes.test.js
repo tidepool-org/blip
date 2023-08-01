@@ -148,10 +148,10 @@ describe('routes', () => {
 
       let store = mockStore({
         blip: {},
-        router: { location: { pathname: '/otherDestination', hash: '' } },
+        router: { location: { pathname: '/otherDestination', hash: '#bar', search: '?param=foo' } },
       });
 
-      let expectedActions = [routeAction('/login?dest=%2FotherDestination')];
+      let expectedActions = [routeAction('/login?dest=%2FotherDestination%3Fparam%3Dfoo%23bar')];
 
       store.dispatch(requireAuth(api));
 
