@@ -2578,134 +2578,210 @@ describe('ClinicPatients', () => {
       describe('Accessing TIDE dashboard', () => {
         let mockedLocalStorage;
 
-        beforeEach(() => {
-          store = mockStore(tier0300ClinicState);
-          mockedLocalStorage = {};
+        context('showTideDashboard flag is true', () => {
+          beforeEach(() => {
+            store = mockStore(tier0300ClinicState);
+            mockedLocalStorage = {};
 
-          ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
-            defaults(mockedLocalStorage, { [key]: {} })
-            return [
-              mockedLocalStorage[key],
-              sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
-            ];
-          }));
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showTideDashboard: true,
+            }));
 
-          TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
-            defaults(mockedLocalStorage, { [key]: {} })
-            return [
-              mockedLocalStorage[key],
-              sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
-            ];
-          }));
+            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
 
-          TideDashboardConfigForm.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
+            TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
 
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <ClinicPatients {...defaultProps} />
-              </ToastProvider>
-            </Provider>
-          );
+            TideDashboardConfigForm.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
 
-          defaultProps.trackMetric.resetHistory();
-        });
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
 
-        afterEach(() => {
-          ClinicPatients.__ResetDependency__('useLocalStorage');
-          TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
-          TideDashboardConfigForm.__ResetDependency__('useLocation');
-        });
+            defaultProps.trackMetric.resetHistory();
+          });
 
-        it('should open a modal to configure the dashboard, and redirect when configured', done => {
-          const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
-          expect(tideDashboardButton).to.have.length(1);
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useLocalStorage');
+            TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
+            TideDashboardConfigForm.__ResetDependency__('useLocation');
+          });
 
-          const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
+          it('should render the TIDE Dashboard CTA', () => {
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(1);
+          });
 
-          // Open dashboard config popover
-          expect(dialog()).to.have.length(0);
-          tideDashboardButton.simulate('click');
-          wrapper.update();
-          expect(dialog()).to.have.length(1);
-          expect(dialog().props().open).to.be.true;
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+          it('should not render the TIDE Dashboard CTA if clinic tier < tier0300', () => {
+            store = mockStore(tier0100ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
 
-          // Ensure tag options present
-          const tags = dialog().find('.tag-text').hostNodes();
-          expect(tags).to.have.lengthOf(3);
-          expect(tags.at(0).text()).to.equal('test tag 1');
-          expect(tags.at(1).text()).to.equal('test tag 2');
-          expect(tags.at(2).text()).to.equal('test tag 3');
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(0);
+          });
 
-          // No initial selected tags
-          const selectedTags = () => dialog().find('.tag-text.selected').hostNodes();
-          expect(selectedTags()).to.have.length(0);
+          it('should open a modal to configure the dashboard, and redirect when configured', done => {
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
 
-          // Apply button disabled until tag, upload date, and report period selections made
-          const applyButton = () => dialog().find('#configureTideDashboardConfirm').hostNodes();
-          expect(applyButton().props().disabled).to.be.true;
+            // Open dashboard config popover
+            expect(dialog()).to.have.length(0);
+            tideDashboardButton.simulate('click');
+            wrapper.update();
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.true;
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
 
-          tags.at(0).hostNodes().simulate('click');
-          tags.at(2).hostNodes().simulate('click');
+            // Ensure tag options present
+            const tags = dialog().find('.tag-text').hostNodes();
+            expect(tags).to.have.lengthOf(3);
+            expect(tags.at(0).text()).to.equal('test tag 1');
+            expect(tags.at(1).text()).to.equal('test tag 2');
+            expect(tags.at(2).text()).to.equal('test tag 3');
 
-          // Tags should now be selected
-          expect(selectedTags()).to.have.lengthOf(2);
-          expect(selectedTags().at(0).text()).to.equal('test tag 1');
-          expect(selectedTags().at(1).text()).to.equal('test tag 3');
+            // No initial selected tags
+            const selectedTags = () => dialog().find('.tag-text.selected').hostNodes();
+            expect(selectedTags()).to.have.length(0);
 
-          // Ensure period filter options present
-          const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
-          expect(summaryPeriodOptions).to.have.lengthOf(4);
+            // Apply button disabled until tag, upload date, and report period selections made
+            const applyButton = () => dialog().find('#configureTideDashboardConfirm').hostNodes();
+            expect(applyButton().props().disabled).to.be.true;
 
-          expect(summaryPeriodOptions.at(0).text()).to.equal('24 hours');
-          expect(summaryPeriodOptions.at(0).find('input').props().value).to.equal('1d');
+            tags.at(0).hostNodes().simulate('click');
+            tags.at(2).hostNodes().simulate('click');
 
-          expect(summaryPeriodOptions.at(1).text()).to.equal('7 days');
-          expect(summaryPeriodOptions.at(1).find('input').props().value).to.equal('7d');
+            // Tags should now be selected
+            expect(selectedTags()).to.have.lengthOf(2);
+            expect(selectedTags().at(0).text()).to.equal('test tag 1');
+            expect(selectedTags().at(1).text()).to.equal('test tag 3');
 
-          expect(summaryPeriodOptions.at(2).text()).to.equal('14 days');
-          expect(summaryPeriodOptions.at(2).find('input').props().value).to.equal('14d');
+            // Ensure period filter options present
+            const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
+            expect(summaryPeriodOptions).to.have.lengthOf(4);
 
-          expect(summaryPeriodOptions.at(3).text()).to.equal('30 days');
-          expect(summaryPeriodOptions.at(3).find('input').props().value).to.equal('30d');
+            expect(summaryPeriodOptions.at(0).text()).to.equal('24 hours');
+            expect(summaryPeriodOptions.at(0).find('input').props().value).to.equal('1d');
 
-          summaryPeriodOptions.at(3).find('input').last().simulate('change', { target: { name: 'period', value: '30d' } });
+            expect(summaryPeriodOptions.at(1).text()).to.equal('7 days');
+            expect(summaryPeriodOptions.at(1).find('input').props().value).to.equal('7d');
 
-          // Apply button should still be disabled
-          expect(applyButton().props().disabled).to.be.true;
+            expect(summaryPeriodOptions.at(2).text()).to.equal('14 days');
+            expect(summaryPeriodOptions.at(2).find('input').props().value).to.equal('14d');
 
-          // Ensure period filter options present
-          const lastUploadDateFilterOptions = dialog().find('#lastUpload').find('label').hostNodes();
-          expect(lastUploadDateFilterOptions).to.have.lengthOf(5);
+            expect(summaryPeriodOptions.at(3).text()).to.equal('30 days');
+            expect(summaryPeriodOptions.at(3).find('input').props().value).to.equal('30d');
 
-          expect(lastUploadDateFilterOptions.at(0).text()).to.equal('Today');
-          expect(lastUploadDateFilterOptions.at(0).find('input').props().value).to.equal('1');
+            summaryPeriodOptions.at(3).find('input').last().simulate('change', { target: { name: 'period', value: '30d' } });
 
-          expect(lastUploadDateFilterOptions.at(1).text()).to.equal('Last 2 days');
-          expect(lastUploadDateFilterOptions.at(1).find('input').props().value).to.equal('2');
+            // Apply button should still be disabled
+            expect(applyButton().props().disabled).to.be.true;
 
-          expect(lastUploadDateFilterOptions.at(2).text()).to.equal('Last 7 days');
-          expect(lastUploadDateFilterOptions.at(2).find('input').props().value).to.equal('7');
+            // Ensure period filter options present
+            const lastUploadDateFilterOptions = dialog().find('#lastUpload').find('label').hostNodes();
+            expect(lastUploadDateFilterOptions).to.have.lengthOf(5);
 
-          expect(lastUploadDateFilterOptions.at(3).text()).to.equal('Last 14 days');
-          expect(lastUploadDateFilterOptions.at(3).find('input').props().value).to.equal('14');
+            expect(lastUploadDateFilterOptions.at(0).text()).to.equal('Today');
+            expect(lastUploadDateFilterOptions.at(0).find('input').props().value).to.equal('1');
 
-          expect(lastUploadDateFilterOptions.at(4).text()).to.equal('Last 30 days');
-          expect(lastUploadDateFilterOptions.at(4).find('input').props().value).to.equal('30');
+            expect(lastUploadDateFilterOptions.at(1).text()).to.equal('Last 2 days');
+            expect(lastUploadDateFilterOptions.at(1).find('input').props().value).to.equal('2');
 
-          lastUploadDateFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'lastUpload', value: 14 } });
+            expect(lastUploadDateFilterOptions.at(2).text()).to.equal('Last 7 days');
+            expect(lastUploadDateFilterOptions.at(2).find('input').props().value).to.equal('7');
 
-          // Apply button should now be active
-          expect(applyButton().props().disabled).to.be.false;
+            expect(lastUploadDateFilterOptions.at(3).text()).to.equal('Last 14 days');
+            expect(lastUploadDateFilterOptions.at(3).find('input').props().value).to.equal('14');
 
-          // Submit the form
-          store.clearActions();
-          applyButton().simulate('click');
+            expect(lastUploadDateFilterOptions.at(4).text()).to.equal('Last 30 days');
+            expect(lastUploadDateFilterOptions.at(4).find('input').props().value).to.equal('30');
 
-          // Should redirect to the Tide dashboard after saving the dashboard opts to localStorage,
-          // keyed to clinician|clinic IDs
-          setTimeout(() => {
+            lastUploadDateFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'lastUpload', value: 14 } });
+
+            // Apply button should now be active
+            expect(applyButton().props().disabled).to.be.false;
+
+            // Submit the form
+            store.clearActions();
+            applyButton().simulate('click');
+
+            // Should redirect to the Tide dashboard after saving the dashboard opts to localStorage,
+            // keyed to clinician|clinic IDs
+            setTimeout(() => {
+              expect(store.getActions()).to.eql([
+                {
+                  type: '@@router/CALL_HISTORY_METHOD',
+                  payload: { method: 'push', args: ['/dashboard/tide']}
+                },
+              ]);
+
+              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog confirmed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+              expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
+                period: '30d',
+                lastUpload: 14,
+                tags: ['tag1', 'tag3'],
+              });
+
+              done();
+            });
+          });
+
+          it('should redirect right away to the dashboard if a configuration exists in localStorage', () => {
+            mockedLocalStorage = {
+              tideDashboardConfig: {
+                'clinicianUserId123|clinicID123': {
+                  period: '30d',
+                  lastUpload: 14,
+                  tags: ['tag1', 'tag3'],
+                },
+              },
+            };
+
+            TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            defaultProps.trackMetric.resetHistory();
+            store.clearActions();
+
+            // Click the dashboard button
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(1);
+            tideDashboardButton.simulate('click');
+
             expect(store.getActions()).to.eql([
               {
                 type: '@@router/CALL_HISTORY_METHOD',
@@ -2713,62 +2789,31 @@ describe('ClinicPatients', () => {
               },
             ]);
 
-            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog confirmed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
-
-            expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
-              period: '30d',
-              lastUpload: 14,
-              tags: ['tag1', 'tag3'],
-            });
-
-            done();
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Navigate to Tide Dashboard', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
           });
-        });
+        })
 
-        it('should redirect right away to the dashboard if a configuration exists in localStorage', () => {
-          mockedLocalStorage = {
-            tideDashboardConfig: {
-              'clinicianUserId123|clinicID123': {
-                period: '30d',
-                lastUpload: 14,
-                tags: ['tag1', 'tag3'],
-              },
-            },
-          };
+        context('showTideDashboard flag is false', () => {
+          beforeEach(() => {
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showTideDashboard: false,
+            }));
+          });
 
-          TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
-            defaults(mockedLocalStorage, { [key]: {} })
-            return [
-              mockedLocalStorage[key],
-              sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
-            ];
-          }));
+          it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {
+            store = mockStore(tier0300ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
 
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <ClinicPatients {...defaultProps} />
-              </ToastProvider>
-            </Provider>
-          );
-
-          defaultProps.trackMetric.resetHistory();
-          store.clearActions();
-
-          // Click the dashboard button
-          const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
-          expect(tideDashboardButton).to.have.length(1);
-          tideDashboardButton.simulate('click');
-
-          expect(store.getActions()).to.eql([
-            {
-              type: '@@router/CALL_HISTORY_METHOD',
-              payload: { method: 'push', args: ['/dashboard/tide']}
-            },
-          ]);
-
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Navigate to Tide Dashboard', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
-        });
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(0);
+          });
+        })
       });
 
       context('non-admin clinician', () => {

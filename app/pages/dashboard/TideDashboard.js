@@ -19,6 +19,7 @@ import EditIcon from '@material-ui/icons/EditRounded';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from 'styled-components';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import {
   bindPopover,
@@ -450,11 +451,11 @@ const TideDashboardSection = React.memo(props => {
   ]);
 
   const sectionLabelsMap = {
-    timeInVeryLowPercent: t('> 1% below {{veryLowGlucoseThreshold}} {{clinicBgUnits}}', {
+    timeInVeryLowPercent: t('Time below {{veryLowGlucoseThreshold}} {{clinicBgUnits}} > 1%', {
       veryLowGlucoseThreshold,
       clinicBgUnits,
     }),
-    timeInLowPercent: t('> 4% below {{lowGlucoseThreshold}} {{clinicBgUnits}}', {
+    timeInLowPercent: t('Time below {{lowGlucoseThreshold}} {{clinicBgUnits}} > 4%', {
       lowGlucoseThreshold,
       clinicBgUnits,
     }),
@@ -522,6 +523,9 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
+  const { showTideDashboard } = useFlags();
+  const ldClient = useLDClient();
+  const ldContext = ldClient.getContext();
 
   const {
     fetchingPatientFromClinic,
@@ -574,11 +578,26 @@ export const TideDashboard = (props) => {
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, options));
     }
-  }, [api, dispatch, localConfig, localConfigKey, selectedClinicId])
+  }, [api, dispatch, localConfig, localConfigKey, selectedClinicId]);
 
   useEffect(() => {
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic]);
+
+  useEffect(() => {
+    if (clinic) {
+      if (clinic.tier < 'tier0300') {
+        dispatch(push('/clinic-workspace'));
+      } else {
+        setClinicBgUnits((clinic.preferredBgUnits || MGDL_UNITS));
+      }
+    }
+  }, [clinic, ldContext, ldClient, dispatch, localConfig, localConfigKey, showTideDashboard, fetchDashboardPatients]);
+
+  useEffect(() => {
+    // Redirect to the workspace if the LD clinic context is set and showTideDashboard flag is false
+    if (ldContext?.clinic?.tier && !showTideDashboard) dispatch(push('/clinic-workspace'));
+  }, [ldContext, showTideDashboard, dispatch]);
 
   useEffect(() => {
     handleAsyncResult({ ...fetchingTideDashboardPatients, prevInProgress: previousFetchingTideDashboardPatients?.inProgress }, null, handleCloseOverlays);

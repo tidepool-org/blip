@@ -39,6 +39,7 @@ import ScrollToTop from 'react-scroll-to-top';
 import styled from 'styled-components';
 import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import {
   bindPopover,
@@ -448,7 +449,6 @@ export const ClinicPatients = (props) => {
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
   const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0300');
-  const [showTideDashBoard, setShowTideDashBoard] = useState(clinic?.tier >= 'tier0300');
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
@@ -457,6 +457,8 @@ export const ClinicPatients = (props) => {
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
+  const { showTideDashboard } = useFlags();
+  const showTideDashboardUI = showTideDashboard && clinic?.tier >= 'tier0300';
 
   const defaultPatientFetchOptions = useMemo(
     () => ({
@@ -861,7 +863,6 @@ export const ClinicPatients = (props) => {
         }
       } else {
         setShowSummaryData(isPremiumTier);
-        setShowTideDashBoard(isPremiumTier);
         setPatientFetchOptions(newPatientFetchOptions);
         setCurrentPage(1);
       }
@@ -1133,7 +1134,7 @@ export const ClinicPatients = (props) => {
 
               <Box flex={1} flexBasis="fit-content" sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 <Flex justifyContent="space-between" alignContent="center" sx={{ gap: 2 }}>
-                  {showTideDashBoard && (
+                  {showTideDashboardUI && (
                     <Button
                       flexShrink={0}
                       id="open-tide-dashboard"
@@ -2918,7 +2919,7 @@ export const ClinicPatients = (props) => {
       {showUpdateClinicPatientTagDialog && renderUpdateClinicPatientTagDialog()}
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
-      {showTideDashBoard && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
+      {showTideDashboardUI && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}
