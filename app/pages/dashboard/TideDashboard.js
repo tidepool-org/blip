@@ -592,7 +592,7 @@ export const TideDashboard = (props) => {
         setClinicBgUnits((clinic.preferredBgUnits || MGDL_UNITS));
       }
     }
-  }, [clinic, ldContext, ldClient,, dispatch, localConfig, localConfigKey, showTideDashboard, fetchDashboardPatients]);
+  }, [clinic, ldContext, ldClient, dispatch, localConfig, localConfigKey, showTideDashboard, fetchDashboardPatients]);
 
   useEffect(() => {
     // Redirect to the workspace if the LD clinic context is set and showTideDashboard flag is false
