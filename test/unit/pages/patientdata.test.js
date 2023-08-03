@@ -2938,7 +2938,7 @@ describe('PatientData', function () {
 
     it('should set the `metaData` query to `bgSources,devices` if arg not provided', () => {
       instance.queryData(emptyQuery);
-      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,excludedDevices,queryDataCount' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount' });
     });
 
     it('should set the `activeDays` query from `chartPrefs`', () => {
