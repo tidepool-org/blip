@@ -30,13 +30,14 @@ import {
 import {
   MediumTitle,
   Title,
+  Body1,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
 import PatientForm from '../../components/clinic/PatientForm';
-import TideDashboardConfigForm from '../../components/clinic/TideDashboardConfigForm';
+import TideDashboardConfigForm, { validateConfig } from '../../components/clinic/TideDashboardConfigForm';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
@@ -523,7 +524,7 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { showTideDashboard } = useFlags();
+  const { showTideDashboard = true } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -608,11 +609,15 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    if (localConfig?.[localConfigKey]) {
-      fetchDashboardPatients();
-    } else {
-      setShowTideDashboardConfigDialog(true);
+    async function handleLocalConfig() {
+      if (await validateConfig(localConfig?.[localConfigKey], patientTags) ) {
+        fetchDashboardPatients();
+      } else {
+        setShowTideDashboardConfigDialog(true);
+      }
     }
+
+    handleLocalConfig()
   }, []);
 
   const handleEditPatientConfirm = useCallback(() => {
@@ -693,8 +698,11 @@ export const TideDashboard = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle onClose={handleCloseOverlays}>
-          <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+        <DialogTitle alignItems="flex-start" onClose={handleCloseOverlays}>
+          <Box mr={2}>
+            <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+            <Body1 fontWeight="medium" color="grays.4">{t('You must make a selection in each category')}</Body1>
+          </Box>
         </DialogTitle>
 
         <DialogContent>
