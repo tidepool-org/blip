@@ -176,8 +176,8 @@ export class AppComponent extends React.Component {
     // selected clinic ID changes
     const ldClientContext = nextProps.ldClient?.getContext();
     if (
-      (ldContext?.user?.key !== ldClientContext.user?.key) ||
-      (ldContext?.clinic?.key !== ldClientContext.clinic?.key)
+      (ldContext?.user?.key !== ldClientContext?.user?.key) ||
+      (ldContext?.clinic?.key !== ldClientContext?.clinic?.key)
     ) {
       nextProps.ldClient?.identify(ldContext);
     }
