@@ -172,7 +172,7 @@
     "sundial": "1.6.0",
     "terser": "4.8.1",
     "terser-webpack-plugin": "2.2.1",
-    "tideline": "1.27.0-web-2055-basics-basals-updates.1",
+    "tideline": "1.27.0-rc.1",
     "tidepool-platform-client": "0.52.0",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.33",
