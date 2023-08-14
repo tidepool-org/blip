@@ -591,6 +591,11 @@ export const TideDashboard = (props) => {
     previousUpdatingClinicPatient?.inProgress,
   ]);
 
+  // Provide latest patient state for the edit form upon fetch
+  useEffect(() => {
+    if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
+  }, [fetchingPatientFromClinic]);
+
   const fetchDashboardPatients = useCallback((config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
