@@ -1044,6 +1044,7 @@ export const tideDashboardPatients = (state = initialState.tideDashboardPatients
     case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
       return action?.payload?.results || initialState.tideDashboardPatients;
     case types.LOGOUT_REQUEST:
+    case types.CLEAR_TIDE_DASHBOARD_PATIENTS:
       return initialState.tideDashboardPatients;
     default:
       return state;

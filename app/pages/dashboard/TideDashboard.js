@@ -641,7 +641,12 @@ export const TideDashboard = (props) => {
       }
     }
 
-    handleLocalConfig()
+    handleLocalConfig();
+
+    // Always clear stored dashboard results upon unmount to avoid flashing stale results upon remount
+    return () => {
+      dispatch(actions.sync.clearTideDashboardPatients());
+    }
   }, []);
 
   const handleEditPatientConfirm = useCallback(() => {

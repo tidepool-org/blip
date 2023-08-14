@@ -2218,6 +2218,12 @@ export function fetchTideDashboardPatientsFailure(error, apiError) {
   };
 }
 
+export function clearTideDashboardPatients() {
+  return {
+    type: ActionTypes.CLEAR_TIDE_DASHBOARD_PATIENTS,
+  };
+}
+
 export function generateAGPImagesRequest(data, opts, queries) {
   return {
     type: ActionTypes.GENERATE_AGP_IMAGES_REQUEST,
