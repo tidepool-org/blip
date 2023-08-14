@@ -572,6 +572,25 @@ export const TideDashboard = (props) => {
 
   }, [isFirstRender, setToast]);
 
+  useEffect(() => {
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), () => {
+      handleCloseOverlays();
+
+      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
+        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
+      }
+    });
+  }, [
+    api,
+    dispatch,
+    selectedClinicId,
+    handleAsyncResult,
+    t,
+    updatingClinicPatient,
+    patientFormContext?.status,
+    previousUpdatingClinicPatient?.inProgress,
+  ]);
+
   const fetchDashboardPatients = useCallback((config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
