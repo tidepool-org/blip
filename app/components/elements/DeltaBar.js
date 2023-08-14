@@ -11,10 +11,13 @@ import { colors, radii } from '../../themes/baseTheme';
 export const DeltaBar = React.memo(props => {
   const { delta, max, precision, ...themeProps } = props;
   const values = [delta, 0].sort();
-  const labels = map(values, value => (value <= max
+  const labelMaxPercentage = 100;
+
+  const labels = map(values, value => (Math.abs(value) <= labelMaxPercentage
     ? utils.formatDecimal(Math.abs(value), precision)
-    : max
+    : labelMaxPercentage
   ));
+
   const colorsArray = [colors.bg.veryLow, colors.bg.target];
 
   return (
