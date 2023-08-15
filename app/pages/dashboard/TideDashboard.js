@@ -536,7 +536,7 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { showTideDashboard = true } = useFlags();
+  const { showTideDashboard } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
