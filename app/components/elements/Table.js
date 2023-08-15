@@ -95,6 +95,7 @@ export const Table = React.memo(props => {
   const {
     columns,
     data,
+    emptyContentNode: EmptyContentNode,
     emptyText,
     id,
     label,
@@ -254,7 +255,9 @@ export const Table = React.memo(props => {
         </TableBody>
       </Box>
 
-      {pagedData.length === 0 && emptyText && <Text p={3} fontSize={1} color="text.primary" className="table-empty-text" textAlign="center">{emptyText}</Text>}
+      {pagedData.length === 0 && EmptyContentNode
+        ? React.cloneElement(EmptyContentNode, {})
+        : emptyText && <Text p={3} fontSize={1} color="text.primary" className="table-empty-text" textAlign="center">{emptyText}</Text>}
 
       {pagination && <Pagination
         id={`${id}-pagination`}
