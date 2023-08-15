@@ -661,7 +661,7 @@ export const TideDashboard = (props) => {
     return () => {
       dispatch(actions.sync.clearTideDashboardPatients());
     }
-  }, []);
+  }, [showTideDashboard]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
@@ -879,7 +879,7 @@ export const TideDashboard = (props) => {
         section={{}}
         patients={[]}
         emptyContentNode={(
-          <Box px={3} py={7} variant="containers.fluidRounded" fontSize={1} textAlign="center" color="text.primary" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
+          <Box px={3} py={8} variant="containers.fluidRounded" fontSize={1} textAlign="center" color="text.primary" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
             <Text mb={3} fontWeight="bold">
               {t('There are no patients that match your filter criteria.')}
             </Text>
