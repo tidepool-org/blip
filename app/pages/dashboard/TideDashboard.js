@@ -217,6 +217,8 @@ const TideDashboardSection = React.memo(props => {
     clinicBgUnits,
     config,
     dispatch,
+    emptyContentNode,
+    emptyText,
     patients,
     patientTags,
     section,
@@ -502,7 +504,8 @@ const TideDashboardSection = React.memo(props => {
         style={{ fontSize: '12px' }}
         order={section.sortDirection}
         orderBy={section.sortKey}
-        emptyText={t('There are no patients that match your filter criteria.')}
+        emptyContentNode={emptyContentNode}
+        emptyText={emptyText}
         containerProps={{
           sx: {
             '.table-empty-text': {
@@ -581,7 +584,6 @@ export const TideDashboard = (props) => {
 
       setLoading(false);
     }
-
   }, [isFirstRender, setToast]);
 
   useEffect(() => {
@@ -866,20 +868,28 @@ export const TideDashboard = (props) => {
             key={section.groupKey}
             section={section}
             patients={patientGroups[section.groupKey]}
+            emptyText={t('There are no patients that match your filter criteria.')}
             {...sectionProps}
           />
         ))}
       </Box>
     ) : (
-      <Box px={3} py={7} variant="containers.fluidRounded" fontSize={1} textAlign="center" color="text.primary">
-        <Text mb={3} fontWeight="bold">
-          {t('There are no patients that match your filter criteria.')}
-        </Text>
+      <TideDashboardSection
+        {...sectionProps}
+        section={{}}
+        patients={[]}
+        emptyContentNode={(
+          <Box px={3} py={7} variant="containers.fluidRounded" fontSize={1} textAlign="center" color="text.primary" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
+            <Text mb={3} fontWeight="bold">
+              {t('There are no patients that match your filter criteria.')}
+            </Text>
 
-        <Trans i18nKey='html.empty-tide-dashboard-instructions'>
-          To make sure your patients are tagged and you have set the correct patient filters, go to your <a className="empty-tide-workspace-link" onClick={handleClickClinicWorkspace}>Clinic Workspace</a>.
-        </Trans>
-      </Box>
+            <Trans i18nKey='html.empty-tide-dashboard-instructions'>
+              To make sure your patients are tagged and you have set the correct patient filters, go to your <a className="empty-tide-workspace-link" onClick={handleClickClinicWorkspace}>Clinic Workspace</a>.
+            </Trans>
+          </Box>
+        )}
+      />
     );
   }, [
     clinicBgUnits,
