@@ -33,16 +33,24 @@ export default ({ borders, colors, radii, space }) => {
     maxWidth: '320px',
   };
 
+  const rounded = {
+    borderRadius: ['none', radii.default],
+  };
+
   const bordered = {
     borderLeft: ['none', borders.default],
     borderRight: ['none', borders.default],
     borderTop: borders.default,
     borderBottom: borders.default,
-    borderRadius: ['none', radii.default],
+    ...rounded,
   };
 
   return {
     fluid,
+    fluidRounded: {
+      ...fluid,
+      ...rounded,
+    },
     fluidBordered: {
       ...fluid,
       ...bordered,
