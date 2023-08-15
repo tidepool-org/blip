@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import find from 'lodash/find';
+import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEqual from 'lodash/isEqual';
@@ -11,6 +12,7 @@ import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
+import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
@@ -500,6 +502,16 @@ const TideDashboardSection = React.memo(props => {
         style={{ fontSize: '12px' }}
         order={section.sortDirection}
         orderBy={section.sortKey}
+        emptyText={t('There are no patients that match your filter criteria.')}
+        containerProps={{
+          sx: {
+            '.table-empty-text': {
+              backgroundColor: 'white',
+              borderBottomLeftRadius: radii.medium,
+              borderBottomRightRadius: radii.medium,
+            },
+          }
+        }}
       />
     </Box>
   );
@@ -836,7 +848,18 @@ export const TideDashboard = (props) => {
       trackMetric,
     };
 
-    return (
+    const hasResults = flatten(values(patientGroups)).length > 0;
+
+    const handleClickClinicWorkspace = () => {
+      trackMetric('Clinic - View patient list', {
+        clinicId: selectedClinicId,
+        source: 'Empty Dashboard Results',
+      });
+
+      dispatch(push('/clinic-workspace/patients'));
+    };
+
+    return hasResults ? (
       <Box id="tide-dashboard-patient-groups">
         {map(sections, section => (
           <TideDashboardSection
@@ -846,6 +869,16 @@ export const TideDashboard = (props) => {
             {...sectionProps}
           />
         ))}
+      </Box>
+    ) : (
+      <Box px={3} py={7} variant="containers.fluidRounded" fontSize={1} textAlign="center" color="text.primary">
+        <Text mb={3} fontWeight="bold">
+          {t('There are no patients that match your filter criteria.')}
+        </Text>
+
+        <Trans i18nKey='html.empty-tide-dashboard-instructions'>
+          To make sure your patients are tagged and you have set the correct patient filters, go to your <a className="empty-tide-workspace-link" onClick={handleClickClinicWorkspace}>Clinic Workspace</a>.
+        </Trans>
       </Box>
     );
   }, [
