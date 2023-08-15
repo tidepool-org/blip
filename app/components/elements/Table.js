@@ -107,7 +107,7 @@ export const Table = React.memo(props => {
     orderBy: orderByProp,
     pagination,
     paginationProps,
-    containerStyles,
+    containerProps,
     ...tableProps
   } = props;
 
@@ -170,7 +170,7 @@ export const Table = React.memo(props => {
   });
 
   return (
-    <Box as={TableContainer} style={containerStyles}>
+    <Box as={TableContainer} {...containerProps}>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
         <TableHead>
           <TableRow>
@@ -304,7 +304,7 @@ Table.propTypes = {
   onSort: PropTypes.func,
   stickyHeader: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'condensed']),
-  containerStyles: PropTypes.object,
+  containerProps: PropTypes.object,
 };
 
 Table.defaultProps = {
@@ -315,7 +315,7 @@ Table.defaultProps = {
   paginationProps: {
     style: { fontSize: '14px' },
   },
-  containerStyles: {},
+  containerProps: {},
 };
 
 export default Table;
