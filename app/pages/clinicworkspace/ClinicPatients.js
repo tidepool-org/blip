@@ -940,8 +940,8 @@ export const ClinicPatients = (props) => {
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
-  async function handleConfigureTideDashboard() {
-    if (await validateConfig(tideDashboardConfig[localConfigKey], patientTags)) {
+  function handleConfigureTideDashboard() {
+    if (validateConfig(tideDashboardConfig[localConfigKey], patientTags)) {
       trackMetric('Clinic - Navigate to Tide Dashboard', { clinicId: selectedClinicId, source: 'Patients list' });
       dispatch(push('/dashboard/tide'));
     } else {

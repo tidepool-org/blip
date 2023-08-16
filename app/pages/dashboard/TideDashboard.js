@@ -647,15 +647,11 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    async function handleLocalConfig() {
-      if (await validateConfig(localConfig?.[localConfigKey], patientTags) ) {
-        fetchDashboardPatients();
-      } else {
-        setShowTideDashboardConfigDialog(true);
-      }
+    if (validateConfig(localConfig?.[localConfigKey], patientTags)) {
+      fetchDashboardPatients();
+    } else {
+      setShowTideDashboardConfigDialog(true);
     }
-
-    handleLocalConfig();
 
     // Always clear stored dashboard results upon unmount to avoid flashing stale results upon remount
     return () => {

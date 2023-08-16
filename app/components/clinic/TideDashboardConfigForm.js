@@ -33,9 +33,9 @@ function getFormValues(config, clinicPatientTags) {
   };
 }
 
-export async function validateConfig(config, clinicPatientTags) {
+export function validateConfig(config, clinicPatientTags) {
   try {
-    await validationSchema.validate(getFormValues(config, clinicPatientTags));
+    validationSchema.validateSync(getFormValues(config, clinicPatientTags));
     return true;
   } catch (err) {
     return false;
