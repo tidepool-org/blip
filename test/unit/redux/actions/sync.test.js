@@ -4124,6 +4124,19 @@ describe('Actions', () => {
     });
   });
 
+  describe('clearTideDashboardPatients', () => {
+    it('should be a TSA', () => {
+      let error = new Error('fetching patients failed :(');
+      let action = sync.clearTideDashboardPatients(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal CLEAR_TIDE_DASHBOARD_PATIENTS', () => {
+      let action = sync.clearTideDashboardPatients();
+      expect(action.type).to.equal('CLEAR_TIDE_DASHBOARD_PATIENTS');
+    });
+  });
+
   describe('generateAGPImagesRequest', () => {
     const data = 'data';
     const opts = 'opts';
