@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import moment from 'moment';
 import includes from 'lodash/includes';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
@@ -11,7 +10,6 @@ import reject from 'lodash/reject';
 import without from 'lodash/without';
 import { useFormik } from 'formik';
 import { Box, BoxProps } from 'rebass/styled-components';
-import { utils as vizUtils } from '@tidepool/viz';
 
 import { TagList } from '../../components/elements/Tag';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -20,10 +18,7 @@ import { getCommonFormikFieldProps, getFieldError } from '../../core/forms';
 import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, lastUploadDateFilterOptions } from '../../core/clinicUtils';
 import { Body0, Caption } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
-import { pick } from 'lodash';
 import { push } from 'connected-react-router';
-
-const { getLocalizedCeiling } = vizUtils.datetime;
 
 function getFormValues(config, clinicPatientTags) {
   return {
@@ -49,7 +44,6 @@ export const TideDashboardConfigForm = props => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const timePrefs = useSelector((state) => state.blip.timePrefs);
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const [config, setConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
@@ -58,10 +52,6 @@ export const TideDashboardConfigForm = props => {
   const formikContext = useFormik({
     initialValues: getFormValues(config?.[localConfigKey], clinicPatientTags),
     onSubmit: values => {
-      const options = pick(values, ['tags', 'period']);
-      // options.mockData = true; // TODO: delete temp mocked data response
-      options.lastUploadDateTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-      options.lastUploadDateFrom = moment(options.lastUploadDateTo).subtract(values.lastUpload, 'days').toISOString();
       if (!isDashboardPage) dispatch(push('/dashboard/tide'));
 
       setConfig({
