@@ -613,7 +613,7 @@ export const TideDashboard = (props) => {
   const fetchDashboardPatients = useCallback((config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
-      options.mockData = true; // TODO: delete temp mocked data response
+      // options.mockData = true; // TODO: delete temp mocked data response
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, options));
     }

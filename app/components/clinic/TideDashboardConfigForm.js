@@ -59,7 +59,7 @@ export const TideDashboardConfigForm = props => {
     initialValues: getFormValues(config?.[localConfigKey], clinicPatientTags),
     onSubmit: values => {
       const options = pick(values, ['tags', 'period']);
-      options.mockData = true; // TODO: delete temp mocked data response
+      // options.mockData = true; // TODO: delete temp mocked data response
       options.lastUploadDateTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
       options.lastUploadDateFrom = moment(options.lastUploadDateTo).subtract(values.lastUpload, 'days').toISOString();
       if (!isDashboardPage) dispatch(push('/dashboard/tide'));
