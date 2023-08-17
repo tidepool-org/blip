@@ -61,7 +61,7 @@ import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
-import TideDashboardConfigForm from '../../components/clinic/TideDashboardConfigForm';
+import TideDashboardConfigForm, { validateConfig } from '../../components/clinic/TideDashboardConfigForm';
 import Pill from '../../components/elements/Pill';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import PopoverLabel from '../../components/elements/PopoverLabel';
@@ -93,7 +93,8 @@ import {
 } from '../../core/clinicUtils';
 
 import { MGDL_UNITS } from '../../core/constants';
-import { borders, radii, colors } from '../../themes/baseTheme';
+import { borders, radii, colors, space } from '../../themes/baseTheme';
+import PopoverElement from '../../components/elements/PopoverElement';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -940,7 +941,7 @@ export const ClinicPatients = (props) => {
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
   function handleConfigureTideDashboard() {
-    if (tideDashboardConfig[localConfigKey]) {
+    if (validateConfig(tideDashboardConfig[localConfigKey], patientTags)) {
       trackMetric('Clinic - Navigate to Tide Dashboard', { clinicId: selectedClinicId, source: 'Patients list' });
       dispatch(push('/dashboard/tide'));
     } else {
@@ -1135,17 +1136,43 @@ export const ClinicPatients = (props) => {
               <Box flex={1} flexBasis="fit-content" sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 <Flex justifyContent="space-between" alignContent="center" sx={{ gap: 2 }}>
                   {showTideDashboardUI && (
-                    <Button
-                      flexShrink={0}
-                      id="open-tide-dashboard"
-                      variant="tertiary"
-                      onClick={handleConfigureTideDashboard}
-                      tag={t('New')}
-                      fontSize={0}
-                      px={2}
+                    <PopoverElement
+                      triggerOnHover
+                      disabled={!!clinic?.patientTags?.length}
+                      popoverProps={{
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'center',
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'center',
+                        },
+                        backgroundColor: 'rgba(79, 106, 146, 0.85)',
+                        border: 'none',
+                        borderRadius: radii.input,
+                        marginTop: `-${space[2]}px`,
+                        padding: `0 ${space[2]}px`,
+                        width: 'auto',
+                      }}
+                      popoverContent={(
+                        <Text color="white" fontSize="10px" fontWeight="medium">{t('Add and apply patient tags to use')}</Text>
+                      )}
                     >
-                      {t('Tide Dashboard View')}
-                    </Button>
+                      <Button
+                        flexShrink={0}
+                        id="open-tide-dashboard"
+                        variant="tertiary"
+                        onClick={handleConfigureTideDashboard}
+                        tag={t('New')}
+                        fontSize={0}
+                        px={2}
+                        disabled={!clinic?.patientTags?.length}
+                        tagColorPalette={!clinic?.patientTags?.length ? [colors.lightGrey, colors.text.primaryDisabled] : 'greens'}
+                        >
+                        {t('Tide Dashboard View')}
+                      </Button>
+                    </PopoverElement>
                   )}
 
                   <TextInput
@@ -1385,8 +1412,15 @@ export const ClinicPatients = (props) => {
                       fontSize={0}
                       lineHeight={1.3}
                     >
-                      <Flex sx={{ gap: 1 }}>
+                      <Flex alignItems="center" sx={{ gap: 1 }}>
+                        {showTideDashboard && !clinic?.patientTags?.length && <Icon
+                          variant="static"
+                          icon={InfoOutlinedIcon}
+                          fontSize="14px"
+                        />}
+
                         {t('Patient Tags')}
+
                         {!!activeFilters.patientTags?.length && (
                           <Pill
                             id="patient-tags-filter-count"
@@ -1419,12 +1453,27 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} py={3} dividers>
-                      <Box variant="containers.extraSmall">
-                        <Box alignItems="center" mb={2}>
-                          <Text color="grays.4" fontSize={0} fontWeight="medium" sx={{ whiteSpace: 'nowrap' }}>
+                    <DialogContent px={2} pt={1} pb={3} dividers>
+                      <Box variant="containers.small">
+                        <Box>
+                          <Text color="text.primary" fontSize={1} fontWeight="medium" sx={{ whiteSpace: 'nowrap' }}>
                             {t('Filter by Patient Tags')}
                           </Text>
+
+                          {showTideDashboard && !clinic?.patientTags?.length && (
+                            <Flex mt={3} sx={{ gap: 1 }} alignItems="flex-start">
+                              <Icon
+                                variant="static"
+                                icon={InfoOutlinedIcon}
+                                color="text.primary"
+                                fontSize="14px"
+                              />
+
+                              <Text color="text.primary" fontSize={0} fontWeight="medium" lineHeight={2}>
+                                {t('To use the TIDE Dashboard, add and apply patient tags.')}
+                              </Text>
+                            </Flex>
+                          )}
                         </Box>
 
                         {!!pendingFilters.patientTags?.length && (
@@ -2059,8 +2108,11 @@ export const ClinicPatients = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle onClose={handleCloseOverlays}>
-          <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+        <DialogTitle alignItems="flex-start" onClose={handleCloseOverlays}>
+          <Box mr={2}>
+            <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+            <Body1 fontWeight="medium" color="grays.4">{t('You must make a selection in each category')}</Body1>
+          </Box>
         </DialogTitle>
 
         <DialogContent>

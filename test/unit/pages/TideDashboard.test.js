@@ -151,6 +151,23 @@ describe('TideDashboard', () => {
     },
   });
 
+  const hasEmptyResultsState = {
+    blip: {
+      ...hasResultsState.blip,
+      tideDashboardPatients: {
+        ...mockTideDashboardPatients,
+        results: {
+          timeInVeryLowPercent: [],
+          timeInLowPercent: [],
+          dropInTimeInTargetPercent: [],
+          timeInTargetPercent: [],
+          timeCGMUsePercent: [],
+          meetingTargets: [],
+        }
+      },
+    },
+  };
+
   const hasResultsStateMmoll = {
     blip: {
       ...hasResultsState.blip,
@@ -308,6 +325,35 @@ describe('TideDashboard', () => {
       expect(dialog().props().open).to.be.true;
     });
 
+    it('should open the config dialog if the configuration is invalid', () => {
+      store = mockStore(noResultsState);
+      mockedLocalStorage = {
+        tideDashboardConfig: {
+          'clinicianUserId123|clinicID123': {
+            period: '30d',
+            lastUpload: 14,
+            tags: [], // invalid: no tags selected
+          },
+        },
+      };
+      TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
+      TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
+
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      expect(store.getActions()).to.eql([]);
+
+      const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+    });
+
     it('should fetch dashboard results if the configuration is set', () => {
       store = mockStore(noResultsState);
 
@@ -340,8 +386,40 @@ describe('TideDashboard', () => {
     });
   });
 
+  context('on unmount', () => {
+    it('should remove dashboard results from state', () => {
+      store.clearActions();
+
+      wrapper.unmount();
+
+      const expectedActions = [
+        { type: 'CLEAR_TIDE_DASHBOARD_PATIENTS' },
+      ];
+
+      expect(store.getActions()).to.eql(expectedActions);
+    });
+  });
+
   context('no results after fetching', () => {
-    // TODO: Not yet implemented
+    beforeEach(() => {
+      store = mockStore(hasEmptyResultsState);
+      defaultProps.trackMetric.resetHistory();
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+    });
+
+    it('should show empty table text', () => {
+      const dashboardSections = wrapper.find('.dashboard-section');
+      expect(dashboardSections.hostNodes()).to.have.length(1);
+      const emptyTextNode = dashboardSections.at(1).find('#no-tide-results').hostNodes();
+      expect(emptyTextNode).to.have.length(1);
+      expect(emptyTextNode.text()).contains('To make sure your patients are tagged and you have set the correct patient filters, go to your Clinic Workspace.');
+    });
   });
 
   context('has results', () => {
@@ -467,6 +545,36 @@ describe('TideDashboard', () => {
       expect(getTableRow(5, 3).find('td').at(3).text()).contains('0.26 %');
       expect(getTableRow(5, 4).find('td').at(3).text()).contains('0.24 %');
       expect(getTableRow(5, 5).find('td').at(3).text()).contains('0.09 %');
+    });
+
+    it('should show empty text for a section without results', () => {
+      store = mockStore({
+        blip: {
+          ...hasResultsState.blip,
+          tideDashboardPatients: {
+            ...mockTideDashboardPatients,
+            results: {
+              ...mockTideDashboardPatients.results,
+              timeInVeryLowPercent: [],
+            }
+          },
+        }
+      });
+      defaultProps.trackMetric.resetHistory();
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      const dashboardSections = wrapper.find('.dashboard-section');
+      expect(dashboardSections.hostNodes()).to.have.length(6);
+
+      const emptyTextNode = dashboardSections.at(1).find('.table-empty-text').hostNodes();
+      expect(emptyTextNode).to.have.length(1);
+      expect(emptyTextNode.text()).contains('There are no patients that match your filter criteria.');
     });
 
     it('should link to a patient data trends view when patient name is clicked', () => {
@@ -606,7 +714,6 @@ describe('TideDashboard', () => {
       // Should redirect to the Tide dashboard after saving the dashboard opts to localStorage,
       // keyed to clinician|clinic IDs
       setTimeout(() => {
-        store.getActions().forEach(action => console.log(action))
         expect(store.getActions()).to.eql([
           { type: 'FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST' },
         ]);

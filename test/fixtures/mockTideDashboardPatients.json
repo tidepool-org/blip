@@ -2,7 +2,6 @@
   "config": {
     "schemaVersion": 1,
     "clinicId": "clinicID123",
-    "clinicianId": "clinicianID123",
     "period": "14d",
     "lastUploadDateFrom": "2023-05-16T04:00:00.000Z",
     "lastUploadDateTo": "2023-05-30T04:00:00.000Z",

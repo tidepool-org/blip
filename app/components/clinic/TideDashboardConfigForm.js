@@ -33,6 +33,15 @@ function getFormValues(config, clinicPatientTags) {
   };
 }
 
+export function validateConfig(config, clinicPatientTags) {
+  try {
+    validationSchema.validateSync(getFormValues(config, clinicPatientTags));
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
 export const TideDashboardConfigForm = props => {
   const { t, api, onFormChange, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
@@ -81,7 +90,7 @@ export const TideDashboardConfigForm = props => {
       {...boxProps}
     >
       <Box id='patient-tags-select' mb={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select Patient Tags')}</Body0>
+        <Body0 fontWeight="medium" mb={2}>{t('Select Patient Tag(s)')}</Body0>
 
         <TagList
           tags={map(clinic?.patientTags, tag => ({

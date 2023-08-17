@@ -26,11 +26,24 @@ describe('tideDashboardPatients', () => {
   });
 
   describe('logoutRequest', () => {
-    it('should set state to null', () => {
+    it('should set state to initial empty state', () => {
       const patients = [{ 'foo': 'bar' }];
       let initialStateForTest = patients;
 
       let action = actions.sync.logoutRequest();
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state).to.eql({});
+    });
+  });
+
+  describe('clearTideDashboardPatients', () => {
+    it('should set state to initial empty state', () => {
+      const patients = [{ 'foo': 'bar' }];
+      let initialStateForTest = patients;
+
+      let action = actions.sync.clearTideDashboardPatients();
 
       let state = reducer(initialStateForTest, action);
 

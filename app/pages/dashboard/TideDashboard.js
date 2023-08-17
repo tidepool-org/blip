@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import find from 'lodash/find';
+import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEqual from 'lodash/isEqual';
@@ -11,6 +12,7 @@ import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
+import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
@@ -30,13 +32,14 @@ import {
 import {
   MediumTitle,
   Title,
+  Body1,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
 import PatientForm from '../../components/clinic/PatientForm';
-import TideDashboardConfigForm from '../../components/clinic/TideDashboardConfigForm';
+import TideDashboardConfigForm, { validateConfig } from '../../components/clinic/TideDashboardConfigForm';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
@@ -214,6 +217,8 @@ const TideDashboardSection = React.memo(props => {
     clinicBgUnits,
     config,
     dispatch,
+    emptyContentNode,
+    emptyText,
     patients,
     patientTags,
     section,
@@ -499,6 +504,17 @@ const TideDashboardSection = React.memo(props => {
         style={{ fontSize: '12px' }}
         order={section.sortDirection}
         orderBy={section.sortKey}
+        emptyContentNode={emptyContentNode}
+        emptyText={emptyText}
+        containerProps={{
+          sx: {
+            '.table-empty-text': {
+              backgroundColor: 'white',
+              borderBottomLeftRadius: radii.medium,
+              borderBottomRightRadius: radii.medium,
+            },
+          }
+        }}
       />
     </Box>
   );
@@ -568,8 +584,31 @@ export const TideDashboard = (props) => {
 
       setLoading(false);
     }
-
   }, [isFirstRender, setToast]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), () => {
+      handleCloseOverlays();
+
+      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
+        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
+      }
+    });
+  }, [
+    api,
+    dispatch,
+    selectedClinicId,
+    handleAsyncResult,
+    t,
+    updatingClinicPatient,
+    patientFormContext?.status,
+    previousUpdatingClinicPatient?.inProgress,
+  ]);
+
+  // Provide latest patient state for the edit form upon fetch
+  useEffect(() => {
+    if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
+  }, [fetchingPatientFromClinic]);
 
   const fetchDashboardPatients = useCallback((config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
@@ -608,12 +647,17 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    if (localConfig?.[localConfigKey]) {
+    if (validateConfig(localConfig?.[localConfigKey], patientTags)) {
       fetchDashboardPatients();
     } else {
       setShowTideDashboardConfigDialog(true);
     }
-  }, []);
+
+    // Always clear stored dashboard results upon unmount to avoid flashing stale results upon remount
+    return () => {
+      dispatch(actions.sync.clearTideDashboardPatients());
+    }
+  }, [showTideDashboard]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
@@ -693,8 +737,11 @@ export const TideDashboard = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle onClose={handleCloseOverlays}>
-          <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+        <DialogTitle alignItems="flex-start" onClose={handleCloseOverlays}>
+          <Box mr={2}>
+            <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+            <Body1 fontWeight="medium" color="grays.4">{t('You must make a selection in each category')}</Body1>
+          </Box>
         </DialogTitle>
 
         <DialogContent>
@@ -799,17 +846,46 @@ export const TideDashboard = (props) => {
       trackMetric,
     };
 
-    return (
+    const hasResults = flatten(values(patientGroups)).length > 0;
+
+    const handleClickClinicWorkspace = () => {
+      trackMetric('Clinic - View patient list', {
+        clinicId: selectedClinicId,
+        source: 'Empty Dashboard Results',
+      });
+
+      dispatch(push('/clinic-workspace/patients'));
+    };
+
+    return hasResults ? (
       <Box id="tide-dashboard-patient-groups">
         {map(sections, section => (
           <TideDashboardSection
             key={section.groupKey}
             section={section}
             patients={patientGroups[section.groupKey]}
+            emptyText={t('There are no patients that match your filter criteria.')}
             {...sectionProps}
           />
         ))}
       </Box>
+    ) : (
+      <TideDashboardSection
+        {...sectionProps}
+        section={{}}
+        patients={[]}
+        emptyContentNode={(
+          <Box id="no-tide-results" px={3} py={8} variant="containers.fluidRounded" fontSize={1} textAlign="center" color="text.primary" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
+            <Text mb={3} fontWeight="bold">
+              {t('There are no patients that match your filter criteria.')}
+            </Text>
+
+            <Trans i18nKey='html.empty-tide-dashboard-instructions'>
+              To make sure your patients are tagged and you have set the correct patient filters, go to your <a className="empty-tide-workspace-link" onClick={handleClickClinicWorkspace}>Clinic Workspace</a>.
+            </Trans>
+          </Box>
+        )}
+      />
     );
   }, [
     clinicBgUnits,

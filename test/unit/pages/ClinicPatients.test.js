@@ -2625,6 +2625,32 @@ describe('ClinicPatients', () => {
           it('should render the TIDE Dashboard CTA', () => {
             const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
             expect(tideDashboardButton).to.have.length(1);
+            expect(tideDashboardButton.props().disabled).to.be.false;
+          });
+
+          it('should disable the TIDE Dashboard CTA if clinic has no patient tags defined', () => {
+            store = mockStore({
+              blip: {
+                ...tier0300ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0300ClinicState.blip.clinics.clinicID123,
+                    patientTags: [],
+                  },
+                },
+              },
+            });
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(1);
+            expect(tideDashboardButton.props().disabled).to.be.true;
           });
 
           it('should not render the TIDE Dashboard CTA if clinic tier < tier0300', () => {
@@ -2747,7 +2773,7 @@ describe('ClinicPatients', () => {
             });
           });
 
-          it('should redirect right away to the dashboard if a configuration exists in localStorage', () => {
+          it('should redirect right away to the dashboard if a valid configuration exists in localStorage', () => {
             mockedLocalStorage = {
               tideDashboardConfig: {
                 'clinicianUserId123|clinicID123': {
@@ -2791,7 +2817,50 @@ describe('ClinicPatients', () => {
 
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Navigate to Tide Dashboard', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
           });
-        })
+
+          it('should open the config modal if an invalid configuration exists in localStorage', () => {
+            mockedLocalStorage = {
+              tideDashboardConfig: {
+                'clinicianUserId123|clinicID123': {
+                  period: '30d',
+                  lastUpload: 14,
+                  tags: [], // invalid: no tags selected
+                },
+              },
+            };
+
+            TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            defaultProps.trackMetric.resetHistory();
+            store.clearActions();
+
+            // Click the dashboard button
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
+
+            // Open dashboard config popover
+            expect(dialog()).to.have.length(0);
+            tideDashboardButton.simulate('click');
+            wrapper.update();
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.true;
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+          });
+        });
 
         context('showTideDashboard flag is false', () => {
           beforeEach(() => {
@@ -2813,7 +2882,7 @@ describe('ClinicPatients', () => {
             const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
             expect(tideDashboardButton).to.have.length(0);
           });
-        })
+        });
       });
 
       context('non-admin clinician', () => {
