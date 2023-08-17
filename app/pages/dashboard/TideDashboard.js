@@ -64,7 +64,7 @@ import {
   tideDashboardConfigSchema,
 } from '../../core/clinicUtils';
 
-import { MGDL_UNITS } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import { colors, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
@@ -252,12 +252,12 @@ const TideDashboardSection = React.memo(props => {
   ), [handleClickPatient]);
 
   const renderAverageGlucose = useCallback(summary => {
-    const averageGlucose = summary?.averageGlucose;
+    const averageGlucose = summary?.averageGlucoseMmol;
     const bgPrefs = { bgUnits: clinicBgUnits };
 
-    const formattedAverageGlucose = clinicBgUnits === averageGlucose?.units
-      ? formatBgValue(averageGlucose?.value, bgPrefs)
-      : formatBgValue(utils.translateBg(averageGlucose?.value, clinicBgUnits), bgPrefs);
+    const formattedAverageGlucose = clinicBgUnits === MMOLL_UNITS
+      ? formatBgValue(averageGlucose, bgPrefs)
+      : formatBgValue(utils.translateBg(averageGlucose, clinicBgUnits), bgPrefs);
 
     return averageGlucose ? (
       <Box className="patient-average-glucose">
@@ -375,7 +375,7 @@ const TideDashboardSection = React.memo(props => {
       },
       {
         title: t('Avg. Glucose'),
-        field: 'averageGlucose',
+        field: 'averageGlucoseMmol',
         align: 'center',
         render: renderAverageGlucose,
       },

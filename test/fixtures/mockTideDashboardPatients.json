@@ -25,10 +25,7 @@
   "results": {
     "timeInVeryLowPercent": [
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 5.4
-        },
+        "averageGlucoseMmol": 5.4,
         "glucoseManagementIndicator": 12.2,
         "timeInVeryLowPercent": 0.0305,
         "timeInLowPercent": 0.16864,
@@ -51,10 +48,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 12.8
-        },
+        "averageGlucoseMmol": 12.8,
         "glucoseManagementIndicator": 13.5,
         "timeInVeryLowPercent": 0.03817,
         "timeInLowPercent": 0.12279,
@@ -74,10 +68,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 7.5
-        },
+        "averageGlucoseMmol": 7.5,
         "glucoseManagementIndicator": 6.6,
         "timeInVeryLowPercent": 0.01134,
         "timeInLowPercent": 0.18651,
@@ -102,10 +93,7 @@
     ],
     "timeInLowPercent": [
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 4.3
-        },
+        "averageGlucoseMmol": 4.3,
         "glucoseManagementIndicator": 6.2,
         "timeInVeryLowPercent": 0.00857,
         "timeInLowPercent": 0.08968,
@@ -128,10 +116,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 6.8
-        },
+        "averageGlucoseMmol": 6.8,
         "glucoseManagementIndicator": 5.2,
         "timeInVeryLowPercent": 0.006,
         "timeInLowPercent": 0.0852,
@@ -151,10 +136,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 8.8
-        },
+        "averageGlucoseMmol": 8.8,
         "glucoseManagementIndicator": 5,
         "timeInVeryLowPercent": 0.00839,
         "timeInLowPercent": 0.05639,
@@ -177,10 +159,7 @@
     ],
     "dropInTimeInTargetPercent": [
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 12.2
-        },
+        "averageGlucoseMmol": 12.2,
         "glucoseManagementIndicator": 9,
         "timeInVeryLowPercent": 0.00678,
         "timeInLowPercent": 0.08231,
@@ -201,10 +180,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 5.5
-        },
+        "averageGlucoseMmol": 5.5,
         "glucoseManagementIndicator": 4.7,
         "timeInVeryLowPercent": 0.00318,
         "timeInLowPercent": 0.04043,
@@ -224,10 +200,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 10.5
-        },
+        "averageGlucoseMmol": 10.5,
         "glucoseManagementIndicator": 7,
         "timeInVeryLowPercent": 0.00585,
         "timeInLowPercent": 0.09144,
@@ -252,10 +225,7 @@
     ],
     "timeInTargetPercent": [
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 13.9
-        },
+        "averageGlucoseMmol": 13.9,
         "glucoseManagementIndicator": 14.2,
         "timeInVeryLowPercent": 0.01048,
         "timeInLowPercent": 0.07943,
@@ -275,10 +245,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 8.3
-        },
+        "averageGlucoseMmol": 8.3,
         "glucoseManagementIndicator": 7.8,
         "timeInVeryLowPercent": 0.00249,
         "timeInLowPercent": 0.07275,
@@ -298,10 +265,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 8.8
-        },
+        "averageGlucoseMmol": 8.8,
         "glucoseManagementIndicator": 4.3,
         "timeInVeryLowPercent": 0.0045,
         "timeInLowPercent": 0.09458,
@@ -326,10 +290,7 @@
     ],
     "timeCGMUsePercent": [
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 11.4
-        },
+        "averageGlucoseMmol": 11.4,
         "glucoseManagementIndicator": 4.5,
         "timeInVeryLowPercent": 0.00451,
         "timeInLowPercent": 0.01583,
@@ -350,10 +311,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 8.8
-        },
+        "averageGlucoseMmol": 8.8,
         "glucoseManagementIndicator": 4.6,
         "timeInVeryLowPercent": 0.01024,
         "timeInLowPercent": 0.00851,
@@ -373,10 +331,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 9.9
-        },
+        "averageGlucoseMmol": 9.9,
         "glucoseManagementIndicator": 9.1,
         "timeInVeryLowPercent": 0.00295,
         "timeInLowPercent": 0.02865,
@@ -401,10 +356,7 @@
     ],
     "meetingTargets": [
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 7.4
-        },
+        "averageGlucoseMmol": 7.4,
         "glucoseManagementIndicator": 8.6,
         "timeInVeryLowPercent": 0.00088,
         "timeInLowPercent": 0.01365,
@@ -426,10 +378,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 5
-        },
+        "averageGlucoseMmol": 5,
         "glucoseManagementIndicator": 12.1,
         "timeInVeryLowPercent": 0.00607,
         "timeInLowPercent": 0.03211,
@@ -450,10 +399,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 7.3
-        },
+        "averageGlucoseMmol": 7.3,
         "glucoseManagementIndicator": 6.9,
         "timeInVeryLowPercent": 0.00253,
         "timeInLowPercent": 0.0209,
@@ -476,10 +422,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 13.8
-        },
+        "averageGlucoseMmol": 13.8,
         "glucoseManagementIndicator": 14.9,
         "timeInVeryLowPercent": 0.00237,
         "timeInLowPercent": 0.02924,
@@ -500,10 +443,7 @@
         }
       },
       {
-        "averageGlucose": {
-          "units": "mmol/L",
-          "value": 12.6
-        },
+        "averageGlucoseMmol": 12.6,
         "glucoseManagementIndicator": 10.6,
         "timeInVeryLowPercent": 0.00679,
         "timeInLowPercent": 0.02242,
