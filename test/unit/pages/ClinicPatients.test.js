@@ -128,6 +128,18 @@ describe('ClinicPatients', () => {
 
   let store = mockStore(noPatientsState);
 
+  const mrnRequiredState = merge({}, noPatientsState, {
+    blip: {
+      clinics: {
+        clinicID123: {
+          mrnSettings: {
+            required: true,
+          },
+        },
+      },
+    },
+  });
+
   const hasPatientsState = merge({}, noPatientsState, {
     blip: {
       allUsersMap: {
@@ -658,6 +670,58 @@ describe('ClinicPatients', () => {
 
       patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
       expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+    });
+
+    it('should prevent adding a new patient witout an MRN if required by the clinic', () => {
+      store = mockStore(mrnRequiredState);
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      const addButton = wrapper.find('button#add-patient');
+      expect(addButton.text()).to.equal('Add New Patient');
+
+      const dialog = () => wrapper.find('Dialog#addPatient');
+
+      expect(dialog()).to.have.length(0);
+      addButton.simulate('click');
+      wrapper.update();
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: ''}});
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn876');
+
       expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
     });
   });

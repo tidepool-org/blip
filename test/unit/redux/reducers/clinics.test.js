@@ -553,6 +553,49 @@ describe('clinics', () => {
     });
   });
 
+  describe('fetchClinicMRNSettingsSuccess', () => {
+    it('should add clinic MRN settings to state', () => {
+      let clinicId = 'clinicId123';
+      let mrnSettings = {
+        required: true,
+        unique: true,
+      };
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+        },
+      };
+      let action = actions.sync.fetchClinicMRNSettingsSuccess(
+        clinicId,
+        mrnSettings
+      );
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.mrnSettings).to.eql(mrnSettings);
+    });
+  });
+
+  describe('fetchClinicEHRSettingsSuccess', () => {
+    it('should add clinic EHR settings to state', () => {
+      let clinicId = 'clinicId123';
+      let ehrSettings = {
+        enabled: true,
+        facility: 'facility',
+        sourceId: 'sourceId',
+      };
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+        },
+      };
+      let action = actions.sync.fetchClinicEHRSettingsSuccess(
+        clinicId,
+        ehrSettings
+      );
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.ehrSettings).to.eql(ehrSettings);
+    });
+  });
+
   describe('triggerInitialClinicMigrationSuccess', () => {
     it('should set the `canMigrate` state of the clinic to `false`', () => {
       let clinicId = 'clinicId123';

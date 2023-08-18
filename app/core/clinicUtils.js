@@ -144,7 +144,21 @@ export const clinicPatientTagSchema = yup.object().shape({
     .matches(/^[\p{L}\p{N}_+><-]{1}[\p{L}\p{N}\s_+><-]*$/u, t('Allowed special characters: - _ + > <'))
 })
 
-export const patientSchema = yup.object().shape({
+/**
+ * yup schema for patient form
+ * @function patientSchema
+ * @param {Object} [config]
+ * @param {Object} [config.mrnSettings]
+ * @param {boolean} [config.mrnSettings.required] - whether or not the MRN field is required
+ * @returns {Object} yup schema
+ *
+ * @example
+ * import { patientSchema } from 'core/clinicUtils';
+ *
+ * const schema = patientSchema({ mrnSettings:{ required: true } });
+ *
+ */
+export const patientSchema = (config) => yup.object().shape({
   fullName: yup.string().required(t('Please enter the patient\'s full name')),
   birthDate: yup.date()
     .transform((value, originalValue) => {
@@ -154,7 +168,7 @@ export const patientSchema = yup.object().shape({
     .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
     .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
     .required(t('Patient\'s birthday is required')),
-  mrn: yup.string(),
+  mrn: config?.mrnSettings?.required ? yup.string().required(t('Patient\'s MRN is required')) : yup.string(),
   email: yup.string().email(t('Please enter a valid email address')),
   connectDexcom: yup.boolean(),
   dataSources: yup.array().of(
