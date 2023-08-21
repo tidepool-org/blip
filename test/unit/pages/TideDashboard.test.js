@@ -592,7 +592,7 @@ describe('TideDashboard', () => {
       expect(store.getActions()).to.eql([
         {
           type: '@@router/CALL_HISTORY_METHOD',
-          payload: { method: 'push', args: [`/patients/${expectedPatientId}/data?chart=trends`]}
+          payload: { method: 'push', args: [`/patients/${expectedPatientId}/data?chart=trends&dashboard=tide`]}
         },
       ]);
     });
