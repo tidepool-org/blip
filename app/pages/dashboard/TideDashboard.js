@@ -520,7 +520,10 @@ const TideDashboardSection = React.memo(props => {
       />
     </Box>
   );
-}, ((prevProps, nextProps) => (prevProps.section.sortDirection === nextProps.section.sortDirection)));
+}, ((prevProps, nextProps) => (
+  prevProps.section.sortDirection === nextProps.section.sortDirection &&
+  prevProps.config === nextProps.config
+)));
 
 export const TideDashboard = (props) => {
   const { t, api, trackMetric } = props;
