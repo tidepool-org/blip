@@ -1170,7 +1170,7 @@ export const ClinicPatients = (props) => {
                         disabled={!clinic?.patientTags?.length}
                         tagColorPalette={!clinic?.patientTags?.length ? [colors.lightGrey, colors.text.primaryDisabled] : 'greens'}
                         >
-                        {t('Tide Dashboard View')}
+                        {t('TIDE Dashboard View')}
                       </Button>
                     </PopoverElement>
                   )}
