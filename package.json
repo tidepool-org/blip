@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.68.0-web-2500-tide-backend-integration.1",
+  "version": "1.70.0-web-2500-tide-backend-integration.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/karma/bin/karma start",
