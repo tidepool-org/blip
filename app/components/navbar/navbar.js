@@ -37,11 +37,11 @@ export default translate()(class extends React.Component {
   render() {
     const { t, query } = this.props;
     let patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
-    if (query.dashboard) patientListLink = `/dashboard/${query.dashboard}`;
+    if (query?.dashboard) patientListLink = `/dashboard/${query.dashboard}`;
 
-    const linkText = query.dashboard
+    const linkText = query?.dashboard
       ? t('Back to Dashboard')
-      : t('Back to Patient List')
+      : t('Back to Patient List');
 
     const isDashboardView = /^\/dashboard\//.test(this.props.currentPage);
 
