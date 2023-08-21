@@ -301,7 +301,7 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS, value: 10.5 },
+                    averageGlucoseMmol: 10.5,
                     averageDailyRecords: 0.25,
                     timeInVeryLowRecords: 1,
                     timeInVeryHighRecords: 2,
@@ -312,7 +312,6 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS },
                     timeCGMUsePercent: 0.85,
                     timeCGMUseMinutes: 23 * 60,
                     glucoseManagementIndicator: 7.75,
@@ -334,7 +333,7 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS, value: 11.5 },
+                    averageGlucoseMmol: 11.5,
                     averageDailyRecords: 1.25,
                     timeInVeryLowRecords: 3,
                     timeInVeryHighRecords: 4,
@@ -346,25 +345,21 @@ describe('ClinicPatients', () => {
                   },
                   periods: {
                     '30d': {
-                      averageGlucose: { units: MGDL_UNITS },
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 7.5,
                     },
                     '14d': {
-                      averageGlucose: { units: MGDL_UNITS },
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 6.5,
                     },
                     '7d': {
-                      averageGlucose: { units: MGDL_UNITS },
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 5.5,
                     },
                     '1d': {
-                      averageGlucose: { units: MGDL_UNITS },
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 4.5,
@@ -386,7 +381,7 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS, value: 12.5 },
+                    averageGlucoseMmol: 12.5,
                     averageDailyRecords: 1.5,
                     timeInVeryLowRecords: 0,
                     timeInVeryHighRecords: 0,
@@ -397,7 +392,6 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(29, 'days').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS },
                     timeCGMUsePercent: 0.69,
                     timeCGMUseMinutes:  7 * 24 * 60,
                     glucoseManagementIndicator: 8.5,
@@ -417,7 +411,6 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(30, 'days').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MGDL_UNITS },
                     timeCGMUsePercent: 0.69,
                     timeCGMUseMinutes:  30 * 24 * 60,
                     glucoseManagementIndicator: 8.5,
@@ -1268,7 +1261,7 @@ describe('ClinicPatients', () => {
           assert(columns.at(7).is('#peopleTable-header-bgmTag'));
 
           expect(columns.at(8).text()).to.equal('Avg. Glucose (mg/dL)');
-          assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucose'));
+          assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucoseMmol'));
 
           expect(columns.at(9).text()).to.equal('Lows');
           assert(columns.at(9).is('#peopleTable-header-bgm-timeInVeryLowRecords'));
@@ -1388,15 +1381,15 @@ describe('ClinicPatients', () => {
           gmiHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator', sortType: 'cgm' }));
 
-          const averageGlucoseHeader = table.find('#peopleTable-header-bgm-averageGlucose .MuiTableSortLabel-root').at(0);
+          const averageGlucoseHeader = table.find('#peopleTable-header-bgm-averageGlucoseMmol .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           averageGlucoseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-averageGlucose', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-averageGlucoseMmol', sortType: 'bgm' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           averageGlucoseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+averageGlucose', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+averageGlucoseMmol', sortType: 'bgm' }));
 
           const lowsHeader = table.find('#peopleTable-header-bgm-timeInVeryLowRecords .MuiTableSortLabel-root').at(0);
 
@@ -2030,7 +2023,7 @@ describe('ClinicPatients', () => {
             const columns = table.find('.MuiTableCell-head');
 
             expect(columns.at(8).text()).to.equal('Avg. Glucose (mmol/L)');
-            assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucose'));
+            assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucoseMmol'));
 
             const rows = table.find('tbody tr');
             expect(rows).to.have.lengthOf(5);
@@ -2534,7 +2527,7 @@ describe('ClinicPatients', () => {
                       lastUploadDate: sinon.match.string,
                     },
                     periods: { '14d': {
-                      averageGlucose: { units: MMOLL_UNITS, value: 10.5 },
+                      averageGlucoseMmol: 10.5,
                       averageDailyRecords: 0.25,
                       timeInVeryLowRecords: 1,
                       timeInVeryHighRecords: 2,
@@ -2546,7 +2539,6 @@ describe('ClinicPatients', () => {
                     },
                     periods: {
                       '14d': {
-                        averageGlucose: { units: 'mmol/L' },
                         glucoseManagementIndicator: 7.75,
                         timeCGMUseMinutes: 1380,
                         timeCGMUsePercent: 0.85,

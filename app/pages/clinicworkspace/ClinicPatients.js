@@ -92,7 +92,7 @@ import {
   maxClinicPatientTags
 } from '../../core/clinicUtils';
 
-import { MGDL_UNITS } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import { borders, radii, colors, space } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 
@@ -475,7 +475,7 @@ export const ClinicPatients = (props) => {
     fullName: 'asc',
     birthDate: 'asc',
     glucoseManagementIndicator: 'desc',
-    averageGlucose: 'desc',
+    averageGlucoseMmol: 'desc',
     lastUploadDate: 'desc',
     timeInVeryLowRecords: 'desc',
     timeInVeryHighRecords: 'desc',
@@ -2627,16 +2627,16 @@ export const ClinicPatients = (props) => {
   }, [clinicBgUnits, activeSummaryPeriod, t]);
 
   const renderAverageGlucose = useCallback(({ summary }) => {
-    const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucose;
+    const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucoseMmol;
     let averageDailyRecords = Math.round(summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageDailyRecords);
     const averageDailyRecordsUnits = averageDailyRecords > 1 ? 'readings/day' : 'reading/day';
     if (averageDailyRecords === 0) averageDailyRecords = '<1';
     const averageDailyRecordsText = t('{{averageDailyRecords}} {{averageDailyRecordsUnits}}', { averageDailyRecords, averageDailyRecordsUnits });
     const bgPrefs = { bgUnits: clinicBgUnits };
 
-    const formattedAverageGlucose = clinicBgUnits === averageGlucose?.units
-      ? formatBgValue(averageGlucose?.value, bgPrefs)
-      : formatBgValue(utils.translateBg(averageGlucose?.value, clinicBgUnits), bgPrefs);
+    const formattedAverageGlucose = clinicBgUnits === MMOLL_UNITS
+      ? formatBgValue(averageGlucose, bgPrefs)
+      : formatBgValue(utils.translateBg(averageGlucose, clinicBgUnits), bgPrefs);
 
     return averageGlucose ? (
       <Box>
@@ -2830,11 +2830,11 @@ export const ClinicPatients = (props) => {
           },
           {
             title: t('Avg. Glucose ({{bgUnits}})', { bgUnits: clinicBgUnits }),
-            field: 'bgm.averageGlucose',
+            field: 'bgm.averageGlucoseMmol',
             align: 'left',
             sortable: true,
             defaultOrder: defaultSortOrders.averageGlucose,
-            sortBy: 'averageGlucose',
+            sortBy: 'averageGlucoseMmol',
             render: renderAverageGlucose,
             className: 'group-left',
           },
