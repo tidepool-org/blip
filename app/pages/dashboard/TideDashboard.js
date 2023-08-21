@@ -238,7 +238,7 @@ const TideDashboardSection = React.memo(props => {
   const handleClickPatient = useCallback(patient => {
     return () => {
       trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient?.id}/data?chart=trends`));
+      dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
     }
   }, [dispatch, trackMetric]);
 

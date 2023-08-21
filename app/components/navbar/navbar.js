@@ -35,8 +35,14 @@ export default translate()(class extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
-    const patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
+    const { t, query } = this.props;
+    let patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
+    if (query.dashboard) patientListLink = `/dashboard/${query.dashboard}`;
+
+    const linkText = query.dashboard
+      ? t('Back to Dashboard')
+      : t('Back to Patient List')
+
     const isDashboardView = /^\/dashboard\//.test(this.props.currentPage);
 
     const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && (
@@ -78,7 +84,7 @@ export default translate()(class extends React.Component {
               })}
               sx={{ display: 'inline-flex !important' }}
             >
-              {t('Back to Patient List')}
+              {linkText}
             </Button>
           </Link>
         )}
