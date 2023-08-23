@@ -924,7 +924,7 @@ export const PatientDataClass = createReactClass({
 
   generateAGPImages: async function(props = this.props) {
     try {
-      const images = await vizUtils.agp.generateAGPSVGDataURLS({ ...props.pdf.data?.agp });
+      const images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.agp });
       const promises = _.map(images, async (image, key) => {
         if (_.isArray(image)) {
           const processedArray = await Promise.all(

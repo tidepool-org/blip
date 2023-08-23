@@ -3368,7 +3368,7 @@ describe('PatientData', function () {
     before(() => {
       PD.__Rewire__('vizUtils', {
         agp: {
-          generateAGPSVGDataURLS: sinon.stub()
+          generateAGPFigureDefinitions: sinon.stub()
             .onFirstCall().resolves('stubbed image data')
             .onSecondCall().rejects(new Error('failed image generation')),
         },
