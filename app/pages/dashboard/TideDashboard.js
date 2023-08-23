@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
+import moment from 'moment';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
@@ -11,6 +12,7 @@ import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
+import pick from 'lodash/pick';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -64,12 +66,12 @@ import {
   tideDashboardConfigSchema,
 } from '../../core/clinicUtils';
 
-import { MGDL_UNITS } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import { colors, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
-const { formatDateRange } = vizUtils.datetime;
+const { formatDateRange, getLocalizedCeiling } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -103,7 +105,7 @@ const MoreMenu = React.memo(({
     icon: EditIcon,
     iconLabel: t('Edit Patient Information'),
     iconPosition: 'left',
-    id: `edit-${patient.id}`,
+    id: `edit-${patient?.id}`,
     variant: 'actionListItem',
     onClick: (_popupState) => {
       _popupState.close();
@@ -116,7 +118,7 @@ const MoreMenu = React.memo(({
     t,
   ]);
 
-  return <PopoverMenu id={`action-menu-${patient.id}`} items={items} icon={MoreVertRoundedIcon} />;
+  return <PopoverMenu id={`action-menu-${patient?.id}`} items={items} icon={MoreVertRoundedIcon} />;
 });
 
 const SortPopover = React.memo(props => {
@@ -236,7 +238,7 @@ const TideDashboardSection = React.memo(props => {
   const handleClickPatient = useCallback(patient => {
     return () => {
       trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient.id}/data?chart=trends`));
+      dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
     }
   }, [dispatch, trackMetric]);
 
@@ -246,18 +248,18 @@ const TideDashboardSection = React.memo(props => {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
       }}>
-        {patient.fullName}
+        {patient?.fullName}
       </Text>
     </Box>
   ), [handleClickPatient]);
 
   const renderAverageGlucose = useCallback(summary => {
-    const averageGlucose = summary?.averageGlucose;
+    const averageGlucose = summary?.averageGlucoseMmol;
     const bgPrefs = { bgUnits: clinicBgUnits };
 
-    const formattedAverageGlucose = clinicBgUnits === averageGlucose?.units
-      ? formatBgValue(averageGlucose?.value, bgPrefs)
-      : formatBgValue(utils.translateBg(averageGlucose?.value, clinicBgUnits), bgPrefs);
+    const formattedAverageGlucose = clinicBgUnits === MMOLL_UNITS
+      ? formatBgValue(averageGlucose, bgPrefs)
+      : formatBgValue(utils.translateBg(averageGlucose, clinicBgUnits), bgPrefs);
 
     return averageGlucose ? (
       <Box className="patient-average-glucose">
@@ -375,7 +377,7 @@ const TideDashboardSection = React.memo(props => {
       },
       {
         title: t('Avg. Glucose'),
-        field: 'averageGlucose',
+        field: 'averageGlucoseMmol',
         align: 'center',
         render: renderAverageGlucose,
       },
@@ -518,7 +520,10 @@ const TideDashboardSection = React.memo(props => {
       />
     </Box>
   );
-}, ((prevProps, nextProps) => (prevProps.section.sortDirection === nextProps.section.sortDirection)));
+}, ((prevProps, nextProps) => (
+  prevProps.section.sortDirection === nextProps.section.sortDirection &&
+  prevProps.config === nextProps.config
+)));
 
 export const TideDashboard = (props) => {
   const { t, api, trackMetric } = props;
@@ -529,6 +534,7 @@ export const TideDashboard = (props) => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const { config, results: patientGroups } = useSelector((state) => state.blip.tideDashboardPatients);
+  const timePrefs = useSelector((state) => state.blip.timePrefs);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -613,9 +619,11 @@ export const TideDashboard = (props) => {
   const fetchDashboardPatients = useCallback((config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
-      options.mockData = true; // TODO: delete temp mocked data response
+      const queryOptions = pick(options, ['tags', 'period']);
+      queryOptions['cgm.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+      queryOptions['cgm.lastUploadDateFrom'] = moment(queryOptions['cgm.lastUploadDateTo']).subtract(options.lastUpload, 'days').toISOString();
       setLoading(true);
-      dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, options));
+      dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
   }, [api, dispatch, localConfig, localConfigKey, selectedClinicId]);
 

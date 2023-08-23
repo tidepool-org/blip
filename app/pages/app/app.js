@@ -316,6 +316,7 @@ export class AppComponent extends React.Component {
             patient={patient}
             fetchingPatient={this.props.fetchingPatient}
             currentPage={this.props.location}
+            query={this.props.query}
             clinicFlowActive={this.props.clinicFlowActive}
             clinics={this.props.clinics}
             getUploadUrl={getUploadUrl}
@@ -901,6 +902,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     fetchers: getFetchers(stateProps, dispatchProps, api),
     location: ownProps.location.pathname,
+    query: ownProps.location.query,
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
