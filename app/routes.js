@@ -76,7 +76,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
   if (!api.user.isAuthenticated()) {
     let dest = '';
     if (routerState?.location?.pathname) {
-      dest = `?dest=${encodeURIComponent(routerState.location.pathname + routerState.location.hash)}`;
+      dest = `?dest=${encodeURIComponent(routerState.location.pathname + routerState.location.search + routerState.location.hash)}`;
     }
     dispatch(push(`/login${dest}`));
   } else {

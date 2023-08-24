@@ -1519,6 +1519,7 @@ export const PatientDataClass = createReactClass({
         'patientId',
         'size',
         'devices',
+        'matchedDevices',
       ],
       types: '*',
       raw,
@@ -1791,7 +1792,7 @@ export const PatientDataClass = createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,devices,excludedDevices,queryDataCount',
+      metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
     });
 
     if (this.state.queryingData) return;
