@@ -693,48 +693,53 @@ export const TideDashboard = (props) => {
     setTideDashboardFormContext({...formikContext});
   }
 
-  const renderHeader = () => (
-    <Flex
-      mb={3}
-      justifyContent="space-between"
-      alignItems="center"
-      flexWrap="wrap"
-      sx={{ rowGap: 2, columnGap: 3 }}
-    >
-      <Flex sx={{ gap: 3 }}>
-        <Title fontWeight="medium" fontSize="18px">{t('TIDE Dashboard')}</Title>
+  const renderHeader = () => {
+    const periodTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+    const periodFrom = moment(periodTo).subtract(config?.period.slice(0, -1), 'days').toISOString();
 
-        <Text
-          as={Flex}
-          fontSize={0}
-          fontWeight="medium"
-          height="24px"
-          bg="white"
-          color={loading ? 'white' : 'text.primary'}
-          alignContent="center"
-          flexWrap="wrap"
-          px={2}
-          sx={{ borderRadius: radii.medium }}
-        >
-          {formatDateRange(config?.lastUploadDateFrom, config?.lastUploadDateTo, null, 'MMMM')}
-        </Text>
-      </Flex>
-
-      <Button
-        id="update-dashboard-config"
-        variant="filter"
-        icon={KeyboardArrowDownRoundedIcon}
-        iconLabel="Open dashboard config"
-        onClick={handleConfigureTideDashboard}
-        fontSize={1}
-        lineHeight={5}
-        px={3}
-        sx= {{ border: 'none' }}
+    return (
+      <Flex
+        mb={3}
+        justifyContent="space-between"
+        alignItems="center"
+        flexWrap="wrap"
+        sx={{ rowGap: 2, columnGap: 3 }}
       >
-          {t('Filter Patients')}
-      </Button>
-    </Flex>
-  )
+        <Flex sx={{ gap: 3 }}>
+          <Title fontWeight="medium" fontSize="18px">{t('TIDE Dashboard')}</Title>
+
+          <Text
+            as={Flex}
+            fontSize={0}
+            fontWeight="medium"
+            height="24px"
+            bg="white"
+            color={loading ? 'white' : 'text.primary'}
+            alignContent="center"
+            flexWrap="wrap"
+            px={2}
+            sx={{ borderRadius: radii.medium }}
+          >
+            {formatDateRange(periodFrom, periodTo, null, 'MMMM')}
+          </Text>
+        </Flex>
+
+        <Button
+          id="update-dashboard-config"
+          variant="filter"
+          icon={KeyboardArrowDownRoundedIcon}
+          iconLabel="Open dashboard config"
+          onClick={handleConfigureTideDashboard}
+          fontSize={1}
+          lineHeight={5}
+          px={3}
+          sx= {{ border: 'none' }}
+        >
+            {t('Filter Patients')}
+        </Button>
+      </Flex>
+    )
+  };
 
   const renderTideDashboardConfigDialog = useCallback(() => {
     return (
