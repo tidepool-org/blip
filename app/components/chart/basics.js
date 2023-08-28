@@ -228,7 +228,7 @@ class Basics extends Component {
 
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.basics.bgSource = bgSource;
-    this.props.updateChartPrefs(prefs, false, true);
+    this.props.updateChartPrefs(prefs, false, true, true);
   };
 
   handleClickBasics = e => {
