@@ -1,5 +1,6 @@
 import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
+import moment from 'moment-timezone';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -11,6 +12,8 @@ import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
 import LDClientMock from '../../fixtures/LDClientMock';
+import { utils as vizUtils } from '@tidepool/viz';
+const { getLocalizedCeiling } = vizUtils.datetime;
 
 /* global chai */
 /* global sinon */
@@ -108,6 +111,7 @@ describe('TideDashboard', () => {
         },
       },
       tideDashboardPatients: {},
+      timePrefs: { timezoneName: 'UTC' },
       selectedClinicId: 'clinicID123',
       working: {
         fetchingPatientFromClinic: defaultWorkingState,
@@ -123,6 +127,7 @@ describe('TideDashboard', () => {
         clinicianUserId123,
       },
       tideDashboardPatients: mockTideDashboardPatients,
+      timePrefs: { timezoneName: 'UTC' },
       clinics: {
         clinicID123: {
           clinicians:{
@@ -433,6 +438,41 @@ describe('TideDashboard', () => {
           </ToastProvider>
         </Provider>
       );
+    });
+
+    it('should render the dashboard header with period dates', () => {
+      store = mockStore({
+        blip: {
+          ...hasResultsState.blip,
+          tideDashboardPatients: {
+            ...mockTideDashboardPatients,
+            config: {
+              ...mockTideDashboardPatients.config,
+              period: '17d',
+            },
+          },
+        },
+      });
+      defaultProps.trackMetric.resetHistory();
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      const header = wrapper.find('#tide-dashboard-header').hostNodes();
+      expect(header.text()).to.equal('TIDE Dashboard');
+
+      const expectedPeriodTo = getLocalizedCeiling(new Date().toISOString(), hasResultsState.blip.timePrefs).toISOString();
+      const expectedPeriodFrom = moment(expectedPeriodTo).subtract(17, 'days').toISOString();
+
+      const dates = wrapper.find('#tide-dashboard-dates').hostNodes();
+      expect(dates.text()).contains(moment(expectedPeriodFrom).format('MMMM D'));
+      expect(dates.text()).contains(moment(expectedPeriodFrom).format('YYYY'));
+      expect(dates.text()).contains(moment(expectedPeriodTo).format('MMMM D'));
+      expect(dates.text()).contains(moment(expectedPeriodTo).format('YYYY'));
     });
 
     it('should render a heading and table for dashboard section, with correctly ordered results', () => {

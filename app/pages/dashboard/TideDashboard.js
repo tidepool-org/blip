@@ -706,9 +706,10 @@ export const TideDashboard = (props) => {
         sx={{ rowGap: 2, columnGap: 3 }}
       >
         <Flex sx={{ gap: 3 }}>
-          <Title fontWeight="medium" fontSize="18px">{t('TIDE Dashboard')}</Title>
+          <Title id="tide-dashboard-header" fontWeight="medium" fontSize="18px">{t('TIDE Dashboard')}</Title>
 
           <Text
+            id="tide-dashboard-dates"
             as={Flex}
             fontSize={0}
             fontWeight="medium"
