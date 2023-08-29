@@ -285,7 +285,7 @@ describe('TideDashboard', () => {
         </Provider>
       );
 
-      expect(store.getActions()[0]).to.eql({
+      expect(store.getActions()[2]).to.eql({
         payload: { args: ['/clinic-workspace'], method: 'push' },
         type: '@@router/CALL_HISTORY_METHOD',
       });
@@ -303,9 +303,44 @@ describe('TideDashboard', () => {
         </Provider>
       );
 
-      expect(store.getActions()[0]).to.eql({
+      expect(store.getActions()[2]).to.eql({
         payload: { args: ['/clinic-workspace'], method: 'push' },
         type: '@@router/CALL_HISTORY_METHOD',
+      });
+    });
+
+    it('should clear the current patient in view', () => {
+      store = mockStore({
+        blip: {
+          ...tier0200ClinicState.blip,
+          currentPatientInViewId: 'patientInViewID',
+        },
+      });
+      store.clearActions();
+
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      expect(store.getActions()[0]).to.eql({
+        meta: {
+          WebWorker: true,
+          origin: 'http://localhost:9876',
+          patientId: 'patientInViewID',
+          worker: 'data',
+        },
+        payload: {
+          predicate: undefined,
+        },
+        type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
+      });
+
+      expect(store.getActions()[1]).to.eql({
+        type: 'CLEAR_PATIENT_IN_VIEW',
       });
     });
 
@@ -322,8 +357,6 @@ describe('TideDashboard', () => {
           </ToastProvider>
         </Provider>
       );
-
-      expect(store.getActions()).to.eql([]);
 
       const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
       expect(dialog()).to.have.length(1);
@@ -351,8 +384,6 @@ describe('TideDashboard', () => {
           </ToastProvider>
         </Provider>
       );
-
-      expect(store.getActions()).to.eql([]);
 
       const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
       expect(dialog()).to.have.length(1);
@@ -383,11 +414,8 @@ describe('TideDashboard', () => {
         </Provider>
       );
 
-      const expectedActions = [
-        { type: 'FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST' },
-      ];
-
-      expect(store.getActions()).to.eql(expectedActions);
+      const expectedAction = { type: 'FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST' };
+      expect(store.getActions()[2]).to.eql(expectedAction);
     });
   });
 

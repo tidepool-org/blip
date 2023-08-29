@@ -532,6 +532,7 @@ export const TideDashboard = (props) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const { config, results: patientGroups } = useSelector((state) => state.blip.tideDashboardPatients);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
@@ -628,6 +629,8 @@ export const TideDashboard = (props) => {
   }, [api, dispatch, localConfig, localConfigKey, selectedClinicId]);
 
   useEffect(() => {
+    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+    dispatch(actions.sync.clearPatientInView());
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic]);
 
