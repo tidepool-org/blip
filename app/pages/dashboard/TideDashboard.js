@@ -620,7 +620,7 @@ export const TideDashboard = (props) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
       const queryOptions = { period: options.period };
-      queryOptions['tags'] = reject(options?.tags || [], tagId => !patientTags?.[tagId])
+      queryOptions['tags'] = reject(options?.tags || [], tagId => !patientTags?.[tagId]);
       queryOptions['cgm.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
       queryOptions['cgm.lastUploadDateFrom'] = moment(queryOptions['cgm.lastUploadDateTo']).subtract(options.lastUpload, 'days').toISOString();
       setLoading(true);
