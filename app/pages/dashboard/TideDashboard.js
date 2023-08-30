@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
@@ -71,7 +71,7 @@ import { colors, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
-const { formatDateRange, getLocalizedCeiling } = vizUtils.datetime;
+const { formatDateRange, getLocalizedCeiling, getOffset, getTimezoneFromTimePrefs } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -697,8 +697,9 @@ export const TideDashboard = (props) => {
   }
 
   const renderHeader = () => {
-    const periodTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-    const periodFrom = moment(periodTo).subtract(config?.period.slice(0, -1), 'days').toISOString();
+    const timezone = getTimezoneFromTimePrefs(timePrefs);
+    const periodTo = moment.utc().tz(timezone).endOf('day').subtract(1, 'ms').toISOString();
+    const periodFrom = moment.utc(periodTo).tz(timezone).subtract(config?.period.slice(0, -1) - 1, 'days').toISOString();
 
     return (
       <Flex
@@ -724,7 +725,12 @@ export const TideDashboard = (props) => {
             px={2}
             sx={{ borderRadius: radii.medium }}
           >
-            {formatDateRange(periodFrom, periodTo, null, 'MMMM')}
+            {formatDateRange(
+              moment.utc(periodFrom).subtract(getOffset(periodFrom, timezone), 'minutes').toISOString(),
+              moment.utc(periodTo).subtract(getOffset(periodTo, timezone), 'minutes').toISOString(),
+              null,
+              'MMMM'
+            )}
           </Text>
         </Flex>
 
@@ -739,7 +745,7 @@ export const TideDashboard = (props) => {
           px={3}
           sx= {{ border: 'none' }}
         >
-            {t('Filter Patients')}
+          {t('Filter Patients')}
         </Button>
       </Flex>
     )
