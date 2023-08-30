@@ -12,7 +12,6 @@ import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
-import pick from 'lodash/pick';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -620,7 +619,8 @@ export const TideDashboard = (props) => {
   const fetchDashboardPatients = useCallback((config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
-      const queryOptions = pick(options, ['tags', 'period']);
+      const queryOptions = { period: options.period };
+      queryOptions['tags'] = reject(options?.tags || [], tagId => !patientTags?.[tagId])
       queryOptions['cgm.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
       queryOptions['cgm.lastUploadDateFrom'] = moment(queryOptions['cgm.lastUploadDateTo']).subtract(options.lastUpload, 'days').toISOString();
       setLoading(true);
