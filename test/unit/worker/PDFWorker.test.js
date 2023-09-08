@@ -33,7 +33,7 @@ describe('PDFWorker', () => {
   const renderer = sinon.stub().usingPromise(Promise);
 
   const queryResults = {
-    agp: { data: { current: { data: ['foo'] } } },
+    agpCGM: { data: { current: { data: ['foo'] } } },
     basics: { data: { current: { aggregationsByDate: {
       basals: {},
       boluses: {},
@@ -60,7 +60,7 @@ describe('PDFWorker', () => {
   const type = 'combined';
 
   const queries = {
-    agp: 'agp',
+    agpCGM: 'agpCGM',
     basics: 'basics',
     daily: 'daily',
     bgLog: 'bgLog',
@@ -68,7 +68,7 @@ describe('PDFWorker', () => {
   };
 
   const opts = () => ({
-    agp: {},
+    agpCGM: {},
     basics: {},
     daily: {},
     bgLog: {},
@@ -118,7 +118,7 @@ describe('PDFWorker', () => {
     sinon.assert.calledOnce(renderer);
     sinon.assert.calledWithExactly(renderer, queryResults, {
       ...opts(),
-      agp: { disabled: false },
+      agpCGM: { disabled: false },
       basics: { disabled: true },
       daily: { disabled: false },
       bgLog: { disabled: true },
@@ -187,7 +187,7 @@ describe('PDFWorker', () => {
 
     let action = actions.generatePDFRequest(
       type,
-      { ...queries, agp: 'agp' },
+      { ...queries, agpCGM: 'agpCGM' },
       { ...opts(), svgDataURLS: undefined },
     );
 
@@ -200,9 +200,9 @@ describe('PDFWorker', () => {
       {
         type: 'GENERATE_AGP_IMAGES_REQUEST',
         payload: {
-          data: { agp: { data: { current: { data: ['foo'] } } } },
+          data: { agpCGM: { data: { current: { data: ['foo'] } } } },
           opts: {
-            agp: { disabled: false },
+            agpCGM: { disabled: false },
             basics: {  },
             bgLog: {  },
             daily: {  },
@@ -210,7 +210,7 @@ describe('PDFWorker', () => {
             svgDataURLS: undefined,
           },
           queries: {
-            agp: 'agp',
+            agpCGM: 'agpCGM',
             basics: 'basics',
             bgLog: 'bgLog',
             daily: 'daily',

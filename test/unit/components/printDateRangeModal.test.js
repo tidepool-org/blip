@@ -22,7 +22,7 @@ describe('PrintDateRangeModal', function () {
   const props = {
     loggedInUserId,
     mostRecentDatumDates: {
-      agp: Date.parse('2020-03-10T00:00:00.000Z'),
+      agpCGM: Date.parse('2020-03-10T00:00:00.000Z'),
       basics: Date.parse('2020-03-10T00:00:00.000Z'),
       bgLog: Date.parse('2020-03-12T00:00:00.000Z'),
       daily: Date.parse('2020-03-05T00:00:00.000Z'),
@@ -111,7 +111,7 @@ describe('PrintDateRangeModal', function () {
     basicsToggle().simulate('click');
     expect(basicsToggle().prop('aria-checked')).to.be.false;
     expect(localStorage[enabledChartsLocalKey]).to.eql(JSON.stringify({
-      agp: true,
+      agpCGM: true,
       basics: false,
       bgLog: true,
       daily: true,
@@ -130,7 +130,7 @@ describe('PrintDateRangeModal', function () {
     expect(agpDatesRangeSelectedPreset().prop('value')).to.equal(7); // index 0 in preset list
 
     expect(localStorage[defaultRangesLocalKey]).to.eql(JSON.stringify({
-      agp: 0, // stored preset option at index 0
+      agpCGM: 0, // stored preset option at index 0
       basics: 0,
       bgLog: 2,
       daily: 0,
@@ -240,7 +240,7 @@ describe('PrintDateRangeModal', function () {
       submitButton().simulate('click');
       sinon.assert.calledOnce(props.onClickPrint);
       sinon.assert.calledWith(props.onClickPrint, {
-        agp: { disabled: false, endpoints: [
+        agpCGM: { disabled: false, endpoints: [
           moment.utc(Date.parse('2020-03-11T00:00:00.000Z')).subtract(14, 'days').valueOf(),
           Date.parse('2020-03-11T00:00:00.000Z'),
         ] },
@@ -340,7 +340,7 @@ describe('PrintDateRangeModal', function () {
       submitButton().simulate('click');
 
       sinon.assert.calledWith(props.trackMetric, 'Submitted Print Options', {
-        agp: '14 days',
+        agpCGM: '14 days',
         basics: '14 days',
         bgLog: 'disabled',
         daily: '30 days',

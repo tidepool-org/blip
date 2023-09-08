@@ -1052,7 +1052,7 @@ describe('PatientData', function () {
         expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
 
         expect(dialogProps.mostRecentDatumDates).to.be.an('object').and.have.keys([
-          'agp',
+          'agpCGM',
           'basics',
           'bgLog',
           'daily',
@@ -1125,7 +1125,7 @@ describe('PatientData', function () {
     it('should return the default `chartPrefs` state for each data view', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       expect(wrapper.state().chartPrefs).to.eql({
-        agp: {
+        agpCGM: {
           bgSource: 'cbg',
         },
         basics: {
@@ -2780,7 +2780,7 @@ describe('PatientData', function () {
             const generatePDFSpy = sinon.spy(instance, 'generatePDF');
 
             const pdfOpts = {
-              agp: {},
+              agpCGM: {},
               basics: {},
               bgLog: {},
               daily: {},
@@ -3367,7 +3367,7 @@ describe('PatientData', function () {
     let instance;
     before(() => {
       PD.__Rewire__('vizUtils', {
-        agp: {
+        agpCGM: {
           generateAGPFigureDefinitions: sinon.stub()
             .onFirstCall().resolves('stubbed image data')
             .onSecondCall().rejects(new Error('failed image generation')),
@@ -3425,7 +3425,7 @@ describe('PatientData', function () {
     const queryEndpointsStub = [100, 200];
 
     const printDialogPDFOpts = {
-      agp: { endpoints: 'agp endpoints'},
+      agpCGM: { endpoints: 'agp endpoints'},
       basics: { endpoints: 'basics endpoints'},
       bgLog: { endpoints: 'bgLog endpoints'},
       daily: { endpoints: 'daily endpoints'},
@@ -3450,7 +3450,7 @@ describe('PatientData', function () {
       sinon.assert.calledWith(defaultProps.generatePDFRequest,
         'combined',
         {
-          agp: sinon.match.object,
+          agpCGM: sinon.match.object,
           basics: sinon.match.object,
           daily: sinon.match.object,
           bgLog: sinon.match.object,
@@ -3458,7 +3458,7 @@ describe('PatientData', function () {
         },
         {
           patient: sinon.match(defaultProps.patient),
-          agp: sinon.match.object,
+          agpCGM: sinon.match.object,
           basics: sinon.match.object,
           daily: sinon.match.object,
           bgLog: sinon.match.object,
@@ -3478,7 +3478,7 @@ describe('PatientData', function () {
       sinon.assert.calledWith(defaultProps.generatePDFRequest,
         'combined',
         {
-          agp: sinon.match.object,
+          agpCGM: sinon.match.object,
           basics: sinon.match.object,
           daily: sinon.match.object,
           bgLog: sinon.match.object,
@@ -3486,7 +3486,7 @@ describe('PatientData', function () {
         },
         {
           patient: sinon.match(defaultProps.patient),
-          agp: sinon.match.object,
+          agpCGM: sinon.match.object,
           basics: sinon.match.object,
           daily: sinon.match.object,
           bgLog: sinon.match.object,
@@ -3509,12 +3509,12 @@ describe('PatientData', function () {
       sinon.assert.calledWith(defaultProps.generatePDFRequest,
         'combined',
         {
-          agp: sinon.match.object,
+          agpCGM: sinon.match.object,
           basics: sinon.match.object,
         },
         {
           patient: sinon.match(defaultProps.patient),
-          agp: { endpoints: 'agp endpoints' },
+          agpCGM: { endpoints: 'agp endpoints' },
           basics: { endpoints: 'basics endpoints' },
           bgLog: { disabled: true },
           daily: { disabled: true },
@@ -3527,7 +3527,7 @@ describe('PatientData', function () {
       const stateOverrides = {
         printDialogPDFOpts: {
           ...printDialogPDFOpts,
-          agp: { disabled: true },
+          agpCGM: { disabled: true },
           basics: { disabled: true },
         }
       };
@@ -3542,7 +3542,7 @@ describe('PatientData', function () {
         },
         {
           patient: sinon.match(defaultProps.patient),
-          agp: { disabled: true },
+          agpCGM: { disabled: true },
           basics: { disabled: true },
           daily: { endpoints: 'daily endpoints' },
           bgLog: { endpoints: 'bgLog endpoints' },
@@ -3555,19 +3555,19 @@ describe('PatientData', function () {
       it('should set the `endpoints` query from the `pdfOpts` arg', () => {
         instance.generatePDF();
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agp.endpoints).to.eql('agp endpoints');
+        expect(query.agpCGM.endpoints).to.eql('agp endpoints');
       });
 
       it('should query the required `aggregationsByDate`', () => {
         instance.generatePDF();
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agp.aggregationsByDate).to.equal('dataByDate, statsByDate');
+        expect(query.agpCGM.aggregationsByDate).to.equal('dataByDate, statsByDate');
       });
 
       it('should query the required `types`', () => {
         instance.generatePDF();
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agp.types).to.eql({
+        expect(query.agpCGM.types).to.eql({
           cbg: {},
         });
       });
@@ -3577,25 +3577,25 @@ describe('PatientData', function () {
 
         instance.generatePDF();
 
-        sinon.assert.calledWith(instance.getStatsByChartType, 'agp');
+        sinon.assert.calledWith(instance.getStatsByChartType, 'agpCGM');
 
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agp.stats).to.eql('agp stats');
+        expect(query.agpCGM.stats).to.eql('agp stats');
       });
 
-      it('should query the required `bgSource` from `chartPrefs.agp.bgSource` state', () => {
-        wrapper.setState({ chartPrefs: { agp: { bgSource: 'agp bgSource' } } });
+      it('should query the required `bgSource` from `chartPrefs.agpCGM.bgSource` state', () => {
+        wrapper.setState({ chartPrefs: { agpCGM: { bgSource: 'agp bgSource' } } });
         instance.generatePDF();
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agp.bgSource).to.equal('agp bgSource');
+        expect(query.agpCGM.bgSource).to.equal('agp bgSource');
       });
 
       it('should query the required `commonQueries`', () => {
         instance.generatePDF();
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agp.bgPrefs).to.eql(commonQueries.bgPrefs);
-        expect(query.agp.metaData).to.equal(commonQueries.metaData);
-        expect(query.agp.timePrefs).to.eql(commonQueries.timePrefs);
+        expect(query.agpCGM.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.agpCGM.metaData).to.equal(commonQueries.metaData);
+        expect(query.agpCGM.timePrefs).to.eql(commonQueries.timePrefs);
       });
     });
 
