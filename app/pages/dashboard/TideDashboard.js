@@ -698,8 +698,12 @@ export const TideDashboard = (props) => {
 
   const renderHeader = () => {
     const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const periodTo = moment.utc().tz(timezone).endOf('day').subtract(1, 'ms').toISOString();
-    const periodFrom = moment.utc(periodTo).tz(timezone).subtract(config?.period.slice(0, -1) - 1, 'days').toISOString();
+    const lastUploadDatesDayRange = moment(config?.lastUploadDateTo).diff(config?.lastUploadDateFrom, 'days');
+    const periodDaysText = config?.period === '1d' ? t('day') : t('days');
+
+    const uploadDatesLabel = t('Data uploaded {{descriptor}}', {
+      descriptor: lastUploadDatesDayRange === 1 ? 'on' : 'between',
+    })
 
     return (
       <Flex
@@ -709,29 +713,65 @@ export const TideDashboard = (props) => {
         flexWrap="wrap"
         sx={{ rowGap: 2, columnGap: 3 }}
       >
-        <Flex sx={{ gap: 3 }}>
+        <Flex sx={{ gap: 2 }} alignItems="center">
           <Title id="tide-dashboard-header" fontWeight="medium" fontSize="18px">{t('TIDE Dashboard')}</Title>
 
-          <Text
-            id="tide-dashboard-dates"
-            as={Flex}
-            fontSize={0}
-            fontWeight="medium"
-            height="24px"
-            bg="white"
-            color={loading ? 'white' : 'text.primary'}
-            alignContent="center"
-            flexWrap="wrap"
-            px={2}
-            sx={{ borderRadius: radii.medium }}
-          >
-            {formatDateRange(
-              moment.utc(periodFrom).subtract(getOffset(periodFrom, timezone), 'minutes').toISOString(),
-              moment.utc(periodTo).subtract(getOffset(periodTo, timezone), 'minutes').toISOString(),
-              null,
-              'MMMM'
-            )}
-          </Text>
+          <Flex sx={{ gap: 2, position: 'relative', top: '2px' }} alignItems="center">
+            <Text
+              fontSize={0}
+              fontWeight="medium"
+              color="text.primaryGrey"
+              ml={2}
+            >
+              {uploadDatesLabel}
+            </Text>
+
+            <Text
+              id="tide-dashboard-upload-dates"
+              as={Flex}
+              fontSize={0}
+              fontWeight="medium"
+              height="24px"
+              bg="white"
+              color={loading ? 'white' : 'text.primary'}
+              alignContent="center"
+              flexWrap="wrap"
+              px={3}
+              sx={{ borderRadius: radii.medium }}
+            >
+              {formatDateRange(
+                moment.utc(config?.lastUploadDateFrom).subtract(getOffset(config?.lastUploadDateFrom, timezone), 'minutes').toISOString(),
+                moment.utc(config?.lastUploadDateTo).subtract(getOffset(config?.lastUploadDateTo, timezone), 'minutes').subtract(1, 'ms').toISOString(),
+                null,
+                'MMMM'
+              )}
+            </Text>
+
+            <Text
+              fontSize={0}
+              fontWeight="medium"
+              color="text.primaryGrey"
+              ml={2}
+            >
+              {t('Viewing data from')}
+            </Text>
+
+            <Text
+              id="tide-dashboard-summary-period"
+              as={Flex}
+              fontSize={0}
+              fontWeight="medium"
+              height="24px"
+              bg="white"
+              color={loading ? 'white' : 'text.primary'}
+              alignContent="center"
+              flexWrap="wrap"
+              px={3}
+              sx={{ borderRadius: radii.medium }}
+            >
+              {config?.period.slice(0, -1)} {periodDaysText}
+            </Text>
+          </Flex>
         </Flex>
 
         <Button
