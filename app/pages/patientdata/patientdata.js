@@ -947,12 +947,15 @@ export const PatientDataClass = createReactClass({
         }));
       });
 
+      console.log('await Promise.all(promises)', await Promise.all(promises));
+
       const processedImages = _.reduce(await Promise.all(promises), (res, entry, i) => {
         const processedImage = _.fromPairs(entry.slice(1));
         res[entry[0]] = {...res[entry[0]], ...processedImage };
         return res;
       }, {});
 
+      console.log('processedImages', processedImages);
       props.generateAGPImagesSuccess(processedImages);
     } catch(e) {
       props.generateAGPImagesFailure(e);
