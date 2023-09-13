@@ -111,7 +111,7 @@ export const TideDashboardConfigForm = props => {
       </Box>
 
       <Box sx={{ borderTop: borders.default }} py={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select Duration')}</Body0>
+        <Body0 fontWeight="medium" mb={2}>{t('Select how many day(s) of data to view')}</Body0>
 
         <RadioGroup
           options={summaryPeriodOptions}
