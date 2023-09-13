@@ -57,6 +57,7 @@ describe('ClinicPatients', () => {
 
   beforeEach(() => {
     delete localStorage.activePatientFilters;
+    delete localStorage.activePatientSort;
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.getPatientFromClinic.resetHistory();
     defaultProps.api.clinics.getPatientsForClinic.resetHistory();
@@ -2062,6 +2063,67 @@ describe('ClinicPatients', () => {
               'cgm.timeInHighPercent': '>=0.25',
               'cgm.timeInLowPercent': '>=0.04',
               tags: sinon.match.array,
+            }));
+          });
+        });
+
+        context('persisted sort state', () => {
+          let mockedLocalStorage;
+
+          beforeEach(() => {
+            store = mockStore(tier0300ClinicState);
+
+            mockedLocalStorage = {
+              activePatientFilters: {
+                timeInRange: [
+                    'timeInLowPercent',
+                    'timeInHighPercent'
+                ],
+                patientTags: [],
+                meetsGlycemicTargets: false,
+              },
+              activePatientSummaryPeriod: '14d',
+              activePatientSort: {
+                sort: '-averageGlucose',
+                sortType: 'bgm',
+              },
+            };
+
+            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            defaultProps.trackMetric.resetHistory();
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useLocalStorage');
+          });
+
+          it('should set the table sort UI based on the the sort params from localStorage', () => {
+            const activeSortLable = wrapper.find('.MuiTableSortLabel-active').hostNodes();
+            expect(activeSortLable.text()).to.equal('Avg. Glucose (mg/dL)');
+            expect(activeSortLable.find('.MuiTableSortLabel-iconDirectionDesc').hostNodes()).to.have.lengthOf(1);
+          });
+
+
+          it('should use the stored sort parameters when fetching the initial patient list', () => {
+            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
+              ...defaultFetchOptions,
+              sort: '-averageGlucose',
+              sortType: 'bgm',
             }));
           });
         });
