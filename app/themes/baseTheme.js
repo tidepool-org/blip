@@ -55,13 +55,14 @@ export const colors = {
     declined: ['#FFECEE', '#DD2C00'],
   },
   tab: {
-    primary: '#66788A',
+    primary: colorPalette.primary.blueGrey,
     disabled: '#A5ADBA',
     selected: colorPalette.primary.purpleMedium,
   },
   text: {
     link: colorPalette.primary.purpleBright,
     primary: colorPalette.primary.blueGreyDark,
+    primaryGrey: colorPalette.primary.blueGrey,
     primaryDisabled: '#A5ADBA',
     primarySubdued: colorPalette.primary.blueGreyMedium,
   },

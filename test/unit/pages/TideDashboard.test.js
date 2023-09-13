@@ -493,14 +493,17 @@ describe('TideDashboard', () => {
       const header = wrapper.find('#tide-dashboard-header').hostNodes();
       expect(header.text()).to.equal('TIDE Dashboard');
 
-      const expectedPeriodTo = getLocalizedCeiling(new Date().toISOString(), hasResultsState.blip.timePrefs).toISOString();
-      const expectedPeriodFrom = moment(expectedPeriodTo).subtract(17, 'days').toISOString();
+      const expectedLastUploadTo = moment.utc(mockTideDashboardPatients.config.lastUploadDateFrom).toISOString()
+      const expectedLastUploadFrom = moment(expectedLastUploadTo).subtract(1, 'ms').toISOString();
 
-      const dates = wrapper.find('#tide-dashboard-dates').hostNodes();
-      expect(dates.text()).contains(moment(expectedPeriodFrom).format('MMMM D'));
-      expect(dates.text()).contains(moment(expectedPeriodFrom).format('YYYY'));
-      expect(dates.text()).contains(moment(expectedPeriodTo).format('MMMM D'));
-      expect(dates.text()).contains(moment(expectedPeriodTo).format('YYYY'));
+      const dates = wrapper.find('#tide-dashboard-upload-dates').hostNodes();
+      expect(dates.text()).contains(moment(expectedLastUploadFrom).format('MMMM D'));
+      expect(dates.text()).contains(moment(expectedLastUploadFrom).format('YYYY'));
+      expect(dates.text()).contains(moment(expectedLastUploadTo).format('MMMM D'));
+      expect(dates.text()).contains(moment(expectedLastUploadTo).format('YYYY'));
+
+      const period = wrapper.find('#tide-dashboard-summary-period').hostNodes();
+      expect(period.text()).contains('17 days');
     });
 
     it('should render a heading and table for dashboard section, with correctly ordered results', () => {
