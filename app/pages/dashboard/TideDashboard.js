@@ -9,6 +9,7 @@ import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEqual from 'lodash/isEqual';
+import isFinite from 'lodash/isFinite';
 import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
@@ -297,7 +298,10 @@ const TideDashboardSection = React.memo(props => {
     }
 
     const rawValue = (summary?.[summaryKey]);
-    let formattedValue = rawValue ? utils.customRoundedPercentage(rawValue, formattingKeyMap[summaryKey]) : statEmptyText;
+
+    let formattedValue = isFinite(rawValue)
+      ? utils.customRoundedPercentage(rawValue, formattingKeyMap[summaryKey])
+      : statEmptyText;
 
     return (
       <Box classname={`patient-${summaryKey}`}>
