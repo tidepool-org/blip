@@ -56,7 +56,7 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
         <BgRangeSummary
           striped={cgmUsePercent < minCgmPercent}
           data={data}
-          cgmUsePercent={utils.formatDecimal(cgmUsePercent * 100)}
+          cgmUsePercent={cgmUsePercent}
           targetRange={targetRange}
           bgUnits={clinicBgUnits}
         />

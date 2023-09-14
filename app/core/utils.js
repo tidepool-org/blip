@@ -480,6 +480,7 @@ utils.customRoundedPercentage = (inputValue, key) => {
       }
       break;
     case 'target':
+    case 'cgmUse':
       if (percentage > 69 && percentage < 70) {
         precision = 1;
         percentage = utils.roundDown(percentage, precision);

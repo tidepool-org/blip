@@ -291,7 +291,7 @@ const TideDashboardSection = React.memo(props => {
 
   const renderTimeInPercent = useCallback((summaryKey, summary) => {
     const formattingKeyMap = {
-      timeCGMUsePercent: 'target',
+      timeCGMUsePercent: 'cgmUse',
       timeInVeryLowPercent: 'veryLow',
       timeInLowPercent: 'low',
       timeInTargetPercent: 'target',
