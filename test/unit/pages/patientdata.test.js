@@ -33,7 +33,7 @@ const t = i18next.t.bind(i18next);
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 import { MGDL_UNITS } from '../../../app/core/constants';
 
-describe.only('PatientData', function () {
+describe('PatientData', function () {
   const defaultProps = {
     addingData: { inProgress: false, completed: false },
     removingData: { inProgress: false, completed: false },
@@ -3367,14 +3367,14 @@ describe.only('PatientData', function () {
     });
   });
 
-  describe.only('generateAGPImages', () => {
+  describe('generateAGPImages', () => {
     let wrapper;
     let instance;
     before(() => {
       PD.__Rewire__('vizUtils', {
         agp: {
           generateAGPFigureDefinitions: sinon.stub()
-            .onFirstCall().resolves('stubbed image data')
+            .onFirstCall().resolves(['stubbed image data'])
             .onSecondCall().rejects(new Error('failed image generation')),
         },
       });
@@ -3408,7 +3408,7 @@ describe.only('PatientData', function () {
       });
     });
 
-    it.only('should call generateAGPImagesFailure with error upon failed image generation', done => {
+    it('should call generateAGPImagesFailure with error upon failed image generation', done => {
       instance.generateAGPImages(undefined, ['agpCGM']);
       wrapper.update();
       setTimeout(() => {

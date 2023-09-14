@@ -927,38 +927,42 @@ export const PatientDataClass = createReactClass({
   },
 
   generateAGPImages: async function(props = this.props, reportTypes = []) {
-    try {
-      const promises = [];
+    const promises = [];
 
-      await _.each(reportTypes, async reportType => {
-        const images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.[reportType] });
-        promises.push(..._.map(images, async (image, key) => {
-          if (_.isArray(image)) {
-            const processedArray = await Promise.all(
-              _.map(image, async (img) => {
-                return await Plotly.toImage(img, { format: 'svg' });
-              })
-            );
-            return [reportType, [key, processedArray]];
-          } else {
-            const processedValue = await Plotly.toImage(image, { format: 'svg' });
-            return [reportType, [key, processedValue]];
-          }
-        }));
-      });
+    await _.each(reportTypes, async reportType => {
+      let images;
 
-      console.log('await Promise.all(promises)', await Promise.all(promises));
+      try{
+        images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.[reportType] });
+      } catch(e) {
+        return props.generateAGPImagesFailure(e);
+      }
 
-      const processedImages = _.reduce(await Promise.all(promises), (res, entry, i) => {
+      promises.push(..._.map(images, async (image, key) => {
+        if (_.isArray(image)) {
+          const processedArray = await Promise.all(
+            _.map(image, async (img) => {
+              return await Plotly.toImage(img, { format: 'svg' });
+            })
+          );
+          return [reportType, [key, processedArray]];
+        } else {
+          const processedValue = await Plotly.toImage(image, { format: 'svg' });
+          return [reportType, [key, processedValue]];
+        }
+      }));
+    });
+
+    const results = await Promise.all(promises);
+
+    if (results.length) {
+      const processedImages = _.reduce(results, (res, entry, i) => {
         const processedImage = _.fromPairs(entry.slice(1));
         res[entry[0]] = {...res[entry[0]], ...processedImage };
         return res;
       }, {});
 
-      console.log('processedImages', processedImages);
       props.generateAGPImagesSuccess(processedImages);
-    } catch(e) {
-      props.generateAGPImagesFailure(e);
     }
   },
 
