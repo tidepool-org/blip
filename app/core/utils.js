@@ -457,28 +457,21 @@ utils.thresholdRound = (value, comparator, threshold, defaultPrecision = 0) => {
   let percentage = value * 100;
   let roundingRange;
 
-  // For these comments, assume the threshold is 4. Could be any number
-
   switch (comparator) {
     case '<':
     case '>=':
       // not fine to round up to the threshold
       // fine to round down to the threshold
       // lower than threshold should round down
-
-      // 3.499 => 3
-      // 3.5   => 3.5
-      // 3.501 => 3.5
-      // 3.999 => 3.9
-      // 4.001 => 4
-      // 4.499 => 4
-      // 4.5   => 5
-
       roundingRange = [threshold - 0.5, threshold];
 
       if (percentage >= roundingRange[0] && percentage < roundingRange[1]) {
         precision = 1;
-        percentage = utils.roundDown(percentage, precision);
+
+        // If natural rounding would round to threshold, force rounding down
+        if (percentage >= threshold - 0.05) {
+          percentage = utils.roundDown(percentage, precision);
+        }
       }
       break;
 
@@ -487,20 +480,15 @@ utils.thresholdRound = (value, comparator, threshold, defaultPrecision = 0) => {
       // fine to round up to the threshold
       // not fine to round down to the threshold
       // greater than threshold should round up
-
-      // 3.499 => 3
-      // 3.5   => 4
-      // 3.501 => 4
-      // 3.999 => 4
-      // 4.001 => 4.1
-      // 4.499 => 4.5
-      // 4.5   => 5
-
       roundingRange = [threshold, threshold + 0.5];
 
       if (percentage > roundingRange[0] && percentage < roundingRange[1]) {
         precision = 1;
-        percentage = utils.roundUp(percentage, precision);
+
+        // If natural rounding would round to threshold, force rounding up
+        if (percentage < threshold + 0.05) {
+          percentage = utils.roundUp(percentage, precision);
+        }
       }
       break;
   }
