@@ -87,3 +87,14 @@ export const MS_IN_HOUR = 864e5 / 24;
 export const MS_IN_MIN = MS_IN_HOUR / 60;
 
 export const LBS_PER_KG = 2.2046226218;
+
+// [comparator, filter threshold %, default rounding precision = 0]
+export const DEFAULT_FILTER_THRESHOLDS = {
+  veryLow: ['>', 1],
+  low: ['>', 4],
+  target: ['<', 70],
+  high: ['>', 25],
+  veryHigh: ['>', 5],
+  cgmUse: ['<', 70],
+  timeInTargetPercentDelta: ['>', 15, 1],
+};

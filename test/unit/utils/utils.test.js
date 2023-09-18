@@ -7,7 +7,7 @@
 
 import _ from 'lodash';
 import utils from '../../../app/core/utils';
-import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
+import { DEFAULT_FILTER_THRESHOLDS, MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 import releases from '../../fixtures/githubreleasefixture';
 const expect = chai.expect;
 
@@ -582,55 +582,55 @@ describe('utils', () => {
     });
   });
 
-  describe('customRoundedPercentage', () => {
+  describe.only('thresholdRound', () => {
     it('should round up for `veryLow` between 0 and 0.5 percent with 0.01 precision', () => {
-      expect(utils.customRoundedPercentage(0.00001, 'veryLow')).to.equal('0.01');
-      expect(utils.customRoundedPercentage(0.00052, 'veryLow')).to.equal('0.06');
-      expect(utils.customRoundedPercentage(0.00242, 'veryLow')).to.equal('0.25');
-      expect(utils.customRoundedPercentage(0.00436, 'veryLow')).to.equal('0.44');
+      expect(utils.thresholdRound(0.00001, DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.01');
+      expect(utils.thresholdRound(0.00052, DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.06');
+      expect(utils.thresholdRound(0.00242, DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.25');
+      expect(utils.thresholdRound(0.00436, DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.44');
     });
     it('should round down for `veryLow` from 0.5 up to 1 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.005, 'veryLow')).to.equal('0.5');
-      expect(utils.customRoundedPercentage(0.0068, 'veryLow')).to.equal('0.6');
-      expect(utils.customRoundedPercentage(0.0082, 'veryLow')).to.equal('0.8');
-      expect(utils.customRoundedPercentage(0.0132, 'veryLow')).to.equal('1');
-      expect(utils.customRoundedPercentage(0.015, 'veryLow')).to.equal('2');
+      expect(utils.thresholdRound(0.005, DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.5');
+      expect(utils.thresholdRound(0.0068, DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.6');
+      expect(utils.thresholdRound(0.0082, DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.8');
+      expect(utils.thresholdRound(0.0132, DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('1');
+      expect(utils.thresholdRound(0.015, DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('2');
     });
     it('should round down for `low` between 3 and 4 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.0327, 'low')).to.equal('3.2');
-      expect(utils.customRoundedPercentage(0.0384, 'low')).to.equal('3.8');
-      expect(utils.customRoundedPercentage(0.025, 'low')).to.equal('3');
-      expect(utils.customRoundedPercentage(0.0462, 'low')).to.equal('5');
+      expect(utils.thresholdRound(0.0327, DEFAULT_FILTER_THRESHOLDS.low)).to.equal('3.2');
+      expect(utils.thresholdRound(0.0384, DEFAULT_FILTER_THRESHOLDS.low)).to.equal('3.8');
+      expect(utils.thresholdRound(0.025, DEFAULT_FILTER_THRESHOLDS.low)).to.equal('3');
+      expect(utils.thresholdRound(0.0462, DEFAULT_FILTER_THRESHOLDS.low)).to.equal('5');
     });
     it('should round down for `target` between 69 and 70 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.6999, 'target')).to.equal('69.9');
-      expect(utils.customRoundedPercentage(0.6942, 'target')).to.equal('69.4');
-      expect(utils.customRoundedPercentage(0.685, 'target')).to.equal('69');
-      expect(utils.customRoundedPercentage(0.705, 'target')).to.equal('71');
+      expect(utils.thresholdRound(0.6999, DEFAULT_FILTER_THRESHOLDS.target)).to.equal('69.9');
+      expect(utils.thresholdRound(0.6942, DEFAULT_FILTER_THRESHOLDS.target)).to.equal('69.4');
+      expect(utils.thresholdRound(0.685, DEFAULT_FILTER_THRESHOLDS.target)).to.equal('69');
+      expect(utils.thresholdRound(0.705, DEFAULT_FILTER_THRESHOLDS.target)).to.equal('71');
     });
     it('should round down for `high` between 24 and 25 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.2499, 'high')).to.equal('24.9');
-      expect(utils.customRoundedPercentage(0.2442, 'high')).to.equal('24.4');
-      expect(utils.customRoundedPercentage(0.235, 'high')).to.equal('24');
-      expect(utils.customRoundedPercentage(0.255, 'high')).to.equal('26');
+      expect(utils.thresholdRound(0.2499, DEFAULT_FILTER_THRESHOLDS.high)).to.equal('24.9');
+      expect(utils.thresholdRound(0.2442, DEFAULT_FILTER_THRESHOLDS.high)).to.equal('24.4');
+      expect(utils.thresholdRound(0.235, DEFAULT_FILTER_THRESHOLDS.high)).to.equal('24');
+      expect(utils.thresholdRound(0.255, DEFAULT_FILTER_THRESHOLDS.high)).to.equal('26');
     });
     it('should round down for `veryHigh` between 4 and 5 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.0499, 'veryHigh')).to.equal('4.9');
-      expect(utils.customRoundedPercentage(0.0442, 'veryHigh')).to.equal('4.4');
-      expect(utils.customRoundedPercentage(0.035, 'veryHigh')).to.equal('4');
-      expect(utils.customRoundedPercentage(0.055, 'veryHigh')).to.equal('6');
+      expect(utils.thresholdRound(0.0499, DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('4.9');
+      expect(utils.thresholdRound(0.0442, DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('4.4');
+      expect(utils.thresholdRound(0.035, DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('4');
+      expect(utils.thresholdRound(0.055, DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('6');
     });
     it('should use normal rounding with 1.0 precision for other values over 0.5 percent', () => {
-      expect(utils.customRoundedPercentage(0.26459, 'veryHigh')).to.equal('26');
-      expect(utils.customRoundedPercentage(0.00589, 'low')).to.equal('1');
+      expect(utils.thresholdRound(0.26459, DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('26');
+      expect(utils.thresholdRound(0.00589, DEFAULT_FILTER_THRESHOLDS.low)).to.equal('1');
     });
     it('should use normal rounding with 0.1 precision for other values under 0.5 and over 0.05', () => {
-      expect(utils.customRoundedPercentage(0.0043, 'veryHigh')).to.equal('0.4');
-      expect(utils.customRoundedPercentage(0.0035, 'high')).to.equal('0.4');
+      expect(utils.thresholdRound(0.0043, DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('0.4');
+      expect(utils.thresholdRound(0.0035, DEFAULT_FILTER_THRESHOLDS.high)).to.equal('0.4');
     });
-    it('should use normal rounding with 0.01 precision for values under 0.05', () => {
-      expect(utils.customRoundedPercentage(0.00043, 'veryHigh')).to.equal('0.04');
-      expect(utils.customRoundedPercentage(0.00025, 'high')).to.equal('0.03');
+    it('should use round up with 0.01 precision for values under 0.05', () => {
+      expect(utils.thresholdRound(0.00043, DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('0.05');
+      expect(utils.thresholdRound(0.00025, DEFAULT_FILTER_THRESHOLDS.high)).to.equal('0.03');
     });
   });
 });

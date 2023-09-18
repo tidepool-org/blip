@@ -15,6 +15,7 @@ import Popover from '../elements/Popover';
 import { space, shadows, radii } from '../../themes/baseTheme';
 
 import utils from '../../core/utils';
+import { DEFAULT_FILTER_THRESHOLDS } from '../../core/constants';
 import { utils as vizUtils } from '@tidepool/viz';
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
@@ -94,7 +95,7 @@ export const BgRangeSummary = React.memo(props => {
               <Flex key={key} flexDirection="column" justifyContent="center" alignItems="center">
                 <Flex className={`range-summary-value-${key}`} mb={1} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
                   <Text fontWeight="bold" lineHeight={0} fontSize={1}>
-                    {utils.customRoundedPercentage(value, key)}
+                    {utils.thresholdRound(value, ...DEFAULT_FILTER_THRESHOLDS[key])}
                   </Text>
                   <Text color="inherit" fontSize="9px" fontWeight="bold">%</Text>
                 </Flex>
@@ -107,7 +108,7 @@ export const BgRangeSummary = React.memo(props => {
             <Text className={'range-summary-bg-units'} lineHeight={0} color="grays.4" fontSize="10px">{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
             <Flex className={'range-summary-cgm-use'} alignItems="flex-end" justifyContent="flex-start" flexWrap="nowrap" sx={{ gap: 1}}>
               <Text lineHeight={0} color="text.primary" fontSize="10px" fontWeight="medium">{t('% CGM Use: ')}</Text>
-              <Text lineHeight="10px" color="text.primary" fontSize="12px" fontWeight="bold">{t('{{cgmUsePercent}} %', utils.customRoundedPercentage(cgmUsePercent, 'cgmUse'))}</Text>
+              <Text lineHeight="10px" color="text.primary" fontSize="12px" fontWeight="bold">{t('{{cgmUsePercent}} %', utils.thresholdRound(cgmUsePercent, ...DEFAULT_FILTER_THRESHOLDS.cgmUse))}</Text>
             </Flex>
           </Flex>
         </Box>

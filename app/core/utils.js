@@ -452,57 +452,71 @@ utils.roundDown = (value, precision = 1) => {
   return Math.floor(value * shift) / shift;
 };
 
-utils.customRoundedPercentage = (inputValue, key) => {
-  let precision = 0;
-  let percentage = inputValue * 100;
+utils.thresholdRound = (value, comparator, threshold, defaultPrecision = 0) => {
+  let precision = defaultPrecision;
+  let percentage = value * 100;
+  let roundingRange;
 
-  // We want to show extra precision on very small percentages so that we avoid showing 0%
-  // when there is some data there.
-  if (percentage > 0 && percentage < 0.5) {
-    precision = percentage < 0.05 ? 2 : 1;
-  }
+  // For these comments, assume the threshold is 4. Could be any number
 
-  switch (key) {
-    case 'veryLow':
-      if (percentage > 0 && percentage < 0.5) {
-        precision = 2;
+  switch (comparator) {
+    case '<':
+    case '>=':
+      // not fine to round up to the threshold
+      // fine to round down to the threshold
+      // lower than threshold should round down
+
+      // 3.499 => 3
+      // 3.5   => 3.5
+      // 3.501 => 3.5
+      // 3.999 => 3.9
+      // 4.001 => 4
+      // 4.499 => 4
+      // 4.5   => 5
+
+      roundingRange = [threshold - 0.5, threshold];
+
+      if (percentage >= roundingRange[0] && percentage < roundingRange[1]) {
+        precision = 1;
+        percentage = utils.roundDown(percentage, precision);
+      }
+      break;
+
+    case '>':
+    case '<=':
+      // fine to round up to the threshold
+      // not fine to round down to the threshold
+      // greater than threshold should round up
+
+      // 3.499 => 3
+      // 3.5   => 4
+      // 3.501 => 4
+      // 3.999 => 4
+      // 4.001 => 4.1
+      // 4.499 => 4.5
+      // 4.5   => 5
+
+      roundingRange = [threshold, threshold + 0.5];
+
+      if (percentage > roundingRange[0] && percentage < roundingRange[1]) {
+        precision = 1;
         percentage = utils.roundUp(percentage, precision);
       }
-      if (percentage >= 0.5 && percentage < 1) {
-        precision = 1;
-        percentage = utils.roundDown(percentage, precision);
-      }
       break;
-    case 'low':
-      if (percentage > 3 && percentage < 4) {
-        precision = 1;
-        percentage = utils.roundDown(percentage, precision);
-      }
-      break;
-    case 'target':
-    case 'cgmUse':
-      if (percentage > 69 && percentage < 70) {
-        precision = 1;
-        percentage = utils.roundDown(percentage, precision);
-      }
-      break;
-    case 'high':
-      if (percentage > 24 && percentage < 25) {
-        precision = 1;
-        percentage = utils.roundDown(percentage, precision);
-      }
-      break;
-    case 'veryHigh':
-      if (percentage > 4 && percentage < 5) {
-        precision = 1;
-        percentage = utils.roundDown(percentage, precision);
-      }
-      break;
-    default:
-      break;
+  }
+
+  // We want to force extra precision on very small percentages, and for extra small numbers,
+  // force rounding up so that we always show at least 0.01% if the value is technically above zero
+  if (percentage > 0 && percentage < 0.5) {
+    precision = 1;
+
+    if (percentage < 0.05) {
+      precision = 2;
+      percentage = utils.roundUp(percentage, precision);
+    }
   }
 
   return format(`.${precision}f`)(percentage);
-};
+}
 
 export default utils;

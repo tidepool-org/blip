@@ -66,7 +66,7 @@ import {
   tideDashboardConfigSchema,
 } from '../../core/clinicUtils';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
+import { DEFAULT_FILTER_THRESHOLDS, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import { colors, radii } from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
@@ -300,7 +300,7 @@ const TideDashboardSection = React.memo(props => {
     const rawValue = (summary?.[summaryKey]);
 
     let formattedValue = isFinite(rawValue)
-      ? utils.customRoundedPercentage(rawValue, formattingKeyMap[summaryKey])
+      ? utils.thresholdRound(rawValue, ...DEFAULT_FILTER_THRESHOLDS[formattingKeyMap[summaryKey]])
       : statEmptyText;
 
     return (
@@ -337,7 +337,12 @@ const TideDashboardSection = React.memo(props => {
     const timeInTargetPercentDelta = (summary?.timeInTargetPercentDelta);
 
     return timeInTargetPercentDelta ? (
-      <DeltaBar fontWeight="medium" delta={timeInTargetPercentDelta * 100} max={30} />
+      <DeltaBar
+        fontWeight="medium"
+        delta={timeInTargetPercentDelta * 100}
+        max={30}
+        threshold={DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta}
+      />
     ) : (
       <Text as="span" fontWeight="medium">{statEmptyText}</Text>
     );
