@@ -88,7 +88,8 @@ export const MS_IN_MIN = MS_IN_HOUR / 60;
 
 export const LBS_PER_KG = 2.2046226218;
 
-// [comparator, filter threshold %, default rounding precision = 0]
+// Passed as arguments to utils.formatThresholdPercentage
+// [comparator, threshold, defaultPrecision = 0]
 export const DEFAULT_FILTER_THRESHOLDS = {
   veryLow: ['>', 1],
   low: ['>', 4],

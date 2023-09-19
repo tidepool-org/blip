@@ -30,7 +30,7 @@ describe('BgRangeSummary', () => {
       veryHigh: .15,
     },
     striped: false,
-    cgmUsePercent: 78,
+    cgmUsePercent: 0.78,
     targetRange: [60, 190],
   };
 

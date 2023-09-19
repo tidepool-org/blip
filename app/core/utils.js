@@ -442,6 +442,11 @@ utils.formatDecimal = (val, precision) => {
   return format(`.${precision}f`)(val);
 };
 
+utils.roundToPrecision = (value, precision = 0) => {
+  let shift = precision > 0 ? 10 ** precision : 1;
+  return Math.round(value * shift) / shift;
+};
+
 utils.roundUp = (value, precision = 1) => {
   let shift = 10 ** precision;
   return Math.ceil(value * shift) / shift;
@@ -452,10 +457,10 @@ utils.roundDown = (value, precision = 1) => {
   return Math.floor(value * shift) / shift;
 };
 
-utils.thresholdRound = (value, comparator, threshold, defaultPrecision = 0) => {
+utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecision = 0) => {
   let precision = defaultPrecision;
   let percentage = value * 100;
-  let roundingRange;
+  let customRoundingRange;
 
   switch (comparator) {
     case '<':
@@ -463,9 +468,9 @@ utils.thresholdRound = (value, comparator, threshold, defaultPrecision = 0) => {
       // not fine to round up to the threshold
       // fine to round down to the threshold
       // lower than threshold should round down
-      roundingRange = [threshold - 0.5, threshold];
+      customRoundingRange = [threshold - 0.5, threshold];
 
-      if (percentage >= roundingRange[0] && percentage < roundingRange[1]) {
+      if (percentage >= customRoundingRange[0] && percentage < customRoundingRange[1]) {
         precision = 1;
 
         // If natural rounding would round to threshold, force rounding down
@@ -480,9 +485,9 @@ utils.thresholdRound = (value, comparator, threshold, defaultPrecision = 0) => {
       // fine to round up to the threshold
       // not fine to round down to the threshold
       // greater than threshold should round up
-      roundingRange = [threshold, threshold + 0.5];
+      customRoundingRange = [threshold, threshold + 0.5];
 
-      if (percentage > roundingRange[0] && percentage < roundingRange[1]) {
+      if (percentage > customRoundingRange[0] && percentage < customRoundingRange[1]) {
         precision = 1;
 
         // If natural rounding would round to threshold, force rounding up
@@ -500,11 +505,14 @@ utils.thresholdRound = (value, comparator, threshold, defaultPrecision = 0) => {
 
     if (percentage < 0.05) {
       precision = 2;
-      percentage = utils.roundUp(percentage, precision);
+
+      if (percentage < 0.005) {
+        percentage = utils.roundUp(percentage, precision);
+      }
     }
   }
 
-  return format(`.${precision}f`)(percentage);
+  return format(`.${precision}f`)(utils.roundToPrecision(percentage, precision));
 }
 
 export default utils;

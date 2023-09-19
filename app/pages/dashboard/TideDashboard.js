@@ -300,7 +300,7 @@ const TideDashboardSection = React.memo(props => {
     const rawValue = (summary?.[summaryKey]);
 
     let formattedValue = isFinite(rawValue)
-      ? utils.thresholdRound(rawValue, ...DEFAULT_FILTER_THRESHOLDS[formattingKeyMap[summaryKey]])
+      ? utils.formatThresholdPercentage(rawValue, ...DEFAULT_FILTER_THRESHOLDS[formattingKeyMap[summaryKey]])
       : statEmptyText;
 
     return (

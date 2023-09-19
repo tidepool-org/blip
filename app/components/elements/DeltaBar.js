@@ -14,7 +14,7 @@ export const DeltaBar = React.memo(props => {
   const labelMaxPercentage = 100;
 
   const labels = map(values, value => (Math.abs(value) <= labelMaxPercentage
-    ? utils.thresholdRound(Math.abs(value / 100), ...threshold)
+    ? utils.formatThresholdPercentage(Math.abs(value / 100), ...threshold)
     : labelMaxPercentage
   ));
 
