@@ -568,6 +568,14 @@ describe('utils', () => {
     });
   });
 
+  describe('roundToPrecision', function() {
+    it('should round a float naturally to the provided precision, or 1 decimal place if no precision provided', function() {
+      expect(utils.roundToPrecision(1.23456, 2)).to.equal(1.23);
+      expect(utils.roundToPrecision(1.23456, 3)).to.equal(1.235);
+      expect(utils.roundToPrecision(1.23456)).to.equal(1);
+    });
+  });
+
   describe('roundUp', function() {
     it('should round a float up to the provided precision, or 1 decimal place if no precision provided', function() {
       expect(utils.roundUp(1.23456, 2)).to.equal(1.24);
@@ -584,7 +592,7 @@ describe('utils', () => {
     });
   });
 
-  describe.only('formatThresholdPercentage', () => {
+  describe('formatThresholdPercentage', () => {
     it('should round for `veryLow` between 1 and 1.5 percent with 0.1 precision', () => {
       assert.deepEqual(DEFAULT_FILTER_THRESHOLDS.veryLow, ['>', 1]);
 
