@@ -443,17 +443,17 @@ utils.formatDecimal = (val, precision) => {
 };
 
 utils.roundToPrecision = (value, precision = 0) => {
-  let shift = precision > 0 ? 10 ** precision : 1;
+  const shift = precision > 0 ? 10 ** precision : 1;
   return Math.round(value * shift) / shift;
 };
 
-utils.roundUp = (value, precision = 1) => {
-  let shift = 10 ** precision;
+utils.roundUp = (value, precision = 0) => {
+  const shift = precision > 0 ? 10 ** precision : 1;
   return Math.ceil(value * shift) / shift;
 };
 
-utils.roundDown = (value, precision = 1) => {
-  let shift = 10 ** precision;
+utils.roundDown = (value, precision = 0) => {
+  const shift = precision > 0 ? 10 ** precision : 1;
   return Math.floor(value * shift) / shift;
 };
 

@@ -572,6 +572,7 @@ describe('utils', () => {
     it('should round a float naturally to the provided precision, or 1 decimal place if no precision provided', function() {
       expect(utils.roundToPrecision(1.23456, 2)).to.equal(1.23);
       expect(utils.roundToPrecision(1.23456, 3)).to.equal(1.235);
+      expect(utils.roundToPrecision(1.23456, 1)).to.equal(1.2);
       expect(utils.roundToPrecision(1.23456)).to.equal(1);
     });
   });
@@ -580,7 +581,8 @@ describe('utils', () => {
     it('should round a float up to the provided precision, or 1 decimal place if no precision provided', function() {
       expect(utils.roundUp(1.23456, 2)).to.equal(1.24);
       expect(utils.roundUp(1.23456, 3)).to.equal(1.235);
-      expect(utils.roundUp(1.23456)).to.equal(1.3);
+      expect(utils.roundUp(1.23456, 1)).to.equal(1.3);
+      expect(utils.roundUp(1.23456)).to.equal(2);
     });
   });
 
@@ -588,7 +590,8 @@ describe('utils', () => {
     it('should round a float up to the provided precision, or 1 decimal place if no precision provided', function() {
       expect(utils.roundDown(1.23456, 2)).to.equal(1.23);
       expect(utils.roundDown(1.23456, 3)).to.equal(1.234);
-      expect(utils.roundDown(1.23456)).to.equal(1.2);
+      expect(utils.roundDown(1.56456, 1)).to.equal(1.5);
+      expect(utils.roundDown(1.53456)).to.equal(1);
     });
   });
 
