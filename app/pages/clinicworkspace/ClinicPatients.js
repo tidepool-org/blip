@@ -501,6 +501,7 @@ export const ClinicPatients = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const mrnSettings = clinic?.mrnSettings ?? {};
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -2012,7 +2013,7 @@ export const ClinicPatients = (props) => {
             variant="primary"
             onClick={handleAddPatientConfirm}
             processing={creatingClinicCustodialAccount.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings}), patientFormContext?.values)}
           >
             {t('Add Patient')}
           </Button>
@@ -2061,7 +2062,7 @@ export const ClinicPatients = (props) => {
             variant="primary"
             onClick={handleEditPatientConfirm}
             processing={updatingClinicPatient.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings}), patientFormContext?.values)}
           >
             {t('Save Changes')}
           </Button>
