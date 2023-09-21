@@ -35,6 +35,7 @@ const environments = {
 };
 
 const apiHost = environments.dev;
+const launchDarklyClientToken = '';
 const uploadApi = apiHost;
 
 module.exports = {
@@ -42,5 +43,6 @@ module.exports = {
   linkedPackages,
   featureFlags,
   apiHost,
+  launchDarklyClientToken,
   uploadApi,
 };

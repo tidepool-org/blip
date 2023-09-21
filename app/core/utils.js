@@ -17,6 +17,7 @@
 
 import _  from 'lodash';
 import sundial from 'sundial';
+import { format } from 'd3-format';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 import { utils as vizUtils } from '@tidepool/viz';
@@ -433,5 +434,85 @@ utils.readableChartName = chartType => ({
   daily: 'Daily',
   trends: 'Trends',
 }[chartType] || chartType);
+
+utils.formatDecimal = (val, precision) => {
+  if (precision === null || precision === undefined) {
+    return format('d')(val);
+  }
+  return format(`.${precision}f`)(val);
+};
+
+utils.roundToPrecision = (value, precision = 0) => {
+  const shift = precision > 0 ? 10 ** precision : 1;
+  return Math.round(value * shift) / shift;
+};
+
+utils.roundUp = (value, precision = 0) => {
+  const shift = precision > 0 ? 10 ** precision : 1;
+  return Math.ceil(value * shift) / shift;
+};
+
+utils.roundDown = (value, precision = 0) => {
+  const shift = precision > 0 ? 10 ** precision : 1;
+  return Math.floor(value * shift) / shift;
+};
+
+utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecision = 0) => {
+  let precision = defaultPrecision;
+  let percentage = value * 100;
+  let customRoundingRange;
+
+  switch (comparator) {
+    case '<':
+    case '>=':
+      // not fine to round up to the threshold
+      // fine to round down to the threshold
+      // lower than threshold should round down
+      customRoundingRange = [threshold - 0.5, threshold];
+
+      if (percentage >= customRoundingRange[0] && percentage < customRoundingRange[1]) {
+        precision = 1;
+
+        // If natural rounding would round to threshold, force rounding down
+        if (percentage >= threshold - 0.05) {
+          percentage = utils.roundDown(percentage, precision);
+        }
+      }
+      break;
+
+    case '>':
+    case '<=':
+      // fine to round up to the threshold
+      // not fine to round down to the threshold
+      // greater than threshold should round up
+      customRoundingRange = [threshold, threshold + 0.5];
+
+      if (percentage > customRoundingRange[0] && percentage < customRoundingRange[1]) {
+        precision = 1;
+
+        // If natural rounding would round to threshold, force rounding up
+        if (percentage < threshold + 0.05) {
+          percentage = utils.roundUp(percentage, precision);
+        }
+      }
+      break;
+  }
+
+  // We want to force extra precision on very small percentages, and for extra small numbers,
+  // force rounding up so that we always show at least 0.01% if the value is technically above zero
+  if (percentage > 0 && percentage < 0.5) {
+    precision = 1;
+
+    if (percentage < 0.05) {
+      precision = 2;
+
+      if (percentage < 0.005) {
+        percentage = utils.roundUp(percentage, precision);
+      }
+    }
+  }
+
+  return format(`.${precision}f`)(utils.roundToPrecision(percentage, precision));
+}
 
 export default utils;
