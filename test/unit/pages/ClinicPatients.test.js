@@ -2018,7 +2018,7 @@ describe('ClinicPatients', () => {
               },
               activePatientSummaryPeriod: '14d',
               activePatientSort: {
-                sort: '-averageGlucose',
+                sort: '-averageGlucoseMmol',
                 sortType: 'bgm',
               },
             };
@@ -2047,7 +2047,9 @@ describe('ClinicPatients', () => {
           });
 
           it('should set the table sort UI based on the the sort params from localStorage', () => {
+
             const activeSortLable = wrapper.find('.MuiTableSortLabel-active').hostNodes();
+            console.log(wrapper.find('.MuiTable').debug())
             expect(activeSortLable.text()).to.equal('Avg. Glucose (mg/dL)');
             expect(activeSortLable.find('.MuiTableSortLabel-iconDirectionDesc').hostNodes()).to.have.lengthOf(1);
           });
