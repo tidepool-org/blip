@@ -4,10 +4,12 @@
 /* global context */
 /* global sinon */
 /* global afterEach */
+/* global assert */
+
 
 import _ from 'lodash';
 import utils from '../../../app/core/utils';
-import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
+import { DEFAULT_FILTER_THRESHOLDS, MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 import releases from '../../fixtures/githubreleasefixture';
 const expect = chai.expect;
 
@@ -566,11 +568,21 @@ describe('utils', () => {
     });
   });
 
+  describe('roundToPrecision', function() {
+    it('should round a float naturally to the provided precision, or 1 decimal place if no precision provided', function() {
+      expect(utils.roundToPrecision(1.23456, 2)).to.equal(1.23);
+      expect(utils.roundToPrecision(1.23456, 3)).to.equal(1.235);
+      expect(utils.roundToPrecision(1.23456, 1)).to.equal(1.2);
+      expect(utils.roundToPrecision(1.23456)).to.equal(1);
+    });
+  });
+
   describe('roundUp', function() {
     it('should round a float up to the provided precision, or 1 decimal place if no precision provided', function() {
       expect(utils.roundUp(1.23456, 2)).to.equal(1.24);
       expect(utils.roundUp(1.23456, 3)).to.equal(1.235);
-      expect(utils.roundUp(1.23456)).to.equal(1.3);
+      expect(utils.roundUp(1.23456, 1)).to.equal(1.3);
+      expect(utils.roundUp(1.23456)).to.equal(2);
     });
   });
 
@@ -578,59 +590,165 @@ describe('utils', () => {
     it('should round a float up to the provided precision, or 1 decimal place if no precision provided', function() {
       expect(utils.roundDown(1.23456, 2)).to.equal(1.23);
       expect(utils.roundDown(1.23456, 3)).to.equal(1.234);
-      expect(utils.roundDown(1.23456)).to.equal(1.2);
+      expect(utils.roundDown(1.56456, 1)).to.equal(1.5);
+      expect(utils.roundDown(1.53456)).to.equal(1);
     });
   });
 
-  describe('customRoundedPercentage', () => {
-    it('should round up for `veryLow` between 0 and 0.5 percent with 0.01 precision', () => {
-      expect(utils.customRoundedPercentage(0.00001, 'veryLow')).to.equal('0.01');
-      expect(utils.customRoundedPercentage(0.00052, 'veryLow')).to.equal('0.06');
-      expect(utils.customRoundedPercentage(0.00242, 'veryLow')).to.equal('0.25');
-      expect(utils.customRoundedPercentage(0.00436, 'veryLow')).to.equal('0.44');
+  describe('formatThresholdPercentage', () => {
+    it('should round for `veryLow` between 1 and 1.5 percent with 0.1 precision', () => {
+      assert.deepEqual(DEFAULT_FILTER_THRESHOLDS.veryLow, ['>', 1]);
+
+      // Should round up to threshold
+      expect(utils.formatThresholdPercentage(0.0099, ...DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('1');
+
+      // Should not round down to threshold
+      expect(utils.formatThresholdPercentage(0.0101, ...DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('1.1');
+
+      // Values inside custom rounding range rounding naturally to 0.1 precision
+      expect(utils.formatThresholdPercentage(0.0111, ...DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('1.1');
+      expect(utils.formatThresholdPercentage(0.0149, ...DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('1.5');
+
+      // Values above custom rounding range rounding naturally to integer
+      expect(utils.formatThresholdPercentage(0.005, ...DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('1');
+      expect(utils.formatThresholdPercentage(0.0151, ...DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('2');
+
+      // Values below 0.5 percent rounding with extra precision
+      expect(utils.formatThresholdPercentage(0.000001, ...DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.01');
+      expect(utils.formatThresholdPercentage(0.00049, ...DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.05');
+      expect(utils.formatThresholdPercentage(0.0049, ...DEFAULT_FILTER_THRESHOLDS.veryLow)).to.equal('0.5');
     });
-    it('should round down for `veryLow` from 0.5 up to 1 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.005, 'veryLow')).to.equal('0.5');
-      expect(utils.customRoundedPercentage(0.0068, 'veryLow')).to.equal('0.6');
-      expect(utils.customRoundedPercentage(0.0082, 'veryLow')).to.equal('0.8');
-      expect(utils.customRoundedPercentage(0.0132, 'veryLow')).to.equal('1');
-      expect(utils.customRoundedPercentage(0.015, 'veryLow')).to.equal('2');
+
+    it('should round for `low` between 4 and 4.5 percent with 0.1 precision', () => {
+      assert.deepEqual(DEFAULT_FILTER_THRESHOLDS.low, ['>', 4]);
+
+      // Should round up to threshold
+      expect(utils.formatThresholdPercentage(0.0399, ...DEFAULT_FILTER_THRESHOLDS.low)).to.equal('4');
+
+      // Should not round down to threshold
+      expect(utils.formatThresholdPercentage(0.0401, ...DEFAULT_FILTER_THRESHOLDS.low)).to.equal('4.1');
+
+      // Values inside custom rounding range rounding naturally to 0.1 precision
+      expect(utils.formatThresholdPercentage(0.0411, ...DEFAULT_FILTER_THRESHOLDS.low)).to.equal('4.1');
+      expect(utils.formatThresholdPercentage(0.0449, ...DEFAULT_FILTER_THRESHOLDS.low)).to.equal('4.5');
+
+      // Values outside custom rounding range rounding naturally to integer
+      expect(utils.formatThresholdPercentage(0.0349, ...DEFAULT_FILTER_THRESHOLDS.low)).to.equal('3');
+      expect(utils.formatThresholdPercentage(0.045, ...DEFAULT_FILTER_THRESHOLDS.low)).to.equal('5');
     });
-    it('should round down for `low` between 3 and 4 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.0327, 'low')).to.equal('3.2');
-      expect(utils.customRoundedPercentage(0.0384, 'low')).to.equal('3.8');
-      expect(utils.customRoundedPercentage(0.025, 'low')).to.equal('3');
-      expect(utils.customRoundedPercentage(0.0462, 'low')).to.equal('5');
+
+    it('should round for `target` between 69.5 and 70 percent with 0.1 precision', () => {
+      assert.deepEqual(DEFAULT_FILTER_THRESHOLDS.target, ['<', 70]);
+
+      // Should not round up to threshold
+      expect(utils.formatThresholdPercentage(0.6999, ...DEFAULT_FILTER_THRESHOLDS.target)).to.equal('69.9');
+
+      // Should round down to threshold
+      expect(utils.formatThresholdPercentage(0.7001, ...DEFAULT_FILTER_THRESHOLDS.target)).to.equal('70');
+
+      // Values inside custom rounding range rounding naturally to 0.1 precision
+      expect(utils.formatThresholdPercentage(0.6951, ...DEFAULT_FILTER_THRESHOLDS.target)).to.equal('69.5');
+      expect(utils.formatThresholdPercentage(0.6989, ...DEFAULT_FILTER_THRESHOLDS.target)).to.equal('69.9');
+
+      // Values outside custom rounding range rounding naturally to integer
+      expect(utils.formatThresholdPercentage(0.6949, ...DEFAULT_FILTER_THRESHOLDS.target)).to.equal('69');
+      expect(utils.formatThresholdPercentage(0.705, ...DEFAULT_FILTER_THRESHOLDS.target)).to.equal('71');
     });
-    it('should round down for `target` between 69 and 70 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.6999, 'target')).to.equal('69.9');
-      expect(utils.customRoundedPercentage(0.6942, 'target')).to.equal('69.4');
-      expect(utils.customRoundedPercentage(0.685, 'target')).to.equal('69');
-      expect(utils.customRoundedPercentage(0.705, 'target')).to.equal('71');
+
+    it('should round for `high` between 25 and 25.5 percent with 0.1 precision', () => {
+      assert.deepEqual(DEFAULT_FILTER_THRESHOLDS.high, ['>', 25]);
+
+      // Should round up to threshold
+      expect(utils.formatThresholdPercentage(0.2499, ...DEFAULT_FILTER_THRESHOLDS.high)).to.equal('25');
+
+      // Should not round down to threshold
+      expect(utils.formatThresholdPercentage(0.2501, ...DEFAULT_FILTER_THRESHOLDS.high)).to.equal('25.1');
+
+      // Values inside custom rounding range rounding naturally to 0.1 precision
+      expect(utils.formatThresholdPercentage(0.2511, ...DEFAULT_FILTER_THRESHOLDS.high)).to.equal('25.1');
+      expect(utils.formatThresholdPercentage(0.2549, ...DEFAULT_FILTER_THRESHOLDS.high)).to.equal('25.5');
+
+      // Values outside custom rounding range rounding naturally to integer
+      expect(utils.formatThresholdPercentage(0.2449, ...DEFAULT_FILTER_THRESHOLDS.high)).to.equal('24');
+      expect(utils.formatThresholdPercentage(0.255, ...DEFAULT_FILTER_THRESHOLDS.high)).to.equal('26');
     });
-    it('should round down for `high` between 24 and 25 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.2499, 'high')).to.equal('24.9');
-      expect(utils.customRoundedPercentage(0.2442, 'high')).to.equal('24.4');
-      expect(utils.customRoundedPercentage(0.235, 'high')).to.equal('24');
-      expect(utils.customRoundedPercentage(0.255, 'high')).to.equal('26');
+
+    it('should round for `veryHigh` between 5 and 5.5 percent with 0.1 precision', () => {
+      assert.deepEqual(DEFAULT_FILTER_THRESHOLDS.veryHigh, ['>', 5]);
+
+      // Should round up to threshold
+      expect(utils.formatThresholdPercentage(0.0499, ...DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('5');
+
+      // Should not round down to threshold
+      expect(utils.formatThresholdPercentage(0.0501, ...DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('5.1');
+
+      // Other values in custom rounding range rounding naturally to 0.1 precision
+      expect(utils.formatThresholdPercentage(0.0511, ...DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('5.1');
+      expect(utils.formatThresholdPercentage(0.0549, ...DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('5.5');
+
+      // Values outside custom rounding range rounding naturally to integer
+      expect(utils.formatThresholdPercentage(0.0449, ...DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('4');
+      expect(utils.formatThresholdPercentage(0.055, ...DEFAULT_FILTER_THRESHOLDS.veryHigh)).to.equal('6');
     });
-    it('should round down for `veryHigh` between 4 and 5 percent with 0.1 precision', () => {
-      expect(utils.customRoundedPercentage(0.0499, 'veryHigh')).to.equal('4.9');
-      expect(utils.customRoundedPercentage(0.0442, 'veryHigh')).to.equal('4.4');
-      expect(utils.customRoundedPercentage(0.035, 'veryHigh')).to.equal('4');
-      expect(utils.customRoundedPercentage(0.055, 'veryHigh')).to.equal('6');
+
+    it('should round for `cgmUse` between 69.5 and 70 percent with 0.1 precision', () => {
+      assert.deepEqual(DEFAULT_FILTER_THRESHOLDS.cgmUse, ['<', 70]);
+
+      // Should not round up to threshold
+      expect(utils.formatThresholdPercentage(0.6999, ...DEFAULT_FILTER_THRESHOLDS.cgmUse)).to.equal('69.9');
+
+      // Should round down to threshold
+      expect(utils.formatThresholdPercentage(0.7001, ...DEFAULT_FILTER_THRESHOLDS.cgmUse)).to.equal('70');
+
+      // Values inside custom rounding range rounding naturally to 0.1 precision
+      expect(utils.formatThresholdPercentage(0.6951, ...DEFAULT_FILTER_THRESHOLDS.cgmUse)).to.equal('69.5');
+      expect(utils.formatThresholdPercentage(0.6989, ...DEFAULT_FILTER_THRESHOLDS.cgmUse)).to.equal('69.9');
+
+      // Values outside custom rounding range rounding naturally to integer
+      expect(utils.formatThresholdPercentage(0.6949, ...DEFAULT_FILTER_THRESHOLDS.cgmUse)).to.equal('69');
+      expect(utils.formatThresholdPercentage(0.705, ...DEFAULT_FILTER_THRESHOLDS.cgmUse)).to.equal('71');
     });
-    it('should use normal rounding with 1.0 precision for other values over 0.5 percent', () => {
-      expect(utils.customRoundedPercentage(0.26459, 'veryHigh')).to.equal('26');
-      expect(utils.customRoundedPercentage(0.00589, 'low')).to.equal('1');
+
+    it('should round for `timeInTargetPercentDelta` between with 0.1 precision for all values', () => {
+      // the `1` sets the default precision outside of the custom rounding range to use 0.1 precision instead of nearest integer
+      assert.deepEqual(DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta, ['>', 15, 1]);
+
+      // Should round up to threshold
+      expect(utils.formatThresholdPercentage(0.1499, ...DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta)).to.equal('15.0');
+
+      // Should not round down to threshold
+      expect(utils.formatThresholdPercentage(0.1501, ...DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta)).to.equal('15.1');
+
+      // Values inside custom rounding range rounding naturally to 0.1 precision
+      expect(utils.formatThresholdPercentage(0.1511, ...DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta)).to.equal('15.1');
+      expect(utils.formatThresholdPercentage(0.1549, ...DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta)).to.equal('15.5');
+
+      // Values outside custom rounding range also rounding naturally to 0.1 precision
+      expect(utils.formatThresholdPercentage(0.1449, ...DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta)).to.equal('14.5');
+      expect(utils.formatThresholdPercentage(0.155, ...DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta)).to.equal('15.5');
     });
-    it('should use normal rounding with 0.1 precision for other values under 0.5 and over 0.05', () => {
-      expect(utils.customRoundedPercentage(0.0043, 'veryHigh')).to.equal('0.4');
-      expect(utils.customRoundedPercentage(0.0035, 'high')).to.equal('0.4');
+
+    it('should round values from 0.05 to 0.5 percent with 0.1 precision', () => {
+      expect(utils.formatThresholdPercentage(0.0005)).to.equal('0.1');
+      expect(utils.formatThresholdPercentage(0.0041)).to.equal('0.4');
+      expect(utils.formatThresholdPercentage(0.0049)).to.equal('0.5');
+      expect(utils.formatThresholdPercentage(0.005)).to.equal('1');
     });
-    it('should use normal rounding with 0.01 precision for values under 0.05', () => {
-      expect(utils.customRoundedPercentage(0.00043, 'veryHigh')).to.equal('0.04');
-      expect(utils.customRoundedPercentage(0.00025, 'high')).to.equal('0.03');
+
+    it('should round values between 0 and 0.05 percent with 0.01 precision', () => {
+      expect(utils.formatThresholdPercentage(0.0000)).to.equal('0');
+      expect(utils.formatThresholdPercentage(0.00005)).to.equal('0.01');
+      expect(utils.formatThresholdPercentage(0.00041)).to.equal('0.04');
+      expect(utils.formatThresholdPercentage(0.00049)).to.equal('0.05');
+      expect(utils.formatThresholdPercentage(0.0005)).to.equal('0.1');
+    });
+
+    it('should round numbers less than 0.005 percent up to 0.01% rather than down to zero', () => {
+      expect(utils.formatThresholdPercentage(0.00001)).to.equal('0.01');
+      expect(utils.formatThresholdPercentage(0.00004)).to.equal('0.01');
+      expect(utils.formatThresholdPercentage(0.00005)).to.equal('0.01');
+      expect(utils.formatThresholdPercentage(0.00014)).to.equal('0.01');
+      expect(utils.formatThresholdPercentage(0.00015)).to.equal('0.02');
     });
   });
 });

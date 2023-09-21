@@ -13,7 +13,6 @@ import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboar
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
 import LDClientMock from '../../fixtures/LDClientMock';
 import { utils as vizUtils } from '@tidepool/viz';
-const { getLocalizedCeiling } = vizUtils.datetime;
 
 /* global chai */
 /* global sinon */
@@ -611,11 +610,11 @@ describe('TideDashboard', () => {
 
       // Confirm sixth table is sorted appropriately
       expect(getTableRow(5, 0).find('th').at(4).text()).contains('Time below 54');
-      expect(getTableRow(5, 1).find('td').at(3).text()).contains('0.6 %');
-      expect(getTableRow(5, 2).find('td').at(3).text()).contains('0.6 %');
-      expect(getTableRow(5, 3).find('td').at(3).text()).contains('0.26 %');
-      expect(getTableRow(5, 4).find('td').at(3).text()).contains('0.24 %');
-      expect(getTableRow(5, 5).find('td').at(3).text()).contains('0.09 %');
+      expect(getTableRow(5, 1).find('td').at(3).text()).contains('1 %');
+      expect(getTableRow(5, 2).find('td').at(3).text()).contains('1 %');
+      expect(getTableRow(5, 3).find('td').at(3).text()).contains('0.3 %');
+      expect(getTableRow(5, 4).find('td').at(3).text()).contains('0.2 %');
+      expect(getTableRow(5, 5).find('td').at(3).text()).contains('0.1 %');
     });
 
     it('should show empty text for a section without results', () => {

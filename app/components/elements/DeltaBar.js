@@ -9,12 +9,12 @@ import utils from '../../core/utils';
 import { colors, radii } from '../../themes/baseTheme';
 
 export const DeltaBar = React.memo(props => {
-  const { delta, max, precision, ...themeProps } = props;
+  const { delta, max, threshold, ...themeProps } = props;
   const values = [delta, 0].sort();
   const labelMaxPercentage = 100;
 
   const labels = map(values, value => (Math.abs(value) <= labelMaxPercentage
-    ? utils.formatDecimal(Math.abs(value), precision)
+    ? utils.formatThresholdPercentage(Math.abs(value / 100), ...threshold)
     : labelMaxPercentage
   ));
 
@@ -73,11 +73,11 @@ export const DeltaBar = React.memo(props => {
 DeltaBar.propTypes = {
   delta: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
-  precision: PropTypes.number.isRequired,
+  threshold: PropTypes.array.isRequired,
 };
 
 DeltaBar.defaultProps = {
-  precision: 1,
+  threshold: [],
 };
 
 export default translate()(DeltaBar);
