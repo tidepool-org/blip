@@ -29,7 +29,7 @@ const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
 });
 
 const VERSION = pkg.version;
-const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
+const ROLLBAR_POST_CLIENT_TOKEN = '6158068d70fd485ba03e72ce5ffb8998';
 const ROLLBAR_POST_SERVER_TOKEN = process.env.ROLLBAR_POST_SERVER_TOKEN;
 
 const VERSION_SHA = process.env.TRAVIS_COMMIT

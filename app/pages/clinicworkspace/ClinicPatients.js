@@ -17,6 +17,7 @@ import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import orderBy from 'lodash/orderBy';
+import pick from 'lodash/pick';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import without from 'lodash/without';
@@ -471,6 +472,8 @@ export const ClinicPatients = (props) => {
     [showSummaryData]
   );
 
+  const [activeSort, setActiveSort] = useLocalStorage('activePatientSort', pick(defaultPatientFetchOptions, ['sort', 'sortType']), true);
+
   const defaultSortOrders = useMemo(() => ({
     fullName: 'asc',
     birthDate: 'asc',
@@ -792,8 +795,8 @@ export const ClinicPatients = (props) => {
     if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters) && !isFirstRender && isEqual(activeSummaryPeriod, previousSummaryPeriod))) {
       const filterOptions = {
         offset: 0,
-        sort: patientFetchOptions.sort || defaultPatientFetchOptions.sort,
-        sortType: patientFetchOptions.sortType || defaultPatientFetchOptions.sortType,
+        sort: patientFetchOptions.sort || (showSummaryData && activeSort?.sort ? activeSort.sort : defaultPatientFetchOptions.sort),
+        sortType: patientFetchOptions.sortType || (showSummaryData && activeSort?.sortType ? activeSort.sortType : defaultPatientFetchOptions.sortType),
         period: activeSummaryPeriod,
         limit: 50,
         search: patientFetchOptions.search,
@@ -869,6 +872,7 @@ export const ClinicPatients = (props) => {
       }
     }
   }, [
+    activeSort,
     activeFilters,
     clinic?.id,
     clinic?.tier,
@@ -880,6 +884,7 @@ export const ClinicPatients = (props) => {
     previousClinic?.id,
     previousSummaryPeriod,
     activeSummaryPeriod,
+    showSummaryData,
     timePrefs,
   ]);
 
@@ -1008,11 +1013,12 @@ export const ClinicPatients = (props) => {
     const currentOrderBy = sort.substring(1);
     let newOrder = defaultSortOrders[fieldKey] === 'desc' ? '-' : '+';
     if (newOrderBy === currentOrderBy) newOrder = currentOrder === '+' ? '-' : '+';
+    const newSort = `${newOrder}${newOrderBy}`;
 
     setPatientFetchOptions(fetchOptions => ({
       ...fetchOptions,
       offset: 0,
-      sort: `${newOrder}${newOrderBy}`,
+      sort: newSort,
       sortType,
     }));
 
@@ -1027,6 +1033,7 @@ export const ClinicPatients = (props) => {
       };
 
       trackMetric(prefixPopHealthMetric(`${sortColumnLabels[newOrderBy]} sort ${order}`), { clinicId: selectedClinicId });
+      setActiveSort({ sort: newSort, sortType });
     }
   }, [
     defaultPatientFetchOptions.sort,
@@ -1037,6 +1044,7 @@ export const ClinicPatients = (props) => {
     showSummaryData,
     activeSummaryPeriod,
     trackMetric,
+    setActiveSort,
   ]);
 
   function handleClearSearch() {
