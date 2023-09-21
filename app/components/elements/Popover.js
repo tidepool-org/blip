@@ -13,6 +13,7 @@ import Icon from '../../components/elements/Icon';
 const StyledPopover = (Component) => styled(Component)`
   .MuiPopover-paper {
     font-family: ${fonts.default};
+    padding: ${({ padding = `${space[2]}px` }) => padding};
     margin-top: ${({ margintop = `${space[2]}px` }) => margintop};
     margin-left: ${({ marginleft = 0 }) => marginleft};
     margin-bottom: ${space[2]}px;
@@ -46,6 +47,7 @@ const Popover = props => {
     marginLeft,
     marginTop,
     onClickCloseIcon,
+    padding,
     ...popoverProps
   } = props;
 
@@ -65,6 +67,7 @@ const Popover = props => {
       marginleft={marginLeft}
       margintop={marginTop}
       minwidth={minWidth}
+      padding={padding}
       {...popoverProps}
     >
       {closeIcon && (

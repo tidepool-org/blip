@@ -15,6 +15,7 @@ import { push } from 'connected-react-router';
 import { worker } from '.';
 
 import utils from '../../core/utils';
+import mockTideDashboardPatients from '../../../test/fixtures/mockTideDashboardPatients.json';
 
 let win = window;
 
@@ -2741,6 +2742,46 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
 
       // Invoke callback if provided
       cb(err, info);
+    });
+  };
+}
+
+/**
+ * Fetch Patients for Tide Dashboard Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} [options] - report config options
+ * @param {Number} [options.period] - period to sort by (1d|7d|14d|30d)
+ * @param {Array} [options.tags] - Array of patient tag IDs
+ * @param {Number} [options.lastUploadDateFrom] - ISO date for start of last upload date filter range
+ * @param {Number} [options.lastUploadDateTo] - ISO date for end of last upload date filter range
+ */
+ export function fetchTideDashboardPatients(api, clinicId, options) {
+  return (dispatch) => {
+    dispatch(sync.fetchTideDashboardPatientsRequest());
+
+    // TODO: delete temp mocked data response
+    if (options.mockData) {
+      return setTimeout(() => {
+        return dispatch(sync.fetchTideDashboardPatientsSuccess({
+          ...mockTideDashboardPatients,
+          config: {
+            ...mockTideDashboardPatients.config,
+            ...options,
+          }
+        }));
+      }, 2000);
+    }
+
+    api.clinics.getPatientsForTideDashboard(clinicId, options, (err, results) => {
+      if (err) {
+        dispatch(sync.fetchTideDashboardPatientsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_TIDE_DASHBOARD_PATIENTS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchTideDashboardPatientsSuccess(results));
+      }
     });
   };
 }

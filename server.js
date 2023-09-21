@@ -104,6 +104,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://app.pendo.io',
       'https://data.pendo.io',
       'https://pendo-static-5707274877534208.storage.googleapis.com',
+      'https://*.launchdarkly.com',
     ]).filter(src => src !== undefined),
     frameAncestors: ['https://app.pendo.io', '*.tidepool.org', 'localhost:*']
   },

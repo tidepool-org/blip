@@ -95,6 +95,7 @@ export const Table = React.memo(props => {
   const {
     columns,
     data,
+    emptyContentNode,
     emptyText,
     id,
     label,
@@ -107,9 +108,16 @@ export const Table = React.memo(props => {
     orderBy: orderByProp,
     pagination,
     paginationProps,
-    containerStyles,
+    containerProps,
     ...tableProps
   } = props;
+
+  let EmptyContentNode = emptyContentNode;
+  if (!emptyContentNode && emptyText) {
+    EmptyContentNode = (
+      <Text p={3} fontSize={1} color="text.primary" className="table-empty-text" textAlign="center">{emptyText}</Text>
+    );
+  }
 
   const [order, setOrder] = useState(props.order || 'asc');
   const [orderBy, setOrderBy] = useState(orderByProp || columns[0].field);
@@ -170,7 +178,7 @@ export const Table = React.memo(props => {
   });
 
   return (
-    <Box as={TableContainer} style={containerStyles}>
+    <Box as={TableContainer} {...containerProps}>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
         <TableHead>
           <TableRow>
@@ -185,6 +193,7 @@ export const Table = React.memo(props => {
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
                   className={tableCellClassNames(undefined, col)}
+                  width={col.width}
                 >
                   <Box
                     className="table-header-inner-cell"
@@ -200,10 +209,7 @@ export const Table = React.memo(props => {
                         fontWeight="medium"
                         py="1px"
                         px="3px"
-                        sx={{
-                          borderRadius: radii.input,
-                          textTransform: 'none',
-                        }}
+                        sx={{ borderRadius: radii.input }}
                         colorPalette={['grays.4', 'white']}
                         text={col.tag}
                       />
@@ -256,7 +262,7 @@ export const Table = React.memo(props => {
         </TableBody>
       </Box>
 
-      {pagedData.length === 0 && emptyText && <Text p={3} fontSize={1} color="text.primary" className="table-empty-text" textAlign="center">{emptyText}</Text>}
+      {pagedData.length === 0 && EmptyContentNode && React.cloneElement(EmptyContentNode, {})}
 
       {pagination && <Pagination
         id={`${id}-pagination`}
@@ -292,6 +298,7 @@ Table.propTypes = {
   })).isRequired,
   data: PropTypes.array.isRequired,
   emptyText: PropTypes.string,
+  emptyContentNode: PropTypes.node,
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   onClickRow: PropTypes.func,
@@ -306,7 +313,7 @@ Table.propTypes = {
   onSort: PropTypes.func,
   stickyHeader: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'condensed']),
-  containerStyles: PropTypes.object,
+  containerProps: PropTypes.object,
 };
 
 Table.defaultProps = {
@@ -317,7 +324,7 @@ Table.defaultProps = {
   paginationProps: {
     style: { fontSize: '14px' },
   },
-  containerStyles: {},
+  containerProps: {},
 };
 
 export default Table;

@@ -34,6 +34,7 @@ import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
 import pendoMiddleware from '../utils/pendoMiddleware';
+import launchDarklyMiddleware from '../utils/launchDarklyMiddleware';
 import { keycloak, keycloakMiddleware } from '../../keycloak';
 import config from '../../config';
 
@@ -55,6 +56,7 @@ function _createStore(api) {
     createErrorLogger(api),
     trackingMiddleware(api),
     pendoMiddleware(api),
+    launchDarklyMiddleware(api),
     keycloakMiddleware(api),
   ];
   const createStoreWithMiddleware = applyMiddleware(...middlewares)(createStore);
