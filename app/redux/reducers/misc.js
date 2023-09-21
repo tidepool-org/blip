@@ -1043,6 +1043,21 @@ export const tideDashboardPatients = (state = initialState.tideDashboardPatients
   switch (action.type) {
     case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
       return action?.payload?.results || initialState.tideDashboardPatients;
+    case types.UPDATE_CLINIC_PATIENT_SUCCESS:
+      const patient = _.get(action.payload, 'patient');
+      const patientId = _.get(action.payload, 'patientId');
+
+      const newResults = _.reduce(state.results, (results, value, key) => {
+        const matchingPatientIndex = _.findIndex(value, ({ patient }) => patient?.id === patientId);
+        results[key] = _.cloneDeep(value);
+        if (matchingPatientIndex >= 0) results[key][matchingPatientIndex].patient = patient;
+        return results;
+      }, {});
+
+      return update(state, {
+        results: { $set: newResults },
+      });
+
     case types.LOGOUT_REQUEST:
     case types.CLEAR_TIDE_DASHBOARD_PATIENTS:
       return initialState.tideDashboardPatients;
