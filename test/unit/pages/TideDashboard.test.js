@@ -12,7 +12,6 @@ import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
 import LDClientMock from '../../fixtures/LDClientMock';
-import { utils as vizUtils } from '@tidepool/viz';
 
 /* global chai */
 /* global sinon */

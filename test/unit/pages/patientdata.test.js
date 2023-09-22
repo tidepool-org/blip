@@ -3613,6 +3613,54 @@ describe('PatientData', function () {
       });
     });
 
+    context('generating agpBGM query', () => {
+      it('should set the `endpoints` query from the `pdfOpts` arg', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.agpBGM.endpoints).to.eql('agpBGM endpoints');
+      });
+
+      it('should query the required `aggregationsByDate`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.agpBGM.aggregationsByDate).to.equal('dataByDate, statsByDate');
+      });
+
+      it('should query the required `types`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.agpBGM.types).to.eql({
+          smbg: {},
+        });
+      });
+
+      it('should query the required `stats`', () => {
+        instance.getStatsByChartType = sinon.stub().returns('agpBGM stats');
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getStatsByChartType, 'agpBGM');
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.agpBGM.stats).to.eql('agpBGM stats');
+      });
+
+      it('should query the required `bgSource` from `chartPrefs.agpBGM.bgSource` state', () => {
+        wrapper.setState({ chartPrefs: { agpBGM: { bgSource: 'agpBGM bgSource' } } });
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.agpBGM.bgSource).to.equal('agpBGM bgSource');
+      });
+
+      it('should query the required `commonQueries`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.agpBGM.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.agpBGM.metaData).to.equal(commonQueries.metaData);
+        expect(query.agpBGM.timePrefs).to.eql(commonQueries.timePrefs);
+      });
+    });
+
     context('generating basics query', () => {
       it('should set the `endpoints` query from the `pdfOpts` arg', () => {
         instance.generatePDF();
