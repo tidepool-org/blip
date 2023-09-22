@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
+import cx from 'classnames';
 import compact from 'lodash/compact';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -33,6 +34,7 @@ export const Tag = props => {
     onClickIcon,
     onDoubleClick,
     variant,
+    selected,
     sx = {},
     ...themeProps
   } = props;
@@ -50,6 +52,11 @@ export const Tag = props => {
     ...sx,
   };
 
+  const classNames = cx({
+    selected,
+    'tag-text': true,
+  });
+
   return (
     <Flex
       id={id}
@@ -60,7 +67,7 @@ export const Tag = props => {
       sx={styles}
       {...themeProps}
     >
-      <Text className="tag-text" as="span">
+      <Text className={classNames} as="span">
         {name}
       </Text>
 
@@ -96,6 +103,7 @@ Tag.propTypes = {
   iconSrc: PropTypes.string,
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  selected: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'compact']),
 };
 
@@ -106,14 +114,24 @@ Tag.defaultProps = {
 };
 
 export const TagList = translate()(props => {
-  const { popupId, tags, onClickEdit, maxCharactersVisible, tagProps, t, ...themeProps } = props;
+  const {
+    popupId,
+    tags,
+    onClickEdit,
+    maxCharactersVisible,
+    tagProps,
+    selectedTagProps,
+    t,
+    ...themeProps
+  } = props;
+
   const anchorRef = React.useRef();
   const visibleTags = [];
   const hiddenTags = [];
 
   if (maxCharactersVisible) {
     reduce(tags, (remainingChars, { name = '' }, i) => {
-      const tagArray = (name.length <= remainingChars) ? visibleTags : hiddenTags;
+      const tagArray = (name.length <= remainingChars || i === 0) ? visibleTags : hiddenTags;
       if (tags[i]) tagArray.push(tags[i]);
       return remainingChars - name.length;
     }, maxCharactersVisible);
@@ -170,7 +188,9 @@ export const TagList = translate()(props => {
           id={tag.id}
           key={tag.id}
           name={tag.name}
+          selected={tag.selected}
           {...tagProps}
+          {...(tag.selected ? selectedTagProps : {})}
         />
       ))}
 
@@ -215,6 +235,7 @@ export const TagList = translate()(props => {
                   key={tag.id}
                   name={tag.name}
                   {...tagProps}
+                  {...(tag.selected ? selectedTagProps : {})}
                 />
               ))}
             </Flex>
@@ -243,6 +264,7 @@ TagList.defaultProps = {
   tagVariant: 'default',
   tags: [],
   tagProps: {},
+  selectedTagProps: {},
 };
 
 export default Tag;

@@ -18,9 +18,11 @@ import {
   getFetchers,
 } from '../../../app/pages/app/app.js';
 import initialState from '../../../app/redux/reducers/initialState';
+import LDClientMock from '../../fixtures/LDClientMock';
 
 import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
 
+var AppWrapper = require('../../../app/pages/app/app.js');
 var App = require('../../../app/pages/app/app.js').AppComponent;
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
@@ -29,6 +31,12 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 describe('App', () => {
+
+  const defaultLDContext = {
+    kind: 'multi',
+    user: { key: 'anon' },
+    clinic: { key: 'none' },
+  };
 
   api.log = sinon.stub();
 
@@ -42,6 +50,7 @@ describe('App', () => {
       trackMetric: sinon.stub(),
     },
     updateShareDataBannerSeen: sinon.stub(),
+    ldClient: new LDClientMock(defaultLDContext),
   };
 
   describe('constructor', () => {
@@ -385,6 +394,48 @@ describe('App', () => {
       props.showBanner.reset();
       props.hideBanner.reset();
       props.context.trackMetric.reset();
+    });
+
+    context('LaunchDarkly context', () => {
+      afterEach(() => {
+        AppWrapper.__ResetDependency__('ldContext');
+      });
+
+      it('should update the LaunchDarkly client context when the user context changes', () => {
+        let updatedLDContext= {
+          ...defaultLDContext,
+          user: { key: 'patient123' },
+        };;
+
+        AppWrapper.__Rewire__('ldContext', updatedLDContext);
+
+        const ldClient = new LDClientMock(defaultLDContext);
+        ldClient.identify = sinon.stub();
+
+        wrapper.setProps({
+          ldClient,
+        });
+
+        sinon.assert.calledWith(ldClient.identify, updatedLDContext);
+      });
+
+      it('should update the LaunchDarkly client context when the clinic context changes', () => {
+        let updatedLDContext= {
+          ...defaultLDContext,
+          clinic: { key: 'clinic123' },
+        };;
+
+        AppWrapper.__Rewire__('ldContext', updatedLDContext);
+
+        const ldClient = new LDClientMock(defaultLDContext);
+        ldClient.identify = sinon.stub();
+
+        wrapper.setProps({
+          ldClient,
+        });
+
+        sinon.assert.calledWith(ldClient.identify, updatedLDContext);
+      });
     });
 
     context('user has uploaded data, dismissed the uploader banner, and has not shared data with a clinician', () => {

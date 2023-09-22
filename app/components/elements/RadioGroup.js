@@ -60,7 +60,7 @@ const Radio = (props) => {
   });
 
   return (
-    <Label width="auto" mb={2} alignItems="flex-start">
+    <Label width="auto" mb={2} sx={{ '&:last-child': { mb: 0 } }} alignItems="flex-start">
       <Box minWidth="auto">
         <StyledRadio ref={innerRef} className={classNames} {...radioProps} />
       </Box>
