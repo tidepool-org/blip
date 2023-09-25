@@ -18793,10 +18793,10 @@ tideline@1.27.0:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.52.0:
-  version "0.52.0"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.52.0.tgz#72503419e934abfc146f2afddefa5bcdab49f3be"
-  integrity sha512-lh8MB2IF+6bjR4dlNUQmO0dZXre8T7bMFft7nhfe70OHVZDw/V+DVHDE9ly9lLbLZrKTmuc+bhlb1wf6FM66/w==
+tidepool-platform-client@0.53.0:
+  version "0.53.0"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.53.0.tgz#0cff3fe1fbf53e613af86e150a477e9bb243d491"
+  integrity sha512-oXYJ5AyecKXeAUGUCR7W1AfwJmRT5wcujtNT1YVy39ZxB2bHTV+H56y/Y1l0d3z7uNhTSlp7VMMy47Mu+4+SOQ==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"

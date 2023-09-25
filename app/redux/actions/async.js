@@ -1764,6 +1764,12 @@ export function getAllClinics(api, options = {}, cb = _.noop) {
         ));
       } else {
         dispatch(sync.getClinicsSuccess(clinics, options));
+
+        // for each fetched clinic, get EHR and MRN settings
+        _.forEach(clinics, clinic => {
+          dispatch(fetchClinicEHRSettings(api, clinic.id));
+          dispatch(fetchClinicMRNSettings(api, clinic.id));
+        });
       }
     });
   };
@@ -1826,6 +1832,9 @@ export function fetchClinic(api, clinicId) {
         ));
       } else {
         dispatch(sync.fetchClinicSuccess(clinic));
+        // fill in EHR and MRN settings
+        dispatch(fetchClinicEHRSettings(api, clinic.id));
+        dispatch(fetchClinicMRNSettings(api, clinic.id));
       }
     });
   };
@@ -1858,6 +1867,11 @@ export function fetchClinicsByIds(api, clinicIds) {
         ));
       } else {
         dispatch(sync.fetchClinicsByIdsSuccess(resultsVal));
+        // for each fetched clinic, get EHR and MRN settings
+        _.forEach(resultsVal, clinic => {
+          dispatch(fetchClinicEHRSettings(api, clinic.id));
+          dispatch(fetchClinicMRNSettings(api, clinic.id));
+        });
       }
     });
   };
@@ -2426,6 +2440,50 @@ export function updatePatientPermissions(api, clinicId, patientId, permissions) 
 }
 
 /**
+ * Fetch Clinic MRN Settings Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchClinicMRNSettings(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicMRNSettingsRequest());
+
+    api.clinics.getMRNSettings(clinicId, (err, settings) => {
+      if (err) {
+        dispatch(sync.fetchClinicMRNSettingsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINIC_MRN_SETTINGS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicMRNSettingsSuccess(clinicId, settings));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Clinic EHR Settings Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchClinicEHRSettings(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicEHRSettingsRequest());
+
+    api.clinics.getEHRSettings(clinicId, (err, settings) => {
+      if (err) {
+        dispatch(sync.fetchClinicEHRSettingsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINIC_EHR_SETTINGS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicEHRSettingsSuccess(clinicId, settings));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Clinics For Patient Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
@@ -2543,6 +2601,11 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
       } else {
         dispatch(sync.getClinicsForClinicianSuccess(clinics, clinicianId, options));
       }
+      // fetch EHR and MRN settings for clinics
+      _.each(clinics, (clinic) => {
+        dispatch(fetchClinicEHRSettings(api, clinic.clinic.id));
+        dispatch(fetchClinicMRNSettings(api, clinic.clinic.id));
+      });
     });
   };
 }

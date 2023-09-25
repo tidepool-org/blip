@@ -273,7 +273,7 @@ export const ClinicianPatients = (props) => {
             variant="primary"
             onClick={handleAddPatientConfirm}
             processing={creatingVCACustodialAccount.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema(), patientFormContext?.values)}
           >
             {t('Add Patient')}
           </Button>
@@ -308,7 +308,7 @@ export const ClinicianPatients = (props) => {
             variant="primary"
             onClick={handleEditPatientConfirm}
             processing={updatingPatient.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema(), patientFormContext?.values)}
           >
             {t('Save Changes')}
           </Button>
