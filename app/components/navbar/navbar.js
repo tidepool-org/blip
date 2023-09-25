@@ -35,9 +35,20 @@ export default translate()(class extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
-    const patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
-    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage);
+    const { t, query } = this.props;
+    let patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
+    if (query?.dashboard) patientListLink = `/dashboard/${query.dashboard}`;
+
+    const linkText = query?.dashboard
+      ? t('Back to Dashboard')
+      : t('Back to Patient List');
+
+    const isDashboardView = /^\/dashboard\//.test(this.props.currentPage);
+
+    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && (
+      /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage) ||
+      isDashboardView
+    );
 
     return (
       <>
@@ -69,11 +80,11 @@ export default translate()(class extends React.Component {
               id="patientListLink"
               onClick={() => this.props.trackMetric('Clinic - View patient list', {
                 clinicId: this.props.selectedClinicId,
-                source: 'Patient data',
+                source: isDashboardView ? 'Dashboard' : 'Patient data',
               })}
               sx={{ display: 'inline-flex !important' }}
             >
-              {t('Back to Patient List')}
+              {linkText}
             </Button>
           </Link>
         )}
@@ -137,7 +148,7 @@ export default translate()(class extends React.Component {
           '/clinic-workspace/patients',
           '/clinic-workspace/invites',
           '/clinic-workspace/prescriptions',
-          '/clinician-edit'
+          '/clinician-edit',
         ], this.props.currentPage) && personUtils.isClinicianAccount(this.props.user)
       ) {
         return (

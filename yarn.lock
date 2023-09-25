@@ -3044,13 +3044,13 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.35.0":
-  version "1.35.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.35.0.tgz#9c550a7fcc02e497f0018804d2157f703f73372a"
-  integrity sha512-ZosPqGeoqJ+FpaPv2nCWpYsHZE/988/5j5jLNo8lohNZyRqCoKdK0CRtFAhLYfeqeUSGxd6SUDcm2+1RySSqrg==
+"@tidepool/viz@1.36.0":
+  version "1.36.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.36.0.tgz#c097779b02d6cdaf2b8efb0745fc438515694049"
+  integrity sha512-szP3cDbT074rY/gbhqQxCPrPAtq4ZsOloCgF+2x99ogZp2d1piAPzuu6FIXYQB54FQKDqjs4RRxtA1Rpuo5qGg==
   dependencies:
     bluebird "3.5.2"
-    bows "1.7.0"
+    bows "1.7.2"
     classnames "2.2.6"
     crossfilter2 "1.5.2"
     d3-array "1.2.4"
@@ -3069,7 +3069,6 @@
     moment "2.29.4"
     moment-timezone "0.5.21"
     parse-svg-path "0.1.2"
-    plotly.js-basic-dist-min "2.20.0"
     prop-types "15.6.2"
     react "16.12.0"
     react-clipboard.js "2.0.16"
@@ -3807,7 +3806,7 @@ amdefine@>=0.0.4:
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
 
-andlog@^1.0.0:
+andlog@^1.0.0, andlog@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/andlog/-/andlog-1.0.2.tgz#0e77a44f62a782be3a78a7527beb5761c183f044"
   integrity sha512-ne6ibcbv3wqZHzbXarG7NfOpU2ai5ao6429ocq1betBBDDx7KE7R6k0IIeaT29JNko0lA88yVzHRRuxX2wpkHQ==
@@ -4924,6 +4923,13 @@ bows@1.7.0:
   integrity sha1-o1mO2c72GnoMqxpyQPKRZUhl7HY=
   dependencies:
     andlog "^1.0.0"
+
+bows@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/bows/-/bows-1.7.2.tgz#4deb95d5b78049794cce925a869155b722d2d516"
+  integrity sha512-AeIQNXbTstXOPjIBol9oTnaaO/2ByuExio0AEIx8vqOIJnAAWFfbWWzh7YPiSKYAxJNTjcy+J+xH2jCRb460Yw==
+  dependencies:
+    andlog "^1.0.2"
 
 bowser@2.9.0:
   version "2.9.0"
@@ -7855,6 +7861,11 @@ escape-string-regexp@1.0.5, escape-string-regexp@^1.0.2, escape-string-regexp@^1
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
+
+escape-string-regexp@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz#14ba83a5d373e3d311e5afca29cf5bfad965bf34"
+  integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
 
 escodegen@1.8.x:
   version "1.8.1"
@@ -11714,6 +11725,32 @@ latest-version@^3.0.0:
   dependencies:
     package-json "^4.0.0"
 
+launchdarkly-js-client-sdk@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/launchdarkly-js-client-sdk/-/launchdarkly-js-client-sdk-3.1.3.tgz#e046439f0e4f0bfd6d38b9eaa4420a6e40ffc0c7"
+  integrity sha512-/JR/ri8z3bEj9RFTTKDjd+con4F1MsWUea1MmBDtFj4gDA0l9NDm1KzhMKiIeoBdmB2rSaeFYe4CaYOEp8IryA==
+  dependencies:
+    escape-string-regexp "^4.0.0"
+    launchdarkly-js-sdk-common "5.0.3"
+
+launchdarkly-js-sdk-common@5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/launchdarkly-js-sdk-common/-/launchdarkly-js-sdk-common-5.0.3.tgz#345f899f5779be8b03d6599978c855eb838d8b7f"
+  integrity sha512-wKG8UsVbPVq8+7eavgAm5CVmulQWN6Ddod2ZoA3euZ1zPvJPwIQ2GrOYaCJr3cFrrMIX+nQyBJHBHYxUAPcM+Q==
+  dependencies:
+    base64-js "^1.3.0"
+    fast-deep-equal "^2.0.1"
+    uuid "^8.0.0"
+
+launchdarkly-react-client-sdk@3.0.7:
+  version "3.0.7"
+  resolved "https://registry.yarnpkg.com/launchdarkly-react-client-sdk/-/launchdarkly-react-client-sdk-3.0.7.tgz#54c60223fdcbbfe7636c763c6ed3fbc033816346"
+  integrity sha512-P80GrwvT30eMjRgFtXn1iw6bHdgUA32OX6GpNsJMUbaTMgnrfNyf7D2Zqc07XggHe5aNTumqgArVmOZt7p2Egg==
+  dependencies:
+    hoist-non-react-statics "^3.3.2"
+    launchdarkly-js-client-sdk "^3.1.3"
+    lodash.camelcase "^4.3.0"
+
 lazy-cache@^0.2.3:
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/lazy-cache/-/lazy-cache-0.2.7.tgz#7feddf2dcb6edb77d11ef1d117ab5ffdf0ab1b65"
@@ -14391,11 +14428,6 @@ pkg-up@2.0.0:
   integrity sha1-yBmscoBZpGHKscOImivjxJoATX8=
   dependencies:
     find-up "^2.1.0"
-
-plotly.js-basic-dist-min@2.20.0:
-  version "2.20.0"
-  resolved "https://registry.yarnpkg.com/plotly.js-basic-dist-min/-/plotly.js-basic-dist-min-2.20.0.tgz#9dcb93259b54cecde2faf9df466b5b901291a070"
-  integrity sha512-9lg4HsNtazmev5t/BNiA8iDcQcuuVOI4zyt2pgeZvout2eYIhDcYqT9X4+1UquSPUNTt72xsphFzRCX300jDVw==
 
 pn@^1.1.0:
   version "1.1.0"
@@ -18793,10 +18825,10 @@ tideline@1.27.0:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.53.0:
-  version "0.53.0"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.53.0.tgz#0cff3fe1fbf53e613af86e150a477e9bb243d491"
-  integrity sha512-oXYJ5AyecKXeAUGUCR7W1AfwJmRT5wcujtNT1YVy39ZxB2bHTV+H56y/Y1l0d3z7uNhTSlp7VMMy47Mu+4+SOQ==
+tidepool-platform-client@0.54.0-rc.1:
+  version "0.54.0-rc.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.54.0-rc.1.tgz#a836f3e875f9d47c8ad270890681ac7e03cf6f62"
+  integrity sha512-ham16eoUyNKschSFBLAXT6E5A/8uszY0txyZ5eNvmYd3FfTrcM7ZCZMCmCelc3oLLJ2u+1t9k+4fgJgCS7SygA==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
@@ -19556,6 +19588,11 @@ uuid@^3.0.0, uuid@^3.0.1, uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
+
+uuid@^8.0.0:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 v8-compile-cache@2.0.3:
   version "2.0.3"

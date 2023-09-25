@@ -42,7 +42,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
     },
     '&:disabled': {
       backgroundColor: colors.lightestGrey,
-      borderColor: colors.lightestGrey,
+      borderColor: colors.lightGrey,
       color: colors.text.primaryDisabled,
     },
   };

@@ -86,6 +86,20 @@ describe('Navbar', ()  => {
       wrapper = shallow(<Navbar.WrappedComponent {...clinicClinicianProps} currentPage="/patients/abc123/profile" selectedClinicId={null} />);
       expect(wrapper.find('Link[to="/patients"]')).to.have.lengthOf(1); // If selectedClinicId is null, we redirect to the standard patient list URL
     });
+
+    it('should render a patient list link when viewing the TIDE dashboard view as a clinic clinician', () => {
+      const clinicClinicianProps = {
+        ...props,
+        clinicFlowActive: true,
+        user: {
+          isClinicMember: true,
+        },
+        selectedClinicId: 'clinic123',
+      };
+
+      wrapper = shallow(<Navbar.WrappedComponent {...clinicClinicianProps} currentPage="/dashboard/tide" />);
+      expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(1);
+    });
   });
 
   describe('interactions', () => {

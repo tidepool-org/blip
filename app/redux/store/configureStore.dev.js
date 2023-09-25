@@ -39,6 +39,7 @@ import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
 import pendoMiddleware from '../utils/pendoMiddleware';
+import launchDarklyMiddleware from '../utils/launchDarklyMiddleware';
 import { keycloakMiddleware } from '../../keycloak';
 
 function getDebugSessionKey() {
@@ -71,6 +72,7 @@ if (!__DEV_TOOLS__) {
       createErrorLogger(api),
       trackingMiddleware(api),
       pendoMiddleware(api),
+      launchDarklyMiddleware(api),
       keycloakMiddleware(api),
     ];
     return compose(
@@ -89,6 +91,7 @@ if (!__DEV_TOOLS__) {
       createErrorLogger(api),
       trackingMiddleware(api),
       pendoMiddleware(api),
+      launchDarklyMiddleware(api),
       mutationTracker(),
       keycloakMiddleware(api),
     ];

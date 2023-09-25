@@ -5,6 +5,7 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
 import noop from 'lodash/noop';
+import defaults from 'lodash/defaults';
 import moment from 'moment';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
@@ -12,6 +13,7 @@ import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
 import Popover from '../../../app/components/elements/Popover';
 import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 import Button from '../../../app/components/elements/Button';
+import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 
 /* global chai */
 /* global sinon */
@@ -57,6 +59,7 @@ describe('ClinicPatients', () => {
 
   beforeEach(() => {
     delete localStorage.activePatientFilters;
+    delete localStorage.activePatientSort;
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.getPatientFromClinic.resetHistory();
     defaultProps.api.clinics.getPatientsForClinic.resetHistory();
@@ -122,6 +125,7 @@ describe('ClinicPatients', () => {
         creatingClinicPatientTag: defaultWorkingState,
         updatingClinicPatientTag: defaultWorkingState,
         deletingClinicPatientTag: defaultWorkingState,
+        fetchingTideDashboardPatients: defaultWorkingState,
       },
     },
   };
@@ -310,7 +314,7 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS, value: 10.5 },
+                    averageGlucoseMmol: 10.5,
                     averageDailyRecords: 0.25,
                     timeInVeryLowRecords: 1,
                     timeInVeryHighRecords: 2,
@@ -321,7 +325,6 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS },
                     timeCGMUsePercent: 0.85,
                     timeCGMUseMinutes: 23 * 60,
                     glucoseManagementIndicator: 7.75,
@@ -343,7 +346,7 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS, value: 11.5 },
+                    averageGlucoseMmol: 11.5,
                     averageDailyRecords: 1.25,
                     timeInVeryLowRecords: 3,
                     timeInVeryHighRecords: 4,
@@ -355,25 +358,21 @@ describe('ClinicPatients', () => {
                   },
                   periods: {
                     '30d': {
-                      averageGlucose: { units: MGDL_UNITS },
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 7.5,
                     },
                     '14d': {
-                      averageGlucose: { units: MGDL_UNITS },
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 6.5,
                     },
                     '7d': {
-                      averageGlucose: { units: MGDL_UNITS },
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 5.5,
                     },
                     '1d': {
-                      averageGlucose: { units: MGDL_UNITS },
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 4.5,
@@ -395,7 +394,7 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(1, 'day').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS, value: 12.5 },
+                    averageGlucoseMmol: 12.5,
                     averageDailyRecords: 1.5,
                     timeInVeryLowRecords: 0,
                     timeInVeryHighRecords: 0,
@@ -406,7 +405,6 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(29, 'days').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MMOLL_UNITS },
                     timeCGMUsePercent: 0.69,
                     timeCGMUseMinutes:  7 * 24 * 60,
                     glucoseManagementIndicator: 8.5,
@@ -426,7 +424,6 @@ describe('ClinicPatients', () => {
                     lastUploadDate: moment().subtract(30, 'days').toISOString(),
                   },
                   periods: { '14d': {
-                    averageGlucose: { units: MGDL_UNITS },
                     timeCGMUsePercent: 0.69,
                     timeCGMUseMinutes:  30 * 24 * 60,
                     glucoseManagementIndicator: 8.5,
@@ -1329,7 +1326,7 @@ describe('ClinicPatients', () => {
           assert(columns.at(7).is('#peopleTable-header-bgmTag'));
 
           expect(columns.at(8).text()).to.equal('Avg. Glucose (mg/dL)');
-          assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucose'));
+          assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucoseMmol'));
 
           expect(columns.at(9).text()).to.equal('Lows');
           assert(columns.at(9).is('#peopleTable-header-bgm-timeInVeryLowRecords'));
@@ -1449,15 +1446,15 @@ describe('ClinicPatients', () => {
           gmiHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator', sortType: 'cgm' }));
 
-          const averageGlucoseHeader = table.find('#peopleTable-header-bgm-averageGlucose .MuiTableSortLabel-root').at(0);
+          const averageGlucoseHeader = table.find('#peopleTable-header-bgm-averageGlucoseMmol .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           averageGlucoseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-averageGlucose', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-averageGlucoseMmol', sortType: 'bgm' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           averageGlucoseHeader.simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+averageGlucose', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+averageGlucoseMmol', sortType: 'bgm' }));
 
           const lowsHeader = table.find('#peopleTable-header-bgm-timeInVeryLowRecords .MuiTableSortLabel-root').at(0);
 
@@ -1834,6 +1831,7 @@ describe('ClinicPatients', () => {
             };
 
             ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
               return [
                 mockedLocalStorage[key],
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
@@ -1976,6 +1974,7 @@ describe('ClinicPatients', () => {
             };
 
             ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
               return [
                 mockedLocalStorage[key],
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
@@ -2066,6 +2065,69 @@ describe('ClinicPatients', () => {
           });
         });
 
+        context('persisted sort state', () => {
+          let mockedLocalStorage;
+
+          beforeEach(() => {
+            store = mockStore(tier0300ClinicState);
+
+            mockedLocalStorage = {
+              activePatientFilters: {
+                timeInRange: [
+                    'timeInLowPercent',
+                    'timeInHighPercent'
+                ],
+                patientTags: [],
+                meetsGlycemicTargets: false,
+              },
+              activePatientSummaryPeriod: '14d',
+              activePatientSort: {
+                sort: '-averageGlucoseMmol',
+                sortType: 'bgm',
+              },
+            };
+
+            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            defaultProps.trackMetric.resetHistory();
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useLocalStorage');
+          });
+
+          it('should set the table sort UI based on the the sort params from localStorage', () => {
+
+            const activeSortLable = wrapper.find('.MuiTableSortLabel-active').hostNodes();
+            console.log(wrapper.find('.MuiTable').debug())
+            expect(activeSortLable.text()).to.equal('Avg. Glucose (mg/dL)');
+            expect(activeSortLable.find('.MuiTableSortLabel-iconDirectionDesc').hostNodes()).to.have.lengthOf(1);
+          });
+
+
+          it('should use the stored sort parameters when fetching the initial patient list', () => {
+            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
+              ...defaultFetchOptions,
+              sort: '-averageGlucose',
+              sortType: 'bgm',
+            }));
+          });
+        });
+
         context('mmol/L preferredBgUnits', () => {
           beforeEach(() => {
             store = mockStore(tier0300ClinicStateMmoll);
@@ -2089,7 +2151,7 @@ describe('ClinicPatients', () => {
             const columns = table.find('.MuiTableCell-head');
 
             expect(columns.at(8).text()).to.equal('Avg. Glucose (mmol/L)');
-            assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucose'));
+            assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucoseMmol'));
 
             const rows = table.find('tbody tr');
             expect(rows).to.have.lengthOf(5);
@@ -2593,7 +2655,7 @@ describe('ClinicPatients', () => {
                       lastUploadDate: sinon.match.string,
                     },
                     periods: { '14d': {
-                      averageGlucose: { units: MMOLL_UNITS, value: 10.5 },
+                      averageGlucoseMmol: 10.5,
                       averageDailyRecords: 0.25,
                       timeInVeryLowRecords: 1,
                       timeInVeryHighRecords: 2,
@@ -2605,7 +2667,6 @@ describe('ClinicPatients', () => {
                     },
                     periods: {
                       '14d': {
-                        averageGlucose: { units: 'mmol/L' },
                         glucoseManagementIndicator: 7.75,
                         timeCGMUseMinutes: 1380,
                         timeCGMUsePercent: 0.85,
@@ -2632,6 +2693,316 @@ describe('ClinicPatients', () => {
             done();
           }, 0);
         })
+      });
+
+      describe('Accessing TIDE dashboard', () => {
+        let mockedLocalStorage;
+
+        context('showTideDashboard flag is true', () => {
+          beforeEach(() => {
+            store = mockStore(tier0300ClinicState);
+            mockedLocalStorage = {};
+
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showTideDashboard: true,
+            }));
+
+            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
+
+            TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
+
+            TideDashboardConfigForm.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            defaultProps.trackMetric.resetHistory();
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useLocalStorage');
+            TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
+            TideDashboardConfigForm.__ResetDependency__('useLocation');
+          });
+
+          it('should render the TIDE Dashboard CTA', () => {
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(1);
+            expect(tideDashboardButton.props().disabled).to.be.false;
+          });
+
+          it('should disable the TIDE Dashboard CTA if clinic has no patient tags defined', () => {
+            store = mockStore({
+              blip: {
+                ...tier0300ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0300ClinicState.blip.clinics.clinicID123,
+                    patientTags: [],
+                  },
+                },
+              },
+            });
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(1);
+            expect(tideDashboardButton.props().disabled).to.be.true;
+          });
+
+          it('should not render the TIDE Dashboard CTA if clinic tier < tier0300', () => {
+            store = mockStore(tier0100ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(0);
+          });
+
+          it('should open a modal to configure the dashboard, and redirect when configured', done => {
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
+
+            // Open dashboard config popover
+            expect(dialog()).to.have.length(0);
+            tideDashboardButton.simulate('click');
+            wrapper.update();
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.true;
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+            // Ensure tag options present
+            const tags = dialog().find('.tag-text').hostNodes();
+            expect(tags).to.have.lengthOf(3);
+            expect(tags.at(0).text()).to.equal('test tag 1');
+            expect(tags.at(1).text()).to.equal('test tag 2');
+            expect(tags.at(2).text()).to.equal('test tag 3');
+
+            // No initial selected tags
+            const selectedTags = () => dialog().find('.tag-text.selected').hostNodes();
+            expect(selectedTags()).to.have.length(0);
+
+            // Apply button disabled until tag, upload date, and report period selections made
+            const applyButton = () => dialog().find('#configureTideDashboardConfirm').hostNodes();
+            expect(applyButton().props().disabled).to.be.true;
+
+            tags.at(0).hostNodes().simulate('click');
+            tags.at(2).hostNodes().simulate('click');
+
+            // Tags should now be selected
+            expect(selectedTags()).to.have.lengthOf(2);
+            expect(selectedTags().at(0).text()).to.equal('test tag 1');
+            expect(selectedTags().at(1).text()).to.equal('test tag 3');
+
+            // Ensure period filter options present
+            const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
+            expect(summaryPeriodOptions).to.have.lengthOf(4);
+
+            expect(summaryPeriodOptions.at(0).text()).to.equal('24 hours');
+            expect(summaryPeriodOptions.at(0).find('input').props().value).to.equal('1d');
+
+            expect(summaryPeriodOptions.at(1).text()).to.equal('7 days');
+            expect(summaryPeriodOptions.at(1).find('input').props().value).to.equal('7d');
+
+            expect(summaryPeriodOptions.at(2).text()).to.equal('14 days');
+            expect(summaryPeriodOptions.at(2).find('input').props().value).to.equal('14d');
+
+            expect(summaryPeriodOptions.at(3).text()).to.equal('30 days');
+            expect(summaryPeriodOptions.at(3).find('input').props().value).to.equal('30d');
+
+            summaryPeriodOptions.at(3).find('input').last().simulate('change', { target: { name: 'period', value: '30d' } });
+
+            // Apply button should still be disabled
+            expect(applyButton().props().disabled).to.be.true;
+
+            // Ensure period filter options present
+            const lastUploadDateFilterOptions = dialog().find('#lastUpload').find('label').hostNodes();
+            expect(lastUploadDateFilterOptions).to.have.lengthOf(5);
+
+            expect(lastUploadDateFilterOptions.at(0).text()).to.equal('Today');
+            expect(lastUploadDateFilterOptions.at(0).find('input').props().value).to.equal('1');
+
+            expect(lastUploadDateFilterOptions.at(1).text()).to.equal('Last 2 days');
+            expect(lastUploadDateFilterOptions.at(1).find('input').props().value).to.equal('2');
+
+            expect(lastUploadDateFilterOptions.at(2).text()).to.equal('Last 7 days');
+            expect(lastUploadDateFilterOptions.at(2).find('input').props().value).to.equal('7');
+
+            expect(lastUploadDateFilterOptions.at(3).text()).to.equal('Last 14 days');
+            expect(lastUploadDateFilterOptions.at(3).find('input').props().value).to.equal('14');
+
+            expect(lastUploadDateFilterOptions.at(4).text()).to.equal('Last 30 days');
+            expect(lastUploadDateFilterOptions.at(4).find('input').props().value).to.equal('30');
+
+            lastUploadDateFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'lastUpload', value: 14 } });
+
+            // Apply button should now be active
+            expect(applyButton().props().disabled).to.be.false;
+
+            // Submit the form
+            store.clearActions();
+            applyButton().simulate('click');
+
+            // Should redirect to the Tide dashboard after saving the dashboard opts to localStorage,
+            // keyed to clinician|clinic IDs
+            setTimeout(() => {
+              expect(store.getActions()).to.eql([
+                {
+                  type: '@@router/CALL_HISTORY_METHOD',
+                  payload: { method: 'push', args: ['/dashboard/tide']}
+                },
+              ]);
+
+              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog confirmed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+              expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
+                period: '30d',
+                lastUpload: 14,
+                tags: ['tag1', 'tag3'],
+              });
+
+              done();
+            });
+          });
+
+          it('should redirect right away to the dashboard if a valid configuration exists in localStorage', () => {
+            mockedLocalStorage = {
+              tideDashboardConfig: {
+                'clinicianUserId123|clinicID123': {
+                  period: '30d',
+                  lastUpload: 14,
+                  tags: ['tag1', 'tag3'],
+                },
+              },
+            };
+
+            TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            defaultProps.trackMetric.resetHistory();
+            store.clearActions();
+
+            // Click the dashboard button
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(1);
+            tideDashboardButton.simulate('click');
+
+            expect(store.getActions()).to.eql([
+              {
+                type: '@@router/CALL_HISTORY_METHOD',
+                payload: { method: 'push', args: ['/dashboard/tide']}
+              },
+            ]);
+
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Navigate to Tide Dashboard', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+          });
+
+          it('should open the config modal if an invalid configuration exists in localStorage', () => {
+            mockedLocalStorage = {
+              tideDashboardConfig: {
+                'clinicianUserId123|clinicID123': {
+                  period: '30d',
+                  lastUpload: 14,
+                  tags: [], // invalid: no tags selected
+                },
+              },
+            };
+
+            TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+              defaults(mockedLocalStorage, { [key]: {} })
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            defaultProps.trackMetric.resetHistory();
+            store.clearActions();
+
+            // Click the dashboard button
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
+
+            // Open dashboard config popover
+            expect(dialog()).to.have.length(0);
+            tideDashboardButton.simulate('click');
+            wrapper.update();
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.true;
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+          });
+        });
+
+        context('showTideDashboard flag is false', () => {
+          beforeEach(() => {
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showTideDashboard: false,
+            }));
+          });
+
+          it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {
+            store = mockStore(tier0300ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
+            expect(tideDashboardButton).to.have.length(0);
+          });
+        });
       });
 
       context('non-admin clinician', () => {
