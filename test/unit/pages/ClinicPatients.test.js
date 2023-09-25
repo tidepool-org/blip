@@ -2122,7 +2122,7 @@ describe('ClinicPatients', () => {
           it('should use the stored sort parameters when fetching the initial patient list', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               ...defaultFetchOptions,
-              sort: '-averageGlucose',
+              sort: '-averageGlucoseMmol',
               sortType: 'bgm',
             }));
           });
