@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.69.0-web-2479-ssr-pdf.4",
+  "version": "1.71.0-web-2387-agp-bgm.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/karma/bin/karma start",
