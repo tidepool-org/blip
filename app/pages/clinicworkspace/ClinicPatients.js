@@ -2841,7 +2841,7 @@ export const ClinicPatients = (props) => {
             field: 'bgm.averageGlucoseMmol',
             align: 'left',
             sortable: true,
-            defaultOrder: defaultSortOrders.averageGlucose,
+            defaultOrder: defaultSortOrders.averageGlucoseMmol,
             sortBy: 'averageGlucoseMmol',
             render: renderAverageGlucose,
             className: 'group-left',
