@@ -568,6 +568,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -616,6 +618,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -667,6 +671,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -718,6 +724,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -768,6 +776,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -818,6 +828,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -859,6 +871,8 @@ describe('Actions', () => {
         let patient;
         let patients;
         let setAPIData;
+        let clinicEHRSettings;
+        let clinicMRNSettings;
 
         beforeEach(() => {
           creds = { username: 'bruce', password: 'wayne' };
@@ -872,6 +886,8 @@ describe('Actions', () => {
             user = _.get(returnData, 'user', user);
             patient = _.get(returnData, 'patient', patient);
             patients = _.get(returnData, 'patients', patients);
+            clinicEHRSettings = _.get(returnData, 'clinicEHRSettings', clinicEHRSettings);
+            clinicMRNSettings = _.get(returnData, 'clinicMRNSettings', clinicMRNSettings);
 
             api = {
               user: {
@@ -886,6 +902,8 @@ describe('Actions', () => {
               clinics: {
                 getClinicianInvites: sinon.stub().callsArgWith(1, invitesError, invites),
                 getClinicsForClinician: sinon.stub().callsArgWith(2, clinicsError, clinics),
+                getMRNSettings: sinon.stub().callsArgWith(1, null, clinicMRNSettings),
+                getEHRSettings: sinon.stub().callsArgWith(1, null, clinicEHRSettings),
               },
             };
           };
@@ -1110,6 +1128,10 @@ describe('Actions', () => {
               { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
               { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinicId123' } }] }},
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinicId123', settings: { ehrEnabled: true } }},
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinicId123', settings: { mrnRequired: true } }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
@@ -1148,6 +1170,10 @@ describe('Actions', () => {
               { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
               { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinicId123', name: 'Clinic One', canMigrate: true } }] }},
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinicId123', settings: { ehrEnabled: true } }},
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinicId123', settings: { mrnRequired: true } }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
@@ -1186,6 +1212,10 @@ describe('Actions', () => {
               { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
               { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinicId123', name: 'Clinic One', canMigrate: true } }] }},
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinicId123', settings: { ehrEnabled: true } }},
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinicId123', settings: { mrnRequired: true } }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
@@ -1227,6 +1257,14 @@ describe('Actions', () => {
                 { clinic: { id: 'clinic123', name: 'Clinic One' } },
                 { clinic: { id: 'clinic456', name: 'Clinic Two' } },
               ] }},
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { ehrEnabled: true } }},
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { mrnRequired: true } }},
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinic456', settings: { ehrEnabled: true } }},
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinic456', settings: { mrnRequired: true } }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
@@ -1267,6 +1305,10 @@ describe('Actions', () => {
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
                 { clinic: { id: 'clinic123', name: 'Clinic One' } },
               ] }},
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { ehrEnabled: true } } },
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { mrnRequired: true } } },
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
@@ -1301,6 +1343,8 @@ describe('Actions', () => {
             ],
             patients: [],
             invites: [],
+            clinicEHRSettings: { ehrEnabled: true },
+            clinicMRNSettings: { mrnRequired: true },
           });
 
           const expectedActions = [
@@ -1312,6 +1356,14 @@ describe('Actions', () => {
               { clinic: { id: 'clinic123', name: 'Clinic One' } },
               { clinic: { id: 'clinic456', name: 'Clinic Two' } },
             ] }},
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { ehrEnabled: true } } },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { mrnRequired: true } } },
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinic456', settings: { ehrEnabled: true } } },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinic456', settings: { mrnRequired: true } } },
             { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
@@ -1360,6 +1412,10 @@ describe('Actions', () => {
             { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [
               { clinic: { id: 'clinic123', name: 'My Clinic' } },
             ] }},
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { ehrEnabled: true } } },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { mrnRequired: true } } },
             { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
@@ -1393,6 +1449,8 @@ describe('Actions', () => {
               clinics: [
                 { clinic: { id: 'clinic123' } },
               ],
+              clinicEHRSettings: { ehrEnabled: true },
+              clinicMRNSettings: { mrnRequired: true },
             });
 
             let err = new Error(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES);
@@ -1404,6 +1462,10 @@ describe('Actions', () => {
               { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
               { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
               { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [{ clinic: { id: 'clinic123' } }] }},
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { ehrEnabled: true } }},
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+              { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { mrnRequired: true } }},
               { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
               { type: 'FETCH_CLINICIAN_INVITES_FAILURE', error: err, meta: { apiError: {status: 400, body: 'Error!'}}},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
@@ -1432,10 +1494,10 @@ describe('Actions', () => {
             store.dispatch(async.login(api, creds));
 
             const actions = store.getActions();
-            expect(actions[6].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES });
-            expect(actions[9].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES });
-            expectedActions[6].error = actions[6].error;
-            expectedActions[9].error = actions[9].error;
+            expect(actions[10].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES });
+            expect(actions[13].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES });
+            expectedActions[10].error = actions[10].error;
+            expectedActions[13].error = actions[13].error;
             expect(actions).to.eql(expectedActions);
           });
 
@@ -1565,6 +1627,14 @@ describe('Actions', () => {
               { clinic: { id: 'clinic123', name: 'Clinic One' } },
               { clinic: { id: 'clinic456', name: 'Clinic Two' } },
             ] }},
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { ehrEnabled: true } } },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinic123', settings: { mrnRequired: true } } },
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'clinic456', settings: { ehrEnabled: true } } },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'clinic456', settings: { mrnRequired: true } } },
             { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
@@ -1608,6 +1678,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -1644,6 +1716,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -1680,6 +1754,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -1717,6 +1793,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -1777,6 +1855,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
           },
         };
 
@@ -5139,12 +5219,18 @@ describe('Actions', () => {
         let api = {
           clinics: {
             getAll: sinon.stub().callsArgWith(1, null, clinics),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
         let expectedActions = [
           { type: 'GET_CLINICS_REQUEST' },
-          { type: 'GET_CLINICS_SUCCESS', payload: { clinics : clinics, options: {} } }
+          { type: 'GET_CLINICS_SUCCESS', payload: { clinics : clinics, options: {} } },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', settings : {} } },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', settings : {} } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5194,12 +5280,14 @@ describe('Actions', () => {
           id: 'new_clinic_id'
         };
 
-        let clinics = [clinicReturn];
+        let clinics = [{ clinic: clinicReturn }];
 
         let api = {
-            clinics: {
+          clinics: {
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics),
-            create: sinon.stub().callsArgWith(1, null, clinicReturn)
+            create: sinon.stub().callsArgWith(1, null, clinicReturn),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -5209,6 +5297,10 @@ describe('Actions', () => {
           { type: 'CREATE_CLINIC_SUCCESS', payload: { clinic : clinicReturn } },
           { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
           { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId, clinics } },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'new_clinic_id', settings : {} } },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'new_clinic_id', settings : {} } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5262,12 +5354,18 @@ describe('Actions', () => {
         let api = {
           clinics: {
             get: sinon.stub().callsArgWith(1, null, clinic),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
         let expectedActions = [
           { type: 'FETCH_CLINIC_REQUEST' },
-          { type: 'FETCH_CLINIC_SUCCESS', payload: { clinic : clinic } }
+          { type: 'FETCH_CLINIC_SUCCESS', payload: { clinic : clinic } },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', settings : {} } },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', settings : {} } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5330,6 +5428,8 @@ describe('Actions', () => {
             get: sinon.stub()
               .onCall(0).callsArgWith(1, null, clinic1)
               .onCall(1).callsArgWith(1, null, clinic2),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -5338,7 +5438,15 @@ describe('Actions', () => {
           { type: 'FETCH_CLINICS_BY_IDS_SUCCESS', payload: { clinics : {
             [clinic1.id]: clinic1,
             [clinic2.id]: clinic2,
-          } } }
+          } } },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', settings : {} } },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', settings : {} } },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: '12f2f123s2e1f1f3s2e11535', settings : {} } },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: '12f2f123s2e1f1f3s2e11535', settings : {} } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -7364,6 +7472,125 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchClinicMRNSettings', () => {
+      it('should trigger FETCH_CLINIC_MRN_SETTINGS_SUCCESS and it should call clinics.getMRNSettings once for a successful request', () => {
+        let clinicId = 'clinicId123';
+        let settings = { mrn: { required: true } };
+
+        let api = {
+          clinics: {
+            getMRNSettings: sinon.stub().callsArgWith(1, null, settings),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId, settings } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicMRNSettings(api, clinicId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getMRNSettings.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_CLINIC_MRN_SETTINGS_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId123';
+
+        let api = {
+          clinics: {
+            getMRNSettings: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_CLINIC_MRN_SETTINGS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicMRNSettings(api, clinicId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINIC_MRN_SETTINGS });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getMRNSettings.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchClinicEHRSettings', () => {
+      it('should trigger FETCH_CLINIC_EHR_SETTINGS_SUCCESS and it should call clinics.getEHRSettings once for a successful request', () => {
+        let clinicId = 'clinicId123';
+        let settings = { enabled: true };
+
+        let api = {
+          clinics: {
+            getEHRSettings: sinon.stub().callsArgWith(1, null, settings),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId, settings } }
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicEHRSettings(api, clinicId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getEHRSettings.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_CLINIC_EHR_SETTINGS_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId123';
+
+        let api = {
+          clinics: {
+            getEHRSettings: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_CLINIC_EHR_SETTINGS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicEHRSettings(api, clinicId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINIC_EHR_SETTINGS });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getEHRSettings.callCount).to.equal(1);
+      });
+    });
+
     describe('fetchClinicsForPatient', () => {
       it('should trigger FETCH_CLINICS_FOR_PATIENT_SUCCESS and it should call clinics.getClinicsForPatient once for a successful request', () => {
         let userId = 'user123';
@@ -7608,22 +7835,33 @@ describe('Actions', () => {
         let clinicianId = 'clinicianId1';
         let clinics = [
           {
-            id: '5f85fbe6686e6bb9170ab5d0',
-            address: '1 Address Ln, City Zip',
-            name: 'Clinic1',
-            phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
-          },
+            clinic: {
+              id: '5f85fbe6686e6bb9170ab5d0',
+              address: '1 Address Ln, City Zip',
+              name: 'Clinic1',
+              phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+            },
+            clinician: {
+              id: 'clinicianId1'
+            }
+          }
         ];
 
         let api = {
           clinics: {
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, { enabled: true }),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, { required: true }),
           },
         };
 
         let expectedActions = [
           { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 'clinicianId1', clinics } }
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 'clinicianId1', clinics } },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', settings: { enabled: true } } },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+          { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', settings: { required: true } } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
