@@ -130,20 +130,7 @@ export const DexcomBanner = translate()((props) => {
   }
 
   const getMessageText = () => {
-    let text = (
-      <Trans i18nKey="html.dexcom-banner-connect">
-        Using Dexcom G5 Mobile on Android? See your data in Tidepool.
-        <a
-          className="message-link"
-          target="_blank"
-          rel="noreferrer noopener"
-          href={URL_DEXCOM_CONNECT_INFO}
-          onClick={handleClickLearnMore}
-        >
-          Learn More
-        </a>
-      </Trans>
-    );
+    let text = t('Connect your Dexcom Account to see your CGM data in Tidepool.');
 
     if (dataSourceState === 'error') {
       text = clinicPatient
