@@ -116,8 +116,4 @@ describe('constants', function() {
       'water',
     ]);
   });
-
-  it('should define url for dexcom connect info', function() {
-    expect(Constants.URL_DEXCOM_CONNECT_INFO).to.equal('http://support.tidepool.org/article/73-connecting-dexcom-account-to-tidepool');
-  });
 });
