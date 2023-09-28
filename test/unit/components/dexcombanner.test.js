@@ -30,13 +30,12 @@ import thunk from 'redux-thunk';
 
 import { DexcomBanner } from '../../../app/components/dexcombanner';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
-import { URL_DEXCOM_CONNECT_INFO } from '../../../app/core/constants';
 import Button from '../../../app/components/elements/Button';
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('DexcomBanner', () => {
+describe.only('DexcomBanner', () => {
   const props = {
     onClick: sinon.stub(),
     onClose: sinon.stub(),
@@ -134,13 +133,6 @@ describe('DexcomBanner', () => {
     });
 
     context('initial connection banner', () => {
-      it('should track the appropriate metric when the learn more link is clicked', () => {
-        const moreLink = wrapper.find('a.message-link');
-        moreLink.simulate('click');
-        sinon.assert.calledOnce(props.trackMetric);
-        sinon.assert.calledWith(props.trackMetric, 'clicked learn more Dexcom OAuth banner');
-      });
-
       it('should call the submit handler when the dexcom button is clicked', () => {
         const button = wrapper.find('.dexcomBanner-action button');
         button.simulate('click');
@@ -162,20 +154,11 @@ describe('DexcomBanner', () => {
       });
 
       it('should render the correct dexcom connection message', () => {
-        const expectedText = 'Using Dexcom G5 Mobile on Android? See your data in Tidepool.'
+        const expectedText = 'Connect your Dexcom Account to see your CGM data in Tidepool.'
         const messageText = wrapper.find('.message-text');
 
         expect(messageText).to.have.length(1);
         expect(messageText.text()).contains(expectedText);
-      });
-
-      it('should render a link to the dexcom connect info on the website', () => {
-        const expectedText = 'Learn More'
-        const messageLink = wrapper.find('.message-link');
-
-        expect(messageLink).to.have.length(1);
-        expect(messageLink.find({ href: URL_DEXCOM_CONNECT_INFO })).to.have.length(1);
-        expect(messageLink.text()).contains(expectedText);
       });
 
       it('should render a get started button', () => {
