@@ -451,7 +451,6 @@ export const ClinicPatients = (props) => {
   const [clinicPatientTagFormContext, setClinicPatientTagFormContext] = useState();
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
-  const [showSummaryData, setShowSummaryData] = useState(clinic?.tier >= 'tier0300');
   const [clinicBgUnits, setClinicBgUnits] = useState(MGDL_UNITS);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const [patientFetchCount, setPatientFetchCount] = useState(0);
@@ -460,8 +459,9 @@ export const ClinicPatients = (props) => {
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
-  const { showTideDashboard } = useFlags();
-  const showTideDashboardUI = showTideDashboard && clinic?.tier >= 'tier0300';
+  const { showSummaryDashboard, showTideDashboard } = useFlags();
+  let showSummaryData = showSummaryDashboard || (clinic?.tier >= 'tier0300');
+  const showTideDashboardUI = showSummaryData && showTideDashboard;
 
   const defaultPatientFetchOptions = useMemo(
     () => ({
@@ -805,9 +805,7 @@ export const ClinicPatients = (props) => {
 
       if (isEmpty(filterOptions.search)) delete filterOptions.search;
 
-      const isPremiumTier = clinic?.tier >= 'tier0300';
-
-      if (isPremiumTier) {
+      if (showSummaryData) {
         // If we are currently sorting by lastUpload date, ensure the sortType matches the filter
         // type if available, or falls back to the default sortType
         if (filterOptions.sort.indexOf('lastUploadDate') === 1) {
@@ -867,7 +865,6 @@ export const ClinicPatients = (props) => {
           setPatientFetchOptions(newPatientFetchOptions);
         }
       } else {
-        setShowSummaryData(isPremiumTier);
         setPatientFetchOptions(newPatientFetchOptions);
         setCurrentPage(1);
       }
@@ -1219,6 +1216,7 @@ export const ClinicPatients = (props) => {
                 justifyContent="flex-start"
                 sx={{ gap: 2 }}
                 flexWrap="wrap"
+                id='summary-dashboard-filters'
               >
                 <Flex
                   alignItems="center"

@@ -87,6 +87,7 @@ appContext.render = async Component => {
     options: { streaming: true },
     flags: {
       'showTideDashboard': false,
+      'showSummaryDashboard': false,
     },
   });
 

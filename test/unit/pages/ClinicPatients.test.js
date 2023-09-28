@@ -1228,6 +1228,10 @@ describe('ClinicPatients', () => {
         beforeEach(() => {
           store = mockStore(tier0100ClinicState);
 
+          ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            showSummaryDashboard: false,
+          }));
+
           wrapper = mount(
             <Provider store={store}>
               <ToastProvider>
@@ -1238,6 +1242,10 @@ describe('ClinicPatients', () => {
 
           wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
           defaultProps.trackMetric.resetHistory();
+        });
+
+        afterEach(() => {
+          ClinicPatients.__ResetDependency__('useFlags');
         });
 
         it('should show the standard table columns', () => {
@@ -1278,6 +1286,26 @@ describe('ClinicPatients', () => {
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           birthdayHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-birthDate' }));
+        });
+
+        context('showSummaryDashboard flag is true', () => {
+          it('should show the summary dashboard instead of the standard patient table', () => {
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showSummaryDashboard: true,
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+
+            expect(wrapper.find('#summary-dashboard-filters').hostNodes()).to.have.lengthOf(1);
+          });
         });
       });
 
@@ -2738,6 +2766,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useFlags');
             TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
             TideDashboardConfigForm.__ResetDependency__('useLocation');
           });
@@ -2987,6 +3016,10 @@ describe('ClinicPatients', () => {
             ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
               showTideDashboard: false,
             }));
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useFlags');
           });
 
           it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {

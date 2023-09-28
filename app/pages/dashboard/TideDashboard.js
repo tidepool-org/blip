@@ -555,7 +555,7 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { showTideDashboard } = useFlags();
+  const { showTideDashboard, showSummaryDashboard } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -649,13 +649,23 @@ export const TideDashboard = (props) => {
 
   useEffect(() => {
     if (clinic) {
-      if (clinic.tier < 'tier0300') {
+      if (!showSummaryDashboard && clinic.tier < 'tier0300') {
         dispatch(push('/clinic-workspace'));
       } else {
         setClinicBgUnits((clinic.preferredBgUnits || MGDL_UNITS));
       }
     }
-  }, [clinic, ldContext, ldClient, dispatch, localConfig, localConfigKey, showTideDashboard, fetchDashboardPatients]);
+  }, [
+    clinic,
+    ldContext,
+    ldClient,
+    dispatch,
+    localConfig,
+    localConfigKey,
+    showSummaryDashboard,
+    showTideDashboard,
+    fetchDashboardPatients,
+  ]);
 
   useEffect(() => {
     // Redirect to the workspace if the LD clinic context is set and showTideDashboard flag is false
