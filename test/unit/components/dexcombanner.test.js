@@ -35,7 +35,7 @@ import Button from '../../../app/components/elements/Button';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('DexcomBanner', () => {
+describe('DexcomBanner', () => {
   const props = {
     onClick: sinon.stub(),
     onClose: sinon.stub(),
