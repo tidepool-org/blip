@@ -37,7 +37,7 @@ describe('ClinicWorkspace', () => {
 
   before(() => {
     mount = createMount();
-    ClinicWorkspace.__Rewire__('ClinicWorkspaceHeader', sinon.stub().returns('stubbed clinic profile'));
+    ClinicWorkspace.__Rewire__('ClinicProfile', sinon.stub().returns('stubbed clinic profile'));
     ClinicWorkspace.__Rewire__('PatientInvites', () => (<div>stubbed patient invites</div>));
     ClinicWorkspace.__Rewire__('ClinicPatients', () => (<div>stubbed clinic patients</div>));
     ClinicWorkspace.__Rewire__('Prescriptions', sinon.stub().returns('stubbed patient prescriptions'));
@@ -46,7 +46,7 @@ describe('ClinicWorkspace', () => {
 
   after(() => {
     mount.cleanUp();
-    ClinicWorkspace.__ResetDependency__('ClinicWorkspaceHeader');
+    ClinicWorkspace.__ResetDependency__('ClinicProfile');
     ClinicWorkspace.__ResetDependency__('PatientInvites');
     ClinicWorkspace.__ResetDependency__('ClinicPatients');
     ClinicWorkspace.__ResetDependency__('Prescriptions');
