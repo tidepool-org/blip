@@ -6,7 +6,7 @@ import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
 import noop from 'lodash/noop';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
-import ClinicProfile from '../../../app/components/clinic/ClinicProfile';
+import ClinicWorkspaceHeader from '../../../app/components/clinic/ClinicWorkspaceHeader';
 import Button from '../../../app/components/elements/Button';
 
 /* global chai */
@@ -21,7 +21,7 @@ import Button from '../../../app/components/elements/Button';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicProfile', () => {
+describe.only('ClinicWorkspaceHeader', () => {
   let mount;
 
   let wrapper;
@@ -143,8 +143,8 @@ describe('ClinicProfile', () => {
   let store = mockStore(clinicMemberState);
 
   before(() => {
-    ClinicProfile.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
-    ClinicProfile.__Rewire__('countries', {
+    ClinicWorkspaceHeader.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
+    ClinicWorkspaceHeader.__Rewire__('countries', {
       getNames: sinon.stub().returns({
         US: 'United States',
         CA: 'Canada',
@@ -158,8 +158,8 @@ describe('ClinicProfile', () => {
   });
 
   after(() => {
-    ClinicProfile.__ResetDependency__('useLocation');
-    ClinicProfile.__ResetDependency__('countries');
+    ClinicWorkspaceHeader.__ResetDependency__('useLocation');
+    ClinicWorkspaceHeader.__ResetDependency__('countries');
   });
 
   beforeEach(() => {
@@ -168,7 +168,7 @@ describe('ClinicProfile', () => {
     wrapper = mount(
       <Provider store={store}>
         <ToastProvider>
-          <ClinicProfile {...defaultProps} />
+         .only <ClinicWorkspaceHeader {...defaultProps} />
         </ToastProvider>
       </Provider>
     );
@@ -199,12 +199,12 @@ describe('ClinicProfile', () => {
   });
 
   it('should render a link to the clinic workspace page if currently on clinic admin', () => {
-    ClinicProfile.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-admin'}));
+    ClinicWorkspaceHeader.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-admin'}));
 
     wrapper = mount(
       <Provider store={store}>
         <ToastProvider>
-          <ClinicProfile {...defaultProps} />
+         .only <ClinicWorkspaceHeader {...defaultProps} />
         </ToastProvider>
       </Provider>
     );
@@ -259,21 +259,34 @@ describe('ClinicProfile', () => {
         wrapper = mount(
           <Provider store={store}>
             <ToastProvider>
-              <ClinicProfile {...defaultProps} />
+             .only <ClinicWorkspaceHeader {...defaultProps} />
             </ToastProvider>
           </Provider>
         );
       });
 
-      it('should show a profile edit button that opens up a clinic edit form', () => {
+      it('should show a profile edit button that redirects to the clinic edit form', () => {
         const profileButton = wrapper.find('button#profileEditButton');
         expect(profileButton).to.have.lengthOf(1);
         expect(profileButton.text()).to.equal('Edit Clinic Profile');
 
-        const profileForm = () => wrapper.find('form#clinic-profile-update');
-        expect(profileForm()).to.have.lengthOf(0);
+        store.clearActions();
+
+        const expectedActions = [
+          {
+            type: '@@router/CALL_HISTORY_METHOD',
+            payload: {
+              args: [
+                '/clinic-profile',
+              ],
+              method: 'push',
+            },
+          },
+        ];
+
         profileButton.simulate('click');
-        expect(profileForm()).to.have.lengthOf(1);
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
       });
 
       it('should populate the profile edit form with clinic values', () => {
