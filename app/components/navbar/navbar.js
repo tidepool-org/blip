@@ -144,7 +144,6 @@ export default translate()(class extends React.Component {
           '/clinic-admin',
           '/prescriptions',
           '/clinic-invite',
-          '/clinic-profile',
           '/clinic-workspace',
           '/clinic-workspace/patients',
           '/clinic-workspace/invites',

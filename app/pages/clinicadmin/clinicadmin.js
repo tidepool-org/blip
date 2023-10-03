@@ -38,7 +38,7 @@ import {
   DialogActions,
 } from '../../components/elements/Dialog';
 
-import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
+import ClinicProfile from '../../components/clinic/ClinicProfile';
 import { useToasts } from '../../providers/ToastProvider';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
@@ -515,7 +515,7 @@ export const ClinicAdmin = (props) => {
 
   return (
     <>
-      <ClinicWorkspaceHeader api={api} trackMetric={trackMetric} />
+      <ClinicProfile api={api} trackMetric={trackMetric} />
       <Box mb={8}>
         <Box variant="containers.largeBordered" mb={4}>
           <Flex

@@ -11,7 +11,7 @@ import { Box } from 'rebass/styled-components';
 import { Element } from 'react-scroll';
 
 import TabGroup from '../../components/elements/TabGroup';
-import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
+import ClinicProfile from '../../components/clinic/ClinicProfile';
 import ClinicPatients from './ClinicPatients';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
@@ -101,7 +101,7 @@ export const ClinicWorkspace = (props) => {
 
   return (
     <>
-      <ClinicWorkspaceHeader api={api} trackMetric={trackMetric} />
+      <ClinicProfile api={api} trackMetric={trackMetric} />
 
       <Box id="clinic-workspace" alignItems="center" variant="containers.largeBordered" mb={9}>
         <Element name="workspaceTabsTop" />
