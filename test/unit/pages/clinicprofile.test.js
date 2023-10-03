@@ -151,7 +151,9 @@ describe('ClinicProfile', () => {
   let store = mockStore(clinicMemberState);
 
   beforeEach(() => {
+    store.clearActions();
     defaultProps.trackMetric.resetHistory();
+
     wrapper = mount(
       <Provider store={store}>
         <ToastProvider>
@@ -163,6 +165,24 @@ describe('ClinicProfile', () => {
 
   it('should render a clinic profile header', () => {
     expect(wrapper.text()).to.include('stubbed clinic workspace header');
+  });
+
+  it('should redirect to the clinic workspace for a non-admin team member', () => {
+    const expectedActions = [
+      {
+        type: '@@router/CALL_HISTORY_METHOD',
+        payload: {
+          args: [
+            '/clinic-workspace',
+            { selectedClinicId: 'clinicID456' },
+          ],
+          method: 'push',
+        },
+      },
+    ];
+
+    const actions = store.getActions();
+    expect(actions).to.eql(expectedActions);
   });
 
   context('clinic admin team member', () => {
