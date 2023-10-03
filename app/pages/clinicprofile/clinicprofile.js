@@ -4,7 +4,6 @@ import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
-import includes from 'lodash/includes'
 import keys from 'lodash/keys';
 import { useFormik } from 'formik';
 import { Box, Flex } from 'rebass/styled-components';
@@ -30,10 +29,8 @@ export const ClinicProfile = (props) => {
   const dispatch = useDispatch();
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const clinic = get(clinics, selectedClinicId);
-  const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const { updatingClinic } = useSelector((state) => state.blip.working);
+  const clinic = get(clinics, selectedClinicId);
 
   const formikContext = useFormik({
     initialValues: clinicValuesFromClinic(clinic),
@@ -53,11 +50,7 @@ export const ClinicProfile = (props) => {
 
   useEffect(() => {
     if (clinic) {
-      if (isClinicAdmin) {
-        setValues(clinicValuesFromClinic(clinic));
-      } else {
-        redirectToWorkspace();
-      }
+      setValues(clinicValuesFromClinic(clinic))
     }
   }, [clinic, setValues])
 
