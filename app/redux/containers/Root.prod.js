@@ -6,6 +6,7 @@ import { ThemeProvider } from 'styled-components';
 import baseTheme from '../../themes/baseTheme';
 import { history } from '../store/configureStore.prod';
 import { ToastProvider } from '../../providers/ToastProvider';
+import GoogleAnalyticsWrapper from '../../googleanalytics';
 import { KeycloakWrapper } from '../../keycloak';
 
 export default class Root extends Component {
@@ -18,7 +19,9 @@ export default class Root extends Component {
             <KeycloakWrapper>
               <div>
                 <ConnectedRouter history={history}>
-                  {routing}
+                  <GoogleAnalyticsWrapper>
+                    {routing}
+                  </GoogleAnalyticsWrapper>
                 </ConnectedRouter>
               </div>
             </KeycloakWrapper>

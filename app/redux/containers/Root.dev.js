@@ -8,6 +8,7 @@ import { KeycloakWrapper } from '../../keycloak';
 import baseTheme from '../../themes/baseTheme';
 import { history } from '../store/configureStore.dev';
 import { ToastProvider } from '../../providers/ToastProvider';
+import GoogleAnalyticsWrapper from '../../googleanalytics';
 
 setConfig({ logLevel: 'warning' })
 
@@ -21,7 +22,9 @@ class Root extends Component {
             <KeycloakWrapper>
               <div>
                 <ConnectedRouter history={history}>
-                  {routing}
+                  <GoogleAnalyticsWrapper>
+                    {routing}
+                  </GoogleAnalyticsWrapper>
                 </ConnectedRouter>
               </div>
             </KeycloakWrapper>

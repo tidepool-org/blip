@@ -27,6 +27,7 @@ const defineEnvPlugin = new webpack.DefinePlugin({
   __PENDO_ENABLED__: JSON.stringify(process.env.PENDO_ENABLED || true),
   __VERSION__: JSON.stringify(VERSION),
   __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
+  __REACT_APP_GAID__: JSON.stringify(process.env.REACT_APP_GAID || null),
   __VERSION_SHA__: JSON.stringify(VERSION_SHA),
   __DEV__: isDev,
   __TEST__: false,

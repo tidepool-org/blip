@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import ReactGA from 'react-ga4';
 import { connect } from 'react-redux';
 import { translate, Trans} from 'react-i18next';
 import { bindActionCreators } from 'redux';
@@ -167,6 +168,15 @@ export let Signup = translate()(class extends React.Component {
       if(inviteEmail){
         options.loginHint = inviteEmail;
       }
+
+      if (ReactGA.isInitialized) {
+        ReactGA.event({
+          category: 'redirect',
+          action: 'Keycloak Sign Up',
+          label: inviteEmail ? 'Has inviteEmail' : 'No inviteEmail',
+        });
+      }
+
       keycloak.register(options);
     }
 

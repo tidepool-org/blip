@@ -59,7 +59,6 @@ appContext.props = {
 };
 
 appContext.init = callback => {
-
   function beginInit() {
     initNoTouch();
   }
