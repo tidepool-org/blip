@@ -3044,10 +3044,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.35.0-web-2546-date-range-adjustment.1":
-  version "1.35.0-web-2546-date-range-adjustment.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.35.0-web-2546-date-range-adjustment.1.tgz#0238c20ae55a7cbd1fd4a2b7c7e2f29850bf1ed1"
-  integrity sha512-cK0Le7fRvh0jG32Wib34hgajYAJhBl2qpuTYpydY8d0A0ojT0pJNnFE/E0fFkvquS2HvmdX7HBFdle2t3SuGdw==
+"@tidepool/viz@1.33.2-sooil-dana.2":
+  version "1.33.2-sooil-dana.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.33.2-sooil-dana.2.tgz#de9db3bdc1e4457c80408815da1b36ec0a0736f6"
+  integrity sha512-w1BU8pPVLMZqCmRcc8sv4XgoXpjae8cQo/cTDt6F5miKF9YV7lyKyjWJQQVgLgA3QAxrE9wggXV/x+Vk8sGjVg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"

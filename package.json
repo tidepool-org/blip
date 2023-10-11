@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.71.0-web-2110-dexcom-banner-updates.1",
+  "version": "1.71.0-web-1985-sooil-dana.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/karma/bin/karma start",
@@ -57,7 +57,7 @@
     "@storybook/addon-viewport": "5.3.19",
     "@storybook/addons": "5.3.19",
     "@storybook/react": "5.3.19",
-    "@tidepool/viz": "1.35.0-web-2546-date-range-adjustment.1",
+    "@tidepool/viz": "1.33.2-sooil-dana.2",
     "async": "2.6.4",
     "autoprefixer": "9.8.4",
     "babel-core": "7.0.0-bridge.0",
