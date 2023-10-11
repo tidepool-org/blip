@@ -24,7 +24,6 @@ export const URL_TIDEPOOL_MOBILE_APP_STORE = 'https://itunes.apple.com/us/app/ti
 export const URL_TERMS_OF_USE = 'https://tidepool.org/terms-of-use';
 export const URL_PRIVACY_POLICY = 'https://tidepool.org/privacy-policy';
 export const URL_BIG_DATA_DONATION_INFO = 'https://tidepool.org/announcing-the-tidepool-big-data-donation-project';
-export const URL_DEXCOM_CONNECT_INFO = 'http://support.tidepool.org/article/73-connecting-dexcom-account-to-tidepool';
 export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepool-uploader/';
 export const URL_SHARE_DATA_INFO = 'https://support.tidepool.org/hc/en-us/articles/360029684951-Share-your-Data';
 
@@ -66,6 +65,18 @@ export const DIABETES_DATA_TYPES = [
   'food',
 ];
 
+export const ALL_FETCHED_DATA_TYPES = [
+  ...DIABETES_DATA_TYPES,
+  'cgmSettings',
+  'deviceEvent',
+  'insulin',
+  'physicalActivity',
+  'pumpSettings',
+  'reportedState',
+  'upload',
+  'water',
+];
+
 export const MGDL_UNITS = t('mg/dL');
 export const MMOLL_UNITS = t('mmol/L');
 export const MGDL_PER_MMOLL = 18.01559;
@@ -75,3 +86,15 @@ export const MS_IN_HOUR = 864e5 / 24;
 export const MS_IN_MIN = MS_IN_HOUR / 60;
 
 export const LBS_PER_KG = 2.2046226218;
+
+// Passed as arguments to utils.formatThresholdPercentage
+// [comparator, threshold, defaultPrecision = 0]
+export const DEFAULT_FILTER_THRESHOLDS = {
+  veryLow: ['>', 1],
+  low: ['>', 4],
+  target: ['<', 70],
+  high: ['>', 25],
+  veryHigh: ['>', 5],
+  cgmUse: ['<', 70],
+  timeInTargetPercentDelta: ['>', 15, 1],
+};

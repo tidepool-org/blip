@@ -612,6 +612,7 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
+            onClickPrint={this.handleClickPrint}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
@@ -1518,6 +1519,7 @@ export const PatientDataClass = createReactClass({
         'patientId',
         'size',
         'devices',
+        'matchedDevices',
       ],
       types: '*',
       raw,
@@ -1790,7 +1792,7 @@ export const PatientDataClass = createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,devices,excludedDevices,queryDataCount',
+      metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
     });
 
     if (this.state.queryingData) return;
@@ -2080,19 +2082,21 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
 
   // if is clinician user viewing a patient's data with no selected clinic
   // we need to check clinics for patient and then select the relevant clinic
+
+  let clinicToSelect = null;
+  _.forEach(stateProps.clinics, (clinic, clinicId) => {
+    let patient = _.get(clinic.patients, ownProps.match.params.id, null);
+    if (patient) {
+      clinicToSelect = clinicId;
+    }
+  });
+
   if (
     personUtils.isClinicianAccount(stateProps.user) &&
     stateProps.user.userid !== ownProps.match.params.id &&
-    !stateProps.selectedClinicId &&
+    (!stateProps.selectedClinicId || stateProps.selectedClinicId !== clinicToSelect) &&
     !stateProps.fetchingPatientFromClinic.inProgress
   ) {
-    let clinicToSelect = null;
-    _.forEach(stateProps.clinics, (clinic, clinicId) => {
-      let patient = _.get(clinic.patients, ownProps.match.params.id, null);
-      if (patient) {
-        clinicToSelect = clinicId;
-      }
-    });
     if (clinicToSelect) {
       dispatchProps.selectClinic(clinicToSelect);
     } else {
@@ -2124,11 +2128,11 @@ export function mapStateToProps(state, props) {
     }
 
     if (state.blip.currentPatientInViewId) {
-      patient = _.get(
+      patient = _.cloneDeep(_.get(
         state.blip.allUsersMap,
         state.blip.currentPatientInViewId,
         null
-      );
+      ));
 
       permissions = _.get(
         state.blip.permissionsOfMembersInTargetCareTeam,

@@ -4,6 +4,7 @@ import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { useSelector, useStore } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import cryptoJS from 'crypto-js';
 import * as ActionTypes from './redux/constants/actionTypes';
 import { sync, async } from './redux/actions';
 import api from './core/api';
@@ -48,7 +49,7 @@ export const onKeycloakEvent = (store) => (event, error) => {
       break;
     }
     case 'onAuthSuccess': {
-      const isOauthRedirectRoute = /^(\/oauth\/|\/upload-redirect)/.test(window?.location?.pathname);
+      const isOauthRedirectRoute = /^\/oauth\//.test(window?.location?.pathname);
       // We don't trigger the login (and subsequent redirects) on the oauth redirect landing page
       if (!isOauthRedirectRoute) {
         store.dispatch(sync.keycloakAuthSuccess(event, error));
@@ -135,8 +136,7 @@ export const KeycloakWrapper = (props) => {
   const store = useStore();
   let Wrapper = React.Fragment;
   let wrapperProps = props;
-  const isOauthRedirectRoute = /^(\/upload-redirect)/.test(window?.location?.pathname);
-  if (keycloakConfig?.url && !isOauthRedirectRoute) {
+  if (keycloakConfig?.url) {
     Wrapper = ReactKeycloakProvider;
     wrapperProps = {
       ...wrapperProps,
@@ -154,9 +154,44 @@ export const KeycloakWrapper = (props) => {
   return <Wrapper {...wrapperProps}>{props.children}</Wrapper>;
 };
 
+/**
+ * Generate a Keycloak SSO Link Uri
+ *
+ * @param {String} idp - required IDP
+ * @param {String} redirectUri - post linking redirect
+ * @param {String} [nonce] - optional nonce
+ * @returns
+ */
+export function generateSSOLinkUri(idp, redirectUri, nonce) {
+  nonce ??= cryptoJS.enc.Base64url.stringify(
+    // eslint-disable-next-line new-cap
+    cryptoJS.SHA256(crypto.randomUUID())
+  );
+
+  let uri = new URL(`${keycloak.authServerUrl}/realms/${keycloak.realm}/broker/${idp}/link`);
+  const input =
+    nonce + keycloak.tokenParsed.session_state + keycloak.clientId + idp;
+  // eslint-disable-next-line new-cap
+  const check = cryptoJS.SHA256(cryptoJS.enc.Utf8.parse(input));
+  const hash = cryptoJS.enc.Base64url.stringify(check);
+  let params = new URLSearchParams({
+    nonce,
+    hash,
+    // eslint-disable-next-line camelcase
+    client_id: keycloak.clientId,
+    // eslint-disable-next-line camelcase
+    redirect_uri: redirectUri
+  });
+
+  uri.search = params.toString();
+
+  return uri.toString();
+};
+
 export default {
   keycloak,
   onKeycloakEvent,
   onKeycloakTokens,
   keycloakMiddleware,
+  generateSSOLinkUri,
 };

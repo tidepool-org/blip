@@ -4082,6 +4082,60 @@ describe('Actions', () => {
     });
   });
 
+  describe('fetchTideDashboardPatientsRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.fetchTideDashboardPatientsRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST', () => {
+      let action = sync.fetchTideDashboardPatientsRequest();
+      expect(action.type).to.equal('FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST');
+    });
+  });
+
+  describe('fetchTideDashboardPatientsSuccess', () => {
+    const results = 'results';
+
+    it('should be a TSA', () => {
+      let action = sync.fetchTideDashboardPatientsSuccess(results);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS', () => {
+      let action = sync.fetchTideDashboardPatientsSuccess(results);
+      expect(action.type).to.equal('FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS');
+      expect(action.payload.results).to.equal(results);
+    });
+  });
+
+  describe('fetchTideDashboardPatientsFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('fetching patients failed :(');
+      let action = sync.fetchTideDashboardPatientsFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.fetchTideDashboardPatientsFailure(error);
+      expect(action.type).to.equal('FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
+  describe('clearTideDashboardPatients', () => {
+    it('should be a TSA', () => {
+      let error = new Error('fetching patients failed :(');
+      let action = sync.clearTideDashboardPatients(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal CLEAR_TIDE_DASHBOARD_PATIENTS', () => {
+      let action = sync.clearTideDashboardPatients();
+      expect(action.type).to.equal('CLEAR_TIDE_DASHBOARD_PATIENTS');
+    });
+  });
 
   describe('generateAGPImagesRequest', () => {
     const data = 'data';
@@ -4132,4 +4186,16 @@ describe('Actions', () => {
     });
   });
 
+  describe('setSSOEnabledDisplay', () => {
+    it('should be a TSA', () => {
+      let action = sync.setSSOEnabledDisplay(true);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_SSO_ENABLED_DISPLAY', () => {
+      let action = sync.setSSOEnabledDisplay('set_value');
+      expect(action.type).to.equal('SET_SSO_ENABLED_DISPLAY');
+      expect(action.payload.value).to.equal('set_value');
+    });
+  });
 });

@@ -141,7 +141,10 @@ describe('Workspaces', () => {
           },
           context: null,
           created: '2021-07-27T16:16:46.891Z',
-          status: 'pending'
+          status: 'pending',
+          restrictions: {
+            canAccept: true,
+          }
         }
       ],
     },
@@ -211,6 +214,59 @@ describe('Workspaces', () => {
           ],
         },
       },
+    }
+  }
+
+  const fetchedNoIdpEmailMismatchState = {
+    blip: {
+      ...fetchedDataState.blip,
+      pendingReceivedClinicianInvites: [
+        {
+          key: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
+          type: 'clinician_invitation',
+          email: 'clinic@example.com',
+          clinicId: '61003144b78cc595b9560e7d',
+          creatorId: 'bf62d3c88b',
+          creator: {
+            userid: 'bf62d3c88b',
+            clinicId: '61003144b78cc595b9560e7d',
+            clinicName: 'Example Health'
+          },
+          context: null,
+          created: '2021-07-27T16:16:46.891Z',
+          status: 'pending',
+          restrictions: {
+            canAccept: false,
+          }
+        }
+      ],
+    }
+  }
+
+  const fetchedIdpEmailMatchState = {
+    blip: {
+      ...fetchedDataState.blip,
+      pendingReceivedClinicianInvites: [
+        {
+          key: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
+          type: 'clinician_invitation',
+          email: 'clinic@example.com',
+          clinicId: '61003144b78cc595b9560e7d',
+          creatorId: 'bf62d3c88b',
+          creator: {
+            userid: 'bf62d3c88b',
+            clinicId: '61003144b78cc595b9560e7d',
+            clinicName: 'Example Health'
+          },
+          context: null,
+          created: '2021-07-27T16:16:46.891Z',
+          status: 'pending',
+          restrictions: {
+            canAccept: false,
+            requiredIdp: 'awesome-idp'
+          }
+        }
+      ],
     }
   }
 
@@ -495,6 +551,52 @@ describe('Workspaces', () => {
           type: 'DISMISS_CLINICIAN_INVITE_SUCCESS',
           payload: {
             inviteId: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
+          },
+        },
+      ]);
+    });
+
+    it('should display an error and SSO link button if an IDP is required', () => {
+      wrapper = mountWrapper(mockStore(fetchedIdpEmailMatchState));
+      const invite = wrapper
+        .find('div.workspace-item-clinician_invitation')
+        .at(0);
+      const acceptButton = invite.find('Button[variant="primary"]');
+      expect(acceptButton).to.have.lengthOf(1);
+      expect(acceptButton.text()).to.equal('Link Account');
+      const error = wrapper.find('div[color="feedback.danger"]');
+      expect(error.text()).to.equal(
+        'Single Sign-On (SSO) is required to join this Clinic. Please link your account to enable SSO.'
+      );
+    });
+
+    it('should display an error and disabled accept button if email mismatch', () => {
+      wrapper = mountWrapper(mockStore(fetchedNoIdpEmailMismatchState));
+      const invite = wrapper
+        .find('div.workspace-item-clinician_invitation')
+        .at(0);
+      const acceptButton = invite.find('Button[variant="primary"]');
+      expect(acceptButton).to.have.lengthOf(1);
+      expect(acceptButton.text()).to.equal('Accept Invite');
+      expect(acceptButton.props().disabled).to.be.true;
+      const error = wrapper.find('div[color="feedback.danger"]');
+      expect(error.text()).to.equal(
+        "Your account doesn't satisfy the security requirements. Please contact this clinic's IT administrator."
+      );
+    });
+
+    it('should set SSO enabled display state to false if it is true', () => {
+      wrapper = mountWrapper(
+        mockStore({
+          blip: { ...fetchedClinicInvitesState.blip, ssoEnabledDisplay: true },
+        })
+      );
+
+      expect(store.getActions()).to.eql([
+        {
+          type: 'SET_SSO_ENABLED_DISPLAY',
+          payload: {
+            value: false,
           },
         },
       ]);

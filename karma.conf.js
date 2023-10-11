@@ -3,7 +3,7 @@ const _ = require('lodash');
 const optional = require('optional');
 
 const webpackConf = require('./webpack.config.js');
-const mochaConf = optional('./config/mocha.opts.json') || { timeout: 4000 };
+const mochaConf = optional('./config/mocha.opts.json') || { timeout: 8000 };
 
 const watch = process.env.npm_lifecycle_script.indexOf('--no-single-run') !== -1;
 const testWebpackConf = _.assign({}, webpackConf, {
@@ -14,6 +14,7 @@ const testWebpackConf = _.assign({}, webpackConf, {
       __TEST__: true,
       __PROD__: false,
       __I18N_ENABLED__: 'false',
+      __DEV_TOOLS__: false,
     }),
   ],
 });

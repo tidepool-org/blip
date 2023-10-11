@@ -2193,6 +2193,37 @@ export function fetchInfoFailure(error, apiError) {
   };
 }
 
+export function fetchTideDashboardPatientsRequest() {
+  return {
+    type: ActionTypes.FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST,
+  };
+}
+
+export function fetchTideDashboardPatientsSuccess(results) {
+  return {
+    type: ActionTypes.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS,
+    payload: {
+      results: results,
+    },
+  };
+}
+
+export function fetchTideDashboardPatientsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function clearTideDashboardPatients() {
+  return {
+    type: ActionTypes.CLEAR_TIDE_DASHBOARD_PATIENTS,
+  };
+}
+
 export function generateAGPImagesRequest(data, opts, queries) {
   return {
     type: ActionTypes.GENERATE_AGP_IMAGES_REQUEST,
@@ -2215,5 +2246,12 @@ export function generateAGPImagesFailure(error) {
   return {
     type: ActionTypes.GENERATE_AGP_IMAGES_FAILURE,
     error,
+  };
+}
+
+export function setSSOEnabledDisplay(value) {
+  return {
+    type: ActionTypes.SET_SSO_ENABLED_DISPLAY,
+    payload: { value },
   };
 }

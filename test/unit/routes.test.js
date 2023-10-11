@@ -148,10 +148,10 @@ describe('routes', () => {
 
       let store = mockStore({
         blip: {},
-        router: { location: { pathname: '/otherDestination' } },
+        router: { location: { pathname: '/otherDestination', hash: '#bar', search: '?param=foo' } },
       });
 
-      let expectedActions = [routeAction('/login?dest=%2FotherDestination')];
+      let expectedActions = [routeAction('/login?dest=%2FotherDestination%3Fparam%3Dfoo%23bar')];
 
       store.dispatch(requireAuth(api));
 
@@ -1144,6 +1144,39 @@ describe('routes', () => {
       });
 
       let expectedActions = [];
+
+      store.dispatch(requireNoAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should set sso enabled display if present in location', () => {
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(false),
+        },
+      };
+
+      let store = mockStore({
+        blip: {},
+        router: {
+          location: {
+            query: {
+              ssoEnabled: 'true',
+            },
+          },
+        },
+      });
+
+      let expectedActions = [
+        {
+          type: 'SET_SSO_ENABLED_DISPLAY',
+          payload: {
+            value: true,
+          },
+        },
+      ];
 
       store.dispatch(requireNoAuth(api));
 

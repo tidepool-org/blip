@@ -1049,6 +1049,10 @@ api.clinics.deleteClinicPatientTag = function(clinicId, patientTagId, cb) {
   return tidepool.deleteClinicPatientTag(clinicId, patientTagId, cb);
 };
 
+api.clinics.getPatientsForTideDashboard = function(clinicId, options, cb) {
+  return tidepool.getPatientsForTideDashboard(clinicId, options, cb);
+};
+
 // ----- Errors -----
 
 api.errors = {};

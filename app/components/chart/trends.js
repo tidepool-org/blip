@@ -46,6 +46,7 @@ const Trends = translate()(class Trends extends PureComponent {
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
     onClickRefresh: PropTypes.func.isRequired,
+    onClickPrint: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
@@ -78,6 +79,7 @@ const Trends = translate()(class Trends extends PureComponent {
     this.getTitle = this.getTitle.bind(this);
     this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleClickBack = this.handleClickBack.bind(this);
+    this.handleClickPrint = this.handleClickPrint.bind(this);
     this.handleClickDaily = this.handleClickDaily.bind(this);
     this.handleClickForward = this.handleClickForward.bind(this);
     this.handleClickFourWeeks = this.handleClickFourWeeks.bind(this);
@@ -146,7 +148,7 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   handleWindowResize(windowSize) {
-    this.refs.chart.mountData();
+    this.refs.chart?.mountData();
   }
 
   handleClickBack(e) {
@@ -257,6 +259,14 @@ const Trends = translate()(class Trends extends PureComponent {
     const datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToBgLog(datetime);
   }
+
+  handleClickPrint = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickPrint(this.props.pdf);
+  };
 
   handleDatetimeLocationChange(datetimeLocationEndpoints) {
     this.setState({
@@ -601,6 +611,7 @@ const Trends = translate()(class Trends extends PureComponent {
     return (
       <Header
         chartType={this.chartType}
+        chartPrefs={this.props.chartPrefs}
         patient={this.props.patient}
         inTransition={this.state.inTransition}
         atMostRecent={this.isAtMostRecent()}
@@ -616,6 +627,7 @@ const Trends = translate()(class Trends extends PureComponent {
         onClickOneDay={this.handleClickDaily}
         onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
+        onClickPrint={this.handleClickPrint}
         ref="header" />
     );
   }

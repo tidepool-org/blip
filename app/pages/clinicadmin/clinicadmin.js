@@ -257,7 +257,7 @@ export const ClinicAdmin = (props) => {
 
   function handleInviteNewMember() {
     trackMetric('Clinic - Invite new clinic team member', { clinicId: selectedClinicId });
-    dispatch(push('/clinic-invite', { clinicId: selectedClinicId }));
+    dispatch(push('/clinic-invite'));
   }
 
   function handleEdit(userId) {
@@ -338,10 +338,6 @@ export const ClinicAdmin = (props) => {
 
   const handlePageChange = (event, newValue) => {
     setPage(newValue);
-  };
-
-  const handleTableFilter = (data) => {
-    console.log('handleTableFilter', data);
   };
 
   const renderClinician = ({ fullName, email }) => (
@@ -585,7 +581,6 @@ export const ClinicAdmin = (props) => {
               rowsPerPage={rowsPerPage}
               searchText={searchText}
               page={page}
-              onFilter={handleTableFilter}
               fontSize={1}
             />
           </Box>

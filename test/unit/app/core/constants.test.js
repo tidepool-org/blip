@@ -98,7 +98,22 @@ describe('constants', function() {
     ]);
   });
 
-  it('should define url for dexcom connect info', function() {
-    expect(Constants.URL_DEXCOM_CONNECT_INFO).to.equal('http://support.tidepool.org/article/73-connecting-dexcom-account-to-tidepool');
+  it('should define the list of all fetched data types', function() {
+    expect(Constants.ALL_FETCHED_DATA_TYPES).to.eql([
+      'cbg',
+      'smbg',
+      'basal',
+      'bolus',
+      'wizard',
+      'food',
+      'cgmSettings',
+      'deviceEvent',
+      'insulin',
+      'physicalActivity',
+      'pumpSettings',
+      'reportedState',
+      'upload',
+      'water',
+    ]);
   });
 });

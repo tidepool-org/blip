@@ -55,13 +55,14 @@ export const colors = {
     declined: ['#FFECEE', '#DD2C00'],
   },
   tab: {
-    primary: '#66788A',
+    primary: colorPalette.primary.blueGrey,
     disabled: '#A5ADBA',
     selected: colorPalette.primary.purpleMedium,
   },
   text: {
     link: colorPalette.primary.purpleBright,
     primary: colorPalette.primary.blueGreyDark,
+    primaryGrey: colorPalette.primary.blueGrey,
     primaryDisabled: '#A5ADBA',
     primarySubdued: colorPalette.primary.blueGreyMedium,
   },
@@ -95,6 +96,7 @@ export const lineHeights = [1, 1.25, 1.33, 1.5, 1.75, 2];
 
 export const radii = {
   large: 8,
+  medium: 6,
   default: 4,
   input: 3,
   full: 999,
@@ -127,7 +129,7 @@ const variants = {
   paginators: paginators({ colors, fonts, fontSizes, breakpoints }),
   steppers: steppers({ colors, fonts, fontWeights, fontSizes }),
   tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
-  tables: tables({ borders, colors, fonts, fontSizes, shadows }),
+  tables: tables({ borders, colors, fonts, fontSizes, shadows, radii }),
   tags: tags({ colors, fonts, radii, fontWeights }),
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
   containers: containers({ borders, colors, radii, space }),

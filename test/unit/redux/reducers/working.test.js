@@ -7823,4 +7823,102 @@ describe('dataWorkerQueryData', () => {
       });
     });
   });
+
+  describe('fetchTideDashboardPatients', () => {
+    describe('request', () => {
+      it('should set fetchingTideDashboardPatients.completed to null', () => {
+        expect(initialState.fetchingTideDashboardPatients.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchTideDashboardPatientsRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingTideDashboardPatients.completed).to.be.null;
+
+        let successAction = actions.sync.fetchTideDashboardPatientsSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingTideDashboardPatients.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingTideDashboardPatients.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingTideDashboardPatients.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchTideDashboardPatientsRequest();
+
+        expect(initialStateForTest.fetchingTideDashboardPatients.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingTideDashboardPatients.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingTideDashboardPatients.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingTideDashboardPatients.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchTideDashboardPatientsFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingTideDashboardPatients.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingTideDashboardPatients.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingTideDashboardPatients: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchTideDashboardPatientsFailure(error);
+
+        expect(initialStateForTest.fetchingTideDashboardPatients.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingTideDashboardPatients.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingTideDashboardPatients.inProgress).to.be.false;
+        expect(state.fetchingTideDashboardPatients.notification.type).to.equal('error');
+        expect(state.fetchingTideDashboardPatients.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingTideDashboardPatients.completed to be true', () => {
+        expect(initialState.fetchingTideDashboardPatients.completed).to.be.null;
+
+        let successAction = actions.sync.fetchTideDashboardPatientsSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingTideDashboardPatients.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingTideDashboardPatients.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingTideDashboardPatients: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchTideDashboardPatientsSuccess('foo');
+
+        expect(initialStateForTest.fetchingTideDashboardPatients.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingTideDashboardPatients.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
 });

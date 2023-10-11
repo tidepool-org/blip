@@ -21,6 +21,7 @@ const isProd = (process.env.NODE_ENV === 'production');
 const linkedPackages = (isDev || isTest) ? _.get(optional('./config/local'), 'linkedPackages', {}) : {};
 const apiHost = _.get(optional('./config/local'), 'apiHost', process.env.API_HOST || null);
 const uploadApi = _.get(optional('./config/local'), 'uploadApi', process.env.UPLOAD_API || null);
+const launchDarklyClientToken = _.get(optional('./config/local'), 'launchDarklyClientToken', process.env.LAUNCHDARKLY_CLIENT_TOKEN || null);
 const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
   i18nEnabled: process.env.I18N_ENABLED || false,
   rxEnabled: process.env.RX_ENABLED || false,
@@ -28,7 +29,7 @@ const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
 });
 
 const VERSION = pkg.version;
-const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
+const ROLLBAR_POST_CLIENT_TOKEN = '6158068d70fd485ba03e72ce5ffb8998';
 const ROLLBAR_POST_SERVER_TOKEN = process.env.ROLLBAR_POST_SERVER_TOKEN;
 
 const VERSION_SHA = process.env.TRAVIS_COMMIT
@@ -158,6 +159,7 @@ const plugins = [
     __PENDO_ENABLED__: JSON.stringify(featureFlags.pendoEnabled),
     __VERSION__: JSON.stringify(VERSION),
     __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
+    __LAUNCHDARKLY_CLIENT_TOKEN__: JSON.stringify(launchDarklyClientToken),
     __VERSION_SHA__: JSON.stringify(VERSION_SHA),
     __DEV__: isDev,
     __TEST__: isTest,

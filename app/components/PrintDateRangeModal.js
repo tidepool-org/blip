@@ -323,6 +323,7 @@ export const PrintDateRangeModal = (props) => {
                       endDateId={`${[panel.key]}-end-date`}
                       onDatesChange={newDates => setDates({ ...dates, [panel.key]: setDateRangeToExtents(newDates) })}
                       isOutsideRange={day => (
+                        moment.utc(mostRecentDatumDates[panel.key]).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
                         endOfToday.diff(day) < 0 ||
                         (moment.isMoment(dates[panel.key].endDate) && dates[panel.key].endDate.diff(day, 'days') >= maxDays) ||
                         (moment.isMoment(dates[panel.key].startDate) && dates[panel.key].startDate.diff(day, 'days') <= -maxDays)
