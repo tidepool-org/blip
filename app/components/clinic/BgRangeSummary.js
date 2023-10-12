@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Text, Box, Flex } from 'rebass/styled-components';
 import map from 'lodash/map';
 import isEqual from 'lodash/isEqual';
-import { format } from 'd3-format';
 import { translate } from 'react-i18next';
 
 import {
@@ -13,72 +12,12 @@ import {
 } from 'material-ui-popup-state/hooks';
 
 import Popover from '../elements/Popover';
-import { space, shadows } from '../../themes/baseTheme';
+import { space, shadows, radii } from '../../themes/baseTheme';
 
+import utils from '../../core/utils';
+import { DEFAULT_FILTER_THRESHOLDS } from '../../core/constants';
 import { utils as vizUtils } from '@tidepool/viz';
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
-
-const roundUp = (value, precision = 1) => {
-  let shift = 10 ** precision;
-  return Math.ceil(value * shift) / shift;
-};
-
-const roundDown = (value, precision = 1) => {
-  let shift = 10 ** precision;
-  return Math.floor(value * shift) / shift;
-};
-
-export const formatValue = (inputValue, key) => {
-  let precision = 0;
-  let percentage = inputValue * 100;
-
-  // We want to show extra precision on very small percentages so that we avoid showing 0%
-  // when there is some data there.
-  if (percentage > 0 && percentage < 0.5) {
-    precision = percentage < 0.05 ? 2 : 1;
-  }
-
-  switch (key) {
-    case 'veryLow':
-      if (percentage > 0 && percentage < 0.5) {
-        precision = 2;
-        percentage = roundUp(percentage, precision);
-      }
-      if (percentage >= 0.5 && percentage < 1) {
-        precision = 1;
-        percentage = roundDown(percentage, precision);
-      }
-      break;
-    case 'low':
-      if (percentage > 3 && percentage < 4) {
-        precision = 1;
-        percentage = roundDown(percentage, precision);
-      }
-      break;
-    case 'target':
-      if (percentage > 69 && percentage < 70) {
-        precision = 1;
-        percentage = roundDown(percentage, precision);
-      }
-      break;
-    case 'high':
-      if (percentage > 24 && percentage < 25) {
-        precision = 1;
-        percentage = roundDown(percentage, precision);
-      }
-      break;
-    case 'veryHigh':
-      if (percentage > 4 && percentage < 5) {
-        precision = 1;
-        percentage = roundDown(percentage, precision);
-      }
-      break;
-    default:
-      break;
-  }
-
-  return format(`.${precision}f`)(percentage);
-};
 
 export const BgRangeSummary = React.memo(props => {
   const { bgUnits, cgmUsePercent, data, striped, targetRange, t, ...themeProps } = props;
@@ -110,15 +49,15 @@ export const BgRangeSummary = React.memo(props => {
   }), []);
 
   const popoverFlexStyle = useMemo(() => ({ gap: 3 }), []);
-  const wrapperStyle = useMemo(() => ({ position: 'relative' }), []);
-  const flexWidth = useMemo(() => (['155px', '200px']),[])
+  const wrapperStyle = useMemo(() => ({ position: 'relative', borderRadius: `${radii.input}px`, overflow: 'hidden' }), []);
+  const flexWidth = useMemo(() => (['155px', '175px']),[])
 
   const bgLabels = generateBgRangeLabels(bgPrefs, { condensed: true });
 
   return (
     <>
       <Box sx={wrapperStyle} {...themeProps}>
-        <Flex className="range-summary-bars" width={flexWidth} height="20px" justifyContent="center" {...bindHover(popupState)}>
+        <Flex className="range-summary-bars" width={flexWidth} height="18px" justifyContent="center" {...bindHover(popupState)}>
           {map(data, (value, key) => (
               <Box className={`range-summary-bars-${key}`} key={key} bg={`bg.${key}`} width={`${value * 100}%`}/>
           ))}
@@ -127,8 +66,8 @@ export const BgRangeSummary = React.memo(props => {
         {striped && (
           <Box
             className="range-summary-stripe-overlay"
-            width="200px"
-            height="20px"
+            width="175px"
+            height="18px"
             sx={{
               position: 'absolute',
               pointerEvents: 'none',
@@ -156,7 +95,7 @@ export const BgRangeSummary = React.memo(props => {
               <Flex key={key} flexDirection="column" justifyContent="center" alignItems="center">
                 <Flex className={`range-summary-value-${key}`} mb={1} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
                   <Text fontWeight="bold" lineHeight={0} fontSize={1}>
-                    {formatValue(value, key)}
+                    {utils.formatThresholdPercentage(value, ...DEFAULT_FILTER_THRESHOLDS[key])}
                   </Text>
                   <Text color="inherit" fontSize="9px" fontWeight="bold">%</Text>
                 </Flex>
@@ -169,7 +108,7 @@ export const BgRangeSummary = React.memo(props => {
             <Text className={'range-summary-bg-units'} lineHeight={0} color="grays.4" fontSize="10px">{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
             <Flex className={'range-summary-cgm-use'} alignItems="flex-end" justifyContent="flex-start" flexWrap="nowrap" sx={{ gap: 1}}>
               <Text lineHeight={0} color="text.primary" fontSize="10px" fontWeight="medium">{t('% CGM Use: ')}</Text>
-              <Text lineHeight="10px" color="text.primary" fontSize="12px" fontWeight="bold">{t('{{cgmUsePercent}} %', { cgmUsePercent })}</Text>
+              <Text lineHeight="10px" color="text.primary" fontSize="12px" fontWeight="bold">{t('{{cgmUsePercent}} %', { cgmUsePercent: utils.formatThresholdPercentage(cgmUsePercent, ...DEFAULT_FILTER_THRESHOLDS.cgmUse) })}</Text>
             </Flex>
           </Flex>
         </Box>

@@ -419,6 +419,11 @@ export default (type) => {
     case types.FETCH_INFO_FAILURE:
       return 'fetchingInfo';
 
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST:
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE:
+      return 'fetchingTideDashboardPatients';
+
     default:
       return null;
   }
