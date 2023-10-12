@@ -32,11 +32,13 @@ describe('ClinicDetails', () => {
     api: {
       clinics: {
         getClinicianInvites: sinon.stub().callsArgWith(1, null, { invitesReturn: 'success' }),
-        getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
+        getClinicsForClinician: sinon.stub().callsArgWith(2, null, [{clinic:{id:'newClinic123'}}] ),
         dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
         update: sinon.stub().callsArgWith(2, null, { canMigrate: true }),
         create: sinon.stub().callsArgWith(1, null, { id: 'newClinic123' }),
         triggerInitialClinicMigration: sinon.stub().callsArgWith(1, null, { triggerMigrationReturn: 'success' }),
+        getEHRSettings: sinon.stub().callsArgWith(1, null, { enabled: true }),
+        getMRNSettings: sinon.stub().callsArgWith(1, null, { required: true }),
       },
       user: {
         put: sinon.stub().callsArgWith(1, null, { updateUserReturn: 'success' }),
@@ -592,7 +594,7 @@ describe('ClinicDetails', () => {
             },
           );
 
-          expect(store.getActions()).to.eql([
+          const expectedActions = [
             { type: 'CREATE_CLINIC_REQUEST' },
             { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic123' } },
             {
@@ -602,8 +604,15 @@ describe('ClinicDetails', () => {
               },
             },
             { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
-            { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics: { clinicsReturn: 'success' }, clinicianId: 'clinicianUserId123' } },
-          ]);
+            { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics: [ { clinic: { id: 'newClinic123' } } ], clinicianId: 'clinicianUserId123' } },
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic123', settings: {enabled: true} } },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+            { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic123', settings: {required: true} } },
+          ];
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
 
           done();
         }, 0);

@@ -132,6 +132,18 @@ describe('ClinicPatients', () => {
 
   let store = mockStore(noPatientsState);
 
+  const mrnRequiredState = merge({}, noPatientsState, {
+    blip: {
+      clinics: {
+        clinicID123: {
+          mrnSettings: {
+            required: true,
+          },
+        },
+      },
+    },
+  });
+
   const hasPatientsState = merge({}, noPatientsState, {
     blip: {
       allUsersMap: {
@@ -657,6 +669,58 @@ describe('ClinicPatients', () => {
       expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
       expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
     });
+
+    it('should prevent adding a new patient witout an MRN if required by the clinic', () => {
+      store = mockStore(mrnRequiredState);
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      const addButton = wrapper.find('button#add-patient');
+      expect(addButton.text()).to.equal('Add New Patient');
+
+      const dialog = () => wrapper.find('Dialog#addPatient');
+
+      expect(dialog()).to.have.length(0);
+      addButton.simulate('click');
+      wrapper.update();
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: ''}});
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn876');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+    });
   });
 
   context('has patients', () => {
@@ -1164,6 +1228,10 @@ describe('ClinicPatients', () => {
         beforeEach(() => {
           store = mockStore(tier0100ClinicState);
 
+          ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            showSummaryDashboard: false,
+          }));
+
           wrapper = mount(
             <Provider store={store}>
               <ToastProvider>
@@ -1174,6 +1242,10 @@ describe('ClinicPatients', () => {
 
           wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
           defaultProps.trackMetric.resetHistory();
+        });
+
+        afterEach(() => {
+          ClinicPatients.__ResetDependency__('useFlags');
         });
 
         it('should show the standard table columns', () => {
@@ -1214,6 +1286,26 @@ describe('ClinicPatients', () => {
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           birthdayHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-birthDate' }));
+        });
+
+        context('showSummaryDashboard flag is true', () => {
+          it('should show the summary dashboard instead of the standard patient table', () => {
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showSummaryDashboard: true,
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+
+            expect(wrapper.find('#summary-dashboard-filters').hostNodes()).to.have.lengthOf(1);
+          });
         });
       });
 
@@ -2047,7 +2139,9 @@ describe('ClinicPatients', () => {
           });
 
           it('should set the table sort UI based on the the sort params from localStorage', () => {
+
             const activeSortLable = wrapper.find('.MuiTableSortLabel-active').hostNodes();
+            console.log(wrapper.find('.MuiTable').debug())
             expect(activeSortLable.text()).to.equal('Avg. Glucose (mg/dL)');
             expect(activeSortLable.find('.MuiTableSortLabel-iconDirectionDesc').hostNodes()).to.have.lengthOf(1);
           });
@@ -2672,6 +2766,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useFlags');
             TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
             TideDashboardConfigForm.__ResetDependency__('useLocation');
           });
@@ -2921,6 +3016,10 @@ describe('ClinicPatients', () => {
             ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
               showTideDashboard: false,
             }));
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useFlags');
           });
 
           it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {

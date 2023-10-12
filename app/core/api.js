@@ -997,6 +997,14 @@ api.clinics.updatePatientPermissions = function(clinicId, patientId, permissions
   return tidepool.updatePatientPermissions(clinicId, patientId, permissions, cb);
 };
 
+api.clinics.getMRNSettings = function(clinicId, cb) {
+  return tidepool.getClinicMRNSettings(clinicId, cb);
+};
+
+api.clinics.getEHRSettings = function(clinicId, cb) {
+  return tidepool.getClinicEHRSettings(clinicId, cb);
+};
+
 api.clinics.getClinicsForPatient = function(userId, options, cb) {
   return tidepool.getClinicsForPatient(userId, options, cb);
 };

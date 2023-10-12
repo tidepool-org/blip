@@ -4,6 +4,7 @@ import moment from 'moment-timezone';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import map from 'lodash/map';
 import merge from 'lodash/merge';
 import defaults from 'lodash/defaults';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
@@ -12,7 +13,6 @@ import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
 import LDClientMock from '../../fixtures/LDClientMock';
-import { utils as vizUtils } from '@tidepool/viz';
 
 /* global chai */
 /* global sinon */
@@ -53,6 +53,7 @@ describe('TideDashboard', () => {
 
     TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
       showTideDashboard: true,
+      showSummaryDashboard: true,
     }));
   });
 
@@ -290,8 +291,35 @@ describe('TideDashboard', () => {
       });
     });
 
-    it('should redirect back to the clinic workspace if clinic tier < 300', () => {
+    it('should redirect back to the clinic workspace if clinic tier < 300 and the showSummaryDashboard flag is false', () => {
+      // Redirect if showSummaryDashboard is false and tier < 0300
+      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+        showTideDashboard: true,
+        showSummaryDashboard: false,
+      }));
+
       store = mockStore(tier0200ClinicState);
+      store.clearActions();
+
+      const resultingActionTypes = store => map(store.getActions(), 'type');
+
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      expect(resultingActionTypes(store)[2]).to.equal('@@router/CALL_HISTORY_METHOD');
+      expect(store.getActions()[2].payload).to.eql({ args: ['/clinic-workspace'], method: 'push' });
+
+      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+        showTideDashboard: true,
+        showSummaryDashboard: true,
+      }));
+
+      // No redirect if showSummaryDashboard is true and tier < 0300
       store.clearActions();
 
       wrapper = mount(
@@ -302,10 +330,26 @@ describe('TideDashboard', () => {
         </Provider>
       );
 
-      expect(store.getActions()[2]).to.eql({
-        payload: { args: ['/clinic-workspace'], method: 'push' },
-        type: '@@router/CALL_HISTORY_METHOD',
-      });
+      expect(resultingActionTypes(store)).to.not.include('@@router/CALL_HISTORY_METHOD');
+
+      // No redirect if showSummaryDashboard is false and tier = 0300
+      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+        showTideDashboard: true,
+        showSummaryDashboard: false,
+      }));
+
+      store = mockStore(tier0300ClinicState);
+      store.clearActions();
+
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      expect(resultingActionTypes(store)).to.not.include('@@router/CALL_HISTORY_METHOD');
     });
 
     it('should clear the current patient in view', () => {
