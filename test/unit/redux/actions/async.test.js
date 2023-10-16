@@ -568,8 +568,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -618,8 +618,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -671,8 +671,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -724,8 +724,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -776,8 +776,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -828,8 +828,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -1678,8 +1678,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -1716,8 +1716,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -1754,8 +1754,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -1793,8 +1793,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
@@ -1855,8 +1855,8 @@ describe('Actions', () => {
           clinics: {
             getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
             getClinicsForClinician: sinon.stub().callsArgWith(2, null, []),
-            getMRNSettings: sinon.stub().callsArgWith(1, null, []),
-            getEHRSettings: sinon.stub().callsArgWith(1, null, []),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
           },
         };
 
