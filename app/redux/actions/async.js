@@ -1848,8 +1848,10 @@ export function fetchClinic(api, clinicId) {
  * @param {Array} clinicIds - Array of clinic Ids of the clinics to fetch
  */
 export function fetchClinicsByIds(api, clinicIds) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.fetchClinicsByIdsRequest());
+
+    let pendingSentInvites = _.get(getState().blip.pendingSentInvites, []);
 
     const fetchers = {};
 
@@ -1869,9 +1871,18 @@ export function fetchClinicsByIds(api, clinicIds) {
       } else {
         dispatch(sync.fetchClinicsByIdsSuccess(resultsVal));
         // for each fetched clinic, get EHR and MRN settings
+
         _.forEach(resultsVal, clinic => {
-          dispatch(fetchClinicEHRSettings(api, clinic.id));
-          dispatch(fetchClinicMRNSettings(api, clinic.id));
+          // if there's no pending invite and user is not a patient of the clinic, then we need to
+          // fetch the EHR and MRN settings
+
+          let isPatientOfClinic = _.includes(getState().clinics[clinic].patients, getState().blip.loggedInUserId);
+          let isPendingSentInvite = _.find(pendingSentInvites, { clinicId: clinic.id });
+
+          if (!isPatientOfClinic && !isPendingSentInvite) {
+            dispatch(fetchClinicEHRSettings(api, clinic.id));
+            dispatch(fetchClinicMRNSettings(api, clinic.id));
+          }
         });
       }
     });
