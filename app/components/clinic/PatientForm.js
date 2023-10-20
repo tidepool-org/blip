@@ -68,6 +68,7 @@ export const PatientForm = (props) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const mrnSettings = clinic?.mrnSettings ?? {};
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
@@ -177,7 +178,7 @@ export const PatientForm = (props) => {
 
       dispatch(actions.async[actionMap[action][context].handler](api, ...actionMap[action][context].args()));
     },
-    validationSchema,
+    validationSchema: validationSchema({mrnSettings}),
   });
 
   const {
@@ -303,7 +304,7 @@ export const PatientForm = (props) => {
       <Box mb={4}>
         <TextInput
           {...getCommonFormikFieldProps('mrn', formikContext)}
-          label={t('MRN (optional)')}
+         label={mrnSettings?.required ? t('MRN') : t('MRN (optional)')}
           placeholder={t('MRN')}
           variant="condensed"
           width="100%"

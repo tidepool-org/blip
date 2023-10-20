@@ -157,9 +157,9 @@ describe('clinicUtils', function() {
 
   describe('patientSchema', () => {
     it('should return a yup schema for clinic fields', () => {
-      expect(clinicUtils.patientSchema).to.be.an('object');
+      expect(clinicUtils.patientSchema()).to.be.an('object');
 
-      expect(clinicUtils.patientSchema._nodes).to.be.an('array').and.have.members([
+      expect(clinicUtils.patientSchema()._nodes).to.be.an('array').and.have.members([
         'fullName',
         'birthDate',
         'email',
@@ -168,6 +168,15 @@ describe('clinicUtils', function() {
         'connectDexcom',
         'dataSources',
       ]);
+    });
+
+    it('should set mrn required when mrnSettings specify required', () => {
+      let defaultSchema = clinicUtils.patientSchema().describe();
+      let requiredSchema = clinicUtils.patientSchema({ mrnSettings: { required: true } }).describe();
+
+      expect(defaultSchema.fields.mrn.tests).to.be.an('array').and.have.length(0);
+      expect(requiredSchema.fields.mrn.tests).to.be.an('array').and.have.length(1);
+      expect(requiredSchema.fields.mrn.tests[0].name).to.equal('required');
     });
   });
 
