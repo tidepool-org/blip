@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.71.0-web-2387-agp-bgm.1",
+  "version": "1.71.0-web-2552-clinic-profile-route.2",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/karma/bin/karma start",
