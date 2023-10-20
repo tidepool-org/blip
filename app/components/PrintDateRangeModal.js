@@ -64,21 +64,24 @@ export const PrintDateRangeModal = (props) => {
   };
 
   const presetDaysOptions = {
-    agp: [7, 14],
+    agpBGM: [14, 30],
+    agpCGM: [7, 14],
     basics: [14, 21, 30, 90],
     bgLog: [14, 21, 30, 90],
     daily: [14, 21, 30, 90],
   };
 
   const [rangePresets, setRangePresets] = useLocalStorage(defaultRangesLocalKey, {
-    agp: 1,
+    agpBGM: 1,
+    agpCGM: 1,
     basics: 0,
     bgLog: 2,
     daily: 0,
   });
 
   const defaultDates = () => ({
-    agp: getLastNDays(presetDaysOptions.agp[rangePresets.agp], 'agp'),
+    agpBGM: getLastNDays(presetDaysOptions.agpBGM[rangePresets.agpBGM], 'agpBGM'),
+    agpCGM: getLastNDays(presetDaysOptions.agpCGM[rangePresets.agpCGM], 'agpCGM'),
     basics: getLastNDays(presetDaysOptions.basics[rangePresets.basics], 'basics'),
     bgLog: getLastNDays(presetDaysOptions.bgLog[rangePresets.bgLog], 'bgLog'),
     daily: getLastNDays(presetDaysOptions.daily[rangePresets.daily], 'daily'),
@@ -86,21 +89,24 @@ export const PrintDateRangeModal = (props) => {
 
   const defaults = useMemo(() => ({
     datePickerOpen: {
-      agp: false,
+      agpBGM: false,
+      agpCGM: false,
       basics: false,
       bgLog: false,
       daily: false,
     },
     dates: defaultDates(),
     enabled: {
-      agp: true,
+      agpBGM: true,
+      agpCGM: true,
       basics: true,
       bgLog: true,
       daily: true,
       settings: true,
     },
     errors: {
-      agp: false,
+      agpBGM: false,
+      agpCGM: false,
       basics: false,
       bgLog: false,
       daily: false,
@@ -117,7 +123,8 @@ export const PrintDateRangeModal = (props) => {
   const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
 
   const presetDateRanges = {
-    agp: useMemo(() => map(presetDaysOptions.agp, days => getLastNDays(days, 'agp')), [open]),
+    agpBGM: useMemo(() => map(presetDaysOptions.agpBGM, days => getLastNDays(days, 'agpBGM')), [open]),
+    agpCGM: useMemo(() => map(presetDaysOptions.agpCGM, days => getLastNDays(days, 'agpCGM')), [open]),
     basics: useMemo(() => map(presetDaysOptions.basics, days => getLastNDays(days, 'basics')), [open]),
     bgLog: useMemo(() => map(presetDaysOptions.bgLog, days => getLastNDays(days, 'bgLog')), [open]),
     daily: useMemo(() => map(presetDaysOptions.daily, days => getLastNDays(days, 'daily')), [open]),
@@ -132,9 +139,10 @@ export const PrintDateRangeModal = (props) => {
     : false
   );
 
-  const validateDates = ({ agp, basics, bgLog, daily }) => {
+  const validateDates = ({ agpBGM, agpCGM, basics, bgLog, daily }) => {
     const validationErrors = {
-      agp: enabled.agp && validateDatesSet(agp),
+      agpBGM: enabled.agpBGM && validateDatesSet(agpBGM),
+      agpCGM: enabled.agpCGM && validateDatesSet(agpCGM),
       basics: enabled.basics && validateDatesSet(basics),
       bgLog: enabled.bgLog && validateDatesSet(bgLog),
       daily: enabled.daily && validateDatesSet(daily),
@@ -145,7 +153,7 @@ export const PrintDateRangeModal = (props) => {
 
   const validateChartEnabled = () => {
     const validationErrors = {
-      general: (!enabled.agp && !enabled.basics && !enabled.bgLog && !enabled.daily && !enabled.settings)
+      general: (!enabled.agpBGM && !enabled.agpCGM && !enabled.basics && !enabled.bgLog && !enabled.daily && !enabled.settings)
         ? t('Please enable at least one chart to print')
         : false,
     };
@@ -175,9 +183,14 @@ export const PrintDateRangeModal = (props) => {
       key: 'settings',
     },
     {
-      daysOptions: presetDaysOptions.agp,
-      header: t('AGP Report'),
-      key: 'agp',
+      daysOptions: presetDaysOptions.agpCGM,
+      header: t('AGP Report (CGM)'),
+      key: 'agpCGM',
+    },
+    {
+      daysOptions: presetDaysOptions.agpBGM,
+      header: t('AGP Report (BGM)'),
+      key: 'agpBGM',
     },
   ];
 
@@ -205,7 +218,8 @@ export const PrintDateRangeModal = (props) => {
     if (!isEqual(validationErrors, defaults.errors)) return;
 
     const printOpts = {
-      agp: { endpoints: formatDateEndpoints(dates.agp), disabled: !enabled.agp },
+      agpBGM: { endpoints: formatDateEndpoints(dates.agpBGM), disabled: !enabled.agpBGM },
+      agpCGM: { endpoints: formatDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
       basics: { endpoints: formatDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
       daily: { endpoints: formatDateEndpoints(dates.daily), disabled: !enabled.daily },
@@ -222,7 +236,8 @@ export const PrintDateRangeModal = (props) => {
     };
 
     const metrics = {
-      agp: printOpts.agp.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.agp, 'agp'),
+      agpBGM: printOpts.agpBGM.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.agpBGM, 'agpBGM'),
+      agpCGM: printOpts.agpCGM.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.agpCGM, 'agpCGM'),
       basics: printOpts.basics.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.basics, 'basics'),
       bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.bgLog, 'bgLog'),
       daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.daily, 'daily'),
@@ -378,7 +393,8 @@ export const PrintDateRangeModal = (props) => {
 PrintDateRangeModal.propTypes = {
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDates: PropTypes.shape({
-    agp: PropTypes.number,
+    agpBGM: PropTypes.number,
+    agpCGM: PropTypes.number,
     basics: PropTypes.number,
     bgLog: PropTypes.number,
     daily: PropTypes.number,

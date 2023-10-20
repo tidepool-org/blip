@@ -22,7 +22,8 @@ describe('PrintDateRangeModal', function () {
   const props = {
     loggedInUserId,
     mostRecentDatumDates: {
-      agp: Date.parse('2020-03-10T00:00:00.000Z'),
+      agpBGM: Date.parse('2020-03-08T00:00:00.000Z'),
+      agpCGM: Date.parse('2020-03-10T00:00:00.000Z'),
       basics: Date.parse('2020-03-10T00:00:00.000Z'),
       bgLog: Date.parse('2020-03-12T00:00:00.000Z'),
       daily: Date.parse('2020-03-05T00:00:00.000Z'),
@@ -111,26 +112,28 @@ describe('PrintDateRangeModal', function () {
     basicsToggle().simulate('click');
     expect(basicsToggle().prop('aria-checked')).to.be.false;
     expect(localStorage[enabledChartsLocalKey]).to.eql(JSON.stringify({
-      agp: true,
+      agpBGM: true,
+      agpCGM: true,
       basics: false,
       bgLog: true,
       daily: true,
       settings: true,
     }));
 
-    const agpDatesRangePreset1 = () => wrapper.find('#days-agp').find('button').at(0).hostNodes();
-    const agpDatesRangePreset2 = () => wrapper.find('#days-agp').find('button').at(1).hostNodes();
-    const agpDatesRangeSelectedPreset = (wrap = wrapper) => wrap.find('#days-agp').find('.selected').hostNodes();
+    const agpCGMDatesRangePreset1 = () => wrapper.find('#days-agpCGM').find('button').at(0).hostNodes();
+    const agpCGMDatesRangePreset2 = () => wrapper.find('#days-agpCGM').find('button').at(1).hostNodes();
+    const agpCGMDatesRangeSelectedPreset = (wrap = wrapper) => wrap.find('#days-agpCGM').find('.selected').hostNodes();
 
-    expect(agpDatesRangePreset1().prop('value')).to.equal(7);
-    expect(agpDatesRangePreset2().prop('value')).to.equal(14);
-    expect(agpDatesRangeSelectedPreset().prop('value')).to.equal(14); // index 1 in preset list
+    expect(agpCGMDatesRangePreset1().prop('value')).to.equal(7);
+    expect(agpCGMDatesRangePreset2().prop('value')).to.equal(14);
+    expect(agpCGMDatesRangeSelectedPreset().prop('value')).to.equal(14); // index 1 in preset list
 
-    agpDatesRangePreset1().simulate('click');
-    expect(agpDatesRangeSelectedPreset().prop('value')).to.equal(7); // index 0 in preset list
+    agpCGMDatesRangePreset1().simulate('click');
+    expect(agpCGMDatesRangeSelectedPreset().prop('value')).to.equal(7); // index 0 in preset list
 
     expect(localStorage[defaultRangesLocalKey]).to.eql(JSON.stringify({
-      agp: 0, // stored preset option at index 0
+      agpBGM: 1,
+      agpCGM: 0, // stored preset option at index 0
       basics: 0,
       bgLog: 2,
       daily: 0,
@@ -138,18 +141,26 @@ describe('PrintDateRangeModal', function () {
 
     // new wrapper should load with the updated defaults from localStorage
     const newWrapper = mount(<PrintDateRangeModal {...props} />);
-    expect(agpDatesRangeSelectedPreset(newWrapper).prop('value')).to.equal(7);
+    expect(agpCGMDatesRangeSelectedPreset(newWrapper).prop('value')).to.equal(7);
     expect(basicsToggle(newWrapper).prop('aria-checked')).to.be.false;
   });
 
   it('should provide appropriate date ranges and selected defaults for each applicable chart', () => {
-    const agpDatesRangePreset1 = wrapper.find('#days-agp').find('button').at(0).hostNodes();
-    const agpDatesRangePreset2 = wrapper.find('#days-agp').find('button').at(1).hostNodes();
-    const agpDatesRangeSelectedPreset = wrapper.find('#days-agp').find('.selected').hostNodes();
+    const agpCGMDatesRangePreset1 = wrapper.find('#days-agpCGM').find('button').at(0).hostNodes();
+    const agpCGMDatesRangePreset2 = wrapper.find('#days-agpCGM').find('button').at(1).hostNodes();
+    const agpCGMDatesRangeSelectedPreset = wrapper.find('#days-agpCGM').find('.selected').hostNodes();
 
-    expect(agpDatesRangePreset1.prop('value')).to.equal(7);
-    expect(agpDatesRangePreset2.prop('value')).to.equal(14);
-    expect(agpDatesRangeSelectedPreset.prop('value')).to.equal(14);
+    expect(agpCGMDatesRangePreset1.prop('value')).to.equal(7);
+    expect(agpCGMDatesRangePreset2.prop('value')).to.equal(14);
+    expect(agpCGMDatesRangeSelectedPreset.prop('value')).to.equal(14);
+
+    const agpBGMDatesRangePreset1 = wrapper.find('#days-agpBGM').find('button').at(0).hostNodes();
+    const agpBGMDatesRangePreset2 = wrapper.find('#days-agpBGM').find('button').at(1).hostNodes();
+    const agpBGMDatesRangeSelectedPreset = wrapper.find('#days-agpBGM').find('.selected').hostNodes();
+
+    expect(agpBGMDatesRangePreset1.prop('value')).to.equal(14);
+    expect(agpBGMDatesRangePreset2.prop('value')).to.equal(30);
+    expect(agpBGMDatesRangeSelectedPreset.prop('value')).to.equal(30);
 
     const basicsDatesRangePreset1 = wrapper.find('#days-basics').find('button').at(0).hostNodes();
     const basicsDatesRangePreset2 = wrapper.find('#days-basics').find('button').at(1).hostNodes();
@@ -240,7 +251,11 @@ describe('PrintDateRangeModal', function () {
       submitButton().simulate('click');
       sinon.assert.calledOnce(props.onClickPrint);
       sinon.assert.calledWith(props.onClickPrint, {
-        agp: { disabled: false, endpoints: [
+        agpBGM: { disabled: false, endpoints: [
+          moment.utc(Date.parse('2020-03-09T00:00:00.000Z')).subtract(30, 'days').valueOf(),
+          Date.parse('2020-03-09T00:00:00.000Z'),
+        ] },
+        agpCGM: { disabled: false, endpoints: [
           moment.utc(Date.parse('2020-03-11T00:00:00.000Z')).subtract(14, 'days').valueOf(),
           Date.parse('2020-03-11T00:00:00.000Z'),
         ] },
@@ -280,9 +295,13 @@ describe('PrintDateRangeModal', function () {
     });
 
     it('should not call `onClickPrint` if there are no enabled charts and render error message', () => {
-      const agpToggle = () => wrapper.find('button[name="enabled-agp"]').hostNodes();
-      expect(agpToggle()).to.have.lengthOf(1);
-      expect(agpToggle().prop('aria-checked')).to.be.true;
+      const agpBGMToggle = () => wrapper.find('button[name="enabled-agpBGM"]').hostNodes();
+      expect(agpBGMToggle()).to.have.lengthOf(1);
+      expect(agpBGMToggle().prop('aria-checked')).to.be.true;
+
+      const agpCGMToggle = () => wrapper.find('button[name="enabled-agpCGM"]').hostNodes();
+      expect(agpCGMToggle()).to.have.lengthOf(1);
+      expect(agpCGMToggle().prop('aria-checked')).to.be.true;
 
       const basicsToggle = () => wrapper.find('button[name="enabled-basics"]').hostNodes();
       expect(basicsToggle()).to.have.lengthOf(1);
@@ -300,13 +319,15 @@ describe('PrintDateRangeModal', function () {
       expect(settingsToggle()).to.have.lengthOf(1);
       expect(settingsToggle().prop('aria-checked')).to.be.true;
 
-      agpToggle().simulate('click');
+      agpBGMToggle().simulate('click');
+      agpCGMToggle().simulate('click');
       basicsToggle().simulate('click');
       bgLogToggle().simulate('click');
       dailyToggle().simulate('click');
       settingsToggle().simulate('click');
 
-      expect(agpToggle().prop('aria-checked')).to.be.false;
+      expect(agpBGMToggle().prop('aria-checked')).to.be.false;
+      expect(agpCGMToggle().prop('aria-checked')).to.be.false;
       expect(basicsToggle().prop('aria-checked')).to.be.false;
       expect(bgLogToggle().prop('aria-checked')).to.be.false;
       expect(dailyToggle().prop('aria-checked')).to.be.false;
@@ -340,7 +361,8 @@ describe('PrintDateRangeModal', function () {
       submitButton().simulate('click');
 
       sinon.assert.calledWith(props.trackMetric, 'Submitted Print Options', {
-        agp: '14 days',
+        agpBGM: '30 days',
+        agpCGM: '14 days',
         basics: '14 days',
         bgLog: 'disabled',
         daily: '30 days',

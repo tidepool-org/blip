@@ -3044,13 +3044,13 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.35.0-web-2546-date-range-adjustment.1":
-  version "1.35.0-web-2546-date-range-adjustment.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.35.0-web-2546-date-range-adjustment.1.tgz#0238c20ae55a7cbd1fd4a2b7c7e2f29850bf1ed1"
-  integrity sha512-cK0Le7fRvh0jG32Wib34hgajYAJhBl2qpuTYpydY8d0A0ojT0pJNnFE/E0fFkvquS2HvmdX7HBFdle2t3SuGdw==
+"@tidepool/viz@1.37.0-web-2387-agp-bgm.2":
+  version "1.37.0-web-2387-agp-bgm.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.37.0-web-2387-agp-bgm.2.tgz#dea498315db0dc976f1d205e2e4b1cde1bfebe2b"
+  integrity sha512-hBKz5uWcuPV2Zt4hSw+J0sy76bklB/bqPF8aBwXBnMwBIivWjozs6NNaYTl5Qf/z+S3f0/T4aSUPptg3bqTZfg==
   dependencies:
     bluebird "3.5.2"
-    bows "1.7.0"
+    bows "1.7.2"
     classnames "2.2.6"
     crossfilter2 "1.5.2"
     d3-array "1.2.4"
@@ -3069,7 +3069,6 @@
     moment "2.29.4"
     moment-timezone "0.5.21"
     parse-svg-path "0.1.2"
-    plotly.js-basic-dist-min "2.20.0"
     prop-types "15.6.2"
     react "16.12.0"
     react-clipboard.js "2.0.16"
@@ -3807,7 +3806,7 @@ amdefine@>=0.0.4:
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
 
-andlog@^1.0.0:
+andlog@^1.0.0, andlog@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/andlog/-/andlog-1.0.2.tgz#0e77a44f62a782be3a78a7527beb5761c183f044"
   integrity sha512-ne6ibcbv3wqZHzbXarG7NfOpU2ai5ao6429ocq1betBBDDx7KE7R6k0IIeaT29JNko0lA88yVzHRRuxX2wpkHQ==
@@ -4924,6 +4923,13 @@ bows@1.7.0:
   integrity sha1-o1mO2c72GnoMqxpyQPKRZUhl7HY=
   dependencies:
     andlog "^1.0.0"
+
+bows@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/bows/-/bows-1.7.2.tgz#4deb95d5b78049794cce925a869155b722d2d516"
+  integrity sha512-AeIQNXbTstXOPjIBol9oTnaaO/2ByuExio0AEIx8vqOIJnAAWFfbWWzh7YPiSKYAxJNTjcy+J+xH2jCRb460Yw==
+  dependencies:
+    andlog "^1.0.2"
 
 bowser@2.9.0:
   version "2.9.0"
@@ -18824,10 +18830,10 @@ tideline@1.27.0:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.53.0-web-2500-tide-backend-integration.1:
-  version "0.53.0-web-2500-tide-backend-integration.1"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.53.0-web-2500-tide-backend-integration.1.tgz#77d0d507447009e5872adb2a19590b881bc8e17c"
-  integrity sha512-2oINMobnTvzr5KkABT734Rd1d3mxeac+MAMvn3y6SgNe5FF5mrkLwXfRusGvkv5RZfkURnUutKA6ZOCt6jRXeA==
+tidepool-platform-client@0.54.1:
+  version "0.54.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.54.1.tgz#de7404a48ea87220a17451d87476b98a82ec76e4"
+  integrity sha512-/zgOOTD3KDThRsNxuBBIc1r62snCriPdEc0StMV+6LZ+nfYv6B4gOVuSyWk2ZzNChps57fLLehTyC6iK6ZLKAQ==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"

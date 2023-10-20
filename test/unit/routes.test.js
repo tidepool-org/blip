@@ -455,6 +455,8 @@ describe('routes', () => {
         clinics: {
           getClinicsForClinician: sinon.stub().callsArgWith(2, null, [{ clinic: { id: 'newClinic' } }]),
           getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+          getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+          getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
         },
       };
 
@@ -480,6 +482,10 @@ describe('routes', () => {
           clinicianId: 'a1b2c3',
           clinics: [{ clinic: { id: 'newClinic' } }],
         } },
+        { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+        { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
+        { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+        { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
         { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
@@ -514,6 +520,8 @@ describe('routes', () => {
         clinics: {
           getClinicsForClinician: sinon.stub().callsArgWith(2, null, [{ clinic: { id: 'newClinic', name: 'Clinic ABC', canMigrate: true } }]),
           getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+          getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+          getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
         },
       };
 
@@ -539,6 +547,10 @@ describe('routes', () => {
           clinicianId: 'a1b2c3',
           clinics: [{ clinic: { id: 'newClinic', name: 'Clinic ABC', canMigrate: true } }],
         } },
+        { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+        { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
+        { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+        { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
         { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
