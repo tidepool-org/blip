@@ -42,3 +42,6 @@ locales/*/*_old.json
 
 # npm-link-up
 .nlu.json
+
+#yarn
+.yarn

@@ -1,5 +1,9 @@
 {
   "name": "blip",
+  "engines": {
+    "node": "20.8.0"
+  },
+  "packageManager": "yarn@3.6.4",
   "version": "1.70.2",
   "private": true,
   "scripts": {
@@ -24,10 +28,6 @@
     "lint": "npm run lint:js && npm run lint:css",
     "lint:js": "./node_modules/.bin/eslint app stories test",
     "lint:css": "stylelint './app/components/**/*.js'"
-  },
-  "engines": {
-    "node": ">=10.x",
-    "npm": ">=6.x"
   },
   "dependencies": {
     "body-parser": "1.18.3",
@@ -175,7 +175,7 @@
     "terser": "4.8.1",
     "terser-webpack-plugin": "2.2.1",
     "tideline": "1.27.0",
-    "tidepool-platform-client": "0.54.1",
+    "tidepool-platform-client": "0.55.0-web-2595-critical-depandancy-updates.1",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.33",
     "url-loader": "1.1.1",

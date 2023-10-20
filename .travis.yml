@@ -4,7 +4,7 @@ os: linux
 dist: jammy
 
 node_js:
-  - "10.14.2"
+  - "20.8.0"
   - node
 
 cache:
@@ -18,7 +18,7 @@ before_install:
   - export PATH="$HOME/.yarn/bin:$PATH"
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
   - docker pull docker.io/docker/dockerfile:experimental
-  - docker pull docker.io/library/node:10.14.2-alpine
+  - docker pull docker.io/library/node:20.8.0-alpine
   - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
 install:
