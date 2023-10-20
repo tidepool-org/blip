@@ -3368,15 +3368,19 @@ describe('PatientData', function () {
     before(() => {
       PD.__Rewire__('vizUtils', {
         agp: {
-          generateAGPSVGDataURLS: sinon.stub()
+          generateAGPFigureDefinitions: sinon.stub()
             .onFirstCall().resolves('stubbed image data')
             .onSecondCall().rejects(new Error('failed image generation')),
         },
+      });
+      PD.__Rewire__('Plotly', {
+        toImage: sinon.stub().returns('stubbed image data')
       });
     });
 
     after(() => {
       PD.__ResetDependency__('vizUtils');
+      PD.__ResetDependency__('Plotly');
     });
 
     beforeEach(() => {
@@ -3392,7 +3396,9 @@ describe('PatientData', function () {
       setTimeout(() => {
         sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 0);
         sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 1);
-        sinon.assert.calledWith(defaultProps.generateAGPImagesSuccess, 'stubbed image data');
+        sinon.assert.calledWithMatch(defaultProps.generateAGPImagesSuccess, {
+          0: 'stubbed image data'
+        });
         done();
       });
     });

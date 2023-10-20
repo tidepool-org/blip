@@ -349,6 +349,16 @@ export default (type) => {
     case types.UPDATE_PATIENT_PERMISSIONS_FAILURE:
       return 'updatingPatientPermissions';
 
+    case types.FETCH_CLINIC_MRN_SETTINGS_REQUEST:
+    case types.FETCH_CLINIC_MRN_SETTINGS_SUCCESS:
+    case types.FETCH_CLINIC_MRN_SETTINGS_FAILURE:
+      return 'fetchingClinicMRNSettings';
+
+    case types.FETCH_CLINIC_EHR_SETTINGS_REQUEST:
+    case types.FETCH_CLINIC_EHR_SETTINGS_SUCCESS:
+    case types.FETCH_CLINIC_EHR_SETTINGS_FAILURE:
+      return 'fetchingClinicEHRSettings';
+
     case types.FETCH_CLINICS_FOR_PATIENT_REQUEST:
     case types.FETCH_CLINICS_FOR_PATIENT_SUCCESS:
     case types.FETCH_CLINICS_FOR_PATIENT_FAILURE:
