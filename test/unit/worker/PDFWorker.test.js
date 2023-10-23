@@ -93,20 +93,6 @@ describe('PDFWorker', () => {
     expect(Worker.handleMessage).to.be.a('function');
   });
 
-  it('should import the required static files upon pdf generation request', () => {
-    renderer.resolves(pdf);
-
-    const postMessage = sinon.stub();
-
-    const action = actions.generatePDFRequest(type, queries, opts());
-    const origin = action.meta.origin;
-
-    Worker.handleMessage({ data: action }, postMessage);
-
-    sinon.assert.calledOnce(importer);
-    sinon.assert.calledWithExactly(importer, `${origin}/pdfkit.js`, `${origin}/blob-stream.js`);
-  });
-
   it('should call the pdf rendering method properly upon request', () => {
     renderer.resolves(pdf);
 

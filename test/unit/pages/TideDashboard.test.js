@@ -372,7 +372,6 @@ describe('TideDashboard', () => {
       expect(store.getActions()[0]).to.eql({
         meta: {
           WebWorker: true,
-          origin: 'http://localhost:9876',
           patientId: 'patientInViewID',
           worker: 'data',
         },

@@ -43,7 +43,6 @@ export default class PDFWorker {
       case actionTypes.GENERATE_PDF_REQUEST: {
         const { type, queries, data = {} } = action.payload;
         const opts = { ...action.payload.opts }
-        const { origin } = action.meta;
 
         if (queries) {
           // AGP report requires images to be generated on the main thread by Plotly in order to
@@ -87,7 +86,7 @@ export default class PDFWorker {
           });
         }
 
-        this.generatePDF(data, opts, origin, type, postMessage);
+        this.generatePDF(data, opts, type, postMessage);
         break;
       }
 
@@ -100,15 +99,12 @@ export default class PDFWorker {
     postMessage(syncActions.generateAGPImagesRequest(data, opts, query))
   }
 
-  generatePDF(data, opts, origin, type, postMessage) {
+  generatePDF(data, opts, type, postMessage) {
     this.log('data', data);
     this.log('opts', opts);
 
-    const importLib = typeof this.importer !== 'undefined' ? this.importer : importScripts;
     const renderLib = typeof this.renderer !== 'undefined' ?
       this.renderer : createPrintPDFPackage;
-
-    importLib(`${origin}/pdfkit.js`, `${origin}/blob-stream.js`);
 
     renderLib(data, opts).then(pdf =>
       postMessage(actions.generatePDFSuccess({ [type]: pdf }))
