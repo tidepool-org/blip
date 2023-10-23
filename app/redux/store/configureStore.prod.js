@@ -24,8 +24,6 @@ import { stringify, parse } from 'qs';
 import assign from 'lodash/assign';
 import throttle from 'lodash/throttle';
 
-import Worker from 'worker-loader?inline!./../../worker/index';
-
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 import { loadLocalState, saveLocalState } from './localStorage';
@@ -45,7 +43,7 @@ const reducer = combineReducers({
   router: connectRouter(history),
 });
 
-const worker = new Worker;
+const worker = new Worker(new URL('./../../worker/index', import.meta.url));
 const workerMiddleware = createWorkerMiddleware(worker);
 
 function _createStore(api) {

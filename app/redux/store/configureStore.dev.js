@@ -59,7 +59,7 @@ const loggerMiddleware = createLogger({
   collapsed: true,
 });
 
-const worker = new Worker;
+const worker = new Worker(new URL('./../../worker/index', import.meta.url));
 const workerMiddleware = createWorkerMiddleware(worker);
 
 let enhancer;
