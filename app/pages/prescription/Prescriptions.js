@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
@@ -485,4 +485,4 @@ const Prescriptions = props => {
   );
 };
 
-export default translate()(Prescriptions);
+export default withTranslation()(Prescriptions);

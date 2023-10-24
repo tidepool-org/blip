@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Text, Box, Flex } from 'rebass/styled-components';
 import map from 'lodash/map';
 import isEqual from 'lodash/isEqual';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import {
   usePopupState,
@@ -131,4 +131,4 @@ BgRangeSummary.propTypes = {
   targetRange: PropTypes.arrayOf(PropTypes.number).isRequired,
 }
 
-export default translate()(BgRangeSummary);
+export default withTranslation()(BgRangeSummary);

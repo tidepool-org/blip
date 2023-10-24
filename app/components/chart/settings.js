@@ -3,7 +3,7 @@ import bows from 'bows';
 import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
-import { Trans, translate } from 'react-i18next';
+import { Trans, withTranslation } from 'react-i18next';
 import { Flex } from 'rebass/styled-components';
 
 import * as viz from '@tidepool/viz';
@@ -12,7 +12,7 @@ const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 import Header from './header';
 import Button from '../elements/Button';
 
-const Settings = translate()(createReactClass({
+const Settings = withTranslation()(createReactClass({
   displayName: 'Settings',
   chartType: 'settings',
   log: bows('Settings View'),

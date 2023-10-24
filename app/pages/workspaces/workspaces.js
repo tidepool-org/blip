@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -516,4 +516,4 @@ Workspaces.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-export default translate()(Workspaces);
+export default withTranslation()(Workspaces);

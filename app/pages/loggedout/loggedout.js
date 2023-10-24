@@ -1,5 +1,5 @@
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Box, Flex } from 'rebass/styled-components';
 import { keycloak } from '../../keycloak';
 
@@ -54,4 +54,4 @@ export const LoggedOut = (props) => {
 
 LoggedOut.propTypes = {};
 
-export default translate()(LoggedOut);
+export default withTranslation()(LoggedOut);

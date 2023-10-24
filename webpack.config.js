@@ -49,9 +49,11 @@ const styleLoaderConfiguration = {
     (isDev || isTest) ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
       loader: 'css-loader',
-      query: {
+      options: {
+        modules: {
+          localIdentName,
+        },
         importLoaders: 2,
-        localIdentName,
         sourceMap: isDev,
       },
     },
@@ -65,7 +67,9 @@ const styleLoaderConfiguration = {
       loader: 'less-loader',
       options: {
         sourceMap: isDev,
-        javascriptEnabled: true,
+        lessOptions: {
+          javascriptEnabled: true,
+        },
       },
     },
   ],
@@ -93,6 +97,12 @@ const babelLoaderConfiguration = [
       loader: 'source-map-loader',
     },
   },
+  { // Needed to resolve material-ui
+    test: /\.m?js/,
+    resolve: {
+      fullySpecified: false
+    }
+  },
 ];
 
 // This is needed for webpack to import static images in JavaScript files
@@ -111,7 +121,7 @@ const fontLoaderConfiguration = [
     test: /\.eot$/,
     use: {
       loader: 'url-loader',
-      query: {
+      options: {
         limit: 10000,
         mimetype: 'application/vnd.ms-fontobject',
       },
@@ -121,7 +131,7 @@ const fontLoaderConfiguration = [
     test: /\.woff$/,
     use: {
       loader: 'url-loader',
-      query: {
+      options: {
         limit: 10000,
         mimetype: 'application/font-woff',
       },
@@ -131,7 +141,7 @@ const fontLoaderConfiguration = [
     test: /\.ttf$/,
     use: {
       loader: 'url-loader',
-      query: {
+      options: {
         limit: 10000,
         mimetype: 'application/octet-stream',
       },
@@ -166,23 +176,26 @@ const plugins = [
     __PROD__: isProd,
     __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq
   }),
+  new webpack.ProvidePlugin({
+    Buffer: ['buffer', 'Buffer'],
+    process: 'process/browser.js',
+  }),
   new MiniCssExtractPlugin({
     filename: isDev ? 'style.css' : 'style.[contenthash].css',
   }),
-  new CopyWebpackPlugin([
-    {
-      from: 'static',
-      transform: (content, path) => {
-        if (isDev || !path.endsWith('js')) {
-         return content;
-        }
-
-        const code = fs.readFileSync(path, 'utf8');
-        const result = terser.minify(code);
-        return result.code;
-      }
-    }
-  ]),
+  new CopyWebpackPlugin({
+    patterns: [
+      {
+        from: 'static',
+        transform: (content, path) => {
+          if (isDev || !path.endsWith('js')) return content;
+          const code = fs.readFileSync(path, 'utf8');
+          const result = terser.minify(code);
+          return result.code;
+        },
+      },
+    ],
+  }),
   new HtmlWebpackPlugin({
     template: 'index.ejs',
     favicon: 'favicon.ico',
@@ -238,6 +251,20 @@ const resolve = {
     'react-addons-update': path.resolve('node_modules/react-addons-update'),
     'react-redux': path.resolve('node_modules/react-redux'),
     redux: path.resolve('node_modules/redux'),
+    // maps fs to a virtual one allowing to register file content dynamically
+    fs: 'pdfkit/js/virtual-fs.js',
+    // iconv-lite is used to load cid less fonts (not spec compliant)
+    'iconv-lite': false,
+  },
+  fallback: {
+    // crypto module is not necessary at browser
+    crypto: false,
+    // fallbacks for native node libraries (required for PDFKit)
+    buffer: require.resolve('buffer/'),
+    stream: require.resolve('readable-stream'),
+    zlib: require.resolve('browserify-zlib'),
+    util: require.resolve('util/'),
+    assert: require.resolve('assert/')
   },
 };
 
@@ -293,9 +320,6 @@ module.exports = {
   resolveLoader: resolve,
   cache: isDev,
   watchOptions: {
-    ignored: [
-      /node_modules([\\]+|\/)+(?!(tideline|tidepool-platform-client|@tidepool\/viz))/,
-      /(tideline|tidepool-platform-client|@tidepool\/viz)([\\]+|\/)node_modules/
-    ]
+    ignored: /node_modules([\\]+|\/)+(?!(tideline|tidepool-platform-client|@tidepool\/viz))|(tideline|tidepool-platform-client|@tidepool\/viz)([\\]+|\/)node_modules/,
   },
 };

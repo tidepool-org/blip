@@ -22,7 +22,7 @@ import bows from 'bows';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Flex } from 'rebass/styled-components';
 
 import Stats from './stats';
@@ -44,7 +44,7 @@ const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
 
 import Header from './header';
 
-const DailyChart = translate()(class DailyChart extends Component {
+const DailyChart = withTranslation()(class DailyChart extends Component {
   static propTypes = {
     bgClasses: PropTypes.object.isRequired,
     bgUnits: PropTypes.string.isRequired,
@@ -157,11 +157,9 @@ const DailyChart = translate()(class DailyChart extends Component {
   };
 
   render = () => {
-    /* jshint ignore:start */
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
       );
-    /* jshint ignore:end */
   };
 
   // handlers
@@ -716,4 +714,4 @@ class Daily extends Component {
   };
 }
 
-export default translate()(Daily);
+export default withTranslation()(Daily);

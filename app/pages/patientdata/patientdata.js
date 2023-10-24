@@ -20,7 +20,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import Plotly from 'plotly.js-basic-dist-min';
 
@@ -2123,7 +2123,7 @@ PatientDataClass.contextType = ToastContext;
 // We need to apply the contextType prop to use the Toast provider with create-react-class.
 // This produces an issue with the current enzyme mounting and breaks unit tests.
 // Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
-export const PatientData = translate()(props => <PatientDataClass {...props}/>);
+export const PatientData = withTranslation()(props => <PatientDataClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

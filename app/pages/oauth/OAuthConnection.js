@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { useParams, useLocation } from 'react-router-dom';
 import capitalize from 'lodash/capitalize';
 import includes from 'lodash/includes';
@@ -143,4 +143,4 @@ OAuthConnection.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(OAuthConnection);
+export default withTranslation()(OAuthConnection);

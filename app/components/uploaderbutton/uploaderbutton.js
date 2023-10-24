@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import GitHub from 'github-api';
 import _ from 'lodash';
 import utils from '../../core/utils';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Flex, Box } from 'rebass/styled-components';
 
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
@@ -13,7 +13,7 @@ import Button from '../elements/Button';
 
 const github = new GitHub();
 
-export default translate()(class UploaderButton extends Component {
+export default withTranslation()(class UploaderButton extends Component {
   constructor(props) {
     super(props);
     this.state = {

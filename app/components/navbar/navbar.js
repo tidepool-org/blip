@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Flex, Box } from 'rebass/styled-components'
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 
 import _ from 'lodash';
@@ -14,7 +14,7 @@ import NavigationMenu from './NavigationMenu';
 import Button from '../elements/Button';
 
 import logoSrc from './images/tidepool-logo-408x46.png';
-export default translate()(class extends React.Component {
+export default withTranslation()(class extends React.Component {
   static propTypes = {
     clinicFlowActive: PropTypes.bool,
     clinics: PropTypes.array,

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Flex } from 'rebass/styled-components';
 import map from 'lodash/map';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import utils from '../../core/utils';
@@ -96,4 +96,4 @@ BgSummaryCell.propTypes = {
   targetRange: PropTypes.arrayOf(PropTypes.number).isRequired,
 }
 
-export default translate()(BgSummaryCell);
+export default withTranslation()(BgSummaryCell);

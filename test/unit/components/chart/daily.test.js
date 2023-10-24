@@ -12,7 +12,7 @@ var _ = require('lodash');
 var expect = chai.expect;
 
 import { shallow, mount } from 'enzyme';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import i18next from '../../../../app/core/language';
 import Daily from '../../../../app/components/chart/daily';
@@ -109,7 +109,7 @@ describe('Daily', () => {
 
   describe('render', () => {
     before(() => {
-      Daily.__Rewire__('DailyChart', translate()(createReactClass({
+      Daily.__Rewire__('DailyChart', withTranslation()(createReactClass({
         rerenderChart: sinon.stub(),
         render: () => <div className='fake-daily-chart' />,
       })));

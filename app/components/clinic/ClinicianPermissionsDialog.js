@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import map from 'lodash/map';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
@@ -91,4 +91,4 @@ ClinicianPermissionsDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicianPermissionsDialog);
+export default withTranslation()(ClinicianPermissionsDialog);

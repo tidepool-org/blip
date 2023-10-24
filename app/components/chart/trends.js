@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Flex } from 'rebass/styled-components';
 
 import Header from './header';
@@ -37,7 +37,7 @@ const {
   FocusedSMBGPointLabel,
 } = vizComponents;
 
-const Trends = translate()(class Trends extends PureComponent {
+const Trends = withTranslation()(class Trends extends PureComponent {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -720,4 +720,4 @@ ClinicAdmin.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicAdmin);
+export default withTranslation()(ClinicAdmin);

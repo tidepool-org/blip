@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import includes from 'lodash/includes';
@@ -142,4 +142,4 @@ TideDashboardConfigForm.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(TideDashboardConfigForm);
+export default withTranslation()(TideDashboardConfigForm);

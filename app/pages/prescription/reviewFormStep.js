@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
 import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
@@ -515,7 +515,7 @@ export const TherapySettings = props => {
 
 TherapySettings.propTypes = fieldsetPropTypes;
 
-export const PrescriptionReview = translate()(props => {
+export const PrescriptionReview = withTranslation()(props => {
   const { validateForm, values } = useFormikContext();
 
   // At this point we consider the prescription ready to send so we ensure the values are validated

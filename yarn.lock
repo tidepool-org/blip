@@ -5335,9 +5335,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.1":
-  version: 1.38.0-web-2595-critical-depandancy-updates.1
-  resolution: "@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.1"
+"@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.2":
+  version: 1.38.0-web-2595-critical-depandancy-updates.2
+  resolution: "@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5391,13 +5391,12 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || ^7.0.0-bridge.0
     classnames: 2.x
-    lodash: ^4.17.21
     react: 16.x
     react-addons-update: 16.x
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 3970f7fd83a5b4c69f16cf9163875b8bbd7d7a2a5a7ffb0e8f3228e09fddb4486bc38a1f6f101d3cd3c4e5d6411bf2f07e2fba061f0ef2edbb62e9112316c0d3
+  checksum: ee4bb50d224d09f9413d169df1e93c61a3481fb064b0ea88ae0713a7fc94979a379ac18ba1e26a38cf7c59f1b1e05199d3b0c3b7d0e4cff95c72b55e580dcfbf
   languageName: node
   linkType: hard
 
@@ -7657,7 +7656,7 @@ __metadata:
     "@storybook/cli": 7.5.0
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
-    "@tidepool/viz": 1.38.0-web-2595-critical-depandancy-updates.1
+    "@tidepool/viz": 1.38.0-web-2595-critical-depandancy-updates.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7669,6 +7668,8 @@ __metadata:
     body-parser: 1.20.2
     bows: 1.7.2
     browser-locale: 1.0.3
+    browserify-zlib: 0.2.0
+    buffer: 6.0.3
     canonicalize: 2.0.0
     chai: 4.3.10
     chromedriver: 116.0.0
@@ -7731,6 +7732,7 @@ __metadata:
     optional: 0.1.4
     plotly.js-basic-dist-min: 2.27.0
     postcss-loader: 7.3.3
+    process: 0.11.10
     prop-types: 15.8.1
     qhistory: 1.1.0
     qs: 6.11.2
@@ -7750,6 +7752,7 @@ __metadata:
     react-select: 5.7.7
     react-test-renderer: 18.2.0
     react-window-size-listener: 1.5.4
+    readable-stream: 4.4.2
     rebass: 4.0.7
     redux: 4.2.1
     redux-cache: 0.3.0
@@ -7784,6 +7787,7 @@ __metadata:
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
+    util: 0.12.5
     webpack: 5.89.0
     webpack-cli: 5.1.4
     webpack-dev-server: 4.15.1

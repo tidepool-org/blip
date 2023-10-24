@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -407,4 +407,4 @@ ShareInvite.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ShareInvite);
+export default withTranslation()(ShareInvite);

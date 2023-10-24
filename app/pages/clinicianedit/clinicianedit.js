@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useFormik } from 'formik';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get';
 import map from 'lodash/map';
@@ -430,4 +430,4 @@ ClinicianEdit.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicianEdit);
+export default withTranslation()(ClinicianEdit);

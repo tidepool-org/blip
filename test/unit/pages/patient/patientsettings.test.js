@@ -112,9 +112,9 @@ describe('PatientSettings', function () {
     };
 
     const patientSettingsElem = React.createElement(PatientSettings, props);
-    const elem = TestUtils.renderIntoDocument(patientSettingsElem).getWrappedInstance();
+    const elem = TestUtils.renderIntoDocument(patientSettingsElem)?.getWrappedInstance();
 
-    const initialState = elem.state;
+    const initialState = elem?.state || {};
 
     it('should return an object with tracked set to false for low and high bounds', function() {
       expect(Object.keys(initialState).length).to.equal(2);

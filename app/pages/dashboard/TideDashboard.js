@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
@@ -1022,4 +1022,4 @@ TideDashboard.defaultProps = {
   searchDebounceMs: 1000,
 };
 
-export default translate()(TideDashboard);
+export default withTranslation()(TideDashboard);

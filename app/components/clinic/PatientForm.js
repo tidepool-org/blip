@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
 import find from 'lodash/find';
@@ -550,4 +550,4 @@ PatientForm.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(PatientForm);
+export default withTranslation()(PatientForm);

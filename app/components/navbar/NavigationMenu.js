@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import has from 'lodash/has';
@@ -203,4 +203,4 @@ NavigationMenu.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-export default translate()(NavigationMenu);
+export default withTranslation()(NavigationMenu);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import customProtocolCheck from 'custom-protocol-check';
 import { Redirect } from 'react-router-dom';
@@ -117,4 +117,4 @@ const UploadRedirect = (props) => {
   );
 };
 
-export default translate()(UploadRedirect);
+export default withTranslation()(UploadRedirect);

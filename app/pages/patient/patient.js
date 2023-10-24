@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
@@ -30,7 +30,7 @@ import ModalOverlay from '../../components/modaloverlay';
 import PatientInfo from './patientinfo';
 import { PatientTeam } from './patientteam';
 
-const Patient = translate()(createReactClass({
+const Patient = withTranslation()(createReactClass({
   displayName: 'Patient',
 
   // many things *not* required here because they aren't needed for

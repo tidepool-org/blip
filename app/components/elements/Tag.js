@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
 import cx from 'classnames';
 import compact from 'lodash/compact';
@@ -113,7 +113,7 @@ Tag.defaultProps = {
   variant: 'default',
 };
 
-export const TagList = translate()(props => {
+export const TagList = withTranslation()(props => {
   const {
     popupId,
     tags,

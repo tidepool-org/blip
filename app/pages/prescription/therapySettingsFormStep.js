@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
@@ -542,7 +542,7 @@ export const InsulinSettings = props => {
 
 InsulinSettings.propTypes = fieldsetPropTypes;
 
-export const TherapySettings = translate()(props => {
+export const TherapySettings = withTranslation()(props => {
   const formikContext = useFormikContext();
 
   const {

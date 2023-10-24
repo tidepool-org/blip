@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, Flex } from 'rebass/styled-components';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 
@@ -80,4 +80,4 @@ DeltaBar.defaultProps = {
   threshold: [],
 };
 
-export default translate()(DeltaBar);
+export default withTranslation()(DeltaBar);

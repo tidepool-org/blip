@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import get from 'lodash/get';
@@ -181,4 +181,4 @@ ScheduleForm.defaultProps = {
   useFastField: false,
 };
 
-export default translate()(ScheduleForm);
+export default withTranslation()(ScheduleForm);

@@ -15,7 +15,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate } from 'react-i18next'
+import { withTranslation } from 'react-i18next'
 import _ from 'lodash';
 import cx from 'classnames';
 
@@ -24,7 +24,7 @@ import InputGroup from '../../components/inputgroup';
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
 
-var PermissionInputGroup = translate()(class extends React.Component {
+var PermissionInputGroup = withTranslation()(class extends React.Component {
   static propTypes = {
     value: PropTypes.bool,
     working: PropTypes.bool,
@@ -66,7 +66,7 @@ var PermissionInputGroup = translate()(class extends React.Component {
   }
 });
 
-var MemberInviteForm = translate()(class extends React.Component {
+var MemberInviteForm = withTranslation()(class extends React.Component {
   static propTypes = {
     onSubmit: PropTypes.func,
     onCancel: PropTypes.func,
@@ -163,7 +163,7 @@ var MemberInviteForm = translate()(class extends React.Component {
   };
 });
 
-var ConfirmDialog = translate()(class extends React.Component {
+var ConfirmDialog = withTranslation()(class extends React.Component {
   static propTypes = {
     buttonText: PropTypes.string,
     dismissText: PropTypes.string,
@@ -200,7 +200,7 @@ var ConfirmDialog = translate()(class extends React.Component {
   };
 });
 
-var PatientTeam = translate()(class extends React.Component {
+var PatientTeam = withTranslation()(class extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     cancellingInvite: PropTypes.bool.isRequired,

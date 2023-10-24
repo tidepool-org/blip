@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { Flex } from 'rebass/styled-components';
 
 // tideline dependencies & plugins
@@ -276,4 +276,4 @@ class Basics extends Component {
   };
 }
 
-export default translate()(Basics);
+export default withTranslation()(Basics);

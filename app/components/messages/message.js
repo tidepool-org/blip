@@ -14,7 +14,6 @@ You should have received a copy of the License along with this program; if
 not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
-/* jshint unused: false */
 
 var React = require('react');
 var createReactClass = require('create-react-class');
@@ -25,14 +24,14 @@ var PropTypes = require('prop-types');
 var MessageForm = require('./messageform');
 var MessageMixins = require('./messagemixins');
 
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 if (!window.process) {
   var profileLargeSrc = require('./images/profile-100x100.png');
   var profileSmallSrc = require('./images/profile-64x64.png');
 }
 
-var Message = translate() (createReactClass({
+var Message = withTranslation() (createReactClass({
   displayName: 'Message',
   mixins: [MessageMixins],
 

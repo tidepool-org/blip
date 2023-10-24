@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Text } from 'rebass/styled-components';
 import sundial from 'sundial';
@@ -80,4 +80,4 @@ ResendDexcomConnectRequestDialog.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ResendDexcomConnectRequestDialog);
+export default withTranslation()(ResendDexcomConnectRequestDialog);

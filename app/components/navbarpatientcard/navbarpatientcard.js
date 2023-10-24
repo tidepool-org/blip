@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -29,7 +29,7 @@ var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
 var personUtils = require('../../core/personutils');
 
-var NavbarPatientCard = translate()(class extends React.Component {
+var NavbarPatientCard = withTranslation()(class extends React.Component {
   static propTypes = {
     href: PropTypes.string.isRequired,
     currentPage: PropTypes.string,

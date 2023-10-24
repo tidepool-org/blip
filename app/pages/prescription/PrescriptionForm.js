@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import bows from 'bows';
 import moment from 'moment';
@@ -641,4 +641,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default prescriptionFormWrapper(withFormik(prescriptionForm())(translate()(PrescriptionForm)));
+export default prescriptionFormWrapper(withFormik(prescriptionForm())(withTranslation()(PrescriptionForm)));

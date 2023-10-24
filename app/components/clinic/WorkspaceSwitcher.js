@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import get from 'lodash/get';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
@@ -161,4 +161,4 @@ WorkspaceSwitcher.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(WorkspaceSwitcher);
+export default withTranslation()(WorkspaceSwitcher);

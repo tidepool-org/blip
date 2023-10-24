@@ -18,7 +18,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import update from 'immutability-helper';
 import { Box } from 'rebass/styled-components';
 
@@ -37,7 +37,7 @@ import BrowserWarning from '../../components/browserwarning';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 
-export let Patients = translate()(class extends React.Component {
+export let Patients = withTranslation()(class extends React.Component {
   static propTypes = {
     clearPatientInView: PropTypes.func.isRequired,
     currentPatientInViewId: PropTypes.string,

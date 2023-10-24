@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Box, Flex } from 'rebass/styled-components';
 import { useFormik } from 'formik';
 import { push } from 'connected-react-router';
@@ -292,4 +292,4 @@ ClinicInvite.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicInvite);
+export default withTranslation()(ClinicInvite);
