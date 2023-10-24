@@ -48,11 +48,18 @@ export default class PDFWorker {
           // AGP report requires images to be generated on the main thread by Plotly in order to
           // proceed. In this case, we request image generation, and fire the GENERATE_PDF_REQUEST
           // action again with the generated image data URLs.
-          if (queries.agp && !opts.svgDataURLS) {
-            data.agp = this.dataUtil.query(queries.agp);
-            opts.agp.disabled = !_.flatten(_.valuesIn(_.get(data, 'agp.data.current.data', {}))).length > 0;
+          if (!opts.svgDataURLS && (queries.agpBGM || queries.agpCGM)) {
+            if (queries.agpBGM) {
+              data.agpBGM = this.dataUtil.query(queries.agpBGM);
+              opts.agpBGM.disabled = !_.flatten(_.valuesIn(_.get(data, 'agpBGM.data.current.data', {}))).length > 0;
+            }
 
-            if (!opts.agp.disabled) {
+            if (queries.agpCGM) {
+              data.agpCGM = this.dataUtil.query(queries.agpCGM);
+              opts.agpCGM.disabled = !_.flatten(_.valuesIn(_.get(data, 'agpCGM.data.current.data', {}))).length > 0;
+            }
+
+            if (!opts.agpBGM.disabled || !opts.agpCGM.disabled) {
               // Return early if the intent is still to generate the AGP report
               return this.requestAGPImages(data, opts, queries, postMessage);
             }
@@ -75,8 +82,12 @@ export default class PDFWorker {
                 opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'bgLog.data.current.data', {}))).length > 0;
                 break;
 
-              case 'agp':
-                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'agp.data.current.data', {}))).length > 0;
+              case 'agpBGM':
+                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'agpBGM.data.current.data', {}))).length > 0;
+                break;
+
+              case 'agpCGM':
+                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'agpCGM.data.current.data', {}))).length > 0;
                 break;
 
               case 'settings':
@@ -95,8 +106,8 @@ export default class PDFWorker {
     }
   }
 
-  requestAGPImages(data, opts, query, postMessage) {
-    postMessage(syncActions.generateAGPImagesRequest(data, opts, query))
+  requestAGPImages(data, opts, queries, postMessage) {
+    postMessage(syncActions.generateAGPImagesRequest(data, opts, queries))
   }
 
   generatePDF(data, opts, type, postMessage) {

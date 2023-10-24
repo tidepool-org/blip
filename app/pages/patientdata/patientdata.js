@@ -162,7 +162,10 @@ export const PatientDataClass = createReactClass({
           bgSource: 'smbg',
           extentSize: 14,
         },
-        agp: {
+        agpBGM: {
+          bgSource: 'smbg',
+        },
+        agpCGM: {
           bgSource: 'cbg',
         },
         settings: {
@@ -441,7 +444,8 @@ export const PatientDataClass = createReactClass({
         id="print-dialog"
         loggedInUserId={this.props.user?.userid}
         mostRecentDatumDates={{
-          agp: this.getMostRecentDatumTimeByChartType(this.props, 'agp'),
+          agpBGM: this.getMostRecentDatumTimeByChartType(this.props, 'agpBGM'),
+          agpCGM: this.getMostRecentDatumTimeByChartType(this.props, 'agpCGM'),
           basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),
           bgLog: this.getMostRecentDatumTimeByChartType(this.props, 'bgLog'),
           daily: this.getMostRecentDatumTimeByChartType(this.props, 'daily'),
@@ -922,28 +926,43 @@ export const PatientDataClass = createReactClass({
     return stats;
   },
 
-  generateAGPImages: async function(props = this.props) {
-    try {
-      const images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.agp });
-      const promises = _.map(images, async (image, key) => {
+  generateAGPImages: async function(props = this.props, reportTypes = []) {
+    const promises = [];
+
+    await _.each(reportTypes, async reportType => {
+      let images;
+
+      try{
+        images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.[reportType] });
+      } catch(e) {
+        return props.generateAGPImagesFailure(e);
+      }
+
+      promises.push(..._.map(images, async (image, key) => {
         if (_.isArray(image)) {
           const processedArray = await Promise.all(
             _.map(image, async (img) => {
               return await Plotly.toImage(img, { format: 'svg' });
             })
           );
-          return [key, processedArray];
+          return [reportType, [key, processedArray]];
         } else {
           const processedValue = await Plotly.toImage(image, { format: 'svg' });
-          return [key, processedValue];
+          return [reportType, [key, processedValue]];
         }
-      });
-      const processedEntries = await Promise.all(promises);
-      const processedObj = _.fromPairs(processedEntries);
+      }));
+    });
 
-      props.generateAGPImagesSuccess(processedObj);
-    } catch(e) {
-      props.generateAGPImagesFailure(e);
+    const results = await Promise.all(promises);
+
+    if (results.length) {
+      const processedImages = _.reduce(results, (res, entry, i) => {
+        const processedImage = _.fromPairs(entry.slice(1));
+        res[entry[0]] = {...res[entry[0]], ...processedImage };
+        return res;
+      }, {});
+
+      props.generateAGPImagesSuccess(processedImages);
     }
   },
 
@@ -1006,12 +1025,23 @@ export const PatientDataClass = createReactClass({
       };
     }
 
-    if (!printDialogPDFOpts.agp?.disabled) {
-      queries.agp = {
-        endpoints: printDialogPDFOpts.agp?.endpoints,
+    if (!printDialogPDFOpts.agpBGM?.disabled) {
+      queries.agpBGM = {
+        endpoints: printDialogPDFOpts.agpBGM?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
-        bgSource: _.get(state.chartPrefs, 'agp.bgSource'),
-        stats: this.getStatsByChartType('agp'),
+        bgSource: _.get(state.chartPrefs, 'agpBGM.bgSource'),
+        stats: this.getStatsByChartType('agpBGM'),
+        types: { smbg: {} },
+        ...commonQueries,
+      };
+    }
+
+    if (!printDialogPDFOpts.agpCGM?.disabled) {
+      queries.agpCGM = {
+        endpoints: printDialogPDFOpts.agpCGM?.endpoints,
+        aggregationsByDate: 'dataByDate, statsByDate',
+        bgSource: _.get(state.chartPrefs, 'agpCGM.bgSource'),
+        stats: this.getStatsByChartType('agpCGM'),
         types: { cbg: {} },
         ...commonQueries,
       };
@@ -1418,12 +1448,21 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.coefficientOfVariation);
         break;
 
-      case 'agp':
-        stats.push(commonStats.timeInRange);
+      case 'agpBGM':
+        stats.push(commonStats.averageGlucose,);
+        stats.push(commonStats.bgExtents,);
+        stats.push(commonStats.coefficientOfVariation,);
+        stats.push(commonStats.glucoseManagementIndicator,);
+        stats.push(commonStats.readingsInRange,);
+        break;
+
+      case 'agpCGM':
         stats.push(commonStats.averageGlucose);
-        stats.push(commonStats.sensorUsage);
-        stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.bgExtents);
         stats.push(commonStats.coefficientOfVariation);
+        stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.sensorUsage);
+        stats.push(commonStats.timeInRange);
         break;
 
       case 'trends':
@@ -1504,7 +1543,13 @@ export const PatientDataClass = createReactClass({
         ]);
         break;
 
-      case 'agp':
+      case 'agpBGM':
+        latestDatums = getLatestDatums([
+          'smbg',
+        ]);
+        break;
+
+      case 'agpCGM':
         latestDatums = getLatestDatums([
           'cbg',
         ]);
@@ -1737,11 +1782,15 @@ export const PatientDataClass = createReactClass({
         }
       }
 
-      const needsAGPImagesGenerated = this.props.pdf?.opts?.agp?.disabled === undefined && nextProps.pdf?.opts?.agp?.disabled === false && !_.isObject(nextProps.pdf.images);
+      const needsAgpBGMImagesGenerated = this.props.pdf?.opts?.agpBGM?.disabled === undefined && nextProps.pdf?.opts?.agpBGM?.disabled === false && !_.isObject(nextProps.pdf.images);
+      const needsAgpCGMImagesGenerated = this.props.pdf?.opts?.agpCGM?.disabled === undefined && nextProps.pdf?.opts?.agpCGM?.disabled === false && !_.isObject(nextProps.pdf.images);
       const agpImagesGenerated = !_.isObject(this.props.pdf.opts?.svgDataURLS) && _.isObject(nextProps.pdf.opts?.svgDataURLS);
 
-      if (needsAGPImagesGenerated) {
-        this.generateAGPImages(nextProps);
+      if (needsAgpBGMImagesGenerated || needsAgpCGMImagesGenerated ) {
+        const reportTypes = [];
+        needsAgpBGMImagesGenerated && reportTypes.push('agpBGM');
+        needsAgpCGMImagesGenerated && reportTypes.push('agpCGM');
+        this.generateAGPImages(nextProps, reportTypes);
       } else if (agpImagesGenerated) {
         this.generatePDF(nextProps, {
           ...this.state,
