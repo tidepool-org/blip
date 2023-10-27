@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, Box, BoxProps } from 'rebass/styled-components';
+import { Text, Box, BoxProps } from 'theme-ui';
 
 const Avatar = (props) => {
   const { label, variant, initials, ...themeProps } = props;

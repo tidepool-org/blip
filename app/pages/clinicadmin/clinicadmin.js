@@ -10,7 +10,7 @@ import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
 import has from 'lodash/has';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import EditIcon from '@material-ui/icons/EditRounded';

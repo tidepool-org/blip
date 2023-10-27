@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, TextProps } from 'rebass/styled-components';
+import { Text, TextProps } from 'theme-ui';
 import isString from 'lodash/isString';
 
 const namedPalletMap = {

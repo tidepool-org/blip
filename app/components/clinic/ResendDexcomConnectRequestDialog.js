@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation, Trans } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { Text } from 'rebass/styled-components';
+import { Text } from 'theme-ui';
 import sundial from 'sundial';
 
 import Button from '../../components/elements/Button';

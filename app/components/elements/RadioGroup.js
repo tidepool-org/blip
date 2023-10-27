@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Flex, Text } from 'rebass/styled-components';
-import { Radio as Base, RadioProps, Label } from '@rebass/forms';
-import styled from 'styled-components';
+import { Box, Flex, Text } from 'theme-ui';
+import { Radio as Base, RadioProps, Label } from 'theme-ui';
+import styled from '@emotion/styled';
 import map from 'lodash/map';
 import cx from 'classnames';
 

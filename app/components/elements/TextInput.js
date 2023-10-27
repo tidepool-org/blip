@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Flex, Box, Text, BoxProps } from 'rebass/styled-components';
-import { Label, Input as Base, InputProps } from '@rebass/forms/styled-components';
+import styled from '@emotion/styled';
+import { Flex, Box, BoxProps, Text, Label, Input as Base, InputProps } from 'theme-ui';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';

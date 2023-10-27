@@ -2,7 +2,7 @@ import React from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, text, optionsKnob as options } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../app/themes/baseTheme';
 import Button from '../app/components/elements/Button';

@@ -17,7 +17,7 @@ import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
 import createReactClass from 'create-react-class';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../../../app/themes/baseTheme';
 

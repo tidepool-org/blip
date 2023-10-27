@@ -4,7 +4,7 @@ import GitHub from 'github-api';
 import _ from 'lodash';
 import utils from '../../core/utils';
 import { withTranslation } from 'react-i18next';
-import { Flex, Box } from 'rebass/styled-components';
+import { Flex, Box } from 'theme-ui';
 
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import AppleIcon from '../../core/icons/Apple.svg';

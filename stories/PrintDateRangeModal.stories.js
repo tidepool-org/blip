@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import moment from 'moment-timezone';
 import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 import at from 'lodash/at';
 import map from 'lodash/map';
 import min from 'lodash/min';

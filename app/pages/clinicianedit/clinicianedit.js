@@ -13,7 +13,7 @@ import filter from 'lodash/filter';
 import indexOf from 'lodash/indexOf';
 import isUndefined from 'lodash/isUndefined';
 import * as yup from 'yup';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {

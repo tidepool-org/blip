@@ -15,14 +15,14 @@ import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import ScrollToTop from 'react-scroll-to-top';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import {

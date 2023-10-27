@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
-import { Switch } from '@rebass/forms/styled-components';
+import { ThemeProvider } from '@emotion/react';
+import { Switch } from 'theme-ui';
 
 import baseTheme from '../app/themes/baseTheme';
 

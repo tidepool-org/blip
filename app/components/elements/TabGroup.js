@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Box, Flex, BoxProps, FlexProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Box, Flex, BoxProps, FlexProps } from 'theme-ui';
 import { default as Tabs, TabsProps } from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import map from 'lodash/map';

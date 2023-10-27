@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import get from 'lodash/get';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, BoxProps } from 'theme-ui';
 import { default as ExpansionPanel, ExpansionPanelProps } from '@material-ui/core/ExpansionPanel';
 import { default as ExpansionPanelSummary, ExpansionPanelSummaryProps } from '@material-ui/core/ExpansionPanelSummary';
 import { default as ExpansionPanelDetails, ExpansionPanelDetailsProps } from '@material-ui/core/ExpansionPanelDetails';

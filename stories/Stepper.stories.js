@@ -2,8 +2,8 @@ import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { action, decorate } from '@storybook/addon-actions';
 import { withKnobs, optionsKnob as options } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
-import { Box } from 'rebass/styled-components';
+import { ThemeProvider } from '@emotion/react';
+import { Box } from 'theme-ui';
 
 import baseTheme from '../app/themes/baseTheme';
 import Stepper from '../app/components/elements/Stepper';

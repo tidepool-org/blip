@@ -8,7 +8,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import { Box, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Text, BoxProps } from 'theme-ui';
 import map from 'lodash/map';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
@@ -17,7 +17,7 @@ import flatten from 'lodash/flatten';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import isFunction from 'lodash/isFunction';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 import Pagination from './Pagination';
 import Pill from './Pill';

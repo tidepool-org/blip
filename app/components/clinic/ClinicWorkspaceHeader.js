@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import includes from 'lodash/includes'
-import { Box, Flex, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, BoxProps } from 'theme-ui';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import GroupRoundedIcon from '@material-ui/icons/GroupRounded';

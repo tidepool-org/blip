@@ -179,7 +179,7 @@ utils.getSignupKey = function(location) {
       return signupKey;
     }
   }
-  return false;
+  return null;
 }
 
 utils.getSignupEmail = function (location) {

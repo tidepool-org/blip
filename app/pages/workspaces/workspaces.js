@@ -12,7 +12,7 @@ import isUndefined from 'lodash/isUndefined';
 import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import AddIcon from '@material-ui/icons/Add';
 import { generateSSOLinkUri } from '../../keycloak';
 
@@ -348,13 +348,13 @@ export const Workspaces = (props) => {
       <Flex
         key={key}
         className={`workspace-item-${workspace.type}`}
-        alignItems="center"
-        justifyContent="space-between"
-        flexWrap={['wrap']}
         pr={[3, 4]}
         pl={[3, 3, 0]}
         pt={4}
         sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: ['wrap'],
           borderBottom: baseTheme.borders.divider,
           '&:last-child': {
             borderBottom: 'none',
@@ -374,7 +374,9 @@ export const Workspaces = (props) => {
         </Flex>
         <Flex
           className="workspace-actions"
-          justifyContent="flex-start"
+          sx={{
+            justifyContent: 'flex-start',
+          }}
           width={['100%', 'auto']}
           pb={4}
         >
@@ -395,9 +397,11 @@ export const Workspaces = (props) => {
         }}
       >
         <Flex
-          sx={{ borderBottom: baseTheme.borders.default }}
-          alignItems={'center'}
-          flexWrap={['wrap', 'nowrap']}
+          sx={{
+            borderBottom: baseTheme.borders.default,
+            alignItems: 'center',
+            flexWrap: ['wrap', 'nowrap'],
+          }}
           px={[3, 4, 5, 6]}
         >
           <Headline flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
@@ -415,14 +419,14 @@ export const Workspaces = (props) => {
             {...props}
           >
             <Flex
-              justifyContent="space-between"
-              flexWrap="wrap"
-              align="center"
               bg="lightestGrey"
               px={[3, 4]}
               py={[2, 3]}
               sx={{
+                align: 'center',
                 borderBottom: baseTheme.borders.modal,
+                flexWrap: 'wrap',
+                justifyContent: 'space-between',
               }}
             >
               <Box>

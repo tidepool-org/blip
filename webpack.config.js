@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const RollbarSourceMapPlugin = require('rollbar-sourcemap-webpack-plugin');
@@ -12,6 +12,7 @@ const pkg = require('./package.json');
 const cp = require('child_process');
 const optional = require('optional');
 const _ = require('lodash');
+const postcssPresetEnv = require('postcss-preset-env');
 
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
@@ -44,24 +45,20 @@ const localIdentName = process.env.NODE_ENV === 'test'
   : '[name]--[local]--[hash:base64:5]';
 
 const styleLoaderConfiguration = {
-  test: /\.(less|css)$/,
+  test: /\.((c|le)ss)$/i,
   use: [
     (isDev || isTest) ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
       loader: 'css-loader',
       options: {
-        modules: {
-          localIdentName,
-        },
+        // modules: { localIdentName },
         importLoaders: 2,
         sourceMap: isDev,
       },
     },
     {
       loader: 'postcss-loader',
-      options: {
-        sourceMap: isDev,
-      },
+      // options: { postcssOptions: { plugins: () => [{ 'postcss-preset-env': { stage: 0 } } ] } },
     },
     {
       loader: 'less-loader',
@@ -119,33 +116,36 @@ const imageLoaderConfiguration = {
 const fontLoaderConfiguration = [
   {
     test: /\.eot$/,
-    use: {
-      loader: 'url-loader',
-      options: {
-        limit: 10000,
-        mimetype: 'application/vnd.ms-fontobject',
-      },
-    },
+    type: 'asset/resource',
+    // use: {
+    //   loader: 'url-loader',
+    //   options: {
+    //     limit: 10000,
+    //     mimetype: 'application/vnd.ms-fontobject',
+    //   },
+    // },
   },
   {
     test: /\.woff$/,
-    use: {
-      loader: 'url-loader',
-      options: {
-        limit: 10000,
-        mimetype: 'application/font-woff',
-      },
-    },
+    type: 'asset/resource',
+    // use: {
+    //   loader: 'url-loader',
+    //   options: {
+    //     limit: 10000,
+    //     mimetype: 'application/font-woff',
+    //   },
+    // },
   },
   {
     test: /\.ttf$/,
-    use: {
-      loader: 'url-loader',
-      options: {
-        limit: 10000,
-        mimetype: 'application/octet-stream',
-      },
-    },
+    type: 'asset/resource',
+    // use: {
+    //   loader: 'url-loader',
+    //   options: {
+    //     limit: 10000,
+    //     mimetype: 'application/octet-stream',
+    //   },
+    // },
   },
 ];
 
@@ -232,7 +232,8 @@ const entry = isDev
   ];
 
 const output = {
-  filename: 'bundle.js',
+  filename: '[name].js',
+  chunkFilename: '[name].chunk.js',
   path: path.join(__dirname, '/dist'),
   publicPath: isDev ? devPublicPath : '/',
   globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
@@ -273,10 +274,10 @@ if (process.env.WEBPACK_DEVTOOL === false) devtool = undefined;
 
 module.exports = {
   devServer: {
-    publicPath: output.publicPath,
+    static: { publicPath: output.publicPath },
     historyApiFallback: true,
     hot: isDev,
-    clientLogLevel: 'info',
+    client: { logging: 'info' },
   },
   devtool,
   entry,
@@ -287,31 +288,76 @@ module.exports = {
       imageLoaderConfiguration,
       styleLoaderConfiguration,
       ...fontLoaderConfiguration,
+
+      // // For webpack v5
+      // {
+      //   test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
+      //   // More information here https://webpack.js.org/guides/asset-modules/
+      //   type: 'asset',
+      // },
+
+
+      // PDFKit extra rules
+      // bundle and load afm files verbatim
+      { test: /\.afm$/, type: 'asset/source' },
+      // bundle and load binary files inside static-assets folder as base64
+      {
+        test: /(([/\\]).*)static-assets/,
+        type: 'asset/inline',
+        generator: {
+          dataUrl: content => {
+            console.log('content', content.toString('base64'));
+            return content.toString('base64');
+          },
+        },
+      },
+      // load binary files inside lazy-assets folder as a URL
+      {
+        test: /src(([/\\]).*)lazy-assets/,
+        type: 'asset/resource'
+      },
+      // convert to base64 and include inline file system binary files used by fontkit and linebreak
+      {
+        enforce: 'post',
+        test: /fontkit[/\\]index.js$/,
+        loader: 'transform-loader',
+        options: {
+          brfs: {}
+        }
+      },
+      {
+        enforce: 'post',
+        test: /linebreak[/\\]src[/\\]linebreaker.js/,
+        loader: 'transform-loader',
+        options: {
+          brfs: {}
+        }
+      },
     ],
   },
   optimization: {
-    splitChunks: {
-      cacheGroups: {
-        styles: {
-          name: 'styles',
-          test: /\.css$/,
-          chunks: 'all',
-          enforce: true
-        }
-      }
-    },
+    // splitChunks: {
+    //   cacheGroups: {
+    //     styles: {
+    //       name: 'styles',
+    //       test: /\.css$/,
+    //       chunks: 'all',
+    //       enforce: true
+    //     }
+    //   }
+    // },
     minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          parallel: true,
-          output: { comments: false },
-          compress: {
-            inline: false,
-            conditionals: false,
-          }
-        }
-      }),
-      new OptimizeCSSAssetsPlugin({}),
+      // new TerserPlugin({
+      //   terserOptions: {
+      //     parallel: true,
+      //     output: { comments: false },
+      //     compress: {
+      //       inline: false,
+      //       conditionals: false,
+      //     }
+      //   }
+      // }),
+      new CssMinimizerPlugin(),
     ],
   },
   output,

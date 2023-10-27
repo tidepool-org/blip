@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Box, BoxProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Box, BoxProps } from 'theme-ui';
 import cx from 'classnames';
 
 import { transitions } from '../../themes/baseTheme';

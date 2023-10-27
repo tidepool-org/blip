@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
 import { Trans, withTranslation } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 
 import * as viz from '@tidepool/viz';
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;

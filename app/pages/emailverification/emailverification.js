@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { connect } from 'react-redux';
 import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';

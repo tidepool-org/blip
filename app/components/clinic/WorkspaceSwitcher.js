@@ -12,7 +12,7 @@ import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
-import { Flex, Box, Text } from 'rebass/styled-components';
+import { Flex, Box, Text } from 'theme-ui';
 
 import {
   usePopupState,

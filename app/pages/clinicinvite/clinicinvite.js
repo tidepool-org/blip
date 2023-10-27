@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { withTranslation } from 'react-i18next';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import { useFormik } from 'formik';
 import { push } from 'connected-react-router';
 import get from 'lodash/get';

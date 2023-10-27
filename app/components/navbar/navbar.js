@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Flex, Box } from 'rebass/styled-components'
+import { Flex, Box } from 'theme-ui'
 import { withTranslation } from 'react-i18next';
 import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 
@@ -54,9 +54,11 @@ export default withTranslation()(class extends React.Component {
       <>
         <Flex
           className="Navbar"
-          flexWrap="wrap"
-          justifyContent={['center', 'space-between']}
-          alignItems="center"
+          sx={{
+            flexWrap: 'wrap',
+            justifyContent: ['center', 'space-between'],
+            alignItems: 'center',
+          }}
         >
           <Box flex={1} minWidth={['100%', '100%', '33%']} py={[3, 3, 4]}>
             {this.renderLogoSection()}
@@ -94,7 +96,7 @@ export default withTranslation()(class extends React.Component {
 
   renderLogoSection = () => {
     return (
-      <Flex className="Navbar-logoSection" justifyContent={['center', 'flex-start']}>
+      <Flex className="Navbar-logoSection" sx={{ justifyContent: ['center', 'flex-start'] }}>
         {this.renderLogo()}
       </Flex>
     );

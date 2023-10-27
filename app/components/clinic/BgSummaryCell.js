@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Text, Flex } from 'rebass/styled-components';
+import { Text, Flex } from 'theme-ui';
 import map from 'lodash/map';
 import { withTranslation } from 'react-i18next';
 

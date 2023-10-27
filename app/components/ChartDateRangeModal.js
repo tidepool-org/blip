@@ -5,7 +5,7 @@ import filter from 'lodash/filter';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
-import { Flex, Box } from 'rebass/styled-components';
+import { Flex, Box } from 'theme-ui';
 import moment from 'moment-timezone';
 
 import Button from './elements/Button';

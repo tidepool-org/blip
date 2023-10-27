@@ -1,9 +1,9 @@
 import React from 'react';
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 
 import { action } from '@storybook/addon-actions';
 import { withDesign } from 'storybook-addon-designs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 import { withKnobs, optionsKnob as options, number } from '@storybook/addon-knobs';
 
 import baseTheme from '../app/themes/baseTheme';

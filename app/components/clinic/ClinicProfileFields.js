@@ -6,7 +6,7 @@ import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 import countries from 'i18n-iso-countries';
 import InputMask from 'react-input-mask';
-import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, Text, BoxProps } from 'theme-ui';
 
 import {
   Body2,

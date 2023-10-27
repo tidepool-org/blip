@@ -1,7 +1,7 @@
 import React from 'react';
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 import { withDesign } from 'storybook-addon-designs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 import random from 'lodash/random';
 
 import baseTheme from '../app/themes/baseTheme';

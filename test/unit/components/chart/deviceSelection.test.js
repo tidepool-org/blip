@@ -9,7 +9,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { mount } from 'enzyme';
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 
 import DeviceSelection from '../../../../app/components/chart/deviceSelection';
 

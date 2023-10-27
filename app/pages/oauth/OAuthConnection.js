@@ -6,7 +6,7 @@ import { withTranslation, Trans } from 'react-i18next';
 import { useParams, useLocation } from 'react-router-dom';
 import capitalize from 'lodash/capitalize';
 import includes from 'lodash/includes';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
 
 import Banner from '../../components/elements/Banner';

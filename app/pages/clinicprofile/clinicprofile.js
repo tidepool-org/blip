@@ -7,7 +7,7 @@ import get from 'lodash/get'
 import includes from 'lodash/includes'
 import keys from 'lodash/keys';
 import { useFormik } from 'formik';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 
 import {
   Title,

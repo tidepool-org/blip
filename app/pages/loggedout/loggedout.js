@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTranslation } from 'react-i18next';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import { keycloak } from '../../keycloak';
 
 import Button from '../../components/elements/Button';

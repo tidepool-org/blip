@@ -16,7 +16,7 @@ import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import ViewListRoundedIcon from '@material-ui/icons/ViewListRounded';
-import { Flex , Box } from 'rebass/styled-components';
+import { Flex , Box } from 'theme-ui';
 
 import {
   usePopupState,

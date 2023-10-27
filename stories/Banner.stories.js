@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, text } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 import map from 'lodash/map';
 
 import baseTheme from '../app/themes/baseTheme';

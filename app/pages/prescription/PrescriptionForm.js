@@ -26,7 +26,7 @@ import isArray from 'lodash/isArray';
 import { default as _values } from 'lodash/values';
 import includes from 'lodash/includes';
 import { utils as vizUtils } from '@tidepool/viz';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import canonicalize from 'canonicalize';
 import { sha512 } from 'crypto-hash';
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Text } from 'rebass/styled-components';
-import { Checkbox as Base, Label, LabelProps, CheckboxProps } from '@rebass/forms';
-import styled from 'styled-components';
+import { Box, Text } from 'theme-ui';
+import { Checkbox as Base, Label, LabelProps, CheckboxProps } from 'theme-ui';
+import styled from '@emotion/styled';
 import cx from 'classnames';
 import { Caption } from './FontStyles';
 

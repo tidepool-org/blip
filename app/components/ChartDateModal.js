@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import noop from 'lodash/noop';
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 import moment from 'moment-timezone';
 
 import Button from './elements/Button';

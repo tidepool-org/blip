@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, text, optionsKnob as options } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 import mapValues from 'lodash/mapValues';
 import keyBy from 'lodash/keyBy';
 

@@ -4,8 +4,8 @@ import noop from 'lodash/noop';
 import { default as Base, PopoverProps } from '@material-ui/core/Popover';
 import HoverPopover from 'material-ui-popup-state/HoverPopover';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
-import styled from 'styled-components';
-import { Box, BoxProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Box, BoxProps } from 'theme-ui';
 
 import { borders, radii, shadows, space, fonts } from '../../themes/baseTheme';
 import Icon from '../../components/elements/Icon';

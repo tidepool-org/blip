@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
-import { Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
+import { Flex, Text, BoxProps, FlexProps } from 'theme-ui';
 import cx from 'classnames';
 import compact from 'lodash/compact';
 import map from 'lodash/map';

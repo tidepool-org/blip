@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { cloneDeep, pull, map, union, get, includes } from 'lodash';
 import Accordion from '../elements/Accordion';
 import Checkbox from '../elements/Checkbox';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 
 import { colors, fontSizes } from '../../themes/baseTheme';
 import utils from '../../core/utils';

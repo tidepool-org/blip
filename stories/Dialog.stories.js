@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, text, number } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../app/themes/baseTheme';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '../app/components/elements/Dialog';

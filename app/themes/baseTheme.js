@@ -148,7 +148,6 @@ export default {
     lineHeights,
     shadows,
   }),
-  variants,
   borders,
   colors,
   fonts,
@@ -161,4 +160,5 @@ export default {
   space,
   transitions,
   zIndices,
+  ...variants,
 };

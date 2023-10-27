@@ -20,7 +20,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withTranslation, Trans } from 'react-i18next';
 import update from 'immutability-helper';
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 
 import * as actions from '../../redux/actions';
 import utils from '../../core/utils';

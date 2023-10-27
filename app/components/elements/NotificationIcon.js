@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, BoxProps } from 'theme-ui';
 import { colors, radii } from '../../themes/baseTheme';
 
 const NotificationIcon = props => (

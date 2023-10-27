@@ -4,7 +4,7 @@ import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
 import { withTranslation, Trans } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';

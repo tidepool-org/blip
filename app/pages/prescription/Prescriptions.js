@@ -8,7 +8,7 @@ import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
 import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import map from 'lodash/map';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';

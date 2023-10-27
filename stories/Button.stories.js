@@ -3,10 +3,10 @@ import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
 import { withKnobs, boolean, text } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 
 import baseTheme from '../app/themes/baseTheme';
 import Button from '../app/components/elements/Button';

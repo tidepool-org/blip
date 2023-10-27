@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import MuiDialog, { DialogProps } from '@material-ui/core/Dialog';
-import styled from 'styled-components';
-import { Flex, FlexProps, Box, BoxProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Flex, FlexProps, Box, BoxProps } from 'theme-ui';
 
 import { Icon } from './Icon';
 

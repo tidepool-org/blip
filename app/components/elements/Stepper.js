@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Box, Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Box, Flex, Text, BoxProps, FlexProps } from 'theme-ui';
 import { default as Base, StepperProps } from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';

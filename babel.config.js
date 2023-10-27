@@ -7,7 +7,7 @@ module.exports = function babelConfig(api) {
 
   const plugins = [
     '@babel/plugin-transform-modules-commonjs',
-    '@quickbaseoss/babel-plugin-styled-components-css-namespace',
+    '@emotion',
   ];
 
   const env = api.env();

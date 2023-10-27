@@ -13,7 +13,7 @@ import map from 'lodash/map';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
 import { Formik, Form, FastField } from 'formik';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import countries from 'i18n-iso-countries';
 
 import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';

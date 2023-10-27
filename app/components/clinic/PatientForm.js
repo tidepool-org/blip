@@ -18,7 +18,7 @@ import InputMask from 'react-input-mask';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
-import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, Text, BoxProps } from 'theme-ui';
 import moment from 'moment';
 
 import * as actions from '../../redux/actions';

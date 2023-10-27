@@ -7,7 +7,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';

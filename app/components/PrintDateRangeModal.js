@@ -6,8 +6,8 @@ import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
-import { Flex, Box, Text } from 'rebass/styled-components';
-import { Switch } from '@rebass/forms/styled-components';
+import { Flex, Box, Text } from 'theme-ui';
+import { Switch } from 'theme-ui';
 import moment from 'moment-timezone';
 import { Element, scroller } from 'react-scroll';
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import Styled from 'styled-components';
-import { Heading, Text, Link } from 'rebass/styled-components';
+import Styled from '@emotion/styled';
+import { Heading, Text, Link } from 'theme-ui';
 
 import {
   borders,
@@ -24,11 +24,13 @@ export const H2 = props => (
   </Heading>
 );
 
-export const H3 = props => (
+export const H3 = props => {
+  console.log('props', props);
+  return (
   <Heading {...props} as="h3">
     {props.children}
   </Heading>
-);
+)};
 
 export const H4 = props => (
   <Heading {...props} as="h4">
@@ -63,9 +65,9 @@ export const Headline = Styled(H2)`
   `;
 
 export const Title = Styled(H3)`
-  font-size: ${fontSizes[props => (props.fontSize || 3)]}px;
+  font-size: ${props => (props.fontSize ? fontSizes[props.fontSize] : fontSizes[4])}px;
   line-height: ${lineHeights[3]};
-  font-weight: ${props => (props.fontWeight ? props.fontWeight : fontWeights.regular)};
+  font-weight: ${props => (props.fontWeight ? fontWeights[props.fontWeight] : fontWeights.regular)};
   font-family: ${fonts.default};
   color: ${colors.text.primary};
 `;

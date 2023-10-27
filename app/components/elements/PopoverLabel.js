@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
-import { Text, Flex, FlexProps } from 'rebass/styled-components';
+import { Text, Flex, FlexProps } from 'theme-ui';
 
 import {
   usePopupState,

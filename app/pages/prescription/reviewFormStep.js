@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
-import { Box, Flex, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, BoxProps } from 'theme-ui';
 import bows from 'bows';
 import compact from 'lodash/compact';
 import find from 'lodash/find';

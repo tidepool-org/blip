@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Button as Base, Flex, Box, ButtonProps } from 'rebass/styled-components';
-import styled, { ThemeContext } from 'styled-components';
+import { Button as Base, Flex, Box, ButtonProps } from 'theme-ui';
+import styled from '@emotion/styled';
+import { ThemeContext } from '@emotion/react';
 import cx from 'classnames';
 
 import Icon from './Icon';
@@ -49,6 +50,7 @@ export const Button = props => {
     tagColorPalette,
     tagFontSize,
     className = '',
+    variant,
     ...buttonProps
   } = props;
 
@@ -73,8 +75,18 @@ export const Button = props => {
   if (icon) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
 
   return (
-    <Flex as={StyledButton} flexDirection={flexDirection} alignItems="center" justifyContent={justifyContent} {...buttonProps} className={`${classNames} ${className}`}>
-      <Box justifyContent="center">{children}</Box>
+    <Flex
+      sx={{
+        flexDirection,
+        alignItems: 'center',
+        justifyContent,
+      }}
+      as={StyledButton}
+      variant={`buttons.${variant}`}
+      {...buttonProps}
+      className={`${classNames} ${className}`}
+    >
+      <Flex sx={{ justifyContent: 'center' }}>{children}</Flex>
       {tag && (
         <Pill
           tabIndex={-1}

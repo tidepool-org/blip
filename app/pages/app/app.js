@@ -4,7 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 import { withLDConsumer } from 'launchdarkly-react-client-sdk';
 
 import * as actions from '../../redux/actions';

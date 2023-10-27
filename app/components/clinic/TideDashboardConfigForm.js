@@ -9,7 +9,7 @@ import map from 'lodash/map';
 import reject from 'lodash/reject';
 import without from 'lodash/without';
 import { useFormik } from 'formik';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, BoxProps } from 'theme-ui';
 
 import { TagList } from '../../components/elements/Tag';
 import RadioGroup from '../../components/elements/RadioGroup';

@@ -16,7 +16,7 @@
  */
 
 import { createBrowserHistory } from 'history';
-import { createStore, applyMiddleware, combineReducers } from 'redux';
+import { legacy_createStore as createStore, applyMiddleware, combineReducers } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import qhistory from 'qhistory';

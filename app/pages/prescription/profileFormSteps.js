@@ -1,7 +1,7 @@
 import React from 'react';
 import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import bows from 'bows';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';

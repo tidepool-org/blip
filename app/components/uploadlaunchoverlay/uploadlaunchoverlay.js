@@ -2,7 +2,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { withTranslation, Trans } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 import cx from 'classnames';
 import GitHub from 'github-api';
 import ModalOverlay from '../modaloverlay';

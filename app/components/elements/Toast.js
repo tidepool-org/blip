@@ -6,7 +6,7 @@ import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 
 import { Body1 } from './FontStyles';
 import Icon from './Icon';

@@ -22,7 +22,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 import moment from 'moment';
 
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 
 var launchCustomProtocol = require('custom-protocol-detection');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');

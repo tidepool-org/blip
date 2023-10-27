@@ -7,7 +7,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import values from 'lodash/values';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';

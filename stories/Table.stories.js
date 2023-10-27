@@ -3,13 +3,13 @@ import React, { useState } from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
 import { withKnobs, boolean, optionsKnob as options } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 import toUpper from 'lodash/toUpper';
 import random from 'lodash/random';
 import SearchIcon from '@material-ui/icons/Search';
 import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import { Flex, Box, Text } from 'rebass/styled-components';
+import { Flex, Box, Text } from 'theme-ui';
 
 import baseTheme from '../app/themes/baseTheme';
 import Table from '../app/components/elements/Table';

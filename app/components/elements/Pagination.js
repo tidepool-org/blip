@@ -5,7 +5,7 @@ import map from 'lodash/map';
 import remove from 'lodash/remove';
 import includes from 'lodash/includes';
 import capitalize from 'lodash/capitalize';
-import { Box, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Text, BoxProps } from 'theme-ui';
 import FirstPageRoundedIcon from '@material-ui/icons/FirstPageRounded';
 import LastPageRoundedIcon from '@material-ui/icons/LastPageRounded';
 import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';

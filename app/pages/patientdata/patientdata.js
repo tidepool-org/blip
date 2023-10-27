@@ -55,7 +55,7 @@ import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
 
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Paragraph2 } from '../../components/elements/FontStyles';

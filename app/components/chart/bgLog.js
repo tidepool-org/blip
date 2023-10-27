@@ -24,7 +24,7 @@ import sundial from 'sundial';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
 import { withTranslation, Trans } from 'react-i18next';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 
 import Stats from './stats';
 import DeviceSelection from './deviceSelection';

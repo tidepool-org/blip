@@ -7,7 +7,7 @@ import { withTranslation } from 'react-i18next';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import values from 'lodash/values'
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 import { Element } from 'react-scroll';
 
 import TabGroup from '../../components/elements/TabGroup';

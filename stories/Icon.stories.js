@@ -3,7 +3,7 @@ import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
 import NotificationsRoundedIcon from '@material-ui/icons/NotificationsRounded';

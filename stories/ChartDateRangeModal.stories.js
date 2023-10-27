@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import moment from 'moment-timezone';
 import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../app/themes/baseTheme';
 import Button from '../app/components/elements/Button';

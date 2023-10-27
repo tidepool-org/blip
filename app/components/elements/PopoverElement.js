@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, FlexProps } from 'rebass/styled-components';
+import { Flex, FlexProps } from 'theme-ui';
 
 import {
   usePopupState,

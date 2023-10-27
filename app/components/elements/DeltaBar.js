@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, Box, Flex } from 'rebass/styled-components';
+import { Text, Box, Flex } from 'theme-ui';
 import { withTranslation } from 'react-i18next';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';

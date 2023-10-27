@@ -1,7 +1,7 @@
 import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
-import { ThemeProvider } from 'styled-components';
-import { Box, Flex } from 'rebass/styled-components';
+import { ThemeProvider } from '@emotion/react';
+import { Box, Flex } from 'theme-ui';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 
 import baseTheme from '../app/themes/baseTheme';

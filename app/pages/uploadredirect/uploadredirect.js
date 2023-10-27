@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTranslation, Trans } from 'react-i18next';
-import { Flex, Box, Text } from 'rebass/styled-components';
+import { Flex, Box, Text } from 'theme-ui';
 import customProtocolCheck from 'custom-protocol-check';
 import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';

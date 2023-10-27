@@ -13,7 +13,7 @@ import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import indexOf from 'lodash/indexOf';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';

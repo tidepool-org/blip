@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
-import { Link } from 'rebass/styled-components';
+import { Link } from 'theme-ui';
 import isFinite from 'lodash/isFinite';
 import get from 'lodash/get';
 import map from 'lodash/map';
@@ -39,12 +39,12 @@ export const validDeviceIds = {
 export const deviceExtraInfo = {
   [deviceIdMap.dexcomG6]: (
     <Trans>
-      Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link href="#">here</Link>.
+      Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
     </Trans>
   ),
   [deviceIdMap.omnipodHorizon]: (
     <Trans>
-      Find information on how to prescribe Omnipod products <Link href="#">here</Link>.
+      Find information on how to prescribe Omnipod products <Link to="#">here</Link>.
     </Trans>
   ),
 };

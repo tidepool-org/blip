@@ -23,7 +23,7 @@ import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { withTranslation } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';

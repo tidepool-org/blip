@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../app/themes/baseTheme';
 import Avatar from '../app/components/elements/Avatar';

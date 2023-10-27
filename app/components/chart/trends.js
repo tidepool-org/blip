@@ -8,7 +8,7 @@ import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { withTranslation } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 
 import Header from './header';
 import SubNav from './trendssubnav';
