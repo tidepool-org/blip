@@ -1,15 +1,12 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import { hot, setConfig } from 'react-hot-loader';
 import { ThemeProvider } from '@emotion/react';
 import { KeycloakWrapper } from '../../keycloak';
 
 import baseTheme from '../../themes/baseTheme';
 import { history } from '../store/configureStore.dev';
 import { ToastProvider } from '../../providers/ToastProvider';
-
-setConfig({ logLevel: 'warning' })
 
 class Root extends Component {
   render() {
@@ -32,4 +29,4 @@ class Root extends Component {
   }
 };
 
-export default hot(module)(Root);
+export default Root;

@@ -14,7 +14,7 @@ module.exports = function babelConfig(api) {
 
   if (env === 'dev') {
     plugins.unshift(
-      'react-hot-loader/babel',
+      'react-refresh/babel',
     );
   }
 

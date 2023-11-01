@@ -6,6 +6,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const RollbarSourceMapPlugin = require('rollbar-sourcemap-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const terser = require('terser');
 const fs = require('fs');
 const pkg = require('./package.json');
@@ -187,6 +188,7 @@ const plugins = [
 
 if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin());
+  plugins.push(new ReactRefreshWebpackPlugin());
 } else if (isProd) {
   plugins.push(
     /** Upload sourcemap to Rollbar */
@@ -228,7 +230,6 @@ const resolve = {
     moment: path.resolve('node_modules/moment'),
     'moment-timezone': path.resolve('node_modules/moment-timezone'),
     react: path.resolve('node_modules/react'),
-    'react-dom': '@hot-loader/react-dom',
     'react-addons-update': path.resolve('node_modules/react-addons-update'),
     'react-redux': path.resolve('node_modules/react-redux'),
     redux: path.resolve('node_modules/redux'),
