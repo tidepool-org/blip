@@ -2,21 +2,24 @@ const path = require('path');
 const webpack = require('webpack');
 const pkg = require('./package.json');
 const cp = require('child_process');
+const optional = require('optional');
+const _ = require('lodash');
 
 const isDev = (process.env.NODE_ENV === 'development');
-
+const apiHost = _.get(optional('./config/local'), 'apiHost', process.env.API_HOST || null);
 const VERSION = pkg.version;
 const ROLLBAR_POST_CLIENT_TOKEN = '6158068d70fd485ba03e72ce5ffb8998';
 
 const VERSION_SHA = process.env.TRAVIS_COMMIT
   || cp.execSync('git rev-parse HEAD || true', { cwd: __dirname, encoding: 'utf8' });
 
+
 // these values are required in the config.app.js file -- we can't use
 // process.env with webpack, we have to create these magic constants
 // individually.
 const defineEnvPlugin = new webpack.DefinePlugin({
   __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
-  __API_HOST__: JSON.stringify(process.env.API_HOST || null),
+  __API_HOST__: JSON.stringify(apiHost),
   __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
   __LATEST_TERMS__: JSON.stringify(process.env.LATEST_TERMS || null),
   __PASSWORD_MIN_LENGTH__: JSON.stringify(process.env.PASSWORD_MIN_LENGTH || null),

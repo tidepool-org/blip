@@ -52,7 +52,7 @@ function registerAFMFonts(ctx) {
 }
 
 // register all files found in assets folder (relative to src)
-// registerBinaryFiles(require.context('./static-assets', true));
+registerBinaryFiles(require.context('@tidepool/viz/static-assets', true));
 
 // register AFM fonts distributed with pdfkit
 // is good practice to register only required fonts to avoid the bundle size increase too much
@@ -80,6 +80,8 @@ function newQueue(patientId) {
 }
 
 function processMessage(msg, cb) {
+  console.time('worker process');
+
   switch(_.get(msg, 'data.meta.worker')) {
     case 'pdf':
       pdfWorker.handleMessage(msg, postMessage);

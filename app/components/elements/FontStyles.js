@@ -25,7 +25,6 @@ export const H2 = props => (
 );
 
 export const H3 = props => {
-  console.log('props', props);
   return (
   <Heading {...props} as="h3">
     {props.children}

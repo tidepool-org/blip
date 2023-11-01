@@ -12,7 +12,6 @@ const pkg = require('./package.json');
 const cp = require('child_process');
 const optional = require('optional');
 const _ = require('lodash');
-const postcssPresetEnv = require('postcss-preset-env');
 
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
@@ -51,14 +50,12 @@ const styleLoaderConfiguration = {
     {
       loader: 'css-loader',
       options: {
-        // modules: { localIdentName },
         importLoaders: 2,
         sourceMap: isDev,
       },
     },
     {
       loader: 'postcss-loader',
-      // options: { postcssOptions: { plugins: () => [{ 'postcss-preset-env': { stage: 0 } } ] } },
     },
     {
       loader: 'less-loader',
@@ -105,6 +102,10 @@ const babelLoaderConfiguration = [
 // This is needed for webpack to import static images in JavaScript files
 const imageLoaderConfiguration = {
   test: /\.(gif|jpe?g|png|svg)$/,
+  exclude: [
+    /node_modules\/@tidepool\/viz(([/\\]).*)static-assets/,
+    /node_modules\/@tidepool\/viz(([/\\]).*)lazy-assets/,
+  ],
   use: {
     loader: 'url-loader',
     options: {
@@ -117,35 +118,14 @@ const fontLoaderConfiguration = [
   {
     test: /\.eot$/,
     type: 'asset/resource',
-    // use: {
-    //   loader: 'url-loader',
-    //   options: {
-    //     limit: 10000,
-    //     mimetype: 'application/vnd.ms-fontobject',
-    //   },
-    // },
   },
   {
     test: /\.woff$/,
     type: 'asset/resource',
-    // use: {
-    //   loader: 'url-loader',
-    //   options: {
-    //     limit: 10000,
-    //     mimetype: 'application/font-woff',
-    //   },
-    // },
   },
   {
     test: /\.ttf$/,
     type: 'asset/resource',
-    // use: {
-    //   loader: 'url-loader',
-    //   options: {
-    //     limit: 10000,
-    //     mimetype: 'application/octet-stream',
-    //   },
-    // },
   },
 ];
 
@@ -289,31 +269,22 @@ module.exports = {
       styleLoaderConfiguration,
       ...fontLoaderConfiguration,
 
-      // // For webpack v5
-      // {
-      //   test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
-      //   // More information here https://webpack.js.org/guides/asset-modules/
-      //   type: 'asset',
-      // },
-
-
       // PDFKit extra rules
       // bundle and load afm files verbatim
       { test: /\.afm$/, type: 'asset/source' },
       // bundle and load binary files inside static-assets folder as base64
       {
-        test: /(([/\\]).*)static-assets/,
+        test: /node_modules\/@tidepool\/viz(([/\\]).*)static-assets/,
         type: 'asset/inline',
         generator: {
           dataUrl: content => {
-            console.log('content', content.toString('base64'));
             return content.toString('base64');
           },
         },
       },
       // load binary files inside lazy-assets folder as a URL
       {
-        test: /src(([/\\]).*)lazy-assets/,
+        test: /node_modules\/@tidepool\/viz(([/\\]).*)lazy-assets/,
         type: 'asset/resource'
       },
       // convert to base64 and include inline file system binary files used by fontkit and linebreak
@@ -336,27 +307,26 @@ module.exports = {
     ],
   },
   optimization: {
-    // splitChunks: {
-    //   cacheGroups: {
-    //     styles: {
-    //       name: 'styles',
-    //       test: /\.css$/,
-    //       chunks: 'all',
-    //       enforce: true
-    //     }
-    //   }
-    // },
+    splitChunks: {
+      cacheGroups: {
+        styles: {
+          name: 'styles',
+          test: /\.css$/,
+          chunks: 'all',
+          enforce: true
+        }
+      }
+    },
     minimizer: [
-      // new TerserPlugin({
-      //   terserOptions: {
-      //     parallel: true,
-      //     output: { comments: false },
-      //     compress: {
-      //       inline: false,
-      //       conditionals: false,
-      //     }
-      //   }
-      // }),
+      new TerserPlugin({
+        terserOptions: {
+          output: { comments: false },
+          compress: {
+            inline: false,
+            conditionals: false,
+          }
+        }
+      }),
       new CssMinimizerPlugin(),
     ],
   },
