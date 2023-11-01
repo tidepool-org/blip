@@ -5254,9 +5254,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.7":
-  version: 1.38.0-web-2595-critical-depandancy-updates.7
-  resolution: "@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.7"
+"@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.9":
+  version: 1.38.0-web-2595-critical-depandancy-updates.9
+  resolution: "@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.9"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5315,7 +5315,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: ef81aad9172df1d244d520e0576675072dda55d21fcbc6128dbd792b6e5acde60fc57fc61f79fb3d9957d8649aa8cb70e191724d93de7a9182a1600eaed183f1
+  checksum: 99959db3116f12ddd3582588b1cd4576fae340c15d73fa67eb977b93c520d9ae181034d1acf80296b0fee244b222771a357636fc27f73c05c0b9554b26d11db5
   languageName: node
   linkType: hard
 
@@ -7550,7 +7550,7 @@ __metadata:
     "@storybook/cli": 7.5.0
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
-    "@tidepool/viz": 1.38.0-web-2595-critical-depandancy-updates.7
+    "@tidepool/viz": 1.38.0-web-2595-critical-depandancy-updates.9
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
