@@ -70,7 +70,7 @@ export const PaginationStory = () => {
         fontSize={2}
         fontFamily="default"
         color="text.primary"
-        textAlign="center"
+        sx={{ textAlign: 'center' }}
       >
         Page Selected: <Text as="span" fontWeight="medium">{page}</Text>
       </Text>

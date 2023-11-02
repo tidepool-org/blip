@@ -196,7 +196,7 @@ export const ClinicianPatients = (props) => {
 
   const renderPeopleInstructions = () => {
     return (
-      <Text fontSize={1} py={4} mb={6} textAlign="center" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
+      <Text fontSize={1} py={4} mb={6}  sx={{ textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
         <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
           Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={handleToggleShowNames}>Show All</a> to display all patients.
         </Trans>

@@ -586,7 +586,7 @@ export const AccessManagement = (props) => {
             sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center', flexWrap:['wrap', 'nowrap'] }}
             px={[3, 4]}
           >
-            <Title sx={{ flexGrow: 1 }} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
+            <Title sx={{ flexGrow: 1, textAlign: ['center', 'left'] }} pr={[0, 3]} py={[3, 4]}>
               {t('Access Management')}
             </Title>
             <Flex width={['100%', 'auto']} sx={{ justifyContent: 'center' }} pb={[3, 0]}>

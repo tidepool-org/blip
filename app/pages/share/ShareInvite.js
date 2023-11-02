@@ -236,7 +236,7 @@ const ShareInvite = (props) => {
         py={3}
         sx={{ borderBottom: baseTheme.borders.default }}
       >
-        <Title textAlign={['center', 'left']}>{t('Share your data')}</Title>
+        <Title sx={{ textAlign: ['center', 'left'] }}>{t('Share your data')}</Title>
       </Box>
 
       <Box

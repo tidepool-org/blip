@@ -34,13 +34,12 @@ const Pill = (props) => {
       as="span"
       px={round ? 0 : 2}
       py={round ? 0 : 1}
-      sx={{ borderRadius, ...sx }}
+      sx={{ borderRadius, textAlign: 'center', ...sx }}
       color={color}
       bg={bg}
       width={width}
       height={height}
       lineHeight={lineHeight}
-      textAlign="center"
       {...themeProps}
     >
       {text}

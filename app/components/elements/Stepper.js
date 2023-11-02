@@ -420,7 +420,7 @@ export const Stepper = props => {
                   optional={isStepOptional(index) && (
                     <Text
                       className="optional"
-                      textAlign={isHorizontal ? 'center' : 'left'}
+                      sx={{ textAlign: isHorizontal ? 'center' : 'left' }}
                     >
                       {isStepSkipped(index) ? 'skipped' : 'optional'}
                     </Text>

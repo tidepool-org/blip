@@ -153,9 +153,9 @@ export let Patients = withTranslation()(class extends React.Component {
       return null;
     }
     return (
-      <Box textAlign="center">
+      <Box sx={{ textAlign: 'center' }}>
         <Trans className="patients-message" i18nKey="html.patients-no-data">
-          Looks like you don’t have access to any data yet.
+          Looks like you don't have access to any data yet.
           <br />
           Please ask someone to invite you to see their data.
         </Trans>

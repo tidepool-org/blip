@@ -954,7 +954,7 @@ export const TideDashboard = (props) => {
         section={{}}
         patients={[]}
         emptyContentNode={(
-          <Box id="no-tide-results" px={3} py={8} variant="containers.fluidRounded" fontSize={1} textAlign="center" color="text.primary" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
+          <Box id="no-tide-results" px={3} py={8} variant="containers.fluidRounded" fontSize={1} color="text.primary" sx={{ textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
             <Text mb={3} fontWeight="bold">
               {t('There are no patients that match your filter criteria.')}
             </Text>

@@ -608,7 +608,7 @@ export const PrescriptionForm = props => {
           {t('Back To Prescriptions')}
         </Button>
 
-        <Text as={Headline} textAlign="center">{title}</Text>
+        <Text as={Headline} sx={{ textAlign: 'center' }}>{title}</Text>
         <Pill label="prescription status" colorPalette={prescriptionStateColorPalette} text={prescriptionStateLabel} />
       </Flex>
 

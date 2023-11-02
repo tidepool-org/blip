@@ -317,7 +317,7 @@ export const PatientInvites = (props) => {
 
         {pendingInvites.length === 0 && (
           <Box id="no-invites" pt={3} mb={4} sx={{ borderTop: borders.divider }}>
-            <Text p={3} fontSize={1} color="text.primary" textAlign="center">
+            <Text p={3} fontSize={1} color="text.primary" sx={{ textAlign: 'center' }}>
               {t('There are no invites. Refresh to check for pending invites.')}
             </Text>
 

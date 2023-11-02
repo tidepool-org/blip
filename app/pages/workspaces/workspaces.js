@@ -404,7 +404,7 @@ export const Workspaces = (props) => {
           }}
           px={[3, 4, 5, 6]}
         >
-          <Headline sx={{ flexGrow: 1 }} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
+          <Headline pr={[0, 3]} py={[3, 4]} sx={{ flexGrow: 1, textAlign: ['center', 'left'] }}>
             {t('Welcome To Tidepool')}
           </Headline>
         </Flex>
