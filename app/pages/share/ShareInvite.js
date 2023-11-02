@@ -377,7 +377,7 @@ const ShareInvite = (props) => {
       </Box>
 
       <Box px={5} py={5}>
-        <Flex justifyContent={['center', 'flex-end']}>
+        <Flex sx={{ justifyContent: ['center', 'flex-end'] }}>
           <Button id="cancel" variant="secondary" onClick={handleBack}>
             {backButtonText}
           </Button>

@@ -208,7 +208,7 @@ export const PatientInvites = (props) => {
   );
 
   const renderActions = member => (
-    <Flex justifyContent="flex-end">
+    <Flex sx={{ justifyContent: 'flex-end' }}>
       <Button
         className="decline-invite"
         onClick={() => handleDecline(member)}
@@ -321,7 +321,7 @@ export const PatientInvites = (props) => {
               {t('There are no invites. Refresh to check for pending invites.')}
             </Text>
 
-            <Flex justifyContent="center">
+            <Flex sx={{ justifyContent: 'center' }}>
               <Button
                 id="refresh-invites"
                 variant="secondary"

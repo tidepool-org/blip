@@ -333,7 +333,7 @@ export const Stepper = props => {
       : steps[activeStep];
 
     return (
-      <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
+      <Flex sx={{ justifyContent: 'flex-end' }} className="step-actions" mt={3} {...themeProps.actions}>
         {!step.hideBack && (
           <Button
             mr={4}

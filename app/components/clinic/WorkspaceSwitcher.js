@@ -83,7 +83,7 @@ export const WorkspaceSwitcher = props => {
   };
 
   return menuOptions.length ? (
-    <Flex id='workspace-switcher' justifyContent={['center', 'flex-start', 'center']}>
+    <Flex id='workspace-switcher' sx={{ justifyContent: ['center', 'flex-start', 'center'] }}>
       {menuOptions.length > 1 && (
         <>
           <Button
@@ -125,13 +125,13 @@ export const WorkspaceSwitcher = props => {
                   pt={2}
                   pb={3}
                   px={3}
-                  justifyContent="space-between"
                   key={key}
                   fontSize={2}
                   icon={option.id === selectedClinic?.id ? CheckRoundedIcon : null}
                   iconLabel={t('Selected')}
                   onClick={() => handleSelect(option)}
                   sx={{
+                    justifyContent: 'space-between',
                     '&:hover': {
                       color: colors.purpleDark,
                     },

@@ -97,10 +97,9 @@ export const ClinicProfile = (props) => {
           <Box
             px={4}
             py={2}
-            sx={{ borderBottom: baseTheme.borders.default }}
-            alignItems={'center'}
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
           >
-            <Title flexGrow={1}>
+            <Title sx={{ flexGrow: 1 }}>
               {t('Clinic Profile')}
             </Title>
           </Box>
@@ -113,10 +112,8 @@ export const ClinicProfile = (props) => {
             <ClinicProfileFields p={4} formikContext={formikContext} />
 
             <Flex
-              justifyContent={['center', 'flex-end']}
               id="clinic-profile-footer"
-              sx={{ borderTop: baseTheme.borders.default }}
-              alignItems={'center'}
+              sx={{ borderTop: baseTheme.borders.default, justifyContent: ['center', 'flex-end'], alignItems: 'center' }}
               py={4}
             >
               <Button id="cancel" variant="secondary" onClick={redirectToWorkspace}>

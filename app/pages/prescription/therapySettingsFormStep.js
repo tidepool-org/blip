@@ -233,7 +233,7 @@ export const GlucoseSettings = props => {
           )}
         />
 
-        <Flex mb={5} alignItems="flex-start">
+        <Flex mb={5} sx={{ alignItems: 'flex-start' }}>
           <Field
             as={TextInput}
             label={t('Lower Target')}
@@ -284,7 +284,7 @@ export const GlucoseSettings = props => {
           )}
         />
 
-        <Flex mb={3} alignItems="flex-start">
+        <Flex mb={3} sx={{ alignItems: 'flex-start' }}>
           <Field
             as={TextInput}
             label={t('Lower Target')}

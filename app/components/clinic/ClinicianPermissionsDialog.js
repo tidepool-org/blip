@@ -18,14 +18,14 @@ import {
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
-import { colors, fontWeights } from '../../themes/baseTheme';
+import { fontWeights } from '../../themes/baseTheme';
 import Icon from '../elements/Icon';
 
 const ClinicianPermissionsDialog = props => {
   const { t, open, onClose } = props;
 
   const renderPermission = (permission, key) => (
-    <Flex py={1} key={key} alignItems="center">
+    <Flex py={1} key={key} sx={{ alignItems: 'center' }}>
       <Icon color="blueGreyMedium" variant="static" icon={CheckRoundedIcon} label='checkmark icon' mr={2} />
       <Body1 color="blueGreyMedium">{permission}</Body1>
     </Flex>
@@ -60,7 +60,7 @@ const ClinicianPermissionsDialog = props => {
       </DialogTitle>
 
       <DialogContent>
-        <Flex flexDirection={['column', null, 'row']}>
+        <Flex sx={{ flexDirection: ['column', null, 'row'] }}>
           <Box px={4} mb={[3, null, 0]}>
             <Body1 py={1} sx={{ fontWeight: fontWeights.bold }}>{t('Clinic Admin can:')}</Body1>
             {map(adminPermissions, renderPermission)}

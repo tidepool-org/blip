@@ -76,11 +76,11 @@ const UploadRedirect = (props) => {
   }
 
   return (
-    <Flex justifyContent="center" alignItems="center" height="75vh">
+    <Flex sx={{ justifyContent: 'center', alignItems: 'center' }} height="75vh">
       <Box>
         <Text fontWeight="medium">
           <Box>
-            <Flex alignItems="center" flexDirection="column">
+            <Flex sx={{ alignItems: 'center', flexDirection: 'column' }}>
               <Title mb="10px">
                 {
                   fromProfile ? (

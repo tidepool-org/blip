@@ -594,14 +594,10 @@ export const PrescriptionForm = props => {
     >
       <Flex
         id="prescription-form-header"
-        justifyContent="space-between"
-        alignItems="center"
         mb={3}
         px={4}
         py={3}
-        sx={{
-          borderBottom: borders.divider
-        }}
+        sx={{ justifyContent: 'space-between', alignItems: 'center', borderBottom: borders.divider }}
       >
         <Button
           id="back-to-prescriptions"

@@ -26,9 +26,7 @@ export const DialogTitle = props => {
   return (
     <Flex
       p={3}
-      justifyContent="space-between"
-      alignItems="center"
-      sx={{ borderBottom: props.divider ? borders.divider : 'unset' }}
+      sx={{ alignItems: 'center', justifyContent: 'space-between', borderBottom: props.divider ? borders.divider : 'unset' }}
       {...dialogTitleProps}
     >
       {children}
@@ -97,7 +95,7 @@ const StyledDialogActions = styled(Flex)`
 
 export const DialogActions = props => (
   <StyledDialogActions
-    justifyContent="flex-end"
+    sx={{ justifyContent: 'flex-end' }}
     p={3}
     {...props}
   />

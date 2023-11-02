@@ -25,7 +25,7 @@ export const LoggedOut = (props) => {
       p={6}
       pt={5}
     >
-      <Flex flexDirection={'row'} justifyContent={'center'} mb={5}>
+      <Flex sx={{ flexDirection: 'row', justifyContent: 'center' }} mb={5}>
         <img src={logoSrc} width={227} />
       </Flex>
 

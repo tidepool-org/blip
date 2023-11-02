@@ -315,8 +315,8 @@ export const PatientDataClass = createReactClass({
                 py={1}
                 px={1}
                 mb={4}
-                alignItems="center"
                 sx={{
+                  alignItems: 'center',
                   gap: 9,
                   display: 'inline-flex !important',
                   border: borders.input,

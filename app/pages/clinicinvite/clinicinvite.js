@@ -167,12 +167,11 @@ export const ClinicInvite = (props) => {
       variant="containers.mediumBordered"
     >
       <Flex
-        sx={{ borderBottom: baseTheme.borders.default }}
-        alignItems="center"
+        sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
         p={4}
         px={6}
       >
-        <Title flexGrow={1}>{t('Invite Team Members')}</Title>
+        <Title sx={{ flexGrow: 1 }}>{t('Invite Team Members')}</Title>
       </Flex>
 
       <Box
@@ -236,7 +235,7 @@ export const ClinicInvite = (props) => {
           Learn more about clinician roles and permissions
         </Button>
 
-        <Flex p={4} justifyContent="flex-end">
+        <Flex p={4} sx={{ justifyContent: 'flex-end' }}>
           <Button id="cancel" variant="secondary" onClick={handleBack}>
             {t('Back')}
           </Button>

@@ -63,8 +63,7 @@ export const Tag = props => {
       variant={`tags.${variant}`}
       onClick={onClick?.bind(null, id)}
       onDoubleClick={onDoubleClick?.bind(null, id)}
-      flexDirection={flexDirection}
-      sx={styles}
+      sx={{ ...styles, flexDirection }}
       {...themeProps}
     >
       <Text className={classNames} as="span">
@@ -178,9 +177,7 @@ export const TagList = withTranslation()(props => {
     <Flex
       ref={anchorRef}
       className="tag-list"
-      alignItems="center"
-      flexWrap={flexWrap}
-      sx={{ gap: 1 }}
+      sx={{ gap: 1, alignItems: 'center', flexWrap }}
       {...themeProps}
     >
       {map(visibleTags, tag => (
@@ -224,10 +221,8 @@ export const TagList = withTranslation()(props => {
             <Flex
               classname="tag-list-overflow"
               maxWidth="250px"
-              alignItems="center"
-              flexWrap="wrap"
               p={1}
-              sx={{ gap: 1 }}
+              sx={{ gap: 1, alignItems: 'center', flexWrap: 'wrap' }}
             >
               {map(hiddenTags, tag => (
                 <Tag

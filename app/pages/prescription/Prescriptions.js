@@ -291,13 +291,11 @@ const Prescriptions = props => {
   // Render
   return (
     <>
-      <Flex mb={4} alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={{ gap: 3 }}>
+      <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
         {/* Flex Group 1: Search Box and Add Prescription button */}
         <Flex
-          alignItems="center"
-          justifyContent="space-between"
           width={['100%', null, 'auto']}
-          sx={{ gap: 2 }}
+          sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 2 }}
         >
           <Button
             id="add-prescription"
@@ -331,25 +329,16 @@ const Prescriptions = props => {
 
         {/* Flex Group 2: Filters */}
         <Flex
-          alignItems="center"
-          flexGrow={1}
-          flexWrap="wrap"
           pt={0}
-          sx={{ gap: 3 }}
+          sx={{ gap: 3, alignItems: 'center', flexGrow: 1, flexWrap: 'wrap' }}
         >
           {/* Flex Group 2a: Status Filters */}
-          <Flex
-            alignItems="center"
-            justifyContent="flex-start"
-            sx={{ gap: 2 }}
-            flexWrap="wrap"
-          >
+          <Flex sx={{ gap: 2, alignItems: 'center', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
             <Flex
-              alignItems="center"
               color={keys(prescriptionStates).length > activeStatesCount > 0 ? 'purpleMedium' : 'grays.4'}
               pl={2}
               py={1}
-              sx={{ gap: 1, borderLeft: ['none', null, borders.divider] }}
+              sx={{ alignItems: 'center', gap: 1, borderLeft: ['none', null, borders.divider] }}
             >
               {keys(prescriptionStates).length > activeStatesCount > 0  ? (
                 <Pill
@@ -406,7 +395,7 @@ const Prescriptions = props => {
                     ))}
                   </DialogContent>
 
-                  <DialogActions justifyContent="space-between" p={1}>
+                  <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                     <Button
                       fontSize={1}
                       variant="textSecondary"

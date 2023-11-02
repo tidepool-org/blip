@@ -25,18 +25,20 @@ export const DeltaBar = React.memo(props => {
       <Flex
         className="range-summary-bars"
         width="120px"
-        justifyContent={['flex-end', 'center']}
-        alignItems="center"
+        sx={{ justifyContent: ['flex-end', 'center'], alignItems: 'center' }}
       >
         {map(values, (value, i) => (
           <Flex
             key={`delta-value-${i}`}
             py="6px"
-            flexBasis="50%"
-            flexDirection={i === 0 ? 'row' : 'row-reverse'}
-            justifyContent="flex-end"
-            alignItems="center"
-            sx={{ gap: 1, borderRight: i === 0 ? `1px solid ${colors.grays[1]}` : 'none' }}
+            sx={{
+              flexBasis: '50%',
+              flexDirection: i === 0 ? 'row' : 'row-reverse',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: 1,
+              borderRight: i === 0 ? `1px solid ${colors.grays[1]}` : 'none'
+            }}
           >
             {value !== 0 && (
               <Text
@@ -44,7 +46,7 @@ export const DeltaBar = React.memo(props => {
                 fontSize="inherit"
                 fontWeight="inherit"
                 color="inherit"
-                justifyContent={i === 0 ? 'flex-end' : 'flex-start'}
+                sx={{ justifyContent: i === 0 ? 'flex-end' : 'flex-start' }}
               >
                 {labels[i]}
               </Text>
@@ -53,10 +55,10 @@ export const DeltaBar = React.memo(props => {
             <Box
               className={`range-summary-bars-${i}`}
               key={i}
-              flexBasis={`${Math.abs((value / max) * 100)}%`}
               height="18px"
               backgroundColor={colorsArray[i]}
               sx={{
+                flexBasis: `${Math.abs((value / max) * 100)}%`,
                 borderTopLeftRadius: i === 0 ? `${radii.input}px` : 0,
                 borderBottomLeftRadius: i === 0 ? `${radii.input}px` : 0,
                 borderTopRightRadius: i === 0 ? 0 : `${radii.input}px`,

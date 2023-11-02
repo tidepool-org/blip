@@ -265,13 +265,12 @@ export const ClinicianEdit = (props) => {
       {selectedClinician ? (
         <>
           <Flex
-            sx={{ borderBottom: baseTheme.borders.default }}
-            alignItems="center"
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
             p={4}
             mb={4}
             px={6}
           >
-            <Box flexGrow={1}>
+            <Box sx={{ flexGrow: 1 }}>
               <Text fontWeight="medium">{clinicianName}</Text>
               <Text>{selectedClinician.email}</Text>
             </Box>
@@ -336,7 +335,7 @@ export const ClinicianEdit = (props) => {
               Learn more about clinician roles and permissions
             </Button>
 
-            <Flex p={4} justifyContent="flex-end">
+            <Flex p={4} sx={{ justifyContent: 'flex-end' }}>
               <Button id="cancel" variant="secondary" onClick={handleBack}>
                 {t('Back')}
               </Button>

@@ -326,7 +326,7 @@ const PatientTags = ({
       >
         <DialogContent px={2} py={3} dividers>
           <Box variant="containers.extraSmall">
-            <Box alignItems="center" mb={3} fontSize={1} fontWeight="medium">
+            <Box sx={{ alignItems: 'center' }} mb={3} fontSize={1} fontWeight="medium">
               <Text color="text.primary" sx={{ whiteSpace: 'nowrap' }}>
                 {t('Assign Patient Tags')}
               </Text>
@@ -353,7 +353,7 @@ const PatientTags = ({
             )}
 
             {pendingPatientTags?.length < patientTagsFilterOptions.length && (
-              <Box className='available-tags' alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
+              <Box className='available-tags' sx={{ alignItems: 'center' }} mt={2} mb={1} fontSize={0} fontWeight="medium" >
                 {!!pendingPatientTags?.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
 
                 <TagList
@@ -369,7 +369,7 @@ const PatientTags = ({
           </Box>
         </DialogContent>
 
-        <DialogActions justifyContent="space-between" p={1}>
+        <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
           <Button
             id="clear-patient-tags-dialog"
             fontSize={1}
@@ -399,8 +399,7 @@ const PatientTags = ({
 
         <DialogActions
           p={1}
-          justifyContent="space-between"
-          sx={{ borderTop: borders.divider }}
+          sx={{ borderTop: borders.divider, justifyContent: 'space-between' }}
         >
           <Button
             id="show-edit-clinic-patient-tags-dialog"
@@ -1118,15 +1117,11 @@ export const ClinicPatients = (props) => {
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
     return (
       <>
-        <Flex mb={4} alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={{ gap: 3 }}>
+        <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
           {/* Flex Group 1: Search Box and Add Patient button */}
           <Flex
-            alignItems="center"
-            justifyContent="space-between"
             width="auto"
-            flexGrow={[1, null, 0]}
-            flexWrap="wrap"
-            sx={{ gap: 2 }}
+            sx={{ gap: 2, alignItems: 'center', justifyContent: 'space-between', flexGrow: [1, null, 0], flexWrap: 'wrap' }}
           >
             <Button
               id="add-patient"
@@ -1139,8 +1134,8 @@ export const ClinicPatients = (props) => {
               {t('Add New Patient')}
             </Button>
 
-              <Box flex={1} flexBasis="fit-content" sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
-                <Flex justifyContent="space-between" alignContent="center" sx={{ gap: 2 }}>
+              <Box sx={{ flex: 1, flexBasis:'fit-content', position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+                <Flex sx={{ justifyContent: 'space-between', alignContent: 'center', gap: 2 }}>
                   {showTideDashboardUI && (
                     <PopoverElement
                       triggerOnHover
@@ -1166,7 +1161,7 @@ export const ClinicPatients = (props) => {
                       )}
                     >
                       <Button
-                        flexShrink={0}
+                        sx={{ flexShrink: 0 }}
                         id="open-tide-dashboard"
                         variant="tertiary"
                         onClick={handleConfigureTideDashboard}
@@ -1202,29 +1197,20 @@ export const ClinicPatients = (props) => {
 
           {/* Flex Group 2: Filters and Info Icons */}
           <Flex
-            alignItems="center"
-            flexGrow={showSummaryData ? 1 : 0}
-            flexShrink={1}
-            flexWrap="wrap"
             pt={0}
-            sx={{ gap: 3 }}
+            sx={{ gap: 3, alignItems: 'center', flexGrow: showSummaryData ? 1 : 0, flexShrink: 1, flexWrap: 'wrap' }}
           >
             {/* Flex Group 2a: Results Filters */}
             {showSummaryData && (
               <Flex
-                alignItems="center"
-                justifyContent="flex-start"
-                sx={{ gap: 2 }}
-                flexWrap="wrap"
+                sx={{ alignItems: 'center', gap: 2, justifyContent: 'flex-start', flexWrap: 'wrap' }}
                 id='summary-dashboard-filters'
               >
                 <Flex
-                  alignItems="center"
                   color={activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4'}
                   pl={[0, 0, 2]}
                   py={1}
-                  sx={{ gap: 1, borderLeft: ['none', null, borders.divider] }}
-                  flexShrink={0}
+                  sx={{ alignItems: 'center', gap: 1, borderLeft: ['none', null, borders.divider], flexShrink: 0 }}
                 >
                   {activeFiltersCount > 0 ? (
                     <Pill
@@ -1251,12 +1237,12 @@ export const ClinicPatients = (props) => {
                   <Text fontSize={0}>{t('Filter By')}</Text>
                 </Flex>
 
-                <Flex flexShrink={0} sx={{ gap: 2 }}>
+                <Flex sx={{ flexShrink: 0, gap: 2 }}>
                   <Box
                     onClick={() => {
                       if (!lastUploadDatePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Last upload filter open'), { clinicId: selectedClinicId });
                     }}
-                    flexShrink={0}
+                    sx={{ flexShrink: 0 }}
                   >
                     <Button
                       variant="filter"
@@ -1285,7 +1271,7 @@ export const ClinicPatients = (props) => {
                     }}
                   >
                     <DialogContent px={2} py={3} dividers>
-                      <Box alignItems="center" mb={2}>
+                      <Box sx={{ alignItems: 'center' }} mb={2}>
                         <Text color="grays.4" fontWeight="medium" fontSize={0} sx={{ whiteSpace: 'nowrap' }}>
                           {t('Device Type')}
                         </Text>
@@ -1304,11 +1290,11 @@ export const ClinicPatients = (props) => {
                       />
 
                       <Box
-                        alignItems="center"
                         mt={3}
                         mb={2}
                         pt={3}
                         sx={{
+                          alignItems: 'center',
                           borderTop: borders.divider,
                         }}
                       >
@@ -1331,7 +1317,7 @@ export const ClinicPatients = (props) => {
                       />
                     </DialogContent>
 
-                    <DialogActions justifyContent="space-between" p={1}>
+                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                       <Button
                         id="clear-last-upload-filter"
                         fontSize={1}
@@ -1380,7 +1366,7 @@ export const ClinicPatients = (props) => {
                     iconLabel="Filter by Time In Range"
                     fontSize={0}
                     lineHeight={1.3}
-                    flexShrink={0}
+                    sx={{ flexShrink: 0 }}
                   >
                     <Flex sx={{ gap: 1 }}>
                       {t('% Time in Range')}
@@ -1407,7 +1393,7 @@ export const ClinicPatients = (props) => {
                     onClick={() => {
                       if (!patientTagsPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('patient tags filter open'), { clinicId: selectedClinicId });
                     }}
-                    flexShrink={0}
+                    sx={{ flexShrink: 0 }}
                   >
                     <Button
                       variant="filter"
@@ -1419,7 +1405,7 @@ export const ClinicPatients = (props) => {
                       fontSize={0}
                       lineHeight={1.3}
                     >
-                      <Flex alignItems="center" sx={{ gap: 1 }}>
+                      <Flex sx={{ alignItems: 'center', gap: 1 }}>
                         {showTideDashboard && !clinic?.patientTags?.length && <Icon
                           variant="static"
                           icon={InfoOutlinedIcon}
@@ -1468,7 +1454,7 @@ export const ClinicPatients = (props) => {
                           </Text>
 
                           {showTideDashboard && !clinic?.patientTags?.length && (
-                            <Flex mt={3} sx={{ gap: 1 }} alignItems="flex-start">
+                            <Flex mt={3} sx={{ gap: 1, alignItems: 'flex-start' }}>
                               <Icon
                                 variant="static"
                                 icon={InfoOutlinedIcon}
@@ -1504,7 +1490,7 @@ export const ClinicPatients = (props) => {
                         )}
 
                         {pendingFilters.patientTags?.length < patientTagsFilterOptions?.length && (
-                          <Box id="available-tag-filters" alignItems="center" mt={2} mb={1} fontSize={0} fontWeight="medium" >
+                          <Box id="available-tag-filters" sx={{ alignItems: 'center' }} mt={2} mb={1} fontSize={0} fontWeight="medium" >
                             {!!pendingFilters.patientTags?.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
 
                             <TagList
@@ -1520,7 +1506,7 @@ export const ClinicPatients = (props) => {
                       </Box>
                     </DialogContent>
 
-                    <DialogActions justifyContent="space-between" p={1}>
+                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                       <Button
                         id="clear-patient-tags-filter"
                         fontSize={1}
@@ -1546,8 +1532,7 @@ export const ClinicPatients = (props) => {
 
                     <DialogActions
                       p={1}
-                      justifyContent="space-between"
-                      sx={{ borderTop: borders.divider }}
+                      sx={{ borderTop: borders.divider, justifyContent: 'space-between' }}
                     >
                       <Button
                         id="show-edit-clinic-patient-tags-dialog"
@@ -1570,7 +1555,7 @@ export const ClinicPatients = (props) => {
                     onClick={() => {
                       if (!cgmUsePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('CGM Use filter open'), { clinicId: selectedClinicId });
                     }}
-                    flexShrink={0}
+                    sx={{ flexShrink: 0 }}
                   >
                     <Button
                       variant="filter"
@@ -1599,7 +1584,7 @@ export const ClinicPatients = (props) => {
                     }}
                   >
                     <DialogContent px={2} py={3} dividers>
-                      <Box alignItems="center" mb={2}>
+                      <Box sx={{ alignItems: 'center' }} mb={2}>
                         <Text color="grays.4" fontWeight="medium" fontSize={0} sx={{ whiteSpace: 'nowrap' }}>
                           {t('% CGM Use')}
                         </Text>
@@ -1618,7 +1603,7 @@ export const ClinicPatients = (props) => {
                       />
                     </DialogContent>
 
-                    <DialogActions justifyContent="space-between" p={1}>
+                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                       <Button
                         id="clear-cgm-use-filter"
                         fontSize={1}
@@ -1661,7 +1646,7 @@ export const ClinicPatients = (props) => {
                     onClick={handleResetFilters}
                     fontSize={0}
                     color="grays.4"
-                    flexShrink={0}
+                    sx={{ flexShrink: 0 }}
                     px={0}
                   >
                     {t('Reset Filters')}
@@ -1671,24 +1656,21 @@ export const ClinicPatients = (props) => {
             )}
 
             {/* Flex Group 2b: Range select and Info/Visibility Icons */}
-            <Flex flexGrow={1} justifyContent="space-between" sx={{ gap: 3 }}>
+            <Flex sx={{ flexGrow: 1, justifyContent: 'space-between', gap: 3 }}>
 
               {/* Range select */}
               {showSummaryData && (
                 <Flex
-                  justifyContent="flex-start"
-                  alignItems="center"
                   pt={0}
-                  sx={{ gap: 3 }}
-                  flexShrink={0}
+                  sx={{ gap: 3, justifyContent: 'flex-start', alignItems: 'center', flexShrink: 0 }}
                 >
                   <Flex
-                  alignItems="center"
-                  color="grays.4"
-                  py={1}
-                  pl={[0, 0, 3]}
-                  sx={{ borderLeft: ['none', null, borders.divider] }}
-                >
+                    color="grays.4"
+                    py={1}
+                    pl={[0, 0, 3]}
+                    sx={{ borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
+                  >
+
                   <Text fontSize={0}>{t('View data from')}</Text>
                 </Flex>
 
@@ -1734,7 +1716,7 @@ export const ClinicPatients = (props) => {
                     />
                   </DialogContent>
 
-                  <DialogActions justifyContent="space-between" p={1}>
+                  <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                     <Button
                       id="cancel-summary-period-filter"
                       fontSize={1}
@@ -1771,13 +1753,7 @@ export const ClinicPatients = (props) => {
             )}
 
             {/* Info/Visibility Icons */}
-            <Flex
-              alignItems="center"
-              justifyContent="flex-end"
-              flexGrow={1}
-              flexShrink={0}
-              sx={{ gap: 2 }}
-            >
+            <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexGrow: 1, flexShrink: 0, alignItems: 'center' }}>
               {showSummaryData && showNames && (
                 <>
                   <PopoverLabel
@@ -2115,7 +2091,7 @@ export const ClinicPatients = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle alignItems="flex-start" onClose={handleCloseOverlays}>
+        <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
             <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
             <Body1 fontWeight="medium" color="grays.4">{t('You must make a selection in each category')}</Body1>
@@ -2381,7 +2357,7 @@ export const ClinicPatients = (props) => {
         />
 
         <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
-          <Flex alignItems="center" mb={3} fontSize={1} fontWeight="medium">
+          <Flex sx={{ alignItems: 'center' }} mb={3} fontSize={1} fontWeight="medium">
             <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
               {t('View Patients that spend:')}
             </Text>
@@ -2396,8 +2372,7 @@ export const ClinicPatients = (props) => {
                 key={rangeName}
                 mb={3}
                 ml={2}
-                alignItems="center"
-                sx={{ gap: 2 }}
+                sx={{ alignItems: 'center', gap: 2 }}
               >
                 <Checkbox
                   id={`range-${value}-filter`}
@@ -2413,7 +2388,7 @@ export const ClinicPatients = (props) => {
                 />
 
               <Box>
-                <Flex as="label" htmlFor={`range-${value}-filter`} alignItems="center">
+                <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
                   <Text fontSize={1} mr={2}>
                     {prefix}{' '}
                     <Text as="span" fontSize={2} fontWeight="bold">
@@ -2452,7 +2427,7 @@ export const ClinicPatients = (props) => {
           </Button>
         </DialogContent>
 
-        <DialogActions justifyContent="space-between" p={2}>
+        <DialogActions sx={{ justifyContent: 'space-between' }} p={2}>
           <Button
             id="timeInRangeFilterClear"
             variant="textSecondary"
@@ -2661,7 +2636,7 @@ export const ClinicPatients = (props) => {
     const visibility = value > 0 ? 'visible' : 'hidden';
 
     return (
-      <Flex alignItems="flex-end" sx={{ visibility, gap: '1px' }}>
+      <Flex sx={{ alignItems: 'flex-end', visibility, gap: '1px' }}>
         <Icon
           fontSize={1}
           sx={{ transform: `rotate(${rotation}deg)`, top: '-2px' }}
@@ -2677,7 +2652,7 @@ export const ClinicPatients = (props) => {
 
   const BGEventsInfo = () => (
     <Box p={1}>
-      <Flex alignItems="center" sx={{ gap: '2px' }}>
+      <Flex sx={{ alignItems: 'center', gap: '2px' }}>
         <Icon
           fontSize={1}
           sx={{ transform: 'rotate(90deg)' }}
@@ -2693,7 +2668,7 @@ export const ClinicPatients = (props) => {
         </Text>
       </Flex>
 
-      <Flex alignItems="center" sx={{ gap: '2px' }} mb={2}>
+      <Flex sx={{ alignItems: 'center', gap: '2px' }} mb={2}>
         <Icon
           fontSize={1}
           sx={{ transform: 'rotate(-90deg)' }}

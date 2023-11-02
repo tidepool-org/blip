@@ -36,15 +36,14 @@ export const Toast = props => {
   return (
     <Snackbar open={open} onClose={handleClose} {...snackbarProps}>
       <Flex
-        alignItems="center"
-        justifyContent="space-between"
+        sx={{ justifyContent: 'space-between', alignItems: 'center' }}
         className={variant}
         px={3}
         py={2}
         theme={baseTheme}
         variant={`toasts.${variant}`}
       >
-        <Flex alignItems="center" pr={2}>
+        <Flex sx={{ alignItems: 'center' }} pr={2}>
           <Icon className="feedback" label="feedback" icon={feedbackIcon[variant]} />
           <Body1 pl={2} pr={action ? 2 : 0}>{message}</Body1>
           {action}

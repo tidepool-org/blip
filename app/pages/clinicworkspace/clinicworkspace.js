@@ -103,7 +103,7 @@ export const ClinicWorkspace = (props) => {
     <>
       <ClinicWorkspaceHeader api={api} trackMetric={trackMetric} />
 
-      <Box id="clinic-workspace" alignItems="center" variant="containers.largeBordered" mb={9}>
+      <Box id="clinic-workspace" sx={{ alignItems: 'center' }} variant="containers.largeBordered" mb={9}>
         <Element name="workspaceTabsTop" />
         <TabGroup
           aria-label="Clinic workspace tabs"

@@ -148,7 +148,7 @@ export const FilterMenu = () => {
             variant="vertical"
           />
         </DialogContent>
-        <DialogActions justifyContent="flex-end" p={1}>
+        <DialogActions sx={{ justifyContent: 'flex-end' }} p={1}>
           <Button fontSize={0} variant="textSecondary" onClick={handleClear}>
             Clear
           </Button>
@@ -192,7 +192,7 @@ export const JumpMenu = () => {
   };
 
   return (
-    <Flex width="400px" justifyContent="center">
+    <Flex width="400px" sx={{ justifyContent: 'center' }}>
       <Button
         variant="textPrimary"
         color="text.primary"
@@ -224,7 +224,7 @@ export const JumpMenu = () => {
               width="100%"
               py={2}
               px={3}
-              justifyContent="space-between"
+              sx={{ justifyContent: 'space-between' }}
               key={key}
               fontSize={2}
               icon={option.id === selected.id ? CheckRoundedIcon : null}

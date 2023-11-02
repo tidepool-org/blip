@@ -57,7 +57,7 @@ export const BgRange = () => {
   };
 
   return (
-    <Flex justifyContent="center">
+    <Flex sx={{ justifyContent: 'center' }}>
       <BgRangeSummary data={data} targetRange={targetRange} cgmUsePercent={summaryData.timeCGMUse * 100} bgUnits={bgUnits} />
     </Flex>
   );
@@ -77,7 +77,7 @@ export const DeltaBarStory = () => {
   const delta = random(-20, 20, true);
 
   return (
-    <Flex justifyContent="center">
+    <Flex sx={{ justifyContent: 'center' }}>
       <DeltaBar fontSize={0} color="text.primary" fontWeight="medium" delta={delta} max={35} />
     </Flex>
   );

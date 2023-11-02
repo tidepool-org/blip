@@ -123,7 +123,7 @@ export const NavigationMenu = props => {
   }
 
   return (
-    <Flex id="navigation-menu" width="auto" justifyContent={['center', 'flex-end']}>
+    <Flex id="navigation-menu" width="auto" sx={{ justifyContent: ['center', 'flex-end'] }}>
       <Button
         id="navigation-menu-trigger"
         variant="textPrimary"
@@ -138,9 +138,9 @@ export const NavigationMenu = props => {
           },
         }}
       >
-        <Flex alignItems="center">
+        <Flex sx={{ alignItems: 'center' }}>
           {personUtils.fullName(allUsersMap?.[loggedInUserId]) || t('Account')}
-          {pendingReceivedClinicianInvites.length > 0 && <NotificationIcon flexShrink={0} />}
+          {pendingReceivedClinicianInvites.length > 0 && <NotificationIcon sx={{ flexShrink: 0 }} />}
         </Flex>
       </Button>
 
@@ -166,7 +166,6 @@ export const NavigationMenu = props => {
               py={3}
               pr={3}
               ml={3}
-              justifyContent="flex-end"
               key={key}
               fontSize={2}
               icon={option.icon}
@@ -174,6 +173,7 @@ export const NavigationMenu = props => {
               iconPosition="left"
               onClick={() => handleMenuAction(option)}
               sx={{
+                justifyContent: 'flex-end',
                 borderBottom: borders.divider,
                 '&:hover': {
                   color: colors.purpleDark,
@@ -186,9 +186,9 @@ export const NavigationMenu = props => {
                 },
               }}
             >
-              <Flex alignItems="center">
+              <Flex sx={{ alignItems: 'center' }}>
                 {option.label}
-                {option.notification && <NotificationIcon flexShrink={0} />}
+                {option.notification && <NotificationIcon sx={{ flexShrink: 0 }} />}
               </Flex>
             </Button>
           ))}

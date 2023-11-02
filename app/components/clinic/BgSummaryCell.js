@@ -50,7 +50,7 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
   );
 
   return (
-    <Flex justifyContent="center">
+    <Flex sx={{ justifyContent: 'center' }}>
       {(activeSummaryPeriod === '1d' && cgmUsePercent >= minCgmPercent) || (cgmHours >= minCgmHours)
         ? (
         <BgRangeSummary
@@ -62,8 +62,7 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
         />
       ) : (
         <Flex
-          alignItems="center"
-          justifyContent="center"
+          sx={{ alignItems: 'center', justifyContent: 'center' }}
           bg="lightestGrey"
           width={['155px', '175px']}
           height="18px"

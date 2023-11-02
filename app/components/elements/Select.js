@@ -68,7 +68,7 @@ export const Select = props => {
           <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
         </Label>
       )}
-      <StyledSelect alignItems="center" className={classNames} variant={`inputs.select.${variant}`} {...selectProps}>
+      <StyledSelect sx={{ alignItems: 'center' }} className={classNames} variant={`inputs.select.${variant}`} {...selectProps}>
         <Base
           id={name}
           name={name}

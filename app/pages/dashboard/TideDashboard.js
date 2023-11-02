@@ -152,7 +152,7 @@ const SortPopover = React.memo(props => {
         onClick={() => {
           if (!sortPopupFilterState.isOpen) trackMetric(prefixTideDashboardMetric('Sort popover opened'), { clinicId: selectedClinicId, section: section.groupKey });
         }}
-        flexShrink={0}
+        sx={{ flexShrink: 0 }}
       >
         <Button
           variant="textSecondary"
@@ -482,7 +482,7 @@ const TideDashboardSection = React.memo(props => {
 
   return (
     <Box className='dashboard-section' id={`dashboard-section-${section.groupKey}`} mb={4}>
-      <Flex justifyContent="space-between" alignItems="center">
+      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <Text
           className='dashboard-section-label'
           color="purples.9"
@@ -731,15 +731,12 @@ export const TideDashboard = (props) => {
     return (
       <Flex
         mb={3}
-        justifyContent="space-between"
-        alignItems="center"
-        flexWrap="wrap"
-        sx={{ rowGap: 2, columnGap: 3 }}
+        sx={{ rowGap: 2, columnGap: 3, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}
       >
-        <Flex sx={{ gap: 2 }} alignItems="center">
+        <Flex sx={{ gap: 2, alignItems: 'center' }}>
           <Title id="tide-dashboard-header" fontWeight="medium" fontSize="18px">{t('TIDE Dashboard')}</Title>
 
-          <Flex sx={{ gap: 2, position: 'relative', top: '2px' }} alignItems="center">
+          <Flex sx={{ gap: 2, position: 'relative', top: '2px', alignItems: 'center' }}>
             <Text
               fontSize={0}
               fontWeight="medium"
@@ -757,10 +754,8 @@ export const TideDashboard = (props) => {
               height="24px"
               bg="white"
               color={loading ? 'white' : 'text.primary'}
-              alignContent="center"
-              flexWrap="wrap"
               px={3}
-              sx={{ borderRadius: radii.medium }}
+              sx={{ borderRadius: radii.medium, alignContent: 'center', flexWrap: 'wrap' }}
             >
               {formatDateRange(
                 moment.utc(config?.lastUploadDateFrom).subtract(getOffset(config?.lastUploadDateFrom, timezone), 'minutes').toISOString(),
@@ -787,10 +782,8 @@ export const TideDashboard = (props) => {
               height="24px"
               bg="white"
               color={loading ? 'white' : 'text.primary'}
-              alignContent="center"
-              flexWrap="wrap"
               px={3}
-              sx={{ borderRadius: radii.medium }}
+              sx={{ borderRadius: radii.medium, alignContent: 'center', flexWrap: 'wrap' }}
             >
               {config?.period.slice(0, -1)} {periodDaysText}
             </Text>
@@ -823,7 +816,7 @@ export const TideDashboard = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle alignItems="flex-start" onClose={handleCloseOverlays}>
+        <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
             <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
             <Body1 fontWeight="medium" color="grays.4">{t('You must make a selection in each category')}</Body1>
@@ -990,7 +983,7 @@ export const TideDashboard = (props) => {
   return (
     <Box
       id="tide-dashboard"
-      alignItems="center"
+      sx={{ alignItems: 'center' }}
       variant="containers.large"
       bg="transparent"
       minHeight="80vh"

@@ -34,7 +34,7 @@ const PopoverLabel = props => {
 
   return (
     <React.Fragment>
-      <Flex alignItems="center" color="text.primary" bg="inherit" {...wrapperProps}>
+      <Flex sx={{ alignItems: 'center' }} color="text.primary" bg="inherit" {...wrapperProps}>
         {label && <Text mr={2}>{label}</Text>}
         <Icon
           label={iconLabel}

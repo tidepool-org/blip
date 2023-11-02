@@ -202,7 +202,7 @@ export const ChartDateRangeModal = (props) => {
           )}
         </Box>
       </DialogContent>
-      <DialogActions justifyContent="space-between" py="12px">
+      <DialogActions sx={{ justifyContent: 'space-between' }} py="12px">
         <Button variant="textSecondary" className="chart-dates-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>

@@ -58,7 +58,7 @@ export const AccordionStory = () => {
         {...props}
         label={'accordion3'}
         header={
-          <Flex justifyContent={'space-between'} width={'100%'}>
+          <Flex sx={{ justifyContent: 'space-between' }} width={'100%'}>
             <Box>Custom Header</Box>
             <Box
               color={baseTheme.colors.text.primarySubdued}

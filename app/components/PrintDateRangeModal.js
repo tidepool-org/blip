@@ -292,8 +292,10 @@ export const PrintDateRangeModal = (props) => {
                 id={`${panel.key}-header`}
                 mb={enabled[panel.key] && panel.daysOptions ? 2 : 0}
                 pb={enabled[panel.key] && panel.daysOptions ? 3 : 0}
-                sx={{ borderBottom: enabled[panel.key] && panel.daysOptions ? borders.input : 'none' }}
-                justifyContent="space-between"
+                sx={{
+                  borderBottom: enabled[panel.key] && panel.daysOptions ? borders.input : 'none',
+                  justifyContent: 'space-between',
+                }}
               >
                 <Text alignSelf="center" fontSize={1} fontWeight="bold">{panel.header}</Text>
                 <Switch
@@ -374,10 +376,12 @@ export const PrintDateRangeModal = (props) => {
         )}
       </DialogContent>
       <DialogActions
-        justifyContent="space-between"
         mt={3}
         py="12px"
-        sx={{ borderTop: borders.default }}
+        sx={{
+          borderTop: borders.default,
+          justifyContent: 'space-between',
+        }}
       >
         <Button variant="textSecondary" className="print-cancel" onClick={handleClose}>
           {t('Cancel')}

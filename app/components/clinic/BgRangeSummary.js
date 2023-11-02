@@ -57,7 +57,7 @@ export const BgRangeSummary = React.memo(props => {
   return (
     <>
       <Box sx={wrapperStyle} {...themeProps}>
-        <Flex className="range-summary-bars" width={flexWidth} height="18px" justifyContent="center" {...bindHover(popupState)}>
+        <Flex className="range-summary-bars" width={flexWidth} height="18px" sx={{ justifyContent: 'center' }} {...bindHover(popupState)}>
           {map(data, (value, key) => (
               <Box className={`range-summary-bars-${key}`} key={key} bg={`bg.${key}`} width={`${value * 100}%`}/>
           ))}
@@ -90,10 +90,10 @@ export const BgRangeSummary = React.memo(props => {
         useHoverPopover
       >
         <Box px={2} py={1}>
-          <Flex mb="12px" sx={popoverFlexStyle} justifyContent="space-between" flexWrap="nowrap">
+          <Flex mb="12px" sx={{ ...popoverFlexStyle, justifyContent: 'space-between', flexWrap: 'nowrap' }}>
             {map(data, (value, key) => (
-              <Flex key={key} flexDirection="column" justifyContent="center" alignItems="center">
-                <Flex className={`range-summary-value-${key}`} mb={1} textAlign="center" alignItems="flex-end" key={key} color={`bg.${key}`} flexWrap="nowrap">
+              <Flex key={key} sx={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <Flex className={`range-summary-value-${key}`} mb={1} sx={{ flexWrap: 'nowrap', textAlign: 'center', alignItems: 'flex-end' }} key={key} color={`bg.${key}`}>
                   <Text fontWeight="bold" lineHeight={0} fontSize={1}>
                     {utils.formatThresholdPercentage(value, ...DEFAULT_FILTER_THRESHOLDS[key])}
                   </Text>
@@ -104,9 +104,9 @@ export const BgRangeSummary = React.memo(props => {
             ))}
           </Flex>
 
-          <Flex alignItems="flex-end" justifyContent="space-between" flexWrap="nowrap">
+          <Flex sx={{ alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'nowrap' }}>
             <Text className={'range-summary-bg-units'} lineHeight={0} color="grays.4" fontSize="10px">{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
-            <Flex className={'range-summary-cgm-use'} alignItems="flex-end" justifyContent="flex-start" flexWrap="nowrap" sx={{ gap: 1}}>
+            <Flex className={'range-summary-cgm-use'} sx={{ gap: 1, alignItems: 'flex-end', justifyContent: 'flex-start', flexWrap: 'nowrap' }}>
               <Text lineHeight={0} color="text.primary" fontSize="10px" fontWeight="medium">{t('% CGM Use: ')}</Text>
               <Text lineHeight="10px" color="text.primary" fontSize="12px" fontWeight="bold">{t('{{cgmUsePercent}} %', { cgmUsePercent: utils.formatThresholdPercentage(cgmUsePercent, ...DEFAULT_FILTER_THRESHOLDS.cgmUse) })}</Text>
             </Flex>

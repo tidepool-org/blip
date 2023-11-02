@@ -54,7 +54,7 @@ const renderPatient = ({ patient }) => {
   initials = toUpper((initials.shift() || '') + (initials.pop() || ''));
 
   return (
-    <Flex alignItems="center">
+    <Flex sx={{ alignItems: 'center' }}>
       <Avatar color={`${patient.color}.9`} bg={`${patient.color}.0`} mr={3} initials={initials} />
       <Box>
         <Text fontWeight="medium">{patient.name}</Text>
@@ -85,7 +85,7 @@ const renderMore = ({ patient }) => (
 );
 
 const RoleTitleComponent = () => (
-  <Flex flexWrap="nowrap" alignItems="center">
+  <Flex sx={{ flexWrap: 'nowrap', alignItems: 'center' }}>
     <Text mr={1}>Role</Text>
     <Icon fontSize={1} variant="default" icon={InfoOutlinedIcon} onClick={action('Popover with some info')} />
   </Flex>
@@ -141,7 +141,7 @@ export const Simple = () => {
 
   return (
     <React.Fragment>
-      <Flex my={3} justifyContent="flex-end" flexGrow>
+      <Flex my={3} sx={{ justifyContent: 'flex-end', flexGrow: 1 }}>
         <TextInput
           themeProps={{
             width: 'auto',
@@ -203,7 +203,7 @@ export const Paged = () => {
 
   return (
     <React.Fragment>
-      <Flex my={3} justifyContent="flex-end" flexGrow>
+      <Flex my={3} sx={{ justifyContent: 'flex-end', flexGrow: 1 }}>
         <Select
           themeProps={{
             mr: 3,

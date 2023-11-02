@@ -77,7 +77,7 @@ const UploadLaunchOverlay = withTranslation()(class UploadLaunchOverlay extends 
             </div>
           </div>
         </div>,
-        <Flex mt={2} justifyContent="center">
+        <Flex mt={2} sx={{ justifyContent: 'center' }}>
           <UploaderButton
             buttonText={t('Get the Tidepool Uploader')}
           />

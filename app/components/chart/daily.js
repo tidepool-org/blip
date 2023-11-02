@@ -322,7 +322,7 @@ class Daily extends Component {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-              <Flex mb={2} justifyContent="flex-end">
+              <Flex mb={2} sx={{ justifyContent: 'flex-end' }}>
                 <BgSourceToggle
                   bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
                   chartPrefs={this.props.chartPrefs}

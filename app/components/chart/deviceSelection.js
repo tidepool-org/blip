@@ -42,7 +42,7 @@ export const DeviceSelection = (props) => {
     <Accordion
       label={'deviceSelection'}
       header={
-        <Flex flexDirection="row" justifyContent="space-between" flexGrow="1">
+        <Flex sx={{ flexDirection: 'row', justifyContent: 'space-between', flexGrow: '1' }}>
           <Box>Filter Devices</Box>
           <Box fontSize={3}>{devices.length - excludedDevices.length}</Box>
         </Flex>

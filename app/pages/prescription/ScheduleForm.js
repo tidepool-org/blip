@@ -63,7 +63,7 @@ const ScheduleForm = props => {
   return (
     <Box {...boxProps}>
       {map(schedules.value, (schedule, index) => (
-        <Flex className='schedule-row' key={index} alignItems="flex-start" mb={3}>
+        <Flex className='schedule-row' key={index} sx={{ alignItems: 'flex-start' }} mb={3}>
           <Field
             as={TextInput}
             label={index === 0 ? t('Start Time') : null}

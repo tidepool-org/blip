@@ -486,14 +486,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
                 {dataQueryComplete && this.renderChart()}
               </div>
 
-              <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" alignItems="center" justifyContent="space-between">
+              <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" sx={{alignItems: 'center', justifyContent: 'space-between' }}>
                 <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {t('Refresh')}
                 </Button>
 
                 <Flex
                   variant="inputs.checkboxGroup.horizontal"
-                  alignItems="center"
+                  sx={{ alignItems: 'center' }}
                   bg="lightestGrey"
                   px={3}
                   py={2}
@@ -571,7 +571,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-              <Flex mb={2} justifyContent="space-between" alignItems="center">
+              <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyTrendsClicked}

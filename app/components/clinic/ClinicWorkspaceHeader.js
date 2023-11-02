@@ -82,19 +82,14 @@ export const ClinicWorkspaceHeader = (props) => {
         id="clinicProfileDetails"
         px={4}
         py={3}
-        flexWrap="wrap"
-        justifyContent={['center', 'space-between']}
-        alignItems="center"
-        sx={{
-          gap: 2,
-        }}
+        sx={{ gap: 2, flexWrap: 'wrap', justifyContent: ['center', 'space-between'], alignItems: 'center' }}
       >
-        <Flex justifyContent={['flex-start']} alignItems="flex-start" width={['100%', '100%', 'auto']}>
+        <Flex sx={{ justifyContent: 'flex-start', alignItems: 'flex-start' }} width={['100%', '100%', 'auto']}>
           <Box mr={6}>
             <Caption color="grays.4">{t('Clinic Name')}</Caption>
             <Title fontSize={[1, 2, 3]}>{clinic.name}</Title>
           </Box>
-          <Box flexShrink={0}>
+          <Box sx={{ flexShrink: 0 }}>
             <Caption color="grays.4">{t('Clinic Share Code')}</Caption>
             <Flex
               alignContent="center"
@@ -132,10 +127,8 @@ export const ClinicWorkspaceHeader = (props) => {
         </Flex>
 
         <Flex
-          justifyContent={['flex-start', 'flex-start', 'flex-end']}
-          alignItems="center"
           width={['100%', '100%', 'auto']}
-          sx={{ gap: 3 }}
+          sx={{ gap: 3, justifyContent: ['flex-start', 'flex-start', 'flex-end'], alignItems: 'center' }}
         >
           {isClinicAdmin && !isClinicProfilePath && (
             <Box>

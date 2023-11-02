@@ -361,8 +361,8 @@ export const Workspaces = (props) => {
           },
         }}
       >
-        <Flex flexDirection="column" pb={errorText ? [2, 3] : [2, 4]} mr={2}>
-          <Flex className="workspace-details" alignItems="center">
+        <Flex sx={{ flexDirection: 'column' }} pb={errorText ? [2, 3] : [2, 4]} mr={2}>
+          <Flex className="workspace-details" sx={{ alignItems: 'center' }}>
             <Subheading>{workspace.name}</Subheading>
             {workspace.type === 'clinician_invitation' && <NotificationIcon />}
           </Flex>
@@ -404,7 +404,7 @@ export const Workspaces = (props) => {
           }}
           px={[3, 4, 5, 6]}
         >
-          <Headline flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
+          <Headline sx={{ flexGrow: 1 }} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
             {t('Welcome To Tidepool')}
           </Headline>
         </Flex>

@@ -583,15 +583,13 @@ export const AccessManagement = (props) => {
       <Box mb={8}>
         <Box variant="containers.largeBordered" mb={4}>
           <Flex
-            sx={{ borderBottom: baseTheme.borders.default }}
-            alignItems={'center'}
-            flexWrap={['wrap', 'nowrap']}
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center', flexWrap:['wrap', 'nowrap'] }}
             px={[3, 4]}
           >
-            <Title flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
+            <Title sx={{ flexGrow: 1 }} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
               {t('Access Management')}
             </Title>
-            <Flex width={['100%', 'auto']} justifyContent='center' pb={[3, 0]}>
+            <Flex width={['100%', 'auto']} sx={{ justifyContent: 'center' }} pb={[3, 0]}>
               <Button
                 id="invite"
                 variant="primary"

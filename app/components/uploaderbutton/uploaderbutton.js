@@ -40,7 +40,7 @@ export default withTranslation()(class UploaderButton extends Component {
 
   renderErrorText = () => {
     return (
-      <Flex justifyContent="center">
+      <Flex sx={{ justifyContent: 'center' }}>
         <Box mx={2}>
           <a className='link-uploader-download'
             href={URL_UPLOADER_DOWNLOAD_PAGE}
@@ -64,7 +64,7 @@ export default withTranslation()(class UploaderButton extends Component {
       content = this.renderErrorText();
     } else {
       content = [
-        <Flex justifyContent="center" alignItems="center" sx={{ gap: 2 }}>
+        <Flex sx={{ justifyContent: 'center', alignItems: 'center', gap: 2 }}>
           <Box>
             <a className='link-download-mac'
               href={this.state.latestMacRelease}
@@ -117,7 +117,7 @@ export default withTranslation()(class UploaderButton extends Component {
     }
 
     return (
-      <Flex justifyContent="center">
+      <Flex sx={{ justifyContent: 'center' }}>
         {content}
       </Flex>
     );

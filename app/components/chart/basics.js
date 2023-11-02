@@ -115,7 +115,7 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <div>
-                <Flex mb={2} justifyContent="space-between" alignItems="center">
+                <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                   <ClipboardButton
                     buttonTitle={t('For email or notes')}
                     onSuccess={this.handleCopyBasicsClicked}

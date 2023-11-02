@@ -123,7 +123,7 @@ export const OAuthConnection = (props) => {
               {t('Your care provider will still have access to your account once you claim it.')}
             </Body1>
 
-            <Flex justifyContent="center">
+            <Flex sx={{ justifyContent: 'center' }}>
               <Button
                 id="oauth-claim-account-button"
                 variant="primary"

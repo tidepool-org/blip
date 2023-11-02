@@ -521,10 +521,9 @@ export const ClinicAdmin = (props) => {
           <Flex
             px={4}
             py={2}
-            sx={{ borderBottom: baseTheme.borders.default }}
-            alignItems={'center'}
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
           >
-            <Title flexGrow={1}>
+            <Title sx={{ flexGrow: 1 }}>
               {t('Clinic Members')}
             </Title>
           </Flex>
@@ -532,11 +531,9 @@ export const ClinicAdmin = (props) => {
           <Box mx={4}>
             {/* Flex Group 1: Search Box and Add Patient button */}
             <Flex
-              alignItems="center"
               my={4}
-              justifyContent="space-between"
               width={['100%', null, 'auto']}
-              sx={{ gap: 2 }}
+              sx={{ gap: 2, justifyContent: 'space-between', alignItems: 'center' }}
             >
               {isClinicAdmin() && (
                 <Button

@@ -354,7 +354,7 @@ export const PatientForm = (props) => {
           )}
 
           {values.tags.length < (clinic?.patientTags || []).length && (
-            <Box className='available-tags' alignItems="center" mb={1} mt={3} fontSize={0} >
+            <Box className='available-tags' sx={{ alignItems: 'center' }} mb={1} mt={3} fontSize={0} >
               <Text mb={1} fontWeight="medium" color="text.primary">{t('Available Patient Tags')}</Text>
 
               <TagList
@@ -383,9 +383,7 @@ export const PatientForm = (props) => {
             {...getCommonFormikFieldProps('connectDexcom', formikContext, 'checked')}
             disabled={disableConnectDexcom}
             label={(
-              <Flex
-                alignItems="center"
-              >
+              <Flex sx={{ alignItems: 'center' }}>
                 <Text mr={1} mt={1} fontSize={0}>
                   {t('Connect with')}
                 </Text>
@@ -422,9 +420,7 @@ export const PatientForm = (props) => {
             borderTop: borders.default,
           }}
         >
-          <Flex
-            alignItems="center"
-          >
+          <Flex sx={{ alignItems: 'center' }}>
             <Icon
               variant="static"
               icon={dexcomConnectStateUI[dexcomConnectState].icon}

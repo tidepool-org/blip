@@ -312,10 +312,10 @@ export const PatientInfo = props => {
   const rows = patientRows(values, formikContext);
 
   const Row = ({ label, value, step, initialFocusedInput, error }) => (
-    <Flex mb={4} justifyContent="space-between" alignItems="center">
+    <Flex mb={4} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
       <Body1>{label}</Body1>
       <Box>
-        <Flex alignItems="center">
+        <Flex sx={{ alignItems: 'center' }}>
           <Body1 mr={3} color={(isEditable && error) ? 'feedback.danger' : 'text.primary'}>{value}</Body1>
           {isEditable && <Icon
             variant="button"
@@ -331,7 +331,7 @@ export const PatientInfo = props => {
 
   return (
     <Box {...themeProps}>
-      <Flex mb={4} alignItems="center" justifyContent="space-between">
+      <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Headline color={((firstName && lastName) || !isEditable) ? 'text.primary' : 'feedback.danger'} mr={2}>{patientName}</Headline>
         {isEditable && <Icon
           variant="button"
@@ -392,14 +392,14 @@ export const TherapySettings = props => {
         sx={{
           borderTop: index === 0 ? 'default' : 'none',
           borderBottom: isEditable || (index < rows.length - 1) ? 'default' : 'none',
+          alignItems: 'flex-start',
         }}
-        alignItems="flex-start"
       >
         <Body1 flex="1">{label}</Body1>
         <Box flex="1">
           {map(rowValues, (val, i) => (
             <Flex key={i}>
-              <Body1 color={valueColor(i)} key={i} flexGrow={1}>{val}</Body1>
+              <Body1 color={valueColor(i)} key={i} sx={{ flexGrow: 1 }}>{val}</Body1>
               {errors[i] && (
                 <PopoverLabel
                   id={`${id}-${i}`}
@@ -437,7 +437,7 @@ export const TherapySettings = props => {
 
   return (
     <Box {...themeProps}>
-      <Flex mb={3} alignItems="center" justifyContent="space-between">
+      <Flex mb={3} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Headline mr={2}>{title}</Headline>
         <Box
           theme={baseTheme}
@@ -526,7 +526,7 @@ export const PrescriptionReview = withTranslation()(props => {
 
   return (
     <Flex
-      flexWrap="wrap"
+      sx={{ flexWrap: 'wrap' }}
       margin="auto"
       maxWidth="1280px"
     >

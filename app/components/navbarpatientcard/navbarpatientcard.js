@@ -64,7 +64,7 @@ var NavbarPatientCard = withTranslation()(class extends React.Component {
     var overlay = this.state.showUploadOverlay ? this.renderOverlay() : null;
 
     return (
-      <Flex alignItems="center" className={classes}>
+      <Flex sx={{ alignItems: 'center' }} className={classes}>
         <i className="Navbar-icon icon-face-standin"></i>
         <div className="patientcard-info">
           {profile}

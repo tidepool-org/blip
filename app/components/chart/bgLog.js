@@ -263,14 +263,23 @@ class BgLog extends Component {
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {renderedContent}
 
-              <Flex mt={4} mb={5} pl="50px" pr="30px" alignItems="center" justifyContent="space-between">
+              <Flex
+                mt={4}
+                mb={5}
+                pl="50px"
+                pr="30px"
+                sx={{
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {t('Refresh')}
                 </Button>
 
                 <Flex
                   variant="inputs.checkboxGroup.horizontal"
-                  alignItems="center"
+                  sx={{ alignItems: 'center' }}
                   bg="lightestGrey"
                   px={3}
                   py={2}
