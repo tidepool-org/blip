@@ -107,11 +107,9 @@ const imageLoaderConfiguration = {
     /node_modules\/@tidepool\/viz(([/\\]).*)static-assets/,
     /node_modules\/@tidepool\/viz(([/\\]).*)lazy-assets/,
   ],
-  use: {
-    loader: 'url-loader',
-    options: {
-      name: '[name].[ext]',
-    },
+  type: 'asset/resource',
+  generator: {
+    filename: '[name].[ext]'
   },
 };
 
