@@ -8,25 +8,7 @@ import cx from 'classnames';
 
 import Icon from './Icon';
 import Pill from './Pill';
-import baseTheme, { transitions } from '../../themes/baseTheme';
-
-const StyledButton = styled(Base)`
-  transition: ${transitions.easeOut};
-  position: relative;
-
-  &:disabled {
-    pointer-events: none;
-  }
-
-  &.processing {
-    pointer-events: none;
-
-    > div:first-child, .icon {
-      transition: none;
-      visibility: hidden;
-    }
-  }
-`;
+import baseTheme from '../../themes/baseTheme';
 
 const StyledCircularProgress = styled(Box)`
   display: flex;
@@ -50,6 +32,7 @@ export const Button = props => {
     tagColorPalette,
     tagFontSize,
     className = '',
+    sx = {},
     variant,
     ...buttonProps
   } = props;
@@ -77,11 +60,12 @@ export const Button = props => {
   return (
     <Flex
       sx={{
+        ...sx,
         flexDirection,
         alignItems: 'center',
         justifyContent,
       }}
-      as={StyledButton}
+      as={(props) => <Base {...props} variant={`buttons.${variant}`} />}
       variant={`buttons.${variant}`}
       {...buttonProps}
       className={`${classNames} ${className}`}

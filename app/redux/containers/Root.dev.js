@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import { ThemeProvider } from '@emotion/react';
+import { ThemeUIProvider } from 'theme-ui';
 import { KeycloakWrapper } from '../../keycloak';
 
 import baseTheme from '../../themes/baseTheme';
@@ -12,7 +12,7 @@ class Root extends Component {
   render() {
     const { store, routing } = this.props;
     return (
-      <ThemeProvider theme={baseTheme}>
+      <ThemeUIProvider theme={baseTheme}>
         <ToastProvider>
           <Provider store={store}>
             <KeycloakWrapper>
@@ -24,7 +24,7 @@ class Root extends Component {
             </KeycloakWrapper>
           </Provider>
         </ToastProvider>
-      </ThemeProvider>
+      </ThemeUIProvider>
     );
   }
 };

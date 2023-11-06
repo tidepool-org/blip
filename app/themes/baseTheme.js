@@ -147,6 +147,7 @@ export default {
     fontWeights,
     lineHeights,
     shadows,
+    transitions,
   }),
   borders,
   colors,

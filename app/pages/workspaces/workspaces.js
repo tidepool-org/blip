@@ -437,11 +437,13 @@ export const Workspaces = (props) => {
               <Button
                 id="workspace-create-clinic"
                 variant="textPrimary"
-                fontSize={1}
-                fontWeight="medium"
-                py={3}
-                pr={0}
-                pl={[0, 0, 3]}
+                sx={{
+                  fontSize: 1,
+                  fontWeight: 'medium',
+                  py: 3,
+                  pr: 0,
+                  pl: [0, 0, 3],
+                }}
                 icon={AddIcon}
                 iconPosition="left"
                 onClick={handleCreateNewClinic.bind(null, 'header cta')}
