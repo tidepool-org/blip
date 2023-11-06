@@ -127,12 +127,12 @@ export const NavigationMenu = props => {
       <Button
         id="navigation-menu-trigger"
         variant="textPrimary"
-        color="text.primary"
-        fontSize={2}
         {...bindTrigger(popupState)}
         icon={KeyboardArrowDownRoundedIcon}
         iconLabel={t('Choose workspace')}
         sx={{
+          color: 'text.primary',
+          fontSize: 2,
           '&:hover': {
             color: colors.purpleDark,
           },
@@ -145,7 +145,7 @@ export const NavigationMenu = props => {
       </Button>
 
       <Popover
-        minWidth="15em"
+        sx={{ minWidth: '15em' }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'center',
@@ -161,18 +161,18 @@ export const NavigationMenu = props => {
             <Button
               className="navigation-menu-option"
               variant="textPrimary"
-              color="text.primary"
-              width={`calc(100% - ${space[3]}px)`}
-              py={3}
-              pr={3}
-              ml={3}
               key={key}
-              fontSize={2}
               icon={option.icon}
               iconLabel={option.label}
               iconPosition="left"
               onClick={() => handleMenuAction(option)}
               sx={{
+                color: 'text.primary',
+                width: `calc(100% - ${space[3]}px)`,
+                py: 3,
+                pr: 3,
+                ml: 3,
+                fontSize: 2,
                 justifyContent: 'flex-end',
                 borderBottom: borders.divider,
                 '&:hover': {

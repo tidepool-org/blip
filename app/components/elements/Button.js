@@ -18,6 +18,8 @@ const StyledCircularProgress = styled(Box)`
   transform: translate(-50%, -50%);
 `;
 
+export const BaseButton = props => <Base {...props} variant={`buttons.${props.variant}`} />
+
 export const Button = props => {
   const {
     children,
@@ -65,7 +67,7 @@ export const Button = props => {
         alignItems: 'center',
         justifyContent,
       }}
-      as={(props) => <Base {...props} variant={`buttons.${variant}`} />}
+      as={BaseButton}
       variant={`buttons.${variant}`}
       {...buttonProps}
       className={`${classNames} ${className}`}
