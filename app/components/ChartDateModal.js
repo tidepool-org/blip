@@ -118,7 +118,7 @@ export const ChartDateModal = (props) => {
             />
           </Box>
           {error && (
-            <Caption mt={2} color="feedback.danger" id="chart-dates-error">
+            <Caption mt={2} sx={{ color: 'feedback.danger' }} id="chart-dates-error">
               {error}
             </Caption>
           )}

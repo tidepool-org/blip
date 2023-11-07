@@ -734,7 +734,7 @@ export const TideDashboard = (props) => {
         sx={{ rowGap: 2, columnGap: 3, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}
       >
         <Flex sx={{ gap: 2, alignItems: 'center' }}>
-          <Title id="tide-dashboard-header" fontWeight="medium" fontSize="18px">{t('TIDE Dashboard')}</Title>
+          <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '18px' }}>{t('TIDE Dashboard')}</Title>
 
           <Flex sx={{ gap: 2, position: 'relative', top: '2px', alignItems: 'center' }}>
             <Text

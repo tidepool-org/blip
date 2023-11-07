@@ -300,7 +300,7 @@ export const PatientDataClass = createReactClass({
                 borderBottom: ['none', borders.default],
               }}
             >
-              <Title mb={3} fontSize={3} fontWeight={fontWeights.medium}>To upload your data, install Tidepool Uploader</Title>
+              <Title mb={3} fontSize={3} sx={{ fontWeight: fontWeights.medium }}>To upload your data, install Tidepool Uploader</Title>
 
               <UploaderButton
                 onClick={handleClickUpload}

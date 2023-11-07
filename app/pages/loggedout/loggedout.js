@@ -35,13 +35,13 @@ export const LoggedOut = (props) => {
         {t('You have been signed out of your session.')}
       </Paragraph2>
 
-      <Paragraph1 color="mediumGrey">
+      <Paragraph1 sx={{ color: 'mediumGrey' }}>
         {t(
           "For security reasons, we automatically sign you out after a certain period of inactivity, or if you've signed out from another browser tab."
         )}
       </Paragraph1>
 
-      <Paragraph1 color="mediumGrey">
+      <Paragraph1 sx={{ color: 'mediumGrey' }}>
         {t('Please sign in again to continue.')}
       </Paragraph1>
 

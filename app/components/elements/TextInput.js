@@ -54,7 +54,7 @@ export const TextInput = (props) => {
     <Box width={width} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
+          <Caption sx={{ fontWeight: 'medium' }} className={inputClasses}>{label}</Caption>
         </Label>
       )}
       <StyledWrapper variant={`inputs.text.${variant}`}>

@@ -332,7 +332,7 @@ export const PatientInfo = props => {
   return (
     <Box {...themeProps}>
       <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <Headline color={((firstName && lastName) || !isEditable) ? 'text.primary' : 'feedback.danger'} mr={2}>{patientName}</Headline>
+        <Headline sx={{ color: (firstName && lastName) || !isEditable ? 'text.primary' : 'feedback.danger' }} mr={2}>{patientName}</Headline>
         {isEditable && <Icon
           variant="button"
           icon={EditRoundedIcon}

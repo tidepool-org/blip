@@ -90,11 +90,11 @@ export const WorkspaceSwitcher = props => {
             id="workspace-switcher-current"
             variant="textPrimary"
             color="text.primary"
-            fontSize={2}
             {...bindTrigger(popupState)}
             icon={KeyboardArrowDownRoundedIcon}
             iconLabel={t('Open navigation menu')}
             sx={{
+              fontSize: 2,
               '&:hover': {
                 color: colors.purpleDark,
               },
@@ -121,16 +121,16 @@ export const WorkspaceSwitcher = props => {
                   className="workspace-option"
                   variant="textPrimary"
                   color="text.primary"
-                  width="100%"
                   pt={2}
                   pb={3}
                   px={3}
                   key={key}
-                  fontSize={2}
                   icon={option.id === selectedClinic?.id ? CheckRoundedIcon : null}
                   iconLabel={t('Selected')}
                   onClick={() => handleSelect(option)}
                   sx={{
+                    width: '100%',
+                    fontSize: 2,
                     justifyContent: 'space-between',
                     '&:hover': {
                       color: colors.purpleDark,

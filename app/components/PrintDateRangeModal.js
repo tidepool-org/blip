@@ -363,14 +363,14 @@ export const PrintDateRangeModal = (props) => {
               )}
             </Box>
             {errors[panel.key] && (
-              <Caption mt={2} color="feedback.danger" id={`${panel.key}-error`}>
+              <Caption mt={2} sx={{ color: 'feedback.danger' }} id={`${panel.key}-error`}>
                 {errors[panel.key]}
               </Caption>
             )}
           </Element>
         ))}
         {errors.general && (
-          <Caption mx={5} mt={2} color="feedback.danger" id="general-print-error">
+          <Caption mx={5} mt={2} sx={{ color: 'feedback.danger' }} id="general-print-error">
             {errors.general}
           </Caption>
         )}

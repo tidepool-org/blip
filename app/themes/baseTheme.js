@@ -6,6 +6,7 @@ import containers from './base/containers';
 import icons from './base/icons';
 import inputs from './base/inputs';
 import links from './base/links';
+import lists from './base/lists';
 import steppers from './base/steppers';
 import tabGroups from './base/tabGroups';
 import paginators from './base/paginators';
@@ -126,6 +127,7 @@ const variants = {
   inputs: inputs({ borders, colors, fonts, radii, fontSizes, fontWeights, space }),
   link: linkVariants.default,
   links: linkVariants,
+  lists: lists(),
   paginators: paginators({ colors, fonts, fontSizes, breakpoints }),
   steppers: steppers({ colors, fonts, fontWeights, fontSizes }),
   tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
@@ -134,6 +136,104 @@ const variants = {
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
   containers: containers({ borders, colors, radii, space }),
 };
+
+const defaultText = {
+  fontWeight: 'regular',
+  fontFamily: 'default',
+  color: 'text.primary',
+};
+
+const titleText = {
+  ...defaultText,
+  fontSize: 4,
+  lineHeight: 3,
+};
+
+const bodyText = {
+  ...defaultText,
+  display: 'inline-block',
+};
+
+const paragraphText = {
+  ...bodyText,
+  marginBottom: '1em',
+
+  '&:last-child': {
+    marginBottom: 0,
+  },
+};
+
+const text = {
+  headline: {
+    ...defaultText,
+    fontSize: 4,
+    lineHeight: 2,
+  },
+
+  subheading: {
+    ...defaultText,
+    fontSize: 2,
+    lineHeight: 4,
+    fontWeight: 'medium',
+  },
+
+  title: titleText,
+
+  mediumTitle: {
+    ...titleText,
+    fontWeight: 'medium',
+  },
+
+  body0: {
+    ...bodyText,
+    fontSize: 0,
+    lineHeight: 2,
+  },
+
+  body1: {
+    ...bodyText,
+    fontSize: 1,
+    lineHeight: 3,
+  },
+
+  body2: {
+    ...bodyText,
+    fontSize: 2,
+    lineHeight: 3,
+  },
+
+  paragraph1: {
+    ...paragraphText,
+    fontSize: 1,
+    lineHeight: 3,
+  },
+
+  paragraph2: {
+    ...paragraphText,
+    fontSize: 2,
+    lineHeight: 3,
+  },
+
+  caption: {
+    ...defaultText,
+    display: 'inline-block',
+    fontSize: 0,
+    lineHeight: 4,
+
+    '&.error': {
+      color: 'feedback.danger',
+    },
+
+    '&.warning': {
+      color: 'feedback.warning',
+    },
+
+    '&.required::after': {
+      content: '" *"',
+      display: 'inline',
+    },
+  },
+}
 
 export default {
   breakpoints,
@@ -159,6 +259,7 @@ export default {
   radii,
   shadows,
   space,
+  text,
   transitions,
   zIndices,
   ...variants,

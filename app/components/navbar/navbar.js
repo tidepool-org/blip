@@ -60,15 +60,15 @@ export default withTranslation()(class extends React.Component {
             alignItems: 'center',
           }}
         >
-          <Box flex={1} minWidth={['100%', '100%', '33%']} py={[3, 3, 4]}>
+          <Box sx={{ flex: 1, minWidth: ['100%', '100%', '33%'] }} py={[3, 3, 4]}>
             {this.renderLogoSection()}
           </Box>
 
-          <Box flex={1} order={[3, 2]} minWidth={['100%', '50%', '33%']} py={1}>
+          <Box sx={{ order: [3, 2], flex: 1, minWidth: ['100%', '50%', '33%'] }} py={1}>
             {this.renderMiddleSection()}
           </Box>
 
-          <Box flex={1} order={[2, 3]} minWidth={['100%', '50%', '33%']} py={1}>
+          <Box sx={{ order: [2, 3], flex: 1, minWidth: ['100%', '50%', '33%'] }} py={1}>
             {this.renderMenuSection()}
           </Box>
         </Flex>

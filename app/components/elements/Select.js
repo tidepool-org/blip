@@ -65,7 +65,7 @@ export const Select = props => {
     <Box width={['100%', '75%', '50%']} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
+          <Caption sx={{ fontWeight: 'medium' }} className={inputClasses}>{label}</Caption>
         </Label>
       )}
       <StyledSelect sx={{ alignItems: 'center' }} className={classNames} variant={`inputs.select.${variant}`} {...selectProps}>

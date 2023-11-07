@@ -86,11 +86,11 @@ export const ClinicWorkspaceHeader = (props) => {
       >
         <Flex sx={{ justifyContent: 'flex-start', alignItems: 'flex-start' }} width={['100%', '100%', 'auto']}>
           <Box mr={6}>
-            <Caption color="grays.4">{t('Clinic Name')}</Caption>
-            <Title fontSize={[1, 2, 3]}>{clinic.name}</Title>
+            <Caption sx={{ color: 'grays.4' }}>{t('Clinic Name')}</Caption>
+            <Title sx={{ fontSize: [1, 2, 3] }}>{clinic.name}</Title>
           </Box>
           <Box sx={{ flexShrink: 0 }}>
-            <Caption color="grays.4">{t('Clinic Share Code')}</Caption>
+            <Caption sx={{ color: 'grays.4' }}>{t('Clinic Share Code')}</Caption>
             <Flex
               alignContent="center"
               sx={{
@@ -114,7 +114,7 @@ export const ClinicWorkspaceHeader = (props) => {
                 },
               }}
             >
-              <Title fontSize={[1, 2, 3]} sx={{ whiteSpace: 'nowrap' }}>{clinic.shareCode}</Title>
+              <Title sx={{ fontSize: [1, 2, 3], whiteSpace: 'nowrap' }}>{clinic.shareCode}</Title>
               <ClipboardButton
                 buttonTitle={t('Copy Share Code')}
                 buttonText={buttonText}

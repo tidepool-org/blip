@@ -104,7 +104,7 @@ export const TideDashboardConfigForm = props => {
         />
 
         {getFieldError('tags', formikContext) && (
-          <Caption ml={2} mt={2} color="feedback.danger">
+          <Caption ml={2} mt={2} sx={{ color: 'feedback.danger' }}>
             {errors.tags}
           </Caption>
         )}

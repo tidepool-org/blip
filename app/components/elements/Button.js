@@ -62,10 +62,10 @@ export const Button = props => {
   return (
     <Flex
       sx={{
-        ...sx,
         flexDirection,
         alignItems: 'center',
         justifyContent,
+        ...sx,
       }}
       as={BaseButton}
       variant={`buttons.${variant}`}
