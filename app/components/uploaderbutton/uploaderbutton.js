@@ -76,13 +76,11 @@ export default withTranslation()(class UploaderButton extends Component {
                 variant="primary"
                 py={1}
                 px="12px"
-                lineHeight="22px"
-                fontWeight="medium"
                 key={'mac'}
                 disabled={!this.state.latestMacRelease}
                 iconSrc={AppleIcon}
                 iconPosition="left"
-                sx={{ '.icon': { minWidth: 'auto' } }}
+                sx={{ lineHeight: '22px', fontWeight: 'medium', '.icon': { minWidth: 'auto' } }}
               >
                 Download for Mac
               </Button>
@@ -100,13 +98,11 @@ export default withTranslation()(class UploaderButton extends Component {
                 variant="primary"
                 py={1}
                 px="12px"
-                lineHeight="22px"
-                fontWeight="medium"
                 key={'pc'}
                 disabled={!this.state.latestWinRelease}
                 iconSrc={WindowsIcon}
                 iconPosition="left"
-                sx={{ '.icon': { minWidth: 'auto' } }}
+                sx={{ lineHeight: '22px', fontWeight: 'medium', '.icon': { minWidth: 'auto' } }}
               >
                 Download for PC
               </Button>

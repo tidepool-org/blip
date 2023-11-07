@@ -77,7 +77,7 @@ const renderStatus = ({ status }) => {
 };
 
 const renderEdit = ({ patient }) => (
-  <Button p={0} fontSize="inherit" variant="textPrimary" onClick={action(`"Edit" called for ${patient.name}`)}>Edit</Button>
+  <Button p={0} sx={{ fontSize: 'inherit' }} variant="textPrimary" onClick={action(`"Edit" called for ${patient.name}`)}>Edit</Button>
 );
 
 const renderMore = ({ patient }) => (

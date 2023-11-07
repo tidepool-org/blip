@@ -132,8 +132,8 @@ const ScheduleForm = props => {
       <Button
         variant="tertiary"
         className="add-schedule"
-        width="100%"
         sx={{
+          width: '100%',
           '> div': {
             width: '100%',
             textAlign: 'center',

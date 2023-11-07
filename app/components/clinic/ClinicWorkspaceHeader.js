@@ -140,7 +140,7 @@ export const ClinicWorkspaceHeader = (props) => {
                 iconPosition='left'
                 iconFontSize="1.25em"
                 iconLabel={t('Edit Clinic Profile')}
-                fontSize={1}
+                sx={{ fontSize: 1 }}
                 pl={0}
               >
                 {t('Edit Clinic Profile')}
@@ -157,7 +157,7 @@ export const ClinicWorkspaceHeader = (props) => {
               iconPosition='left'
               iconFontSize="1.25em"
               iconLabel={navigationAction.label}
-              fontSize={1}
+              sx={{ fontSize: 1 }}
               pl={0}
             >
               {navigationAction.label}

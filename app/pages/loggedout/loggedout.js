@@ -45,7 +45,7 @@ export const LoggedOut = (props) => {
         {t('Please sign in again to continue.')}
       </Paragraph1>
 
-      <Button onClick={handleClickLogin} width={'100%'}>
+      <Button onClick={handleClickLogin} sx={{ width: '100%' }}>
         {t('Return to Login')}
       </Button>
     </Box>

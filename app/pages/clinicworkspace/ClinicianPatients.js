@@ -143,9 +143,8 @@ export const ClinicianPatients = (props) => {
               id="add-patient"
               variant="primary"
               onClick={handleAddPatient}
-              fontSize={0}
               px={[2, 3]}
-              lineHeight={['inherit', null, 1]}
+              sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
             >
               {t('Add New Patient')}
             </Button>

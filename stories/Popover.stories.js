@@ -149,10 +149,10 @@ export const FilterMenu = () => {
           />
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'flex-end' }} p={1}>
-          <Button fontSize={0} variant="textSecondary" onClick={handleClear}>
+          <Button sx={{ fontSize: 0 }} variant="textSecondary" onClick={handleClear}>
             Clear
           </Button>
-          <Button fontSize={0} variant="textPrimary" onClick={handleSubmit}>
+          <Button sx={{ fontSize: 0 }} variant="textPrimary" onClick={handleSubmit}>
             Apply
           </Button>
         </DialogActions>
@@ -195,8 +195,7 @@ export const JumpMenu = () => {
     <Flex width="400px" sx={{ justifyContent: 'center' }}>
       <Button
         variant="textPrimary"
-        color="text.primary"
-        fontSize={2}
+        sx={{ color: 'text.primary', fontSize: 2 }}
         {...bindTrigger(popupState)}
         icon={KeyboardArrowDownRoundedIcon}
         iconLabel="Search By"
@@ -220,13 +219,10 @@ export const JumpMenu = () => {
           {map(menuOptions, (option, key) => (
             <Button
               variant="textPrimary"
-              color="text.primary"
-              width="100%"
               py={2}
               px={3}
-              sx={{ justifyContent: 'space-between' }}
+              sx={{ justifyContent: 'space-between', color: 'text.primary', width: '100%', fontSize: 2 }}
               key={key}
-              fontSize={2}
               icon={option.id === selected.id ? CheckRoundedIcon : null}
               onClick={() => handleSelect(option)}
             >

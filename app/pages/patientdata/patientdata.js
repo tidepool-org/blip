@@ -331,11 +331,11 @@ export const PatientDataClass = createReactClass({
                   id='dexcom-connect-link'
                   variant="textPrimary"
                   color="brand.dexcom"
-                  fontWeight="medium"
                   iconSrc={DexcomLogoIcon}
                   label={t('Connect with Dexcom')}
                   pr={0}
                   sx={{
+                    fontWeight: 'medium',
                     '&:hover': { color: 'brand.dexcom' },
                     '.icon': { top: '-2px', left: '-2px' },
                   }}
@@ -1834,8 +1834,7 @@ export const PatientDataClass = createReactClass({
               action: (
                 <Button
                   p={0}
-                  lineHeight={1.5}
-                  fontSize={1}
+                  sx= {{ lineHeight: 1.5, fontSize: 1 }}
                   variant="textPrimary"
                   onClick={() => {
                     this.printWindowRef = window.open(nextProps.pdf.combined.url);

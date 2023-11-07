@@ -89,7 +89,6 @@ export const Button = props => {
         <Icon
           tabIndex={-1}
           className="icon"
-          fontSize={iconFontSize}
           mr={iconMargins.right}
           ml={iconMargins.left}
           theme={baseTheme}
@@ -97,6 +96,7 @@ export const Button = props => {
           icon={icon}
           iconSrc={iconSrc}
           label={iconLabel}
+          sx={{ fontSize: iconFontSize }}
         />
       )}
       {processing && (

@@ -447,8 +447,7 @@ export const PatientForm = (props) => {
                 id="resendDexcomConnectRequestTrigger"
                 variant="textPrimary"
                 onClick={handleResendDexcomConnectEmail}
-                fontSize={0}
-                sx={{ display: 'inline-block !important'}}
+                sx={{ fontSize: 0, display: 'inline-block !important'}}
               >
                 {t('Resend email')}
               </Button>
@@ -463,8 +462,7 @@ export const PatientForm = (props) => {
                 id="resendDexcomConnectRequestTrigger"
                 variant="textPrimary"
                 onClick={handleResendDexcomConnectEmail}
-                fontSize={0}
-                sx={{ display: 'inline-block !important'}}
+                sx={{ fontSize: 0, display: 'inline-block !important'}}
               >
                 {t('Resend email')}
               </Button>
@@ -479,8 +477,7 @@ export const PatientForm = (props) => {
                 id="resendDexcomConnectRequestTrigger"
                 variant="textPrimary"
                 onClick={handleResendDexcomConnectEmail}
-                fontSize={0}
-                sx={{ display: 'inline-block !important'}}
+                sx={{ fontSize: 0, display: 'inline-block !important'}}
               >
                 {t('Resend email')}
               </Button>
@@ -495,8 +492,7 @@ export const PatientForm = (props) => {
                 id="resendDexcomConnectRequestTrigger"
                 variant="textPrimary"
                 onClick={handleResendDexcomConnectEmail}
-                fontSize={0}
-                sx={{ display: 'inline-block !important'}}
+                sx={{ fontSize: 0, display: 'inline-block !important'}}
               >
                 {t('Send email')}
               </Button>
@@ -511,8 +507,7 @@ export const PatientForm = (props) => {
                 id="resendDexcomConnectRequestTrigger"
                 variant="textPrimary"
                 onClick={handleResendDexcomConnectEmail}
-                fontSize={0}
-                sx={{ display: 'inline-block !important'}}
+                sx={{ fontSize: 0, display: 'inline-block !important'}}
               >
                 {t('Send email')}
               </Button>

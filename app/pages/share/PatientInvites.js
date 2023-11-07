@@ -226,8 +226,7 @@ export const PatientInvites = (props) => {
         }}
         processing={acceptingPatientInvitation.inProgress && member.key === selectedInvitation.key}
         variant="primary"
-        color="purpleMedium"
-        bg="white"
+        sx={{ color: 'purpleMedium', bg: 'white' }}
         ml={2}
       >
         {t('Accept')}

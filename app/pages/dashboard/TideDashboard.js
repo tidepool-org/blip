@@ -161,9 +161,7 @@ const SortPopover = React.memo(props => {
           {...bindTrigger(sortPopupFilterState)}
           icon={KeyboardArrowDownRoundedIcon}
           iconLabel="Update sort order"
-          fontSize={0}
-          fontWeight="medium"
-          lineHeight={1.3}
+          sx={{ fontSize: 0, fontWeight: 'medium', lineHeight: 1.3 }}
         >
           {t('Sort')} {find(sortOptions, { value: section.sortDirection })?.label}
         </Button>
@@ -796,10 +794,8 @@ export const TideDashboard = (props) => {
           icon={KeyboardArrowDownRoundedIcon}
           iconLabel="Open dashboard config"
           onClick={handleConfigureTideDashboard}
-          fontSize={1}
-          lineHeight={5}
           px={3}
-          sx= {{ border: 'none' }}
+          sx={{ fontSize: 1, lineHeight: 5, border: 'none' }}
         >
           {t('Filter Patients')}
         </Button>

@@ -105,7 +105,7 @@ const UploadRedirect = (props) => {
                 </Trans>
               </Subheading>
               <a id="launch_uploader" href={linkUrl}>
-                <Button variant="primary" fontSize={3}>
+                <Button variant="primary" sx={{ fontSize: 3 }}>
                   {t('Launch Uploader')}
                 </Button>
               </a>

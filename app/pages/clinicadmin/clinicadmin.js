@@ -372,7 +372,7 @@ export const ClinicAdmin = (props) => {
       return (
         <Button
           p={0}
-          fontSize="inherit"
+          sx={{ fontSize: 'inherit' }}
           variant="textPrimary"
           onClick={() => handleEdit(userId)}
         >
@@ -540,9 +540,8 @@ export const ClinicAdmin = (props) => {
                   id="add-patient"
                   variant="primary"
                   onClick={handleInviteNewMember}
-                  fontSize={0}
                   px={[2, 3]}
-                  lineHeight={['inherit', null, 1]}
+                  sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
                 >
                   {t('Invite New Clinic Team Member')}
                 </Button>

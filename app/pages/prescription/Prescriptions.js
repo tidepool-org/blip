@@ -232,8 +232,7 @@ const Prescriptions = props => {
       {prescription.patientUserId && get(membershipPermissionsInOtherCareTeams, [prescription.patientUserId, 'view']) ? <Button
         p={0}
         m={0}
-        color="text.link"
-        fontSize={1}
+        sx={{ color: 'text.link', fontSize: 1 }}
         icon={OpenInNewRoundedIcon}
         iconLabel="Open patient data in new tab"
         variant="textPrimary"
@@ -301,9 +300,8 @@ const Prescriptions = props => {
             id="add-prescription"
             variant="primary"
             onClick={handleAddNew}
-            fontSize={0}
             px={[2, 3]}
-            lineHeight={['inherit', null, 1]}
+            sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
           >
             {t('Add New Prescription')}
           </Button>
@@ -373,7 +371,7 @@ const Prescriptions = props => {
                   icon={KeyboardArrowDownRoundedIcon}
                   iconLabel="Filter by status"
                   ml={2}
-                  fontSize={1}
+                  sx={{ fontSize: 1 }}
                 >
                   {t('Status{{count}}', {
                     count: activeStatesCount < keys(prescriptionStates).length ? ` (${activeStatesCount})` : '',
@@ -397,7 +395,7 @@ const Prescriptions = props => {
 
                   <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                     <Button
-                      fontSize={1}
+                      sx={{ fontSize: 1 }}
                       variant="textSecondary"
                       onClick={() => {
                         const active = without(values(pendingActiveStates), false).length < keys(prescriptionStates).length;
@@ -410,7 +408,7 @@ const Prescriptions = props => {
                       {(without(values(pendingActiveStates), false).length < keys(prescriptionStates).length) ? t('Select All') : t('Deselect All')}
                     </Button>
 
-                    <Button fontSize={0} variant="textPrimary" onClick={() => {
+                    <Button sx={{ fontSize: 0 }} variant="textPrimary" onClick={() => {
                       setActiveStates(pendingActiveStates);
                       setFilterStateActive(includes(values(pendingActiveStates), false));
                       popupFilterState.close();

@@ -291,9 +291,7 @@ const PatientTags = ({
           id="add-tags-to-patient-trigger"
           variant="textPrimary"
           px={0}
-          color="grays.4"
-          fontWeight="medium"
-          fontSize="10px"
+          sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: '10px' }}
           icon={AddIcon}
           iconLabel={t('Add')}
           iconPosition="left"
@@ -372,7 +370,7 @@ const PatientTags = ({
         <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
           <Button
             id="clear-patient-tags-dialog"
-            fontSize={1}
+            sx={{ fontSize: 1 }}
             variant="textSecondary"
             onClick={() => {
               trackMetric(prefixPopHealthMetric('Assign patient tag cancel'), { clinicId: selectedClinicId });
@@ -384,7 +382,7 @@ const PatientTags = ({
             {t('Cancel')}
           </Button>
 
-          <Button id="apply-patient-tags-dialog" disabled={!pendingPatientTags.length} fontSize={1} variant="textPrimary" onClick={() => {
+          <Button id="apply-patient-tags-dialog" disabled={!pendingPatientTags.length} sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
             trackMetric(prefixPopHealthMetric('Assign patient tag confirm'), { clinicId: selectedClinicId });
 
             dispatch(
@@ -405,7 +403,7 @@ const PatientTags = ({
             id="show-edit-clinic-patient-tags-dialog"
             icon={EditIcon}
             iconPosition="left"
-            fontSize={1}
+            sx={{ fontSize: 1 }}
             variant="textPrimary"
             onClick={() => {
               trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Assign tag menu' });
@@ -1127,9 +1125,8 @@ export const ClinicPatients = (props) => {
               id="add-patient"
               variant="primary"
               onClick={handleAddPatient}
-              fontSize={0}
               px={[2, 3]}
-              lineHeight={['inherit', null, 1]}
+              sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
             >
               {t('Add New Patient')}
             </Button>
@@ -1161,16 +1158,15 @@ export const ClinicPatients = (props) => {
                       )}
                     >
                       <Button
-                        sx={{ flexShrink: 0 }}
                         id="open-tide-dashboard"
                         variant="tertiary"
                         onClick={handleConfigureTideDashboard}
                         tag={t('New')}
-                        fontSize={0}
                         px={2}
+                        sx={{ flexShrink: 0, fontSize: 0 }}
                         disabled={!clinic?.patientTags?.length}
                         tagColorPalette={!clinic?.patientTags?.length ? [colors.lightGrey, colors.text.primaryDisabled] : 'greens'}
-                        >
+                      >
                         {t('TIDE Dashboard View')}
                       </Button>
                     </PopoverElement>
@@ -1251,8 +1247,7 @@ export const ClinicPatients = (props) => {
                       {...bindTrigger(lastUploadDatePopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
                       iconLabel="Filter by last upload"
-                      fontSize={0}
-                      lineHeight={1.3}
+                      sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       {activeFilters.lastUploadDate ? find(lastUploadDateFilterOptions, { value: activeFilters.lastUploadDate })?.label : t('Last Upload')}
                     </Button>
@@ -1320,7 +1315,7 @@ export const ClinicPatients = (props) => {
                     <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                       <Button
                         id="clear-last-upload-filter"
-                        fontSize={1}
+                        sx={{ fontSize: 1 }}
                         variant="textSecondary"
                         onClick={() => {
                           trackMetric(prefixPopHealthMetric('Last upload clear filter'), { clinicId: selectedClinicId });
@@ -1335,7 +1330,7 @@ export const ClinicPatients = (props) => {
                       <Button
                         id="apply-last-upload-filter"
                         disabled={!pendingFilters.lastUploadDate || !pendingFilters.lastUploadType}
-                        fontSize={1}
+                        sx={{ fontSize: 1 }}
                         variant="textPrimary"
                         onClick={() => {
                           const dateRange = pendingFilters.lastUploadDate === 1
@@ -1364,9 +1359,7 @@ export const ClinicPatients = (props) => {
                     onClick={handleOpenTimeInRangeFilter}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by Time In Range"
-                    fontSize={0}
-                    lineHeight={1.3}
-                    sx={{ flexShrink: 0 }}
+                    sx={{ fontSize: 0, lineHeight: 1.3, flexShrink: 0 }}
                   >
                     <Flex sx={{ gap: 1 }}>
                       {t('% Time in Range')}
@@ -1402,8 +1395,7 @@ export const ClinicPatients = (props) => {
                       {...bindTrigger(patientTagsPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
                       iconLabel="Filter by patient tags"
-                      fontSize={0}
-                      lineHeight={1.3}
+                      sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       <Flex sx={{ alignItems: 'center', gap: 1 }}>
                         {showTideDashboard && !clinic?.patientTags?.length && <Icon
@@ -1509,7 +1501,7 @@ export const ClinicPatients = (props) => {
                     <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                       <Button
                         id="clear-patient-tags-filter"
-                        fontSize={1}
+                        sx={{ fontSize: 1 }}
                         variant="textSecondary"
                         onClick={() => {
                           trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
@@ -1521,7 +1513,7 @@ export const ClinicPatients = (props) => {
                         {t('Clear')}
                       </Button>
 
-                      <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags?.length} fontSize={1} variant="textPrimary" onClick={() => {
+                      <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags?.length} sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
                         trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
                         setActiveFilters(pendingFilters);
                         patientTagsPopupFilterState.close();
@@ -1538,7 +1530,7 @@ export const ClinicPatients = (props) => {
                         id="show-edit-clinic-patient-tags-dialog"
                         icon={EditIcon}
                         iconPosition="left"
-                        fontSize={1}
+                        sx={{ fontSize: 1 }}
                         variant="textPrimary"
                         onClick={() => {
                           trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
@@ -1564,8 +1556,7 @@ export const ClinicPatients = (props) => {
                       {...bindTrigger(cgmUsePopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
                       iconLabel="Filter by cgm use"
-                      fontSize={0}
-                      lineHeight={1.3}
+                      sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       {activeFilters.timeCGMUsePercent ? find(cgmUseFilterOptions, { value: activeFilters.timeCGMUsePercent })?.label : t('% CGM Use')}
                     </Button>
@@ -1606,7 +1597,7 @@ export const ClinicPatients = (props) => {
                     <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                       <Button
                         id="clear-cgm-use-filter"
-                        fontSize={1}
+                        sx={{ fontSize: 1 }}
                         variant="textSecondary"
                         onClick={() => {
                           trackMetric(prefixPopHealthMetric('CGM use clear filter'), { clinicId: selectedClinicId });
@@ -1621,7 +1612,7 @@ export const ClinicPatients = (props) => {
                       <Button
                         id="apply-cgm-use-filter"
                         disabled={!pendingFilters.timeCGMUsePercent}
-                        fontSize={1}
+                        sx={{ fontSize: 1 }}
                         variant="textPrimary"
                         onClick={() => {
                           trackMetric(prefixPopHealthMetric('CGM use apply filter'), {
@@ -1644,9 +1635,7 @@ export const ClinicPatients = (props) => {
                     id="reset-all-active-filters"
                     variant="textSecondary"
                     onClick={handleResetFilters}
-                    fontSize={0}
-                    color="grays.4"
-                    sx={{ flexShrink: 0 }}
+                    sx={{ fontSize: 0, color: 'grays.4', flexShrink: 0 }}
                     px={0}
                   >
                     {t('Reset Filters')}
@@ -1685,8 +1674,7 @@ export const ClinicPatients = (props) => {
                     {...bindTrigger(summaryPeriodPopupFilterState)}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by summary period duration"
-                    fontSize={0}
-                    lineHeight={1.3}
+                    sx={{ fontSize: 0, lineHeight: 1.3 }}
                   >
                     {find(summaryPeriodOptions, { value: activeSummaryPeriod })?.label}
                   </Button>
@@ -1719,7 +1707,7 @@ export const ClinicPatients = (props) => {
                   <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                     <Button
                       id="cancel-summary-period-filter"
-                      fontSize={1}
+                      sx={{ fontSize: 1 }}
                       variant="textSecondary"
                       onClick={() => {
                         trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
@@ -1732,7 +1720,7 @@ export const ClinicPatients = (props) => {
 
                     <Button
                       id="apply-summary-period-filter"
-                      fontSize={1}
+                      sx={{ fontSize: 1 }}
                       variant="textPrimary"
                       disabled={pendingSummaryPeriod === activeSummaryPeriod}
                       onClick={() => {
@@ -2178,7 +2166,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid}
                       type="submit"
-                      height="24px"
+                      sx={{ height: "24px" }}
                       alignSelf="flex-start"
                     >
                       {t('Add')}
@@ -2417,7 +2405,7 @@ export const ClinicPatients = (props) => {
           <Button
             variant="textSecondary"
             px={0}
-            fontSize={0}
+            sx={{ fontSize: 0 }}
             onClick={() => {
               trackMetric(prefixPopHealthMetric('Time in range unselect all'), { clinicId: selectedClinicId });
               setPendingFilters({ ...pendingFilters, timeInRange: defaultFilterState.timeInRange });
