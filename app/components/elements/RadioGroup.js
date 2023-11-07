@@ -38,6 +38,7 @@ const StyledRadio = styled(Base)`
 `;
 
 const StyledRadioLabel = styled(Text)`
+  display: 'inline-block',
   margin-right: 2em;
   margin-top: .15em;
 
@@ -167,7 +168,7 @@ RadioGroup.propTypes = {
 RadioGroup.defaultProps = {
   variant: 'vertical',
   color: colors.text.default,
-  fontSize: 1,
+  sx: { fontSize: 1 },
 };
 
 export default RadioGroup;

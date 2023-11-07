@@ -84,6 +84,7 @@ export const Subheading = Styled(H4)`
 `;
 
 export const Body2 = Styled(Text)`
+  display: inline-block;
   font-size: ${fontSizes[2]}px;
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
@@ -91,6 +92,7 @@ export const Body2 = Styled(Text)`
 `;
 
 export const Body1 = Styled(Text)`
+  display: inline-block;
   font-size: ${fontSizes[1]}px;
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
@@ -98,6 +100,7 @@ export const Body1 = Styled(Text)`
 `;
 
 export const Body0 = Styled(Text)`
+  display: inline-block;
   font-size: ${fontSizes[0]}px;
   line-height: ${lineHeights[2]};
   font-family: ${fonts.default};
@@ -119,6 +122,7 @@ export const Paragraph1 = Styled(Body1)`
 `;
 
 export const Caption = Styled(Text)`
+  display: inline-block;
   font-size: ${fontSizes[0]}px;
   line-height: ${lineHeights[4]};
   font-family: ${fonts.default};
@@ -161,6 +165,7 @@ export const OrderedList = Styled('ol')`
 `;
 
 export const DropdownGroupHeader = Styled(Text)`
+  display: inline-block;
   font-size: ${fontSizes[1]}px;
   margin: 0;
   font-family: ${fonts.default};
@@ -175,6 +180,7 @@ export const DropdownGroupHeader = Styled(Text)`
 `;
 
 export const TextLinkDisabled = Styled(Text)`
+  display: inline-block;
   color: ${colors.text.link};
   cursor: pointer;
   line-height: ${lineHeights[0]};
@@ -207,6 +213,7 @@ export const BlockQuote = Styled.blockquote`
 `;
 
 export const BadgeFont = Styled(Text)`
+  display: inline-block;
   font-size: ${fontSizes[0]}px;
   font-weight: ${fontWeights.medium};
   line-height: ${lineHeights[0]};

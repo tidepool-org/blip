@@ -35,6 +35,8 @@ const StyledCheckbox = styled(Base)`
 `;
 
 const StyledCheckboxLabel = styled(Text)`
+  display: inline-block;
+
   &.disabled {
     color: ${colors.text.primaryDisabled};
   }
