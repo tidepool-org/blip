@@ -64,6 +64,7 @@ const styleLoaderConfiguration = {
         sourceMap: isDev,
         lessOptions: {
           javascriptEnabled: true,
+          math: 'always',
         },
       },
     },
