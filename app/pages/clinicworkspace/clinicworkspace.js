@@ -116,7 +116,9 @@ export const ClinicWorkspace = (props) => {
             panel: {
               p: 4,
               pb: 0,
-              minHeight: '10em',
+              sx: {
+                minHeight: '10em',
+              },
             },
           }}
         >
