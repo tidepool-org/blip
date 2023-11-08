@@ -242,9 +242,13 @@ class BgLog extends Component {
     let renderedContent;
 
     const checkboxStyles = {
-      themeProps: { color: 'stat.text' },
-      backgroundColor: 'white',
+      themeProps: {
+        mb: 0,
+        sx: { color: 'stat.text' },
+        backgroundColor: 'inherit',
+      },
       sx: {
+        backgroundColor: 'white',
         boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
         color: colors.grays[2],
       },

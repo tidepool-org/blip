@@ -44,7 +44,7 @@ export const DeviceSelection = (props) => {
       header={
         <Flex sx={{ flexDirection: 'row', justifyContent: 'space-between', flexGrow: '1' }}>
           <Box>Filter Devices</Box>
-          <Box fontSize={3}>{devices.length - excludedDevices.length}</Box>
+          <Box sx={{ fontSize: 3 }}>{devices.length - excludedDevices.length}</Box>
         </Flex>
       }
       children={map(devices, ({id, label}) => (
@@ -56,7 +56,7 @@ export const DeviceSelection = (props) => {
             name={`${id}-toggle`}
             value={id}
             key={id}
-            themeProps={{ color: colors.stat.text }}
+            themeProps={{ sx: { color: colors.stat.text } }}
           />
         </Box>
       ))}

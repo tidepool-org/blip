@@ -458,17 +458,18 @@ const Trends = withTranslation()(class Trends extends PureComponent {
 
     const checkboxStyles = {
       themeProps: {
-        color: 'stat.text',
         mr: 3,
+        mb: 0,
         sx: {
+          color: 'stat.text',
           '&:last-child': { marginRight: 0 },
           backgroundColor: 'inherit',
           display: 'inline-flex !important',
           lineHeight: '1em',
         }
       },
-      backgroundColor: 'white',
       sx: {
+        backgroundColor: 'white',
         boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
         color: colors.grays[2],
       },
