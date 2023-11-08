@@ -77,7 +77,7 @@ export const Button = props => {
         <Pill
           tabIndex={-1}
           className="tag"
-          fontSize={tagFontSize}
+          sx={{ fontSize: tagFontSize }}
           mr={tagMargins.right}
           ml={tagMargins.left}
           theme={baseTheme}

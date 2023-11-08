@@ -97,7 +97,7 @@ export const ChartDateModal = (props) => {
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{title}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider minWidth="330px" p={0}>
+      <DialogContent divider sx={{ minWidth: '330px' }} p={0}>
         <Box px={3}>
           <Box mb={3}>
             <Body1 mb={2}>{t('Select a specific day')}</Body1>
@@ -113,7 +113,7 @@ export const ChartDateModal = (props) => {
               onFocusChange={input => setDatePickerOpen(!!input)}
               focused
               themeProps={{
-                minHeight: datePickerOpen ? '326px' : undefined,
+                sx: { minHeight: datePickerOpen ? '326px' : undefined },
               }}
             />
           </Box>

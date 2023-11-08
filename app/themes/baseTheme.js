@@ -151,7 +151,7 @@ const titleText = {
 
 const bodyText = {
   ...defaultText,
-  display: 'inline-block',
+  display: 'block',
 };
 
 const paragraphText = {

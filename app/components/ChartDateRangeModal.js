@@ -153,7 +153,7 @@ export const ChartDateRangeModal = (props) => {
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{title}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider minWidth="400px" p={0}>
+      <DialogContent divider sx={{ minWidth: '400px' }} p={0}>
         <Box px={3}>
           <Box mb={5}>
             <Body1 mb={2}>{t('Number of days (most recent)')}</Body1>
@@ -190,8 +190,10 @@ export const ChartDateRangeModal = (props) => {
               )}
               onFocusChange={input => setDatePickerOpen(!!input)}
               themeProps={{
-                minWidth: '580px',
-                minHeight: datePickerOpen ? '326px' : undefined,
+                sx: {
+                  minWidth: '580px',
+                  minHeight: datePickerOpen ? '326px' : undefined,
+                },
               }}
             />
           </Box>

@@ -28,18 +28,22 @@ const Pill = (props) => {
   return (
     <Text
       aria-label={label}
-      fontFamily="default"
-      fontSize={0}
-      fontWeight="medium"
       as="span"
       px={round ? 0 : 2}
       py={round ? 0 : 1}
-      sx={{ borderRadius, textAlign: 'center', ...sx }}
-      color={color}
-      bg={bg}
-      width={width}
-      height={height}
-      lineHeight={lineHeight}
+      sx={{
+        fontFamily: 'default',
+        fontSize: 0,
+        fontWeight: 'medium',
+        borderRadius,
+        textAlign: 'center',
+        color: color,
+        bg: bg,
+        width: width,
+        height: height,
+        lineHeight: lineHeight,
+        ...sx
+      }}
       {...themeProps}
     >
       {text}

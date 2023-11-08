@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
@@ -21,7 +20,7 @@ import {
 } from './elements/Dialog';
 import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
 import i18next from '../core/language';
-import { borders } from '../themes/baseTheme';
+import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
 
 const t = i18next.t.bind(i18next);
@@ -277,14 +276,16 @@ export const PrintDateRangeModal = (props) => {
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} minWidth="643px" py={0} px={3}>
+      <DialogContent divider={false} sx={{minWidth: '643px' }} py={0} px={3}>
         {map(panels, panel => (
           <Element name={`${panel.key}-wrapper`}>
             <Box
               key={panel.key}
               variant="containers.fluidBordered"
-              bg="white"
-              color="text.primary"
+              sx={{
+                bg: 'white',
+                color: 'text.primary',
+              }}
               p={3}
               mb={3}
             >
@@ -297,13 +298,16 @@ export const PrintDateRangeModal = (props) => {
                   justifyContent: 'space-between',
                 }}
               >
-                <Text alignSelf="center" fontSize={1} fontWeight="bold">{panel.header}</Text>
-                <Switch
-                  name={`enabled-${panel.key}`}
-                  ml={4}
-                  checked={enabled[panel.key]}
-                  onClick={() => setEnabled({ ...enabled, [panel.key]: !enabled[panel.key] })}
-                />
+                <Text as={Box} sx={{ alignSelf: 'center', fontSize: 1, fontWeight: 'bold' }}>{panel.header}</Text>
+                <Box>
+                  <Switch
+                    theme={baseTheme}
+                    name={`enabled-${panel.key}`}
+                    ml={4}
+                    checked={enabled[panel.key]}
+                    onClick={() => setEnabled({ ...enabled, [panel.key]: !enabled[panel.key] })}
+                  />
+                </Box>
               </Flex>
 
               {enabled[panel.key] && panel.daysOptions && (
@@ -355,7 +359,7 @@ export const PrintDateRangeModal = (props) => {
                         });
                       }}
                       themeProps={{
-                        minHeight: datePickerOpen[panel.key] ? '310px' : undefined,
+                        sx: { minHeight: datePickerOpen[panel.key] ? '310px' : undefined },
                       }}
                     />
                   </Box>

@@ -1174,9 +1174,9 @@ export const ClinicPatients = (props) => {
 
                   <TextInput
                     themeProps={{
-                      width: ['100%', null, '250px'],
+                      sx: { width: ['100%', null, '250px'] },
                     }}
-                    fontSize="12px"
+                    sx={{ fontSize: '12px' }}
                     id="patients-search"
                     placeholder={t('Search')}
                     icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
@@ -1230,7 +1230,7 @@ export const ClinicPatients = (props) => {
                       color={'grays.4'}
                     />
                   )}
-                  <Text fontSize={0}>{t('Filter By')}</Text>
+                  <Text sx={{ fontSize: 0 }}>{t('Filter By')}</Text>
                 </Flex>
 
                 <Flex sx={{ flexShrink: 0, gap: 2 }}>
@@ -1660,7 +1660,7 @@ export const ClinicPatients = (props) => {
                     sx={{ borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
                   >
 
-                  <Text fontSize={0}>{t('View data from')}</Text>
+                  <Text sx={{ fontSize: 0 }}>{t('View data from')}</Text>
                 </Flex>
 
                 <Box

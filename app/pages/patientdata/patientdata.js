@@ -685,7 +685,8 @@ export const PatientDataClass = createReactClass({
               label={t('Use default BG ranges')}
               onChange={this.toggleDefaultBgRange}
               themeProps={{
-                color: 'stat.text',
+                mb: 0,
+                sx: { color: 'stat.text' },
               }}
             />
           )}
