@@ -72,7 +72,7 @@ export const PaginationStory = () => {
         color="text.primary"
         sx={{ textAlign: 'center' }}
       >
-        Page Selected: <Text as="span" fontWeight="medium">{page}</Text>
+        Page Selected: <Text sx={{ fontWeight: 'medium' }}>{page}</Text>
       </Text>
     </React.Fragment>
   );

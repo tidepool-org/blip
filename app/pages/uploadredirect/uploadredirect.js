@@ -76,7 +76,7 @@ const UploadRedirect = (props) => {
   }
 
   return (
-    <Flex sx={{ justifyContent: 'center', alignItems: 'center' }} height="75vh">
+    <Flex sx={{ justifyContent: 'center', alignItems: 'center', height: '75vh' }}>
       <Box>
         <Text fontWeight="medium">
           <Box>
@@ -85,18 +85,18 @@ const UploadRedirect = (props) => {
                 {
                   fromProfile ? (
                     <Trans>
-                      Thank you for completing your account registration. Click <Text as="span" fontWeight="bold">{openText}</Text> on the dialog shown by your browser and <Text as="span" fontWeight="bold">log in</Text> again.
+                      Thank you for completing your account registration. Click <Text sx={{ fontWeight: 'bold' }}>{openText}</Text> on the dialog shown by your browser and <Text sx={{ fontWeight: 'bold' }}>log in</Text> again.
                     </Trans>
                     ) : (
                     <Trans>
-                      Click <Text as="span" fontWeight="bold">{openText}</Text> on the dialog shown by your browser
+                      Click <Text sx={{ fontWeight: 'bold' }}>{openText}</Text> on the dialog shown by your browser
                     </Trans>
                   )
                 }
               </Title>
               <Subheading mb="10px">
                 <Trans>
-                  If you don’t see a dialog, click <Text as="span" fontWeight="bold">Launch Uploader</Text> below
+                  If you don't see a dialog, click <Text sx={{ fontWeight: 'bold' }}>Launch Uploader</Text> below
                 </Trans>
               </Subheading>
               <Subheading mb="20px">

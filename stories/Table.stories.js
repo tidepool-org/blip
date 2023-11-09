@@ -73,7 +73,7 @@ const renderStatus = ({ status }) => {
     bg = status === 'success' ? 'greens.0' : 'indigos.0';
   }
 
-  return <Text as="span" px={2} py={1} fontWeight="medium" sx={{ borderRadius: 4 }} color={color} bg={bg}>{status}</Text>;
+  return <Text px={2} py={1} sx={{ fontWeight: 'medium', borderRadius: 4, color: color, bg: bg }}>{status}</Text>;
 };
 
 const renderEdit = ({ patient }) => (

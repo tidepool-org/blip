@@ -265,7 +265,7 @@ const TideDashboardSection = React.memo(props => {
 
     return averageGlucose ? (
       <Box className="patient-average-glucose">
-        <Text as="span" sx={{ fontWeight: 'medium' }}>{formattedAverageGlucose}</Text>
+        <Text sx={{ fontWeight: 'medium' }}>{formattedAverageGlucose}</Text>
       </Box>
     ) : null;
   }, [clinicBgUnits]);
@@ -285,8 +285,8 @@ const TideDashboardSection = React.memo(props => {
 
     return (
       <Box classname="patient-gmi">
-        <Text as="span" sx={{ fontWeight: 'medium' }}>{formattedGMI}</Text>
-        {formattedGMI !== statEmptyText && <Text as="span" sx={{ fontSize: '10px' }}> %</Text>}
+        <Text sx={{ fontWeight: 'medium' }}>{formattedGMI}</Text>
+        {formattedGMI !== statEmptyText && <Text sx={{ fontSize: '10px' }}> %</Text>}
       </Box>
     );
   }, [config?.period]);
@@ -307,8 +307,8 @@ const TideDashboardSection = React.memo(props => {
 
     return (
       <Box classname={`patient-${summaryKey}`}>
-        <Text as="span" sx={{ fontWeight: 'medium' }}>{formattedValue}</Text>
-        {formattedValue !== statEmptyText && <Text as="span" sx={{ fontSize: '10px' }}> %</Text>}
+        <Text sx={{ fontWeight: 'medium' }}>{formattedValue}</Text>
+        {formattedValue !== statEmptyText && <Text sx={{ fontSize: '10px' }}> %</Text>}
       </Box>
     );
   }, []);
@@ -346,7 +346,7 @@ const TideDashboardSection = React.memo(props => {
         threshold={DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta}
       />
     ) : (
-      <Text as="span" sx={{ fontWeight: 'medium' }}>{statEmptyText}</Text>
+      <Text sx={{ fontWeight: 'medium' }}>{statEmptyText}</Text>
     );
   }, []);
 

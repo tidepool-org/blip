@@ -2166,7 +2166,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid}
                       type="submit"
-                      sx={{ height: "24px" }}
+                      sx={{ height: '24px' }}
                       alignSelf="flex-start"
                     >
                       {t('Add')}
@@ -2379,11 +2379,11 @@ export const ClinicPatients = (props) => {
                 <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
                   <Text fontSize={1} mr={2}>
                     {prefix}{' '}
-                    <Text as="span" fontSize={2} fontWeight="bold">
+                    <Text fontSize={2} fontWeight="bold">
                       {threshold}
                     </Text>
                     % {t('Time')} {t(bgPrefix)}{' '}
-                    <Text as="span" fontSize={2} fontWeight="bold">
+                    <Text fontSize={2} fontWeight="bold">
                       {glucoseTargetValue}
                     </Text>{' '}
                     {suffix}
@@ -2457,10 +2457,10 @@ export const ClinicPatients = (props) => {
 
   const renderPatient = useCallback(patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
-      <Text fontSize={[1, null, 0]} fontWeight="medium">{patient.fullName}</Text>
-      {showSummaryData && <Text as="span" fontSize={[0, null, '10px']} sx={{ whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>}
-      {showSummaryData && patient.mrn && <Text as="span" fontSize={[0, null, '10px']} sx={{ whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
-      {!showSummaryData && patient.email && <Text fontSize={[0, null, '10px']}>{patient.email}</Text>}
+      <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{patient.fullName}</Text>
+      {showSummaryData && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>}
+      {showSummaryData && patient.mrn && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
+      {!showSummaryData && patient.email && <Text sx={{ fontSize: [0, null, '10px'] }}>{patient.email}</Text>}
     </Box>
   ), [handleClickPatient, showSummaryData, t]);
 
@@ -2504,12 +2504,13 @@ export const ClinicPatients = (props) => {
       <Box classname="patient-last-upload">
         {formattedLastUploadDateCGM && (
           <Box sx={{ whiteSpace: 'nowrap' }}>
-            <Text as="span">{t('CGM: ')}</Text>
+            <Text>{t('CGM: ')}</Text>
             <Text
-              as="span"
-              color={formattedLastUploadDateCGM.color}
-              fontWeight={formattedLastUploadDateCGM.fontWeight}
-              sx={{ whiteSpace: 'nowrap' }}
+              sx={{
+                color: formattedLastUploadDateCGM.color,
+                fontWeight: formattedLastUploadDateCGM.fontWeight,
+                whiteSpace: 'nowrap',
+              }}
             >
               {formattedLastUploadDateCGM.text}
             </Text>
@@ -2518,12 +2519,13 @@ export const ClinicPatients = (props) => {
 
         {formattedLastUploadDateBGM && (
           <Box sx={{ whiteSpace: 'nowrap' }}>
-            <Text as="span">{t('BGM: ')}</Text>
+            <Text>{t('BGM: ')}</Text>
             <Text
-              as="span"
-              color={formattedLastUploadDateBGM.color}
-              fontWeight={formattedLastUploadDateBGM.fontWeight}
-              sx={{ whiteSpace: 'nowrap' }}
+              sx={{
+                color: formattedLastUploadDateBGM.color,
+                fontWeight: formattedLastUploadDateBGM.fontWeight,
+                whiteSpace: 'nowrap',
+              }}
             >
               {formattedLastUploadDateBGM.text}
             </Text>
@@ -2553,8 +2555,8 @@ export const ClinicPatients = (props) => {
 
     return (
       <Box classname="patient-gmi">
-        <Text as="span" fontWeight="medium">{formattedGMI}</Text>
-        {formattedGMI !== statEmptyText && <Text as="span" fontSize="10px"> %</Text>}
+        <Text sx={{ fontWeight: 'medium' }}>{formattedGMI}</Text>
+        {formattedGMI !== statEmptyText && <Text sx={{ fontSize: '10px' }}> %</Text>}
       </Box>
     );
   }, [activeSummaryPeriod]);
