@@ -115,7 +115,7 @@ export const Table = React.memo(props => {
   let EmptyContentNode = emptyContentNode;
   if (!emptyContentNode && emptyText) {
     EmptyContentNode = (
-      <Text p={3} fontSize={1} color="text.primary" className="table-empty-text" sx={{ textAlign: 'center' }}>{emptyText}</Text>
+      <Text p={3} color="text.primary" className="table-empty-text" sx={{ display: 'block', fontSize: 1, textAlign: 'center' }}>{emptyText}</Text>
     );
   }
 

@@ -5,7 +5,6 @@ import map from 'lodash/map';
 import { withTranslation } from 'react-i18next';
 
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
-import utils from '../../core/utils';
 import BgRangeSummary from './BgRangeSummary';
 
 export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPeriod, t }) => {
@@ -62,12 +61,15 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
         />
       ) : (
         <Flex
-          sx={{ alignItems: 'center', justifyContent: 'center' }}
-          bg="lightestGrey"
-          width={['155px', '175px']}
-          height="18px"
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            bg: 'lightestGrey',
+            width: ['155px', '175px'],
+            height: '18px',
+          }}
         >
-          <Text fontSize="10px" fontWeight="medium" color="grays.4">
+          <Text sx={{ fontSize: '10px', fontWeight: 'medium', color: 'grays.4' }}>
             {cgmUsePercent === 0 ? '' : insufficientDataText}
           </Text>
         </Flex>

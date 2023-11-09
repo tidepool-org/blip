@@ -80,7 +80,7 @@ export const TideDashboardConfigForm = props => {
       {...boxProps}
     >
       <Box id='patient-tags-select' mb={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select Patient Tag(s)')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select Patient Tag(s)')}</Body0>
 
         <TagList
           tags={map(clinic?.patientTags, tag => ({
@@ -111,7 +111,7 @@ export const TideDashboardConfigForm = props => {
       </Box>
 
       <Box sx={{ borderTop: borders.default }} py={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select how many day(s) of data to view')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select how many day(s) of data to view')}</Body0>
 
         <RadioGroup
           options={summaryPeriodOptions}
@@ -121,7 +121,7 @@ export const TideDashboardConfigForm = props => {
       </Box>
 
       <Box sx={{ borderTop: borders.default }} pt={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select Last Upload Date')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select Last Upload Date')}</Body0>
 
         <RadioGroup
           options={lastUploadDateFilterOptions}

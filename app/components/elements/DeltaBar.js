@@ -24,8 +24,7 @@ export const DeltaBar = React.memo(props => {
     <Box {...themeProps}>
       <Flex
         className="range-summary-bars"
-        width="120px"
-        sx={{ justifyContent: ['flex-end', 'center'], alignItems: 'center' }}
+        sx={{ width: '120px', justifyContent: ['flex-end', 'center'], alignItems: 'center' }}
       >
         {map(values, (value, i) => (
           <Flex
@@ -43,10 +42,12 @@ export const DeltaBar = React.memo(props => {
             {value !== 0 && (
               <Text
                 as={Flex}
-                fontSize="inherit"
-                fontWeight="inherit"
-                color="inherit"
-                sx={{ justifyContent: i === 0 ? 'flex-end' : 'flex-start' }}
+                sx={{
+                  fontSize: 'inherit',
+                  fontWeight: 'inherit',
+                  color: 'inherit',
+                  justifyContent: i === 0 ? 'flex-end' : 'flex-start'
+                }}
               >
                 {labels[i]}
               </Text>
@@ -55,9 +56,9 @@ export const DeltaBar = React.memo(props => {
             <Box
               className={`range-summary-bars-${i}`}
               key={i}
-              height="18px"
-              backgroundColor={colorsArray[i]}
               sx={{
+                height: '18px',
+                backgroundColor: colorsArray[i],
                 flexBasis: `${Math.abs((value / max) * 100)}%`,
                 borderTopLeftRadius: i === 0 ? `${radii.input}px` : 0,
                 borderBottomLeftRadius: i === 0 ? `${radii.input}px` : 0,

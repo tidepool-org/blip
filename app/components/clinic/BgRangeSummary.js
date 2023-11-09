@@ -57,18 +57,18 @@ export const BgRangeSummary = React.memo(props => {
   return (
     <>
       <Box sx={wrapperStyle} {...themeProps}>
-        <Flex className="range-summary-bars" width={flexWidth} height="18px" sx={{ justifyContent: 'center' }} {...bindHover(popupState)}>
+        <Flex className="range-summary-bars" sx={{ width: flexWidth, height: '18px', justifyContent: 'center' }} {...bindHover(popupState)}>
           {map(data, (value, key) => (
-              <Box className={`range-summary-bars-${key}`} key={key} bg={`bg.${key}`} width={`${value * 100}%`}/>
+              <Box className={`range-summary-bars-${key}`} key={key} sx={{ bg: `bg.${key}`, width: `${value * 100}%` }}/>
           ))}
         </Flex>
 
         {striped && (
           <Box
             className="range-summary-stripe-overlay"
-            width="175px"
-            height="18px"
             sx={{
+              width: '175px',
+              height: '18px',
               position: 'absolute',
               pointerEvents: 'none',
               top: 0,
@@ -84,7 +84,7 @@ export const BgRangeSummary = React.memo(props => {
         transformOrigin={transformOrigin}
         width="auto"
         height="auto"
-        marginTop={`${space[1]}px`}
+        mt={`${space[1]}px`}
         boxShadow={shadows.small}
         {...popoverProps}
         useHoverPopover
@@ -93,22 +93,22 @@ export const BgRangeSummary = React.memo(props => {
           <Flex mb="12px" sx={{ ...popoverFlexStyle, justifyContent: 'space-between', flexWrap: 'nowrap' }}>
             {map(data, (value, key) => (
               <Flex key={key} sx={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <Flex className={`range-summary-value-${key}`} mb={1} sx={{ flexWrap: 'nowrap', textAlign: 'center', alignItems: 'flex-end' }} key={key} color={`bg.${key}`}>
-                  <Text fontWeight="bold" lineHeight={0} fontSize={1}>
+                <Flex className={`range-summary-value-${key}`} mb={1} sx={{ flexWrap: 'nowrap', textAlign: 'center', alignItems: 'flex-end',  color: `bg.${key}` }} key={key}>
+                  <Text sx={{ fontWeight: 'bold', lineHeight: 0, fontSize: 1 }}>
                     {utils.formatThresholdPercentage(value, ...DEFAULT_FILTER_THRESHOLDS[key])}
                   </Text>
-                  <Text color="inherit" fontSize="9px" fontWeight="bold">%</Text>
+                  <Text sx={{ color: 'inherit', fontSize: '9px', fontWeight: 'bold' }}>%</Text>
                 </Flex>
-                <Text className={`range-summary-range-${key}`} fontWeight="medium" lineHeight={1} color="grays.4" fontSize="9px">{bgLabels[key]}</Text>
+                <Text className={`range-summary-range-${key}`} sx={{ fontWeight: 'medium', lineHeight: 1, color: 'grays.4', fontSize: '9px' }}>{bgLabels[key]}</Text>
               </Flex>
             ))}
           </Flex>
 
           <Flex sx={{ alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'nowrap' }}>
-            <Text className={'range-summary-bg-units'} lineHeight={0} color="grays.4" fontSize="10px">{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
+            <Text className={'range-summary-bg-units'} sx={{ lineHeight: 0, color: 'grays.4', fontSize: '10px' }}>{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
             <Flex className={'range-summary-cgm-use'} sx={{ gap: 1, alignItems: 'flex-end', justifyContent: 'flex-start', flexWrap: 'nowrap' }}>
-              <Text lineHeight={0} color="text.primary" fontSize="10px" fontWeight="medium">{t('% CGM Use: ')}</Text>
-              <Text lineHeight="10px" color="text.primary" fontSize="12px" fontWeight="bold">{t('{{cgmUsePercent}} %', { cgmUsePercent: utils.formatThresholdPercentage(cgmUsePercent, ...DEFAULT_FILTER_THRESHOLDS.cgmUse) })}</Text>
+              <Text sx={{ lineHeight: 0, color: 'text.primary', fontSize: '10px', fontWeight: 'medium' }}>{t('% CGM Use: ')}</Text>
+              <Text sx={{ lineHeight: '10px', color: 'text.primary', fontSize: '12px', fontWeight: 'bold' }}>{t('{{cgmUsePercent}} %', { cgmUsePercent: utils.formatThresholdPercentage(cgmUsePercent, ...DEFAULT_FILTER_THRESHOLDS.cgmUse) })}</Text>
             </Flex>
           </Flex>
         </Box>

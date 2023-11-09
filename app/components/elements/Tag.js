@@ -78,12 +78,11 @@ export const Tag = props => {
           }}
           tabIndex={-1}
           className="icon"
-          fontSize={iconFontSize}
           mr={iconMargins.right}
           ml={iconMargins.left}
           theme={baseTheme}
           variant={onClickIcon ? 'default' : 'static'}
-          color={iconColor}
+          sx={{ fontSize: iconFontSize, color: iconColor }}
           icon={icon}
           iconSrc={iconSrc}
           label={iconLabel}
@@ -161,10 +160,12 @@ export const TagList = withTranslation()(props => {
     <Icon
       className="edit-tags-trigger"
       variant="default"
-      color="text.primary"
       icon={EditIcon}
-      fontWeight="medium"
-      fontSize={editIconFontSize}
+      sx={{
+        color: 'text.primary',
+        fontWeight: 'medium',
+        fontSize: editIconFontSize,
+      }}
       label={t('Edit tags')}
       onClick={() => {
         popupState.close();
@@ -195,13 +196,15 @@ export const TagList = withTranslation()(props => {
         <React.Fragment>
           <Text
             className="tag-overflow-trigger"
-            color="text.primary"
-            fontWeight="medium"
-            fontFamily="default"
-            fontSize={popoverTriggerFontSize}
-            lineHeight="normal"
-            whiteSpace="nowrap"
-            sx={{ cursor: 'default' }}
+            sx={{
+              color: 'text.primary',
+              fontWeight: 'medium',
+              fontFamily: 'default',
+              fontSize: popoverTriggerFontSize,
+              lineHeight: 'normal',
+              whiteSpace: 'nowrap',
+              cursor: 'default',
+            }}
             {...bindHover(popupState)}
           >
             +{hiddenTags.length}
@@ -220,9 +223,8 @@ export const TagList = withTranslation()(props => {
           >
             <Flex
               classname="tag-list-overflow"
-              maxWidth="250px"
               p={1}
-              sx={{ gap: 1, alignItems: 'center', flexWrap: 'wrap' }}
+              sx={{ maxWidth: '250px', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}
             >
               {map(hiddenTags, tag => (
                 <Tag

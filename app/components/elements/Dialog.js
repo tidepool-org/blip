@@ -20,13 +20,14 @@ export const DialogTitle = props => {
     children,
     closeIcon,
     onClose,
+    sx = {},
     ...dialogTitleProps
   } = props;
 
   return (
     <Flex
       p={3}
-      sx={{ alignItems: 'center', justifyContent: 'space-between', borderBottom: props.divider ? borders.divider : 'unset' }}
+      sx={{ alignItems: 'center', justifyContent: 'space-between', borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
       {...dialogTitleProps}
     >
       {children}
