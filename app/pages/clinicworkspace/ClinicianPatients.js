@@ -479,7 +479,7 @@ export const ClinicianPatients = (props) => {
           label={'peopletablelabel'}
           columns={columns}
           data={map(patients, clinicPatientFromAccountInfo)}
-          style={{ fontSize:'14px' }}
+          sx={{ fontSize: 1 }}
           orderBy="fullNameOrderable"
           order="asc"
           rowsPerPage={rowsPerPage}

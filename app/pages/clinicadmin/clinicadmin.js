@@ -342,8 +342,8 @@ export const ClinicAdmin = (props) => {
 
   const renderClinician = ({ fullName, email }) => (
     <Box>
-      <Text fontWeight="medium">{fullName}</Text>
-      <Text>{email || '\u00A0'}</Text>
+      <Text sx={{ display: 'block', fontWeight: 'medium' }}>{fullName}</Text>
+      <Text sx={{ display: 'block' }}>{email || '\u00A0'}</Text>
     </Box>
   );
 
@@ -355,7 +355,7 @@ export const ClinicAdmin = (props) => {
 
   const renderPermission = ({ prescriberPermission }) => (
     prescriberPermission ? <Box>
-      <Text fontWeight="medium">
+      <Text sx={{ fontWeight: 'medium' }}>
         {t('Prescriber')}
       </Text>
     </Box> : null
@@ -363,7 +363,7 @@ export const ClinicAdmin = (props) => {
 
   const renderRole = ({ role }) => (
     <Box>
-      <Text fontWeight="medium">{role}</Text>
+      <Text sx={{ fontWeight: 'medium' }}>{role}</Text>
     </Box>
   );
 
@@ -532,8 +532,7 @@ export const ClinicAdmin = (props) => {
             {/* Flex Group 1: Search Box and Add Patient button */}
             <Flex
               my={4}
-              width={['100%', null, 'auto']}
-              sx={{ gap: 2, justifyContent: 'space-between', alignItems: 'center' }}
+              sx={{ width: ['100%', null, 'auto'], gap: 2, justifyContent: 'space-between', alignItems: 'center' }}
             >
               {isClinicAdmin() && (
                 <Button
@@ -547,12 +546,14 @@ export const ClinicAdmin = (props) => {
                 </Button>
               )}
 
-              <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+              <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 <TextInput
                   themeProps={{
-                    width: ['100%', null, '250px'],
+                    sx: {
+                      width: ['100%', null, '250px'],
+                    },
                   }}
-                  fontSize="12px"
+                  sx={{ fontSize: 0 }}
                   id="search-members"
                   placeholder={t('Search by Name')}
                   icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
@@ -577,13 +578,13 @@ export const ClinicAdmin = (props) => {
               rowsPerPage={rowsPerPage}
               searchText={searchText}
               page={page}
-              fontSize={1}
+              sx={{ fontSize: 1 }}
             />
           </Box>
         </Box>
 
         {clinicianArray.length > rowsPerPage && (
-          <Box variant="containers.large" bg="transparent" mb={0}>
+          <Box variant="containers.large" sx={{ bg: 'transparent' }} mb={0}>
             <Pagination
               px="5%"
               width="100%"
@@ -648,7 +649,7 @@ export const ClinicAdmin = (props) => {
           <Body1>
           <Trans>
             <Text>
-              You invited <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text> to your clinic on <Text as='span' fontWeight='bold'>{{inviteDate: formattedInviteDate}}</Text>.
+              You invited <Text sx={{ fontWeight: 'bold' }}>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text> to your clinic on <Text sx={{ fontWeight: 'bold' }}>{{inviteDate: formattedInviteDate}}</Text>.
             </Text>
             <Text>
               Are you sure you want to resend this invite?
@@ -687,7 +688,7 @@ export const ClinicAdmin = (props) => {
           <Body1>
           <Trans>
             <Text>
-              Are you sure you want to revoke this invite to <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text>?
+              Are you sure you want to revoke this invite to <Text sx={{ fontWeight: 'bold' }}>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text>?
             </Text>
           </Trans>
           </Body1>

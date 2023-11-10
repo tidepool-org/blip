@@ -296,7 +296,7 @@ export const PatientInvites = (props) => {
           page={page}
           onFilter={handleTableFilter}
           emptyText={null}
-          fontSize={1}
+          sx={{ fontSize: 1 }}
         />
 
         {pendingInvites.length > rowsPerPage && (

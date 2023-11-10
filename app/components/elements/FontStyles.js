@@ -8,6 +8,6 @@ export const Subheading = props => <Heading as="h4" variant="subheading" {...pro
 export const Body0 = props => <Text as="p" variant="body0" {...props} />;
 export const Body1 = props => <Text as="p" variant="body1" {...props} />;
 export const Body2 = props => <Text as="p" variant="body2" {...props} />;
-export const Paragraph1 = props => <Text as="p" variant="paragraph2" {...props} />;
+export const Paragraph1 = props => <Text as="p" variant="paragraph1" {...props} />;
 export const Paragraph2 = props => <Text as="p" variant="paragraph2" {...props} />;
 export const Caption = props => <Text variant="caption" {...props} />;

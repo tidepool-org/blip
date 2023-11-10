@@ -796,7 +796,7 @@ export const ClinicPatients = (props) => {
         sort: patientFetchOptions.sort || (showSummaryData && activeSort?.sort ? activeSort.sort : defaultPatientFetchOptions.sort),
         sortType: patientFetchOptions.sortType || (showSummaryData && activeSort?.sortType ? activeSort.sortType : defaultPatientFetchOptions.sortType),
         period: activeSummaryPeriod,
-        limit: 50,
+        limit: 5,
         search: patientFetchOptions.search,
       }
 
@@ -889,7 +889,7 @@ export const ClinicPatients = (props) => {
   }, [fetchingPatientFromClinic]);
 
   const renderInfoPopover = () => (
-    <Box px={4} py={3} maxWidth="600px">
+    <Box px={4} py={3} sx={{ maxWidth: '600px' }}>
       <Trans id="summary-stat-info" i18nKey="html.summary-stat-info">
         <Paragraph1><strong>Warning:</strong> % CGM Use, GMI, and % Time in Range may not match the patient profile if older data is added after the summary statistics have already been calculated.</Paragraph1>
       </Trans>
@@ -1176,7 +1176,7 @@ export const ClinicPatients = (props) => {
                     themeProps={{
                       sx: { width: ['100%', null, '250px'] },
                     }}
-                    sx={{ fontSize: '12px' }}
+                    sx={{ fontSize: 0 }}
                     id="patients-search"
                     placeholder={t('Search')}
                     icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
@@ -2612,8 +2612,8 @@ export const ClinicPatients = (props) => {
 
     return averageGlucose ? (
       <Box>
-        <Text fontSize={[1, null, 0]} fontWeight="medium">{formattedAverageGlucose}</Text>
-        <Text fontSize={[0, null, '10px']}>{averageDailyRecordsText}</Text>
+        <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{formattedAverageGlucose}</Text>
+        <Text sx={{ display: 'block', fontSize: [0, null, '10px'] }}>{averageDailyRecordsText}</Text>
       </Box>
     ) : null;
   }, [clinicBgUnits, activeSummaryPeriod, t]);;
@@ -2628,14 +2628,12 @@ export const ClinicPatients = (props) => {
     return (
       <Flex sx={{ alignItems: 'flex-end', visibility, gap: '1px' }}>
         <Icon
-          fontSize={1}
-          sx={{ transform: `rotate(${rotation}deg)`, top: '-2px' }}
+          sx={{ color, fontSize: 1, transform: `rotate(${rotation}deg)`, top: '-2px' }}
           icon={DoubleArrowIcon}
-          color={color}
           label={type}
           variant="static"
         />
-        <Text fontWeight="medium" fontSize={0}>{value}</Text>
+        <Text sx={{ fontWeight: 'medium', fontSize: 0 }}>{value}</Text>
       </Flex>
     );
   }, [activeSummaryPeriod]);
@@ -2644,14 +2642,12 @@ export const ClinicPatients = (props) => {
     <Box p={1}>
       <Flex sx={{ alignItems: 'center', gap: '2px' }}>
         <Icon
-          fontSize={1}
-          sx={{ transform: 'rotate(90deg)' }}
+          sx={{ transform: 'rotate(90deg)', fontSize: 1, color: 'bg.veryLow' }}
           icon={DoubleArrowIcon}
-          color="bg.veryLow"
           label="low"
           variant="static"
         />
-        <Text color="text.primary" fontSize={0}>
+        <Text sx={{ color: 'text.primary', fontSize: 0 }}>
           {t('Low Events are a count of any BGM readings that are below {{threshold}}', {
             threshold: clinicBgUnits === MGDL_UNITS ? '54 mg/dL' : '3.0 mmol/L'
           })}
@@ -2660,21 +2656,19 @@ export const ClinicPatients = (props) => {
 
       <Flex sx={{ alignItems: 'center', gap: '2px' }} mb={2}>
         <Icon
-          fontSize={1}
-          sx={{ transform: 'rotate(-90deg)' }}
+          sx={{ transform: 'rotate(-90deg)', fontSize: 1, color: 'bg.veryHigh' }}
           icon={DoubleArrowIcon}
-          color="bg.veryHigh"
           label="high"
           variant="static"
         />
-        <Text color="text.primary" fontSize={0}>
+        <Text sx={{ color: 'text.primary', fontSize: 0 }}>
           {t('High Events are a count of any BGM readings that are above {{threshold}}', {
             threshold: clinicBgUnits === MGDL_UNITS ? '250 mg/dL' : '13.9 mmol/L'
           })}
         </Text>
       </Flex>
 
-      <Text color="text.primary" fontSize={0}>{t('Events are summed up over the currently selected time duration')}</Text>
+      <Text sx={{ color: 'text.primary', fontSize: 0 }}>{t('Events are summed up over the currently selected time duration')}</Text>
     </Box>
   );
 
@@ -2684,7 +2678,7 @@ export const ClinicPatients = (props) => {
         onClick={handleClickPatient(patient)}
         sx={{ cursor: 'pointer' }}
       >
-        <Text fontWeight="medium">{patient[field]}</Text>
+        <Text sx={{ fontWeight: 'medium' }}>{patient[field]}</Text>
       </Box>
     ), [handleClickPatient]);
 
@@ -2835,7 +2829,7 @@ export const ClinicPatients = (props) => {
               <PopoverLabel
                 icon={InfoOutlinedIcon}
                 iconProps={{
-                  fontSize: '16px',
+                  sx: { fontSize: '16px' },
                 }}
                 popoverContent={<BGEventsInfo />}
                 popoverProps={{
@@ -2847,7 +2841,7 @@ export const ClinicPatients = (props) => {
                     vertical: 'top',
                     horizontal: 'center',
                   },
-                  width: 'auto',
+                  sx: { width: 'auto' },
                 }}
                 triggerOnHover
               />
@@ -2876,7 +2870,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const data = useMemo(() => orderBy(values(clinic?.patients), 'sortIndex'), [clinic?.patients]);
-  const tableStyle = useMemo(() => ({ fontSize: showSummaryData ? '12px' : '14px' }), [showSummaryData]);
+  const tableStyle = useMemo(() => ({ fontSize: showSummaryData ? 0 : 1 }), [showSummaryData]);
 
   const renderPeopleTable = useCallback(() => {
     const pageCount = Math.ceil(clinic?.patientCount / patientFetchOptions.limit);
@@ -2891,7 +2885,7 @@ export const ClinicPatients = (props) => {
           label={'peopletablelabel'}
           columns={columns}
           data={data}
-          style={tableStyle}
+          sx={tableStyle}
           onSort={handleSortChange}
           order={sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort.substring(1)}

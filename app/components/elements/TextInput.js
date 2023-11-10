@@ -6,7 +6,7 @@ import cx from 'classnames';
 
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
-import { fontWeights, shadows } from '../../themes/baseTheme';
+import { shadows } from '../../themes/baseTheme';
 
 
 const StyledWrapper = styled(Flex)`

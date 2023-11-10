@@ -423,7 +423,7 @@ const Prescriptions = props => {
         </Flex>
 
         <Table
-          fontSize={1}
+          sx={{ fontSize: 1 }}
           label="Prescription List"
           id="prescriptions-table"
           data={data}

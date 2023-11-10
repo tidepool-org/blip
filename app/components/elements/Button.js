@@ -135,7 +135,6 @@ Button.propTypes = {
     ]),
     PropTypes.arrayOf(PropTypes.string),
   ]),
-  tagPosition: PropTypes.oneOf(['left', 'right']),
   tagFontSize: PropTypes.string,
   variant: PropTypes.oneOf([
     'primary',
@@ -158,7 +157,6 @@ Button.defaultProps = {
   iconPosition: 'right',
   iconFontSize: 'inherit',
   tagColorPalette: 'greens',
-  tagPosition: 'right',
   tagFontSize: '0.75em',
   type: 'button',
   variant: 'primary',

@@ -69,26 +69,28 @@ function filterData(data, fields, queryText, cb) {
 }
 
 const StyledTable = styled(Base)`
-  .MuiTableCell-head,
-  .MuiTableCell-root,
-  .MuiTableCell-body {
-    color: inherit;
-    font-size: inherit;
-    font-family: inherit;
-    background-clip: padding-box;
-  }
+ && {
+   .MuiTableCell-head,
+   .MuiTableCell-root,
+   .MuiTableCell-body {
+     color: inherit;
+     font-size: inherit;
+     font-family: inherit;
+     background-clip: padding-box;
+   }
 
-  .MuiTableCell-stickyHeader {
-    color: inherit;
-  }
+   .MuiTableCell-stickyHeader {
+     color: inherit;
+   }
 
-  .MuiTableSortLabel-root {
-    color: inherit;
-  }
+   .MuiTableSortLabel-root {
+     color: inherit;
+   }
 
-  .MuiTableRow-root {
-    cursor: ${props => (isFunction(props.onClickRow) ? 'pointer' : 'auto')}
-  }
+   .MuiTableRow-root {
+     cursor: ${props => (isFunction(props.onClickRow) ? 'pointer' : 'auto')}
+   }
+ }
 `;
 
 export const Table = React.memo(props => {
@@ -115,7 +117,7 @@ export const Table = React.memo(props => {
   let EmptyContentNode = emptyContentNode;
   if (!emptyContentNode && emptyText) {
     EmptyContentNode = (
-      <Text p={3} color="text.primary" className="table-empty-text" sx={{ display: 'block', fontSize: 1, textAlign: 'center' }}>{emptyText}</Text>
+      <Text p={3} className="table-empty-text" sx={{ color: 'text.primary', display: 'block', fontSize: 1, textAlign: 'center' }}>{emptyText}</Text>
     );
   }
 
@@ -205,11 +207,9 @@ export const Table = React.memo(props => {
                     {col.tag && (
                       <Pill
                         label={col.tag}
-                        fontSize="9px"
-                        fontWeight="medium"
                         py="1px"
                         px="3px"
-                        sx={{ borderRadius: radii.input }}
+                        sx={{ borderRadius: radii.input, fontSize: '9px', fontWeight: 'medium' }}
                         colorPalette={['grays.4', 'white']}
                         text={col.tag}
                       />
@@ -244,11 +244,7 @@ export const Table = React.memo(props => {
                   {!(col.hideEmpty && !d[col.field]) && (
                     <>
                       {(col.titleComponent || col.title) && index > 0 && (
-                        <Text
-                          fontSize={['13px', '14px']}
-                          fontWeight="medium"
-                          sx={{ display: ['block', null, 'none'] }}
-                        >
+                        <Text sx={{ fontSize: ['13px', '14px'], fontWeight: 'medium', display: ['block', null, 'none'] }}>
                           {col.titleComponent ? <col.titleComponent /> : col.title}
                         </Text>
                       )}

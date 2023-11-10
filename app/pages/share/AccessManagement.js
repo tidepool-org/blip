@@ -619,7 +619,7 @@ export const AccessManagement = (props) => {
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onFilter={handleTableFilter}
-                fontSize={1}
+                sx={{ fontSize: 1 }}
               />
             </Box>
           )}

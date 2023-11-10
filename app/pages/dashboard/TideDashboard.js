@@ -515,7 +515,7 @@ const TideDashboardSection = React.memo(props => {
         label={'peopletablelabel'}
         columns={columns}
         data={patients}
-        style={{ fontSize: '12px' }}
+        sx={{ fontSize: 0 }}
         order={section.sortDirection}
         orderBy={section.sortKey}
         emptyContentNode={emptyContentNode}
