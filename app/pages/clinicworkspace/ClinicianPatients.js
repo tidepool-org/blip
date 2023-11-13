@@ -136,8 +136,7 @@ export const ClinicianPatients = (props) => {
 
         <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Flex
-            width="100%"
-            sx={{ gap: 2, alignItems: 'center', justifyContent: 'space-between' }}
+            sx={{ width: '100%', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}
           >
             <Button
               id="add-patient"
@@ -149,12 +148,12 @@ export const ClinicianPatients = (props) => {
               {t('Add New Patient')}
             </Button>
 
-            <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+            <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
               <TextInput
                 themeProps={{
                   width: ['100%', null, '250px'],
+                  fontSize: '12px',
                 }}
-                fontSize="12px"
                 id="patients-search"
                 placeholder={t('Search')}
                 icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
@@ -170,7 +169,7 @@ export const ClinicianPatients = (props) => {
             <Icon
               id="patients-view-toggle"
               variant="default"
-              color="grays.4"
+              sx={{ color: 'grays.4' }}
               ml={1}
               icon={VisibilityIcon}
               label={t('Toggle visibility')}
@@ -195,7 +194,7 @@ export const ClinicianPatients = (props) => {
 
   const renderPeopleInstructions = () => {
     return (
-      <Text fontSize={1} py={4} mb={6}  sx={{ textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
+      <Text py={4} mb={6} sx={{ display: 'block', fontSize:1, textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
         <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
           Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={handleToggleShowNames}>Show All</a> to display all patients.
         </Trans>
@@ -510,7 +509,7 @@ export const ClinicianPatients = (props) => {
       </Box>
 
       {showNames && patients.length > rowsPerPage && (
-        <Box variant="containers.large" bg="transparent" width={['100%', '100%']} mb={0}>
+        <Box variant="containers.large" sx={{ bg: 'transparent', width: ['100%', '100%'] }} mb={0}>
           <Pagination
             px="5%"
             sx={{ position: 'absolute', bottom: '-50px' }}
