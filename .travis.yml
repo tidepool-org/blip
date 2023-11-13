@@ -34,8 +34,6 @@ addons:
     target_paths:
       - /
   chrome: stable
-  packages:
-
 
 services:
   - docker
