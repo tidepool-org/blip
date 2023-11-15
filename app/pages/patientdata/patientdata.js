@@ -851,7 +851,7 @@ export const PatientDataClass = createReactClass({
       const stat = getStatDefinition(data, statType, {
         bgSource,
         collapsible: !_.includes(['averageGlucose', 'standardDev'], statType),
-        days: endpoints.activeDays || endpoints.days,
+        days: _.isFinite(endpoints.activeDays) ? endpoints.activeDays : endpoints.days,
         bgPrefs,
         manufacturer,
       });
@@ -873,7 +873,7 @@ export const PatientDataClass = createReactClass({
 
         const averageDailyDoseStat = getStatDefinition(averageDailyDose, 'averageDailyDose', {
           bgSource,
-          days: endpoints.activeDays || endpoints.days,
+          days: _.isFinite(endpoints.activeDays) ? endpoints.activeDays : endpoints.days,
           bgPrefs,
           manufacturer,
         });

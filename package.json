@@ -65,7 +65,7 @@
     "@storybook/cli": "7.5.0",
     "@storybook/react": "7.5.0",
     "@storybook/react-webpack5": "7.5.0",
-    "@tidepool/viz": "1.38.0-web-2595-critical-depandancy-updates.9",
+    "@tidepool/viz": "1.38.0-web-2595-critical-depandancy-updates.10",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",

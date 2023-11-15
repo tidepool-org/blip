@@ -163,6 +163,16 @@ export const PrintDateRangeModal = (props) => {
   // Panels
   const panels = [
     {
+      daysOptions: presetDaysOptions.agpCGM,
+      header: t('AGP Report (CGM)'),
+      key: 'agpCGM',
+    },
+    {
+      daysOptions: presetDaysOptions.agpBGM,
+      header: t('AGP Report (BGM)'),
+      key: 'agpBGM',
+    },
+    {
       daysOptions: presetDaysOptions.basics,
       header: t('Basics Chart'),
       key: 'basics',
@@ -180,16 +190,6 @@ export const PrintDateRangeModal = (props) => {
     {
       header: t('Device Settings'),
       key: 'settings',
-    },
-    {
-      daysOptions: presetDaysOptions.agpCGM,
-      header: t('AGP Report (CGM)'),
-      key: 'agpCGM',
-    },
-    {
-      daysOptions: presetDaysOptions.agpBGM,
-      header: t('AGP Report (BGM)'),
-      key: 'agpBGM',
     },
   ];
 
