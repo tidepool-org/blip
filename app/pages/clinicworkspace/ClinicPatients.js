@@ -796,7 +796,7 @@ export const ClinicPatients = (props) => {
         sort: patientFetchOptions.sort || (showSummaryData && activeSort?.sort ? activeSort.sort : defaultPatientFetchOptions.sort),
         sortType: patientFetchOptions.sortType || (showSummaryData && activeSort?.sortType ? activeSort.sortType : defaultPatientFetchOptions.sortType),
         period: activeSummaryPeriod,
-        limit: 5,
+        limit: 50,
         search: patientFetchOptions.search,
       }
 
@@ -1897,8 +1897,8 @@ export const ClinicPatients = (props) => {
                       width: '100%',
                       sx: { input: { height: '22px', py: '0 !important' } },
                       flex: 1,
+                      fontSize: '12px',
                     }}
-                    fontSize="12px"
                     maxLength={20}
                     placeholder={t('Add a new tag...')}
                     description={t('You can add up to {{maxClinicPatientTags}} tags per clinic', { maxClinicPatientTags })}
