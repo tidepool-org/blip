@@ -42,7 +42,7 @@ describe('ClinicAdmin', () => {
 
   before(() => {
     mount = createMount();
-    ClinicAdmin.__Rewire__('ClinicProfile', sinon.stub().returns('stubbed clinic profile'));
+    ClinicAdmin.__Rewire__('ClinicWorkspaceHeader', sinon.stub().returns('stubbed clinic workspace header'));
     ClinicAdmin.__Rewire__('config', { RX_ENABLED: true });
   });
 
@@ -56,7 +56,7 @@ describe('ClinicAdmin', () => {
 
   after(() => {
     mount.cleanUp();
-    ClinicAdmin.__ResetDependency__('ClinicProfile');
+    ClinicAdmin.__ResetDependency__('ClinicWorkspaceHeader');
     ClinicAdmin.__ResetDependency__('config');
   });
 
@@ -193,7 +193,7 @@ describe('ClinicAdmin', () => {
   });
 
   it('should render a clinic profile', () => {
-    expect(wrapper.text()).to.include('stubbed clinic profile');
+    expect(wrapper.text()).to.include('stubbed clinic workspace header');
   });
 
   it('should not render an Invite button for a clinic member', () => {
