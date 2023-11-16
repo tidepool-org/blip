@@ -189,7 +189,7 @@ export const patientSchema = (config) => {
         </ul>
       </div>
     ))
-    .notOneOf(config?.existingMRNs || [], t('This MRN is already in use'));
+    .notOneOf(config?.existingMRNs || [], t('This MRN is already in use. Please enter a valid MRN.'));
 
   if (config?.mrnSettings?.required) {
     mrnSchema = mrnSchema.required(t('Patient\'s MRN is required'));
