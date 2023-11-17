@@ -1286,7 +1286,7 @@ export const ClinicPatients = (props) => {
                         name="last-upload-type"
                         options={lastUploadTypeFilterOptions}
                         variant="vertical"
-                        fontSize={0}
+                        sx={{ fontSize: 0 }}
                         value={pendingFilters.lastUploadType || activeFilters.lastUploadType}
                         onChange={event => {
                           setPendingFilters({ ...pendingFilters, lastUploadType: event.target.value || null });

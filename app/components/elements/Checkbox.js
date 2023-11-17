@@ -71,8 +71,8 @@ export const Checkbox = (props) => {
           backgroundColor: 'inherit',
           display: 'inline-flex !important',
           lineHeight: '1em',
+          width: 'auto',
         }}
-        width="auto"
         {...themeProps}
       >
         <StyledCheckbox className={classNames} {...checkboxProps} />
