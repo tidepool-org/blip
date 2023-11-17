@@ -92,14 +92,16 @@ export const TideDashboardConfigForm = props => {
               setFieldTouched('tags', true, true);
               setFieldValue('tags', [...(values.tags || []), tagId]);
             },
-            sx: { userSelect: 'none' }
+            sx: { userSelect: 'none' },
           }}
           selectedTagProps={{
             onClick: tagId => {
               setFieldValue('tags', without(values.tags, tagId));
             },
-            color: 'white',
-            backgroundColor: 'purpleMedium',
+            sx: {
+              color: 'white',
+              backgroundColor: 'purpleMedium',
+            },
           }}
         />
 

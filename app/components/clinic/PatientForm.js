@@ -255,7 +255,7 @@ export const PatientForm = (props) => {
 
   function renderRegionalNote() {
     return (
-      <Body0 fontWeight="medium" color={colors.mediumGrey} sx={{ lineHeight: '1.5 !important', fontStyle: 'italic'}}>
+      <Body0 sx={{ fontWeight: 'medium', color: colors.mediumGrey, lineHeight: '1.5 !important', fontStyle: 'italic'}}>
         {t('For US Dexcom Users Only')}
       </Body0>
     );
@@ -273,7 +273,7 @@ export const PatientForm = (props) => {
           label={t('Full Name')}
           placeholder={t('Full Name')}
           variant="condensed"
-          width="100%"
+          sx={{ width: '100%' }}
         />
       </Box>
 
@@ -296,7 +296,7 @@ export const PatientForm = (props) => {
             label={t('Birthdate')}
             placeholder={dateInputFormat.toLowerCase()}
             variant="condensed"
-            width="100%"
+            sx={{ width: '100%' }}
           />
         </InputMask>
       </Box>
@@ -307,7 +307,7 @@ export const PatientForm = (props) => {
          label={mrnSettings?.required ? t('MRN') : t('MRN (optional)')}
           placeholder={t('MRN')}
           variant="condensed"
-          width="100%"
+          sx={{ width: '100%' }}
         />
       </Box>
 
@@ -317,12 +317,12 @@ export const PatientForm = (props) => {
           label={t('Email (optional)')}
           placeholder={t('Email')}
           variant="condensed"
-          width="100%"
+          sx={{ width: '100%' }}
           disabled={patient?.id && !patient?.permissions?.custodian}
         />
       </Box>
 
-      <Body0 fontWeight="medium">
+      <Body0 sx={{ fontWeight: 'medium' }}>
         {t('If you want your patients to upload their data from home, you must include their email address.')}
       </Body0>
 
@@ -334,8 +334,8 @@ export const PatientForm = (props) => {
           }}
         >
           {!!values.tags.length && (
-            <Box className='selected-tags' mt={3} mb={1} fontSize={0}>
-              <Text mb={1} fontWeight="medium" color="text.primary">{t('Assigned Patient Tags')}</Text>
+            <Box className='selected-tags' mt={3} mb={1} sx={{ fontSize: 0 }}>
+              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Assigned Patient Tags')}</Text>
 
               <TagList
                 tags={compact(map(values.tags, tagId => clinicPatientTags[tagId]))}
@@ -346,16 +346,18 @@ export const PatientForm = (props) => {
                   icon: CloseRoundedIcon,
                   iconColor: 'white',
                   iconFontSize: 1,
-                  color: 'white',
-                  backgroundColor: 'purpleMedium',
+                  sx: {
+                    color: 'white',
+                    backgroundColor: 'purpleMedium',
+                  },
                 }}
               />
             </Box>
           )}
 
           {values.tags.length < (clinic?.patientTags || []).length && (
-            <Box className='available-tags' sx={{ alignItems: 'center' }} mb={1} mt={3} fontSize={0} >
-              <Text mb={1} fontWeight="medium" color="text.primary">{t('Available Patient Tags')}</Text>
+            <Box className='available-tags' mb={1} mt={3} sx={{ alignItems: 'center', fontSize: 0 }}>
+              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Available Patient Tags')}</Text>
 
               <TagList
                 tags={map(reject(clinic?.patientTags, ({ id }) => includes(values.tags, id)), ({ id }) => clinicPatientTags?.[id])}
@@ -384,7 +386,7 @@ export const PatientForm = (props) => {
             disabled={disableConnectDexcom}
             label={(
               <Flex sx={{ alignItems: 'center' }}>
-                <Text mr={1} mt={1} fontSize={0}>
+                <Text mr={1} mt={1} sx={{ display: 'block', fontSize: 0 }}>
                   {t('Connect with')}
                 </Text>
 
@@ -402,7 +404,7 @@ export const PatientForm = (props) => {
             )}
           />
 
-          <Body0 mt={1} fontWeight="medium">
+          <Body0 mt={1} sx={{ fontWeight: 'medium' }}>
             {t('If this box is checked, patient will receive an email to authorize sharing Dexcom data with Tidepool.')}
           </Body0>
 
@@ -415,8 +417,8 @@ export const PatientForm = (props) => {
           id="connectDexcomStatusWrapper"
           mt={3}
           pt={3}
-          color={dexcomConnectStateUI[dexcomConnectState].color}
           sx={{
+            color: dexcomConnectStateUI[dexcomConnectState].color,
             borderTop: borders.default,
           }}
         >
@@ -428,7 +430,7 @@ export const PatientForm = (props) => {
               sx={dexcomConnectStateUI[dexcomConnectState].iconStyles}
             />
 
-            <Text mx={1} mt={1} fontSize={0}>
+            <Text mx={1} mt={1} sx={{ fontSize: 0 }}>
               {dexcomConnectStateUI[dexcomConnectState].label}
             </Text>
 
@@ -440,7 +442,7 @@ export const PatientForm = (props) => {
           </Flex>
 
           {dexcomConnectState === 'pending' && (
-            <Body0 mt={2} fontWeight="medium" color={colors.mediumGrey} sx={{ display: 'inline-block', lineHeight: '0.5 !important'}}>
+            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
               {t('Patient has received an email to authorize Dexcom data sharing with Tidepool but they have not taken any action yet.')}
 
               <Button
@@ -455,7 +457,7 @@ export const PatientForm = (props) => {
           )}
 
           {dexcomConnectState === 'pendingReconnect' && (
-            <Body0 mt={2} fontWeight="medium" color={colors.mediumGrey} sx={{ display: 'inline-block', lineHeight: '0.5 !important'}}>
+            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
               {t('Patient has received an email to reconnect their Dexcom data with Tidepool but they have not taken any action yet.')}
 
               <Button
@@ -470,7 +472,7 @@ export const PatientForm = (props) => {
           )}
 
           {dexcomConnectState === 'pendingExpired' && (
-            <Body0 mt={2} fontWeight="medium" color={colors.mediumGrey} sx={{ display: 'inline-block', lineHeight: '0.5 !important'}}>
+            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
               {t('Patient invitation to authorize Dexcom data sharing with Tidepool has expired. Would you like to send a new connection request?')}
 
               <Button
@@ -485,7 +487,7 @@ export const PatientForm = (props) => {
           )}
 
           {dexcomConnectState === 'disconnected' && (
-            <Body0 mt={2} fontWeight="medium" color={colors.mediumGrey} sx={{ display: 'inline-block', lineHeight: '0.5 !important'}}>
+            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
               {t('Patient has disconnected their Dexcom data sharing authorization with Tidepool. Would you like to send a new connection request?')}
 
               <Button
@@ -500,7 +502,7 @@ export const PatientForm = (props) => {
           )}
 
           {dexcomConnectState === 'error' && (
-            <Body0 mt={2} fontWeight="medium" color={colors.mediumGrey} sx={{ display: 'inline-block', lineHeight: '0.5 !important'}}>
+            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
               {t('Patient\'s previous Dexcom authorization is no longer valid. Would you like to send a new connection request?')}
 
               <Button

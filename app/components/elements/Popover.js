@@ -79,8 +79,8 @@ const Popover = props => {
           }}
           icon={CloseRoundedIcon}
           variant="button"
-          fontSize={1}
           sx={{
+            fontSize: 1,
             position: 'absolute !important',
             top: 1,
             right: 1,

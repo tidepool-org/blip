@@ -343,8 +343,10 @@ const PatientTags = ({
                     icon: CloseRoundedIcon,
                     iconColor: 'white',
                     iconFontSize: 1,
-                    color: 'white',
-                    backgroundColor: 'purpleMedium',
+                    sx: {
+                      color: 'white',
+                      backgroundColor: 'purpleMedium',
+                    },
                   }}
                 />
               </Box>
@@ -1118,8 +1120,14 @@ export const ClinicPatients = (props) => {
         <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
           {/* Flex Group 1: Search Box and Add Patient button */}
           <Flex
-            width="auto"
-            sx={{ gap: 2, alignItems: 'center', justifyContent: 'space-between', flexGrow: [1, null, 0], flexWrap: 'wrap' }}
+            sx={{
+              width: 'auto',
+              gap: 2,
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexGrow: [1, null, 0],
+              flexWrap: 'wrap',
+            }}
           >
             <Button
               id="add-patient"
@@ -1154,7 +1162,7 @@ export const ClinicPatients = (props) => {
                         width: 'auto',
                       }}
                       popoverContent={(
-                        <Text color="white" fontSize="10px" fontWeight="medium">{t('Add and apply patient tags to use')}</Text>
+                        <Text sx={{ color: 'white', fontSize:'10px', fontWeight: 'medium' }}>{t('Add and apply patient tags to use')}</Text>
                       )}
                     >
                       <Button
@@ -1203,19 +1211,22 @@ export const ClinicPatients = (props) => {
                 id='summary-dashboard-filters'
               >
                 <Flex
-                  color={activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4'}
                   pl={[0, 0, 2]}
                   py={1}
-                  sx={{ alignItems: 'center', gap: 1, borderLeft: ['none', null, borders.divider], flexShrink: 0 }}
+                  sx={{
+                    color: activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4',
+                    alignItems: 'center',
+                    gap: 1,
+                    borderLeft: ['none', null, borders.divider],
+                    flexShrink: 0
+                  }}
                 >
                   {activeFiltersCount > 0 ? (
                     <Pill
                       id="filter-count"
                       label="filter count"
                       round
-                      width="14px"
-                      lineHeight="15px"
-                      fontSize="9px"
+                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px' }}
                       colorPalette={['purpleMedium', 'white']}
                       text={`${activeFiltersCount}`}
                     />
@@ -1225,9 +1236,7 @@ export const ClinicPatients = (props) => {
                       variant="static"
                       iconSrc={FilterIcon}
                       label={t('Filter')}
-                      fontSize={1}
-                      width="14px"
-                      color={'grays.4'}
+                      sx={{ fontSize: 1, width: '14px', color: 'grays.4' }}
                     />
                   )}
                   <Text sx={{ fontSize: 0 }}>{t('Filter By')}</Text>
@@ -1267,7 +1276,7 @@ export const ClinicPatients = (props) => {
                   >
                     <DialogContent px={2} py={3} dividers>
                       <Box sx={{ alignItems: 'center' }} mb={2}>
-                        <Text color="grays.4" fontWeight="medium" fontSize={0} sx={{ whiteSpace: 'nowrap' }}>
+                        <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
                           {t('Device Type')}
                         </Text>
                       </Box>
@@ -1293,7 +1302,7 @@ export const ClinicPatients = (props) => {
                           borderTop: borders.divider,
                         }}
                       >
-                        <Text color="grays.4" fontSize={0} fontWeight="medium" sx={{ whiteSpace: 'nowrap' }}>
+                        <Text color="grays.4" sx={{ fontSize: 0, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
                           {t('Time Period')}
                         </Text>
                       </Box>
@@ -1303,7 +1312,7 @@ export const ClinicPatients = (props) => {
                         name="last-upload-filters"
                         options={lastUploadDateFilterOptions}
                         variant="vertical"
-                        fontSize={0}
+                        sx={{ fontSize: 0 }}
                         mb={3}
                         value={pendingFilters.lastUploadDate || activeFilters.lastUploadDate}
                         onChange={event => {
@@ -1368,10 +1377,10 @@ export const ClinicPatients = (props) => {
                           id="time-in-range-filter-count"
                           label="filter count"
                           round
-                          width="14px"
-                          fontSize="9px"
-                          lineHeight="15px"
                           sx={{
+                            width: '14px',
+                            fontSize: '9px',
+                            lineHeight: '15px',
                             textAlign: 'center',
                             display: 'inline-block',
                           }}
@@ -1401,7 +1410,7 @@ export const ClinicPatients = (props) => {
                         {showTideDashboard && !clinic?.patientTags?.length && <Icon
                           variant="static"
                           icon={InfoOutlinedIcon}
-                          fontSize="14px"
+                          sx={{ fontSize: '14px' }}
                         />}
 
                         {t('Patient Tags')}
@@ -1411,10 +1420,10 @@ export const ClinicPatients = (props) => {
                             id="patient-tags-filter-count"
                             label="filter count"
                             round
-                            width="14px"
-                            fontSize="9px"
-                            lineHeight="15px"
                             sx={{
+                              width: '14px',
+                              fontSize: '9px',
+                              lineHeight: '15px',
                               textAlign: 'center',
                               display: 'inline-block',
                             }}
@@ -1441,7 +1450,7 @@ export const ClinicPatients = (props) => {
                     <DialogContent px={2} pt={1} pb={3} dividers>
                       <Box variant="containers.small">
                         <Box>
-                          <Text color="text.primary" fontSize={1} fontWeight="medium" sx={{ whiteSpace: 'nowrap' }}>
+                          <Text sx={{ color: 'text.primary', fontSize: 1, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
                             {t('Filter by Patient Tags')}
                           </Text>
 
@@ -1450,11 +1459,10 @@ export const ClinicPatients = (props) => {
                               <Icon
                                 variant="static"
                                 icon={InfoOutlinedIcon}
-                                color="text.primary"
-                                fontSize="14px"
+                                sx={{ color: 'text.primary', fontSize: '14px' }}
                               />
 
-                              <Text color="text.primary" fontSize={0} fontWeight="medium" lineHeight={2}>
+                              <Text sx={{ color: 'text.primary', fontSize: 0, fontWeight: 'medium', lineHeight: 2 }}>
                                 {t('To use the TIDE Dashboard, add and apply patient tags.')}
                               </Text>
                             </Flex>
@@ -1462,8 +1470,8 @@ export const ClinicPatients = (props) => {
                         </Box>
 
                         {!!pendingFilters.patientTags?.length && (
-                          <Box id="selected-tag-filters" mb={1} fontSize={0} fontWeight="medium">
-                            <Text fontSize="10px" color="grays.4">{t('Selected Tags')}</Text>
+                          <Box id="selected-tag-filters" mb={1} sx={{ fontSize: 0, fontWeight: 'medium' }}>
+                            <Text sx={{ fontSize: '10px', color: 'grays.4' }}>{t('Selected Tags')}</Text>
 
                             <TagList
                               tags={map(pendingFilters.patientTags, tagId => patientTags?.[tagId])}
@@ -1474,16 +1482,18 @@ export const ClinicPatients = (props) => {
                                 icon: CloseRoundedIcon,
                                 iconColor: 'white',
                                 iconFontSize: 1,
-                                color: 'white',
-                                backgroundColor: 'purpleMedium',
+                                sx: {
+                                  color: 'white',
+                                  backgroundColor: 'purpleMedium',
+                                },
                               }}
                             />
                           </Box>
                         )}
 
                         {pendingFilters.patientTags?.length < patientTagsFilterOptions?.length && (
-                          <Box id="available-tag-filters" sx={{ alignItems: 'center' }} mt={2} mb={1} fontSize={0} fontWeight="medium" >
-                            {!!pendingFilters.patientTags?.length && <Text fontSize="10px" color="grays.4">{t('Available Tags')}</Text>}
+                          <Box id="available-tag-filters" sx={{ alignItems: 'center', fontSize:0, fontWeight:'medium' }} mt={2} mb={1}>
+                            {!!pendingFilters.patientTags?.length && <Text sx={{ fontSize: '10px', color: 'grays.4' }}>{t('Available Tags')}</Text>}
 
                             <TagList
                               tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)), ({ id }) => patientTags?.[id])}
@@ -1576,7 +1586,7 @@ export const ClinicPatients = (props) => {
                   >
                     <DialogContent px={2} py={3} dividers>
                       <Box sx={{ alignItems: 'center' }} mb={2}>
-                        <Text color="grays.4" fontWeight="medium" fontSize={0} sx={{ whiteSpace: 'nowrap' }}>
+                        <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
                           {t('% CGM Use')}
                         </Text>
                       </Box>
@@ -1586,7 +1596,7 @@ export const ClinicPatients = (props) => {
                         name="cgm-use"
                         options={cgmUseFilterOptions}
                         variant="vertical"
-                        fontSize={0}
+                        sx={{ fontSize: 0 }}
                         value={pendingFilters.timeCGMUsePercent || activeFilters.timeCGMUsePercent}
                         onChange={event => {
                           setPendingFilters({ ...pendingFilters, timeCGMUsePercent: event.target.value || null });
@@ -1654,10 +1664,9 @@ export const ClinicPatients = (props) => {
                   sx={{ gap: 3, justifyContent: 'flex-start', alignItems: 'center', flexShrink: 0 }}
                 >
                   <Flex
-                    color="grays.4"
                     py={1}
                     pl={[0, 0, 3]}
-                    sx={{ borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
+                    sx={{ color: 'grays.4', borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
                   >
 
                   <Text sx={{ fontSize: 0 }}>{t('View data from')}</Text>
@@ -1698,7 +1707,7 @@ export const ClinicPatients = (props) => {
                       name="summary-period-filters"
                       options={summaryPeriodOptions}
                       variant="vertical"
-                      fontSize={0}
+                      sx={{ fontSize: 0 }}
                       value={pendingSummaryPeriod || activeSummaryPeriod}
                       onChange={event => setPendingSummaryPeriod(event.target.value)}
                     />
@@ -1778,7 +1787,7 @@ export const ClinicPatients = (props) => {
                     icon={InfoOutlinedIcon}
                     iconProps={{
                       id: 'summary-stat-info-trigger',
-                      fontSize: '18px',
+                      sx: { fontSize: '18px' },
                     }}
                     popoverContent={renderInfoPopover()}
                     popoverProps={{
@@ -1800,7 +1809,7 @@ export const ClinicPatients = (props) => {
               <Icon
                 id="patients-view-toggle"
                 variant="default"
-                color="grays.4"
+                sx={{ color: 'grays.4' }}
                 icon={VisibilityIcon}
                 label={t('Toggle visibility')}
                 onClick={handleToggleShowNames}
@@ -1815,7 +1824,7 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleInstructions = useCallback(() => {
     return (
-      <Text fontSize={1} py={4} mb={4} sx={{ textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
+      <Text py={4} mb={4} sx={{ display: 'block', fontSize: 1, textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
         <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
           Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={handleToggleShowNames}>Show All</a> to display all patients.
         </Trans>
@@ -2013,6 +2022,7 @@ export const ClinicPatients = (props) => {
     api,
     creatingClinicCustodialAccount.inProgress,
     handleAddPatientConfirm,
+    mrnSettings,
     patientFormContext?.values,
     showAddPatientDialog,
     t,
@@ -2061,6 +2071,7 @@ export const ClinicPatients = (props) => {
   }, [
     api,
     handleEditPatientConfirm,
+    mrnSettings,
     patientFormContext?.values,
     selectedClinicId,
     selectedPatient,
@@ -2123,7 +2134,7 @@ export const ClinicPatients = (props) => {
           handleCloseOverlays();
         }}
       >
-        <Box variant="containers.extraSmall" mb={0} width={['100%', '100%']}>
+        <Box variant="containers.extraSmall" mb={0} sx={{ width: ['100%', '100%'] }}>
           <DialogTitle
             divider={false}
             onClose={() => {
@@ -2131,7 +2142,7 @@ export const ClinicPatients = (props) => {
               handleCloseOverlays();
             }}
           >
-            <Body1 fontWeight="medium">{t('Available Patient Tags')}</Body1>
+            <Body1 sx={{ fontWeight: 'medium' }}>{t('Available Patient Tags')}</Body1>
           </DialogTitle>
 
           <DialogContent pt={0} divider={false}>
@@ -2152,9 +2163,9 @@ export const ClinicPatients = (props) => {
                         width: '100%',
                         sx: { input: { height: '22px', py: '0 !important' } },
                         flex: 1,
+                        fontSize: '12px',
                       }}
                       disabled={clinic?.patientTags?.length >= maxClinicPatientTags}
-                      fontSize="12px"
                       maxLength={20}
                       placeholder={t('Add a new tag...')}
                       description={t('You can add up to {{maxClinicPatientTags}} tags per clinic', { maxClinicPatientTags })}
@@ -2166,8 +2177,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid}
                       type="submit"
-                      sx={{ height: '24px' }}
-                      alignSelf="flex-start"
+                      sx={{ height: '24px', alignSelf: 'flex-start' }}
                     >
                       {t('Add')}
                     </Button>
@@ -2176,7 +2186,7 @@ export const ClinicPatients = (props) => {
               )}
             </Formik>
 
-            <Text mb={2} color="text.primary" fontWeight="medium" fontSize={0}>
+            <Text mb={2} sx={{ color: 'text.primary', fontWeight: 'medium', fontSize: 0 }}>
               {isClinicAdmin
                 ? t('Click a tag\'s text to rename it, or click the trash can icon to delete it.')
                 : t('Click a tag\'s text to rename it.')
@@ -2230,7 +2240,7 @@ export const ClinicPatients = (props) => {
             {formattedLastUploadReminderTime ? (
               <Trans>
                 <Text mb={2}>
-                  An upload reminder was last sent to <Text as='span' fontWeight='bold'>{{name: selectedPatient?.fullName}}</Text> on <Text as='span' fontWeight='bold'>{{date: formattedLastUploadReminderTime}}</Text>.
+                  An upload reminder was last sent to <Text as='span' sx={{ fontWeight: 'bold' }}>{{name: selectedPatient?.fullName}}</Text> on <Text as='span' sx={{ fontWeight: 'bold' }}>{{date: formattedLastUploadReminderTime}}</Text>.
                 </Text>
 
                 <Text>
@@ -2240,7 +2250,7 @@ export const ClinicPatients = (props) => {
             ) : (
               <Trans>
                 <Text>
-                  Are you sure you want to send an upload reminder email to <Text as='span' fontWeight='bold'>{{name: selectedPatient?.fullName}}</Text>?
+                  Are you sure you want to send an upload reminder email to <Text as='span' sx={{ fontWeight: 'bold' }}>{{name: selectedPatient?.fullName}}</Text>?
                 </Text>
               </Trans>
             )}
@@ -2345,7 +2355,7 @@ export const ClinicPatients = (props) => {
         />
 
         <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
-          <Flex sx={{ alignItems: 'center' }} mb={3} fontSize={1} fontWeight="medium">
+          <Flex mb={3} sx={{ alignItems: 'center', fontSize: 1, fontWeight: 'medium' }}>
             <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
               {t('View Patients that spend:')}
             </Text>
@@ -2377,23 +2387,21 @@ export const ClinicPatients = (props) => {
 
               <Box>
                 <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
-                  <Text fontSize={1} mr={2}>
+                  <Text sx={{ fontSize: 1 }} mr={2}>
                     {prefix}{' '}
-                    <Text fontSize={2} fontWeight="bold">
+                    <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
                       {threshold}
                     </Text>
                     % {t('Time')} {t(bgPrefix)}{' '}
-                    <Text fontSize={2} fontWeight="bold">
+                    <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
                       {glucoseTargetValue}
                     </Text>{' '}
                     {suffix}
                   </Text>
                   <Pill
                     label={tag}
-                    fontSize="12px"
-                    fontWeight="normal"
                     py="2px"
-                    sx={{ borderRadius: radii.input }}
+                    sx={{ fontSize: '12px', fontWeight: 'normal', borderRadius: radii.input }}
                     colorPalette={[`bg.${rangeName}`, 'white']}
                     text={tag}
                   />
@@ -2533,7 +2541,7 @@ export const ClinicPatients = (props) => {
         )}
 
         {!formattedLastUploadDateCGM && !formattedLastUploadDateBGM && (
-          <Text color="inherit" fontWeight="regular">{statEmptyText}</Text>
+          <Text sx={{ color: 'inherit', fontWeight: 'regular' }}>{statEmptyText}</Text>
         )}
       </Box>
     );

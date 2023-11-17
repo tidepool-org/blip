@@ -119,6 +119,7 @@ export const TagList = withTranslation()(props => {
     maxCharactersVisible,
     tagProps,
     selectedTagProps,
+    sx = {},
     t,
     ...themeProps
   } = props;
@@ -178,7 +179,7 @@ export const TagList = withTranslation()(props => {
     <Flex
       ref={anchorRef}
       className="tag-list"
-      sx={{ gap: 1, alignItems: 'center', flexWrap }}
+      sx={{ gap: 1, alignItems: 'center', flexWrap, ...sx }}
       {...themeProps}
     >
       {map(visibleTags, tag => (
