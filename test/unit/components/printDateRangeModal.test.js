@@ -193,7 +193,7 @@ describe('PrintDateRangeModal', function () {
     expect(dailyDatesRangeSelectedPreset.prop('value')).to.equal(14);
   });
 
-  it.only('should provide appropriate date ranges and selected defaults for each applicable chart when invalid config stored in localStorage', () => {
+  it('should provide appropriate date ranges and selected defaults for each applicable chart when invalid config stored in localStorage', () => {
     localStorage.setItem(enabledChartsLocalKey, '{"agp":true,"basics":false,"bgLog":true,"daily":true,"settings":false}');
     localStorage.setItem(defaultRangesLocalKey, '{"agp":1,"basics":0,"bgLog":2,"daily":0}');
 
