@@ -193,6 +193,72 @@ describe('PrintDateRangeModal', function () {
     expect(dailyDatesRangeSelectedPreset.prop('value')).to.equal(14);
   });
 
+  it.only('should provide appropriate date ranges and selected defaults for each applicable chart when invalid config stored in localStorage', () => {
+    localStorage.setItem(enabledChartsLocalKey, '{"agp":true,"basics":false,"bgLog":true,"daily":true,"settings":false}');
+    localStorage.setItem(defaultRangesLocalKey, '{"agp":1,"basics":0,"bgLog":2,"daily":0}');
+
+    expect(localStorage[enabledChartsLocalKey]).to.eql(JSON.stringify({
+      agp: true, // legacy, invalid preset option
+      basics: false,
+      bgLog: true,
+      daily: true,
+      settings: false,
+    }));
+
+    expect(localStorage[defaultRangesLocalKey]).to.eql(JSON.stringify({
+      agp: 1, // legacy, invalid preset option
+      basics: 0,
+      bgLog: 2,
+      daily: 0,
+    }));
+
+    const agpCGMDatesRangePreset1 = wrapper.find('#days-agpCGM').find('button').at(0).hostNodes();
+    const agpCGMDatesRangePreset2 = wrapper.find('#days-agpCGM').find('button').at(1).hostNodes();
+    const agpCGMDatesRangeSelectedPreset = wrapper.find('#days-agpCGM').find('.selected').hostNodes();
+
+    expect(agpCGMDatesRangePreset1.prop('value')).to.equal(7);
+    expect(agpCGMDatesRangePreset2.prop('value')).to.equal(14);
+    expect(agpCGMDatesRangeSelectedPreset.prop('value')).to.equal(14); // default range still selected
+
+    const agpBGMDatesRangePreset1 = wrapper.find('#days-agpBGM').find('button').at(0).hostNodes();
+    const agpBGMDatesRangePreset2 = wrapper.find('#days-agpBGM').find('button').at(1).hostNodes();
+    const agpBGMDatesRangeSelectedPreset = wrapper.find('#days-agpBGM').find('.selected').hostNodes();
+
+    expect(agpBGMDatesRangePreset1.prop('value')).to.equal(14);
+    expect(agpBGMDatesRangePreset2.prop('value')).to.equal(30);
+    expect(agpBGMDatesRangeSelectedPreset.prop('value')).to.equal(30);// default range still selected
+
+    const basicsDatesRangePreset1 = wrapper.find('#days-basics').find('button').at(0).hostNodes();
+    const basicsDatesRangePreset2 = wrapper.find('#days-basics').find('button').at(1).hostNodes();
+    const basicsDatesRangePreset3 = wrapper.find('#days-basics').find('button').at(2).hostNodes();
+    const basicsDatesRangeSelectedPreset = wrapper.find('#days-basics').find('.selected').hostNodes();
+
+    expect(basicsDatesRangePreset1.prop('value')).to.equal(14);
+    expect(basicsDatesRangePreset2.prop('value')).to.equal(21);
+    expect(basicsDatesRangePreset3.prop('value')).to.equal(30);
+    expect(basicsDatesRangeSelectedPreset.prop('value')).to.equal(14);
+
+    const bgLogDatesRangePreset1 = wrapper.find('#days-bgLog').find('button').at(0).hostNodes();
+    const bgLogDatesRangePreset2 = wrapper.find('#days-bgLog').find('button').at(1).hostNodes();
+    const bgLogDatesRangePreset3 = wrapper.find('#days-bgLog').find('button').at(2).hostNodes();
+    const bgLogDatesRangeSelectedPreset = wrapper.find('#days-bgLog').find('.selected').hostNodes();
+
+    expect(bgLogDatesRangePreset1.prop('value')).to.equal(14);
+    expect(bgLogDatesRangePreset2.prop('value')).to.equal(21);
+    expect(bgLogDatesRangePreset3.prop('value')).to.equal(30);
+    expect(bgLogDatesRangeSelectedPreset.prop('value')).to.equal(30);
+
+    const dailyDatesRangePreset1 = wrapper.find('#days-daily').find('button').at(0).hostNodes();
+    const dailyDatesRangePreset2 = wrapper.find('#days-daily').find('button').at(1).hostNodes();
+    const dailyDatesRangePreset3 = wrapper.find('#days-daily').find('button').at(2).hostNodes();
+    const dailyDatesRangeSelectedPreset = wrapper.find('#days-daily').find('.selected').hostNodes();
+
+    expect(dailyDatesRangePreset1.prop('value')).to.equal(14);
+    expect(dailyDatesRangePreset2.prop('value')).to.equal(21);
+    expect(dailyDatesRangePreset3.prop('value')).to.equal(30);
+    expect(dailyDatesRangeSelectedPreset.prop('value')).to.equal(14);
+  });
+
   it('should set appropriate default dates for each applicable chart based on most recent datum dates', () => {
     const dateFormat = 'MMM D, YYYY';
     // Note: we expect the start dates to show a date that is the preset range MINUS 1 day prior
