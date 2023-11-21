@@ -108,24 +108,24 @@ const imageLoaderConfiguration = {
     /node_modules\/@tidepool\/viz(([/\\]).*)static-assets/,
     /node_modules\/@tidepool\/viz(([/\\]).*)lazy-assets/,
   ],
-  type: 'asset/resource',
+  type: 'asset',
   generator: {
-    filename: '[name].[ext]'
+    filename: '[name].[ext]',
   },
 };
 
 const fontLoaderConfiguration = [
   {
     test: /\.eot$/,
-    type: 'asset/resource',
+    type: 'asset',
   },
   {
     test: /\.woff$/,
-    type: 'asset/resource',
+    type: 'asset',
   },
   {
     test: /\.ttf$/,
-    type: 'asset/resource',
+    type: 'asset',
   },
 ];
 
@@ -232,10 +232,6 @@ const resolve = {
     'react-addons-update': path.resolve('node_modules/react-addons-update'),
     'react-redux': path.resolve('node_modules/react-redux'),
     redux: path.resolve('node_modules/redux'),
-    // maps fs to a virtual one allowing to register file content dynamically
-    fs: 'pdfkit/js/virtual-fs.js',
-    // iconv-lite is used to load cid less fonts (not spec compliant)
-    'iconv-lite': false,
   },
   fallback: {
     // crypto module is not necessary at browser
@@ -268,42 +264,6 @@ module.exports = {
       imageLoaderConfiguration,
       styleLoaderConfiguration,
       ...fontLoaderConfiguration,
-
-      // PDFKit extra rules
-      // bundle and load afm files verbatim
-      { test: /\.afm$/, type: 'asset/source' },
-      // bundle and load binary files inside static-assets folder as base64
-      {
-        test: /node_modules\/@tidepool\/viz(([/\\]).*)static-assets/,
-        type: 'asset/inline',
-        generator: {
-          dataUrl: content => {
-            return content.toString('base64');
-          },
-        },
-      },
-      // load binary files inside lazy-assets folder as a URL
-      {
-        test: /node_modules\/@tidepool\/viz(([/\\]).*)lazy-assets/,
-        type: 'asset/resource'
-      },
-      // convert to base64 and include inline file system binary files used by fontkit and linebreak
-      {
-        enforce: 'post',
-        test: /fontkit[/\\]index.js$/,
-        loader: 'transform-loader',
-        options: {
-          brfs: {}
-        }
-      },
-      {
-        enforce: 'post',
-        test: /linebreak[/\\]src[/\\]linebreaker.js/,
-        loader: 'transform-loader',
-        options: {
-          brfs: {}
-        }
-      },
     ],
   },
   optimization: {
