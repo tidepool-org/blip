@@ -17,18 +17,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
-import { connect } from 'react-redux';
 import { withTranslation, Trans } from 'react-i18next';
-import { bindActionCreators } from 'redux';
-
-import * as actions from '../../redux/actions';
-
 import _ from 'lodash';
 
 import personUtils from '../../core/personutils';
 import ModalOverlay from '../../components/modaloverlay';
 import PatientInfo from './patientinfo';
-import { PatientTeam } from './patientteam';
 
 const Patient = withTranslation()(createReactClass({
   displayName: 'Patient',
@@ -189,38 +183,6 @@ const Patient = withTranslation()(createReactClass({
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
-    );
-  },
-
-  renderAccess: function() {
-    if (!this.isSamePersonUserAndPatient()) {
-      return null;
-    }
-
-    return (
-      <div className="PatientPage-teamSection">
-        {this.renderPatientTeam()}
-      </div>
-    );
-  },
-
-  renderPatientTeam: function() {
-    return (
-      <PatientTeam
-        acknowledgeNotification={this.props.acknowledgeNotification}
-        cancellingInvite={this.props.cancellingInvite}
-        changingMemberPermissions={this.props.changingMemberPermissions}
-        invitingMemberInfo={this.props.invitingMemberInfo}
-        onCancelInvite={this.props.onCancelInvite}
-        onChangeMemberPermissions={this.props.onChangeMemberPermissions}
-        onInviteMember={this.props.onInviteMember}
-        onRemoveMember={this.props.onRemoveMember}
-        patient={this.props.patient}
-        pendingSentInvites={this.props.pendingSentInvites}
-        removingMember={this.props.removingMember}
-        trackMetric={this.props.trackMetric}
-        user={this.props.user}
-      />
     );
   },
 
