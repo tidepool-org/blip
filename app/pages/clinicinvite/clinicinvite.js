@@ -179,6 +179,7 @@ export const ClinicInvite = (props) => {
         id="invite-member"
         onSubmit={handleSubmit}
         px={6}
+        sx={{ display: 'block' }}
       >
         <TextInput
           {...getCommonFormikFieldProps('email', formikContext)}
@@ -216,8 +217,8 @@ export const ClinicInvite = (props) => {
           <Box
             p={4}
             mb={3}
-            bg="lightestGrey"
             sx={{
+              bg: 'lightestGrey',
               border: baseTheme.borders.default,
               borderTop: 'none',
               borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
@@ -226,7 +227,7 @@ export const ClinicInvite = (props) => {
             <Checkbox
               {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
               label={t('Prescribing access')}
-              themeProps={{ bg: 'lightestGrey' }}
+              themeProps={{ sx: { bg: 'lightestGrey' } }}
             />
           </Box>
         )}

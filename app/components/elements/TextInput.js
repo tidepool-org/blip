@@ -42,6 +42,7 @@ export const TextInput = (props) => {
     warning,
     description,
     captionProps,
+    sx = {},
     ...inputProps
   } = props;
 
@@ -51,7 +52,7 @@ export const TextInput = (props) => {
     warning: !error && warning,
   });
   return (
-    <Box width={width} {...themeProps}>
+    <Box sx={{ width, ...sx }} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
           <Caption sx={{ fontWeight: 'medium' }} className={inputClasses}>{label}</Caption>

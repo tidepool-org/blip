@@ -61,8 +61,8 @@ const Radio = (props) => {
   });
 
   return (
-    <Label width="auto" mb={2} sx={{ '&:last-child': { mb: 0 }, alignItems: 'flex-start' }}>
-      <Box minWidth="auto">
+    <Label mb={2} sx={{ width: 'auto', '&:last-child': { mb: 0 }, alignItems: 'flex-start' }}>
+      <Box sx={{ minWidth: 'auto' }}>
         <StyledRadio ref={innerRef} className={classNames} {...radioProps} />
       </Box>
       <StyledRadioLabel className={classNames} as="span">
@@ -89,6 +89,7 @@ export const RadioGroup = (props) => {
     required,
     onChange,
     error,
+    sx = {},
     ...wrapperProps
   } = props;
 
@@ -104,6 +105,7 @@ export const RadioGroup = (props) => {
       role="radiogroup"
       id={id}
       aria-labelledby={ariaLabelledBy}
+      sx={{ fontSize: 1, color: colors.text.default, ...sx }}
       {...wrapperProps}
     >
       {label && (
@@ -167,8 +169,6 @@ RadioGroup.propTypes = {
 
 RadioGroup.defaultProps = {
   variant: 'vertical',
-  color: colors.text.default,
-  sx: { fontSize: 1 },
 };
 
 export default RadioGroup;

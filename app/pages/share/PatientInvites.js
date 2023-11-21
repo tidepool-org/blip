@@ -267,9 +267,9 @@ export const PatientInvites = (props) => {
       <Box mb={4} flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
         <TextInput
           themeProps={{
-            width: ['100%', null, '250px'],
+            sx: { width: ['100%', null, '250px'] },
           }}
-          fontSize="12px"
+          sx={{ fontSize: 0 }}
           id="search-invites"
           placeholder={t('Search by Name')}
           icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
@@ -316,7 +316,7 @@ export const PatientInvites = (props) => {
 
         {pendingInvites.length === 0 && (
           <Box id="no-invites" pt={3} mb={4} sx={{ borderTop: borders.divider }}>
-            <Text p={3} fontSize={1} color="text.primary" sx={{ textAlign: 'center' }}>
+            <Text p={3} sx={{ display: 'block', fontSize: 1, color: 'text.primary', textAlign: 'center' }}>
               {t('There are no invites. Refresh to check for pending invites.')}
             </Text>
 
