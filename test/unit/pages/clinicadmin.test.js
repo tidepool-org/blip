@@ -111,9 +111,12 @@ describe('ClinicAdmin', () => {
         clinicID456: {
           clinicians: {
             clinicianUserId123: {
+              name: 'John Doe',
               email: 'clinic@example.com',
               id: 'clinicianUserId123',
               roles: ['CLINIC_MEMBER'],
+              createdTime: '2021-10-05T18:00:00Z',
+              updatedTime: '2021-10-05T18:00:00Z',
             },
           },
           patients: {},
@@ -145,10 +148,18 @@ describe('ClinicAdmin', () => {
             },
             clinicianUserId456: {
               roles: ['CLINIC_ADMIN', 'PRESCRIBER'],
+              name: 'Jane Smith',
+              email: 'clinicianUserId456@example.com',
+              id: 'clinicianUserId456',
+              createdTime: '2021-10-06T18:00:00Z',
+              updatedTime: '2021-10-06T18:00:00Z',
             },
             clinicianUserId789InviteId: {
               roles: ['CLINIC_MEMBER'],
-              inviteId: 'clinicianUserId789InviteId'
+              email: 'clinicianUserId789@example.com',
+              inviteId: 'clinicianUserId789InviteId',
+              createdTime: '2021-10-07T18:00:00Z',
+              updatedTime: '2021-10-07T18:00:00Z',
             }
           },
         },
@@ -270,12 +281,89 @@ describe('ClinicAdmin', () => {
       expect(actions).to.eql(expectedActions);
     });
 
+    it('should render an Export List button', () => {
+      const clock = sinon.useFakeTimers({
+        now: new Date('2021-10-05 18:00:00').getTime()
+      });
+
+      const exportButton = wrapper.find(Button).filter({ variant: 'textPrimary' }).at(0);
+      expect(exportButton).to.have.length(1);
+      expect(exportButton.text()).to.equal('Export List');
+      expect(exportButton.props().onClick).to.be.a('function');
+
+      const expectedCsvRows = [
+        [
+          'Name',
+          'Email',
+          'Admin?',
+          'Pending?',
+          'Created',
+          'Updated',
+        ],
+        [
+          '"John Doe"',
+          '"clinic@example.com"',
+          'True',
+          'False',
+          '2021-10-05 18:00:00',
+          '2021-10-05 18:00:00',
+        ],
+        [
+          '"Jane Smith"',
+          '"clinicianUserId456@example.com"',
+          'True',
+          'False',
+          '2021-10-06 18:00:00',
+          '2021-10-06 18:00:00',
+        ],
+        [
+          '""',
+          '"clinicianUserId789@example.com"',
+          'False',
+          'True',
+          '2021-10-07 18:00:00',
+          '2021-10-07 18:00:00',
+        ],
+      ];
+
+      const expectedCsv = expectedCsvRows.map((row) => row.join(',')).join('\n');
+      const expectedBlob = new Blob([expectedCsv], { type: 'text/csv;charset=utf-8;' });
+      const expectedUrl = 'mock-url';
+      const expectedDownloadFileName = 'new_clinic_name-2021-10-05 18:00:00.csv';
+
+      const createBlobSpy = sinon.spy(window, 'Blob');
+
+      const createElementStub = sinon.stub(document, 'createElement').returns({
+        href: '',
+        download: '',
+        click: sinon.stub(),
+      });
+      const createObjectURLStub = sinon.stub(URL, 'createObjectURL').returns(expectedUrl);
+
+      exportButton.props().onClick();
+
+      expect(defaultProps.trackMetric.calledOnceWithExactly('Clinic - clicked export clinic member list', {
+        clinicId: 'clinicID456',
+      })).to.be.true;
+
+      expect(createBlobSpy.calledOnceWithExactly([expectedCsv], { type: 'text/csv;charset=utf-8;' })).to.be.true;
+      expect(createElementStub.calledOnceWithExactly('a')).to.be.true;
+      expect(createObjectURLStub.calledOnceWithExactly(expectedBlob)).to.be.true;
+      expect(createElementStub.returnValues[0].href).to.equal(expectedUrl);
+      expect(createElementStub.returnValues[0].download).to.equal(expectedDownloadFileName);
+      expect(createElementStub.returnValues[0].click.calledOnce).to.be.true;
+
+      createElementStub.restore();
+      createObjectURLStub.restore();
+      clock.restore();
+    });
+
     it('should render a "More" icon per row', () => {
       const table = wrapper.find(Table);
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(4); // header + 2 clinicians + 1 invite
       expect(table.find('td')).to.have.length(12); // 4 per clinician/invite
-      expect(table.find('PopoverMenu')).to.have.length(2);
+      expect(table.find('PopoverMenu')).to.have.length(3);
     });
 
     context('logged in as the only clinic admin', () => {
@@ -306,7 +394,7 @@ describe('ClinicAdmin', () => {
     });
 
     it('should navigate to "/clinician-edit" when "Edit" menu action is clicked', () => {
-      const editButton = wrapper.find('Button[iconLabel="Edit Clinician Information"]');
+      const editButton = wrapper.find('Button[iconLabel="Edit Clinician Information"]').at(0);
       store.clearActions();
       editButton.simulate('click');
       expect(store.getActions()).to.eql([
@@ -316,7 +404,7 @@ describe('ClinicAdmin', () => {
               '/clinician-edit',
               {
                 clinicId: 'clinicID456',
-                clinicianId: 'clinicianUserId123',
+                clinicianId: 'clinicianUserId456',
               },
             ],
             method: 'push',
@@ -332,7 +420,7 @@ describe('ClinicAdmin', () => {
           type: 'DELETE_CLINICIAN_FROM_CLINIC_REQUEST'
         }
       ];
-      const removeButton = wrapper.find('Button[iconLabel="Remove User"]');
+      const removeButton = wrapper.find('Button[iconLabel="Remove User"]').at(0);
       const deleteDialog = () => wrapper.find(Dialog).at(0);
       expect(deleteDialog().props().open).to.be.false;
       removeButton.simulate('click');
@@ -345,7 +433,7 @@ describe('ClinicAdmin', () => {
       sinon.assert.calledWith(
         defaultProps.api.clinics.deleteClinicianFromClinic,
         'clinicID456',
-        'clinicianUserId123'
+        'clinicianUserId456'
       );
     });
 
