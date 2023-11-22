@@ -3788,6 +3788,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/addon-designs@npm:7.0.5":
+  version: 7.0.5
+  resolution: "@storybook/addon-designs@npm:7.0.5"
+  dependencies:
+    "@figspec/react": ^1.0.0
+  peerDependencies:
+    "@storybook/addon-docs": ^7.0.0
+    "@storybook/addons": ^7.0.0
+    "@storybook/components": ^7.0.0
+    "@storybook/manager-api": ^7.0.0
+    "@storybook/preview-api": ^7.0.0
+    "@storybook/theming": ^7.0.0
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 35b987dd261c87d45c6e90587199e65db511360ad33652c73fdbe944cd7d4dc880c396d505e7e1f1f20cc77f0aeb92f433f7ec6412c3c0c31a42c2335e26fada
+  languageName: node
+  linkType: hard
+
 "@storybook/addon-docs@npm:7.5.0":
   version: 7.5.0
   resolution: "@storybook/addon-docs@npm:7.5.0"
@@ -7358,6 +7381,7 @@ __metadata:
     "@react-keycloak/web": 3.4.0
     "@storybook/addon-a11y": 7.5.1
     "@storybook/addon-actions": 7.5.1
+    "@storybook/addon-designs": 7.0.5
     "@storybook/addon-essentials": 7.5.0
     "@storybook/addon-knobs": 7.0.2
     "@storybook/addon-links": 7.5.1
@@ -7482,7 +7506,6 @@ __metadata:
     shelljs: 0.8.5
     sinon: 17.0.0
     source-map-loader: 4.0.1
-    storybook-addon-designs: 6.3.1
     style-loader: 3.3.3
     styled-components: 6.1.0
     stylelint: 15.11.0
@@ -22141,15 +22164,6 @@ __metadata:
   version: 2.14.2
   resolution: "store2@npm:2.14.2"
   checksum: 6f270fc5bab99b63f45fcc7bd8b99c2714b4adf880f557ed7ffb5ed3987131251165bccde425a00928aaf044870aee79ddeef548576d093c68703ed2edec45d7
-  languageName: node
-  linkType: hard
-
-"storybook-addon-designs@npm:6.3.1":
-  version: 6.3.1
-  resolution: "storybook-addon-designs@npm:6.3.1"
-  dependencies:
-    "@figspec/react": ^1.0.0
-  checksum: 63d91358540a59801028b4fe2fe61a2cad52ac2354efde0959f081379045230af4ea6dea6a8abddae2a7eb14699fd04024dec44b6fd396065e0e585d31980635
   languageName: node
   linkType: hard
 

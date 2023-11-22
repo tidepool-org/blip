@@ -21,7 +21,7 @@ const StyledCheckbox = styled(Base)`
 
   &.checked {
     color: ${colors.purpleMedium};
-    background-color: ${colors.white};
+    background-color: ${colors.white} !important;
   }
 
   &.disabled {
