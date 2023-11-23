@@ -28,22 +28,17 @@ export default {
   decorators: [withTheme],
 };
 
-const DIALOG = 'Dialog';
-const TITLE = 'Title';
-const CONTENT = 'Content';
-const ACTIONS = 'Actions';
-
 export const DialogStory = {
   render: () => {
-    const initiallyOpen = () => boolean('Initially Open', true, DIALOG);
+    const initiallyOpen = () => boolean('Initially Open', true);
 
-    const showTitle = () => boolean('Show Title', true, TITLE);
-    const showTitleClose = () => boolean('Show Close Icon', true, TITLE);
-    const titleText = () => text('Title Text', 'Dialog Title', TITLE);
+    const showTitle = () => boolean('Show Title', true);
+    const showTitleClose = () => boolean('Show Close Icon', true);
+    const titleText = () => text('Title Text', 'Dialog Title');
 
-    const showContent = () => boolean('Show Content', true, CONTENT);
-    const showDividers = () => boolean('Show Dividers', true, CONTENT);
-    const numberOfParagraphs = () => number('Number of Paragraphs', 2, {}, CONTENT);
+    const showContent = () => boolean('Show Content', true);
+    const showDividers = () => boolean('Show Dividers', true);
+    const numberOfParagraphs = () => number('Number of Paragraphs', 2, {});
 
     const getParagraphs = () => {
       const paragraphs = [];
@@ -63,8 +58,8 @@ export const DialogStory = {
       return paragraphs;
     };
 
-    const showActions = () => boolean('Show Actions', true, ACTIONS);
-    const alertOnActions = () => boolean('Alert on Action', false, ACTIONS);
+    const showActions = () => boolean('Show Actions', true);
+    const alertOnActions = () => boolean('Alert on Action', false);
     const showAlert = alertOnActions();
 
     const [open, setOpen] = useState(initiallyOpen());

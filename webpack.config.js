@@ -96,7 +96,7 @@ const babelLoaderConfiguration = [
   { // Needed to resolve material-ui
     test: /\.m?js/,
     resolve: {
-      fullySpecified: false
+      fullySpecified: false,
     }
   },
 ];

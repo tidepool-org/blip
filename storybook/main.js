@@ -2,7 +2,7 @@ import custom from '../webpack.config.js';
 
 const config = {
   framework: '@storybook/react-webpack5',
-  stories: ['../stories/**/*.@(js|jsx|mjs|ts|tsx)'],
+  stories: ['../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
 
   addons: [
     '@storybook/addon-essentials',
