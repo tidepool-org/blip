@@ -77,7 +77,7 @@ export const PrintDateRangeModal = (props) => {
     basics: 0,
     bgLog: 2,
     daily: 0,
-  });
+  }, true);
 
   const defaultDates = () => ({
     agpBGM: getLastNDays(presetDaysOptions.agpBGM[rangePresets.agpBGM], 'agpBGM'),
