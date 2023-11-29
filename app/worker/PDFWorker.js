@@ -43,7 +43,7 @@ export default class PDFWorker {
       case actionTypes.GENERATE_PDF_REQUEST: {
         try {
           const { type, queries, data = {} } = action.payload;
-          const opts = { ...action.payload.opts }
+          const opts = { ...action.payload.opts };
           const { origin } = action.meta;
 
           if (queries) {
@@ -65,13 +65,13 @@ export default class PDFWorker {
                 // Return early if the intent is still to generate the AGP report
                 return this.requestAGPImages(data, opts, queries, postMessage);
               }
-          }
+            }
 
-          _.each(queries, (query, key) => {
-            this.log(key, query);
-            if (!data[key]) data[key] = this.dataUtil.query(query);
+            _.each(queries, (query, key) => {
+              this.log(key, query);
+              if (!data[key]) data[key] = this.dataUtil.query(query);
 
-              switch(key) {
+              switch (key) {
                 case 'basics':
                   opts[key].disabled = isMissingBasicsData(_.get(data, 'basics.data.current.aggregationsByDate'));
                   break;
@@ -112,7 +112,7 @@ export default class PDFWorker {
   }
 
   requestAGPImages(data, opts, queries, postMessage) {
-    postMessage(syncActions.generateAGPImagesRequest(data, opts, queries))
+    postMessage(syncActions.generateAGPImagesRequest(data, opts, queries));
   }
 
   generatePDF(data, opts, origin, type, postMessage) {
