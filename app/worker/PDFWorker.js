@@ -41,64 +41,68 @@ export default class PDFWorker {
 
     switch (action.type) {
       case actionTypes.GENERATE_PDF_REQUEST: {
-        const { type, queries, data = {} } = action.payload;
-        const opts = { ...action.payload.opts }
-        const { origin } = action.meta;
+        try {
+          const { type, queries, data = {} } = action.payload;
+          const opts = { ...action.payload.opts }
+          const { origin } = action.meta;
 
-        if (queries) {
-          // AGP report requires images to be generated on the main thread by Plotly in order to
-          // proceed. In this case, we request image generation, and fire the GENERATE_PDF_REQUEST
-          // action again with the generated image data URLs.
-          if (!opts.svgDataURLS && (queries.agpBGM || queries.agpCGM)) {
-            if (queries.agpBGM) {
-              data.agpBGM = this.dataUtil.query(queries.agpBGM);
-              opts.agpBGM.disabled = !_.flatten(_.valuesIn(_.get(data, 'agpBGM.data.current.data', {}))).length > 0;
-            }
+          if (queries) {
+            // AGP report requires images to be generated on the main thread by Plotly in order to
+            // proceed. In this case, we request image generation, and fire the GENERATE_PDF_REQUEST
+            // action again with the generated image data URLs.
+            if (!opts.svgDataURLS && (queries.agpBGM || queries.agpCGM)) {
+              if (queries.agpBGM) {
+                data.agpBGM = this.dataUtil.query(queries.agpBGM);
+                opts.agpBGM.disabled = !_.flatten(_.valuesIn(_.get(data, 'agpBGM.data.current.data', {}))).length > 0;
+              }
 
-            if (queries.agpCGM) {
-              data.agpCGM = this.dataUtil.query(queries.agpCGM);
-              opts.agpCGM.disabled = !_.flatten(_.valuesIn(_.get(data, 'agpCGM.data.current.data', {}))).length > 0;
-            }
+              if (queries.agpCGM) {
+                data.agpCGM = this.dataUtil.query(queries.agpCGM);
+                opts.agpCGM.disabled = !_.flatten(_.valuesIn(_.get(data, 'agpCGM.data.current.data', {}))).length > 0;
+              }
 
-            if (!opts.agpBGM.disabled || !opts.agpCGM.disabled) {
-              // Return early if the intent is still to generate the AGP report
-              return this.requestAGPImages(data, opts, queries, postMessage);
-            }
+              if (!opts.agpBGM.disabled || !opts.agpCGM.disabled) {
+                // Return early if the intent is still to generate the AGP report
+                return this.requestAGPImages(data, opts, queries, postMessage);
+              }
           }
 
           _.each(queries, (query, key) => {
             this.log(key, query);
             if (!data[key]) data[key] = this.dataUtil.query(query);
 
-            switch(key) {
-              case 'basics':
-                opts[key].disabled = isMissingBasicsData(_.get(data, 'basics.data.current.aggregationsByDate'));
-                break;
+              switch(key) {
+                case 'basics':
+                  opts[key].disabled = isMissingBasicsData(_.get(data, 'basics.data.current.aggregationsByDate'));
+                  break;
 
-              case 'daily':
-                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'daily.data.current.data', {}))).length > 0;
-                break;
+                case 'daily':
+                  opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'daily.data.current.data', {}))).length > 0;
+                  break;
 
-              case 'bgLog':
-                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'bgLog.data.current.data', {}))).length > 0;
-                break;
+                case 'bgLog':
+                  opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'bgLog.data.current.data', {}))).length > 0;
+                  break;
 
-              case 'agpBGM':
-                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'agpBGM.data.current.data', {}))).length > 0;
-                break;
+                case 'agpBGM':
+                  opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'agpBGM.data.current.data', {}))).length > 0;
+                  break;
 
-              case 'agpCGM':
-                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'agpCGM.data.current.data', {}))).length > 0;
-                break;
+                case 'agpCGM':
+                  opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'agpCGM.data.current.data', {}))).length > 0;
+                  break;
 
-              case 'settings':
-                opts[key].disabled = !_.get(data, 'settings.metaData.latestPumpUpload.settings');
-                break;
-            }
-          });
+                case 'settings':
+                  opts[key].disabled = !_.get(data, 'settings.metaData.latestPumpUpload.settings');
+                  break;
+              }
+            });
+          }
+
+          this.generatePDF(data, opts, origin, type, postMessage);
+        } catch (error) {
+          postMessage(actions.generatePDFFailure(error));
         }
-
-        this.generatePDF(data, opts, origin, type, postMessage);
         break;
       }
 
