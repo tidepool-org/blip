@@ -124,6 +124,7 @@ describe('clinicUtils', function() {
         clinicSize: '0-249',
         website: 'http://mysite.com',
         preferredBgUnits: 'mmol/L',
+        timezone: 'America/Los_Angeles',
       };
 
       expect(clinicUtils.clinicValuesFromClinic(clinic)).to.eql(clinic);
@@ -146,6 +147,7 @@ describe('clinicUtils', function() {
         'clinicSize',
         'website',
         'preferredBgUnits',
+        'timezone',
       ]);
 
       expect(clinicUtils.clinicSchema.fields.phoneNumbers.innerType._nodes).to.be.an('array').and.have.members([

@@ -100,6 +100,7 @@ export const clinicValuesFromClinic = (clinic) => ({
   clinicSize: get(clinic, 'clinicSize', ''),
   preferredBgUnits: get(clinic, 'preferredBgUnits', ''),
   website: get(clinic, 'website', ''),
+  ...(get(clinic,'timezone')) && { timezone: clinic.timezone }
 });
 
 export const clinicSchema = yup.object().shape({
@@ -151,6 +152,7 @@ export const clinicSchema = yup.object().shape({
       ? t('Please enter a valid website address')
       : t('Please enter a valid website address with https:// at the beginning')
     ),
+  timezone: yup.string(),
 });
 
 export const clinicPatientTagSchema = yup.object().shape({
