@@ -151,7 +151,7 @@ describe('Trends', () => {
       expect(baseProps.onClickPrint.callCount).to.equal(1);
     });
 
-    it('should have a not have print button when BGM data source is active', () => {
+    it.only('should have a print button and icon and call onClickPrint when clicked if BGM source is active', () => {
       const mountedWrapper = mount(<Trends.WrappedComponent {...{
         ...baseProps, chartPrefs: { trends: {
           ...baseProps.chartPrefs.trends,
@@ -162,7 +162,11 @@ describe('Trends', () => {
 
       const printLink = mountedWrapper.find('.printview-print-icon');
       expect(printLink.length).to.equal(1);
-      expect(printLink.hasClass('patient-data-subnav-hidden')).to.be.true;
+      expect(printLink.hasClass('patient-data-subnav-hidden')).to.be.false;
+
+      expect(baseProps.onClickPrint.callCount).to.equal(0);
+      printLink.simulate('click');
+      expect(baseProps.onClickPrint.callCount).to.equal(1);
     });
 
     it('should render the clipboard copy button', () => {
