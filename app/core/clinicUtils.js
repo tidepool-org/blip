@@ -82,7 +82,7 @@ export const summaryPeriodOptions = [
   { value: '30d', label: t('30 days') },
 ];
 
-export const maxClinicPatientTags = 20;
+export const maxClinicPatientTags = 50;
 
 export const clinicValuesFromClinic = (clinic) => ({
   name: get(clinic, 'name', ''),

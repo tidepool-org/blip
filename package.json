@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.72.0-web-2664-bgm-trends-print.1",
+  "version": "1.72.0-web-2607-increase-tag-limit.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/karma/bin/karma start",

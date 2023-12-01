@@ -35,7 +35,7 @@ describe('clinicUtils', function() {
   });
 
   it('should export the `maxClinicPatientTags`', function() {
-    expect(clinicUtils.maxClinicPatientTags).to.equal(20);
+    expect(clinicUtils.maxClinicPatientTags).to.equal(50);
   });
 
   it('should return all clinicTypes options', () => {
