@@ -124,6 +124,7 @@ describe('clinicUtils', function() {
         clinicSize: '0-249',
         website: 'http://mysite.com',
         preferredBgUnits: 'mmol/L',
+        timezone: 'America/Los_Angeles',
       };
 
       expect(clinicUtils.clinicValuesFromClinic(clinic)).to.eql(clinic);
@@ -146,6 +147,7 @@ describe('clinicUtils', function() {
         'clinicSize',
         'website',
         'preferredBgUnits',
+        'timezone',
       ]);
 
       expect(clinicUtils.clinicSchema.fields.phoneNumbers.innerType._nodes).to.be.an('array').and.have.members([
@@ -173,11 +175,19 @@ describe('clinicUtils', function() {
     it('should set mrn required when mrnSettings specify required', () => {
       let defaultSchema = clinicUtils.patientSchema().describe();
       let requiredSchema = clinicUtils.patientSchema({ mrnSettings: { required: true } }).describe();
-
-      expect(defaultSchema.fields.mrn.tests).to.be.an('array').and.have.length(0);
-      expect(requiredSchema.fields.mrn.tests).to.be.an('array').and.have.length(1);
-      expect(requiredSchema.fields.mrn.tests[0].name).to.equal('required');
+      expect(defaultSchema.fields.mrn.tests).to.be.an('array').and.have.length(1);
+      expect(requiredSchema.fields.mrn.tests).to.be.an('array').and.have.length(2);
+      expect(requiredSchema.fields.mrn.tests[1].name).to.equal('required');
     });
+
+    it('should set uniqueness restriction for mrn when provided with existing mrns', () => {
+      let existingMRNs = ['123456', '123457'];
+      let defaultSchema = clinicUtils.patientSchema().describe();
+      let schema = clinicUtils.patientSchema({ existingMRNs }).describe();
+      expect(defaultSchema.fields.mrn.notOneOf).to.be.an('array').and.have.length(0);
+      expect(schema.fields.mrn.notOneOf).to.be.an('array').and.have.length(2);
+    });
+
   });
 
   describe('tideDashboardConfigSchema', () => {
