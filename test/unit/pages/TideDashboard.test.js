@@ -117,6 +117,7 @@ describe('TideDashboard', () => {
         fetchingPatientFromClinic: defaultWorkingState,
         fetchingTideDashboardPatients: completedState,
         updatingClinicPatient: defaultWorkingState,
+        fetchingPatientsForClinic: defaultWorkingState,
       },
     },
   };
