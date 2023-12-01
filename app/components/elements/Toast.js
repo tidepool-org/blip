@@ -12,7 +12,7 @@ import { Body1 } from './FontStyles';
 import Icon from './Icon';
 import baseTheme from '../../themes/baseTheme';
 
-export const Toast = props => {
+export function Toast(props) {
   const {
     action,
     message,
@@ -58,7 +58,7 @@ export const Toast = props => {
       </Flex>
     </Snackbar>
   );
-};
+}
 
 Toast.displayName = 'Toast';
 

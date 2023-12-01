@@ -11,7 +11,7 @@ import noop from 'lodash/noop';
 import baseTheme from '../../themes/baseTheme';
 import Icon from './Icon';
 
-const Banner = (props) => {
+function Banner(props) {
   const { label, variant, message, dismissable, onDismiss, ...themeProps } = props;
 
   const iconMap = {
@@ -44,7 +44,7 @@ const Banner = (props) => {
       )}
     </Flex>
   );
-};
+}
 
 Banner.propTypes = {
   ...FlexProps,

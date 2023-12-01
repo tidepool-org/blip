@@ -18,9 +18,11 @@ const StyledCircularProgress = styled(Box)`
   transform: translate(-50%, -50%);
 `;
 
-export const BaseButton = props => <Base {...props} variant={`buttons.${props.variant}`} />
+export function BaseButton(props) {
+  return <Base {...props} variant={`buttons.${props.variant}`} />;
+}
 
-export const Button = props => {
+export function Button(props) {
   const {
     children,
     selected,
@@ -103,14 +105,14 @@ export const Button = props => {
         <StyledCircularProgress>
           <CircularProgress
             color="inherit"
-            size={themeContext?.fontSizes[3]}
+            size={themeContext?.fontSizes?.[3]}
             thickness={5}
           />
         </StyledCircularProgress>
       )}
     </Flex>
   );
-};
+}
 
 Button.propTypes = {
   ...ButtonProps,

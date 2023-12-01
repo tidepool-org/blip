@@ -23,6 +23,7 @@ import Checkbox from '../../components/elements/Checkbox';
 import * as actions from '../../redux/actions';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useIsFirstRender } from '../../core/hooks';
+import utils from '../../core/utils';
 
 const StyledRadio = styled(Radio)`
   color: ${baseTheme.colors.border.default};
@@ -68,7 +69,7 @@ const ShareInvite = (props) => {
       is: 'member',
       then: (schema) =>
         schema
-          .email(t('Please enter a valid email address'))
+          .matches(utils.emailRegex, t('Please enter a valid email address'))
           .required(t('Email address is required')),
       otherwise: (schema) => schema.notRequired(),
     }),

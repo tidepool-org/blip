@@ -15,7 +15,7 @@ import {
 } from '../../themes/baseTheme';
 
 /* Dialog Title Start */
-export const DialogTitle = props => {
+export function DialogTitle(props) {
   const {
     children,
     closeIcon,
@@ -44,7 +44,7 @@ export const DialogTitle = props => {
       )}
     </Flex>
   );
-};
+}
 
 DialogTitle.propTypes = {
   ...FlexProps,
@@ -69,13 +69,13 @@ const StyledDialogContent = styled(Box)`
   }
 `;
 
-export const DialogContent = ({ sx = {}, ...props }) => (
-  <StyledDialogContent
+export function DialogContent({ sx = {}, ...props }) {
+  return <StyledDialogContent
     p={3}
     sx={{ borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
     {...props}
-  />
-);
+  />;
+}
 
 DialogContent.propTypes = {
   ...BoxProps,
@@ -94,13 +94,13 @@ const StyledDialogActions = styled(Flex)`
   }
 `;
 
-export const DialogActions = props => (
-  <StyledDialogActions
+export function DialogActions(props) {
+  return <StyledDialogActions
     sx={{ justifyContent: 'flex-end' }}
     p={3}
     {...props}
-  />
-);
+  />;
+}
 
 DialogActions.propTypes = {
   ...FlexProps,
@@ -121,7 +121,9 @@ const StyledDialog = styled(MuiDialog)`
   }
 `;
 
-export const Dialog = props => <StyledDialog {...props} />;
+export function Dialog(props) {
+  return <StyledDialog {...props} />;
+}
 
 Dialog.propTypes = {
   ...DialogProps,

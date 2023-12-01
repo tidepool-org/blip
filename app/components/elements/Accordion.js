@@ -57,7 +57,7 @@ const StyledAccordionContent = styled(ExpansionPanelDetails)`
   }
 `;
 
-export const Accordion = (props) => {
+export function Accordion(props) {
   const {
     header,
     children,
@@ -102,7 +102,7 @@ export const Accordion = (props) => {
       </Box>
     </Box>
   );
-};
+}
 
 Accordion.propTypes = {
   ...BoxProps,

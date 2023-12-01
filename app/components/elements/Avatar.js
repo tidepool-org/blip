@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, BoxProps } from 'theme-ui';
 
-const Avatar = (props) => {
+function Avatar(props) {
   const { label, variant, initials, ...themeProps } = props;
 
   return (
@@ -14,7 +14,7 @@ const Avatar = (props) => {
       <Text className="initials">{initials}</Text>
     </Box>
   );
-};
+}
 
 Avatar.propTypes = {
   initials: PropTypes.string.isRequired,

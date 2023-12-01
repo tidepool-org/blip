@@ -1,6 +1,4 @@
 import React from 'react';
-
-
 import { action } from '@storybook/addon-actions';
 import { boolean, text } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
@@ -35,17 +33,15 @@ export const Primary = {
     const [selected, setSelected] = React.useState(false);
 
     return (
-      <React.Fragment>
-        <Button
-          variant="primary"
-          disabled={disabled()}
-          processing={processing()}
-          selected={selected}
-          onClick={() => setSelected(!selected)}
+      <Button
+        variant="primary"
+        disabled={disabled()}
+        processing={processing()}
+        selected={selected}
+        onClick={() => setSelected(!selected)}
         >
-          {buttonText()}
-        </Button>
-      </React.Fragment>
+        {buttonText()}
+      </Button>
     );
   },
 
@@ -64,16 +60,14 @@ export const Secondary = {
     const buttonText = () => text('Button Text', 'Secondary');
 
     return (
-      <React.Fragment>
-        <Button
-          variant="secondary"
-          disabled={disabled()}
-          onClick={action('onClick called')}
-          processing={processing()}
+      <Button
+        variant="secondary"
+        disabled={disabled()}
+        onClick={action('onClick called')}
+        processing={processing()}
         >
-          {buttonText()}
-        </Button>
-      </React.Fragment>
+        {buttonText()}
+      </Button>
     );
   },
 
@@ -92,16 +86,14 @@ export const Tertiary = {
     const buttonText = () => text('Button Text', 'Tertiary');
 
     return (
-      <React.Fragment>
-        <Button
-          variant="tertiary"
-          disabled={disabled()}
-          onClick={action('onClick called')}
-          processing={processing()}
+      <Button
+        variant="tertiary"
+        disabled={disabled()}
+        onClick={action('onClick called')}
+        processing={processing()}
         >
-          {buttonText()}
-        </Button>
-      </React.Fragment>
+        {buttonText()}
+      </Button>
     );
   },
 
@@ -159,19 +151,17 @@ export const Filter = {
     const selected = () => boolean('Selected', false);
 
     return (
-      <React.Fragment>
-        <Button
-          variant="filter"
-          selected={selected()}
-          disabled={disabled()}
-          onClick={action('onClick called')}
-          processing={processing()}
-          icon={KeyboardArrowDownRoundedIcon}
-          iconLabel="Open filters"
+      <Button
+        variant="filter"
+        selected={selected()}
+        disabled={disabled()}
+        onClick={action('onClick called')}
+        processing={processing()}
+        icon={KeyboardArrowDownRoundedIcon}
+        iconLabel="Open filters"
         >
-          {buttonText()}
-        </Button>
-      </React.Fragment>
+        {buttonText()}
+      </Button>
     );
   },
 
@@ -233,19 +223,17 @@ export const Icon = {
     const [selected, setSelected] = React.useState(false);
 
     return (
-      <React.Fragment>
-        <Button
-          variant="primary"
-          disabled={disabled()}
-          processing={processing()}
-          selected={selected}
-          onClick={() => setSelected(!selected)}
-          icon={OpenInNewRoundedIcon}
-          iconLabel="Open in new tab"
+      <Button
+        variant="primary"
+        disabled={disabled()}
+        processing={processing()}
+        selected={selected}
+        onClick={() => setSelected(!selected)}
+        icon={OpenInNewRoundedIcon}
+        iconLabel="Open in new tab"
         >
-          {buttonText()}
-        </Button>
-      </React.Fragment>
+        {buttonText()}
+      </Button>
     );
   },
 
@@ -266,17 +254,15 @@ export const Large = {
     const [selected, setSelected] = React.useState(false);
 
     return (
-      <React.Fragment>
-        <Button
-          variant="large"
-          disabled={disabled()}
-          processing={processing()}
-          selected={selected}
-          onClick={() => setSelected(!selected)}
+      <Button
+        variant="large"
+        disabled={disabled()}
+        processing={processing()}
+        selected={selected}
+        onClick={() => setSelected(!selected)}
         >
-          {buttonText()}
-        </Button>
-      </React.Fragment>
+        {buttonText()}
+      </Button>
     );
   },
 

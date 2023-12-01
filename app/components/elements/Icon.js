@@ -26,7 +26,7 @@ const StyledIcon = styled(Box)`
   }
 `;
 
-export const Icon = props => {
+export function Icon(props) {
   const {
     active,
     cursor = 'pointer',
@@ -59,7 +59,7 @@ export const Icon = props => {
       {iconSrc ? <img className="icon-custom-svg" src={iconSrc} /> : <IconElement />}
     </StyledIcon>
   );
-};
+}
 
 Icon.propTypes = {
   ...BoxProps,

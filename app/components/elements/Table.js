@@ -147,7 +147,7 @@ export const Table = React.memo(props => {
 
   const searchFields = filter(
     flatten(map(columns, col => col.searchable && (col.searchBy || col.field))),
-    Boolean,
+    Boolean
   );
 
   const filteredData = searchText
@@ -174,7 +174,7 @@ export const Table = React.memo(props => {
     setPage(props.page);
   }, [props.page]);
 
-  const tableCellClassNames = (d = {}, col) => cx({
+  const tableCellClassNames = (col, d = {}) => cx({
     'no-margin': col.hideEmpty && !d[col.field],
     [col.className]: !!col.className,
   });
@@ -194,7 +194,7 @@ export const Table = React.memo(props => {
                   key={`${id}-header-${col.field?.replace(/\./g, '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
-                  className={tableCellClassNames(undefined, col)}
+                  className={tableCellClassNames(col, undefined)}
                   width={col.width}
                 >
                   <Box
@@ -239,7 +239,7 @@ export const Table = React.memo(props => {
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   size={get(col, 'size', 'medium')}
                   padding={get(col, 'padding', 'default')}
-                  className={tableCellClassNames(d, col)}
+                  className={tableCellClassNames(col, d)}
                 >
                   {!(col.hideEmpty && !d[col.field]) && (
                     <>

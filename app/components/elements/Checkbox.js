@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Text } from 'theme-ui';
-import { Checkbox as Base, Label, LabelProps, CheckboxProps } from 'theme-ui';
+import { Box, Text, Checkbox as Base, Label, LabelProps, CheckboxProps } from 'theme-ui';
 import styled from '@emotion/styled';
 import cx from 'classnames';
 import { Caption } from './FontStyles';
@@ -51,7 +50,7 @@ const StyledCheckboxLabel = styled(Text)`
   }
 `;
 
-export const Checkbox = (props) => {
+export function Checkbox(props) {
   const { error, required, label, themeProps, variant, ...checkboxProps } = props;
 
   const classNames = cx({
@@ -87,7 +86,7 @@ export const Checkbox = (props) => {
       )}
     </>
   );
-};
+}
 
 Checkbox.propTypes = {
   ...CheckboxProps,

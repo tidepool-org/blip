@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-
-
 import { action } from '@storybook/addon-actions';
 import { boolean, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
@@ -66,7 +64,7 @@ const renderStatus = ({ status }) => {
   }
 
   return (
-    <Text px={2} py={1} sx={{ fontWeight: 'medium', borderRadius: 4, color: color, bg: bg }}>
+    <Text px={2} py={1} sx={{ fontWeight: 'medium', borderRadius: 4, color, bg }}>
       {status}
     </Text>
   );
@@ -92,17 +90,19 @@ const renderMore = ({ patient }) => (
   />
 );
 
-const RoleTitleComponent = () => (
-  <Flex sx={{ flexWrap: 'nowrap', alignItems: 'center' }}>
-    <Text mr={1}>Role</Text>
-    <Icon
-      fontSize={1}
-      variant="default"
-      icon={InfoOutlinedIcon}
-      onClick={action('Popover with some info')}
-    />
-  </Flex>
-);
+function RoleTitleComponent() {
+  return (
+    <Flex sx={{ flexWrap: 'nowrap', alignItems: 'center' }}>
+      <Text mr={1}>Role</Text>
+      <Icon
+        fontSize={1}
+        variant="default"
+        icon={InfoOutlinedIcon}
+        onClick={action('Popover with some info')}
+      />
+    </Flex>
+  );
+}
 
 const columns = [
   {

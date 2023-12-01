@@ -6,12 +6,12 @@
 /* global after */
 
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
 import createReactClass from 'create-react-class';
 
 var expect = chai.expect;
 
 import Patient from '../../../../app/pages/patient/patient';
+import { mount } from 'enzyme';
 
 describe('Patient', function () {
   before(() => {
@@ -41,7 +41,7 @@ describe('Patient', function () {
         disconnectDataSource: sinon.stub(),
       };
       var patientElem = React.createElement(Patient, props);
-      var elem = TestUtils.renderIntoDocument(patientElem);
+      var elem = mount(patientElem);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -52,8 +52,8 @@ describe('Patient', function () {
     it('should return an object', function() {
       var props = {};
       var patientElem = React.createElement(Patient, props);
-      var elem = TestUtils.renderIntoDocument(patientElem).getWrappedInstance();
-      var initialState = elem.getInitialState();
+      var elem = mount(patientElem).childAt(0);
+      var initialState = elem.instance().getInitialState();
 
       expect(Object.keys(initialState).length).to.equal(2);
       expect(initialState.showModalOverlay).to.equal(false);

@@ -32,6 +32,7 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import { useIsFirstRender } from '../../core/hooks';
+import utils from '../../core/utils';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import config from '../../config';
 
@@ -73,7 +74,7 @@ export const ClinicInvite = (props) => {
       .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
       .required(t('Account type is required')),
     email: yup.string()
-      .email(t('Please enter a valid email address'))
+      .matches(utils.emailRegex, t('Please enter a valid email address'))
       .required(t('Email address is required')),
     prescriberPermission: yup.boolean(),
   });

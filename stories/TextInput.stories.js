@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-
-
 import { boolean, text, number, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 

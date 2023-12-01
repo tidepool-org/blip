@@ -53,7 +53,7 @@ StyledStepper.propTypes = {
   connectorwidth: PropTypes.string,
 };
 
-export const Stepper = props => {
+export function Stepper(props) {
   const {
     activeStep: activeStepProp,
     activeSubStep: activeSubStepProp,
@@ -447,7 +447,7 @@ export const Stepper = props => {
       )}
     </Flex>
   );
-};
+}
 
 const StepPropTypes = {
   asyncState: PropTypes.shape({
@@ -491,7 +491,7 @@ Stepper.propTypes = {
   steps: PropTypes.arrayOf(PropTypes.shape({
     ...StepPropTypes,
     subSteps: PropTypes.arrayOf(
-      PropTypes.shape(omit({ ...StepPropTypes }, ['completed', 'label', 'onEnter'])),
+      PropTypes.shape(omit({ ...StepPropTypes }, ['completed', 'label', 'onEnter']))
     ),
   })),
   themeProps: PropTypes.shape({

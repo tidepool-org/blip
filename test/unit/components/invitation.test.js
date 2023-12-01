@@ -4,7 +4,7 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
+import { mount } from 'enzyme';
 var expect = chai.expect;
 
 var Invitation = require('../../../app/components/invitation');
@@ -26,7 +26,7 @@ describe('Invitation', function () {
         trackMetric: sinon.stub(),
       };
       var elem = React.createElement(Invitation, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = mount(elem);
       expect(console.error.callCount).to.equal(0);
     });
   });

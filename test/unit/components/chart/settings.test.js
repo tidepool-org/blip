@@ -7,8 +7,7 @@
 /* global afterEach */
 
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import _ from 'lodash';
 import Settings from '../../../../app/components/chart/settings';
 import { MGDL_UNITS } from '../../../../app/core/constants';
@@ -119,9 +118,9 @@ describe('Settings', function () {
         },
       };
       var settingsElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(settingsElem);
+      var elem = mount(settingsElem);
       expect(elem).to.be.ok;
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
+      var x = elem.find('.patient-data-message');
       expect(x).to.be.ok;
     });
 
@@ -147,11 +146,11 @@ describe('Settings', function () {
         },
       };
       var settingsElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(settingsElem);
-      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'btn-refresh');
+      var elem = mount(settingsElem);
+      var refreshButton = elem.find('.btn-refresh').hostNodes();
 
       expect(props.onClickRefresh.callCount).to.equal(0);
-      TestUtils.Simulate.click(refreshButton);
+      refreshButton.simulate('click');
       expect(props.onClickRefresh.callCount).to.equal(1);
     });
 
@@ -169,13 +168,13 @@ describe('Settings', function () {
       };
 
       var settingsElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(settingsElem);
-      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, 'printview-print-icon');
+      var elem = mount(settingsElem);
+      var printLink = elem.find('.printview-print-icon');
 
       expect(printLink).to.be.ok;
 
       expect(props.onClickPrint.callCount).to.equal(0);
-      TestUtils.Simulate.click(printLink);
+      printLink.simulate('click');
       expect(props.onClickPrint.callCount).to.equal(1);
     });
   });

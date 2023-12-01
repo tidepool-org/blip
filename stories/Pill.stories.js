@@ -1,6 +1,4 @@
 import React from 'react';
-
-
 import { ThemeProvider } from '@emotion/react';
 import { optionsKnob as options } from '@storybook/addon-knobs';
 

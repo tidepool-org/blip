@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
-
-
 import { boolean, date, optionsKnob as options } from '@storybook/addon-knobs';
 
 import DatePicker from '../app/components/elements/DatePicker';

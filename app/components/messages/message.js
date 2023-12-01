@@ -123,6 +123,7 @@ var Message = withTranslation() (createReactClass({
 
   renderEditLink: function() {
     const { t } = this.props;
+
     if (this.state.editing === false && this.props.onSaveEdit) {
       return (
 
@@ -214,7 +215,7 @@ var Message = withTranslation() (createReactClass({
               {title}
               <div ref='messageWhen' className='message-timestamp'>{this.state.when}</div>
             </div>
-            <div ref='messageText'>{this.state.note}</div>
+            <div ref={'messageText'} className='messageText'>{this.state.note}</div>
           </div>
         </div>
 

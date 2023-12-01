@@ -271,12 +271,12 @@ export const ClinicianEdit = (props) => {
             px={6}
           >
             <Box sx={{ flexGrow: 1 }}>
-              <Text fontWeight="medium">{clinicianName}</Text>
-              <Text>{selectedClinician.email}</Text>
+              <Text sx={{ display: 'block', fontWeight: 'medium' }}>{clinicianName}</Text>
+              <Text sx={{ display: 'block' }}>{selectedClinician.email}</Text>
             </Box>
             <Text
-              color="feedback.danger"
-              sx={{ cursor: 'pointer' }}
+              id="remove-team-member"
+              sx={{ color: 'feedback.danger', cursor: 'pointer' }}
               onClick={() => handleClickDelete()}
             >
               {t('Remove User')}

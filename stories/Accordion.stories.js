@@ -1,5 +1,4 @@
 import React from 'react';
-import { ThemeProvider } from '@emotion/react';
 import { Box, Flex } from 'theme-ui';
 import { boolean } from '@storybook/addon-knobs';
 
@@ -7,13 +6,6 @@ import baseTheme from '../app/themes/baseTheme';
 import Accordion from '../app/components/elements/Accordion';
 
 /* eslint-disable max-len */
-
-// Wrap each story component with the base theme
-const withTheme = (Story) => (
-  <ThemeProvider theme={baseTheme}>
-    <Story />
-  </ThemeProvider>
-);
 
 export default {
   title: 'Accordion',

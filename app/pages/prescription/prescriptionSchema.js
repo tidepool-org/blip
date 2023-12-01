@@ -4,6 +4,7 @@ import includes from 'lodash/includes';
 import map from 'lodash/map';
 import moment from 'moment';
 import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from '../../core/constants';
+import utils from '../../core/utils';
 
 import {
   calculatorMethodOptions,
@@ -78,7 +79,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
       .required(t('Patient\'s birthday is required')),
     email: yup.string()
-      .email(t('Please enter a valid email address'))
+      .matches(utils.emailRegex, t('Please enter a valid email address'))
       .required(t('Email address is required')),
     emailConfirm: yup.string()
       .oneOf([yup.ref('email')], t('Email address confirmation does not match'))

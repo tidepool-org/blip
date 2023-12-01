@@ -8,7 +8,6 @@ import { Caption } from './FontStyles';
 import { Icon } from './Icon';
 import { shadows } from '../../themes/baseTheme';
 
-
 const StyledWrapper = styled(Flex)`
   position: relative;
   align-items: center;
@@ -23,7 +22,7 @@ const StyledWrapper = styled(Flex)`
   }
 `;
 
-export const TextInput = (props) => {
+export function TextInput(props) {
   const {
     label,
     name,
@@ -42,11 +41,13 @@ export const TextInput = (props) => {
     warning,
     description,
     captionProps,
+    className = {},
     sx = {},
     ...inputProps
   } = props;
 
   const inputClasses = cx({
+    ...className,
     error,
     required,
     warning: !error && warning,
@@ -89,7 +90,7 @@ export const TextInput = (props) => {
       )}
     </Box>
   );
-};
+}
 
 TextInput.propTypes = {
   ...InputProps,

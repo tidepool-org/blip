@@ -715,4 +715,4 @@ class Daily extends Component {
   };
 }
 
-export default withTranslation(null, { withRef: true })(Daily);
+export default withTranslation()(Daily);

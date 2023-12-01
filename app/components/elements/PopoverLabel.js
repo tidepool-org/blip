@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
-import { Text, Flex, Box, FlexProps } from 'theme-ui';
+import { Flex, Box, FlexProps } from 'theme-ui';
 
 import {
   usePopupState,
@@ -13,7 +13,7 @@ import {
 import Popover from './Popover';
 import { Icon } from './Icon';
 
-const PopoverLabel = props => {
+function PopoverLabel(props) {
   const {
     icon,
     iconLabel,
@@ -49,7 +49,7 @@ const PopoverLabel = props => {
       </Popover>
     </React.Fragment>
   );
-};
+}
 
 PopoverLabel.propTypes = {
   ...FlexProps,

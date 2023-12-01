@@ -29,9 +29,7 @@ const tagVariant = () => options('Variant', tagVariants, 'default', { display: '
 
 export const TagStory = {
   render: () => (
-    <React.Fragment>
-      <Tag variant={tagVariant()} name="Tag One" id="tag1" />
-    </React.Fragment>
+    <Tag variant={tagVariant()} name="Tag One" id="tag1" />
   ),
 
   name: 'Tag',

@@ -59,7 +59,7 @@ export const BgRangeSummary = React.memo(props => {
       <Box sx={wrapperStyle} {...themeProps}>
         <Flex className="range-summary-bars" sx={{ width: flexWidth, height: '18px', justifyContent: 'center' }} {...bindHover(popupState)}>
           {map(data, (value, key) => (
-              <Box className={`range-summary-bars-${key}`} key={key} sx={{ bg: `bg.${key}`, width: `${value * 100}%` }}/>
+              <Box className={`range-summary-bars-${key}`} key={key} data-width={`${value * 100}%`} sx={{ bg: `bg.${key}`, width: `${value * 100}%` }}/>
           ))}
         </Flex>
 

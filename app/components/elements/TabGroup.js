@@ -66,7 +66,7 @@ const StyledTabGroup = styled(Tabs)`
   }
 `;
 
-export const TabGroup = props => {
+export function TabGroup(props) {
   const {
     tabs,
     children,
@@ -129,7 +129,7 @@ export const TabGroup = props => {
       </Box>
     </Flex>
   );
-};
+}
 
 TabGroup.propTypes = {
   ...TabsProps,

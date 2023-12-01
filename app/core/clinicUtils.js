@@ -11,6 +11,7 @@ import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { phoneRegex } from '../pages/prescription/prescriptionFormConstants';
 import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
+import utils from '../core/utils';
 
 const t = i18next.t.bind(i18next);
 
@@ -184,7 +185,7 @@ export const patientSchema = (config) => yup.object().shape({
     .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
     .required(t('Patient\'s birthday is required')),
   mrn: config?.mrnSettings?.required ? yup.string().required(t('Patient\'s MRN is required')) : yup.string(),
-  email: yup.string().email(t('Please enter a valid email address')),
+  email: yup.string().matches(utils.emailRegex, { message: t('Please enter a valid email address'), excludeEmptyString:true }),
   connectDexcom: yup.boolean(),
   dataSources: yup.array().of(
     yup.object().shape({

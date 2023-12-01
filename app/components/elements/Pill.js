@@ -14,7 +14,7 @@ const namedPalletMap = {
   purples: ['purples.0', 'purples.9'],
 };
 
-const Pill = (props) => {
+function Pill(props) {
   const { variant, colorPalette, label, text, round, width, sx = {}, ...themeProps } = props;
   const palette = isString(colorPalette) ? namedPalletMap[colorPalette] : colorPalette;
   const darkShade = palette[palette.length - 1];
@@ -37,11 +37,11 @@ const Pill = (props) => {
         fontWeight: 'medium',
         borderRadius,
         textAlign: 'center',
-        color: color,
-        bg: bg,
-        width: width,
-        height: height,
-        lineHeight: lineHeight,
+        color,
+        bg,
+        width,
+        height,
+        lineHeight,
         ...sx
       }}
       {...themeProps}
@@ -49,7 +49,7 @@ const Pill = (props) => {
       {text}
     </Text>
   );
-};
+}
 
 Pill.propTypes = {
   ...TextProps,

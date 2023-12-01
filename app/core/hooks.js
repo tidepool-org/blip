@@ -8,7 +8,7 @@ import { isPlainObject } from 'lodash';
 // Avoids some performance issues in Formik's native <FieldArray />
 // Solution stems from this issue on Formik's GH: https://github.com/jaredpalmer/formik/issues/1476
 export const useFieldArray = (props, formikContext) => {
-  formikContext = formikContext ?? useFormikContext();
+  formikContext = formikContext ?? useFormikContext(); // eslint-disable-line react-hooks/rules-of-hooks
   const [field, meta] = useField(props);
   const fieldArray = useRef(field.value);
   const { setFieldValue } = formikContext;

@@ -1,4 +1,14 @@
-export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, shadows, transitions }) => {
+export default ({
+  colors,
+  borders,
+  fontSizes,
+  radii,
+  fonts,
+  space,
+  fontWeights,
+  shadows,
+  transitions
+}) => {
   const defaultStyles = {
     fontSize: `${fontSizes[1]}px`,
     fontWeight: fontWeights.regular,

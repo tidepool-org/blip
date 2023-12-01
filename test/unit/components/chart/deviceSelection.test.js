@@ -48,7 +48,7 @@ describe('DeviceSelection', () => {
   });
 
   it('should render the number of devices selected', () => {
-    expect(wrapper.find(Box).at(3).text()).to.equal('2');
+    expect(wrapper.find(Box).at(4).text()).to.equal('2');
 
     wrapper.setProps({
       devices: [
@@ -58,7 +58,7 @@ describe('DeviceSelection', () => {
       ]
     });
 
-    expect(wrapper.find(Box).at(3).text()).to.equal('3');
+    expect(wrapper.find(Box).at(4).text()).to.equal('3');
 
     wrapper.setProps({
       devices: [
@@ -71,7 +71,7 @@ describe('DeviceSelection', () => {
       },
     });
 
-    expect(wrapper.find(Box).at(3).text()).to.equal('2');
+    expect(wrapper.find(Box).at(4).text()).to.equal('2');
   });
 
   it('should render a Checkbox for each deviceId', () => {

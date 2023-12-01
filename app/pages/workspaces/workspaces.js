@@ -367,7 +367,7 @@ export const Workspaces = (props) => {
             {workspace.type === 'clinician_invitation' && <NotificationIcon />}
           </Flex>
           {errorText && (
-            <Paragraph1 classname="workspace-error" sx={{ color: 'feedback.danger', fontWeight: 'medium' }}>
+            <Paragraph1 className="workspace-error" sx={{ color: 'feedback.danger', fontWeight: 'medium' }}>
               {errorText}
             </Paragraph1>
           )}

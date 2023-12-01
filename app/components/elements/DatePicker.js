@@ -6,8 +6,7 @@ import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import noop from 'lodash/noop';
 import styled from '@emotion/styled';
-import { Label } from 'theme-ui';
-import { Box, BoxProps } from 'theme-ui';
+import { Label, Box, BoxProps } from 'theme-ui';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
@@ -55,7 +54,7 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
   }
 `;
 
-export const DatePicker = props => {
+export function DatePicker(props) {
   const {
     date: dateProp,
     error,
@@ -120,7 +119,7 @@ export const DatePicker = props => {
       )}
     </Box>
   );
-};
+}
 
 DatePicker.propTypes = {
   ...SingleDatePickerShape,

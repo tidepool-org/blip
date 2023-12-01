@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-
-
 import { text } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import map from 'lodash/map';

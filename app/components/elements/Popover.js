@@ -33,7 +33,7 @@ const PopoverContentWrapper = React.forwardRef((props, ref) => (
 
 const PaperProp = { component: PopoverContentWrapper };
 
-const Popover = props => {
+function Popover(props) {
   const {
     children,
     closeIcon,
@@ -91,7 +91,7 @@ const Popover = props => {
       {children}
     </Component>
   );
-};
+}
 
 Popover.propTypes = {
   ...PopoverProps,

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-
-
 import { boolean } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import { Switch } from 'theme-ui';

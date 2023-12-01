@@ -233,7 +233,7 @@ const text = {
       display: 'inline',
     },
   },
-}
+};
 
 export default {
   breakpoints,

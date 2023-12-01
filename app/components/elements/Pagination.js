@@ -20,7 +20,7 @@ import baseTheme from '../../themes/baseTheme';
 
 const t = i18next.t.bind(i18next);
 
-export const Pagination = props => {
+export function Pagination(props) {
   const { id, variant, buttonVariant, controlLabels, ...paginationProps } = props;
 
   const classNames = cx({
@@ -91,7 +91,7 @@ export const Pagination = props => {
       </ul>
     </Box>
   );
-};
+}
 
 Pagination.propTypes = {
   id: PropTypes.string.isRequired,

@@ -20,7 +20,7 @@ import Icon from './Icon';
 import Popover from './Popover';
 import baseTheme, { shadows } from '../../themes/baseTheme';
 
-export const Tag = props => {
+export function Tag(props) {
   const {
     id,
     icon,
@@ -90,7 +90,7 @@ export const Tag = props => {
       )}
     </Flex>
   );
-};
+}
 
 Tag.propTypes = {
   ...BoxProps,
@@ -157,8 +157,8 @@ export const TagList = withTranslation()(props => {
   const popoverTriggerFontSize = tagProps.variant === 'compact' ? '10px' : '12px';
   const flexWrap = maxCharactersVisible ? 'nowrap' : 'wrap';
 
-  const EditTagsIcon = () => (
-    <Icon
+  function EditTagsIcon() {
+    return <Icon
       className="edit-tags-trigger"
       variant="default"
       icon={EditIcon}
@@ -172,8 +172,8 @@ export const TagList = withTranslation()(props => {
         popupState.close();
         onClickEdit();
       }}
-    />
-  );
+    />;
+  }
 
   return (
     <Flex

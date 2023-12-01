@@ -92,8 +92,8 @@ export const ClinicWorkspaceHeader = (props) => {
           <Box sx={{ flexShrink: 0 }}>
             <Caption sx={{ color: 'grays.4' }}>{t('Clinic Share Code')}</Caption>
             <Flex
-              alignContent="center"
               sx={{
+                alignContent: 'center',
                 button: {
                   border: 'none',
                   color: 'text.primary',

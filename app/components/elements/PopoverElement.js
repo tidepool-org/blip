@@ -11,7 +11,7 @@ import {
 
 import Popover from './Popover';
 
-const PopoverElement = props => {
+function PopoverElement(props) {
   const {
     disabled,
     id,
@@ -38,7 +38,7 @@ const PopoverElement = props => {
       </Popover>
     </React.Fragment>
   );
-};
+}
 
 PopoverElement.propTypes = {
   ...FlexProps,

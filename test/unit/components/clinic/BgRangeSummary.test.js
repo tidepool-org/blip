@@ -51,19 +51,19 @@ describe('BgRangeSummary', () => {
     expect(summaryBars).to.have.lengthOf(1);
 
     const veryLow = summaryBars.find('.range-summary-bars-veryLow').hostNodes();
-    expect(veryLow.props().width).to.equal('0.04%');
+    expect(veryLow.props()['data-width']).to.equal('0.04%');
 
     const low = summaryBars.find('.range-summary-bars-low').hostNodes();
-    expect(low.props().width).to.equal('0.4%');
+    expect(low.props()['data-width']).to.equal('0.4%');
 
     const target = summaryBars.find('.range-summary-bars-target').hostNodes();
-    expect(target.props().width).to.equal('70%');
+    expect(target.props()['data-width']).to.equal('70%');
 
     const high = summaryBars.find('.range-summary-bars-high').hostNodes();
-    expect(high.props().width).to.equal('25%');
+    expect(high.props()['data-width']).to.equal('25%');
 
     const veryHigh = summaryBars.find('.range-summary-bars-veryHigh').hostNodes();
-    expect(veryHigh.props().width).to.equal('15%');
+    expect(veryHigh.props()['data-width']).to.equal('15%');
   });
 
   it('should show a popover with correct data', () => {
@@ -75,7 +75,7 @@ describe('BgRangeSummary', () => {
 
     expect(popover().props().style.visibility).to.equal('hidden');
 
-    summaryBars.simulate('mouseenter');
+    summaryBars.simulate('mouseover');
     expect(popover().props().style.visibility).to.be.undefined;
 
     const veryLow = popover().find('.range-summary-value-veryLow').hostNodes();

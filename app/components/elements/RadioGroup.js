@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Flex, Text } from 'theme-ui';
-import { Radio as Base, RadioProps, Label } from 'theme-ui';
+import { Box, Flex, Text, Radio as Base, RadioProps, Label } from 'theme-ui';
 import styled from '@emotion/styled';
 import map from 'lodash/map';
 import cx from 'classnames';
@@ -51,7 +50,7 @@ const StyledRadioLabel = styled(Text)`
   }
 `;
 
-const Radio = (props) => {
+function Radio(props) {
   const { error, label, innerRef, ...radioProps } = props;
 
   const classNames = cx({
@@ -70,14 +69,14 @@ const Radio = (props) => {
       </StyledRadioLabel>
     </Label>
   );
-};
+}
 
 Radio.propTypes = {
   ...RadioProps,
   label: PropTypes.string.isRequired,
 };
 
-export const RadioGroup = (props) => {
+export function RadioGroup(props) {
   const {
     disabled,
     id,
@@ -140,7 +139,7 @@ export const RadioGroup = (props) => {
       )}
     </Box>
   );
-};
+}
 
 RadioGroup.propTypes = {
   id: PropTypes.string.isRequired,
@@ -161,7 +160,7 @@ RadioGroup.propTypes = {
     PropTypes.shape({
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       label: PropTypes.string.isRequired,
-    }),
+    })
   ).isRequired,
   required: PropTypes.bool,
   error: PropTypes.string,

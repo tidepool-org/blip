@@ -63,25 +63,33 @@ describe('PrintDateRangeModal', function () {
   });
 
   it('should provide toggles to enable/disable each chart, enabled by default', () => {
-    const basicsToggle = wrapper.find('button[name="enabled-basics"]').hostNodes();
+    const agpCGMToggle = wrapper.find('input[name="enabled-agpCGM"]').hostNodes();
+    expect(agpCGMToggle).to.have.lengthOf(1);
+    expect(agpCGMToggle.prop('checked')).to.be.true;
+
+    const agpBGMToggle = wrapper.find('input[name="enabled-agpBGM"]').hostNodes();
+    expect(agpBGMToggle).to.have.lengthOf(1);
+    expect(agpBGMToggle.prop('checked')).to.be.true;
+
+    const basicsToggle = wrapper.find('input[name="enabled-basics"]').hostNodes();
     expect(basicsToggle).to.have.lengthOf(1);
-    expect(basicsToggle.prop('aria-checked')).to.be.true;
+    expect(basicsToggle.prop('checked')).to.be.true;
 
-    const bgLogToggle = wrapper.find('button[name="enabled-bgLog"]').hostNodes();
+    const bgLogToggle = wrapper.find('input[name="enabled-bgLog"]').hostNodes();
     expect(bgLogToggle).to.have.lengthOf(1);
-    expect(bgLogToggle.prop('aria-checked')).to.be.true;
+    expect(bgLogToggle.prop('checked')).to.be.true;
 
-    const dailyToggle = wrapper.find('button[name="enabled-daily"]').hostNodes();
+    const dailyToggle = wrapper.find('input[name="enabled-daily"]').hostNodes();
     expect(dailyToggle).to.have.lengthOf(1);
-    expect(dailyToggle.prop('aria-checked')).to.be.true;
+    expect(dailyToggle.prop('checked')).to.be.true;
 
-    const settingsToggle = wrapper.find('button[name="enabled-settings"]').hostNodes();
+    const settingsToggle = wrapper.find('input[name="enabled-settings"]').hostNodes();
     expect(settingsToggle).to.have.lengthOf(1);
-    expect(settingsToggle.prop('aria-checked')).to.be.true;
+    expect(settingsToggle.prop('checked')).to.be.true;
   });
 
   it('should hide a section\'s range presets and date fields when disabled', () => {
-    const basicsToggle = () => wrapper.find('button[name="enabled-basics"]').hostNodes();
+    const basicsToggle = () => wrapper.find('input[name="enabled-basics"]').hostNodes();
     const basicsDatesRangePreset1 = () => wrapper.find('#days-basics').find('button').at(0).hostNodes();
     const basicsEndDate = () => wrapper.find('#basics-end-date').hostNodes();
     const basicsStartDate = () => wrapper.find('#basics-start-date').hostNodes();
@@ -91,11 +99,11 @@ describe('PrintDateRangeModal', function () {
     expect(basicsEndDate()).to.have.lengthOf(1);
     expect(basicsStartDate()).to.have.lengthOf(1);
 
-    expect(basicsToggle().prop('aria-checked')).to.be.true;
+    expect(basicsToggle().prop('checked')).to.be.true;
 
     basicsToggle().simulate('click');
 
-    expect(basicsToggle().prop('aria-checked')).to.be.false;
+    expect(basicsToggle().prop('checked')).to.be.false;
 
     expect(basicsToggle()).to.have.lengthOf(1);
     expect(basicsDatesRangePreset1()).to.have.lengthOf(0);
@@ -106,11 +114,11 @@ describe('PrintDateRangeModal', function () {
   it('should persist a users\'s selected range presets and enabled state for each section', () => {
     expect(localStorage[enabledChartsLocalKey]).to.be.undefined;
     expect(localStorage[defaultRangesLocalKey]).to.be.undefined;
-    const basicsToggle = (wrap = wrapper) => wrap.find('button[name="enabled-basics"]').hostNodes();
+    const basicsToggle = (wrap = wrapper) => wrap.find('input[name="enabled-basics"]').hostNodes();
 
-    expect(basicsToggle().prop('aria-checked')).to.be.true;
+    expect(basicsToggle().prop('checked')).to.be.true;
     basicsToggle().simulate('click');
-    expect(basicsToggle().prop('aria-checked')).to.be.false;
+    expect(basicsToggle().prop('checked')).to.be.false;
     expect(localStorage[enabledChartsLocalKey]).to.eql(JSON.stringify({
       agpBGM: true,
       agpCGM: true,
@@ -142,7 +150,7 @@ describe('PrintDateRangeModal', function () {
     // new wrapper should load with the updated defaults from localStorage
     const newWrapper = mount(<PrintDateRangeModal {...props} />);
     expect(agpCGMDatesRangeSelectedPreset(newWrapper).prop('value')).to.equal(7);
-    expect(basicsToggle(newWrapper).prop('aria-checked')).to.be.false;
+    expect(basicsToggle(newWrapper).prop('checked')).to.be.false;
   });
 
   it('should provide appropriate date ranges and selected defaults for each applicable chart', () => {
@@ -301,9 +309,9 @@ describe('PrintDateRangeModal', function () {
 
     it('should call `onClickPrint` prop method with appropriate print ranges and disabled statuses', () => {
       // Disable bgLog chart
-      const bgLogToggle = () => wrapper.find('button[name="enabled-bgLog"]').hostNodes();
+      const bgLogToggle = () => wrapper.find('input[name="enabled-bgLog"]').hostNodes();
       bgLogToggle().simulate('click');
-      expect(bgLogToggle().prop('aria-checked')).to.be.false;
+      expect(bgLogToggle().prop('checked')).to.be.false;
 
       // Change daily range from 14 days to 30
       const dailyDatesRangeSelectedPreset = () => wrapper.find('#days-daily').find('.selected').hostNodes();
@@ -361,29 +369,29 @@ describe('PrintDateRangeModal', function () {
     });
 
     it('should not call `onClickPrint` if there are no enabled charts and render error message', () => {
-      const agpBGMToggle = () => wrapper.find('button[name="enabled-agpBGM"]').hostNodes();
+      const agpBGMToggle = () => wrapper.find('input[name="enabled-agpBGM"]').hostNodes();
       expect(agpBGMToggle()).to.have.lengthOf(1);
-      expect(agpBGMToggle().prop('aria-checked')).to.be.true;
+      expect(agpBGMToggle().prop('checked')).to.be.true;
 
-      const agpCGMToggle = () => wrapper.find('button[name="enabled-agpCGM"]').hostNodes();
+      const agpCGMToggle = () => wrapper.find('input[name="enabled-agpCGM"]').hostNodes();
       expect(agpCGMToggle()).to.have.lengthOf(1);
-      expect(agpCGMToggle().prop('aria-checked')).to.be.true;
+      expect(agpCGMToggle().prop('checked')).to.be.true;
 
-      const basicsToggle = () => wrapper.find('button[name="enabled-basics"]').hostNodes();
+      const basicsToggle = () => wrapper.find('input[name="enabled-basics"]').hostNodes();
       expect(basicsToggle()).to.have.lengthOf(1);
-      expect(basicsToggle().prop('aria-checked')).to.be.true;
+      expect(basicsToggle().prop('checked')).to.be.true;
 
-      const bgLogToggle = () => wrapper.find('button[name="enabled-bgLog"]').hostNodes();
+      const bgLogToggle = () => wrapper.find('input[name="enabled-bgLog"]').hostNodes();
       expect(bgLogToggle()).to.have.lengthOf(1);
-      expect(bgLogToggle().prop('aria-checked')).to.be.true;
+      expect(bgLogToggle().prop('checked')).to.be.true;
 
-      const dailyToggle = () => wrapper.find('button[name="enabled-daily"]').hostNodes();
+      const dailyToggle = () => wrapper.find('input[name="enabled-daily"]').hostNodes();
       expect(dailyToggle()).to.have.lengthOf(1);
-      expect(dailyToggle().prop('aria-checked')).to.be.true;
+      expect(dailyToggle().prop('checked')).to.be.true;
 
-      const settingsToggle = () => wrapper.find('button[name="enabled-settings"]').hostNodes();
+      const settingsToggle = () => wrapper.find('input[name="enabled-settings"]').hostNodes();
       expect(settingsToggle()).to.have.lengthOf(1);
-      expect(settingsToggle().prop('aria-checked')).to.be.true;
+      expect(settingsToggle().prop('checked')).to.be.true;
 
       agpBGMToggle().simulate('click');
       agpCGMToggle().simulate('click');
@@ -392,12 +400,12 @@ describe('PrintDateRangeModal', function () {
       dailyToggle().simulate('click');
       settingsToggle().simulate('click');
 
-      expect(agpBGMToggle().prop('aria-checked')).to.be.false;
-      expect(agpCGMToggle().prop('aria-checked')).to.be.false;
-      expect(basicsToggle().prop('aria-checked')).to.be.false;
-      expect(bgLogToggle().prop('aria-checked')).to.be.false;
-      expect(dailyToggle().prop('aria-checked')).to.be.false;
-      expect(settingsToggle().prop('aria-checked')).to.be.false;
+      expect(agpBGMToggle().prop('checked')).to.be.false;
+      expect(agpCGMToggle().prop('checked')).to.be.false;
+      expect(basicsToggle().prop('checked')).to.be.false;
+      expect(bgLogToggle().prop('checked')).to.be.false;
+      expect(dailyToggle().prop('checked')).to.be.false;
+      expect(settingsToggle().prop('checked')).to.be.false;
 
       submitButton().simulate('click');
       sinon.assert.notCalled(props.onClickPrint);
@@ -409,9 +417,9 @@ describe('PrintDateRangeModal', function () {
 
     it('should send metric for print options', () => {
       // Disable bgLog chart
-      const bgLogToggle = () => wrapper.find('button[name="enabled-bgLog"]').hostNodes();
+      const bgLogToggle = () => wrapper.find('input[name="enabled-bgLog"]').hostNodes();
       bgLogToggle().simulate('click');
-      expect(bgLogToggle().prop('aria-checked')).to.be.false;
+      expect(bgLogToggle().prop('checked')).to.be.false;
 
       // Change daily range from 14 days to 30
       const dailyDatesRangeSelectedPreset = () => wrapper.find('#days-daily').find('.selected').hostNodes();

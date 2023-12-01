@@ -304,7 +304,7 @@ export const PatientForm = (props) => {
       <Box mb={4}>
         <TextInput
           {...getCommonFormikFieldProps('mrn', formikContext)}
-         label={mrnSettings?.required ? t('MRN') : t('MRN (optional)')}
+          label={mrnSettings?.required ? t('MRN') : t('MRN (optional)')}
           placeholder={t('MRN')}
           variant="condensed"
           sx={{ width: '100%' }}

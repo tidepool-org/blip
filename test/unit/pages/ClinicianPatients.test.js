@@ -343,7 +343,7 @@ describe('ClinicianPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientName = table.find('tr').at(1).find('th').find('div').at(1).hostNodes();
+        const firstPatientName = table.find('tr').at(1).find('th').find('span').at(0).hostNodes();
         expect(firstPatientName.text()).contains('Patient One');
 
         store.clearActions();
@@ -361,7 +361,7 @@ describe('ClinicianPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientBirthday = table.find('tr').at(1).find('td').at(0).find('div').at(1).hostNodes();
+        const firstPatientBirthday = table.find('tr').at(1).find('td').at(0).find('span').at(1).hostNodes();
         expect(firstPatientBirthday.text()).contains('1999-01-01');
 
         store.clearActions();
