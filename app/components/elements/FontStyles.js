@@ -124,7 +124,11 @@ export const Caption = Styled(Text)`
   font-weight: ${props => (props.fontWeight ? props.fontWeight : fontWeights.regular)};
   color: ${props => (props.color ? props.color : colors.text.primary)};
   &.error {
-    color: ${colors.feedback.danger}
+    color: ${colors.feedback.danger};
+    ul {
+      padding-left: 20px;
+      margin-top: 0px;
+    }
   }
   &.warning {
     color: ${colors.feedback.warning}

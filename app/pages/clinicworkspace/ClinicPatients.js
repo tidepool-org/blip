@@ -2026,7 +2026,7 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} searchDebounceMs={searchDebounceMs} />
         </DialogContent>
 
         <DialogActions>
@@ -2071,7 +2071,7 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} searchDebounceMs={searchDebounceMs} />
         </DialogContent>
 
         <DialogActions>
@@ -2479,6 +2479,7 @@ export const ClinicPatients = (props) => {
   }, [activeFilters, bgLabels, handleFilterTimeInRange, pendingFilters, prefixPopHealthMetric, selectedClinicId, setActiveFilters, showTimeInRangeDialog, t, trackMetric]);
 
   function handleCloseOverlays() {
+    const resetList = showAddPatientDialog || showEditPatientDialog;
     setShowDeleteDialog(false);
     setShowAddPatientDialog(false);
     setShowEditPatientDialog(false);
@@ -2486,7 +2487,9 @@ export const ClinicPatients = (props) => {
     setShowTimeInRangeDialog(false);
     setShowSendUploadReminderDialog(false);
     setShowTideDashboardConfigDialog(false);
-
+    if (resetList) {
+      setPatientFetchOptions({ ...patientFetchOptions });
+    }
     setTimeout(() => {
       setSelectedPatient(null);
     });
