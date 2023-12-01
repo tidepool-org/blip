@@ -151,7 +151,7 @@ describe('Trends', () => {
       expect(baseProps.onClickPrint.callCount).to.equal(1);
     });
 
-    it.only('should have a print button and icon and call onClickPrint when clicked if BGM source is active', () => {
+    it('should have a print button and icon and call onClickPrint when clicked if BGM source is active', () => {
       const mountedWrapper = mount(<Trends.WrappedComponent {...{
         ...baseProps, chartPrefs: { trends: {
           ...baseProps.chartPrefs.trends,
