@@ -7551,7 +7551,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.28.0-web-2595-critical-depandancy-updates.2
+    tideline: 1.28.0-web-2595-critical-depandancy-updates.3
     tidepool-platform-client: 0.55.0-web-2595-critical-depandancy-updates.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -23023,9 +23023,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.28.0-web-2595-critical-depandancy-updates.2":
-  version: 1.28.0-web-2595-critical-depandancy-updates.2
-  resolution: "tideline@npm:1.28.0-web-2595-critical-depandancy-updates.2"
+"tideline@npm:1.28.0-web-2595-critical-depandancy-updates.3":
+  version: 1.28.0-web-2595-critical-depandancy-updates.3
+  resolution: "tideline@npm:1.28.0-web-2595-critical-depandancy-updates.3"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -23045,7 +23045,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: a06c29c9555aee6a6522e0311627bfdde807174ea5821f57be24b66d48f8229d35db50225ea763144f659df065f8baaf9e59f3c456bf3538fe5907ae48d1a663
+  checksum: f9d851544792d3e0e8a53d6be1faee3dff93400f01ea821f79ac08cc1aea096e17d648e009db7ef7924d0098b54e7004f180aa84496a84ebead18f8a032ae7c2
   languageName: node
   linkType: hard
 
