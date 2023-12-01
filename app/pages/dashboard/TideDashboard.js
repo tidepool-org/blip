@@ -420,7 +420,6 @@ const TideDashboardSection = React.memo(props => {
       },
       {
         title: t('% TIR {{lower}}-{{upper}}', { lower: lowGlucoseThreshold, upper: highGlucoseThreshold }),
-        title: t('Tim'),
         field: 'timeInTargetPercent',
         align: 'center',
         render: renderTimeInPercent.bind(null, 'timeInTargetPercent'),
