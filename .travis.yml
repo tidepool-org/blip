@@ -19,6 +19,9 @@ before_install:
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
   - corepack enable
   - yarn set version 3.6.4
+  # https://bugs.launchpad.net/ubuntu/+source/docker-buildx/+bug/1968035/comments/23
+  - wget http://ftp.ubuntu.com/ubuntu/pool/universe/d/docker-buildx/docker-buildx_0.11.2-0ubuntu2_amd64.deb
+  - sudo dpkg -i docker-buildx_0.11.2-0ubuntu2_amd64.deb
 
 addons:
   artifacts:

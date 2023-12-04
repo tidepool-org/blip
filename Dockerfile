@@ -95,7 +95,8 @@ COPY package.json .
 COPY yarn.lock .
 COPY .yarnrc .
 # Only install `node_modules` dependancies needed for production
-RUN yarn install --production --frozen-lockfile
+RUN yarn plugin import workspace-tools
+RUN yarn workspaces focus --production
 USER node
 # Copy only files needed to run the server
 COPY --from=build /app/dist dist
