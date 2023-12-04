@@ -43,7 +43,8 @@ locales/*/*_old.json
 # npm-link-up
 .nlu.json
 
-# yarn
+# yarn (ref https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored)
+.pnp.*
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
