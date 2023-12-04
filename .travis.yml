@@ -1,11 +1,14 @@
 language: node_js
 
-os: linux
+sudo: false
+
+language: node_js
+
 dist: jammy
 
 node_js:
   - "20.8.0"
-  - node
+  - "stable"
 
 cache:
   yarn: true
@@ -13,18 +16,9 @@ cache:
     - node_modules
 
 before_install:
-  - wget http://ftp.ubuntu.com/ubuntu/pool/universe/d/docker-buildx/docker-buildx_0.11.2-0ubuntu2_amd64.deb
-  - sudo dpkg -i docker-buildx_0.11.2-0ubuntu2_amd64.deb
-  - if [[ `npm -v` != 6* ]]; then npm install -g npm@6; fi
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
-  - export PATH="$HOME/.yarn/bin:$PATH"
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
-  - docker pull docker.io/docker/dockerfile:experimental
-  - docker pull docker.io/library/node:20.8.0-alpine
-  - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-
-install:
-  - yarn install --frozen-lockfile
+  - corepack enable
+  - yarn set version 3.6.4
 
 addons:
   artifacts:
@@ -44,4 +38,4 @@ script:
 
 jobs:
   allow_failures:
-    - node_js: node
+    - node_js: stable
