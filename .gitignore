@@ -44,4 +44,9 @@ locales/*/*_old.json
 .nlu.json
 
 # yarn
-.yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
