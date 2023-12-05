@@ -555,7 +555,7 @@ export const ClinicPatients = (props) => {
     popupId: 'cgmUseFilters',
   });
 
-  const debounceSearch = useCallback(() => debounce(search => {
+  const debounceSearch = useCallback(debounce(search => {
     setPatientFetchOptions({
       ...patientFetchOptions,
       offset: 0,
