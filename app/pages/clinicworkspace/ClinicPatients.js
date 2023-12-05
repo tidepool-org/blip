@@ -428,7 +428,7 @@ export const ClinicPatients = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const mrnSettings = clinic?.mrnSettings ?? {};
+  const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -555,14 +555,14 @@ export const ClinicPatients = (props) => {
     popupId: 'cgmUseFilters',
   });
 
-  const debounceSearch = useCallback(debounce(search => {
+  const debounceSearch = useCallback(() => debounce(search => {
     setPatientFetchOptions({
       ...patientFetchOptions,
       offset: 0,
       sort: '+fullName',
       search,
     });
-  }, searchDebounceMs), [patientFetchOptions]);
+  }, searchDebounceMs), [patientFetchOptions, searchDebounceMs]);
 
   const {
     fetchingPatientFromClinic,
@@ -888,7 +888,7 @@ export const ClinicPatients = (props) => {
   // Provide latest patient state for the edit form upon fetch
   useEffect(() => {
     if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
-  }, [fetchingPatientFromClinic]);
+  }, [fetchingPatientFromClinic, clinic?.patients, selectedPatient?.id]);
 
   const renderInfoPopover = () => (
     <Box px={4} py={3} sx={{ maxWidth: '600px' }}>
@@ -2604,7 +2604,7 @@ export const ClinicPatients = (props) => {
       clinicBgUnits={clinicBgUnits}
       activeSummaryPeriod={activeSummaryPeriod}
     />
-  }, [clinicBgUnits, activeSummaryPeriod, t]);
+  }, [clinicBgUnits, activeSummaryPeriod]);
 
   const renderAverageGlucose = useCallback(({ summary }) => {
     const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucoseMmol;
@@ -2873,8 +2873,15 @@ export const ClinicPatients = (props) => {
     renderPatient,
     renderPatientTags,
     showSummaryData,
-    patientFetchOptions,
     t,
+    activeFilters.lastUploadType,
+    defaultSortOrders.averageGlucoseMmol,
+    defaultSortOrders.birthDate,
+    defaultSortOrders.fullName,
+    defaultSortOrders.glucoseManagementIndicator,
+    defaultSortOrders.lastUploadDate,
+    defaultSortOrders.timeInVeryHighRecords,
+    defaultSortOrders.timeInVeryLowRecords
   ]);
 
   const data = useMemo(() => orderBy(values(clinic?.patients), 'sortIndex'), [clinic?.patients]);
