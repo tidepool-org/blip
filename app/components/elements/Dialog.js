@@ -122,7 +122,7 @@ const StyledDialog = styled(MuiDialog)`
 `;
 
 export function Dialog(props) {
-  return <StyledDialog {...props} />;
+  return <StyledDialog {...props} container={() => document.getElementById('dialog-container')} />;
 }
 
 Dialog.propTypes = {
