@@ -164,7 +164,7 @@ describe('TideDashboard', () => {
         ...mockTideDashboardPatients,
         results: {
           timeInVeryLowPercent: [],
-          timeInLowPercent: [],
+          timeInAnyLowPercent: [],
           dropInTimeInTargetPercent: [],
           timeInTargetPercent: [],
           timeCGMUsePercent: [],
@@ -589,15 +589,15 @@ describe('TideDashboard', () => {
       expect(getTableRow(0, 2).find('td').at(2).text()).contains('84 %');
 
       // Confirm first table is sorted appropriately
-      expect(getTableRow(0, 0).find('th').at(4).text()).contains('Time below 54');
+      expect(getTableRow(0, 0).find('th').at(4).text()).contains('% Time < 54');
       expect(getTableRow(0, 1).find('td').at(3).text()).contains('4 %');
       expect(getTableRow(0, 2).find('td').at(3).text()).contains('3 %');
       expect(getTableRow(0, 3).find('td').at(3).text()).contains('1 %');
 
-      expect(getTableRow(0, 0).find('th').at(5).text()).contains('Time below 70');
+      expect(getTableRow(0, 0).find('th').at(5).text()).contains('% Time 54-70');
       expect(getTableRow(0, 2).find('td').at(4).text()).contains('17 %');
 
-      expect(getTableRow(0, 0).find('th').at(6).text()).contains('Time in Range');
+      expect(getTableRow(0, 0).find('th').at(6).text()).contains('% TIR 70-180');
       expect(getTableRow(0, 2).find('td').at(5).text()).contains('71 %');
 
       expect(getTableRow(0, 0).find('th').at(7).text()).contains('% Time in Range');
@@ -630,7 +630,7 @@ describe('TideDashboard', () => {
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
       // Confirm second table is sorted appropriately
-      expect(getTableRow(1, 0).find('th').at(5).text()).contains('Time below 70');
+      expect(getTableRow(1, 0).find('th').at(5).text()).contains('% Time 54-70');
       expect(getTableRow(1, 1).find('td').at(4).text()).contains('9 %');
       expect(getTableRow(1, 2).find('td').at(4).text()).contains('9 %');
       expect(getTableRow(1, 3).find('td').at(4).text()).contains('6 %');
@@ -642,7 +642,7 @@ describe('TideDashboard', () => {
       expect(getTableRow(2, 3).find('td').at(7).text()).contains('24.3');
 
       // Confirm fourth table is sorted appropriately
-      expect(getTableRow(3, 0).find('th').at(6).text()).contains('Time in Range');
+      expect(getTableRow(3, 0).find('th').at(6).text()).contains('% TIR 70-180');
       expect(getTableRow(3, 1).find('td').at(5).text()).contains('42');
       expect(getTableRow(3, 2).find('td').at(5).text()).contains('42');
       expect(getTableRow(3, 3).find('td').at(5).text()).contains('48');
@@ -654,7 +654,7 @@ describe('TideDashboard', () => {
       expect(getTableRow(4, 3).find('td').at(2).text()).contains('69');
 
       // Confirm sixth table is sorted appropriately
-      expect(getTableRow(5, 0).find('th').at(4).text()).contains('Time below 54');
+      expect(getTableRow(5, 0).find('th').at(4).text()).contains('% Time < 54');
       expect(getTableRow(5, 1).find('td').at(3).text()).contains('1 %');
       expect(getTableRow(5, 2).find('td').at(3).text()).contains('1 %');
       expect(getTableRow(5, 3).find('td').at(3).text()).contains('0.3 %');
@@ -749,12 +749,12 @@ describe('TideDashboard', () => {
         const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);
 
         // Confirm first table is sorted appropriately
-        expect(getTableRow(0, 0).find('th').at(4).text()).contains('Time below 3.0');
+        expect(getTableRow(0, 0).find('th').at(4).text()).contains('% Time < 3.0');
         expect(getTableRow(0, 1).find('td').at(3).text()).contains('4 %');
         expect(getTableRow(0, 2).find('td').at(3).text()).contains('3 %');
         expect(getTableRow(0, 3).find('td').at(3).text()).contains('1 %');
 
-        expect(getTableRow(0, 0).find('th').at(5).text()).contains('Time below 3.9');
+        expect(getTableRow(0, 0).find('th').at(5).text()).contains('% Time 3.0-3.9');
         expect(getTableRow(0, 2).find('td').at(4).text()).contains('17 %');
       });
     });

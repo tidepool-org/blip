@@ -8,7 +8,7 @@
 
 import logErrorMiddleware from '../../../../app/redux/utils/logErrorMiddleware';
 
-describe.only('logErrorMiddleware', () => {
+describe('logErrorMiddleware', () => {
   let api;
   let middleware;
   let getState;
