@@ -305,31 +305,31 @@ describe('ClinicAdmin', () => {
           '"clinic@example.com"',
           'True',
           'False',
-          '2021-10-05 18:00:00',
-          '2021-10-05 18:00:00',
+          '2021-10-05 18:00:00 UTC',
+          '2021-10-05 18:00:00 UTC',
         ],
         [
           '"Jane Smith"',
           '"clinicianUserId456@example.com"',
           'True',
           'False',
-          '2021-10-06 18:00:00',
-          '2021-10-06 18:00:00',
+          '2021-10-06 18:00:00 UTC',
+          '2021-10-06 18:00:00 UTC',
         ],
         [
           '""',
           '"clinicianUserId789@example.com"',
           'False',
           'True',
-          '2021-10-07 18:00:00',
-          '2021-10-07 18:00:00',
+          '2021-10-07 18:00:00 UTC',
+          '2021-10-07 18:00:00 UTC',
         ],
       ];
 
       const expectedCsv = expectedCsvRows.map((row) => row.join(',')).join('\n');
       const expectedBlob = new Blob([expectedCsv], { type: 'text/csv;charset=utf-8;' });
       const expectedUrl = 'mock-url';
-      const expectedDownloadFileName = 'new_clinic_name-2021-10-05 18:00:00.csv';
+      const expectedDownloadFileName = 'new_clinic_name-2021-10-05 18:00:00 UTC.csv';
 
       const createBlobSpy = sinon.spy(window, 'Blob');
 
