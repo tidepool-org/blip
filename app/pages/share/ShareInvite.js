@@ -8,8 +8,16 @@ import { Box, Flex, Text } from 'rebass/styled-components';
 import { Radio, Label } from '@rebass/forms';
 import baseTheme from '../../themes/baseTheme';
 import { useFormik } from 'formik';
+import filter from 'lodash/filter';
 import find from 'lodash/find';
-import get from 'lodash/get';
+import forEach from 'lodash/forEach';
+import get from 'lodash/get'
+import has from 'lodash/has';
+import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
+import map from 'lodash/map';
+import reject from 'lodash/reject';
+import _values from 'lodash/values';
 import * as yup from 'yup';
 import InputMask from 'react-input-mask';
 import cx from 'classnames';
@@ -21,6 +29,7 @@ import Button from '../../components/elements/Button';
 import TextInput from '../../components/elements/TextInput';
 import Checkbox from '../../components/elements/Checkbox';
 import * as actions from '../../redux/actions';
+import personUtils from '../../core/personutils';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useIsFirstRender } from '../../core/hooks';
 
@@ -46,10 +55,111 @@ const ShareInvite = (props) => {
   const { set: setToast } = useToasts();
   const clinics = useSelector((state) => state.blip.clinics);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const { sendingClinicInvite, fetchingClinic, sendingInvite } = useSelector(
-    (state) => state.blip.working
-  );
+  const allUsers = useSelector((state) => state.blip.allUsersMap);
+  const dataDonationAccounts = useSelector((state) => state.blip.dataDonationAccounts);
+  const membersOfTargetCareTeam = useSelector((state) => state.blip.membersOfTargetCareTeam);
+  const [pendingClinicInvites, setPendingClinicInvites] = useState([]);
+  const pendingSentInvites = useSelector((state) => state.blip.pendingSentInvites);
+  const permissionsOfMembersInTargetCareTeam = useSelector((state) => state.blip.permissionsOfMembersInTargetCareTeam);
+  const [sharedOrPendingClinicShareCodes, setSharedOrPendingClinicShareCodes] = useState([]);
+  const [sharedOrPendingEmails, setSharedOrPendingEmails] = useState([]);
+
+  const {
+    fetchingAssociatedAccounts,
+    fetchingClinic,
+    fetchingClinicsByIds,
+    fetchingClinicsForPatient,
+    fetchingPatient,
+    fetchingPendingSentInvites,
+    sendingClinicInvite,
+    sendingInvite,
+  } = useSelector((state) => state.blip.working);
+
+  // Fetchers
+  useEffect(() => {
+    if (loggedInUserId) {
+      forEach([
+        {
+          workingState: fetchingPatient,
+          action: actions.async.fetchPatient.bind(null, api, loggedInUserId),
+        },
+        {
+          workingState: fetchingClinicsForPatient,
+          action: actions.async.fetchClinicsForPatient.bind(null, api, loggedInUserId),
+        },
+        {
+          workingState: fetchingPendingSentInvites,
+          action: actions.async.fetchPendingSentInvites.bind(null, api, loggedInUserId),
+        },
+        {
+          workingState: fetchingAssociatedAccounts,
+          action: actions.async.fetchAssociatedAccounts.bind(null, api),
+        },
+      ], ({ workingState, action }) => {
+        if (
+          !workingState.inProgress &&
+          !workingState.completed &&
+          !workingState.notification
+        ) {
+          dispatch(action());
+        }
+      });
+    }
+  }, [loggedInUserId]);
+
+  // Fetcher for clinics with pending invites
+  useEffect(() => {
+    const clinicIds = map(filter(pendingClinicInvites, ({ clinicId }) => !clinics[clinicId]), 'clinicId');
+
+    if (
+      clinicIds.length &&
+      !fetchingClinicsByIds.inProgress &&
+      !fetchingClinicsByIds.completed &&
+      !fetchingClinicsByIds.notification
+    ) {
+      dispatch(actions.async.fetchClinicsByIds(api, clinicIds));
+    }
+  }, [pendingClinicInvites]);
+
+  useEffect(() => {
+    const { inProgress, completed, notification } = fetchingClinicsByIds;
+
+    if (!isFirstRender && !inProgress && completed === false) {
+      setToast({
+        message: get(notification, 'message'),
+        variant: 'danger',
+      });
+    }
+  }, [fetchingClinicsByIds]);
+
+  useEffect(() => {
+    const pendingInvites = reject(filter(pendingSentInvites, { status: 'pending' }), personUtils.isDataDonationAccount);
+    const clinicInvites = filter(pendingInvites, ({ clinicId }) => !isEmpty(clinicId));
+    const clinicIds = map(clinicInvites, 'clinicId');
+    setPendingClinicInvites(clinicInvites);
+
+    setSharedOrPendingClinicShareCodes([
+      ...map(filter(_values(clinics), ({ patients, id }) => (has(patients, loggedInUserId)) || includes(clinicIds, id)), 'shareCode'),
+    ]);
+
+    setSharedOrPendingEmails([
+      ...map(membersOfTargetCareTeam, memberId => allUsers?.[memberId]?.emails?.[0]),
+      ...map(filter(pendingInvites, ({ email }) => !isEmpty(email)), 'email'),
+    ]);
+  }, [
+    clinics,
+    membersOfTargetCareTeam,
+    pendingSentInvites,
+    dataDonationAccounts,
+    permissionsOfMembersInTargetCareTeam,
+    allUsers,
+    loggedInUserId
+  ]);
+
+
   const [clinic, setClinic] = useState(null);
+  const alreadySharedWithClinicMessage = t('You are already sharing with this clinic. Please enter a new share code.');
+  const alreadySharedWithMemberMessage = t('You are already sharing with this care team member. Please enter a new email.');
 
   const shareCodeRegex =
     /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}$/;
@@ -61,6 +171,7 @@ const ShareInvite = (props) => {
       then: (schema) =>
         schema
           .matches(shareCodeRegex, t('Please enter a valid share code'))
+          .notOneOf(sharedOrPendingClinicShareCodes, alreadySharedWithClinicMessage)
           .required(t('Please enter a share code')),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -69,6 +180,7 @@ const ShareInvite = (props) => {
       then: (schema) =>
         schema
           .email(t('Please enter a valid email address'))
+          .notOneOf(sharedOrPendingEmails, alreadySharedWithMemberMessage)
           .required(t('Email address is required')),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -286,8 +398,10 @@ const ShareInvite = (props) => {
                 <TextInput
                   placeholder={t('Enter share code')}
                   variant="condensed"
+                  width="100%"
                   themeProps={{
                     sx: {
+                      '> div:first-child': { width: ['100%', '75%', '50%'] },
                       input: {
                         textTransform: 'uppercase',
                         '&::placeholder': {
@@ -356,8 +470,12 @@ const ShareInvite = (props) => {
             {...getCommonFormikFieldProps('email', formikContext)}
             placeholder={t('Enter email address')}
             variant="condensed"
+            width="100%"
             themeProps={{
               mb: 3,
+              sx: {
+                '> div:first-child': { width: ['100%', '75%', '50%'] },
+              },
             }}
           />
 
