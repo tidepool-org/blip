@@ -271,8 +271,8 @@ export const ClinicAdmin = (props) => {
         csvEscape(email),
         isAdmin ? 'True' : 'False',
         inviteId ? 'True' : 'False',
-        sundial.formatInTimezone(createdTime, timeZone, 'YYYY-MM-DD HH:mm:ss'),
-        sundial.formatInTimezone(updatedTime, timeZone, 'YYYY-MM-DD HH:mm:ss'),
+        sundial.formatInTimezone(createdTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
+        sundial.formatInTimezone(updatedTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
       ]);
     });
 
@@ -282,7 +282,7 @@ export const ClinicAdmin = (props) => {
     const downloadFileName = `${clinic.name}-${sundial.formatInTimezone(
       new Date(),
       timeZone,
-      'YYYY-MM-DD HH:mm:ss'
+      'YYYY-MM-DD HH:mm:ss z'
     )}.csv`;
 
     const a = document.createElement('a');
