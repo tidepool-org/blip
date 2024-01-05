@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
 import moment from 'moment';
+import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
 import difference from 'lodash/difference';
 import forEach from 'lodash/forEach';
@@ -444,6 +445,10 @@ export const ClinicPatients = (props) => {
   const [showNames, setShowNames] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const existingMRNs = useMemo(
+    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
+    [clinic?.patients, selectedPatient?.id]
+  );
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
@@ -2026,7 +2031,7 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} searchDebounceMs={searchDebounceMs} />
         </DialogContent>
 
         <DialogActions>
@@ -2038,7 +2043,7 @@ export const ClinicPatients = (props) => {
             variant="primary"
             onClick={handleAddPatientConfirm}
             processing={creatingClinicCustodialAccount.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings}), patientFormContext?.values)}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Add Patient')}
           </Button>
@@ -2049,6 +2054,8 @@ export const ClinicPatients = (props) => {
     api,
     creatingClinicCustodialAccount.inProgress,
     handleAddPatientConfirm,
+    mrnSettings,
+    existingMRNs,
     patientFormContext?.values,
     showAddPatientDialog,
     t,
@@ -2071,7 +2078,7 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} searchDebounceMs={searchDebounceMs} />
         </DialogContent>
 
         <DialogActions>
@@ -2087,7 +2094,7 @@ export const ClinicPatients = (props) => {
             variant="primary"
             onClick={handleEditPatientConfirm}
             processing={updatingClinicPatient.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings}), patientFormContext?.values)}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Save Changes')}
           </Button>
@@ -2097,6 +2104,8 @@ export const ClinicPatients = (props) => {
   }, [
     api,
     handleEditPatientConfirm,
+    mrnSettings,
+    existingMRNs,
     patientFormContext?.values,
     selectedClinicId,
     selectedPatient,
@@ -2479,6 +2488,7 @@ export const ClinicPatients = (props) => {
   }, [activeFilters, bgLabels, handleFilterTimeInRange, pendingFilters, prefixPopHealthMetric, selectedClinicId, setActiveFilters, showTimeInRangeDialog, t, trackMetric]);
 
   function handleCloseOverlays() {
+    const resetList = showAddPatientDialog || showEditPatientDialog;
     setShowDeleteDialog(false);
     setShowAddPatientDialog(false);
     setShowEditPatientDialog(false);
@@ -2486,7 +2496,9 @@ export const ClinicPatients = (props) => {
     setShowTimeInRangeDialog(false);
     setShowSendUploadReminderDialog(false);
     setShowTideDashboardConfigDialog(false);
-
+    if (resetList) {
+      setPatientFetchOptions({ ...patientFetchOptions });
+    }
     setTimeout(() => {
       setSelectedPatient(null);
     });

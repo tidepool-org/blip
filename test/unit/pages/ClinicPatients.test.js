@@ -167,7 +167,7 @@ describe('ClinicPatients', () => {
               email: 'patient2@test.ca',
               fullName: 'Patient Two',
               birthDate: '1999-02-02',
-              mrn: 'mrn123',
+              mrn: 'MRN123',
               permissions: { custodian : {} }
             },
           },
@@ -297,7 +297,7 @@ describe('ClinicPatients', () => {
               email: 'patient1@test.ca',
               fullName: 'Patient One',
               birthDate: '1999-01-01',
-              mrn: 'mrn012',
+              mrn: 'MRN012',
               summary: {},
               permissions: { custodian : {} },
               tags: [],
@@ -307,7 +307,7 @@ describe('ClinicPatients', () => {
               email: 'patient2@test.ca',
               fullName: 'Patient Two',
               birthDate: '1999-02-02',
-              mrn: 'mrn123',
+              mrn: 'MRN123',
               summary:{
                 bgmStats: {
                   dates: {
@@ -717,7 +717,126 @@ describe('ClinicPatients', () => {
 
       expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
       patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn876');
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN876');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+    });
+
+    it('should prevent adding a new patient with an invalid MRN', () => {
+      store = mockStore(mrnRequiredState);
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      const addButton = wrapper.find('button#add-patient');
+      expect(addButton.text()).to.equal('Add New Patient');
+
+      const dialog = () => wrapper.find('Dialog#addPatient');
+
+      expect(dialog()).to.have.length(0);
+      addButton.simulate('click');
+      wrapper.update();
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: ''}});
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn87' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN87');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876thiswillexceedthelengthlimit' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN876THISWILLEXCEEDTHELENGTHLIMIT');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876-only-alphanumerics' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN876-ONLY-ALPHANUMERICS');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN876');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+    });
+
+    it('should prevent adding a new patient with an existing MRN', () => {
+      store = mockStore(hasPatientsState);
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      const addButton = wrapper.find('button#add-patient');
+      expect(addButton.text()).to.equal('Add New Patient');
+
+      const dialog = () => wrapper.find('Dialog#addPatient');
+
+      expect(dialog()).to.have.length(0);
+      addButton.simulate('click');
+      wrapper.update();
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'MRN123' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN123');
+
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: ''}});
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN123');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'MRN12345' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN12345');
 
       expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
     });
@@ -769,7 +888,7 @@ describe('ClinicPatients', () => {
         expect(table.find('tr').at(1).text()).contains('1999-01-01');
         expect(table.find('tr').at(2).text()).contains('Patient Two');
         expect(table.find('tr').at(2).text()).contains('1999-02-02');
-        expect(table.find('tr').at(2).text()).contains('mrn123');
+        expect(table.find('tr').at(2).text()).contains('MRN123');
       });
 
       it('should allow searching patients', (done) => {
@@ -869,9 +988,9 @@ describe('ClinicPatients', () => {
         patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '01/01/1999' } });
         expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
 
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn123');
+        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN123');
         patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn456');
+        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
 
         expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient2@test.ca');
         patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
@@ -896,7 +1015,7 @@ describe('ClinicPatients', () => {
               connectDexcom: true,
               dataSources: [{ providerName: 'dexcom', state: 'pending' }],
               birthDate: '1999-01-01',
-              mrn: 'mrn456',
+              mrn: 'MRN456',
               id: 'patient2',
               email: 'patient-two@test.ca',
               permissions: { custodian: {} },
@@ -914,10 +1033,11 @@ describe('ClinicPatients', () => {
                 patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
               },
             },
+            { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
           ]);
 
           done();
-        }, 0);
+        }, 1000);
       });
 
       it('should disable email editing for non-custodial patients', done => {
@@ -950,7 +1070,7 @@ describe('ClinicPatients', () => {
 
         expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
         patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn456');
+        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
 
         expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient1@test.ca');
         expect(patientForm().find('input[name="email"]').prop('disabled')).to.equal(true);
@@ -969,7 +1089,7 @@ describe('ClinicPatients', () => {
               fullName: 'Patient 2',
               connectDexcom: false,
               birthDate: '1999-02-02',
-              mrn: 'mrn456',
+              mrn: 'MRN456',
               id: 'patient1',
               email: 'patient1@test.ca',
               permissions: { view: {} },
@@ -987,10 +1107,11 @@ describe('ClinicPatients', () => {
                 patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
               },
             },
+            { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
           ]);
 
           done();
-        }, 0);
+        }, 1000);
       });
 
       it('should remove a patient', () => {
@@ -1370,7 +1491,7 @@ describe('ClinicPatients', () => {
           // Patient name, dob, and mrn in first column
           expect(rowData(0).at(0).text()).contains('Patient One');
           expect(rowData(0).at(0).text()).contains('1999-01-01');
-          expect(rowData(0).at(0).text()).contains('mrn012');
+          expect(rowData(0).at(0).text()).contains('MRN012');
 
           // Last upload date in second column
           expect(rowData(0).at(1).text()).contains(emptyStatText);
@@ -2599,7 +2720,7 @@ describe('ClinicPatients', () => {
               {
                 fullName: 'Patient One',
                 birthDate: '1999-01-01',
-                mrn: 'mrn012',
+                mrn: 'MRN012',
                 id: 'patient1',
                 email: 'patient1@test.ca',
                 permissions: { custodian: {} },
@@ -2675,7 +2796,7 @@ describe('ClinicPatients', () => {
                 fullName: 'Patient Two',
                 birthDate: '1999-02-02',
                 connectDexcom: false,
-                mrn: 'mrn123',
+                mrn: 'MRN123',
                 permissions: { custodian : undefined },
                 summary: {
                   bgmStats: {

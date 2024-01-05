@@ -1257,9 +1257,20 @@ export const PatientDataClass = createReactClass({
   },
 
   handleClickPrint: function() {
-    this.props.trackMetric('Clicked Print', {
-      fromChart: this.state.chartType
-    });
+    const metricProps = { fromChart: this.state.chartType };
+
+    if (_.includes(['basics', 'daily', 'trends'], this.state.chartType)) {
+      const bgSource = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']);
+
+      const bgSourceLabels = {
+        cbg: 'cgm',
+        smbg: 'bgm',
+      };
+
+      metricProps.dataToggle = bgSourceLabels[bgSource];
+    }
+
+    this.props.trackMetric('Clicked Print', metricProps);
 
     this.props.removeGeneratedPDFS();
     this.setState({ printDialogOpen: true });

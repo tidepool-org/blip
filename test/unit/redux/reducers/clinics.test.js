@@ -173,6 +173,15 @@ describe('clinics', () => {
       expect(state[clinic.id].patients).to.eql({ p1: 'patient' });
       expect(state[clinic.id].id).to.eql('one');
     });
+
+    it('should update clinic already stored to state', () => {
+      let initialStateForTest = { one: { foo: 'bar', patients: { abc: 123 } }};
+      let clinic = { id: 'one', foo: 'baz' };
+      let action = actions.sync.fetchClinicSuccess(clinic);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinic.id].foo).to.eql('baz');
+      expect(state[clinic.id].patients).to.eql({ abc: 123 });
+    });
   });
 
   describe('fetchClinicsByIdsSuccess', () => {

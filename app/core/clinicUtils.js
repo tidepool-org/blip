@@ -1,3 +1,4 @@
+import React from 'react';
 import * as yup from 'yup';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
@@ -81,7 +82,7 @@ export const summaryPeriodOptions = [
   { value: '30d', label: t('30 days') },
 ];
 
-export const maxClinicPatientTags = 20;
+export const maxClinicPatientTags = 50;
 
 export const clinicValuesFromClinic = (clinic) => ({
   name: get(clinic, 'name', ''),
@@ -100,6 +101,7 @@ export const clinicValuesFromClinic = (clinic) => ({
   clinicSize: get(clinic, 'clinicSize', ''),
   preferredBgUnits: get(clinic, 'preferredBgUnits', ''),
   website: get(clinic, 'website', ''),
+  ...(get(clinic,'timezone')) && { timezone: clinic.timezone }
 });
 
 export const clinicSchema = yup.object().shape({
@@ -151,6 +153,7 @@ export const clinicSchema = yup.object().shape({
       ? t('Please enter a valid website address')
       : t('Please enter a valid website address with https:// at the beginning')
     ),
+  timezone: yup.string(),
 });
 
 export const clinicPatientTagSchema = yup.object().shape({
@@ -163,6 +166,7 @@ export const clinicPatientTagSchema = yup.object().shape({
  * yup schema for patient form
  * @function patientSchema
  * @param {Object} [config]
+ * @param {Array} [config.existingMRNs] - array of existing MRNs to check against
  * @param {Object} [config.mrnSettings]
  * @param {boolean} [config.mrnSettings.required] - whether or not the MRN field is required
  * @returns {Object} yup schema
@@ -173,29 +177,50 @@ export const clinicPatientTagSchema = yup.object().shape({
  * const schema = patientSchema({ mrnSettings:{ required: true } });
  *
  */
-export const patientSchema = (config) => yup.object().shape({
-  fullName: yup.string().required(t('Please enter the patient\'s full name')),
-  birthDate: yup.date()
-    .transform((value, originalValue) => {
-      value = moment(originalValue, dateFormat, true);
-      return value.isValid() ? value.toDate() : new Date('');
-    })
-    .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
-    .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
-    .required(t('Patient\'s birthday is required')),
-  mrn: config?.mrnSettings?.required ? yup.string().required(t('Patient\'s MRN is required')) : yup.string(),
-  email: yup.string().email(t('Please enter a valid email address')),
-  connectDexcom: yup.boolean(),
-  dataSources: yup.array().of(
-    yup.object().shape({
-      providerName: yup.string(),
-      state: yup.string().oneOf(['pending', 'pendingReconnect', 'connected', 'error', 'disconnected']),
-    }),
-  ),
-  tags: yup.array().of(
-    yup.string()
-  ),
-});
+export const patientSchema = (config) => {
+  let mrnSchema = yup
+    .string()
+    .matches(/^$|^[A-Z0-9]{6,25}$/, () => (
+      <div>
+        {t('Patient’s MRN is invalid. MRN must meet the following criteria:')}
+        <ul>
+          <li>{t('All upper case letters or numbers')}</li>
+          <li>{t('Minimum length: 6 characters')}</li>
+          <li>{t('Maximum length: 25 characters')}</li>
+          <li>{t('No spaces')}</li>
+        </ul>
+      </div>
+    ))
+    .notOneOf(config?.existingMRNs || [], t('This MRN is already in use. Please enter a valid MRN.'));
+
+  if (config?.mrnSettings?.required) {
+    mrnSchema = mrnSchema.required(t('Patient\'s MRN is required'));
+  }
+
+  return yup.object().shape({
+    fullName: yup.string().required(t('Please enter the patient\'s full name')),
+    birthDate: yup.date()
+      .transform((value, originalValue) => {
+        value = moment(originalValue, dateFormat, true);
+        return value.isValid() ? value.toDate() : new Date('');
+      })
+      .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
+      .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
+      .required(t('Patient\'s birthday is required')),
+    mrn: mrnSchema,
+    email: yup.string().email(t('Please enter a valid email address')),
+    connectDexcom: yup.boolean(),
+    dataSources: yup.array().of(
+      yup.object().shape({
+        providerName: yup.string(),
+        state: yup.string().oneOf(['pending', 'pendingReconnect', 'connected', 'error', 'disconnected']),
+      }),
+    ),
+    tags: yup.array().of(
+      yup.string()
+    ),
+  })
+};
 
 export const tideDashboardConfigSchema = yup.object().shape({
   period: yup
