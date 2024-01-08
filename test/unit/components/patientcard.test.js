@@ -85,16 +85,16 @@ describe('PatientCard', function () {
       var patientCardLeave = wrapper.find('.patientcard-leave');
       var leaveLink = wrapper.find('a.patientcard-actions-remove');
       var deleteIcon = wrapper.find('.icon-delete');
-      // expect(patientCardLeave).to.have.lengthOf(1);
-      // expect(deleteIcon).to.have.lengthOf(1);
-      // expect(leaveLink.props('title')).to.equal('Remove yourself from Jane Doe\'s care team.');
+      expect(patientCardLeave).to.have.lengthOf(1);
+      expect(deleteIcon).to.have.lengthOf(1);
+      expect(leaveLink.props().title).to.equal('Remove yourself from Jane Doe\'s care team.');
     });
 
     it('should render a confirmation overlay when you click to remove yourself from a care team', function() {
       var leaveLink = wrapper.find('a.patientcard-actions-remove');
-      // leaveLink.simulate('click');
-      // var overlay = wrapper.find('.ModalOverlay-content');
-      // expect(overlay).to.have.lengthOf(1);
+      leaveLink.simulate('click');
+      var overlay = wrapper.find('.ModalOverlay-content');
+      expect(overlay).to.have.lengthOf(1);
     });
   });
 });

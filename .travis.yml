@@ -1,9 +1,4 @@
 language: node_js
-
-sudo: false
-
-language: node_js
-
 dist: jammy
 
 node_js:

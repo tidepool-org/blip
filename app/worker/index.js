@@ -52,8 +52,6 @@ function newQueue(patientId) {
 }
 
 function processMessage(msg, cb) {
-  console.time('worker process');
-
   switch(_.get(msg, 'data.meta.worker')) {
     case 'pdf':
       pdfWorker.handleMessage(msg, postMessage);
