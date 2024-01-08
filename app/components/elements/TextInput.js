@@ -111,7 +111,7 @@ TextInput.propTypes = {
   themeProps: PropTypes.shape(BoxProps),
   variant: PropTypes.oneOf(['default', 'condensed']),
   required: PropTypes.bool,
-  error: PropTypes.string,
+  error: PropTypes.node,
   warning: PropTypes.string,
 };
 

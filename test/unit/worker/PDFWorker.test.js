@@ -156,6 +156,23 @@ describe('PDFWorker', () => {
     });
   });
 
+  it('should fire a failure action uplon failed query', () => {
+    const postMessage = sinon.stub();
+    dataUtil.query.throws(new Error('query error'));
+
+    Worker = new PDFWorker(dataUtil, importer, renderer);
+
+    const action = actions.generatePDFRequest(type, queries, opts());
+    Worker.handleMessage({ data: action }, postMessage);
+
+    sinon.assert.calledOnce(postMessage);
+    sinon.assert.calledWithExactly(
+      postMessage,
+      actions.generatePDFFailure(new Error('query error'))
+    );
+    dataUtil.query = sinon.stub().callsFake(key => queryResults[key]);
+  });
+
   it('should throw an error if it receives an unhandled action type', () => {
     const action = {
       type: 'unknownAction',

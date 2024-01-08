@@ -91,10 +91,11 @@
         }
       }
     ],
-    "timeInLowPercent": [
+    "timeInAnyLowPercent": [
       {
         "averageGlucoseMmol": 4.3,
         "glucoseManagementIndicator": 6.2,
+        "timeInAnyLowPercent":  0.09825,
         "timeInVeryLowPercent": 0.00857,
         "timeInLowPercent": 0.08968,
         "timeInTargetPercentDelta": 0.03184,
@@ -118,6 +119,7 @@
       {
         "averageGlucoseMmol": 6.8,
         "glucoseManagementIndicator": 5.2,
+        "timeInAnyLowPercent": 0.0912,
         "timeInVeryLowPercent": 0.006,
         "timeInLowPercent": 0.0852,
         "timeInTargetPercentDelta": 0.19731,
@@ -138,6 +140,7 @@
       {
         "averageGlucoseMmol": 8.8,
         "glucoseManagementIndicator": 5,
+        "timeInAnyLowPercent": 0.06478,
         "timeInVeryLowPercent": 0.00839,
         "timeInLowPercent": 0.05639,
         "timeInTargetPercentDelta": 0.18036,

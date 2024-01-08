@@ -16,6 +16,7 @@ import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import EditIcon from '@material-ui/icons/EditRounded';
 import InputIcon from '@material-ui/icons/Input';
 import SearchIcon from '@material-ui/icons/Search';
+import DownloadIcon from '@material-ui/icons/GetAppRounded';
 import sundial from 'sundial';
 
 import {
@@ -200,7 +201,7 @@ export const ClinicAdmin = (props) => {
   const getClinicianArray = () => map(
     get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
-      const { roles, email, id: clinicianId, inviteId, name = '' } = clinician;
+      const { roles, email, id: clinicianId, inviteId, name = '', createdTime, updatedTime } = clinician;
       let role = '';
 
       if (includes(roles, 'CLINIC_ADMIN')) {
@@ -220,6 +221,8 @@ export const ClinicAdmin = (props) => {
         status: inviteId ? t('invite sent') : '',
         email,
         roles,
+        createdTime,
+        updatedTime,
       };
     }
   );
@@ -234,6 +237,59 @@ export const ClinicAdmin = (props) => {
     setPageCount(Math.ceil(clinicianArray.length / rowsPerPage));
   }, [clinicianArray]);
 
+  function handleExportList() {
+    trackMetric('Clinic - clicked export clinic member list', {
+      clinicId: selectedClinicId,
+    });
+    const timeZone =
+      timePrefs?.timezoneName ||
+      new Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    const csvRows = [
+      [
+        t('Name'),
+        t('Email'),
+        t('Admin?'),
+        t('Pending?'),
+        t('Created'),
+        t('Updated'),
+      ],
+    ];
+
+    const csvEscape = (val) => {
+      if (typeof val === 'string') {
+        return `"${val.replace(/"/g, '""')}"`;
+      }
+      return val;
+    };
+
+    clinicianArray.forEach((clinician) => {
+      const { fullName, email, isAdmin, inviteId, createdTime, updatedTime } = clinician;
+
+      csvRows.push([
+        csvEscape(fullName),
+        csvEscape(email),
+        isAdmin ? 'True' : 'False',
+        inviteId ? 'True' : 'False',
+        sundial.formatInTimezone(createdTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
+        sundial.formatInTimezone(updatedTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
+      ]);
+    });
+
+    const csv = csvRows.map((row) => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const downloadFileName = `${clinic.name}-${sundial.formatInTimezone(
+      new Date(),
+      timeZone,
+      'YYYY-MM-DD HH:mm:ss z'
+    )}.csv`;
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = downloadFileName;
+    a.click();
+  };
 
   function closeDeleteDialog() {
     setShowDeleteDialog(false);
@@ -546,8 +602,26 @@ export const ClinicAdmin = (props) => {
                 </Button>
               )}
 
-              <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+              <Flex sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+                {isClinicAdmin() && (
+                  <Button
+                    sx={{ mr: 2 }}
+                    flex={1}
+                    variant="textPrimary"
+                    fontSize={0}
+                    onClick={handleExportList}
+                    icon={DownloadIcon}
+                    iconLabel={t('Export List')}
+                    iconPosition="left"
+                    iconVariant="actionButtonIcon"
+                    iconSize={18}
+                    lineHeight={['inherit', null, 1]}
+                  >
+                    {t('Export List')}
+                  </Button>
+                )}
                 <TextInput
+                  flex={1}
                   themeProps={{
                     sx: {
                       width: ['100%', null, '250px'],
@@ -564,7 +638,7 @@ export const ClinicAdmin = (props) => {
                   value={searchText}
                   variant="condensed"
                 />
-              </Box>
+              </Flex>
             </Flex>
 
             <Table

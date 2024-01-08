@@ -756,8 +756,10 @@ export const clinics = (state = initialState.clinics, action) => {
     case types.CREATE_CLINIC_SUCCESS:
     case types.FETCH_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic', {});
+      let updateAction = state[clinic.id] ? '$merge' : '$set';
+      let initialClinicState = { patients: {}, clinicians: {}, patientInvites: {}, ...(state[clinic.id] || {}) };
       return update(state, {
-        [clinic.id]: { $set: { clinicians: {}, patients: {}, patientInvites: {}, ...clinic } },
+        [clinic.id]: { [updateAction]: { ...initialClinicState, ...clinic } },
       });
     }
     case types.FETCH_CLINICS_BY_IDS_SUCCESS: {

@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
+import debounce from 'lodash/debounce';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
@@ -29,7 +30,7 @@ import { TagList } from '../../components/elements/Tag';
 import ResendDexcomConnectRequestDialog from './ResendDexcomConnectRequestDialog';
 import { useToasts } from '../../providers/ToastProvider';
 import { getCommonFormikFieldProps } from '../../core/forms';
-import { useIsFirstRender } from '../../core/hooks';
+import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../core/personutils';
 import { Body0 } from '../../components/elements/FontStyles';
@@ -62,13 +63,17 @@ function emptyValuesFilter(value, key) {
 }
 
 export const PatientForm = (props) => {
-  const { t, api, onFormChange, patient, trackMetric, ...boxProps } = props;
+  const { t, api, onFormChange, patient, trackMetric, searchDebounceMs, ...boxProps } = props;
   const dispatch = useDispatch();
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
+  const existingMRNs = useMemo(
+    () => compact(map(reject(clinic?.patients, { id: patient?.id }), 'mrn')),
+    [clinic?.patients, patient?.id]
+  );
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
@@ -81,6 +86,11 @@ export const PatientForm = (props) => {
   const showDexcomConnectState = !!selectedClinicId && !!dexcomDataSource?.state;
   const [showResendDexcomConnectRequest, setShowResendDexcomConnectRequest] = useState(false);
   const { sendingPatientDexcomConnectRequest } = useSelector((state) => state.blip.working);
+  const [patientFetchOptions, setPatientFetchOptions] = useState({});
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const { fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
+  const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
+  const previousFetchOptions = usePrevious(patientFetchOptions);
 
   const dexcomConnectStateUI = {
     pending: {
@@ -178,7 +188,7 @@ export const PatientForm = (props) => {
 
       dispatch(actions.async[actionMap[action][context].handler](api, ...actionMap[action][context].args()));
     },
-    validationSchema: validationSchema({mrnSettings}),
+    validationSchema: validationSchema({mrnSettings, existingMRNs}),
   });
 
   const {
@@ -210,6 +220,47 @@ export const PatientForm = (props) => {
       }
     }
   }
+
+  // Fetchers
+  useEffect(() => {
+    if (
+      loggedInUserId &&
+      clinic?.id &&
+      !fetchingPatientsForClinic.inProgress &&
+      !isEmpty(patientFetchOptions) &&
+      !(patientFetchOptions === previousFetchOptions)
+    ) {
+      const fetchOptions = { ...patientFetchOptions };
+      if (isEmpty(fetchOptions.search)) {
+        delete fetchOptions.search;
+      }
+      dispatch(
+        actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions)
+      );
+    }
+  }, [
+    api,
+    clinic,
+    dispatch,
+    fetchingPatientsForClinic,
+    loggedInUserId,
+    patientFetchOptions,
+    previousFetchOptions
+  ]);
+
+  // revalidate form on patient fetch complete
+  useEffect(() => {
+    if (
+      previousFetchingPatientsForClinic?.inProgress &&
+      !fetchingPatientsForClinic.inProgress
+    ) {
+      formikContext.validateForm();
+    }
+  }, [
+    fetchingPatientsForClinic.inProgress,
+    formikContext,
+    previousFetchingPatientsForClinic?.inProgress,
+  ]);
 
   useEffect(() => {
     // set form field values and store initial patient values on patient load
@@ -261,6 +312,21 @@ export const PatientForm = (props) => {
     );
   }
 
+  const debounceSearch = useCallback(
+    debounce((search) => {
+      setPatientFetchOptions({
+        ...patientFetchOptions,
+        offset: 0,
+        search,
+      });
+    }, searchDebounceMs),
+    [patientFetchOptions]
+  );
+
+  function handleSearchChange(event) {
+    debounceSearch(event.target.value);
+  }
+
   return (
     <Box
       as="form"
@@ -308,6 +374,15 @@ export const PatientForm = (props) => {
           placeholder={t('MRN')}
           variant="condensed"
           sx={{ width: '100%' }}
+          width="100%"
+          onChange={(e) => {
+            handleSearchChange(e);
+            formikContext.setFieldValue('mrn', e.target.value.toUpperCase());
+          }}
+          onBlur={(e) => {
+            formikContext.setFieldTouched('mrn');
+            formikContext.setFieldValue('mrn', e.target.value.toUpperCase());
+          }}
         />
       </Box>
 
@@ -541,6 +616,11 @@ PatientForm.propTypes = {
   patient: PropTypes.object,
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
+  searchDebounceMs: PropTypes.number.isRequired,
+};
+
+PatientForm.defaultProps = {
+  searchDebounceMs: 1000,
 };
 
 export default withTranslation()(PatientForm);

@@ -27,6 +27,23 @@ describe('ShareInvite', () => {
       trackMetric: sinon.stub(),
       t: sinon.stub().callsFake((string) => string),
       api: {
+        clinics: {
+          updatePatientPermissions: sinon.stub(),
+          deletePatientFromClinic: sinon.stub(),
+          deletePatientInvitation: sinon.stub(),
+          get: sinon.stub(),
+        },
+        access: {
+          setMemberPermissions: sinon.stub(),
+          removeMember: sinon.stub(),
+        },
+        invitation: {
+          cancel: sinon.stub(),
+          send: sinon.stub(),
+          resend: sinon.stub(),
+        }
+      },
+      api: {
         invitation: {
           send: sinon.stub(),
         },
@@ -47,14 +64,116 @@ describe('ShareInvite', () => {
       notification: null,
     };
 
+    const completedState = {
+      ...defaultWorkingState,
+      completed: true,
+    };
+
+    const loggedInUserId = 'patient123';
+
     const state = {
       blip: {
-        loggedInUserId: 'patient123',
+        loggedInUserId,
         working: {
           sendingInvite: defaultWorkingState,
           fetchingClinic: defaultWorkingState,
           sendingClinicInvite: defaultWorkingState,
+          fetchingClinicsByIds: defaultWorkingState,
+          fetchingAssociatedAccounts: completedState,
+          fetchingClinicsForPatient: completedState,
+          fetchingPatient: completedState,
+          fetchingPendingSentInvites: completedState,
         },
+        allUsersMap: {
+          clinicianUserId123: {
+            emails: ['clinic@example.com'],
+            roles: ['clinic'],
+            userid: 'clinicianUserId123',
+            username: 'clinic@example.com',
+            profile: {
+              fullName: 'Example Clinic',
+              clinic: {
+                role: 'clinic_manager',
+              },
+            },
+          },
+          otherPatient123: {
+            emails: ['existingShare@example.com'],
+            roles: [],
+            userid: 'otherPatient123',
+            username: 'existingShare@example.com',
+            profile: {
+              fullName: 'Fooey McBear',
+            },
+          },
+        },
+        clinics: {
+          clinicIDNotMember: {
+            clinicians:{},
+            patients: {},
+            id: 'clinicIDNotMember',
+            address: '2 Address Ln, City Zip',
+            name: 'other_clinic_name',
+            email: 'other_clinic_email_address@example.com',
+            phoneNumbers: [
+              {
+                number: '(888) 444-4444',
+                type: 'Office',
+              },
+            ],
+          },
+          clinicIDAmMember: {
+            clinicians:{},
+            patients: {
+              [loggedInUserId]: {
+                email: 'patient@example.com',
+                id: loggedInUserId,
+                permissions: { view: {}, upload: {} },
+              },
+            },
+            id: 'clinicIDAmMember',
+            address: '1 Address Ln, City Zip',
+            name: 'new_clinic_name',
+            email: 'new_clinic_email_address@example.com',
+            phoneNumbers: [
+              {
+                number: '(888) 555-5555',
+                type: 'Office',
+              },
+            ],
+          },
+        },
+        membersOfTargetCareTeam: [
+          'otherPatient123',
+          'clinicianUserId123',
+        ],
+        permissionsOfMembersInTargetCareTeam: {
+          otherPatient123: { view: {}, upload: {} },
+          clinicianUserId123: { view: {}, upload: {} },
+        },
+        pendingSentInvites: [
+          {
+            clinicId: 'clinicIDNotMember',
+            key: '123',
+            context: { view: {} },
+            status: 'pending',
+            type: 'careteam_invitation',
+          },
+          {
+            email: 'declinedShare@example.com',
+            key: '456',
+            context: { view: {}, upload: {} },
+            status: 'declined',
+            type: 'careteam_invitation',
+          },
+          {
+            email: 'pendingShare@example.com',
+            key: '789',
+            context: { view: {}, upload: {} },
+            status: 'pending',
+            type: 'careteam_invitation',
+          },
+        ],
       },
     };
 
@@ -123,7 +242,7 @@ describe('ShareInvite', () => {
       expect(submitButton().prop('disabled')).to.be.true;
 
       // input good email, submit becomes enabled
-      emailField.simulate('change', { target: { id: 'email', value: 'clint@foo.com'} })
+      emailField.simulate('change', { target: { id: 'email', value: 'clint@foo.com'} });
       expect(submitButton().prop('disabled')).to.be.false;
 
       // enable upload permission
@@ -153,6 +272,32 @@ describe('ShareInvite', () => {
         done();
       }, 0);
     });
+
+    it('should not allow sumbitting an invitation existing invite or share exists on the entered email', () => {
+      const submitButton = () => wrapper.find('button#submit');
+      expect(submitButton()).to.have.length(1);
+      expect(submitButton().prop('disabled')).to.be.true;
+
+      const emailField = wrapper.find('input#email[type="text"]');
+      expect(emailField).to.have.length(1);
+
+      const memberRadioSelect = wrapper.find('input[name="type"][value="member"]');
+      expect(memberRadioSelect).to.have.length(1);
+
+      memberRadioSelect.simulate('change', {target: { name: 'type', checked: true, value: 'member'}});
+
+      // input existing pending share email, submit remains disabled
+      emailField.simulate('change', { target: { id: 'email', value: 'pendingShare@example.com'} });
+      expect(submitButton().prop('disabled')).to.be.true;
+
+      // input existing care team member email, submit remains disabled
+      emailField.simulate('change', { target: { id: 'email', value: 'existingShare@example.com'} });
+      expect(submitButton().prop('disabled')).to.be.true;
+
+      // input declined share email, submit should be enabled, to allow re-inviting a declined share
+      emailField.simulate('change', { target: { id: 'email', value: 'declinedShare@example.com'} });
+      expect(submitButton().prop('disabled')).to.be.false;
+    });
   });
 
   describe('clinic invite', () => {
@@ -171,6 +316,7 @@ describe('ShareInvite', () => {
       api: {
         clinics: {
           inviteClinic: sinon.stub(),
+          get: sinon.stub(),
           getClinicByShareCode: sinon.stub().callsArgWith(1, null, clinic),
         },
       },
@@ -196,14 +342,105 @@ describe('ShareInvite', () => {
       notification: null,
     };
 
+    const loggedInUserId = 'patient123';
+
     const state = {
       blip: {
-        loggedInUserId: 'patient123',
+        loggedInUserId,
         working: {
           sendingClinicInvite: defaultWorkingState,
           fetchingClinic: defaultWorkingState,
           sendingInvite: defaultWorkingState,
+          fetchingClinicsByIds: defaultWorkingState,
+          fetchingAssociatedAccounts: completedState,
+          fetchingClinicsForPatient: completedState,
+          fetchingPatient: completedState,
+          fetchingPendingSentInvites: completedState,
         },
+        clinics: {
+          clinicIDNotMember: {
+            clinicians:{},
+            patients: {},
+            shareCode: '2222-2222-2222',
+            id: 'clinicIDNotMember',
+            address: '2 Address Ln, City Zip',
+            name: 'other_clinic_name',
+            email: 'other_clinic_email_address@example.com',
+            phoneNumbers: [
+              {
+                number: '(888) 444-4444',
+                type: 'Office',
+              },
+            ],
+          },
+          clinicIDNotMemberButPending: {
+            clinicians:{},
+            patients: {},
+            shareCode: '4444-4444-4444',
+            id: 'clinicIDNotMemberButPending',
+            address: '2 Address Ln, City Zip',
+            name: 'other_clinic_name',
+            email: 'other_clinic_email_address@example.com',
+            phoneNumbers: [
+              {
+                number: '(888) 444-4444',
+                type: 'Office',
+              },
+            ],
+          },
+          clinicIDAmMember: {
+            clinicians:{},
+            patients: {
+              [loggedInUserId]: {
+                email: 'patient@example.com',
+                id: loggedInUserId,
+                permissions: { view: {}, upload: {} },
+              },
+            },
+            shareCode: '3333-3333-3333',
+            id: 'clinicIDAmMember',
+            address: '1 Address Ln, City Zip',
+            name: 'new_clinic_name',
+            email: 'new_clinic_email_address@example.com',
+            phoneNumbers: [
+              {
+                number: '(888) 555-5555',
+                type: 'Office',
+              },
+            ],
+          },
+        },
+        membersOfTargetCareTeam: [
+          'otherPatient123',
+          'clinicianUserId123',
+        ],
+        permissionsOfMembersInTargetCareTeam: {
+          otherPatient123: { view: {}, upload: {} },
+          clinicianUserId123: { view: {}, upload: {} },
+        },
+        pendingSentInvites: [
+          {
+            clinicId: 'clinicIDNotMemberButPending',
+            key: '123',
+            context: { view: {} },
+            status: 'pending',
+            type: 'careteam_invitation',
+          },
+          {
+            email: 'declinedShare@example.com',
+            key: '456',
+            context: { view: {}, upload: {} },
+            status: 'declined',
+            type: 'careteam_invitation',
+          },
+          {
+            email: 'pendingShare@example.com',
+            key: '789',
+            context: { view: {}, upload: {} },
+            status: 'pending',
+            type: 'careteam_invitation',
+          },
+        ],
       },
     };
 
@@ -211,8 +448,7 @@ describe('ShareInvite', () => {
       blip: {
         loggedInUserId: 'patient123',
         working: {
-          sendingInvite: defaultWorkingState,
-          sendingClinicInvite: defaultWorkingState,
+          ...state.blip.working,
           fetchingClinic: completedState,
         },
         clinics: {
@@ -351,6 +587,27 @@ describe('ShareInvite', () => {
           done();
         }, 0);
       }, 0);
+    });
+
+    it('should not allow sumbitting an invitation using the share code of an existing or pending shared clinic', () => {
+      const submitButton = () => wrapper.find('button#submit');
+      expect(submitButton()).to.have.length(1);
+      expect(submitButton().prop('disabled')).to.be.true;
+
+      const shareCodeField = wrapper.find('input#shareCode[type="text"]');
+      expect(shareCodeField).to.have.length(1);
+
+      // input shareCode of clinic which user is already a member of, submit remains disabled
+      shareCodeField.simulate('change', { target: { id: 'shareCode', value: '3333-3333-3333' } });
+      expect(submitButton().prop('disabled')).to.be.true;
+
+      // input shareCode of clinic to which user has a pending share invite extended, submit remains disabled
+      shareCodeField.simulate('change', { target: { id: 'shareCode', value: '4444-4444-4444' } });
+      expect(submitButton().prop('disabled')).to.be.true;
+
+      // input shareCode of clinic which user is not a member of, submit is enabled
+      shareCodeField.simulate('change', { target: { id: 'shareCode', value: '2222-2222-2222' } });
+      expect(submitButton().prop('disabled')).to.be.false;
     });
   });
 });

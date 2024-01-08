@@ -1069,6 +1069,45 @@ describe('Actions', () => {
             expect(trackMetric.calledWith('Logged In')).to.be.true;
           });
 
+          it('should trigger LOGIN_SUCCESS and it should dispatch `setClinic` if the selectedClinicId state and `dest` param are set', () => {
+            setAPIData({
+              user: { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true }
+            });
+            const selectedClinicId = 'clinic123';
+            const dest = '/some-dest';
+
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [{ inviteId: 'invite123' }] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' }},
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/some-dest', { selectedClinicId: 'clinic123' }] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore({
+              blip: { ...initialState, selectedClinicId },
+              router: { location: { query: { dest } } },
+            });
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+          });
 
           it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the workspaces view', () => {
             setAPIData({

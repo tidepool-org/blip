@@ -222,6 +222,10 @@ const text = {
 
     '&.error': {
       color: 'feedback.danger',
+      ul: {
+        paddingLeft: '20px',
+        marginTop: 0,
+      }
     },
 
     '&.warning': {

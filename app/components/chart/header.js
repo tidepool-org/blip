@@ -38,11 +38,6 @@ const Header = withTranslation()(class Header extends Component {
   renderStandard = () => {
     const { t } = this.props;
 
-    const printViews = ['basics', 'daily', 'bgLog', 'settings'];
-    if (this.props.chartPrefs?.trends?.showingCbg) printViews.push('trends');
-
-    const showPrintLink = _.includes(printViews, this.props.chartType);
-
     const basicsLinkClass = cx({
       'js-basics': true,
       'patient-data-subnav-active': this.props.chartType === 'basics',
@@ -119,7 +114,7 @@ const Header = withTranslation()(class Header extends Component {
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
       'patient-data-subnav-active': false,
-      'patient-data-subnav-hidden': !showPrintLink,
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
     return (

@@ -288,6 +288,13 @@ export function login(api, credentials, options, postLoginAction) {
               }
               else {
                 if (values.invites?.length) {
+                  // If that the initial selectedClinicId state is available, and the user is on an
+                  // internal route, such as on page refresh, dispatch the selectClinic action so
+                  // that middlewares (currently Pendo and LaunchDarkly) can react to it.
+                  if (userHasClinicProfile && selectedClinicId && hasDest) {
+                    dispatch(sync.selectClinic(selectedClinicId));
+                  }
+
                   // If we have an empty clinic profile, go to clinic details, otherwise workspaces
                   setRedirectRoute(!userHasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces);
                 } else if (values.clinics?.length) {

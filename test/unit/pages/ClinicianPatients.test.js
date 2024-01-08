@@ -121,6 +121,7 @@ describe('ClinicianPatients', () => {
         updatingPatient: defaultWorkingState,
         creatingVCACustodialAccount: defaultWorkingState,
         sendingPatientDexcomConnectRequest: defaultWorkingState,
+        fetchingPatientsForClinic: defaultWorkingState,
       },
     },
   };
@@ -430,7 +431,7 @@ describe('ClinicianPatients', () => {
 
         expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn123');
         patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn456');
+        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
 
         expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient2@test.ca');
         patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
@@ -453,7 +454,7 @@ describe('ClinicianPatients', () => {
               profile: {
                 emails: ['patient-two@test.ca'],
                 fullName: 'Patient 2',
-                patient: { birthday: '1999-01-01', mrn: 'mrn456' },
+                patient: { birthday: '1999-01-01', mrn: 'MRN456' },
               },
               userid: 'patient2',
               username: 'patient-two@test.ca',

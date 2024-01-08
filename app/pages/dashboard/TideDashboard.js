@@ -294,8 +294,9 @@ const TideDashboardSection = React.memo(props => {
   const renderTimeInPercent = useCallback((summaryKey, summary) => {
     const formattingKeyMap = {
       timeCGMUsePercent: 'cgmUse',
-      timeInVeryLowPercent: 'veryLow',
+      timeInAnyLowPercent: 'low',
       timeInLowPercent: 'low',
+      timeInVeryLowPercent: 'veryLow',
       timeInTargetPercent: 'target',
     }
 
@@ -376,6 +377,10 @@ const TideDashboardSection = React.memo(props => {
     ? utils.translateBg(config?.lowGlucoseThreshold, MGDL_UNITS)
     : utils.formatDecimal(config?.lowGlucoseThreshold, 1);
 
+  const highGlucoseThreshold = clinicBgUnits === MGDL_UNITS
+    ? utils.translateBg(config?.highGlucoseThreshold, MGDL_UNITS)
+    : utils.formatDecimal(config?.highGlucoseThreshold, 1);
+
   const columns = useMemo(() => {
     const cols = [
       {
@@ -404,19 +409,19 @@ const TideDashboardSection = React.memo(props => {
         render: renderTimeInPercent.bind(null, 'timeCGMUsePercent'),
       },
       {
-        title: t(`Time below ${veryLowGlucoseThreshold}`),
+        title: t('% Time < {{threshold}}', { threshold: veryLowGlucoseThreshold }),
         field: 'timeInVeryLowPercent',
         align: 'center',
         render: renderTimeInPercent.bind(null, 'timeInVeryLowPercent'),
       },
       {
-        title: t(`Time below ${lowGlucoseThreshold}`),
+        title: t('% Time {{lower}}-{{upper}}', { lower: veryLowGlucoseThreshold, upper: lowGlucoseThreshold }),
         field: 'timeInLowPercent',
         align: 'center',
         render: renderTimeInPercent.bind(null, 'timeInLowPercent'),
       },
       {
-        title: t('Time in Range'),
+        title: t('% TIR {{lower}}-{{upper}}', { lower: lowGlucoseThreshold, upper: highGlucoseThreshold }),
         field: 'timeInTargetPercent',
         align: 'center',
         render: renderTimeInPercent.bind(null, 'timeInTargetPercent'),
@@ -472,7 +477,7 @@ const TideDashboardSection = React.memo(props => {
       veryLowGlucoseThreshold,
       clinicBgUnits,
     }),
-    timeInLowPercent: t('Time below {{lowGlucoseThreshold}} {{clinicBgUnits}} > 4%', {
+    timeInAnyLowPercent: t('Time below {{lowGlucoseThreshold}} {{clinicBgUnits}} > 4%', {
       lowGlucoseThreshold,
       clinicBgUnits,
     }),
@@ -574,7 +579,7 @@ export const TideDashboard = (props) => {
 
   const defaultSections = [
     { groupKey: 'timeInVeryLowPercent', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
-    { groupKey: 'timeInLowPercent', sortDirection: 'desc', sortKey: 'timeInLowPercent' },
+    { groupKey: 'timeInAnyLowPercent', sortDirection: 'desc', sortKey: 'timeInAnyLowPercent' },
     { groupKey: 'dropInTimeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
     { groupKey: 'timeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
     { groupKey: 'timeCGMUsePercent', sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
