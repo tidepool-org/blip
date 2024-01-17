@@ -1,12 +1,12 @@
 import get from 'lodash/get';
 import filter from 'lodash/filter';
 import includes from 'lodash/includes';
-import indexOf from 'lodash/indexOf';
 import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
 import bows from 'bows';
 import config from '../../config';
 import * as ActionTypes from '../constants/actionTypes';
+import { isClinicianAccount } from '../../core/personutils';
 
 const trackingActions = [
   ActionTypes.LOGIN_SUCCESS,
@@ -85,7 +85,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         }
       }
 
-      const role = indexOf(user?.roles, 'clinic') !== -1 ? 'clinician' : 'personal';
+      const role = isClinicianAccount(user) ? 'clinician' : 'personal';
 
       pendoAction({
         visitor: {
