@@ -30,7 +30,7 @@ import { TagList } from '../../components/elements/Tag';
 import ResendDexcomConnectRequestDialog from './ResendDexcomConnectRequestDialog';
 import { useToasts } from '../../providers/ToastProvider';
 import { getCommonFormikFieldProps } from '../../core/forms';
-import { useIsFirstRender, usePrevious } from '../../core/hooks';
+import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../core/hooks';
 import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../core/personutils';
 import { Body0 } from '../../components/elements/FontStyles';
@@ -63,7 +63,17 @@ function emptyValuesFilter(value, key) {
 }
 
 export const PatientForm = (props) => {
-  const { t, api, onFormChange, patient, trackMetric, searchDebounceMs, ...boxProps } = props;
+  const {
+    t,
+    api,
+    onFormChange,
+    patient,
+    trackMetric,
+    searchDebounceMs,
+    initialFocusedInput = 'fullName',
+    ...boxProps
+  } = props;
+
   const dispatch = useDispatch();
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
@@ -91,6 +101,7 @@ export const PatientForm = (props) => {
   const { fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   const dexcomConnectStateUI = {
     pending: {
@@ -336,6 +347,7 @@ export const PatientForm = (props) => {
       <Box mb={4}>
         <TextInput
           {...getCommonFormikFieldProps('fullName', formikContext)}
+          innerRef={initialFocusedInput === 'fullName' ? initialFocusedInputRef : undefined}
           label={t('Full Name')}
           placeholder={t('Full Name')}
           variant="condensed"
@@ -359,6 +371,7 @@ export const PatientForm = (props) => {
         >
           <TextInput
             name="birthDate"
+            innerRef={initialFocusedInput === 'birthDate' ? initialFocusedInputRef : undefined}
             label={t('Birthdate')}
             placeholder={dateInputFormat.toLowerCase()}
             variant="condensed"
@@ -370,7 +383,8 @@ export const PatientForm = (props) => {
       <Box mb={4}>
         <TextInput
           {...getCommonFormikFieldProps('mrn', formikContext)}
-         label={mrnSettings?.required ? t('MRN') : t('MRN (optional)')}
+          innerRef={initialFocusedInput === 'mrn' ? initialFocusedInputRef : undefined}
+          label={mrnSettings?.required ? t('MRN') : t('MRN (optional)')}
           placeholder={t('MRN')}
           variant="condensed"
           width="100%"
@@ -388,6 +402,7 @@ export const PatientForm = (props) => {
       <Box mb={2}>
         <TextInput
           {...getCommonFormikFieldProps('email', formikContext)}
+          innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
           label={t('Email (optional)')}
           placeholder={t('Email')}
           variant="condensed"
@@ -623,6 +638,7 @@ PatientForm.propTypes = {
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
   searchDebounceMs: PropTypes.number.isRequired,
+  initialFocusedInput: PropTypes.string,
 };
 
 PatientForm.defaultProps = {
