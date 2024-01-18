@@ -64,7 +64,7 @@ export const PrintDateRangeModal = (props) => {
 
   const presetDaysOptions = {
     agpBGM: [14, 30],
-    agpCGM: [7, 14],
+    agpCGM: [7, 14, 30],
     basics: [14, 21, 30, 90],
     bgLog: [14, 21, 30, 90],
     daily: [14, 21, 30, 90],

@@ -156,10 +156,12 @@ describe('PrintDateRangeModal', function () {
   it('should provide appropriate date ranges and selected defaults for each applicable chart', () => {
     const agpCGMDatesRangePreset1 = wrapper.find('#days-agpCGM').find('button').at(0).hostNodes();
     const agpCGMDatesRangePreset2 = wrapper.find('#days-agpCGM').find('button').at(1).hostNodes();
+    const agpCGMDatesRangePreset3 = wrapper.find('#days-agpCGM').find('button').at(2).hostNodes();
     const agpCGMDatesRangeSelectedPreset = wrapper.find('#days-agpCGM').find('.selected').hostNodes();
 
     expect(agpCGMDatesRangePreset1.prop('value')).to.equal(7);
     expect(agpCGMDatesRangePreset2.prop('value')).to.equal(14);
+    expect(agpCGMDatesRangePreset3.prop('value')).to.equal(30);
     expect(agpCGMDatesRangeSelectedPreset.prop('value')).to.equal(14);
 
     const agpBGMDatesRangePreset1 = wrapper.find('#days-agpBGM').find('button').at(0).hostNodes();
