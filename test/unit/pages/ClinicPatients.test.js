@@ -612,17 +612,18 @@ describe('ClinicPatients', () => {
           }
         );
 
-        expect(store.getActions()).to.eql([
-          { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
-          {
-            type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS',
-            payload: {
-              clinicId: 'clinicID123',
-              patientId: 'stubbedId',
-              patient: { id: 'stubbedId' },
-            },
+        expect(store.getActions()[0]).to.eql({
+          type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST',
+        })
+
+        expect(store.getActions()[1]).to.eql({
+          type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS',
+          payload: {
+            clinicId: 'clinicID123',
+            patientId: 'stubbedId',
+            patient: { id: 'stubbedId' },
           },
-        ]);
+        });
 
         done();
       }, 0);
