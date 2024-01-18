@@ -158,7 +158,8 @@ describe('PDFWorker', () => {
 
   it('should fire a failure action uplon failed query', () => {
     const postMessage = sinon.stub();
-    dataUtil.query.throws(new Error('query error'));
+    const error = new Error('query error');
+    dataUtil.query.throws(error);
 
     Worker = new PDFWorker(dataUtil, importer, renderer);
 
@@ -168,7 +169,7 @@ describe('PDFWorker', () => {
     sinon.assert.calledOnce(postMessage);
     sinon.assert.calledWithExactly(
       postMessage,
-      actions.generatePDFFailure(new Error('query error'))
+      actions.generatePDFFailure(error)
     );
     dataUtil.query = sinon.stub().callsFake(key => queryResults[key]);
   });
