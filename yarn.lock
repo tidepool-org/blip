@@ -5268,9 +5268,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.12":
-  version: 1.38.0-web-2595-critical-depandancy-updates.12
-  resolution: "@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.12"
+"@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.13":
+  version: 1.38.0-web-2595-critical-depandancy-updates.13
+  resolution: "@tidepool/viz@npm:1.38.0-web-2595-critical-depandancy-updates.13"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5320,6 +5320,7 @@ __metadata:
     translate-svg-path: 0.0.1
     util: 0.12.5
     victory: 31.3.0
+    victory-core: 31.2.0
     voilab-pdf-table: 0.5.1
   peerDependencies:
     babel-core: 6.x || ^7.0.0-bridge.0
@@ -5329,7 +5330,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 43d81c7008ea1cff72726cf9d1cb0a370a82fe5444a78949cc8dcbe986eeb4113a97a48c2afe95482f7210c2cb860c44389d45d588cbb0c8a83acbeb838f3711
+  checksum: 64dccb4df75c9e2b2082c764635afa0260113a32f8f95ed2fbbe38b8e1e66910ae7040f80260f10cb99a22328787755f307dc95ba6d15a636ee90baa0eb250b7
   languageName: node
   linkType: hard
 
@@ -7426,7 +7427,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.38.0-web-2595-critical-depandancy-updates.12
+    "@tidepool/viz": 1.38.0-web-2595-critical-depandancy-updates.13
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -24243,7 +24244,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"victory-core@npm:^31.2.0":
+"victory-core@npm:31.2.0, victory-core@npm:^31.2.0":
   version: 31.2.0
   resolution: "victory-core@npm:31.2.0"
   dependencies:
