@@ -106,4 +106,4 @@ COPY --from=build \
   /app/package.json \
   /app/server.js \
   ./
-CMD ["npm", "run", "server"]
+CMD ["node", "server"]
