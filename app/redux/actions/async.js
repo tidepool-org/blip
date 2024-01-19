@@ -2384,7 +2384,7 @@ export function fetchPatientInvites(api, clinicId) {
  * @param {String} clinicId - Id of the clinic
  * @param {String} inviteId - Id of the invite
  */
-export function acceptPatientInvitation(api, clinicId, inviteId) {
+export function acceptPatientInvitation(api, clinicId, inviteId, patientId) {
   return (dispatch) => {
     dispatch(sync.acceptPatientInvitationRequest());
 
@@ -2394,7 +2394,7 @@ export function acceptPatientInvitation(api, clinicId, inviteId) {
           createActionError(ErrorMessages.ERR_ACCEPTING_PATIENT_INVITATION, err), err
         ));
       } else {
-        dispatch(sync.acceptPatientInvitationSuccess(clinicId, inviteId));
+        dispatch(sync.acceptPatientInvitationSuccess(clinicId, inviteId, patientId));
       }
     });
   };

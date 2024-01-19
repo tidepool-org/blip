@@ -354,6 +354,7 @@ export default (state = initialWorkingState, action) => {
           types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS,
           types.UPDATE_CLINIC_PATIENT_SUCCESS,
           types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS,
+          types.ACCEPT_PATIENT_INVITATION_SUCCESS,
         ], action.type)) {
           return update(state, {
             [key]: {
