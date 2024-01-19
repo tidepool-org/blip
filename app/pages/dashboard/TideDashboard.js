@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { translate, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
+import compact from 'lodash/compact';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
@@ -548,6 +549,7 @@ export const TideDashboard = (props) => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const mrnSettings = clinic?.mrnSettings ?? {};
   const { config, results: patientGroups } = useSelector((state) => state.blip.tideDashboardPatients);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
@@ -563,6 +565,11 @@ export const TideDashboard = (props) => {
   const { showTideDashboard, showSummaryDashboard } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
+
+  const existingMRNs = useMemo(
+    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
+    [clinic?.patients, selectedPatient?.id]
+  );
 
   const {
     fetchingPatientFromClinic,
@@ -894,7 +901,7 @@ export const TideDashboard = (props) => {
             variant="primary"
             onClick={handleEditPatientConfirm}
             processing={updatingClinicPatient.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Save Changes')}
           </Button>
@@ -903,7 +910,9 @@ export const TideDashboard = (props) => {
     );
   }, [
     api,
+    existingMRNs,
     handleEditPatientConfirm,
+    mrnSettings,
     patientFormContext?.values,
     selectedClinicId,
     selectedPatient,
