@@ -12,6 +12,7 @@ import keyBy from 'lodash/keyBy';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import omitBy from 'lodash/omitBy';
+import pick from 'lodash/pick';
 import reject from 'lodash/reject';
 import without from 'lodash/without';
 import { useFormik } from 'formik';
@@ -65,7 +66,9 @@ function emptyValuesFilter(value, key) {
 export const PatientForm = (props) => {
   const {
     t,
+    action,
     api,
+    invite,
     onFormChange,
     patient,
     trackMetric,
@@ -91,7 +94,8 @@ export const PatientForm = (props) => {
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
   const dexcomAuthInviteExpired = dexcomDataSource?.expirationTime < moment.utc().toISOString();
-  const showConnectDexcom = !!selectedClinicId && !dexcomDataSource;
+  const showConnectDexcom = action !== 'acceptInvite' && !!selectedClinicId && !dexcomDataSource;
+  const showEmail = action !== 'acceptInvite';
   const [disableConnectDexcom, setDisableConnectDexcom] = useState(false);
   const showDexcomConnectState = !!selectedClinicId && !!dexcomDataSource?.state;
   const [showResendDexcomConnectRequest, setShowResendDexcomConnectRequest] = useState(false);
@@ -154,7 +158,6 @@ export const PatientForm = (props) => {
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags),
     onSubmit: (values, formikHelpers) => {
-      const action = patient?.id ? 'edit' : 'create';
       const context = selectedClinicId ? 'clinic' : 'vca';
 
       const actionMap = {
@@ -177,6 +180,15 @@ export const PatientForm = (props) => {
             handler: 'createVCACustodialAccount',
             args: () => [accountInfoFromClinicPatient(omitBy(values, emptyValuesFilter)).profile],
           },
+        },
+        acceptInvite: {
+          clinic: {
+            handler: 'acceptPatientInvitation',
+            args: () => [selectedClinicId, invite.key, invite.creatorId, omitBy(
+              pick(getFormValues(values, clinicPatientTags, disableConnectDexcom), ['mrn', 'birthDate', 'fullName', 'tags']),
+              emptyValuesFilter
+            )],
+          },
         }
       }
 
@@ -192,6 +204,7 @@ export const PatientForm = (props) => {
         trackMetric('Clinic - Request dexcom connection for patient', {
           clinicId: selectedClinicId,
           reason,
+          action,
         });
 
         formikHelpers.setStatus('sendingDexcomConnectRequest');
@@ -285,17 +298,19 @@ export const PatientForm = (props) => {
   }, [values, clinicPatientTags, status]);
 
   useEffect(() => {
-    const hasValidEmail = !isEmpty(values.email) && !errors.email;
-    setDisableConnectDexcom(!hasValidEmail);
+    if (includes(['create', 'edit'], action)) {
+      const hasValidEmail = !isEmpty(values.email) && !errors.email;
+      setDisableConnectDexcom(!hasValidEmail);
 
-    if (values.connectDexcom && !hasValidEmail) {
-      setFieldValue('connectDexcom', false);
+      if (values.connectDexcom && !hasValidEmail) {
+        setFieldValue('connectDexcom', false);
+      }
     }
-  }, [values.email, errors.email]);
+  }, [values.email, errors.email, action]);
 
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
   useEffect(() => {
-    if (selectedClinicId && patient?.id) dispatch(actions.async.fetchPatientFromClinic.bind(null, api, selectedClinicId, patient.id)())
+    if ((action === 'edit') && selectedClinicId && patient?.id) dispatch(actions.async.fetchPatientFromClinic.bind(null, api, selectedClinicId, patient.id)())
   }, []);
 
   useEffect(() => {
@@ -342,6 +357,7 @@ export const PatientForm = (props) => {
     <Box
       as="form"
       id="clinic-patient-form"
+      sx={{ minWidth: [null, '320px'] }}
       {...boxProps}
     >
       <Box mb={4}>
@@ -399,21 +415,25 @@ export const PatientForm = (props) => {
         />
       </Box>
 
-      <Box mb={2}>
-        <TextInput
-          {...getCommonFormikFieldProps('email', formikContext)}
-          innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
-          label={t('Email (optional)')}
-          placeholder={t('Email')}
-          variant="condensed"
-          width="100%"
-          disabled={patient?.id && !patient?.permissions?.custodian}
-        />
-      </Box>
+      {showEmail && (
+        <>
+          <Box mb={2}>
+            <TextInput
+              {...getCommonFormikFieldProps('email', formikContext)}
+              innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
+              label={t('Email (optional)')}
+              placeholder={t('Email')}
+              variant="condensed"
+              width="100%"
+              disabled={patient?.id && !patient?.permissions?.custodian}
+              />
+          </Box>
 
-      <Body0 fontWeight="medium">
-        {t('If you want your patients to upload their data from home, you must include their email address.')}
-      </Body0>
+          <Body0 fontWeight="medium">
+            {t('If you want your patients to upload their data from home, you must include their email address.')}
+          </Body0>
+        </>
+      )}
 
       {showTags && (
         <Box
@@ -633,12 +653,14 @@ export const PatientForm = (props) => {
 PatientForm.propTypes = {
   ...BoxProps,
   api: PropTypes.object.isRequired,
+  invite: PropTypes.object,
   onFormChange: PropTypes.func.isRequired,
   patient: PropTypes.object,
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
   searchDebounceMs: PropTypes.number.isRequired,
   initialFocusedInput: PropTypes.string,
+  action: PropTypes.oneOf(['create', 'edit', 'acceptInvite']).isRequired,
 };
 
 PatientForm.defaultProps = {

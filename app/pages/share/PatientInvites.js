@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import forEach from 'lodash/forEach';
+import compact from 'lodash/compact';
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty';
+import keys from 'lodash/keys';
 import map from 'lodash/map';
+import reject from 'lodash/reject';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
@@ -21,6 +24,7 @@ import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
+import PatientForm from '../../components/clinic/PatientForm';
 
 import {
   Dialog,
@@ -32,7 +36,10 @@ import {
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
+import { fieldsAreValid } from '../../core/forms';
 import { borders, colors } from '../../themes/baseTheme';
+import { patientSchema as validationSchema } from '../../core/clinicUtils';
+import { clinicPatientFromPatientInvite } from '../../core/personutils';
 
 export const PatientInvites = (props) => {
   const { t, api, trackMetric } = props;
@@ -46,11 +53,20 @@ export const PatientInvites = (props) => {
   const [searchText, setSearchText] = React.useState('');
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState();
+  const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [patientFormContext, setPatientFormContext] = useState();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const clinic = get(clinics, selectedClinicId);
+  const openPatientModalOnAccept = clinic?.mrnSettings?.required || (clinic?.tier >= 'tier0300');
   const rowsPerPage = 8;
+
+  const existingMRNs = useMemo(
+    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
+    [clinic?.patients, selectedPatient?.id]
+  );
 
   const {
     fetchingPatientInvites,
@@ -58,19 +74,16 @@ export const PatientInvites = (props) => {
     deletingPatientInvitation,
   } = useSelector((state) => state.blip.working);
 
-  function handleAsyncResult(workingState, successMessage) {
+  const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification } = workingState;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
-        setShowDeleteDialog(false);
-
-        setToast({
+        onComplete();
+        successMessage && setToast({
           message: successMessage,
           variant: 'success',
         });
-
-        setSelectedInvitation(null);
       }
 
       if (completed === false) {
@@ -80,7 +93,7 @@ export const PatientInvites = (props) => {
         });
       }
     }
-  }
+  }, [isFirstRender, setToast]);
 
   useEffect(() => {
     handleAsyncResult(acceptingPatientInvitation, t('Patient invite for {{name}} has been accepted.', {
@@ -117,6 +130,7 @@ export const PatientInvites = (props) => {
   useEffect(() => {
     if (clinic) {
       setPendingInvites(map(values(clinic?.patientInvites), invite => ({
+        creatorId: invite.creatorId,
         key: invite.key,
         name: get(invite, 'creator.profile.fullName', ''),
         nameOrderable: get(invite, 'creator.profile.fullName', '').toLowerCase(),
@@ -152,9 +166,36 @@ export const PatientInvites = (props) => {
     }
   }, [fetchingPatientInvites]);
 
+  function handleCloseOverlays() {
+    setShowEditPatientDialog(false);
+    setShowDeleteDialog(false);
+
+    setTimeout(() => {
+      setSelectedPatient(null);
+      setSelectedInvitation(null)
+    });
+  }
+
+  function handlePatientFormChange(formikContext) {
+    setPatientFormContext({...formikContext});
+  }
+
+  const handleEditPatientConfirm = useCallback(() => {
+    trackMetric('Clinic - Edit invited patient details confirm', { clinicId: selectedClinicId });
+    patientFormContext?.handleSubmit();
+  }, [patientFormContext, selectedClinicId, trackMetric]);
+
   function handleAccept(invite) {
-    trackMetric('Clinic - Accept patient invite', { clinicId: selectedClinicId });
-    dispatch(actions.async.acceptPatientInvitation(api, clinic.id, invite.key));
+    if (openPatientModalOnAccept) {
+      trackMetric('Clinic - Edit invited patient', { clinicId: selectedClinicId });
+      const patientInvite = clinic?.patientInvites?.[invite.key];
+      const patient = clinicPatientFromPatientInvite(patientInvite);
+      setSelectedPatient(patient);
+      setShowEditPatientDialog(true);
+    } else {
+      trackMetric('Clinic - Accept patient invite', { clinicId: selectedClinicId });
+      dispatch(actions.async.acceptPatientInvitation(api, clinic.id, invite.key, invite.creatorId));
+    }
   }
 
   function handleDecline(member) {
@@ -194,6 +235,68 @@ export const PatientInvites = (props) => {
   const handleTableFilter = (data) => {
     setPageCount(Math.ceil(data.length / rowsPerPage));
   };
+
+  const renderEditPatientDialog = useCallback(() => {
+    return (
+      <Dialog
+        id="editPatient"
+        aria-labelledby="dialog-title"
+        open={showEditPatientDialog}
+        onClose={handleCloseOverlays}
+      >
+        <DialogTitle onClose={() => {
+          trackMetric('Clinic - Edit invited patient close', { clinicId: selectedClinicId });
+          handleCloseOverlays();
+        }}>
+          <MediumTitle id="dialog-title">{t('Confirm Patient Details')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <PatientForm
+            api={api}
+            trackMetric={trackMetric}
+            invite={selectedInvitation}
+            onFormChange={handlePatientFormChange}
+            patient={selectedPatient}
+            initialFocusedInput="mrn"
+            action="acceptInvite"
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="editPatientCancel" variant="secondary" onClick={() => {
+            trackMetric('Clinic - Edit invited patient cancel', { clinicId: selectedClinicId });
+            handleCloseOverlays();
+          }}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="editPatientConfirm"
+            variant="primary"
+            onClick={handleEditPatientConfirm}
+            processing={acceptingPatientInvitation.inProgress}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings: clinic?.mrnSettings, existingMRNs}), patientFormContext?.values)}
+          >
+            {t('Save')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [
+    api,
+    acceptingPatientInvitation.inProgress,
+    existingMRNs,
+    handleEditPatientConfirm,
+    clinic?.mrnSettings,
+    patientFormContext?.values,
+    selectedClinicId,
+    selectedInvitation,
+    selectedPatient,
+    showEditPatientDialog,
+    t,
+    trackMetric,
+  ]);
 
   const renderName = ({ name }) => (
     <Box>
@@ -374,6 +477,8 @@ export const PatientInvites = (props) => {
           </DialogActions>
         </Dialog>
       </Box>
+
+      {showEditPatientDialog && renderEditPatientDialog()}
     </>
   );
 };
