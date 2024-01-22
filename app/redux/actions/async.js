@@ -2384,11 +2384,11 @@ export function fetchPatientInvites(api, clinicId) {
  * @param {String} clinicId - Id of the clinic
  * @param {String} inviteId - Id of the invite
  */
-export function acceptPatientInvitation(api, clinicId, inviteId, patientId) {
+export function acceptPatientInvitation(api, clinicId, inviteId, patientId, patientDetails) {
   return (dispatch) => {
     dispatch(sync.acceptPatientInvitationRequest());
 
-    api.clinics.acceptPatientInvitation(clinicId, inviteId, (err, result) => {
+    api.clinics.acceptPatientInvitation(clinicId, inviteId, patientDetails, (err, result) => {
       if (err) {
         dispatch(sync.acceptPatientInvitationFailure(
           createActionError(ErrorMessages.ERR_ACCEPTING_PATIENT_INVITATION, err), err
