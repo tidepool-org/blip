@@ -239,7 +239,7 @@ export const PatientInvites = (props) => {
   const renderEditPatientDialog = useCallback(() => {
     return (
       <Dialog
-        id="editPatient"
+        id="editInvitedPatient"
         aria-labelledby="dialog-title"
         open={showEditPatientDialog}
         onClose={handleCloseOverlays}
@@ -264,7 +264,7 @@ export const PatientInvites = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button id="editPatientCancel" variant="secondary" onClick={() => {
+          <Button id="editInvitedPatientCancel" variant="secondary" onClick={() => {
             trackMetric('Clinic - Edit invited patient cancel', { clinicId: selectedClinicId });
             handleCloseOverlays();
           }}>
@@ -272,7 +272,7 @@ export const PatientInvites = (props) => {
           </Button>
 
           <Button
-            id="editPatientConfirm"
+            id="editInvitedPatientConfirm"
             variant="primary"
             onClick={handleEditPatientConfirm}
             processing={acceptingPatientInvitation.inProgress}

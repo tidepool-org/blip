@@ -213,7 +213,6 @@ personUtils.clinicPatientFromAccountInfo = patient => ({
 personUtils.clinicPatientFromPatientInvite = invite => ({
   permissions: invite.context,
   id: invite.creatorId,
-  email: invite.email,
   fullName: personUtils.patientFullName(invite.creator),
   birthDate: _.get(invite, 'creator.profile.patient.birthday'),
   mrn: _.get(invite, 'creator.profile.patient.mrn'),
