@@ -99,10 +99,9 @@ export const PatientForm = (props) => {
   const [disableConnectDexcom, setDisableConnectDexcom] = useState(false);
   const showDexcomConnectState = !!selectedClinicId && !!dexcomDataSource?.state;
   const [showResendDexcomConnectRequest, setShowResendDexcomConnectRequest] = useState(false);
-  const { sendingPatientDexcomConnectRequest } = useSelector((state) => state.blip.working);
+  const { sendingPatientDexcomConnectRequest, fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const { fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();

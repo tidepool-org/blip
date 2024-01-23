@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
+import noop from 'lodash/noop';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 import Table from '../../../../app/components/elements/Table';
 import PatientInvites from '../../../../app/pages/share/PatientInvites';
@@ -104,13 +105,16 @@ describe('PatientInvites', () => {
         fetchingPatientInvites: completedState,
         acceptingPatientInvitation: defaultWorkingState,
         deletingPatientInvitation: defaultWorkingState,
+        deletingPatientInvitation: defaultWorkingState,
+        sendingPatientDexcomConnectRequest: defaultWorkingState,
+        fetchingPatientsForClinic: defaultWorkingState,
       },
     },
   };
 
   let store;
 
-  const hasInvitesState = merge({}, noInvitesState, {
+  const hasInvitesState = (clinicOverrides = { tier: 'tier0100' }) => merge({}, noInvitesState, {
     blip: {
       allUsersMap: {
         clinicianUserId123,
@@ -124,6 +128,7 @@ describe('PatientInvites', () => {
             invite1: {
               key: 'invite1',
               status: 'pending',
+              creatorId: 'patient1',
               creator: { profile: {
                 fullName: 'Patient One',
                 patient: { birthday: '1999-01-01' }
@@ -132,6 +137,7 @@ describe('PatientInvites', () => {
             invite2: {
               key: 'invite2',
               status: 'pending',
+              creatorId: 'patient2',
               creator: { profile: {
                 fullName: 'Patient Two',
                 patient: { birthday: '1999-02-02' }
@@ -148,6 +154,7 @@ describe('PatientInvites', () => {
               type: 'Office',
             },
           ],
+          ...clinicOverrides,
         },
       },
     },
@@ -193,7 +200,7 @@ describe('PatientInvites', () => {
 
   context('has pending invites', () => {
     beforeEach(() => {
-      store = mockStore(hasInvitesState);
+      store = mockStore(hasInvitesState());
       defaultProps.trackMetric.resetHistory();
       wrapper = mount(
         <Provider store={store}>
@@ -231,7 +238,7 @@ describe('PatientInvites', () => {
       expect(table().find('tr').at(1).text()).contains('Patient Two')
     });
 
-    it('should allow accepting a patient invite', () => {
+    it('should allow accepting a patient invite directly for tier0200 clinics', () => {
       const table = wrapper.find(Table);
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(3); // header row + 2 invites
@@ -245,6 +252,162 @@ describe('PatientInvites', () => {
       ]);
 
       sinon.assert.calledWith(defaultProps.api.clinics.acceptPatientInvitation, 'clinicID123', 'invite1');
+    });
+
+    it('should open a modal to set patient details prior to accepting a patient invite for tier0300 clinics', done => {
+      store = mockStore(hasInvitesState({ tier: 'tier0300' }));
+      defaultProps.trackMetric.resetHistory();
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <PatientInvites {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      const table = wrapper.find(Table);
+      expect(table).to.have.length(1);
+      expect(table.find('tr')).to.have.length(3); // header row + 2 invites
+      const acceptButton = table.find('tr').at(2).find('Button.accept-invite');
+      expect(acceptButton.text()).to.equal('Accept');
+
+      const dialog = () => wrapper.find('Dialog#editInvitedPatient');
+      expect(dialog()).to.have.length(0);
+      acceptButton.simulate('click');
+
+      wrapper.update();
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Edit invited patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Two');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient 2');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('02/02/1999');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '01/01/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
+
+      // should not show the email field
+      expect(patientForm().find('input[name="email"]')).to.have.lengthOf(0);
+
+      // should not show the dexcom connection section
+      expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
+
+      store.clearActions();
+      dialog().find('Button#editInvitedPatientConfirm').simulate('click');
+
+      setTimeout(() => {
+        expect(defaultProps.api.clinics.acceptPatientInvitation.callCount).to.equal(1);
+
+        sinon.assert.calledWith(
+          defaultProps.api.clinics.acceptPatientInvitation,
+          'clinicID123',
+          'invite2',
+          {
+            birthDate: '1999-01-01',
+            fullName: 'Patient 2',
+            mrn: 'MRN456',
+            tags: [],
+          }
+        );
+
+        expect(store.getActions()).to.eql([
+          { type: 'ACCEPT_PATIENT_INVITATION_REQUEST' },
+        ]);
+
+        done();
+      }, 0);
+    });
+
+    it('should open a modal to set patient details prior to accepting a patient invite for mrnSettings.required clinics', done => {
+      store = mockStore(hasInvitesState({ mrnSettings: { required: true } }));
+      defaultProps.trackMetric.resetHistory();
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <PatientInvites {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      const table = wrapper.find(Table);
+      expect(table).to.have.length(1);
+      expect(table.find('tr')).to.have.length(3); // header row + 2 invites
+      const acceptButton = table.find('tr').at(2).find('Button.accept-invite');
+      expect(acceptButton.text()).to.equal('Accept');
+
+      const dialog = () => wrapper.find('Dialog#editInvitedPatient');
+      expect(dialog()).to.have.length(0);
+      acceptButton.simulate('click');
+
+      wrapper.update();
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Edit invited patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Two');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient 2');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('02/02/1999');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '01/01/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
+
+      // Since MRN is required, submit button should be disabled until filled
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+
+      expect(dialog().find('Button#editInvitedPatientConfirm').props().disabled).to.be.true;
+
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
+
+      expect(dialog().find('Button#editInvitedPatientConfirm').props().disabled).to.be.false;
+
+      // should not show the email field
+      expect(patientForm().find('input[name="email"]')).to.have.lengthOf(0);
+
+      // should not show the dexcom connection section
+      expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
+
+      store.clearActions();
+      dialog().find('Button#editInvitedPatientConfirm').simulate('click');
+
+      setTimeout(() => {
+        expect(defaultProps.api.clinics.acceptPatientInvitation.callCount).to.equal(1);
+
+        sinon.assert.calledWith(
+          defaultProps.api.clinics.acceptPatientInvitation,
+          'clinicID123',
+          'invite2',
+          {
+            birthDate: '1999-01-01',
+            fullName: 'Patient 2',
+            mrn: 'MRN456',
+            tags: [],
+          }
+        );
+
+        expect(store.getActions()).to.eql([
+          { type: 'ACCEPT_PATIENT_INVITATION_REQUEST' },
+        ]);
+
+        done();
+      }, 0);
     });
 
     it('should allow declining a patient invite', () => {
