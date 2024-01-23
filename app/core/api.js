@@ -985,8 +985,8 @@ api.clinics.getPatientInvites = function(clinicId, cb) {
   return tidepool.getPatientInvites(clinicId, cb);
 };
 
-api.clinics.acceptPatientInvitation = function(clinicId, inviteId, cb) {
-  return tidepool.acceptPatientInvitation(clinicId, inviteId, cb);
+api.clinics.acceptPatientInvitation = function(clinicId, inviteId, patientDetails, cb) {
+  return tidepool.acceptPatientInvitation(clinicId, inviteId, patientDetails, cb);
 };
 
 api.clinics.deletePatientInvitation = function(clinicId, inviteId, cb) {
