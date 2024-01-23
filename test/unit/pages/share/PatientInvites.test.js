@@ -238,7 +238,7 @@ describe('PatientInvites', () => {
       expect(table().find('tr').at(1).text()).contains('Patient Two')
     });
 
-    it('should allow accepting a patient invite directly for tier0200 clinics', () => {
+    it('should allow accepting a patient invite directly for tier0100 clinics', () => {
       const table = wrapper.find(Table);
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(3); // header row + 2 invites
