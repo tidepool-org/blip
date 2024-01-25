@@ -7394,10 +7394,11 @@ describe('Actions', () => {
       it('should trigger ACCEPT_PATIENT_INVITATION_SUCCESS and it should call clinics.acceptPatientInvitation once for a successful request', () => {
         let clinicId = 'clinicId123';
         let inviteId = 'inviteIdABC';
+        let patientId = 'patientId456';
 
         let api = {
           clinics: {
-            acceptPatientInvitation: sinon.stub().callsArgWith(2, null, {}),
+            acceptPatientInvitation: sinon.stub().callsArgWith(3, null, {}),
           },
         };
 
@@ -7406,6 +7407,7 @@ describe('Actions', () => {
           { type: 'ACCEPT_PATIENT_INVITATION_SUCCESS', payload: {
             clinicId: 'clinicId123',
             inviteId: 'inviteIdABC',
+            patientId: 'patientId456'
           } }
         ];
         _.each(expectedActions, (action) => {
@@ -7413,7 +7415,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.acceptPatientInvitation(api, clinicId, inviteId));
+        store.dispatch(async.acceptPatientInvitation(api, clinicId, inviteId, patientId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -7423,10 +7425,11 @@ describe('Actions', () => {
       it('should trigger ACCEPT_PATIENT_INVITATION_FAILURE and it should call error once for a failed request', () => {
         let clinicId = 'clinicId123';
         let inviteId = 'inviteIdABC';
+        let patientId = 'patientId456';
 
         let api = {
           clinics: {
-            acceptPatientInvitation: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+            acceptPatientInvitation: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'}, null),
           },
         };
 
@@ -7441,7 +7444,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.acceptPatientInvitation(api, clinicId, inviteId));
+        store.dispatch(async.acceptPatientInvitation(api, clinicId, inviteId, patientId));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ACCEPTING_PATIENT_INVITATION });

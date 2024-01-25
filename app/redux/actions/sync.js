@@ -1737,12 +1737,13 @@ export function acceptPatientInvitationRequest() {
   };
 }
 
-export function acceptPatientInvitationSuccess(clinicId, inviteId) {
+export function acceptPatientInvitationSuccess(clinicId, inviteId, patientId) {
   return {
     type: ActionTypes.ACCEPT_PATIENT_INVITATION_SUCCESS,
     payload: {
       inviteId: inviteId,
       clinicId: clinicId,
+      patientId: patientId,
     },
   };
 }

@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.73.0",
+  "version": "1.74.0",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/karma/bin/karma start",
@@ -175,7 +175,7 @@
     "terser": "4.8.1",
     "terser-webpack-plugin": "2.2.1",
     "tideline": "1.27.0",
-    "tidepool-platform-client": "0.54.1",
+    "tidepool-platform-client": "0.55.0",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.33",
     "url-loader": "1.1.1",

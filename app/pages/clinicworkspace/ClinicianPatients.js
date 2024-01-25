@@ -261,7 +261,7 @@ export const ClinicianPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} action="create" />
         </DialogContent>
 
         <DialogActions>
@@ -295,7 +295,7 @@ export const ClinicianPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} action="edit" />
         </DialogContent>
 
         <DialogActions>

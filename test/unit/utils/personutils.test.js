@@ -644,6 +644,31 @@ describe('personutils', () => {
     });
   });
 
+  describe('clinicPatientFromPatientInvite', () => {
+    it('should map fields from a patient invite to a clinic patient object', () => {
+      const invite = {
+        creatorId: 'someID',
+        context: { foo: 'bar' },
+        creator: { profile: {
+          fullName: 'Joe Jackson',
+          emails: ['someEmail'],
+          patient: {
+            birthday: '1979-01-01',
+            mrn: 'someMRN',
+          },
+        } },
+      };
+
+      expect(personUtils.clinicPatientFromPatientInvite(invite)).to.eql({
+        fullName: 'Joe Jackson',
+        birthDate: '1979-01-01',
+        mrn: 'someMRN',
+        id: 'someID',
+        permissions: { foo: 'bar' },
+      });
+    });
+  });
+
   describe('combinedAccountAndClinicPatient', () => {
     it('should provide a deeply-merged user account object, using the clinic patient object for default values, with any additional patient values added', () => {
       const patient = {
