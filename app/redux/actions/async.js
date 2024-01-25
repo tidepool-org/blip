@@ -2383,18 +2383,24 @@ export function fetchPatientInvites(api, clinicId) {
  * @param  {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
  * @param {String} inviteId - Id of the invite
+ * @param {String} patientId - Id of the patient being invited
+ * @param {Object} [patientDetails] - Patient details to set for newly created clinic user
+ * @param {String} [patientDetails.fullName] - The full name of the patient
+ * @param {String} [patientDetails.birthDate] - YYYY-MM-DD
+ * @param {String} [patientDetails.mrn] - The medical record number of the patient
+ * @param {String[]} [patientDetails.tags] - Array of string tag IDs
  */
-export function acceptPatientInvitation(api, clinicId, inviteId) {
+export function acceptPatientInvitation(api, clinicId, inviteId, patientId, patientDetails) {
   return (dispatch) => {
     dispatch(sync.acceptPatientInvitationRequest());
 
-    api.clinics.acceptPatientInvitation(clinicId, inviteId, (err, result) => {
+    api.clinics.acceptPatientInvitation(clinicId, inviteId, patientDetails, (err, result) => {
       if (err) {
         dispatch(sync.acceptPatientInvitationFailure(
           createActionError(ErrorMessages.ERR_ACCEPTING_PATIENT_INVITATION, err), err
         ));
       } else {
-        dispatch(sync.acceptPatientInvitationSuccess(clinicId, inviteId));
+        dispatch(sync.acceptPatientInvitationSuccess(clinicId, inviteId, patientId));
       }
     });
   };

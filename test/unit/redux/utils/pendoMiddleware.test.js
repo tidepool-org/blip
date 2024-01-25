@@ -40,9 +40,11 @@ describe('pendoMiddleware', () => {
   };
 
   const users = {
-    clinicAdminID: { userid: 'clinicAdminID', username: 'clinicAdminID@example.com', roles: ['CLINIC_ADMIN', 'clinic'], termsAccepted: '2020-02-02T00:00:00.000Z' },
-    clinicMemberID: { userid: 'clinicMemberID', username: 'clinicMemberID@example.com', roles: ['CLINIC_MEMBER', 'clinic'], termsAccepted: '2021-02-02T00:00:00.000Z' },
+    clinicAdminID: { userid: 'clinicAdminID', username: 'clinicAdminID@example.com', roles: ['CLINIC_ADMIN', 'clinician'], termsAccepted: '2020-02-02T00:00:00.000Z' },
+    clinicMemberID: { userid: 'clinicMemberID', username: 'clinicMemberID@example.com', roles: ['CLINIC_MEMBER', 'clinician'], termsAccepted: '2021-02-02T00:00:00.000Z' },
     patientId: { userid: 'patientId', username: 'patientId@example.com', roles: [], termsAccepted: '2020-02-02T00:00:00.000Z', termsAccepted: '2022-02-02T00:00:00.000Z' },
+    legacyClinicianID: { userid: 'legacyClinicianID', username: 'legacyClinicianID@example.com', roles: ['CLINIC_MEMBER', 'clinic'], termsAccepted: '2021-02-02T00:00:00.000Z' },
+    migratedClinicianID: { userid: 'migratedClinicianID', username: 'migratedClinicianID@example.com', roles: ['CLINIC_MEMBER', 'migrated_clinic'], termsAccepted: '2021-02-02T00:00:00.000Z' },
   }
 
   const clinics = {
@@ -174,6 +176,89 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.initialize.callCount).to.equal(1);
     expect(winMock.pendo.initialize.getCall(0).args[0]).to.eql(expectedConfig);
     expect(winMock.pendo.initialize.calledWith(expectedConfig)).to.be.true;
+  });
+
+  it('should set the visitor.role appropriately to either personal or clinician accounts', () => {
+    const loginSuccess = {
+      type: ActionTypes.LOGIN_SUCCESS,
+      payload: {
+        user: {},
+      },
+    };
+
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, 'clinicID123'),
+          loggedInUserId: 'patientId',
+          allUsersMap: users,
+        },
+      },
+    });
+    expect(winMock.pendo.initialize.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
+    expect(winMock.pendo.initialize.calledWithMatch({ visitor: { id: 'patientId', role: 'personal' }})).to.be.true;
+
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, 'clinicID123'),
+          loggedInUserId: 'clinicAdminID',
+          allUsersMap: users,
+        },
+      },
+    });
+    winMock.pendo.initialize.resetHistory();
+    expect(winMock.pendo.initialize.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
+    expect(winMock.pendo.initialize.calledWithMatch({ visitor: { id: 'clinicAdminID', role: 'clinician' }})).to.be.true;
+
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, 'clinicID123'),
+          loggedInUserId: 'clinicMemberID',
+          allUsersMap: users,
+        },
+      },
+    });
+    winMock.pendo.initialize.resetHistory();
+    expect(winMock.pendo.initialize.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
+    expect(winMock.pendo.initialize.calledWithMatch({ visitor: { id: 'clinicMemberID', role: 'clinician' }})).to.be.true;
+
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, 'clinicID123'),
+          loggedInUserId: 'legacyClinicianID',
+          allUsersMap: users,
+        },
+      },
+    });
+    winMock.pendo.initialize.resetHistory();
+    expect(winMock.pendo.initialize.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
+    expect(winMock.pendo.initialize.calledWithMatch({ visitor: { id: 'legacyClinicianID', role: 'clinician' }})).to.be.true;
+
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, 'clinicID123'),
+          loggedInUserId: 'migratedClinicianID',
+          allUsersMap: users,
+        },
+      },
+    });
+    winMock.pendo.initialize.resetHistory();
+    expect(winMock.pendo.initialize.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
+    expect(winMock.pendo.initialize.calledWithMatch({ visitor: { id: 'migratedClinicianID', role: 'clinician' }})).to.be.true;
   });
 
   it('should call updateOptions for LOGIN_SUCCESS if pendo is already initialized', () => {
