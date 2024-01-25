@@ -28,7 +28,7 @@ function getFormValues(config, clinicPatientTags) {
   };
 }
 
-export function validateConfig(config, clinicPatientTags) {
+export function validateTideConfig(config, clinicPatientTags) {
   try {
     validationSchema.validateSync(getFormValues(config, clinicPatientTags));
     return true;
