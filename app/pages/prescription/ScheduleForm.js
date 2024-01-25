@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
-import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, Text, BoxProps } from 'theme-ui';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import isInteger from 'lodash/isInteger';
@@ -63,7 +63,7 @@ const ScheduleForm = props => {
   return (
     <Box {...boxProps}>
       {map(schedules.value, (schedule, index) => (
-        <Flex className='schedule-row' key={index} alignItems="flex-start" mb={3}>
+        <Flex className='schedule-row' key={index} sx={{ alignItems: 'flex-start' }} mb={3}>
           <Field
             as={TextInput}
             label={index === 0 ? t('Start Time') : null}
@@ -132,8 +132,8 @@ const ScheduleForm = props => {
       <Button
         variant="tertiary"
         className="add-schedule"
-        width="100%"
         sx={{
+          width: '100%',
           '> div': {
             width: '100%',
             textAlign: 'center',
@@ -181,4 +181,4 @@ ScheduleForm.defaultProps = {
   useFastField: false,
 };
 
-export default translate()(ScheduleForm);
+export default withTranslation()(ScheduleForm);

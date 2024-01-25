@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, TextProps } from 'rebass/styled-components';
+import { Text, TextProps } from 'theme-ui';
 import isString from 'lodash/isString';
 
 const namedPalletMap = {
@@ -14,7 +14,7 @@ const namedPalletMap = {
   purples: ['purples.0', 'purples.9'],
 };
 
-const Pill = (props) => {
+function Pill(props) {
   const { variant, colorPalette, label, text, round, width, sx = {}, ...themeProps } = props;
   const palette = isString(colorPalette) ? namedPalletMap[colorPalette] : colorPalette;
   const darkShade = palette[palette.length - 1];
@@ -28,25 +28,28 @@ const Pill = (props) => {
   return (
     <Text
       aria-label={label}
-      fontFamily="default"
-      fontSize={0}
-      fontWeight="medium"
       as="span"
       px={round ? 0 : 2}
       py={round ? 0 : 1}
-      sx={{ borderRadius, ...sx }}
-      color={color}
-      bg={bg}
-      width={width}
-      height={height}
-      lineHeight={lineHeight}
-      textAlign="center"
+      sx={{
+        fontFamily: 'default',
+        fontSize: 0,
+        fontWeight: 'medium',
+        borderRadius,
+        textAlign: 'center',
+        color,
+        bg,
+        width,
+        height,
+        lineHeight,
+        ...sx
+      }}
       {...themeProps}
     >
       {text}
     </Text>
   );
-};
+}
 
 Pill.propTypes = {
   ...TextProps,

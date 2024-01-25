@@ -8,7 +8,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import { Box, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Text, BoxProps } from 'theme-ui';
 import map from 'lodash/map';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
@@ -17,7 +17,7 @@ import flatten from 'lodash/flatten';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import isFunction from 'lodash/isFunction';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 import Pagination from './Pagination';
 import Pill from './Pill';
@@ -69,26 +69,28 @@ function filterData(data, fields, queryText, cb) {
 }
 
 const StyledTable = styled(Base)`
-  .MuiTableCell-head,
-  .MuiTableCell-root,
-  .MuiTableCell-body {
-    color: inherit;
-    font-size: inherit;
-    font-family: inherit;
-    background-clip: padding-box;
-  }
+ && {
+   .MuiTableCell-head,
+   .MuiTableCell-root,
+   .MuiTableCell-body {
+     color: inherit;
+     font-size: inherit;
+     font-family: inherit;
+     background-clip: padding-box;
+   }
 
-  .MuiTableCell-stickyHeader {
-    color: inherit;
-  }
+   .MuiTableCell-stickyHeader {
+     color: inherit;
+   }
 
-  .MuiTableSortLabel-root {
-    color: inherit;
-  }
+   .MuiTableSortLabel-root {
+     color: inherit;
+   }
 
-  .MuiTableRow-root {
-    cursor: ${props => (isFunction(props.onClickRow) ? 'pointer' : 'auto')}
-  }
+   .MuiTableRow-root {
+     cursor: ${props => (isFunction(props.onClickRow) ? 'pointer' : 'auto')}
+   }
+ }
 `;
 
 export const Table = React.memo(props => {
@@ -115,7 +117,7 @@ export const Table = React.memo(props => {
   let EmptyContentNode = emptyContentNode;
   if (!emptyContentNode && emptyText) {
     EmptyContentNode = (
-      <Text p={3} fontSize={1} color="text.primary" className="table-empty-text" textAlign="center">{emptyText}</Text>
+      <Text p={3} className="table-empty-text" sx={{ color: 'text.primary', display: 'block', fontSize: 1, textAlign: 'center' }}>{emptyText}</Text>
     );
   }
 
@@ -145,7 +147,7 @@ export const Table = React.memo(props => {
 
   const searchFields = filter(
     flatten(map(columns, col => col.searchable && (col.searchBy || col.field))),
-    Boolean,
+    Boolean
   );
 
   const filteredData = searchText
@@ -172,7 +174,7 @@ export const Table = React.memo(props => {
     setPage(props.page);
   }, [props.page]);
 
-  const tableCellClassNames = (d = {}, col) => cx({
+  const tableCellClassNames = (col, d = {}) => cx({
     'no-margin': col.hideEmpty && !d[col.field],
     [col.className]: !!col.className,
   });
@@ -192,7 +194,7 @@ export const Table = React.memo(props => {
                   key={`${id}-header-${col.field?.replace(/\./g, '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
-                  className={tableCellClassNames(undefined, col)}
+                  className={tableCellClassNames(col, undefined)}
                   width={col.width}
                 >
                   <Box
@@ -205,11 +207,9 @@ export const Table = React.memo(props => {
                     {col.tag && (
                       <Pill
                         label={col.tag}
-                        fontSize="9px"
-                        fontWeight="medium"
                         py="1px"
                         px="3px"
-                        sx={{ borderRadius: radii.input }}
+                        sx={{ borderRadius: radii.input, fontSize: '9px', fontWeight: 'medium' }}
                         colorPalette={['grays.4', 'white']}
                         text={col.tag}
                       />
@@ -239,16 +239,12 @@ export const Table = React.memo(props => {
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   size={get(col, 'size', 'medium')}
                   padding={get(col, 'padding', 'default')}
-                  className={tableCellClassNames(d, col)}
+                  className={tableCellClassNames(col, d)}
                 >
                   {!(col.hideEmpty && !d[col.field]) && (
                     <>
                       {(col.titleComponent || col.title) && index > 0 && (
-                        <Text
-                          fontSize={['13px', '14px']}
-                          fontWeight="medium"
-                          sx={{ display: ['block', null, 'none'] }}
-                        >
+                        <Text sx={{ fontSize: ['13px', '14px'], fontWeight: 'medium', display: ['block', null, 'none'] }}>
                           {col.titleComponent ? <col.titleComponent /> : col.title}
                         </Text>
                       )}

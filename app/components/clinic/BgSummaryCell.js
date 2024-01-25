@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Text, Flex } from 'rebass/styled-components';
+import { Text, Flex } from 'theme-ui';
 import map from 'lodash/map';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
-import utils from '../../core/utils';
 import BgRangeSummary from './BgRangeSummary';
 
 export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPeriod, t }) => {
@@ -50,7 +49,7 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
   );
 
   return (
-    <Flex justifyContent="center">
+    <Flex sx={{ justifyContent: 'center' }}>
       {(activeSummaryPeriod === '1d' && cgmUsePercent >= minCgmPercent) || (cgmHours >= minCgmHours)
         ? (
         <BgRangeSummary
@@ -62,13 +61,15 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
         />
       ) : (
         <Flex
-          alignItems="center"
-          justifyContent="center"
-          bg="lightestGrey"
-          width={['155px', '175px']}
-          height="18px"
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            bg: 'lightestGrey',
+            width: ['155px', '175px'],
+            height: '18px',
+          }}
         >
-          <Text fontSize="10px" fontWeight="medium" color="grays.4">
+          <Text sx={{ fontSize: '10px', fontWeight: 'medium', color: 'grays.4' }}>
             {cgmUsePercent === 0 ? '' : insufficientDataText}
           </Text>
         </Flex>
@@ -96,4 +97,4 @@ BgSummaryCell.propTypes = {
   targetRange: PropTypes.arrayOf(PropTypes.number).isRequired,
 }
 
-export default translate()(BgSummaryCell);
+export default withTranslation()(BgSummaryCell);

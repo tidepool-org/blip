@@ -16,7 +16,7 @@ import Button from './Button';
 import Popover from './Popover';
 import { Icon } from './Icon';
 
-const PopoverMenu = props => {
+function PopoverMenu(props) {
   const {
     anchorOrigin,
     icon,
@@ -72,7 +72,7 @@ const PopoverMenu = props => {
       </Popover>
     </React.Fragment>
   );
-};
+}
 
 PopoverMenu.propTypes = {
   anchorOrigin: PropTypes.shape({

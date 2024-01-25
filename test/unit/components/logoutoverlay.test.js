@@ -4,7 +4,7 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
+import { mount } from 'enzyme';
 var expect = chai.expect;
 
 var LogoutOverlay = require('../../../app/components/logoutoverlay');
@@ -19,7 +19,7 @@ describe('LogoutOverlay', function () {
       console.error = sinon.stub();
       var props = {};
       var elem = React.createElement(LogoutOverlay, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = mount(elem);
       expect(console.error.callCount).to.equal(0);
     });
   });
@@ -29,9 +29,8 @@ describe('LogoutOverlay', function () {
       console.error = sinon.stub();
       var props = {};
       var elem = React.createElement(LogoutOverlay, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      var state = render.getWrappedInstance().state;
+      var render = mount(elem);
+      var state = render.childAt(0).state();
 
       expect(state.fadeOut).to.equal(false);
     })

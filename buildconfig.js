@@ -17,7 +17,7 @@ function getHash(str) {
 }
 
 console.log('Building config...');
-exec('webpack --config \'./config.webpack.js\' --colors --progress');
+exec('webpack --config \'./config.webpack.js\' --progress');
 
 var hash = getHash(fs.readFileSync('dist/config.js'));
 var filename = 'config.' + hash + '.js';

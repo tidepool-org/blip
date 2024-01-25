@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -13,7 +13,7 @@ import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import indexOf from 'lodash/indexOf';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
@@ -583,15 +583,13 @@ export const AccessManagement = (props) => {
       <Box mb={8}>
         <Box variant="containers.largeBordered" mb={4}>
           <Flex
-            sx={{ borderBottom: baseTheme.borders.default }}
-            alignItems={'center'}
-            flexWrap={['wrap', 'nowrap']}
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center', flexWrap:['wrap', 'nowrap'] }}
             px={[3, 4]}
           >
-            <Title flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
+            <Title sx={{ flexGrow: 1, textAlign: ['center', 'left'] }} pr={[0, 3]} py={[3, 4]}>
               {t('Access Management')}
             </Title>
-            <Flex width={['100%', 'auto']} justifyContent='center' pb={[3, 0]}>
+            <Flex width={['100%', 'auto']} sx={{ justifyContent: 'center' }} pb={[3, 0]}>
               <Button
                 id="invite"
                 variant="primary"
@@ -621,7 +619,7 @@ export const AccessManagement = (props) => {
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onFilter={handleTableFilter}
-                fontSize={1}
+                sx={{ fontSize: 1 }}
               />
             </Box>
           )}
@@ -720,4 +718,4 @@ AccessManagement.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(AccessManagement);
+export default withTranslation()(AccessManagement);

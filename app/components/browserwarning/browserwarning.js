@@ -15,7 +15,7 @@
 
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 
 import utils from '../../core/utils';
 
@@ -26,7 +26,7 @@ const COPY_STATUS_FAIL = 20;
 const playstoreImageUrl = require('./images/google-play-badge.png');
 const appstoreImageUrl = require('./images/appstore-badge.svg');
 
-export default translate()(class BrowserWarning extends Component {
+export default withTranslation()(class BrowserWarning extends Component {
   static propTypes = {
     trackMetric: PropTypes.func.isRequired
   };
@@ -45,7 +45,7 @@ export default translate()(class BrowserWarning extends Component {
   render() {
     const { t } = this.props;
     var self = this;
-    var downloadBrowserCopy = <div> 
+    var downloadBrowserCopy = <div>
         <div className="browser-warning-chrome-image"></div>
         <div className="browser-warning-edge-image"></div>
       </div>;
@@ -85,7 +85,7 @@ export default translate()(class BrowserWarning extends Component {
         </a>
         {copyButton}
         <Trans className="browser-warning-text" i18nKey="html.browser-warning-text">
-          Paste the copied URL into <span className="dark-text">Chrome or Edge</span>... 
+          Paste the copied URL into <span className="dark-text">Chrome or Edge</span>...
         </Trans>
         <div className="blip-link-text-wrap">
           <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>

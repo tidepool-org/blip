@@ -11,7 +11,6 @@ import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
 import Popover from '../../../app/components/elements/Popover';
-import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 import Button from '../../../app/components/elements/Button';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 
@@ -613,17 +612,18 @@ describe('ClinicPatients', () => {
           }
         );
 
-        expect(store.getActions()).to.eql([
-          { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
-          {
-            type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS',
-            payload: {
-              clinicId: 'clinicID123',
-              patientId: 'stubbedId',
-              patient: { id: 'stubbedId' },
-            },
+        expect(store.getActions()[0]).to.eql({
+          type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST',
+        })
+
+        expect(store.getActions()[1]).to.eql({
+          type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS',
+          payload: {
+            clinicId: 'clinicID123',
+            patientId: 'stubbedId',
+            patient: { id: 'stubbedId' },
           },
-        ]);
+        });
 
         done();
       }, 0);
@@ -670,7 +670,7 @@ describe('ClinicPatients', () => {
       expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
     });
 
-    it('should prevent adding a new patient witout an MRN if required by the clinic', () => {
+    it('should prevent adding a new patient without an MRN if required by the clinic', () => {
       store = mockStore(mrnRequiredState);
       wrapper = mount(
         <Provider store={store}>
@@ -921,7 +921,7 @@ describe('ClinicPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientName = table.find('tr').at(1).find('th').find('div').at(1).hostNodes();
+        const firstPatientName = table.find('tr').at(1).find('th').find('span').at(0).hostNodes();
         expect(firstPatientName.text()).contains('Patient One');
 
         store.clearActions();
@@ -939,7 +939,7 @@ describe('ClinicPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientBirthday = table.find('tr').at(1).find('td').at(0).find('div').at(1).hostNodes();
+        const firstPatientBirthday = table.find('tr').at(1).find('td').at(0).find('span').at(1).hostNodes();
         expect(firstPatientBirthday.text()).contains('1999-01-01');
 
         store.clearActions();
@@ -1521,7 +1521,7 @@ describe('ClinicPatients', () => {
 
           expect(popover().props().style.visibility).to.equal('hidden');
 
-          tagOverflowTrigger.simulate('mouseenter');
+          tagOverflowTrigger.simulate('mouseover');
           expect(popover().props().style.visibility).to.be.undefined;
 
           const overflowTags = popover().find('.tag-text').hostNodes();
@@ -2262,7 +2262,6 @@ describe('ClinicPatients', () => {
           it('should set the table sort UI based on the the sort params from localStorage', () => {
 
             const activeSortLable = wrapper.find('.MuiTableSortLabel-active').hostNodes();
-            console.log(wrapper.find('.MuiTable').debug())
             expect(activeSortLable.text()).to.equal('Avg. Glucose (mg/dL)');
             expect(activeSortLable.find('.MuiTableSortLabel-iconDirectionDesc').hostNodes()).to.have.lengthOf(1);
           });

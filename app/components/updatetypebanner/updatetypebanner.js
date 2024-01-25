@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 
-export const UpdateTypeBanner = translate()((props) => {
+export const UpdateTypeBanner = withTranslation()((props) => {
   const {
     onClick,
     onClose,

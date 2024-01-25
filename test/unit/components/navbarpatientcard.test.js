@@ -4,7 +4,6 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 import { mount } from 'enzyme';
 import { BrowserRouter } from 'react-router-dom';
@@ -58,7 +57,7 @@ describe('NavbarPatientCard', function () {
       };
       var navbarElem = React.createElement(NavbarPatientCard, props);
       var wrapper = React.createElement(BrowserRouter, props, navbarElem);
-      var elem = TestUtils.renderIntoDocument(wrapper);
+      var elem = mount(wrapper);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import bows from 'bows';
 import moment from 'moment';
@@ -26,7 +26,7 @@ import isArray from 'lodash/isArray';
 import { default as _values } from 'lodash/values';
 import includes from 'lodash/includes';
 import { utils as vizUtils } from '@tidepool/viz';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import canonicalize from 'canonicalize';
 import { sha512 } from 'crypto-hash';
 
@@ -594,14 +594,10 @@ export const PrescriptionForm = props => {
     >
       <Flex
         id="prescription-form-header"
-        justifyContent="space-between"
-        alignItems="center"
         mb={3}
         px={4}
         py={3}
-        sx={{
-          borderBottom: borders.divider
-        }}
+        sx={{ justifyContent: 'space-between', alignItems: 'center', borderBottom: borders.divider }}
       >
         <Button
           id="back-to-prescriptions"
@@ -612,7 +608,7 @@ export const PrescriptionForm = props => {
           {t('Back To Prescriptions')}
         </Button>
 
-        <Text as={Headline} textAlign="center">{title}</Text>
+        <Text as={Headline} sx={{ textAlign: 'center' }}>{title}</Text>
         <Pill label="prescription status" colorPalette={prescriptionStateColorPalette} text={prescriptionStateLabel} />
       </Flex>
 
@@ -641,4 +637,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default prescriptionFormWrapper(withFormik(prescriptionForm())(translate()(PrescriptionForm)));
+export default prescriptionFormWrapper(withFormik(prescriptionForm())(withTranslation()(PrescriptionForm)));

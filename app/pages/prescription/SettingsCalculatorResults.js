@@ -1,7 +1,7 @@
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, BoxProps } from 'theme-ui';
 
 import { Paragraph1 } from '../../components/elements/FontStyles';
 import { hasCalculatorResults } from './prescriptionFormConstants';
@@ -38,4 +38,4 @@ const SettingsCalculatorResults = props => {
 
 SettingsCalculatorResults.propTypes = BoxProps;
 
-export default translate()(SettingsCalculatorResults);
+export default withTranslation()(SettingsCalculatorResults);

@@ -4,10 +4,10 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
 var MailTo = require('../../../app/components/mailto');
+const { mount } = require('enzyme');
 
 describe('MailTo', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -24,7 +24,7 @@ describe('MailTo', function () {
         onLinkClicked: sinon.stub()
       };
       var elem = React.createElement(MailTo, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = mount(elem);
       expect(console.error.callCount).to.equal(0);
     });
   });

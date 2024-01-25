@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { useParams, useLocation } from 'react-router-dom';
 import capitalize from 'lodash/capitalize';
 import includes from 'lodash/includes';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
 
 import Banner from '../../components/elements/Banner';
@@ -123,7 +123,7 @@ export const OAuthConnection = (props) => {
               {t('Your care provider will still have access to your account once you claim it.')}
             </Body1>
 
-            <Flex justifyContent="center">
+            <Flex sx={{ justifyContent: 'center' }}>
               <Button
                 id="oauth-claim-account-button"
                 variant="primary"
@@ -143,4 +143,4 @@ OAuthConnection.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(OAuthConnection);
+export default withTranslation()(OAuthConnection);

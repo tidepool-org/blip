@@ -564,7 +564,7 @@ describe('Workspaces', () => {
       const acceptButton = invite.find('Button[variant="primary"]');
       expect(acceptButton).to.have.lengthOf(1);
       expect(acceptButton.text()).to.equal('Link Account');
-      const error = wrapper.find('div[color="feedback.danger"]');
+      const error = wrapper.find('.workspace-error').hostNodes();
       expect(error.text()).to.equal(
         'Single Sign-On (SSO) is required to join this Clinic. Please link your account to enable SSO.'
       );
@@ -579,7 +579,7 @@ describe('Workspaces', () => {
       expect(acceptButton).to.have.lengthOf(1);
       expect(acceptButton.text()).to.equal('Accept Invite');
       expect(acceptButton.props().disabled).to.be.true;
-      const error = wrapper.find('div[color="feedback.danger"]');
+      const error = wrapper.find('.workspace-error').hostNodes();
       expect(error.text()).to.equal(
         "Your account doesn't satisfy the security requirements. Please contact this clinic's IT administrator."
       );

@@ -60,7 +60,7 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should have disabled download buttons if no URLs have been set', () => {
-      wrapper.setState({
+      wrapper.childAt(0).instance().setState({
         latestWinRelease: null,
         latestMacRelease: null,
       });
@@ -75,7 +75,7 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should have active buttons if URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).instance().setState({
         latestMacRelease: 'test',
         latestWinRelease: 'test',
         uploadDismiss: 'test',
@@ -86,7 +86,7 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should display download link if error retrieving github releases', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).instance().setState({
         error: 'some error',
       });
       wrapper.update();

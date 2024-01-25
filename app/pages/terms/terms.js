@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 
@@ -42,7 +42,7 @@ const TERMS_OF_USE_UPDATED = <Trans parent="span" i18nKey="html.terms-of-use-upd
   You need to accept the changes to continue.
 </Trans>;
 
-export const Terms = translate()(class Terms extends React.Component {
+export const Terms = withTranslation()(class Terms extends React.Component {
   static propTypes = {
     ages: PropTypes.object.isRequired,
     authenticated: PropTypes.bool.isRequired,

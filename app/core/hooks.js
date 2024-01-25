@@ -1,4 +1,4 @@
-import {useCallback, useRef, useEffect, useState} from 'react'
+import { useCallback, useRef, useEffect, useState } from 'react'
 import update from 'immutability-helper'
 
 import { useField, useFormikContext } from 'formik';
@@ -8,7 +8,7 @@ import { isPlainObject } from 'lodash';
 // Avoids some performance issues in Formik's native <FieldArray />
 // Solution stems from this issue on Formik's GH: https://github.com/jaredpalmer/formik/issues/1476
 export const useFieldArray = (props, formikContext) => {
-  formikContext = formikContext ?? useFormikContext();
+  formikContext = formikContext ?? useFormikContext(); // eslint-disable-line react-hooks/rules-of-hooks
   const [field, meta] = useField(props);
   const fieldArray = useRef(field.value);
   const { setFieldValue } = formikContext;
@@ -146,7 +146,7 @@ export const useLocalStorage = (key, defaultValue, mergeLocalWithDefault = false
 
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to localStorage.
-  const setValue = value => {
+  const setValue = useCallback(value => {
     try {
       // Allow value to be a function so we have same API as useState
       const valueToStore =
@@ -159,7 +159,7 @@ export const useLocalStorage = (key, defaultValue, mergeLocalWithDefault = false
       // A more advanced implementation would handle the error case
       console.log(error);
     }
-  };
+  }, [storedValue, key]);
 
   return [storedValue, setValue];
 };

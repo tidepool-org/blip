@@ -5,8 +5,6 @@
 /* global beforeEach */
 
 var React = require('react');
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 import { mount } from 'enzyme';
 import { BrowserRouter } from 'react-router-dom';
@@ -38,9 +36,7 @@ describe('PatientCard', function () {
         href: 'foo',
         patient: {}
       };
-      var patientCardElem = React.createElement(PatientCard, props);
-      var wrapper = React.createElement(BrowserRouter, props, patientCardElem);
-      var elem = TestUtils.renderIntoDocument(wrapper);
+      var elem = mount(<BrowserRouter><PatientCard {...props} /></BrowserRouter>)
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -51,8 +47,8 @@ describe('PatientCard', function () {
         patient: patientUpload,
         t,
       };
-      let wrapper = mount(<BrowserRouter><PatientCard.WrappedComponent {...props} /></BrowserRouter>);
-      expect(wrapper.contains('Upload')).to.equal(true);
+      let wrapper = mount(<BrowserRouter><PatientCard {...props} /></BrowserRouter>);
+      expect(wrapper.childAt(0).childAt(0).text()).contains('Upload');
     });
 
     it('should not render upload button if user does not have upload permissions', function() {
@@ -60,13 +56,13 @@ describe('PatientCard', function () {
         patient: patientNoUpload,
         t,
       };
-      let wrapper = mount(<BrowserRouter><PatientCard.WrappedComponent {...props} /></BrowserRouter>);
-      expect(wrapper.contains('Upload')).to.equal(false);
+      let wrapper = mount(<BrowserRouter><PatientCard {...props} /></BrowserRouter>);
+      expect(wrapper.childAt(0).childAt(0).text()).not.contains('Upload');
     });
   });
 
   describe('remove yourself from a care team for another patient (not logged-in user)', function() {
-    var renderedDOMElem;
+    var wrapper;
 
     beforeEach(function() {
       var props = {
@@ -81,26 +77,24 @@ describe('PatientCard', function () {
           }
         }
       };
-      var patientCardElem = React.createElement(PatientCard, props);
-      var wrapper = React.createElement(BrowserRouter, props, patientCardElem);
-      var elem = TestUtils.renderIntoDocument(wrapper);
-      renderedDOMElem = ReactDOM.findDOMNode(elem);
+
+      wrapper = mount(<BrowserRouter><PatientCard {...props} /></BrowserRouter>);
     });
 
     it('should render a patientcard-leave with delete icon and title text', function() {
-      var patientCardLeave = renderedDOMElem.querySelectorAll('.patientcard-leave');
-      var leaveLink = renderedDOMElem.querySelector('a.patientcard-actions-remove');
-      var deleteIcon = renderedDOMElem.querySelectorAll('.icon-delete');
-      expect(patientCardLeave.length).to.equal(1);
-      expect(deleteIcon.length).to.equal(1);
-      expect(leaveLink.title).to.equal('Remove yourself from Jane Doe\'s care team.');
+      var patientCardLeave = wrapper.find('.patientcard-leave');
+      var leaveLink = wrapper.find('a.patientcard-actions-remove');
+      var deleteIcon = wrapper.find('.icon-delete');
+      expect(patientCardLeave).to.have.lengthOf(1);
+      expect(deleteIcon).to.have.lengthOf(1);
+      expect(leaveLink.props().title).to.equal('Remove yourself from Jane Doe\'s care team.');
     });
 
     it('should render a confirmation overlay when you click to remove yourself from a care team', function() {
-      var leaveLink = renderedDOMElem.querySelector('a.patientcard-actions-remove');
-      TestUtils.Simulate.click(leaveLink);
-      var overlay = renderedDOMElem.querySelectorAll('.ModalOverlay-content');
-      expect(overlay.length).to.equal(1);
+      var leaveLink = wrapper.find('a.patientcard-actions-remove');
+      leaveLink.simulate('click');
+      var overlay = wrapper.find('.ModalOverlay-content');
+      expect(overlay).to.have.lengthOf(1);
     });
   });
 });

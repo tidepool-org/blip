@@ -222,7 +222,6 @@ describe('NavigationMenu', () => {
         {
           meta: {
             WebWorker: true,
-            origin: 'http://localhost:9876',
             patientId: undefined,
             worker: 'data',
           },
@@ -332,7 +331,6 @@ describe('NavigationMenu', () => {
         {
           meta: {
             WebWorker: true,
-            origin: 'http://localhost:9876',
             patientId: undefined,
             worker: 'data',
           },

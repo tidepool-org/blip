@@ -5,8 +5,12 @@
   "rules": {
     "arrow-parens": 0,
     "class-methods-use-this": 0,
-    "comma-dangle": ["error", "always-multiline", {
-      "functions": "ignore"
+    "comma-dangle": ["error", {
+      "arrays": "only-multiline",
+      "objects": "only-multiline",
+      "imports": "only-multiline",
+      "exports": "only-multiline",
+      "functions": "never"
     }],
     "function-paren-newline": 0,
     "implicit-arrow-linebreak": 0,

@@ -62,7 +62,7 @@ describe('Patients', () => {
       };
 
       wrapper.setProps(props);
-      var render = wrapper.find(Patients).instance().getWrappedInstance();
+      var render = wrapper.find(Patients).childAt(0);
 
       var nextProps = Object.assign({}, props, {
         invites: [1],
@@ -76,7 +76,7 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
     });
 
@@ -85,7 +85,7 @@ describe('Patients', () => {
         dataWorkerRemoveDataRequest: sinon.stub(),
       };
       wrapper.setProps(props);
-      var render = wrapper.find(Patients).instance().getWrappedInstance();
+      var render = wrapper.find(Patients).childAt(0);
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
         loading: false,
@@ -98,7 +98,7 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
     });
 
@@ -108,7 +108,7 @@ describe('Patients', () => {
         showWelcomeMessage: sinon.stub(),
       };
       wrapper.setProps(props);
-      var render = wrapper.find(Patients).instance().getWrappedInstance();
+      var render = wrapper.find(Patients).childAt(0);
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -122,7 +122,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
     });
 
@@ -132,7 +132,7 @@ describe('Patients', () => {
         showWelcomeMessage: sinon.stub(),
       };
       wrapper.setProps(props);
-      var render = wrapper.find(Patients).instance().getWrappedInstance();
+      var render = wrapper.find(Patients).childAt(0);
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -146,7 +146,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(1);
     });
 
@@ -156,7 +156,7 @@ describe('Patients', () => {
         showWelcomeMessage: sinon.stub(),
       };
       wrapper.setProps(props);
-      var render = wrapper.find(Patients).instance().getWrappedInstance();
+      var render = wrapper.find(Patients).childAt(0);
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -170,7 +170,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
     });
 
@@ -180,7 +180,7 @@ describe('Patients', () => {
         showWelcomeMessage: sinon.stub(),
       };
       wrapper.setProps(props);
-      var render = wrapper.find(Patients).instance().getWrappedInstance();
+      var render = wrapper.find(Patients).childAt(0);
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -194,7 +194,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
     });
 
@@ -203,7 +203,7 @@ describe('Patients', () => {
         dataWorkerRemoveDataRequest: sinon.stub(),
       };
       wrapper.setProps(props);
-      var render = wrapper.find(Patients).instance().getWrappedInstance();
+      var render = wrapper.find(Patients).childAt(0);
 
       var nextProps = Object.assign({}, props, {
         invites: [],
@@ -220,7 +220,7 @@ describe('Patients', () => {
         }
       });
 
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
     });
 
@@ -233,7 +233,7 @@ describe('Patients', () => {
         },
       };
       wrapper.setProps(props);
-      var render = wrapper.find(Patients).instance().getWrappedInstance();
+      var render = wrapper.find(Patients).childAt(0);
 
       var nextProps = Object.assign({}, props, {
         invites: [],
@@ -247,7 +247,7 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
       sinon.assert.calledWith(props.history.push, '/patients/1/data');
     });
   });

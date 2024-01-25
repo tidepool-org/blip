@@ -8,7 +8,6 @@
 import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
 import { createElement } from 'react';
-import { renderIntoDocument } from 'react-dom/test-utils';
 const expect = chai.expect;
 import { BrowserRouter } from 'react-router-dom';
 
@@ -30,7 +29,7 @@ describe('LoginNav', function () {
 
       var elem = createElement(LoginNav, props);
       var wrapper = createElement(BrowserRouter, null, elem);
-      var render = renderIntoDocument(wrapper);
+      var render = mount(wrapper);
       expect(render).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });

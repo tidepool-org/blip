@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
-import { translate, Trans } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { withTranslation, Trans } from 'react-i18next';
+import { Flex } from 'theme-ui';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -96,7 +96,7 @@ class Basics extends Component {
           onClickSettings={this.props.onSwitchToSettings}
           onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.handleClickPrint}
-        ref="header" />
+          ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -115,7 +115,7 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <div>
-                <Flex mb={2} justifyContent="space-between" alignItems="center">
+                <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                   <ClipboardButton
                     buttonTitle={t('For email or notes')}
                     onSuccess={this.handleCopyBasicsClicked}
@@ -276,4 +276,4 @@ class Basics extends Component {
   };
 }
 
-export default translate()(Basics);
+export default withTranslation()(Basics);

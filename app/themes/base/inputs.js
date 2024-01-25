@@ -78,7 +78,6 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     borderRadius: 0,
     color: colors.text.primary,
     width: 'auto',
-    marginBottom: 2,
     alignItems: 'center',
     fontSize: fontSizes[1],
     fontWeight: fontWeights.medium,

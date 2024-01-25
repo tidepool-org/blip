@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
@@ -14,7 +14,7 @@ import utils from '../../core/utils';
 import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
-export var ConfirmPasswordReset = translate()(class extends React.Component {
+export var ConfirmPasswordReset = withTranslation()(class extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     api: PropTypes.object.isRequired,

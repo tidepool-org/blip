@@ -1,7 +1,7 @@
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import bows from 'bows';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
@@ -35,7 +35,7 @@ import {
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionCalculator');
 
-export const CalculatorMethod = translate()(props => {
+export const CalculatorMethod = withTranslation()(props => {
   const { t, onMethodChange } = props;
   const formikContext = useFormikContext();
   const initialFocusedInputRef = useInitialFocusedInput();
@@ -73,7 +73,7 @@ export const CalculatorMethod = translate()(props => {
   );
 });
 
-export const CalculatorInputs = translate()(props => {
+export const CalculatorInputs = withTranslation()(props => {
   const { t, schema } = props;
   const formikContext = useFormikContext();
 
@@ -140,8 +140,8 @@ export const CalculatorInputs = translate()(props => {
       )}
 
       {showWeight && (
-        <Flex mb={5} alignItems="flex-start">
-          <Box flexGrow={6}>
+        <Flex mb={5} sx={{ alignItems: 'flex-start' }}>
+          <Box sx={{ flexGrow: 6 }}>
             <FastField
               as={TextInput}
               label={t('Weight')}
@@ -161,7 +161,7 @@ export const CalculatorInputs = translate()(props => {
             />
           </Box>
 
-          <Box ml={2} mt="1.5em" flexGrow={1}>
+          <Box ml={2} mt="1.5em" sx={{ flexGrow: 1 }}>
             <FastField
               as={Select}
               themeProps={{

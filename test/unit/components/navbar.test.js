@@ -10,6 +10,7 @@ const expect = chai.expect;
 
 describe('Navbar', ()  => {
   let wrapper;
+  let consoleErrorSpy;
 
   const props = {
     trackMetric: sinon.spy(),
@@ -17,7 +18,7 @@ describe('Navbar', ()  => {
   };
 
   before(() => {
-    console.error = sinon.spy();
+    consoleErrorSpy = sinon.spy(console, 'error');
     // we have to rewire IndexLink because React Router throws an error
     // when rendering a IndexLink or Link out of the routing context :(
     Navbar.__Rewire__('IndexLink', (props) => {
@@ -30,7 +31,7 @@ describe('Navbar', ()  => {
     // The HOC makes it difficult to access / set properties of the pure component,
     // in this case the trackMetric property of PureNavbar. So we test
     // on the pure component instead.
-    wrapper = shallow(<Navbar.WrappedComponent {...props} />);
+    wrapper = shallow(<Navbar {...props} />).dive();
   });
 
   after(() => {
@@ -43,7 +44,7 @@ describe('Navbar', ()  => {
 
   describe('render', () => {
     it('should render without problems when required props present', () => {
-      expect(console.error.callCount).to.equal(0);
+      expect(consoleErrorSpy.callCount).to.equal(0);
     });
 
     it('should render a patient list link when viewing patient data or profile views as a clinician user', () => {
@@ -54,13 +55,13 @@ describe('Navbar', ()  => {
         },
       };
 
-      wrapper = shallow(<Navbar.WrappedComponent {...clinicianUserProps} currentPage="/patients/abc123/data" />);
+      wrapper = shallow(<Navbar {...clinicianUserProps} currentPage="/patients/abc123/data" />).dive();
       expect(wrapper.find('Link[to="/patients"]')).to.have.lengthOf(1);
 
-      wrapper = shallow(<Navbar.WrappedComponent {...clinicianUserProps} currentPage="/patients" />);
+      wrapper = shallow(<Navbar {...clinicianUserProps} currentPage="/patients" />).dive();
       expect(wrapper.find('Link[to="/patients"]')).to.have.lengthOf(0);
 
-      wrapper = shallow(<Navbar.WrappedComponent {...clinicianUserProps} currentPage="/patients/abc123/profile" />);
+      wrapper = shallow(<Navbar {...clinicianUserProps} currentPage="/patients/abc123/profile" />).dive();
       expect(wrapper.find('Link[to="/patients"]')).to.have.lengthOf(1);
     });
 
@@ -74,16 +75,16 @@ describe('Navbar', ()  => {
         selectedClinicId: 'clinic123',
       };
 
-      wrapper = shallow(<Navbar.WrappedComponent {...clinicClinicianProps} currentPage="/patients/abc123/data" />);
+      wrapper = shallow(<Navbar {...clinicClinicianProps} currentPage="/patients/abc123/data" />).dive();
       expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(1);
 
-      wrapper = shallow(<Navbar.WrappedComponent {...clinicClinicianProps} currentPage="/patients" />);
+      wrapper = shallow(<Navbar {...clinicClinicianProps} currentPage="/patients" />).dive();
       expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(0);
 
-      wrapper = shallow(<Navbar.WrappedComponent {...clinicClinicianProps} currentPage="/patients/abc123/profile" />);
+      wrapper = shallow(<Navbar {...clinicClinicianProps} currentPage="/patients/abc123/profile" />).dive();
       expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(1);
 
-      wrapper = shallow(<Navbar.WrappedComponent {...clinicClinicianProps} currentPage="/patients/abc123/profile" selectedClinicId={null} />);
+      wrapper = shallow(<Navbar {...clinicClinicianProps} currentPage="/patients/abc123/profile" selectedClinicId={null} />).dive();
       expect(wrapper.find('Link[to="/patients"]')).to.have.lengthOf(1); // If selectedClinicId is null, we redirect to the standard patient list URL
     });
 
@@ -97,7 +98,7 @@ describe('Navbar', ()  => {
         selectedClinicId: 'clinic123',
       };
 
-      wrapper = shallow(<Navbar.WrappedComponent {...clinicClinicianProps} currentPage="/dashboard/tide" />);
+      wrapper = shallow(<Navbar {...clinicClinicianProps} currentPage="/dashboard/tide" />).dive();
       expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(1);
     });
   });

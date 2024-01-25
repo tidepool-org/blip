@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
-import { Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
+import { withTranslation } from 'react-i18next';
+import { Flex, Text, BoxProps, FlexProps } from 'theme-ui';
 import cx from 'classnames';
 import compact from 'lodash/compact';
 import map from 'lodash/map';
@@ -20,7 +20,7 @@ import Icon from './Icon';
 import Popover from './Popover';
 import baseTheme, { shadows } from '../../themes/baseTheme';
 
-export const Tag = props => {
+export function Tag(props) {
   const {
     id,
     icon,
@@ -63,8 +63,7 @@ export const Tag = props => {
       variant={`tags.${variant}`}
       onClick={onClick?.bind(null, id)}
       onDoubleClick={onDoubleClick?.bind(null, id)}
-      flexDirection={flexDirection}
-      sx={styles}
+      sx={{ ...styles, flexDirection }}
       {...themeProps}
     >
       <Text className={classNames} as="span">
@@ -79,12 +78,11 @@ export const Tag = props => {
           }}
           tabIndex={-1}
           className="icon"
-          fontSize={iconFontSize}
           mr={iconMargins.right}
           ml={iconMargins.left}
           theme={baseTheme}
           variant={onClickIcon ? 'default' : 'static'}
-          color={iconColor}
+          sx={{ fontSize: iconFontSize, color: iconColor }}
           icon={icon}
           iconSrc={iconSrc}
           label={iconLabel}
@@ -92,7 +90,7 @@ export const Tag = props => {
       )}
     </Flex>
   );
-};
+}
 
 Tag.propTypes = {
   ...BoxProps,
@@ -113,7 +111,7 @@ Tag.defaultProps = {
   variant: 'default',
 };
 
-export const TagList = translate()(props => {
+export const TagList = withTranslation()(props => {
   const {
     popupId,
     tags,
@@ -121,6 +119,7 @@ export const TagList = translate()(props => {
     maxCharactersVisible,
     tagProps,
     selectedTagProps,
+    sx = {},
     t,
     ...themeProps
   } = props;
@@ -158,29 +157,29 @@ export const TagList = translate()(props => {
   const popoverTriggerFontSize = tagProps.variant === 'compact' ? '10px' : '12px';
   const flexWrap = maxCharactersVisible ? 'nowrap' : 'wrap';
 
-  const EditTagsIcon = () => (
-    <Icon
+  function EditTagsIcon() {
+    return <Icon
       className="edit-tags-trigger"
       variant="default"
-      color="text.primary"
       icon={EditIcon}
-      fontWeight="medium"
-      fontSize={editIconFontSize}
+      sx={{
+        color: 'text.primary',
+        fontWeight: 'medium',
+        fontSize: editIconFontSize,
+      }}
       label={t('Edit tags')}
       onClick={() => {
         popupState.close();
         onClickEdit();
       }}
-    />
-  );
+    />;
+  }
 
   return (
     <Flex
       ref={anchorRef}
       className="tag-list"
-      alignItems="center"
-      flexWrap={flexWrap}
-      sx={{ gap: 1 }}
+      sx={{ gap: 1, alignItems: 'center', flexWrap, ...sx }}
       {...themeProps}
     >
       {map(visibleTags, tag => (
@@ -198,13 +197,15 @@ export const TagList = translate()(props => {
         <React.Fragment>
           <Text
             className="tag-overflow-trigger"
-            color="text.primary"
-            fontWeight="medium"
-            fontFamily="default"
-            fontSize={popoverTriggerFontSize}
-            lineHeight="normal"
-            whiteSpace="nowrap"
-            sx={{ cursor: 'default' }}
+            sx={{
+              color: 'text.primary',
+              fontWeight: 'medium',
+              fontFamily: 'default',
+              fontSize: popoverTriggerFontSize,
+              lineHeight: 'normal',
+              whiteSpace: 'nowrap',
+              cursor: 'default',
+            }}
             {...bindHover(popupState)}
           >
             +{hiddenTags.length}
@@ -223,11 +224,8 @@ export const TagList = translate()(props => {
           >
             <Flex
               classname="tag-list-overflow"
-              maxWidth="250px"
-              alignItems="center"
-              flexWrap="wrap"
               p={1}
-              sx={{ gap: 1 }}
+              sx={{ maxWidth: '250px', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}
             >
               {map(hiddenTags, tag => (
                 <Tag

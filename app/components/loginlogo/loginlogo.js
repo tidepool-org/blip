@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 import logoSrc from './images/tidepool-logo-880x96.png'
 

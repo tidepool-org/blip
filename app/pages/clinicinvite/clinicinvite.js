@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
-import { Box, Flex } from 'rebass/styled-components';
+import { withTranslation } from 'react-i18next';
+import { Box, Flex } from 'theme-ui';
 import { useFormik } from 'formik';
 import { push } from 'connected-react-router';
 import get from 'lodash/get';
@@ -32,6 +32,7 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import { useIsFirstRender } from '../../core/hooks';
+import utils from '../../core/utils';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import config from '../../config';
 
@@ -73,7 +74,7 @@ export const ClinicInvite = (props) => {
       .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
       .required(t('Account type is required')),
     email: yup.string()
-      .email(t('Please enter a valid email address'))
+      .matches(utils.emailRegex, t('Please enter a valid email address'))
       .required(t('Email address is required')),
     prescriberPermission: yup.boolean(),
   });
@@ -167,12 +168,11 @@ export const ClinicInvite = (props) => {
       variant="containers.mediumBordered"
     >
       <Flex
-        sx={{ borderBottom: baseTheme.borders.default }}
-        alignItems="center"
+        sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
         p={4}
         px={6}
       >
-        <Title flexGrow={1}>{t('Invite Team Members')}</Title>
+        <Title sx={{ flexGrow: 1 }}>{t('Invite Team Members')}</Title>
       </Flex>
 
       <Box
@@ -180,6 +180,7 @@ export const ClinicInvite = (props) => {
         id="invite-member"
         onSubmit={handleSubmit}
         px={6}
+        sx={{ display: 'block' }}
       >
         <TextInput
           {...getCommonFormikFieldProps('email', formikContext)}
@@ -217,8 +218,8 @@ export const ClinicInvite = (props) => {
           <Box
             p={4}
             mb={3}
-            bg="lightestGrey"
             sx={{
+              bg: 'lightestGrey',
               border: baseTheme.borders.default,
               borderTop: 'none',
               borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
@@ -227,7 +228,7 @@ export const ClinicInvite = (props) => {
             <Checkbox
               {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
               label={t('Prescribing access')}
-              themeProps={{ bg: 'lightestGrey' }}
+              themeProps={{ sx: { bg: 'lightestGrey' } }}
             />
           </Box>
         )}
@@ -236,7 +237,7 @@ export const ClinicInvite = (props) => {
           Learn more about clinician roles and permissions
         </Button>
 
-        <Flex p={4} justifyContent="flex-end">
+        <Flex p={4} sx={{ justifyContent: 'flex-end' }}>
           <Button id="cancel" variant="secondary" onClick={handleBack}>
             {t('Back')}
           </Button>
@@ -292,4 +293,4 @@ ClinicInvite.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicInvite);
+export default withTranslation()(ClinicInvite);

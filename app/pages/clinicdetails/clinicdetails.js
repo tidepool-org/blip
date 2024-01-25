@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { useParams, useLocation } from 'react-router-dom';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
@@ -13,7 +13,7 @@ import map from 'lodash/map';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
 import { Formik, Form, FastField } from 'formik';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import countries from 'i18n-iso-countries';
 
 import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
@@ -313,8 +313,8 @@ export const ClinicDetails = (props) => {
 
           {!displayClinicForm && clinicInvite && (
             <Body1 id="clinic-invite-details" mb={2}>
-              <Flex alignItems="center">
-                <NotificationIcon ml={0} mr={2} flexShrink={0} />
+              <Flex sx={{ alignItems: 'center' }}>
+                <NotificationIcon ml={0} mr={2} sx={{ flexShrink: 0 }} />
                 <Trans>
                   You have been invited to become a clinic team member at&nbsp;
 
@@ -375,8 +375,8 @@ export const ClinicDetails = (props) => {
             {formikContext => (
               <Form id="clinic-profile">
                 {displayClinicianForm && (
-                  <Flex id="clinician-profile-form" mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
-                    <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                  <Flex id="clinician-profile-form" mb={3} sx={{ flexWrap: 'wrap', flexDirection: ['column', 'row'] }}>
+                    <Box pr={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
                       <TextInput
                         {...getCommonFormikFieldProps('fullName', formikContext)}
                         label={t('Name')}
@@ -386,9 +386,9 @@ export const ClinicDetails = (props) => {
                       />
                     </Box>
 
-                    <Box flexBasis="100%" />{/* Flex row break */}
+                    <Box sx={{ flexBasis: '100%' }} />{/* Flex row break */}
 
-                    <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                    <Box pr={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
                       <Select
                         {...getCommonFormikFieldProps('role', formikContext)}
                         options={addEmptyOption(roles, t('Job Title'))}
@@ -400,7 +400,7 @@ export const ClinicDetails = (props) => {
                       />
                     </Box>
 
-                    <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                    <Box pl={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
                       <TextInput
                         {...getCommonFormikFieldProps('npi', formikContext)}
                         label={t('NPI (Optional)')}
@@ -435,9 +435,8 @@ export const ClinicDetails = (props) => {
                 )}
 
                 <Flex
-                  justifyContent={['center', 'flex-end']}
                   id="clinic-profile-footer"
-                  alignItems={'center'}
+                  sx={{ justifyContent: ['center', 'flex-end'], alignItems: 'center' }}
                   py={3}
                 >
                   <Button
@@ -498,4 +497,4 @@ ClinicDetails.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicDetails);
+export default withTranslation()(ClinicDetails);

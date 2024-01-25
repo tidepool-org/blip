@@ -9,9 +9,8 @@
 
 var React = require('react');
 var _ = require('lodash');
-var TestUtils = require('react-dom/test-utils');
 
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
 import {
   mapStateToProps,
@@ -122,9 +121,9 @@ describe('App', () => {
         onLogout: sinon.stub()
       });
 
-      var elem = TestUtils.renderIntoDocument(<App {...props}/>);
+      var elem = mount(<App {...props}/>);
       expect(elem).to.be.ok;
-      var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
+      var app = elem.find('.app');
       expect(app).to.be.ok;
     });
 
@@ -132,61 +131,61 @@ describe('App', () => {
     it('should console.error when required props not provided', () => {
       console.error = sinon.stub();
 
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps}/>);
+      var elem = mount(<App {...baseProps}/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(11);
-      var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
+      var app = elem.find('.app');
       expect(app).to.be.ok;
     });
 
     it('should render footer', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps} />);
-      var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
+      var elem = mount(<App {...baseProps} />);
+      var footer = elem.find('.footer');
       expect(footer).to.be.ok;
     });
 
     it('should not render a version element when version not set in config', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : null };
-      var elem = TestUtils.renderIntoDocument(<App {...props} />);
-      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Navbar-version');
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Navbar-version');
       expect(versionElems.length).to.equal(0);
     });
 
     it('should render version and hostname when version present in config', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4 };
-      var elem = TestUtils.renderIntoDocument(<App {...props} />);
-      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Version');
       expect(versionElems.length).to.equal(1);
-      expect(versionElems[0].innerText).to.equal('v1.4-localhost');
+      expect(versionElems.text()).to.equal('v1.4-localhost');
     });
 
     it('should include api enviroment in version when available', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4, API_HOST: 'qa2.development.tidepool.org' };
-      var elem = TestUtils.renderIntoDocument(<App {...props} />);
-      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Version');
       expect(versionElems.length).to.equal(1);
-      expect(versionElems[0].innerText).to.equal('v1.4-localhost-qa2');
+      expect(versionElems.text()).to.equal('v1.4-localhost-qa2');
     });
 
     it('should not include the hostname in version if it matches api environment', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4, API_HOST: 'localhost.tidepool.org' };
-      var elem = TestUtils.renderIntoDocument(<App {...props} />);
-      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Version');
       expect(versionElems.length).to.equal(1);
-      expect(versionElems[0].innerText).to.equal('v1.4-localhost');
+      expect(versionElems.text()).to.equal('v1.4-localhost');
     });
 
     it('should not include hostname or api enviroment in version for production environment', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4, API_HOST: 'app.tidepool.org' };
-      var elem = TestUtils.renderIntoDocument(<App {...props} />);
-      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Version');
       expect(versionElems.length).to.equal(1);
-      expect(versionElems[0].innerText).to.equal('v1.4');
+      expect(versionElems.text()).to.equal('v1.4');
     });
   });
 
@@ -1020,33 +1019,33 @@ describe('App', () => {
   describe('isPatientVisibleInNavbar', () => {
     it('should return true when page is /patients/a1b2c3/data', () => {
       var context = _.assign({}, baseProps, {location: '/patients/a1b2c3'});
-      var elem = TestUtils.renderIntoDocument(<App {...context} />);
+      var elem = mount(<App {...context} />);
       expect(elem).to.be.ok;
-      expect(elem.isPatientVisibleInNavbar()).to.be.true;
+      expect(elem.instance().isPatientVisibleInNavbar()).to.be.true;
     });
 
     it('should return false when page is /patients', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />);
       expect(elem).to.be.ok;
 
       elem.setState({page: '/patients'});
-      expect(elem.isPatientVisibleInNavbar()).to.be.false;
+      expect(elem.instance().isPatientVisibleInNavbar()).to.be.false;
     });
 
     it('should return false when page is /profile', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />);
       expect(elem).to.be.ok;
 
       elem.setState({page: '/profile'});
-      expect(elem.isPatientVisibleInNavbar()).to.be.false;
+      expect(elem.instance().isPatientVisibleInNavbar()).to.be.false;
     });
 
     it('should return false when page is /foo', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />);
       expect(elem).to.be.ok;
 
       elem.setState({page: '/foo'});
-      expect(elem.isPatientVisibleInNavbar()).to.be.false;
+      expect(elem.instance().isPatientVisibleInNavbar()).to.be.false;
     });
   });
 

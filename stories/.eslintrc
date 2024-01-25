@@ -5,8 +5,12 @@
   "rules": {
     "arrow-parens": 0,
     "class-methods-use-this": 0,
-    "comma-dangle": ["error", "always-multiline", {
-      "functions": "ignore"
+    "comma-dangle": ["error", {
+      "arrays": "only-multiline",
+      "objects": "only-multiline",
+      "imports": "only-multiline",
+      "exports": "only-multiline",
+      "functions": "never"
     }],
     "function-paren-newline": 0,
     "implicit-arrow-linebreak": 0,
@@ -34,6 +38,7 @@
     "no-lonely-if": 0,
     "no-multi-assign": 0,
     "no-plusplus": 0,
+    "no-promise-executor-return": 0,
     "no-prototype-builtins": 0,
     "no-restricted-globals": 0,
     "object-curly-newline": 0,
@@ -58,6 +63,7 @@
     "react/require-default-props": 0,
     "react/sort-comp": 0,
     "space-unary-ops": 0,
+    "react-hooks/rules-of-hooks": 0,
     //New Rules Per Errors -- not sure if these are the right settings for these rules
     "react/jsx-fragments": 0,
     "react/jsx-curly-newline": 0,

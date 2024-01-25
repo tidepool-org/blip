@@ -1,6 +1,6 @@
 import React from 'react';
-import { translate, Trans } from 'react-i18next';
-import { Flex, Box, Text } from 'rebass/styled-components';
+import { withTranslation, Trans } from 'react-i18next';
+import { Flex, Box, Text } from 'theme-ui';
 import customProtocolCheck from 'custom-protocol-check';
 import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -76,27 +76,27 @@ const UploadRedirect = (props) => {
   }
 
   return (
-    <Flex justifyContent="center" alignItems="center" height="75vh">
+    <Flex sx={{ justifyContent: 'center', alignItems: 'center', height: '75vh' }}>
       <Box>
         <Text fontWeight="medium">
           <Box>
-            <Flex alignItems="center" flexDirection="column">
+            <Flex sx={{ alignItems: 'center', flexDirection: 'column' }}>
               <Title mb="10px">
                 {
                   fromProfile ? (
                     <Trans>
-                      Thank you for completing your account registration. Click <Text as="span" fontWeight="bold">{openText}</Text> on the dialog shown by your browser and <Text as="span" fontWeight="bold">log in</Text> again.
+                      Thank you for completing your account registration. Click <Text sx={{ fontWeight: 'bold' }}>{openText}</Text> on the dialog shown by your browser and <Text sx={{ fontWeight: 'bold' }}>log in</Text> again.
                     </Trans>
                     ) : (
                     <Trans>
-                      Click <Text as="span" fontWeight="bold">{openText}</Text> on the dialog shown by your browser
+                      Click <Text sx={{ fontWeight: 'bold' }}>{openText}</Text> on the dialog shown by your browser
                     </Trans>
                   )
                 }
               </Title>
               <Subheading mb="10px">
                 <Trans>
-                  If you don’t see a dialog, click <Text as="span" fontWeight="bold">Launch Uploader</Text> below
+                  If you don't see a dialog, click <Text sx={{ fontWeight: 'bold' }}>Launch Uploader</Text> below
                 </Trans>
               </Subheading>
               <Subheading mb="20px">
@@ -105,7 +105,7 @@ const UploadRedirect = (props) => {
                 </Trans>
               </Subheading>
               <a id="launch_uploader" href={linkUrl}>
-                <Button variant="primary" fontSize={3}>
+                <Button variant="primary" sx={{ fontSize: 3 }}>
                   {t('Launch Uploader')}
                 </Button>
               </a>
@@ -117,4 +117,4 @@ const UploadRedirect = (props) => {
   );
 };
 
-export default translate()(UploadRedirect);
+export default withTranslation()(UploadRedirect);

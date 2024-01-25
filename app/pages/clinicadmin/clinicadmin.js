@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -10,7 +10,7 @@ import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
 import has from 'lodash/has';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import EditIcon from '@material-ui/icons/EditRounded';
@@ -398,8 +398,8 @@ export const ClinicAdmin = (props) => {
 
   const renderClinician = ({ fullName, email }) => (
     <Box>
-      <Text fontWeight="medium">{fullName}</Text>
-      <Text>{email || '\u00A0'}</Text>
+      <Text sx={{ display: 'block', fontWeight: 'medium' }}>{fullName}</Text>
+      <Text sx={{ display: 'block' }}>{email || '\u00A0'}</Text>
     </Box>
   );
 
@@ -411,7 +411,7 @@ export const ClinicAdmin = (props) => {
 
   const renderPermission = ({ prescriberPermission }) => (
     prescriberPermission ? <Box>
-      <Text fontWeight="medium">
+      <Text sx={{ fontWeight: 'medium' }}>
         {t('Prescriber')}
       </Text>
     </Box> : null
@@ -419,7 +419,7 @@ export const ClinicAdmin = (props) => {
 
   const renderRole = ({ role }) => (
     <Box>
-      <Text fontWeight="medium">{role}</Text>
+      <Text sx={{ fontWeight: 'medium' }}>{role}</Text>
     </Box>
   );
 
@@ -428,7 +428,7 @@ export const ClinicAdmin = (props) => {
       return (
         <Button
           p={0}
-          fontSize="inherit"
+          sx={{ fontSize: 'inherit' }}
           variant="textPrimary"
           onClick={() => handleEdit(userId)}
         >
@@ -577,10 +577,9 @@ export const ClinicAdmin = (props) => {
           <Flex
             px={4}
             py={2}
-            sx={{ borderBottom: baseTheme.borders.default }}
-            alignItems={'center'}
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
           >
-            <Title flexGrow={1}>
+            <Title sx={{ flexGrow: 1 }}>
               {t('Clinic Members')}
             </Title>
           </Flex>
@@ -588,26 +587,22 @@ export const ClinicAdmin = (props) => {
           <Box mx={4}>
             {/* Flex Group 1: Search Box and Add Patient button */}
             <Flex
-              alignItems="center"
               my={4}
-              justifyContent="space-between"
-              width={['100%', null, 'auto']}
-              sx={{ gap: 2 }}
+              sx={{ width: ['100%', null, 'auto'], gap: 2, justifyContent: 'space-between', alignItems: 'center' }}
             >
               {isClinicAdmin() && (
                 <Button
                   id="add-patient"
                   variant="primary"
                   onClick={handleInviteNewMember}
-                  fontSize={0}
                   px={[2, 3]}
-                  lineHeight={['inherit', null, 1]}
+                  sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
                 >
                   {t('Invite New Clinic Team Member')}
                 </Button>
               )}
 
-              <Flex flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+              <Flex sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 {isClinicAdmin() && (
                   <Button
                     sx={{ mr: 2 }}
@@ -628,9 +623,11 @@ export const ClinicAdmin = (props) => {
                 <TextInput
                   flex={1}
                   themeProps={{
-                    width: ['100%', null, '250px'],
+                    sx: {
+                      width: ['100%', null, '250px'],
+                    },
                   }}
-                  fontSize="12px"
+                  sx={{ fontSize: 0 }}
                   id="search-members"
                   placeholder={t('Search by Name')}
                   icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
@@ -655,13 +652,13 @@ export const ClinicAdmin = (props) => {
               rowsPerPage={rowsPerPage}
               searchText={searchText}
               page={page}
-              fontSize={1}
+              sx={{ fontSize: 1 }}
             />
           </Box>
         </Box>
 
         {clinicianArray.length > rowsPerPage && (
-          <Box variant="containers.large" bg="transparent" mb={0}>
+          <Box variant="containers.large" sx={{ bg: 'transparent' }} mb={0}>
             <Pagination
               px="5%"
               width="100%"
@@ -726,7 +723,7 @@ export const ClinicAdmin = (props) => {
           <Body1>
           <Trans>
             <Text>
-              You invited <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text> to your clinic on <Text as='span' fontWeight='bold'>{{inviteDate: formattedInviteDate}}</Text>.
+              You invited <Text sx={{ fontWeight: 'bold' }}>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text> to your clinic on <Text sx={{ fontWeight: 'bold' }}>{{inviteDate: formattedInviteDate}}</Text>.
             </Text>
             <Text>
               Are you sure you want to resend this invite?
@@ -765,7 +762,7 @@ export const ClinicAdmin = (props) => {
           <Body1>
           <Trans>
             <Text>
-              Are you sure you want to revoke this invite to <Text as='span' fontWeight='bold'>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text>?
+              Are you sure you want to revoke this invite to <Text sx={{ fontWeight: 'bold' }}>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text>?
             </Text>
           </Trans>
           </Body1>
@@ -794,4 +791,4 @@ ClinicAdmin.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicAdmin);
+export default withTranslation()(ClinicAdmin);

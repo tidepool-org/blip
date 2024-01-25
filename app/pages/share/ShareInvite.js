@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
-import styled from 'styled-components';
-import { Box, Flex, Text } from 'rebass/styled-components';
-import { Radio, Label } from '@rebass/forms';
+import styled from '@emotion/styled';
+import { Box, Flex, Text } from 'theme-ui';
+import { Radio, Label } from 'theme-ui';
 import baseTheme from '../../themes/baseTheme';
 import { useFormik } from 'formik';
 import filter from 'lodash/filter';
@@ -32,6 +32,7 @@ import * as actions from '../../redux/actions';
 import personUtils from '../../core/personutils';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useIsFirstRender } from '../../core/hooks';
+import utils from '../../core/utils';
 
 const StyledRadio = styled(Radio)`
   color: ${baseTheme.colors.border.default};
@@ -179,7 +180,7 @@ const ShareInvite = (props) => {
       is: 'member',
       then: (schema) =>
         schema
-          .email(t('Please enter a valid email address'))
+          .matches(utils.emailRegex, t('Please enter a valid email address'))
           .notOneOf(sharedOrPendingEmails, alreadySharedWithMemberMessage)
           .required(t('Email address is required')),
       otherwise: (schema) => schema.notRequired(),
@@ -348,7 +349,7 @@ const ShareInvite = (props) => {
         py={3}
         sx={{ borderBottom: baseTheme.borders.default }}
       >
-        <Title textAlign={['center', 'left']}>{t('Share your data')}</Title>
+        <Title sx={{ textAlign: ['center', 'left'] }}>{t('Share your data')}</Title>
       </Box>
 
       <Box
@@ -495,7 +496,7 @@ const ShareInvite = (props) => {
       </Box>
 
       <Box px={5} py={5}>
-        <Flex justifyContent={['center', 'flex-end']}>
+        <Flex sx={{ justifyContent: ['center', 'flex-end'] }}>
           <Button id="cancel" variant="secondary" onClick={handleBack}>
             {backButtonText}
           </Button>
@@ -525,4 +526,4 @@ ShareInvite.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ShareInvite);
+export default withTranslation()(ShareInvite);

@@ -2,7 +2,7 @@ var React = require('react');
 var cx = require('classnames');
 import PropTypes from 'prop-types';
 
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 var d3 = window.d3;
 
@@ -36,7 +36,7 @@ class DaysGroup extends React.Component {
   };
 }
 
-var TrendsSubNav = translate()(class extends React.Component {
+var TrendsSubNav = withTranslation()(class extends React.Component {
   static propTypes = {
     activeDays: PropTypes.object.isRequired,
     activeDomain: PropTypes.string.isRequired,

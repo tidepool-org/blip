@@ -44,8 +44,8 @@ describe('RequestPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var render = mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>).find(RequestPasswordReset).instance().getWrappedInstance();
-      var formInputs = render.formInputs();
+      var render = mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>).find(RequestPasswordReset).childAt(0);
+      var formInputs = render.instance().formInputs();
       expect(formInputs.length).to.equal(1);
       expect(formInputs[0].name).to.equal('email');
       expect(formInputs[0].label).to.equal('Email');
@@ -63,8 +63,8 @@ describe('RequestPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var render = mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>).find(RequestPasswordReset).instance();
-      var initialState = render.getWrappedInstance().state;
+      var render = mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>).find(RequestPasswordReset).childAt(0);
+      var initialState = render.state();
       expect(initialState.success).to.equal(false);
       expect(Object.keys(initialState.formValues).length).to.equal(0);
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);

@@ -1,7 +1,7 @@
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import bows from 'bows';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -33,7 +33,7 @@ import {
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionProfile');
 
-export const PatientPhone = translate()(props => {
+export const PatientPhone = withTranslation()(props => {
   const { t } = props;
   const formikContext = useFormikContext();
 
@@ -82,7 +82,7 @@ export const PatientPhone = translate()(props => {
   );
 });
 
-export const PatientMRN = translate()(props => {
+export const PatientMRN = withTranslation()(props => {
   const { t } = props;
   const formikContext = useFormikContext();
   const { values } = formikContext;
@@ -105,7 +105,7 @@ export const PatientMRN = translate()(props => {
   );
 });
 
-export const PatientGender = translate()(props => {
+export const PatientGender = withTranslation()(props => {
   const { t } = props;
   const formikContext = useFormikContext();
   const { values } = formikContext;
@@ -129,7 +129,7 @@ export const PatientGender = translate()(props => {
   );
 });
 
-export const PatientDevices = translate()(props => {
+export const PatientDevices = withTranslation()(props => {
   const { t, devices } = props;
   const formikContext = useFormikContext();
 

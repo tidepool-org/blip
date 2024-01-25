@@ -15,9 +15,9 @@
  */
 
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
-var LogoutOverlay = translate()(class extends React.Component {
+var LogoutOverlay = withTranslation()(class extends React.Component {
   state = {
     fadeOut: false
   };

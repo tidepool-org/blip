@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Flex, Box } from 'rebass/styled-components'
-import { translate } from 'react-i18next';
+import { Flex, Box } from 'theme-ui'
+import { withTranslation } from 'react-i18next';
 import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 
 import _ from 'lodash';
@@ -14,7 +14,7 @@ import NavigationMenu from './NavigationMenu';
 import Button from '../elements/Button';
 
 import logoSrc from './images/tidepool-logo-408x46.png';
-export default translate()(class extends React.Component {
+export default withTranslation()(class extends React.Component {
   static propTypes = {
     clinicFlowActive: PropTypes.bool,
     clinics: PropTypes.array,
@@ -54,19 +54,21 @@ export default translate()(class extends React.Component {
       <>
         <Flex
           className="Navbar"
-          flexWrap="wrap"
-          justifyContent={['center', 'space-between']}
-          alignItems="center"
+          sx={{
+            flexWrap: 'wrap',
+            justifyContent: ['center', 'space-between'],
+            alignItems: 'center',
+          }}
         >
-          <Box flex={1} minWidth={['100%', '100%', '33%']} py={[3, 3, 4]}>
+          <Box sx={{ flex: 1, minWidth: ['100%', '100%', '33%'] }} py={[3, 3, 4]}>
             {this.renderLogoSection()}
           </Box>
 
-          <Box flex={1} order={[3, 2]} minWidth={['100%', '50%', '33%']} py={1}>
+          <Box sx={{ order: [3, 2], flex: 1, minWidth: ['100%', '50%', '33%'] }} py={1}>
             {this.renderMiddleSection()}
           </Box>
 
-          <Box flex={1} order={[2, 3]} minWidth={['100%', '50%', '33%']} py={1}>
+          <Box sx={{ order: [2, 3], flex: 1, minWidth: ['100%', '50%', '33%'] }} py={1}>
             {this.renderMenuSection()}
           </Box>
         </Flex>
@@ -94,7 +96,7 @@ export default translate()(class extends React.Component {
 
   renderLogoSection = () => {
     return (
-      <Flex className="Navbar-logoSection" justifyContent={['center', 'flex-start']}>
+      <Flex className="Navbar-logoSection" sx={{ justifyContent: ['center', 'flex-start'] }}>
         {this.renderLogo()}
       </Flex>
     );

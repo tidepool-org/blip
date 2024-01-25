@@ -4,10 +4,10 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
 var _ = require('lodash');
 var expect = chai.expect;
 
+import { mount } from 'enzyme';
 import Header from '../../../../app/components/chart/header'
 
 describe('Header', function () {
@@ -38,7 +38,7 @@ describe('Header', function () {
         onClickSettings: sinon.stub(),
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
     });
 
@@ -67,13 +67,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var backButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-back');
+      var backButton = elem.find('.js-back');
 
       expect(props.onClickBack.callCount).to.equal(0);
-      TestUtils.Simulate.click(backButton);
+      backButton.simulate('click');
       expect(props.onClickBack.callCount).to.equal(1);
     });
 
@@ -102,13 +102,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var backButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-back');
+      var backButton = elem.find('.js-back');
 
       expect(props.onClickBack.callCount).to.equal(0);
-      TestUtils.Simulate.click(backButton);
+      backButton.simulate('click');
       expect(props.onClickBack.callCount).to.equal(0);
     });
 
@@ -137,13 +137,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var trendsButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-trends');
+      var trendsButton = elem.find('.js-trends');
 
       expect(props.onClickTrends.callCount).to.equal(0);
-      TestUtils.Simulate.click(trendsButton);
+      trendsButton.simulate('click');
       expect(props.onClickTrends.callCount).to.equal(1);
     });
 
@@ -172,13 +172,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var mostRecentButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-most-recent');
+      var mostRecentButton = elem.find('.js-most-recent');
 
       expect(props.onClickMostRecent.callCount).to.equal(0);
-      TestUtils.Simulate.click(mostRecentButton);
+      mostRecentButton.simulate('click');
       expect(props.onClickMostRecent.callCount).to.equal(1);
     });
 
@@ -207,13 +207,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var mostRecentButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-most-recent');
+      var mostRecentButton = elem.find('.js-most-recent');
 
       expect(props.onClickMostRecent.callCount).to.equal(0);
-      TestUtils.Simulate.click(mostRecentButton);
+      mostRecentButton.simulate('click');
       expect(props.onClickMostRecent.callCount).to.equal(0);
     });
 
@@ -242,13 +242,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var nextButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-next');
+      var nextButton = elem.find('.js-next');
 
       expect(props.onClickNext.callCount).to.equal(0);
-      TestUtils.Simulate.click(nextButton);
+      nextButton.simulate('click');
       expect(props.onClickNext.callCount).to.equal(1);
     });
 
@@ -277,13 +277,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var nextButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-next');
+      var nextButton = elem.find('.js-next');
 
       expect(props.onClickNext.callCount).to.equal(0);
-      TestUtils.Simulate.click(nextButton);
+      nextButton.simulate('click');
       expect(props.onClickNext.callCount).to.equal(0);
     });
 
@@ -312,13 +312,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var basicsButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-basics');
+      var basicsButton = elem.find('.js-basics');
 
       expect(props.onClickBasics.callCount).to.equal(0);
-      TestUtils.Simulate.click(basicsButton);
+      basicsButton.simulate('click');
       expect(props.onClickBasics.callCount).to.equal(1);
     });
 
@@ -347,13 +347,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var dayButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-daily');
+      var dayButton = elem.find('.js-daily');
 
       expect(props.onClickOneDay.callCount).to.equal(0);
-      TestUtils.Simulate.click(dayButton);
+      dayButton.simulate('click');
       expect(props.onClickOneDay.callCount).to.equal(1);
     });
 
@@ -382,13 +382,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var bgLogButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-bgLog');
+      var bgLogButton = elem.find('.js-bgLog');
 
       expect(props.onClickBgLog.callCount).to.equal(0);
-      TestUtils.Simulate.click(bgLogButton);
+      bgLogButton.simulate('click');
       expect(props.onClickBgLog.callCount).to.equal(1);
     });
 
@@ -417,13 +417,13 @@ describe('Header', function () {
         onClickSettings: sinon.stub()
       };
       var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var elem = mount(dailyElem);
       expect(elem).to.be.ok;
 
-      var settingsButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-settings');
+      var settingsButton = elem.find('.js-settings');
 
       expect(props.onClickSettings.callCount).to.equal(0);
-      TestUtils.Simulate.click(settingsButton);
+      settingsButton.simulate('click');
       expect(props.onClickSettings.callCount).to.equal(1);
     });
   });

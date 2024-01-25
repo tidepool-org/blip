@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, Text, FlexProps } from 'rebass/styled-components';
+import { Flex, Text, FlexProps } from 'theme-ui';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
@@ -11,7 +11,7 @@ import noop from 'lodash/noop';
 import baseTheme from '../../themes/baseTheme';
 import Icon from './Icon';
 
-const Banner = (props) => {
+function Banner(props) {
   const { label, variant, message, dismissable, onDismiss, ...themeProps } = props;
 
   const iconMap = {
@@ -29,7 +29,7 @@ const Banner = (props) => {
       {...themeProps}
       variant={`banners.${variant}`}
     >
-      <Flex px={2} flexGrow={1} alignItems="center" justifyContent="center">
+      <Flex px={2} sx={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Icon mr={2} theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />
         <Text className="message">{message}</Text>
       </Flex>
@@ -44,7 +44,7 @@ const Banner = (props) => {
       )}
     </Flex>
   );
-};
+}
 
 Banner.propTypes = {
   ...FlexProps,

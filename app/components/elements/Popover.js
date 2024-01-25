@@ -4,8 +4,8 @@ import noop from 'lodash/noop';
 import { default as Base, PopoverProps } from '@material-ui/core/Popover';
 import HoverPopover from 'material-ui-popup-state/HoverPopover';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
-import styled from 'styled-components';
-import { Box, BoxProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Box, BoxProps } from 'theme-ui';
 
 import { borders, radii, shadows, space, fonts } from '../../themes/baseTheme';
 import Icon from '../../components/elements/Icon';
@@ -33,7 +33,7 @@ const PopoverContentWrapper = React.forwardRef((props, ref) => (
 
 const PaperProp = { component: PopoverContentWrapper };
 
-const Popover = props => {
+function Popover(props) {
   const {
     children,
     closeIcon,
@@ -68,6 +68,7 @@ const Popover = props => {
       margintop={marginTop}
       minwidth={minWidth}
       padding={padding}
+      container={() => document.getElementById('dialog-container')}
       {...popoverProps}
     >
       {closeIcon && (
@@ -79,8 +80,8 @@ const Popover = props => {
           }}
           icon={CloseRoundedIcon}
           variant="button"
-          fontSize={1}
           sx={{
+            fontSize: 1,
             position: 'absolute !important',
             top: 1,
             right: 1,
@@ -91,7 +92,7 @@ const Popover = props => {
       {children}
     </Component>
   );
-};
+}
 
 Popover.propTypes = {
   ...PopoverProps,

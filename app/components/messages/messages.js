@@ -19,12 +19,12 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 var Message = require('./message');
 var MessageForm = require('./messageform');
 
-var Messages = translate()(class extends React.Component {
+var Messages = withTranslation()(class extends React.Component {
   static propTypes = {
     messages: PropTypes.array,
     createDatetime: PropTypes.string,
@@ -135,7 +135,7 @@ var Messages = translate()(class extends React.Component {
       </div>
     );
   };
-  
+
   renderClose = () => {
     const { t } = this.props;
     return (<a className='messages-close' onClick={this.handleClose}>{t('Close')}</a>);

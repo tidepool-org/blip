@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate, Trans} from 'react-i18next';
+import { withTranslation, Trans} from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import sundial from 'sundial';
 
@@ -22,7 +22,7 @@ const { Loader } = vizComponents;
 import check from './images/check.svg';
 let win = window;
 
-export let Signup = translate()(class extends React.Component {
+export let Signup = withTranslation()(class extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     api: PropTypes.object.isRequired,

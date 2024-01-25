@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Box, Flex, BoxProps, FlexProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Box, Flex, BoxProps, FlexProps } from 'theme-ui';
 import { default as Tabs, TabsProps } from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import map from 'lodash/map';
@@ -9,60 +9,64 @@ import map from 'lodash/map';
 import { borders, colors, space } from '../../themes/baseTheme';
 
 const StyledTab = styled(Tab)`
-  font-size: inherit;
-  font-weight: inherit;
-  font-family: inherit;
-  min-height: auto;
-  min-width: auto;
-  text-transform: none;
-  padding: 12px ${space[4]}px;
-  opacity: 1;
-  color: ${colors.tab.primary};
-
-  &.Mui-selected {
-    color: ${colors.tab.selected};
-    opacity: 1;
-  }
-
-  &.Mui-disabled {
-    color: ${colors.tab.disabled};
-  }
-
-  &:hover {
-    background-color: ${colors.lightestGrey};
-  }
-
-  .MuiTab-wrapper {
-    flex-direction: row;
-    color: inherit;
+  && {
     font-size: inherit;
     font-weight: inherit;
+    font-family: inherit;
+    min-height: auto;
+    min-width: auto;
+    text-transform: none;
+    padding: 12px ${space[4]}px;
+    opacity: 1;
+    color: ${colors.tab.primary};
 
-    > span {
+    &.Mui-selected {
+      color: ${colors.tab.selected};
+      opacity: 1;
+    }
+
+    &.Mui-disabled {
+      color: ${colors.tab.disabled};
+    }
+
+    &:hover {
+      background-color: ${colors.lightestGrey};
+    }
+
+    .MuiTab-wrapper {
+      flex-direction: row;
       color: inherit;
-    }
+      font-size: inherit;
+      font-weight: inherit;
 
-    > *:first-child {
-      margin-bottom: 0;
-      margin-right: ${space[2]}px;
-    }
+      > span {
+        color: inherit;
+      }
 
-    > *:last-child {
-      margin-right: 0;
+      > *:first-child {
+        margin-bottom: 0;
+        margin-right: ${space[2]}px;
+      }
+
+      > *:last-child {
+        margin-right: 0;
+      }
     }
   }
 `;
 
 const StyledTabGroup = styled(Tabs)`
-  min-height: auto;
+  && {
+    min-height: auto;
 
-  .MuiTabs-indicator {
-    background-color: ${colors.tab.selected};
-    z-index: 1;
+    .MuiTabs-indicator {
+      background-color: ${colors.tab.selected};
+      z-index: 1;
+    }
   }
 `;
 
-export const TabGroup = props => {
+export function TabGroup(props) {
   const {
     tabs,
     children,
@@ -125,7 +129,7 @@ export const TabGroup = props => {
       </Box>
     </Flex>
   );
-};
+}
 
 TabGroup.propTypes = {
   ...TabsProps,

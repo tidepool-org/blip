@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
@@ -17,7 +17,7 @@ import { validateForm } from '../../core/validation';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-export let VerificationWithPassword = translate()(class extends React.Component {
+export let VerificationWithPassword = withTranslation()(class extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     api: PropTypes.object.isRequired,

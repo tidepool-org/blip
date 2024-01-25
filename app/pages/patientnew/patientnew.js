@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
@@ -36,7 +36,7 @@ import {
   URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
 
-export let PatientNew = translate()(class extends React.Component {
+export let PatientNew = withTranslation()(class extends React.Component {
   static propTypes = {
     fetchingUser: PropTypes.bool.isRequired,
     onUpdateDataDonationAccounts: PropTypes.func.isRequired,

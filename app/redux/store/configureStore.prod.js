@@ -16,15 +16,13 @@
  */
 
 import { createBrowserHistory } from 'history';
-import { createStore, applyMiddleware, combineReducers } from 'redux';
+import { legacy_createStore as createStore, applyMiddleware, combineReducers } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import qhistory from 'qhistory';
 import { stringify, parse } from 'qs';
 import assign from 'lodash/assign';
 import throttle from 'lodash/throttle';
-
-import Worker from 'worker-loader?inline!./../../worker/index';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
@@ -45,7 +43,7 @@ const reducer = combineReducers({
   router: connectRouter(history),
 });
 
-const worker = new Worker;
+const worker = new Worker(new URL('./../../worker/index', import.meta.url));
 const workerMiddleware = createWorkerMiddleware(worker);
 
 function _createStore(api) {

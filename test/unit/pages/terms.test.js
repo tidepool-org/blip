@@ -5,7 +5,6 @@
 /* global beforeEach */
 
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 
 var assert = chai.assert;
@@ -13,6 +12,7 @@ var expect = chai.expect;
 
 import { Terms, mapStateToProps } from '../../../app/pages/terms';
 import config from '../../../app/config';
+import { mount } from 'enzyme';
 
 describe('Terms', () => {
 
@@ -27,7 +27,7 @@ describe('Terms', () => {
         trackMetric: sinon.stub()
       };
       var termsElem = React.createElement(Terms, props);
-      var elem = TestUtils.renderIntoDocument(termsElem);
+      var elem = mount(termsElem);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -41,52 +41,53 @@ describe('Terms', () => {
     beforeEach(() => {
       var props = {};
       var termsElem = React.createElement(Terms, props);
-      elem = TestUtils.renderIntoDocument(termsElem).getWrappedInstance();
+      elem = mount(termsElem).childAt(0);
     });
 
     it('is not agreed', () => {
-      expect(elem.state.agreed).to.equal(false);
+      expect(elem.state().agreed).to.equal(false);
     });
     it('is not agreedOnBehalf', () => {
-      expect(elem.state.agreedOnBehalf).to.equal(false);
+      expect(elem.state().agreedOnBehalf).to.equal(false);
     });
     it('age is over 18', () => {
-      expect(elem.state.ageSelected).to.equal(elem.props.ages.OF_AGE.value);
+      expect(elem.state().ageSelected).to.equal(elem.props().ages.OF_AGE.value);
     });
     it('should NOT render terms form when user has acccepted latest terms and is logged in', () => {
       var props = { authenticated: true, termsAccepted: true, acceptedLatestTerms: true, fetchingUser: false }
       var termsElem = React.createElement(Terms, props);
-      var elem = TestUtils.renderIntoDocument(termsElem);
+      var elem = mount(termsElem);
 
-      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-form');
+      var termsElems = elem.find('.terms-form');
       expect(termsElems.length).to.equal(0);
     });
     it('should NOT render age confirmation nor terms acceptance form when user is not logged in', () => {
       var props = {};
-      var elem = TestUtils.renderIntoDocument(<Terms />);
+      var elem = mount(<Terms />);
 
-      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-form');
+      var termsElems = elem.find('.terms-form');
       expect(termsElems.length).to.equal(0);
     });
     it('should render terms form when user has acccepted terms previously, but not the latest terms and is logged in', () => {
       var props = { authenticated: true, termsAccepted: true, acceptedLatestTerms: false, fetchingUser: false }
       var termsElem = React.createElement(Terms, props);
-      var elem = TestUtils.renderIntoDocument(termsElem);
+      var elem = mount(termsElem);
 
-      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-form');
+      var termsElems = elem.find('.terms-form');
       expect(termsElems.length).to.equal(1);
     });
     it('should render updated terms notice when user has acccepted terms previously, but not the latest terms and is logged in', () => {
       var props = { authenticated: true, termsAccepted: true, acceptedLatestTerms: false, fetchingUser: false }
       var termsElem = React.createElement(Terms, props);
-      var elem = TestUtils.renderIntoDocument(termsElem);
+      var elem = mount(termsElem);
 
-      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-title');
+      var termsElems = elem.find('.terms-title');
       expect(termsElems.length).to.equal(1);
     });
   });
 
   describe('age confirmation', () => {
+    var wrapper;
     var termsElem;
 
     beforeEach(() => {
@@ -94,140 +95,139 @@ describe('Terms', () => {
         authenticated: true,
         trackMetric: sinon.stub()
       };
-      termsElem = React.createElement(Terms, props);
-      termsElem = TestUtils.renderIntoDocument(termsElem).getWrappedInstance();
+      wrapper = mount(React.createElement(Terms, props));
+      termsElem = wrapper.childAt(0);
     });
 
     describe('flow for 18 and over login', () => {
       it('has correct behaviour', () => {
-        var overEighteen = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[0];
-        expect(overEighteen.value).to.equal(termsElem.props.ages.OF_AGE.value);
+        var overEighteen = termsElem.find('input').at(0);
+        expect(overEighteen.props().value).to.equal(termsElem.props().ages.OF_AGE.value);
         // continue
-        var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
-        TestUtils.Simulate.click(ageBtn);
+        var ageBtn = termsElem.find('button');
+        ageBtn.simulate('click');
 
-        var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
-        expect(buttons[0].textContent).to.equal('Continue');
+        var buttons = () => wrapper.find('button');
+        expect(buttons().at(0).text()).to.equal('Continue');
         // Continue button should be disabled
-        expect(buttons[0].disabled).to.equal(true);
+        expect(buttons().at(0).props().disabled).to.equal(true);
 
         // check state
-        expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.OF_AGE.value);
-        expect(termsElem.state.agreed).to.equal(false);
+        expect(termsElem.state().ageSelected).to.equal(termsElem.props().ages.OF_AGE.value);
+        expect(termsElem.state().agreed).to.equal(false);
 
-        var inputs = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input');
+        var inputs = wrapper.find('input');
 
         // The inputs are the radio buttons, followed by any checkboxes
         expect(inputs.length).to.equal(4);
-        var agreed = inputs[3];
+        var agreed = inputs.at(3);
 
-        TestUtils.Simulate.change(agreed);
+        agreed.simulate('change');
 
-        expect(termsElem.state.agreed).to.equal(true);
+        expect(termsElem.state().agreed).to.equal(true);
 
         // now we should be able to click the Continue button
-        expect(buttons[0].disabled).to.equal(false);
+        expect(buttons().at(0).props().disabled).to.equal(false);
       });
     });
 
     describe('flow for between 13 and 17 years old', () => {
       it('has correct behaviour', () => {
         // select between 13 and 17
-        var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[1];
-        TestUtils.Simulate.change(thirteenToSeventeenOpt);
+        var thirteenToSeventeenOpt = termsElem.find('input').at(1);
+        thirteenToSeventeenOpt.simulate('change');
         // select Continue
-        var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
-        TestUtils.Simulate.click(ageBtn);
+        var ageBtn = termsElem.find('button');
+        ageBtn.simulate('click');
 
-        var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
-        expect(buttons[0].textContent).to.equal('Continue');
+        var buttons = () => wrapper.find('button');
+        expect(buttons().at(0).text()).to.equal('Continue');
         // Continue button should be disabled
-        expect(buttons[0].disabled).to.equal(true);
+        expect(buttons().at(0).props().disabled).to.equal(true);
 
         // check state
-        expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.WITH_CONSENT.value);
-        expect(termsElem.state.agreed).to.equal(false);
-        expect(termsElem.state.agreedOnBehalf).to.equal(false);
+        expect(termsElem.state().ageSelected).to.equal(termsElem.props().ages.WITH_CONSENT.value);
+        expect(termsElem.state().agreed).to.equal(false);
+        expect(termsElem.state().agreedOnBehalf).to.equal(false);
 
-        var inputs = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input');
-
+        var inputs = wrapper.find('input').hostNodes();
         // The inputs are the radio buttons, followed by any checkboxes
         expect(inputs.length).to.equal(5);
-        var agreed = inputs[3];
-        var agreedOnBehalf = inputs[4];
+        var agreed = inputs.at(3);
+        var agreedOnBehalf = inputs.at(4);
 
-        TestUtils.Simulate.change(agreedOnBehalf);
-        TestUtils.Simulate.change(agreed);
+        agreedOnBehalf.simulate('change');
+        agreed.simulate('change');
 
-        expect(termsElem.state.agreed).to.equal(true);
-        expect(termsElem.state.agreedOnBehalf).to.equal(true);
+        expect(termsElem.state().agreed).to.equal(true);
+        expect(termsElem.state().agreedOnBehalf).to.equal(true);
 
         // now we should be able to click the button
-        expect(buttons[0].disabled).to.equal(false);
+        expect(buttons().at(0).props().disabled).to.equal(false);
       });
 
       it('will not allow confirmation if both checkboxes are not selected', () => {
         // select between 13 and 17
-        var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[1];
-        TestUtils.Simulate.change(thirteenToSeventeenOpt);
+        var thirteenToSeventeenOpt = termsElem.find('input').at(1);
+        thirteenToSeventeenOpt.simulate('change');
         // select Continue
-        var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
-        TestUtils.Simulate.click(ageBtn);
+        var ageBtn = termsElem.find('button');
+        ageBtn.simulate('click');
         // age confirmation is now true
-        expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.WITH_CONSENT.value);
-        expect(termsElem.state.agreed).to.equal(false);
-        expect(termsElem.state.agreedOnBehalf).to.equal(false);
+        expect(termsElem.state().ageSelected).to.equal(termsElem.props().ages.WITH_CONSENT.value);
+        expect(termsElem.state().agreed).to.equal(false);
+        expect(termsElem.state().agreedOnBehalf).to.equal(false);
 
-        var inputs = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input');
+        var inputs = wrapper.find('input');
 
         expect(inputs.length).to.equal(5);
 
-        var agreed = inputs[3];
-        var agreedOnBehalf = inputs[4];
+        var agreed = inputs.at(3);
+        var agreedOnBehalf = inputs.at(4);
         // only check one
-        TestUtils.Simulate.change(agreedOnBehalf);
+        agreedOnBehalf.simulate('change');
 
-        expect(termsElem.state.agreed).to.equal(false);
-        expect(termsElem.state.agreedOnBehalf).to.equal(true);
+        expect(termsElem.state().agreed).to.equal(false);
+        expect(termsElem.state().agreedOnBehalf).to.equal(true);
 
         // now we should NOT be able to click the button
-        var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
-        expect(buttons[0].textContent).to.equal('Continue');
-        expect(buttons[0].disabled).to.equal(true);
+        var buttons = () => wrapper.find('button');
+        expect(buttons().at(0).text()).to.equal('Continue');
+        expect(buttons().at(0).props().disabled).to.equal(true);
 
         // now switch to test the other way also
-        TestUtils.Simulate.change(agreedOnBehalf);
-        TestUtils.Simulate.change(agreed);
-        expect(termsElem.state.agreed).to.equal(true);
-        expect(termsElem.state.agreedOnBehalf).to.equal(false);
+        agreedOnBehalf.simulate('change');
+        agreed.simulate('change');
+        expect(termsElem.state().agreed).to.equal(true);
+        expect(termsElem.state().agreedOnBehalf).to.equal(false);
 
         // now we should STILL NOT be able to click the button
-        expect(buttons[0].textContent).to.equal('Continue');
-        expect(buttons[0].disabled).to.equal(true);
+        expect(buttons().at(0).text()).to.equal('Continue');
+        expect(buttons().at(0).props().disabled).to.equal(true);
       });
     });
 
     describe('flow for under 12 login flow', () => {
       it('display sorry message', () => {
         // I am 12 years old or younger.
-        var underTwelveOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[2];
+        var underTwelveOpt = termsElem.find('input').at(2);
 
-        TestUtils.Simulate.change(underTwelveOpt);
-        expect(underTwelveOpt.value).to.equal(termsElem.props.ages.NOT_OF_AGE.value);
+        underTwelveOpt.simulate('change');
+        expect(underTwelveOpt.props().value).to.equal(termsElem.props().ages.NOT_OF_AGE.value);
 
         // select Continue
-        var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
-        TestUtils.Simulate.click(ageBtn);
+        var ageBtn = termsElem.find('button');
+        ageBtn.simulate('click');
 
         // state check
-        expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.NOT_OF_AGE.value);
-        expect(termsElem.state.agreed).to.equal(false);
+        expect(termsElem.state().ageSelected).to.equal(termsElem.props().ages.NOT_OF_AGE.value);
+        expect(termsElem.state().agreed).to.equal(false);
 
         // sorry message shown
-        var sorryMsg = TestUtils.findRenderedDOMComponentWithClass(termsElem, 'terms-sorry-message');
+        var sorryMsg = termsElem.find('terms-sorry-message');
         expect(sorryMsg).not.to.equal(null);
         // still not accepted
-        expect(termsElem.state.agreed).to.equal(false);
+        expect(termsElem.state().agreed).to.equal(false);
       });
     });
   });

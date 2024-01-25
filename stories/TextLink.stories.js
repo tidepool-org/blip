@@ -1,13 +1,12 @@
 import React from 'react';
 
-import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, text } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
-import { Link } from 'rebass/styled-components';
+import { text } from '@storybook/addon-knobs';
+import { ThemeProvider } from '@emotion/react';
+import { Link } from 'theme-ui';
 
 import baseTheme from '../app/themes/baseTheme';
 
-const withTheme = Story => (
+const withTheme = (Story) => (
   <ThemeProvider theme={baseTheme}>
     <Story />
   </ThemeProvider>
@@ -16,20 +15,17 @@ const withTheme = Story => (
 export default {
   title: 'Text Link',
   component: Link,
-  decorators: [withDesign, withKnobs, withTheme],
+  decorators: [withTheme],
 };
 
 const linkText = () => text('Link Text', 'Link Text');
 const link = () => text('URL', '');
 
-export const TextLinkStory = () => (
-  <Link href={link()}>
-    {linkText()}
-  </Link>
-);
+export const TextLinkStory = {
+  render: () => <Link to={link()}>{linkText()}</Link>,
 
-TextLinkStory.story = {
   name: 'Basic Link',
+
   parameters: {
     design: {
       type: 'figma',

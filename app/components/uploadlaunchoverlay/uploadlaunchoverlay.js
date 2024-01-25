@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { translate, Trans } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { withTranslation, Trans } from 'react-i18next';
+import { Flex } from 'theme-ui';
 import cx from 'classnames';
 import GitHub from 'github-api';
 import ModalOverlay from '../modaloverlay';
@@ -13,7 +13,7 @@ import UploaderButton from '../uploaderbutton'
 
 const github = new GitHub();
 
-const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Component {
+const UploadLaunchOverlay = withTranslation()(class UploadLaunchOverlay extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -77,7 +77,7 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
             </div>
           </div>
         </div>,
-        <Flex mt={2} justifyContent="center">
+        <Flex mt={2} sx={{ justifyContent: 'center' }}>
           <UploaderButton
             buttonText={t('Get the Tidepool Uploader')}
           />

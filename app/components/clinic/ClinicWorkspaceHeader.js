@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import includes from 'lodash/includes'
-import { Box, Flex, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, BoxProps } from 'theme-ui';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
@@ -82,23 +82,18 @@ export const ClinicWorkspaceHeader = (props) => {
         id="clinicProfileDetails"
         px={4}
         py={3}
-        flexWrap="wrap"
-        justifyContent={['center', 'space-between']}
-        alignItems="center"
-        sx={{
-          gap: 2,
-        }}
+        sx={{ gap: 2, flexWrap: 'wrap', justifyContent: ['center', 'space-between'], alignItems: 'center' }}
       >
-        <Flex justifyContent={['flex-start']} alignItems="flex-start" width={['100%', '100%', 'auto']}>
+        <Flex sx={{ justifyContent: 'flex-start', alignItems: 'flex-start' }} width={['100%', '100%', 'auto']}>
           <Box mr={6}>
-            <Caption color="grays.4">{t('Clinic Name')}</Caption>
-            <Title fontSize={[1, 2, 3]}>{clinic.name}</Title>
+            <Caption sx={{ color: 'grays.4' }}>{t('Clinic Name')}</Caption>
+            <Title sx={{ fontSize: [1, 2, 3] }}>{clinic.name}</Title>
           </Box>
-          <Box flexShrink={0}>
-            <Caption color="grays.4">{t('Clinic Share Code')}</Caption>
+          <Box sx={{ flexShrink: 0 }}>
+            <Caption sx={{ color: 'grays.4' }}>{t('Clinic Share Code')}</Caption>
             <Flex
-              alignContent="center"
               sx={{
+                alignContent: 'center',
                 button: {
                   border: 'none',
                   color: 'text.primary',
@@ -119,7 +114,7 @@ export const ClinicWorkspaceHeader = (props) => {
                 },
               }}
             >
-              <Title fontSize={[1, 2, 3]} sx={{ whiteSpace: 'nowrap' }}>{clinic.shareCode}</Title>
+              <Title sx={{ fontSize: [1, 2, 3], whiteSpace: 'nowrap' }}>{clinic.shareCode}</Title>
               <ClipboardButton
                 buttonTitle={t('Copy Share Code')}
                 buttonText={buttonText}
@@ -132,10 +127,8 @@ export const ClinicWorkspaceHeader = (props) => {
         </Flex>
 
         <Flex
-          justifyContent={['flex-start', 'flex-start', 'flex-end']}
-          alignItems="center"
           width={['100%', '100%', 'auto']}
-          sx={{ gap: 3 }}
+          sx={{ gap: 3, justifyContent: ['flex-start', 'flex-start', 'flex-end'], alignItems: 'center' }}
         >
           {isClinicAdmin && !isClinicProfilePath && (
             <Box>
@@ -147,7 +140,7 @@ export const ClinicWorkspaceHeader = (props) => {
                 iconPosition='left'
                 iconFontSize="1.25em"
                 iconLabel={t('Edit Clinic Profile')}
-                fontSize={1}
+                sx={{ fontSize: 1 }}
                 pl={0}
               >
                 {t('Edit Clinic Profile')}
@@ -164,7 +157,7 @@ export const ClinicWorkspaceHeader = (props) => {
               iconPosition='left'
               iconFontSize="1.25em"
               iconLabel={navigationAction.label}
-              fontSize={1}
+              sx={{ fontSize: 1 }}
               pl={0}
             >
               {navigationAction.label}
@@ -183,4 +176,4 @@ ClinicWorkspaceHeader.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicWorkspaceHeader);
+export default withTranslation()(ClinicWorkspaceHeader);

@@ -70,7 +70,7 @@ describe('PatientInfo', function () {
 
       wrapper.setProps(props);
 
-      var initialState = wrapper.find(PatientInfo).instance().getWrappedInstance().state;
+      var initialState = wrapper.find(PatientInfo).childAt(0).state();
       expect(Object.keys(initialState).length).to.equal(3);
       expect(initialState.editing).to.equal(false);
       expect(Object.keys(initialState.validationErrors).length).length.to.equal(0);
@@ -82,13 +82,13 @@ describe('PatientInfo', function () {
       var props = {};
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      expect(elem.state.editing).to.equal(false);
-      elem.toggleEdit();
-      expect(elem.state.editing).to.equal(true);
-      elem.toggleEdit();
-      expect(elem.state.editing).to.equal(false);
+      expect(elem.state().editing).to.equal(false);
+      elem.instance().toggleEdit();
+      expect(elem.state().editing).to.equal(true);
+      elem.instance().toggleEdit();
+      expect(elem.state().editing).to.equal(false);
     });
   });
 
@@ -104,9 +104,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.isSamePersonUserAndPatient()).to.equal(false);
+      expect(elem.instance().isSamePersonUserAndPatient()).to.equal(false);
     });
 
     it('should return true when both userids are the same', function() {
@@ -120,9 +120,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.isSamePersonUserAndPatient()).to.equal(true);
+      expect(elem.instance().isSamePersonUserAndPatient()).to.equal(true);
     });
   });
 
@@ -139,8 +139,8 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
-      expect(elem.getDisplayName(elem.props.patient)).to.equal('Joe Bloggs');
+      var elem = wrapper.find(PatientInfo).childAt(0);
+      expect(elem.instance().getDisplayName(elem.props().patient)).to.equal('Joe Bloggs');
     });
   });
 
@@ -158,16 +158,16 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
       // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
       //
       // Edge cases to do with how moment.dff behaves around dtes with diff between >1 and 1,
       // the range for 0 spans between these values
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 20))).to.equal('Born this year');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 19))).to.equal('Born this year');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1983, 4, 20))).to.equal('Born this year');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1983, 4, 19))).to.equal('Born this year');
 
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1985, 4, 17))).to.equal('Born this year');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1985, 4, 17))).to.equal('Born this year');
     });
 
 
@@ -184,14 +184,14 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
       // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1980, 4, 17))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1981, 4, 17))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1982, 4, 17))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 17))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 18))).to.equal('Birthdate not known');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1980, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1981, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1982, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1983, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1983, 4, 18))).to.equal('Birthdate not known');
     });
 
     it('should return text representing years difference', function() {
@@ -207,14 +207,14 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1985, 4, 19))).to.equal('1 year old');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1986, 4, 19))).to.equal('2 years old');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1987, 4, 19))).to.equal('3 years old');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1988, 4, 19))).to.equal('4 years old');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(1999, 4, 19))).to.equal('15 years old');
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(2015, 4, 19))).to.equal('31 years old');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1985, 4, 19))).to.equal('1 year old');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1986, 4, 19))).to.equal('2 years old');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1987, 4, 19))).to.equal('3 years old');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1988, 4, 19))).to.equal('4 years old');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(1999, 4, 19))).to.equal('15 years old');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(2015, 4, 19))).to.equal('31 years old');
     });
 
     it('should handle return correct text representation for various birthdays', function() {
@@ -231,14 +231,14 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var today = Date.UTC(2015, 4, 28); //for testing purposes - set today as fixed
       expect(elem).to.be.ok;
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('31 years old');
-      elem.props.patient.profile.patient.birthday = '1984-04-30';
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('31 years old');
-      elem.props.patient.profile.patient.birthday = '1984-05-29';
-      expect(elem.getAgeText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('30 years old');
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('31 years old');
+      elem.props().patient.profile.patient.birthday = '1984-04-30';
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('31 years old');
+      elem.props().patient.profile.patient.birthday = '1984-05-29';
+      expect(elem.instance().getAgeText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('30 years old');
     });
   });
 
@@ -256,10 +256,10 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1983, 3, 20))).to.equal('Diagnosis date not known');
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1982, 4, 20))).to.equal('Diagnosis date not known');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1983, 3, 20))).to.equal('Diagnosis date not known');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1982, 4, 20))).to.equal('Diagnosis date not known');
     });
 
     it('should not return unknown Dx date if less than 1 years old, or Dx date in future, and diagnosis type is set', function() {
@@ -276,10 +276,10 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1983, 3, 20))).to.equal('Diagnosed as Type 1');
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1982, 4, 20))).to.equal('Diagnosed as Type 1');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1983, 3, 20))).to.equal('Diagnosed as Type 1');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1982, 4, 20))).to.equal('Diagnosed as Type 1');
     });
 
     it('should return text representing years difference', function() {
@@ -295,15 +295,15 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1984, 4, 18))).to.equal('Diagnosed this year');
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1985, 4, 19))).to.equal('Diagnosed 1 year ago');
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1986, 4, 19))).to.equal('Diagnosed 2 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1987, 4, 19))).to.equal('Diagnosed 3 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1988, 4, 19))).to.equal('Diagnosed 4 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1999, 4, 19))).to.equal('Diagnosed 15 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 19))).to.equal('Diagnosed 31 years ago');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1984, 4, 18))).to.equal('Diagnosed this year');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1985, 4, 19))).to.equal('Diagnosed 1 year ago');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1986, 4, 19))).to.equal('Diagnosed 2 years ago');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1987, 4, 19))).to.equal('Diagnosed 3 years ago');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1988, 4, 19))).to.equal('Diagnosed 4 years ago');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(1999, 4, 19))).to.equal('Diagnosed 15 years ago');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(2015, 4, 19))).to.equal('Diagnosed 31 years ago');
     });
 
     it('should handle return correct text representation for various Dx dates', function() {
@@ -319,14 +319,14 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var today = Date.UTC(2015, 4, 28); //for testing purposes - set today as fixed
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
-      elem.props.patient.profile.patient.diagnosisDate = '1984-04-30';
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
-      elem.props.patient.profile.patient.diagnosisDate = '1984-05-29';
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 30 years ago');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
+      elem.props().patient.profile.patient.diagnosisDate = '1984-04-30';
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
+      elem.props().patient.profile.patient.diagnosisDate = '1984-05-29';
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 30 years ago');
     });
 
     it('should handle return correct text representation when both diagnosis type and date are available', function() {
@@ -343,9 +343,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago as Type 1');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago as Type 1');
     });
 
     it('should handle return correct text representation when only diagnosis type is available', function() {
@@ -361,9 +361,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed as Type 1');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed as Type 1');
     });
 
     it('should handle return correct text representation when an invalid diagnosis type is provided, and no date is available', function() {
@@ -379,9 +379,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosis date not known');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosis date not known');
     });
 
     it('should handle return correct text representation when an invalid diagnosis type is provided, and a date is available', function() {
@@ -398,9 +398,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
     });
 
     it('should handle return correct text representation when only diagnosis date is available', function() {
@@ -416,9 +416,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
+      expect(elem.instance().getDiagnosisText(elem.props().patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
     });
   });
 
@@ -436,9 +436,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      expect(elem.getAboutText(elem.props.patient)).to.equal('I am a developer.');
+      expect(elem.instance().getAboutText(elem.props().patient)).to.equal('I am a developer.');
     });
   });
 
@@ -449,10 +449,10 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       // If patient is empty object
       // Easy way to check if the returned variable is an empty POJO
-      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
+      expect(Object.keys(elem.instance().formValuesFromPatient(elem.props().patient)).length).to.equal(0);
     });
 
     it('should return empty object when no form values present', function() {
@@ -467,9 +467,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      var formValues = elem.formValuesFromPatient(elem.props.patient);
+      var formValues = elem.instance().formValuesFromPatient(elem.props().patient);
 
       expect(Object.keys(formValues).length).to.equal(0);
     });
@@ -485,9 +485,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      var formValues = elem.formValuesFromPatient(elem.props.patient);
+      var formValues = elem.instance().formValuesFromPatient(elem.props().patient);
 
       expect(Object.keys(formValues).length).to.equal(1);
       expect(formValues.fullName).to.equal('Joe Bloggs');
@@ -506,9 +506,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      var formValues = elem.formValuesFromPatient(elem.props.patient);
+      var formValues = elem.instance().formValuesFromPatient(elem.props().patient);
 
       expect(Object.keys(formValues).length).to.equal(1);
       expect(formValues.birthday).to.equal('05/01/1995');
@@ -527,9 +527,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      var formValues = elem.formValuesFromPatient(elem.props.patient);
+      var formValues = elem.instance().formValuesFromPatient(elem.props().patient);
 
       expect(Object.keys(formValues).length).to.equal(1);
       expect(formValues.diagnosisDate).to.equal('06/05/2006');
@@ -548,9 +548,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      var formValues = elem.formValuesFromPatient(elem.props.patient);
+      var formValues = elem.instance().formValuesFromPatient(elem.props().patient);
 
       expect(Object.keys(formValues).length).to.equal(1);
       expect(formValues.diagnosisType).to.equal('type1');
@@ -569,9 +569,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      var formValues = elem.formValuesFromPatient(elem.props.patient);
+      var formValues = elem.instance().formValuesFromPatient(elem.props().patient);
 
       expect(Object.keys(formValues).length).to.equal(1);
       expect(formValues.about).to.equal('I have a wonderful coffee mug.');
@@ -594,9 +594,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      var formValues = elem.formValuesFromPatient(elem.props.patient);
+      var formValues = elem.instance().formValuesFromPatient(elem.props().patient);
 
       expect(Object.keys(formValues).length).to.equal(5);
       expect(formValues.fullName).to.equal('Joe Bloggs');
@@ -625,9 +625,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
 
-      var formValues = elem.formValuesFromPatient(elem.props.patient);
+      var formValues = elem.instance().formValuesFromPatient(elem.props().patient);
 
       expect(Object.keys(formValues).length).to.equal(7);
       expect(formValues.fullName).to.equal('Joe Bloggs');
@@ -651,13 +651,13 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         birthday: '02/29/2015',
       };
       var error;
       try {
-        elem.prepareFormValuesForSubmit(formValues);
+        elem.instance().prepareFormValuesForSubmit(formValues);
       } catch(e) {
         error = e;
       }
@@ -675,13 +675,13 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         birthday: '000/00/0000',
       };
       var error;
       try {
-        elem.prepareFormValuesForSubmit(formValues);
+        elem.instance().prepareFormValuesForSubmit(formValues);
       } catch(e) {
         error = e;
       }
@@ -700,25 +700,25 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         birthday: '07/01/1984',
       };
-      var result = elem.prepareFormValuesForSubmit(formValues);
+      var result = elem.instance().prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.birthday).to.equal('1984-07-01');
 
       formValues.birthday = '08/02/1984';
-      result = elem.prepareFormValuesForSubmit(formValues);
+      result = elem.instance().prepareFormValuesForSubmit(formValues);
       expect(result.profile.patient.birthday).to.equal('1984-08-02');
 
       formValues.birthday = '03/31/2001';
-      result = elem.prepareFormValuesForSubmit(formValues);
+      result = elem.instance().prepareFormValuesForSubmit(formValues);
       expect(result.profile.patient.birthday).to.equal('2001-03-31');
 
       // Can it handle leap years?
       formValues.birthday = '02/29/2016';
-      result = elem.prepareFormValuesForSubmit(formValues);
+      result = elem.instance().prepareFormValuesForSubmit(formValues);
       expect(result.profile.patient.birthday).to.equal('2016-02-29');
     });
 
@@ -733,13 +733,13 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         diagnosisDate: '02/29/2015',
       };
       var error;
       try {
-        elem.prepareFormValuesForSubmit(formValues);
+        elem.instance().prepareFormValuesForSubmit(formValues);
       } catch(e) {
         error = e;
       }
@@ -759,13 +759,13 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         diagnosisDate: '000/00/0000',
       };
       var error;
       try {
-        elem.prepareFormValuesForSubmit(formValues);
+        elem.instance().prepareFormValuesForSubmit(formValues);
       } catch(e) {
         error = e;
       }
@@ -784,25 +784,25 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         diagnosisDate: '07/01/1984',
       };
-      var result = elem.prepareFormValuesForSubmit(formValues);
+      var result = elem.instance().prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.diagnosisDate).to.equal('1984-07-01');
 
       formValues.diagnosisDate = '08/02/1984';
-      result = elem.prepareFormValuesForSubmit(formValues);
+      result = elem.instance().prepareFormValuesForSubmit(formValues);
       expect(result.profile.patient.diagnosisDate).to.equal('1984-08-02');
 
       formValues.diagnosisDate = '03/31/2001';
-      result = elem.prepareFormValuesForSubmit(formValues);
+      result = elem.instance().prepareFormValuesForSubmit(formValues);
       expect(result.profile.patient.diagnosisDate).to.equal('2001-03-31');
 
       // Can it handle leap years?
       formValues.diagnosisDate = '02/29/2016';
-      result = elem.prepareFormValuesForSubmit(formValues);
+      result = elem.instance().prepareFormValuesForSubmit(formValues);
       expect(result.profile.patient.diagnosisDate).to.equal('2016-02-29');
     });
 
@@ -816,11 +816,11 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         diagnosisType: '',
       };
-      var result = elem.prepareFormValuesForSubmit(formValues);
+      var result = elem.instance().prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.diagnosisType).to.be.an('undefined');
     });
@@ -835,11 +835,11 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         about: '',
       };
-      var result = elem.prepareFormValuesForSubmit(formValues);
+      var result = elem.instance().prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.about).to.be.an('undefined');
     });
@@ -859,11 +859,11 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         mrn: '',
       };
-      var result = elem.prepareFormValuesForSubmit(formValues);
+      var result = elem.instance().prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.mrn).to.be.an('undefined');
     });
@@ -880,9 +880,9 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {};
-      var result = elem.prepareFormValuesForSubmit(formValues);
+      var result = elem.instance().prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.mrn).to.equal('abcd1234');
     });
@@ -897,7 +897,7 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         about: 'I am a testing developer.',
         birthday: '02-02-1990',
@@ -905,7 +905,7 @@ describe('PatientInfo', function () {
         diagnosisType: 'type1',
         email: 'exampleEmail@example.com',
       };
-      var result = elem.prepareFormValuesForSubmit(formValues);
+      var result = elem.instance().prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.about).to.equal('I am a testing developer.');
       expect(result.profile.patient.birthday).to.equal('1990-02-02');
@@ -932,7 +932,7 @@ describe('PatientInfo', function () {
       };
 
       wrapper.setProps(props);
-      var elem = wrapper.find(PatientInfo).instance().getWrappedInstance();
+      var elem = wrapper.find(PatientInfo).childAt(0);
       var formValues = {
         about: 'I am a testing developer.',
         birthday: '02-02-1990',
@@ -941,7 +941,7 @@ describe('PatientInfo', function () {
         mrn: '123abc456',
         email: 'exampleEmail@example.com',
       };
-      var result = elem.prepareFormValuesForSubmit(formValues);
+      var result = elem.instance().prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.about).to.equal('I am a testing developer.');
       expect(result.profile.patient.birthday).to.equal('1990-02-02');
@@ -965,7 +965,7 @@ describe('PatientInfo', function () {
 
     beforeEach(() => {
       wrapper.setProps(props);
-      wrapper.find(PatientInfo).instance().getWrappedInstance().setState({ editing: true });
+      wrapper.find(PatientInfo).childAt(0).setState({ editing: true });
       wrapper.update();
     });
 
@@ -1044,12 +1044,12 @@ describe('PatientInfo', function () {
 
   describe('renderDataSources', function() {
     it('should not render the data sources if the patient is NOT the logged in user', function() {
-      expect(wrapper.find(PatientInfo).instance().getWrappedInstance().isSamePersonUserAndPatient()).to.equal(false);
+      expect(wrapper.find(PatientInfo).childAt(0).instance().isSamePersonUserAndPatient()).to.equal(false);
       expect(wrapper.find('.PatientPage-dataSources').hostNodes()).to.have.length(0);
     });
     it('should render the data sources if the patient is the logged in user', function() {
       wrapper.setProps({ patient: { userid: 5678 }});
-      expect(wrapper.find(PatientInfo).instance().getWrappedInstance().isSamePersonUserAndPatient()).to.equal(true);
+      expect(wrapper.find(PatientInfo).childAt(0).instance().isSamePersonUserAndPatient()).to.equal(true);
       expect(wrapper.find('.PatientPage-dataSources').hostNodes()).to.have.length(1);
     });
   });
@@ -1063,7 +1063,7 @@ describe('PatientInfo', function () {
 
     beforeEach(() => {
       wrapper.setProps(props);
-      wrapper.find(PatientInfo).instance().getWrappedInstance().setState({ editing: true });
+      wrapper.find(PatientInfo).childAt(0).setState({ editing: true });
       wrapper.update();
     });
 
@@ -1091,7 +1091,7 @@ describe('PatientInfo', function () {
 
     beforeEach(() => {
       wrapper.setProps(props);
-      wrapper.find(PatientInfo).instance().getWrappedInstance().setState({ editing: true });
+      wrapper.find(PatientInfo).childAt(0).setState({ editing: true });
       wrapper.update();
     });
 

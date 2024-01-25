@@ -5,7 +5,7 @@ import map from 'lodash/map';
 import remove from 'lodash/remove';
 import includes from 'lodash/includes';
 import capitalize from 'lodash/capitalize';
-import { Box, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Text, BoxProps } from 'theme-ui';
 import FirstPageRoundedIcon from '@material-ui/icons/FirstPageRounded';
 import LastPageRoundedIcon from '@material-ui/icons/LastPageRounded';
 import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';
@@ -20,7 +20,7 @@ import baseTheme from '../../themes/baseTheme';
 
 const t = i18next.t.bind(i18next);
 
-export const Pagination = props => {
+export function Pagination(props) {
   const { id, variant, buttonVariant, controlLabels, ...paginationProps } = props;
 
   const classNames = cx({
@@ -91,7 +91,7 @@ export const Pagination = props => {
       </ul>
     </Box>
   );
-};
+}
 
 Pagination.propTypes = {
   id: PropTypes.string.isRequired,

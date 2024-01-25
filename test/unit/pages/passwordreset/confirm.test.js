@@ -48,8 +48,8 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var wrapper = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).instance().getWrappedInstance();
-      var formInputs = wrapper.formInputs();
+      var wrapper = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).childAt(0);
+      var formInputs = wrapper.instance().formInputs();
       expect(formInputs.length).to.equal(3);
       expect(formInputs[0].name).to.equal('email');
       expect(formInputs[0].label).to.equal('Email');
@@ -79,8 +79,8 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var wrapper = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).instance();
-      var initialState = wrapper.getWrappedInstance().state;
+      var wrapper = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).childAt(0);
+      var initialState = wrapper.state();
       expect(Object.keys(initialState.formValues).length).to.equal(0);
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
       expect(initialState.notification).to.equal(null);
@@ -99,12 +99,12 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var render = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).instance().getWrappedInstance();
+      var render = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).childAt(0);
       var vals = {
         email: 'foo@bar.com',
         password: 'woowoo'
       };
-      var formValues = render.prepareFormValuesForSubmit(vals);
+      var formValues = render.instance().prepareFormValuesForSubmit(vals);
       expect(formValues.key).to.equal('some-key');
       expect(formValues.email).to.equal('foo@bar.com');
       expect(formValues.password).to.equal('woowoo');

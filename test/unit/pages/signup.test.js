@@ -122,7 +122,7 @@ describe('Signup', function () {
         location: { pathname: 'signup' },
       };
       wrapper.setProps(props);
-      wrapper.find(SignupFunction).instance().getWrappedInstance().setState({madeSelection:true});
+      wrapper.find(SignupFunction).childAt(0).setState({madeSelection:true});
       wrapper.update();
       var signupForm = wrapper.find('.signup-form');
       expect(signupForm.length).to.equal(1);
@@ -136,7 +136,7 @@ describe('Signup', function () {
       };
 
       wrapper.setProps(props);
-      wrapper.find(SignupFunction).instance().getWrappedInstance().setState({madeSelection:true, selected: 'personal'});
+      wrapper.find(SignupFunction).childAt(0).setState({madeSelection:true, selected: 'personal'});
       wrapper.update()
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
@@ -151,7 +151,7 @@ describe('Signup', function () {
 
       wrapper.setProps(props);
 
-      wrapper.find(SignupFunction).instance().getWrappedInstance().setState({ madeSelection: true, selected: 'clinician'});
+      wrapper.find(SignupFunction).childAt(0).setState({ madeSelection: true, selected: 'clinician'});
       wrapper.update();
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
@@ -202,10 +202,10 @@ describe('Signup', function () {
       expect(link.length).to.equal(1);
 
       link.simulate('click');
-      expect(wrapper.find(SignupFunction).instance().getWrappedInstance().state.selected).to.equal('clinician');
+      expect(wrapper.find(SignupFunction).childAt(0).state().selected).to.equal('clinician');
 
       link.simulate('click');
-      expect(wrapper.find(SignupFunction).instance().getWrappedInstance().state.selected).to.equal('personal');
+      expect(wrapper.find(SignupFunction).childAt(0).state().selected).to.equal('personal');
     });
 
     it('should render the proper submit button text for each signup form', function() {
@@ -351,8 +351,8 @@ describe('Signup', function () {
             </BrowserRouter>
           ), props )
       );
-      var render = wrapper.find(SignupFunction).instance().getWrappedInstance();
-      var state = render.state;
+      var render = wrapper.find(SignupFunction).childAt(0);
+      var state = render.state();
 
       expect(state.loading).to.equal(false); // once rendered, loading has been set to false
       expect(state.formValues.username).to.equal(props.inviteEmail);
@@ -427,11 +427,11 @@ describe('Signup', function () {
 
       const input = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
       expect(input.length).to.equal(1);
-      expect(wrapper.find(SignupFunction).instance().getWrappedInstance().state.formValues).to.eql({});
+      expect(wrapper.find(SignupFunction).childAt(0).state().formValues).to.eql({});
 
       input.simulate('change', { target: { name: 'username', value: username } });
 
-      expect(wrapper.find(SignupFunction).instance().getWrappedInstance().state.formValues).to.eql({ username });
+      expect(wrapper.find(SignupFunction).childAt(0).state().formValues).to.eql({ username });
     });
   });
 
@@ -461,7 +461,7 @@ describe('Signup', function () {
       };
 
       wrapper.setProps(props);
-      const rendered = wrapper.find(SignupFunction).instance().getWrappedInstance();
+      const rendered = wrapper.find(SignupFunction).childAt(0).instance();
 
       const expectedformattedValues = {
         username: formValues.username,
@@ -492,7 +492,7 @@ describe('Signup', function () {
       };
 
       wrapper.setProps(props);
-      var rendered = wrapper.find(SignupFunction).instance().getWrappedInstance();
+      var rendered = wrapper.find(SignupFunction).childAt(0).instance();
 
       const expectedformattedValues = {
         username: formValues.username,

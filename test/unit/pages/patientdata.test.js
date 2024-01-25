@@ -9,7 +9,6 @@
 /* global after */
 
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import _, { forEach } from 'lodash';
 import moment from 'moment';
@@ -17,7 +16,7 @@ import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
 import createReactClass from 'create-react-class';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../../../app/themes/baseTheme';
 
@@ -1198,9 +1197,9 @@ describe('PatientData', function () {
     };
 
     it('should clear patient data', function() {
-      const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
+      const elem = mount(<PatientData {...props} />).find(PatientDataClass);
       const callCount = props.dataWorkerRemoveDataRequest.callCount;
-      elem.handleRefresh();
+      elem.instance().handleRefresh();
 
       expect(props.dataWorkerRemoveDataRequest.callCount).to.equal(callCount + 1);
     });
@@ -2223,16 +2222,16 @@ describe('PatientData', function () {
     };
 
     it('should clear generated pdfs upon refresh', function() {
-    const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
+    const elem = mount(<PatientData {...props} />).find(PatientDataClass);
       const callCount = props.removeGeneratedPDFS.callCount;
-      elem.componentWillUnmount();
+      elem.instance().componentWillUnmount();
       expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
     });
 
     it('should call `props.dataWorkerRemoveDataSuccess`', function() {
-    const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
+    const elem = mount(<PatientData {...props} />).find(PatientDataClass);
       const callCount = props.dataWorkerRemoveDataSuccess.callCount;
-      elem.componentWillUnmount();
+      elem.instance().componentWillUnmount();
       expect(props.dataWorkerRemoveDataSuccess.callCount).to.equal(callCount + 1);
       sinon.assert.calledWith(props.dataWorkerRemoveDataSuccess, undefined, true)
     });
@@ -4457,10 +4456,10 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
+      var elem = mount(<PatientData {...props} />).find(PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
-      elem.handleSwitchToBasics();
+      elem.instance().handleSwitchToBasics();
       expect(props.trackMetric.callCount).to.equal(callCount + 1);
       expect(props.trackMetric.calledWith('Clicked Switch To Basics')).to.be.true;
     });
@@ -4512,10 +4511,10 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientDataClass {...props}/>);
+      var elem = mount(<PatientDataClass {...props}/>);
 
       var callCount = props.trackMetric.callCount;
-      elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
+      elem.instance().handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
       expect(props.trackMetric.callCount).to.equal(callCount + 1);
       expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
     });
@@ -4610,10 +4609,10 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
+      var elem = mount(<PatientData {...props} />).find(PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
-      elem.handleSwitchToTrends('2016-08-19T01:51:55.000Z');
+      elem.instance().handleSwitchToTrends('2016-08-19T01:51:55.000Z');
       expect(props.trackMetric.callCount).to.equal(callCount + 1);
       expect(props.trackMetric.calledWith('Clicked Switch To Modal')).to.be.true;
     });
@@ -4702,10 +4701,10 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
+      var elem = mount(<PatientData {...props} />).find(PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
-      elem.handleSwitchToBgLog('2016-08-19T01:51:55.000Z');
+      elem.instance().handleSwitchToBgLog('2016-08-19T01:51:55.000Z');
       expect(props.trackMetric.callCount).to.equal(callCount + 1);
       expect(props.trackMetric.calledWith('Clicked Switch To Two Week')).to.be.true;
     });
@@ -4786,10 +4785,10 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
+      var elem = mount(<PatientData {...props} />).find(PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
-      elem.handleSwitchToSettings();
+      elem.instance().handleSwitchToSettings();
       expect(props.trackMetric.callCount).to.equal(callCount + 1);
       expect(props.trackMetric.calledWith('Clicked Switch To Settings')).to.be.true;
     });

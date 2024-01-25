@@ -1,6 +1,6 @@
 import React from 'react';
-import { translate } from 'react-i18next';
-import { Box, Flex } from 'rebass/styled-components';
+import { withTranslation } from 'react-i18next';
+import { Box, Flex } from 'theme-ui';
 import { keycloak } from '../../keycloak';
 
 import Button from '../../components/elements/Button';
@@ -25,7 +25,7 @@ export const LoggedOut = (props) => {
       p={6}
       pt={5}
     >
-      <Flex flexDirection={'row'} justifyContent={'center'} mb={5}>
+      <Flex sx={{ flexDirection: 'row', justifyContent: 'center' }} mb={5}>
         <img src={logoSrc} width={227} />
       </Flex>
 
@@ -35,17 +35,17 @@ export const LoggedOut = (props) => {
         {t('You have been signed out of your session.')}
       </Paragraph2>
 
-      <Paragraph1 color="mediumGrey">
+      <Paragraph1 sx={{ color: 'mediumGrey' }}>
         {t(
           "For security reasons, we automatically sign you out after a certain period of inactivity, or if you've signed out from another browser tab."
         )}
       </Paragraph1>
 
-      <Paragraph1 color="mediumGrey">
+      <Paragraph1 sx={{ color: 'mediumGrey' }}>
         {t('Please sign in again to continue.')}
       </Paragraph1>
 
-      <Button onClick={handleClickLogin} width={'100%'}>
+      <Button onClick={handleClickLogin} sx={{ width: '100%' }}>
         {t('Return to Login')}
       </Button>
     </Box>
@@ -54,4 +54,4 @@ export const LoggedOut = (props) => {
 
 LoggedOut.propTypes = {};
 
-export default translate()(LoggedOut);
+export default withTranslation()(LoggedOut);

@@ -7,8 +7,8 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { withTranslation } from 'react-i18next';
+import { Flex } from 'theme-ui';
 
 import Header from './header';
 import SubNav from './trendssubnav';
@@ -37,7 +37,7 @@ const {
   FocusedSMBGPointLabel,
 } = vizComponents;
 
-const Trends = translate()(class Trends extends PureComponent {
+const Trends = withTranslation()(class Trends extends PureComponent {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
@@ -458,17 +458,18 @@ const Trends = translate()(class Trends extends PureComponent {
 
     const checkboxStyles = {
       themeProps: {
-        color: 'stat.text',
         mr: 3,
+        mb: 0,
         sx: {
+          color: 'stat.text',
           '&:last-child': { marginRight: 0 },
           backgroundColor: 'inherit',
           display: 'inline-flex !important',
           lineHeight: '1em',
         }
       },
-      backgroundColor: 'white',
       sx: {
+        backgroundColor: 'white',
         boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
         color: colors.grays[2],
       },
@@ -486,14 +487,14 @@ const Trends = translate()(class Trends extends PureComponent {
                 {dataQueryComplete && this.renderChart()}
               </div>
 
-              <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" alignItems="center" justifyContent="space-between">
+              <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" sx={{alignItems: 'center', justifyContent: 'space-between' }}>
                 <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {t('Refresh')}
                 </Button>
 
                 <Flex
                   variant="inputs.checkboxGroup.horizontal"
-                  alignItems="center"
+                  sx={{ alignItems: 'center' }}
                   bg="lightestGrey"
                   px={3}
                   py={2}
@@ -571,7 +572,7 @@ const Trends = translate()(class Trends extends PureComponent {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-              <Flex mb={2} justifyContent="space-between" alignItems="center">
+              <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyTrendsClicked}

@@ -98,14 +98,14 @@ describe('Export', () => {
   });
 
   it('should set the initial state', () => {
-    expect(wrapper.instance().getWrappedInstance().state).to.eql(
+    expect(wrapper.childAt(0).state()).to.eql(
       expectedInitialState
     );
   });
 
   it('should accept bgUnits as prop', () => {
     wrapper = mount(<Export {...mmollProps} />);
-    expect(wrapper.instance().getWrappedInstance().state).to.eql(
+    expect(wrapper.childAt(0).state()).to.eql(
       expectedInitialStateMmoll
     );
   });
@@ -140,11 +140,11 @@ describe('Export', () => {
     it('should update start and end dates in state when form values change', () => {
       let newStartDate = '2000-02-02';
       let newEndDate = '2001-02-02';
-      const wrappedInstance = wrapper.instance().getWrappedInstance();
-      expect(wrappedInstance.state.startDate).to.equal(
+      const wrappedInstance = wrapper.childAt(0);
+      expect(wrappedInstance.state().startDate).to.equal(
         expectedInitialState.startDate
       );
-      expect(wrappedInstance.state.endDate).to.equal(
+      expect(wrappedInstance.state().endDate).to.equal(
         expectedInitialState.endDate
       );
       startDate.simulate('change', {
@@ -152,7 +152,7 @@ describe('Export', () => {
       });
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'Selected custom start or end date');
-      expect(wrappedInstance.state.startDate).to.equal(
+      expect(wrappedInstance.state().startDate).to.equal(
         newStartDate
       );
       props.trackMetric.reset();
@@ -161,7 +161,7 @@ describe('Export', () => {
       });
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'Selected custom start or end date');
-      expect(wrappedInstance.state.endDate).to.equal(
+      expect(wrappedInstance.state().endDate).to.equal(
         newEndDate
       );
     });
@@ -169,11 +169,11 @@ describe('Export', () => {
     it('should not allow startDate to be after endDate', () => {
       let setEndDate = '2001-02-02';
       let attemptedStartDate = '2001-02-03';
-      wrapper.instance().getWrappedInstance().setState({ endDate: setEndDate });
+      wrapper.childAt(0).instance().setState({ endDate: setEndDate });
       startDate.simulate('change', {
         target: { name: 'startDate', value: attemptedStartDate }
       });
-      expect(wrapper.instance().getWrappedInstance().state.startDate).to.equal(
+      expect(wrapper.childAt(0).state().startDate).to.equal(
         setEndDate
       );
     });
@@ -187,7 +187,7 @@ describe('Export', () => {
       endDate.simulate('change', {
         target: { name: 'endDate', value: attemptedEndDate }
       });
-      expect(wrapper.instance().getWrappedInstance().state.endDate).to.equal(
+      expect(wrapper.childAt(0).state().endDate).to.equal(
         setStartDate
       );
     });
@@ -200,7 +200,7 @@ describe('Export', () => {
       endDate.simulate('change', {
         target: { name: 'endDate', value: attemptedEndDate }
       });
-      expect(wrapper.instance().getWrappedInstance().state.endDate).to.equal(
+      expect(wrapper.childAt(0).state().endDate).to.equal(
         currentDate
       );
     });
@@ -209,7 +209,7 @@ describe('Export', () => {
       excel.simulate('change', {
         target: { name: 'format', checked: true, value: 'excel' }
       });
-      expect(wrapper.instance().getWrappedInstance().state.format).to.equal(
+      expect(wrapper.childAt(0).state().format).to.equal(
         'excel'
       );
       sinon.assert.calledOnce(props.trackMetric);
@@ -218,7 +218,7 @@ describe('Export', () => {
       json.simulate('change', {
         target: { name: 'format', checked: true, value: 'json' }
       });
-      expect(wrapper.instance().getWrappedInstance().state.format).to.equal(
+      expect(wrapper.childAt(0).state().format).to.equal(
         'json'
       );
       sinon.assert.calledOnce(props.trackMetric);
@@ -230,7 +230,7 @@ describe('Export', () => {
     let spy, button;
 
     beforeEach(() => {
-      spy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleSubmit');
+      spy = sinon.spy(wrapper.childAt(0).instance(), 'handleSubmit');
       wrapper.update();
       button = wrapper.find('input[type="submit"]');
     });
@@ -254,7 +254,7 @@ describe('Export', () => {
       props.api.tidepool.getExportDataURL.callsArgWith(3, errMessage);
       button.simulate('submit');
       sinon.assert.calledOnce(props.api.tidepool.getExportDataURL);
-      expect(wrapper.instance().getWrappedInstance().state.error).to.equal(
+      expect(wrapper.childAt(0).state().error).to.equal(
         errMessage
       );
     });
@@ -269,39 +269,39 @@ describe('Export', () => {
       .format(JS_DATE_FORMAT);
 
     it('should set allTime to false', () => {
-      const wrappedInstance = wrapper.instance().getWrappedInstance();
-      wrappedInstance.state.allTime = true;
-      expect(wrappedInstance.state.allTime).to.eql(
+      const wrappedInstance = wrapper.childAt(0);
+      wrappedInstance.state().allTime = true;
+      expect(wrappedInstance.state().allTime).to.eql(
         true
       );
-      wrappedInstance.setDateRange(5);
-      expect(wrappedInstance.state.allTime).to.eql(
+      wrappedInstance.instance().setDateRange(5);
+      expect(wrappedInstance.state().allTime).to.eql(
         false
       );
     });
     it('should set end date to current date', () => {
-      const wrappedInstance = wrapper.instance().getWrappedInstance();
-      wrappedInstance.state.endDate = null;
-      expect(wrappedInstance.state.endDate).to.eql(null);
-      wrappedInstance.setDateRange(5);
-      expect(wrappedInstance.state.endDate).to.eql(
+      const wrappedInstance = wrapper.childAt(0);
+      wrappedInstance.state().endDate = null;
+      expect(wrappedInstance.state().endDate).to.eql(null);
+      wrappedInstance.instance().setDateRange(5);
+      expect(wrappedInstance.state().endDate).to.eql(
         moment().format(JS_DATE_FORMAT)
       );
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'Selected pre-determined date range');
     });
     it('should set the start date to expected span', () => {
-      const wrappedInstance = wrapper.instance().getWrappedInstance();
-      wrappedInstance.state.startDate = null;
-      expect(wrappedInstance.state.startDate).to.eql(
+      const wrappedInstance = wrapper.childAt(0);
+      wrappedInstance.state().startDate = null;
+      expect(wrappedInstance.state().startDate).to.eql(
         null
       );
-      wrappedInstance.setDateRange(5);
-      expect(wrappedInstance.state.startDate).to.eql(
+      wrappedInstance.instance().setDateRange(5);
+      expect(wrappedInstance.state().startDate).to.eql(
         fiveDaysPrior
       );
-      wrappedInstance.setDateRange(10);
-      expect(wrappedInstance.state.startDate).to.eql(
+      wrappedInstance.instance().setDateRange(10);
+      expect(wrappedInstance.state().startDate).to.eql(
         tenDaysPrior
       );
     });
@@ -311,21 +311,19 @@ describe('Export', () => {
     it('should negate current expanded options state',
       () => {
         expect(
-          wrapper.instance().getWrappedInstance().state.extraExpanded
+          wrapper.childAt(0).state().extraExpanded
         ).to.eql(false);
         wrapper
-          .instance()
-          .getWrappedInstance()
+          .childAt(0).instance()
           .toggleOptions();
         expect(
-          wrapper.instance().getWrappedInstance().state.extraExpanded
+          wrapper.childAt(0).state().extraExpanded
         ).to.eql(true);
         wrapper
-          .instance()
-          .getWrappedInstance()
+          .childAt(0).instance()
           .toggleOptions();
         expect(
-          wrapper.instance().getWrappedInstance().state.extraExpanded
+          wrapper.childAt(0).state().extraExpanded
         ).to.eql(false);
       });
   });

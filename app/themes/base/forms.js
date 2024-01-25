@@ -5,42 +5,40 @@ export default ({ colors }) => ({
     height: '24px',
     width: '48px',
     transform: 'translateX(0)',
+    margin: 0,
 
-    '> div': {
-      transform: 'translateX(4px) !important',
+    'input ~ & > div': {
+      transform: 'translateX(1px) translateY(1px) !important',
       width: '18px',
       height: '18px',
       border: 'none',
     },
 
-    '&[aria-checked="true"]': {
+    'input:checked ~ &': {
       backgroundColor: colors.purpleMedium,
 
       '> div': {
-        transform: 'translateX(27px) !important',
-        marginTop: 0,
-        marginLeft: 0,
+        transform: 'translateX(25px) translateY(1px) !important',
       },
     },
-    '&:focus': {
+
+    'input:focus ~ &': {
       boxShadow: `0 0 0 2px ${colors.border.focus}`,
       outline: 'none',
     },
+
     '@media (-webkit-min-device-pixel-ratio:0)': {
-      '&:focus': {
+      'input:focus ~ &': {
         boxShadow: `0 0 0 2px ${colors.border.focus}`,
       },
     },
-    '&:disabled': {
-      backgroundColor: colors.grays[0],
+
+    'input:disabled ~ &': {
+      backgroundColor: colors.grays[1],
 
       '> div': {
-        backgroundColor: colors.grays[1],
+        backgroundColor: colors.grays[0],
       },
-    },
-    thumb: {
-      backgroundColor: colors.white,
-      border: 'none',
     },
   },
 });

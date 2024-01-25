@@ -16,13 +16,13 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 
 import { URL_SHARE_DATA_INFO } from '../../core/constants';
 
-export const ShareDataBanner = translate()((props) => {
+export const ShareDataBanner = withTranslation()((props) => {
   const {
     onClick,
     onClose,

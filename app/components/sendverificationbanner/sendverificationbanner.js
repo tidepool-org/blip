@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import personUtils from '../../core/personutils';
 
@@ -61,4 +61,4 @@ SendVerificationBanner.propTypes = {
   resentEmailVerification: PropTypes.bool.isRequired,
 };
 
-export default translate()(SendVerificationBanner);
+export default withTranslation()(SendVerificationBanner);

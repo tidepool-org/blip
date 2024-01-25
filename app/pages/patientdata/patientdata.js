@@ -20,7 +20,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import Plotly from 'plotly.js-basic-dist-min';
 
@@ -55,7 +55,7 @@ import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
 
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Paragraph2 } from '../../components/elements/FontStyles';
@@ -300,7 +300,7 @@ export const PatientDataClass = createReactClass({
                 borderBottom: ['none', borders.default],
               }}
             >
-              <Title mb={3} fontSize={3} fontWeight={fontWeights.medium}>To upload your data, install Tidepool Uploader</Title>
+              <Title mb={3} fontSize={3} sx={{ fontWeight: fontWeights.medium }}>To upload your data, install Tidepool Uploader</Title>
 
               <UploaderButton
                 onClick={handleClickUpload}
@@ -315,8 +315,8 @@ export const PatientDataClass = createReactClass({
                 py={1}
                 px={1}
                 mb={4}
-                alignItems="center"
                 sx={{
+                  alignItems: 'center',
                   gap: 9,
                   display: 'inline-flex !important',
                   border: borders.input,
@@ -331,11 +331,11 @@ export const PatientDataClass = createReactClass({
                   id='dexcom-connect-link'
                   variant="textPrimary"
                   color="brand.dexcom"
-                  fontWeight="medium"
                   iconSrc={DexcomLogoIcon}
                   label={t('Connect with Dexcom')}
                   pr={0}
                   sx={{
+                    fontWeight: 'medium',
                     '&:hover': { color: 'brand.dexcom' },
                     '.icon': { top: '-2px', left: '-2px' },
                   }}
@@ -685,7 +685,8 @@ export const PatientDataClass = createReactClass({
               label={t('Use default BG ranges')}
               onChange={this.toggleDefaultBgRange}
               themeProps={{
-                color: 'stat.text',
+                mb: 0,
+                sx: { color: 'stat.text' },
               }}
             />
           )}
@@ -824,13 +825,13 @@ export const PatientDataClass = createReactClass({
 
   closeMessageThread: function(){
     this.props.onCloseMessageThread();
-    this.refs.tideline.getWrappedInstance().closeMessageThread();
+    this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
-    this.refs.tideline.getWrappedInstance().closeMessageThread();
+    this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
   },
 
@@ -1845,8 +1846,7 @@ export const PatientDataClass = createReactClass({
               action: (
                 <Button
                   p={0}
-                  lineHeight={1.5}
-                  fontSize={1}
+                  sx= {{ lineHeight: 1.5, fontSize: 1 }}
                   variant="textPrimary"
                   onClick={() => {
                     this.printWindowRef = window.open(nextProps.pdf.combined.url);
@@ -2134,7 +2134,7 @@ PatientDataClass.contextType = ToastContext;
 // We need to apply the contextType prop to use the Toast provider with create-react-class.
 // This produces an issue with the current enzyme mounting and breaks unit tests.
 // Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
-export const PatientData = translate()(props => <PatientDataClass {...props}/>);
+export const PatientData = withTranslation()(props => <PatientDataClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

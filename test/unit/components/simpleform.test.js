@@ -4,8 +4,7 @@
 /* global it */
 
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import SimpleForm from '../../../app/components/simpleform';
 
@@ -17,7 +16,7 @@ describe('SimpleForm',  () => {
       console.error = sinon.stub();
       var props = {};
       var navbarElem = React.createElement(SimpleForm, props);
-      var elem = TestUtils.renderIntoDocument(navbarElem);
+      var elem = mount(navbarElem);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);

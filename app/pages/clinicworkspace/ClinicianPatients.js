@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
@@ -127,38 +127,33 @@ export const ClinicianPatients = (props) => {
         <Flex
           mb={4}
           py={2}
-          sx={{ borderBottom: baseTheme.borders.default }}
-          alignItems={'center'}
+          sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
         >
-          <Title flexGrow={1}>
+          <Title sx={{ flexGrow: 1 }}>
             {t('Patients')}
           </Title>
         </Flex>
 
-        <Flex mb={4} alignItems="center" justifyContent="space-between">
+        <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Flex
-            alignItems="center"
-            justifyContent="space-between"
-            width="100%"
-            sx={{ gap: 2 }}
+            sx={{ width: '100%', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}
           >
             <Button
               id="add-patient"
               variant="primary"
               onClick={handleAddPatient}
-              fontSize={0}
               px={[2, 3]}
-              lineHeight={['inherit', null, 1]}
+              sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
             >
               {t('Add New Patient')}
             </Button>
 
-            <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+            <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
               <TextInput
                 themeProps={{
                   width: ['100%', null, '250px'],
+                  fontSize: '12px',
                 }}
-                fontSize="12px"
                 id="patients-search"
                 placeholder={t('Search')}
                 icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
@@ -174,7 +169,7 @@ export const ClinicianPatients = (props) => {
             <Icon
               id="patients-view-toggle"
               variant="default"
-              color="grays.4"
+              sx={{ color: 'grays.4' }}
               ml={1}
               icon={VisibilityIcon}
               label={t('Toggle visibility')}
@@ -199,7 +194,7 @@ export const ClinicianPatients = (props) => {
 
   const renderPeopleInstructions = () => {
     return (
-      <Text fontSize={1} py={4} mb={6} textAlign="center" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
+      <Text py={4} mb={6} sx={{ display: 'block', fontSize:1, textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
         <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
           Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={handleToggleShowNames}>Show All</a> to display all patients.
         </Trans>
@@ -483,7 +478,7 @@ export const ClinicianPatients = (props) => {
           label={'peopletablelabel'}
           columns={columns}
           data={map(patients, clinicPatientFromAccountInfo)}
-          style={{ fontSize:'14px' }}
+          sx={{ fontSize: 1 }}
           orderBy="fullNameOrderable"
           order="asc"
           rowsPerPage={rowsPerPage}
@@ -514,7 +509,7 @@ export const ClinicianPatients = (props) => {
       </Box>
 
       {showNames && patients.length > rowsPerPage && (
-        <Box variant="containers.large" bg="transparent" width={['100%', '100%']} mb={0}>
+        <Box variant="containers.large" sx={{ bg: 'transparent', width: ['100%', '100%'] }} mb={0}>
           <Pagination
             px="5%"
             sx={{ position: 'absolute', bottom: '-50px' }}
@@ -539,4 +534,4 @@ ClinicianPatients.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicianPatients);
+export default withTranslation()(ClinicianPatients);

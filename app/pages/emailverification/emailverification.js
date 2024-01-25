@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 
@@ -19,7 +19,7 @@ const StyledMailIcon = styled.div`
     height: 350px;
   }
 `;
-export var EmailVerification = translate()(class extends React.Component {
+export var EmailVerification = withTranslation()(class extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     notification: PropTypes.object,

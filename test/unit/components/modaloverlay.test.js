@@ -4,10 +4,10 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
 var ModalOverlay = require('../../../app/components/modaloverlay');
+const { mount } = require('enzyme');
 
 describe('ModalOverlay', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -23,7 +23,7 @@ describe('ModalOverlay', function () {
         overlayClickHandler: sinon.stub()
       };
       var elem = React.createElement(ModalOverlay, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = mount(elem);
       expect(console.error.callCount).to.equal(0);
     });
   });
