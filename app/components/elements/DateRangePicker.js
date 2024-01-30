@@ -127,7 +127,9 @@ export const DateRangePicker = props => {
           onDatesChange(newDates);
         }}
         focusedInput={focusedInput}
-        onFocusChange={newFocusedInput => {
+        onFocusChange={selectedFocusedInput => {
+          let newFocusedInput = selectedFocusedInput;
+          if (newFocusedInput && !dates.startDate) newFocusedInput = 'startDate';
           setFocusedInput(newFocusedInput);
           onFocusChange(newFocusedInput);
         }}
