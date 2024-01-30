@@ -137,7 +137,6 @@ TideDashboardConfigForm.propTypes = {
   ...BoxProps,
   api: PropTypes.object.isRequired,
   onFormChange: PropTypes.func.isRequired,
-  patient: PropTypes.object,
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
