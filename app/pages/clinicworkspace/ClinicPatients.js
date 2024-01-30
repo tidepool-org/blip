@@ -64,7 +64,7 @@ import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
-import RpmReportConfigForm from '../../components/clinic/RpmReportConfigForm';
+import RpmReportConfigForm, { exportRpmReport } from '../../components/clinic/RpmReportConfigForm';
 import Pill from '../../components/elements/Pill';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import PopoverLabel from '../../components/elements/PopoverLabel';
@@ -435,6 +435,7 @@ export const ClinicPatients = (props) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
   const timePrefs = useSelector((state) => state.blip.timePrefs);
+  const rpmReportPatients = useSelector(state => state.blip.rpmReportPatients);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDeleteClinicPatientTagDialog, setShowDeleteClinicPatientTagDialog] = useState(false);
@@ -587,6 +588,7 @@ export const ClinicPatients = (props) => {
     updatingClinicPatientTag,
     deletingClinicPatientTag,
     fetchingTideDashboardPatients,
+    fetchingRpmReportPatients,
   } = useSelector((state) => state.blip.working);
 
   // TODO: remove this when upgraded to React 18
@@ -604,6 +606,7 @@ export const ClinicPatients = (props) => {
   const previousCreatingClinicPatientTag = usePrevious(creatingClinicPatientTag);
   const previousUpdatingClinicPatientTag = usePrevious(updatingClinicPatientTag);
   const previousDeletingClinicPatientTag = usePrevious(deletingClinicPatientTag);
+  const previousFetchingRpmReportPatients = usePrevious(fetchingRpmReportPatients);
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
@@ -678,6 +681,13 @@ export const ClinicPatients = (props) => {
     patientFormContext?.status,
     previousCreatingClinicCustodialAccount?.inProgress,
   ]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...fetchingRpmReportPatients, prevInProgress: previousFetchingRpmReportPatients?.inProgress }, t('Your RPM Report will download shortly'), () => {
+      exportRpmReport(rpmReportPatients);
+      handleCloseOverlays();
+    });
+  }, [fetchingRpmReportPatients, rpmReportPatients, handleAsyncResult, handleCloseOverlays, previousFetchingRpmReportPatients?.inProgress, t]);
 
   useEffect(() => {
     handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
@@ -2572,7 +2582,7 @@ export const ClinicPatients = (props) => {
             id="configureRpmReportConfirm"
             variant="primary"
             onClick={handleConfigureRpmReportConfirm}
-            // processing={fetchingTideDashboardPatients.inProgress} // TODO: proper processing
+            processing={fetchingRpmReportPatients.inProgress}
             disabled={!fieldsAreValid(keys(rpmReportFormContext?.values), rpmReportConfigSchema, rpmReportFormContext?.values)}
           >
             {t('Generate Report')}
@@ -2582,7 +2592,7 @@ export const ClinicPatients = (props) => {
     );
   }, [
     api,
-    // fetchingTideDashboardPatients.inProgress,
+    fetchingRpmReportPatients.inProgress,
     handleConfigureRpmReportConfirm,
     rpmReportFormContext?.values,
     showRpmReportConfigDialog,

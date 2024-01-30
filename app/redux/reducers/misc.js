@@ -1088,6 +1088,18 @@ export const tideDashboardPatients = (state = initialState.tideDashboardPatients
   }
 };
 
+export const rpmReportPatients = (state = initialState.rpmReportPatients, action) => {
+  switch (action.type) {
+    case types.FETCH_RPM_REPORT_PATIENTS_SUCCESS:
+      return action?.payload?.results || initialState.rpmReportPatients;
+    case types.LOGOUT_REQUEST:
+    case types.CLEAR_RPM_REPORT_PATIENTS:
+      return initialState.rpmReportPatients;
+    default:
+      return state;
+  }
+};
+
 export const ssoEnabledDisplay = (state = initialState.ssoEnabledDisplay, action) => {
   switch (action.type) {
     case types.SET_SSO_ENABLED_DISPLAY:

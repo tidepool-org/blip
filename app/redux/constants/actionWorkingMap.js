@@ -424,6 +424,11 @@ export default (type) => {
     case types.FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE:
       return 'fetchingTideDashboardPatients';
 
+    case types.FETCH_RPM_REPORT_PATIENTS_REQUEST:
+    case types.FETCH_RPM_REPORT_PATIENTS_SUCCESS:
+    case types.FETCH_RPM_REPORT_PATIENTS_FAILURE:
+      return 'fetchingRpmReportPatients';
+
     default:
       return null;
   }

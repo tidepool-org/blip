@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
 import compact from 'lodash/compact';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
@@ -13,16 +12,67 @@ import { Box, BoxProps } from 'rebass/styled-components';
 import { Element, scroller } from 'react-scroll';
 
 import { useLocalStorage } from '../../core/hooks';
-import { addEmptyOption, getCommonFormikFieldProps, getFieldError } from '../../core/forms';
-import { rpmReportConfigSchema as validationSchema, timezoneOptions } from '../../core/clinicUtils';
+import { addEmptyOption, getCommonFormikFieldProps } from '../../core/forms';
+import { rpmReportConfigSchema as validationSchema, timezoneOptions, dateRegex } from '../../core/clinicUtils';
 import { Body0 } from '../../components/elements/FontStyles';
 import Select from '../elements/Select';
 import DateRangePicker from '../elements/DateRangePicker';
+import { async, sync } from '../../redux/actions';
+import i18next from '../../core/language';
+import { isNull } from 'lodash';
+
+const t = i18next.t.bind(i18next);
+
+export const exportRpmReport = ({ config, results }) => {
+  let { startDate = '', endDate = '' } = {} = config?.rawConfig;
+  startDate = startDate.replace(dateRegex, '$2/$3/$1');
+  endDate = endDate.replace(dateRegex, '$2/$3/$1');
+
+  const csvRows = [
+    [
+      t('Name'),
+      t('Date of Birth'),
+      t('MRN'),
+      t('# Days With Qualifying Data between {{startDate}} and {{endDate}}', { startDate, endDate }),
+      t('Sufficient Data for {{code}}', { code: config?.code }),
+    ],
+  ];
+
+  function csvEscape(val) {
+    if (typeof val === 'string') {
+      return `"${val.replace(/"/g, '""')}"`;
+    } else if (isNull(val)) {
+      return t('N/A');
+    }
+    return val;
+  };
+
+  results.forEach(patient => {
+    const { fullName, birthDate, mrn, daysQualifiedCount, isSufficientData } = patient;
+
+    csvRows.push([
+      csvEscape(fullName),
+      isNull(birthDate) ? t('N/A') : csvEscape(birthDate.replace(dateRegex, '$2/$3/$1')),
+      csvEscape(mrn),
+      csvEscape(daysQualifiedCount),
+      isSufficientData ? t('TRUE') : t('FALSE'),
+    ]);
+  });
+
+  const csv = csvRows.map((row) => row.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const downloadFileName = `RPM Report (${startDate.replaceAll('/', '-')} - ${endDate.replaceAll('/', '-')}).csv`;
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = downloadFileName;
+  a.click();
+};
 
 export const RpmReportConfigForm = props => {
   const { t, api, onFormChange, open, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
-  const { pathname } = useLocation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
@@ -57,10 +107,18 @@ export const RpmReportConfigForm = props => {
   const formikContext = useFormik({
     initialValues: defaultFormValues(config?.[localConfigKey]),
     onSubmit: values => {
-      // TODO: API call to fetch report results
+      const queryOptions = {
+        mockData: true,
+        rawConfig: values,
+        startDate: moment(values.startDate).tz(values.timezone).startOf('day').toISOString(),
+        endDate: moment(values.endDate).tz(values.timezone).endOf('day').toISOString(),
+      };
+
+      dispatch(async.fetchRpmReportPatients(api, selectedClinicId, queryOptions));
+
+      // Persist selected timezone in localStorage
       setConfig({
         ...config,
-        // For now, only persist timezone, since we want to default to most recent 30 days
         [localConfigKey]: pick(values, ['timezone']),
       });
     },
@@ -79,6 +137,7 @@ export const RpmReportConfigForm = props => {
   useEffect(() => {
     if (open) {
       setValues(defaultFormValues(config?.[localConfigKey]), true)
+      dispatch(sync.clearRpmReportPatients());
     }
   }, [open]);
 
