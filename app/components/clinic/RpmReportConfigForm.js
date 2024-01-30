@@ -1,62 +1,67 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import compact from 'lodash/compact';
 import includes from 'lodash/includes';
-import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
-import reject from 'lodash/reject';
-import without from 'lodash/without';
+import pick from 'lodash/pick';
 import { useFormik } from 'formik';
+import moment from 'moment-timezone';
 import { Box, BoxProps } from 'rebass/styled-components';
+import { Element, scroller } from 'react-scroll';
 
-import { TagList } from '../../components/elements/Tag';
-import RadioGroup from '../../components/elements/RadioGroup';
 import { useLocalStorage } from '../../core/hooks';
-import { getCommonFormikFieldProps, getFieldError } from '../../core/forms';
-import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, lastUploadDateFilterOptions } from '../../core/clinicUtils';
-import { Body0, Caption } from '../../components/elements/FontStyles';
-import { borders } from '../../themes/baseTheme';
-import { push } from 'connected-react-router';
-
-function getFormValues(config, clinicPatientTags) {
-  return {
-    period: config?.period || null,
-    lastUpload: config?.lastUpload || null,
-    tags: config?.tags ? reject(config.tags, tagId => !clinicPatientTags?.[tagId]) : null,
-  };
-}
-
-export function validateRpmConfig(config, clinicPatientTags) {
-  try {
-    validationSchema.validateSync(getFormValues(config, clinicPatientTags));
-    return true;
-  } catch (err) {
-    return false;
-  }
-};
+import { addEmptyOption, getCommonFormikFieldProps, getFieldError } from '../../core/forms';
+import { rpmReportConfigSchema as validationSchema, timezoneOptions } from '../../core/clinicUtils';
+import { Body0 } from '../../components/elements/FontStyles';
+import Select from '../elements/Select';
+import DateRangePicker from '../elements/DateRangePicker';
 
 export const RpmReportConfigForm = props => {
-  const { t, api, onFormChange, trackMetric, ...boxProps } = props;
+  const { t, api, onFormChange, open, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const [config, setConfig] = useLocalStorage('tideDashboardConfig', {});
+  const [config, setConfig] = useLocalStorage('rpmReportConfig', {});
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [showEndDateOffset, setShowEndDateOffset] = useState(false);
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
-  const isDashboardPage = (pathname === '/dashboard/tide');
+  const dateFormat = 'YYYY-MM-DD'
+  const maxDays = 30;
+  const maxDaysInPast = 60;
+
+  const defaultDates = () => {
+    return {
+      startDate: moment.utc().subtract(maxDays - 1, 'days'),
+      endDate: moment.utc(),
+    };
+  }
+
+  function defaultFormValues(config) {
+    const { startDate, endDate } = defaultDates();
+    let fallbackTimezone = clinic?.timezone || new Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!includes(map(timezoneOptions, 'value'), fallbackTimezone)) fallbackTimezone = '';
+
+    return {
+      startDate: startDate.format(dateFormat),
+      endDate: endDate.format(dateFormat),
+      timezone: includes(map(timezoneOptions, 'value'), config?.timezone) ? config.timezone : fallbackTimezone,
+    };
+  }
+
 
   const formikContext = useFormik({
-    initialValues: getFormValues(config?.[localConfigKey], clinicPatientTags),
+    initialValues: defaultFormValues(config?.[localConfigKey]),
     onSubmit: values => {
-      if (!isDashboardPage) dispatch(push('/dashboard/tide'));
-
+      // TODO: API call to fetch report results
       setConfig({
         ...config,
-        [localConfigKey]: values,
+        // For now, only persist timezone, since we want to default to most recent 30 days
+        [localConfigKey]: pick(values, ['timezone']),
       });
     },
     validationSchema,
@@ -65,70 +70,106 @@ export const RpmReportConfigForm = props => {
   const {
     errors,
     setFieldValue,
-    setFieldTouched,
     values,
+    setValues,
+    validateForm
   } = formikContext;
 
+  // Set to default state when dialog is newly opened
   useEffect(() => {
+    if (open) {
+      setValues(defaultFormValues(config?.[localConfigKey]), true)
+    }
+  }, [open]);
+
+  useEffect(() => {
+    validateForm();
     onFormChange(formikContext);
-  }, [values, clinicPatientTags]);
+  }, [values]);
+
+  function setDates(dates) {
+    if (moment.isMoment(dates.startDate)) {
+      const endDate = moment.min(compact([
+        dates.endDate,
+        moment(),
+        moment(dates.startDate).add(maxDays - 1, 'days')
+      ]));
+
+      setFieldValue('startDate', dates.startDate.format(dateFormat));
+      setFieldValue('endDate', endDate.format(dateFormat));
+    } else {
+      setFieldValue('startDate', undefined);
+      setFieldValue('endDate', undefined);
+    }
+  }
 
   return (
     <Box
       as="form"
-      id="tide-dashboard-config-form"
+      id="rpm-report-config-form"
       {...boxProps}
     >
-      <Box id='patient-tags-select' mb={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select Patient Tag(s)')}</Body0>
+      <Element name="form-wrapper">
+        <Box id='rpm-report-range-select' mb={3}>
+          <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Set the start date (30 days max)')}</Body0>
+          <Body0 sx={{ fontStyle: 'italic' }} mb={2}>{t('By default, this range is 30 days. Adjust the end date to shorten the range. The start date is limited to 60 days prior to today.')}</Body0>
 
-        <TagList
-          tags={map(clinic?.patientTags, tag => ({
-            ...tag,
-            selected: includes(values.tags, tag.id),
-          }))}
-          tagProps={{
-            onClick: tagId => {
-              setFieldTouched('tags', true, true);
-              setFieldValue('tags', [...(values.tags || []), tagId]);
-            },
-            sx: { userSelect: 'none' }
+          <DateRangePicker
+            startDate={values.startDate ? moment.utc(values.startDate) : null}
+            startDateId="rpm-report-start-date"
+            endDate={values.endDate ? moment.utc(values.endDate) : null}
+            endDateId="rpm-report-end-date"
+            endDateOffset={showEndDateOffset || !values.endDate
+              ? day => moment.min([
+                moment().endOf('day'),
+                day.add(maxDays - 1, 'days'),
+              ])
+              : undefined
+            }
+            errors={errors}
+            focusedInput={!values.startDate ? 'startDate' : 'endDate'}
+            onDatesChange={newDates => setDates(newDates)}
+            maxDate={moment()}
+            minDate={moment().subtract(60, 'days')}
+            isOutsideRange={day => (
+              moment().endOf('day').diff(moment(day).endOf('day')) < 0 ||
+              moment().startOf('day').diff(moment(day).startOf('day'), 'days', true) > maxDaysInPast - 1
+            )}
+            initialVisibleMonth={() => moment().subtract(1, 'month')}
+            onFocusChange={input => {
+              setDatePickerOpen(!!input);
+              setShowEndDateOffset(input === 'startDate');
+              if (input) scroller.scrollTo('form-wrapper', {
+                delay: 0,
+                containerId: 'rpmReportConfigInner',
+                duration: 250,
+                smooth: true,
+              });
+            }}
+            themeProps={{
+              sx: {
+                '.DateRangePicker': { width: '100%' },
+                '.DateRangePickerInput': { width: '100%' },
+                minHeight: datePickerOpen ? '310px' : undefined,
+              }
+            }}
+          />
+        </Box>
+      </Element>
+      <Box id='rpm-report-timezone-select' mb={3}>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Confirm your clinic’s timezone')}</Body0>
+
+        <Select
+          {...getCommonFormikFieldProps('timezone', formikContext)}
+          options={addEmptyOption(timezoneOptions, 'Please select a timezone')}
+          variant="condensed"
+          themeProps={{
+            width: '100%',
           }}
-          selectedTagProps={{
-            onClick: tagId => {
-              setFieldValue('tags', without(values.tags, tagId));
-            },
-            color: 'white',
-            backgroundColor: 'purpleMedium',
-          }}
-        />
-
-        {getFieldError('tags', formikContext) && (
-          <Caption ml={2} mt={2} color="feedback.danger">
-            {errors.tags}
-          </Caption>
-        )}
-      </Box>
-
-      <Box sx={{ borderTop: borders.default }} py={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select how many day(s) of data to view')}</Body0>
-
-        <RadioGroup
-          options={summaryPeriodOptions}
-          {...getCommonFormikFieldProps('period', formikContext)}
-          variant="vertical"
         />
       </Box>
 
-      <Box sx={{ borderTop: borders.default }} pt={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select Last Upload Date')}</Body0>
-
-        <RadioGroup
-          options={lastUploadDateFilterOptions}
-          {...getCommonFormikFieldProps('lastUpload', formikContext)}
-          variant="vertical"
-        />
-      </Box>
+      <Body0>{t('Please note that this report will include all patients currently shown in the patient list. It will be downloaded as a .csv file. This report contains information supporting the data sufficiency component of RPM reimbursement, but does not represent other information necessary to support billing (including patient consent, medical necessity, etc.). Please consult your billing specialist.')}</Body0>
     </Box>
   );
 };
@@ -137,7 +178,7 @@ RpmReportConfigForm.propTypes = {
   ...BoxProps,
   api: PropTypes.object.isRequired,
   onFormChange: PropTypes.func.isRequired,
-  patient: PropTypes.object,
+  open: PropTypes.bool,
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
