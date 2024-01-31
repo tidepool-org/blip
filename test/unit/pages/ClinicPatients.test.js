@@ -49,6 +49,8 @@ describe('ClinicPatients', () => {
         createClinicPatientTag: sinon.stub(),
         updateClinicPatientTag: sinon.stub(),
         deleteClinicPatientTag: sinon.stub(),
+        deleteClinicPatientTag: sinon.stub(),
+        getPatientsForRpmReport: sinon.stub(),
       },
     },
   };
@@ -67,6 +69,7 @@ describe('ClinicPatients', () => {
     defaultProps.api.clinics.createClinicCustodialAccount.resetHistory();
     defaultProps.api.clinics.sendPatientDexcomConnectRequest.resetHistory();
     defaultProps.api.clinics.updateClinicPatient.resetHistory();
+    defaultProps.api.clinics.getPatientsForRpmReport.resetHistory();
   });
 
   after(() => {
@@ -126,6 +129,7 @@ describe('ClinicPatients', () => {
         updatingClinicPatientTag: defaultWorkingState,
         deletingClinicPatientTag: defaultWorkingState,
         fetchingTideDashboardPatients: defaultWorkingState,
+        fetchingRpmReportPatients: defaultWorkingState,
       },
     },
   };
