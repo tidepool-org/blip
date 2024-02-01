@@ -191,13 +191,25 @@ describe('clinicUtils', function() {
   });
 
   describe('tideDashboardConfigSchema', () => {
-    it('should return a yup schema for clinic fields', () => {
+    it('should return a yup schema for tide dashboard config fields', () => {
       expect(clinicUtils.tideDashboardConfigSchema).to.be.an('object');
 
       expect(clinicUtils.tideDashboardConfigSchema._nodes).to.be.an('array').and.have.members([
         'period',
         'lastUpload',
         'tags',
+      ]);
+    });
+  });
+
+  describe('rpmReportConfigSchema', () => {
+    it('should return a yup schema for rpm report config fields', () => {
+      expect(clinicUtils.rpmReportConfigSchema).to.be.an('object');
+
+      expect(clinicUtils.rpmReportConfigSchema._nodes).to.be.an('array').and.have.members([
+        'startDate',
+        'endDate',
+        'timezone',
       ]);
     });
   });

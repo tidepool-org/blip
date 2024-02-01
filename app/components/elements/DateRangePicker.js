@@ -147,8 +147,23 @@ export const DateRangePicker = props => {
       />
       {(errors.startDate || errors.endDate) && (
         <Box ml={2} mt={2}>
-          {errors.startDate && <Caption lineHeight={3} className={inputClasses}>{errors.startDate}</Caption>}
-          {errors.endDate && <Caption lineHeight={3} className={inputClasses}>{errors.endDate}</Caption>}
+          {errors.startDate && (
+            <Caption
+              lineHeight={3}
+              className={inputClasses}
+            >
+              {errors.startDate}
+            </Caption>
+          )}
+
+          {errors.endDate && (
+            <Caption
+              lineHeight={3}
+              className={inputClasses}
+            >
+              {errors.endDate}
+            </Caption>
+          )}
         </Box>
       )}
     </Box>

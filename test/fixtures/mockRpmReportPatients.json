@@ -3,8 +3,8 @@
     "schemaVersion": 1,
     "code": "CPT-99454",
     "clinicId": "clinicID123",
-    "startDate": "2023-05-16T00:00:00.000Z",
-    "endDate": "2023-05-30T23:59:59.999Z"
+    "startDate": "2024-01-01T05:00:00.000Z",
+    "endDate": "2024-01-31T04:59:59.999Z"
   },
   "results": [
     { "fullName": "Jill Jellyfish", "birthDate": "2000-01-01", "mrn": "123456", "daysQualifiedCount": 17, "isSufficientData": true },

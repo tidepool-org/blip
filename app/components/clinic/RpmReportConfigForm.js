@@ -108,7 +108,7 @@ export const RpmReportConfigForm = props => {
     initialValues: defaultFormValues(config?.[localConfigKey]),
     onSubmit: values => {
       const queryOptions = {
-        mockData: true,
+        // mockData: true, // TODO: delete temp mocked data response
         rawConfig: values,
         startDate: moment(values.startDate).tz(values.timezone).startOf('day').toISOString(),
         endDate: moment(values.endDate).tz(values.timezone).endOf('day').toISOString(),
@@ -157,8 +157,8 @@ export const RpmReportConfigForm = props => {
       setFieldValue('startDate', dates.startDate.format(dateFormat));
       setFieldValue('endDate', endDate.format(dateFormat));
     } else {
-      setFieldValue('startDate', undefined);
-      setFieldValue('endDate', undefined);
+      setFieldValue('startDate', '');
+      setFieldValue('endDate', '');
     }
   }
 

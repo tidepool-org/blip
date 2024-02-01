@@ -1819,7 +1819,6 @@ export const ClinicPatients = (props) => {
                       lineHeight={1.3}
                       px={2}
                       py={1}
-                      disabled={!clinic?.patientTags?.length}
                       iconSrc={TabularReportIcon}
                       iconPosition="left"
                     >
@@ -3107,7 +3106,7 @@ export const ClinicPatients = (props) => {
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
       {showTideDashboardUI && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
-      {showRpmReportUI && renderRpmReportConfigDialog && renderRpmReportConfigDialog()}
+      {showRpmReportUI && renderRpmReportConfigDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}

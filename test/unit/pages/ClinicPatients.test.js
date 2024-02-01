@@ -3,6 +3,7 @@ import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import isString from 'lodash/isString';
 import merge from 'lodash/merge';
 import noop from 'lodash/noop';
 import defaults from 'lodash/defaults';
@@ -11,9 +12,10 @@ import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
 import Popover from '../../../app/components/elements/Popover';
-import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 import Button from '../../../app/components/elements/Button';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
+import RpmReportConfigForm from '../../../app/components/clinic/RpmReportConfigForm';
+import mockRpmReportPatients from '../../fixtures/mockRpmReportPatients.json'
 
 /* global chai */
 /* global sinon */
@@ -50,7 +52,7 @@ describe('ClinicPatients', () => {
         updateClinicPatientTag: sinon.stub(),
         deleteClinicPatientTag: sinon.stub(),
         deleteClinicPatientTag: sinon.stub(),
-        getPatientsForRpmReport: sinon.stub(),
+        getPatientsForRpmReport: sinon.stub().callsArgWith(2, null, mockRpmReportPatients),
       },
     },
   };
@@ -185,6 +187,7 @@ describe('ClinicPatients', () => {
               type: 'Office',
             },
           ],
+          timezone: 'US/Eastern',
         },
       },
     },
@@ -1430,6 +1433,8 @@ describe('ClinicPatients', () => {
             wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
 
             expect(wrapper.find('#summary-dashboard-filters').hostNodes()).to.have.lengthOf(1);
+
+            ClinicPatients.__ResetDependency__('useFlags');
           });
         });
       });
@@ -3089,6 +3094,8 @@ describe('ClinicPatients', () => {
             ]);
 
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Navigate to Tide Dashboard', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+            TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
           });
 
           it('should open the config modal if an invalid configuration exists in localStorage', () => {
@@ -3132,6 +3139,8 @@ describe('ClinicPatients', () => {
             expect(dialog()).to.have.length(1);
             expect(dialog().props().open).to.be.true;
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+            TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
           });
         });
 
@@ -3158,6 +3167,239 @@ describe('ClinicPatients', () => {
 
             const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
             expect(tideDashboardButton).to.have.length(0);
+          });
+        });
+      });
+
+      describe('Generating RPM report', () => {
+        let mockedLocalStorage;
+        let exportRpmReportStub;
+
+        context('showRpmReport flag is true', () => {
+          beforeEach(() => {
+            store = mockStore(tier0300ClinicState);
+            mockedLocalStorage = {};
+
+            function localStorageMock(key) {
+              defaults(mockedLocalStorage, { [key]: {} })
+              return [
+                mockedLocalStorage[key],
+                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+              ];
+            }
+
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showRpmReport: true,
+            }));
+
+            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(localStorageMock));
+            RpmReportConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(localStorageMock));
+
+            exportRpmReportStub = sinon.stub();
+            ClinicPatients.__Rewire__('exportRpmReport', exportRpmReportStub);
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            defaultProps.trackMetric.resetHistory();
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useFlags');
+            ClinicPatients.__ResetDependency__('exportRpmReport');
+            RpmReportConfigForm.__ResetDependency__('useLocalStorage');
+          });
+
+          it('should render the RPM Report CTA', () => {
+            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
+            expect(rpmReportButton).to.have.length(1);
+          });
+
+          it('should not render the RPM Report CTA if clinic tier < tier0300', () => {
+            store = mockStore(tier0100ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
+            expect(rpmReportButton).to.have.length(0);
+          });
+
+          it('should open a modal to configure the report, and generate when configured', done => {
+            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
+            const dialog = () => wrapper.find('Dialog#rpmReportConfig');
+
+            // Open dashboard config popover
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.false;
+            rpmReportButton.simulate('click');
+            wrapper.update();
+            expect(dialog().props().open).to.be.true;
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show RPM Report config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+            // Should have the defualt dates set 30 days apart
+            const startDate = () => dialog().find('input#rpm-report-start-date');
+            expect(startDate().props().value).to.be.a('string');
+            const endDate = () => dialog().find('input#rpm-report-end-date');
+            expect(endDate().props().value).to.be.a('string');
+
+            expect(
+              moment(endDate().props().value, 'MMM D, YYYY')
+              .diff(moment(startDate().props().value, 'MMM D, YYYY'), 'days'))
+            .to.equal(29); // Because date range is inclusive of the start and end date, 29 here is correct for a 30 day range
+
+            // Should have timezone field defaulted to the clinic timezone
+            const timezoneSelect = () => dialog().find('select#timezone').hostNodes();
+            expect(timezoneSelect()).to.have.length(1);
+            expect(timezoneSelect().props().value).to.equal('US/Eastern');
+
+            const applyButton = () => dialog().find('#configureRpmReportConfirm').hostNodes();
+            expect(applyButton().props().disabled).to.be.false;
+
+            // Apply button disabled if timezone is unset
+            timezoneSelect().simulate('change', { persist: noop, target: { name: 'timezone', value: '' } });
+
+            // Apply button should be disabled
+            expect(applyButton().props().disabled).to.be.true;
+
+            // Choose a new timezone
+            timezoneSelect().simulate('change', { persist: noop, target: { name: 'timezone', value: 'US/Pacific' } });
+
+            // Apply button should now be active
+            expect(applyButton().props().disabled).to.be.false;
+
+            // Apply button disabled if startDate is unset
+            startDate().simulate('change', { persist: noop, target: { name: 'rpm-report-start-date', value: '' } });
+
+            // Apply button should be disabled
+            expect(applyButton().props().disabled).to.be.true;
+
+            // Choose a new startDate
+            startDate().simulate('change', { persist: noop, target: { name: 'rpm-report-start-date', value: moment().subtract(10, 'days').format('MMM D, YYYY') } });
+
+            // Apply button should now be active
+            expect(applyButton().props().disabled).to.be.false;
+
+            // Submit the form
+            store.clearActions();
+            applyButton().simulate('click');
+
+            setTimeout(() => {
+              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show RPM Report config dialog confirmed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+              // Should save the selected timezone to localStorage, keyed to clinician|clinic IDs
+              expect(mockedLocalStorage.rpmReportConfig?.['clinicianUserId123|clinicID123']).to.eql({
+                timezone: 'US/Pacific',
+              });
+
+              // TODO: delete temp mocked data response
+              expect(defaultProps.api.clinics.getPatientsForRpmReport.callCount).to.equal(1);
+
+              sinon.assert.calledWith(
+                defaultProps.api.clinics.getPatientsForRpmReport,
+                'clinicID123',
+                {
+                  startDate: sinon.match(value => isString(value)),
+                  endDate: sinon.match(value => isString(value)),
+                }
+              );
+
+              expect(store.getActions()).to.eql([
+                { type: 'FETCH_RPM_REPORT_PATIENTS_REQUEST' },
+                {
+                  type: 'FETCH_RPM_REPORT_PATIENTS_SUCCESS',
+                  payload: { results: mockRpmReportPatients },
+                },
+              ]);
+
+              done();
+            });
+          });
+
+          it('should call `exportRpmReport` with fetched report data', () => {
+            const initialStore = {
+              blip: {
+                ...tier0300ClinicState.blip,
+                working: {
+                  ...tier0300ClinicState.blip.working,
+                  fetchingRpmReportPatients: {
+                    ...defaultWorkingState,
+                    inProgress: true,
+                  },
+                },
+                rpmReportPatients: {
+                  ...mockRpmReportPatients,
+                  config: {
+                    ...mockRpmReportPatients.config,
+                    clinicId: 'clinicID123',
+                    rawConfig: {
+                      startDate: '2024-01-01',
+                      endDate: '2024-01-31',
+                      timezone: 'US/Eastern',
+                    },
+                  },
+                },
+              },
+            };
+
+            store = mockStore(initialStore);
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.setProps({ store: mockStore({
+              blip: {
+                ...initialStore.blip,
+                working: {
+                  ...initialStore.blip.working,
+                  fetchingRpmReportPatients: completedState,
+                },
+              },
+            }) });
+
+            expect(exportRpmReportStub.callCount).to.equal(1);
+            sinon.assert.calledWith(exportRpmReportStub, initialStore.blip.rpmReportPatients);
+          });
+        });
+
+        context('showRpmReport flag is false', () => {
+          beforeEach(() => {
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showRpmReport: false,
+            }));
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useFlags');
+          });
+
+          it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {
+            store = mockStore(tier0300ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
+            expect(rpmReportButton).to.have.length(0);
           });
         });
       });
