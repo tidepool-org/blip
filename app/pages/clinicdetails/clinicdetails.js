@@ -45,11 +45,9 @@ const t = i18next.t.bind(i18next);
 countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
 
 const clinicianSchema = yup.object().shape({
-  fullName: yup.string().required(t('Name is required')),
+  firstName: yup.string().required(t('First Name is required')),
+  lastName: yup.string().required(t('Last Name is required')),
   role: yup.string().oneOf([...map(roles, 'value'), '']).required(t('Job Title is required')),
-  npi: yup
-    .string()
-    .test('npiFormat', t('NPI must be 10 digits'), npi => !npi || /^\d{10}$/.test(npi)),
 });
 
 const clinicSchema = clinicValidationSchema.concat(yup.object().shape({
@@ -102,7 +100,6 @@ export const ClinicDetails = (props) => {
 
   const clinicValues = () => ({
     fullName: populateProfileFields ? user?.profile?.fullName || '' : '',
-    npi: populateProfileFields? user?.profile?.clinic?.npi || '' : '',
     role: populateProfileFields ? user?.profile?.clinic?.role || '' : '',
     ...clinicValuesFromClinic(clinic),
   });
@@ -352,10 +349,6 @@ export const ClinicDetails = (props) => {
                   profileUpdates.profile.clinic.role = values.role;
                 }
 
-                if (values.npi) {
-                  profileUpdates.profile.clinic.npi = values.npi;
-                }
-
                 if (action === 'profile') trackMetric('Web - Clinician Details Setup');
                 dispatch(actions.async.updateUser(api, profileUpdates));
               }
@@ -397,16 +390,6 @@ export const ClinicDetails = (props) => {
                         themeProps={{
                           width: '100%',
                         }}
-                      />
-                    </Box>
-
-                    <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                      <TextInput
-                        {...getCommonFormikFieldProps('npi', formikContext)}
-                        label={t('NPI (Optional)')}
-                        placeholder={t('NPI')}
-                        variant="condensed"
-                        width="100%"
                       />
                     </Box>
                   </Flex>

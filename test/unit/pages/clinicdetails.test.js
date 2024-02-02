@@ -160,7 +160,7 @@ describe('ClinicDetails', () => {
           roles: ['clinic'],
           userid: 'clinicianUserId123',
           username: 'clinic@example.com',
-          profile: { fullName: 'Clinician One', clinic: { npi: '1234567890', role: 'front_desk' } },
+          profile: { fullName: 'Clinician One', clinic: { role: 'front_desk' } },
         },
       },
       clinics: {
@@ -331,9 +331,6 @@ describe('ClinicDetails', () => {
         wrapper.find('select[name="role"]').simulate('change', { persist: noop, target: { name: 'role', value: 'endocrinologist' } });
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('endocrinologist');
 
-        wrapper.find('input[name="npi"]').simulate('change', { persist: noop, target: { name: 'npi', value: '1234567890' } });
-        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('1234567890');
-
         store.clearActions();
         wrapper.find('Button#submit').simulate('submit');
 
@@ -345,7 +342,7 @@ describe('ClinicDetails', () => {
             {
               preferences: {  },
               profile: {
-                clinic: { npi: '1234567890', role: 'endocrinologist' },
+                clinic: { role: 'endocrinologist' },
                 fullName: 'Bill Bryerson'
               },
               roles: ['clinician'],
@@ -367,7 +364,6 @@ describe('ClinicDetails', () => {
                     fullName: 'Bill Bryerson',
                     clinic: {
                       role: 'endocrinologist',
-                      npi: '1234567890',
                     },
                   },
                   preferences: {},
@@ -402,9 +398,6 @@ describe('ClinicDetails', () => {
 
         wrapper.find('select[name="role"]').simulate('change', { persist: noop, target: { name: 'role', value: 'endocrinologist' } });
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('endocrinologist');
-
-        wrapper.find('input[name="npi"]').simulate('change', { persist: noop, target: { name: 'npi', value: '1234567890' } });
-        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('1234567890');
 
         wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'My Clinic' } });
         expect(wrapper.find('input[name="name"]').prop('value')).to.equal('My Clinic');
@@ -453,7 +446,7 @@ describe('ClinicDetails', () => {
             {
               preferences: {  },
               profile: {
-                clinic: { npi: '1234567890', role: 'endocrinologist' },
+                clinic: { role: 'endocrinologist' },
                 fullName: 'Bill Bryerson'
               },
               roles: ['clinician'],
@@ -495,7 +488,6 @@ describe('ClinicDetails', () => {
                     fullName: 'Bill Bryerson',
                     clinic: {
                       role: 'endocrinologist',
-                      npi: '1234567890',
                     },
                   },
                   preferences: {},
@@ -624,14 +616,12 @@ describe('ClinicDetails', () => {
         wrapper = createWrapper('profile', mockStore(initialEmptyClinicState));
         expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('');
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('');
-        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('');
       });
 
       it('should populate the team member profile fields if the clinic details have been filled out', () => {
         wrapper = createWrapper('migrate', mockStore(clinicCanMigrateState));
         expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('Clinician One');
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('front_desk');
-        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('1234567890');
       });
     });
 

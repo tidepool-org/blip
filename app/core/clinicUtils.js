@@ -44,6 +44,7 @@ export const roles = [
   { value: 'physician_assistant', label: t('Physician Assistant') },
   { value: 'pharmacist', label: t('Pharmacist') },
   { value: 'health_student', label: t('Health Professions Student') },
+  { value: 'dietician', label: t('Dietician') },
   { value: 'other', label: t('Other') },
 ];
 
