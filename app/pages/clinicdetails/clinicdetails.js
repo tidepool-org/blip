@@ -22,6 +22,7 @@ import Select from '../../components/elements/Select';
 import Checkbox from '../../components/elements/Checkbox';
 import Button from '../../components/elements/Button';
 import NotificationIcon from '../../components/elements/NotificationIcon';
+import Container from '../../components/elements/Container';
 import ClinicProfileFields from '../../components/clinic/ClinicProfileFields';
 import * as actions from '../../redux/actions';
 import i18next from '../../core/language';
@@ -31,6 +32,7 @@ import { useToasts } from '../../providers/ToastProvider';
 import { push } from 'connected-react-router';
 import { components as vizComponents } from '@tidepool/viz';
 import { clinicValuesFromClinic, roles, clinicSchema as clinicValidationSchema } from '../../core/clinicUtils';
+import personUtils from '../../core/personutils';
 import { addEmptyOption } from '../../core/forms';
 
 import {
@@ -98,11 +100,16 @@ export const ClinicDetails = (props) => {
   let schema = displayClinicForm ? 'clinic' : 'clinician';
   if (displayClinicForm && displayClinicianForm) schema = 'combined';
 
-  const clinicValues = () => ({
-    fullName: populateProfileFields ? user?.profile?.fullName || '' : '',
-    role: populateProfileFields ? user?.profile?.clinic?.role || '' : '',
-    ...clinicValuesFromClinic(clinic),
-  });
+  const clinicValues = () => {
+    const { firstName, lastName } = personUtils.splitNamesFromFullname(user?.profile?.fullName);
+
+    return {
+      firstName: populateProfileFields ? firstName : '',
+      lastName: populateProfileFields ? lastName : '',
+      role: populateProfileFields ? user?.profile?.clinic?.role || '' : '',
+      ...clinicValuesFromClinic(clinic),
+    };
+  };
 
   function redirectToWorkspace() {
     const redirectPath = isEmpty(pendingReceivedClinicianInvites) && keys(clinics).length === 1
@@ -298,15 +305,17 @@ export const ClinicDetails = (props) => {
   }
 
   return (
-    <Box
-      variant="containers.mediumBordered"
+    <Container
+      title={t('Welcome')}
+      subtitle={t('Tell us more about yourself')}
+      variant="mediumBordered"
       p={4}
     >
       {formikReady ? (
         <>
-          {displayClinicianForm && (
-            <Headline id="clinician-form-header" mb={2}>{t('Update your account')}</Headline>
-          )}
+          {/* {displayClinicianForm && (
+            <Headline id="clinician-form-header" mb={2}>{t('Welcome')}</Headline>
+          )} */}
 
           {!displayClinicForm && clinicInvite && (
             <Body1 id="clinic-invite-details" mb={2}>
@@ -323,11 +332,11 @@ export const ClinicDetails = (props) => {
             </Body1>
           )}
 
-          {displayClinicianForm && (
+          {/* {displayClinicianForm && (
             <Body1 id="clinician-form-info" mb={4}>
               {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
             </Body1>
-          )}
+          )} */}
 
           <Formik
             initialValues={clinicValues()}
@@ -340,7 +349,7 @@ export const ClinicDetails = (props) => {
                   // replace legacy 'clinic' role, if present, with 'clinician'
                   roles: map(user?.roles || [], role => role === 'clinic' ? 'clinician' : role),
                   profile: {
-                    fullName: values.fullName,
+                    fullName: personUtils.fullnameFromSplitNames(values.firstName, values.lastName),
                     clinic: {},
                   },
                 };
@@ -371,9 +380,19 @@ export const ClinicDetails = (props) => {
                   <Flex id="clinician-profile-form" mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
                     <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
                       <TextInput
-                        {...getCommonFormikFieldProps('fullName', formikContext)}
-                        label={t('Name')}
-                        placeholder={t('Name')}
+                        {...getCommonFormikFieldProps('firstName', formikContext)}
+                        label={t('First Name')}
+                        placeholder={t('First Name')}
+                        variant="condensed"
+                        width="100%"
+                      />
+                    </Box>
+
+                    <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+                      <TextInput
+                        {...getCommonFormikFieldProps('lastName', formikContext)}
+                        label={t('Last Name')}
+                        placeholder={t('Last Name')}
                         variant="condensed"
                         width="100%"
                       />
@@ -472,7 +491,7 @@ export const ClinicDetails = (props) => {
           </Dialog>
         </>
       ) : <Loader />}
-    </Box>
+    </Container>
   );
 };
 
