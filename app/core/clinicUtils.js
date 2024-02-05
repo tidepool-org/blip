@@ -35,16 +35,16 @@ export const dateRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
 export const roles = [
   { value: 'clinic_manager', label: t('Clinic Manager') },
   { value: 'diabetes_educator', label: t('Diabetes Educator') },
+  { value: 'dietician', label: t('Dietician') },
   { value: 'endocrinologist', label: t('Endocrinologist') },
   { value: 'front_desk', label: t('Front Desk') },
+  { value: 'health_student', label: t('Health Professions Student') },
   { value: 'information_technology', label: t('IT/Technology') },
   { value: 'medical_assistant', label: t('Medical Assistant') },
   { value: 'nurse', label: t('Nurse/Nurse Practitioner') },
   { value: 'primary_care_physician', label: t('Primary Care Physician') },
   { value: 'physician_assistant', label: t('Physician Assistant') },
   { value: 'pharmacist', label: t('Pharmacist') },
-  { value: 'health_student', label: t('Health Professions Student') },
-  { value: 'dietician', label: t('Dietician') },
   { value: 'other', label: t('Other') },
 ];
 
