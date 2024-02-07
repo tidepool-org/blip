@@ -67,12 +67,12 @@ const Container = (props) => {
       {actions.length && (
         <Flex
           className="container-actions"
+          p={3}
           sx={{
             gap: 2,
             borderTop: borders.input,
             justifyContent: ['center', 'flex-end'],
           }}
-          {...themeProps}
         >
           {map(actions, buttonProps => <Button {...buttonProps} />)}
         </Flex>
