@@ -1,10 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, BoxProps, Image, Text } from 'rebass/styled-components';
+import { Box, BoxProps, Flex, Image, Text } from 'rebass/styled-components';
+import map from 'lodash/map';
+
 import BannerImage from './ContainerBanner.png';
+import Button from '../Button';
+import { borders } from '../../../themes/baseTheme';
 
 const Container = (props) => {
-  const { variant, title, subtitle, bannerImage, children, ...themeProps } = props;
+  const { variant, title, subtitle, bannerImage, children, actions, sx, ...themeProps } = props;
 
   return (
     <Box
@@ -26,7 +30,8 @@ const Container = (props) => {
 
       {!!title && (
         <Text sx={{
-          my: 2,
+          mt: 4,
+          mb: !!subtitle ? 0 : 2,
           color: 'text.primary',
           fontSize: 4,
           fontWeight: 'medium',
@@ -40,7 +45,8 @@ const Container = (props) => {
 
       {!!subtitle && (
         <Text sx={{
-          my: 1,
+          mt: !!title ? 0 : 4,
+          mb: 2,
           color: 'text.primary',
           fontSize: 2,
           fontWeight: 'medium',
@@ -52,9 +58,25 @@ const Container = (props) => {
         </Text>
       )}
 
-      <Box className="container-body" {...themeProps}>
+      <Box
+        className="container-body"
+        {...themeProps}
+      >
         {children}
       </Box>
+      {actions.length && (
+        <Flex
+          className="container-actions"
+          sx={{
+            gap: 2,
+            borderTop: borders.input,
+            justifyContent: ['center', 'flex-end'],
+          }}
+          {...themeProps}
+        >
+          {map(actions, buttonProps => <Button {...buttonProps} />)}
+        </Flex>
+      )}
     </Box>
   );
 };
