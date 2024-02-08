@@ -13,8 +13,8 @@ import {
 
 const StyledCheckbox = styled(Base)`
   color: ${props => props.sx?.color || colors.border.default};
-  height: 1.25em;
-  width: 1.25em;
+  width: 1.5em;
+  height: 1.5em;
   padding: 0;
   margin-right: 0.5em;
   cursor: pointer;
@@ -35,6 +35,8 @@ const StyledCheckbox = styled(Base)`
 `;
 
 const StyledCheckboxLabel = styled(Text)`
+  margin-top: 0.15em;
+
   &.disabled {
     color: ${colors.text.primaryDisabled};
   }
