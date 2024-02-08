@@ -45,6 +45,19 @@ export default ({ borders, colors, radii, space }) => {
     ...rounded,
   };
 
+  const well = {
+    ...defaultStyles,
+    ...fluid,
+    ...rounded,
+    ...bordered,
+    borderLeft: borders.default,
+    borderRight: borders.default,
+    borderRadius: radii.default,
+    bg: colors.lightestGrey,
+    p: space[3],
+    mb: space[4],
+  };
+
   return {
     fluid,
     fluidRounded: {
@@ -75,5 +88,6 @@ export default ({ borders, colors, radii, space }) => {
       ...extraSmall,
       ...bordered,
     },
+    well,
   };
 };

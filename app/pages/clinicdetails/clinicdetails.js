@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, Link as RouterLink } from 'react-router-dom';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
@@ -12,11 +12,11 @@ import keys from 'lodash/keys';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
-import { Formik, Form, FastField } from 'formik';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { useFormik } from 'formik';
+import { Box, Flex, Text, Link } from 'rebass/styled-components';
 import countries from 'i18n-iso-countries';
 
-import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
+import { Body1, MediumTitle, Paragraph1 } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
 import Select from '../../components/elements/Select';
 import Checkbox from '../../components/elements/Checkbox';
@@ -85,7 +85,7 @@ export const ClinicDetails = (props) => {
   const clinic = get(clinics, selectedClinicId);
   const displayClinicianForm = includes(['migrate', 'profile'], action);
   const displayClinicForm = includes(['migrate', 'new'], action);
-  const [populateProfileFields, setPopulateProfileFields] = useState(action === 'profile');
+  const [populateProfileFields, setPopulateProfileFields] = useState(includes(['new', 'profile'], action));
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const [submitting, setSubmitting] = useState(false);
@@ -95,10 +95,29 @@ export const ClinicDetails = (props) => {
   const [formikReady, setFormikReady] = useState(false);
   const previousSubmitting = usePrevious(submitting);
   const location = useLocation();
-  const isUploadLaunch = location.state?.referrer === 'upload-launch';
+  const referrer = location.state?.referrer;
+  const isUploadLaunch = referrer === 'upload-launch';
 
   let schema = displayClinicForm ? 'clinic' : 'clinician';
   if (displayClinicForm && displayClinicianForm) schema = 'combined';
+
+  const formText = {
+    new: {
+      title: t('Create your Clinic Workspace'),
+      subtitle: null,
+      submitText: t('Create Workspace'),
+    },
+    profile: {
+      title: t('Welcome'),
+      subtitle: t('Tell us more about yourself'),
+      submitText: t('Next'),
+    },
+    migrate: {
+      title: t('Create your Clinic Workspace'),
+      subtitle: t('Tell us more about yourself and your clinic'),
+      submitText: t('Create Workspace'),
+    },
+  };
 
   const clinicValues = () => {
     const { firstName, lastName } = personUtils.splitNamesFromFullname(user?.profile?.fullName);
@@ -110,6 +129,10 @@ export const ClinicDetails = (props) => {
       ...clinicValuesFromClinic(clinic),
     };
   };
+
+  function redirectBack() {
+    if (referrer) dispatch(push(referrer));
+  }
 
   function redirectToWorkspace() {
     const redirectPath = isEmpty(pendingReceivedClinicianInvites) && keys(clinics).length === 1
@@ -205,7 +228,8 @@ export const ClinicDetails = (props) => {
             })
           );
         } else {
-          redirectToWorkspace();
+          // Redirect to new clinic setup form
+          dispatch(push('/clinic-details/new', { referrer: location.pathname }));
         }
       }
     }
@@ -304,20 +328,74 @@ export const ClinicDetails = (props) => {
     dispatch(actions.async.triggerInitialClinicMigration(api, selectedClinicId));
   }
 
+  const formikContext = useFormik({
+    initialValues: clinicValues(),
+    validationSchema: schemas[schema],
+    onSubmit: values => {
+      setSubmitting(true);
+
+      if (displayClinicianForm) {
+        const profileUpdates = {
+          // replace legacy 'clinic' role, if present, with 'clinician'
+          roles: map(user?.roles || [], role => role === 'clinic' ? 'clinician' : role),
+          profile: {
+            fullName: personUtils.fullnameFromSplitNames(values.firstName, values.lastName),
+            clinic: {},
+          },
+        };
+
+        if (values.role) {
+          profileUpdates.profile.clinic.role = values.role;
+        }
+
+        if (action === 'profile') trackMetric('Web - Clinician Details Setup');
+        dispatch(actions.async.updateUser(api, profileUpdates));
+      }
+
+      if (displayClinicForm) {
+        trackMetric('Clinic - Account created');
+        const clinicValues = pick(values, keys(clinicValuesFromClinic()));
+
+        if (clinic?.id) {
+          dispatch(actions.async.updateClinic(api, clinic.id, clinicValues));
+        } else {
+          dispatch(actions.async.createClinic(api, clinicValues, loggedInUserId));
+        }
+      }
+    },
+  });
+
+  const formActions = [{
+    id: 'submit',
+    children: formText[action].submitText,
+    processing: submitting,
+    disabled: !fieldsAreValid(
+      keys(schemas[schema].fields),
+      schemas[schema],
+      formikContext?.values
+    ),
+    onClick: () => formikContext.submitForm(),
+  }];
+
+  if (action === 'new' && referrer) formActions.unshift({
+    id: 'back',
+    variant: 'secondary',
+    children: t('Back'),
+    onClick: () => redirectBack(),
+  })
+
   return (
     <Container
-      title={t('Welcome')}
-      subtitle={t('Tell us more about yourself')}
+      title={formText[action].title}
+      subtitle={formText[action].subtitle}
       variant="mediumBordered"
+      actions={formActions}
       p={4}
+      pt={3}
     >
       {formikReady ? (
         <>
-          {/* {displayClinicianForm && (
-            <Headline id="clinician-form-header" mb={2}>{t('Welcome')}</Headline>
-          )} */}
-
-          {!displayClinicForm && clinicInvite && (
+          {!displayClinicForm && clinicInvite && ( // TODO: What should this look like if there's a clinic invite?  What if it requires SSO?
             <Body1 id="clinic-invite-details" mb={2}>
               <Flex alignItems="center">
                 <NotificationIcon ml={0} mr={2} flexShrink={0} />
@@ -332,132 +410,73 @@ export const ClinicDetails = (props) => {
             </Body1>
           )}
 
-          {/* {displayClinicianForm && (
-            <Body1 id="clinician-form-info" mb={4}>
-              {t('Before accessing your clinic workspace, please provide the additional account information requested below.')}
-            </Body1>
-          )} */}
+          <Box id="clinic-profile">
+            {displayClinicianForm && (
+              <Flex id="clinician-profile-form" sx={{ flexWrap: 'wrap', flexDirection: ['column', 'row'], alignItems: [null, 'flex-start'] }}>
+                <Box pr={[0,1]} mb={4} flexBasis={['100%', '50%']}>
+                  <TextInput
+                    {...getCommonFormikFieldProps('firstName', formikContext)}
+                    label={t('Your full name')}
+                    placeholder={t('First name')}
+                    variant="condensed"
+                    width="100%"
+                  />
+                </Box>
 
-          <Formik
-            initialValues={clinicValues()}
-            validationSchema={schemas[schema]}
-            onSubmit={(values) => {
-              setSubmitting(true);
+                <Box pr={[0,0]} mb={4} flexBasis={['100%', '50%']}>
+                  <TextInput
+                    {...getCommonFormikFieldProps('lastName', formikContext)}
+                    label={t('Last name')}
+                    hideLabel
+                    placeholder={t('Last name')}
+                    variant="condensed"
+                    width="100%"
+                  />
+                </Box>
 
-              if (displayClinicianForm) {
-                const profileUpdates = {
-                  // replace legacy 'clinic' role, if present, with 'clinician'
-                  roles: map(user?.roles || [], role => role === 'clinic' ? 'clinician' : role),
-                  profile: {
-                    fullName: personUtils.fullnameFromSplitNames(values.firstName, values.lastName),
-                    clinic: {},
-                  },
-                };
+                <Box flexBasis="100%" />{/* Flex row break */}
 
-                if (values.role) {
-                  profileUpdates.profile.clinic.role = values.role;
-                }
-
-                if (action === 'profile') trackMetric('Web - Clinician Details Setup');
-                dispatch(actions.async.updateUser(api, profileUpdates));
-              }
-
-              if (displayClinicForm) {
-                trackMetric('Clinic - Account created');
-                const clinicValues = pick(values, keys(clinicValuesFromClinic()));
-
-                if (clinic?.id) {
-                  dispatch(actions.async.updateClinic(api, clinic.id, clinicValues));
-                } else {
-                  dispatch(actions.async.createClinic(api, clinicValues, loggedInUserId));
-                }
-              }
-            }}
-          >
-            {formikContext => (
-              <Form id="clinic-profile">
-                {displayClinicianForm && (
-                  <Flex id="clinician-profile-form" mb={3} flexWrap="wrap" flexDirection={['column', 'row']}>
-                    <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                      <TextInput
-                        {...getCommonFormikFieldProps('firstName', formikContext)}
-                        label={t('First Name')}
-                        placeholder={t('First Name')}
-                        variant="condensed"
-                        width="100%"
-                      />
-                    </Box>
-
-                    <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                      <TextInput
-                        {...getCommonFormikFieldProps('lastName', formikContext)}
-                        label={t('Last Name')}
-                        placeholder={t('Last Name')}
-                        variant="condensed"
-                        width="100%"
-                      />
-                    </Box>
-
-                    <Box flexBasis="100%" />{/* Flex row break */}
-
-                    <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
-                      <Select
-                        {...getCommonFormikFieldProps('role', formikContext)}
-                        options={addEmptyOption(roles, t('Job Title'))}
-                        label={t('Job Title')}
-                        variant="condensed"
-                        themeProps={{
-                          width: '100%',
-                        }}
-                      />
-                    </Box>
-                  </Flex>
-                )}
-
-                {displayClinicForm && (
-                  <Box id="clinic-profile-form">
-                    <Headline mb={2}>{t('More about your clinic')}</Headline>
-                    <Body1 mb={4}>
-                      {t('The information below will be displayed along with your name when you invite patients to connect and share their data remotely. Please ensure you have the correct clinic information for their verification.')}
-                    </Body1>
-
-                    <ClinicProfileFields formikContext={formikContext} />
-
-                    <FastField
-                      as={Checkbox}
-                      id="adminAcknowledge"
-                      name="adminAcknowledge"
-                      label={t(
-                        'By creating this clinic, your Tidepool account will become the default administrator. You can invite other healthcare professionals to join the clinic and add or remove privileges for these accounts at any time.'
-                      )}
-                      error={formikContext.touched.adminAcknowledge && formikContext.errors.adminAcknowledge}
-                      checked={formikContext.values.adminAcknowledge}
-                    />
-                  </Box>
-                )}
-
-                <Flex
-                  justifyContent={['center', 'flex-end']}
-                  id="clinic-profile-footer"
-                  alignItems={'center'}
-                  py={3}
-                >
-                  <Button
-                    id="submit"
-                    type="submit"
-                    processing={submitting}
-                    disabled={!fieldsAreValid(
-                      keys(schemas[schema].fields),
-                      schemas[schema],
-                      formikContext.values
-                    )}
-                  >
-                    {t('Submit')}
-                  </Button>
-                </Flex>
-              </Form>
+                <Box pr={[0,1]} flexBasis={['100%', '50%']}>
+                  <Select
+                    {...getCommonFormikFieldProps('role', formikContext)}
+                    options={addEmptyOption(roles, t('Role or job title'))}
+                    label={t('Role or job title')}
+                    variant="condensed"
+                    themeProps={{
+                      width: '100%',
+                    }}
+                  />
+                </Box>
+              </Flex>
             )}
-          </Formik>
+
+            {displayClinicForm && (
+              <Box id="clinic-profile-form">
+                <Box variant="containers.well" mt={action === 'migrate' ? 4 : 0}>
+                  <Paragraph1 mb={4}>
+                    {t('The information below will be displayed along with your name when you invite patients to connect and share their data remotely. Please ensure you have the correct clinic information for their verification.')}
+                  </Paragraph1>
+
+                  <Paragraph1 sx={{ fontWeight: 'medium', fontSize: 0 }}>
+                    <Trans i18nKey="html.skip-workspace-setup">
+                      If you're waiting to be invited to someone else's clinic workspace, you can <Link as={RouterLink} className="skip-to-workspace-link" to="/workspaces">skip this step for now</Link>.
+                    </Trans>
+                  </Paragraph1>
+                </Box>
+
+                <ClinicProfileFields formikContext={formikContext} />
+
+                <Checkbox
+                  {...getCommonFormikFieldProps('adminAcknowledge', formikContext, 'checked')}
+                  themeProps={{ sx: { 'span': { fontSize: 0 } } }}
+                  label={t(
+                    'By creating this clinic, your Tidepool account will become the default administrator. You can invite other healthcare professionals to join the clinic and add or remove privileges for these accounts at any time.'
+                  )}
+                />
+              </Box>
+            )}
+          </Box>
+
           <Dialog
             id="migrateClinic"
             aria-labelledby="dialog-title"
