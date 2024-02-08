@@ -10,7 +10,6 @@ import countries from 'i18n-iso-countries';
 import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
-import { phoneRegex } from '../pages/prescription/prescriptionFormConstants';
 import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
 
 const t = i18next.t.bind(i18next);
@@ -56,13 +55,6 @@ export const clinicTypes = [
   { value: 'other', label: t('Other') },
 ];
 
-export const clinicSizes = [
-  { value: '0-249', label: t('0-249') },
-  { value: '250-499', label: t('250-499') },
-  { value: '500-999', label: t('500-999') },
-  { value: '1000+', label: t('1000+') },
-];
-
 export const preferredBgUnits = [
   { value: MGDL_UNITS, label: MGDL_UNITS },
   { value: MMOLL_UNITS, label: MMOLL_UNITS },
@@ -92,14 +84,7 @@ export const clinicValuesFromClinic = (clinic) => ({
   state: get(clinic, 'state', ''),
   postalCode: get(clinic, 'postalCode', ''),
   country: get(clinic, 'country', 'US'),
-  phoneNumbers: [
-    {
-      type: 'Office',
-      number: get(clinic, 'phoneNumbers.0.number', ''),
-    },
-  ],
   clinicType: get(clinic, 'clinicType', ''),
-  clinicSize: get(clinic, 'clinicSize', ''),
   preferredBgUnits: get(clinic, 'preferredBgUnits', ''),
   website: get(clinic, 'website', ''),
   ...(get(clinic,'timezone')) && { timezone: clinic.timezone }
@@ -127,23 +112,10 @@ export const clinicSchema = yup.object().shape({
       ? schema.required(t('Please enter a zip/postal code'))
       : schema.matches(postalCodes[country], t('Please enter a valid zip/postal code'))
     ),
-  phoneNumbers: yup.array().of(
-    yup.object().shape({
-      type: yup.string().required(),
-      number: yup
-        .string()
-        .matches(phoneRegex, t('Please enter a valid phone number'))
-        .required(t('Clinic phone number is required')),
-    }),
-  ),
   clinicType: yup
     .string()
     .oneOf(map(clinicTypes, 'value'))
     .required(t('Please select a clinic type')),
-  clinicSize: yup
-    .string()
-    .oneOf(map(clinicSizes, 'value'))
-    .required(t('Please select an organization size')),
   preferredBgUnits: yup
     .string()
     .oneOf(map(preferredBgUnits, 'value'))

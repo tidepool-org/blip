@@ -48,15 +48,6 @@ describe('clinicUtils', function() {
     ]);
   });
 
-  it('should return all clinicSizes options', () => {
-    expect(clinicUtils.clinicSizes).to.eql([
-      { value: '0-249', label: '0-249' },
-      { value: '250-499', label: '250-499' },
-      { value: '500-999', label: '500-999' },
-      { value: '1000+', label: '1000+' },
-    ]);
-  });
-
   it('should return all preferredBgUnits options', () => {
     expect(clinicUtils.preferredBgUnits).to.eql([
       { value: 'mg/dL', label: 'mg/dL' },
@@ -93,14 +84,7 @@ describe('clinicUtils', function() {
         state: '',
         postalCode: '',
         country: 'US',
-        phoneNumbers: [
-          {
-            type: 'Office',
-            number: '',
-          },
-        ],
         clinicType: '',
-        clinicSize: '',
         website: '',
         preferredBgUnits: '',
       });
@@ -114,14 +98,7 @@ describe('clinicUtils', function() {
         state: 'NB',
         postalCode: '12345',
         country: 'US',
-        phoneNumbers: [
-          {
-            type: 'Office',
-            number: '123-456-7890',
-          },
-        ],
         clinicType: 'provider_practice',
-        clinicSize: '0-249',
         website: 'http://mysite.com',
         preferredBgUnits: 'mmol/L',
         timezone: 'America/Los_Angeles',
@@ -142,9 +119,7 @@ describe('clinicUtils', function() {
         'state',
         'postalCode',
         'country',
-        'phoneNumbers',
         'clinicType',
-        'clinicSize',
         'website',
         'preferredBgUnits',
         'timezone',
