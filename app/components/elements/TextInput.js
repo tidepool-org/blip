@@ -55,7 +55,13 @@ export const TextInput = (props) => {
   return (
     <Box width={width} {...themeProps}>
       {label && (
-        <Label htmlFor={name} sx={{ visibility: hideLabel ? 'hidden' : 'visible' }}>
+        <Label
+          htmlFor={name}
+          sx={{
+            visibility: hideLabel ? 'hidden' : 'visible',
+            display: hideLabel ? ['none !important', 'block !important'] : 'block',
+          }}
+        >
           <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
         </Label>
       )}
