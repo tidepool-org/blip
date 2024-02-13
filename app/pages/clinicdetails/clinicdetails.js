@@ -413,7 +413,7 @@ export const ClinicDetails = (props) => {
           <Box id="clinic-profile">
             {displayClinicianForm && (
               <Flex id="clinician-profile-form" sx={{ flexWrap: 'wrap', flexDirection: ['column', 'row'], alignItems: [null, 'flex-start'] }}>
-                <Box pr={[0,1]} mb={4} flexBasis={['100%', '50%']}>
+                <Box pr={[0,1]} mb={[2, 4]} sx={{ flexBasis: ['100%', '50%'] }}>
                   <TextInput
                     {...getCommonFormikFieldProps('firstName', formikContext)}
                     label={t('Your full name')}
@@ -423,7 +423,7 @@ export const ClinicDetails = (props) => {
                   />
                 </Box>
 
-                <Box pr={[0,0]} mb={4} flexBasis={['100%', '50%']}>
+                <Box pr={[0,0]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
                   <TextInput
                     {...getCommonFormikFieldProps('lastName', formikContext)}
                     label={t('Last name')}
@@ -434,9 +434,7 @@ export const ClinicDetails = (props) => {
                   />
                 </Box>
 
-                <Box flexBasis="100%" />{/* Flex row break */}
-
-                <Box pr={[0,1]} flexBasis={['100%', '50%']}>
+                <Box sx={{ flexBasis: '100%' }}>
                   <Select
                     {...getCommonFormikFieldProps('role', formikContext)}
                     options={addEmptyOption(roles, t('Role or job title'))}
