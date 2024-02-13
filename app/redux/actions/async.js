@@ -195,7 +195,7 @@ export function acceptTerms(api, acceptedDate, userId) {
           if(personUtils.isClinicianAccount(user)){
             dispatch(push('/clinician-details'));
           } else {
-            dispatch(push('/patients?justLoggedIn=true'));
+            dispatch(push('/patients/new'));
           }
         } else {
           dispatch(sync.acceptTermsSuccess(userId, acceptedDate));
@@ -219,6 +219,7 @@ export function login(api, credentials, options, postLoginAction) {
 
     const routes = {
       patients: '/patients?justLoggedIn=true',
+      newPatient: '/patients/new',
       workspaces: '/workspaces',
       clinicDetails: '/clinic-details',
       clinicWorkspace: '/clinic-workspace',
@@ -323,7 +324,7 @@ export function login(api, credentials, options, postLoginAction) {
                   // not already done so.
                   setRedirectRoute(!userHasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces);
                 } else if (!userHasFullName) {
-                  setRedirectRoute(routes.profile);
+                  setRedirectRoute(routes.newPatient);
                 } else {
                   getPatientProfile();
                 }
