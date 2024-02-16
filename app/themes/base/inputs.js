@@ -174,6 +174,9 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           padding: `${space[2]}px`,
         },
       },
+      multi: {
+        ...selects,
+      },
       ultraCondensed: {
         ...selects,
         fontSize: fontSizes[0],
