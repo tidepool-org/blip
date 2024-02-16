@@ -1,31 +1,51 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, BoxProps, Flex, Image, Text } from 'rebass/styled-components';
+import { useSelector } from 'react-redux';
+import get from 'lodash/get';
 import map from 'lodash/map';
 
-import BannerImage from './ContainerBanner.png';
+import ClinicianBannerImage from './ClinicianBanner.png';
+import PersonalBannerImage from './PersonalBanner.png';
 import Button from '../Button';
 import { borders } from '../../../themes/baseTheme';
+import personUtils from '../../../core/personutils';
 
 const Container = (props) => {
-  const { variant, title, subtitle, bannerImage, children, actions, sx, ...themeProps } = props;
+  const { variant, title, subtitle, showBannerImage, children, actions, sx, ...themeProps } = props;
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const allUsersMap = useSelector((state) => state.blip.allUsersMap);
+  const user = get(allUsersMap, loggedInUserId);
+
+  const BannerImage = personUtils.isClinicianAccount(user)
+    ? ClinicianBannerImage
+    : PersonalBannerImage;
 
   return (
     <Box
       variant={`containers.${variant}`}
     >
-      {!!BannerImage && (
-        <Box className="container-banner-image">
+      {showBannerImage && (
+        <Flex
+          className="container-banner-image"
+          sx={{
+            bg: '#E6E9FF',
+            height: ['64px', '86px', '102px'],
+          }}
+        >
           <Image
             src={BannerImage}
             sx={{
               width: '100%',
-              height: ['48px', '72px', '96px'],
-              objectFit: ['cover', null, 'none'],
-              objectPosition: '50% 0%',
+              height: '100%',
+              margin: '0 auto',
+              maxHeight: '100%',
+              maxWidth: '796px',
+              objectFit: 'cover',
+              objectPosition: '50% 50%',
             }}
           />
-        </Box>
+        </Flex>
       )}
 
       {!!title && (
@@ -96,14 +116,14 @@ Container.propTypes = {
     'extraSmall',
     'extraSmallBordered',
   ]),
-  bannerImage: PropTypes.string,
+  showBannerImage: PropTypes.bool,
   title: PropTypes.string,
   subtitle: PropTypes.string,
 };
 
 Container.defaultProps = {
   variant: 'fluid',
-  bannerImage: BannerImage,
+  showBannerImage: true,
 };
 
 export default Container;
