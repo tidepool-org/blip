@@ -117,6 +117,13 @@ export const Paragraph1 = Styled(Body1)`
   }
 `;
 
+export const Paragraph0 = Styled(Body0)`
+  margin-bottom: 1em;
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
 export const Caption = Styled(Text)`
   font-size: ${fontSizes[0]}px;
   line-height: ${lineHeights[4]};
