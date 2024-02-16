@@ -20,6 +20,8 @@ import { Icon } from './Icon';
 import {
   default as baseTheme,
   colors,
+  fontSizes,
+  fontWeights,
   radii,
   shadows,
   space,
@@ -28,13 +30,15 @@ import {
 const StyledDatePicker = styled(StyledDatePickerBase)`
   .SingleDatePickerInput {
     border-radius: ${radii.input}px;
-    border-color: ${colors.border.default};
+    border-color: ${colors.border.inputLight};
 
     .DateInput {
       border-radius: ${radii.input}px;
 
       input {
         border-radius: ${radii.input}px;
+        font-size: ${fontSizes[1]}px;
+        padding: ${space[2]}px;
       }
     }
   }
@@ -125,7 +129,9 @@ export const DatePicker = props => {
     <Box as={StyledDatePicker} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption className={inputClasses}>{label}</Caption>
+          <Caption fontWeight={fontWeights.medium} className={inputClasses}>
+            {label}
+          </Caption>
         </Label>
       )}
       <SingleDatePicker
