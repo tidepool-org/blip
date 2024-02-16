@@ -55,7 +55,7 @@ export default ({ borders, colors, radii, space }) => {
     borderRadius: radii.default,
     bg: colors.lightestGrey,
     p: space[3],
-    mb: space[4],
+    mb: 0,
   };
 
   return {

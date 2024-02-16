@@ -16,7 +16,7 @@ import { useFormik } from 'formik';
 import { Box, Flex, Text, Link } from 'rebass/styled-components';
 import countries from 'i18n-iso-countries';
 
-import { Body1, MediumTitle, Paragraph1 } from '../../components/elements/FontStyles';
+import { Body1, MediumTitle, Paragraph0 } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
 import Select from '../../components/elements/Select';
 import Checkbox from '../../components/elements/Checkbox';
@@ -450,16 +450,16 @@ export const ClinicDetails = (props) => {
 
             {displayClinicForm && (
               <Box id="clinic-profile-form">
-                <Box variant="containers.well" mt={action === 'migrate' ? 4 : 0}>
-                  <Paragraph1 mb={4}>
+                <Box variant="containers.well" mt={action === 'migrate' ? 4 : 0} mb={4}>
+                  <Paragraph0>
                     {t('The information below will be displayed along with your name when you invite patients to connect and share their data remotely. Please ensure you have the correct clinic information for their verification.')}
-                  </Paragraph1>
+                  </Paragraph0>
 
-                  <Paragraph1 sx={{ fontWeight: 'medium', fontSize: 0 }}>
+                  <Paragraph0 sx={{ fontWeight: 'medium' }}>
                     <Trans i18nKey="html.skip-workspace-setup">
                       If you're waiting to be invited to someone else's clinic workspace, you can <Link as={RouterLink} className="skip-to-workspace-link" to="/workspaces">skip this step for now</Link>.
                     </Trans>
-                  </Paragraph1>
+                  </Paragraph0>
                 </Box>
 
                 <ClinicProfileFields formikContext={formikContext} />
