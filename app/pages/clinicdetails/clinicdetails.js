@@ -348,8 +348,12 @@ export const ClinicDetails = (props) => {
           profileUpdates.profile.clinic.role = values.role;
         }
 
-        if (action === 'profile') trackMetric('Web - Clinician Details Setup');
         dispatch(actions.async.updateUser(api, profileUpdates));
+
+        if (action === 'profile') {
+          trackMetric('Web - Clinician Details Setup');
+          if (clinicInvite) redirectToWorkspace();
+        }
       }
 
       if (displayClinicForm) {
@@ -395,7 +399,7 @@ export const ClinicDetails = (props) => {
     >
       {formikReady ? (
         <>
-          {!displayClinicForm && clinicInvite && ( // TODO: What should this look like if there's a clinic invite?  What if it requires SSO?
+          {!displayClinicForm && clinicInvite && (
             <Body1 id="clinic-invite-details" mb={2}>
               <Flex alignItems="center">
                 <NotificationIcon ml={0} mr={2} flexShrink={0} />
