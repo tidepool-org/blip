@@ -369,6 +369,13 @@ export const ClinicDetails = (props) => {
     },
   });
 
+
+  useEffect(() => {
+    if (populateProfileFields) {
+      formikContext.setValues(clinicValues())
+    }
+  }, [populateProfileFields]);
+
   const formActions = [{
     id: 'submit',
     children: formText[action].submitText,
