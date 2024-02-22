@@ -1795,11 +1795,7 @@ export function getAllClinics(api, options = {}, cb = _.noop) {
  * @param {String} [clinic.postalCode] - Clinic Zip code
  * @param {String} [clinic.state] - Clinic state
  * @param {String} [clinic.country] - Clinic 2-character country code
- * @param {Object[]} [clinic.phoneNumbers] - Array of phone number objects for the clinic
- * @param {String} [clinic.phoneNumbers[].type] - Phone number description
- * @param {String} [clinic.phoneNumbers[].number] - Phone number
  * @param {String} [clinic.clinicType] - Clinic type
- * @param {Number} [clinic.clinicSize] - Int Lower bound for clinic size
  * @param {String} clinic.email - Primary email address for clinic
  * @param {String} clinicianId - Id of clinician creating the clinic
  */
@@ -1898,11 +1894,7 @@ export function fetchClinicsByIds(api, clinicIds) {
  * @param {String} [clinic.postalCode] - Clinic Zip code
  * @param {String} [clinic.state] - Clinic state
  * @param {String} [clinic.country] - Clinic 2-character country code
- * @param {Object[]} [clinic.phoneNumbers] - Array of phone number objects for the clinic
- * @param {String} [clinic.phoneNumbers[].type] - Phone number description
- * @param {String} [clinic.phoneNumbers[].number] - Phone number
  * @param {String} [clinic.clinicType] - Clinic type
- * @param {Number} [clinic.clinicSize] - Int Lower bound for clinic size
  * @param {String} clinic.email - Primary email address for clinic
  */
 export function updateClinic(api, clinicId, clinic) {

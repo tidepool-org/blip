@@ -49,31 +49,37 @@ const Container = (props) => {
       )}
 
       {!!title && (
-        <Text sx={{
-          mt: 4,
-          mb: !!subtitle ? 0 : 2,
-          color: 'text.primary',
-          fontSize: 4,
-          fontWeight: 'medium',
-          lineHeight: 2,
-          width: '100%',
-          textAlign: 'center',
-        }}>
+        <Text
+          className="container-title"
+          sx={{
+            mt: 4,
+            mb: !!subtitle ? 0 : 2,
+            color: 'text.primary',
+            fontSize: 4,
+            fontWeight: 'medium',
+            lineHeight: 2,
+            width: '100%',
+            textAlign: 'center',
+          }}
+        >
           {title}
         </Text>
       )}
 
       {!!subtitle && (
-        <Text sx={{
-          mt: !!title ? 0 : 4,
-          mb: 2,
-          color: 'text.primary',
-          fontSize: 2,
-          fontWeight: 'medium',
-          lineHeight: 2,
-          width: '100%',
-          textAlign: 'center',
-        }}>
+        <Text
+          className="container-subtitle"
+          sx={{
+            mt: !!title ? 0 : 4,
+            mb: 2,
+            color: 'text.primary',
+            fontSize: 2,
+            fontWeight: 'medium',
+            lineHeight: 2,
+            width: '100%',
+            textAlign: 'center',
+          }}
+        >
           {subtitle}
         </Text>
       )}

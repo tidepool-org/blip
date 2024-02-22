@@ -13,15 +13,16 @@ describe('clinicUtils', function() {
     expect(clinicUtils.roles).to.eql([
       { value: 'clinic_manager', label: 'Clinic Manager' },
       { value: 'diabetes_educator', label: 'Diabetes Educator' },
+      { value: 'dietician', label: 'Dietician' },
       { value: 'endocrinologist', label: 'Endocrinologist' },
       { value: 'front_desk', label: 'Front Desk' },
+      { value: 'health_student', label: 'Health Professions Student' },
       { value: 'information_technology', label: 'IT/Technology' },
       { value: 'medical_assistant', label: 'Medical Assistant' },
       { value: 'nurse', label: 'Nurse/Nurse Practitioner' },
       { value: 'primary_care_physician', label: 'Primary Care Physician' },
       { value: 'physician_assistant', label: 'Physician Assistant' },
       { value: 'pharmacist', label: 'Pharmacist' },
-      { value: 'health_student', label: 'Health Professions Student' },
       { value: 'other', label: 'Other' },
     ]);
   });
@@ -123,11 +124,6 @@ describe('clinicUtils', function() {
         'website',
         'preferredBgUnits',
         'timezone',
-      ]);
-
-      expect(clinicUtils.clinicSchema.fields.phoneNumbers.innerType._nodes).to.be.an('array').and.have.members([
-        'type',
-        'number',
       ]);
     });
   });

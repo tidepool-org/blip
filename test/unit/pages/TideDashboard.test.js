@@ -101,12 +101,6 @@ describe('TideDashboard', () => {
           address: '2 Address Ln, City Zip',
           name: 'other_clinic_name',
           email: 'other_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 444-4444',
-              type: 'Office',
-            },
-          ],
           tier: 'tier0300',
         },
       },
@@ -140,12 +134,6 @@ describe('TideDashboard', () => {
           address: '2 Address Ln, City Zip',
           name: 'other_clinic_name',
           email: 'other_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 444-4444',
-              type: 'Office',
-            },
-          ],
         },
       },
       working: {

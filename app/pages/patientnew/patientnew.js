@@ -7,7 +7,6 @@ import * as yup from 'yup';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
-import intersectionBy from 'lodash/intersectionBy';
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
@@ -29,10 +28,9 @@ import i18next from '../../core/language';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useToasts } from '../../providers/ToastProvider';
 import { push } from 'connected-react-router';
-import { components as vizComponents } from '@tidepool/viz';
 import personUtils from '../../core/personutils';
 import { addEmptyOption } from '../../core/forms';
-import { colors, fontSizes, fontWeights, radii } from '../../themes/baseTheme';
+import { colors } from '../../themes/baseTheme';
 
 import {
   DATA_DONATION_NONPROFITS,

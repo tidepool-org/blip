@@ -165,6 +165,8 @@ MultiSelect.propTypes = {
   error: PropTypes.string,
 };
 
+MultiSelect.displayName = 'MultiSelect';
+
 MultiSelect.defaultProps = {
   themeProps: {},
   placeholder: t('Select one or more'),

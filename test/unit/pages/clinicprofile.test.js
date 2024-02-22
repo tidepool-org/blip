@@ -97,12 +97,6 @@ describe('ClinicProfile', () => {
           email: 'new_clinic_email_address@example.com',
           shareCode: 'ABCD-ABCD-ABCD',
           preferredBgUnits: 'mmol/L',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       loggedInUserId: 'clinicianUserId123',
@@ -135,14 +129,7 @@ describe('ClinicProfile', () => {
           shareCode: 'ABCD-ABCD-ABCD',
           website: 'http://clinic.com',
           clinicType: 'provider_practice',
-          clinicSize: '0-249',
           preferredBgUnits: 'mmol/L',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
     },
@@ -203,15 +190,13 @@ describe('ClinicProfile', () => {
       expect(profileForm).to.have.lengthOf(1);
 
       expect(profileForm.find('input[name="name"]').prop('value')).to.equal('new_clinic_name');
-      expect(profileForm.find('input[name="phoneNumbers.0.number"]').prop('defaultValue')).to.equal('(888) 555-5555');
       expect(profileForm.find('select[name="country"]').prop('value')).to.equal('US');
       expect(profileForm.find('select[name="state"]').prop('value')).to.equal('New Jersey');
       expect(profileForm.find('input[name="city"]').prop('value')).to.equal('Gotham');
       expect(profileForm.find('input[name="address"]').prop('value')).to.equal('1 Address Ln, City Zip');
       expect(profileForm.find('input[name="postalCode"]').prop('value')).to.equal('12345');
       expect(profileForm.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
-      expect(profileForm.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('provider_practice');
-      expect(profileForm.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('0-249');
+      expect(profileForm.find('select[name="clinicType"]').prop('value')).to.equal('provider_practice');
       expect(profileForm.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mmol/L');
     });
 
@@ -221,9 +206,6 @@ describe('ClinicProfile', () => {
 
       wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'name_updated' } });
       expect(wrapper.find('input[name="name"]').prop('value')).to.equal('name_updated');
-
-      wrapper.find('input[name="phoneNumbers.0.number"]').simulate('change', { persist: noop, target: { name: 'phoneNumbers.0.number', value: '(888) 555-6666' } });
-      expect(wrapper.find('input[name="phoneNumbers.0.number"]').prop('defaultValue')).to.equal('(888) 555-6666');
 
       wrapper.find('select[name="country"]').simulate('change', { persist: noop, target: { name: 'country', value: 'CA' } });
       expect(wrapper.find('select[name="country"]').prop('value')).to.equal('CA');
@@ -243,11 +225,8 @@ describe('ClinicProfile', () => {
       wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic_updated.com' } });
       expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic_updated.com');
 
-      wrapper.find('input[name="clinicType"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
-      expect(wrapper.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('healthcare_system');
-
-      wrapper.find('input[name="clinicSize"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicSize', value: '250-499' } });
-      expect(wrapper.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('250-499');
+      wrapper.find('select[name="clinicType"]').simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
+      expect(wrapper.find('select[name="clinicType"]').prop('value')).to.equal('healthcare_system');
 
       wrapper.find('input[name="preferredBgUnits"]').at(1).simulate('change', { persist: noop, target: { name: 'preferredBgUnits', value: 'mg/dL' } });
       expect(wrapper.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mg/dL');
@@ -264,11 +243,9 @@ describe('ClinicProfile', () => {
           {
             address: 'address_updated',
             city: 'city_updated',
-            clinicSize: '250-499',
             clinicType: 'healthcare_system',
             country: 'CA',
             name: 'name_updated',
-            phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
             postalCode: 'L3X 9G2',
             state: 'ON',
             website: 'http://clinic_updated.com',
@@ -318,15 +295,13 @@ describe('ClinicProfile', () => {
       expect(profileForm).to.have.lengthOf(1);
 
       expect(profileForm.find('input[name="name"]').prop('value')).to.equal('new_clinic_name');
-      expect(profileForm.find('input[name="phoneNumbers.0.number"]').prop('defaultValue')).to.equal('(888) 555-5555');
       expect(profileForm.find('select[name="country"]').prop('value')).to.equal('US');
       expect(profileForm.find('select[name="state"]').prop('value')).to.equal('New Jersey');
       expect(profileForm.find('input[name="city"]').prop('value')).to.equal('Gotham');
       expect(profileForm.find('input[name="address"]').prop('value')).to.equal('1 Address Ln, City Zip');
       expect(profileForm.find('input[name="postalCode"]').prop('value')).to.equal('12345');
       expect(profileForm.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
-      expect(profileForm.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('provider_practice');
-      expect(profileForm.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('0-249');
+      expect(profileForm.find('select[name="clinicType"]').prop('value')).to.equal('provider_practice');
       expect(profileForm.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mmol/L');
     });
 
@@ -336,9 +311,6 @@ describe('ClinicProfile', () => {
 
       wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'name_updated' } });
       expect(wrapper.find('input[name="name"]').prop('value')).to.equal('name_updated');
-
-      wrapper.find('input[name="phoneNumbers.0.number"]').simulate('change', { persist: noop, target: { name: 'phoneNumbers.0.number', value: '(888) 555-6666' } });
-      expect(wrapper.find('input[name="phoneNumbers.0.number"]').prop('defaultValue')).to.equal('(888) 555-6666');
 
       wrapper.find('select[name="country"]').simulate('change', { persist: noop, target: { name: 'country', value: 'CA' } });
       expect(wrapper.find('select[name="country"]').prop('value')).to.equal('CA');
@@ -358,11 +330,8 @@ describe('ClinicProfile', () => {
       wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic_updated.com' } });
       expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic_updated.com');
 
-      wrapper.find('input[name="clinicType"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
-      expect(wrapper.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('healthcare_system');
-
-      wrapper.find('input[name="clinicSize"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicSize', value: '250-499' } });
-      expect(wrapper.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('250-499');
+      wrapper.find('select[name="clinicType"]').simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
+      expect(wrapper.find('select[name="clinicType"]').prop('value')).to.equal('healthcare_system');
 
       wrapper.find('input[name="preferredBgUnits"]').at(1).simulate('change', { persist: noop, target: { name: 'preferredBgUnits', value: 'mg/dL' } });
       expect(wrapper.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mg/dL');
@@ -389,11 +358,9 @@ describe('ClinicProfile', () => {
           {
             address: 'address_updated',
             city: 'city_updated',
-            clinicSize: '250-499',
             clinicType: 'healthcare_system',
             country: 'CA',
             name: 'name_updated',
-            phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
             postalCode: 'L3X 9G2',
             state: 'ON',
             website: 'http://clinic_updated.com',
