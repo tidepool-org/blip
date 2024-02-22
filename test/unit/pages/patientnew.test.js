@@ -21,17 +21,16 @@ var expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('PatientNew', function () {
-  // let mount;
-  const mount = createMount();
+  let mount;
   let wrapper;
 
-  // before(() => {
-  //   mount = createMount();
-  // });
+  before(() => {
+    mount = createMount();
+  });
 
-  // after(() => {
-  //   mount.cleanUp();
-  // });
+  after(() => {
+    mount.cleanUp();
+  });
 
   let defaultProps = {
     trackMetric: sinon.stub(),
