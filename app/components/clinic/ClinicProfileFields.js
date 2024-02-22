@@ -141,7 +141,7 @@ export const ClinicProfileFields = (props) => {
         <Box pl={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <TextInput
             {...getCommonFormikFieldProps('website', formikContext)}
-            label={t('Website')}
+            label={t('Website (optional)')}
             placeholder={t('Website')}
             variant="condensed"
             width="100%"
