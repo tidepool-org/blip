@@ -343,7 +343,7 @@ describe('Workspaces', () => {
       store.clearActions();
       button.simulate('click');
       expect(store.getActions()).to.eql([
-        { type: 'SELECT_CLINIC', payload: { clinicId: null } },
+        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: null } },
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
@@ -391,7 +391,7 @@ describe('Workspaces', () => {
       navigateButton.simulate('click');
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
           },

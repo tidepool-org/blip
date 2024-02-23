@@ -699,7 +699,7 @@ export const clinics = (state = initialState.clinics, action) => {
         return newSet;
       }, {});
       return update(state, {
-        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, patientCount: count, lastPatientFetchTime: moment.utc().valueOf() } },
+        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, fetchedPatientCount: count, lastPatientFetchTime: moment.utc().valueOf() } },
       });
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE: {
@@ -710,7 +710,7 @@ export const clinics = (state = initialState.clinics, action) => {
         } = action;
         return update(state, {
           [clinicId]: {
-            $set: { ...state[clinicId], patients: {}, patientCount: 0 },
+            $set: { ...state[clinicId], patients: {}, fetchedPatientCount: 0 },
           },
         });
       }
@@ -810,15 +810,15 @@ export const clinics = (state = initialState.clinics, action) => {
       const patient = _.get(action.payload, 'patient');
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
-      let patientCount = state[clinicId].patientCount;
+      let fetchedPatientCount = state[clinicId].fetchedPatientCount;
 
       // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
       // list for easy visibility of the newly created patient.
       const existingSortIndex = state[clinicId]?.patients?.[patientId]?.sortIndex || -1;
 
-      if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) patientCount++;
+      if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) fetchedPatientCount++;
       return update(state, {
-        [clinicId]: { patients: { [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } }, patientCount: { $set: patientCount } },
+        [clinicId]: { patients: { [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } }, fetchedPatientCount: { $set: fetchedPatientCount } },
       });
     }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
@@ -833,7 +833,7 @@ export const clinics = (state = initialState.clinics, action) => {
       let patientId = _.get(action.payload, 'patientId');
       let newState = _.cloneDeep(state);
       delete newState[clinicId]?.patients?.[patientId];
-      if (newState[clinicId]?.patientCount) newState[clinicId].patientCount--;
+      if (newState[clinicId]?.fetchedPatientCount) newState[clinicId].fetchedPatientCount--;
       return newState;
     }
     case types.SEND_CLINICIAN_INVITE_SUCCESS: {
@@ -968,6 +968,20 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { mrnSettings: { $set: settings } },
       });
     }
+    case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS: {
+      const { clinicId, patientCount } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientCount: { $set: patientCount } },
+      });
+    }
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS: {
+      const { clinicId, patientCountSettings } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientCountSettings: { $set: patientCountSettings } },
+      });
+    }
     case types.LOGOUT_REQUEST:
       return initialState.clinics;
     default:
@@ -977,7 +991,7 @@ export const clinics = (state = initialState.clinics, action) => {
 
 export const selectedClinicId = (state = initialState.selectedClinicId, action) => {
   switch(action.type) {
-    case types.SELECT_CLINIC:
+    case types.SELECT_CLINIC_SUCCESS:
       return _.get(action.payload, 'clinicId', null);
     case types.LOGOUT_REQUEST:
       return null;

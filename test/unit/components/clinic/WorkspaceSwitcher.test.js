@@ -220,7 +220,7 @@ describe('WorkspaceSwitcher', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null, // null is appropriate for switch to private workspace
           },
@@ -240,7 +240,7 @@ describe('WorkspaceSwitcher', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
           },

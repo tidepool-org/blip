@@ -289,13 +289,13 @@ export const Workspaces = (props) => {
       : ['Clinic - Workspaces - Go to private workspace'];
 
     trackMetric(...metric);
-    dispatch(actions.sync.selectClinic(workspace?.id || null));
+    dispatch(actions.async.selectClinic(api, workspace?.id || null));
     dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients', { selectedClinicId: workspace.id }));
   }
 
   function handleCreateNewClinic(source) {
     trackMetric('Clinic - Workspaces - Create new clinic', { source });
-    dispatch(actions.sync.selectClinic(null));
+    dispatch(actions.async.selectClinic(api, null));
     dispatch(push('/clinic-details/new', { selectedClinicId: null }));
   }
 

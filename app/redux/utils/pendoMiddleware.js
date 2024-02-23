@@ -10,7 +10,7 @@ import { isClinicianAccount } from '../../core/personutils';
 
 const trackingActions = [
   ActionTypes.LOGIN_SUCCESS,
-  ActionTypes.SELECT_CLINIC,
+  ActionTypes.SELECT_CLINIC_SUCCESS,
   ActionTypes.DATA_WORKER_ADD_DATA_SUCCESS,
   ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS,
   ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS,
@@ -103,7 +103,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       });
       break;
     }
-    case ActionTypes.SELECT_CLINIC: {
+    case ActionTypes.SELECT_CLINIC_SUCCESS: {
       const {
         blip: { clinics, allUsersMap, loggedInUserId },
       } = getState();

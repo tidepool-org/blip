@@ -2933,7 +2933,7 @@ export const ClinicPatients = (props) => {
   const tableStyle = useMemo(() => ({ fontSize: showSummaryData ? '12px' : '14px' }), [showSummaryData]);
 
   const renderPeopleTable = useCallback(() => {
-    const pageCount = Math.ceil(clinic?.patientCount / patientFetchOptions.limit);
+    const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
     return (
@@ -2968,7 +2968,7 @@ export const ClinicPatients = (props) => {
       </Box>
     );
   }, [
-    clinic?.patientCount,
+    clinic?.fetchedPatientCount,
     columns,
     data,
     defaultPatientFetchOptions.sort,

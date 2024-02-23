@@ -155,7 +155,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           if (hasLegacyClinicRole && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
             // Navigate to the appropriate page for a legacy clinician user or team member who needs to
             // complete the setup process
-            if (firstEmptyOrUnmigratedClinic) dispatch(actions.sync.selectClinic(firstEmptyOrUnmigratedClinic.clinic.id));
+            if (firstEmptyOrUnmigratedClinic) dispatch(actions.async.selectClinic(api, firstEmptyOrUnmigratedClinic.clinic.id));
             const routeState = { selectedClinicId: state.selectedClinicId || null };
             const routeAction = firstEmptyOrUnmigratedClinic ? 'migrate' : 'profile';
             dispatch(push(`${routes.clinicDetails}/${routeAction}`, routeState));
@@ -298,7 +298,7 @@ export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
     // We don't want to navigate forward to a workspace if a clinician who needs to set up their
     // profile, or a clinician profile, navigates to the root url with the browser back button
     if (isClinicianAccount && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
-      if (firstEmptyOrUnmigratedClinic) dispatch(actions.sync.selectClinic(firstEmptyOrUnmigratedClinic.id));
+      if (firstEmptyOrUnmigratedClinic) dispatch(actions.async.selectClinic(api, firstEmptyOrUnmigratedClinic.id));
       dispatch(push(state.clinicFlowActive || state.selectedClinicId ? '/clinic-details' : '/clinician-details'));
     } else {
       dispatch(push(state.clinicFlowActive || state.selectedClinicId ? '/workspaces' : '/patients'));

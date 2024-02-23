@@ -596,7 +596,7 @@ describe('ClinicDetails', () => {
 
           const expectedActions = [
             { type: 'CREATE_CLINIC_REQUEST' },
-            { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic123' } },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic123' } },
             {
               type: 'CREATE_CLINIC_SUCCESS',
               payload: {

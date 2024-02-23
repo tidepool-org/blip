@@ -3690,14 +3690,14 @@ describe('Actions', () => {
 
   describe('selectClinic', () => {
     it('should be a TSA', () => {
-      let action = sync.selectClinic();
+      let action = async.selectClinic(api, );
       expect(isTSA(action)).to.be.true;
     });
 
-    it('type should equal SELECT_CLINIC', () => {
+    it('type should equal SELECT_CLINIC_SUCCESS', () => {
       let clinicId = 'clinicId'
-      let action = sync.selectClinic(clinicId);
-      expect(action.type).to.equal('SELECT_CLINIC');
+      let action = async.selectClinic(api, clinicId);
+      expect(action.type).to.equal('SELECT_CLINIC_SUCCESS');
       expect(action.payload.clinicId).to.equal(clinicId);
     });
   });

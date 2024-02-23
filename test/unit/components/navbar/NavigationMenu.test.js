@@ -183,7 +183,7 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null, // null is appropriate for switch to private workspace
           },
@@ -259,7 +259,7 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
           },
@@ -293,7 +293,7 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null,
           },
@@ -389,7 +389,7 @@ describe('NavigationMenu', () => {
 
         expect(store.getActions()).to.eql([
           {
-            type: 'SELECT_CLINIC',
+            type: 'SELECT_CLINIC_SUCCESS',
             payload: {
               clinicId: null, // null is appropriate for switch to private workspace
             },
@@ -436,7 +436,7 @@ describe('NavigationMenu', () => {
 
         expect(store.getActions()).to.eql([
           {
-            type: 'SELECT_CLINIC',
+            type: 'SELECT_CLINIC_SUCCESS',
             payload: {
               clinicId: null, // null is appropriate for switch to private workspace
             },

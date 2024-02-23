@@ -7257,7 +7257,7 @@ describe('dataWorkerQueryData', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.selectClinic('clinicId123');
+      let action = actions.async.selectClinic(api, 'clinicId123');
       let state = reducer(initialStateForTest, action);
 
       expect(state.fetchingCliniciansFromClinic).to.eql({
@@ -7276,7 +7276,7 @@ describe('dataWorkerQueryData', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.selectClinic('clinicId123');
+      let action = actions.async.selectClinic(api, 'clinicId123');
       let state = reducer(initialStateForTest, action);
 
       expect(state.fetchingPatientsForClinic).to.eql({
@@ -7295,7 +7295,7 @@ describe('dataWorkerQueryData', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.selectClinic('clinicId123');
+      let action = actions.async.selectClinic(api, 'clinicId123');
       let state = reducer(initialStateForTest, action);
 
       expect(state.fetchingPatientInvites).to.eql({

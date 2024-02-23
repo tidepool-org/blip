@@ -450,10 +450,10 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.initialize.calledWith(expectedQA1Config)).to.be.true;
   });
 
-  it('should call update for SELECT_CLINIC', () => {
+  it('should call update for SELECT_CLINIC_SUCCESS', () => {
     winMock.pendo.visitorId = 'clinicMemberID';
     const selectClinic = {
-      type: ActionTypes.SELECT_CLINIC,
+      type: ActionTypes.SELECT_CLINIC_SUCCESS,
       payload: {
         clinicId: 'clinicID987',
       },
@@ -491,10 +491,10 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.updateOptions.calledWith(expectedConfig)).to.be.true;
   });
 
-  it('should call update and clear properties for SELECT_CLINIC with clinicID null', () => {
+  it('should call update and clear properties for SELECT_CLINIC_SUCCESS with clinicID null', () => {
     winMock.pendo.visitorId = 'clinicMemberID';
     const selectClinic = {
-      type: ActionTypes.SELECT_CLINIC,
+      type: ActionTypes.SELECT_CLINIC_SUCCESS,
       payload: {
         clinicId: null,
       },

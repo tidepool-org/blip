@@ -1086,7 +1086,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [{ inviteId: 'invite123' }] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' }},
+              { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/some-dest', { selectedClinicId: 'clinic123' }] } }
             ];
@@ -1175,7 +1175,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
+              { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/migrate', { selectedClinicId: 'clinicId123' } ] } }
             ];
@@ -1217,7 +1217,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
+              { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/migrate', { selectedClinicId: 'clinicId123' } ] } }
             ];
@@ -1352,7 +1352,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
+              { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace', { selectedClinicId: 'clinic123' }] } }
             ];
@@ -1407,7 +1407,7 @@ describe('Actions', () => {
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic456' } },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic456' } },
             { type: 'LOGIN_SUCCESS', payload: { user } },
             { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace', { selectedClinicId: 'clinic456' }] } }
           ];
@@ -1459,7 +1459,7 @@ describe('Actions', () => {
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' } },
             { type: 'LOGIN_SUCCESS', payload: { user } },
             { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace', { selectedClinicId: 'clinic123' }] } }
           ];
@@ -1678,7 +1678,7 @@ describe('Actions', () => {
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic456' } },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic456' } },
             { type: 'LOGIN_SUCCESS', payload: { user } },
             { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/newDestination', { selectedClinicId: 'clinic456' }] } }
           ];
@@ -5332,7 +5332,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_REQUEST' },
-          { type: 'SELECT_CLINIC', payload: { clinicId : 'new_clinic_id' } },
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId : 'new_clinic_id' } },
           { type: 'CREATE_CLINIC_SUCCESS', payload: { clinic : clinicReturn } },
           { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
           { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId, clinics } },
