@@ -12,7 +12,7 @@ const trackingActions = [
   ActionTypes.LOGIN_SUCCESS,
   ActionTypes.SELECT_CLINIC_SUCCESS,
   ActionTypes.DATA_WORKER_ADD_DATA_SUCCESS,
-  ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS,
+  ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
   ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS,
 ];
 
@@ -148,25 +148,25 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
             created: selectedClinic?.createdTime,
             country: selectedClinic?.country,
             clinicSize: selectedClinic?.clinicSize,
-            patientCount: null,
+            patientCount: selectedClinic?.patientCount,
             clinicianCount: null,
           },
         });
       }
       break;
     }
-    case ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
+    case ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS: {
       const {
         blip: { selectedClinicId },
       } = getState();
 
-      const { count, clinicId } = action.payload;
+      const { clinicId, patientCount } = action.payload;
 
       if (clinicId === selectedClinicId) {
         pendoAction({
           account: {
             id: clinicId,
-            patientCount: count,
+            patientCount,
           },
         });
       }
