@@ -31,6 +31,8 @@ module.exports = function karmaConfig(config) {
   const defaultConfig = {
     autoWatch: true,
     browserNoActivityTimeout: 60000,
+    browserDisconnectTimeout: 60000,
+    pingTimeout: 60000,
     browsers: ['CustomChromeHeadless'],
     captureTimeout: 60000,
     client: {
