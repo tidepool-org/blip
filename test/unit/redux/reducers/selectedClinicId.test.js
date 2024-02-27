@@ -36,7 +36,7 @@ describe('selectedClinicId', () => {
     it('should set state to clinicId', () => {
       let initialStateForTest = null;
 
-      let action = actions.async.selectClinic(api, 'clinicId123');
+      let action = actions.sync.selectClinicSuccess('clinicId123');
 
       let state = reducer(initialStateForTest, action);
 

@@ -7249,7 +7249,7 @@ describe('dataWorkerQueryData', () => {
     });
   });
 
-  describe('selectClinic', () => {
+  describe('selectClinicSuccess', () => {
     it('should reset `fetchingCliniciansFromClinic` to the default working state', () => {
       let initialStateForTest = _.merge({}, initialState, {
         fetchingCliniciansFromClinic: { inProgress: false, notification: {}, completed: true },
@@ -7257,7 +7257,7 @@ describe('dataWorkerQueryData', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.async.selectClinic(api, 'clinicId123');
+      let action = actions.sync.selectClinicSuccess('clinicId123');
       let state = reducer(initialStateForTest, action);
 
       expect(state.fetchingCliniciansFromClinic).to.eql({
@@ -7276,7 +7276,7 @@ describe('dataWorkerQueryData', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.async.selectClinic(api, 'clinicId123');
+      let action = actions.sync.selectClinicSuccess('clinicId123');
       let state = reducer(initialStateForTest, action);
 
       expect(state.fetchingPatientsForClinic).to.eql({
@@ -7295,7 +7295,7 @@ describe('dataWorkerQueryData', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.async.selectClinic(api, 'clinicId123');
+      let action = actions.sync.selectClinicSuccess('clinicId123');
       let state = reducer(initialStateForTest, action);
 
       expect(state.fetchingPatientInvites).to.eql({

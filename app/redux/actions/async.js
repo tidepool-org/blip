@@ -2875,18 +2875,18 @@ export function selectClinic(api, clinicId) {
   return (dispatch, getState) => {
     dispatch(sync.selectClinicSuccess(clinicId));
 
-    const { blip: { selectedClinicId = null, clinics = {} } } = getState();
-    const clinic = clinics[selectedClinicId];
+    const { blip: { clinics = {} } } = getState();
+    const clinic = clinics[clinicId];
 
     if (clinic) {
       const fetchers = {};
 
-      if (!clinics[clinicId].patientCount) {
+      if (_.isNil(clinics[clinicId].patientCount)) {
         fetchers.clinicPatientCount = api.clinics.getClinicPatientCount.bind(api, clinicId);
         dispatch(sync.fetchClinicPatientCountRequest());
       }
 
-      if (!clinics[clinicId].patientCountSettings) {
+      if (_.isNil(clinics[clinicId].patientCountSettings)) {
         fetchers.clinicPatientCountSettings = api.clinics.getClinicPatientCountSettings.bind(api, clinicId);
         dispatch(sync.fetchClinicPatientCountSettingsRequest());
       }

@@ -29,6 +29,8 @@ describe('NavigationMenu', () => {
       clinics: {
         getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
         getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
+        getClinicPatientCount: sinon.stub(),
+        getClinicPatientCountSettings: sinon.stub(),
       },
       user: {
         logout: sinon.stub(),
@@ -264,6 +266,8 @@ describe('NavigationMenu', () => {
             clinicId: 'clinicID456',
           },
         },
+        { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+        { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {

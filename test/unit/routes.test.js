@@ -1068,6 +1068,10 @@ describe('routes', () => {
             user: {
               isAuthenticated: sinon.stub().returns(true),
             },
+            clinics: {
+              getClinicPatientCount: sinon.stub(),
+              getClinicPatientCountSettings: sinon.stub(),
+            },
           };
 
           let store = mockStore({
@@ -1085,6 +1089,8 @@ describe('routes', () => {
 
           let expectedActions = [
             { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' } },
+            { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+            { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
             routeAction('/clinic-details'),
           ];
 
