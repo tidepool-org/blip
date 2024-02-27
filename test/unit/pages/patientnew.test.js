@@ -171,7 +171,6 @@ describe('PatientNew', function () {
     expect(dataDonateCheckbox().prop('checked')).to.equal(false);
     expect(dataDonateCheckbox().prop('disabled')).to.equal(false);
 
-    // const dataDonateDestination = () => wrapper.find('div#dataDonateDestination input#react-select-2-input');
     const dataDonateDestination = () => wrapper.find('MultiSelect input');
     expect(dataDonateDestination()).to.have.lengthOf(1);
     expect(dataDonateDestination().prop('value')).to.equal('');
