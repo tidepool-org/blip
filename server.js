@@ -32,7 +32,7 @@ const nonceMiddleware = (req, res, next) => {
   next();
 }
 
-app.use(helmet({ strictTransportSecurity: false }));
+app.use(helmet({ hsts: false, strictTransportSecurity: false }));
 
 app.use(nonceMiddleware, helmet.contentSecurityPolicy({
   directives: {
