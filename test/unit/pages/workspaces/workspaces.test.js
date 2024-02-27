@@ -1,6 +1,7 @@
 import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
+import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import Workspaces from '../../../../app/pages/workspaces';
@@ -121,12 +122,6 @@ describe('Workspaces', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       pendingReceivedClinicianInvites: [
@@ -176,12 +171,6 @@ describe('Workspaces', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
     }
@@ -208,12 +197,6 @@ describe('Workspaces', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
     }
@@ -282,7 +265,9 @@ describe('Workspaces', () => {
       return mount(
         <Provider store={store}>
           <ToastProvider>
-            <Workspaces {...props} />
+            <MemoryRouter initialEntries={['/workspaces']}>
+              <Route path='/workspaces' children={() => (<Workspaces {...props} />)} />
+            </MemoryRouter>
           </ToastProvider>
         </Provider>
       );
@@ -349,7 +334,7 @@ describe('Workspaces', () => {
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/clinic-details/new', { selectedClinicId: null }],
+            args: ['/clinic-details/new', { selectedClinicId: null, referrer: '/workspaces' }],
             method: 'push',
           },
         },

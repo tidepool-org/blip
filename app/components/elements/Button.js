@@ -73,7 +73,7 @@ export const Button = props => {
   if (icon) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
 
   return (
-    <Flex as={StyledButton} flexDirection={flexDirection} alignItems="center" justifyContent={justifyContent} {...buttonProps} className={`${classNames} ${className}`}>
+    <Flex as={StyledButton} flexDirection={flexDirection} alignItems="center" justifyContent={['center', justifyContent]} {...buttonProps} className={`${classNames} ${className}`}>
       <Box justifyContent="center">{children}</Box>
       {tag && (
         <Pill

@@ -716,4 +716,24 @@ describe('personutils', () => {
       });
     });
   });
+
+  describe('splitNamesFromFullname', () => {
+    it('should split a fullName string into first and last name parts', () => {
+      expect(personUtils.splitNamesFromFullname('Test Van der Name')).to.eql({
+        firstName: 'Test',
+        lastName: 'Van der Name',
+      });
+    });
+  });
+
+  describe('fullnameFromSplitNames', () => {
+    it('should split a fullName string into first and last name parts', () => {
+      it('should split a fullName string into first and last name parts', () => {
+        expect(personUtils.fullnameFromSplitNames({
+          firstName: 'Test',
+          lastName: 'Van der Name',
+        })).to.eql('Test Van der Name');
+      });
+    });
+  });
 });
