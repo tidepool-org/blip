@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.75.0",
+  "version": "1.76.0-web-2763-pendo-patient-count.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/karma/bin/karma start",
