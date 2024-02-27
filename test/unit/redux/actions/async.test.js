@@ -433,7 +433,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
           { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients/new' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -689,7 +689,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
           { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/profile', { selectedClinicId: null } ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients/new', { selectedClinicId: null } ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5251,7 +5251,6 @@ describe('Actions', () => {
             id: '5f85fbe6686e6bb9170ab5d0',
             address: '1 Address Ln, City Zip',
             name: 'Clinic1',
-            phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
           },
         ];
 
@@ -5387,7 +5386,6 @@ describe('Actions', () => {
           id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let api = {
@@ -5452,14 +5450,12 @@ describe('Actions', () => {
           id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let clinic2 = {
           id: '12f2f123s2e1f1f3s2e11535',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let api = {
@@ -5504,14 +5500,12 @@ describe('Actions', () => {
           id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let clinic2 = {
           id: '12f2f123s2e1f1f3s2e11535',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let api = {
@@ -6181,7 +6175,6 @@ describe('Actions', () => {
           id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let api = {
@@ -7881,7 +7874,6 @@ describe('Actions', () => {
               id: '5f85fbe6686e6bb9170ab5d0',
               address: '1 Address Ln, City Zip',
               name: 'Clinic1',
-              phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
             },
             clinician: {
               id: 'clinicianId1'

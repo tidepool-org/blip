@@ -174,6 +174,21 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           padding: `${space[2]}px`,
         },
       },
+      multi: {
+        ...selects,
+      },
+      ultraCondensed: {
+        ...selects,
+        fontSize: fontSizes[0],
+        select: {
+          px: `${space[2]}px`,
+          py: `${space[0]}px`,
+        },
+        '.MuiSvgIcon-root': {
+          right: `${space[1]}px !important`,
+          fontSize: '1rem',
+        },
+      },
     },
     checkboxes: {
       default: {

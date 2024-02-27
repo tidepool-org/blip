@@ -4,9 +4,10 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
     fontWeight: fontWeights.regular,
     lineHeight: 0,
     fontFamily: fonts.default,
-    padding: `${space[2]}px ${space[3]}px`,
+    padding: `${space[2]}px ${space[4]}px`,
     height: 'auto',
     cursor: 'pointer',
+    flex: [1, 'initial'],
 
     '.icon': {
       fontSize: '1.125em',
@@ -82,6 +83,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
   return {
     primary: {
       ...defaultStyles,
+      flex: [2, 'initial'],
       backgroundColor: colors.purpleMedium,
       border: borders.input,
       borderColor: colors.purpleMedium,

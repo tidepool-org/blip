@@ -55,7 +55,6 @@ describe('pendoMiddleware', () => {
       tier: 'tier0200',
       createdTime: '2022-01-01T00:00:00.000Z',
       country: 'US',
-      clinicSize: '>1000',
     },
     clinicID987: {
       id: 'clinicID987',
@@ -64,7 +63,6 @@ describe('pendoMiddleware', () => {
       tier: 'tier0100',
       createdTime: '2022-01-01T00:00:00.000Z',
       country: 'CA',
-      clinicSize: '0-249',
     },
   }
 
@@ -472,7 +470,6 @@ describe('pendoMiddleware', () => {
       account: {
         clinic: 'Other Mock Clinic',
         id: 'clinicID987',
-        clinicSize: '0-249',
         clinicianCount: null,
         country: 'CA',
         created: '2022-01-01T00:00:00.000Z',
@@ -516,7 +513,6 @@ describe('pendoMiddleware', () => {
         tier: null,
         created: null,
         country: null,
-        clinicSize: null,
         patientCount: null,
         clinicianCount: null,
       },
