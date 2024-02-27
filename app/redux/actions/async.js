@@ -2891,20 +2891,19 @@ export function selectClinic(api, clinicId) {
         dispatch(sync.fetchClinicPatientCountSettingsRequest());
       }
 
-
       async.parallel(async.reflectAll(fetchers), (err, results) => {
         const errors = _.mapValues(results, ({error}) => error);
         const values = _.mapValues(results, ({value}) => value);
 
         if (errors?.clinicPatientCount) {
-          dispatch(sync.fetchClinicPatientCountError(
-            createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, err), err
+          dispatch(sync.fetchClinicPatientCountFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, errors.clinicPatientCount), errors.clinicPatientCount
           ));
         }
 
         if (errors?.clinicPatientCountSettings) {
-          dispatch(sync.fetchClinicPatientCountSettingsError(
-            createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS, err), err
+          dispatch(sync.fetchClinicPatientCountSettingsFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS, errors.clinicPatientCountSettings), errors.clinicPatientCountSettings
           ));
         }
 

@@ -2325,10 +2325,13 @@ export function fetchClinicPatientCountSuccess(clinicId, results) {
   };
 }
 
-export function fetchClinicPatientCountFailure(error) {
+export function fetchClinicPatientCountFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_FAILURE,
     error,
+    meta: {
+      apiError: apiError || null,
+    },
   };
 }
 
@@ -2348,9 +2351,12 @@ export function fetchClinicPatientCountSettingsSuccess(clinicId, patientCountSet
   };
 }
 
-export function fetchClinicPatientCountSettingsFailure(error) {
+export function fetchClinicPatientCountSettingsFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE,
     error,
+    meta: {
+      apiError: apiError || null,
+    },
   };
 }

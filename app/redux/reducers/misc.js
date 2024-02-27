@@ -811,14 +811,19 @@ export const clinics = (state = initialState.clinics, action) => {
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
       let fetchedPatientCount = state[clinicId].fetchedPatientCount;
+      let patientCount = state[clinicId].patientCount;
 
       // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
       // list for easy visibility of the newly created patient.
       const existingSortIndex = state[clinicId]?.patients?.[patientId]?.sortIndex || -1;
 
-      if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) fetchedPatientCount++;
+      if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) {
+        fetchedPatientCount++;
+        patientCount++;
+      }
+
       return update(state, {
-        [clinicId]: { patients: { [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } }, fetchedPatientCount: { $set: fetchedPatientCount } },
+        [clinicId]: { patients: { [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } }, fetchedPatientCount: { $set: fetchedPatientCount }, patientCount: { $set: patientCount } },
       });
     }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
@@ -834,6 +839,7 @@ export const clinics = (state = initialState.clinics, action) => {
       let newState = _.cloneDeep(state);
       delete newState[clinicId]?.patients?.[patientId];
       if (newState[clinicId]?.fetchedPatientCount) newState[clinicId].fetchedPatientCount--;
+      if (newState[clinicId]?.patientCount) newState[clinicId].patientCount--;
       return newState;
     }
     case types.SEND_CLINICIAN_INVITE_SUCCESS: {
