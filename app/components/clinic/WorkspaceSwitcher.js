@@ -26,7 +26,7 @@ import Popover from '../elements/Popover';
 import { colors } from '../../themes/baseTheme';
 
 export const WorkspaceSwitcher = props => {
-  const { t, trackMetric } = props;
+  const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
@@ -77,7 +77,7 @@ export const WorkspaceSwitcher = props => {
 
   const handleSelect = option => {
     trackMetric(...option.metric);
-    dispatch(actions.sync.selectClinic(option.id));
+    dispatch(actions.async.selectClinic(api, option.id));
     dispatch(push(option.id ? '/clinic-workspace' : '/patients', { selectedClinicId: option.id }));
     popupState.close();
   };

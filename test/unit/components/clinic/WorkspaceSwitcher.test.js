@@ -29,6 +29,8 @@ describe('WorkspaceSwitcher', () => {
       clinics: {
         getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
         getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
+        getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 3 }),
+        getClinicPatientCountSettings: sinon.stub().callsArgWith(1, null, 'success'),
       },
     },
   };
@@ -208,7 +210,7 @@ describe('WorkspaceSwitcher', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null, // null is appropriate for switch to private workspace
           },
@@ -228,9 +230,29 @@ describe('WorkspaceSwitcher', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
+          },
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST'
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST'
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCount: 3,
+          }
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCountSettings: 'success',
           },
         },
         {

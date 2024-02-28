@@ -35,6 +35,8 @@ describe('Workspaces', () => {
         acceptClinicianInvite: sinon.stub().callsArgWith(2, null, { acceptInvite: 'success' }),
         dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
         getCliniciansFromClinic: sinon.stub().callsArgWith(2, null, { cliniciansReturn: 'success' }),
+        getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 3 }),
+        getClinicPatientCountSettings: sinon.stub().callsArgWith(1, null, 'success'),
       },
     },
   };
@@ -328,7 +330,7 @@ describe('Workspaces', () => {
       store.clearActions();
       button.simulate('click');
       expect(store.getActions()).to.eql([
-        { type: 'SELECT_CLINIC', payload: { clinicId: null } },
+        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: null } },
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
@@ -376,9 +378,29 @@ describe('Workspaces', () => {
       navigateButton.simulate('click');
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
+          },
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST',
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST',
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCount: 3,
+          },
+        },
+        {
+         type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCountSettings: 'success',
           },
         },
         {

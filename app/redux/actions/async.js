@@ -293,7 +293,7 @@ export function login(api, credentials, options, postLoginAction) {
                   // internal route, such as on page refresh, dispatch the selectClinic action so
                   // that middlewares (currently Pendo and LaunchDarkly) can react to it.
                   if (userHasClinicProfile && selectedClinicId && hasDest) {
-                    dispatch(sync.selectClinic(selectedClinicId));
+                    dispatch(selectClinic(api, selectedClinicId));
                   }
 
                   // If we have an empty clinic profile, go to clinic details, otherwise workspaces
@@ -306,12 +306,12 @@ export function login(api, credentials, options, postLoginAction) {
                     if (values.clinics.length === 1) {
                       selectedClinicId = values.clinics[0]?.clinic?.id;
                     }
-                    dispatch(sync.selectClinic(selectedClinicId));
+                    dispatch(selectClinic(api, selectedClinicId));
                     setRedirectRoute(routes.clinicWorkspace, selectedClinicId);
                   } else {
                     // If we have an empty clinic object, go to clinic details, otherwise workspaces
                     if (hasLegacyClinicRole && clinicMigration) {
-                      dispatch(sync.selectClinic(clinicMigration.clinic?.id));
+                      dispatch(selectClinic(api, clinicMigration.clinic?.id));
                       setRedirectRoute(`${routes.clinicDetails}/migrate`, values.clinics[0]?.clinic?.id);
                     } else {
                       setRedirectRoute(routes.workspaces);
@@ -1812,7 +1812,7 @@ export function createClinic(api, clinic, clinicianId) {
           )
         );
       } else {
-        dispatch(sync.selectClinic(clinic.id));
+        dispatch(selectClinic(api, clinic.id));
         dispatch(sync.createClinicSuccess(clinic));
         dispatch(getClinicsForClinician(api, clinicianId, { limit: 1000, offset: 0 }));
       }
@@ -2852,5 +2852,62 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
         dispatch(sync.fetchTideDashboardPatientsSuccess(results));
       }
     });
+  };
+}
+
+/**
+ * Select Clinic Action Creator
+ *
+ * Immediately sets or unsets the selected clinic to state,
+ * then fetches additional clinic metadata asynchronously.
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String | null} clinicId - Id of the clinic, or null do unset
+ */
+export function selectClinic(api, clinicId) {
+  return (dispatch, getState) => {
+    dispatch(sync.selectClinicSuccess(clinicId));
+
+    const { blip: { clinics = {} } } = getState();
+    const clinic = clinics[clinicId];
+
+    if (clinic) {
+      const fetchers = {};
+
+      if (_.isNil(clinics[clinicId].patientCount)) {
+        fetchers.clinicPatientCount = api.clinics.getClinicPatientCount.bind(api, clinicId);
+        dispatch(sync.fetchClinicPatientCountRequest());
+      }
+
+      if (_.isNil(clinics[clinicId].patientCountSettings)) {
+        fetchers.clinicPatientCountSettings = api.clinics.getClinicPatientCountSettings.bind(api, clinicId);
+        dispatch(sync.fetchClinicPatientCountSettingsRequest());
+      }
+
+      async.parallel(async.reflectAll(fetchers), (err, results) => {
+        const errors = _.mapValues(results, ({error}) => error);
+        const values = _.mapValues(results, ({value}) => value);
+
+        if (errors?.clinicPatientCount) {
+          dispatch(sync.fetchClinicPatientCountFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, errors.clinicPatientCount), errors.clinicPatientCount
+          ));
+        }
+
+        if (errors?.clinicPatientCountSettings) {
+          dispatch(sync.fetchClinicPatientCountSettingsFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS, errors.clinicPatientCountSettings), errors.clinicPatientCountSettings
+          ));
+        }
+
+        if (values.clinicPatientCount) {
+          dispatch(sync.fetchClinicPatientCountSuccess(clinicId, values.clinicPatientCount));
+        }
+
+        if (values.clinicPatientCountSettings) {
+          dispatch(sync.fetchClinicPatientCountSettingsSuccess(clinicId, values.clinicPatientCountSettings));
+        }
+      });
+    }
   };
 }

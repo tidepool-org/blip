@@ -30,6 +30,9 @@ const environments = {
   dev: 'https://dev1.dev.tidepool.org',
   qa1: 'https://qa1.development.tidepool.org',
   qa2: 'https://qa2.development.tidepool.org',
+  qa3: 'https://qa3.development.tidepool.org',
+  qa4: 'https://qa4.development.tidepool.org',
+  qa5: 'https://qa5.development.tidepool.org',
   int: 'https://int-app.tidepool.org',
   prd: 'https://app.tidepool.org',
 };
