@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,6 +20,8 @@ import {
 import Button from '../elements/Button';
 import Icon from '../elements/Icon';
 
+import { clinicUIDetails } from '../../core/clinicUtils';
+
 const { ClipboardButton } = vizComponents;
 
 export const ClinicWorkspaceHeader = (props) => {
@@ -33,6 +35,11 @@ export const ClinicWorkspaceHeader = (props) => {
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
   const isClinicProfilePath = pathname.indexOf('/clinic-profile') === 0;
+  const [uiDetails, setUIDetails] = useState();
+
+  useEffect(() => {
+    setUIDetails(clinicUIDetails(clinic))
+  }, [clinic?.id, clinic?.country, clinic?.patientCount, clinic?.patientCountSettings])
 
   const buttonText = useMemo(() =>
     <Icon

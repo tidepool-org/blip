@@ -2,6 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import isNumber from 'lodash/isNumber';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import moment from 'moment';
@@ -77,7 +78,137 @@ export const summaryPeriodOptions = [
 
 export const maxClinicPatientTags = 50;
 
-export const clinicValuesFromClinic = (clinic) => ({
+export const clinicPlansNames = {
+  base: t('Base'),
+  activeSalesBase: t('Base'),
+  honoredBase: t('Base'),
+  internationalBase: t('Base'),
+  essential: t('Essential'),
+  professional: t('Professional'),
+  enterprise: t('Enterprise'),
+}
+
+export const clinicTierDetails = (clinic = {}) => {
+  const {
+    tier = 'tier0100',
+    country,
+    patientCountSettings = {},
+  } = clinic;
+
+  const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
+  const hardLimitStartDateIsFuture = moment.isDate(hardLimitStartDate) && moment(hardLimitStartDate).isAfter();
+  const isBaseTier = tier.indexOf('tier01') === 0;
+  const isInActiveSalesConversation = isNumber(patientCountSettings?.softLimit?.patientCount) && !patientCountSettings?.hardLimit?.patientCount;
+  const isOUS = country !== 'US';
+  const isHonoredBaseClinic = !isOUS && (!hardLimitStartDate || hardLimitStartDateIsFuture);
+
+  let activeTier = tier;
+
+  // Handle various base tier clinic states
+  if (isBaseTier) {
+    if (isOUS) {
+      // Ensure OUS clinics render as international plan
+      activeTier = 'tier0101';
+    } else if (isInActiveSalesConversation) {
+      // Ensure clinics in active sales conversations render as activeSalesBase plan
+      activeTier = 'tier0103';
+    } else if (isHonoredBaseClinic) {
+      // Ensure Honored Base clinics render as hononored plan
+      activeTier = 'tier0102';
+    }
+  }
+
+  const entitlements = {
+    showRpmReport: false,
+    showSummaryDashboard: false,
+    showTideDashboard: false,
+  };
+
+  const display = {
+    planName: true,
+    patientCount: true,
+    patientLimit: false,
+    workspacePlan: false,
+  };
+
+  const details = {
+    patientLimitEnforced: false,
+    display,
+    entitlements,
+  };
+
+  const tierSpecificOverrides = {
+    tier0100: {
+      planName: 'base',
+      patientLimitEnforced: true,
+      display: { ...display, patientLimit: true, workspacePlan: true },
+    },
+    tier0101: {
+      planName: 'internationalBase',
+      display: { ...display, planName: false },
+    },
+    tier0102: {
+      planName: 'honoredBase',
+      display: { ...display, workspacePlan: true },
+    },
+    tier0103: {
+      planName: 'activeSalesBase',
+      display: { ...display, workspacePlan: true },
+    },
+    tier0200: {
+      planName: 'essential',
+    },
+    tier0201: {
+      planName: 'essential',
+      entitlements: { ...entitlements, showSummaryDashboard: true },
+    },
+    tier0202: {
+      planName: 'professional',
+      entitlements: { ...entitlements, showSummaryDashboard: true },
+    },
+    tier0300: {
+      planName: 'professional',
+      entitlements: { ...entitlements, showSummaryDashboard: true },
+    },
+    tier0301: {
+      planName: 'professional',
+      entitlements: { showRpmReport: true, showSummaryDashboard: true, showTideDashboard: true },
+    },
+    tier0302: {
+      planName: 'professional',
+      entitlements: { ...entitlements, showRpmReport: true, showSummaryDashboard: true },
+    },
+    tier0303: {
+      planName: 'professional',
+      entitlements: { showRpmReport: true, showSummaryDashboard: true, showTideDashboard: true },
+    },
+    tier0400: {
+      planName: 'enterprise',
+      entitlements: { showRpmReport: true, showSummaryDashboard: true, showTideDashboard: true },
+    },
+  };
+
+  return {
+    ...details,
+    ...tierSpecificOverrides[activeTier],
+  }
+};
+
+export const clinicUIDetails = clinic => {
+  const tierDetails = clinicTierDetails(clinic);
+
+  const details = {
+    ...tierDetails,
+    text: {
+      planDisplayName: clinicPlansNames[tierDetails.planName],
+    }
+  }
+
+  console.log('details', details);
+  return details;
+};
+
+export const clinicValuesFromClinic = clinic => ({
   name: get(clinic, 'name', ''),
   address: get(clinic, 'address', ''),
   city: get(clinic, 'city', ''),
@@ -150,7 +281,7 @@ export const clinicPatientTagSchema = yup.object().shape({
  * const schema = patientSchema({ mrnSettings:{ required: true } });
  *
  */
-export const patientSchema = (config) => {
+export const patientSchema = config => {
   let mrnSchema = yup
     .string()
     .matches(/^$|^[A-Z0-9]{6,25}$/, () => (
