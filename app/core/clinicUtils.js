@@ -11,7 +11,14 @@ import countries from 'i18n-iso-countries';
 import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
-import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
+
+import {
+  CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+  DEFAULT_CLINIC_TIER,
+  DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+  MGDL_UNITS,
+  MMOLL_UNITS,
+} from '../core/constants';
 
 const t = i18next.t.bind(i18next);
 
@@ -90,7 +97,7 @@ export const clinicPlansNames = {
 
 export const clinicTierDetails = (clinic = {}) => {
   const {
-    tier = 'tier0100',
+    tier = DEFAULT_CLINIC_TIER,
     country,
     patientCountSettings = {},
   } = clinic;
@@ -194,17 +201,30 @@ export const clinicTierDetails = (clinic = {}) => {
   }
 };
 
-export const clinicUIDetails = clinic => {
+export const clinicUIDetails = (clinic = {}) => {
   const tierDetails = clinicTierDetails(clinic);
+  const { patientCount, patientCountSettings } = clinic;
+  const patientCountHardLimit = patientCountSettings?.hardLimit?.patientCount;
+
+  const warnings = {
+    limitReached: false,
+    limitApproaching: false,
+  };
+
+  if (tierDetails.patientLimitEnforced) {
+    const limit = patientCountHardLimit || DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT;
+    warnings.limitReached = patientCount >= limit;
+    warnings.limitApproaching = limit - patientCount <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
+  }
 
   const details = {
     ...tierDetails,
     text: {
       planDisplayName: clinicPlansNames[tierDetails.planName],
-    }
+    },
+    warnings,
   }
 
-  console.log('details', details);
   return details;
 };
 

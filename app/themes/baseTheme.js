@@ -42,7 +42,7 @@ export const colors = {
   },
   feedback: {
     info: colorPalette.primary.purpleMedium,
-    warning: '#FFC400',
+    warning: '#A35700',
     danger: '#EC4C47',
     success: '#47B881',
   },
