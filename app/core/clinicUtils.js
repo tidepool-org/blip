@@ -203,7 +203,7 @@ export const clinicTierDetails = (clinic = {}) => {
 };
 
 export const clinicUIDetails = (clinic = {}) => {
-  const tierDetails = clinicTierDetails(clinic);
+  const { display, ...tierDetails } = clinicTierDetails(clinic);
   const { patientCount, patientCountSettings } = clinic;
   const patientCountHardLimit = patientCountSettings?.hardLimit?.patientCount;
 
@@ -220,10 +220,13 @@ export const clinicUIDetails = (clinic = {}) => {
 
   const details = {
     ...tierDetails,
-    text: {
-      planDisplayName: clinicPlansNames[tierDetails.planName],
-    },
-    warnings,
+    ui: {
+      display,
+      text: {
+        planDisplayName: clinicPlansNames[tierDetails.planName],
+      },
+      warnings,
+    }
   }
 
   return details;

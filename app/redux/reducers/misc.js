@@ -992,7 +992,7 @@ export const clinics = (state = initialState.clinics, action) => {
       const { clinicId, uiDetails } = action.payload;
 
       return update(state, {
-        [clinicId]: { uiDetails: { $set: uiDetails } },
+        [clinicId]: { $set: { ...state[clinicId], ...uiDetails } },
       });
     }
     case types.LOGOUT_REQUEST:

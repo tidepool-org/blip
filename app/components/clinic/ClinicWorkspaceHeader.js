@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
-import isFinite from 'lodash/isFinite'
-import isPlainObject from 'lodash/isPlainObject'
 import { Box, Flex, Text, Link, BoxProps } from 'rebass/styled-components';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
@@ -18,7 +16,6 @@ import { Caption } from '../elements/FontStyles';
 import Button from '../elements/Button';
 import Icon from '../elements/Icon';
 import Pill from '../elements/Pill';
-import { clinicUIDetails } from '../../core/clinicUtils';
 import { URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
 
 const { ClipboardButton } = vizComponents;
@@ -30,7 +27,6 @@ export const ClinicWorkspaceHeader = (props) => {
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = get(clinics, selectedClinicId);
-  const uiDetails = clinic?.uiDetails;
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
 
   const buttonText = useMemo(() =>
@@ -135,12 +131,12 @@ export const ClinicWorkspaceHeader = (props) => {
             </Flex>
           </Flex>
 
-          {uiDetails && (
+          {clinic?.ui && (
             <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 0, alignItems: 'flex-end' }}>
               <Caption>{t('Plan:')}</Caption>
               <Box>
                 <Pill
-                  text={uiDetails.text.planDisplayName}
+                  text={clinic?.ui.text.planDisplayName}
                   label={t('plan name')}
                   colorPalette="primaryText"
                   condensed
@@ -149,20 +145,20 @@ export const ClinicWorkspaceHeader = (props) => {
             </Flex>
           )}
 
-          {uiDetails && (
+          {clinic?.ui && (
             <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 0, alignItems: 'flex-end' }}>
               <Caption>{t('Patient Accounts:')}</Caption>
               <Box>
                 <Pill
-                  text={`${clinic.patientCount}${uiDetails.display.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
-                  icon={uiDetails.warnings.limitReached ? WarningRoundedIcon : null}
+                  text={`${clinic.patientCount}${clinic?.ui.display.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
+                  icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
                   label={t('Patient Count')}
-                  colorPalette={uiDetails.warnings.limitReached || uiDetails.warnings.limitApproaching ? 'warning' : 'transparent'}
+                  colorPalette={clinic?.ui.warnings.limitReached || clinic?.ui.warnings.limitApproaching ? 'warning' : 'transparent'}
                   condensed
                 />
 
-                {uiDetails.display.patientLimit && !uiDetails.warnings.limitReached && (
-                  <Box sx={{ position: 'relative', top: uiDetails.warnings.limitApproaching ? 0 : '-2px' }}>
+                {clinic?.ui.display.patientLimit && !clinic?.ui.warnings.limitReached && (
+                  <Box sx={{ position: 'relative', top: clinic?.ui.warnings.limitApproaching ? 0 : '-2px' }}>
                     <Box
                       sx={{
                         width: '100%',
@@ -179,7 +175,7 @@ export const ClinicWorkspaceHeader = (props) => {
                         width: `${clinic.patientCount / clinic.patientCountSettings?.hardLimit?.patientCount * 100}%`,
                         minWidth: '3px',
                         height: '2px',
-                        bg: uiDetails.warnings.limitApproaching ? 'feedback.warning' : 'purpleMedium',
+                        bg: clinic?.ui.warnings.limitApproaching ? 'feedback.warning' : 'purpleMedium',
                         position: 'absolute',
                         zIndex: 1,
                         borderRadius: 'full',
@@ -189,7 +185,7 @@ export const ClinicWorkspaceHeader = (props) => {
                 )}
               </Box>
 
-              {(uiDetails?.warnings?.limitApproaching || uiDetails?.warnings?.limitReached) && (
+              {(clinic?.ui?.warnings?.limitApproaching || clinic?.ui?.warnings?.limitReached) && (
                 <Link
                   href={URL_TIDEPOOL_PLUS_PLANS}
                   target="_blank"

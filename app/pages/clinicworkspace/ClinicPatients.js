@@ -465,8 +465,8 @@ export const ClinicPatients = (props) => {
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const { showSummaryDashboard, showTideDashboard } = useFlags();
-  let showSummaryData = showSummaryDashboard || (clinic?.tier >= 'tier0300');
-  const showTideDashboardUI = showSummaryData && showTideDashboard;
+  let showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
+  const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
 
   const defaultPatientFetchOptions = useMemo(
     () => ({
