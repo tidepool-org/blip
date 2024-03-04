@@ -30,14 +30,8 @@ export const ClinicWorkspaceHeader = (props) => {
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = get(clinics, selectedClinicId);
+  const uiDetails = clinic?.uiDetails;
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
-  const [uiDetails, setUIDetails] = useState();
-
-  useEffect(() => {
-    if (isFinite(clinic?.patientCount) && isPlainObject(clinic?.patientCountSettings)) {
-      setUIDetails(clinicUIDetails(clinic))
-    }
-  }, [clinic?.id, clinic?.country, clinic?.patientCount, clinic?.patientCountSettings])
 
   const buttonText = useMemo(() =>
     <Icon

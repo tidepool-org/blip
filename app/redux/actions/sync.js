@@ -2360,3 +2360,13 @@ export function fetchClinicPatientCountSettingsFailure(error, apiError) {
     },
   };
 }
+
+export function setClinicUIDetails(clinicId, uiDetails) {
+  return {
+    type: ActionTypes.SET_CLINIC_UI_DETAILS,
+    payload: {
+      clinicId: clinicId,
+      uiDetails: uiDetails,
+    },
+  };
+}

@@ -988,6 +988,13 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { patientCountSettings: { $set: patientCountSettings } },
       });
     }
+    case types.SET_CLINIC_UI_DETAILS: {
+      const { clinicId, uiDetails } = action.payload;
+
+      return update(state, {
+        [clinicId]: { uiDetails: { $set: uiDetails } },
+      });
+    }
     case types.LOGOUT_REQUEST:
       return initialState.clinics;
     default:

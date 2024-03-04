@@ -16,6 +16,7 @@ import { worker } from '.';
 
 import utils from '../../core/utils';
 import mockTideDashboardPatients from '../../../test/fixtures/mockTideDashboardPatients.json';
+import { clinicUIDetails } from '../../core/clinicUtils.js';
 
 let win = window;
 
@@ -2885,6 +2886,7 @@ export function selectClinic(api, clinicId) {
       }
 
       async.parallel(async.reflectAll(fetchers), (err, results) => {
+        const selectedClinic = { ...clinic };
         const errors = _.mapValues(results, ({error}) => error);
         const values = _.mapValues(results, ({value}) => value);
 
@@ -2902,10 +2904,16 @@ export function selectClinic(api, clinicId) {
 
         if (values.clinicPatientCount) {
           dispatch(sync.fetchClinicPatientCountSuccess(clinicId, values.clinicPatientCount));
+          selectedClinic.patientCount = values.clinicPatientCount?.patientCount;
         }
 
         if (values.clinicPatientCountSettings) {
           dispatch(sync.fetchClinicPatientCountSettingsSuccess(clinicId, values.clinicPatientCountSettings));
+          selectedClinic.patientCountSettings = values.clinicPatientCountSettings;
+        }
+
+        if (_.isFinite(selectedClinic.patientCount) && _.isPlainObject(selectedClinic.patientCountSettings)) {
+          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(selectedClinic)));
         }
       });
     }
