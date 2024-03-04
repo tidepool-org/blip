@@ -126,9 +126,10 @@ export const clinicTierDetails = (clinic = {}) => {
   }
 
   const entitlements = {
-    showRpmReport: false,
-    showSummaryDashboard: false,
-    showTideDashboard: false,
+    rpmReport: false,
+    summaryDashboard: false,
+    tideDashboard: false,
+    patientTags: false,
   };
 
   const display = {
@@ -167,31 +168,31 @@ export const clinicTierDetails = (clinic = {}) => {
     },
     tier0201: {
       planName: 'essential',
-      entitlements: { ...entitlements, showSummaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
     },
     tier0202: {
       planName: 'professional',
-      entitlements: { ...entitlements, showSummaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
     },
     tier0300: {
       planName: 'professional',
-      entitlements: { ...entitlements, showSummaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
     },
     tier0301: {
       planName: 'professional',
-      entitlements: { showRpmReport: true, showSummaryDashboard: true, showTideDashboard: true },
+      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0302: {
       planName: 'professional',
-      entitlements: { ...entitlements, showRpmReport: true, showSummaryDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true },
     },
     tier0303: {
       planName: 'professional',
-      entitlements: { showRpmReport: true, showSummaryDashboard: true, showTideDashboard: true },
+      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0400: {
       planName: 'enterprise',
-      entitlements: { showRpmReport: true, showSummaryDashboard: true, showTideDashboard: true },
+      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
     },
   };
 
