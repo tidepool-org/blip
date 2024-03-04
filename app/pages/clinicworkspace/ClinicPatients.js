@@ -896,14 +896,6 @@ export const ClinicPatients = (props) => {
     if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
   }, [fetchingPatientFromClinic]);
 
-  const renderInfoPopover = () => (
-    <Box px={4} py={3} maxWidth="600px">
-      <Trans id="summary-stat-info" i18nKey="html.summary-stat-info">
-        <Paragraph1><strong>Warning:</strong> % CGM Use, GMI, and % Time in Range may not match the patient profile if older data is added after the summary statistics have already been calculated.</Paragraph1>
-      </Trans>
-    </Box>
-  );
-
   const handleRefreshPatients = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
     let fetchOptions = { ...patientFetchOptions };
@@ -1799,29 +1791,6 @@ export const ClinicPatients = (props) => {
                     popoverContent={(
                       <Body1 p={3} id="last-refresh-time-ago" fontSize={1}>{timeAgoMessage}</Body1>
                     )}
-                    popoverProps={{
-                      anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                      },
-                      transformOrigin: {
-                        vertical: 'top',
-                        horizontal: 'center',
-                      },
-                      width: 'auto',
-                    }}
-                    triggerOnHover
-                  />
-
-                  <PopoverLabel
-                    id="summary-stat-info"
-                    iconLabel={t('Summary stat info')}
-                    icon={InfoOutlinedIcon}
-                    iconProps={{
-                      id: 'summary-stat-info-trigger',
-                      fontSize: '18px',
-                    }}
-                    popoverContent={renderInfoPopover()}
                     popoverProps={{
                       anchorOrigin: {
                         vertical: 'bottom',
