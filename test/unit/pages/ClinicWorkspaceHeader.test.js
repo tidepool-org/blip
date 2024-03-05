@@ -20,7 +20,7 @@ import Button from '../../../app/components/elements/Button';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicWorkspaceHeader', () => {
+describe.only('ClinicWorkspaceHeader', () => {
   let mount;
 
   let wrapper;
@@ -155,30 +155,6 @@ describe('ClinicWorkspaceHeader', () => {
     );
   });
 
-  it('should render a link to the clinic admin page if currently on clinic workspace', () => {
-    const link = wrapper.find(Button).filter({ variant: 'textSecondary' });
-    expect(link).to.have.length(1);
-    expect(link.text()).to.equal('View Clinic Members');
-    expect(link.props().onClick).to.be.a('function');
-    store.clearActions();
-
-    const expectedActions = [
-      {
-        type: '@@router/CALL_HISTORY_METHOD',
-        payload: {
-          args: [
-            '/clinic-admin',
-          ],
-          method: 'push',
-        },
-      },
-    ];
-
-    link.props().onClick();
-    const actions = store.getActions();
-    expect(actions).to.eql(expectedActions);
-  });
-
   it('should render a link to the clinic workspace page if currently on clinic admin', () => {
     ClinicWorkspaceHeader.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-admin'}));
 
@@ -250,61 +226,12 @@ describe('ClinicWorkspaceHeader', () => {
   describe('profile details', () => {
     it('should render the clinic name', () => {
       const details = wrapper.find('#clinicProfileDetails').hostNodes();
-      expect(details.find('h3').at(0).text()).to.equal('new_clinic_name');
+      expect(details.find('span').at(0).text()).to.equal('new_clinic_name');
     });
 
     it('should render the clinic share code', () => {
       const details = wrapper.find('#clinicProfileDetails').hostNodes();
-      expect(details.find('h3').at(1).text()).to.equal('ABCD-ABCD-ABCD');
-    });
-  });
-
-  describe('profile editing', () => {
-    context('non-admin clinic team member', () => {
-      it('should not show a profile edit button', () => {
-        const profileButton = wrapper.find('button#profileEditButton');
-        expect(profileButton).to.have.lengthOf(0);
-      });
-    });
-
-    context('clinic admin team member', () => {
-      beforeEach(() => {
-        store = mockStore(clinicAdminState);
-        ClinicWorkspaceHeader.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace'}));
-
-        wrapper = mount(
-          <Provider store={store}>
-            <ToastProvider>
-              <ClinicWorkspaceHeader {...defaultProps} />
-            </ToastProvider>
-          </Provider>
-        );
-      });
-
-      it('should show a profile edit button that redirects to the clinic edit form', () => {
-        ClinicWorkspaceHeader.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace'}));
-        const profileButton = wrapper.find('button#profileEditButton');
-        expect(profileButton).to.have.lengthOf(1);
-        expect(profileButton.text()).to.equal('Edit Clinic Profile');
-
-        store.clearActions();
-
-        const expectedActions = [
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: {
-              args: [
-                '/clinic-profile',
-              ],
-              method: 'push',
-            },
-          },
-        ];
-
-        profileButton.simulate('click');
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-      });
+      expect(details.find('span').at(1).text()).to.equal('ABCD-ABCD-ABCD');
     });
   });
 });

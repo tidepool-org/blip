@@ -113,9 +113,10 @@ describe('clinics', () => {
   });
 
   describe('acceptPatientInvitationSuccess', () => {
-    it('should remove the patient invites from a clinic', () => {
+    it('should remove the patient invites from a clinic and increase the patientCount', () => {
       let initialStateForTest = {
         clinicId123: {
+          patientCount: 2,
           patientInvites: {
             patientId123: { key: 'patientId123' },
             patientId456: { key: 'patientId456' },
@@ -129,6 +130,7 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state[clinic.id].patientInvites.patientId123).to.be.undefined;
       expect(state[clinic.id].patientInvites.patientId456).to.eql({ key: 'patientId456' });
+      expect(state[clinic.id].patientCount).to.equal(3);
     });
   });
 

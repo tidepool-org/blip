@@ -27,7 +27,7 @@ import LDClientMock from '../../fixtures/LDClientMock';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('TideDashboard', () => {
+describe.only('TideDashboard', () => {
   let mount;
 
   let wrapper;

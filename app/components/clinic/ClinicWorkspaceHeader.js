@@ -92,7 +92,7 @@ export const ClinicWorkspaceHeader = (props) => {
           }}
         >
           <Box sx={{ flexShrink: 0 }}>
-            <Text sx={{ color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>{clinic.name}</Text>
+            <Text as="span" sx={{ color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>{clinic.name}</Text>
           </Box>
           <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 0, alignItems: 'flex-end' }}>
             <Caption>{t('Share Code:')}</Caption>
@@ -120,7 +120,7 @@ export const ClinicWorkspaceHeader = (props) => {
                 },
               }}
             >
-              <Text sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>{clinic.shareCode}</Text>
+              <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>{clinic.shareCode}</Text>
               <ClipboardButton
                 buttonTitle={t('Copy Share Code')}
                 buttonText={buttonText}
