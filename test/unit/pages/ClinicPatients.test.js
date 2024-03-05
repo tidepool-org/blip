@@ -768,8 +768,8 @@ describe('ClinicPatients', () => {
       expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
 
       expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn87' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN87');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn8' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN8');
 
       expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
 
