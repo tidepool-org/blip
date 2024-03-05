@@ -743,6 +743,7 @@ export const clinics = (state = initialState.clinics, action) => {
       let inviteId = _.get(action.payload, 'inviteId');
       let clinicId = _.get(action.payload, 'clinicId');
       let newState = _.cloneDeep(state);
+      if (_.isFinite(newState[clinicId]?.patientCount)) newState[clinicId].patientCount++;
       delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
