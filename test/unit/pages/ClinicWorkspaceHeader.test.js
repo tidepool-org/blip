@@ -20,7 +20,7 @@ import Button from '../../../app/components/elements/Button';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('ClinicWorkspaceHeader', () => {
+describe('ClinicWorkspaceHeader', () => {
   let mount;
 
   let wrapper;

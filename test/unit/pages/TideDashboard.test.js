@@ -254,7 +254,7 @@ describe.only('TideDashboard', () => {
   });
 
   context('on mount', () => {
-    it('should redirect back to the clinic workspace if LD `showTideDashboard` flag is false ', () => {
+    it.only('should redirect back to the clinic workspace if LD `showTideDashboard` flag is false ', () => {
       store = mockStore(tier0300ClinicState);
       store.clearActions();
 
@@ -280,7 +280,7 @@ describe.only('TideDashboard', () => {
       });
     });
 
-    it('should redirect back to the clinic workspace if clinic tier < 300 and the showSummaryDashboard flag is false', () => {
+    it.only('should redirect back to the clinic workspace if clinic tier < 300 and the showSummaryDashboard flag is false', () => {
       // Redirect if showSummaryDashboard is false and tier < 0300
       TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
         showTideDashboard: true,

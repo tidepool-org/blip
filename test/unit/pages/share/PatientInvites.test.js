@@ -9,6 +9,7 @@ import { ToastProvider } from '../../../../app/providers/ToastProvider';
 import Table from '../../../../app/components/elements/Table';
 import PatientInvites from '../../../../app/pages/share/PatientInvites';
 import { Dialog } from '../../../../app/components/elements/Dialog';
+import { clinicUIDetails } from '../../../../app/core/clinicUtils';
 
 /* global chai */
 /* global sinon */
@@ -22,7 +23,7 @@ import { Dialog } from '../../../../app/components/elements/Dialog';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('PatientInvites', () => {
+describe('PatientInvites', () => {
   let mount;
 
   let wrapper;
@@ -108,45 +109,52 @@ describe.only('PatientInvites', () => {
 
   let store;
 
-  const hasInvitesState = (clinicOverrides = { tier: 'tier0100' }) => merge({}, noInvitesState, {
-    blip: {
-      allUsersMap: {
+  const hasInvitesState = (clinicOverrides = { tier: 'tier0100' }) => {
+    const clinic = {
+      clinicians:{
         clinicianUserId123,
       },
-      clinics: {
-        clinicID123: {
-          clinicians:{
-            clinicianUserId123,
-          },
-          patientInvites: {
-            invite1: {
-              key: 'invite1',
-              status: 'pending',
-              creatorId: 'patient1',
-              creator: { profile: {
-                fullName: 'Patient One',
-                patient: { birthday: '1999-01-01' }
-              } },
-            },
-            invite2: {
-              key: 'invite2',
-              status: 'pending',
-              creatorId: 'patient2',
-              creator: { profile: {
-                fullName: 'Patient Two',
-                patient: { birthday: '1999-02-02' }
-              } },
-            },
-          },
-          id: 'clinicID123',
-          address: '2 Address Ln, City Zip',
-          name: 'other_clinic_name',
-          email: 'other_clinic_email_address@example.com',
-          ...clinicOverrides,
+      patientInvites: {
+        invite1: {
+          key: 'invite1',
+          status: 'pending',
+          creatorId: 'patient1',
+          creator: { profile: {
+            fullName: 'Patient One',
+            patient: { birthday: '1999-01-01' }
+          } },
+        },
+        invite2: {
+          key: 'invite2',
+          status: 'pending',
+          creatorId: 'patient2',
+          creator: { profile: {
+            fullName: 'Patient Two',
+            patient: { birthday: '1999-02-02' }
+          } },
         },
       },
-    },
-  });
+      id: 'clinicID123',
+      address: '2 Address Ln, City Zip',
+      name: 'other_clinic_name',
+      email: 'other_clinic_email_address@example.com',
+      ...clinicOverrides,
+    };
+
+    return merge({}, noInvitesState, {
+      blip: {
+        allUsersMap: {
+          clinicianUserId123,
+        },
+        clinics: {
+          clinicID123: {
+            ...clinic,
+            ...clinicUIDetails({...clinic}),
+          },
+        },
+      },
+    });
+  };
 
   context('no pending invites', () => {
     beforeEach(() => {
