@@ -13,15 +13,16 @@ describe('clinicUtils', function() {
     expect(clinicUtils.roles).to.eql([
       { value: 'clinic_manager', label: 'Clinic Manager' },
       { value: 'diabetes_educator', label: 'Diabetes Educator' },
+      { value: 'dietician', label: 'Dietician' },
       { value: 'endocrinologist', label: 'Endocrinologist' },
       { value: 'front_desk', label: 'Front Desk' },
+      { value: 'health_student', label: 'Health Professions Student' },
       { value: 'information_technology', label: 'IT/Technology' },
       { value: 'medical_assistant', label: 'Medical Assistant' },
       { value: 'nurse', label: 'Nurse/Nurse Practitioner' },
       { value: 'primary_care_physician', label: 'Primary Care Physician' },
       { value: 'physician_assistant', label: 'Physician Assistant' },
       { value: 'pharmacist', label: 'Pharmacist' },
-      { value: 'health_student', label: 'Health Professions Student' },
       { value: 'other', label: 'Other' },
     ]);
   });
@@ -45,15 +46,6 @@ describe('clinicUtils', function() {
       { value: 'veterinary_clinic', label: 'Veterinary Clinic' },
       { value: 'researcher', label: 'Research Organization' },
       { value: 'other', label: 'Other' },
-    ]);
-  });
-
-  it('should return all clinicSizes options', () => {
-    expect(clinicUtils.clinicSizes).to.eql([
-      { value: '0-249', label: '0-249' },
-      { value: '250-499', label: '250-499' },
-      { value: '500-999', label: '500-999' },
-      { value: '1000+', label: '1000+' },
     ]);
   });
 
@@ -93,14 +85,7 @@ describe('clinicUtils', function() {
         state: '',
         postalCode: '',
         country: 'US',
-        phoneNumbers: [
-          {
-            type: 'Office',
-            number: '',
-          },
-        ],
         clinicType: '',
-        clinicSize: '',
         website: '',
         preferredBgUnits: '',
       });
@@ -114,14 +99,7 @@ describe('clinicUtils', function() {
         state: 'NB',
         postalCode: '12345',
         country: 'US',
-        phoneNumbers: [
-          {
-            type: 'Office',
-            number: '123-456-7890',
-          },
-        ],
         clinicType: 'provider_practice',
-        clinicSize: '0-249',
         website: 'http://mysite.com',
         preferredBgUnits: 'mmol/L',
         timezone: 'America/Los_Angeles',
@@ -142,17 +120,10 @@ describe('clinicUtils', function() {
         'state',
         'postalCode',
         'country',
-        'phoneNumbers',
         'clinicType',
-        'clinicSize',
         'website',
         'preferredBgUnits',
         'timezone',
-      ]);
-
-      expect(clinicUtils.clinicSchema.fields.phoneNumbers.innerType._nodes).to.be.an('array').and.have.members([
-        'type',
-        'number',
       ]);
     });
   });

@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { SingleDatePicker, SingleDatePickerShape } from 'react-dates';
 import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';
 import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
+import map from 'lodash/map';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
 import { Label } from '@rebass/forms';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, BoxProps, Flex } from 'rebass/styled-components';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
+import Select from './Select';
 import { DatePicker as StyledDatePickerBase } from './InputStyles';
 import { Icon } from './Icon';
 
 import {
   default as baseTheme,
   colors,
+  fontSizes,
+  fontWeights,
   radii,
   shadows,
   space,
@@ -25,13 +30,15 @@ import {
 const StyledDatePicker = styled(StyledDatePickerBase)`
   .SingleDatePickerInput {
     border-radius: ${radii.input}px;
-    border-color: ${colors.border.default};
+    border-color: ${colors.border.inputLight};
 
     .DateInput {
       border-radius: ${radii.input}px;
 
       input {
         border-radius: ${radii.input}px;
+        font-size: ${fontSizes[1]}px;
+        padding: ${space[2]}px;
       }
     }
   }
@@ -65,8 +72,46 @@ export const DatePicker = props => {
     onFocusChange,
     required,
     themeProps,
+    showYearPicker,
     ...datePickerProps
   } = props;
+
+  const renderMonthElement = ({ month, onMonthSelect, onYearSelect }) => {
+    const monthOptions = map(moment.months(), (monthName, value) => ({ label: monthName, value }));
+    const yearsOptions = [];
+
+    for (let i = moment().year(); i >= moment().year() - 130; i--) {
+      yearsOptions.push({ value: i, label: i });
+    }
+
+    return (
+      <Flex px={3} sx={{ justifyContent: 'center', gap: 2 }}>
+        <Box sx={{ flexBasis: '50%' }}>
+          <Select
+            variant="ultraCondensed"
+            options={monthOptions}
+            value={month.month()}
+            onChange={e => onMonthSelect(month, e.target.value)}
+            themeProps={{
+              width: '100%',
+            }}
+          />
+        </Box>
+
+        <Box sx={{ flexBasis: '50%' }}>
+          <Select
+            variant="ultraCondensed"
+            options={yearsOptions}
+            value={month.year()}
+            onChange={e => onYearSelect(month, e.target.value)}
+            themeProps={{
+              width: '100%',
+            }}
+          />
+        </Box>
+      </Flex>
+    );
+  };
 
   const [date, setDate] = useState(dateProp);
   const [focused, setFocused] = useState(focusedProp);
@@ -84,7 +129,9 @@ export const DatePicker = props => {
     <Box as={StyledDatePicker} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption className={inputClasses}>{label}</Caption>
+          <Caption fontWeight={fontWeights.medium} className={inputClasses}>
+            {label}
+          </Caption>
         </Label>
       )}
       <SingleDatePicker
@@ -111,6 +158,8 @@ export const DatePicker = props => {
         enableOutsideDays
         hideKeyboardShortcutsPanel
         showClearDate
+        renderMonthElement={showYearPicker ? renderMonthElement : undefined}
+        transitionDuration={showYearPicker ? 0 : undefined}
         {...datePickerProps}
       />
       {error && (
@@ -124,6 +173,7 @@ export const DatePicker = props => {
 
 DatePicker.propTypes = {
   ...SingleDatePickerShape,
+  showYearPicker: PropTypes.bool,
   themeProps: PropTypes.shape(BoxProps),
 };
 

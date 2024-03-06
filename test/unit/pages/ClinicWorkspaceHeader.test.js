@@ -83,12 +83,6 @@ describe('ClinicWorkspaceHeader', () => {
           email: 'new_clinic_email_address@example.com',
           shareCode: 'ABCD-ABCD-ABCD',
           preferredBgUnits: 'mmol/L',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       loggedInUserId: 'clinicianUserId123',
@@ -121,14 +115,7 @@ describe('ClinicWorkspaceHeader', () => {
           shareCode: 'ABCD-ABCD-ABCD',
           website: 'http://clinic.com',
           clinicType: 'provider_practice',
-          clinicSize: '0-249',
           preferredBgUnits: 'mmol/L',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
     },

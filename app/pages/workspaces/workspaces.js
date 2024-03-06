@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
+import { useLocation } from 'react-router-dom';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
@@ -47,6 +48,7 @@ export const Workspaces = (props) => {
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
+  const location = useLocation();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedWorkspace, setSelectedWorkspace] = useState(null);
   const [workspaces, setWorkspaces] = useState([]);
@@ -289,14 +291,14 @@ export const Workspaces = (props) => {
       : ['Clinic - Workspaces - Go to private workspace'];
 
     trackMetric(...metric);
-    dispatch(actions.sync.selectClinic(workspace?.id || null));
+    dispatch(actions.async.selectClinic(api, workspace?.id || null));
     dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients', { selectedClinicId: workspace.id }));
   }
 
   function handleCreateNewClinic(source) {
     trackMetric('Clinic - Workspaces - Create new clinic', { source });
-    dispatch(actions.sync.selectClinic(null));
-    dispatch(push('/clinic-details/new', { selectedClinicId: null }));
+    dispatch(actions.async.selectClinic(api, null));
+    dispatch(push('/clinic-details/new', { selectedClinicId: null, referrer: location.pathname }));
   }
 
   const RenderClinicWorkspace = (workspace, key) => {

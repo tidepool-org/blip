@@ -29,6 +29,8 @@ describe('NavigationMenu', () => {
       clinics: {
         getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
         getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
+        getClinicPatientCount: sinon.stub(),
+        getClinicPatientCountSettings: sinon.stub(),
       },
       user: {
         logout: sinon.stub(),
@@ -128,12 +130,6 @@ describe('NavigationMenu', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       clinicFlowActive: true,
@@ -183,7 +179,7 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null, // null is appropriate for switch to private workspace
           },
@@ -259,11 +255,13 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
           },
         },
+        { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+        { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
@@ -293,7 +291,7 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null,
           },
@@ -389,7 +387,7 @@ describe('NavigationMenu', () => {
 
         expect(store.getActions()).to.eql([
           {
-            type: 'SELECT_CLINIC',
+            type: 'SELECT_CLINIC_SUCCESS',
             payload: {
               clinicId: null, // null is appropriate for switch to private workspace
             },
@@ -436,7 +434,7 @@ describe('NavigationMenu', () => {
 
         expect(store.getActions()).to.eql([
           {
-            type: 'SELECT_CLINIC',
+            type: 'SELECT_CLINIC_SUCCESS',
             payload: {
               clinicId: null, // null is appropriate for switch to private workspace
             },

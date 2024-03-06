@@ -23,7 +23,7 @@ export const fieldsAreValid = (fieldNames, schema, values) =>
     try {
       schema.validateSyncAt(fieldKey, values);
     } catch (e) {
-      valid = false
+      valid = false;
     }
 
     return valid;
@@ -69,9 +69,13 @@ export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 
   onBlur: e => {
     formikContext.handleBlur(e);
 
+    if (valueProp === 'checked') {
+      formikContext.setFieldValue(fieldpath, !!e.target[valueProp]);
+    }
+
     if (trimStrings && isString(e?.target?.[valueProp])) {
-        formikContext.setFieldTouched(fieldpath, true);
-        formikContext.setFieldValue(fieldpath, trim(e.target[valueProp]));
+      formikContext.setFieldTouched(fieldpath, true);
+      formikContext.setFieldValue(fieldpath, trim(e.target[valueProp]));
     }
   },
   error: getFieldError(fieldpath, formikContext),
