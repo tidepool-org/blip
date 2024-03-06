@@ -748,6 +748,27 @@ describe('clinics', () => {
     });
   });
 
+  describe('setClinicUIDetails', () => {
+    it('should merge the provided `uiDetails` with clinic state', () => {
+      let clinicId = 'clinicId123';
+      let uiDetails = { foo: 'bar', bar: 'baz' };
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patientCount: 1,
+        },
+      };
+      let action = actions.sync.setClinicUIDetails(clinicId, uiDetails);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinicId]).to.eql({
+        id: clinicId,
+        patientCount: 1,
+        foo: 'bar',
+        bar: 'baz',
+      });
+    });
+  });
+
   describe('logoutRequest', () => {
     it('should set clinics to initial state', () => {
       let initialStateForTest = {

@@ -1,4 +1,6 @@
+import moment from 'moment';
 import * as clinicUtils from '../../../../app/core/clinicUtils';
+import { CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD, DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT } from '../../../../app/core/constants';
 
 /* global chai */
 /* global sinon */
@@ -73,6 +75,353 @@ describe('clinicUtils', function() {
       { value: '14d', label: '14 days' },
       { value: '30d', label: '30 days' },
     ]);
+  });
+
+  describe('clinicTierDetails', () => {
+    let createClinic;
+
+    beforeEach(() => {
+      createClinic = clinicOverrides => ({
+        country: 'US',
+        patientCountSettings: {},
+        ...clinicOverrides,
+      });
+    });
+
+    it('should set appropriate details for a tier0100 clinic that has a patient count hard limit start date in the past', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({
+        tier: 'tier0100',
+        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(details.planName).to.equal('base');
+      expect(details.patientLimitEnforced).to.equal(true);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: true,
+        workspacePlan: true,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: false,
+        rpmReport: false,
+        summaryDashboard: false,
+        tideDashboard: false,
+      });
+    });
+
+    it('should set appropriate details for a tier0100 clinic that has a patient count hard limit start date in the future', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({
+        tier: 'tier0100',
+        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().add(1, 'day').toISOString() } }
+      }));
+
+      expect(details.planName).to.equal('honoredBase');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: true,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: false,
+        rpmReport: false,
+        summaryDashboard: false,
+        tideDashboard: false,
+      });
+    });
+
+    it('should set appropriate details for a tier0100 clinic that is OUS', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({
+        tier: 'tier0100',
+        country: 'CA',
+      }));
+
+      expect(details.planName).to.equal('internationalBase');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: false,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: false,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: false,
+        rpmReport: false,
+        summaryDashboard: false,
+        tideDashboard: false,
+      });
+    });
+
+    it('should set appropriate details for a tier0100 clinic that is has a limit but is in active sales conversations', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({
+        tier: 'tier0100',
+        patientCountSettings: {}, // no hard or soft limits for a tier0100 denotes active sales convos
+      }));
+
+      expect(details.planName).to.equal('activeSalesBase');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: true,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: false,
+        rpmReport: false,
+        summaryDashboard: false,
+        tideDashboard: false,
+      });
+    });
+
+    it('should set appropriate details for a tier0200 clinic', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({ tier: 'tier0200' }));
+      expect(details.planName).to.equal('essential');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: false,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: false,
+        rpmReport: false,
+        summaryDashboard: false,
+        tideDashboard: false,
+      });
+    });
+
+    it('should set appropriate details for a tier0201 clinic', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({ tier: 'tier0201' }));
+      expect(details.planName).to.equal('essential');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: false,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: true,
+        rpmReport: false,
+        summaryDashboard: true,
+        tideDashboard: false,
+      });
+    });
+
+    it('should set appropriate details for a tier0202 clinic', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({ tier: 'tier0202' }));
+      expect(details.planName).to.equal('professional');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: false,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: true,
+        rpmReport: false,
+        summaryDashboard: true,
+        tideDashboard: false,
+      });
+    });
+
+    it('should set appropriate details for a tier0300 clinic', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({ tier: 'tier0300' }));
+      expect(details.planName).to.equal('professional');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: false,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: true,
+        rpmReport: false,
+        summaryDashboard: true,
+        tideDashboard: false,
+      });
+    });
+
+    it('should set appropriate details for a tier0301 clinic', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({ tier: 'tier0301' }));
+      expect(details.planName).to.equal('professional');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: false,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: true,
+        rpmReport: true,
+        summaryDashboard: true,
+        tideDashboard: true,
+      });
+    });
+
+    it('should set appropriate details for a tier0302 clinic', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({ tier: 'tier0302' }));
+      expect(details.planName).to.equal('professional');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: false,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: true,
+        rpmReport: true,
+        summaryDashboard: true,
+        tideDashboard: false,
+      });
+    });
+
+    it('should set appropriate details for a tier0303 clinic', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({ tier: 'tier0303' }));
+      expect(details.planName).to.equal('professional');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: false,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: true,
+        rpmReport: true,
+        summaryDashboard: true,
+        tideDashboard: true,
+      });
+    });
+
+    it('should set appropriate details for a tier0400 clinic', () => {
+      const details = clinicUtils.clinicTierDetails(createClinic({ tier: 'tier0400' }));
+      expect(details.planName).to.equal('enterprise');
+      expect(details.patientLimitEnforced).to.equal(false);
+
+      expect(details.display).to.eql({
+        planName: true,
+        patientCount: true,
+        patientLimit: false,
+        workspacePlan: false,
+      });
+
+      expect(details.entitlements).to.eql({
+        patientTags: true,
+        rpmReport: true,
+        summaryDashboard: true,
+        tideDashboard: true,
+      });
+    });
+  });
+
+  describe('clinicUIDetails', () => {let createClinic;
+    beforeEach(() => {
+      createClinic = clinicOverrides => ({
+        country: 'US',
+        patientCountSettings: {},
+        ...clinicOverrides,
+      });
+    });
+
+    it('should add warnings if patientLimitEnforced is true and limit is approaching or reached', () => {
+      const underWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD - 1,
+        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(underWarningThreshold.ui.warnings).to.eql({
+        limitReached: false,
+        limitApproaching: false,
+      });
+
+      const atWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(atWarningThreshold.ui.warnings).to.eql({
+        limitReached: false,
+        limitApproaching: true,
+      });
+
+      const atLimit = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(atLimit.ui.warnings).to.eql({
+        limitReached: true,
+        limitApproaching: true,
+      });
+    });
+
+    it('should add text appropriate to the workspace plan', () => {
+      const base = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+      }));
+
+      expect(base.ui.text).to.eql({
+        planDisplayName: 'Base',
+      });
+
+      const essential = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0200',
+      }));
+
+      expect(essential.ui.text).to.eql({
+        planDisplayName: 'Essential',
+      });
+
+      const professional = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0300',
+      }));
+
+      expect(professional.ui.text).to.eql({
+        planDisplayName: 'Professional',
+      });
+
+      const enterprise = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0400',
+      }));
+
+      expect(enterprise.ui.text).to.eql({
+        planDisplayName: 'Enterprise',
+      });
+    });
   });
 
   describe('clinicValuesFromClinic', () => {

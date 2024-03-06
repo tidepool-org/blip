@@ -103,16 +103,16 @@ export const clinicTierDetails = (clinic = {}) => {
   } = clinic;
 
   const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
-  const hardLimitStartDateIsFuture = moment.isDate(hardLimitStartDate) && moment(hardLimitStartDate).isAfter();
+  const hardLimitStartDateIsFuture = hardLimitStartDate && moment(hardLimitStartDate).isValid() && moment(hardLimitStartDate).isAfter();
   const isBaseTier = tier.indexOf('tier01') === 0;
-  const isInActiveSalesConversation = isNumber(patientCountSettings?.softLimit?.patientCount) && !patientCountSettings?.hardLimit?.patientCount;
-  const isOUS = country !== 'US';
-  const isHonoredBaseClinic = !isOUS && (!hardLimitStartDate || hardLimitStartDateIsFuture);
-
   let activeTier = tier;
 
   // Handle various base tier clinic states
   if (isBaseTier) {
+    const isOUS = country !== 'US';
+    const isInActiveSalesConversation = !isOUS && !hardLimitStartDate;
+    const isHonoredBaseClinic = !isOUS && hardLimitStartDateIsFuture;
+
     if (isOUS) {
       // Ensure OUS clinics render as international plan
       activeTier = 'tier0101';

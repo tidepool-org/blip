@@ -136,6 +136,7 @@ export const ClinicWorkspaceHeader = (props) => {
               <Caption>{t('Plan:')}</Caption>
               <Box>
                 <Pill
+                  id="clinicProfilePlan"
                   text={clinic?.ui.text.planDisplayName}
                   label={t('plan name')}
                   colorPalette="primaryText"
@@ -150,6 +151,7 @@ export const ClinicWorkspaceHeader = (props) => {
               <Caption>{t('Patient Accounts:')}</Caption>
               <Box>
                 <Pill
+                  id="clinicPatientLimits"
                   text={`${clinic.patientCount}${clinic?.ui.display.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
                   icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
                   label={t('Patient Count')}
@@ -187,6 +189,7 @@ export const ClinicWorkspaceHeader = (props) => {
 
               {(clinic?.ui?.warnings?.limitApproaching || clinic?.ui?.warnings?.limitReached) && (
                 <Link
+                  id="clinicProfileUnlockPlansLink"
                   href={URL_TIDEPOOL_PLUS_PLANS}
                   target="_blank"
                   rel="noreferrer noopener"

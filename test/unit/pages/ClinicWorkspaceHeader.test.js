@@ -7,6 +7,7 @@ import merge from 'lodash/merge';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import ClinicWorkspaceHeader from '../../../app/components/clinic/ClinicWorkspaceHeader';
 import Button from '../../../app/components/elements/Button';
+import moment from 'moment';
 
 /* global chai */
 /* global sinon */
@@ -79,10 +80,31 @@ describe('ClinicWorkspaceHeader', () => {
           patients: {},
           id: 'clinicID456',
           address: '1 Address Ln, City Zip',
+          country: 'US',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
           shareCode: 'ABCD-ABCD-ABCD',
           preferredBgUnits: 'mmol/L',
+          tier: 'tier0100',
+          patientCount: 251,
+          patientCountSettings: {
+            hardLimit: {
+              patientCount: 250,
+              startDate: moment().subtract(1, 'day').toISOString(),
+            },
+          },
+          ui: {
+            text: {
+              planDisplayName: 'Base',
+            },
+            display: {
+              patientLimit: true,
+            },
+            warnings: {
+              limitReached: true,
+              limitApproaching: true,
+            },
+          },
         },
       },
       loggedInUserId: 'clinicianUserId123',
@@ -232,6 +254,22 @@ describe('ClinicWorkspaceHeader', () => {
     it('should render the clinic share code', () => {
       const details = wrapper.find('#clinicProfileDetails').hostNodes();
       expect(details.find('span').at(1).text()).to.equal('ABCD-ABCD-ABCD');
+    });
+
+    it('should render the clinic plan name', () => {
+      const plan = () => wrapper.find('#clinicProfilePlan').hostNodes();
+      expect(plan().text()).to.equal('Base');
+    });
+
+    it('should render the patient count and limit', () => {
+      const limits = () => wrapper.find('#clinicPatientLimits').hostNodes();
+      expect(limits().text()).to.equal('251 / 250');
+    });
+
+    it('should render the unlock plans link for clinics with limit warnings', () => {
+      const plansLink = () => wrapper.find('#clinicProfileUnlockPlansLink').hostNodes();
+      expect(plansLink()).to.have.lengthOf(1)
+      expect(plansLink().text()).to.equal('Unlock Plans');
     });
   });
 });
