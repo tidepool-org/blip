@@ -131,7 +131,7 @@ export const ClinicWorkspaceHeader = (props) => {
             </Flex>
           </Flex>
 
-          {clinic?.ui && (
+          {clinic?.ui?.display?.planName && (
             <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 0, alignItems: 'flex-end' }}>
               <Caption>{t('Plan:')}</Caption>
               <Box>
@@ -150,14 +150,16 @@ export const ClinicWorkspaceHeader = (props) => {
             <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 0, alignItems: 'flex-end' }}>
               <Caption>{t('Patient Accounts:')}</Caption>
               <Box>
-                <Pill
-                  id="clinicPatientLimits"
-                  text={`${clinic.patientCount}${clinic?.ui.display.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
-                  icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
-                  label={t('Patient Count')}
-                  colorPalette={clinic?.ui.warnings.limitReached || clinic?.ui.warnings.limitApproaching ? 'warning' : 'transparent'}
-                  condensed
-                />
+                {clinic?.ui.display.patientCount && (
+                  <Pill
+                    id="clinicPatientLimits"
+                    text={`${clinic.patientCount}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
+                    icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
+                    label={t('Patient Count')}
+                    colorPalette={clinic?.ui.warnings.limitReached || clinic?.ui.warnings.limitApproaching ? 'warning' : 'transparent'}
+                    condensed
+                  />
+                )}
 
                 {clinic?.ui.display.patientLimit && !clinic?.ui.warnings.limitReached && (
                   <Box sx={{ position: 'relative', top: clinic?.ui.warnings.limitApproaching ? 0 : '-2px' }}>
