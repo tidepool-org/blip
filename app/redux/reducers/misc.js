@@ -743,6 +743,7 @@ export const clinics = (state = initialState.clinics, action) => {
       let inviteId = _.get(action.payload, 'inviteId');
       let clinicId = _.get(action.payload, 'clinicId');
       let newState = _.cloneDeep(state);
+      if (_.isFinite(newState[clinicId]?.patientCount)) newState[clinicId].patientCount++;
       delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
@@ -986,6 +987,13 @@ export const clinics = (state = initialState.clinics, action) => {
 
       return update(state, {
         [clinicId]: { patientCountSettings: { $set: patientCountSettings } },
+      });
+    }
+    case types.SET_CLINIC_UI_DETAILS: {
+      const { clinicId, uiDetails } = action.payload;
+
+      return update(state, {
+        [clinicId]: { $set: { ...state[clinicId], ...uiDetails } },
       });
     }
     case types.LOGOUT_REQUEST:

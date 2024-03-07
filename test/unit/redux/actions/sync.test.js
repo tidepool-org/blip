@@ -4378,4 +4378,20 @@ describe('Actions', () => {
       expect(action.error).to.equal(error);
     });
   });
+
+  describe('setClinicUIDetails', () => {
+    it('should be a TSA', () => {
+      let action = sync.setClinicUIDetails();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_CLINIC_UI_DETAILS', () => {
+      let clinicId = 'clinicId';
+      let uiDetails = { foo: 'bar' };
+      let action = sync.setClinicUIDetails(clinicId, uiDetails);
+      expect(action.type).to.equal('SET_CLINIC_UI_DETAILS');
+      expect(action.payload.clinicId).to.equal(clinicId);
+      expect(action.payload.uiDetails).to.eql(uiDetails);
+    });
+  });
 });

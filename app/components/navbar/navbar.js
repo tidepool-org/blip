@@ -13,7 +13,8 @@ import WorkspaceSwitcher from '../clinic/WorkspaceSwitcher';
 import NavigationMenu from './NavigationMenu';
 import Button from '../elements/Button';
 
-import logoSrc from './images/tidepool-logo-408x46.png';
+import tidepoolLogo from './images/tidepoolLogo.svg';
+import tidepoolPlusLogo from './images/tidepool+Logo.svg';
 export default translate()(class extends React.Component {
   static propTypes = {
     clinicFlowActive: PropTypes.bool,
@@ -107,8 +108,10 @@ export default translate()(class extends React.Component {
     };
 
     let linkDisabled = false;
+    let logo = tidepoolLogo;
 
     if (this.props.clinicFlowActive) {
+      logo = tidepoolPlusLogo
       const userClinics = _.filter(_.values(this.props.clinics), ({ clinicians }) => _.has(clinicians, _.get(this.props, 'user.userid')));
       // Disable logo link if the clinician is only a member of a single clinic,
       // or is not on a clinic workspace tab, the private workspace, or the account settings page
@@ -121,7 +124,7 @@ export default translate()(class extends React.Component {
         to="/"
         className="Navbar-logo"
         onClick={handleClick}>
-        <img src={logoSrc}/>
+        <img src={logo}/>
       </Link>
     );
   };

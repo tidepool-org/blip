@@ -2,6 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import isNumber from 'lodash/isNumber';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import moment from 'moment';
@@ -10,7 +11,14 @@ import countries from 'i18n-iso-countries';
 import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
-import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
+
+import {
+  CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+  DEFAULT_CLINIC_TIER,
+  DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+  MGDL_UNITS,
+  MMOLL_UNITS,
+} from '../core/constants';
 
 const t = i18next.t.bind(i18next);
 
@@ -77,7 +85,154 @@ export const summaryPeriodOptions = [
 
 export const maxClinicPatientTags = 50;
 
-export const clinicValuesFromClinic = (clinic) => ({
+export const clinicPlansNames = {
+  base: t('Base'),
+  activeSalesBase: t('Base'),
+  honoredBase: t('Base'),
+  internationalBase: t('Base'),
+  essential: t('Essential'),
+  professional: t('Professional'),
+  enterprise: t('Enterprise'),
+}
+
+export const clinicTierDetails = (clinic = {}) => {
+  const {
+    tier = DEFAULT_CLINIC_TIER,
+    country,
+    patientCountSettings = {},
+  } = clinic;
+
+  const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
+  const hardLimitStartDateIsFuture = hardLimitStartDate && moment(hardLimitStartDate).isValid() && moment(hardLimitStartDate).isAfter();
+  const isBaseTier = tier.indexOf('tier01') === 0;
+  let activeTier = tier;
+
+  // Handle various base tier clinic states
+  if (isBaseTier) {
+    const isOUS = country !== 'US';
+    const isInActiveSalesConversation = !isOUS && !hardLimitStartDate;
+    const isHonoredBaseClinic = !isOUS && hardLimitStartDateIsFuture;
+
+    if (isOUS) {
+      // Ensure OUS clinics render as international plan
+      activeTier = 'tier0101';
+    } else if (isInActiveSalesConversation) {
+      // Ensure clinics in active sales conversations render as activeSalesBase plan
+      activeTier = 'tier0103';
+    } else if (isHonoredBaseClinic) {
+      // Ensure Honored Base clinics render as hononored plan
+      activeTier = 'tier0102';
+    }
+  }
+
+  const entitlements = {
+    rpmReport: false,
+    summaryDashboard: false,
+    tideDashboard: false,
+    patientTags: false,
+  };
+
+  const display = {
+    planName: true,
+    patientCount: true,
+    patientLimit: false,
+    workspacePlan: false,
+  };
+
+  const details = {
+    patientLimitEnforced: false,
+    display,
+    entitlements,
+  };
+
+  const tierSpecificOverrides = {
+    tier0100: {
+      planName: 'base',
+      patientLimitEnforced: true,
+      display: { ...display, patientLimit: true, workspacePlan: true },
+    },
+    tier0101: {
+      planName: 'internationalBase',
+      display: { ...display, planName: false },
+    },
+    tier0102: {
+      planName: 'honoredBase',
+      display: { ...display, workspacePlan: true },
+    },
+    tier0103: {
+      planName: 'activeSalesBase',
+      display: { ...display, workspacePlan: true },
+    },
+    tier0200: {
+      planName: 'essential',
+    },
+    tier0201: {
+      planName: 'essential',
+      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
+    },
+    tier0202: {
+      planName: 'professional',
+      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
+    },
+    tier0300: {
+      planName: 'professional',
+      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
+    },
+    tier0301: {
+      planName: 'professional',
+      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+    },
+    tier0302: {
+      planName: 'professional',
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true },
+    },
+    tier0303: {
+      planName: 'professional',
+      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+    },
+    tier0400: {
+      planName: 'enterprise',
+      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+    },
+  };
+
+  return {
+    ...details,
+    ...tierSpecificOverrides[activeTier],
+  }
+};
+
+export const clinicUIDetails = (clinic = {}) => {
+  const { display, ...tierDetails } = clinicTierDetails(clinic);
+  const { patientCount, patientCountSettings } = clinic;
+  const patientCountHardLimit = patientCountSettings?.hardLimit?.patientCount;
+
+  const warnings = {
+    limitReached: false,
+    limitApproaching: false,
+  };
+
+  if (tierDetails.patientLimitEnforced) {
+    const limit = patientCountHardLimit || DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT;
+    warnings.limitReached = patientCount >= limit;
+    warnings.limitApproaching = limit - patientCount <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
+  }
+
+  const details = {
+    ...tierDetails,
+    ui: {
+      display,
+      text: {
+        planDisplayName: clinicPlansNames[tierDetails.planName],
+      },
+      warnings,
+    }
+  }
+
+  return details;
+};
+
+export const clinicValuesFromClinic = clinic => ({
   name: get(clinic, 'name', ''),
   address: get(clinic, 'address', ''),
   city: get(clinic, 'city', ''),
@@ -150,7 +305,7 @@ export const clinicPatientTagSchema = yup.object().shape({
  * const schema = patientSchema({ mrnSettings:{ required: true } });
  *
  */
-export const patientSchema = (config) => {
+export const patientSchema = config => {
   let mrnSchema = yup
     .string()
     .matches(/^$|^[A-Z0-9]{4,25}$/, () => (

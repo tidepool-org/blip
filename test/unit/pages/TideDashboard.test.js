@@ -11,6 +11,7 @@ import { ToastProvider } from '../../../app/providers/ToastProvider';
 import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
+import { clinicUIDetails } from '../../../app/core/clinicUtils';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
 import LDClientMock from '../../fixtures/LDClientMock';
 
@@ -87,21 +88,28 @@ describe('TideDashboard', () => {
     id: 'clinicianUserId123',
   };
 
+  const defaultClinic = {
+    clinicians:{
+      clinicianUserId123,
+    },
+    id: 'clinicID123',
+    patientTags: sampleTags,
+    patients: {},
+    address: '2 Address Ln, City Zip',
+    name: 'other_clinic_name',
+    email: 'other_clinic_email_address@example.com',
+  };
+
   const noResultsState = {
     blip: {
       loggedInUserId,
       clinics: {
         clinicID123: {
-          clinicians:{
-            clinicianUserId123,
-          },
-          id: 'clinicID123',
-          patientTags: sampleTags,
-          patients: {},
-          address: '2 Address Ln, City Zip',
-          name: 'other_clinic_name',
-          email: 'other_clinic_email_address@example.com',
-          tier: 'tier0300',
+          ...defaultClinic,
+          ...clinicUIDetails({
+            ...defaultClinic,
+            tier: 'tier0300',
+          }),
         },
       },
       tideDashboardPatients: {},
@@ -125,15 +133,8 @@ describe('TideDashboard', () => {
       timePrefs: { timezoneName: 'UTC' },
       clinics: {
         clinicID123: {
-          clinicians:{
-            clinicianUserId123,
-          },
-          id: 'clinicID123',
-          patientTags: sampleTags,
-          patients: {},
-          address: '2 Address Ln, City Zip',
-          name: 'other_clinic_name',
-          email: 'other_clinic_email_address@example.com',
+          ...defaultClinic,
+          ...clinicUIDetails(defaultClinic),
         },
       },
       working: {
@@ -167,8 +168,9 @@ describe('TideDashboard', () => {
       ...hasResultsState.blip,
       clinics: {
         clinicID123: {
-          ...hasResultsState.blip.clinics.clinicID123,
+          ...defaultClinic,
           preferredBgUnits: 'mmol/L',
+          ...clinicUIDetails(defaultClinic),
         },
       },
     },
@@ -179,8 +181,11 @@ describe('TideDashboard', () => {
       ...hasResultsState.blip,
       clinics: {
         clinicID123: {
-          ...hasResultsState.blip.clinics.clinicID123,
-          tier: 'tier0200',
+          ...defaultClinic,
+          ...clinicUIDetails({
+            ...defaultClinic,
+            tier: 'tier0200',
+          }),
         },
       },
     },
@@ -191,8 +196,11 @@ describe('TideDashboard', () => {
       ...hasResultsState.blip,
       clinics: {
         clinicID123: {
-          ...hasResultsState.blip.clinics.clinicID123,
-          tier: 'tier0300',
+          ...defaultClinic,
+          ...clinicUIDetails({
+            ...defaultClinic,
+            tier: 'tier0300',
+          }),
         },
       },
     },
@@ -254,7 +262,7 @@ describe('TideDashboard', () => {
   });
 
   context('on mount', () => {
-    it('should redirect back to the clinic workspace if LD `showTideDashboard` flag is false ', () => {
+    it('should redirect back to the clinic workspace if LD `entitlements.tideDashboard` is false ', () => {
       store = mockStore(tier0300ClinicState);
       store.clearActions();
 
@@ -278,67 +286,6 @@ describe('TideDashboard', () => {
         payload: { args: ['/clinic-workspace'], method: 'push' },
         type: '@@router/CALL_HISTORY_METHOD',
       });
-    });
-
-    it('should redirect back to the clinic workspace if clinic tier < 300 and the showSummaryDashboard flag is false', () => {
-      // Redirect if showSummaryDashboard is false and tier < 0300
-      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
-        showTideDashboard: true,
-        showSummaryDashboard: false,
-      }));
-
-      store = mockStore(tier0200ClinicState);
-      store.clearActions();
-
-      const resultingActionTypes = store => map(store.getActions(), 'type');
-
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
-
-      expect(resultingActionTypes(store)[2]).to.equal('@@router/CALL_HISTORY_METHOD');
-      expect(store.getActions()[2].payload).to.eql({ args: ['/clinic-workspace'], method: 'push' });
-
-      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
-        showTideDashboard: true,
-        showSummaryDashboard: true,
-      }));
-
-      // No redirect if showSummaryDashboard is true and tier < 0300
-      store.clearActions();
-
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
-
-      expect(resultingActionTypes(store)).to.not.include('@@router/CALL_HISTORY_METHOD');
-
-      // No redirect if showSummaryDashboard is false and tier = 0300
-      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
-        showTideDashboard: true,
-        showSummaryDashboard: false,
-      }));
-
-      store = mockStore(tier0300ClinicState);
-      store.clearActions();
-
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
-
-      expect(resultingActionTypes(store)).to.not.include('@@router/CALL_HISTORY_METHOD');
     });
 
     it('should clear the current patient in view', () => {

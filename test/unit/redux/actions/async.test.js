@@ -8554,6 +8554,37 @@ describe('Actions', () => {
             type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
             payload: { clinicId, patientCountSettings: settingsResults },
           },
+          {
+            type: 'SET_CLINIC_UI_DETAILS',
+            payload: {
+              clinicId: 'clinic123',
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: false,
+                planName: 'internationalBase',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: false,
+                    planName: false,
+                    workspacePlan: false,
+                  },
+                  text: {
+                    planDisplayName: 'Base',
+                  },
+                  warnings: {
+                    limitApproaching: false,
+                    limitReached: false,
+                  },
+                },
+              },
+            },
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -8591,6 +8622,37 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
+          {
+            type: 'SET_CLINIC_UI_DETAILS',
+            payload: {
+              clinicId: 'clinic123',
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: false,
+                planName: 'internationalBase',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: false,
+                    planName: false,
+                    workspacePlan: false,
+                  },
+                  text: {
+                    planDisplayName: 'Base',
+                  },
+                  warnings: {
+                    limitApproaching: false,
+                    limitReached: false,
+                  },
+                },
+              },
+            },
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

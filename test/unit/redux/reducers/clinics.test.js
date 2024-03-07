@@ -113,9 +113,10 @@ describe('clinics', () => {
   });
 
   describe('acceptPatientInvitationSuccess', () => {
-    it('should remove the patient invites from a clinic', () => {
+    it('should remove the patient invites from a clinic and increase the patientCount', () => {
       let initialStateForTest = {
         clinicId123: {
+          patientCount: 2,
           patientInvites: {
             patientId123: { key: 'patientId123' },
             patientId456: { key: 'patientId456' },
@@ -129,6 +130,7 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state[clinic.id].patientInvites.patientId123).to.be.undefined;
       expect(state[clinic.id].patientInvites.patientId456).to.eql({ key: 'patientId456' });
+      expect(state[clinic.id].patientCount).to.equal(3);
     });
   });
 
@@ -743,6 +745,27 @@ describe('clinics', () => {
       let action = actions.sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
       let state = reducer(initialStateForTest, action);
       expect(state[clinicId].patientCountSettings).to.eql({ foo: 'bar' });
+    });
+  });
+
+  describe('setClinicUIDetails', () => {
+    it('should merge the provided `uiDetails` with clinic state', () => {
+      let clinicId = 'clinicId123';
+      let uiDetails = { foo: 'bar', bar: 'baz' };
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patientCount: 1,
+        },
+      };
+      let action = actions.sync.setClinicUIDetails(clinicId, uiDetails);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinicId]).to.eql({
+        id: clinicId,
+        patientCount: 1,
+        foo: 'bar',
+        bar: 'baz',
+      });
     });
   });
 
