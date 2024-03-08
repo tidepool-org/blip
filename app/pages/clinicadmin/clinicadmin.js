@@ -640,7 +640,7 @@ export const ClinicAdmin = (props) => {
 
           <Box mx={4} py={4}>
             <Flex mb={5} p={4} variant="containers.well" sx={{ flexWrap: ['wrap', null,  'nowrap'], gap: 3 }}>
-              <Box sx={{ flexBasis: ['100%', null, '67%'], color: 'darkGrey' }}>
+              <Box sx={{ flexBasis: ['100%', null, clinic?.ui?.display?.workspacePlan ? '67%' : '100%'], color: 'darkGrey' }}>
                 <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
                   <Flex sx={{ justifyContent: 'flex-start', color: 'grays.4', gap: 2, alignItems: 'center' }}>
                     <Icon variant="static" theme={baseTheme} label="Ellipsis for skipped pages" iconSrc={ClinicIcon} />

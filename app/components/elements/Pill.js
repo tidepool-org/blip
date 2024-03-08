@@ -17,6 +17,7 @@ const namedPalletMap = {
   purples: ['purples.0', 'purples.9'],
   primaryText: ['#F3F7FC', 'text.primary'],
   warning: ['#FFE8CF', 'feedback.warning'],
+  success: ['#EBFBF0', 'feedback.success'],
   transparent: ['transparent', 'inherit'],
 };
 

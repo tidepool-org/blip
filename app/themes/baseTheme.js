@@ -44,7 +44,7 @@ export const colors = {
     info: colorPalette.primary.purpleMedium,
     warning: '#A35700',
     danger: '#EC4C47',
-    success: '#47B881',
+    success: '#00754E',
   },
   stat: {
     border: '#75849F',
