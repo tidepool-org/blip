@@ -1,6 +1,6 @@
 import moment from 'moment';
 import * as clinicUtils from '../../../../app/core/clinicUtils';
-import { CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD, DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT } from '../../../../app/core/constants';
+import { CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD, DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, URL_TIDEPOOL_PLUS_CONTACT_SALES, URL_TIDEPOOL_PLUS_PLANS } from '../../../../app/core/constants';
 
 /* global chai */
 /* global sinon */
@@ -102,6 +102,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: true,
         workspacePlan: true,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -126,6 +129,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: true,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -150,6 +156,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: false,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -174,6 +183,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: true,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -194,6 +206,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: false,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -214,6 +229,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: false,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -234,6 +252,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: false,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -254,6 +275,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: false,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -274,6 +298,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: false,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -294,6 +321,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: false,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -314,6 +344,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: false,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -334,6 +367,9 @@ describe('clinicUtils', function() {
         patientCount: true,
         patientLimit: false,
         workspacePlan: false,
+        workspaceLimitDescription: false,
+        workspaceLimitFeedback: false,
+        workspaceLimitResolutionLink: false,
       });
 
       expect(details.entitlements).to.eql({
@@ -392,10 +428,113 @@ describe('clinicUtils', function() {
     it('should add text appropriate to the workspace plan', () => {
       const base = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
+        patientCount: 1,
+        patientCountSettings: {
+          hardLimit: {
+            startDate: moment().subtract(1, 'day').toISOString(),
+          },
+        },
       }));
 
       expect(base.ui.text).to.eql({
         planDisplayName: 'Base',
+        limitDescription: `Limited to ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patients`,
+        limitFeedback: {
+          status: 'warning',
+          text: `Maximum of ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patient accounts reached`,
+        },
+        limitResolutionLink: {
+          text: 'Unlock plans',
+          url: URL_TIDEPOOL_PLUS_PLANS,
+        },
+      });
+
+      const baseLimitReached = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+        patientCountSettings: {
+          hardLimit: {
+            startDate: moment().subtract(1, 'day').toISOString(),
+          },
+        },
+      }));
+
+      expect(baseLimitReached.ui.text).to.eql({
+        planDisplayName: 'Base',
+        limitDescription: `Limited to ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patients`,
+        limitFeedback: {
+          status: 'warning',
+          text: `Maximum of ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patient accounts reached`,
+        },
+        limitResolutionLink: {
+          text: 'Contact us to unlock plans',
+          url: URL_TIDEPOOL_PLUS_CONTACT_SALES,
+        },
+      });
+
+      const startDate = moment().add(1, 'day').toISOString();
+
+      const honored = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCount: 1,
+        patientCountSettings: {
+          hardLimit: {
+            startDate,
+          },
+        },
+      }));
+
+      expect(honored.ui.text).to.eql({
+        planDisplayName: 'Base',
+        limitDescription: `Please note that starting on ${moment(startDate).format('MMM D, YYYY')}, Base Plans will support up to 250 patient accounts.`,
+        limitFeedback: {
+          status: 'warning',
+          text: 'Please take action now to avoid disruptions',
+        },
+        limitResolutionLink: {
+          text: 'Unlock plans',
+          url: URL_TIDEPOOL_PLUS_PLANS,
+        },
+      });
+
+      const honoredLimitApproaching = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+        patientCountSettings: {
+          hardLimit: {
+            startDate,
+          },
+        },
+      }));
+
+      expect(honoredLimitApproaching.ui.text).to.eql({
+        planDisplayName: 'Base',
+        limitDescription: `Please note that starting on ${moment(startDate).format('MMM D, YYYY')}, Base Plans will support up to 250 patient accounts.`,
+        limitFeedback: {
+          status: 'warning',
+          text: 'Please take action now to avoid disruptions',
+        },
+        limitResolutionLink: {
+          text: 'Contact us to unlock plans',
+          url: URL_TIDEPOOL_PLUS_CONTACT_SALES,
+        },
+      });
+
+      const activeSales = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+      }));
+
+      expect(activeSales.ui.text).to.eql({
+        planDisplayName: 'Base',
+        limitDescription: `Limited to ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patients`,
+        limitFeedback: {
+          status: 'success',
+          text: 'Change to plan in progress',
+        },
+        limitResolutionLink: {
+          text: 'Unlock plans',
+          url: URL_TIDEPOOL_PLUS_PLANS,
+        },
       });
 
       const essential = clinicUtils.clinicUIDetails(createClinic({
@@ -404,6 +543,9 @@ describe('clinicUtils', function() {
 
       expect(essential.ui.text).to.eql({
         planDisplayName: 'Essential',
+        limitDescription: undefined,
+        limitFeedback: undefined,
+        limitResolutionLink: undefined,
       });
 
       const professional = clinicUtils.clinicUIDetails(createClinic({
@@ -412,6 +554,9 @@ describe('clinicUtils', function() {
 
       expect(professional.ui.text).to.eql({
         planDisplayName: 'Professional',
+        limitDescription: undefined,
+        limitFeedback: undefined,
+        limitResolutionLink: undefined,
       });
 
       const enterprise = clinicUtils.clinicUIDetails(createClinic({
@@ -420,6 +565,9 @@ describe('clinicUtils', function() {
 
       expect(enterprise.ui.text).to.eql({
         planDisplayName: 'Enterprise',
+        limitDescription: undefined,
+        limitFeedback: undefined,
+        limitResolutionLink: undefined,
       });
     });
   });

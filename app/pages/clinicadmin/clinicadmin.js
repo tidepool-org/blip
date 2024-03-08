@@ -780,6 +780,7 @@ export const ClinicAdmin = (props) => {
                     </Button>
 
                     <Button
+                      id="export-clinic-team-list"
                       variant="tertiary"
                       px={3}
                       sx={{ fontSize: 0, whiteSpace: ['wrap', 'nowrap'], flexBasis: ['50%', 'auto'] }}

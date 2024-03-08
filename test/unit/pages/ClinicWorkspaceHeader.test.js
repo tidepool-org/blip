@@ -99,6 +99,8 @@ describe('ClinicWorkspaceHeader', () => {
             },
             display: {
               patientLimit: true,
+              planName: true,
+              patientCount: true,
             },
             warnings: {
               limitReached: true,

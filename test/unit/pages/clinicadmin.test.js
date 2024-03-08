@@ -81,6 +81,7 @@ describe('ClinicAdmin', () => {
         },
         fetchingClinicianInvite: defaultWorkingState,
         updatingClinician: defaultWorkingState,
+        updatingClinic: defaultWorkingState,
         sendingClinicianInvite: defaultWorkingState,
         resendingClinicianInvite: defaultWorkingState,
         deletingClinicianInvite: defaultWorkingState,
@@ -280,7 +281,7 @@ describe('ClinicAdmin', () => {
         now: new Date('2021-10-05 18:00:00').getTime()
       });
 
-      const exportButton = wrapper.find(Button).filter({ variant: 'textPrimary' }).at(0);
+      const exportButton = wrapper.find('#export-clinic-team-list').hostNodes();
       expect(exportButton).to.have.length(1);
       expect(exportButton.text()).to.equal('Export List');
       expect(exportButton.props().onClick).to.be.a('function');

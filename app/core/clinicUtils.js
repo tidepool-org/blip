@@ -258,7 +258,7 @@ export const clinicUIDetails = (clinic = {}) => {
   if (isHonoredBase) {
     const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
     limitDescription = t('Please note that starting on {{ date }}, Base Plans will support up to {{limit}} patient accounts.', {
-      date: moment(hardLimitStartDate).format('MMM, D, YYYY'),
+      date: moment(hardLimitStartDate).format('MMM D, YYYY'),
       limit,
     });
 
