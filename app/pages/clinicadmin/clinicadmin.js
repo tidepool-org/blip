@@ -20,6 +20,7 @@ import EditIcon from '@material-ui/icons/EditRounded';
 import InputIcon from '@material-ui/icons/Input';
 import SearchIcon from '@material-ui/icons/Search';
 import sundial from 'sundial';
+import { useFormik } from 'formik';
 
 import {
   Title,
@@ -35,6 +36,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import Pill from '../../components/elements/Pill';
 import ClinicIcon from '../../core/icons/clinicIcon.svg';
 import PlanIcon from '../../core/icons/planIcon.svg';
+import { useIsFirstRender } from '../../core/hooks';
 
 import {
   Dialog,
@@ -44,11 +46,18 @@ import {
 } from '../../components/elements/Dialog';
 
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
+import ClinicProfileFields from '../../components/clinic/ClinicProfileFields';
 import { useToasts } from '../../providers/ToastProvider';
 import baseTheme, { borders } from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { usePrevious } from '../../core/hooks';
-import { clinicTypes } from '../../core/clinicUtils';
+
+import {
+  clinicTypes,
+  clinicValuesFromClinic,
+  clinicSchema as validationSchema
+} from '../../core/clinicUtils';
+
 import config from '../../config';
 import Icon from '../../components/elements/Icon';
 
@@ -57,6 +66,7 @@ const clinicTypesLabels = mapValues(keyBy(clinicTypes, 'value'), 'label');
 export const ClinicAdmin = (props) => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
+  const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
   const [searchText, setSearchText] = useState('');
   const [page, setPage] = useState(1);
@@ -65,6 +75,7 @@ export const ClinicAdmin = (props) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
   const [showRevokeInviteDialog, setShowRevokeInviteDialog] = useState(false);
+  const [showEditClinicProfileDialog, setShowEditClinicProfileDialog] = useState(false);
   const [selectedInvite, setSelectedInvite] = useState(null);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
@@ -78,6 +89,15 @@ export const ClinicAdmin = (props) => {
   const [clinicianArray, setClinicianArray] = useState([]);
   const [userRolesInClinic, setUserRolesInClinic] = useState([]);
   const rowsPerPage = 8;
+
+  const clinicProfileFormContext = useFormik({
+    initialValues: clinicValuesFromClinic(clinic),
+    onSubmit: values => {
+      trackMetric('Clinic - Edit clinic profile saved', { clinicId: selectedClinicId });
+      dispatch(actions.async.updateClinic(api, clinic.id, values));
+    },
+    validationSchema,
+  });
 
   const isClinicAdmin = () => includes(userRolesInClinic, 'CLINIC_ADMIN');
   const isOnlyClinicAdmin = () => filter(clinicianArray, { isAdmin: true, inviteId: undefined }).length === 1;
@@ -195,6 +215,29 @@ export const ClinicAdmin = (props) => {
       }
     }
   }, [working.fetchingCliniciansFromClinic]);
+
+  useEffect(() => {
+    const { inProgress, completed, notification } = working.updatingClinic;
+
+    if (!isFirstRender && !inProgress) {
+      if (completed) {
+        setToast({
+          message: t('Clinic profile updated.'),
+          variant: 'success',
+        });
+
+        clinicProfileFormContext.setSubmitting(false);
+        setShowEditClinicProfileDialog(false);
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+    }
+  }, [working.updatingClinic]);
 
   useEffect(() => {
     if (
@@ -317,6 +360,10 @@ export const ClinicAdmin = (props) => {
     setShowRevokeInviteDialog(false);
   }
 
+  function closeEditClinicProfileDialog() {
+    setShowEditClinicProfileDialog(false);
+  }
+
   function clearSelectedInvite() {
     setSelectedInvite(null);
   }
@@ -388,6 +435,17 @@ export const ClinicAdmin = (props) => {
     dispatch(actions.async.deleteClinicianInvite(api, selectedClinicId, inviteId));
   }
 
+  function handleEditClinicProfile() {
+    trackMetric('Clinic - Edit clinic profile', { clinicId: selectedClinicId });
+    clinicProfileFormContext.resetForm();
+    setShowEditClinicProfileDialog(true);
+  }
+
+  function handleConfirmEditClinicProfile() {
+    trackMetric('Clinic - Edit clinic profile saved', { clinicId: selectedClinicId });
+    clinicProfileFormContext?.handleSubmit();
+  }
+
   function handleSearchChange(event) {
     setPage(1);
     setSearchText(event.target.value);
@@ -432,21 +490,6 @@ export const ClinicAdmin = (props) => {
       <Text fontWeight="medium">{role}</Text>
     </Box>
   );
-
-  const renderEdit = ({ userId }) => {
-    if (userId) {
-      return (
-        <Button
-          p={0}
-          fontSize="inherit"
-          variant="textPrimary"
-          onClick={() => handleEdit(userId)}
-        >
-          {t('Edit')}
-        </Button>
-      );
-    }
-  };
 
   const renderMore = props => {
     const items = [];
@@ -607,12 +650,15 @@ export const ClinicAdmin = (props) => {
                     </Text>
                   </Flex>
 
-                  <Button
-                    sx={{ width: ['auto'], flex: 'initial' }}
-                    variant="tertiaryCondensed"
-                  >
-                    {t('Edit')}
-                  </Button>
+                  {isClinicAdmin() && (
+                    <Button
+                      sx={{ width: ['auto'], flex: 'initial' }}
+                      onClick={handleEditClinicProfile}
+                      variant="tertiaryCondensed"
+                    >
+                      {t('Edit')}
+                    </Button>
+                  )}
                 </Flex>
 
                 <Text sx={{ display: 'block', fontSize: 1, lineHeight: 3, fontWeight: 'bold' }}>
@@ -631,6 +677,12 @@ export const ClinicAdmin = (props) => {
                     clinic?.country,
                   ]).join(', ')}</Text>
                 </Text>
+
+                {clinic?.website && (
+                  <Text mb={1} sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
+                    {t('Website')} : <Text as="span" sx={{ fontWeight: 'medium' }}>{clinic.website}</Text>
+                  </Text>
+                )}
 
                 <Text sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
                   {t('Preferred blood glucose units')} : <Text as="span" sx={{ fontWeight: 'medium' }}>{clinic?.preferredBgUnits || ''}</Text>
@@ -894,6 +946,36 @@ export const ClinicAdmin = (props) => {
             onClick={() => handleConfirmRevokeInvite(selectedInvite.inviteId)}
           >
             {t('Revoke Invite')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        id="editClinicProfile"
+        maxWidth="md"
+        aria-labelledby="dialog-title"
+        open={showEditClinicProfileDialog}
+        onClose={closeEditClinicProfileDialog}
+      >
+        <DialogTitle onClose={closeEditClinicProfileDialog}>
+          <MediumTitle id="dialog-title">{t('Edit Workspace Details')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <ClinicProfileFields formikContext={clinicProfileFormContext} />
+        </DialogContent>
+
+        <DialogActions>
+          <Button variant="secondary" onClick={closeEditClinicProfileDialog}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            variant="primary"
+            processing={clinicProfileFormContext.isSubmitting}
+            onClick={() => handleConfirmEditClinicProfile()}
+          >
+            {t('Save Changes')}
           </Button>
         </DialogActions>
       </Dialog>

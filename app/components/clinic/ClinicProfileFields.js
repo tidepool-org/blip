@@ -6,11 +6,7 @@ import includes from 'lodash/includes';
 import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 import countries from 'i18n-iso-countries';
-import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
-
-import {
-  Body2,
-} from '../../components/elements/FontStyles';
+import { Box, Flex, BoxProps } from 'rebass/styled-components';
 
 import TextInput from '../../components/elements/TextInput';
 import RadioGroup from '../../components/elements/RadioGroup';
