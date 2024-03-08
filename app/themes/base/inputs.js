@@ -160,6 +160,29 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           marginRight: `${space[2]}px`,
         },
       },
+      ultraCondensed: {
+        ...textInputs,
+        fontSize: fontSizes[0],
+        input: {
+          ...textInputs.input,
+          padding: `${space[1]}px ${space[1] * 1.5}px`,
+          border: 'none',
+          '&:focus': {
+            outline: 'none',
+            border: 'none',
+          },
+          '&[type="time"]': {
+            paddingTop: `calc(${space[1]}px - 1px)`,
+            paddingBottom: `calc(${space[1]}px - 1px)`,
+          },
+        },
+        '.prefix': {
+          marginLeft: `${space[1]}px`,
+        },
+        '.suffix, .icon': {
+          marginRight: `${space[1]}px`,
+        },
+      },
     },
     select: {
       default: {

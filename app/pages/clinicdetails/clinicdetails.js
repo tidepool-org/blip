@@ -461,7 +461,7 @@ export const ClinicDetails = (props) => {
 
             {displayClinicForm && (
               <Box id="clinic-profile-form">
-                <Box variant="containers.well" mt={action === 'migrate' ? 4 : 0} mb={4}>
+                <Box variant="containers.wellBordered" mt={action === 'migrate' ? 4 : 0} mb={4}>
                   <Paragraph0>
                     {t('The information below will be displayed along with your name when you invite patients to connect and share their data remotely. Please ensure you have the correct clinic information for their verification.')}
                   </Paragraph0>

@@ -49,10 +49,6 @@ export default ({ borders, colors, radii, space }) => {
     ...defaultStyles,
     ...fluid,
     ...rounded,
-    ...bordered,
-    borderLeft: borders.default,
-    borderRight: borders.default,
-    borderRadius: radii.default,
     bg: colors.lightestGrey,
     p: space[3],
     mb: 0,
@@ -89,5 +85,12 @@ export default ({ borders, colors, radii, space }) => {
       ...bordered,
     },
     well,
+    wellBordered: {
+      ...well,
+      ...bordered,
+      borderLeft: borders.default,
+      borderRight: borders.default,
+      borderRadius: radii.default,
+    },
   };
 };

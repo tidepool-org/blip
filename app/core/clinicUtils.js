@@ -13,6 +13,8 @@ import postalCodes from './validation/postalCodes';
 import i18next from './language';
 
 import {
+  URL_TIDEPOOL_PLUS_PLANS,
+  URL_TIDEPOOL_PLUS_CONTACT_SALES,
   CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
   DEFAULT_CLINIC_TIER,
   DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
@@ -137,6 +139,9 @@ export const clinicTierDetails = (clinic = {}) => {
     patientCount: true,
     patientLimit: false,
     workspacePlan: false,
+    workspaceLimitDescription: false,
+    workspaceLimitFeedback: false,
+    workspaceLimitResolutionLink: false,
   };
 
   const details = {
@@ -206,16 +211,88 @@ export const clinicUIDetails = (clinic = {}) => {
   const { display, ...tierDetails } = clinicTierDetails(clinic);
   const { patientCount, patientCountSettings } = clinic;
   const patientCountHardLimit = patientCountSettings?.hardLimit?.patientCount;
+  const isBase = tierDetails.planName === 'base';
+  const isHonoredBase = tierDetails.planName === 'honoredBase';
+  const isActiveSalesBase = tierDetails.planName === 'activeSalesBase';
 
   const warnings = {
     limitReached: false,
     limitApproaching: false,
   };
 
-  if (tierDetails.patientLimitEnforced) {
-    const limit = patientCountHardLimit || DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT;
-    warnings.limitReached = patientCount >= limit;
+  const limit = patientCountHardLimit || DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT;
+
+  if (tierDetails.patientLimitEnforced || isHonoredBase) {
+    warnings.limitReached = tierDetails.patientLimitEnforced && patientCount >= limit;
     warnings.limitApproaching = limit - patientCount <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
+  }
+
+  let limitDescription;
+  let limitFeedback;
+  let limitResolutionLink;
+  const contactUsText = t('Contact us to unlock plans');
+  const unlockPlansText = t('Unlock plans');
+
+  if (isBase) {
+    limitDescription = t('Limited to {{limit}} patients', { limit });
+
+    limitFeedback = {
+      text: t('Maximum of {{limit}} patient accounts reached', { limit }),
+      status: 'warning',
+    };
+
+    limitResolutionLink = {
+      text: warnings.limitReached ? contactUsText: unlockPlansText,
+      url: warnings.limitReached ? URL_TIDEPOOL_PLUS_CONTACT_SALES: URL_TIDEPOOL_PLUS_PLANS,
+    };
+
+    display.workspaceLimitResolutionLink = true;
+
+    if (warnings.limitReached) {
+      display.workspaceLimitFeedback = true;
+    } else {
+      display.workspaceLimitDescription = true;
+    }
+  };
+
+  if (isHonoredBase) {
+    const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
+    limitDescription = t('Please note that starting on {{ date }}, Base Plans will support up to {{limit}} patient accounts.', {
+      date: moment(hardLimitStartDate).format('MMM, D, YYYY'),
+      limit,
+    });
+
+    limitFeedback = {
+      text: t('Please take action now to avoid disruptions'),
+      status: 'warning',
+    };
+
+    limitResolutionLink = {
+      text: warnings.limitApproaching ? contactUsText: unlockPlansText,
+      url: warnings.limitApproaching ? URL_TIDEPOOL_PLUS_CONTACT_SALES: URL_TIDEPOOL_PLUS_PLANS,
+    };
+
+    display.workspaceLimitResolutionLink = true;
+    display.workspaceLimitDescription = true;
+    display.workspaceLimitFeedback = warnings.limitApproaching;
+  }
+
+  if (isActiveSalesBase) {
+    limitDescription = t('Limited to {{limit}} patients', { limit });
+
+    limitFeedback = {
+      text: t('Change to plan in progress'),
+      status: 'success',
+    };
+
+    limitResolutionLink = {
+      text: unlockPlansText,
+      url: URL_TIDEPOOL_PLUS_PLANS,
+    };
+
+    display.workspaceLimitResolutionLink = true;
+    display.workspaceLimitDescription = true;
+    display.workspaceLimitFeedback = true;
   }
 
   const details = {
@@ -224,6 +301,9 @@ export const clinicUIDetails = (clinic = {}) => {
       display,
       text: {
         planDisplayName: clinicPlansNames[tierDetails.planName],
+        limitDescription,
+        limitFeedback,
+        limitResolutionLink,
       },
       warnings,
     }

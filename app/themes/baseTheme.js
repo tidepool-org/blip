@@ -70,6 +70,7 @@ export const colors = {
 
 export const borders = {
   default: `1px solid ${colors.border.default}`,
+  thick: `2px solid ${colors.border.default}`,
   input: `1px solid ${colors.border.inputLight}`,
   inputDark: `1px solid ${colors.border.inputDark}`,
   modal: `1px solid ${colors.border.modal}`,

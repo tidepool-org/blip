@@ -3,20 +3,22 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import map from 'lodash/map';
-import includes from 'lodash/includes';
+import compact from 'lodash/compact';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
+import get from 'lodash/get'
 import has from 'lodash/has';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty'
+import keyBy from 'lodash/keyBy';
+import map from 'lodash/map';
+import mapValues from 'lodash/mapValues';
+import { Box, Flex, Link, Text } from 'rebass/styled-components';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import EditIcon from '@material-ui/icons/EditRounded';
 import InputIcon from '@material-ui/icons/Input';
 import SearchIcon from '@material-ui/icons/Search';
-import DownloadIcon from '@material-ui/icons/GetAppRounded';
 import sundial from 'sundial';
 
 import {
@@ -31,6 +33,8 @@ import Table from '../../components/elements/Table';
 import Pagination from '../../components/elements/Pagination';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Pill from '../../components/elements/Pill';
+import ClinicIcon from '../../core/icons/clinicIcon.svg';
+import PlanIcon from '../../core/icons/planIcon.svg';
 
 import {
   Dialog,
@@ -41,10 +45,14 @@ import {
 
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import { useToasts } from '../../providers/ToastProvider';
-import baseTheme from '../../themes/baseTheme';
+import baseTheme, { borders } from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { usePrevious } from '../../core/hooks';
+import { clinicTypes } from '../../core/clinicUtils';
 import config from '../../config';
+import Icon from '../../components/elements/Icon';
+
+const clinicTypesLabels = mapValues(keyBy(clinicTypes, 'value'), 'label');
 
 export const ClinicAdmin = (props) => {
   const { t, api, trackMetric } = props;
@@ -228,9 +236,11 @@ export const ClinicAdmin = (props) => {
   );
 
   useEffect(() => {
-    setClinicianArray(getClinicianArray());
-    setUserRolesInClinic()
-  }, [clinic]);
+    if (clinic?.clinicians) {
+      setClinicianArray(getClinicianArray());
+      setUserRolesInClinic()
+    }
+  }, [clinic?.clinicians]);
 
   useEffect(() => {
     setUserRolesInClinic(get(find(clinicianArray, { userId: loggedInUserId }), 'roles', []));
@@ -577,60 +587,162 @@ export const ClinicAdmin = (props) => {
           <Flex
             px={4}
             py={2}
-            sx={{ borderBottom: baseTheme.borders.default }}
+            sx={{ borderBottom: baseTheme.borders.thick }}
             alignItems={'center'}
           >
-            <Title flexGrow={1}>
-              {t('Clinic Members')}
-            </Title>
+            <Text py={2} sx={{ display: 'block', color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>
+              {t('Workspace Settings')}
+            </Text>
           </Flex>
 
-          <Box mx={4}>
-            {/* Flex Group 1: Search Box and Add Patient button */}
-            <Flex
-              alignItems="center"
-              my={4}
-              justifyContent="space-between"
-              width={['100%', null, 'auto']}
-              sx={{ gap: 2 }}
-            >
-              {isClinicAdmin() && (
-                <Button
-                  id="add-patient"
-                  variant="primary"
-                  onClick={handleInviteNewMember}
-                  fontSize={0}
-                  px={[2, 3]}
-                  lineHeight={['inherit', null, 1]}
-                >
-                  {t('Invite New Clinic Team Member')}
-                </Button>
-              )}
+          <Box mx={4} py={4}>
+            <Flex mb={5} p={4} variant="containers.well" sx={{ flexWrap: ['wrap', null,  'nowrap'], gap: 3 }}>
+              <Box sx={{ flexBasis: ['100%', null, '67%'], color: 'darkGrey' }}>
+                <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
+                  <Flex sx={{ justifyContent: 'flex-start', color: 'grays.4', gap: 2, alignItems: 'center' }}>
+                    <Icon variant="static" theme={baseTheme} label="Ellipsis for skipped pages" iconSrc={ClinicIcon} />
 
-              <Flex flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
-                {isClinicAdmin() && (
+                    <Text sx={{ fontSize: 0, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
+                      Workspace Details
+                    </Text>
+                  </Flex>
+
                   <Button
-                    sx={{ mr: 2 }}
-                    flex={1}
-                    variant="textPrimary"
-                    fontSize={0}
-                    onClick={handleExportList}
-                    icon={DownloadIcon}
-                    iconLabel={t('Export List')}
-                    iconPosition="left"
-                    iconVariant="actionButtonIcon"
-                    iconSize={18}
-                    lineHeight={['inherit', null, 1]}
+                    sx={{ width: ['auto'], flex: 'initial' }}
+                    variant="tertiaryCondensed"
                   >
-                    {t('Export List')}
+                    {t('Edit')}
                   </Button>
+                </Flex>
+
+                <Text sx={{ display: 'block', fontSize: 1, lineHeight: 3, fontWeight: 'bold' }}>
+                  {clinic?.name}
+                </Text>
+
+                <Text mb={1} sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
+                  {t('Type')} : <Text as="span" sx={{ fontWeight: 'medium' }}>{clinicTypesLabels[clinic?.clinicType] || ''}</Text>
+                </Text>
+
+                <Text mb={1} sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
+                  {t('Address')} : <Text as="span" sx={{ fontWeight: 'medium' }}>{compact([
+                    clinic?.address,
+                    compact([clinic?.city, clinic?.state]).join(' '),
+                    clinic?.postalCode,
+                    clinic?.country,
+                  ]).join(', ')}</Text>
+                </Text>
+
+                <Text sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
+                  {t('Preferred blood glucose units')} : <Text as="span" sx={{ fontWeight: 'medium' }}>{clinic?.preferredBgUnits || ''}</Text>
+                </Text>
+              </Box>
+
+              {clinic?.ui?.display?.workspacePlan && (
+                <Box pl={[0, null, 3]} sx={{ flexBasis: ['100%', null, '33%'], borderLeft: ['none', null, borders.inputDark] }}>
+                  <Flex mb={2} sx={{ justifyContent: 'flex-start', color: 'grays.4', gap: 2, alignItems: 'center' }}>
+                    <Icon variant="static" theme={baseTheme} label="Ellipsis for skipped pages" iconSrc={PlanIcon} />
+
+                    <Text sx={{ fontSize: 0, fontWeight: 'medium' }}>
+                      Workspace Plan
+                    </Text>
+                  </Flex>
+
+                  <Text sx={{ display: 'inline-block', fontSize: 1, lineHeight: 3, fontWeight: 'bold' }}>
+                    {clinic?.ui?.text?.planDisplayName} {t('Plan')}
+                  </Text>
+
+                  {clinic?.ui?.display?.workspaceLimitDescription && (
+                    <Text mb={1} sx={{ display: 'block', fontSize: 0, fontWeight: 'medium', lineHeight: 1 }}>
+                      {clinic?.ui?.text?.limitDescription}
+                    </Text>
+                  )}
+
+                  {clinic?.ui?.display?.workspaceLimitFeedback && (
+                    <Box mb={1}>
+                      <Pill
+                        id="clinicPatientLimitFeedback"
+                        text={clinic?.ui?.text?.limitFeedback?.text}
+                        label={t('Patient limit feedback')}
+                        colorPalette={clinic?.ui?.text?.limitFeedback?.status}
+                        condensed
+                      />
+                    </Box>
+                  )}
+
+                  {clinic?.ui?.display?.workspaceLimitResolutionLink && (
+                    <Text
+                      sx={{
+                        fontSize: 0,
+                        fontWeight: 'medium',
+                        textDecoration: 'underline',
+                        color: 'text.link',
+                        '&:hover': { textDecoration: 'underline' },
+                        lineHeight: 1,
+                      }}
+                    >
+                      <Link
+                        id="clinicProfileUnlockPlansLink"
+                        href={clinic?.ui?.text?.limitResolutionLink?.url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                      >
+                        {clinic?.ui?.text?.limitResolutionLink?.text}
+                      </Link>
+                    </Text>
+                  )}
+                </Box>
+              )}
+            </Flex>
+
+            <Flex
+              pt={4}
+              mb={3}
+              sx={{
+                alignItems: 'center',
+                borderTop: borders.divider,
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 3,
+              }}
+            >
+              <Text py={1} sx={{ display: 'inline-block', color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>
+                {t('Clinic Members')}
+              </Text>
+
+              <Flex
+                alignItems="center"
+                justifyContent="space-between"
+                width={['100%', null, 'auto']}
+                sx={{ gap: 3, flexWrap: ['wrap', null, 'nowrap'] }}
+              >
+                {isClinicAdmin() && (
+                  <Flex sx={{ gap: 3, flex: 1 }}>
+                    <Button
+                      id="add-clinic-team-member"
+                      variant="primary"
+                      px={3}
+                      sx={{ fontSize: 0, whiteSpace: ['wrap', 'nowrap'], flexBasis: ['50%', 'auto'] }}
+                      onClick={handleInviteNewMember}
+                    >
+                      {t('Invite New Clinic Team Member')}
+                    </Button>
+
+                    <Button
+                      variant="tertiary"
+                      px={3}
+                      sx={{ fontSize: 0, whiteSpace: ['wrap', 'nowrap'], flexBasis: ['50%', 'auto'] }}
+                      onClick={handleExportList}
+                    >
+                      {t('Export List')}
+                    </Button>
+                  </Flex>
                 )}
                 <TextInput
                   flex={1}
                   themeProps={{
                     width: ['100%', null, '250px'],
                   }}
-                  fontSize="12px"
+                  sx={{ fontSize: 0 }}
                   id="search-members"
                   placeholder={t('Search by Name')}
                   icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
@@ -639,7 +751,7 @@ export const ClinicAdmin = (props) => {
                   name="search-members"
                   onChange={handleSearchChange}
                   value={searchText}
-                  variant="condensed"
+                  variant="ultraCondensed"
                 />
               </Flex>
             </Flex>
@@ -655,7 +767,7 @@ export const ClinicAdmin = (props) => {
               rowsPerPage={rowsPerPage}
               searchText={searchText}
               page={page}
-              fontSize={1}
+              fontSize={0}
             />
           </Box>
         </Box>
