@@ -639,8 +639,13 @@ export const ClinicAdmin = (props) => {
           </Flex>
 
           <Box mx={4} py={4}>
-            <Flex mb={5} p={4} variant="containers.well" sx={{ flexWrap: ['wrap', null,  'nowrap'], gap: 3 }}>
-              <Box sx={{ flexBasis: ['100%', null, clinic?.ui?.display?.workspacePlan ? '67%' : '100%'], color: 'darkGrey' }}>
+            <Flex
+              mb={5}
+              p={4}
+              variant="containers.well"
+              sx={{ flexWrap: ['wrap', null,  'nowrap'], gap: 3 }}
+            >
+              <Box id="clinicWorkspaceDetails" sx={{ flexBasis: ['100%', null, clinic?.ui?.display?.workspacePlan ? '67%' : '100%'], color: 'darkGrey' }}>
                 <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
                   <Flex sx={{ justifyContent: 'flex-start', color: 'grays.4', gap: 2, alignItems: 'center' }}>
                     <Icon variant="static" theme={baseTheme} label="Ellipsis for skipped pages" iconSrc={ClinicIcon} />
@@ -652,6 +657,7 @@ export const ClinicAdmin = (props) => {
 
                   {isClinicAdmin() && (
                     <Button
+                      id="clinic-profile-edit-trigger"
                       sx={{ width: ['auto'], flex: 'initial' }}
                       onClick={handleEditClinicProfile}
                       variant="tertiaryCondensed"
@@ -661,15 +667,15 @@ export const ClinicAdmin = (props) => {
                   )}
                 </Flex>
 
-                <Text sx={{ display: 'block', fontSize: 1, lineHeight: 3, fontWeight: 'bold' }}>
+                <Text id="clinicName" sx={{ display: 'block', fontSize: 1, lineHeight: 3, fontWeight: 'bold' }}>
                   {clinic?.name}
                 </Text>
 
-                <Text mb={1} sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
+                <Text id="clinicType" mb={1} sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
                   {t('Type')} : <Text as="span" sx={{ fontWeight: 'medium' }}>{clinicTypesLabels[clinic?.clinicType] || ''}</Text>
                 </Text>
 
-                <Text mb={1} sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
+                <Text id="clinicAddress" mb={1} sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
                   {t('Address')} : <Text as="span" sx={{ fontWeight: 'medium' }}>{compact([
                     clinic?.address,
                     compact([clinic?.city, clinic?.state]).join(' '),
@@ -679,18 +685,18 @@ export const ClinicAdmin = (props) => {
                 </Text>
 
                 {clinic?.website && (
-                  <Text mb={1} sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
+                  <Text id="clinicWebsite" mb={1} sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
                     {t('Website')} : <Text as="span" sx={{ fontWeight: 'medium' }}>{clinic.website}</Text>
                   </Text>
                 )}
 
-                <Text sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
+                <Text id="clinicPreferredBloodGlucoseUnits" sx={{ display: 'block', fontSize: 0, lineHeight: 1 }}>
                   {t('Preferred blood glucose units')} : <Text as="span" sx={{ fontWeight: 'medium' }}>{clinic?.preferredBgUnits || ''}</Text>
                 </Text>
               </Box>
 
               {clinic?.ui?.display?.workspacePlan && (
-                <Box pl={[0, null, 3]} sx={{ flexBasis: ['100%', null, '33%'], borderLeft: ['none', null, borders.inputDark] }}>
+                <Box id="clinicWorkspacePlan" pl={[0, null, 3]} sx={{ flexBasis: ['100%', null, '33%'], borderLeft: ['none', null, borders.inputDark] }}>
                   <Flex mb={2} sx={{ justifyContent: 'flex-start', color: 'grays.4', gap: 2, alignItems: 'center' }}>
                     <Icon variant="static" theme={baseTheme} label="Ellipsis for skipped pages" iconSrc={PlanIcon} />
 
@@ -699,12 +705,12 @@ export const ClinicAdmin = (props) => {
                     </Text>
                   </Flex>
 
-                  <Text sx={{ display: 'inline-block', fontSize: 1, lineHeight: 3, fontWeight: 'bold' }}>
+                  <Text id="clinicPlanName" sx={{ display: 'inline-block', fontSize: 1, lineHeight: 3, fontWeight: 'bold' }}>
                     {clinic?.ui?.text?.planDisplayName} {t('Plan')}
                   </Text>
 
                   {clinic?.ui?.display?.workspaceLimitDescription && (
-                    <Text mb={1} sx={{ display: 'block', fontSize: 0, fontWeight: 'medium', lineHeight: 1 }}>
+                    <Text id="clinicPatientLimitDescription" mb={1} sx={{ display: 'block', fontSize: 0, fontWeight: 'medium', lineHeight: 1 }}>
                       {clinic?.ui?.text?.limitDescription}
                     </Text>
                   )}
@@ -733,7 +739,7 @@ export const ClinicAdmin = (props) => {
                       }}
                     >
                       <Link
-                        id="clinicProfileUnlockPlansLink"
+                        id="clinicPatientLimitResolutionLink"
                         href={clinic?.ui?.text?.limitResolutionLink?.url}
                         target="_blank"
                         rel="noreferrer noopener"
@@ -972,6 +978,7 @@ export const ClinicAdmin = (props) => {
           </Button>
 
           <Button
+            id="editClinicProfileSubmit"
             variant="primary"
             processing={clinicProfileFormContext.isSubmitting}
             onClick={() => handleConfirmEditClinicProfile()}

@@ -4,12 +4,14 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
+import noop from 'lodash/noop';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Button from '../../../app/components/elements/Button';
 import Table from '../../../app/components/elements/Table';
 import Popover from '../../../app/components/elements/Popover';
 import ClinicAdmin from '../../../app/pages/clinicadmin';
 import { Dialog } from '../../../app/components/elements/Dialog';
+import moment from 'moment';
 
 /* global chai */
 /* global sinon */
@@ -36,6 +38,7 @@ describe('ClinicAdmin', () => {
         deleteClinicianFromClinic: sinon.stub(),
         resendClinicianInvite: sinon.stub(),
         deleteClinicianInvite: sinon.stub(),
+        update: sinon.stub().callsArgWith(2, null, { updateReturn: 'success' }),
       },
     },
   };
@@ -52,6 +55,7 @@ describe('ClinicAdmin', () => {
     defaultProps.api.clinics.getCliniciansFromClinic.resetHistory();
     defaultProps.api.clinics.deleteClinicianInvite.resetHistory();
     defaultProps.api.clinics.resendClinicianInvite.resetHistory();
+    defaultProps.api.clinics.update.resetHistory();
   });
 
   after(() => {
@@ -122,9 +126,9 @@ describe('ClinicAdmin', () => {
           },
           patients: {},
           id: 'clinicID456',
-          address: '1 Address Ln, City Zip',
-          name: 'new_clinic_name',
-          email: 'new_clinic_email_address@example.com',
+          address: '1 Test Ln',
+          name: 'Test Clinic',
+          email: 'test.clinic@example.com',
         },
       },
       loggedInUserId: 'clinicianUserId123',
@@ -185,6 +189,90 @@ describe('ClinicAdmin', () => {
         },
       },
     }),
+  };
+
+  const clinicMemberState = {
+    blip: merge({}, workingState.blip, {
+      allUsersMap: {
+        clinicianUserId123: {
+          emails: ['clinic@example.com'],
+          roles: ['clinic'],
+          userid: 'clinicianUserId123',
+          username: 'clinic@example.com',
+          profile: {
+            fullName: 'Example Clinic',
+            clinic: {
+              role: 'clinic_manager',
+            },
+          },
+        },
+      },
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              email: 'clinic@example.com',
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_MEMBER'],
+            },
+          },
+          patients: {},
+          id: 'clinicID456',
+          address: '1 Test Ln',
+          postalCode: '12345',
+          city: 'Gotham',
+          state: 'NJ',
+          country: 'US',
+          name: 'Test Clinic',
+          email: 'test.clinic@example.com',
+          shareCode: 'ABCD-ABCD-ABCD',
+          website: 'http://clinic.com',
+          clinicType: 'provider_practice',
+          preferredBgUnits: 'mmol/L',
+          ui: {
+            display: {
+              workspacePlan: true,
+              workspaceLimitDescription: true,
+              workspaceLimitFeedback: true,
+              workspaceLimitResolutionLink: true,
+            },
+            text: {
+              planDisplayName: 'Basey Base',
+              limitDescription: 'Basey Base is an OK-is plan, but you can do better',
+              limitFeedback: {
+                text: 'Uh-oh.  Not looking good here',
+                status: 'warning',
+              },
+              limitResolutionLink: {
+                text: 'Click this link',
+                url: 'https://resolutions.com',
+              },
+            }
+          },
+        },
+      },
+      loggedInUserId: 'clinicianUserId123',
+      selectedClinicId: 'clinicID456',
+      pendingSentInvites: [],
+    }),
+  };
+
+  const clinicAdminState = {
+    blip: {
+      ...clinicMemberState.blip,
+      clinics: {
+        clinicID456: {
+          ...clinicMemberState.blip.clinics.clinicID456,
+          clinicians: {
+            clinicianUserId123: {
+              email: 'clinic@example.com',
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_ADMIN'],
+            },
+          },
+        },
+      },
+    },
   };
 
   beforeEach(() => {
@@ -324,7 +412,7 @@ describe('ClinicAdmin', () => {
       const expectedCsv = expectedCsvRows.map((row) => row.join(',')).join('\n');
       const expectedBlob = new Blob([expectedCsv], { type: 'text/csv;charset=utf-8;' });
       const expectedUrl = 'mock-url';
-      const expectedDownloadFileName = 'new_clinic_name-2021-10-05 18:00:00 UTC.csv';
+      const expectedDownloadFileName = 'Test Clinic-2021-10-05 18:00:00 UTC.csv';
 
       const createBlobSpy = sinon.spy(window, 'Blob');
 
@@ -570,6 +658,286 @@ describe('ClinicAdmin', () => {
       ];
       expect(errorStore.getActions()).to.eql(expectedActions);
       sinon.assert.calledWith(defaultProps.api.clinics.getCliniciansFromClinic, 'clinicID456', { limit: 1000, offset: 0 });
+    });
+  });
+
+  describe('clinic workspace details', () => {
+    let store;
+
+    beforeEach(() => {
+      store = mockStore(clinicAdminState);
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicAdmin {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+      store.clearActions();
+    });
+
+    it('should render the main clinic workspace details', () => {
+      const workSpaceDetails = wrapper.find('#clinicWorkspaceDetails').hostNodes()
+      expect(workSpaceDetails).to.have.lengthOf(1);
+
+      expect(workSpaceDetails.find('#clinicName').hostNodes().text()).to.equal('Test Clinic');
+      expect(workSpaceDetails.find('#clinicType').hostNodes().text()).to.equal('Type : Provider Practice');
+      expect(workSpaceDetails.find('#clinicAddress').hostNodes().text()).to.equal('Address : 1 Test Ln, Gotham NJ, 12345, US');
+      expect(workSpaceDetails.find('#clinicWebsite').hostNodes().text()).to.equal('Website : http://clinic.com');
+      expect(workSpaceDetails.find('#clinicPreferredBloodGlucoseUnits').hostNodes().text()).to.equal('Preferred blood glucose units : mmol/L');
+    });
+
+    it('should render the workspace plan, description, feedback, and resolution link', () => {
+      const workSpacePlan = wrapper.find('#clinicWorkspacePlan').hostNodes()
+      expect(workSpacePlan).to.have.lengthOf(1);
+
+      expect(workSpacePlan.find('#clinicPlanName').hostNodes().text()).to.equal('Basey Base Plan');
+      expect(workSpacePlan.find('#clinicPatientLimitDescription').hostNodes().text()).to.equal('Basey Base is an OK-is plan, but you can do better');
+      expect(workSpacePlan.find('#clinicPatientLimitFeedback').hostNodes().text()).to.equal('Uh-oh.  Not looking good here');
+      expect(workSpacePlan.find('Pill#clinicPatientLimitFeedback').props().colorPalette).to.equal('warning');
+      expect(workSpacePlan.find('#clinicPatientLimitResolutionLink').hostNodes().text()).to.equal('Click this link');
+      expect(workSpacePlan.find('#clinicPatientLimitResolutionLink').hostNodes().props().href).to.equal('https://resolutions.com');
+    });
+  });
+
+  describe('clinic profile updating', () => {
+    let store;
+    let profileForm;
+
+    context('clinic non-admin team member', () => {
+      beforeEach(() => {
+        store = mockStore(clinicMemberState);
+
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicAdmin {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+      });
+
+      it('should not show a clinic profile edit button', () => {
+        const profileEditButton = wrapper.find('#clinic-profile-edit-trigger');
+        expect(profileEditButton).to.have.lengthOf(0);
+      });
+    });
+
+    context('clinic admin team member', () => {
+      beforeEach(() => {
+        store = mockStore(clinicAdminState);
+
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicAdmin {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+
+        profileForm = () => wrapper.find('Dialog#editClinicProfile');
+        expect(profileForm().props().open).to.be.false;
+
+        const profileEditButton = wrapper.find('#clinic-profile-edit-trigger').hostNodes();
+        profileEditButton.simulate('click');
+
+        expect(profileForm().props().open).to.be.true;
+      });
+
+      it('should populate the profile edit form with clinic values', () => {
+        expect(profileForm().find('input[name="name"]').prop('value')).to.equal('Test Clinic');
+        expect(profileForm().find('select[name="country"]').prop('value')).to.equal('US');
+        expect(profileForm().find('select[name="state"]').prop('value')).to.equal('NJ');
+        expect(profileForm().find('input[name="city"]').prop('value')).to.equal('Gotham');
+        expect(profileForm().find('input[name="address"]').prop('value')).to.equal('1 Test Ln');
+        expect(profileForm().find('input[name="postalCode"]').prop('value')).to.equal('12345');
+        expect(profileForm().find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
+        expect(profileForm().find('select[name="clinicType"]').prop('value')).to.equal('provider_practice');
+        expect(profileForm().find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mmol/L');
+      });
+
+      it('should submit updated clinic profile values', done => {
+        wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'name_updated' } });
+        expect(wrapper.find('input[name="name"]').prop('value')).to.equal('name_updated');
+
+        wrapper.find('select[name="country"]').simulate('change', { persist: noop, target: { name: 'country', value: 'CA' } });
+        expect(wrapper.find('select[name="country"]').prop('value')).to.equal('CA');
+
+        wrapper.find('select[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'ON' } });
+        expect(wrapper.find('select[name="state"]').prop('value')).to.equal('ON');
+
+        wrapper.find('input[name="city"]').simulate('change', { persist: noop, target: { name: 'city', value: 'city_updated' } });
+        expect(wrapper.find('input[name="city"]').prop('value')).to.equal('city_updated');
+
+        wrapper.find('input[name="address"]').simulate('change', { persist: noop, target: { name: 'address', value: 'address_updated' } });
+        expect(wrapper.find('input[name="address"]').prop('value')).to.equal('address_updated');
+
+        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: 'L3X 9G2' } });
+        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('L3X 9G2');
+
+        wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic_updated.com' } });
+        expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic_updated.com');
+
+        wrapper.find('select[name="clinicType"]').simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
+        expect(wrapper.find('select[name="clinicType"]').prop('value')).to.equal('healthcare_system');
+
+        wrapper.find('input[name="preferredBgUnits"]').at(1).simulate('change', { persist: noop, target: { name: 'preferredBgUnits', value: 'mg/dL' } });
+        expect(wrapper.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mg/dL');
+
+        store.clearActions();
+        wrapper.find('#editClinicProfileSubmit').hostNodes().simulate('click');
+
+        setTimeout(() => {
+          expect(defaultProps.api.clinics.update.callCount).to.equal(1);
+
+          sinon.assert.calledWith(
+            defaultProps.api.clinics.update,
+            'clinicID456',
+            {
+              address: 'address_updated',
+              city: 'city_updated',
+              clinicType: 'healthcare_system',
+              country: 'CA',
+              name: 'name_updated',
+              postalCode: 'L3X 9G2',
+              state: 'ON',
+              website: 'http://clinic_updated.com',
+              preferredBgUnits: 'mg/dL',
+            }
+          );
+
+          expect(store.getActions()).to.eql([
+            { type: 'UPDATE_CLINIC_REQUEST' },
+            {
+              type: 'UPDATE_CLINIC_SUCCESS',
+              payload: {
+                clinicId: 'clinicID456',
+                clinic: { updateReturn: 'success' },
+              },
+            },
+          ]);
+
+          done();
+        }, 0);
+      });
+    });
+
+    context('clinic admin team member with clinic timezone', () => {
+      beforeEach(() => {
+        store = mockStore(merge({}, clinicAdminState, {
+          blip: {
+            clinics: {
+              clinicID456: {
+                timezone: 'America/Toronto',
+              },
+            },
+          },
+        }));
+
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicAdmin {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+
+        profileForm = () => wrapper.find('Dialog#editClinicProfile');
+        expect(profileForm().props().open).to.be.false;
+
+        const profileEditButton = wrapper.find('#clinic-profile-edit-trigger').hostNodes();
+        profileEditButton.simulate('click');
+
+        expect(profileForm().props().open).to.be.true;
+      });
+
+      it('should populate the profile edit form with clinic values', () => {
+        expect(profileForm().find('input[name="name"]').prop('value')).to.equal('Test Clinic');
+        expect(profileForm().find('select[name="country"]').prop('value')).to.equal('US');
+        expect(profileForm().find('select[name="state"]').prop('value')).to.equal('NJ');
+        expect(profileForm().find('input[name="city"]').prop('value')).to.equal('Gotham');
+        expect(profileForm().find('input[name="address"]').prop('value')).to.equal('1 Test Ln');
+        expect(profileForm().find('input[name="postalCode"]').prop('value')).to.equal('12345');
+        expect(profileForm().find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
+        expect(profileForm().find('select[name="clinicType"]').prop('value')).to.equal('provider_practice');
+        expect(profileForm().find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mmol/L');
+      });
+
+      it('should submit updated clinic profile values maintaining timezone', done => {
+        wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'name_updated' } });
+        expect(wrapper.find('input[name="name"]').prop('value')).to.equal('name_updated');
+
+        wrapper.find('select[name="country"]').simulate('change', { persist: noop, target: { name: 'country', value: 'CA' } });
+        expect(wrapper.find('select[name="country"]').prop('value')).to.equal('CA');
+
+        wrapper.find('select[name="state"]').simulate('change', { persist: noop, target: { name: 'state', value: 'ON' } });
+        expect(wrapper.find('select[name="state"]').prop('value')).to.equal('ON');
+
+        wrapper.find('input[name="city"]').simulate('change', { persist: noop, target: { name: 'city', value: 'city_updated' } });
+        expect(wrapper.find('input[name="city"]').prop('value')).to.equal('city_updated');
+
+        wrapper.find('input[name="address"]').simulate('change', { persist: noop, target: { name: 'address', value: 'address_updated' } });
+        expect(wrapper.find('input[name="address"]').prop('value')).to.equal('address_updated');
+
+        wrapper.find('input[name="postalCode"]').simulate('change', { persist: noop, target: { name: 'postalCode', value: 'L3X 9G2' } });
+        expect(wrapper.find('input[name="postalCode"]').prop('value')).to.equal('L3X 9G2');
+
+        wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic_updated.com' } });
+        expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic_updated.com');
+
+        wrapper.find('select[name="clinicType"]').simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
+        expect(wrapper.find('select[name="clinicType"]').prop('value')).to.equal('healthcare_system');
+
+        wrapper.find('input[name="preferredBgUnits"]').at(1).simulate('change', { persist: noop, target: { name: 'preferredBgUnits', value: 'mg/dL' } });
+        expect(wrapper.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mg/dL');
+
+        store.clearActions();
+        wrapper.find('#editClinicProfileSubmit').hostNodes().simulate('click');
+
+        setTimeout(() => {
+          expect(store.getActions()).to.eql([
+            { type: 'UPDATE_CLINIC_REQUEST' },
+            {
+              type: 'UPDATE_CLINIC_SUCCESS',
+              payload: {
+                clinicId: 'clinicID456',
+                clinic: { updateReturn: 'success' },
+              },
+            },
+          ]);
+          expect(defaultProps.api.clinics.update.callCount).to.equal(1);
+
+          sinon.assert.calledWith(
+            defaultProps.api.clinics.update,
+            'clinicID456',
+            {
+              address: 'address_updated',
+              city: 'city_updated',
+              clinicType: 'healthcare_system',
+              country: 'CA',
+              name: 'name_updated',
+              postalCode: 'L3X 9G2',
+              state: 'ON',
+              website: 'http://clinic_updated.com',
+              preferredBgUnits: 'mg/dL',
+              timezone: 'America/Toronto',
+            }
+          );
+
+          expect(store.getActions()).to.eql([
+            { type: 'UPDATE_CLINIC_REQUEST' },
+            {
+              type: 'UPDATE_CLINIC_SUCCESS',
+              payload: {
+                clinicId: 'clinicID456',
+                clinic: { updateReturn: 'success' },
+              },
+            },
+          ]);
+
+          done();
+        }, 0);
+      });
     });
   });
 });
