@@ -22,7 +22,7 @@ import pick from 'lodash/pick';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import without from 'lodash/without';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Link, Text } from 'rebass/styled-components';
 import AddIcon from '@material-ui/icons/Add';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
@@ -52,7 +52,7 @@ import {
 import {
   MediumTitle,
   Body1,
-  Paragraph1,
+  Paragraph0,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
@@ -73,6 +73,7 @@ import Checkbox from '../../components/elements/Checkbox';
 import FilterIcon from '../../core/icons/FilterIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import utils from '../../core/utils';
+import LimitReached from './images/LimitReached.png';
 
 import {
   Dialog,
@@ -94,8 +95,8 @@ import {
   maxClinicPatientTags
 } from '../../core/clinicUtils';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
-import { borders, radii, colors, space } from '../../themes/baseTheme';
+import { MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
+import { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 
 const { Loader } = vizComponents;
@@ -1125,21 +1126,66 @@ export const ClinicPatients = (props) => {
             flexWrap="wrap"
             sx={{ gap: 2 }}
           >
-            <Button
-              id="add-patient"
-              variant="primary"
-              onClick={handleAddPatient}
-              fontSize={0}
-              px={[2, 3]}
-              lineHeight={['inherit', null, 1]}
+            <PopoverElement
+              id="limitReachedPopover"
+              triggerOnHover
+              keepOpenOnBlur
+              disabled={!(clinic?.patientLimitEnforced && clinic?.ui?.warnings?.limitReached)}
+              popoverProps={{
+                padding: `${space[3]}px`,
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                },
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+                borderRadius: radii.input,
+              }}
+              popoverContent={(
+                <>
+                  <img alt={t('Patient Limit Reached')} src={LimitReached} />
+                  <Box mt={3} sx={{ width: '213px' }}>
+                    <Paragraph0 fontWeight={fontWeights.bold}>{t('Your workspace has reached the maximum number of patient accounts supported by our Base Plan.')}</Paragraph0>
+                    <Paragraph0>
+                      {t('Please reach out to your administrator and')}&nbsp;
+                      <Link
+                        id="addPatientUnlockPlansLink"
+                        href={URL_TIDEPOOL_PLUS_PLANS}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        sx={{
+                          fontSize: 0,
+                          fontWeight: 'medium',
+                          textDecoration: 'underline',
+                          color: 'text.link',
+                          '&:hover': { textDecoration: 'underline' },
+                        }}
+                        >{t('learn more about our plans')}</Link>
+                    </Paragraph0>
+                  </Box>
+                </>
+              )}
             >
-              {t('Add New Patient')}
-            </Button>
+              <Button
+                id="add-patient"
+                variant="primary"
+                onClick={handleAddPatient}
+                fontSize={0}
+                px={[2, 3]}
+                lineHeight={['inherit', null, 1]}
+                disabled={clinic?.patientLimitEnforced && clinic?.ui?.warnings?.limitReached}
+              >
+                {t('Add New Patient')}
+              </Button>
+            </PopoverElement>
 
               <Box flex={1} flexBasis="fit-content" sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 <Flex justifyContent="space-between" alignContent="center" sx={{ gap: 2 }}>
                   {showTideDashboardUI && (
                     <PopoverElement
+                      id="tideDashAddTagsPopover"
                       triggerOnHover
                       disabled={!!clinic?.patientTags?.length}
                       popoverProps={{
@@ -1172,7 +1218,7 @@ export const ClinicPatients = (props) => {
                         px={2}
                         disabled={!clinic?.patientTags?.length}
                         tagColorPalette={!clinic?.patientTags?.length ? [colors.lightGrey, colors.text.primaryDisabled] : 'greens'}
-                        >
+                      >
                         {t('TIDE Dashboard View')}
                       </Button>
                     </PopoverElement>
