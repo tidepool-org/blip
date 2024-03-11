@@ -1130,7 +1130,7 @@ export const ClinicPatients = (props) => {
               id="limitReachedPopover"
               triggerOnHover
               keepOpenOnBlur
-              disabled={!(clinic?.patientLimitEnforced && clinic?.ui?.warnings?.limitReached)}
+              disabled={!(clinic?.patientLimitEnforced && !!clinic?.ui?.warnings?.limitReached)}
               popoverProps={{
                 padding: `${space[3]}px`,
                 anchorOrigin: {
@@ -1175,7 +1175,7 @@ export const ClinicPatients = (props) => {
                 fontSize={0}
                 px={[2, 3]}
                 lineHeight={['inherit', null, 1]}
-                disabled={clinic?.patientLimitEnforced && clinic?.ui?.warnings?.limitReached}
+                disabled={clinic?.patientLimitEnforced && !!clinic?.ui?.warnings?.limitReached}
               >
                 {t('Add New Patient')}
               </Button>

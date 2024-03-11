@@ -34,7 +34,11 @@ const PopoverElement = props => {
         {children}
       </Flex>
 
-      <Popover {...bindPopover(popupState)} useHoverPopover={(triggerOnHover && !keepOpenOnBlur)} {...popoverProps}>
+      <Popover
+        {...bindPopover(popupState)}
+        useHoverPopover={(triggerOnHover && !keepOpenOnBlur)}
+        {...popoverProps}
+      >
         {React.cloneElement(PopoverContent, {})}
       </Popover>
     </React.Fragment>
