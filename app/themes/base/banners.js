@@ -1,39 +1,43 @@
 export default ({ colors, fonts, fontSizes, fontWeights }) => {
-  const common = {
-    color: colors.white,
+  const common = variant => ({
+    color: colors.banner[variant].message,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 2,
+    padding: '12px',
+    bg: colors.banner[variant].bg,
+
+    '.icon': {
+      color: colors.banner[variant].icon,
+      fontSize: fontSizes[4],
+    },
 
     '.message': {
       fontFamily: fonts.default,
-      fontSize: fontSizes[1],
+      fontSize: fontSizes[0],
       fontWeight: fontWeights.medium,
     },
 
-    '.close-icon': {
-      color: colors.white,
-      fontSize: fontSizes[1],
+    'button.action': {
+      fontFamily: fonts.default,
+      fontSize: fontSizes[0],
+      fontWeight: fontWeights.medium,
+      bg: colors.banner[variant].action.bg,
+      borderColor: colors.banner[variant].action.bg,
+      color: colors.banner[variant].action.text,
+      ml: 2,
     },
-  };
+
+    '.close-icon': {
+      color: colors.banner[variant].closeIcon,
+      fontSize: fontSizes[3],
+    },
+  });
 
   return {
-    info: {
-      ...common,
-      backgroundColor: colors.feedback.info,
-    },
-    warning: {
-      ...common,
-      backgroundColor: colors.feedback.warning,
-    },
-    danger: {
-      ...common,
-      backgroundColor: colors.feedback.danger,
-    },
-    success: {
-      ...common,
-      backgroundColor: colors.feedback.success,
-    },
+    info: common('info'),
+    warning: common('warning'),
+    danger: common('danger'),
+    success: common('success'),
   };
 };

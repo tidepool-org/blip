@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, text } from '@storybook/addon-knobs';
+import { action } from '@storybook/addon-actions';
 import { ThemeProvider } from 'styled-components';
 import map from 'lodash/map';
 
@@ -26,20 +27,24 @@ const bannerTextDanger = () => text('Banner Text Danger', 'Lorem ipsum dolor sit
 const bannerTextWarning = () => text('Banner Text Warning', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.');
 const bannerTextSuccess = () => text('Banner Text Success', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.');
 
-function createBanner(message, variant, dismissable = true) {
-  return { message, variant, dismissable };
+function createBanner(message, variant, dismissable = true, actionText) {
+  return { message, variant, dismissable, actionText };
 }
 
 export const BannerStory = () => {
   const [alerts, setAlerts] = useState([
     createBanner(bannerText(), 'info'),
     createBanner(bannerText(), 'info', false),
+    createBanner(bannerText(), 'info', true, 'Info Action'),
     createBanner(bannerTextWarning(), 'warning'),
     createBanner(bannerTextWarning(), 'warning', false),
+    createBanner(bannerTextWarning(), 'warning', true, 'Warning Action'),
     createBanner(bannerTextDanger(), 'danger'),
     createBanner(bannerTextDanger(), 'danger', false),
+    createBanner(bannerTextDanger(), 'danger', true, 'Danger Action'),
     createBanner(bannerTextSuccess(), 'success'),
     createBanner(bannerTextSuccess(), 'success', false),
+    createBanner(bannerTextSuccess(), 'success', true, 'Success Action'),
   ]);
 
   const handleDismissed = index => {
@@ -55,6 +60,7 @@ export const BannerStory = () => {
           key={`banner-${index}`}
           label={`banner-${index}`}
           onDismiss={() => () => handleDismissed(index)}
+          onAction={alert.actionText ? () => action(alert.actionText)() : undefined}
           {...alert}
         />
       ))}
