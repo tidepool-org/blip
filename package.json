@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.76.0-web-2831-limit-reached-banner.1",
+  "version": "1.76.0-web-2839-pendo-active-tier.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/karma/bin/karma start",
