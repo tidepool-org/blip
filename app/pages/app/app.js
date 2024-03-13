@@ -590,26 +590,25 @@ export class AppComponent extends React.Component {
 
     if (showingPatientLimitBanner) {
         const clinic = clinics?.[selectedClinicId];
-        this.props.context.trackMetric('Patient limit reached banner: displayed');
+        this.props.context.trackMetric('Patient limit banner: displayed');
 
         return (
-          <div className="App-addemailbanner">
-            <Banner
-              variant="warning"
-              label={t('Patient limit reached banner')}
-              actionText={t('Contact us to unlock plans')}
-              onAction={() => {
-                this.props.context.trackMetric('Patient limit reached banner: contact sales clicked');
-                dismissBanner('patientLimit');
-                window.open(URL_TIDEPOOL_PLUS_CONTACT_SALES, '_blank')
-              }}
-              onDismiss={() => {
-                this.props.context.trackMetric('Patient limit reached banner: dismissed');
-                dismissBanner('patientLimit');
-              }}
-              message={t('{{clinic.name}} has reached the maximum number of patient accounts.', { clinic })}
-            />
-          </div>
+          <Banner
+            id="patientLimitBanner"
+            variant="warning"
+            label={t('Patient limit banner')}
+            actionText={t('Contact us to unlock plans')}
+            onAction={() => {
+              this.props.context.trackMetric('Patient limit banner: contact sales clicked');
+              dismissBanner('patientLimit');
+              window.open(URL_TIDEPOOL_PLUS_CONTACT_SALES, '_blank')
+            }}
+            onDismiss={() => {
+              this.props.context.trackMetric('Patient limit banner: dismissed');
+              dismissBanner('patientLimit');
+            }}
+            message={t('{{clinic.name}} has reached the maximum number of patient accounts.', { clinic })}
+          />
         );
     }
 
