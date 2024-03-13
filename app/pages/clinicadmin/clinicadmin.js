@@ -648,7 +648,7 @@ export const ClinicAdmin = (props) => {
               <Box id="clinicWorkspaceDetails" sx={{ flexBasis: ['100%', null, clinic?.ui?.display?.workspacePlan ? '67%' : '100%'], color: 'darkGrey' }}>
                 <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
                   <Flex sx={{ justifyContent: 'flex-start', color: 'grays.4', gap: 2, alignItems: 'center' }}>
-                    <Icon variant="static" theme={baseTheme} label="Ellipsis for skipped pages" iconSrc={ClinicIcon} />
+                    <Icon variant="static" theme={baseTheme} label="Clinic icon" iconSrc={ClinicIcon} />
 
                     <Text sx={{ fontSize: 0, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
                       Workspace Details
@@ -698,7 +698,7 @@ export const ClinicAdmin = (props) => {
               {clinic?.ui?.display?.workspacePlan && (
                 <Box id="clinicWorkspacePlan" pl={[0, null, 3]} sx={{ flexBasis: ['100%', null, '33%'], borderLeft: ['none', null, borders.inputDark] }}>
                   <Flex mb={2} sx={{ justifyContent: 'flex-start', color: 'grays.4', gap: 2, alignItems: 'center' }}>
-                    <Icon variant="static" theme={baseTheme} label="Ellipsis for skipped pages" iconSrc={PlanIcon} />
+                    <Icon variant="static" theme={baseTheme} label="Clinic plan icon" iconSrc={PlanIcon} />
 
                     <Text sx={{ fontSize: 0, fontWeight: 'medium' }}>
                       Workspace Plan
