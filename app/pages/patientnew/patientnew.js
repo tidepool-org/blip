@@ -399,7 +399,7 @@ export const PatientNew = (props) => {
               />
             </Box>
 
-            <Box variant="containers.well">
+            <Box variant="containers.wellBordered">
               <Text sx={{ fontSize: 1, fontWeight: 'medium', color: 'purpleDark' }} mb={1}>
                 {patientDetailsText[values.accountType]?.dataDonateTitle}
               </Text>

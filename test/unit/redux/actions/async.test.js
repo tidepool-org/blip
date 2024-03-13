@@ -8573,9 +8573,15 @@ describe('Actions', () => {
                     patientLimit: false,
                     planName: false,
                     workspacePlan: false,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: false,
+                    workspaceLimitResolutionLink: false,
                   },
                   text: {
                     planDisplayName: 'Base',
+                    limitDescription: undefined,
+                    limitFeedback: undefined,
+                    limitResolutionLink: undefined,
                   },
                   warnings: {
                     limitApproaching: false,
@@ -8641,9 +8647,15 @@ describe('Actions', () => {
                     patientLimit: false,
                     planName: false,
                     workspacePlan: false,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: false,
+                    workspaceLimitResolutionLink: false,
                   },
                   text: {
                     planDisplayName: 'Base',
+                    limitDescription: undefined,
+                    limitFeedback: undefined,
+                    limitResolutionLink: undefined,
                   },
                   warnings: {
                     limitApproaching: false,
