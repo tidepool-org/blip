@@ -12,6 +12,7 @@ import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
 import Popover from '../../../app/components/elements/Popover';
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
+import { URL_TIDEPOOL_PLUS_PLANS } from '../../../app/core/constants';
 import Button from '../../../app/components/elements/Button';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 
@@ -1425,6 +1426,63 @@ describe('ClinicPatients', () => {
             wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
 
             expect(wrapper.find('#summary-dashboard-filters').hostNodes()).to.have.lengthOf(1);
+          });
+        });
+
+        context('patient limit is reached', () => {
+          let addButton;
+          let wrapper;
+
+          beforeEach(() => {
+            store = mockStore({
+              blip: {
+                ...tier0100ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0100ClinicState.blip.clinics.clinicID123,
+                    patientLimitEnforced: true,
+                    ui: {
+                      warnings: {
+                        limitReached: 'yep',
+                      },
+                    },
+                  },
+                },
+              },
+            });
+
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showSummaryDashboard: false,
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            defaultProps.trackMetric.resetHistory();
+
+            addButton = wrapper.find('button#add-patient');
+            expect(addButton.text()).to.equal('Add New Patient');
+          });
+
+          it('should disable the add patient button', () => {
+            expect(addButton.props().disabled).to.be.true;
+          });
+
+          it('should show a popover with a link to the plans url if add patient button hovered', () => {
+            addButton.simulate('mouseenter');
+
+            const popover = () => wrapper.find('#limitReachedPopover').hostNodes();
+            expect(popover()).to.have.lengthOf(1);
+
+            const link = popover().find('#addPatientUnlockPlansLink').hostNodes();
+            expect(link).to.have.lengthOf(1)
+            expect(link.props().href).to.equal(URL_TIDEPOOL_PLUS_PLANS)
           });
         });
       });
