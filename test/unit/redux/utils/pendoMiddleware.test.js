@@ -527,7 +527,7 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
   });
 
-  it('should call update and set patient count for FETCH_PATIENTS_FOR_CLINIC_SUCCESS', () => {
+  it('should call update and set patient count for FETCH_CLINIC_PATIENT_COUNT_SUCCESS', () => {
     winMock.pendo.visitorId = 'clinicAdminID';
     const fetchClinicPatientCountSuccess = {
       type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
@@ -555,6 +555,80 @@ describe('pendoMiddleware', () => {
     };
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountSuccess);
+    expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+    expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
+  });
+
+  it('should call update and set patient count limit and start date for FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS', () => {
+    winMock.pendo.visitorId = 'clinicAdminID';
+    const fetchClinicPatientCountSettingsSuccess = {
+      type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS,
+      payload: {
+        clinicId: 'clinicID123',
+        patientCountSettings: {
+          hardLimit: {
+            patientCount: 250,
+            startDate: '2024-11-11T00:00:00.000Z',
+          },
+        },
+      },
+    };
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, 'clinicID123'),
+          loggedInUserId: 'clinicAdminID',
+          allUsersMap: _.pick(users, 'clinicAdminID'),
+          selectedClinicId: 'clinicID123',
+        },
+      },
+    });
+    const expectedConfig = {
+      account: {
+        id: 'clinicID123',
+        patientCountHardLimit: 250,
+        patientCountHardLimitStartDate: '2024-11-11T00:00:00.000Z',
+      },
+    };
+    expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountSettingsSuccess);
+    expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+    expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
+  });
+
+  it('should call update and set patient count limit and start date for SET_CLINIC_UI_DETAILS', () => {
+    winMock.pendo.visitorId = 'clinicAdminID';
+    const setClinicUIDetails = {
+      type: ActionTypes.SET_CLINIC_UI_DETAILS,
+      payload: {
+        clinicId: 'clinicID123',
+        uiDetails: {
+          patientLimitEnforced: false,
+          planName: 'activeSalesBase',
+        },
+      },
+    };
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, 'clinicID123'),
+          loggedInUserId: 'clinicAdminID',
+          allUsersMap: _.pick(users, 'clinicAdminID'),
+          selectedClinicId: 'clinicID123',
+        },
+      },
+    });
+    const expectedConfig = {
+      account: {
+        id: 'clinicID123',
+        patientLimitEnforced: false,
+        planName: 'activeSalesBase',
+      },
+    };
+    expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(setClinicUIDetails);
     expect(winMock.pendo.updateOptions.callCount).to.equal(1);
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
   });
