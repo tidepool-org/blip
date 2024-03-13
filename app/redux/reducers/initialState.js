@@ -34,6 +34,7 @@ const initialState = {
   seenShareDataBannerMax: false,
   showingUpdateTypeBanner: null,
   showingUploaderBanner: null,
+  showingPatientLimitBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,

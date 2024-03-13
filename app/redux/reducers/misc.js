@@ -200,6 +200,22 @@ export const seenShareDataBannerMax = (state = initialState.seenShareDataBannerM
   }
 };
 
+export const showingPatientLimitBanner = (state = initialState.showingShareDataBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'patientLimit' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'patientLimit') ? false : state;
+    case types.HIDE_BANNER:
+      return (action.payload.type === 'patientLimit') ? null : state;
+    case types.LOGOUT_REQUEST:
+    case types.SELECT_CLINIC_SUCCESS:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const signupKey = (state = initialState.signupKey, action) => {
   switch(action.type) {
     case types.CONFIRM_SIGNUP_FAILURE:
