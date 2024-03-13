@@ -53,7 +53,7 @@ const Banner = (props) => {
           className="close-icon"
           icon={CloseRoundedIcon}
           label="Close banner"
-          onClick={onDismiss()}
+          onClick={() => onDismiss()}
         />
       )}
     </Flex>

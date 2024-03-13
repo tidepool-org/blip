@@ -59,7 +59,7 @@ export const BannerStory = () => {
           my={2}
           key={`banner-${index}`}
           label={`banner-${index}`}
-          onDismiss={() => () => handleDismissed(index)}
+          onDismiss={() => handleDismissed(index)}
           onAction={alert.actionText ? () => action(alert.actionText)() : undefined}
           {...alert}
         />
