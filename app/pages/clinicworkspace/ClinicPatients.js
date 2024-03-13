@@ -73,7 +73,7 @@ import Checkbox from '../../components/elements/Checkbox';
 import FilterIcon from '../../core/icons/FilterIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import utils from '../../core/utils';
-import LimitReached from './images/LimitReached.png';
+import LimitReached from './images/LimitReached.svg';
 
 import {
   Dialog,
