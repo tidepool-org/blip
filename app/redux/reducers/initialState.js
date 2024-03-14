@@ -155,6 +155,7 @@ const initialState = {
     deletingClinicPatientTag: Object.assign({}, working),
     fetchingInfo: Object.assign({}, working),
     fetchingTideDashboardPatients: Object.assign({}, working),
+    fetchingRpmReportPatients: Object.assign({}, working),
     fetchingClinicPatientCount: Object.assign({}, working),
     fetchingClinicPatientCountSettings: Object.assign({}, working),
   },
@@ -175,6 +176,7 @@ const initialState = {
   clinicFlowActive: false,
   keycloakConfig: {},
   tideDashboardPatients: {},
+  rpmReportPatients: {},
   ssoEnabledDisplay: false,
 };
 

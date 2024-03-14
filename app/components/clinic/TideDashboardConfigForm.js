@@ -28,7 +28,7 @@ function getFormValues(config, clinicPatientTags) {
   };
 }
 
-export function validateConfig(config, clinicPatientTags) {
+export function validateTideConfig(config, clinicPatientTags) {
   try {
     validationSchema.validateSync(getFormValues(config, clinicPatientTags));
     return true;
@@ -137,7 +137,6 @@ TideDashboardConfigForm.propTypes = {
   ...BoxProps,
   api: PropTypes.object.isRequired,
   onFormChange: PropTypes.func.isRequired,
-  patient: PropTypes.object,
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };

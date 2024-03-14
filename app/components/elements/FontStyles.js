@@ -129,7 +129,7 @@ export const Paragraph0 = Styled(Body0)`
 
 export const Caption = Styled(Text)`
   font-size: ${fontSizes[0]}px;
-  line-height: ${lineHeights[4]};
+  line-height: ${props => (props.lineHeight ? lineHeights[props.lineHeight] : lineHeights[4])};
   font-family: ${fonts.default};
   font-weight: ${props => (props.fontWeight ? props.fontWeight : fontWeights.regular)};
   color: ${props => (props.color ? props.color : colors.text.primary)};

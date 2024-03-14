@@ -4229,6 +4229,61 @@ describe('Actions', () => {
     });
   });
 
+  describe('fetchRpmReportPatientsRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.fetchRpmReportPatientsRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_RPM_REPORT_PATIENTS_REQUEST', () => {
+      let action = sync.fetchRpmReportPatientsRequest();
+      expect(action.type).to.equal('FETCH_RPM_REPORT_PATIENTS_REQUEST');
+    });
+  });
+
+  describe('fetchRpmReportPatientsSuccess', () => {
+    const results = 'results';
+
+    it('should be a TSA', () => {
+      let action = sync.fetchRpmReportPatientsSuccess(results);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_RPM_REPORT_PATIENTS_SUCCESS', () => {
+      let action = sync.fetchRpmReportPatientsSuccess(results);
+      expect(action.type).to.equal('FETCH_RPM_REPORT_PATIENTS_SUCCESS');
+      expect(action.payload.results).to.equal(results);
+    });
+  });
+
+  describe('fetchRpmReportPatientsFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('fetching patients failed :(');
+      let action = sync.fetchRpmReportPatientsFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_RPM_REPORT_PATIENTS_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.fetchRpmReportPatientsFailure(error);
+      expect(action.type).to.equal('FETCH_RPM_REPORT_PATIENTS_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
+  describe('clearRpmReportPatients', () => {
+    it('should be a TSA', () => {
+      let error = new Error('fetching patients failed :(');
+      let action = sync.clearRpmReportPatients(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal CLEAR_RPM_REPORT_PATIENTS', () => {
+      let action = sync.clearRpmReportPatients();
+      expect(action.type).to.equal('CLEAR_RPM_REPORT_PATIENTS');
+    });
+  });
+
   describe('generateAGPImagesRequest', () => {
     const data = 'data';
     const opts = 'opts';

@@ -438,6 +438,7 @@ describe('ClinicAdmin', () => {
 
       createElementStub.restore();
       createObjectURLStub.restore();
+      createBlobSpy.restore();
       clock.restore();
     });
 

@@ -70,10 +70,10 @@ const StyledDialogContent = styled(Box)`
   }
 `;
 
-export const DialogContent = props => (
+export const DialogContent = ({ sx, divider, ...props }) => (
   <StyledDialogContent
     p={3}
-    sx={{ borderBottom: props.divider ? borders.divider : 'unset' }}
+    sx={{ borderBottom: divider ? borders.divider : 'unset', ...sx }}
     {...props}
   />
 );

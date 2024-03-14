@@ -60,6 +60,7 @@ import {
   clinicFlowActive,
   keycloakConfig,
   tideDashboardPatients,
+  rpmReportPatients,
   ssoEnabledDisplay,
 } from './misc';
 
@@ -103,6 +104,7 @@ export default combineReducers({
   clinicFlowActive,
   keycloakConfig,
   tideDashboardPatients,
+  rpmReportPatients,
   ssoEnabledDisplay,
   pdf,
   data,
