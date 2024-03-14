@@ -18,6 +18,7 @@ import { Icon } from './Icon';
 import {
   default as baseTheme,
   colors,
+  fontSizes,
   radii,
   shadows,
   space,
@@ -26,13 +27,15 @@ import {
 const StyledDateRangePicker = styled(StyledDatePickerBase)`
   .DateRangePickerInput {
     border-radius: ${radii.input}px;
-    border-color: ${colors.borderColor};
+    border-color: ${colors.border.inputLight};
 
     .DateInput {
       border-radius: ${radii.input}px;
 
       input {
         border-radius: ${radii.input}px;
+        font-size: ${fontSizes[1]}px;
+        padding: ${space[2]}px;
       }
     }
   }

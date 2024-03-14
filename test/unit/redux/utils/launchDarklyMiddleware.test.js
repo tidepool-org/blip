@@ -194,10 +194,10 @@ describe('launchDarklyMiddleware', () => {
     });
   });
 
-  context('SELECT_CLINIC', () => {
+  context('SELECT_CLINIC_SUCCESS', () => {
     it('should set clinic context to the selected clinic', () => {
       const action = {
-        type: ActionTypes.SELECT_CLINIC,
+        type: ActionTypes.SELECT_CLINIC_SUCCESS,
         payload: {
           clinicId: 'clinicID123',
         },
@@ -217,7 +217,7 @@ describe('launchDarklyMiddleware', () => {
 
     it('should set user permission context to `administrator` for admins', () => {
       const action = {
-        type: ActionTypes.SELECT_CLINIC,
+        type: ActionTypes.SELECT_CLINIC_SUCCESS,
         payload: {
           clinicId: 'clinicID123',
         },
@@ -235,7 +235,7 @@ describe('launchDarklyMiddleware', () => {
 
     it('should set user permission context to `member` for non-admins', () => {
       const action = {
-        type: ActionTypes.SELECT_CLINIC,
+        type: ActionTypes.SELECT_CLINIC_SUCCESS,
         payload: {
           clinicId: 'clinicID123',
         },
@@ -251,9 +251,9 @@ describe('launchDarklyMiddleware', () => {
       });
     });
 
-    it('should reset clinic context to default for SELECT_CLINIC with clinicID null', () => {
+    it('should reset clinic context to default for SELECT_CLINIC_SUCCESS with clinicID null', () => {
       const action = {
-        type: ActionTypes.SELECT_CLINIC,
+        type: ActionTypes.SELECT_CLINIC_SUCCESS,
         payload: {
           clinicId: null,
         },

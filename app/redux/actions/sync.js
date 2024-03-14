@@ -1989,9 +1989,9 @@ export function getClinicsForClinicianFailure(error, apiError) {
   };
 }
 
-export function selectClinic(clinicId) {
+export function selectClinicSuccess(clinicId) {
   return {
-    type: ActionTypes.SELECT_CLINIC,
+    type: ActionTypes.SELECT_CLINIC_SUCCESS,
     payload: {
       clinicId
     },
@@ -2337,5 +2337,67 @@ export function setSSOEnabledDisplay(value) {
   return {
     type: ActionTypes.SET_SSO_ENABLED_DISPLAY,
     payload: { value },
+  };
+}
+
+export function fetchClinicPatientCountRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
+  };
+}
+
+export function fetchClinicPatientCountSuccess(clinicId, results) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientCount: results.patientCount,
+    },
+  };
+}
+
+export function fetchClinicPatientCountFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_FAILURE,
+    error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchClinicPatientCountSettingsRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST,
+  };
+}
+
+export function fetchClinicPatientCountSettingsSuccess(clinicId, patientCountSettings) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientCountSettings: patientCountSettings,
+    },
+  };
+}
+
+export function fetchClinicPatientCountSettingsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE,
+    error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function setClinicUIDetails(clinicId, uiDetails) {
+  return {
+    type: ActionTypes.SET_CLINIC_UI_DETAILS,
+    payload: {
+      clinicId: clinicId,
+      uiDetails: uiDetails,
+    },
   };
 }

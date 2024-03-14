@@ -34,6 +34,7 @@ const initialState = {
   seenShareDataBannerMax: false,
   showingUpdateTypeBanner: null,
   showingUploaderBanner: null,
+  showingPatientLimitBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,
@@ -155,6 +156,8 @@ const initialState = {
     fetchingInfo: Object.assign({}, working),
     fetchingTideDashboardPatients: Object.assign({}, working),
     fetchingRpmReportPatients: Object.assign({}, working),
+    fetchingClinicPatientCount: Object.assign({}, working),
+    fetchingClinicPatientCountSettings: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {

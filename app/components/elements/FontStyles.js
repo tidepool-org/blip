@@ -86,6 +86,7 @@ export const Body2 = Styled(Text)`
   font-size: ${fontSizes[2]}px;
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
+  font-weight: ${props => (props.fontWeight ? props.fontWeight : fontWeights.regular)};
   color: ${props => (props.color ? props.color : colors.text.primary)};
 `;
 
@@ -93,6 +94,7 @@ export const Body1 = Styled(Text)`
   font-size: ${fontSizes[1]}px;
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
+  font-weight: ${props => (props.fontWeight ? props.fontWeight : fontWeights.regular)};
   color: ${props => (props.color ? props.color : colors.text.primary)};
 `;
 
@@ -100,6 +102,7 @@ export const Body0 = Styled(Text)`
   font-size: ${fontSizes[0]}px;
   line-height: ${lineHeights[2]};
   font-family: ${fonts.default};
+  font-weight: ${props => (props.fontWeight ? props.fontWeight : fontWeights.regular)};
   color: ${props => (props.color ? props.color : colors.text.primary)};
 `;
 
@@ -111,6 +114,13 @@ export const Paragraph2 = Styled(Body2)`
 `;
 
 export const Paragraph1 = Styled(Body1)`
+  margin-bottom: 1em;
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+export const Paragraph0 = Styled(Body0)`
   margin-bottom: 1em;
   &:last-child {
     margin-bottom: 0;

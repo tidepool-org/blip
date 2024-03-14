@@ -18830,10 +18830,10 @@ tideline@1.27.0:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.56.0-web-2756-rpm-report-api.1:
-  version "0.56.0-web-2756-rpm-report-api.1"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.56.0-web-2756-rpm-report-api.1.tgz#34d3d7566744360a530bad4fb201474f583f70c9"
-  integrity sha512-OvZmvRTK+Jzs/rJ/yCXlDttqNNu3ikfnvkJGTzzsdwww73xx6N3rd9Vao70znMgGyWHLzwCJQKRPPaYldSrhkA==
+tidepool-platform-client@0.56.0-web-2763-pendo-patient-count.1:
+  version "0.56.0-web-2763-pendo-patient-count.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.56.0-web-2763-pendo-patient-count.1.tgz#2ccc2aef5a50fcdfecbae908572d260b8bda98cc"
+  integrity sha512-MEjJdvKYpaKZHvUDJYKBMbq3Ho0WJyk6UPb9bPx0TRSxwvock9l0N8g+GQ/h9w0m9HtU/f89gqeB74KlWm6/ew==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"

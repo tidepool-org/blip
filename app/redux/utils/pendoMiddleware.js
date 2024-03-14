@@ -10,9 +10,11 @@ import { isClinicianAccount } from '../../core/personutils';
 
 const trackingActions = [
   ActionTypes.LOGIN_SUCCESS,
-  ActionTypes.SELECT_CLINIC,
+  ActionTypes.SELECT_CLINIC_SUCCESS,
   ActionTypes.DATA_WORKER_ADD_DATA_SUCCESS,
-  ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS,
+  ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+  ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS,
+  ActionTypes.SET_CLINIC_UI_DETAILS,
   ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS,
 ];
 
@@ -20,6 +22,9 @@ const environments = {
   'dev1.dev.tidepool.org': 'dev',
   'qa1.development.tidepool.org': 'qa1',
   'qa2.development.tidepool.org': 'qa2',
+  'qa3.development.tidepool.org': 'qa3',
+  'qa4.development.tidepool.org': 'qa4',
+  'qa5.development.tidepool.org': 'qa5',
   'int-app.tidepool.org': 'int',
   'external.integration.tidepool.org': 'int',
   'app.tidepool.org': 'prd',
@@ -103,7 +108,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       });
       break;
     }
-    case ActionTypes.SELECT_CLINIC: {
+    case ActionTypes.SELECT_CLINIC_SUCCESS: {
       const {
         blip: { clinics, allUsersMap, loggedInUserId },
       } = getState();
@@ -123,7 +128,6 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
             tier: null,
             created: null,
             country: null,
-            clinicSize: null,
             patientCount: null,
             clinicianCount: null,
           },
@@ -147,26 +151,61 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
             tier: selectedClinic?.tier,
             created: selectedClinic?.createdTime,
             country: selectedClinic?.country,
-            clinicSize: selectedClinic?.clinicSize,
-            patientCount: null,
+            patientCount: selectedClinic?.patientCount,
             clinicianCount: null,
           },
         });
       }
       break;
     }
-    case ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
+    case ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS: {
       const {
         blip: { selectedClinicId },
       } = getState();
 
-      const { count, clinicId } = action.payload;
+      const { clinicId, patientCount } = action.payload;
 
       if (clinicId === selectedClinicId) {
         pendoAction({
           account: {
             id: clinicId,
-            patientCount: count,
+            patientCount,
+          },
+        });
+      }
+      break;
+    }
+    case ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS: {
+      const {
+        blip: { selectedClinicId },
+      } = getState();
+
+      const { clinicId, patientCountSettings } = action.payload;
+
+      if (clinicId === selectedClinicId) {
+        pendoAction({
+          account: {
+            id: clinicId,
+            patientCountHardLimit: patientCountSettings?.hardLimit?.patientCount,
+            patientCountHardLimitStartDate: patientCountSettings?.hardLimit?.startDate,
+          },
+        });
+      }
+      break;
+    }
+    case ActionTypes.SET_CLINIC_UI_DETAILS: {
+      const {
+        blip: { selectedClinicId },
+      } = getState();
+
+      const { clinicId, uiDetails } = action.payload;
+
+      if (clinicId === selectedClinicId) {
+        pendoAction({
+          account: {
+            id: clinicId,
+            patientLimitEnforced: uiDetails?.patientLimitEnforced,
+            planName: uiDetails?.planName,
           },
         });
       }

@@ -76,6 +76,8 @@ describe('api', () => {
       getPatientsForTideDashboard: sinon.stub(),
       getPatientsForRpmReport: sinon.stub(),
       saveSession: sinon.stub(),
+      getClinicPatientCount: sinon.stub(),
+      getClinicPatientCountSettings: sinon.stub(),
     };
 
     rollbar = {
@@ -145,6 +147,8 @@ describe('api', () => {
     tidepool.getPatientsForTideDashboard.resetHistory();
     tidepool.getPatientsForRpmReport.resetHistory();
     tidepool.saveSession.resetHistory();
+    tidepool.getClinicPatientCount.resetHistory();
+    tidepool.getClinicPatientCountSettings.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -1100,6 +1104,22 @@ describe('api', () => {
         const options = 'options123';
         api.clinics.getPatientsForRpmReport(clinicId, options, cb);
         sinon.assert.calledWith(tidepool.getPatientsForRpmReport, clinicId, options, cb);
+      });
+    });
+    describe('clinics.getClinicPatientCount', () => {
+      it('should call tidepool.getClinicPatientCount with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.getClinicPatientCount(clinicId, cb);
+        sinon.assert.calledWith(tidepool.getClinicPatientCount, clinicId, cb);
+      });
+    });
+    describe('clinics.getClinicPatientCountSettings', () => {
+      it('should call tidepool.getClinicPatientCountSettings with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.getClinicPatientCountSettings(clinicId, cb);
+        sinon.assert.calledWith(tidepool.getClinicPatientCountSettings, clinicId, cb);
       });
     });
   });

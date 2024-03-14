@@ -134,6 +134,8 @@ export const ERR_DELETING_CLINIC_PATIENT_TAG = t('Something went wrong while del
 export const ERR_FETCHING_INFO = t('Something went wrong while fetching server configuration.');
 export const ERR_FETCHING_TIDE_DASHBOARD_PATIENTS = t('Something went wrong while fetching patients for the dashboard.');
 export const ERR_FETCHING_RPM_REPORT_PATIENTS = t('Something went wrong while fetching patients for the report.');
+export const ERR_FETCHING_CLINIC_PATIENT_COUNT = t('Something went wrong while fetching the clinic patient count.');
+export const ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS = t('Something went wrong while fetching the clinic patient count settings.');
 
 export const ERR_BIRTHDAY_INVALID = t('Birthday is invalid.');
 export const ERR_BIRTHDAY_MISSING = t('Birthday is required.');

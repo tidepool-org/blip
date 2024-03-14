@@ -1,33 +1,36 @@
-
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
-import { bindActionCreators } from 'redux';
+import moment from 'moment';
+import * as yup from 'yup';
+import forEach from 'lodash/forEach';
+import get from 'lodash/get';
+import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
+import keys from 'lodash/keys';
+import map from 'lodash/map';
+import { useFormik } from 'formik';
+import { Box, Flex, Text, Link } from 'rebass/styled-components';
 
-import _ from 'lodash';
-import { validateForm } from '../../core/validation';
-
+import { Paragraph0 } from '../../components/elements/FontStyles';
+import TextInput from '../../components/elements/TextInput';
+import Select from '../../components/elements/Select';
+import MultiSelect from '../../components/elements/MultiSelect';
+import RadioGroup from '../../components/elements/RadioGroup';
+import Checkbox from '../../components/elements/Checkbox';
+import DatePicker from '../../components/elements/DatePicker';
+import Container from '../../components/elements/Container';
 import * as actions from '../../redux/actions';
-
-import SimpleForm from '../../components/simpleform';
-import personUtils from '../../core/personutils';
+import { usePrevious } from '../../core/hooks';
 import utils from '../../core/utils';
+import i18next from '../../core/language';
+import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
+import { useToasts } from '../../providers/ToastProvider';
+import { push } from 'connected-react-router';
+import personUtils from '../../core/personutils';
+import { addEmptyOption } from '../../core/forms';
+import { colors } from '../../themes/baseTheme';
 
 import {
   DATA_DONATION_NONPROFITS,
@@ -36,361 +39,418 @@ import {
   URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
 
-export let PatientNew = translate()(class extends React.Component {
-  static propTypes = {
-    fetchingUser: PropTypes.bool.isRequired,
-    onUpdateDataDonationAccounts: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    trackMetric: PropTypes.func.isRequired,
-    user: PropTypes.object,
-    working: PropTypes.bool.isRequired
-  };
+const t = i18next.t.bind(i18next);
 
-  getFormInputs = () => {
-    const { t } = this.props;
-    const isOtherPerson = this.state.formValues.isOtherPerson;
+const accountTypeOptions = [
+  { value: 'personal', label: t('This is for me, I have diabetes')},
+  { value: 'caregiver', label: t('I\'m creating an account on behalf of someone I care for who has diabetes')},
+  { value: 'viewOnly', label: t('I\'m creating a view-only account so someone can share their data with me')},
+];
 
-    return [
-      {
-        name: 'isOtherPerson',
-        type: 'radios',
-        items: [
-          {value: false, label: t('This is for me, I have diabetes')},
-          {value: true, label: t('This is for someone I care for who has diabetes')}
-        ],
-      },
-      {
-        name: 'fullName',
-        type: 'text',
-        placeholder: t('Full name'),
-      },
-      {
-        name: 'about',
-        type: 'textarea',
-        placeholder: isOtherPerson ? t('Share a bit about this person.') : t('Share a bit about yourself.')
-      },
-      {
-        name: 'birthday',
-        label: t('Birthday'),
-        type: 'datepicker',
-      },
-      {
-        name: 'diagnosisDate',
-        label: t('Diagnosis date'),
-        type: 'datepicker',
-      },
-      {
-        name: 'diagnosisType',
-        label: isOtherPerson ? t('How do you describe their diabetes?') : t('How do you describe your diabetes?'),
-        type: 'select',
-        multi: false,
-        value: this.state.formValues.diagnosisType,
-        placeholder: t('Choose One'),
-        items: DIABETES_TYPES(), // eslint-disable-line new-cap
-      },
-      {
-        name: 'dataDonate',
-        label: isOtherPerson ? t('Donate their anonymized data') : t('Donate my anonymized data'),
-        disabled: !_.isEmpty(this.state.formValues.dataDonateDestination),
-        value: this.state.formValues.dataDonate,
-        type: 'checkbox',
-      },
-      {
-        name: 'dataDonateExplainer',
-        type: 'explanation',
-        text: (
-          <Trans i18nKey="html.patientnew-donate-explainer">
-            You own your data. Read all the details about Tidepool's Big Data
-            Donation project <a target="_blank" rel="noreferrer noopener" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
-          </Trans>
-        ),
-      },
-      {
-        name: 'dataDonateDestination',
-        type: 'select',
-        multi: true,
-        value: this.state.formValues.dataDonateDestination,
-        placeholder: t('Choose which diabetes organization(s) to support'),
-        items: DATA_DONATION_NONPROFITS(), //eslint-disable-line new-cap
-      },
-      {
-        name: 'donateExplainer',
-        type: 'explanation',
-        text: (
-          <div>
-            {t('Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.')}
-          </div>
-        ),
-      }
-    ];
-  };
-
-  componentDidMount() {
-    if (this.props.trackMetric) {
-      this.props.trackMetric('Viewed Profile Create');
-    }
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    this.setState({
-      formValues: _.assign(this.state.formValues, {
-        fullName: this.getUserFullName(nextProps)
-      })
-    });
-  }
-
-  getUserFullName = (props) => {
-    props = props || this.props;
-    return personUtils.fullName(props.user) || '';
-  };
-
-  render() {
-    var subnav = this.renderSubnav();
-    var form = this.renderForm();
-
-    return (
-      <div className="PatientNew">
-        {subnav}
-        <div className="container-box-outer PatientNew-contentOuter">
-          <div className="container-box-inner PatientNew-contentInner">
-            <div className="PatientNew-content">
-              {form}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  renderSubnav = () => {
-    const { t } = this.props;
-    return (
-      <div className="container-box-outer">
-        <div className="container-box-inner PatientNew-subnavInner">
-          <div className="grid PatientNew-subnav">
-            <div className="grid-item one-whole">
-              <div className="PatientNew-subnavTitle">
-                {t('Set up data storage')}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  renderForm = () => {
-    return (
-      <SimpleForm
-        inputs={this.getFormInputs()}
-        formValues={this.state.formValues}
-        validationErrors={this.state.validationErrors}
-        submitButtonText={this.getSubmitButtonText()}
-        submitDisabled={this.props.working}
-        onSubmit={this.handleSubmit}
-        onChange={this.handleInputChange}
-      />
-    );
-  };
-
-  getSubmitButtonText = () => {
-    const { t } = this.props;
-    if (this.props.working) {
-      return t('Saving...');
-    }
-    return t('Save');
-  };
-
-  isFormDisabled = () => {
-    return (this.props.fetchingUser && !this.props.user);
-  };
-
-  handleInputChange = (attributes) => {
-    var key = attributes.name;
-    var value = attributes.value;
-    if (!key) {
-      return;
-    }
-
-    var formValues = _.clone(this.state.formValues);
-
-    if (key === 'isOtherPerson') {
-      var isOtherPerson = (attributes.value === 'true') ? true : false;
-      var fullName = isOtherPerson ? '' : this.getUserFullName();
-      formValues = _.assign(formValues, {
-        isOtherPerson: isOtherPerson,
-        fullName: fullName,
-      });
-    }
-    else if (key === 'dataDonateDestination') {
-      // Sort the values so that we can accurately check see if the form values have changed
-      let sortedValue = attributes.value.map(value => value.value).sort().join(',');
-      formValues[key] = sortedValue;
-
-      // Ensure that the donate checkbox is checked if there are nonprofits selected
-      if (!_.isEmpty(value) && !formValues.dataDonate) {
-        formValues.dataDonate = true;
-      }
-    }
-    else {
-      formValues[key] = value;
-    }
-
-    this.setState({formValues: formValues});
-  };
-
-  handleSubmit = (formValues) => {
-    this.resetFormStateBeforeSubmit(formValues);
-
-    var validationErrors = this.validateFormValues(formValues);
-
-    if (!_.isEmpty(validationErrors)) {
-      return;
-    }
-
-    var origFormValues = _.clone(formValues);
-
-    formValues = this.prepareFormValuesForSubmit(formValues);
-    this.props.onSubmit(formValues);
-
-    if(origFormValues.dataDonate) {
-      const addAccounts = [ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ];
-      const selectedAccounts = origFormValues.dataDonateDestination.split(',');
-
-      _.forEach(selectedAccounts, accountId => {
-        accountId && addAccounts.push(`bigdata+${accountId}@tidepool.org`);
-      });
-
-      this.props.onUpdateDataDonationAccounts(addAccounts);
-
-      if (this.props.trackMetric) {
-        _.forEach(addAccounts, email => {
-          const source = utils.getDonationAccountCodeFromEmail(email) || 'none';
-          const location = 'sign-up';
-          this.props.trackMetric('web - big data sign up', { source, location });
-        });
-      }
-    }
-  };
-
-  validateFormValues = (formValues) => {
-    const { t } = this.props;
-    var form = [
-      { type: 'name', name: 'fullName', label: t('full name'), value: formValues.fullName },
-      { type: 'date', name: 'birthday', label: t('birthday'), value: formValues.birthday },
-      { type: 'diagnosisDate', name: 'diagnosisDate', label: t('diagnosis date'), value: formValues.diagnosisDate, prerequisites: { birthday: formValues.birthday } },
-      { type: 'about', name: 'about', label: t('about'), value: formValues.about},
-    ];
-    var validationErrors = validateForm(form, this.state.formValues.isOtherPerson);
-
-    if (!_.isEmpty(validationErrors)) {
-      this.setState({
-        validationErrors: validationErrors,
-      });
-    }
-
-    return validationErrors;
-  };
-
-  resetFormStateBeforeSubmit = (formValues) => {
-    this.setState({
-      working: true,
-      formValues: formValues,
-      validationErrors: {},
-    });
-  };
-
-  // because JavaScript Date will coerce impossible dates into possible ones with
-  // no opportunity for exposing the error to the user
-  // i.e., mis-typing 02/31/2014 instead of 03/31/2014 will be saved as 03/03/2014!
-  makeRawDateString = (dateObj) => {
-    var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
-    mm = (mm.length === 1) ? '0'+ mm : mm;
-    var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
-
-    return dateObj.year+'-'+mm+'-'+dd;
-  };
-
-  isDateObjectComplete = (dateObj) => {
-    if (!dateObj) {
-      return false;
-    }
-    return (!_.isEmpty(dateObj.year) && dateObj.year.length === 4 && !_.isEmpty(dateObj.month) && !_.isEmpty(dateObj.day));
-  };
-
-  prepareFormValuesForSubmit = (formValues) => {
-    var profile = {};
-    var patient = {
-      birthday: this.makeRawDateString(formValues.birthday),
-      diagnosisDate: this.makeRawDateString(formValues.diagnosisDate),
-    };
-
-    if (formValues.about) {
-      patient.about = formValues.about;
-    }
-
-    if (formValues.diagnosisType) {
-      patient.diagnosisType = formValues.diagnosisType;
-    }
-
-    if (formValues.isOtherPerson) {
-      profile.fullName = this.getUserFullName();
-      patient.isOtherPerson = true;
-      patient.fullName = formValues.fullName;
-    }
-    else {
-      profile.fullName = formValues.fullName;
-    }
-
-    profile.patient = patient;
-
-    return {
-      profile: profile,
-    };
-  };
-
-  state = {
-    working: false,
-    formValues: {
-      isOtherPerson: false,
-      fullName: this.getUserFullName(),
-      dataDonateDestination: ''
-    },
-    validationErrors: {},
-  };
+const accountDetailsSchema = yup.object().shape({
+  firstName: yup.string().required(t('First Name is required')),
+  lastName: yup.string().required(t('Last Name is required')),
+  accountType: yup.string().oneOf([...map(accountTypeOptions, 'value'), '']).required(t('Account type is required')),
+  patientFirstName: yup.mixed().notRequired().when('accountType', {
+    is: 'caregiver',
+    then: yup.string().required(t('Patient first name is required')),
+  }),
+  patientLastName: yup.mixed().notRequired().when('accountType', {
+    is: 'caregiver',
+    then: yup.string().required(t('Patient last name is required')),
+  }),
 });
 
-/**
- * Expose "Smart" Component that is connect-ed to Redux
- */
+const dateFormat = 'YYYY-MM-DD';
+const dataDonateDestinationOptions = DATA_DONATION_NONPROFITS(); // eslint-disable-line new-cap
+const diagnosisTypeOptions = DIABETES_TYPES(); // eslint-disable-line new-cap
 
-export function mapStateToProps(state) {
-  var user = null;
-  if (state.blip.allUsersMap){
-    if (state.blip.loggedInUserId) {
-      user = state.blip.allUsersMap[state.blip.loggedInUserId];
-    }
-  }
+const patientDetailsSchema = yup.object().shape({
+  birthday: yup.date()
+    .min(moment().startOf('day').subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
+    .max(moment().startOf('day').format(dateFormat), t('Please enter a date prior to today'))
+    .required(t('Patient\'s birthday is required')),
+  diagnosisDate: yup.date().test(
+      'later_date_test',
+      'Please enter a date that comes after the birthday',
+      function (value) {
+        const { birthday } = this.parent;
+        return !!value && moment(value).valueOf() > moment(birthday).valueOf();
+      }
+    )
+    .max(moment().startOf('day').format(dateFormat), t('Please enter a date prior to today'))
+    .required(t('Patient\'s diagnosis date is required')),
+  diagnosisType: yup.string().oneOf([...map(diagnosisTypeOptions, 'value'), '']),
+  dataDonate: yup.boolean(),
+  dataDonateDestination: yup.string(),
+});
 
-  return {
-    user: user,
-    fetchingUser: state.blip.working.fetchingUser.inProgress,
-    working: state.blip.working.settingUpDataStorage.inProgress,
-  };
+const formSteps = {
+  accountDetails: 'accountDetails',
+  patientDetails: 'patientDetails',
 }
 
-let mapDispatchToProps = dispatch => bindActionCreators({
-  updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
-  setupDataStorage: actions.async.setupDataStorage,
-}, dispatch);
-
-let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.api;
-  return Object.assign({}, stateProps, {
-    onSubmit: dispatchProps.setupDataStorage.bind(null, api),
-    onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
-    trackMetric: ownProps.trackMetric,
-  });
+const schemas = {
+  accountDetails: accountDetailsSchema,
+  patientDetails: patientDetailsSchema,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(PatientNew);
+export const PatientNew = (props) => {
+  const { t, api, trackMetric } = props;
+  const dispatch = useDispatch();
+  const { set: setToast } = useToasts();
+
+  useEffect(() => {
+    if (trackMetric) {
+      trackMetric('Viewed Profile Create');
+    }
+  }, []);
+
+  const working = useSelector((state) => state.blip.working);
+  const previousWorking = usePrevious(working);
+  const [submitting, setSubmitting] = useState(false);
+  const [currentForm, setCurrentForm] = useState(formSteps.accountDetails);
+
+  function redirectBack() {
+    setCurrentForm(formSteps.accountDetails);
+  }
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.settingUpDataStorage;
+
+    const prevInProgress = get(
+      previousWorking,
+      'settingUpDataStorage.inProgress'
+    );
+
+    if (!inProgress && completed !== null && prevInProgress) {
+      setSubmitting(false);
+
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Profile updated'),
+          variant: 'success',
+        });
+
+        // Redirect to patients page
+        dispatch(push('/patients'));
+      }
+    }
+  }, [working.settingUpDataStorage]);
+
+  const formikContext = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      accountType: null,
+      patientFirstName: '',
+      patientLastName: '',
+      birthday: null,
+      diagnosisDate: null,
+      diagnosisType: '',
+      dataDonate: false,
+      dataDonateDestination: '',
+    },
+    validationSchema: schemas[currentForm],
+    onSubmit: values => {
+      if (includes(['personal', 'caregiver'], values.accountType)) {
+        if (currentForm === formSteps.accountDetails) {
+          setCurrentForm(formSteps.patientDetails);
+        }  else {
+          setSubmitting(true);
+          const profile = prepareFormValuesForSubmit(values);
+          dispatch(actions.async.setupDataStorage(api, profile));
+
+          if(values.dataDonate) {
+            const addAccounts = [ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ];
+            const selectedAccounts = values.dataDonateDestination.split(',');
+
+            forEach(selectedAccounts, accountId => {
+              accountId && addAccounts.push(`bigdata+${accountId}@tidepool.org`);
+            });
+
+            dispatch(actions.async.updateDataDonationAccounts(api, addAccounts));
+
+            if (this.props.trackMetric) {
+              forEach(addAccounts, email => {
+                const source = utils.getDonationAccountCodeFromEmail(email) || 'none';
+                const location = 'sign-up';
+                this.props.trackMetric('web - big data sign up', { source, location });
+              });
+            }
+          }
+        }
+      } else if (values.accountType === 'viewOnly') {
+        setSubmitting(true);
+        const profile = prepareFormValuesForSubmit(values);
+        dispatch(actions.async.setupDataStorage(api, profile));
+      }
+    },
+  });
+
+  function prepareFormValuesForSubmit(formValues) {
+    const profile = {
+      fullName: personUtils.fullnameFromSplitNames(formValues.firstName, formValues.lastName),
+      patient: {},
+    };
+
+    if (includes(['personal', 'caregiver'], formValues.accountType)) {
+      profile.patient = {
+        birthday: moment(formValues.birthday).format(dateFormat),
+        diagnosisDate: moment(formValues.diagnosisDate).format(dateFormat),
+      };
+
+      if (!isEmpty(formValues.diagnosisType)) {
+        profile.patient.diagnosisType = formValues.diagnosisType;
+      }
+
+      if (formValues.accountType === 'caregiver') {
+        profile.patient.isOtherPerson = true;
+        profile.patient.fullName = personUtils.fullnameFromSplitNames(formValues.patientFirstName, formValues.patientLastName);
+      }
+    }
+
+    return { profile };
+  }
+
+  const { values, submitForm, setFieldValue, setFieldTouched } = formikContext;
+
+  useEffect(() => {
+    if (values.accountType !== 'caregiver') {
+      setFieldValue('patientFirstName', '')
+      setFieldValue('patientLastName', '')
+    }
+  }, [values.accountType, setFieldValue])
+
+  const patientDetailsText = {
+    personal: {
+      subtitle: null,
+      birthday: t('What is your birthday?'),
+      diagnosisDate: t('When did you receive a diagnosis?'),
+      diagnosisType: t('How do you describe your diabetes?'),
+      dataDonateTitle: t('Would you like to donate your anonymized data?'),
+      dataDonateOwnership: t('You own your data.'),
+      dataDonateLabel: t('Yes - donate my anonymized data'),
+      dataDonateOrganizationsLabel: t('Tidepool will share 10% of the proceeds with the diabetes organization(s) chosen below'),
+    },
+    caregiver: {
+      subtitle: t('Tell us more about {{firstName}}', { firstName: values.patientFirstName }),
+      birthday: t('What is their birthday?'),
+      diagnosisDate: t('When did they receive a diagnosis?'),
+      diagnosisType: t('How do you describe their diabetes? (optional)'),
+      dataDonateTitle: t('Would they like to donate their anonymized data?'),
+      dataDonateOwnership: t('People with diabetes own their data.'),
+      dataDonateLabel: t('Yes - donate their anonymized data'),
+      dataDonateOrganizationsLabel: t('Tidepool will share 10% of the proceeds with the diabetes organization(s) chosen below'),
+    },
+  };
+
+  const formActions = [{
+    id: 'submit',
+    children: t('Next'),
+    processing: submitting,
+    disabled: !fieldsAreValid(
+      keys(schemas[currentForm].fields),
+      schemas[currentForm],
+      values
+    ),
+    onClick: () => {
+      if ((currentForm === formSteps.accountDetails && values.accountType === 'viewOnly') || currentForm === formSteps.patientDetails) {
+        submitForm();
+      } else {
+        setCurrentForm(formSteps.patientDetails);
+      }
+    },
+  }];
+
+  if (currentForm === formSteps.patientDetails) formActions.unshift({
+    id: 'back',
+    variant: 'secondary',
+    children: t('Back'),
+    onClick: () => redirectBack(),
+  });
+
+  return (
+    <Container
+      title={currentForm === formSteps.accountDetails ? t('Welcome') : t('Last Step')}
+      subtitle={currentForm === formSteps.accountDetails ? t('Tell us more about yourself') : patientDetailsText[values.accountType]?.subtitle}
+      variant="mediumBordered"
+      actions={formActions}
+      p={4}
+      pt={3}
+    >
+
+      <Box id="new-patient-profile">
+        {currentForm === formSteps.accountDetails && (
+          <Flex id="user-details-form" sx={{ flexWrap: 'wrap', flexDirection: ['column', 'row'], alignItems: [null, 'flex-start'] }}>
+            <Box pr={[0,1]} mb={[2, 3]} sx={{ flexBasis: ['100%', '50%'] }}>
+              <TextInput
+                {...getCommonFormikFieldProps('firstName', formikContext)}
+                label={t('What is your name?')}
+                placeholder={t('First name')}
+                variant="condensed"
+                width="100%"
+              />
+            </Box>
+
+            <Box pr={[0,0]} mb={3} sx={{ flexBasis: ['100%', '50%'] }}>
+              <TextInput
+                {...getCommonFormikFieldProps('lastName', formikContext)}
+                label={t('Last name')}
+                hideLabel
+                placeholder={t('Last name')}
+                variant="condensed"
+                width="100%"
+              />
+            </Box>
+
+            <Box sx={{ flexBasis: '100%' }}>
+              <RadioGroup
+                id="account-type"
+                label={t('Preferred blood glucose units')}
+                options={accountTypeOptions}
+                {...getCommonFormikFieldProps('accountType', formikContext)}
+                variant="vertical"
+              />
+            </Box>
+
+            {values.accountType === 'caregiver' && (
+              <Flex mt={3} sx={{ flexBasis: '100%', flexWrap: 'wrap', flexDirection: ['column', 'row'], alignItems: [null, 'flex-start'] }}>
+                <Box pr={[0,1]} mb={[2, 0]} sx={{ flexBasis: ['100%', '50%'] }}>
+                  <TextInput
+                    {...getCommonFormikFieldProps('patientFirstName', formikContext)}
+                    label={t('What is their name?')}
+                    placeholder={t('First name')}
+                    variant="condensed"
+                    width="100%"
+                  />
+                </Box>
+
+                <Box pr={[0,0]} mb={0} sx={{ flexBasis: ['100%', '50%'] }}>
+                  <TextInput
+                    {...getCommonFormikFieldProps('patientLastName', formikContext)}
+                    label={t('Last name')}
+                    hideLabel
+                    placeholder={t('Last name')}
+                    variant="condensed"
+                    width="100%"
+                  />
+                </Box>
+              </Flex>
+            )}
+          </Flex>
+        )}
+
+        {currentForm === formSteps.patientDetails && (
+          <Box id="patient-details-form">
+            <Box mb={3} sx={{ flexBasis: '100%' }}>
+              <DatePicker
+                {...getCommonFormikFieldProps('birthday', formikContext, 'date', false)}
+                label={patientDetailsText[values.accountType]?.birthday}
+                onDateChange={newDate => setFieldValue('birthday', newDate)}
+                showYearPicker
+                isOutsideRange={day => (moment().diff(day) <= 0)}
+                onClose={() => setTimeout(() => {
+                  setFieldTouched('birthday', true);
+                }, 0)}
+                onFocusChange={focused => { if (!focused) setFieldTouched('birthDay', true); }}
+                themeProps={{
+                  width: '100%',
+                  sx: { '.SingleDatePicker,.SingleDatePickerInput,.DateInput,input': { width: '100%' } },
+                }}
+              />
+            </Box>
+
+            <Box mb={3} sx={{ flexBasis: '100%' }}>
+              <DatePicker
+                {...getCommonFormikFieldProps('diagnosisDate', formikContext, 'date', false)}
+                label={patientDetailsText[values.accountType]?.diagnosisDate}
+                onDateChange={newDate => setFieldValue('diagnosisDate', newDate)}
+                showYearPicker
+                isOutsideRange={day => (moment().diff(day) <= 0)}
+                onClose={() => setTimeout(() => {
+                  setFieldTouched('diagnosisDate', true);
+                }, 0)}
+                themeProps={{
+                  width: '100%',
+                  sx: { '.SingleDatePicker,.SingleDatePickerInput,.DateInput,input': { width: '100%' } },
+                }}
+              />
+            </Box>
+
+            <Box mb={3} sx={{ flexBasis: '100%' }}>
+              <Select
+                {...getCommonFormikFieldProps('diagnosisType', formikContext)}
+                options={addEmptyOption(diagnosisTypeOptions, t('Select one'))}
+                label={patientDetailsText[values.accountType]?.diagnosisType}
+                variant="condensed"
+                themeProps={{
+                  width: '100%',
+                }}
+              />
+            </Box>
+
+            <Box variant="containers.wellBordered">
+              <Text sx={{ fontSize: 1, fontWeight: 'medium', color: 'purpleDark' }} mb={1}>
+                {patientDetailsText[values.accountType]?.dataDonateTitle}
+              </Text>
+
+              <Paragraph0 sx={{ fontWeight: 'medium' }}>
+                <Trans i18nKey="html.data-donation-details">
+                  {patientDetailsText[values.accountType]?.dataDonateOwnership}&nbsp;
+                  Read all the details about <Link className="data-donation-details-link" href={URL_BIG_DATA_DONATION_INFO} target="_blank">Tidepool's Big Data Donation project here</Link>.
+                </Trans>
+              </Paragraph0>
+
+              <Box mb={3}>
+                <Checkbox
+                  {...getCommonFormikFieldProps('dataDonate', formikContext, 'checked')}
+                  bg="white"
+                  themeProps={{ sx: { bg: 'transparent', 'span': { fontSize: 0 } } }}
+                  label={patientDetailsText[values.accountType]?.dataDonateLabel}
+                  disabled={!isEmpty(values.dataDonateDestination)}
+                  sx={{
+                    boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
+                  }}
+                />
+              </Box>
+
+              <MultiSelect
+                {...getCommonFormikFieldProps('dataDonateDestination', formikContext, 'value', false)}
+                label={patientDetailsText[values.accountType]?.dataDonateOrganizationsLabel}
+                onChange={value => {
+                  // Ensure that the donate checkbox is checked if there are nonprofits selected
+                  if (!isEmpty(value) && !values.dataDonate) {
+                    setFieldValue('dataDonate', true);
+                  }
+                }}
+                setFieldValue={setFieldValue}
+                isDisabled={!values.dataDonate}
+                options={dataDonateDestinationOptions}
+                themeProps={{
+                  width: '100%',
+                }}
+              />
+            </Box>
+          </Box>
+        )}
+      </Box>
+    </Container>
+  );
+};
+
+PatientNew.propTypes = {
+  api: PropTypes.object.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+};
+
+export default translate()(PatientNew);

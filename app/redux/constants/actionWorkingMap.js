@@ -429,6 +429,16 @@ export default (type) => {
     case types.FETCH_RPM_REPORT_PATIENTS_FAILURE:
       return 'fetchingRpmReportPatients';
 
+    case types.FETCH_CLINIC_PATIENT_COUNT_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNT_FAILURE:
+      return 'fetchingClinicPatientCount';
+
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE:
+      return 'fetchingClinicPatientCountSettings';
+
     default:
       return null;
   }

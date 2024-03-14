@@ -1065,6 +1065,14 @@ api.clinics.getPatientsForRpmReport = function(clinicId, options, cb) {
   return tidepool.getPatientsForRpmReport(clinicId, options, cb);
 };
 
+api.clinics.getClinicPatientCount = function(clinicId, cb) {
+  return tidepool.getClinicPatientCount(clinicId, cb);
+};
+
+api.clinics.getClinicPatientCountSettings = function(clinicId, cb) {
+  return tidepool.getClinicPatientCountSettings(clinicId, cb);
+};
+
 // ----- Errors -----
 
 api.errors = {};

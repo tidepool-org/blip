@@ -4,9 +4,10 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
     fontWeight: fontWeights.regular,
     lineHeight: 0,
     fontFamily: fonts.default,
-    padding: `${space[2]}px ${space[3]}px`,
+    padding: `${space[2]}px ${space[4]}px`,
     height: 'auto',
     cursor: 'pointer',
+    flex: [1, 'initial'],
 
     '.icon': {
       fontSize: '1.125em',
@@ -23,12 +24,42 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
     },
   };
 
+  const primaryStyles = {
+    ...defaultStyles,
+    flex: [2, 'initial'],
+    backgroundColor: colors.purpleMedium,
+    border: borders.input,
+    borderColor: colors.purpleMedium,
+    color: colors.white,
+    borderRadius: radii.default,
+    '&.selected': {
+      cursor: 'default',
+    },
+    '&:disabled': {
+      backgroundColor: colors.lightestGrey,
+      borderColor: colors.lightestGrey,
+      color: colors.text.primaryDisabled,
+    },
+  };
+
+  const secondaryStyles = {
+    ...defaultStyles,
+    backgroundColor: colors.white,
+    color: colors.text.primary,
+    border: borders.inputDark,
+    borderRadius: radii.default,
+    '&:disabled': {
+      backgroundColor: colors.lightestGrey,
+      borderColor: colors.lightestGrey,
+      color: colors.text.primaryDisabled,
+    },
+  };
+
   const tertiaryStyles = {
     ...defaultStyles,
     backgroundColor: colors.white,
     color: colors.text.primary,
     border: borders.input,
-    borderColor: colors.grays[1],
     borderRadius: radii.default,
     '&:hover': {
       borderColor: colors.grays[2],
@@ -80,35 +111,24 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
   };
 
   return {
-    primary: {
-      ...defaultStyles,
-      backgroundColor: colors.purpleMedium,
-      border: borders.input,
-      borderColor: colors.purpleMedium,
-      color: colors.white,
-      borderRadius: radii.default,
-      '&.selected': {
-        cursor: 'default',
-      },
-      '&:disabled': {
-        backgroundColor: colors.lightestGrey,
-        borderColor: colors.lightestGrey,
-        color: colors.text.primaryDisabled,
-      },
+    primary: primaryStyles,
+    primaryCondensed: {
+      ...primaryStyles,
+      py: '6px',
+      fontSize: 0,
     },
-    secondary: {
-      ...defaultStyles,
-      backgroundColor: colors.white,
-      color: colors.text.primary,
-      border: borders.inputDark,
-      borderRadius: radii.default,
-      '&:disabled': {
-        backgroundColor: colors.lightestGrey,
-        borderColor: colors.lightestGrey,
-        color: colors.text.primaryDisabled,
-      },
+    secondary: secondaryStyles,
+    secondaryCondensed: {
+      ...secondaryStyles,
+      py: '6px',
+      fontSize: 0,
     },
     tertiary: tertiaryStyles,
+    tertiaryCondensed: {
+      ...tertiaryStyles,
+      py: '6px',
+      fontSize: 0,
+    },
     danger: {
       ...defaultStyles,
       backgroundColor: colors.feedback.danger,

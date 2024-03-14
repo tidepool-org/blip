@@ -2,6 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import isNumber from 'lodash/isNumber';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import moment from 'moment';
@@ -10,9 +11,17 @@ import countries from 'i18n-iso-countries';
 import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
-import { phoneRegex } from '../pages/prescription/prescriptionFormConstants';
-import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
 import { timezoneNames } from './validation/timezoneNames';
+
+import {
+  URL_TIDEPOOL_PLUS_PLANS,
+  URL_TIDEPOOL_PLUS_CONTACT_SALES,
+  CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+  DEFAULT_CLINIC_TIER,
+  DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+  MGDL_UNITS,
+  MMOLL_UNITS,
+} from '../core/constants';
 
 const t = i18next.t.bind(i18next);
 
@@ -36,15 +45,16 @@ export const dateRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
 export const roles = [
   { value: 'clinic_manager', label: t('Clinic Manager') },
   { value: 'diabetes_educator', label: t('Diabetes Educator') },
+  { value: 'dietician', label: t('Dietician') },
   { value: 'endocrinologist', label: t('Endocrinologist') },
   { value: 'front_desk', label: t('Front Desk') },
+  { value: 'health_student', label: t('Health Professions Student') },
   { value: 'information_technology', label: t('IT/Technology') },
   { value: 'medical_assistant', label: t('Medical Assistant') },
   { value: 'nurse', label: t('Nurse/Nurse Practitioner') },
   { value: 'primary_care_physician', label: t('Primary Care Physician') },
   { value: 'physician_assistant', label: t('Physician Assistant') },
   { value: 'pharmacist', label: t('Pharmacist') },
-  { value: 'health_student', label: t('Health Professions Student') },
   { value: 'other', label: t('Other') },
 ];
 
@@ -54,13 +64,6 @@ export const clinicTypes = [
   { value: 'veterinary_clinic', label: t('Veterinary Clinic') },
   { value: 'researcher', label: t('Research Organization') },
   { value: 'other', label: t('Other') },
-];
-
-export const clinicSizes = [
-  { value: '0-249', label: t('0-249') },
-  { value: '250-499', label: t('250-499') },
-  { value: '500-999', label: t('500-999') },
-  { value: '1000+', label: t('1000+') },
 ];
 
 export const preferredBgUnits = [
@@ -90,21 +93,239 @@ export const timezoneOptions = map(
 
 export const maxClinicPatientTags = 50;
 
-export const clinicValuesFromClinic = (clinic) => ({
+export const clinicPlansNames = {
+  base: t('Base'),
+  activeSalesBase: t('Base'),
+  honoredBase: t('Base'),
+  internationalBase: t('Base'),
+  essential: t('Essential'),
+  professional: t('Professional'),
+  enterprise: t('Enterprise'),
+}
+
+export const clinicTierDetails = (clinic = {}) => {
+  const {
+    tier = DEFAULT_CLINIC_TIER,
+    country,
+    patientCountSettings = {},
+  } = clinic;
+
+  const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
+  const hardLimitStartDateIsFuture = hardLimitStartDate && moment(hardLimitStartDate).isValid() && moment(hardLimitStartDate).isAfter();
+  const isBaseTier = tier.indexOf('tier01') === 0;
+  let activeTier = tier;
+
+  // Handle various base tier clinic states
+  if (isBaseTier) {
+    const isOUS = country !== 'US';
+    const isInActiveSalesConversation = !isOUS && !hardLimitStartDate;
+    const isHonoredBaseClinic = !isOUS && hardLimitStartDateIsFuture;
+
+    if (isOUS) {
+      // Ensure OUS clinics render as international plan
+      activeTier = 'tier0101';
+    } else if (isInActiveSalesConversation) {
+      // Ensure clinics in active sales conversations render as activeSalesBase plan
+      activeTier = 'tier0103';
+    } else if (isHonoredBaseClinic) {
+      // Ensure Honored Base clinics render as hononored plan
+      activeTier = 'tier0102';
+    }
+  }
+
+  const entitlements = {
+    rpmReport: false,
+    summaryDashboard: false,
+    tideDashboard: false,
+    patientTags: false,
+  };
+
+  const display = {
+    planName: true,
+    patientCount: true,
+    patientLimit: false,
+    workspacePlan: false,
+    workspaceLimitDescription: false,
+    workspaceLimitFeedback: false,
+    workspaceLimitResolutionLink: false,
+  };
+
+  const details = {
+    patientLimitEnforced: false,
+    display,
+    entitlements,
+  };
+
+  const tierSpecificOverrides = {
+    tier0100: {
+      planName: 'base',
+      patientLimitEnforced: true,
+      display: { ...display, patientLimit: true, workspacePlan: true },
+    },
+    tier0101: {
+      planName: 'internationalBase',
+      display: { ...display, planName: false },
+    },
+    tier0102: {
+      planName: 'honoredBase',
+      display: { ...display, workspacePlan: true },
+    },
+    tier0103: {
+      planName: 'activeSalesBase',
+      display: { ...display, workspacePlan: true },
+    },
+    tier0200: {
+      planName: 'essential',
+    },
+    tier0201: {
+      planName: 'essential',
+      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
+    },
+    tier0202: {
+      planName: 'professional',
+      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
+    },
+    tier0300: {
+      planName: 'professional',
+      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
+    },
+    tier0301: {
+      planName: 'professional',
+      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+    },
+    tier0302: {
+      planName: 'professional',
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true },
+    },
+    tier0303: {
+      planName: 'professional',
+      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+    },
+    tier0400: {
+      planName: 'enterprise',
+      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+    },
+  };
+
+  return {
+    ...details,
+    ...tierSpecificOverrides[activeTier],
+  }
+};
+
+export const clinicUIDetails = (clinic = {}) => {
+  const { display, ...tierDetails } = clinicTierDetails(clinic);
+  const { patientCount, patientCountSettings } = clinic;
+  const patientCountHardLimit = patientCountSettings?.hardLimit?.patientCount;
+  const isBase = tierDetails.planName === 'base';
+  const isHonoredBase = tierDetails.planName === 'honoredBase';
+  const isActiveSalesBase = tierDetails.planName === 'activeSalesBase';
+
+  const warnings = {
+    limitReached: false,
+    limitApproaching: false,
+  };
+
+  const limit = patientCountHardLimit || DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT;
+
+  if (tierDetails.patientLimitEnforced || isHonoredBase) {
+    warnings.limitReached = tierDetails.patientLimitEnforced && patientCount >= limit;
+    warnings.limitApproaching = limit - patientCount <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
+  }
+
+  let limitDescription;
+  let limitFeedback;
+  let limitResolutionLink;
+  const contactUsText = t('Contact us to unlock plans');
+  const unlockPlansText = t('Unlock plans');
+
+  if (isBase) {
+    limitDescription = t('Limited to {{limit}} patients', { limit });
+
+    limitFeedback = {
+      text: t('Maximum of {{limit}} patient accounts reached', { limit }),
+      status: 'warning',
+    };
+
+    limitResolutionLink = {
+      text: warnings.limitReached ? contactUsText: unlockPlansText,
+      url: warnings.limitReached ? URL_TIDEPOOL_PLUS_CONTACT_SALES: URL_TIDEPOOL_PLUS_PLANS,
+    };
+
+    display.workspaceLimitResolutionLink = true;
+
+    if (warnings.limitReached) {
+      display.workspaceLimitFeedback = true;
+    } else {
+      display.workspaceLimitDescription = true;
+    }
+  };
+
+  if (isHonoredBase) {
+    const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
+    limitDescription = t('Please note that starting on {{ date }}, Base Plans will support up to {{limit}} patient accounts.', {
+      date: moment(hardLimitStartDate).format('MMM D, YYYY'),
+      limit,
+    });
+
+    limitFeedback = {
+      text: t('Please take action now to avoid disruptions'),
+      status: 'warning',
+    };
+
+    limitResolutionLink = {
+      text: warnings.limitApproaching ? contactUsText: unlockPlansText,
+      url: warnings.limitApproaching ? URL_TIDEPOOL_PLUS_CONTACT_SALES: URL_TIDEPOOL_PLUS_PLANS,
+    };
+
+    display.workspaceLimitResolutionLink = true;
+    display.workspaceLimitDescription = true;
+    display.workspaceLimitFeedback = warnings.limitApproaching;
+  }
+
+  if (isActiveSalesBase) {
+    limitDescription = t('Limited to {{limit}} patients', { limit });
+
+    limitFeedback = {
+      text: t('Change to plan in progress'),
+      status: 'success',
+    };
+
+    limitResolutionLink = {
+      text: unlockPlansText,
+      url: URL_TIDEPOOL_PLUS_PLANS,
+    };
+
+    display.workspaceLimitResolutionLink = true;
+    display.workspaceLimitDescription = true;
+    display.workspaceLimitFeedback = true;
+  }
+
+  const details = {
+    ...tierDetails,
+    ui: {
+      display,
+      text: {
+        planDisplayName: clinicPlansNames[tierDetails.planName],
+        limitDescription,
+        limitFeedback,
+        limitResolutionLink,
+      },
+      warnings,
+    }
+  }
+
+  return details;
+};
+
+export const clinicValuesFromClinic = clinic => ({
   name: get(clinic, 'name', ''),
   address: get(clinic, 'address', ''),
   city: get(clinic, 'city', ''),
   state: get(clinic, 'state', ''),
   postalCode: get(clinic, 'postalCode', ''),
   country: get(clinic, 'country', 'US'),
-  phoneNumbers: [
-    {
-      type: 'Office',
-      number: get(clinic, 'phoneNumbers.0.number', ''),
-    },
-  ],
   clinicType: get(clinic, 'clinicType', ''),
-  clinicSize: get(clinic, 'clinicSize', ''),
   preferredBgUnits: get(clinic, 'preferredBgUnits', ''),
   website: get(clinic, 'website', ''),
   ...(get(clinic,'timezone')) && { timezone: clinic.timezone }
@@ -132,23 +353,10 @@ export const clinicSchema = yup.object().shape({
       ? schema.required(t('Please enter a zip/postal code'))
       : schema.matches(postalCodes[country], t('Please enter a valid zip/postal code'))
     ),
-  phoneNumbers: yup.array().of(
-    yup.object().shape({
-      type: yup.string().required(),
-      number: yup
-        .string()
-        .matches(phoneRegex, t('Please enter a valid phone number'))
-        .required(t('Clinic phone number is required')),
-    }),
-  ),
   clinicType: yup
     .string()
     .oneOf(map(clinicTypes, 'value'))
     .required(t('Please select a clinic type')),
-  clinicSize: yup
-    .string()
-    .oneOf(map(clinicSizes, 'value'))
-    .required(t('Please select an organization size')),
   preferredBgUnits: yup
     .string()
     .oneOf(map(preferredBgUnits, 'value'))
@@ -183,15 +391,15 @@ export const clinicPatientTagSchema = yup.object().shape({
  * const schema = patientSchema({ mrnSettings:{ required: true } });
  *
  */
-export const patientSchema = (config) => {
+export const patientSchema = config => {
   let mrnSchema = yup
     .string()
-    .matches(/^$|^[A-Z0-9]{6,25}$/, () => (
+    .matches(/^$|^[A-Z0-9]{4,25}$/, () => (
       <div>
-        {t('Patient’s MRN is invalid. MRN must meet the following criteria:')}
+        {t('Patient\'s MRN is invalid. MRN must meet the following criteria:')}
         <ul>
           <li>{t('All upper case letters or numbers')}</li>
-          <li>{t('Minimum length: 6 characters')}</li>
+          <li>{t('Minimum length: 4 characters')}</li>
           <li>{t('Maximum length: 25 characters')}</li>
           <li>{t('No spaces')}</li>
         </ul>

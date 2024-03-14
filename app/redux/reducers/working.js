@@ -128,6 +128,8 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_INFO_REQUEST:
     case types.FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST:
     case types.FETCH_RPM_REPORT_PATIENTS_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNT_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
@@ -181,6 +183,8 @@ export default (state = initialWorkingState, action) => {
           types.DELETE_CLINIC_PATIENT_TAG_REQUEST,
           types.FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST,
           types.FETCH_RPM_REPORT_PATIENTS_REQUEST,
+          types.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
+          types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
@@ -298,6 +302,8 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_INFO_SUCCESS:
     case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
     case types.FETCH_RPM_REPORT_PATIENTS_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -474,6 +480,8 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_INFO_FAILURE:
     case types.FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE:
     case types.FETCH_RPM_REPORT_PATIENTS_FAILURE:
+    case types.FETCH_CLINIC_PATIENT_COUNT_FAILURE:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -492,7 +500,7 @@ export default (state = initialWorkingState, action) => {
         return state;
       }
 
-    case types.SELECT_CLINIC:
+    case types.SELECT_CLINIC_SUCCESS:
       const newState = _.cloneDeep(state);
       _.forEach([
         'fetchingCliniciansFromClinic',
