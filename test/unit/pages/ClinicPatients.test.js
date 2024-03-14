@@ -109,6 +109,7 @@ describe('ClinicPatients', () => {
     country: 'US',
     name: 'other_clinic_name',
     email: 'other_clinic_email_address@example.com',
+    timezone: 'US/Eastern',
   };
 
   const noPatientsState = {
