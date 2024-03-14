@@ -1,17 +1,16 @@
 {
   "config": {
-    "schemaVersion": 1,
     "code": "CPT-99454",
     "clinicId": "clinicID123",
     "startDate": "2024-01-01T05:00:00.000Z",
     "endDate": "2024-01-31T04:59:59.999Z"
   },
   "results": [
-    { "fullName": "Jill Jellyfish", "birthDate": "2000-01-01", "mrn": "123456", "daysQualifiedCount": 17, "isSufficientData": true },
-    { "fullName": "James Flounder", "birthDate": "1988-03-01", "mrn": "423234", "daysQualifiedCount": 0, "isSufficientData": false },
-    { "fullName": "Jonathan Seabass", "birthDate": "1993-04-12", "mrn": "994249", "daysQualifiedCount": 16, "isSufficientData": true },
-    { "fullName": "Timithon Saltflat", "birthDate": "1977-11-11", "mrn": "994423", "daysQualifiedCount": 29, "isSufficientData": true },
-    { "fullName": "Jimithon Nodata", "birthDate": null, "mrn": null, "daysQualifiedCount": 0, "isSufficientData": false },
-    { "fullName": "Flotsam N. Jetsam", "birthDate": "2000-02-29", "mrn": "994234", "daysQualifiedCount": 30, "isSufficientData": true }
+    { "fullName": "Jill Jellyfish", "birthDate": "2000-01-01", "mrn": "123456", "realtimeDays": 17, "hasSufficientData": true },
+    { "fullName": "James Flounder", "birthDate": "1988-03-01", "mrn": "423234", "realtimeDays": 0, "hasSufficientData": false },
+    { "fullName": "Jonathan Seabass", "birthDate": "1993-04-12", "mrn": "994249", "realtimeDays": 16, "hasSufficientData": true },
+    { "fullName": "Timithon Saltflat", "birthDate": "1977-11-11", "mrn": "994423", "realtimeDays": 29, "hasSufficientData": true },
+    { "fullName": "Jimithon Nodata", "birthDate": null, "mrn": null, "realtimeDays": 0, "hasSufficientData": false },
+    { "fullName": "Flotsam N. Jetsam", "birthDate": "2000-02-29", "mrn": "994234", "realtimeDays": 30, "hasSufficientData": true }
   ]
 }

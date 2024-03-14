@@ -48,14 +48,14 @@ export const exportRpmReport = ({ config, results }) => {
   };
 
   results.forEach(patient => {
-    const { fullName, birthDate, mrn, daysQualifiedCount, isSufficientData } = patient;
+    const { fullName, birthDate, mrn, realtimeDays, hasSufficientData } = patient;
 
     csvRows.push([
       csvEscape(fullName),
       isNull(birthDate) ? t('N/A') : csvEscape(birthDate.replace(dateRegex, '$2/$3/$1')),
       csvEscape(mrn),
-      csvEscape(daysQualifiedCount),
-      isSufficientData ? t('TRUE') : t('FALSE'),
+      csvEscape(realtimeDays),
+      hasSufficientData ? t('TRUE') : t('FALSE'),
     ]);
   });
 
