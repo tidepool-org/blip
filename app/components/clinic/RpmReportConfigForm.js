@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
 import includes from 'lodash/includes';
+import isNull from 'lodash/isNull';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { useFormik } from 'formik';
@@ -19,7 +20,6 @@ import Select from '../elements/Select';
 import DateRangePicker from '../elements/DateRangePicker';
 import { async, sync } from '../../redux/actions';
 import i18next from '../../core/language';
-import { isNull } from 'lodash';
 
 const t = i18next.t.bind(i18next);
 

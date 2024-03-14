@@ -473,7 +473,7 @@ export const ClinicPatients = (props) => {
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const { showSummaryDashboard, showTideDashboard, showRpmReport } = useFlags();
   let showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
-  const showRpmReportUI = showSummaryData && showRpmReport;
+  const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
 
   const defaultPatientFetchOptions = useMemo(
