@@ -8,12 +8,14 @@ RUN mkdir -p dist node_modules .yarn-cache && chown -R node:node .
 
 ### Stage: Development root with Chromium installed for unit tests
 FROM base as development
+ARG LAUNCHDARKLY_CLIENT_TOKEN
 ARG I18N_ENABLED=false
 ARG RX_ENABLED=false
 ARG PENDO_ENABLED=true
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
   LIGHTHOUSE_CHROMIUM_PATH=/usr/bin/chromium-browser \
+  LAUNCHDARKLY_CLIENT_TOKEN=$LAUNCHDARKLY_CLIENT_TOKEN \
   I18N_ENABLED=$I18N_ENABLED \
   RX_ENABLED=$RX_ENABLED \
   PENDO_ENABLED=$PENDO_ENABLED \
