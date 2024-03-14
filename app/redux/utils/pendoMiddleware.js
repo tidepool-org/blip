@@ -13,6 +13,8 @@ const trackingActions = [
   ActionTypes.SELECT_CLINIC_SUCCESS,
   ActionTypes.DATA_WORKER_ADD_DATA_SUCCESS,
   ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+  ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS,
+  ActionTypes.SET_CLINIC_UI_DETAILS,
   ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS,
 ];
 
@@ -168,6 +170,42 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
           account: {
             id: clinicId,
             patientCount,
+          },
+        });
+      }
+      break;
+    }
+    case ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS: {
+      const {
+        blip: { selectedClinicId },
+      } = getState();
+
+      const { clinicId, patientCountSettings } = action.payload;
+
+      if (clinicId === selectedClinicId) {
+        pendoAction({
+          account: {
+            id: clinicId,
+            patientCountHardLimit: patientCountSettings?.hardLimit?.patientCount,
+            patientCountHardLimitStartDate: patientCountSettings?.hardLimit?.startDate,
+          },
+        });
+      }
+      break;
+    }
+    case ActionTypes.SET_CLINIC_UI_DETAILS: {
+      const {
+        blip: { selectedClinicId },
+      } = getState();
+
+      const { clinicId, uiDetails } = action.payload;
+
+      if (clinicId === selectedClinicId) {
+        pendoAction({
+          account: {
+            id: clinicId,
+            patientLimitEnforced: uiDetails?.patientLimitEnforced,
+            planName: uiDetails?.planName,
           },
         });
       }
