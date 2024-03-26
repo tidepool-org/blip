@@ -4394,4 +4394,18 @@ describe('Actions', () => {
       expect(action.payload.uiDetails).to.eql(uiDetails);
     });
   });
+
+  describe('setPendoData', () => {
+    it('should be a TSA', () => {
+      let action = sync.setPendoData();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_PENDO_DATA', () => {
+      let data = { foo: 'bar' };
+      let action = sync.setPendoData(data);
+      expect(action.type).to.equal('SET_PENDO_DATA');
+      expect(action.payload.data).to.equal(data);
+    });
+  });
 });

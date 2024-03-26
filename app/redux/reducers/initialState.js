@@ -176,6 +176,10 @@ const initialState = {
   keycloakConfig: {},
   tideDashboardPatients: {},
   ssoEnabledDisplay: false,
+  pendoData: {
+    account: {},
+    visitor: {},
+  },
 };
 
 export default initialState;
