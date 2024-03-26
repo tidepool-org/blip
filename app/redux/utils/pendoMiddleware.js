@@ -54,9 +54,21 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
   const pendoAction = data => {
     const actionName = win?.pendo?.visitorId ? 'update' : 'init';
     const action = actionName === 'update' ? updateOptions : initialize;
-    log(actionName, data);
-    dispatch(setPendoData(data));
-    action(data);
+
+    const updatedData = {
+      account: {
+        ...pendoData.account,
+        ...data.account,
+      },
+      visitor: {
+        ...pendoData.visitor,
+        ...data.visitor,
+      },
+    };
+
+    log(actionName, updatedData);
+    dispatch(setPendoData(updatedData));
+    action(updatedData);
   };
 
   switch (action.type) {
@@ -97,7 +109,6 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
       pendoAction({
         visitor: {
-          ...pendoData.visitor,
           id: user.userid,
           role,
           application: 'Web',
@@ -106,7 +117,6 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
           ...optionalVisitorProperties,
         },
         account: {
-          ...pendoData.account,
           id: clinic ? clinic.id : user.userid,
           ...optionalAccountProperties,
         },
@@ -124,12 +134,10 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       if(isNull(clinicId)){
         pendoAction({
           visitor: {
-            ...pendoData.visitor,
             id: user.userid,
             permission: null,
           },
           account: {
-            ...pendoData.account,
             id: user.userid,
             clinic: null,
             tier: null,
@@ -144,7 +152,6 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
         pendoAction({
           visitor: {
-            ...pendoData.visitor,
             id: user.userid,
             permission: includes(
               selectedClinic?.clinicians?.[user.userid]?.roles,
@@ -154,7 +161,6 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
               : 'member',
           },
           account: {
-            ...pendoData.account,
             id: clinicId,
             clinic: selectedClinic?.name,
             tier: selectedClinic?.tier,
@@ -176,9 +182,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
       if (clinicId === selectedClinicId) {
         pendoAction({
-          visitor: pendoData.visitor,
           account: {
-            ...pendoData.account,
             id: clinicId,
             patientCount,
           },
@@ -195,9 +199,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
       if (clinicId === selectedClinicId) {
         pendoAction({
-          visitor: pendoData.visitor,
           account: {
-            ...pendoData.account,
             id: clinicId,
             patientCountHardLimit: patientCountSettings?.hardLimit?.patientCount,
             patientCountHardLimitStartDate: patientCountSettings?.hardLimit?.startDate,
@@ -215,9 +217,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
       if (clinicId === selectedClinicId) {
         pendoAction({
-          visitor: pendoData.visitor,
           account: {
-            ...pendoData.account,
             id: clinicId,
             patientLimitEnforced: uiDetails?.patientLimitEnforced,
             planName: uiDetails?.planName,
@@ -235,9 +235,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
       if (clinicId === selectedClinicId) {
         pendoAction({
-          visitor: pendoData.visitor,
           account: {
-            ...pendoData.account,
             id: clinicId,
             clinicianCount: clinicians?.length,
           },
@@ -257,11 +255,9 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
         pendoAction({
           visitor: {
-            ...pendoData.visitor,
             id: patientId,
             lastUpload,
           },
-          account: pendoData.account,
         });
       }
       break;
