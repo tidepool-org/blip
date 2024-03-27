@@ -2126,7 +2126,7 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
  * @param {String} [patient.email] - The email address of the patient
  */
 export function createClinicCustodialAccount(api, clinicId, patient) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.createClinicCustodialAccountRequest());
     api.clinics.createClinicCustodialAccount(clinicId, patient, (err, result) => {
       if (err) {
@@ -2136,6 +2136,30 @@ export function createClinicCustodialAccount(api, clinicId, patient) {
         }
         if (err?.status === 409) {
           errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
+        }
+        if (err?.status === 402) {
+          const { blip: { clinics = {} } } = getState();
+          const clinic = clinics[clinicId];
+          errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_LIMIT_REACHED;
+
+          // This should only occur if the limit was pushed over by another team member in another
+          // session, after the current user session had started with the patient count below the limit.
+          // In this case, we re-fetch the patient count and update the UI to reflect it.
+          if (clinic) {
+            const selectedClinic = { ...clinic };
+            dispatch(sync.fetchClinicPatientCountRequest());
+            api.clinics.getClinicPatientCount(clinicId, (err, results) => {
+              if (err) {
+                dispatch(sync.fetchClinicPatientCountFailure(
+                  createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, err), err
+                ));
+              } else {
+                dispatch(sync.fetchClinicPatientCountSuccess(clinicId, results));
+                selectedClinic.patientCount = results.patientCount;
+                dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(selectedClinic)));
+              }
+            });
+          }
         }
         dispatch(sync.createClinicCustodialAccountFailure(
           createActionError(errMsg, err), err
