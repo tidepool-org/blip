@@ -12,6 +12,7 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
+import moment from 'moment';
 import _ from 'lodash';
 
 import isTSA from 'tidepool-standard-action';
@@ -6550,6 +6551,110 @@ describe('Actions', () => {
           message: ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS,
         });
         expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
+      });
+
+      it('[402] should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE and it should re-fetch clinic patient count for a failed request due to patient count exceeding limit', () => {
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let patient = {
+          fullName: 'patientName',
+          email: 'patientemail',
+        };
+        let api = {
+          clinics: {
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 251 }),
+            createClinicCustodialAccount: sinon.stub()
+              .callsArgWith(2, { status: 402, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_LIMIT_REACHED
+        );
+        err.status = 402;
+
+        let expectedActions = [
+          { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCount: 251 } },
+          {
+            type: 'SET_CLINIC_UI_DETAILS',
+            payload: {
+              clinicId: '5f85fbe6686e6bb9170ab5d0',
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: true,
+                planName: 'base',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: true,
+                    planName: true,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: true,
+                    workspaceLimitResolutionLink: true,
+                    workspacePlan: true,
+                  },
+                  text: {
+                    planDisplayName: 'Base',
+                    limitDescription: 'Limited to 250 patients',
+                    limitFeedback: {
+                     status: 'warning',
+                     text: 'Maximum of 250 patient accounts reached',
+                    },
+                    limitResolutionLink: {
+                      text: 'Contact us to unlock plans',
+                      url: 'https://app.cronofy.com/add_to_calendar/scheduling/-hq0nDA6',
+                    },
+                  },
+                  warnings: {
+                    limitApproaching: true,
+                    limitReached: true,
+                  },
+                },
+              },
+            }
+          },
+          {
+            type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE',
+            error: err,
+            meta: { apiError: { status: 402, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              country: 'US',
+              tier: 'tier0100',
+              patientCountSettings: {
+                hardLimit: {
+                  patientCount: 250,
+                  startDate: moment().subtract(1, 'day').toISOString(),
+                }
+              }
+            },
+          },
+        } });
+
+        store.dispatch(
+          async.createClinicCustodialAccount(api, clinicId, patient)
+        );
+
+        const actions = store.getActions();
+        expect(actions[4].error).to.deep.include({
+          message: ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_LIMIT_REACHED,
+        });
+        expectedActions[4].error = actions[4].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
       });
