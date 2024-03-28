@@ -61,6 +61,7 @@ import {
   keycloakConfig,
   tideDashboardPatients,
   ssoEnabledDisplay,
+  pendoData,
 } from './misc';
 
 export default combineReducers({
@@ -107,4 +108,5 @@ export default combineReducers({
   pdf,
   data,
   working,
+  pendoData,
 });

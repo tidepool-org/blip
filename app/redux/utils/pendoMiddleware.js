@@ -7,6 +7,7 @@ import bows from 'bows';
 import config from '../../config';
 import * as ActionTypes from '../constants/actionTypes';
 import { isClinicianAccount } from '../../core/personutils';
+import { setPendoData } from '../actions/sync';
 
 const trackingActions = [
   ActionTypes.LOGIN_SUCCESS,
@@ -32,11 +33,12 @@ const environments = {
 };
 
 const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) => {
-  const { getState } = storeAPI;
+  const { getState, dispatch } = storeAPI;
   const log = bows('Pendo');
 
   const {
     router: { location },
+    blip: { pendoData },
   } = getState();
 
   if (
@@ -52,8 +54,21 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
   const pendoAction = data => {
     const actionName = win?.pendo?.visitorId ? 'update' : 'init';
     const action = actionName === 'update' ? updateOptions : initialize;
-    log(actionName, data);
-    action(data);
+
+    const updatedData = {
+      account: {
+        ...pendoData.account,
+        ...data.account,
+      },
+      visitor: {
+        ...pendoData.visitor,
+        ...data.visitor,
+      },
+    };
+
+    log(actionName, updatedData);
+    dispatch(setPendoData(updatedData));
+    action(updatedData);
   };
 
   switch (action.type) {
