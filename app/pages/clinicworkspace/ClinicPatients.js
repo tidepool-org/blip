@@ -893,7 +893,8 @@ export const ClinicPatients = (props) => {
   // Provide latest patient state for the edit form upon fetch
   useEffect(() => {
     if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
-  }, [fetchingPatientFromClinic, clinic?.patients, selectedPatient?.id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchingPatientFromClinic, selectedPatient?.id]);
 
   const renderInfoPopover = () => (
     <Box px={4} py={3} sx={{ maxWidth: '600px' }}>

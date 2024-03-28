@@ -187,7 +187,7 @@ const plugins = [
 
 if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin());
-  plugins.push(new ReactRefreshWebpackPlugin());
+  plugins.push(new ReactRefreshWebpackPlugin({ overlay: false}));
 } else if (isProd) {
   plugins.push(
     /** Upload sourcemap to Rollbar */
@@ -253,7 +253,17 @@ module.exports = {
     static: { publicPath: output.publicPath },
     historyApiFallback: true,
     hot: isDev,
-    client: { logging: 'info' },
+    client: {
+      logging: 'info',
+      overlay: {
+        runtimeErrors: (error) => {
+          if(error.name === 'LaunchDarklyFlagFetchError') {
+            return false;
+          }
+          return true;
+        }
+      }
+     },
   },
   devtool,
   entry,
