@@ -89,7 +89,7 @@ export const ClinicWorkspace = (props) => {
     dispatch(actions.sync.clearPatientInView());
 
     if (props.location?.state?.selectedClinicId && props.location?.state?.selectedClinicId !== selectedClinicId) {
-      dispatch(actions.sync.selectClinic(props.location?.state?.selectedClinicId));
+      dispatch(actions.async.selectClinic(api, props.location?.state?.selectedClinicId));
     }
   }, [props.location?.state?.selectedClinicId]);
 

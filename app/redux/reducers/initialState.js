@@ -34,6 +34,7 @@ const initialState = {
   seenShareDataBannerMax: false,
   showingUpdateTypeBanner: null,
   showingUploaderBanner: null,
+  showingPatientLimitBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,
@@ -154,6 +155,8 @@ const initialState = {
     deletingClinicPatientTag: Object.assign({}, working),
     fetchingInfo: Object.assign({}, working),
     fetchingTideDashboardPatients: Object.assign({}, working),
+    fetchingClinicPatientCount: Object.assign({}, working),
+    fetchingClinicPatientCountSettings: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {
@@ -173,6 +176,10 @@ const initialState = {
   keycloakConfig: {},
   tideDashboardPatients: {},
   ssoEnabledDisplay: false,
+  pendoData: {
+    account: {},
+    visitor: {},
+  },
 };
 
 export default initialState;

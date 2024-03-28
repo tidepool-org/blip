@@ -112,7 +112,7 @@ export const NavigationMenu = props => {
   }, [pathname]);
 
   function handleSelectWorkspace(clinicId) {
-    dispatch(actions.sync.selectClinic(clinicId));
+    dispatch(actions.async.selectClinic(api, clinicId));
     dispatch(push(clinicId ? '/clinic-workspace' : '/patients', { selectedClinicId: clinicId }));
   }
 

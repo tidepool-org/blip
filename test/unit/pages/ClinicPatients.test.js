@@ -11,7 +11,8 @@ import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
 import Popover from '../../../app/components/elements/Popover';
-import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
+import { clinicUIDetails } from '../../../app/core/clinicUtils';
+import { URL_TIDEPOOL_PLUS_PLANS } from '../../../app/core/constants';
 import Button from '../../../app/components/elements/Button';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 
@@ -92,25 +93,25 @@ describe('ClinicPatients', () => {
     id: 'clinicianUserId123',
   };
 
+  const defaultClinic = {
+    clinicians:{
+      clinicianUserId123,
+    },
+    patients: {},
+    id: 'clinicID123',
+    address: '2 Address Ln, City Zip',
+    country: 'US',
+    name: 'other_clinic_name',
+    email: 'other_clinic_email_address@example.com',
+  };
+
   const noPatientsState = {
     blip: {
       loggedInUserId,
       clinics: {
         clinicID123: {
-          clinicians:{
-            clinicianUserId123,
-          },
-          patients: {},
-          id: 'clinicID123',
-          address: '2 Address Ln, City Zip',
-          name: 'other_clinic_name',
-          email: 'other_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 444-4444',
-              type: 'Office',
-            },
-          ],
+          ...defaultClinic,
+          ...clinicUIDetails(defaultClinic),
         },
       },
       selectedClinicId: 'clinicID123',
@@ -151,6 +152,7 @@ describe('ClinicPatients', () => {
       },
       clinics: {
         clinicID123: {
+          ...defaultClinic,
           clinicians:{
             clinicianUserId123,
           },
@@ -171,16 +173,6 @@ describe('ClinicPatients', () => {
               permissions: { custodian : {} }
             },
           },
-          id: 'clinicID123',
-          address: '2 Address Ln, City Zip',
-          name: 'other_clinic_name',
-          email: 'other_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 444-4444',
-              type: 'Office',
-            },
-          ],
         },
       },
     },
@@ -273,7 +265,11 @@ describe('ClinicPatients', () => {
       clinics: {
         clinicID123: {
           ...hasPatientsState.blip.clinics.clinicID123,
-          // tier: 'tier0100',
+          ...clinicUIDetails({
+            ...hasPatientsState.blip.clinics.clinicID123,
+            tier: 'tier0100',
+          }),
+          tier: 'tier0100',
         },
       },
     },
@@ -285,6 +281,10 @@ describe('ClinicPatients', () => {
       clinics: {
         clinicID123: {
           ...hasPatientsState.blip.clinics.clinicID123,
+          ...clinicUIDetails({
+            ...hasPatientsState.blip.clinics.clinicID123,
+            tier: 'tier0300',
+          }),
           tier: 'tier0300',
           patientTags: [
             { id: 'tag1', name: 'test tag 1'},
@@ -431,7 +431,7 @@ describe('ClinicPatients', () => {
                 },
               },
             },
-          }
+          },
         },
       },
     },
@@ -1428,6 +1428,63 @@ describe('ClinicPatients', () => {
             expect(wrapper.find('#summary-dashboard-filters').hostNodes()).to.have.lengthOf(1);
           });
         });
+
+        context('patient limit is reached', () => {
+          let addButton;
+          let wrapper;
+
+          beforeEach(() => {
+            store = mockStore({
+              blip: {
+                ...tier0100ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0100ClinicState.blip.clinics.clinicID123,
+                    patientLimitEnforced: true,
+                    ui: {
+                      warnings: {
+                        limitReached: 'yep',
+                      },
+                    },
+                  },
+                },
+              },
+            });
+
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showSummaryDashboard: false,
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            defaultProps.trackMetric.resetHistory();
+
+            addButton = wrapper.find('button#add-patient');
+            expect(addButton.text()).to.equal('Add New Patient');
+          });
+
+          it('should disable the add patient button', () => {
+            expect(addButton.props().disabled).to.be.true;
+          });
+
+          it('should show a popover with a link to the plans url if add patient button hovered', () => {
+            addButton.simulate('mouseenter');
+
+            const popover = () => wrapper.find('#limitReachedPopover').hostNodes();
+            expect(popover()).to.have.lengthOf(1);
+
+            const link = popover().find('#addPatientUnlockPlansLink').hostNodes();
+            expect(link).to.have.lengthOf(1)
+            expect(link.props().href).to.equal(URL_TIDEPOOL_PLUS_PLANS)
+          });
+        });
       });
 
       context('tier0300 clinic', () => {
@@ -2262,7 +2319,6 @@ describe('ClinicPatients', () => {
           it('should set the table sort UI based on the the sort params from localStorage', () => {
 
             const activeSortLable = wrapper.find('.MuiTableSortLabel-active').hostNodes();
-            console.log(wrapper.find('.MuiTable').debug())
             expect(activeSortLable.text()).to.equal('Avg. Glucose (mg/dL)');
             expect(activeSortLable.find('.MuiTableSortLabel-iconDirectionDesc').hostNodes()).to.have.lengthOf(1);
           });

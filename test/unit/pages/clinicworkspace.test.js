@@ -113,12 +113,6 @@ describe('ClinicWorkspace', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       loggedInUserId: 'clinicianUserId123',

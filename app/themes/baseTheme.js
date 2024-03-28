@@ -42,9 +42,51 @@ export const colors = {
   },
   feedback: {
     info: colorPalette.primary.purpleMedium,
-    warning: '#FFC400',
+    warning: '#A35700',
     danger: '#EC4C47',
-    success: '#47B881',
+    success: '#00754E',
+  },
+  banner: {
+    info: {
+      action: {
+        bg: '#2A1948',
+        text: colorPalette.neutrals.white,
+      },
+      bg: colorPalette.primary.purpleLight,
+      closeIcon: '#4F6A92',
+      icon: colorPalette.primary.purpleMedium,
+      message: '#2A1948',
+    },
+    warning: {
+      action: {
+        bg: '#2A1948',
+        text: colorPalette.neutrals.white,
+      },
+      bg: '#FFE8CF',
+      closeIcon: '#4F6A92',
+      icon: '#CC6D00',
+      message: '#2A1948',
+    },
+    danger: {
+      action: {
+        bg: '#2A1948',
+        text: colorPalette.neutrals.white,
+      },
+      bg: '#FFEEEC',
+      closeIcon: '#4F6A92',
+      icon: '#EC4C47',
+      message: '#2A1948',
+    },
+    success: {
+      action: {
+        bg: '#2A1948',
+        text: colorPalette.neutrals.white,
+      },
+      bg: '#EBFBF0',
+      closeIcon: '#4F6A92',
+      icon: '#08A057',
+      message: '#2A1948',
+    },
   },
   stat: {
     border: '#75849F',
@@ -70,6 +112,7 @@ export const colors = {
 
 export const borders = {
   default: `1px solid ${colors.border.default}`,
+  thick: `2px solid ${colors.border.default}`,
   input: `1px solid ${colors.border.inputLight}`,
   inputDark: `1px solid ${colors.border.inputDark}`,
   modal: `1px solid ${colors.border.modal}`,

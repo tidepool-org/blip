@@ -8,7 +8,7 @@ import personUtils from '../../core/personutils';
 
 /* global __LAUNCHDARKLY_CLIENT_TOKEN__ */
 
-const trackingActions = [ActionTypes.LOGIN_SUCCESS, ActionTypes.SELECT_CLINIC, ActionTypes.LOGOUT_SUCCESS];
+const trackingActions = [ActionTypes.LOGIN_SUCCESS, ActionTypes.SELECT_CLINIC_SUCCESS, ActionTypes.LOGOUT_SUCCESS];
 
 const defaultClinicContext = { key: 'none' };
 const defaultUserContext = { key: 'anon' };
@@ -69,7 +69,7 @@ const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
 
       break;
     }
-    case ActionTypes.SELECT_CLINIC: {
+    case ActionTypes.SELECT_CLINIC_SUCCESS: {
       const {
         blip: { clinics, allUsersMap, loggedInUserId },
       } = getState();

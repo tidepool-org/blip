@@ -131,12 +131,6 @@ describe('AccessManagement', () => {
           address: '2 Address Ln, City Zip',
           name: 'other_clinic_name',
           email: 'other_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 444-4444',
-              type: 'Office',
-            },
-          ],
         },
         clinicID456: {
           clinicians:{},
@@ -151,12 +145,6 @@ describe('AccessManagement', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       membersOfTargetCareTeam: [

@@ -562,7 +562,7 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { showTideDashboard, showSummaryDashboard } = useFlags();
+  const { showTideDashboard } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -661,11 +661,7 @@ export const TideDashboard = (props) => {
 
   useEffect(() => {
     if (clinic) {
-      if (!showSummaryDashboard && clinic.tier < 'tier0300') {
-        dispatch(push('/clinic-workspace'));
-      } else {
-        setClinicBgUnits((clinic.preferredBgUnits || MGDL_UNITS));
-      }
+      setClinicBgUnits((clinic.preferredBgUnits || MGDL_UNITS));
     }
   }, [
     clinic,
@@ -674,15 +670,15 @@ export const TideDashboard = (props) => {
     dispatch,
     localConfig,
     localConfigKey,
-    showSummaryDashboard,
     showTideDashboard,
     fetchDashboardPatients,
   ]);
 
   useEffect(() => {
     // Redirect to the workspace if the LD clinic context is set and showTideDashboard flag is false
-    if (ldContext?.clinic?.tier && !showTideDashboard) dispatch(push('/clinic-workspace'));
-  }, [ldContext, showTideDashboard, dispatch]);
+    // and the clinic does not have the tideDashboard entitlement
+    if ((clinic?.entitlements && !clinic.entitlements.tideDashboard) && (ldContext?.clinic?.tier && !showTideDashboard)) dispatch(push('/clinic-workspace'));
+  }, [ldContext, showTideDashboard, selectedClinicId, clinic?.entitlements, dispatch]);
 
   useEffect(() => {
     handleAsyncResult({ ...fetchingTideDashboardPatients, prevInProgress: previousFetchingTideDashboardPatients?.inProgress }, null, handleCloseOverlays);

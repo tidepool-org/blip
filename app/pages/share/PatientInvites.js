@@ -60,7 +60,7 @@ export const PatientInvites = (props) => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const clinic = get(clinics, selectedClinicId);
-  const openPatientModalOnAccept = clinic?.mrnSettings?.required || (clinic?.tier >= 'tier0300');
+  const openPatientModalOnAccept = clinic?.mrnSettings?.required || clinic?.entitlements?.summaryDashboard;
   const rowsPerPage = 8;
 
   const existingMRNs = useMemo(

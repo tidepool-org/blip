@@ -223,4 +223,12 @@ personUtils.combinedAccountAndClinicPatient = (
   clinicPatient = {}
 ) => _.defaultsDeep(personUtils.accountInfoFromClinicPatient(clinicPatient), patient);
 
+personUtils.splitNamesFromFullname = (fullName = '') => {
+  const [firstName = '', ...lastNameParts] = fullName.split(' ') || [];
+  const lastName = lastNameParts.length ? lastNameParts.join(' ') : '';
+  return { firstName, lastName };
+};
+
+personUtils.fullnameFromSplitNames = (firstName = '', lastName = '') => [firstName, lastName].join(' ');
+
 module.exports = personUtils;

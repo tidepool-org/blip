@@ -115,12 +115,6 @@ describe('ShareInvite', () => {
             address: '2 Address Ln, City Zip',
             name: 'other_clinic_name',
             email: 'other_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 444-4444',
-                type: 'Office',
-              },
-            ],
           },
           clinicIDAmMember: {
             clinicians:{},
@@ -135,12 +129,6 @@ describe('ShareInvite', () => {
             address: '1 Address Ln, City Zip',
             name: 'new_clinic_name',
             email: 'new_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 555-5555',
-                type: 'Office',
-              },
-            ],
           },
         },
         membersOfTargetCareTeam: [
@@ -365,12 +353,6 @@ describe('ShareInvite', () => {
             address: '2 Address Ln, City Zip',
             name: 'other_clinic_name',
             email: 'other_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 444-4444',
-                type: 'Office',
-              },
-            ],
           },
           clinicIDNotMemberButPending: {
             clinicians:{},
@@ -380,12 +362,6 @@ describe('ShareInvite', () => {
             address: '2 Address Ln, City Zip',
             name: 'other_clinic_name',
             email: 'other_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 444-4444',
-                type: 'Office',
-              },
-            ],
           },
           clinicIDAmMember: {
             clinicians:{},
@@ -401,12 +377,6 @@ describe('ShareInvite', () => {
             address: '1 Address Ln, City Zip',
             name: 'new_clinic_name',
             email: 'new_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 555-5555',
-                type: 'Office',
-              },
-            ],
           },
         },
         membersOfTargetCareTeam: [

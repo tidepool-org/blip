@@ -27,6 +27,7 @@ const StyledWrapper = styled(Flex)`
 export const TextInput = (props) => {
   const {
     label,
+    hideLabel,
     name,
     width = ['100%', '75%', '50%'],
     icon,
@@ -54,7 +55,13 @@ export const TextInput = (props) => {
   return (
     <Box width={width} {...themeProps}>
       {label && (
-        <Label htmlFor={name}>
+        <Label
+          htmlFor={name}
+          sx={{
+            visibility: hideLabel ? 'hidden' : 'visible',
+            display: hideLabel ? ['none !important', 'block !important'] : 'block',
+          }}
+        >
           <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
         </Label>
       )}
@@ -100,6 +107,7 @@ TextInput.propTypes = {
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   label: PropTypes.string,
+  hideLabel: PropTypes.bool,
   onClickIcon: PropTypes.func,
   prefix: PropTypes.string,
   suffix: PropTypes.string,

@@ -12,6 +12,7 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
+import moment from 'moment';
 import _ from 'lodash';
 
 import isTSA from 'tidepool-standard-action';
@@ -433,7 +434,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
           { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients/new' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -689,7 +690,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
           { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
-          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/profile', { selectedClinicId: null } ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients/new', { selectedClinicId: null } ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -1086,7 +1087,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [{ inviteId: 'invite123' }] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' }},
+              { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' }},
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/some-dest', { selectedClinicId: 'clinic123' }] } }
             ];
@@ -1175,7 +1176,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
+              { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/migrate', { selectedClinicId: 'clinicId123' } ] } }
             ];
@@ -1217,7 +1218,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinicId123' } },
+              { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinicId123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details/migrate', { selectedClinicId: 'clinicId123' } ] } }
             ];
@@ -1352,7 +1353,7 @@ describe('Actions', () => {
               { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
               { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-              { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
+              { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' } },
               { type: 'LOGIN_SUCCESS', payload: { user } },
               { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace', { selectedClinicId: 'clinic123' }] } }
             ];
@@ -1407,7 +1408,7 @@ describe('Actions', () => {
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic456' } },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic456' } },
             { type: 'LOGIN_SUCCESS', payload: { user } },
             { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace', { selectedClinicId: 'clinic456' }] } }
           ];
@@ -1459,7 +1460,7 @@ describe('Actions', () => {
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' } },
             { type: 'LOGIN_SUCCESS', payload: { user } },
             { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/clinic-workspace', { selectedClinicId: 'clinic123' }] } }
           ];
@@ -1678,7 +1679,7 @@ describe('Actions', () => {
             { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
             { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
-            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic456' } },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic456' } },
             { type: 'LOGIN_SUCCESS', payload: { user } },
             { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/newDestination', { selectedClinicId: 'clinic456' }] } }
           ];
@@ -5251,7 +5252,6 @@ describe('Actions', () => {
             id: '5f85fbe6686e6bb9170ab5d0',
             address: '1 Address Ln, City Zip',
             name: 'Clinic1',
-            phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
           },
         ];
 
@@ -5332,7 +5332,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_REQUEST' },
-          { type: 'SELECT_CLINIC', payload: { clinicId : 'new_clinic_id' } },
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId : 'new_clinic_id' } },
           { type: 'CREATE_CLINIC_SUCCESS', payload: { clinic : clinicReturn } },
           { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
           { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId, clinics } },
@@ -5387,7 +5387,6 @@ describe('Actions', () => {
           id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let api = {
@@ -5452,14 +5451,12 @@ describe('Actions', () => {
           id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let clinic2 = {
           id: '12f2f123s2e1f1f3s2e11535',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let api = {
@@ -5504,14 +5501,12 @@ describe('Actions', () => {
           id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let clinic2 = {
           id: '12f2f123s2e1f1f3s2e11535',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let api = {
@@ -6181,7 +6176,6 @@ describe('Actions', () => {
           id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
-          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
         };
 
         let api = {
@@ -6557,6 +6551,110 @@ describe('Actions', () => {
           message: ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS,
         });
         expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
+      });
+
+      it('[402] should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE and it should re-fetch clinic patient count for a failed request due to patient count exceeding limit', () => {
+        let clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let patient = {
+          fullName: 'patientName',
+          email: 'patientemail',
+        };
+        let api = {
+          clinics: {
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 251 }),
+            createClinicCustodialAccount: sinon.stub()
+              .callsArgWith(2, { status: 402, body: 'Error!' }, null),
+          },
+        };
+
+        let err = new Error(
+          ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_LIMIT_REACHED
+        );
+        err.status = 402;
+
+        let expectedActions = [
+          { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCount: 251 } },
+          {
+            type: 'SET_CLINIC_UI_DETAILS',
+            payload: {
+              clinicId: '5f85fbe6686e6bb9170ab5d0',
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: true,
+                planName: 'base',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: true,
+                    planName: true,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: true,
+                    workspaceLimitResolutionLink: true,
+                    workspacePlan: true,
+                  },
+                  text: {
+                    planDisplayName: 'Base',
+                    limitDescription: 'Limited to 250 patients',
+                    limitFeedback: {
+                     status: 'warning',
+                     text: 'Maximum of 250 patient accounts reached',
+                    },
+                    limitResolutionLink: {
+                      text: 'Contact us to unlock plans',
+                      url: 'https://app.cronofy.com/add_to_calendar/scheduling/-hq0nDA6',
+                    },
+                  },
+                  warnings: {
+                    limitApproaching: true,
+                    limitReached: true,
+                  },
+                },
+              },
+            }
+          },
+          {
+            type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE',
+            error: err,
+            meta: { apiError: { status: 402, body: 'Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              country: 'US',
+              tier: 'tier0100',
+              patientCountSettings: {
+                hardLimit: {
+                  patientCount: 250,
+                  startDate: moment().subtract(1, 'day').toISOString(),
+                }
+              }
+            },
+          },
+        } });
+
+        store.dispatch(
+          async.createClinicCustodialAccount(api, clinicId, patient)
+        );
+
+        const actions = store.getActions();
+        expect(actions[4].error).to.deep.include({
+          message: ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_LIMIT_REACHED,
+        });
+        expectedActions[4].error = actions[4].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
       });
@@ -7881,7 +7979,6 @@ describe('Actions', () => {
               id: '5f85fbe6686e6bb9170ab5d0',
               address: '1 Address Ln, City Zip',
               name: 'Clinic1',
-              phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
             },
             clinician: {
               id: 'clinicianId1'
@@ -8530,6 +8627,242 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getPatientsForTideDashboard.callCount).to.equal(1);
+      });
+    });
+
+    describe('selectClinic', () => {
+      it('should trigger SELECT_CLINIC_SUCCESS, FETCH_CLINIC_PATIENT_COUNT_SUCCESS, and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS for a successful request', () => {
+        const clinicId = 'clinic123';
+        const countResults = { patientCount: 33 };
+        const settingsResults = {bar: 'baz'};
+
+        let api = {
+          clinics: {
+            getClinicPatientCount: sinon
+              .stub()
+              .callsArgWith(1, null, countResults),
+            getClinicPatientCountSettings: sinon
+              .stub()
+              .callsArgWith(1, null, settingsResults),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
+          {
+            type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
+            payload: { clinicId, patientCount: 33 },
+          },
+          {
+            type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
+            payload: { clinicId, patientCountSettings: settingsResults },
+          },
+          {
+            type: 'SET_CLINIC_UI_DETAILS',
+            payload: {
+              clinicId: 'clinic123',
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: false,
+                planName: 'internationalBase',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: false,
+                    planName: false,
+                    workspacePlan: false,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: false,
+                    workspaceLimitResolutionLink: false,
+                  },
+                  text: {
+                    planDisplayName: 'Base',
+                    limitDescription: undefined,
+                    limitFeedback: undefined,
+                    limitResolutionLink: undefined,
+                  },
+                  warnings: {
+                    limitApproaching: false,
+                    limitReached: false,
+                  },
+                },
+              },
+            },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              patientCount: undefined,
+              patientCountSettings: undefined,
+            },
+          },
+        } });
+
+        store.dispatch(
+          async.selectClinic(api, clinicId)
+        );
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getClinicPatientCount.callCount).to.equal(1);
+        expect(api.clinics.getClinicPatientCountSettings.callCount).to.equal(1);
+      });
+
+      it('should trigger SELECT_CLINIC_SUCCESS, but not FETCH_CLINIC_PATIENT_COUNT_REQUEST or FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST for a successful request if data available in clinic state', () => {
+        const clinicId = 'clinic123';
+
+        let api = {
+          clinics: {
+            getClinicPatientCount: sinon.stub(),
+            getClinicPatientCountSettings: sinon.stub(),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
+          {
+            type: 'SET_CLINIC_UI_DETAILS',
+            payload: {
+              clinicId: 'clinic123',
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: false,
+                planName: 'internationalBase',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: false,
+                    planName: false,
+                    workspacePlan: false,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: false,
+                    workspaceLimitResolutionLink: false,
+                  },
+                  text: {
+                    planDisplayName: 'Base',
+                    limitDescription: undefined,
+                    limitFeedback: undefined,
+                    limitResolutionLink: undefined,
+                  },
+                  warnings: {
+                    limitApproaching: false,
+                    limitReached: false,
+                  },
+                },
+              },
+            },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              patientCount: 33,
+              patientCountSettings: { foo: 'bar' },
+            },
+          },
+        } });
+
+        store.dispatch(
+          async.selectClinic(api, clinicId)
+        );
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getClinicPatientCount.callCount).to.equal(0);
+        expect(api.clinics.getClinicPatientCountSettings.callCount).to.equal(0);
+      });
+
+      it('should trigger FETCH_CLINIC_PATIENT_COUNT_FAILURE and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE and it should call error once for a failed request', () => {
+        const clinicId = 'clinic123';
+
+        let api = {
+          clinics: {
+            getClinicPatientCount: sinon
+              .stub()
+              .callsArgWith(1, { status: 500, body: 'Count Error!' }, null),
+            getClinicPatientCountSettings: sinon
+              .stub()
+              .callsArgWith(1, { status: 500, body: 'Settings Error!' }, null),
+          },
+        };
+
+        let countErr = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT);
+        countErr.status = 500;
+
+        let settingsErr = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS);
+        settingsErr.status = 500;
+
+        let expectedActions = [
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
+          {
+            type: 'FETCH_CLINIC_PATIENT_COUNT_FAILURE',
+            error: countErr,
+            meta: { apiError: { status: 500, body: 'Count Error!' } },
+          },
+          {
+            type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE',
+            error: settingsErr,
+            meta: { apiError: { status: 500, body: 'Settings Error!' } },
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              patientCount: undefined,
+              patientCountSettings: undefined,
+            },
+          },
+        } });
+
+        store.dispatch(
+          async.selectClinic(api, clinicId)
+        );
+
+        const actions = store.getActions();
+
+        expect(actions[3].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT,
+        });
+        expectedActions[3].error = actions[3].error;
+
+        expect(actions[4].error).to.deep.include({
+          message: ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS,
+        });
+        expectedActions[4].error = actions[4].error;
+        expect(actions).to.eql(expectedActions);
+
+        expect(api.clinics.getClinicPatientCount.callCount).to.equal(1);
+        expect(api.clinics.getClinicPatientCountSettings.callCount).to.equal(1);
       });
     });
   });
