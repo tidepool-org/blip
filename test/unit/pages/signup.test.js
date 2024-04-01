@@ -264,18 +264,18 @@ describe('Signup', function () {
     const mockStore = configureStore([thunk]);
     let store = mockStore(storeState);
     const keycloakMock = {
-      register: sinon.stub(),
+      createRegisterUrl: sinon.stub(),
     };
     let RewiredSignup;
     let wrapper;
 
     afterEach(() => {
-      keycloakMock.register.reset();
+      keycloakMock.createRegisterUrl.reset();
     });
 
     before(() => {
       Signup.__Rewire__('keycloak', keycloakMock);
-      Signup.__Rewire__('win', { location: { origin: 'testOrigin' } });
+      Signup.__Rewire__('win', { location: { origin: 'testOrigin', assign: sinon.stub() } });
       RewiredSignup = require('../../../app/pages/signup/signup.js').default;
       wrapper = mount(
         createElement(
@@ -297,7 +297,7 @@ describe('Signup', function () {
     });
 
     it('should send the user to keycloak signup if keycloak is initialized', () => {
-      expect(keycloakMock.register.callCount).to.equal(0);
+      expect(keycloakMock.createRegisterUrl.callCount).to.equal(0);
       storeState = merge(storeState, {
         blip: { keycloakConfig: { initialized: true } },
       });
@@ -308,12 +308,12 @@ describe('Signup', function () {
           initialized: true,
         },
       });
-      expect(keycloakMock.register.callCount).to.equal(1);
-      expect(keycloakMock.register.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
+      expect(keycloakMock.createRegisterUrl.callCount).to.equal(1);
+      expect(keycloakMock.createRegisterUrl.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
     });
 
     it('should provide loginHint if inviteEmail is provided', () => {
-      expect(keycloakMock.register.callCount).to.equal(0);
+      expect(keycloakMock.createRegisterUrl.callCount).to.equal(0);
       storeState = merge(storeState, {
         blip: { keycloakConfig: { initialized: true } },
       });
@@ -325,8 +325,8 @@ describe('Signup', function () {
           initialized: true,
         },
       });
-      expect(keycloakMock.register.callCount).to.equal(1);
-      expect(keycloakMock.register.calledWith({loginHint: 'someEmail@provider.com'}));
+      expect(keycloakMock.createRegisterUrl.callCount).to.equal(1);
+      expect(keycloakMock.createRegisterUrl.calledWith({loginHint: 'someEmail@provider.com'}));
     });
 
 
