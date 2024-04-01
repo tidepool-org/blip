@@ -167,7 +167,21 @@ export let Signup = translate()(class extends React.Component {
       if(inviteEmail){
         options.loginHint = inviteEmail;
       }
-      keycloak.register(options);
+
+      // Build Keycloak register URL with role parameter
+      let registerUrl = keycloak.createRegisterUrl(options);
+      switch (this.state.selected) {
+        case 'personal':
+          registerUrl += '&role=patient';
+          break;
+
+        case 'clinician':
+          registerUrl += '&role=clinician';
+          break;
+      }
+
+      // Assign window location to Keycloak register URL
+      win.location.assign(registerUrl);
     }
 
     let content = isLoading || keycloakConfig.initialized ? null : (
