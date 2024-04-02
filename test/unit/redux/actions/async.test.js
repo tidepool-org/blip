@@ -26,6 +26,7 @@ import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS, ALL_FETCHED_DATA_TYP
 
 // need to require() async in order to rewire utils inside
 const async = require('../../../../app/redux/actions/async');
+const sync = require('../../../../app/redux/actions/sync');
 
 describe('Actions', () => {
   const trackMetric = sinon.spy();
@@ -34,10 +35,21 @@ describe('Actions', () => {
     trackingMiddleware({ metrics: { track: trackMetric } })
   ]);
 
+  const rewiredSync = {
+    ...sync,
+    setClinicUIDetails: sinon.stub().callsFake((clinicId, uiDetails) => ({
+      type: 'SET_CLINIC_UI_DETAILS',
+      payload: { clinicId, uiDetails },
+    })),
+  };
+
+  beforeEach(() => {
+    async.__Rewire__('sync', rewiredSync);
+  });
+
   afterEach(function() {
-    // very important to do this in an afterEach than in each test when __Rewire__ is used
-    // if you try to reset within each test you'll make it impossible for tests to fail!
     async.__ResetDependency__('utils');
+    async.__ResetDependency__('sync');
     trackMetric.resetHistory();
   })
 
@@ -6403,7 +6415,7 @@ describe('Actions', () => {
     });
 
     describe('createClinicCustodialAccount', () => {
-      it('should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS and it should call clinics.createClinicCustodialAccount once for a successful request', () => {
+      it('should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS and it should call clinics.createClinicCustodialAccount and update clinic UI details once for a successful request', () => {
         let clinicId = '5f85fbe6686e6bb9170ab5d0';
         let patient = {
           fullName: 'patientName',
@@ -6423,13 +6435,72 @@ describe('Actions', () => {
             clinicId,
             patientId: 'patient123',
             patient,
-          } }
+          } },
+          {
+            payload: {
+              clinicId: '5f85fbe6686e6bb9170ab5d0',
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: true,
+                planName: 'base',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: true,
+                    planName: true,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: true,
+                    workspaceLimitResolutionLink: true,
+                    workspacePlan: true,
+                  },
+                  text: {
+                    limitDescription: 'Limited to 250 patients',
+                    limitFeedback: {
+                      status: 'warning',
+                      text: 'Maximum of 250 patient accounts reached',
+                    },
+                    limitResolutionLink: {
+                      text: 'Contact us to unlock plans',
+                      url: 'https://app.cronofy.com/add_to_calendar/scheduling/-hq0nDA6',
+                    },
+                    planDisplayName: 'Base',
+                  },
+                  warnings: {
+                    limitApproaching: true,
+                    limitReached: true,
+                  },
+                },
+              },
+            },
+            type: 'SET_CLINIC_UI_DETAILS',
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore({ blip: initialState });
+        let store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              country: 'US',
+              tier: 'tier0100',
+              patientCount: 249,
+              patientCountSettings: {
+                hardLimit: {
+                  patientCount: 250,
+                  startDate: moment().subtract(1, 'day').toISOString(),
+                },
+              },
+            },
+          },
+        } });
+
         store.dispatch(async.createClinicCustodialAccount(api, clinicId, patient));
 
         const actions = store.getActions();
@@ -7489,7 +7560,7 @@ describe('Actions', () => {
     });
 
     describe('acceptPatientInvitation', () => {
-      it('should trigger ACCEPT_PATIENT_INVITATION_SUCCESS and it should call clinics.acceptPatientInvitation once for a successful request', () => {
+      it('should trigger ACCEPT_PATIENT_INVITATION_SUCCESS and it should call clinics.acceptPatientInvitation and update clinic UI details once for a successful request', () => {
         let clinicId = 'clinicId123';
         let inviteId = 'inviteIdABC';
         let patientId = 'patientId456';
@@ -7506,13 +7577,72 @@ describe('Actions', () => {
             clinicId: 'clinicId123',
             inviteId: 'inviteIdABC',
             patientId: 'patientId456'
-          } }
+          } },
+          {
+            payload: {
+              clinicId: 'clinicId123',
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: true,
+                planName: 'base',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: true,
+                    planName: true,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: true,
+                    workspaceLimitResolutionLink: true,
+                    workspacePlan: true,
+                  },
+                  text: {
+                    limitDescription: 'Limited to 250 patients',
+                    limitFeedback: {
+                      status: 'warning',
+                      text: 'Maximum of 250 patient accounts reached',
+                    },
+                    limitResolutionLink: {
+                      text: 'Contact us to unlock plans',
+                      url: 'https://app.cronofy.com/add_to_calendar/scheduling/-hq0nDA6',
+                    },
+                    planDisplayName: 'Base',
+                  },
+                  warnings: {
+                    limitApproaching: true,
+                    limitReached: true,
+                  },
+                },
+              },
+            },
+            type: 'SET_CLINIC_UI_DETAILS',
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore({ blip: initialState });
+        let store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              country: 'US',
+              tier: 'tier0100',
+              patientCount: 249,
+              patientCountSettings: {
+                hardLimit: {
+                  patientCount: 250,
+                  startDate: moment().subtract(1, 'day').toISOString(),
+                },
+              },
+            },
+          },
+        } });
+
         store.dispatch(async.acceptPatientInvitation(api, clinicId, inviteId, patientId));
 
         const actions = store.getActions();
