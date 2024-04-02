@@ -2128,7 +2128,12 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
 export function createClinicCustodialAccount(api, clinicId, patient) {
   return (dispatch, getState) => {
     dispatch(sync.createClinicCustodialAccountRequest());
+
     api.clinics.createClinicCustodialAccount(clinicId, patient, (err, result) => {
+      const { blip: { clinics = {} } } = getState();
+      const clinic = clinics[clinicId];
+      const updatedClinic = { ...(clinic || {}) };
+
       if (err) {
         let errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT;
         if (err?.status === 403) {
@@ -2138,16 +2143,14 @@ export function createClinicCustodialAccount(api, clinicId, patient) {
           errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
         }
         if (err?.status === 402) {
-          const { blip: { clinics = {} } } = getState();
-          const clinic = clinics[clinicId];
           errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_LIMIT_REACHED;
 
           // This should only occur if the limit was pushed over by another team member in another
           // session, after the current user session had started with the patient count below the limit.
           // In this case, we re-fetch the patient count and update the UI to reflect it.
           if (clinic) {
-            const selectedClinic = { ...clinic };
             dispatch(sync.fetchClinicPatientCountRequest());
+
             api.clinics.getClinicPatientCount(clinicId, (err, results) => {
               if (err) {
                 dispatch(sync.fetchClinicPatientCountFailure(
@@ -2155,17 +2158,23 @@ export function createClinicCustodialAccount(api, clinicId, patient) {
                 ));
               } else {
                 dispatch(sync.fetchClinicPatientCountSuccess(clinicId, results));
-                selectedClinic.patientCount = results.patientCount;
-                dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(selectedClinic)));
+                updatedClinic.patientCount = results.patientCount;
+                dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
               }
             });
           }
         }
+
         dispatch(sync.createClinicCustodialAccountFailure(
           createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.createClinicCustodialAccountSuccess(clinicId, result.id, result));
+
+        if (isFinite(updatedClinic.patientCount)) {
+          updatedClinic.patientCount += 1;
+          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
+        }
       }
     });
   };
@@ -2409,7 +2418,7 @@ export function fetchPatientInvites(api, clinicId) {
  * @param {String[]} [patientDetails.tags] - Array of string tag IDs
  */
 export function acceptPatientInvitation(api, clinicId, inviteId, patientId, patientDetails) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.acceptPatientInvitationRequest());
 
     api.clinics.acceptPatientInvitation(clinicId, inviteId, patientDetails, (err, result) => {
@@ -2419,6 +2428,15 @@ export function acceptPatientInvitation(api, clinicId, inviteId, patientId, pati
         ));
       } else {
         dispatch(sync.acceptPatientInvitationSuccess(clinicId, inviteId, patientId));
+
+        const { blip: { clinics = {} } } = getState();
+        const clinic = clinics[clinicId];
+        const updatedClinic = { ...(clinic || {}) };
+
+        if (isFinite(updatedClinic.patientCount)) {
+          updatedClinic.patientCount += 1;
+          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
+        }
       }
     });
   };
