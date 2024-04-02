@@ -6002,7 +6002,10 @@ describe('Actions', () => {
     });
 
     describe('deletePatientFromClinic', () => {
-      it('should trigger DELETE_PATIENT_FROM_CLINIC_SUCCESS and it should call clinics.deletePatientFromClinic once for a successful request', () => {
+      it('should trigger DELETE_PATIENT_FROM_CLINIC_SUCCESS and it should call clinics.deletePatientFromClinic and update clinic UI details once for a successful request', () => {
+        const clinicId = '5f85fbe6686e6bb9170ab5d0';
+        const patientId = 'patient_id';
+
         let api = {
           clinics: {
             deletePatientFromClinic: sinon.stub().callsArgWith(2, null, { foo: 'bar '}),
@@ -6012,9 +6015,52 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' },
           { type: 'DELETE_PATIENT_FROM_CLINIC_SUCCESS', payload: {
-            clinicId: '5f85fbe6686e6bb9170ab5d0',
-            patientId: 'patient_id',
-          } }
+            clinicId,
+            patientId,
+          } },
+          {
+            payload: {
+              clinicId,
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: true,
+                planName: 'base',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: true,
+                    planName: true,
+                    workspaceLimitDescription: true,
+                    workspaceLimitFeedback: false,
+                    workspaceLimitResolutionLink: true,
+                    workspacePlan: true,
+                  },
+                  text: {
+                    limitDescription: 'Limited to 250 patients',
+                    limitFeedback: {
+                      status: 'warning',
+                      text: 'Maximum of 250 patient accounts reached',
+                    },
+                    limitResolutionLink: {
+                      text: 'Unlock plans',
+                      url: 'https://tidepool.org/providers/tidepoolplus/plans',
+                    },
+                    planDisplayName: 'Base',
+                  },
+                  warnings: {
+                    limitApproaching: true,
+                    limitReached: false,
+                  },
+                },
+              },
+            },
+            type: 'SET_CLINIC_UI_DETAILS',
+          },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -6022,8 +6068,24 @@ describe('Actions', () => {
 
         const callback = sinon.stub();
 
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.deletePatientFromClinic(api, '5f85fbe6686e6bb9170ab5d0', 'patient_id', callback));
+        const store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              country: 'US',
+              tier: 'tier0100',
+              patientCount: 250,
+              patientCountSettings: {
+                hardLimit: {
+                  patientCount: 250,
+                  startDate: moment().subtract(1, 'day').toISOString(),
+                },
+              },
+            },
+          },
+        } });
+
+        store.dispatch(async.deletePatientFromClinic(api, clinicId, patientId, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
