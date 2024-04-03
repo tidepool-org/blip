@@ -2036,7 +2036,7 @@ export function deleteClinicianFromClinic(api, clinicId, clinicianId) {
  * @param {String} patientId - Id of the clinician
  */
 export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.deletePatientFromClinicRequest());
 
     api.clinics.deletePatientFromClinic(clinicId, patientId, (err) => {
@@ -2052,6 +2052,15 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
         ));
       } else {
         dispatch(sync.deletePatientFromClinicSuccess(clinicId, patientId));
+
+        const { blip: { clinics = {} } } = getState();
+        const clinic = clinics[clinicId];
+        const updatedClinic = { ...(clinic || {}) };
+
+        if (isFinite(updatedClinic.patientCount)) {
+          updatedClinic.patientCount -= 1;
+          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
+        }
       }
     });
   };
