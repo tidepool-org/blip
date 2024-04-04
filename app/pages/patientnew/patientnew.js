@@ -281,7 +281,7 @@ export const PatientNew = (props) => {
 
   return (
     <Container
-      title={currentForm === formSteps.accountDetails ? t('Welcome') : t('Last Step')}
+      title={currentForm === formSteps.accountDetails ? t('Welcome') : t('Last Step!')}
       subtitle={currentForm === formSteps.accountDetails ? t('Tell us more about yourself') : patientDetailsText[values.accountType]?.subtitle}
       variant="mediumBordered"
       actions={formActions}
@@ -316,7 +316,7 @@ export const PatientNew = (props) => {
             <Box sx={{ flexBasis: '100%' }}>
               <RadioGroup
                 id="account-type"
-                label={t('Preferred blood glucose units')}
+                label={t('Who is this account for?')}
                 options={accountTypeOptions}
                 {...getCommonFormikFieldProps('accountType', formikContext)}
                 variant="vertical"
