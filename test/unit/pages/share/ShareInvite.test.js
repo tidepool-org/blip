@@ -236,7 +236,7 @@ describe('ShareInvite', () => {
       // enable upload permission
       const permissionsCheckbox = wrapper.find('input#uploadPermission[type="checkbox"]');
       permissionsCheckbox.simulate('change', {
-        target: { id: 'uploadPermission', value: true },
+        target: { id: 'uploadPermission', checked: true, value: true },
       });
 
       const expectedActions = [
@@ -531,7 +531,7 @@ describe('ShareInvite', () => {
 
         // enable upload permission
         permissionsCheckbox().at(0).simulate('change', {
-          target: { id: 'uploadPermission', value: true },
+          target: { id: 'uploadPermission', checked: true, value: true },
         });
 
         expectedActions = [

@@ -209,7 +209,7 @@ describe('ClinicInvite', () => {
       expect(wrapper.find(Checkbox).at(0).props().checked).to.be.false;
       wrapper
         .find('input[type="checkbox"]')
-        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', checked: true, value: true } });
 
       expect(wrapper.find(Checkbox).at(0).props().checked).to.be.true;
     });
@@ -253,7 +253,7 @@ describe('ClinicInvite', () => {
 
       wrapper
         .find('input[type="checkbox"]')
-        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', checked: true, value: true } });
 
       wrapper.find('Button#submit').simulate('submit');
       setTimeout(() => {

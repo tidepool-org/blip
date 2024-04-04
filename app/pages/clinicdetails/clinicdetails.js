@@ -369,12 +369,15 @@ export const ClinicDetails = (props) => {
     },
   });
 
-
   useEffect(() => {
     if (populateProfileFields) {
       formikContext.setValues(clinicValues())
     }
   }, [populateProfileFields]);
+
+  useEffect(() => {
+      formikContext.resetForm();
+  }, [action]);
 
   const formActions = [{
     id: 'submit',

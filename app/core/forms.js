@@ -65,13 +65,15 @@ export const getThresholdWarning = (value, threshold) => {
 export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 'value', trimStrings = true) => ({
   id: fieldpath,
   name: fieldpath,
-  onChange: formikContext.handleChange,
-  onBlur: e => {
-    formikContext.handleBlur(e);
+  onChange: e => {
+    formikContext.handleChange(e);
 
     if (valueProp === 'checked') {
-      formikContext.setFieldValue(fieldpath, !!e.target[valueProp]);
+      formikContext.setFieldValue(fieldpath, !!e.target[valueProp], true);
     }
+  },
+  onBlur: e => {
+    formikContext.handleBlur(e);
 
     if (trimStrings && isString(e?.target?.[valueProp])) {
       formikContext.setFieldTouched(fieldpath, true);
