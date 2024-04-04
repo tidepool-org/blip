@@ -494,7 +494,7 @@ export const PatientForm = (props) => {
               <Flex
                 alignItems="center"
               >
-                <Text mr={1} mt={1} fontSize={0}>
+                <Text mr={1} mt={1} fontSize={1}>
                   {t('Connect with')}
                 </Text>
 
