@@ -997,7 +997,7 @@ describe('ClinicPatients', () => {
         expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
 
         expect(patientForm().find('input[name="connectDexcom"]').find('input').props().checked).to.be.false;
-        patientForm().find('input[name="connectDexcom"]').find('input').simulate('change', { persist: noop, target: { name: 'connectDexcom', value: true } });
+        patientForm().find('input[name="connectDexcom"]').find('input').simulate('change', { persist: noop, target: { name: 'connectDexcom', checked: true, value: true } });
         expect(patientForm().find('input[name="connectDexcom"]').find('input').props().checked).to.be.true;
 
         store.clearActions();
@@ -1182,7 +1182,7 @@ describe('ClinicPatients', () => {
           expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
           expect(patientForm().find('input[name="connectDexcom"]').find('input').props().disabled).to.be.false;
 
-          patientForm().find('input[name="connectDexcom"]').find('input').simulate('change', { persist: noop, target: { name: 'connectDexcom', value: true } });
+          patientForm().find('input[name="connectDexcom"]').find('input').simulate('change', { persist: noop, target: { name: 'connectDexcom', checked: true, value: true } });
           expect(patientForm().find('input[name="connectDexcom"]').find('input').props().checked).to.be.true;
 
           // Clear the email input

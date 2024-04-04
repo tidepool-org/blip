@@ -250,7 +250,7 @@ describe('ClinicianEdit', () => {
       expect(wrapper.find(Checkbox).props().checked).to.be.false;
       wrapper
         .find('input[type="checkbox"]').at(0)
-        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', checked: true, value: true } });
       expect(wrapper.find(Checkbox).props().checked).to.be.true;
     });
 
@@ -364,7 +364,7 @@ describe('ClinicianEdit', () => {
 
       wrapper
         .find('input[type="checkbox"]').at(0)
-        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', checked: true, value: true } });
 
       wrapper.find('Button#submit').simulate('submit');
       setTimeout(() => {
