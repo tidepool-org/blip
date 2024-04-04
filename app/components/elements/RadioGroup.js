@@ -108,7 +108,11 @@ export const RadioGroup = (props) => {
     >
       {label && (
         <Label for={name} mb={2} id={labelId}>
-          <Caption fontWeight={fontWeights.medium} className={inputClasses}>
+          <Caption
+            fontWeight={fontWeights.medium}
+            fontSize={1}
+            className={inputClasses}
+          >
             {label}
           </Caption>
         </Label>

@@ -19,6 +19,7 @@ import {
   default as baseTheme,
   colors,
   fontSizes,
+  fontWeights,
   radii,
   shadows,
   space,
@@ -117,7 +118,13 @@ export const DateRangePicker = props => {
     <Box as={StyledDateRangePicker} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption className={inputClasses}>{label}</Caption>
+          <Caption
+            fontWeight={fontWeights.medium}
+            fontSize={1}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
       <DateRangePickerBase
