@@ -40,9 +40,9 @@ const Pill = (props) => {
   const lightShade = palette[0];
   const color = variant === 'inverse' ? lightShade : darkShade;
   const bg = variant === 'inverse' ? darkShade : lightShade;
-  const px = condensed ? 1 : 2;
-  const pt = condensed ? '2px' : 1;
-  const pb = condensed ? '1px' : 1;
+  const px = props.px || condensed ? 1 : 2;
+  const pt = props.pt || condensed ? '2px' : 1;
+  const pb = props.pb || condensed ? '1px' : 1;
 
   let borderRadius = condensed ? 3 : 4;
   if (round) borderRadius = '100%';
