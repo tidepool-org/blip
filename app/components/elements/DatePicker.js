@@ -129,7 +129,11 @@ export const DatePicker = props => {
     <Box as={StyledDatePicker} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption fontWeight={fontWeights.medium} className={inputClasses}>
+          <Caption
+            fontWeight={fontWeights.medium}
+            fontSize={1}
+            className={inputClasses}
+          >
             {label}
           </Caption>
         </Label>

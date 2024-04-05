@@ -63,7 +63,7 @@ export const Headline = Styled(H2)`
   `;
 
 export const Title = Styled(H3)`
-  font-size: ${fontSizes[props => (props.fontSize || 3)]}px;
+  font-size: ${props => fontSizes[(props.fontSize || 3)]}px;
   line-height: ${lineHeights[3]};
   font-weight: ${props => (props.fontWeight ? props.fontWeight : fontWeights.regular)};
   font-family: ${fonts.default};
@@ -128,7 +128,7 @@ export const Paragraph0 = Styled(Body0)`
 `;
 
 export const Caption = Styled(Text)`
-  font-size: ${fontSizes[0]}px;
+  font-size: ${props => fontSizes[(props.fontSize || 0)]}px;
   line-height: ${lineHeights[4]};
   font-family: ${fonts.default};
   font-weight: ${props => (props.fontWeight ? props.fontWeight : fontWeights.regular)};

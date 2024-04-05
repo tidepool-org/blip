@@ -43,7 +43,13 @@ export const MultiSelect = props => {
     <Box width={['100%', '75%', '50%']} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
+          <Caption
+            fontWeight={fontWeights.medium}
+            fontSize={1}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
 

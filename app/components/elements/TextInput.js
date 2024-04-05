@@ -62,7 +62,13 @@ export const TextInput = (props) => {
             display: hideLabel ? ['none !important', 'block !important'] : 'block',
           }}
         >
-          <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
+          <Caption
+            fontWeight={fontWeights.medium}
+            fontSize={1}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
       <StyledWrapper variant={`inputs.text.${variant}`}>

@@ -13,7 +13,7 @@ import map from 'lodash/map';
 import { useFormik } from 'formik';
 import { Box, Flex, Text, Link } from 'rebass/styled-components';
 
-import { Paragraph0 } from '../../components/elements/FontStyles';
+import { Paragraph1 } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
 import Select from '../../components/elements/Select';
 import MultiSelect from '../../components/elements/MultiSelect';
@@ -281,7 +281,7 @@ export const PatientNew = (props) => {
 
   return (
     <Container
-      title={currentForm === formSteps.accountDetails ? t('Welcome') : t('Last Step')}
+      title={currentForm === formSteps.accountDetails ? t('Welcome') : t('Last Step!')}
       subtitle={currentForm === formSteps.accountDetails ? t('Tell us more about yourself') : patientDetailsText[values.accountType]?.subtitle}
       variant="mediumBordered"
       actions={formActions}
@@ -316,7 +316,7 @@ export const PatientNew = (props) => {
             <Box sx={{ flexBasis: '100%' }}>
               <RadioGroup
                 id="account-type"
-                label={t('Preferred blood glucose units')}
+                label={t('Who is this account for?')}
                 options={accountTypeOptions}
                 {...getCommonFormikFieldProps('accountType', formikContext)}
                 variant="vertical"
@@ -404,18 +404,18 @@ export const PatientNew = (props) => {
                 {patientDetailsText[values.accountType]?.dataDonateTitle}
               </Text>
 
-              <Paragraph0 sx={{ fontWeight: 'medium' }}>
+              <Paragraph1 sx={{ fontWeight: 'medium' }}>
                 <Trans i18nKey="html.data-donation-details">
                   {patientDetailsText[values.accountType]?.dataDonateOwnership}&nbsp;
                   Read all the details about <Link className="data-donation-details-link" href={URL_BIG_DATA_DONATION_INFO} target="_blank">Tidepool's Big Data Donation project here</Link>.
                 </Trans>
-              </Paragraph0>
+              </Paragraph1>
 
               <Box mb={3}>
                 <Checkbox
                   {...getCommonFormikFieldProps('dataDonate', formikContext, 'checked')}
                   bg="white"
-                  themeProps={{ sx: { bg: 'transparent', 'span': { fontSize: 0 } } }}
+                  themeProps={{ sx: { bg: 'transparent' } }}
                   label={patientDetailsText[values.accountType]?.dataDonateLabel}
                   disabled={!isEmpty(values.dataDonateDestination)}
                   sx={{
