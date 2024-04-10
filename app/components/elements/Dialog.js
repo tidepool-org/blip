@@ -112,6 +112,10 @@ DialogActions.propTypes = {
 const StyledDialog = styled(MuiDialog)`
   z-index: ${props => (props.zIndex || '1310')} !important;
 
+  &[aria-hidden] {
+    z-index: -1 !important;
+  }
+
   .MuiBackdrop-root {
     background-color: rgba(66, 90, 112, 0.81);
   }
