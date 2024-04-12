@@ -106,6 +106,9 @@ export const PatientNew = (props) => {
     }
   }, []);
 
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const allUsersMap = useSelector((state) => state.blip.allUsersMap);
+  const user = get(allUsersMap, loggedInUserId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const [submitting, setSubmitting] = useState(false);
@@ -147,10 +150,12 @@ export const PatientNew = (props) => {
     }
   }, [working.settingUpDataStorage]);
 
+  const { firstName, lastName } = personUtils.splitNamesFromFullname(user?.profile?.fullName);
+
   const formikContext = useFormik({
     initialValues: {
-      firstName: '',
-      lastName: '',
+      firstName,
+      lastName,
       accountType: null,
       patientFirstName: '',
       patientLastName: '',
@@ -192,7 +197,10 @@ export const PatientNew = (props) => {
       } else if (values.accountType === 'viewOnly') {
         setSubmitting(true);
         const profile = prepareFormValuesForSubmit(values);
-        dispatch(actions.async.setupDataStorage(api, profile));
+        // We skip the welcome message on the patients home page, which just prompts them to set up
+        // data storage, which they've just indicated they don't want to do at this time.
+        dispatch(actions.sync.hideWelcomeMessage());
+        dispatch(actions.async.updateUser(api, profile, { redirectPath: '/patients?justLoggedIn=true' }));
       }
     },
   });
@@ -200,7 +208,6 @@ export const PatientNew = (props) => {
   function prepareFormValuesForSubmit(formValues) {
     const profile = {
       fullName: personUtils.fullnameFromSplitNames(formValues.firstName, formValues.lastName),
-      patient: {},
     };
 
     if (includes(['personal', 'caregiver'], formValues.accountType)) {

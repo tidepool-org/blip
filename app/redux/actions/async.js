@@ -763,8 +763,10 @@ export function updateSettings(api, patientId, settings) {
  * @param  {Object} api an instance of the API wrapper
  * @param {userId} userId
  * @param  {Object} formValues
+ * @param {Object} options
+ * @param {Number} [options.redirectPath] - Path to redirect to on successful update
  */
-export function updateUser(api, formValues) {
+export function updateUser(api, formValues, options) {
   return (dispatch, getState) => {
     const { blip: { loggedInUserId, allUsersMap } } = getState();
     const loggedInUser = allUsersMap[loggedInUserId];
@@ -796,6 +798,7 @@ export function updateUser(api, formValues) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
+        if (options.redirectPath) dispatch(push(options.redirectPath));
       }
     });
   };
