@@ -42,6 +42,9 @@ describe('PatientNew', function () {
       patient: {
         post: sinon.stub().callsArgWith(1, null, { createdPatient: { profile: 'new profile'} }),
       },
+      user: {
+        put: sinon.stub(),
+      },
     },
   };
 
@@ -61,6 +64,7 @@ describe('PatientNew', function () {
       loggedInUserId: 'a1b2c3',
       working: {
         settingUpDataStorage: defaultWorkingState,
+        updatingUser: defaultWorkingState,
       },
     },
   };
@@ -413,11 +417,11 @@ describe('PatientNew', function () {
     nextButton().simulate('click');
 
     setTimeout(() => {
-      expect(defaultProps.api.patient.post.callCount).to.equal(1);
+      expect(defaultProps.api.user.put.callCount).to.equal(1);
 
       sinon.assert.calledWith(
-        defaultProps.api.patient.post,
-        { profile },
+        defaultProps.api.user.put,
+        { preferences: {}, profile: { fullName: 'Kathy Viewonly' }, userid: 'a1b2c3' },
       );
 
       done();
