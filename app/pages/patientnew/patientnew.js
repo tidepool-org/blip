@@ -144,11 +144,43 @@ export const PatientNew = (props) => {
           variant: 'success',
         });
 
-        // Redirect to patients page
-        dispatch(push('/patients'));
+        // Redirect to patient data view
+        dispatch(push(`/patients/${loggedInUserId}/data`));
       }
     }
   }, [working.settingUpDataStorage]);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.updatingUser;
+
+    const prevInProgress = get(
+      previousWorking,
+      'updatingUser.inProgress'
+    );
+
+    if (!inProgress && completed !== null && prevInProgress) {
+      setSubmitting(false);
+
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Profile updated'),
+          variant: 'success',
+        });
+
+        // Redirect to patients page
+        dispatch(push('/patients?justLoggedIn=true'));
+      }
+    }
+  }, [working.updatingUser]);
 
   const { firstName, lastName } = personUtils.splitNamesFromFullname(user?.profile?.fullName);
 
@@ -200,7 +232,7 @@ export const PatientNew = (props) => {
         // We skip the welcome message on the patients home page, which just prompts them to set up
         // data storage, which they've just indicated they don't want to do at this time.
         dispatch(actions.sync.hideWelcomeMessage());
-        dispatch(actions.async.updateUser(api, profile, { redirectPath: '/patients?justLoggedIn=true' }));
+        dispatch(actions.async.updateUser(api, profile));
       }
     },
   });

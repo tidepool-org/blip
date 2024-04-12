@@ -439,7 +439,6 @@ export function setupDataStorage(api, patient) {
         ));
       } else {
         dispatch(sync.setupDataStorageSuccess(loggedInUserId, createdPatient));
-        dispatch(push(`/patients/${createdPatient.userid}/data`));
       }
     });
   }
@@ -763,8 +762,6 @@ export function updateSettings(api, patientId, settings) {
  * @param  {Object} api an instance of the API wrapper
  * @param {userId} userId
  * @param  {Object} formValues
- * @param {Object} options
- * @param {Number} [options.redirectPath] - Path to redirect to on successful update
  */
 export function updateUser(api, formValues, options) {
   return (dispatch, getState) => {
@@ -798,7 +795,6 @@ export function updateUser(api, formValues, options) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
-        if (options.redirectPath) dispatch(push(options.redirectPath));
       }
     });
   };
@@ -1170,6 +1166,8 @@ export function fetchPatientData(api, options, id) {
       const fetchingPatientId = _.get(working, 'fetchingPatientData.patientId');
 
       dispatch(sync.fetchPatientDataSuccess(id));
+
+      console.log('handleFetchSuccess', location.pathname, fetchingPatientId, id)
 
       // We only add the data to the worker if another patient id has not been fetched
       // while we waited on this one, and we are still on an app view specific to that patient
