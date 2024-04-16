@@ -53,11 +53,11 @@ const accountDetailsSchema = yup.object().shape({
   accountType: yup.string().oneOf([...map(accountTypeOptions, 'value'), '']).required(t('Account type is required')),
   patientFirstName: yup.mixed().notRequired().when('accountType', {
     is: 'caregiver',
-    then: yup.string().required(t('Patient first name is required')),
+    then: () => yup.string().required(t('Patient first name is required')),
   }),
   patientLastName: yup.mixed().notRequired().when('accountType', {
     is: 'caregiver',
-    then: yup.string().required(t('Patient last name is required')),
+    then: () => yup.string().required(t('Patient last name is required')),
   }),
 });
 
