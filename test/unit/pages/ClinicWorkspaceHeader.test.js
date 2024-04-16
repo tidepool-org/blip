@@ -255,7 +255,7 @@ describe('ClinicWorkspaceHeader', () => {
 
     it('should render the clinic share code', () => {
       const details = wrapper.find('#clinicProfileDetails').hostNodes();
-      expect(details.find('span').at(1).text()).to.equal('ABCD-ABCD-ABCD');
+      expect(details.find('span').at(2).text()).to.equal('ABCD-ABCD-ABCD');
     });
 
     it('should render the clinic plan name', () => {
