@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import get from 'lodash/get';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
@@ -12,7 +12,7 @@ import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
-import { Flex, Box, Text } from 'rebass/styled-components';
+import { Flex, Box, Text } from 'theme-ui';
 
 import {
   usePopupState,
@@ -83,18 +83,18 @@ export const WorkspaceSwitcher = props => {
   };
 
   return menuOptions.length ? (
-    <Flex id='workspace-switcher' justifyContent={['center', 'flex-start', 'center']}>
+    <Flex id='workspace-switcher' sx={{ justifyContent: ['center', 'flex-start', 'center'] }}>
       {menuOptions.length > 1 && (
         <>
           <Button
             id="workspace-switcher-current"
             variant="textPrimary"
             color="text.primary"
-            fontSize={2}
             {...bindTrigger(popupState)}
             icon={KeyboardArrowDownRoundedIcon}
             iconLabel={t('Open navigation menu')}
             sx={{
+              fontSize: 2,
               '&:hover': {
                 color: colors.purpleDark,
               },
@@ -121,17 +121,17 @@ export const WorkspaceSwitcher = props => {
                   className="workspace-option"
                   variant="textPrimary"
                   color="text.primary"
-                  width="100%"
                   pt={2}
                   pb={3}
                   px={3}
-                  justifyContent="space-between"
                   key={key}
-                  fontSize={2}
                   icon={option.id === selectedClinic?.id ? CheckRoundedIcon : null}
                   iconLabel={t('Selected')}
                   onClick={() => handleSelect(option)}
                   sx={{
+                    width: '100%',
+                    fontSize: 2,
+                    justifyContent: 'space-between',
                     '&:hover': {
                       color: colors.purpleDark,
                     },
@@ -161,4 +161,4 @@ WorkspaceSwitcher.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(WorkspaceSwitcher);
+export default withTranslation()(WorkspaceSwitcher);

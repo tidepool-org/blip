@@ -22,7 +22,7 @@ import { push } from 'connected-react-router';
 
 import * as actions from '../../redux/actions';
 
-import {translate} from 'react-i18next';
+import {withTranslation} from 'react-i18next';
 import _ from 'lodash';
 import { validateForm } from '../../core/validation';
 
@@ -31,7 +31,7 @@ import config from '../../config';
 import SimpleForm from '../../components/simpleform';
 import ToastContext from '../../providers/ToastProvider';
 
-// A different namespace than the default can be specified in translate()
+// A different namespace than the default can be specified in withTranslation()
 export var UserProfileClass = class extends React.Component {
   static propTypes = {
     fetchingUser: PropTypes.bool.isRequired,
@@ -299,7 +299,7 @@ export var UserProfileClass = class extends React.Component {
 // We need to apply the contextType prop to use the Toast provider with create-react-class.
 // This produces an issue with the current enzyme mounting and breaks unit tests.
 // Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
-export const UserProfile = translate()(props => <UserProfileClass {...props}/>);
+export const UserProfile = withTranslation()(props => <UserProfileClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

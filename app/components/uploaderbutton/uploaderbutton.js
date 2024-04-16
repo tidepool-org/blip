@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 import GitHub from 'github-api';
 import _ from 'lodash';
 import utils from '../../core/utils';
-import { translate } from 'react-i18next';
-import { Flex, Box } from 'rebass/styled-components';
+import { withTranslation } from 'react-i18next';
+import { Flex, Box } from 'theme-ui';
 
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import AppleIcon from '../../core/icons/Apple.svg';
@@ -13,7 +13,7 @@ import Button from '../elements/Button';
 
 const github = new GitHub();
 
-export default translate()(class UploaderButton extends Component {
+export default withTranslation()(class UploaderButton extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -40,7 +40,7 @@ export default translate()(class UploaderButton extends Component {
 
   renderErrorText = () => {
     return (
-      <Flex justifyContent="center">
+      <Flex sx={{ justifyContent: 'center' }}>
         <Box mx={2}>
           <a className='link-uploader-download'
             href={URL_UPLOADER_DOWNLOAD_PAGE}
@@ -64,7 +64,7 @@ export default translate()(class UploaderButton extends Component {
       content = this.renderErrorText();
     } else {
       content = [
-        <Flex justifyContent="center" alignItems="center" sx={{ gap: 2 }}>
+        <Flex sx={{ justifyContent: 'center', alignItems: 'center', gap: 2 }}>
           <Box>
             <a className='link-download-mac'
               href={this.state.latestMacRelease}
@@ -76,13 +76,11 @@ export default translate()(class UploaderButton extends Component {
                 variant="primary"
                 py={1}
                 px="12px"
-                lineHeight="22px"
-                fontWeight="medium"
                 key={'mac'}
                 disabled={!this.state.latestMacRelease}
                 iconSrc={AppleIcon}
                 iconPosition="left"
-                sx={{ '.icon': { minWidth: 'auto' } }}
+                sx={{ lineHeight: '22px', fontWeight: 'medium', '.icon': { minWidth: 'auto' } }}
               >
                 Download for Mac
               </Button>
@@ -100,13 +98,11 @@ export default translate()(class UploaderButton extends Component {
                 variant="primary"
                 py={1}
                 px="12px"
-                lineHeight="22px"
-                fontWeight="medium"
                 key={'pc'}
                 disabled={!this.state.latestWinRelease}
                 iconSrc={WindowsIcon}
                 iconPosition="left"
-                sx={{ '.icon': { minWidth: 'auto' } }}
+                sx={{ lineHeight: '22px', fontWeight: 'medium', '.icon': { minWidth: 'auto' } }}
               >
                 Download for PC
               </Button>
@@ -117,7 +113,7 @@ export default translate()(class UploaderButton extends Component {
     }
 
     return (
-      <Flex justifyContent="center">
+      <Flex sx={{ justifyContent: 'center' }}>
         {content}
       </Flex>
     );

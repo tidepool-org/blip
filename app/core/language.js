@@ -1,6 +1,6 @@
 
 import i18n from 'i18next';
-import { reactI18nextModule } from 'react-i18next';
+import { initReactI18next } from 'react-i18next';
 import getLocale from 'browser-locale';
 import moment from 'moment';
 
@@ -22,7 +22,7 @@ if (I18N_ENABLED && self.localStorage && self.localStorage.lang) {
 }
 
 i18n
-  .use(reactI18nextModule)
+  .use(initReactI18next)
   .init({
     fallbackLng: 'en',
     lng: defaultLanguage,
@@ -42,7 +42,7 @@ i18n
     returnEmptyString: false,
 
     react: {
-      wait: true,
+      useSuspense: true,
       withRef: true,
       // Needed for react < 16
       defaultTransParent: 'div'

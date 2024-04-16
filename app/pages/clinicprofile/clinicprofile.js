@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import includes from 'lodash/includes'
 import keys from 'lodash/keys';
 import { useFormik } from 'formik';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 
 import {
   Title,
@@ -97,10 +97,9 @@ export const ClinicProfile = (props) => {
           <Box
             px={4}
             py={2}
-            sx={{ borderBottom: baseTheme.borders.default }}
-            alignItems={'center'}
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
           >
-            <Title flexGrow={1}>
+            <Title sx={{ flexGrow: 1 }}>
               {t('Clinic Profile')}
             </Title>
           </Box>
@@ -113,10 +112,8 @@ export const ClinicProfile = (props) => {
             <ClinicProfileFields p={4} formikContext={formikContext} />
 
             <Flex
-              justifyContent={['center', 'flex-end']}
               id="clinic-profile-footer"
-              sx={{ borderTop: baseTheme.borders.default }}
-              alignItems={'center'}
+              sx={{ borderTop: baseTheme.borders.default, justifyContent: ['center', 'flex-end'], alignItems: 'center' }}
               py={4}
             >
               <Button id="cancel" variant="secondary" onClick={redirectToWorkspace}>
@@ -148,4 +145,4 @@ ClinicProfile.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicProfile);
+export default withTranslation()(ClinicProfile);

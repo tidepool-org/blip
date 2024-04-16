@@ -4,7 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 import { withLDConsumer } from 'launchdarkly-react-client-sdk';
 
 import * as actions from '../../redux/actions';
@@ -107,13 +107,6 @@ export class AppComponent extends React.Component {
     }
   }
 
-  hideNavbarDropdown() {
-    var navbar = this.refs.navbar;
-
-    if (navbar) {
-      navbar.getWrappedInstance().hideDropdown();
-    }
-  }
 
   /**
    * Only show patient name in navbar on certain pages
@@ -277,7 +270,7 @@ export class AppComponent extends React.Component {
     this.props.context.log('Rendering overlay');
     if (this.props.loggingOut) {
       return (
-        <LogoutOverlay ref="logoutOverlay" />
+        <LogoutOverlay />
       );
     }
   }
@@ -309,23 +302,23 @@ export class AppComponent extends React.Component {
           getUploadUrl = this.props.context.api.getUploadUrl.bind(this.props.context.api);
         }
         return (
-         <Box className="App-navbar" variant="containers.large" bg="transparent" mb={0} py={2}>
-          <Navbar
-            user={this.props.user}
-            fetchingUser={_.get(this.props.fetchingUser, 'inProgress')}
-            patient={patient}
-            fetchingPatient={this.props.fetchingPatient}
-            currentPage={this.props.location}
-            query={this.props.query}
-            clinicFlowActive={this.props.clinicFlowActive}
-            clinics={this.props.clinics}
-            getUploadUrl={getUploadUrl}
-            onLogout={this.props.onLogout}
-            trackMetric={this.props.context.trackMetric}
-            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
-            api={this.props.context.api}
-            selectedClinicId={this.props.selectedClinicId}
-            ref="navbar"/>
+          <Box className="App-navbar" variant="containers.large" bg="transparent" mb={0} py={2}>
+            <Navbar
+              user={this.props.user}
+              fetchingUser={_.get(this.props.fetchingUser, 'inProgress')}
+              patient={patient}
+              fetchingPatient={this.props.fetchingPatient}
+              currentPage={this.props.location}
+              query={this.props.query}
+              clinicFlowActive={this.props.clinicFlowActive}
+              clinics={this.props.clinics}
+              getUploadUrl={getUploadUrl}
+              onLogout={this.props.onLogout}
+              trackMetric={this.props.context.trackMetric}
+              permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+              api={this.props.context.api}
+              selectedClinicId={this.props.selectedClinicId}
+            />
           </Box>
         );
       }
@@ -658,7 +651,7 @@ export class AppComponent extends React.Component {
     var footer = this.renderFooter();
 
     return (
-      <div className="app" onClick={this.hideNavbarDropdown.bind(this)}>
+      <div className="app">
         {overlay}
         {emailbanner}
         {navbar}

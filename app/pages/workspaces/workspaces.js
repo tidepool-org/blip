@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -12,7 +12,7 @@ import isUndefined from 'lodash/isUndefined';
 import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import AddIcon from '@material-ui/icons/Add';
 import { generateSSOLinkUri } from '../../keycloak';
 
@@ -348,33 +348,35 @@ export const Workspaces = (props) => {
       <Flex
         key={key}
         className={`workspace-item-${workspace.type}`}
-        alignItems="center"
-        justifyContent="space-between"
-        flexWrap={['wrap']}
         pr={[3, 4]}
         pl={[3, 3, 0]}
         pt={4}
         sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: ['wrap'],
           borderBottom: baseTheme.borders.divider,
           '&:last-child': {
             borderBottom: 'none',
           },
         }}
       >
-        <Flex flexDirection="column" pb={errorText ? [2, 3] : [2, 4]} mr={2}>
-          <Flex className="workspace-details" alignItems="center">
+        <Flex sx={{ flexDirection: 'column' }} pb={errorText ? [2, 3] : [2, 4]} mr={2}>
+          <Flex className="workspace-details" sx={{ alignItems: 'center' }}>
             <Subheading>{workspace.name}</Subheading>
             {workspace.type === 'clinician_invitation' && <NotificationIcon />}
           </Flex>
           {errorText && (
-            <Paragraph1 classname="workspace-error" color="feedback.danger" fontWeight="medium">
+            <Paragraph1 className="workspace-error" sx={{ color: 'feedback.danger', fontWeight: 'medium' }}>
               {errorText}
             </Paragraph1>
           )}
         </Flex>
         <Flex
           className="workspace-actions"
-          justifyContent="flex-start"
+          sx={{
+            justifyContent: 'flex-start',
+          }}
           width={['100%', 'auto']}
           pb={4}
         >
@@ -395,12 +397,14 @@ export const Workspaces = (props) => {
         }}
       >
         <Flex
-          sx={{ borderBottom: baseTheme.borders.default }}
-          alignItems={'center'}
-          flexWrap={['wrap', 'nowrap']}
+          sx={{
+            borderBottom: baseTheme.borders.default,
+            alignItems: 'center',
+            flexWrap: ['wrap', 'nowrap'],
+          }}
           px={[3, 4, 5, 6]}
         >
-          <Headline flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
+          <Headline pr={[0, 3]} py={[3, 4]} sx={{ flexGrow: 1, textAlign: ['center', 'left'] }}>
             {t('Welcome To Tidepool')}
           </Headline>
         </Flex>
@@ -415,29 +419,31 @@ export const Workspaces = (props) => {
             {...props}
           >
             <Flex
-              justifyContent="space-between"
-              flexWrap="wrap"
-              align="center"
               bg="lightestGrey"
               px={[3, 4]}
               py={[2, 3]}
               sx={{
+                align: 'center',
                 borderBottom: baseTheme.borders.modal,
+                flexWrap: 'wrap',
+                justifyContent: 'space-between',
               }}
             >
               <Box>
-                <Title fontWeight="medium">{t('Clinic Workspace')}</Title>
+                <Title sx={{ fontWeight: 'medium' }}>{t('Clinic Workspace')}</Title>
                 <Body1>{t('View, share and manage patient data')}</Body1>
               </Box>
 
               <Button
                 id="workspace-create-clinic"
                 variant="textPrimary"
-                fontSize={1}
-                fontWeight="medium"
-                py={3}
-                pr={0}
-                pl={[0, 0, 3]}
+                sx={{
+                  fontSize: 1,
+                  fontWeight: 'medium',
+                  py: 3,
+                  pr: 0,
+                  pl: [0, 0, 3],
+                }}
                 icon={AddIcon}
                 iconPosition="left"
                 onClick={handleCreateNewClinic.bind(null, 'header cta')}
@@ -516,4 +522,4 @@ Workspaces.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-export default translate()(Workspaces);
+export default withTranslation()(Workspaces);

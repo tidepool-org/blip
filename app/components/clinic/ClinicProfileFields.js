@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import get from 'lodash/get'
 import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 import countries from 'i18n-iso-countries';
 import InputMask from 'react-input-mask';
-import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, Text, BoxProps } from 'theme-ui';
 
 import {
   Body2,
@@ -44,8 +44,8 @@ export const ClinicProfileFields = (props) => {
 
   return (
     <Box {...BoxProps}>
-      <Flex flexWrap="wrap" flexDirection={['column', 'row']}>
-        <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+      <Flex sx={{ flexWrap: 'wrap', flexDirection: ['column', 'row'] }}>
+        <Box pr={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <TextInput
             {...getCommonFormikFieldProps('name', formikContext)}
             label={t('Clinic Name')}
@@ -55,7 +55,7 @@ export const ClinicProfileFields = (props) => {
           />
         </Box>
 
-        <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pl={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <InputMask
             mask="(999) 999-9999"
             {...getCommonFormikFieldProps('phoneNumbers.0.number', formikContext)}
@@ -77,7 +77,7 @@ export const ClinicProfileFields = (props) => {
           </InputMask>
         </Box>
 
-        <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pr={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <Select
             {...getCommonFormikFieldProps('country', formikContext)}
             options={addEmptyOption(selectCountries)}
@@ -90,7 +90,7 @@ export const ClinicProfileFields = (props) => {
           />
         </Box>
 
-        <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pl={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           { selectStates.length ? (
             <Select
               {...getCommonFormikFieldProps('state', formikContext)}
@@ -113,7 +113,7 @@ export const ClinicProfileFields = (props) => {
           )}
         </Box>
 
-        <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pr={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <TextInput
             {...getCommonFormikFieldProps('address', formikContext)}
             label={t('Clinic Address')}
@@ -123,7 +123,7 @@ export const ClinicProfileFields = (props) => {
           />
         </Box>
 
-        <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pl={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <TextInput
             {...getCommonFormikFieldProps('city', formikContext)}
             label={t('City')}
@@ -133,7 +133,7 @@ export const ClinicProfileFields = (props) => {
           />
         </Box>
 
-        <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pr={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <TextInput
             {...getCommonFormikFieldProps('postalCode', formikContext)}
             label={t('Zip/Postal Code')}
@@ -143,7 +143,7 @@ export const ClinicProfileFields = (props) => {
           />
         </Box>
 
-        <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pl={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <TextInput
             {...getCommonFormikFieldProps('website', formikContext)}
             label={t('Website')}
@@ -153,7 +153,7 @@ export const ClinicProfileFields = (props) => {
           />
         </Box>
 
-        <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pr={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <Text as={Body2} mb={3}>
             {t('What is the type of organization you are a part of?')}
           </Text>
@@ -165,7 +165,7 @@ export const ClinicProfileFields = (props) => {
           />
         </Box>
 
-        <Box pl={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pl={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <Text as={Body2} mb={3}>
             {t('How many patients does your clinic practice see?')}
           </Text>
@@ -177,7 +177,7 @@ export const ClinicProfileFields = (props) => {
           />
         </Box>
 
-        <Box pr={[0,3]} mb={4} flexBasis={['100%', '50%']}>
+        <Box pr={[0,3]} mb={4} sx={{ flexBasis: ['100%', '50%'] }}>
           <Text as={Body2} mb={3}>
             {t('Preferred blood glucose units')}
           </Text>
@@ -198,4 +198,4 @@ ClinicProfileFields.propTypes = {
   formikContext: PropTypes.object,
 };
 
-export default translate()(ClinicProfileFields);
+export default withTranslation()(ClinicProfileFields);

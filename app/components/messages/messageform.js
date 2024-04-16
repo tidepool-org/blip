@@ -20,12 +20,12 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import _ from 'lodash';
 import sundial from 'sundial';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 var MessageMixins = require('./messagemixins');
 
 // Form for creating new Notes or adding Comments
-var MessageForm = translate()(createReactClass({
+var MessageForm = withTranslation()(createReactClass({
   displayName: 'MessageForm',
   mixins: [MessageMixins],
 

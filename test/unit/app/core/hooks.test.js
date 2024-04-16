@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { usePrevious, useFieldArray, useInitialFocusedInput } from '../../../../app/core/hooks';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-hooks/dom';
 import { Formik } from 'formik';
 import _ from 'lodash';
 import { mount } from 'enzyme';

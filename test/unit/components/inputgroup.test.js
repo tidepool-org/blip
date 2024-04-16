@@ -75,9 +75,7 @@ describe('InputGroup', () => {
       select = () => wrapper.find('.Select').first();
       selectInput = () => select().find('input').first();
       selectValues = () => select().find('.Select__value-container').first();
-      selectOptions = () => select().find('.Select__option');
-
-
+      selectOptions = () => select().find('.Select__option').hostNodes();
       instance = () => wrapper.instance();
     });
 

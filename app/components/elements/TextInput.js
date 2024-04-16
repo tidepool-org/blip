@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Flex, Box, Text, BoxProps } from 'rebass/styled-components';
-import { Label, Input as Base, InputProps } from '@rebass/forms/styled-components';
+import styled from '@emotion/styled';
+import { Flex, Box, BoxProps, Text, Label, Input as Base, InputProps } from 'theme-ui';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
-import { fontWeights, shadows } from '../../themes/baseTheme';
-
+import { shadows } from '../../themes/baseTheme';
 
 const StyledWrapper = styled(Flex)`
   position: relative;
@@ -24,7 +22,7 @@ const StyledWrapper = styled(Flex)`
   }
 `;
 
-export const TextInput = (props) => {
+export function TextInput(props) {
   const {
     label,
     name,
@@ -43,19 +41,22 @@ export const TextInput = (props) => {
     warning,
     description,
     captionProps,
+    className = {},
+    sx = {},
     ...inputProps
   } = props;
 
   const inputClasses = cx({
+    ...className,
     error,
     required,
     warning: !error && warning,
   });
   return (
-    <Box width={width} {...themeProps}>
+    <Box sx={{ width, ...sx }} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
+          <Caption sx={{ fontWeight: 'medium' }} className={inputClasses}>{label}</Caption>
         </Label>
       )}
       <StyledWrapper variant={`inputs.text.${variant}`}>
@@ -89,7 +90,7 @@ export const TextInput = (props) => {
       )}
     </Box>
   );
-};
+}
 
 TextInput.propTypes = {
   ...InputProps,

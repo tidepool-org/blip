@@ -12,6 +12,7 @@ import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { phoneRegex } from '../pages/prescription/prescriptionFormConstants';
 import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
+import utils from '../core/utils';
 
 const t = i18next.t.bind(i18next);
 

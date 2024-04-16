@@ -4,7 +4,6 @@
 /* global it */
 
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 
 var assert = chai.assert;
@@ -12,6 +11,7 @@ var expect = chai.expect;
 import * as errorMessages from '../../../app/redux/constants/errorMessages';
 
 import { VerificationWithPassword, mapStateToProps } from '../../../app/pages/verificationwithpassword/verificationwithpassword';
+import { mount } from 'enzyme';
 
 describe('VerificationWithPassword', () => {
   it('should be a function', () => {
@@ -32,7 +32,7 @@ describe('VerificationWithPassword', () => {
         working: false
       };
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      let render = mount(elem);
       expect(console.error.callCount).to.equal(0);
     });
 
@@ -47,7 +47,7 @@ describe('VerificationWithPassword', () => {
         working: false
       };
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      let render = mount(elem);
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
     });
@@ -65,9 +65,8 @@ describe('VerificationWithPassword', () => {
         trackMetric: sinon.stub(),
         working: false
       };
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(elem), VerificationWithPassword.WrappedComponent);
-      render.UNSAFE_componentWillReceiveProps({notification:{message: errorMessages.ERR_BIRTHDAY_MISMATCH}});
+      let render = mount(React.createElement(VerificationWithPassword, props)).childAt(0);
+      render.instance().UNSAFE_componentWillReceiveProps({notification:{message: errorMessages.ERR_BIRTHDAY_MISMATCH}});
       expect(console.error.callCount).to.equal(0);
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
@@ -95,9 +94,9 @@ describe('VerificationWithPassword', () => {
       };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = mount(elem).childAt(0);
       expect(console.error.callCount).to.equal(0);
-      expect(render.state).to.eql(expectedInitialState);
+      expect(render.state()).to.eql(expectedInitialState);
     });
   });
 
@@ -122,13 +121,13 @@ describe('VerificationWithPassword', () => {
       };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = mount(elem).childAt(0);
 
-      expect(render.state).to.eql(expectedInitialState);
+      expect(render.state()).to.eql(expectedInitialState);
 
-      render.handleInputChange({name: 'password', value: 'foo'});
+      render.instance().handleInputChange({name: 'password', value: 'foo'});
 
-      expect(render.state.formValues.password).to.equal('foo');
+      expect(render.state().formValues.password).to.equal('foo');
     });
   });
 
@@ -155,20 +154,20 @@ describe('VerificationWithPassword', () => {
       };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = mount(elem).childAt(0);
 
       let intermediateState = {
         validationErrors: {
           username: 'This is not valid'
         }
       };
-      render.setState(intermediateState);
+      render.instance().setState(intermediateState);
 
-      expect(render.state.validationErrors).to.eql(intermediateState.validationErrors);
+      expect(render.state().validationErrors).to.eql(intermediateState.validationErrors);
 
-      render.resetFormStateBeforeSubmit({});
+      render.instance().resetFormStateBeforeSubmit({});
 
-      expect(render.state).to.eql({
+      expect(render.state()).to.eql({
         loading: false,
         formValues: {},
         validationErrors: {},
@@ -220,9 +219,9 @@ describe('VerificationWithPassword', () => {
       }
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = mount(elem).childAt(0);
 
-      expect(render.isFormDisabled()).to.be.true;
+      expect(render.instance().isFormDisabled()).to.be.true;
     });
 
     it('should return undefined otherwise', () => {
@@ -237,9 +236,9 @@ describe('VerificationWithPassword', () => {
       }
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = mount(elem).childAt(0);
 
-      expect(render.isFormDisabled()).to.be.undefined;
+      expect(render.instance().isFormDisabled()).to.be.undefined;
     });
 
   });

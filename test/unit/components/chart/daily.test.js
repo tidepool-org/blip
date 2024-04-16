@@ -12,7 +12,7 @@ var _ = require('lodash');
 var expect = chai.expect;
 
 import { shallow, mount } from 'enzyme';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import i18next from '../../../../app/core/language';
 import Daily from '../../../../app/components/chart/daily';
@@ -96,8 +96,8 @@ describe('Daily', () => {
   let instance;
 
   beforeEach(() => {
-    wrapper = shallow(<Daily.WrappedComponent {...baseProps} />);
-    instance = wrapper.instance();
+    wrapper = mount(<Daily {...baseProps} />);
+    instance = wrapper.childAt(0).instance();
   });
 
   afterEach(() => {
@@ -109,7 +109,7 @@ describe('Daily', () => {
 
   describe('render', () => {
     before(() => {
-      Daily.__Rewire__('DailyChart', translate()(createReactClass({
+      Daily.__Rewire__('DailyChart', withTranslation()(createReactClass({
         rerenderChart: sinon.stub(),
         render: () => <div className='fake-daily-chart' />,
       })));
@@ -212,24 +212,24 @@ describe('Daily', () => {
     ];
 
     it('should set the `title` state', () => {
-      expect(wrapper.state().title).to.equal('');
+      expect(instance.state.title).to.equal('');
 
       instance.handleDatetimeLocationChange(endpoints);
 
-      expect(wrapper.state().title).to.equal('Tue, Jan 16, 2018');
+      expect(instance.state.title).to.equal('Tue, Jan 16, 2018');
     });
 
     it('should set a debounced call of the `onUpdateChartDateRange` prop method', () => {
       sinon.spy(_, 'debounce');
       sinon.assert.callCount(_.debounce, 0);
 
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.undefined;
+      expect(instance.state.debouncedDateRangeUpdate).to.be.undefined;
 
       instance.handleDatetimeLocationChange(endpoints);
 
       sinon.assert.callCount(_.debounce, 1);
       sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a('function');
+      expect(instance.state.debouncedDateRangeUpdate).to.be.a('function');
 
       _.debounce.restore();
     });
@@ -237,7 +237,6 @@ describe('Daily', () => {
 
   describe('toggleBgDataSource', () => {
     it('should track metric when toggled', () => {
-      const instance = wrapper.instance();
       instance.toggleBgDataSource(null, 'cbg');
       sinon.assert.callCount(baseProps.trackMetric, 1);
       sinon.assert.calledWith(baseProps.trackMetric, 'Daily Click to CGM');
@@ -248,7 +247,6 @@ describe('Daily', () => {
     });
 
     it('should call the `updateChartPrefs` handler to update the bgSource', () => {
-      const instance = wrapper.instance();
       instance.toggleBgDataSource(null, 'cbg');
 
       sinon.assert.callCount(baseProps.updateChartPrefs, 1);

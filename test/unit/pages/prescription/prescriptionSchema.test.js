@@ -66,7 +66,7 @@ describe('prescriptionSchema', function() {
     ]);
 
     expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule.type).to.equal('array');
-    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType._nodes).to.be.an('array').and.have.members([
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule.innerType._nodes).to.be.an('array').and.have.members([
       'high',
       'low',
       'start',
@@ -85,19 +85,19 @@ describe('prescriptionSchema', function() {
     ]);
 
     expect(schema.fields.initialSettings.fields.basalRateSchedule.type).to.equal('array');
-    expect(schema.fields.initialSettings.fields.basalRateSchedule._subType._nodes).to.be.an('array').and.have.members([
+    expect(schema.fields.initialSettings.fields.basalRateSchedule.innerType._nodes).to.be.an('array').and.have.members([
       'rate',
       'start',
     ]);
 
     expect(schema.fields.initialSettings.fields.carbohydrateRatioSchedule.type).to.equal('array');
-    expect(schema.fields.initialSettings.fields.carbohydrateRatioSchedule._subType._nodes).to.be.an('array').and.have.members([
+    expect(schema.fields.initialSettings.fields.carbohydrateRatioSchedule.innerType._nodes).to.be.an('array').and.have.members([
       'amount',
       'start',
     ]);
 
     expect(schema.fields.initialSettings.fields.insulinSensitivitySchedule.type).to.equal('array');
-    expect(schema.fields.initialSettings.fields.insulinSensitivitySchedule._subType._nodes).to.be.an('array').and.have.members([
+    expect(schema.fields.initialSettings.fields.insulinSensitivitySchedule.innerType._nodes).to.be.an('array').and.have.members([
       'amount',
       'start',
     ]);

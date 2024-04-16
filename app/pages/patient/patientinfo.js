@@ -19,7 +19,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import sundial from 'sundial';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import i18next from '../../core/language';
 
 import { Element } from 'react-scroll';
@@ -38,7 +38,7 @@ const t = i18next.t.bind(i18next);
 var FORM_DATE_FORMAT = t('MM/DD/YYYY');
 var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
-var PatientInfo = translate()(class extends React.Component {
+var PatientInfo = withTranslation()(class extends React.Component {
   // many things *not* required here because they aren't needed for
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   static propTypes = {

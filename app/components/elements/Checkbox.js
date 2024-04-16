@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Text } from 'rebass/styled-components';
-import { Checkbox as Base, Label, LabelProps, CheckboxProps } from '@rebass/forms';
-import styled from 'styled-components';
+import { Box, Text, Checkbox as Base, Label, LabelProps, CheckboxProps } from 'theme-ui';
+import styled from '@emotion/styled';
 import cx from 'classnames';
 import { Caption } from './FontStyles';
 
@@ -21,7 +20,7 @@ const StyledCheckbox = styled(Base)`
 
   &.checked {
     color: ${colors.purpleMedium};
-    background-color: ${colors.white};
+    background-color: ${colors.white} !important;
   }
 
   &.disabled {
@@ -35,6 +34,8 @@ const StyledCheckbox = styled(Base)`
 `;
 
 const StyledCheckboxLabel = styled(Text)`
+  display: inline-block;
+
   &.disabled {
     color: ${colors.text.primaryDisabled};
   }
@@ -49,7 +50,7 @@ const StyledCheckboxLabel = styled(Text)`
   }
 `;
 
-export const Checkbox = (props) => {
+export function Checkbox(props) {
   const { error, required, label, themeProps, variant, ...checkboxProps } = props;
 
   const classNames = cx({
@@ -69,8 +70,8 @@ export const Checkbox = (props) => {
           backgroundColor: 'inherit',
           display: 'inline-flex !important',
           lineHeight: '1em',
+          width: 'auto',
         }}
-        width="auto"
         {...themeProps}
       >
         <StyledCheckbox className={classNames} {...checkboxProps} />
@@ -85,7 +86,7 @@ export const Checkbox = (props) => {
       )}
     </>
   );
-};
+}
 
 Checkbox.propTypes = {
   ...CheckboxProps,
