@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, BoxProps, Flex, Image, Text } from 'rebass/styled-components';
+import { Box, BoxProps, Flex, Image, Text } from 'theme-ui';
 import { useSelector } from 'react-redux';
 import get from 'lodash/get';
 import map from 'lodash/map';

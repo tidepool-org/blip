@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, BoxProps } from 'rebass/styled-components';
-import { Label } from '@rebass/forms';
+import { Box, Label, BoxProps } from 'theme-ui';
 import ReactSelect from 'react-select';
 import cx from 'classnames';
 import intersectionBy from 'lodash/intersectionBy';

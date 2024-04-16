@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import { useFormik } from 'formik';
-import { Box, Flex, Text, Link } from 'rebass/styled-components';
+import { Box, Flex, Text, Link } from 'theme-ui';
 
 import { Paragraph1 } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';

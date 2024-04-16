@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
 import { Box } from 'theme-ui';
 import { withLDConsumer } from 'launchdarkly-react-client-sdk';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import * as actions from '../../redux/actions';
 import { ldContext } from '../../redux/utils/launchDarklyMiddleware';
@@ -974,4 +974,4 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   });
 };
 
-export default withLDConsumer()(connect(mapStateToProps, mapDispatchToProps, mergeProps)(translate()(props => <AppComponent {...props}/>)));
+export default withLDConsumer()(connect(mapStateToProps, mapDispatchToProps, mergeProps)(withTranslation()(props => <AppComponent {...props}/>)));
