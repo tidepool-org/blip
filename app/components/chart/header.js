@@ -2,13 +2,13 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 
 import Icon from '../elements/Icon';
 
-const Header = translate()(class Header extends Component {
+const Header = withTranslation()(class Header extends Component {
   static propTypes = {
     patient: PropTypes.object,
     title: PropTypes.string.isRequired,

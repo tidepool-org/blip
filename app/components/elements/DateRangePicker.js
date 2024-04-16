@@ -6,9 +6,8 @@ import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded'
 import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import noop from 'lodash/noop';
-import styled from 'styled-components';
-import { Label } from '@rebass/forms';
-import { Box, BoxProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Label, Box, BoxProps } from 'theme-ui';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
@@ -88,7 +87,7 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   }
 `;
 
-export const DateRangePicker = props => {
+export function DateRangePicker(props) {
   const {
     startDate,
     endDate,
@@ -160,7 +159,7 @@ export const DateRangePicker = props => {
       )}
     </Box>
   );
-};
+}
 
 DateRangePicker.propTypes = {
   ...DateRangePickerShape,

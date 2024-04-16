@@ -16,20 +16,20 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import cx from 'classnames';
 import moment from 'moment';
 
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 
 var launchCustomProtocol = require('custom-protocol-detection');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
 var personUtils = require('../../core/personutils');
 
-var NavbarPatientCard = translate()(class extends React.Component {
+var NavbarPatientCard = withTranslation()(class extends React.Component {
   static propTypes = {
     href: PropTypes.string.isRequired,
     currentPage: PropTypes.string,
@@ -64,7 +64,7 @@ var NavbarPatientCard = translate()(class extends React.Component {
     var overlay = this.state.showUploadOverlay ? this.renderOverlay() : null;
 
     return (
-      <Flex alignItems="center" className={classes}>
+      <Flex sx={{ alignItems: 'center' }} className={classes}>
         <i className="Navbar-icon icon-face-standin"></i>
         <div className="patientcard-info">
           {profile}

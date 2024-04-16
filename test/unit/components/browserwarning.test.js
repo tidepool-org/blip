@@ -4,9 +4,9 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
+import { mount } from 'enzyme';
 import BrowserWarning from '../../../app/components/browserwarning';
 
 describe('BrowserWarning', function () {
@@ -20,7 +20,7 @@ describe('BrowserWarning', function () {
         trackMetric: function() {}
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
+      var elem = mount(browserWarningElem);
       expect(elem).to.be.ok;
     });
 
@@ -29,7 +29,7 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
+      var elem = mount(browserWarningElem);
       expect(elem).to.be.ok;
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
@@ -40,11 +40,11 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      var chromeIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'browser-warning-chrome-image');
+      var elem = mount(browserWarningElem);
+      var chromeIcon = elem.find('.browser-warning-chrome-image');
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
-      TestUtils.Simulate.click(chromeIcon);
+      chromeIcon.simulate('click')
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('Clicked Download Chrome')).to.be.true;
     });
@@ -54,11 +54,11 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      var chromeLink = TestUtils.findRenderedDOMComponentWithClass(elem, 'chromeBrowserLink');
+      var elem = mount(browserWarningElem);
+      var chromeLink = elem.find('.chromeBrowserLink');
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
-      TestUtils.Simulate.click(chromeLink);
+      chromeLink.simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('Clicked Download Chrome')).to.be.true;
     });
@@ -68,11 +68,11 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      var edgeLink = TestUtils.findRenderedDOMComponentWithClass(elem, 'edgeBrowserLink');
+      var elem = mount(browserWarningElem);
+      var edgeLink = elem.find('.edgeBrowserLink');
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
-      TestUtils.Simulate.click(edgeLink);
+      edgeLink.simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('Clicked Download Edge')).to.be.true;
     });
@@ -82,11 +82,11 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      var playButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'playstore-badge');
+      var elem = mount(browserWarningElem);
+      var playButton = elem.find('.playstore-badge');
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
-      TestUtils.Simulate.click(playButton);
+      playButton.simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('No Data - Clicked Android')).to.be.true;
     });
@@ -97,11 +97,11 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      var appStoreButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'appstore-badge');
+      var elem = mount(browserWarningElem);
+      var appStoreButton = elem.find('.appstore-badge');
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
-      TestUtils.Simulate.click(appStoreButton);
+      appStoreButton.simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('No Data - Clicked iOS')).to.be.true;
     });

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import get from 'lodash/get';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, BoxProps } from 'theme-ui';
 import { default as ExpansionPanel, ExpansionPanelProps } from '@material-ui/core/ExpansionPanel';
 import { default as ExpansionPanelSummary, ExpansionPanelSummaryProps } from '@material-ui/core/ExpansionPanelSummary';
 import { default as ExpansionPanelDetails, ExpansionPanelDetailsProps } from '@material-ui/core/ExpansionPanelDetails';
@@ -17,41 +17,47 @@ import {
 } from '../../themes/baseTheme';
 
 const StyledAccordion = styled(ExpansionPanel)`
-  font-family: ${fonts.default};
-  font-size: ${fontSizes[1]}px;
-  color: ${colors.text.primary};
-  box-shadow: none;
-  border-bottom: ${borders.divider};
-  &:before {
-    background-color: transparent;
-  }
+  && {
+    font-family: ${fonts.default};
+    font-size: ${fontSizes[1]}px;
+    color: ${colors.text.primary};
+    box-shadow: none;
+    border-bottom: ${borders.divider};
+    &:before {
+      background-color: transparent;
+    }
 
-  &.Mui-expanded {
-    margin: 0;
+    &.Mui-expanded {
+      margin: 0;
+    }
   }
 `;
 
 const StyledAccordionHeader = styled(ExpansionPanelSummary)`
-  font-family: inherit;
-  flex-direction: row-reverse;
-  color: ${props => get(colors, props.color, 'inherit')};
+  && {
+    font-family: inherit;
+    flex-direction: row-reverse;
+    color: ${props => get(colors, props.color, 'inherit')};
 
-  .MuiIconButton-edgeEnd {
-    margin-right: 0px;
-    margin-left: -12px;
-  }
+    .MuiIconButton-edgeEnd {
+      margin-right: 0px;
+      margin-left: -12px;
+    }
 
-  &:hover {
-    background-color: ${colors.lightestGrey};
+    &:hover {
+      background-color: ${colors.lightestGrey};
+    }
   }
 `;
 
 const StyledAccordionContent = styled(ExpansionPanelDetails)`
-  padding: 0;
-  color: ${colors.text.primarySubdued};
+  && {
+    padding: 0;
+    color: ${colors.text.primarySubdued};
+  }
 `;
 
-export const Accordion = (props) => {
+export function Accordion(props) {
   const {
     header,
     children,
@@ -74,12 +80,12 @@ export const Accordion = (props) => {
         expandIcon={icon}
         aria-controls={`${label}-content`}
         id={`${label}-header`}
-        fontWeight={fontWeights.medium}
         IconButtonProps={{
           disableFocusRipple: true,
           disableRipple: true,
         }}
         {...themeProps.header}
+        sx={{ fontWeight: fontWeights.medium, ...themeProps.header?.sx }}
       >
         {header}
       </Box>
@@ -96,7 +102,7 @@ export const Accordion = (props) => {
       </Box>
     </Box>
   );
-};
+}
 
 Accordion.propTypes = {
   ...BoxProps,

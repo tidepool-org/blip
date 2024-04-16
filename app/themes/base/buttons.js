@@ -1,4 +1,14 @@
-export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, shadows }) => {
+export default ({
+  colors,
+  borders,
+  fontSizes,
+  radii,
+  fonts,
+  space,
+  fontWeights,
+  shadows,
+  transitions
+}) => {
   const defaultStyles = {
     fontSize: `${fontSizes[1]}px`,
     fontWeight: fontWeights.regular,
@@ -8,6 +18,21 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
     height: 'auto',
     cursor: 'pointer',
     flex: [1, 'initial'],
+    transition: `${transitions.easeOut}`,
+    position: 'relative',
+
+    '&:disabled': {
+      pointerEevents: 'none',
+    },
+
+    '&.processing': {
+      pointerEvents: 'none',
+
+      '> div:first-child, .icon': {
+        transition: 'none',
+        visibility: 'hidden',
+      },
+    },
 
     '.icon': {
       fontSize: '1.125em',

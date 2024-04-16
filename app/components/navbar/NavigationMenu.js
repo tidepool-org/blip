@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import has from 'lodash/has';
@@ -16,7 +16,7 @@ import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import ViewListRoundedIcon from '@material-ui/icons/ViewListRounded';
-import { Flex , Box } from 'rebass/styled-components';
+import { Flex , Box } from 'theme-ui';
 
 import {
   usePopupState,
@@ -123,29 +123,29 @@ export const NavigationMenu = props => {
   }
 
   return (
-    <Flex id="navigation-menu" width="auto" justifyContent={['center', 'flex-end']}>
+    <Flex id="navigation-menu" width="auto" sx={{ justifyContent: ['center', 'flex-end'] }}>
       <Button
         id="navigation-menu-trigger"
         variant="textPrimary"
-        color="text.primary"
-        fontSize={2}
         {...bindTrigger(popupState)}
         icon={KeyboardArrowDownRoundedIcon}
         iconLabel={t('Choose workspace')}
         sx={{
+          color: 'text.primary',
+          fontSize: 2,
           '&:hover': {
             color: colors.purpleDark,
           },
         }}
       >
-        <Flex alignItems="center">
+        <Flex sx={{ alignItems: 'center' }}>
           {personUtils.fullName(allUsersMap?.[loggedInUserId]) || t('Account')}
-          {pendingReceivedClinicianInvites.length > 0 && <NotificationIcon flexShrink={0} />}
+          {pendingReceivedClinicianInvites.length > 0 && <NotificationIcon sx={{ flexShrink: 0 }} />}
         </Flex>
       </Button>
 
       <Popover
-        minWidth="15em"
+        sx={{ minWidth: '15em' }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'center',
@@ -161,19 +161,19 @@ export const NavigationMenu = props => {
             <Button
               className="navigation-menu-option"
               variant="textPrimary"
-              color="text.primary"
-              width={`calc(100% - ${space[3]}px)`}
-              py={3}
-              pr={3}
-              ml={3}
-              justifyContent="flex-end"
               key={key}
-              fontSize={2}
               icon={option.icon}
               iconLabel={option.label}
               iconPosition="left"
               onClick={() => handleMenuAction(option)}
               sx={{
+                color: 'text.primary',
+                width: `calc(100% - ${space[3]}px)`,
+                py: 3,
+                pr: 3,
+                ml: 3,
+                fontSize: 2,
+                justifyContent: 'flex-end',
                 borderBottom: borders.divider,
                 '&:hover': {
                   color: colors.purpleDark,
@@ -186,9 +186,9 @@ export const NavigationMenu = props => {
                 },
               }}
             >
-              <Flex alignItems="center">
+              <Flex sx={{ alignItems: 'center' }}>
                 {option.label}
-                {option.notification && <NotificationIcon flexShrink={0} />}
+                {option.notification && <NotificationIcon sx={{ flexShrink: 0 }} />}
               </Flex>
             </Button>
           ))}
@@ -203,4 +203,4 @@ NavigationMenu.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-export default translate()(NavigationMenu);
+export default withTranslation()(NavigationMenu);

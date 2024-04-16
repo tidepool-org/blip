@@ -4,10 +4,10 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
 var Messages = require('../../../../app/components/messages/messages');
+const { mount } = require('enzyme');
 
 describe('Messages', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -21,7 +21,7 @@ describe('Messages', function () {
         timePrefs: {}
       };
       var elem = React.createElement(Messages, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = mount(elem);
       expect(render).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
@@ -33,8 +33,8 @@ describe('Messages', function () {
         messages : []
       };
       var elem = React.createElement(Messages, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getWrappedInstance().state;
+      var render = mount(elem);
+      var state = render.childAt(0).state();
 
       expect(state.messages).to.deep.equal(props.messages);
     });

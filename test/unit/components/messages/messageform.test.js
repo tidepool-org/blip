@@ -4,10 +4,10 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
 var MessageForm = require('../../../../app/components/messages/messageform');
+const { mount } = require('enzyme');
 
 describe('MessageForm', function () {
   var timePrefs = {
@@ -23,8 +23,8 @@ describe('MessageForm', function () {
     it('should equal expected initial state', function() {
       var props = {};
       var elem = React.createElement(MessageForm, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getWrappedInstance().getInitialState();
+      var render = mount(elem);
+      var state = render.childAt(0).instance().getInitialState();
 
       expect(state.msg).to.equal('');
       expect(state.whenUtc).to.equal(null);

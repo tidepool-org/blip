@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import noop from 'lodash/noop';
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 import moment from 'moment-timezone';
 
 import Button from './elements/Button';
@@ -97,7 +97,7 @@ export const ChartDateModal = (props) => {
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{title}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider minWidth="330px" p={0}>
+      <DialogContent divider sx={{ minWidth: '330px' }} p={0}>
         <Box px={3}>
           <Box mb={3}>
             <Body1 mb={2}>{t('Select a specific day')}</Body1>
@@ -113,18 +113,18 @@ export const ChartDateModal = (props) => {
               onFocusChange={input => setDatePickerOpen(!!input)}
               focused
               themeProps={{
-                minHeight: datePickerOpen ? '326px' : undefined,
+                sx: { minHeight: datePickerOpen ? '326px' : undefined },
               }}
             />
           </Box>
           {error && (
-            <Caption mt={2} color="feedback.danger" id="chart-dates-error">
+            <Caption mt={2} sx={{ color: 'feedback.danger' }} id="chart-dates-error">
               {error}
             </Caption>
           )}
         </Box>
       </DialogContent>
-      <DialogActions justifyContent="space-between" py="12px">
+      <DialogActions sx={{ justifyContent: 'space-between' }} py="12px">
         <Button variant="textSecondary" className="chart-dates-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>

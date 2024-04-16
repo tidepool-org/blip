@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import * as actions from '../../redux/actions';
 
@@ -21,7 +21,7 @@ const { Loader } = vizComponents;
 import { keycloak } from '../../keycloak';
 let win = window;
 
-export let Login = translate()(class extends React.Component {
+export let Login = withTranslation()(class extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     confirmSignup: PropTypes.func.isRequired,

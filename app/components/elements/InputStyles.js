@@ -1,5 +1,5 @@
-import { Box } from 'rebass/styled-components';
-import styled from 'styled-components';
+import { Box } from 'theme-ui';
+import styled from '@emotion/styled';
 
 import 'react-dates/lib/css/_datepicker.css';
 import 'react-dates/initialize';

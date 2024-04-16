@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
@@ -453,4 +453,4 @@ PatientNew.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(PatientNew);
+export default withTranslation()(PatientNew);

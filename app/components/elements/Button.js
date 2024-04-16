@@ -1,31 +1,14 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Button as Base, Flex, Box, ButtonProps } from 'rebass/styled-components';
-import styled, { ThemeContext } from 'styled-components';
+import { Button as Base, Flex, Box, ButtonProps } from 'theme-ui';
+import styled from '@emotion/styled';
+import { ThemeContext } from '@emotion/react';
 import cx from 'classnames';
 
 import Icon from './Icon';
 import Pill from './Pill';
-import baseTheme, { transitions } from '../../themes/baseTheme';
-
-const StyledButton = styled(Base)`
-  transition: ${transitions.easeOut};
-  position: relative;
-
-  &:disabled {
-    pointer-events: none;
-  }
-
-  &.processing {
-    pointer-events: none;
-
-    > div:first-child, .icon {
-      transition: none;
-      visibility: hidden;
-    }
-  }
-`;
+import baseTheme from '../../themes/baseTheme';
 
 const StyledCircularProgress = styled(Box)`
   display: flex;
@@ -35,7 +18,11 @@ const StyledCircularProgress = styled(Box)`
   transform: translate(-50%, -50%);
 `;
 
-export const Button = props => {
+export function BaseButton(props) {
+  return <Base {...props} variant={`buttons.${props.variant}`} />;
+}
+
+export function Button(props) {
   const {
     children,
     selected,
@@ -49,6 +36,8 @@ export const Button = props => {
     tagColorPalette,
     tagFontSize,
     className = '',
+    sx = {},
+    variant,
     ...buttonProps
   } = props;
 
@@ -73,13 +62,24 @@ export const Button = props => {
   if (icon) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
 
   return (
-    <Flex as={StyledButton} flexDirection={flexDirection} alignItems="center" justifyContent={['center', justifyContent]} {...buttonProps} className={`${classNames} ${className}`}>
-      <Box justifyContent="center">{children}</Box>
+    <Flex
+      sx={{
+        flexDirection,
+        alignItems: 'center',
+        justifyContent: ['center', justifyContent],
+        ...sx,
+      }}
+      as={BaseButton}
+      variant={`buttons.${variant}`}
+      {...buttonProps}
+      className={`${classNames} ${className}`}
+    >
+      <Flex sx={{ justifyContent: 'center' }}>{children}</Flex>
       {tag && (
         <Pill
           tabIndex={-1}
           className="tag"
-          fontSize={tagFontSize}
+          sx={{ fontSize: tagFontSize }}
           mr={tagMargins.right}
           ml={tagMargins.left}
           theme={baseTheme}
@@ -91,7 +91,6 @@ export const Button = props => {
         <Icon
           tabIndex={-1}
           className="icon"
-          fontSize={iconFontSize}
           mr={iconMargins.right}
           ml={iconMargins.left}
           theme={baseTheme}
@@ -99,20 +98,21 @@ export const Button = props => {
           icon={icon}
           iconSrc={iconSrc}
           label={iconLabel}
+          sx={{ fontSize: iconFontSize }}
         />
       )}
       {processing && (
         <StyledCircularProgress>
           <CircularProgress
             color="inherit"
-            size={themeContext?.fontSizes[3]}
+            size={themeContext?.fontSizes?.[3]}
             thickness={5}
           />
         </StyledCircularProgress>
       )}
     </Flex>
   );
-};
+}
 
 Button.propTypes = {
   ...ButtonProps,
@@ -137,7 +137,6 @@ Button.propTypes = {
     ]),
     PropTypes.arrayOf(PropTypes.string),
   ]),
-  tagPosition: PropTypes.oneOf(['left', 'right']),
   tagFontSize: PropTypes.string,
   variant: PropTypes.oneOf([
     'primary',
@@ -160,7 +159,6 @@ Button.defaultProps = {
   iconPosition: 'right',
   iconFontSize: 'inherit',
   tagColorPalette: 'greens',
-  tagPosition: 'right',
   tagFontSize: '0.75em',
   type: 'button',
   variant: 'primary',

@@ -22,8 +22,8 @@ import bows from 'bows';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { withTranslation } from 'react-i18next';
+import { Flex } from 'theme-ui';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
@@ -44,7 +44,7 @@ const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
 
 import Header from './header';
 
-const DailyChart = translate()(class DailyChart extends Component {
+const DailyChart = withTranslation(null, { withRef: true })(class DailyChart extends Component {
   static propTypes = {
     bgClasses: PropTypes.object.isRequired,
     bgUnits: PropTypes.string.isRequired,
@@ -157,11 +157,9 @@ const DailyChart = translate()(class DailyChart extends Component {
   };
 
   render = () => {
-    /* jshint ignore:start */
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
       );
-    /* jshint ignore:end */
   };
 
   // handlers
@@ -247,6 +245,8 @@ class Daily extends Component {
     this.chartType = 'daily';
     this.log = bows('Daily View');
     this.state = this.getInitialState()
+    this.chartRef = React.createRef();
+    this.headerRef = React.createRef();
   }
 
   getInitialState = () => {
@@ -265,14 +265,13 @@ class Daily extends Component {
     const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
-    const wrappedInstance = _.get(this.refs, 'chart.wrappedInstance');
     const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
 
-    if (wrappedInstance) {
+    if (this.chartRef.current) {
       const updates = {};
       if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
       if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) updates.bgClasses = nextProps.data.bgPrefs.bgClasses;
-      if (!_.isEmpty(updates)) wrappedInstance.rerenderChart(updates);
+      if (!_.isEmpty(updates)) this.chartRef.current?.rerenderChart(updates);
     }
   };
 
@@ -308,11 +307,11 @@ class Daily extends Component {
           onClickSettings={this.props.onSwitchToSettings}
           onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.handleClickPrint}
-        ref="header" />
+          ref={this.headerRef} />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
+              <Loader show={!!this.chartRef && this.props.loading} overlay={true} />
               {dataQueryComplete && this.renderChart()}
 
               <Flex mt={3} mb={5} pl="40px">
@@ -324,7 +323,7 @@ class Daily extends Component {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-              <Flex mb={2} justifyContent="flex-end">
+              <Flex mb={2} sx={{ justifyContent: 'flex-end' }}>
                 <BgSourceToggle
                   bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
                   chartPrefs={this.props.chartPrefs}
@@ -452,7 +451,7 @@ class Daily extends Component {
         onCarbOut={this.handleCarbOut}
         onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
         onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
-        ref="chart" />
+        ref={this.chartRef} />
     );
   }
 
@@ -485,14 +484,14 @@ class Daily extends Component {
   };
 
   handleWindowResize = () => {
-    _.get(this.refs, 'chart.wrappedInstance') && this.refs.chart.getWrappedInstance().rerenderChart()
+    this.chartRef.current?.rerenderChart()
   };
 
   handleClickTrends = e => {
     if (e) {
       e.preventDefault();
     }
-    const datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
+    const datetime = this.chartRef.current?.getCurrentDay();
     this.props.onSwitchToTrends(datetime);
   };
 
@@ -501,10 +500,10 @@ class Daily extends Component {
       e.preventDefault();
     }
 
-    const latestFillDatum = _.findLast(this.refs.chart.wrappedInstance.chart.renderedData(), { type: 'fill' });
+    const latestFillDatum = _.findLast(this.chartRef.current?.chart.renderedData(), { type: 'fill' });
 
     if (latestFillDatum.fillDate >= this.props.mostRecentDatetimeLocation.slice(0,10)) {
-      this.refs.chart.getWrappedInstance().goToMostRecent();
+      this.chartRef.current?.goToMostRecent();
     } else {
       this.props.onUpdateChartDateRange(this.props.mostRecentDatetimeLocation, true)
     }
@@ -529,7 +528,7 @@ class Daily extends Component {
     if (e) {
       e.preventDefault();
     }
-    const datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
+    const datetime = this.chartRef.current?.getCurrentDay();
     this.props.onSwitchToBgLog(datetime);
   };
 
@@ -558,7 +557,7 @@ class Daily extends Component {
 
   handleBolusHover = bolus => {
     const rect = bolus.rect;
-    const datetimeLocation = this.refs.chart.getWrappedInstance().state.datetimeLocation;
+    const datetimeLocation = this.chartRef.current?.state.datetimeLocation;
     // range here is -12 to 12
     const hoursOffset = sundial.dateDifference(bolus.data.normalTime, datetimeLocation, 'h');
     bolus.top = rect.top + (rect.height / 2)
@@ -582,7 +581,7 @@ class Daily extends Component {
 
   handleSMBGHover = smbg => {
     const rect = smbg.rect;
-    const datetimeLocation = this.refs.chart.getWrappedInstance().state.datetimeLocation;
+    const datetimeLocation = this.chartRef.current?.state.datetimeLocation;
     // range here is -12 to 12
     const hoursOffset = sundial.dateDifference(smbg.data.normalTime, datetimeLocation, 'h');
     smbg.top = rect.top + (rect.height / 2)
@@ -607,7 +606,7 @@ class Daily extends Component {
   handleCBGHover = cbg => {
     this.throttledMetric('hovered over daily cgm tooltip');
     var rect = cbg.rect;
-    const datetimeLocation = this.refs.chart.getWrappedInstance().state.datetimeLocation;
+    const datetimeLocation = this.chartRef.current?.state.datetimeLocation;
     // range here is -12 to 12
     var hoursOffset = sundial.dateDifference(cbg.data.normalTime, datetimeLocation, 'h');
     cbg.top = rect.top + (rect.height / 2)
@@ -692,28 +691,28 @@ class Daily extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.getWrappedInstance().panBack();
+    this.chartRef.current?.panBack();
   };
 
   handlePanForward = e => {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.getWrappedInstance().panForward();
+    this.chartRef.current?.panForward();
   };
 
   // methods for messages
   closeMessageThread = () => {
-    return this.refs.chart.getWrappedInstance().closeMessage();
+    return this.chartRef.current?.closeMessage();
   };
 
   createMessageThread = message => {
-    return this.refs.chart.getWrappedInstance().createMessage(message);
+    return this.chartRef.current?.createMessage(message);
   };
 
   editMessageThread = message => {
-    return this.refs.chart.getWrappedInstance().editMessage(message);
+    return this.chartRef.current?.editMessage(message);
   };
 }
 
-export default translate()(Daily);
+export default withTranslation()(Daily);

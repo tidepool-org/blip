@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Box, Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Box, Flex, Text, BoxProps, FlexProps } from 'theme-ui';
 import { default as Base, StepperProps } from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
@@ -53,7 +53,7 @@ StyledStepper.propTypes = {
   connectorwidth: PropTypes.string,
 };
 
-export const Stepper = props => {
+export function Stepper(props) {
   const {
     activeStep: activeStepProp,
     activeSubStep: activeSubStepProp,
@@ -333,7 +333,7 @@ export const Stepper = props => {
       : steps[activeStep];
 
     return (
-      <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
+      <Flex sx={{ justifyContent: 'flex-end' }} className="step-actions" mt={3} {...themeProps.actions}>
         {!step.hideBack && (
           <Button
             mr={4}
@@ -420,7 +420,7 @@ export const Stepper = props => {
                   optional={isStepOptional(index) && (
                     <Text
                       className="optional"
-                      textAlign={isHorizontal ? 'center' : 'left'}
+                      sx={{ textAlign: isHorizontal ? 'center' : 'left' }}
                     >
                       {isStepSkipped(index) ? 'skipped' : 'optional'}
                     </Text>
@@ -447,7 +447,7 @@ export const Stepper = props => {
       )}
     </Flex>
   );
-};
+}
 
 const StepPropTypes = {
   asyncState: PropTypes.shape({
@@ -491,7 +491,7 @@ Stepper.propTypes = {
   steps: PropTypes.arrayOf(PropTypes.shape({
     ...StepPropTypes,
     subSteps: PropTypes.arrayOf(
-      PropTypes.shape(omit({ ...StepPropTypes }, ['completed', 'label', 'onEnter'])),
+      PropTypes.shape(omit({ ...StepPropTypes }, ['completed', 'label', 'onEnter']))
     ),
   })),
   themeProps: PropTypes.shape({
