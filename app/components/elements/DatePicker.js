@@ -129,8 +129,10 @@ export function DatePicker(props) {
       {label && (
         <Label htmlFor={name}>
           <Caption
-            fontWeight={fontWeights.medium}
-            fontSize={1}
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1,
+            }}
             className={inputClasses}
           >
             {label}

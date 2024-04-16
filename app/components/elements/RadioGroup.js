@@ -111,8 +111,10 @@ export function RadioGroup(props) {
       {label && (
         <Label for={name} mb={2} id={labelId}>
           <Caption
-            fontWeight={fontWeights.medium}
-            fontSize={1}
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1,
+            }}
             className={inputClasses}
           >
             {label}

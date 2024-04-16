@@ -60,6 +60,7 @@ const Container = (props) => {
             lineHeight: 2,
             width: '100%',
             textAlign: 'center',
+            display: 'inline-block',
           }}
         >
           {title}
@@ -78,6 +79,7 @@ const Container = (props) => {
             lineHeight: 2,
             width: '100%',
             textAlign: 'center',
+            display: 'inline-block',
           }}
         >
           {subtitle}

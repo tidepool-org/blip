@@ -64,7 +64,10 @@ export function TextInput(props) {
           }}
         >
           <Caption
-            sx={{ fontWeight: fontWeights.medium, fontSize: 1 }}
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1
+            }}
             className={inputClasses}
           >
             {label}
