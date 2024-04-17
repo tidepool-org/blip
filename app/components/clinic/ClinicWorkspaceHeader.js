@@ -1,11 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
-import { Box, Flex, Text, Link, BoxProps } from 'rebass/styled-components';
+import includes from 'lodash/includes'
+import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
@@ -72,11 +74,11 @@ export const ClinicWorkspaceHeader = (props) => {
         id="clinicProfileDetails"
         px={4}
         py={3}
-        flexWrap="wrap"
-        justifyContent={['center', 'space-between']}
-        alignItems="center"
         sx={{
           columnGap: 5,
+          flexWrap: 'wrap',
+          justifyContent: ['center', 'space-between'],
+          alignItems: 'center',
           rowGap: 2,
         }}
       >
@@ -152,7 +154,7 @@ export const ClinicWorkspaceHeader = (props) => {
                 {clinic?.ui.display.patientCount && (
                   <Pill
                     id="clinicPatientLimits"
-                    fontSize={1}
+                    sx={{ fontSize: 1 }}
                     px={1}
                     pt="2px"
                     pb={0}
@@ -213,10 +215,8 @@ export const ClinicWorkspaceHeader = (props) => {
         </Flex>
 
         <Flex
-          justifyContent={['flex-start', 'flex-start', 'flex-end']}
-          alignItems="center"
           width={['100%', '100%', 'auto']}
-          sx={{ gap: 3 }}
+          sx={{ gap: 3, justifyContent: ['flex-start', 'flex-start', 'flex-end'], alignItems: 'center' }}
         >
           <Box>
             <Button
@@ -227,7 +227,7 @@ export const ClinicWorkspaceHeader = (props) => {
               iconPosition='left'
               iconFontSize="1.25em"
               iconLabel={navigationAction.label}
-              fontSize={1}
+              sx={{ fontSize: 1 }}
               pl={0}
             >
               {navigationAction.label}
@@ -246,4 +246,4 @@ ClinicWorkspaceHeader.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicWorkspaceHeader);
+export default withTranslation()(ClinicWorkspaceHeader);

@@ -17,13 +17,13 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 
 import personUtils from '../../core/personutils';
 
-export const AddEmailBanner = translate()((props) => {
+export const AddEmailBanner = withTranslation()((props) => {
   const {
     patient,
     trackMetric,

@@ -18,12 +18,12 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
 import moment from 'moment-timezone';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
 
-export default translate()(class Export extends Component {
+export default withTranslation()(class Export extends Component {
   static propTypes = {
     api: PropTypes.object.isRequired,
     patient: PropTypes.object.isRequired,

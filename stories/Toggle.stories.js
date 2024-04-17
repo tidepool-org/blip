@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-
-import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, boolean } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
-import { Switch } from '@rebass/forms/styled-components';
+import { boolean } from '@storybook/addon-knobs';
+import { ThemeProvider } from '@emotion/react';
+import { Switch } from 'theme-ui';
 
 import baseTheme from '../app/themes/baseTheme';
 
-const withTheme = Story => (
+const withTheme = (Story) => (
   <ThemeProvider theme={baseTheme}>
     <Story />
   </ThemeProvider>
@@ -15,27 +13,25 @@ const withTheme = Story => (
 
 export default {
   title: 'Toggle',
-  decorators: [withDesign, withKnobs, withTheme],
+  decorators: [withTheme],
 };
 
-export const ToggleStory = () => {
-  const defaultChecked = () => boolean('Default Checked', true);
-  const disabled = () => boolean('Disable', false);
-  const [isChecked, setChecked] = useState(defaultChecked());
-  const handleToggle = () => setChecked(!isChecked);
+export const ToggleStory = {
+  render: () => {
+    const defaultChecked = () => boolean('Default Checked', true);
+    const disabled = () => boolean('Disable', false);
+    const [isChecked, setChecked] = useState(defaultChecked());
+    const handleToggle = () => setChecked(!isChecked);
 
-  return (
-    <div>
-      <Switch
-        checked={isChecked}
-        disabled={disabled()}
-        onClick={handleToggle} />
-    </div>
-  );
-};
+    return (
+      <div>
+        <Switch checked={isChecked} disabled={disabled()} onClick={handleToggle} />
+      </div>
+    );
+  },
 
-ToggleStory.story = {
   name: 'Toggle',
+
   parameters: {
     design: {
       type: 'figma',

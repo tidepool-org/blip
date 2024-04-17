@@ -226,7 +226,7 @@ describe('ShareInvite', () => {
       memberRadioSelect.simulate('change', {target: { name: 'type', checked: true, value: 'member'}});
 
       // input bad email, submit remains disabled
-      emailField.simulate('change', { target: { id: 'email', value: 'clint@foo'} })
+      emailField.simulate('change', { target: { id: 'email', value: 'clint@foo'} });
       expect(submitButton().prop('disabled')).to.be.true;
 
       // input good email, submit becomes enabled
@@ -235,6 +235,7 @@ describe('ShareInvite', () => {
 
       // enable upload permission
       const permissionsCheckbox = wrapper.find('input#uploadPermission[type="checkbox"]');
+      expect(permissionsCheckbox).to.have.length(1);
       permissionsCheckbox.simulate('change', {
         target: { id: 'uploadPermission', checked: true, value: true },
       });

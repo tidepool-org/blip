@@ -19,7 +19,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
 import { utils as vizUtils } from '@tidepool/viz';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 
 import IncrementalInput from '../../components/incrementalinput';
 import CustomizedTrendsChart from './customizedtrendschart';
@@ -74,7 +74,7 @@ export const DEFAULT_BG_SETTINGS = {
   },
 };
 
-export default translate()(class PatientSettings extends Component {
+export default withTranslation()(class PatientSettings extends Component {
   static propTypes = {
     editingAllowed: PropTypes.bool.isRequired,
     patient: PropTypes.object,

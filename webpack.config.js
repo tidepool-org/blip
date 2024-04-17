@@ -2,10 +2,11 @@ const path = require('path');
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const RollbarSourceMapPlugin = require('rollbar-sourcemap-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const terser = require('terser');
 const fs = require('fs');
 const pkg = require('./package.json');
@@ -44,28 +45,27 @@ const localIdentName = process.env.NODE_ENV === 'test'
   : '[name]--[local]--[hash:base64:5]';
 
 const styleLoaderConfiguration = {
-  test: /\.(less|css)$/,
+  test: /\.((c|le)ss)$/i,
   use: [
     (isDev || isTest) ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
       loader: 'css-loader',
-      query: {
+      options: {
         importLoaders: 2,
-        localIdentName,
         sourceMap: isDev,
       },
     },
     {
       loader: 'postcss-loader',
-      options: {
-        sourceMap: isDev,
-      },
     },
     {
       loader: 'less-loader',
       options: {
         sourceMap: isDev,
-        javascriptEnabled: true,
+        lessOptions: {
+          javascriptEnabled: true,
+          math: 'always',
+        },
       },
     },
   ],
@@ -93,49 +93,39 @@ const babelLoaderConfiguration = [
       loader: 'source-map-loader',
     },
   },
+  { // Needed to resolve material-ui
+    test: /\.m?js/,
+    resolve: {
+      fullySpecified: false,
+    }
+  },
 ];
 
 // This is needed for webpack to import static images in JavaScript files
 const imageLoaderConfiguration = {
   test: /\.(gif|jpe?g|png|svg)$/,
-  use: {
-    loader: 'url-loader',
-    options: {
-      name: '[name].[ext]',
-    },
+  exclude: [
+    /node_modules\/@tidepool\/viz(([/\\]).*)static-assets/,
+    /node_modules\/@tidepool\/viz(([/\\]).*)lazy-assets/,
+  ],
+  type: 'asset',
+  generator: {
+    filename: '[name].[ext]',
   },
 };
 
 const fontLoaderConfiguration = [
   {
     test: /\.eot$/,
-    use: {
-      loader: 'url-loader',
-      query: {
-        limit: 10000,
-        mimetype: 'application/vnd.ms-fontobject',
-      },
-    },
+    type: 'asset',
   },
   {
     test: /\.woff$/,
-    use: {
-      loader: 'url-loader',
-      query: {
-        limit: 10000,
-        mimetype: 'application/font-woff',
-      },
-    },
+    type: 'asset',
   },
   {
     test: /\.ttf$/,
-    use: {
-      loader: 'url-loader',
-      query: {
-        limit: 10000,
-        mimetype: 'application/octet-stream',
-      },
-    },
+    type: 'asset',
   },
 ];
 
@@ -166,23 +156,26 @@ const plugins = [
     __PROD__: isProd,
     __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq
   }),
+  new webpack.ProvidePlugin({
+    Buffer: ['buffer', 'Buffer'],
+    process: 'process/browser.js',
+  }),
   new MiniCssExtractPlugin({
     filename: isDev ? 'style.css' : 'style.[contenthash].css',
   }),
-  new CopyWebpackPlugin([
-    {
-      from: 'static',
-      transform: (content, path) => {
-        if (isDev || !path.endsWith('js')) {
-         return content;
-        }
-
-        const code = fs.readFileSync(path, 'utf8');
-        const result = terser.minify(code);
-        return result.code;
-      }
-    }
-  ]),
+  new CopyWebpackPlugin({
+    patterns: [
+      {
+        from: 'static',
+        transform: (content, path) => {
+          if (isDev || !path.endsWith('js')) return content;
+          const code = fs.readFileSync(path, 'utf8');
+          const result = terser.minify(code);
+          return result.code;
+        },
+      },
+    ],
+  }),
   new HtmlWebpackPlugin({
     template: 'index.ejs',
     favicon: 'favicon.ico',
@@ -194,6 +187,7 @@ const plugins = [
 
 if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin());
+  plugins.push(new ReactRefreshWebpackPlugin({ overlay: false}));
 } else if (isProd) {
   plugins.push(
     /** Upload sourcemap to Rollbar */
@@ -219,7 +213,8 @@ const entry = isDev
   ];
 
 const output = {
-  filename: 'bundle.js',
+  filename: '[name].js',
+  chunkFilename: '[name].chunk.js',
   path: path.join(__dirname, '/dist'),
   publicPath: isDev ? devPublicPath : '/',
   globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
@@ -234,10 +229,19 @@ const resolve = {
     moment: path.resolve('node_modules/moment'),
     'moment-timezone': path.resolve('node_modules/moment-timezone'),
     react: path.resolve('node_modules/react'),
-    'react-dom': '@hot-loader/react-dom',
     'react-addons-update': path.resolve('node_modules/react-addons-update'),
     'react-redux': path.resolve('node_modules/react-redux'),
     redux: path.resolve('node_modules/redux'),
+  },
+  fallback: {
+    // crypto module is not necessary at browser
+    crypto: false,
+    // fallbacks for native node libraries (required for PDFKit)
+    buffer: require.resolve('buffer/'),
+    stream: require.resolve('readable-stream'),
+    zlib: require.resolve('browserify-zlib'),
+    util: require.resolve('util/'),
+    assert: require.resolve('assert/')
   },
 };
 
@@ -246,10 +250,20 @@ if (process.env.WEBPACK_DEVTOOL === false) devtool = undefined;
 
 module.exports = {
   devServer: {
-    publicPath: output.publicPath,
+    static: { publicPath: output.publicPath },
     historyApiFallback: true,
     hot: isDev,
-    clientLogLevel: 'info',
+    client: {
+      logging: 'info',
+      overlay: {
+        runtimeErrors: (error) => {
+          if(error.name === 'LaunchDarklyFlagFetchError') {
+            return false;
+          }
+          return true;
+        }
+      }
+     },
   },
   devtool,
   entry,
@@ -276,7 +290,6 @@ module.exports = {
     minimizer: [
       new TerserPlugin({
         terserOptions: {
-          parallel: true,
           output: { comments: false },
           compress: {
             inline: false,
@@ -284,7 +297,7 @@ module.exports = {
           }
         }
       }),
-      new OptimizeCSSAssetsPlugin({}),
+      new CssMinimizerPlugin(),
     ],
   },
   output,
@@ -293,9 +306,6 @@ module.exports = {
   resolveLoader: resolve,
   cache: isDev,
   watchOptions: {
-    ignored: [
-      /node_modules([\\]+|\/)+(?!(tideline|tidepool-platform-client|@tidepool\/viz))/,
-      /(tideline|tidepool-platform-client|@tidepool\/viz)([\\]+|\/)node_modules/
-    ]
+    ignored: /node_modules([\\]+|\/)+(?!(tideline|tidepool-platform-client|@tidepool\/viz))|(tideline|tidepool-platform-client|@tidepool\/viz)([\\]+|\/)node_modules/,
   },
 };

@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { scroller } from 'react-scroll';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 
 import sundial from 'sundial';
 
@@ -27,7 +27,7 @@ const DATA_SOURCE_STATE_ERROR = 'error';
 
 const DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED = 'unauthenticated';
 
-export default translate()(class DataSources extends Component {
+export default withTranslation()(class DataSources extends Component {
   static propTypes = {
     dataSources: PropTypes.array.isRequired,
     fetchDataSources: PropTypes.func.isRequired,

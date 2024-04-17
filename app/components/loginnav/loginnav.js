@@ -3,12 +3,12 @@ var React = require('react');
 import PropTypes from 'prop-types';
 import { keycloak } from '../../keycloak';
 
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 var Link = require('react-router-dom').Link;
 
 let win = window;
 
-var LoginNav = translate()(class extends React.Component {
+var LoginNav = withTranslation()(class extends React.Component {
   static propTypes = {
     page: PropTypes.string,
     hideLinks: PropTypes.bool,

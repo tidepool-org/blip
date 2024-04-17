@@ -45,7 +45,7 @@ describe('UploaderButton', function () {
     });
 
     it('should have disabled download buttons if no URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).setState({
         latestWinRelease: null,
         latestMacRelease: null,
       });
@@ -60,7 +60,7 @@ describe('UploaderButton', function () {
     });
 
     it('should have active buttons if URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).setState({
         latestMacRelease: 'test',
         latestWinRelease: 'test',
       });
@@ -76,7 +76,7 @@ describe('UploaderButton', function () {
     });
 
     it('should display error button if error retrieving github releases', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).setState({
         error: 'some error',
       });
       wrapper.update();
@@ -87,7 +87,7 @@ describe('UploaderButton', function () {
     });
 
     it('should respond to onClick on Mac Download Button', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).setState({
         latestMacRelease: 'test',
         latestWinRelease: 'test',
       });
@@ -100,7 +100,7 @@ describe('UploaderButton', function () {
     });
 
     it('should respond to onClick on Windows Download Button', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).setState({
         latestMacRelease: 'test',
         latestWinRelease: 'test',
       });
@@ -113,7 +113,7 @@ describe('UploaderButton', function () {
     });
 
     it('should respond to an onClick event on Download Error Button', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).setState({
         error: 'some error',
       });
       wrapper.update();

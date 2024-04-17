@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import { useFormik } from 'formik';
-import { Box, Flex, Text, Link } from 'rebass/styled-components';
+import { Box, Flex, Text, Link } from 'theme-ui';
 
 import { Paragraph1 } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
@@ -53,11 +53,11 @@ const accountDetailsSchema = yup.object().shape({
   accountType: yup.string().oneOf([...map(accountTypeOptions, 'value'), '']).required(t('Account type is required')),
   patientFirstName: yup.mixed().notRequired().when('accountType', {
     is: 'caregiver',
-    then: yup.string().required(t('Patient first name is required')),
+    then: () => yup.string().required(t('Patient first name is required')),
   }),
   patientLastName: yup.mixed().notRequired().when('accountType', {
     is: 'caregiver',
-    then: yup.string().required(t('Patient last name is required')),
+    then: () => yup.string().required(t('Patient last name is required')),
   }),
 });
 
@@ -453,4 +453,4 @@ PatientNew.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(PatientNew);
+export default withTranslation()(PatientNew);

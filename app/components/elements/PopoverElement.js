@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, FlexProps } from 'rebass/styled-components';
+import { Flex, FlexProps } from 'theme-ui';
 
 import {
   usePopupState,
@@ -11,7 +11,7 @@ import {
 
 import Popover from './Popover';
 
-const PopoverElement = props => {
+function PopoverElement(props) {
   const {
     disabled,
     id,
@@ -43,7 +43,7 @@ const PopoverElement = props => {
       </Popover>
     </React.Fragment>
   );
-};
+}
 
 PopoverElement.propTypes = {
   ...FlexProps,

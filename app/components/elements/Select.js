@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, Box, BoxProps } from 'rebass/styled-components';
-import { Select as Base, Label, SelectProps } from '@rebass/forms';
-import styled from 'styled-components';
+import { Flex, Box, BoxProps, Select as Base, Label, SelectProps } from 'theme-ui';
+import styled from '@emotion/styled';
 import cx from 'classnames';
 import map from 'lodash/map';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
@@ -38,7 +37,7 @@ const StyledSelect = styled(Flex)`
   }
 `;
 
-export const Select = props => {
+export function Select(props) {
   const {
     disabled,
     innerRef,
@@ -66,15 +65,17 @@ export const Select = props => {
       {label && (
         <Label htmlFor={name}>
           <Caption
-            fontWeight={fontWeights.medium}
-            fontSize={1}
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1
+            }}
             className={inputClasses}
           >
             {label}
           </Caption>
         </Label>
       )}
-      <StyledSelect alignItems="center" className={classNames} variant={`inputs.select.${variant}`} {...selectProps}>
+      <StyledSelect sx={{ alignItems: 'center' }} className={classNames} variant={`inputs.select.${variant}`} {...selectProps}>
         <Base
           id={name}
           name={name}
@@ -102,7 +103,7 @@ export const Select = props => {
       )}
     </Box>
   );
-};
+}
 
 Select.propTypes = {
   ...SelectProps,

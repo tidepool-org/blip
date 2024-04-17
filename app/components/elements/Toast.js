@@ -6,13 +6,13 @@ import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
-import { Flex } from 'rebass/styled-components';
+import { Flex } from 'theme-ui';
 
 import { Body1 } from './FontStyles';
 import Icon from './Icon';
 import baseTheme from '../../themes/baseTheme';
 
-export const Toast = props => {
+export function Toast(props) {
   const {
     action,
     message,
@@ -36,15 +36,14 @@ export const Toast = props => {
   return (
     <Snackbar open={open} onClose={handleClose} {...snackbarProps}>
       <Flex
-        alignItems="center"
-        justifyContent="space-between"
+        sx={{ justifyContent: 'space-between', alignItems: 'center' }}
         className={variant}
         px={3}
         py={2}
         theme={baseTheme}
         variant={`toasts.${variant}`}
       >
-        <Flex alignItems="center" pr={2}>
+        <Flex sx={{ alignItems: 'center' }} pr={2}>
           <Icon className="feedback" label="feedback" icon={feedbackIcon[variant]} />
           <Body1 pl={2} pr={action ? 2 : 0}>{message}</Body1>
           {action}
@@ -59,7 +58,7 @@ export const Toast = props => {
       </Flex>
     </Snackbar>
   );
-};
+}
 
 Toast.displayName = 'Toast';
 
