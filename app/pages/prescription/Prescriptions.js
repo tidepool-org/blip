@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
@@ -8,7 +8,7 @@ import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
 import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import map from 'lodash/map';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -232,8 +232,7 @@ const Prescriptions = props => {
       {prescription.patientUserId && get(membershipPermissionsInOtherCareTeams, [prescription.patientUserId, 'view']) ? <Button
         p={0}
         m={0}
-        color="text.link"
-        fontSize={1}
+        sx={{ color: 'text.link', fontSize: 1 }}
         icon={OpenInNewRoundedIcon}
         iconLabel="Open patient data in new tab"
         variant="textPrimary"
@@ -291,21 +290,18 @@ const Prescriptions = props => {
   // Render
   return (
     <>
-      <Flex mb={4} alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={{ gap: 3 }}>
+      <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
         {/* Flex Group 1: Search Box and Add Prescription button */}
         <Flex
-          alignItems="center"
-          justifyContent="space-between"
           width={['100%', null, 'auto']}
-          sx={{ gap: 2 }}
+          sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 2 }}
         >
           <Button
             id="add-prescription"
             variant="primary"
             onClick={handleAddNew}
-            fontSize={0}
             px={[2, 3]}
-            lineHeight={['inherit', null, 1]}
+            sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
           >
             {t('Add New Prescription')}
           </Button>
@@ -331,25 +327,16 @@ const Prescriptions = props => {
 
         {/* Flex Group 2: Filters */}
         <Flex
-          alignItems="center"
-          flexGrow={1}
-          flexWrap="wrap"
           pt={0}
-          sx={{ gap: 3 }}
+          sx={{ gap: 3, alignItems: 'center', flexGrow: 1, flexWrap: 'wrap' }}
         >
           {/* Flex Group 2a: Status Filters */}
-          <Flex
-            alignItems="center"
-            justifyContent="flex-start"
-            sx={{ gap: 2 }}
-            flexWrap="wrap"
-          >
+          <Flex sx={{ gap: 2, alignItems: 'center', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
             <Flex
-              alignItems="center"
               color={keys(prescriptionStates).length > activeStatesCount > 0 ? 'purpleMedium' : 'grays.4'}
               pl={2}
               py={1}
-              sx={{ gap: 1, borderLeft: ['none', null, borders.divider] }}
+              sx={{ alignItems: 'center', gap: 1, borderLeft: ['none', null, borders.divider] }}
             >
               {keys(prescriptionStates).length > activeStatesCount > 0  ? (
                 <Pill
@@ -384,7 +371,7 @@ const Prescriptions = props => {
                   icon={KeyboardArrowDownRoundedIcon}
                   iconLabel="Filter by status"
                   ml={2}
-                  fontSize={1}
+                  sx={{ fontSize: 1 }}
                 >
                   {t('Status{{count}}', {
                     count: activeStatesCount < keys(prescriptionStates).length ? ` (${activeStatesCount})` : '',
@@ -406,9 +393,9 @@ const Prescriptions = props => {
                     ))}
                   </DialogContent>
 
-                  <DialogActions justifyContent="space-between" p={1}>
+                  <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
                     <Button
-                      fontSize={1}
+                      sx={{ fontSize: 1 }}
                       variant="textSecondary"
                       onClick={() => {
                         const active = without(values(pendingActiveStates), false).length < keys(prescriptionStates).length;
@@ -421,7 +408,7 @@ const Prescriptions = props => {
                       {(without(values(pendingActiveStates), false).length < keys(prescriptionStates).length) ? t('Select All') : t('Deselect All')}
                     </Button>
 
-                    <Button fontSize={0} variant="textPrimary" onClick={() => {
+                    <Button sx={{ fontSize: 0 }} variant="textPrimary" onClick={() => {
                       setActiveStates(pendingActiveStates);
                       setFilterStateActive(includes(values(pendingActiveStates), false));
                       popupFilterState.close();
@@ -436,7 +423,7 @@ const Prescriptions = props => {
         </Flex>
 
         <Table
-          fontSize={1}
+          sx={{ fontSize: 1 }}
           label="Prescription List"
           id="prescriptions-table"
           data={data}
@@ -485,4 +472,4 @@ const Prescriptions = props => {
   );
 };
 
-export default translate()(Prescriptions);
+export default withTranslation()(Prescriptions);

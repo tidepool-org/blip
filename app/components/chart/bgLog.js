@@ -23,8 +23,8 @@ import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate, Trans } from 'react-i18next';
-import { Box, Flex } from 'rebass/styled-components';
+import { withTranslation, Trans } from 'react-i18next';
+import { Box, Flex } from 'theme-ui';
 
 import Stats from './stats';
 import DeviceSelection from './deviceSelection';
@@ -139,11 +139,9 @@ class BgLogChart extends Component {
   };
 
   render = () => {
-    /* jshint ignore:start */
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
     );
-    /* jshint ignore:end */
   };
 
   // handlers
@@ -244,9 +242,13 @@ class BgLog extends Component {
     let renderedContent;
 
     const checkboxStyles = {
-      themeProps: { color: 'stat.text' },
-      backgroundColor: 'white',
+      themeProps: {
+        mb: 0,
+        sx: { color: 'stat.text' },
+        backgroundColor: 'inherit',
+      },
       sx: {
+        backgroundColor: 'white',
         boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
         color: colors.grays[2],
       },
@@ -265,14 +267,23 @@ class BgLog extends Component {
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {renderedContent}
 
-              <Flex mt={4} mb={5} pl="50px" pr="30px" alignItems="center" justifyContent="space-between">
+              <Flex
+                mt={4}
+                mb={5}
+                pl="50px"
+                pr="30px"
+                sx={{
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {t('Refresh')}
                 </Button>
 
                 <Flex
                   variant="inputs.checkboxGroup.horizontal"
-                  alignItems="center"
+                  sx={{ alignItems: 'center' }}
                   bg="lightestGrey"
                   px={3}
                   py={2}
@@ -540,4 +551,4 @@ class BgLog extends Component {
   };
 }
 
-export default translate()(BgLog);
+export default withTranslation()(BgLog);

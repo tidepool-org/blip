@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import forEach from 'lodash/forEach';
 import compact from 'lodash/compact';
 import get from 'lodash/get'
@@ -10,7 +10,7 @@ import keys from 'lodash/keys';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
@@ -311,7 +311,7 @@ export const PatientInvites = (props) => {
   );
 
   const renderActions = member => (
-    <Flex justifyContent="flex-end">
+    <Flex sx={{ justifyContent: 'flex-end' }}>
       <Button
         className="decline-invite"
         onClick={() => handleDecline(member)}
@@ -329,8 +329,7 @@ export const PatientInvites = (props) => {
         }}
         processing={acceptingPatientInvitation.inProgress && member.key === selectedInvitation.key}
         variant="primary"
-        color="purpleMedium"
-        bg="white"
+        sx={{ color: 'purpleMedium', bg: 'white' }}
         ml={2}
       >
         {t('Accept')}
@@ -371,9 +370,9 @@ export const PatientInvites = (props) => {
       <Box mb={4} flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
         <TextInput
           themeProps={{
-            width: ['100%', null, '250px'],
+            sx: { width: ['100%', null, '250px'] },
           }}
-          fontSize="12px"
+          sx={{ fontSize: 0 }}
           id="search-invites"
           placeholder={t('Search by Name')}
           icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
@@ -400,7 +399,7 @@ export const PatientInvites = (props) => {
           page={page}
           onFilter={handleTableFilter}
           emptyText={null}
-          fontSize={1}
+          sx={{ fontSize: 1 }}
         />
 
         {pendingInvites.length > rowsPerPage && (
@@ -420,11 +419,11 @@ export const PatientInvites = (props) => {
 
         {pendingInvites.length === 0 && (
           <Box id="no-invites" pt={3} mb={4} sx={{ borderTop: borders.divider }}>
-            <Text p={3} fontSize={1} color="text.primary" textAlign="center">
+            <Text p={3} sx={{ display: 'block', fontSize: 1, color: 'text.primary', textAlign: 'center' }}>
               {t('There are no invites. Refresh to check for pending invites.')}
             </Text>
 
-            <Flex justifyContent="center">
+            <Flex sx={{ justifyContent: 'center' }}>
               <Button
                 id="refresh-invites"
                 variant="secondary"
@@ -488,4 +487,4 @@ PatientInvites.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(PatientInvites);
+export default withTranslation()(PatientInvites);

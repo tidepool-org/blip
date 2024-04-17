@@ -4,7 +4,7 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
+import { mount } from 'enzyme';
 var expect = chai.expect;
 
 var DatePicker = require('../../../app/components/datepicker');
@@ -17,7 +17,7 @@ describe('DatePicker', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      var elem = TestUtils.renderIntoDocument(<DatePicker/>);
+      var elem = mount(<DatePicker/>);
       expect(elem).to.be.ok;
     });
   });

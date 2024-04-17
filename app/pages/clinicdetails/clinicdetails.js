@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { useParams, useLocation, Link as RouterLink } from 'react-router-dom';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
@@ -13,7 +13,7 @@ import map from 'lodash/map';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
 import { useFormik } from 'formik';
-import { Box, Flex, Text, Link } from 'rebass/styled-components';
+import { Box, Flex, Text, Link } from 'theme-ui';
 import countries from 'i18n-iso-countries';
 
 import { Body1, MediumTitle, Paragraph1 } from '../../components/elements/FontStyles';
@@ -412,8 +412,8 @@ export const ClinicDetails = (props) => {
         <>
           {!displayClinicForm && clinicInvite && (
             <Body1 id="clinic-invite-details" mb={2}>
-              <Flex alignItems="center">
-                <NotificationIcon ml={0} mr={2} flexShrink={0} />
+              <Flex sx={{ alignItems: 'center' }}>
+                <NotificationIcon ml={0} mr={2} sx={{ flexShrink: 0 }} />
                 <Trans>
                   You have been invited to become a clinic team member at&nbsp;
 
@@ -532,4 +532,4 @@ ClinicDetails.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicDetails);
+export default withTranslation()(ClinicDetails);

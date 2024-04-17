@@ -18,12 +18,12 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 var personUtils = require('../../core/personutils');
 var PatientCard = require('../../components/patientcard');
 
-var PeopleList = translate()(class extends React.Component {
+var PeopleList = withTranslation()(class extends React.Component {
   static propTypes = {
     people: PropTypes.array,
     uploadUrl: PropTypes.string,

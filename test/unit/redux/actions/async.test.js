@@ -1529,7 +1529,6 @@ describe('Actions', () => {
               {
                 meta: {
                   WebWorker: true,
-                  origin: 'http://localhost:9876',
                   patientId: null,
                   worker: 'data',
                 },
@@ -1581,7 +1580,6 @@ describe('Actions', () => {
               {
                 meta: {
                   WebWorker: true,
-                  origin: 'http://localhost:9876',
                   patientId: null,
                   worker: 'data',
                 },
@@ -1634,7 +1632,6 @@ describe('Actions', () => {
               {
                 meta: {
                   WebWorker: true,
-                  origin: 'http://localhost:9876',
                   patientId: null,
                   worker: 'data',
                 },
@@ -1864,7 +1861,6 @@ describe('Actions', () => {
           {
             meta: {
               WebWorker: true,
-              origin: 'http://localhost:9876',
               patientId: null,
               worker: 'data',
             },
@@ -1934,7 +1930,6 @@ describe('Actions', () => {
           {
             meta: {
               WebWorker: true,
-              origin: 'http://localhost:9876',
               patientId: null,
               worker: 'data',
             },
@@ -1987,7 +1982,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub', patientId: 'abc123' }, payload: { predicate: undefined } },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', patientId: 'abc123' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' },
           { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/' ], method: 'push' } }
         ];
@@ -1998,7 +1993,6 @@ describe('Actions', () => {
         store.dispatch(async.logout(api));
 
         const actions = store.getActions();
-        actions[1].meta.origin = 'originStub';
 
         expect(actions).to.eql(expectedActions);
         expect(api.user.logout.callCount).to.equal(1);
@@ -2014,7 +2008,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub', patientId: 'abc123' }, payload: { predicate: undefined } },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', patientId: 'abc123' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' }
         ];
         _.each(expectedActions, (action) => {
@@ -2030,7 +2024,6 @@ describe('Actions', () => {
         store.dispatch(async.logout(api));
 
         const actions = store.getActions();
-        actions[1].meta.origin = 'originStub';
 
         expect(actions).to.eql(expectedActions);
         expect(api.user.logout.callCount).to.equal(1);
@@ -2049,7 +2042,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub', patientId: 'abc123' }, payload: { predicate: undefined } },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', patientId: 'abc123' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' },
           { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/logged-out' ], method: 'push' } }
         ];
@@ -2060,7 +2053,6 @@ describe('Actions', () => {
         store.dispatch(async.loggedOut(api));
 
         const actions = store.getActions();
-        actions[1].meta.origin = 'originStub';
 
         expect(actions).to.eql(expectedActions);
         expect(api.user.logout.callCount).to.equal(1);
@@ -4471,7 +4463,7 @@ describe('Actions', () => {
               { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientId } },
               {
                 type: 'DATA_WORKER_ADD_DATA_REQUEST',
-                meta: { WebWorker: true, worker: 'data', origin: 'http://originStub', patientId },
+                meta: { WebWorker: true, worker: 'data', patientId },
                 payload: {
                   data: JSON.stringify([...patientData, uploadRecord, ...teamNotes]),
                   fetchedCount: 6,
@@ -4491,7 +4483,6 @@ describe('Actions', () => {
             store.dispatch(async.fetchPatientData(api, options, patientId));
 
             const actions = store.getActions();
-            actions[2].meta.origin = 'http://originStub';
             expect(actions).to.eql(expectedActions);
             expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
             expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);

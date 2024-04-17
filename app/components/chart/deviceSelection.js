@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { cloneDeep, pull, map, union, get, includes } from 'lodash';
 import Accordion from '../elements/Accordion';
 import Checkbox from '../elements/Checkbox';
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 
 import { colors, fontSizes } from '../../themes/baseTheme';
 import utils from '../../core/utils';
@@ -42,9 +42,9 @@ export const DeviceSelection = (props) => {
     <Accordion
       label={'deviceSelection'}
       header={
-        <Flex flexDirection="row" justifyContent="space-between" flexGrow="1">
+        <Flex sx={{ flexDirection: 'row', justifyContent: 'space-between', flexGrow: '1' }}>
           <Box>Filter Devices</Box>
-          <Box fontSize={3}>{devices.length - excludedDevices.length}</Box>
+          <Box sx={{ fontSize: 3 }}>{devices.length - excludedDevices.length}</Box>
         </Flex>
       }
       children={map(devices, ({id, label}) => (
@@ -56,7 +56,7 @@ export const DeviceSelection = (props) => {
             name={`${id}-toggle`}
             value={id}
             key={id}
-            themeProps={{ color: colors.stat.text }}
+            themeProps={{ sx: { color: colors.stat.text } }}
           />
         </Box>
       ))}

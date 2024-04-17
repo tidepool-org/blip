@@ -308,7 +308,6 @@ describe('TideDashboard', () => {
       expect(store.getActions()[0]).to.eql({
         meta: {
           WebWorker: true,
-          origin: 'http://localhost:9876',
           patientId: 'patientInViewID',
           worker: 'data',
         },
@@ -632,7 +631,7 @@ describe('TideDashboard', () => {
       const dashboardSectionTables = dashboardSections.find('.dashboard-table').hostNodes();
       const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);
 
-      const firstPatientName = getTableRow(0, 2).find('div').at(1).hostNodes();
+      const firstPatientName = getTableRow(0, 2).find('span').at(0).hostNodes();
       expect(firstPatientName.text()).contains('Charmane Fassman');
       const expectedPatientId = '6da2c016-263b-92db-1c3e-11ed92f5be4b';
 

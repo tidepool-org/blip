@@ -16,12 +16,12 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import _ from 'lodash';
 
 var DATE_FORMAT = 'YYYY-MM-DD';
 
-var DatePicker = translate()(class extends React.Component {
+var DatePicker = withTranslation()(class extends React.Component {
   static propTypes = {
     name: PropTypes.string,
     value: PropTypes.object,

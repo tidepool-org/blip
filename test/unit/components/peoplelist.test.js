@@ -30,8 +30,8 @@ describe('PeopleList', function () {
       var props = {
         trackMetric: function() {}
       };
-      var elem = mount(<BrowserRouter><PeopleList {...props}></PeopleList></BrowserRouter>).find(PeopleList).instance().getWrappedInstance();
-      var state = elem.state;
+      var elem = mount(<BrowserRouter><PeopleList {...props}></PeopleList></BrowserRouter>).find(PeopleList).childAt(0);
+      var state = elem.state();
       expect(state.editing).to.equal(false);
     });
   });

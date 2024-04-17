@@ -12,7 +12,7 @@ mkdir('-p', 'dist');
 var entry = './app/main.prod.js';
 
 console.log('Building app from "' + entry + '"...');
-exec('webpack --entry \'' + entry + '\' --output-filename \'bundle.[hash].js\' --devtool source-map --colors --progress --optimize-minimize');
+exec('webpack --output-filename \'[name].[hash].js\' --devtool source-map --progress');
 
 var end = new Date();
 console.log('App built in ' + ms(end - start));
