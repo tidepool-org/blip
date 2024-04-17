@@ -15,7 +15,6 @@ import { push } from 'connected-react-router';
 import { worker } from '.';
 
 import utils from '../../core/utils';
-import mockRpmReportPatients from '../../../test/fixtures/mockRpmReportPatients.json';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 
 let win = window;
@@ -2861,21 +2860,6 @@ export function fetchRpmReportPatients(api, clinicId, options) {
     dispatch(sync.fetchRpmReportPatientsRequest());
 
     const apiConfigOptions = _.pick(options, ['startDate', 'endDate']);
-
-    // TODO: delete temp mocked data response
-    if (options.mockData) {
-      return setTimeout(() => {
-        return dispatch(sync.fetchRpmReportPatientsSuccess({
-          ...mockRpmReportPatients,
-          config: {
-            ...mockRpmReportPatients.config,
-            clinicId,
-            ...apiConfigOptions,
-            rawConfig: options.rawConfig,
-          }
-        }));
-      }, 2000);
-    }
 
     api.clinics.getPatientsForRpmReport(clinicId, apiConfigOptions, (err, results) => {
       if (err) {
