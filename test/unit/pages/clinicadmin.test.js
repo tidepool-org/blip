@@ -691,7 +691,7 @@ describe('ClinicAdmin', () => {
       const workSpacePlan = wrapper.find('#clinicWorkspacePlan').hostNodes()
       expect(workSpacePlan).to.have.lengthOf(1);
 
-      expect(workSpacePlan.find('#clinicPlanName').hostNodes().text()).to.equal('Basey Base Plan');
+      expect(workSpacePlan.find('#clinicPlanName').hostNodes().text()).to.equal('Basey Base');
       expect(workSpacePlan.find('#clinicPatientLimitDescription').hostNodes().text()).to.equal('Basey Base is an OK-is plan, but you can do better');
       expect(workSpacePlan.find('#clinicPatientLimitFeedback').hostNodes().text()).to.equal('Uh-oh.  Not looking good here');
       expect(workSpacePlan.find('Pill#clinicPatientLimitFeedback').props().colorPalette).to.equal('warning');
