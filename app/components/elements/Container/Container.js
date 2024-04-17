@@ -11,7 +11,7 @@ import Button from '../Button';
 import { borders } from '../../../themes/baseTheme';
 import personUtils from '../../../core/personutils';
 
-const Container = (props) => {
+export function Container(props) {
   const { variant, title, subtitle, showBannerImage, children, actions, sx, ...themeProps } = props;
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
@@ -107,7 +107,7 @@ const Container = (props) => {
       )}
     </Box>
   );
-};
+}
 
 Container.propTypes = {
   ...BoxProps,

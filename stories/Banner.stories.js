@@ -41,7 +41,7 @@ const bannerTextSuccess = () =>
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
   );
 
-function createBanner(message, variant, dismissable = true, actionText) {
+function createBanner(message, variant, dismissable = true, actionText = '') {
   return { message, variant, dismissable, actionText };
 }
 

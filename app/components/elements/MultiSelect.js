@@ -14,7 +14,7 @@ import i18next from '../../core/language';
 
 const t = i18next.t.bind(i18next);
 
-export const MultiSelect = props => {
+export function MultiSelect(props) {
   const {
     disabled,
     innerRef,
@@ -65,7 +65,7 @@ export const MultiSelect = props => {
           value={intersectionBy(
             options,
             map(valueProp.split(','), value => ({ value })),
-            'value',
+            'value'
           )}
           onChange={selections => {
             const { value } = selections?.[0] || {};
@@ -148,7 +148,7 @@ export const MultiSelect = props => {
       )}
     </Box>
   );
-};
+}
 
 MultiSelect.propTypes = {
   innerRef: PropTypes.oneOfType([

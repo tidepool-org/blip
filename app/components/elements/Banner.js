@@ -12,7 +12,7 @@ import baseTheme from '../../themes/baseTheme';
 import Icon from './Icon';
 import Button from './Button';
 
-const Banner = (props) => {
+export function Banner(props) {
   const {
     actionText,
     label,

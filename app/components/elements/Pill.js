@@ -21,7 +21,7 @@ const namedPalletMap = {
   transparent: ['transparent', 'inherit'],
 };
 
-const Pill = (props) => {
+export function Pill(props) {
   const {
     variant,
     colorPalette,
@@ -87,7 +87,7 @@ const Pill = (props) => {
       {text}
     </Text>
   );
-};
+}
 
 Pill.propTypes = {
   ...TextProps,
