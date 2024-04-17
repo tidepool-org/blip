@@ -763,7 +763,7 @@ export function updateSettings(api, patientId, settings) {
  * @param {userId} userId
  * @param  {Object} formValues
  */
-export function updateUser(api, formValues, options) {
+export function updateUser(api, formValues) {
   return (dispatch, getState) => {
     const { blip: { loggedInUserId, allUsersMap } } = getState();
     const loggedInUser = allUsersMap[loggedInUserId];
@@ -1166,8 +1166,6 @@ export function fetchPatientData(api, options, id) {
       const fetchingPatientId = _.get(working, 'fetchingPatientData.patientId');
 
       dispatch(sync.fetchPatientDataSuccess(id));
-
-      console.log('handleFetchSuccess', location.pathname, fetchingPatientId, id)
 
       // We only add the data to the worker if another patient id has not been fetched
       // while we waited on this one, and we are still on an app view specific to that patient
