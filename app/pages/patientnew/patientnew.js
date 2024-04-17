@@ -106,6 +106,9 @@ export const PatientNew = (props) => {
     }
   }, []);
 
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const allUsersMap = useSelector((state) => state.blip.allUsersMap);
+  const user = get(allUsersMap, loggedInUserId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const [submitting, setSubmitting] = useState(false);
@@ -141,16 +144,50 @@ export const PatientNew = (props) => {
           variant: 'success',
         });
 
-        // Redirect to patients page
-        dispatch(push('/patients'));
+        // Redirect to patient data view
+        dispatch(push(`/patients/${loggedInUserId}/data`));
       }
     }
   }, [working.settingUpDataStorage]);
 
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.updatingUser;
+
+    const prevInProgress = get(
+      previousWorking,
+      'updatingUser.inProgress'
+    );
+
+    if (!inProgress && completed !== null && prevInProgress) {
+      setSubmitting(false);
+
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Profile updated'),
+          variant: 'success',
+        });
+
+        // Redirect to patients page
+        dispatch(push('/patients?justLoggedIn=true'));
+      }
+    }
+  }, [working.updatingUser]);
+
+  const { firstName, lastName } = personUtils.splitNamesFromFullname(user?.profile?.fullName);
+
   const formikContext = useFormik({
     initialValues: {
-      firstName: '',
-      lastName: '',
+      firstName,
+      lastName,
       accountType: null,
       patientFirstName: '',
       patientLastName: '',
@@ -192,7 +229,10 @@ export const PatientNew = (props) => {
       } else if (values.accountType === 'viewOnly') {
         setSubmitting(true);
         const profile = prepareFormValuesForSubmit(values);
-        dispatch(actions.async.setupDataStorage(api, profile));
+        // We skip the welcome message on the patients home page, which just prompts them to set up
+        // data storage, which they've just indicated they don't want to do at this time.
+        dispatch(actions.sync.hideWelcomeMessage());
+        dispatch(actions.async.updateUser(api, profile));
       }
     },
   });
@@ -200,7 +240,6 @@ export const PatientNew = (props) => {
   function prepareFormValuesForSubmit(formValues) {
     const profile = {
       fullName: personUtils.fullnameFromSplitNames(formValues.firstName, formValues.lastName),
-      patient: {},
     };
 
     if (includes(['personal', 'caregiver'], formValues.accountType)) {

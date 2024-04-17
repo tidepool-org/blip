@@ -439,7 +439,6 @@ export function setupDataStorage(api, patient) {
         ));
       } else {
         dispatch(sync.setupDataStorageSuccess(loggedInUserId, createdPatient));
-        dispatch(push(`/patients/${createdPatient.userid}/data`));
       }
     });
   }
