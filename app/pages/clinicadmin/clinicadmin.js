@@ -706,7 +706,7 @@ export const ClinicAdmin = (props) => {
                   </Flex>
 
                   <Text id="clinicPlanName" sx={{ display: 'inline-block', fontSize: 1, lineHeight: 3, fontWeight: 'bold' }}>
-                    {clinic?.ui?.text?.planDisplayName} {t('Plan')}
+                    {clinic?.ui?.text?.planDisplayName}
                   </Text>
 
                   {clinic?.ui?.display?.workspaceLimitDescription && (
