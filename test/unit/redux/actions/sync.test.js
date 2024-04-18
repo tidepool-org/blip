@@ -4273,8 +4273,7 @@ describe('Actions', () => {
 
   describe('clearRpmReportPatients', () => {
     it('should be a TSA', () => {
-      let error = new Error('fetching patients failed :(');
-      let action = sync.clearRpmReportPatients(error);
+      let action = sync.clearRpmReportPatients();
       expect(isTSA(action)).to.be.true;
     });
 
