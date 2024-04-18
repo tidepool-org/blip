@@ -42,7 +42,7 @@ import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
 import PatientForm from '../../components/clinic/PatientForm';
-import TideDashboardConfigForm, { validateConfig } from '../../components/clinic/TideDashboardConfigForm';
+import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
@@ -689,7 +689,7 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    if (validateConfig(localConfig?.[localConfigKey], patientTags)) {
+    if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
       fetchDashboardPatients();
     } else {
       setShowTideDashboardConfigDialog(true);

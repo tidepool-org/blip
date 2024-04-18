@@ -2277,6 +2277,37 @@ export function clearTideDashboardPatients() {
   };
 }
 
+export function fetchRpmReportPatientsRequest() {
+  return {
+    type: ActionTypes.FETCH_RPM_REPORT_PATIENTS_REQUEST,
+  };
+}
+
+export function fetchRpmReportPatientsSuccess(results) {
+  return {
+    type: ActionTypes.FETCH_RPM_REPORT_PATIENTS_SUCCESS,
+    payload: {
+      results: results,
+    },
+  };
+}
+
+export function fetchRpmReportPatientsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_RPM_REPORT_PATIENTS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function clearRpmReportPatients() {
+  return {
+    type: ActionTypes.CLEAR_RPM_REPORT_PATIENTS,
+  };
+}
+
 export function generateAGPImagesRequest(data, opts, queries) {
   return {
     type: ActionTypes.GENERATE_AGP_IMAGES_REQUEST,

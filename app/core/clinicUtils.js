@@ -11,6 +11,7 @@ import countries from 'i18n-iso-countries';
 import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
+import { timezoneNames } from './validation/timezoneNames';
 
 import {
   URL_TIDEPOOL_PLUS_PLANS,
@@ -84,6 +85,11 @@ export const summaryPeriodOptions = [
   { value: '14d', label: t('14 days') },
   { value: '30d', label: t('30 days') },
 ];
+
+export const timezoneOptions = map(
+  timezoneNames,
+  name => ({ value: name, label: name })
+);
 
 export const maxClinicPatientTags = 50;
 
@@ -441,4 +447,24 @@ export const tideDashboardConfigSchema = yup.object().shape({
     .required(t('Please select a last upload date option')),
   tags: yup.array().of(yup.string())
     .min(1, t('Please select at least one tag')),
+});
+
+export const rpmReportConfigSchema = yup.object().shape({
+  startDate: yup.date()
+    .transform((value, originalValue) => {
+      value = moment(originalValue, dateFormat, true);
+      return value.isValid() ? value.toDate() : undefined;
+    })
+    .min(moment().subtract(59, 'days').startOf('day').format(dateFormat), t('Please enter a start date within the last 60 days'))
+    .max(moment().subtract(1, 'day').startOf('day').format(dateFormat), t('Please enter a start date prior to today'))
+    .required(t('Please select a start date')),
+  endDate: yup.date()
+    .transform((value, originalValue) => {
+      value = moment(originalValue, dateFormat, true);
+      return value.isValid() ? value.toDate() : undefined;
+    })
+    .min(moment().subtract(59, 'days').endOf('day').format(dateFormat), t('Please enter an end date within the last 59 days'))
+    .max(moment().endOf('day').format(dateFormat), t('Please enter an end date no later than today'))
+    .required(t('Please select an end date')),
+  timezone: yup.string().oneOf(map(timezoneOptions, 'value')).required(t('Please select a timezone')),
 });
