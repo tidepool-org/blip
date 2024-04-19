@@ -6,12 +6,7 @@ import includes from 'lodash/includes';
 import map from 'lodash/map';
 import sortBy from 'lodash/sortBy';
 import countries from 'i18n-iso-countries';
-import InputMask from 'react-input-mask';
-import { Box, Flex, Text, BoxProps } from 'theme-ui';
-
-import {
-  Body2,
-} from '../../components/elements/FontStyles';
+import { Box, Flex, BoxProps } from 'theme-ui';
 
 import TextInput from '../../components/elements/TextInput';
 import RadioGroup from '../../components/elements/RadioGroup';
