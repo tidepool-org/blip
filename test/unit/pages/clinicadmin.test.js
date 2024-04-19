@@ -820,6 +820,30 @@ describe('ClinicAdmin', () => {
           done();
         }, 0);
       });
+
+      it('should populate updated clinic profile values when re-opening form after edit', done => {
+        expect(profileForm().find('input[name="name"]').prop('value')).to.equal('Test Clinic');
+
+        wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'name_updated' } });
+        expect(wrapper.find('input[name="name"]').prop('value')).to.equal('name_updated');
+
+        wrapper.find('#editClinicProfileSubmit').hostNodes().simulate('click');
+
+        setTimeout(() => {
+          expect(defaultProps.api.clinics.update.callCount).to.equal(1);
+
+          sinon.assert.calledWith(
+            defaultProps.api.clinics.update,
+            'clinicID456',
+            sinon.match({
+              name: 'name_updated',
+            })
+          );
+
+          expect(wrapper.find('input[name="name"]').prop('value')).to.equal('name_updated');
+          done();
+        }, 0);
+      });
     });
 
     context('clinic admin team member with clinic timezone', () => {
