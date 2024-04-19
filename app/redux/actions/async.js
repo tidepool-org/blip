@@ -1812,8 +1812,8 @@ export function createClinic(api, clinic, clinicianId) {
           )
         );
       } else {
-        dispatch(selectClinic(api, clinic.id));
         dispatch(sync.createClinicSuccess(clinic));
+        dispatch(selectClinic(api, clinic.id));
         dispatch(getClinicsForClinician(api, clinicianId, { limit: 1000, offset: 0 }));
       }
     });
