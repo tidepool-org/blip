@@ -438,6 +438,7 @@ export const ClinicAdmin = (props) => {
   function handleEditClinicProfile() {
     trackMetric('Clinic - Edit clinic profile', { clinicId: selectedClinicId });
     clinicProfileFormContext.resetForm();
+    clinicProfileFormContext.setValues(clinicValuesFromClinic(clinic));
     setShowEditClinicProfileDialog(true);
   }
 
