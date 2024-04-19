@@ -12,6 +12,7 @@ import keys from 'lodash/keys';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
+import values from 'lodash/values';
 import { useFormik } from 'formik';
 import { Box, Flex, Text, Link } from 'theme-ui';
 import countries from 'i18n-iso-countries';
@@ -140,7 +141,13 @@ export const ClinicDetails = (props) => {
       ? '/clinic-workspace'
       : '/workspaces';
 
-    const redirectState = { selectedClinicId: clinics.length === 1 ? clinics[0].id : null };
+    const isWorkspaceRedirect = redirectPath === '/clinic-workspace';
+
+    const redirectState = { selectedClinicId: isWorkspaceRedirect && keys(clinics).length === 1
+      ? values(clinics)[0].id
+      : null,
+    };
+
     dispatch(push(redirectPath, redirectState));
   }
 
