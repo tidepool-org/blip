@@ -128,7 +128,7 @@ export const ClinicDetails = (props) => {
       firstName: populateProfileFields ? firstName : '',
       lastName: populateProfileFields ? lastName : '',
       role: populateProfileFields ? user?.profile?.clinic?.role || '' : '',
-      ...clinicValuesFromClinic(clinic),
+      ...clinicValuesFromClinic(action === 'new' ? undefined : clinic),
     };
   };
 
@@ -250,6 +250,7 @@ export const ClinicDetails = (props) => {
       inProgress,
       completed,
       notification,
+      clinicId,
     } = working[clinicAction];
 
     const prevInProgress = get(
@@ -272,7 +273,7 @@ export const ClinicDetails = (props) => {
           setSubmitting(false);
 
           setToast({
-            message: t('"{{name}}" clinic created', clinic),
+            message: t('"{{name}}" clinic created', clinics[clinicId]),
             variant: 'success',
           });
         }
@@ -368,7 +369,7 @@ export const ClinicDetails = (props) => {
         trackMetric('Clinic - Account created');
         const clinicValues = pick(values, keys(clinicValuesFromClinic()));
 
-        if (clinic?.id) {
+        if (clinic?.id && action !== 'new') {
           dispatch(actions.async.updateClinic(api, clinic.id, clinicValues));
         } else {
           dispatch(actions.async.createClinic(api, clinicValues, loggedInUserId));

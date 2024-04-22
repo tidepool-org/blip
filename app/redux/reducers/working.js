@@ -345,7 +345,10 @@ export default (state = initialWorkingState, action) => {
               }
             }
           });
-        } else if (action.type === types.FETCH_CLINIC_SUCCESS) {
+        } else if (_.includes([
+          types.CREATE_CLINIC_SUCCESS,
+          types.FETCH_CLINIC_SUCCESS,
+        ], action.type)) {
           return update(state, {
             [key]: {
               $set: {

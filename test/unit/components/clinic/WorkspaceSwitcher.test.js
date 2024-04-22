@@ -36,10 +36,12 @@ describe('WorkspaceSwitcher', () => {
   };
 
   before(() => {
+    WorkspaceSwitcher.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
     mount = createMount();
   });
 
   after(() => {
+    WorkspaceSwitcher.__ResetDependency__('useLocation');
     mount.cleanUp();
   });
 
