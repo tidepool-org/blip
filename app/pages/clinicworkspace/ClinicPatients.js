@@ -52,7 +52,7 @@ import {
 import {
   MediumTitle,
   Body1,
-  Paragraph0,
+  Paragraph1,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
@@ -1149,8 +1149,8 @@ export const ClinicPatients = (props) => {
                 <>
                   <img alt={t('Patient Limit Reached')} src={LimitReached} />
                   <Box mt={3} sx={{ width: '213px' }}>
-                    <Paragraph0 sx={{ fontWeight: 'bold' }}>{t('Your workspace has reached the maximum number of patient accounts supported by our Base Plan.')}</Paragraph0>
-                    <Paragraph0>
+                    <Paragraph1 sx={{ fontWeight: 'bold' }}>{t('Your workspace has reached the maximum number of patient accounts supported by our Base Plan.')}</Paragraph1>
+                    <Paragraph1>
                       {t('Please reach out to your administrator and')}&nbsp;
                       <Link
                         id="addPatientUnlockPlansLink"
@@ -1158,14 +1158,11 @@ export const ClinicPatients = (props) => {
                         target="_blank"
                         rel="noreferrer noopener"
                         sx={{
-                          fontSize: 0,
+                          fontSize: 1,
                           fontWeight: 'medium',
-                          textDecoration: 'underline',
-                          color: 'text.link',
-                          '&:hover': { textDecoration: 'underline' },
                         }}
-                        >{t('learn more about our plans')}</Link>
-                    </Paragraph0>
+                        >{t('learn more about our plans.')}</Link>
+                    </Paragraph1>
                   </Box>
                 </>
               )}
