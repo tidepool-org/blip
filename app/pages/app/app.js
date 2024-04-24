@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
 import { Box } from 'theme-ui';
 import { withLDConsumer } from 'launchdarkly-react-client-sdk';
+import { withTranslation } from 'react-i18next';
 
 import * as actions from '../../redux/actions';
 import { ldContext } from '../../redux/utils/launchDarklyMiddleware';
@@ -28,11 +29,12 @@ import ShareDataBanner from '../../components/sharedatabanner';
 import TidepoolNotification from '../../components/notification';
 import UpdateTypeBanner from '../../components/updatetypebanner';
 import UploaderBanner from '../../components/uploaderbanner';
+import Banner from '../../components/elements/Banner';
 
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+import { DATA_DONATION_NONPROFITS, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 
 // Styles
 require('tideline/css/tideline.less');
@@ -144,8 +146,11 @@ export class AppComponent extends React.Component {
    */
   UNSAFE_componentWillReceiveProps(nextProps) {
     const {
+      clinics,
+      selectedClinicId,
       showingDonateBanner,
       showingDexcomConnectBanner,
+      showingPatientLimitBanner,
       showingShareDataBanner,
       updateShareDataBannerSeen,
       seenShareDataBannerMax,
@@ -258,6 +263,18 @@ export class AppComponent extends React.Component {
         this.props.showBanner('updatetype');
       } else if (showingUpdateTypeBanner) {
         this.props.hideBanner('updatetype');
+      }
+    }
+
+    if (showingPatientLimitBanner !== false) {
+      const isClinicWorkspaceRoute = /^\/clinic-workspace/.test(location);
+      const clinic = clinics?.[selectedClinicId];
+      const showPatientLimitBanner = isClinicWorkspaceRoute && clinic?.patientLimitEnforced && !!clinic?.ui?.warnings?.limitReached;
+
+      if (showPatientLimitBanner) {
+        this.props.showBanner('patientLimit');
+      } else if (showingPatientLimitBanner) {
+        this.props.hideBanner('patientLimit');
       }
     }
   }
@@ -555,6 +572,42 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderPatientLimitBanner() {
+    const {
+      clinics,
+      dismissBanner,
+      selectedClinicId,
+      showingPatientLimitBanner,
+      t,
+    } = this.props;
+
+    if (showingPatientLimitBanner) {
+        const clinic = clinics?.[selectedClinicId];
+        this.props.context.trackMetric('Patient limit banner: displayed');
+
+        return (
+          <Banner
+            id="patientLimitBanner"
+            variant="warning"
+            label={t('Patient limit banner')}
+            actionText={t('Contact us to unlock plans')}
+            onAction={() => {
+              this.props.context.trackMetric('Patient limit banner: contact sales clicked');
+              dismissBanner('patientLimit');
+              window.open(URL_TIDEPOOL_PLUS_CONTACT_SALES, '_blank')
+            }}
+            onDismiss={() => {
+              this.props.context.trackMetric('Patient limit banner: dismissed');
+              dismissBanner('patientLimit');
+            }}
+            message={t('{{clinic.name}} has reached the maximum number of patient accounts.', { clinic })}
+          />
+        );
+    }
+
+    return null;
+  }
+
   renderNotification() {
     var notification = this.props.notification;
     var handleClose;
@@ -648,12 +701,14 @@ export class AppComponent extends React.Component {
     var notification = this.renderNotification();
     var banner = this.renderBanner();
     var emailbanner = this.renderAddEmailBanner();
+    var patientLimitBanner = this.renderPatientLimitBanner();
     var footer = this.renderFooter();
 
     return (
       <div className="app">
         {overlay}
         {emailbanner}
+        {patientLimitBanner}
         {navbar}
         {notification}
         {banner}
@@ -838,6 +893,7 @@ export function mapStateToProps(state) {
     selectedClinicId: state.blip.selectedClinicId,
     showingDonateBanner: state.blip.showingDonateBanner,
     showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
+    showingPatientLimitBanner: state.blip.showingPatientLimitBanner,
     showingShareDataBanner: state.blip.showingShareDataBanner,
     seenShareDataBannerMax: state.blip.seenShareDataBannerMax,
     showingUpdateTypeBanner: state.blip.showingUpdateTypeBanner,
@@ -877,6 +933,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
+  dismissBanner: actions.sync.dismissBanner,
   resendEmailVerification: actions.async.resendEmailVerification,
   fetchInfo: actions.async.fetchInfo,
 }, dispatch);
@@ -911,9 +968,10 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     showBanner: dispatchProps.showBanner,
     hideBanner: dispatchProps.hideBanner,
+    dismissBanner: dispatchProps.dismissBanner,
     onResendEmailVerification: dispatchProps.resendEmailVerification.bind(null, api),
     onLogout: dispatchProps.logout.bind(null, api),
   });
 };
 
-export default withLDConsumer()(connect(mapStateToProps, mapDispatchToProps, mergeProps)(AppComponent));
+export default withLDConsumer()(connect(mapStateToProps, mapDispatchToProps, mergeProps)(withTranslation()(props => <AppComponent {...props}/>)));

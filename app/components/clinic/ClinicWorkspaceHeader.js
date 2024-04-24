@@ -6,19 +6,18 @@ import { useLocation } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import includes from 'lodash/includes'
-import { Box, Flex, BoxProps } from 'theme-ui';
+import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
+import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
+import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import { components as vizComponents } from '@tidepool/viz';
-
-import {
-  Caption,
-  Title,
-} from '../elements/FontStyles';
 
 import Button from '../elements/Button';
 import Icon from '../elements/Icon';
+import Pill from '../elements/Pill';
+import { URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
 
 const { ClipboardButton } = vizComponents;
 
@@ -28,11 +27,8 @@ export const ClinicWorkspaceHeader = (props) => {
   const { pathname } = useLocation();
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinic = get(clinics, selectedClinicId);
-  const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
-  const isClinicProfilePath = pathname.indexOf('/clinic-profile') === 0;
 
   const buttonText = useMemo(() =>
     <Icon
@@ -46,7 +42,8 @@ export const ClinicWorkspaceHeader = (props) => {
   const buttonSuccessText = useMemo(() => <span className="success">{t('✓')}</span>, [t]);
 
   const navigationAction = {
-    label: isWorkspacePath ? t('View Clinic Members'): t('View Patient List'),
+    label: isWorkspacePath ? t('Workspace Settings'): t('View Patient List'),
+    icon: isWorkspacePath ? SettingsRoundedIcon : GroupRoundedIcon,
     action: () => dispatch(push(isWorkspacePath ? '/clinic-admin' : '/clinic-workspace')),
     metric: isWorkspacePath ? 'Clinic - View clinic members' : 'Clinic - View patient list',
   };
@@ -65,11 +62,6 @@ export const ClinicWorkspaceHeader = (props) => {
     navigationAction.action();
   }
 
-  function handleClinicEdit() {
-    trackMetric('Clinic - Edit clinic profile', { clinicId: selectedClinicId });
-    dispatch(push('/clinic-profile'));
-  }
-
   if (!clinic) return null;
 
   return (
@@ -82,24 +74,40 @@ export const ClinicWorkspaceHeader = (props) => {
         id="clinicProfileDetails"
         px={4}
         py={3}
-        sx={{ gap: 2, flexWrap: 'wrap', justifyContent: ['center', 'space-between'], alignItems: 'center' }}
+        sx={{
+          columnGap: 5,
+          flexWrap: 'wrap',
+          justifyContent: ['center', 'space-between'],
+          alignItems: 'center',
+          rowGap: 2,
+        }}
       >
-        <Flex sx={{ justifyContent: 'flex-start', alignItems: 'flex-start' }} width={['100%', '100%', 'auto']}>
-          <Box mr={6}>
-            <Caption sx={{ color: 'grays.4' }}>{t('Clinic Name')}</Caption>
-            <Title sx={{ fontSize: [1, 2, 3] }}>{clinic.name}</Title>
-          </Box>
+        <Flex
+          sx={{
+            justifyContent: 'flex-start',
+            alignItems: 'flex-end',
+            width:['100%', '100%', 'auto'],
+            flexWrap: 'wrap',
+            columnGap: 5,
+            rowGap: 2,
+          }}
+        >
           <Box sx={{ flexShrink: 0 }}>
-            <Caption sx={{ color: 'grays.4' }}>{t('Clinic Share Code')}</Caption>
+            <Text as="span" sx={{ color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>{clinic.name}</Text>
+          </Box>
+          <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
+            <Text>{t('Share Code:')}</Text>
             <Flex
               sx={{
-                alignContent: 'center',
+                columnGap: 2,
+                alignItems: 'flex-start',
                 button: {
                   border: 'none',
                   color: 'text.primary',
-                  paddingTop: '.125em',
-                  paddingRight: 0,
-                  fontSize: 2,
+                  top: '1px',
+                  p: 0,
+                  m: 0,
+                  position: 'relative',
                   '&:hover,&:active': {
                     border: 'none',
                     color: 'text.primary',
@@ -107,14 +115,13 @@ export const ClinicWorkspaceHeader = (props) => {
                   },
                 },
                 '.success': {
-                  padding: '.175em 0 0',
+                  position: 'relative',
                   display: 'block',
-                  textAlign: 'center',
-                  lineHeight: '1.125em',
+                  top: '2px',
                 },
               }}
             >
-              <Title sx={{ fontSize: [1, 2, 3], whiteSpace: 'nowrap' }}>{clinic.shareCode}</Title>
+              <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>{clinic.shareCode}</Text>
               <ClipboardButton
                 buttonTitle={t('Copy Share Code')}
                 buttonText={buttonText}
@@ -123,37 +130,100 @@ export const ClinicWorkspaceHeader = (props) => {
                 getText={getButtonText}
               />
             </Flex>
-          </Box>
+          </Flex>
+
+          {clinic?.ui?.display?.planName && (
+            <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
+              <Text>{t('Plan:')}</Text>
+              <Box>
+                <Pill
+                  id="clinicProfilePlan"
+                  text={clinic?.ui.text.planDisplayName}
+                  label={t('plan name')}
+                  colorPalette="primaryText"
+                  condensed
+                />
+              </Box>
+            </Flex>
+          )}
+
+          {clinic?.ui && (
+            <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
+              <Text>{t('Patient Accounts:')}</Text>
+              <Box>
+                {clinic?.ui.display.patientCount && (
+                  <Pill
+                    id="clinicPatientLimits"
+                    sx={{ fontSize: 1 }}
+                    px={1}
+                    pt="2px"
+                    pb={0}
+                    text={`${clinic.patientCount}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
+                    icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
+                    label={t('Patient Count')}
+                    colorPalette={clinic?.ui.warnings.limitReached || clinic?.ui.warnings.limitApproaching ? 'warning' : 'transparent'}
+                  />
+                )}
+
+                {clinic?.ui.display.patientLimit && !clinic?.ui.warnings.limitReached && (
+                  <Box sx={{ position: 'relative', top: clinic?.ui.warnings.limitApproaching ? '1px' : '-3px' }}>
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '2px',
+                        bg: 'grays.1',
+                        position: 'absolute',
+                        zIndex: 0,
+                        borderRadius: 'full',
+                      }}
+                    />
+
+                    <Box
+                      sx={{
+                        width: `${clinic.patientCount / clinic.patientCountSettings?.hardLimit?.patientCount * 100}%`,
+                        minWidth: '3px',
+                        height: '2px',
+                        bg: clinic?.ui.warnings.limitApproaching ? 'feedback.warning' : 'purpleMedium',
+                        position: 'absolute',
+                        zIndex: 1,
+                        borderRadius: 'full',
+                      }}
+                    />
+                  </Box>
+                )}
+              </Box>
+
+              {(clinic?.ui?.warnings?.limitApproaching || clinic?.ui?.warnings?.limitReached) && (
+                <Link
+                  id="clinicProfileUnlockPlansLink"
+                  href={URL_TIDEPOOL_PLUS_PLANS}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  sx={{
+                    fontSize: 1,
+                    fontWeight: 'medium',
+                    textDecoration: 'underline',
+                    color: 'text.link',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  {t('Unlock Plans')}
+                </Link>
+              )}
+            </Flex>
+          )}
         </Flex>
 
         <Flex
           width={['100%', '100%', 'auto']}
           sx={{ gap: 3, justifyContent: ['flex-start', 'flex-start', 'flex-end'], alignItems: 'center' }}
         >
-          {isClinicAdmin && !isClinicProfilePath && (
-            <Box>
-              <Button
-                id="profileEditButton"
-                variant="textSecondary"
-                onClick={handleClinicEdit}
-                icon={EditRoundedIcon}
-                iconPosition='left'
-                iconFontSize="1.25em"
-                iconLabel={t('Edit Clinic Profile')}
-                sx={{ fontSize: 1 }}
-                pl={0}
-              >
-                {t('Edit Clinic Profile')}
-              </Button>
-            </Box>
-          )}
-
           <Box>
             <Button
               id="profileNavigationButton"
               variant="textSecondary"
               onClick={handleNavigationAction}
-              icon={GroupRoundedIcon}
+              icon={navigationAction.icon}
               iconPosition='left'
               iconFontSize="1.25em"
               iconLabel={navigationAction.label}

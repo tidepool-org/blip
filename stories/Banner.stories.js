@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { action } from '@storybook/addon-actions';
 import { text } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import map from 'lodash/map';
@@ -40,8 +41,8 @@ const bannerTextSuccess = () =>
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
   );
 
-function createBanner(message, variant, dismissable = true) {
-  return { message, variant, dismissable };
+function createBanner(message, variant, dismissable = true, actionText = '') {
+  return { message, variant, dismissable, actionText };
 }
 
 export const BannerStory = {
@@ -49,12 +50,16 @@ export const BannerStory = {
     const [alerts, setAlerts] = useState([
       createBanner(bannerText(), 'info'),
       createBanner(bannerText(), 'info', false),
+      createBanner(bannerText(), 'info', true, 'Info Action'),
       createBanner(bannerTextWarning(), 'warning'),
       createBanner(bannerTextWarning(), 'warning', false),
+      createBanner(bannerTextWarning(), 'warning', true, 'Warning Action'),
       createBanner(bannerTextDanger(), 'danger'),
       createBanner(bannerTextDanger(), 'danger', false),
+      createBanner(bannerTextDanger(), 'danger', true, 'Danger Action'),
       createBanner(bannerTextSuccess(), 'success'),
       createBanner(bannerTextSuccess(), 'success', false),
+      createBanner(bannerTextSuccess(), 'success', true, 'Success Action'),
     ]);
 
     const handleDismissed = (index) => {
@@ -70,6 +75,7 @@ export const BannerStory = {
             key={`banner-${index}`}
             label={`banner-${index}`}
             onDismiss={() => () => handleDismissed(index)}
+            onAction={alert.actionText ? () => action(alert.actionText)() : undefined}
             {...alert}
           />
         ))}

@@ -1,206 +1,430 @@
-/* global beforeEach */
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-
-import _ from 'lodash';
 import React from 'react';
-import mutationTracker from 'object-invariant-test-helper';
-import { mount } from 'enzyme';
+import { createMount } from '@material-ui/core/test-utils';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+import noop from 'lodash/noop';
+import { ToastProvider } from '../../../app/providers/ToastProvider';
+import PatientNew from '../../../app/pages/patientnew';
 
-import { PatientNew, mapStateToProps } from '../../../app/pages/patientnew';
+/* global chai */
+/* global sinon */
+/* global context */
+/* global describe */
+/* global it */
+/* global beforeEach */
+/* global before */
+/* global after */
+/* global afterEach */
 
-var assert = chai.assert;
 var expect = chai.expect;
+const mockStore = configureStore([thunk]);
 
 describe('PatientNew', function () {
-  it('should be exposed as a module and be of type function', function() {
-    expect(PatientNew).to.be.a('function');
+  let mount;
+  let wrapper;
+
+  before(() => {
+    mount = createMount();
   });
 
-  var props = {
-    fetchingUser: false,
-    onUpdateDataDonationAccounts: sinon.stub(),
-    onSubmit: sinon.stub(),
+  after(() => {
+    mount.cleanUp();
+  });
+
+  let defaultProps = {
     trackMetric: sinon.stub(),
-    working: false,
-    requireAuthAndNoPatient: sinon.stub(),
+    t: sinon.stub().callsFake((string) => string),
+    api: {
+      invitation: {
+        send: sinon.stub(),
+      },
+      patient: {
+        post: sinon.stub().callsArgWith(1, null, { createdPatient: { profile: 'new profile'} }),
+      },
+      user: {
+        put: sinon.stub(),
+      },
+    },
   };
 
-  describe('render', function() {
-    it('should not warn when required props are set', function() {
-      console.error = sinon.spy();
-      var elem = mount(<PatientNew {...props}/>);
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
-    });
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: false,
+    notification: null,
+  };
 
-    it('should render a diagnosis type label and select list', function() {
-      let wrapper = mount(
-        <PatientNew {...props}/>
-      );
-      const label = wrapper.find('.input-group-label').at(2);
-      const select = wrapper.find('input.Select__input').first();
-      const selectPlaceholder = wrapper.find('.Select__placeholder').first();
-      expect(label.length).to.equal(1);
-      expect(select.length).to.equal(1);
-      expect(selectPlaceholder.length).to.equal(1);
-      expect(label.text()).to.equal('How do you describe your diabetes?');
-      expect(selectPlaceholder.text()).to.equal('Choose One');
-    });
-  });
-
-  describe('initial state', function() {
-    it('should be in this expected format', function() {
-      console.error = sinon.spy();
-      var elem = mount(<PatientNew/>).childAt(0);
-      var initialState = elem.state();
-      expect(initialState.working).to.equal(false);
-      expect(initialState.formValues.isOtherPerson).to.equal(false);
-      expect(initialState.formValues.fullName).to.equal('');
-      expect(Object.keys(initialState.validationErrors).length).to.equal(0);
-    });
-  });
-
-  describe('handleSubmit', function(){
-    let wrapper = mount(
-      <PatientNew {...props}/>
-    );
-
-    let formValues = {
-      birthday: {
-        day: '1',
-        month: '0',
-        year: '1990'
-      },
-      diagnosisDate: {
-        day: '2',
-        month: '1',
-        year: '1995'
-      },
-      diagnosisType: 'type1',
-      fullName: 'John Doh',
-      isOtherPerson: false
-    };
-
-    beforeEach(function() {
-      props.onSubmit.reset();
-      props.onUpdateDataDonationAccounts.reset();
-      props.trackMetric.reset();
-    });
-
-    it('should call onSubmit with valid form values', function(){
-      wrapper.childAt(0).instance().handleSubmit(formValues);
-      expect(props.onSubmit.callCount).to.equal(1);
-
-      sinon.assert.calledWith(props.onSubmit, {
-        profile: {
-          fullName: 'John Doh',
-          patient: {
-            birthday: '1990-01-01',
-            diagnosisDate: '1995-02-02',
-            diagnosisType: 'type1',
-          },
-        },
-      });
-      expect(props.onUpdateDataDonationAccounts.callCount).to.equal(0);
-      expect(props.trackMetric.callCount).to.equal(0);
-    });
-
-    it('should should not submit diagnosisType if left blank', function(){
-      wrapper.childAt(0).instance().handleSubmit(_.assign({}, formValues, {
-        diagnosisType: ''
-      }));
-      expect(props.onSubmit.callCount).to.equal(1);
-
-      sinon.assert.calledWith(props.onSubmit, {
-        profile: {
-          fullName: 'John Doh',
-          patient: {
-            birthday: '1990-01-01',
-            diagnosisDate: '1995-02-02',
-          },
-        },
-      });
-    });
-
-    it('should call onSubmit and onUpdateDataDonationAccounts with data donation values', function(){
-      wrapper.childAt(0).instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: '' }));
-      expect(props.onSubmit.callCount).to.equal(1);
-      expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
-      expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org'])).to.be.true;
-      expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.getCall(0).args).to.eql(['web - big data sign up', { source: 'none', location: 'sign-up' }]);
-    });
-
-    it('should call onSubmit and onUpdateDataDonationAccounts with specific values', function(){
-      wrapper.childAt(0).instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF,NSF' }));
-      expect(props.onSubmit.callCount).to.equal(1);
-      expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
-      expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org', 'bigdata+JDRF@tidepool.org', 'bigdata+NSF@tidepool.org'])).to.be.true;
-      expect(props.trackMetric.callCount).to.equal(3);
-    });
-  });
-
-  describe('isFormDisabled', function() {
-    it('should be true when fetching user is true and user is falsey', function() {
-      var props = {
-        fetchingUser: true
-      };
-      // Try out using the spread props syntax in JSX
-      var elem = mount(<PatientNew {...props}/>).childAt(0);
-
-      expect(elem.instance().isFormDisabled()).to.equal(true);
-    });
-
-    it('should be false when fetching user is true and user is not falsey', function() {
-      var props = {
-        fetchingUser: true,
-        user: {}
-      };
-      // Try out using the spread props syntax in JSX
-      var elem = mount(<PatientNew {...props}/>).childAt(0);
-
-      expect(elem.instance().isFormDisabled()).to.equal(false);
-    });
-  });
-
-  describe('mapStateToProps', () => {
-    const state = {
+  const defaultState = {
+    blip: {
       allUsersMap: {
         a1b2c3: {
-          userid: 'a1b2c3'
-        }
+          userid: 'a1b2c3',
+        },
       },
       loggedInUserId: 'a1b2c3',
       working: {
-        settingUpDataStorage: {inProgress: true},
-        fetchingUser: {inProgress: false}
-      }
+        settingUpDataStorage: defaultWorkingState,
+        updatingUser: defaultWorkingState,
+      },
+    },
+  };
+
+  let store = mockStore(defaultState);
+
+  const createWrapper = (providedStore = store) => {
+    store = providedStore;
+
+    return mount(
+      <Provider store={providedStore}>
+        <ToastProvider>
+          <PatientNew {...defaultProps} />
+        </ToastProvider>
+      </Provider>
+    );
+  };
+
+  beforeEach(() => {
+    defaultProps.trackMetric.resetHistory();
+    wrapper = createWrapper();
+  });
+
+  afterEach(() => {
+    defaultProps.api.invitation.send.resetHistory();
+    defaultProps.api.patient.post.resetHistory();
+  });
+
+  it('should allow creating a personal patient account profile', done => {
+    const profile = {
+      fullName: 'Johnny Patient',
+      patient: {
+        birthday: 'Jan 1, 1990',
+        diagnosisDate: 'Feb 2, 1995',
+        diagnosisType: 'type1',
+      },
     };
 
-    const tracked = mutationTracker.trackObj(state);
-    const result = mapStateToProps({blip: state});
+    // Next button is initially disabled
+    const nextButton = () => wrapper.find('button#submit');
+    expect(nextButton()).to.have.lengthOf(1);
+    expect(nextButton().prop('disabled')).to.be.true;
 
-    it('should not mutate the state', () => {
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    // Add name for account profile
+    const firstNameInput = () => wrapper.find('input#firstName');
+    expect(firstNameInput()).to.have.lengthOf(1);
+    expect(firstNameInput().prop('value')).to.equal('');
+
+    firstNameInput().simulate('change', { persist: noop, target: { name: 'firstName', value: profile.fullName.split(' ')[0] } });
+    expect(firstNameInput().prop('value')).to.equal('Johnny');
+
+    const lastNameInput = () => wrapper.find('input#lastName');
+    expect(lastNameInput()).to.have.lengthOf(1);
+    expect(lastNameInput().prop('value')).to.equal('');
+
+    lastNameInput().simulate('change', { persist: noop, target: { name: 'lastName', value: profile.fullName.split(' ')[1] } });
+    expect(lastNameInput().prop('value')).to.equal('Patient');
+
+    // Next button still disabled until we choose accountType
+    expect(nextButton().prop('disabled')).to.be.true;
+
+    const personalAccountTypeInput = () => wrapper.find('input#accountType-0');
+    expect(personalAccountTypeInput()).to.have.lengthOf(1);
+    expect(personalAccountTypeInput().prop('checked')).to.be.false;
+
+    personalAccountTypeInput().simulate('change', { persist: noop, target: { name: 'accountType', value: 'personal' } });
+    expect(personalAccountTypeInput().prop('value')).to.equal('personal');
+
+    // Next button should now be enabled
+    expect(nextButton().prop('disabled')).to.be.false;
+
+    // Proceed to step 2 of flowFrom:
+    nextButton().simulate('click');
+
+    // Should be a back button, and a disabled 'Next' button
+    const backButton = wrapper.find('button#back');
+    expect(backButton).to.have.lengthOf(1);
+    expect(nextButton().prop('disabled')).to.be.true;
+
+    // Fill in birthday, diagnosisDate, and diagnosisType
+    const birthdayInput = () => wrapper.find('input#birthday');
+    expect(birthdayInput()).to.have.lengthOf(1);
+    expect(birthdayInput().prop('value')).to.equal('');
+
+    birthdayInput().simulate('change', { persist: noop, target: { name: 'birthday', value: profile.patient.birthday } });
+    expect(birthdayInput().prop('value')).to.equal('Jan 1, 1990');
+
+    const diagnosisDateInput = () => wrapper.find('input#diagnosisDate');
+    expect(diagnosisDateInput()).to.have.lengthOf(1);
+    expect(diagnosisDateInput().prop('value')).to.equal('');
+
+    diagnosisDateInput().simulate('change', { persist: noop, target: { name: 'diagnosisDate', value: profile.patient.diagnosisDate } });
+    expect(diagnosisDateInput().prop('value')).to.equal('Feb 2, 1995');
+
+    const diagnosisTypeSelect = () => wrapper.find('select#diagnosisType');
+    expect(diagnosisTypeSelect()).to.have.lengthOf(1);
+    expect(diagnosisTypeSelect().prop('value')).to.equal('');
+
+    diagnosisTypeSelect().simulate('change', { persist: noop, target: { name: 'diagnosisType', value: profile.patient.diagnosisType } });
+    expect(diagnosisTypeSelect().prop('value')).to.equal('type1');
+
+    // Required fields all filled. Next button should now be enabled
+    expect(nextButton().prop('disabled')).to.be.false;
+
+    // Share anonymized data fields should also be present for caregiver profiles
+    const dataDonateCheckbox = () => wrapper.find('input#dataDonate');
+    expect(dataDonateCheckbox()).to.have.lengthOf(1);
+    expect(dataDonateCheckbox().prop('checked')).to.equal(false);
+    expect(dataDonateCheckbox().prop('disabled')).to.equal(false);
+
+    const dataDonateDestination = () => wrapper.find('MultiSelect input');
+    expect(dataDonateDestination()).to.have.lengthOf(1);
+    expect(dataDonateDestination().prop('value')).to.equal('');
+    expect(dataDonateDestination().prop('disabled')).to.equal(true);
+
+    // Check the donate checkbox to enable the donation destination multi-select
+    dataDonateCheckbox().simulate('change', { persist: noop, target: { name: 'dataDonate', checked: true, value: true } });
+    expect(dataDonateCheckbox().prop('checked')).to.equal(true);
+    expect(dataDonateDestination().prop('disabled')).to.equal(false);
+
+    // Set donate destinations
+    dataDonateDestination().simulate('change', { persist: noop, target: { name: 'dataDonateDestination', value: 'ADCES' } });
+    dataDonateDestination().simulate('keyDown', { keyCode: 40, key: 'Tab' }); // Tab away
+    dataDonateDestination().simulate('keyUp', { keyCode: 40, key: 'Tab' }); // Tab away
+
+    // Once options are chosen, data donate checkbox is disabled
+    expect(dataDonateCheckbox().prop('disabled')).to.equal(true);
+
+    // Submit the form
+    nextButton().simulate('click');
+
+    setTimeout(() => {
+      expect(defaultProps.api.patient.post.callCount).to.equal(1);
+
+      sinon.assert.calledWith(
+        defaultProps.api.patient.post,
+        { profile: {
+          ...profile,
+          patient: {
+            ...profile.patient,
+            birthday: '1990-01-01',
+            diagnosisDate: '1995-02-02',
+          },
+        } },
+      );
+
+      sinon.assert.calledWith(
+        defaultProps.api.invitation.send,
+        'bigdata@tidepool.org',
+      );
+
+      sinon.assert.calledWith(
+        defaultProps.api.invitation.send,
+        'bigdata+ADCES@tidepool.org',
+      );
+
+      done();
     });
+  });
 
-    it('should be a function', () => {
-      assert.isFunction(mapStateToProps);
+  it('should allow creating a caregiver patient account profile', done => {
+    const profile = {
+      fullName: 'Jimmy Caregiver',
+      patient: {
+        fullName: 'Johnny Patient',
+        birthday: 'Jan 1, 1990',
+        diagnosisDate: 'Feb 2, 1995',
+        diagnosisType: 'type1',
+        isOtherPerson: true,
+      },
+    };
+
+    // Next button is initially disabled
+    const nextButton = () => wrapper.find('button#submit');
+    expect(nextButton()).to.have.lengthOf(1);
+    expect(nextButton().prop('disabled')).to.be.true;
+
+    // Add name for account profile
+    const firstNameInput = () => wrapper.find('input#firstName');
+    expect(firstNameInput()).to.have.lengthOf(1);
+    expect(firstNameInput().prop('value')).to.equal('');
+
+    firstNameInput().simulate('change', { persist: noop, target: { name: 'firstName', value: profile.fullName.split(' ')[0] } });
+    expect(firstNameInput().prop('value')).to.equal('Jimmy');
+
+    const lastNameInput = () => wrapper.find('input#lastName');
+    expect(lastNameInput()).to.have.lengthOf(1);
+    expect(lastNameInput().prop('value')).to.equal('');
+
+    lastNameInput().simulate('change', { persist: noop, target: { name: 'lastName', value: profile.fullName.split(' ')[1] } });
+    expect(lastNameInput().prop('value')).to.equal('Caregiver');
+
+    // Next button still disabled until we choose accountType and patient first/last names
+    expect(nextButton().prop('disabled')).to.be.true;
+
+    const personalAccountTypeInput = () => wrapper.find('input#accountType-1');
+    expect(personalAccountTypeInput()).to.have.lengthOf(1);
+    expect(personalAccountTypeInput().prop('checked')).to.be.false;
+
+    personalAccountTypeInput().simulate('change', { persist: noop, target: { name: 'accountType', value: 'caregiver' } });
+    expect(personalAccountTypeInput().prop('value')).to.equal('caregiver');
+
+    // Add name for patient profile
+    const patientFirstNameInput = () => wrapper.find('input#patientFirstName');
+    expect(patientFirstNameInput()).to.have.lengthOf(1);
+    expect(patientFirstNameInput().prop('value')).to.equal('');
+
+    patientFirstNameInput().simulate('change', { persist: noop, target: { name: 'patientFirstName', value: profile.patient.fullName.split(' ')[0] } });
+    expect(patientFirstNameInput().prop('value')).to.equal('Johnny');
+
+    const patientLastNameInput = () => wrapper.find('input#patientLastName');
+    expect(patientLastNameInput()).to.have.lengthOf(1);
+    expect(patientLastNameInput().prop('value')).to.equal('');
+
+    patientLastNameInput().simulate('change', { persist: noop, target: { name: 'patientLastName', value: profile.patient.fullName.split(' ')[1] } });
+    expect(patientLastNameInput().prop('value')).to.equal('Patient');
+
+    // Next button should now be enabled
+    expect(nextButton().prop('disabled')).to.be.false;
+
+    // Proceed to step 2 of flowFrom:
+    nextButton().simulate('click');
+
+    // Should be a back button, and a disabled 'Next' button
+    const backButton = wrapper.find('button#back');
+    expect(backButton).to.have.lengthOf(1);
+    expect(nextButton().prop('disabled')).to.be.true;
+
+    // Fill in birthday, diagnosisDate, and diagnosisType
+    const birthdayInput = () => wrapper.find('input#birthday');
+    expect(birthdayInput()).to.have.lengthOf(1);
+    expect(birthdayInput().prop('value')).to.equal('');
+
+    birthdayInput().simulate('change', { persist: noop, target: { name: 'birthday', value: profile.patient.birthday } });
+    expect(birthdayInput().prop('value')).to.equal('Jan 1, 1990');
+
+    const diagnosisDateInput = () => wrapper.find('input#diagnosisDate');
+    expect(diagnosisDateInput()).to.have.lengthOf(1);
+    expect(diagnosisDateInput().prop('value')).to.equal('');
+
+    diagnosisDateInput().simulate('change', { persist: noop, target: { name: 'diagnosisDate', value: profile.patient.diagnosisDate } });
+    expect(diagnosisDateInput().prop('value')).to.equal('Feb 2, 1995');
+
+    const diagnosisTypeSelect = () => wrapper.find('select#diagnosisType');
+    expect(diagnosisTypeSelect()).to.have.lengthOf(1);
+    expect(diagnosisTypeSelect().prop('value')).to.equal('');
+
+    diagnosisTypeSelect().simulate('change', { persist: noop, target: { name: 'diagnosisType', value: profile.patient.diagnosisType } });
+    expect(diagnosisTypeSelect().prop('value')).to.equal('type1');
+
+    // Required fields all filled. Next button should now be enabled
+    expect(nextButton().prop('disabled')).to.be.false;
+
+    // // Share anonymized data
+    const dataDonateCheckbox = () => wrapper.find('input#dataDonate');
+    expect(dataDonateCheckbox()).to.have.lengthOf(1);
+    expect(dataDonateCheckbox().prop('checked')).to.equal(false);
+    expect(dataDonateCheckbox().prop('disabled')).to.equal(false);
+
+    const dataDonateDestination = () => wrapper.find('MultiSelect input').hostNodes();
+    expect(dataDonateDestination()).to.have.lengthOf(1);
+    expect(dataDonateDestination().prop('value')).to.equal('');
+    expect(dataDonateDestination().prop('disabled')).to.equal(true);
+
+    // Check the donate checkbox to enable the donation destination multi-select
+    dataDonateCheckbox().simulate('change', { persist: noop, target: { name: 'dataDonate', checked: true, value: true } });
+    expect(dataDonateCheckbox().prop('checked')).to.equal(true);
+    expect(dataDonateDestination().prop('disabled')).to.equal(false);
+
+    // Set donate destinations
+    dataDonateDestination().simulate('change', { persist: noop, target: { name: 'dataDonateDestination', value: 'ADCES' } });
+    dataDonateDestination().simulate('keyDown', { keyCode: 40, key: 'Tab' }); // Tab away
+    dataDonateDestination().simulate('keyUp', { keyCode: 40, key: 'Tab' }); // Tab away
+
+    // Once options are chosen, data donate checkbox is disabled
+    expect(dataDonateCheckbox().prop('disabled')).to.equal(true);
+
+    // Submit the form
+    nextButton().simulate('click');
+
+    setTimeout(() => {
+      expect(defaultProps.api.patient.post.callCount).to.equal(1);
+
+      sinon.assert.calledWith(
+        defaultProps.api.patient.post,
+        { profile: {
+          ...profile,
+          patient: {
+            ...profile.patient,
+            birthday: '1990-01-01',
+            diagnosisDate: '1995-02-02',
+          },
+        } },
+      );
+
+      sinon.assert.calledWith(
+        defaultProps.api.invitation.send,
+        'bigdata@tidepool.org',
+      );
+
+      sinon.assert.calledWith(
+        defaultProps.api.invitation.send,
+        'bigdata+ADCES@tidepool.org',
+      );
+
+      done();
     });
+  });
 
-    it('should map allUsersMap.a1b2c3 to user', () => {
-      expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
-    });
+  it('should allow creating a view-only account profile', done => {
+    const profile = {
+      fullName: 'Kathy Viewonly',
+      patient: {},
+    };
 
-    it('should map working.fetchingUser.inProgress to fetchingUser', () => {
-      expect(result.fetchingUser).to.equal(state.working.fetchingUser.inProgress);
-    });
+    // Next button is initially disabled
+    const nextButton = () => wrapper.find('button#submit');
+    expect(nextButton()).to.have.lengthOf(1);
+    expect(nextButton().prop('disabled')).to.be.true;
 
-    it('should map working.settingUpDataStorage.inProgress to working', () => {
-      expect(result.working).to.equal(state.working.settingUpDataStorage.inProgress);
+    // Add name for account profile
+    const firstNameInput = () => wrapper.find('input#firstName');
+    expect(firstNameInput()).to.have.lengthOf(1);
+    expect(firstNameInput().prop('value')).to.equal('');
+
+    firstNameInput().simulate('change', { persist: noop, target: { name: 'firstName', value: profile.fullName.split(' ')[0] } });
+    expect(firstNameInput().prop('value')).to.equal('Kathy');
+
+    const lastNameInput = () => wrapper.find('input#lastName');
+    expect(lastNameInput()).to.have.lengthOf(1);
+    expect(lastNameInput().prop('value')).to.equal('');
+
+    lastNameInput().simulate('change', { persist: noop, target: { name: 'lastName', value: profile.fullName.split(' ')[1] } });
+    expect(lastNameInput().prop('value')).to.equal('Viewonly');
+
+    // Next button still disabled until we choose accountType and patient first/last names
+    expect(nextButton().prop('disabled')).to.be.true;
+
+    const personalAccountTypeInput = () => wrapper.find('input#accountType-2');
+    expect(personalAccountTypeInput()).to.have.lengthOf(1);
+    expect(personalAccountTypeInput().prop('checked')).to.be.false;
+
+    personalAccountTypeInput().simulate('change', { persist: noop, target: { name: 'accountType', value: 'viewOnly' } });
+    expect(personalAccountTypeInput().prop('value')).to.equal('viewOnly');
+
+    // Next button should now be enabled
+    expect(nextButton().prop('disabled')).to.be.false;
+
+    // Submit the form
+    nextButton().simulate('click');
+
+    setTimeout(() => {
+      expect(defaultProps.api.user.put.callCount).to.equal(1);
+
+      sinon.assert.calledWith(
+        defaultProps.api.user.put,
+        { preferences: {}, profile: { fullName: 'Kathy Viewonly' }, userid: 'a1b2c3' },
+      );
+
+      done();
     });
   });
 });

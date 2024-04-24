@@ -101,12 +101,6 @@ describe('ClinicInvite', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       loggedInUserId: 'clinicianUserId123',
@@ -215,7 +209,7 @@ describe('ClinicInvite', () => {
       expect(wrapper.find(Checkbox).at(0).props().checked).to.be.false;
       wrapper
         .find('input[type="checkbox"]')
-        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', checked: true, value: true } });
 
       expect(wrapper.find(Checkbox).at(0).props().checked).to.be.true;
     });
@@ -259,7 +253,7 @@ describe('ClinicInvite', () => {
 
       wrapper
         .find('input[type="checkbox"]')
-        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: noop, target: { name: 'prescriberPermission', checked: true, value: true } });
 
       wrapper.find('Button#submit').simulate('submit');
       setTimeout(() => {

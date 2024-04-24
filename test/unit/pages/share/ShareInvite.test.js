@@ -115,12 +115,6 @@ describe('ShareInvite', () => {
             address: '2 Address Ln, City Zip',
             name: 'other_clinic_name',
             email: 'other_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 444-4444',
-                type: 'Office',
-              },
-            ],
           },
           clinicIDAmMember: {
             clinicians:{},
@@ -135,12 +129,6 @@ describe('ShareInvite', () => {
             address: '1 Address Ln, City Zip',
             name: 'new_clinic_name',
             email: 'new_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 555-5555',
-                type: 'Office',
-              },
-            ],
           },
         },
         membersOfTargetCareTeam: [
@@ -249,7 +237,7 @@ describe('ShareInvite', () => {
       const permissionsCheckbox = wrapper.find('input#uploadPermission[type="checkbox"]');
       expect(permissionsCheckbox).to.have.length(1);
       permissionsCheckbox.simulate('change', {
-        target: { id: 'uploadPermission', value: true },
+        target: { id: 'uploadPermission', checked: true, value: true },
       });
 
       const expectedActions = [
@@ -366,12 +354,6 @@ describe('ShareInvite', () => {
             address: '2 Address Ln, City Zip',
             name: 'other_clinic_name',
             email: 'other_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 444-4444',
-                type: 'Office',
-              },
-            ],
           },
           clinicIDNotMemberButPending: {
             clinicians:{},
@@ -381,12 +363,6 @@ describe('ShareInvite', () => {
             address: '2 Address Ln, City Zip',
             name: 'other_clinic_name',
             email: 'other_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 444-4444',
-                type: 'Office',
-              },
-            ],
           },
           clinicIDAmMember: {
             clinicians:{},
@@ -402,12 +378,6 @@ describe('ShareInvite', () => {
             address: '1 Address Ln, City Zip',
             name: 'new_clinic_name',
             email: 'new_clinic_email_address@example.com',
-            phoneNumbers: [
-              {
-                number: '(888) 555-5555',
-                type: 'Office',
-              },
-            ],
           },
         },
         membersOfTargetCareTeam: [
@@ -562,7 +532,7 @@ describe('ShareInvite', () => {
 
         // enable upload permission
         permissionsCheckbox().at(0).simulate('change', {
-          target: { id: 'uploadPermission', value: true },
+          target: { id: 'uploadPermission', checked: true, value: true },
         });
 
         expectedActions = [

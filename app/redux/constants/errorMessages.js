@@ -102,6 +102,7 @@ export const ERR_UPDATING_CLINIC_PATIENT = t('Something went wrong while updatin
 export const ERR_UPDATING_CLINIC_PATIENT_UNAUTHORIZED = t('Something went wrong with your account authorization. Please check with your administrator to verify your level of access.');
 export const ERR_CREATING_CUSTODIAL_ACCOUNT = t('Something went wrong while creating patient account.');
 export const ERR_CREATING_CUSTODIAL_ACCOUNT_UNAUTHORIZED = t('Something went wrong with your account authorization. Please check with your administrator to verify your level of access.');
+export const ERR_CREATING_CUSTODIAL_ACCOUNT_LIMIT_REACHED = t('Can\'t add a new patient: Your workspace has reached the maximum number of patient accounts supported by our Base Plan.');
 export const ERR_SENDING_CLINICIAN_INVITE = t('Something went wrong while sending clinician invite.');
 export const ERR_SENDING_CLINICIAN_INVITE_UNAUTHORIZED = t('Something went wrong with your account authorization. Please check with your administrator to verify your level of access.');
 export const ERR_SENDING_CLINICIAN_INVITE_ALREADY_MEMBER = t('This clinician is already a member of the clinic.');
@@ -133,6 +134,8 @@ export const ERR_UPDATING_CLINIC_PATIENT_TAG_DUPLICATE = t('Sorry, you already h
 export const ERR_DELETING_CLINIC_PATIENT_TAG = t('Something went wrong while deleting the patient tag.');
 export const ERR_FETCHING_INFO = t('Something went wrong while fetching server configuration.');
 export const ERR_FETCHING_TIDE_DASHBOARD_PATIENTS = t('Something went wrong while fetching patients for the dashboard.');
+export const ERR_FETCHING_CLINIC_PATIENT_COUNT = t('Something went wrong while fetching the clinic patient count.');
+export const ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS = t('Something went wrong while fetching the clinic patient count settings.');
 
 export const ERR_BIRTHDAY_INVALID = t('Birthday is invalid.');
 export const ERR_BIRTHDAY_MISSING = t('Birthday is required.');

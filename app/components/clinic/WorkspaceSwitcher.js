@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { withTranslation } from 'react-i18next';
 import get from 'lodash/get';
@@ -26,7 +27,7 @@ import Popover from '../elements/Popover';
 import { colors } from '../../themes/baseTheme';
 
 export const WorkspaceSwitcher = props => {
-  const { t, trackMetric } = props;
+  const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
@@ -34,6 +35,7 @@ export const WorkspaceSwitcher = props => {
   const membershipInOtherCareTeams = useSelector((state) => state.blip.membershipInOtherCareTeams);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const hasPatientProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'patient'], false);
+  const { pathname } = useLocation();
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -43,11 +45,11 @@ export const WorkspaceSwitcher = props => {
 
   const [menuOptions, setMenuOptions] = useState([])
   const [selectedClinic, setSelectedClinic] = useState(menuOptions[0]);
+  const selected = find(menuOptions, {id: selectedClinicId});
 
   useEffect(() => {
-    const selected = find(menuOptions, {id: selectedClinicId});
     if (selected) setSelectedClinic(selected);
-  }, [menuOptions.length, selectedClinicId]);
+  }, [menuOptions.length, selectedClinicId, selected]);
 
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
@@ -59,7 +61,7 @@ export const WorkspaceSwitcher = props => {
         metric: ['Clinic - Workspace Switcher - Go to private workspace'],
       };
 
-      const hidePrivateWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
+      const hidePrivateWorkspaceOption = pathname !== '/patients' && (!hasPatientProfile && !membershipInOtherCareTeams.length);
 
       const options = [
         ...map(sortBy(userClinics, clinic => clinic.name.toLowerCase()), clinic => ({
@@ -73,11 +75,11 @@ export const WorkspaceSwitcher = props => {
 
       setMenuOptions(options);
     }
-  }, [clinics, membershipInOtherCareTeams, hasPatientProfile]);
+  }, [clinics, membershipInOtherCareTeams, hasPatientProfile, pathname]);
 
   const handleSelect = option => {
     trackMetric(...option.metric);
-    dispatch(actions.sync.selectClinic(option.id));
+    dispatch(actions.async.selectClinic(api, option.id));
     dispatch(push(option.id ? '/clinic-workspace' : '/patients', { selectedClinicId: option.id }));
     popupState.close();
   };

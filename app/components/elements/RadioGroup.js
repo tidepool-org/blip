@@ -9,6 +9,7 @@ import { Caption } from './FontStyles';
 import {
   default as baseTheme,
   colors,
+  fontWeights,
   transitions,
 } from '../../themes/baseTheme';
 
@@ -39,7 +40,7 @@ const StyledRadio = styled(Base)`
 const StyledRadioLabel = styled(Text)`
   display: 'inline-block',
   margin-right: 2em;
-  margin-top: .15em;
+  margin-top: .05em;
 
   &.disabled {
     color: ${colors.text.primaryDisabled};
@@ -108,8 +109,16 @@ export function RadioGroup(props) {
       {...wrapperProps}
     >
       {label && (
-        <Label mb={2} id={labelId}>
-          <Caption className={inputClasses}>{label}</Caption>
+        <Label for={name} mb={2} id={labelId}>
+          <Caption
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1,
+            }}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
       <Flex

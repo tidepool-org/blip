@@ -22,6 +22,9 @@ export function Body1(props) {
 export function Body2(props) {
   return <Text as="p" variant="body2" {...props} />;
 }
+export function Paragraph0(props) {
+  return <Text as="p" variant="paragraph0" {...props} />;
+}
 export function Paragraph1(props) {
   return <Text as="p" variant="paragraph1" {...props} />;
 }

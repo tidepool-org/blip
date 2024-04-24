@@ -4956,7 +4956,7 @@ describe('PatientData', function () {
       expect(fetchPatientsResult[1]()).to.equal('fetchPatientData');
       expect(fetchPatientsResult[2]()).to.equal('fetchPatientFromClinic');
       expect(dispatchProps.selectClinic.callCount).to.equal(1);
-      expect(dispatchProps.selectClinic.calledWith('clinic1234')).to.be.true;
+      expect(dispatchProps.selectClinic.calledWith(undefined, 'clinic1234')).to.be.true;
     });
 
     it('should fetch patients from clinics if a clinician is viewing a patient with a different selected clinic', () => {

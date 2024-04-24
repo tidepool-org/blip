@@ -433,7 +433,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,
   onHideWelcomeSetup: actions.sync.hideWelcomeMessage,
-  selectClinic: actions.sync.selectClinic,
+  selectClinic: actions.async.selectClinic,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -445,7 +445,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       'clearPatientInView',
       'showWelcomeMessage',
       'onHideWelcomeSetup',
-      'selectClinic',
     ]),
     stateProps,
     {
@@ -455,6 +454,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
       onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
       onRemovePatient: dispatchProps.removeMembershipInOtherCareTeam.bind(null, api),
+      selectClinic: dispatchProps.selectClinic.bind(null, api),
       trackMetric: ownProps.trackMetric,
       history: ownProps.history,
       api,

@@ -2176,7 +2176,7 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     !stateProps.fetchingPatientFromClinic.inProgress
   ) {
     if (clinicToSelect) {
-      dispatchProps.selectClinic(clinicToSelect);
+      dispatchProps.selectClinic(api, clinicToSelect);
     } else {
       _.forEach(stateProps.clinics, (clinic, clinicId) => {
         fetchers.push(
@@ -2300,7 +2300,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
   generateAGPImagesSuccess: actions.sync.generateAGPImagesSuccess,
   generateAGPImagesFailure: actions.sync.generateAGPImagesFailure,
-  selectClinic: actions.sync.selectClinic,
+  selectClinic: actions.async.selectClinic,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
@@ -2318,7 +2318,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     'removeGeneratedPDFS',
     'generateAGPImagesSuccess',
     'generateAGPImagesFailure',
-    'selectClinic',
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
@@ -2336,6 +2335,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     currentPatientInViewId: ownProps.match.params.id,
     updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
     onFetchEarlierData: dispatchProps.fetchPatientData.bind(null, api),
+    selectClinic: dispatchProps.selectClinic.bind(null, api),
     carelink: carelink,
     dexcom: dexcom,
     medtronic: medtronic,

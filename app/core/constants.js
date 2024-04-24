@@ -26,6 +26,8 @@ export const URL_PRIVACY_POLICY = 'https://tidepool.org/privacy-policy';
 export const URL_BIG_DATA_DONATION_INFO = 'https://tidepool.org/blog/announcing-the-tidepool-big-data-donation-project';
 export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepool-uploader/';
 export const URL_SHARE_DATA_INFO = 'https://support.tidepool.org/hc/en-us/articles/360029684951-Share-your-Data';
+export const URL_TIDEPOOL_PLUS_PLANS = 'https://tidepool.org/providers/tidepoolplus/plans';
+export const URL_TIDEPOOL_PLUS_CONTACT_SALES = 'https://app.cronofy.com/add_to_calendar/scheduling/-hq0nDA6';
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 
@@ -98,3 +100,7 @@ export const DEFAULT_FILTER_THRESHOLDS = {
   cgmUse: ['<', 70],
   timeInTargetPercentDelta: ['>', 15, 1],
 };
+
+export const DEFAULT_CLINIC_TIER = 'tier0100';
+export const DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT = 250;
+export const CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD = 40;

@@ -29,15 +29,19 @@ describe('WorkspaceSwitcher', () => {
       clinics: {
         getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
         getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
+        getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 3 }),
+        getClinicPatientCountSettings: sinon.stub().callsArgWith(1, null, 'success'),
       },
     },
   };
 
   before(() => {
+    WorkspaceSwitcher.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
     mount = createMount();
   });
 
   after(() => {
+    WorkspaceSwitcher.__ResetDependency__('useLocation');
     mount.cleanUp();
   });
 
@@ -107,12 +111,6 @@ describe('WorkspaceSwitcher', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       pendingSentInvites: [],
@@ -137,12 +135,6 @@ describe('WorkspaceSwitcher', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
         clinicID123: {
           id: 'clinicID123',
@@ -220,7 +212,7 @@ describe('WorkspaceSwitcher', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null, // null is appropriate for switch to private workspace
           },
@@ -240,9 +232,29 @@ describe('WorkspaceSwitcher', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
+          },
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST'
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST'
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCount: 3,
+          }
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCountSettings: 'success',
           },
         },
         {

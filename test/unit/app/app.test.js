@@ -189,6 +189,33 @@ describe('App', () => {
     });
   });
 
+  describe('renderPatientLimitBanner', () => {
+    let props = _.assign({}, baseProps, {
+      showingPatientLimitBanner: null,
+      showBanner: sinon.stub(),
+      hideBanner: sinon.stub(),
+      dismissBanner: sinon.stub(),
+      t: sinon.stub().callsFake((string) => string),
+      user: {},
+    });
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = shallow(<App {...props} />);
+    });
+
+    it('should render the banner or not based on the `showingPatientLimitBanner` prop value', () => {
+      wrapper.setProps({ showingPatientLimitBanner: true });
+      expect(wrapper.find('#patientLimitBanner').length).to.equal(1);
+
+      wrapper.setProps({ showingPatientLimitBanner: null });
+      expect(wrapper.find('#patientLimitBanner').length).to.equal(0);
+
+      wrapper.setProps({ showingPatientLimitBanner: false });
+      expect(wrapper.find('#patientLimitBanner').length).to.equal(0);
+    });
+  });
+
   describe('renderUploaderBanner', () => {
     let props = _.assign({}, baseProps, {
       showingUploaderBanner: null,
@@ -554,6 +581,57 @@ describe('App', () => {
         });
 
         sinon.assert.neverCalledWithMatch(props.showBanner, 'donate');
+      });
+    });
+
+    context('enforced clinic patient limit has been reached', () => {
+      it('should show the patientLimit banner, but only if user is on a clinic workspace view', () => {
+        wrapper.setProps({
+          clinics: {
+            clinicId123: {
+              patientLimitEnforced: true,
+              ui: { warnings: { limitReached: 'yep' } }
+            },
+          },
+          location: '/patients/1234/data',
+          selectedClinicId: 'clinicId123',
+          showingPatientLimitBanner: null,
+          t: sinon.stub().callsFake((string) => string),
+        });
+
+        sinon.assert.callCount(props.showBanner, 0);
+        expect(wrapper.find('#patientLimitBanner')).to.have.lengthOf(0);
+
+        wrapper.setProps({ location: '/clinic-workspace/patients' })
+        sinon.assert.calledWith(props.showBanner, 'patientLimit');
+        wrapper.setProps({ ...wrapper.props, showingPatientLimitBanner: true });
+
+        sinon.assert.callCount(props.context.trackMetric, 1);
+        sinon.assert.calledWith(props.context.trackMetric, 'Patient limit banner: displayed');
+        expect(wrapper.find('#patientLimitBanner')).to.have.lengthOf(1);
+      });
+
+      it('should not show the donate banner if user has dismissed it', () => {
+        wrapper.setProps({
+          clinics: {
+            clinicId123: {
+              patientLimitEnforced: true,
+              ui: { warnings: { limitReached: 'yep' } }
+            },
+          },
+          location: '/clinic-workspace/patients',
+          selectedClinicId: 'clinicId123',
+          showingPatientLimitBanner: null,
+        });
+
+        sinon.assert.calledWith(props.showBanner, 'patientLimit');
+        props.showBanner.reset();
+
+        wrapper.setProps({
+          showingPatientLimitBanner: false,
+        });
+
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'patientLimit');
       });
     });
 

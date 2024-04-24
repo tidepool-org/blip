@@ -102,6 +102,7 @@ describe('ClinicDetails', () => {
       },
       clinics: {
         clinicID456: {
+          id: 'clinicID456',
           name: 'Clinic 1',
           canMigrate: false,
           clinicians: {
@@ -160,7 +161,7 @@ describe('ClinicDetails', () => {
           roles: ['clinic'],
           userid: 'clinicianUserId123',
           username: 'clinic@example.com',
-          profile: { fullName: 'Clinician One', clinic: { npi: '1234567890', role: 'front_desk' } },
+          profile: { fullName: 'Clinician One', clinic: { role: 'front_desk' } },
         },
       },
       clinics: {
@@ -217,16 +218,17 @@ describe('ClinicDetails', () => {
 
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
-    wrapper = createWrapper();
   });
 
   afterEach(() => {
-    defaultProps.api.clinics.triggerInitialClinicMigration.resetHistory();
     defaultProps.api.clinics.getClinicianInvites.resetHistory();
     defaultProps.api.clinics.getClinicsForClinician.resetHistory();
     defaultProps.api.clinics.dismissClinicianInvite.resetHistory();
     defaultProps.api.clinics.update.resetHistory();
     defaultProps.api.clinics.create.resetHistory();
+    defaultProps.api.clinics.triggerInitialClinicMigration.resetHistory();
+    defaultProps.api.clinics.getEHRSettings.resetHistory();
+    defaultProps.api.clinics.getMRNSettings.resetHistory();
     defaultProps.api.user.put.resetHistory();
   });
 
@@ -253,8 +255,8 @@ describe('ClinicDetails', () => {
     it('should render the appropriate form sections for the "/migrate" route', () => {
       wrapper = createWrapper('migrate', mockStore(defaultState));
 
-      const clinicianFormHeader = wrapper.find('#clinician-form-header').hostNodes();
-      const clinicianFormInfo = wrapper.find('#clinician-form-info').hostNodes();
+      const clinicianFormHeader = wrapper.find('.container-title').hostNodes();
+      const clinicianFormInfo = wrapper.find('.container-subtitle').hostNodes();
       const clinicInviteDetails = wrapper.find('#clinic-invite-details').hostNodes();
       const clinicianProfileForm = wrapper.find('#clinician-profile-form').hostNodes();
       const clinicProfileForm = wrapper.find('#clinic-profile-form').hostNodes();
@@ -269,8 +271,8 @@ describe('ClinicDetails', () => {
     it('should render the appropriate form sections for the "/profile" route', () => {
       wrapper = createWrapper('profile', mockStore(defaultState));
 
-      const clinicianFormHeader = wrapper.find('#clinician-form-header').hostNodes();
-      const clinicianFormInfo = wrapper.find('#clinician-form-info').hostNodes();
+      const clinicianFormHeader = wrapper.find('.container-title').hostNodes();
+      const clinicianFormInfo = wrapper.find('.container-subtitle').hostNodes();
       const clinicInviteDetails = wrapper.find('#clinic-invite-details').hostNodes();
       const clinicianProfileForm = wrapper.find('#clinician-profile-form').hostNodes();
       const clinicProfileForm = wrapper.find('#clinic-profile-form').hostNodes();
@@ -285,8 +287,8 @@ describe('ClinicDetails', () => {
     it('should render the appropriate form sections for the "/profile" route with clinic invite present', () => {
       wrapper = createWrapper('profile', mockStore(newClinicianUserInviteState));
 
-      const clinicianFormHeader = wrapper.find('#clinician-form-header').hostNodes();
-      const clinicianFormInfo = wrapper.find('#clinician-form-info').hostNodes();
+      const clinicianFormHeader = wrapper.find('.container-title').hostNodes();
+      const clinicianFormInfo = wrapper.find('.container-subtitle').hostNodes();
       const clinicInviteDetails = wrapper.find('#clinic-invite-details').hostNodes();
       const clinicianProfileForm = wrapper.find('#clinician-profile-form').hostNodes();
       const clinicProfileForm = wrapper.find('#clinic-profile-form').hostNodes();
@@ -301,13 +303,13 @@ describe('ClinicDetails', () => {
     it('should render the appropriate form sections for the "/new" route', () => {
       wrapper = createWrapper('new', mockStore(defaultState));
 
-      const clinicianFormHeader = wrapper.find('#clinician-form-header').hostNodes();
-      const clinicianFormInfo = wrapper.find('#clinician-form-info').hostNodes();
+      const clinicianFormHeader = wrapper.find('.container-title').hostNodes();
+      const clinicianFormInfo = wrapper.find('.container-subtitle').hostNodes();
       const clinicInviteDetails = wrapper.find('#clinic-invite-details').hostNodes();
       const clinicianProfileForm = wrapper.find('#clinician-profile-form').hostNodes();
       const clinicProfileForm = wrapper.find('#clinic-profile-form').hostNodes();
 
-      expect(clinicianFormHeader).to.have.lengthOf(0);
+      expect(clinicianFormHeader).to.have.lengthOf(1);
       expect(clinicianFormInfo).to.have.lengthOf(0);
       expect(clinicInviteDetails).to.have.lengthOf(0);
       expect(clinicianProfileForm).to.have.lengthOf(0);
@@ -322,20 +324,20 @@ describe('ClinicDetails', () => {
       });
 
       it('should present a simplified form for updating profile information', done => {
-        const profileForm = wrapper.find('form#clinic-profile');
+        const profileForm = wrapper.find('div#clinic-profile');
         expect(profileForm).to.have.lengthOf(1);
 
-        wrapper.find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Bill Bryerson' } });
-        expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('Bill Bryerson');
+        wrapper.find('input[name="firstName"]').simulate('change', { persist: noop, target: { name: 'firstName', value: 'Bill' } });
+        expect(wrapper.find('input[name="firstName"]').prop('value')).to.equal('Bill');
+
+        wrapper.find('input[name="lastName"]').simulate('change', { persist: noop, target: { name: 'lastName', value: 'Bryerson' } });
+        expect(wrapper.find('input[name="lastName"]').prop('value')).to.equal('Bryerson');
 
         wrapper.find('select[name="role"]').simulate('change', { persist: noop, target: { name: 'role', value: 'endocrinologist' } });
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('endocrinologist');
 
-        wrapper.find('input[name="npi"]').simulate('change', { persist: noop, target: { name: 'npi', value: '1234567890' } });
-        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('1234567890');
-
         store.clearActions();
-        wrapper.find('Button#submit').simulate('submit');
+        wrapper.find('Button#submit').simulate('click');
 
         setTimeout(() => {
           expect(defaultProps.api.user.put.callCount).to.equal(1);
@@ -345,7 +347,7 @@ describe('ClinicDetails', () => {
             {
               preferences: {  },
               profile: {
-                clinic: { npi: '1234567890', role: 'endocrinologist' },
+                clinic: { role: 'endocrinologist' },
                 fullName: 'Bill Bryerson'
               },
               roles: ['clinician'],
@@ -367,7 +369,6 @@ describe('ClinicDetails', () => {
                     fullName: 'Bill Bryerson',
                     clinic: {
                       role: 'endocrinologist',
-                      npi: '1234567890',
                     },
                   },
                   preferences: {},
@@ -381,6 +382,12 @@ describe('ClinicDetails', () => {
                 updatedUser: { updateUserReturn: 'success' },
               },
             },
+            {
+              type: '@@router/CALL_HISTORY_METHOD',
+              payload: {
+                method: 'push', args: ['/workspaces', { selectedClinicId: null }],
+              }
+            }
           ]);
 
           done();
@@ -394,23 +401,20 @@ describe('ClinicDetails', () => {
       });
 
       it('should present an expanded form for updating clinician and clinic profile information', done => {
-        const profileForm = wrapper.find('form#clinic-profile');
+        const profileForm = wrapper.find('div#clinic-profile');
         expect(profileForm).to.have.lengthOf(1);
 
-        wrapper.find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Bill Bryerson' } });
-        expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('Bill Bryerson');
+        wrapper.find('input[name="firstName"]').simulate('change', { persist: noop, target: { name: 'firstName', value: 'Bill' } });
+        expect(wrapper.find('input[name="firstName"]').prop('value')).to.equal('Bill');
+
+        wrapper.find('input[name="lastName"]').simulate('change', { persist: noop, target: { name: 'lastName', value: 'Bryerson' } });
+        expect(wrapper.find('input[name="lastName"]').prop('value')).to.equal('Bryerson');
 
         wrapper.find('select[name="role"]').simulate('change', { persist: noop, target: { name: 'role', value: 'endocrinologist' } });
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('endocrinologist');
 
-        wrapper.find('input[name="npi"]').simulate('change', { persist: noop, target: { name: 'npi', value: '1234567890' } });
-        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('1234567890');
-
         wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'My Clinic' } });
         expect(wrapper.find('input[name="name"]').prop('value')).to.equal('My Clinic');
-
-        wrapper.find('input[name="phoneNumbers.0.number"]').simulate('change', { persist: noop, target: { name: 'phoneNumbers.0.number', value: '(888) 555-6666' } });
-        expect(wrapper.find('input[name="phoneNumbers.0.number"]').prop('defaultValue')).to.equal('(888) 555-6666');
 
         wrapper.find('select[name="country"]').simulate('change', { persist: noop, target: { name: 'country', value: 'US' } });
         expect(wrapper.find('select[name="country"]').prop('value')).to.equal('US');
@@ -430,20 +434,17 @@ describe('ClinicDetails', () => {
         wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic.com' } });
         expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
 
-        wrapper.find('input[name="clinicType"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
-        expect(wrapper.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('healthcare_system');
-
-        wrapper.find('input[name="clinicSize"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicSize', value: '250-499' } });
-        expect(wrapper.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('250-499');
+        wrapper.find('select[name="clinicType"]').simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
+        expect(wrapper.find('select[name="clinicType"]').prop('value')).to.equal('healthcare_system');
 
         wrapper.find('input[name="preferredBgUnits"]').at(1).simulate('change', { persist: noop, target: { name: 'preferredBgUnits', value: 'mmol/L' } });
         expect(wrapper.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mmol/L');
 
-        wrapper.find('input[name="adminAcknowledge"]').simulate('change', { persist: noop, target: { name: 'adminAcknowledge', value: true } });
-        expect(wrapper.find('input[name="adminAcknowledge"]').prop('value')).to.be.true;
+        wrapper.find('input[name="adminAcknowledge"]').simulate('change', { persist: noop, target: { name: 'adminAcknowledge', checked: true, value: true } });
+        expect(wrapper.find('input[name="adminAcknowledge"]').prop('checked')).to.be.true;
 
         store.clearActions();
-        wrapper.find('Button#submit').simulate('submit');
+        wrapper.find('Button#submit').simulate('click');
 
         setTimeout(() => {
           expect(defaultProps.api.user.put.callCount).to.equal(1);
@@ -453,7 +454,7 @@ describe('ClinicDetails', () => {
             {
               preferences: {  },
               profile: {
-                clinic: { npi: '1234567890', role: 'endocrinologist' },
+                clinic: { role: 'endocrinologist' },
                 fullName: 'Bill Bryerson'
               },
               roles: ['clinician'],
@@ -469,11 +470,9 @@ describe('ClinicDetails', () => {
             {
               address: '253 Mystreet Ave Apt. 34',
               city: 'Gotham',
-              clinicSize: '250-499',
               clinicType: 'healthcare_system',
               country: 'US',
               name: 'My Clinic',
-              phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
               postalCode: '90210',
               state: 'NJ',
               website: 'http://clinic.com',
@@ -495,7 +494,6 @@ describe('ClinicDetails', () => {
                     fullName: 'Bill Bryerson',
                     clinic: {
                       role: 'endocrinologist',
-                      npi: '1234567890',
                     },
                   },
                   preferences: {},
@@ -530,14 +528,11 @@ describe('ClinicDetails', () => {
       });
 
       it('should present an expanded form for adding new clinic profile information', done => {
-        const profileForm = wrapper.find('form#clinic-profile');
+        const profileForm = wrapper.find('div#clinic-profile');
         expect(profileForm).to.have.lengthOf(1);
 
         wrapper.find('input[name="name"]').simulate('change', { persist: noop, target: { name: 'name', value: 'My Clinic' } });
         expect(wrapper.find('input[name="name"]').prop('value')).to.equal('My Clinic');
-
-        wrapper.find('input[name="phoneNumbers.0.number"]').simulate('change', { persist: noop, target: { name: 'phoneNumbers.0.number', value: '(888) 555-6666' } });
-        expect(wrapper.find('input[name="phoneNumbers.0.number"]').prop('defaultValue')).to.equal('(888) 555-6666');
 
         wrapper.find('select[name="country"]').simulate('change', { persist: noop, target: { name: 'country', value: 'US' } });
         expect(wrapper.find('select[name="country"]').prop('value')).to.equal('US');
@@ -557,20 +552,17 @@ describe('ClinicDetails', () => {
         wrapper.find('input[name="website"]').simulate('change', { persist: noop, target: { name: 'website', value: 'http://clinic.com' } });
         expect(wrapper.find('input[name="website"]').prop('value')).to.equal('http://clinic.com');
 
-        wrapper.find('input[name="clinicType"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
-        expect(wrapper.find('input[name="clinicType"][checked=true]').prop('value')).to.equal('healthcare_system');
-
-        wrapper.find('input[name="clinicSize"]').at(1).simulate('change', { persist: noop, target: { name: 'clinicSize', value: '250-499' } });
-        expect(wrapper.find('input[name="clinicSize"][checked=true]').prop('value')).to.equal('250-499');
+        wrapper.find('select[name="clinicType"]').simulate('change', { persist: noop, target: { name: 'clinicType', value: 'healthcare_system' } });
+        expect(wrapper.find('select[name="clinicType"]').prop('value')).to.equal('healthcare_system');
 
         wrapper.find('input[name="preferredBgUnits"]').at(1).simulate('change', { persist: noop, target: { name: 'preferredBgUnits', value: 'mmol/L' } });
         expect(wrapper.find('input[name="preferredBgUnits"][checked=true]').prop('value')).to.equal('mmol/L');
 
-        wrapper.find('input[name="adminAcknowledge"]').simulate('change', { persist: noop, target: { name: 'adminAcknowledge', value: true } });
-        expect(wrapper.find('input[name="adminAcknowledge"]').prop('value')).to.be.true;
+        wrapper.find('input[name="adminAcknowledge"]').simulate('change', { persist: noop, target: { name: 'adminAcknowledge', checked: true, value: true } });
+        expect(wrapper.find('input[name="adminAcknowledge"]').prop('checked')).to.be.true;
 
         store.clearActions();
-        wrapper.find('Button#submit').simulate('submit');
+        wrapper.find('Button#submit').simulate('click');
 
         setTimeout(() => {
           sinon.assert.notCalled(defaultProps.api.user.put);
@@ -582,11 +574,9 @@ describe('ClinicDetails', () => {
             {
               address: '253 Mystreet Ave Apt. 34',
               city: 'Gotham',
-              clinicSize: '250-499',
               clinicType: 'healthcare_system',
               country: 'US',
               name: 'My Clinic',
-              phoneNumbers: [{ number: '(888) 555-6666', type: 'Office' }],
               postalCode: '90210',
               state: 'NJ',
               website: 'http://clinic.com',
@@ -596,13 +586,13 @@ describe('ClinicDetails', () => {
 
           const expectedActions = [
             { type: 'CREATE_CLINIC_REQUEST' },
-            { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic123' } },
             {
               type: 'CREATE_CLINIC_SUCCESS',
               payload: {
                 clinic: { id: 'newClinic123' },
               },
             },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic123' } },
             { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
             { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics: [ { clinic: { id: 'newClinic123' } } ], clinicianId: 'clinicianUserId123' } },
             { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
@@ -622,16 +612,16 @@ describe('ClinicDetails', () => {
     context('pre-populate clinic team member profile fields', () => {
       it('should not populate the team member profile fields if the clinic details have not been filled out', () => {
         wrapper = createWrapper('profile', mockStore(initialEmptyClinicState));
-        expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('');
+        expect(wrapper.find('input[name="firstName"]').prop('value')).to.equal('');
+        expect(wrapper.find('input[name="lastName"]').prop('value')).to.equal('');
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('');
-        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('');
       });
 
       it('should populate the team member profile fields if the clinic details have been filled out', () => {
         wrapper = createWrapper('migrate', mockStore(clinicCanMigrateState));
-        expect(wrapper.find('input[name="fullName"]').prop('value')).to.equal('Clinician One');
+        expect(wrapper.find('input[name="firstName"]').prop('value')).to.equal('Clinician');
+        expect(wrapper.find('input[name="lastName"]').prop('value')).to.equal('One');
         expect(wrapper.find('select[name="role"]').prop('value')).to.equal('front_desk');
-        expect(wrapper.find('input[name="npi"]').prop('value')).to.equal('1234567890');
       });
     });
 

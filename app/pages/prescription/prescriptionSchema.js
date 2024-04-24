@@ -68,11 +68,11 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       .required(t('Last name is required')),
     caregiverFirstName: yup.mixed().notRequired().when('accountType', {
       is: 'caregiver',
-      then: yup.string().required(t('First name is required')),
+      then: () => yup.string().required(t('First name is required')),
     }),
     caregiverLastName: yup.mixed().notRequired().when('accountType', {
       is: 'caregiver',
-      then: yup.string().required(t('Last name is required')),
+      then: () => yup.string().required(t('Last name is required')),
     }),
     birthday: yup.date()
       .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
@@ -103,19 +103,19 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         .oneOf(map(calculatorMethodOptions, 'value')),
       totalDailyDose: yup.mixed().notRequired().when('method', {
         is: method => includes(['totalDailyDose', 'totalDailyDoseAndWeight'], method),
-        then: yup.number()
+        then: () => yup.number()
           .min(0)
           .required(t('Total Daily Dose is required')),
       }),
       totalDailyDoseScaleFactor: yup.mixed().notRequired().when('method', {
         is: method => includes(['totalDailyDose', 'totalDailyDoseAndWeight'], method),
-        then: yup.number()
+        then: () => yup.number()
           .oneOf(map(totalDailyDoseScaleFactorOptions, 'value'))
           .required(),
       }),
       weight: yup.mixed().notRequired().when('method', {
         is: method => includes(['weight', 'totalDailyDoseAndWeight'], method),
-        then: yup.number()
+        then: () => yup.number()
           .min(0)
           .required(t('Weight is required')),
       }),
@@ -123,19 +123,19 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         .oneOf(map(weightUnitOptions, 'value')),
       recommendedBasalRate: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number()
+        then: () => yup.number()
           .min(0)
           .required(),
       }),
       recommendedInsulinSensitivity: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number()
+        then: () => yup.number()
           .min(0)
           .required(),
       }),
       recommendedCarbohydrateRatio: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number()
+        then: () => yup.number()
           .min(0)
           .required(),
       }),

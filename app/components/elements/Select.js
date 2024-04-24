@@ -6,7 +6,7 @@ import cx from 'classnames';
 import map from 'lodash/map';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 
-import { space } from '../../themes/baseTheme';
+import { fontWeights, space } from '../../themes/baseTheme';
 import { Caption } from './FontStyles';
 
 const StyledSelect = styled(Flex)`
@@ -64,7 +64,15 @@ export function Select(props) {
     <Box width={['100%', '75%', '50%']} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption sx={{ fontWeight: 'medium' }} className={inputClasses}>{label}</Caption>
+          <Caption
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1
+            }}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
       <StyledSelect sx={{ alignItems: 'center' }} className={classNames} variant={`inputs.select.${variant}`} {...selectProps}>

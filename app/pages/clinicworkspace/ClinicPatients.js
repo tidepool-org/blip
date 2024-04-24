@@ -22,7 +22,7 @@ import pick from 'lodash/pick';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import without from 'lodash/without';
-import { Box, Flex, Text } from 'theme-ui';
+import { Box, Flex, Link, Text } from 'theme-ui';
 import AddIcon from '@material-ui/icons/Add';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
@@ -52,7 +52,7 @@ import {
 import {
   MediumTitle,
   Body1,
-  Paragraph1,
+  Paragraph0,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
@@ -73,6 +73,7 @@ import Checkbox from '../../components/elements/Checkbox';
 import FilterIcon from '../../core/icons/FilterIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import utils from '../../core/utils';
+import LimitReached from './images/LimitReached.svg';
 
 import {
   Dialog,
@@ -94,8 +95,8 @@ import {
   maxClinicPatientTags
 } from '../../core/clinicUtils';
 
-import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
-import { borders, radii, colors, space } from '../../themes/baseTheme';
+import { MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
+import { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 
 const { Loader } = vizComponents;
@@ -464,8 +465,8 @@ export const ClinicPatients = (props) => {
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const { showSummaryDashboard, showTideDashboard } = useFlags();
-  let showSummaryData = showSummaryDashboard || (clinic?.tier >= 'tier0300');
-  const showTideDashboardUI = showSummaryData && showTideDashboard;
+  let showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
+  const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
 
   const defaultPatientFetchOptions = useMemo(
     () => ({
@@ -896,14 +897,6 @@ export const ClinicPatients = (props) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchingPatientFromClinic, selectedPatient?.id]);
 
-  const renderInfoPopover = () => (
-    <Box px={4} py={3} sx={{ maxWidth: '600px' }}>
-      <Trans id="summary-stat-info" i18nKey="html.summary-stat-info">
-        <Paragraph1><strong>Warning:</strong> % CGM Use, GMI, and % Time in Range may not match the patient profile if older data is added after the summary statistics have already been calculated.</Paragraph1>
-      </Trans>
-    </Box>
-  );
-
   const handleRefreshPatients = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
     let fetchOptions = { ...patientFetchOptions };
@@ -1135,20 +1128,65 @@ export const ClinicPatients = (props) => {
               flexWrap: 'wrap',
             }}
           >
-            <Button
-              id="add-patient"
-              variant="primary"
-              onClick={handleAddPatient}
-              px={[2, 3]}
-              sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
+            <PopoverElement
+              id="limitReachedPopover"
+              triggerOnHover
+              keepOpenOnBlur
+              disabled={!(clinic?.patientLimitEnforced && !!clinic?.ui?.warnings?.limitReached)}
+              popoverProps={{
+                padding: `${space[3]}px`,
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                },
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+                borderRadius: radii.input,
+              }}
+              popoverContent={(
+                <>
+                  <img alt={t('Patient Limit Reached')} src={LimitReached} />
+                  <Box mt={3} sx={{ width: '213px' }}>
+                    <Paragraph0 sx={{ fontWeight: 'bold' }}>{t('Your workspace has reached the maximum number of patient accounts supported by our Base Plan.')}</Paragraph0>
+                    <Paragraph0>
+                      {t('Please reach out to your administrator and')}&nbsp;
+                      <Link
+                        id="addPatientUnlockPlansLink"
+                        href={URL_TIDEPOOL_PLUS_PLANS}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        sx={{
+                          fontSize: 0,
+                          fontWeight: 'medium',
+                          textDecoration: 'underline',
+                          color: 'text.link',
+                          '&:hover': { textDecoration: 'underline' },
+                        }}
+                        >{t('learn more about our plans')}</Link>
+                    </Paragraph0>
+                  </Box>
+                </>
+              )}
             >
-              {t('Add New Patient')}
-            </Button>
+              <Button
+                id="add-patient"
+                variant="primary"
+                onClick={handleAddPatient}
+                sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
+                px={[2, 3]}
+                disabled={clinic?.patientLimitEnforced && !!clinic?.ui?.warnings?.limitReached}
+              >
+                {t('Add New Patient')}
+              </Button>
+            </PopoverElement>
 
               <Box sx={{ flex: 1, flexBasis:'fit-content', position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 <Flex sx={{ justifyContent: 'space-between', alignContent: 'center', gap: 2 }}>
                   {showTideDashboardUI && (
                     <PopoverElement
+                      id="tideDashAddTagsPopover"
                       triggerOnHover
                       disabled={!!clinic?.patientTags?.length}
                       popoverProps={{
@@ -1773,29 +1811,6 @@ export const ClinicPatients = (props) => {
                     popoverContent={(
                       <Body1 p={3} id="last-refresh-time-ago" fontSize={1}>{timeAgoMessage}</Body1>
                     )}
-                    popoverProps={{
-                      anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                      },
-                      transformOrigin: {
-                        vertical: 'top',
-                        horizontal: 'center',
-                      },
-                      width: 'auto',
-                    }}
-                    triggerOnHover
-                  />
-
-                  <PopoverLabel
-                    id="summary-stat-info"
-                    iconLabel={t('Summary stat info')}
-                    icon={InfoOutlinedIcon}
-                    iconProps={{
-                      id: 'summary-stat-info-trigger',
-                      sx: { fontSize: '18px' },
-                    }}
-                    popoverContent={renderInfoPopover()}
                     popoverProps={{
                       anchorOrigin: {
                         vertical: 'bottom',
@@ -2906,7 +2921,7 @@ export const ClinicPatients = (props) => {
   const tableStyle = useMemo(() => ({ fontSize: showSummaryData ? 0 : 1 }), [showSummaryData]);
 
   const renderPeopleTable = useCallback(() => {
-    const pageCount = Math.ceil(clinic?.patientCount / patientFetchOptions.limit);
+    const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
     return (
@@ -2941,7 +2956,7 @@ export const ClinicPatients = (props) => {
       </Box>
     );
   }, [
-    clinic?.patientCount,
+    clinic?.fetchedPatientCount,
     columns,
     data,
     defaultPatientFetchOptions.sort,

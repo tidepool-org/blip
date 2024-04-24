@@ -43,6 +43,7 @@ import {
   showingWelcomeMessage,
   showingDonateBanner,
   showingDexcomConnectBanner,
+  showingPatientLimitBanner,
   showingShareDataBanner,
   seenShareDataBannerMax,
   showingUpdateTypeBanner,
@@ -60,6 +61,7 @@ import {
   keycloakConfig,
   tideDashboardPatients,
   ssoEnabledDisplay,
+  pendoData,
 } from './misc';
 
 export default combineReducers({
@@ -85,6 +87,7 @@ export default combineReducers({
   showingWelcomeMessage,
   showingDonateBanner,
   showingDexcomConnectBanner,
+  showingPatientLimitBanner,
   showingShareDataBanner,
   seenShareDataBannerMax,
   showingUpdateTypeBanner,
@@ -105,4 +108,5 @@ export default combineReducers({
   pdf,
   data,
   working,
+  pendoData,
 });

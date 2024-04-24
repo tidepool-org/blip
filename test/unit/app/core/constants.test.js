@@ -116,4 +116,16 @@ describe('constants', function() {
       'water',
     ]);
   });
+
+  it('should define DEFAULT_CLINIC_TIER', () => {
+    expect(Constants.DEFAULT_CLINIC_TIER).to.equal('tier0100');
+  });
+
+  it('should define DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT', () => {
+    expect(Constants.DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT).to.equal(250);
+  });
+
+  it('should define CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD', () => {
+    expect(Constants.CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD).to.equal(40);
+  });
 });

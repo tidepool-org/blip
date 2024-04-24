@@ -90,7 +90,7 @@ export const PatientForm = (props) => {
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
-  const showTags = clinic?.tier >= 'tier0300' && !!clinic?.patientTags?.length;
+  const showTags = clinic?.entitlements?.patientTags && !!clinic?.patientTags?.length;
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
   const dexcomAuthInviteExpired = dexcomDataSource?.expirationTime < moment.utc().toISOString();
@@ -495,7 +495,7 @@ export const PatientForm = (props) => {
             disabled={disableConnectDexcom}
             label={(
               <Flex sx={{ alignItems: 'center' }}>
-                <Text mr={1} mt={1} sx={{ display: 'block', fontSize: 0 }}>
+                <Text mr={1} mt={1} sx={{ display: 'block', fontSize: 1 }}>
                   {t('Connect with')}
                 </Text>
 

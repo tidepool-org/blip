@@ -7,6 +7,7 @@ import merge from 'lodash/merge';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import ClinicWorkspaceHeader from '../../../app/components/clinic/ClinicWorkspaceHeader';
 import Button from '../../../app/components/elements/Button';
+import moment from 'moment';
 
 /* global chai */
 /* global sinon */
@@ -79,16 +80,33 @@ describe('ClinicWorkspaceHeader', () => {
           patients: {},
           id: 'clinicID456',
           address: '1 Address Ln, City Zip',
+          country: 'US',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
           shareCode: 'ABCD-ABCD-ABCD',
           preferredBgUnits: 'mmol/L',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
+          tier: 'tier0100',
+          patientCount: 251,
+          patientCountSettings: {
+            hardLimit: {
+              patientCount: 250,
+              startDate: moment().subtract(1, 'day').toISOString(),
             },
-          ],
+          },
+          ui: {
+            text: {
+              planDisplayName: 'Base',
+            },
+            display: {
+              patientLimit: true,
+              planName: true,
+              patientCount: true,
+            },
+            warnings: {
+              limitReached: true,
+              limitApproaching: true,
+            },
+          },
         },
       },
       loggedInUserId: 'clinicianUserId123',
@@ -121,14 +139,7 @@ describe('ClinicWorkspaceHeader', () => {
           shareCode: 'ABCD-ABCD-ABCD',
           website: 'http://clinic.com',
           clinicType: 'provider_practice',
-          clinicSize: '0-249',
           preferredBgUnits: 'mmol/L',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
     },
@@ -166,30 +177,6 @@ describe('ClinicWorkspaceHeader', () => {
         </ToastProvider>
       </Provider>
     );
-  });
-
-  it('should render a link to the clinic admin page if currently on clinic workspace', () => {
-    const link = wrapper.find(Button).filter({ variant: 'textSecondary' });
-    expect(link).to.have.length(1);
-    expect(link.text()).to.equal('View Clinic Members');
-    expect(link.props().onClick).to.be.a('function');
-    store.clearActions();
-
-    const expectedActions = [
-      {
-        type: '@@router/CALL_HISTORY_METHOD',
-        payload: {
-          args: [
-            '/clinic-admin',
-          ],
-          method: 'push',
-        },
-      },
-    ];
-
-    link.props().onClick();
-    const actions = store.getActions();
-    expect(actions).to.eql(expectedActions);
   });
 
   it('should render a link to the clinic workspace page if currently on clinic admin', () => {
@@ -263,61 +250,28 @@ describe('ClinicWorkspaceHeader', () => {
   describe('profile details', () => {
     it('should render the clinic name', () => {
       const details = wrapper.find('#clinicProfileDetails').hostNodes();
-      expect(details.find('h3').at(0).text()).to.equal('new_clinic_name');
+      expect(details.find('span').at(0).text()).to.equal('new_clinic_name');
     });
 
     it('should render the clinic share code', () => {
       const details = wrapper.find('#clinicProfileDetails').hostNodes();
-      expect(details.find('h3').at(1).text()).to.equal('ABCD-ABCD-ABCD');
-    });
-  });
-
-  describe('profile editing', () => {
-    context('non-admin clinic team member', () => {
-      it('should not show a profile edit button', () => {
-        const profileButton = wrapper.find('button#profileEditButton');
-        expect(profileButton).to.have.lengthOf(0);
-      });
+      expect(details.find('span').at(2).text()).to.equal('ABCD-ABCD-ABCD');
     });
 
-    context('clinic admin team member', () => {
-      beforeEach(() => {
-        store = mockStore(clinicAdminState);
-        ClinicWorkspaceHeader.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace'}));
+    it('should render the clinic plan name', () => {
+      const plan = () => wrapper.find('#clinicProfilePlan').hostNodes();
+      expect(plan().text()).to.equal('Base');
+    });
 
-        wrapper = mount(
-          <Provider store={store}>
-            <ToastProvider>
-              <ClinicWorkspaceHeader {...defaultProps} />
-            </ToastProvider>
-          </Provider>
-        );
-      });
+    it('should render the patient count and limit', () => {
+      const limits = () => wrapper.find('#clinicPatientLimits').hostNodes();
+      expect(limits().text()).to.equal('251 / 250');
+    });
 
-      it('should show a profile edit button that redirects to the clinic edit form', () => {
-        ClinicWorkspaceHeader.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace'}));
-        const profileButton = wrapper.find('button#profileEditButton');
-        expect(profileButton).to.have.lengthOf(1);
-        expect(profileButton.text()).to.equal('Edit Clinic Profile');
-
-        store.clearActions();
-
-        const expectedActions = [
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: {
-              args: [
-                '/clinic-profile',
-              ],
-              method: 'push',
-            },
-          },
-        ];
-
-        profileButton.simulate('click');
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-      });
+    it('should render the unlock plans link for clinics with limit warnings', () => {
+      const plansLink = () => wrapper.find('#clinicProfileUnlockPlansLink').hostNodes();
+      expect(plansLink()).to.have.lengthOf(1)
+      expect(plansLink().text()).to.equal('Unlock Plans');
     });
   });
 });

@@ -66,7 +66,7 @@ export function Button(props) {
       sx={{
         flexDirection,
         alignItems: 'center',
-        justifyContent,
+        justifyContent: ['center', justifyContent],
         ...sx,
       }}
       as={BaseButton}

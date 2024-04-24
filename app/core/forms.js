@@ -23,7 +23,7 @@ export const fieldsAreValid = (fieldNames, schema, values) =>
     try {
       schema.validateSyncAt(fieldKey, values);
     } catch (e) {
-      valid = false
+      valid = false;
     }
 
     return valid;
@@ -65,13 +65,19 @@ export const getThresholdWarning = (value, threshold) => {
 export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 'value', trimStrings = true) => ({
   id: fieldpath,
   name: fieldpath,
-  onChange: formikContext.handleChange,
+  onChange: e => {
+    formikContext.handleChange(e);
+
+    if (valueProp === 'checked') {
+      formikContext.setFieldValue(fieldpath, !!e.target[valueProp], true);
+    }
+  },
   onBlur: e => {
     formikContext.handleBlur(e);
 
     if (trimStrings && isString(e?.target?.[valueProp])) {
-        formikContext.setFieldTouched(fieldpath, true);
-        formikContext.setFieldValue(fieldpath, trim(e.target[valueProp]));
+      formikContext.setFieldTouched(fieldpath, true);
+      formikContext.setFieldValue(fieldpath, trim(e.target[valueProp]));
     }
   },
   error: getFieldError(fieldpath, formikContext),

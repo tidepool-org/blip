@@ -1,6 +1,7 @@
 import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
+import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import Workspaces from '../../../../app/pages/workspaces';
@@ -34,6 +35,8 @@ describe('Workspaces', () => {
         acceptClinicianInvite: sinon.stub().callsArgWith(2, null, { acceptInvite: 'success' }),
         dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
         getCliniciansFromClinic: sinon.stub().callsArgWith(2, null, { cliniciansReturn: 'success' }),
+        getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 3 }),
+        getClinicPatientCountSettings: sinon.stub().callsArgWith(1, null, 'success'),
       },
     },
   };
@@ -119,12 +122,6 @@ describe('Workspaces', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       pendingReceivedClinicianInvites: [
@@ -174,12 +171,6 @@ describe('Workspaces', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
     }
@@ -206,12 +197,6 @@ describe('Workspaces', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
     }
@@ -280,7 +265,9 @@ describe('Workspaces', () => {
       return mount(
         <Provider store={store}>
           <ToastProvider>
-            <Workspaces {...props} />
+            <MemoryRouter initialEntries={['/workspaces']}>
+              <Route path='/workspaces' children={() => (<Workspaces {...props} />)} />
+            </MemoryRouter>
           </ToastProvider>
         </Provider>
       );
@@ -343,11 +330,11 @@ describe('Workspaces', () => {
       store.clearActions();
       button.simulate('click');
       expect(store.getActions()).to.eql([
-        { type: 'SELECT_CLINIC', payload: { clinicId: null } },
+        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: null } },
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/clinic-details/new', { selectedClinicId: null }],
+            args: ['/clinic-details/new', { selectedClinicId: null, referrer: '/workspaces' }],
             method: 'push',
           },
         },
@@ -391,9 +378,29 @@ describe('Workspaces', () => {
       navigateButton.simulate('click');
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
+          },
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST',
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST',
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCount: 3,
+          },
+        },
+        {
+         type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCountSettings: 'success',
           },
         },
         {

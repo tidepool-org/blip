@@ -6,7 +6,7 @@ import cx from 'classnames';
 
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
-import { shadows } from '../../themes/baseTheme';
+import { fontWeights, shadows } from '../../themes/baseTheme';
 
 const StyledWrapper = styled(Flex)`
   position: relative;
@@ -25,6 +25,7 @@ const StyledWrapper = styled(Flex)`
 export function TextInput(props) {
   const {
     label,
+    hideLabel,
     name,
     width = ['100%', '75%', '50%'],
     icon,
@@ -55,8 +56,22 @@ export function TextInput(props) {
   return (
     <Box sx={{ width, ...sx }} {...themeProps}>
       {label && (
-        <Label htmlFor={name}>
-          <Caption sx={{ fontWeight: 'medium' }} className={inputClasses}>{label}</Caption>
+        <Label
+          htmlFor={name}
+          sx={{
+            visibility: hideLabel ? 'hidden' : 'visible',
+            display: hideLabel ? ['none !important', 'block !important'] : 'block',
+          }}
+        >
+          <Caption
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1
+            }}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
       <StyledWrapper variant={`inputs.text.${variant}`}>
@@ -101,6 +116,7 @@ TextInput.propTypes = {
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   label: PropTypes.string,
+  hideLabel: PropTypes.bool,
   onClickIcon: PropTypes.func,
   prefix: PropTypes.string,
   suffix: PropTypes.string,
