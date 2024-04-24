@@ -18,18 +18,16 @@
 /* global __DEV_TOOLS__ */
 
 import { createBrowserHistory } from 'history';
-import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
+import { legacy_createStore as createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { persistState } from 'redux-devtools';
 import thunkMiddleware from 'redux-thunk';
-import createLogger from 'redux-logger';
+import { createLogger } from 'redux-logger';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import mutationTracker from 'redux-immutable-state-invariant';
 import qhistory from 'qhistory';
 import assign from 'lodash/assign';
 import throttle from 'lodash/throttle';
 import { stringify, parse } from 'qs';
-
-import Worker from 'worker-loader?inline!./../../worker/index';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
@@ -59,7 +57,7 @@ const loggerMiddleware = createLogger({
   collapsed: true,
 });
 
-const worker = new Worker;
+const worker = new Worker(new URL('./../../worker/index', import.meta.url));
 const workerMiddleware = createWorkerMiddleware(worker);
 
 let enhancer;

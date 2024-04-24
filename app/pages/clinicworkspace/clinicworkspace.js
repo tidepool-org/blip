@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import values from 'lodash/values'
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 import { Element } from 'react-scroll';
 
 import TabGroup from '../../components/elements/TabGroup';
@@ -103,7 +103,7 @@ export const ClinicWorkspace = (props) => {
     <>
       <ClinicWorkspaceHeader api={api} trackMetric={trackMetric} />
 
-      <Box id="clinic-workspace" alignItems="center" variant="containers.largeBordered" mb={9}>
+      <Box id="clinic-workspace" sx={{ alignItems: 'center' }} variant="containers.largeBordered" mb={9}>
         <Element name="workspaceTabsTop" />
         <TabGroup
           aria-label="Clinic workspace tabs"
@@ -116,7 +116,9 @@ export const ClinicWorkspace = (props) => {
             panel: {
               p: 4,
               pb: 0,
-              minHeight: '10em',
+              sx: {
+                minHeight: '10em',
+              },
             },
           }}
         >
@@ -142,4 +144,4 @@ ClinicWorkspace.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicWorkspace);
+export default withTranslation()(ClinicWorkspace);

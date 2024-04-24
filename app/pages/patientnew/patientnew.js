@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
@@ -11,9 +11,9 @@ import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import { useFormik } from 'formik';
-import { Box, Flex, Text, Link } from 'rebass/styled-components';
+import { Box, Flex, Text, Link } from 'theme-ui';
 
-import { Paragraph0 } from '../../components/elements/FontStyles';
+import { Paragraph1 } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
 import Select from '../../components/elements/Select';
 import MultiSelect from '../../components/elements/MultiSelect';
@@ -53,11 +53,11 @@ const accountDetailsSchema = yup.object().shape({
   accountType: yup.string().oneOf([...map(accountTypeOptions, 'value'), '']).required(t('Account type is required')),
   patientFirstName: yup.mixed().notRequired().when('accountType', {
     is: 'caregiver',
-    then: yup.string().required(t('Patient first name is required')),
+    then: () => yup.string().required(t('Patient first name is required')),
   }),
   patientLastName: yup.mixed().notRequired().when('accountType', {
     is: 'caregiver',
-    then: yup.string().required(t('Patient last name is required')),
+    then: () => yup.string().required(t('Patient last name is required')),
   }),
 });
 
@@ -106,6 +106,9 @@ export const PatientNew = (props) => {
     }
   }, []);
 
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const allUsersMap = useSelector((state) => state.blip.allUsersMap);
+  const user = get(allUsersMap, loggedInUserId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const [submitting, setSubmitting] = useState(false);
@@ -141,16 +144,50 @@ export const PatientNew = (props) => {
           variant: 'success',
         });
 
-        // Redirect to patients page
-        dispatch(push('/patients'));
+        // Redirect to patient data view
+        dispatch(push(`/patients/${loggedInUserId}/data`));
       }
     }
   }, [working.settingUpDataStorage]);
 
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.updatingUser;
+
+    const prevInProgress = get(
+      previousWorking,
+      'updatingUser.inProgress'
+    );
+
+    if (!inProgress && completed !== null && prevInProgress) {
+      setSubmitting(false);
+
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Profile updated'),
+          variant: 'success',
+        });
+
+        // Redirect to patients page
+        dispatch(push('/patients?justLoggedIn=true'));
+      }
+    }
+  }, [working.updatingUser]);
+
+  const { firstName, lastName } = personUtils.splitNamesFromFullname(user?.profile?.fullName);
+
   const formikContext = useFormik({
     initialValues: {
-      firstName: '',
-      lastName: '',
+      firstName,
+      lastName,
       accountType: null,
       patientFirstName: '',
       patientLastName: '',
@@ -192,7 +229,10 @@ export const PatientNew = (props) => {
       } else if (values.accountType === 'viewOnly') {
         setSubmitting(true);
         const profile = prepareFormValuesForSubmit(values);
-        dispatch(actions.async.setupDataStorage(api, profile));
+        // We skip the welcome message on the patients home page, which just prompts them to set up
+        // data storage, which they've just indicated they don't want to do at this time.
+        dispatch(actions.sync.hideWelcomeMessage());
+        dispatch(actions.async.updateUser(api, profile));
       }
     },
   });
@@ -200,7 +240,6 @@ export const PatientNew = (props) => {
   function prepareFormValuesForSubmit(formValues) {
     const profile = {
       fullName: personUtils.fullnameFromSplitNames(formValues.firstName, formValues.lastName),
-      patient: {},
     };
 
     if (includes(['personal', 'caregiver'], formValues.accountType)) {
@@ -281,7 +320,7 @@ export const PatientNew = (props) => {
 
   return (
     <Container
-      title={currentForm === formSteps.accountDetails ? t('Welcome') : t('Last Step')}
+      title={currentForm === formSteps.accountDetails ? t('Welcome') : t('Last Step!')}
       subtitle={currentForm === formSteps.accountDetails ? t('Tell us more about yourself') : patientDetailsText[values.accountType]?.subtitle}
       variant="mediumBordered"
       actions={formActions}
@@ -316,7 +355,7 @@ export const PatientNew = (props) => {
             <Box sx={{ flexBasis: '100%' }}>
               <RadioGroup
                 id="account-type"
-                label={t('Preferred blood glucose units')}
+                label={t('Who is this account for?')}
                 options={accountTypeOptions}
                 {...getCommonFormikFieldProps('accountType', formikContext)}
                 variant="vertical"
@@ -404,18 +443,18 @@ export const PatientNew = (props) => {
                 {patientDetailsText[values.accountType]?.dataDonateTitle}
               </Text>
 
-              <Paragraph0 sx={{ fontWeight: 'medium' }}>
+              <Paragraph1 sx={{ fontWeight: 'medium' }}>
                 <Trans i18nKey="html.data-donation-details">
                   {patientDetailsText[values.accountType]?.dataDonateOwnership}&nbsp;
                   Read all the details about <Link className="data-donation-details-link" href={URL_BIG_DATA_DONATION_INFO} target="_blank">Tidepool's Big Data Donation project here</Link>.
                 </Trans>
-              </Paragraph0>
+              </Paragraph1>
 
               <Box mb={3}>
                 <Checkbox
                   {...getCommonFormikFieldProps('dataDonate', formikContext, 'checked')}
                   bg="white"
-                  themeProps={{ sx: { bg: 'transparent', 'span': { fontSize: 0 } } }}
+                  themeProps={{ sx: { bg: 'transparent' } }}
                   label={patientDetailsText[values.accountType]?.dataDonateLabel}
                   disabled={!isEmpty(values.dataDonateDestination)}
                   sx={{
@@ -453,4 +492,4 @@ PatientNew.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(PatientNew);
+export default withTranslation()(PatientNew);

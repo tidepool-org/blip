@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { useParams, useLocation, Link as RouterLink } from 'react-router-dom';
 import * as yup from 'yup';
 import forEach from 'lodash/forEach';
@@ -12,11 +12,12 @@ import keys from 'lodash/keys';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
+import values from 'lodash/values';
 import { useFormik } from 'formik';
-import { Box, Flex, Text, Link } from 'rebass/styled-components';
+import { Box, Flex, Text, Link } from 'theme-ui';
 import countries from 'i18n-iso-countries';
 
-import { Body1, MediumTitle, Paragraph0 } from '../../components/elements/FontStyles';
+import { Body1, MediumTitle, Paragraph1 } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
 import Select from '../../components/elements/Select';
 import Checkbox from '../../components/elements/Checkbox';
@@ -34,6 +35,7 @@ import { components as vizComponents } from '@tidepool/viz';
 import { clinicValuesFromClinic, roles, clinicSchema as clinicValidationSchema } from '../../core/clinicUtils';
 import personUtils from '../../core/personutils';
 import { addEmptyOption } from '../../core/forms';
+import { fontWeights } from '../../themes/baseTheme';
 
 import {
   Dialog,
@@ -126,7 +128,7 @@ export const ClinicDetails = (props) => {
       firstName: populateProfileFields ? firstName : '',
       lastName: populateProfileFields ? lastName : '',
       role: populateProfileFields ? user?.profile?.clinic?.role || '' : '',
-      ...clinicValuesFromClinic(clinic),
+      ...clinicValuesFromClinic(action === 'new' ? undefined : clinic),
     };
   };
 
@@ -139,7 +141,13 @@ export const ClinicDetails = (props) => {
       ? '/clinic-workspace'
       : '/workspaces';
 
-    const redirectState = { selectedClinicId: clinics.length === 1 ? clinics[0].id : null };
+    const isWorkspaceRedirect = redirectPath === '/clinic-workspace';
+
+    const redirectState = { selectedClinicId: isWorkspaceRedirect && keys(clinics).length === 1
+      ? values(clinics)[0].id
+      : null,
+    };
+
     dispatch(push(redirectPath, redirectState));
   }
 
@@ -242,6 +250,7 @@ export const ClinicDetails = (props) => {
       inProgress,
       completed,
       notification,
+      clinicId,
     } = working[clinicAction];
 
     const prevInProgress = get(
@@ -264,7 +273,7 @@ export const ClinicDetails = (props) => {
           setSubmitting(false);
 
           setToast({
-            message: t('"{{name}}" clinic created', clinic),
+            message: t('"{{name}}" clinic created', clinics[clinicId]),
             variant: 'success',
           });
         }
@@ -360,7 +369,7 @@ export const ClinicDetails = (props) => {
         trackMetric('Clinic - Account created');
         const clinicValues = pick(values, keys(clinicValuesFromClinic()));
 
-        if (clinic?.id) {
+        if (clinic?.id && action !== 'new') {
           dispatch(actions.async.updateClinic(api, clinic.id, clinicValues));
         } else {
           dispatch(actions.async.createClinic(api, clinicValues, loggedInUserId));
@@ -369,12 +378,15 @@ export const ClinicDetails = (props) => {
     },
   });
 
-
   useEffect(() => {
     if (populateProfileFields) {
       formikContext.setValues(clinicValues())
     }
   }, [populateProfileFields]);
+
+  useEffect(() => {
+      formikContext.resetForm();
+  }, [action]);
 
   const formActions = [{
     id: 'submit',
@@ -408,8 +420,8 @@ export const ClinicDetails = (props) => {
         <>
           {!displayClinicForm && clinicInvite && (
             <Body1 id="clinic-invite-details" mb={2}>
-              <Flex alignItems="center">
-                <NotificationIcon ml={0} mr={2} flexShrink={0} />
+              <Flex sx={{ alignItems: 'center' }}>
+                <NotificationIcon ml={0} mr={2} sx={{ flexShrink: 0 }} />
                 <Trans>
                   You have been invited to become a clinic team member at&nbsp;
 
@@ -462,22 +474,22 @@ export const ClinicDetails = (props) => {
             {displayClinicForm && (
               <Box id="clinic-profile-form">
                 <Box variant="containers.wellBordered" mt={action === 'migrate' ? 4 : 0} mb={4}>
-                  <Paragraph0>
+                  <Paragraph1 fontWeight={fontWeights.medium}>
                     {t('The information below will be displayed along with your name when you invite patients to connect and share their data remotely. Please ensure you have the correct clinic information for their verification.')}
-                  </Paragraph0>
+                  </Paragraph1>
 
-                  <Paragraph0 sx={{ fontWeight: 'medium' }}>
+                  <Paragraph1 fontWeight={fontWeights.medium}>
                     <Trans i18nKey="html.skip-workspace-setup">
                       If you're waiting to be invited to someone else's clinic workspace, you can <Link as={RouterLink} className="skip-to-workspace-link" to="/workspaces">skip this step for now</Link>.
                     </Trans>
-                  </Paragraph0>
+                  </Paragraph1>
                 </Box>
 
                 <ClinicProfileFields formikContext={formikContext} />
 
                 <Checkbox
                   {...getCommonFormikFieldProps('adminAcknowledge', formikContext, 'checked')}
-                  themeProps={{ sx: { 'span': { fontSize: 0 } } }}
+                  themeProps={{ sx: { 'span': { lineHeight: 2 } } }}
                   label={t(
                     'By creating this clinic, your Tidepool account will become the default administrator. You can invite other healthcare professionals to join the clinic and add or remove privileges for these accounts at any time.'
                   )}
@@ -528,4 +540,4 @@ ClinicDetails.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicDetails);
+export default withTranslation()(ClinicDetails);

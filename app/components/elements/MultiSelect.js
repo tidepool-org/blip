@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, BoxProps } from 'rebass/styled-components';
-import { Label } from '@rebass/forms';
+import { Box, Label, BoxProps } from 'theme-ui';
 import ReactSelect from 'react-select';
 import cx from 'classnames';
 import intersectionBy from 'lodash/intersectionBy';
@@ -15,7 +14,7 @@ import i18next from '../../core/language';
 
 const t = i18next.t.bind(i18next);
 
-export const MultiSelect = props => {
+export function MultiSelect(props) {
   const {
     disabled,
     innerRef,
@@ -43,7 +42,15 @@ export const MultiSelect = props => {
     <Box width={['100%', '75%', '50%']} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption fontWeight={fontWeights.medium} className={inputClasses}>{label}</Caption>
+          <Caption
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1,
+            }}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
 
@@ -58,7 +65,7 @@ export const MultiSelect = props => {
           value={intersectionBy(
             options,
             map(valueProp.split(','), value => ({ value })),
-            'value',
+            'value'
           )}
           onChange={selections => {
             const { value } = selections?.[0] || {};
@@ -141,7 +148,7 @@ export const MultiSelect = props => {
       )}
     </Box>
   );
-};
+}
 
 MultiSelect.propTypes = {
   innerRef: PropTypes.oneOfType([

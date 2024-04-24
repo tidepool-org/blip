@@ -438,7 +438,6 @@ export function setupDataStorage(api, patient) {
         ));
       } else {
         dispatch(sync.setupDataStorageSuccess(loggedInUserId, createdPatient));
-        dispatch(push(`/patients/${createdPatient.userid}/data`));
       }
     });
   }
@@ -1812,8 +1811,8 @@ export function createClinic(api, clinic, clinicianId) {
           )
         );
       } else {
-        dispatch(selectClinic(api, clinic.id));
         dispatch(sync.createClinicSuccess(clinic));
+        dispatch(selectClinic(api, clinic.id));
         dispatch(getClinicsForClinician(api, clinicianId, { limit: 1000, offset: 0 }));
       }
     });
@@ -2035,7 +2034,11 @@ export function deleteClinicianFromClinic(api, clinicId, clinicianId) {
  * @param {String} patientId - Id of the clinician
  */
 export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const { blip: { clinics = {} } } = getState();
+    const clinic = clinics[clinicId];
+    const updatedClinic = { ...(clinic || {}) };
+
     dispatch(sync.deletePatientFromClinicRequest());
 
     api.clinics.deletePatientFromClinic(clinicId, patientId, (err) => {
@@ -2051,6 +2054,11 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
         ));
       } else {
         dispatch(sync.deletePatientFromClinicSuccess(clinicId, patientId));
+
+        if (isFinite(updatedClinic.patientCount)) {
+          updatedClinic.patientCount -= 1;
+          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
+        }
       }
     });
   };
@@ -2125,9 +2133,14 @@ export function fetchPatientFromClinic(api, clinicId, patientId) {
  * @param {String} [patient.email] - The email address of the patient
  */
 export function createClinicCustodialAccount(api, clinicId, patient) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.createClinicCustodialAccountRequest());
+
     api.clinics.createClinicCustodialAccount(clinicId, patient, (err, result) => {
+      const { blip: { clinics = {} } } = getState();
+      const clinic = clinics[clinicId];
+      const updatedClinic = { ...(clinic || {}) };
+
       if (err) {
         let errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT;
         if (err?.status === 403) {
@@ -2136,11 +2149,39 @@ export function createClinicCustodialAccount(api, clinicId, patient) {
         if (err?.status === 409) {
           errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
         }
+        if (err?.status === 402) {
+          errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT_LIMIT_REACHED;
+
+          // This should only occur if the limit was pushed over by another team member in another
+          // session, after the current user session had started with the patient count below the limit.
+          // In this case, we re-fetch the patient count and update the UI to reflect it.
+          if (clinic) {
+            dispatch(sync.fetchClinicPatientCountRequest());
+
+            api.clinics.getClinicPatientCount(clinicId, (err, results) => {
+              if (err) {
+                dispatch(sync.fetchClinicPatientCountFailure(
+                  createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, err), err
+                ));
+              } else {
+                dispatch(sync.fetchClinicPatientCountSuccess(clinicId, results));
+                updatedClinic.patientCount = results.patientCount;
+                dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
+              }
+            });
+          }
+        }
+
         dispatch(sync.createClinicCustodialAccountFailure(
           createActionError(errMsg, err), err
         ));
       } else {
         dispatch(sync.createClinicCustodialAccountSuccess(clinicId, result.id, result));
+
+        if (isFinite(updatedClinic.patientCount)) {
+          updatedClinic.patientCount += 1;
+          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
+        }
       }
     });
   };
@@ -2384,7 +2425,7 @@ export function fetchPatientInvites(api, clinicId) {
  * @param {String[]} [patientDetails.tags] - Array of string tag IDs
  */
 export function acceptPatientInvitation(api, clinicId, inviteId, patientId, patientDetails) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.acceptPatientInvitationRequest());
 
     api.clinics.acceptPatientInvitation(clinicId, inviteId, patientDetails, (err, result) => {
@@ -2394,6 +2435,15 @@ export function acceptPatientInvitation(api, clinicId, inviteId, patientId, pati
         ));
       } else {
         dispatch(sync.acceptPatientInvitationSuccess(clinicId, inviteId, patientId));
+
+        const { blip: { clinics = {} } } = getState();
+        const clinic = clinics[clinicId];
+        const updatedClinic = { ...(clinic || {}) };
+
+        if (isFinite(updatedClinic.patientCount)) {
+          updatedClinic.patientCount += 1;
+          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
+        }
       }
     });
   };

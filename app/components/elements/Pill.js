@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, TextProps } from 'rebass/styled-components';
+import { Text, TextProps } from 'theme-ui';
 import isString from 'lodash/isString';
 
 import Icon from './Icon';
@@ -21,7 +21,7 @@ const namedPalletMap = {
   transparent: ['transparent', 'inherit'],
 };
 
-const Pill = (props) => {
+export function Pill(props) {
   const {
     variant,
     colorPalette,
@@ -40,9 +40,9 @@ const Pill = (props) => {
   const lightShade = palette[0];
   const color = variant === 'inverse' ? lightShade : darkShade;
   const bg = variant === 'inverse' ? darkShade : lightShade;
-  const px = condensed ? 1 : 2;
-  const pt = condensed ? '2px' : 1;
-  const pb = condensed ? '1px' : 1;
+  const px = props.px || condensed ? 1 : 2;
+  const pt = props.pt || condensed ? '2px' : 1;
+  const pb = props.pb || condensed ? '1px' : 1;
 
   let borderRadius = condensed ? 3 : 4;
   if (round) borderRadius = '100%';
@@ -52,20 +52,23 @@ const Pill = (props) => {
   return (
     <Text
       aria-label={label}
-      fontFamily="default"
-      fontSize={0}
-      fontWeight="medium"
       as="span"
       px={round ? 0 : px}
       pt={round ? 0 : pt}
       pb={round ? 0 : pb}
-      sx={{ borderRadius, ...sx }}
-      color={color}
-      bg={bg}
-      width={width}
-      height={height}
-      lineHeight={lineHeight}
-      textAlign="center"
+      sx={{
+        fontFamily: 'default',
+        fontSize: 0,
+        fontWeight: 'medium',
+        borderRadius,
+        textAlign: 'center',
+        color,
+        bg,
+        width,
+        height,
+        lineHeight,
+        ...sx
+      }}
       {...themeProps}
     >
       {icon && (
@@ -84,7 +87,7 @@ const Pill = (props) => {
       {text}
     </Text>
   );
-};
+}
 
 Pill.propTypes = {
   ...TextProps,

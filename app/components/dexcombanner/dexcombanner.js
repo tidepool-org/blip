@@ -17,7 +17,7 @@
 
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import get from 'lodash/get';
@@ -28,7 +28,7 @@ import { async, sync } from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
 import ResendDexcomConnectRequestDialog from '../clinic/ResendDexcomConnectRequestDialog';
 
-export const DexcomBanner = translate()((props) => {
+export const DexcomBanner = withTranslation()((props) => {
   const {
     api,
     clinicPatient,

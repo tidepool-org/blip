@@ -62,6 +62,7 @@ import {
   tideDashboardPatients,
   rpmReportPatients,
   ssoEnabledDisplay,
+  pendoData,
 } from './misc';
 
 export default combineReducers({
@@ -109,4 +110,5 @@ export default combineReducers({
   pdf,
   data,
   working,
+  pendoData,
 });

@@ -75,10 +75,11 @@ const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
       } = getState();
       const user = allUsersMap[loggedInUserId];
       const clinicId = action.payload.clinicId;
-      if(isNull(clinicId)){
+      const selectedClinic = clinics[clinicId];
+
+      if(!selectedClinic || isNull(selectedClinic?.id)){
         ldContext.clinic = defaultClinicContext;
       } else {
-        const selectedClinic = clinics[clinicId];
 
         ldContext.user.permission = includes(selectedClinic?.clinicians?.[user.userid]?.roles, 'CLINIC_ADMIN')
           ? 'administrator'

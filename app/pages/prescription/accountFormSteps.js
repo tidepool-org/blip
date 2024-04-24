@@ -1,7 +1,7 @@
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 import bows from 'bows';
 import InputMask from 'react-input-mask';
 import get from 'lodash/get';
@@ -18,7 +18,7 @@ import { fieldsetStyles, condensedInputStyles } from './prescriptionFormStyles';
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
 
-export const AccountType = translate()(props => {
+export const AccountType = withTranslation()(props => {
   const { t } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
   const formikContext = useFormikContext();
@@ -40,7 +40,7 @@ export const AccountType = translate()(props => {
   );
 });
 
-export const PatientInfo = translate()(props => {
+export const PatientInfo = withTranslation()(props => {
   const { t, initialFocusedInput = 'firstName' } = props;
   const formikContext = useFormikContext();
 
@@ -103,7 +103,7 @@ export const PatientInfo = translate()(props => {
   );
 });
 
-export const PatientEmail = translate()(props => {
+export const PatientEmail = withTranslation()(props => {
   const { t } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
   const formikContext = useFormikContext();

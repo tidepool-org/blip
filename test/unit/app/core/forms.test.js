@@ -143,10 +143,12 @@ describe('forms', function() {
       props.onBlur();
       sinon.assert.calledOnce(formikContext.handleBlur);
 
+      props.onChange();
+      sinon.assert.calledOnce(formikContext.handleChange);
+
       expect(props).to.deep.include({
         id: 'user.name',
         name: 'user.name',
-        onChange: formikContext.handleChange,
         error: 'name is silly',
         value: 'Fooey McBear',
       })
@@ -166,10 +168,12 @@ describe('forms', function() {
       props.onBlur();
       sinon.assert.calledOnce(formikContext.handleBlur);
 
+      props.onChange();
+      sinon.assert.calledOnce(formikContext.handleChange);
+
       expect(props).to.deep.include({
         id: 'user.name',
         name: 'user.name',
-        onChange: formikContext.handleChange,
         error: 'name is silly',
         myValue: 'Fooey McBear',
       })

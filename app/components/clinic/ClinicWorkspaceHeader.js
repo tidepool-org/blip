@@ -1,17 +1,18 @@
 import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
-import { Box, Flex, Text, Link, BoxProps } from 'rebass/styled-components';
+import includes from 'lodash/includes'
+import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import { components as vizComponents } from '@tidepool/viz';
-import { Caption } from '../elements/FontStyles';
 
 import Button from '../elements/Button';
 import Icon from '../elements/Icon';
@@ -73,11 +74,11 @@ export const ClinicWorkspaceHeader = (props) => {
         id="clinicProfileDetails"
         px={4}
         py={3}
-        flexWrap="wrap"
-        justifyContent={['center', 'space-between']}
-        alignItems="center"
         sx={{
           columnGap: 5,
+          flexWrap: 'wrap',
+          justifyContent: ['center', 'space-between'],
+          alignItems: 'center',
           rowGap: 2,
         }}
       >
@@ -94,8 +95,8 @@ export const ClinicWorkspaceHeader = (props) => {
           <Box sx={{ flexShrink: 0 }}>
             <Text as="span" sx={{ color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>{clinic.name}</Text>
           </Box>
-          <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 0, alignItems: 'flex-end' }}>
-            <Caption>{t('Share Code:')}</Caption>
+          <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
+            <Text>{t('Share Code:')}</Text>
             <Flex
               sx={{
                 columnGap: 2,
@@ -132,8 +133,8 @@ export const ClinicWorkspaceHeader = (props) => {
           </Flex>
 
           {clinic?.ui?.display?.planName && (
-            <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 0, alignItems: 'flex-end' }}>
-              <Caption>{t('Plan:')}</Caption>
+            <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
+              <Text>{t('Plan:')}</Text>
               <Box>
                 <Pill
                   id="clinicProfilePlan"
@@ -147,22 +148,25 @@ export const ClinicWorkspaceHeader = (props) => {
           )}
 
           {clinic?.ui && (
-            <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 0, alignItems: 'flex-end' }}>
-              <Caption>{t('Patient Accounts:')}</Caption>
+            <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
+              <Text>{t('Patient Accounts:')}</Text>
               <Box>
                 {clinic?.ui.display.patientCount && (
                   <Pill
                     id="clinicPatientLimits"
+                    sx={{ fontSize: 1 }}
+                    px={1}
+                    pt="2px"
+                    pb={0}
                     text={`${clinic.patientCount}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
                     icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
                     label={t('Patient Count')}
                     colorPalette={clinic?.ui.warnings.limitReached || clinic?.ui.warnings.limitApproaching ? 'warning' : 'transparent'}
-                    condensed
                   />
                 )}
 
                 {clinic?.ui.display.patientLimit && !clinic?.ui.warnings.limitReached && (
-                  <Box sx={{ position: 'relative', top: clinic?.ui.warnings.limitApproaching ? 0 : '-2px' }}>
+                  <Box sx={{ position: 'relative', top: clinic?.ui.warnings.limitApproaching ? '1px' : '-3px' }}>
                     <Box
                       sx={{
                         width: '100%',
@@ -196,7 +200,7 @@ export const ClinicWorkspaceHeader = (props) => {
                   target="_blank"
                   rel="noreferrer noopener"
                   sx={{
-                    fontSize: 0,
+                    fontSize: 1,
                     fontWeight: 'medium',
                     textDecoration: 'underline',
                     color: 'text.link',
@@ -211,10 +215,8 @@ export const ClinicWorkspaceHeader = (props) => {
         </Flex>
 
         <Flex
-          justifyContent={['flex-start', 'flex-start', 'flex-end']}
-          alignItems="center"
           width={['100%', '100%', 'auto']}
-          sx={{ gap: 3 }}
+          sx={{ gap: 3, justifyContent: ['flex-start', 'flex-start', 'flex-end'], alignItems: 'center' }}
         >
           <Box>
             <Button
@@ -225,7 +227,7 @@ export const ClinicWorkspaceHeader = (props) => {
               iconPosition='left'
               iconFontSize="1.25em"
               iconLabel={navigationAction.label}
-              fontSize={0}
+              sx={{ fontSize: 1 }}
               pl={0}
             >
               {navigationAction.label}
@@ -244,4 +246,4 @@ ClinicWorkspaceHeader.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicWorkspaceHeader);
+export default withTranslation()(ClinicWorkspaceHeader);

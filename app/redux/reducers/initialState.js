@@ -178,6 +178,10 @@ const initialState = {
   tideDashboardPatients: {},
   rpmReportPatients: {},
   ssoEnabledDisplay: false,
+  pendoData: {
+    account: {},
+    visitor: {},
+  },
 };
 
 export default initialState;

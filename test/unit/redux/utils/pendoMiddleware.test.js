@@ -20,10 +20,15 @@ describe('pendoMiddleware', () => {
       clinics: {},
       allUsersMap: {},
       loggedInUserId: '',
+      pendoData: {
+        account: {},
+        visitor: {},
+      },
     },
   };
   const getStateObj = {
     getState: sinon.stub().returns(emptyState),
+    dispatch: sinon.stub(),
   };
   const next = sinon.stub();
 
@@ -92,6 +97,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -126,6 +135,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -151,6 +164,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -191,6 +208,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'patientId',
           allUsersMap: users,
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -205,6 +226,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'clinicAdminID',
           allUsersMap: users,
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -220,6 +245,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'clinicMemberID',
           allUsersMap: users,
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -235,6 +264,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'legacyClinicianID',
           allUsersMap: users,
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -250,6 +283,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'migratedClinicianID',
           allUsersMap: users,
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -275,6 +312,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -315,6 +356,10 @@ describe('pendoMiddleware', () => {
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
           selectedClinicId: undefined,
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -352,6 +397,10 @@ describe('pendoMiddleware', () => {
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
           selectedClinicId: 'clinicID123',
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -391,6 +440,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, 'clinicID123'),
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -463,6 +516,10 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, ['clinicID123', 'clinicID987']),
           loggedInUserId: 'clinicMemberID',
           allUsersMap: _.pick(users, 'clinicMemberID'),
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -477,6 +534,52 @@ describe('pendoMiddleware', () => {
         tier: 'tier0100'
       },
       visitor: {
+        id: 'clinicMemberID',
+        permission: 'member',
+      },
+    };
+    expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(selectClinic);
+    expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+    expect(winMock.pendo.updateOptions.getCall(0).args[0]).to.eql(expectedConfig);
+    expect(winMock.pendo.updateOptions.calledWith(expectedConfig)).to.be.true;
+  });
+
+  it('should extend existing pendo data from state for SELECT_CLINIC_SUCCESS', () => {
+    winMock.pendo.visitorId = 'clinicMemberID';
+    const selectClinic = {
+      type: ActionTypes.SELECT_CLINIC_SUCCESS,
+      payload: {
+        clinicId: 'clinicID987',
+      },
+    };
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, ['clinicID123', 'clinicID987']),
+          loggedInUserId: 'clinicMemberID',
+          allUsersMap: _.pick(users, 'clinicMemberID'),
+          pendoData: {
+            account: { existingAccountData: 'existingAccountData' },
+            visitor: { existingVisitorData: 'existingVisitorData' },
+          },
+        },
+      },
+    });
+    const expectedConfig = {
+      account: {
+        existingAccountData: 'existingAccountData',
+        clinic: 'Other Mock Clinic',
+        id: 'clinicID987',
+        clinicianCount: null,
+        country: 'CA',
+        created: '2022-01-01T00:00:00.000Z',
+        patientCount: undefined,
+        tier: 'tier0100'
+      },
+      visitor: {
+        existingVisitorData: 'existingVisitorData',
         id: 'clinicMemberID',
         permission: 'member',
       },
@@ -503,6 +606,21 @@ describe('pendoMiddleware', () => {
           clinics: _.pick(clinics, ['clinicID123', 'clinicID987']),
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
+          pendoData: {
+            account: {
+              clinic: 'Other Mock Clinic',
+              id: 'clinicID987',
+              clinicianCount: null,
+              country: 'CA',
+              created: '2022-01-01T00:00:00.000Z',
+              patientCount: undefined,
+              tier: 'tier0100',
+            },
+            visitor: {
+              id: 'clinicMemberID',
+              permission: 'member',
+            },
+          },
         },
       },
     });
@@ -544,6 +662,10 @@ describe('pendoMiddleware', () => {
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
           selectedClinicId: 'clinicID123',
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -552,6 +674,7 @@ describe('pendoMiddleware', () => {
         id: 'clinicID123',
         patientCount: 32,
       },
+      visitor: {},
     };
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountSuccess);
@@ -581,6 +704,10 @@ describe('pendoMiddleware', () => {
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
           selectedClinicId: 'clinicID123',
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -590,6 +717,7 @@ describe('pendoMiddleware', () => {
         patientCountHardLimit: 250,
         patientCountHardLimitStartDate: '2024-11-11T00:00:00.000Z',
       },
+      visitor: {},
     };
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountSettingsSuccess);
@@ -617,6 +745,10 @@ describe('pendoMiddleware', () => {
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
           selectedClinicId: 'clinicID123',
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -626,6 +758,7 @@ describe('pendoMiddleware', () => {
         patientLimitEnforced: false,
         planName: 'activeSalesBase',
       },
+      visitor: {},
     };
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(setClinicUIDetails);
@@ -652,6 +785,10 @@ describe('pendoMiddleware', () => {
           loggedInUserId: 'clinicAdminID',
           allUsersMap: _.pick(users, 'clinicAdminID'),
           selectedClinicId: 'clinicID123',
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
@@ -660,6 +797,7 @@ describe('pendoMiddleware', () => {
         id: 'clinicID123',
         clinicianCount: 13,
       },
+      visitor: {},
     };
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(fetchCliniciansFromClinicSuccess);
@@ -688,10 +826,15 @@ describe('pendoMiddleware', () => {
         blip: {
           loggedInUserId: 'patientId',
           allUsersMap: _.pick(users, 'patientId'),
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });
     const expectedConfig = {
+      account: {},
       visitor: {
         id: 'patientId',
         lastUpload: 'some upload time',
@@ -724,6 +867,10 @@ describe('pendoMiddleware', () => {
         blip: {
           loggedInUserId: 'clinicMemberID', // patient is not the logged-in user
           allUsersMap: _.pick(users, 'patientId'),
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
         },
       },
     });

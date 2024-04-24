@@ -17,13 +17,13 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO } from '../../core/constants';
 
-export const DonateBanner = translate()((props) => {
+export const DonateBanner = withTranslation()((props) => {
   const {
     onClose,
     onConfirm,

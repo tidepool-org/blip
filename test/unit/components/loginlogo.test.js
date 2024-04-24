@@ -4,9 +4,9 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
+import { mount } from 'enzyme';
 import LoginLogo from '../../../app/components/loginlogo/loginlogo';
 
 describe('LoginLogo', function () {
@@ -19,7 +19,7 @@ describe('LoginLogo', function () {
       console.error = sinon.stub();
       var props = {};
       var elem = React.createElement(LoginLogo, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = mount(elem);
       expect(console.error.callCount).to.equal(0);
     });
   });

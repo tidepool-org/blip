@@ -7,9 +7,8 @@ import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
-import styled from 'styled-components';
-import { Label } from '@rebass/forms';
-import { Box, BoxProps, Flex } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Label, Box, Flex, BoxProps } from 'theme-ui';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
@@ -62,7 +61,7 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
   }
 `;
 
-export const DatePicker = props => {
+export function DatePicker(props) {
   const {
     date: dateProp,
     error,
@@ -129,7 +128,13 @@ export const DatePicker = props => {
     <Box as={StyledDatePicker} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption fontWeight={fontWeights.medium} className={inputClasses}>
+          <Caption
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1,
+            }}
+            className={inputClasses}
+          >
             {label}
           </Caption>
         </Label>
@@ -169,7 +174,7 @@ export const DatePicker = props => {
       )}
     </Box>
   );
-};
+}
 
 DatePicker.propTypes = {
   ...SingleDatePickerShape,

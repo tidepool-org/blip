@@ -7,14 +7,14 @@ module.exports = function babelConfig(api) {
 
   const plugins = [
     '@babel/plugin-transform-modules-commonjs',
-    '@quickbaseoss/babel-plugin-styled-components-css-namespace',
+    '@emotion/babel-plugin',
   ];
 
   const env = api.env();
 
   if (env === 'dev') {
     plugins.unshift(
-      'react-hot-loader/babel',
+      'react-refresh/babel',
     );
   }
 

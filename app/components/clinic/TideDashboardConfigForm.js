@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import includes from 'lodash/includes';
@@ -9,7 +9,7 @@ import map from 'lodash/map';
 import reject from 'lodash/reject';
 import without from 'lodash/without';
 import { useFormik } from 'formik';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, BoxProps } from 'theme-ui';
 
 import { TagList } from '../../components/elements/Tag';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -80,7 +80,7 @@ export const TideDashboardConfigForm = props => {
       {...boxProps}
     >
       <Box id='patient-tags-select' mb={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select Patient Tag(s)')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select Patient Tag(s)')}</Body0>
 
         <TagList
           tags={map(clinic?.patientTags, tag => ({
@@ -92,26 +92,28 @@ export const TideDashboardConfigForm = props => {
               setFieldTouched('tags', true, true);
               setFieldValue('tags', [...(values.tags || []), tagId]);
             },
-            sx: { userSelect: 'none' }
+            sx: { userSelect: 'none' },
           }}
           selectedTagProps={{
             onClick: tagId => {
               setFieldValue('tags', without(values.tags, tagId));
             },
-            color: 'white',
-            backgroundColor: 'purpleMedium',
+            sx: {
+              color: 'white',
+              backgroundColor: 'purpleMedium',
+            },
           }}
         />
 
         {getFieldError('tags', formikContext) && (
-          <Caption ml={2} mt={2} color="feedback.danger">
+          <Caption ml={2} mt={2} sx={{ color: 'feedback.danger' }}>
             {errors.tags}
           </Caption>
         )}
       </Box>
 
       <Box sx={{ borderTop: borders.default }} py={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select how many day(s) of data to view')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select how many day(s) of data to view')}</Body0>
 
         <RadioGroup
           options={summaryPeriodOptions}
@@ -121,7 +123,7 @@ export const TideDashboardConfigForm = props => {
       </Box>
 
       <Box sx={{ borderTop: borders.default }} pt={3}>
-        <Body0 fontWeight="medium" mb={2}>{t('Select Last Upload Date')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select Last Upload Date')}</Body0>
 
         <RadioGroup
           options={lastUploadDateFilterOptions}
@@ -141,4 +143,4 @@ TideDashboardConfigForm.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(TideDashboardConfigForm);
+export default withTranslation()(TideDashboardConfigForm);

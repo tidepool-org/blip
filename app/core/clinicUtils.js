@@ -110,6 +110,7 @@ export const clinicTierDetails = (clinic = {}) => {
     patientCountSettings = {},
   } = clinic;
 
+  const hardLimit = patientCountSettings?.hardLimit;
   const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
   const hardLimitStartDateIsFuture = hardLimitStartDate && moment(hardLimitStartDate).isValid() && moment(hardLimitStartDate).isAfter();
   const isBaseTier = tier.indexOf('tier01') === 0;
@@ -118,7 +119,7 @@ export const clinicTierDetails = (clinic = {}) => {
   // Handle various base tier clinic states
   if (isBaseTier) {
     const isOUS = country !== 'US';
-    const isInActiveSalesConversation = !isOUS && !hardLimitStartDate;
+    const isInActiveSalesConversation = !isOUS && !hardLimit;
     const isHonoredBaseClinic = !isOUS && hardLimitStartDateIsFuture;
 
     if (isOUS) {

@@ -102,6 +102,7 @@ describe('ClinicDetails', () => {
       },
       clinics: {
         clinicID456: {
+          id: 'clinicID456',
           name: 'Clinic 1',
           canMigrate: false,
           clinicians: {
@@ -585,13 +586,13 @@ describe('ClinicDetails', () => {
 
           const expectedActions = [
             { type: 'CREATE_CLINIC_REQUEST' },
-            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic123' } },
             {
               type: 'CREATE_CLINIC_SUCCESS',
               payload: {
                 clinic: { id: 'newClinic123' },
               },
             },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic123' } },
             { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
             { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics: [ { clinic: { id: 'newClinic123' } } ], clinicianId: 'clinicianUserId123' } },
             { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import get from 'lodash/get';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
@@ -12,7 +13,7 @@ import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
-import { Flex, Box, Text } from 'rebass/styled-components';
+import { Flex, Box, Text } from 'theme-ui';
 
 import {
   usePopupState,
@@ -34,6 +35,7 @@ export const WorkspaceSwitcher = props => {
   const membershipInOtherCareTeams = useSelector((state) => state.blip.membershipInOtherCareTeams);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const hasPatientProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'patient'], false);
+  const { pathname } = useLocation();
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -43,11 +45,11 @@ export const WorkspaceSwitcher = props => {
 
   const [menuOptions, setMenuOptions] = useState([])
   const [selectedClinic, setSelectedClinic] = useState(menuOptions[0]);
+  const selected = find(menuOptions, {id: selectedClinicId});
 
   useEffect(() => {
-    const selected = find(menuOptions, {id: selectedClinicId});
     if (selected) setSelectedClinic(selected);
-  }, [menuOptions.length, selectedClinicId]);
+  }, [menuOptions.length, selectedClinicId, selected]);
 
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
@@ -59,7 +61,7 @@ export const WorkspaceSwitcher = props => {
         metric: ['Clinic - Workspace Switcher - Go to private workspace'],
       };
 
-      const hidePrivateWorkspaceOption = !hasPatientProfile && !membershipInOtherCareTeams.length;
+      const hidePrivateWorkspaceOption = pathname !== '/patients' && (!hasPatientProfile && !membershipInOtherCareTeams.length);
 
       const options = [
         ...map(sortBy(userClinics, clinic => clinic.name.toLowerCase()), clinic => ({
@@ -73,7 +75,7 @@ export const WorkspaceSwitcher = props => {
 
       setMenuOptions(options);
     }
-  }, [clinics, membershipInOtherCareTeams, hasPatientProfile]);
+  }, [clinics, membershipInOtherCareTeams, hasPatientProfile, pathname]);
 
   const handleSelect = option => {
     trackMetric(...option.metric);
@@ -83,18 +85,18 @@ export const WorkspaceSwitcher = props => {
   };
 
   return menuOptions.length ? (
-    <Flex id='workspace-switcher' justifyContent={['center', 'flex-start', 'center']}>
+    <Flex id='workspace-switcher' sx={{ justifyContent: ['center', 'flex-start', 'center'] }}>
       {menuOptions.length > 1 && (
         <>
           <Button
             id="workspace-switcher-current"
             variant="textPrimary"
             color="text.primary"
-            fontSize={2}
             {...bindTrigger(popupState)}
             icon={KeyboardArrowDownRoundedIcon}
             iconLabel={t('Open navigation menu')}
             sx={{
+              fontSize: 2,
               '&:hover': {
                 color: colors.purpleDark,
               },
@@ -121,17 +123,17 @@ export const WorkspaceSwitcher = props => {
                   className="workspace-option"
                   variant="textPrimary"
                   color="text.primary"
-                  width="100%"
                   pt={2}
                   pb={3}
                   px={3}
-                  justifyContent="space-between"
                   key={key}
-                  fontSize={2}
                   icon={option.id === selectedClinic?.id ? CheckRoundedIcon : null}
                   iconLabel={t('Selected')}
                   onClick={() => handleSelect(option)}
                   sx={{
+                    width: '100%',
+                    fontSize: 2,
+                    justifyContent: 'space-between',
                     '&:hover': {
                       color: colors.purpleDark,
                     },
@@ -161,4 +163,4 @@ WorkspaceSwitcher.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(WorkspaceSwitcher);
+export default withTranslation()(WorkspaceSwitcher);

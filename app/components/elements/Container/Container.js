@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, BoxProps, Flex, Image, Text } from 'rebass/styled-components';
+import { Box, BoxProps, Flex, Image, Text } from 'theme-ui';
 import { useSelector } from 'react-redux';
 import get from 'lodash/get';
 import map from 'lodash/map';
@@ -11,7 +11,7 @@ import Button from '../Button';
 import { borders } from '../../../themes/baseTheme';
 import personUtils from '../../../core/personutils';
 
-const Container = (props) => {
+export function Container(props) {
   const { variant, title, subtitle, showBannerImage, children, actions, sx, ...themeProps } = props;
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
@@ -60,6 +60,7 @@ const Container = (props) => {
             lineHeight: 2,
             width: '100%',
             textAlign: 'center',
+            display: 'inline-block',
           }}
         >
           {title}
@@ -78,6 +79,7 @@ const Container = (props) => {
             lineHeight: 2,
             width: '100%',
             textAlign: 'center',
+            display: 'inline-block',
           }}
         >
           {subtitle}
@@ -105,7 +107,7 @@ const Container = (props) => {
       )}
     </Box>
   );
-};
+}
 
 Container.propTypes = {
   ...BoxProps,

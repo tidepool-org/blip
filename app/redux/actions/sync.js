@@ -2401,3 +2401,10 @@ export function setClinicUIDetails(clinicId, uiDetails) {
     },
   };
 }
+
+export function setPendoData(data) {
+  return {
+    type: ActionTypes.SET_PENDO_DATA,
+    payload: { data },
+  };
+}

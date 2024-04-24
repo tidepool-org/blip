@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
 import compact from 'lodash/compact';
 import find from 'lodash/find';
@@ -16,14 +16,14 @@ import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import ScrollToTop from 'react-scroll-to-top';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import {
@@ -153,7 +153,7 @@ const SortPopover = React.memo(props => {
         onClick={() => {
           if (!sortPopupFilterState.isOpen) trackMetric(prefixTideDashboardMetric('Sort popover opened'), { clinicId: selectedClinicId, section: section.groupKey });
         }}
-        flexShrink={0}
+        sx={{ flexShrink: 0 }}
       >
         <Button
           variant="textSecondary"
@@ -162,9 +162,7 @@ const SortPopover = React.memo(props => {
           {...bindTrigger(sortPopupFilterState)}
           icon={KeyboardArrowDownRoundedIcon}
           iconLabel="Update sort order"
-          fontSize={0}
-          fontWeight="medium"
-          lineHeight={1.3}
+          sx={{ fontSize: 0, fontWeight: 'medium', lineHeight: 1.3 }}
         >
           {t('Sort')} {find(sortOptions, { value: section.sortDirection })?.label}
         </Button>
@@ -245,10 +243,14 @@ const TideDashboardSection = React.memo(props => {
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
-      <Text fontSize={[1, null, 0]} fontWeight="medium"  sx={{
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-      }}>
+      <Text
+        sx={{
+          fontSize: [1, null, 0],
+          fontWeight: 'medium',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
         {patient?.fullName}
       </Text>
     </Box>
@@ -264,7 +266,7 @@ const TideDashboardSection = React.memo(props => {
 
     return averageGlucose ? (
       <Box className="patient-average-glucose">
-        <Text as="span" fontWeight="medium">{formattedAverageGlucose}</Text>
+        <Text sx={{ fontWeight: 'medium' }}>{formattedAverageGlucose}</Text>
       </Box>
     ) : null;
   }, [clinicBgUnits]);
@@ -284,8 +286,8 @@ const TideDashboardSection = React.memo(props => {
 
     return (
       <Box classname="patient-gmi">
-        <Text as="span" fontWeight="medium">{formattedGMI}</Text>
-        {formattedGMI !== statEmptyText && <Text as="span" fontSize="10px"> %</Text>}
+        <Text sx={{ fontWeight: 'medium' }}>{formattedGMI}</Text>
+        {formattedGMI !== statEmptyText && <Text sx={{ fontSize: '10px' }}> %</Text>}
       </Box>
     );
   }, [config?.period]);
@@ -307,8 +309,8 @@ const TideDashboardSection = React.memo(props => {
 
     return (
       <Box classname={`patient-${summaryKey}`}>
-        <Text as="span" fontWeight="medium">{formattedValue}</Text>
-        {formattedValue !== statEmptyText && <Text as="span" fontSize="10px"> %</Text>}
+        <Text sx={{ fontWeight: 'medium' }}>{formattedValue}</Text>
+        {formattedValue !== statEmptyText && <Text sx={{ fontSize: '10px' }}> %</Text>}
       </Box>
     );
   }, []);
@@ -340,13 +342,13 @@ const TideDashboardSection = React.memo(props => {
 
     return timeInTargetPercentDelta ? (
       <DeltaBar
-        fontWeight="medium"
+        sx={{ fontWeight: 'medium' }}
         delta={timeInTargetPercentDelta * 100}
         max={30}
         threshold={DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta}
       />
     ) : (
-      <Text as="span" fontWeight="medium">{statEmptyText}</Text>
+      <Text sx={{ fontWeight: 'medium' }}>{statEmptyText}</Text>
     );
   }, []);
 
@@ -488,12 +490,14 @@ const TideDashboardSection = React.memo(props => {
 
   return (
     <Box className='dashboard-section' id={`dashboard-section-${section.groupKey}`} mb={4}>
-      <Flex justifyContent="space-between" alignItems="center">
+      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <Text
           className='dashboard-section-label'
-          color="purples.9"
-          fontSize={1}
-          fontWeight="medium"
+          sx={{
+            color: 'purples.9',
+            fontSize: 1,
+            fontWeight: 'medium',
+          }}
           mb={2}
         >
           {sectionLabelsMap[section.groupKey]}
@@ -517,7 +521,7 @@ const TideDashboardSection = React.memo(props => {
         label={'peopletablelabel'}
         columns={columns}
         data={patients}
-        style={{ fontSize: '12px' }}
+        sx={{ fontSize: 0 }}
         order={section.sortDirection}
         orderBy={section.sortKey}
         emptyContentNode={emptyContentNode}
@@ -739,19 +743,18 @@ export const TideDashboard = (props) => {
     return (
       <Flex
         mb={3}
-        justifyContent="space-between"
-        alignItems="center"
-        flexWrap="wrap"
-        sx={{ rowGap: 2, columnGap: 3 }}
+        sx={{ rowGap: 2, columnGap: 3, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}
       >
-        <Flex sx={{ gap: 2 }} alignItems="center">
-          <Title id="tide-dashboard-header" fontWeight="medium" fontSize="18px">{t('TIDE Dashboard')}</Title>
+        <Flex sx={{ gap: 2, alignItems: 'center' }}>
+          <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '18px' }}>{t('TIDE Dashboard')}</Title>
 
-          <Flex sx={{ gap: 2, position: 'relative', top: '2px' }} alignItems="center">
+          <Flex sx={{ gap: 2, position: 'relative', top: '2px', alignItems: 'center' }}>
             <Text
-              fontSize={0}
-              fontWeight="medium"
-              color="text.primaryGrey"
+              sx={{
+                fontSize: 0,
+                fontWeight: 'medium',
+                color: 'text.primaryGrey',
+              }}
               ml={2}
             >
               {uploadDatesLabel}
@@ -760,15 +763,17 @@ export const TideDashboard = (props) => {
             <Text
               id="tide-dashboard-upload-dates"
               as={Flex}
-              fontSize={0}
-              fontWeight="medium"
-              height="24px"
-              bg="white"
-              color={loading ? 'white' : 'text.primary'}
-              alignContent="center"
-              flexWrap="wrap"
               px={3}
-              sx={{ borderRadius: radii.medium }}
+              sx={{
+                borderRadius: radii.medium,
+                alignContent: 'center',
+                flexWrap: 'wrap',
+                fontSize: 0,
+                fontWeight: 'medium',
+                height: '24px',
+                bg: 'white',
+                color: loading ? 'white' : 'text.primary',
+              }}
             >
               {formatDateRange(
                 moment.utc(config?.lastUploadDateFrom).subtract(getOffset(config?.lastUploadDateFrom, timezone), 'minutes').toISOString(),
@@ -779,9 +784,11 @@ export const TideDashboard = (props) => {
             </Text>
 
             <Text
-              fontSize={0}
-              fontWeight="medium"
-              color="text.primaryGrey"
+              sx={{
+                fontSize: 0,
+                fontWeight: 'medium',
+                color: 'text.primaryGrey',
+              }}
               ml={2}
             >
               {t('Viewing data from')}
@@ -790,15 +797,17 @@ export const TideDashboard = (props) => {
             <Text
               id="tide-dashboard-summary-period"
               as={Flex}
-              fontSize={0}
-              fontWeight="medium"
-              height="24px"
-              bg="white"
-              color={loading ? 'white' : 'text.primary'}
-              alignContent="center"
-              flexWrap="wrap"
               px={3}
-              sx={{ borderRadius: radii.medium }}
+              sx={{
+                borderRadius: radii.medium,
+                alignContent: 'center',
+                flexWrap: 'wrap',
+                fontSize: 0,
+                fontWeight: 'medium',
+                height: '24px',
+                bg: 'white',
+                color: loading ? 'white' : 'text.primary',
+              }}
             >
               {config?.period.slice(0, -1)} {periodDaysText}
             </Text>
@@ -811,10 +820,8 @@ export const TideDashboard = (props) => {
           icon={KeyboardArrowDownRoundedIcon}
           iconLabel="Open dashboard config"
           onClick={handleConfigureTideDashboard}
-          fontSize={1}
-          lineHeight={5}
           px={3}
-          sx= {{ border: 'none' }}
+          sx={{ fontSize: 1, lineHeight: 5, border: 'none' }}
         >
           {t('Filter Patients')}
         </Button>
@@ -831,10 +838,10 @@ export const TideDashboard = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle alignItems="flex-start" onClose={handleCloseOverlays}>
+        <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
-            <MediumTitle fontSize={2} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
-            <Body1 fontWeight="medium" color="grays.4">{t('You must make a selection in each category')}</Body1>
+            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+            <Body1 sx={{ fontWeight: 'medium', color: 'grays.4' }}>{t('You must make a selection in each category')}</Body1>
           </Box>
         </DialogTitle>
 
@@ -971,8 +978,8 @@ export const TideDashboard = (props) => {
         section={{}}
         patients={[]}
         emptyContentNode={(
-          <Box id="no-tide-results" px={3} py={8} variant="containers.fluidRounded" fontSize={1} textAlign="center" color="text.primary" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
-            <Text mb={3} fontWeight="bold">
+          <Box id="no-tide-results" px={3} py={8} variant="containers.fluidRounded" sx={{ fontSize: 1, color: 'text.primary', textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
+            <Text mb={3} sx={{ display: 'inline-block', fontWeight: 'bold' }}>
               {t('There are no patients that match your filter criteria.')}
             </Text>
 
@@ -1000,10 +1007,12 @@ export const TideDashboard = (props) => {
   return (
     <Box
       id="tide-dashboard"
-      alignItems="center"
+      sx={{
+        alignItems: 'center',
+        bg: 'transparent',
+        minHeight: '80vh',
+      }}
       variant="containers.large"
-      bg="transparent"
-      minHeight="80vh"
       mb={8}
       px={3}
     >
@@ -1032,4 +1041,4 @@ TideDashboard.defaultProps = {
   searchDebounceMs: 1000,
 };
 
-export default translate()(TideDashboard);
+export default withTranslation()(TideDashboard);

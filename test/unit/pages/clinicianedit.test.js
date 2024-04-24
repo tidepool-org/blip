@@ -250,14 +250,14 @@ describe('ClinicianEdit', () => {
       expect(wrapper.find(Checkbox).props().checked).to.be.false;
       wrapper
         .find('input[type="checkbox"]').at(0)
-        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', checked: true, value: true } });
       expect(wrapper.find(Checkbox).props().checked).to.be.true;
     });
 
     it('should show confirmation dialog when delete clicked', () => {
       let deleteDialog = () => wrapper.find('Dialog#deleteDialog');
       expect(deleteDialog().props().open).to.be.false;
-      wrapper.find('div[color="feedback.danger"]').at(0).simulate('click');
+      wrapper.find('span#remove-team-member').at(0).simulate('click');
       expect(deleteDialog().props().open).to.be.true;
       expect(deleteDialog().find('DialogTitle').text()).to.equal('Remove clinician_user_name');
       expect(deleteDialog().find('Button#deleteDialogCancel')).to.have.lengthOf(1);
@@ -279,7 +279,7 @@ describe('ClinicianEdit', () => {
       it("should prevent user from removing themselves if they're the last admin", () => {
         let deleteDialog = () => wrapper.find('Dialog#deleteDialog');
         expect(deleteDialog().props().open).to.be.false;
-        wrapper.find('div[color="feedback.danger"]').at(0).simulate('click');
+        wrapper.find('span#remove-team-member').at(0).simulate('click');
         expect(deleteDialog().props().open).to.be.true;
         expect(deleteDialog().find('DialogTitle').text()).to.equal(
           'Unable to remove yourself'
@@ -312,7 +312,7 @@ describe('ClinicianEdit', () => {
       it("should prevent user from removing themselves if they're the last admin", () => {
         let deleteDialog = () => wrapper.find('Dialog#deleteDialog');
         expect(deleteDialog().props().open).to.be.false;
-        wrapper.find('div[color="feedback.danger"]').at(0).simulate('click');
+        wrapper.find('span#remove-team-member').at(0).simulate('click');
         expect(deleteDialog().props().open).to.be.true;
         expect(deleteDialog().find('DialogTitle').text()).to.equal(
           'Unable to remove yourself'
@@ -364,7 +364,7 @@ describe('ClinicianEdit', () => {
 
       wrapper
         .find('input[type="checkbox"]').at(0)
-        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', checked: true, value: true } });
 
       wrapper.find('Button#submit').simulate('submit');
       setTimeout(() => {

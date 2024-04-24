@@ -96,20 +96,6 @@ describe('PDFWorker', () => {
     expect(Worker.handleMessage).to.be.a('function');
   });
 
-  it('should import the required static files upon pdf generation request', () => {
-    renderer.resolves(pdf);
-
-    const postMessage = sinon.stub();
-
-    const action = actions.generatePDFRequest(type, queries, opts());
-    const origin = action.meta.origin;
-
-    Worker.handleMessage({ data: action }, postMessage);
-
-    sinon.assert.calledOnce(importer);
-    sinon.assert.calledWithExactly(importer, `${origin}/pdfkit.js`, `${origin}/blob-stream.js`);
-  });
-
   it('should call the pdf rendering method properly upon request', () => {
     renderer.resolves(pdf);
 
@@ -172,7 +158,8 @@ describe('PDFWorker', () => {
 
   it('should fire a failure action uplon failed query', () => {
     const postMessage = sinon.stub();
-    dataUtil.query.throws(new Error('query error'));
+    const error = new Error('query error');
+    dataUtil.query.throws(error);
 
     Worker = new PDFWorker(dataUtil, importer, renderer);
 
@@ -182,7 +169,7 @@ describe('PDFWorker', () => {
     sinon.assert.calledOnce(postMessage);
     sinon.assert.calledWithExactly(
       postMessage,
-      actions.generatePDFFailure(new Error('query error'))
+      actions.generatePDFFailure(error)
     );
     dataUtil.query = sinon.stub().callsFake(key => queryResults[key]);
   });

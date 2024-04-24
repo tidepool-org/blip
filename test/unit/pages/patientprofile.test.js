@@ -4,7 +4,6 @@
 /* global it */
 
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 
 var assert = chai.assert;

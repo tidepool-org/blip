@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
 import includes from 'lodash/includes';
@@ -9,7 +9,7 @@ import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { useFormik } from 'formik';
 import moment from 'moment-timezone';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, BoxProps } from 'theme-ui';
 import { Element, scroller } from 'react-scroll';
 
 import { useLocalStorage } from '../../core/hooks';
@@ -24,7 +24,7 @@ import i18next from '../../core/language';
 const t = i18next.t.bind(i18next);
 
 export const exportRpmReport = ({ config, results }) => {
-  let { startDate = '', endDate = '' } = {} = config?.rawConfig;
+  let { startDate = '', endDate = '' } = config?.rawConfig || {};
   startDate = startDate.replace(dateRegex, '$2/$3/$1');
   endDate = endDate.replace(dateRegex, '$2/$3/$1');
 
@@ -241,4 +241,4 @@ RpmReportConfigForm.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(RpmReportConfigForm);
+export default withTranslation()(RpmReportConfigForm);

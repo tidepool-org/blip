@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useFormik } from 'formik';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get';
 import map from 'lodash/map';
@@ -13,7 +13,7 @@ import filter from 'lodash/filter';
 import indexOf from 'lodash/indexOf';
 import isUndefined from 'lodash/isUndefined';
 import * as yup from 'yup';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
@@ -265,19 +265,18 @@ export const ClinicianEdit = (props) => {
       {selectedClinician ? (
         <>
           <Flex
-            sx={{ borderBottom: baseTheme.borders.default }}
-            alignItems="center"
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
             p={4}
             mb={4}
             px={6}
           >
-            <Box flexGrow={1}>
-              <Text fontWeight="medium">{clinicianName}</Text>
-              <Text>{selectedClinician.email}</Text>
+            <Box sx={{ flexGrow: 1 }}>
+              <Text sx={{ display: 'block', fontWeight: 'medium' }}>{clinicianName}</Text>
+              <Text sx={{ display: 'block' }}>{selectedClinician.email}</Text>
             </Box>
             <Text
-              color="feedback.danger"
-              sx={{ cursor: 'pointer' }}
+              id="remove-team-member"
+              sx={{ color: 'feedback.danger', cursor: 'pointer' }}
               onClick={() => handleClickDelete()}
             >
               {t('Remove User')}
@@ -336,7 +335,7 @@ export const ClinicianEdit = (props) => {
               Learn more about clinician roles and permissions
             </Button>
 
-            <Flex p={4} justifyContent="flex-end">
+            <Flex p={4} sx={{ justifyContent: 'flex-end' }}>
               <Button id="cancel" variant="secondary" onClick={handleBack}>
                 {t('Back')}
               </Button>
@@ -430,4 +429,4 @@ ClinicianEdit.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicianEdit);
+export default withTranslation()(ClinicianEdit);

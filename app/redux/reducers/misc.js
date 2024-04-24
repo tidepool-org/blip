@@ -1152,3 +1152,14 @@ export const ssoEnabledDisplay = (state = initialState.ssoEnabledDisplay, action
       return state;
   }
 };
+
+export const pendoData = (state = initialState.pendoData, action) => {
+  switch (action.type) {
+    case types.SET_PENDO_DATA:
+      return action.payload.data;
+    case types.LOGOUT_REQUEST:
+      return initialState.pendoData;
+    default:
+      return state;
+  }
+};
