@@ -91,7 +91,7 @@ export function DateRangePicker(props) {
   const {
     startDate,
     endDate,
-    error,
+    errors = {},
     focusedInput: focusedInputProp,
     label,
     onDatesChange,
@@ -109,7 +109,7 @@ export function DateRangePicker(props) {
   }, [startDate, endDate]);
 
   const inputClasses = cx({
-    error,
+    error: !!(errors.startDate || errors.endDate),
     required,
   });
 
@@ -138,7 +138,9 @@ export function DateRangePicker(props) {
           onDatesChange(newDates);
         }}
         focusedInput={focusedInput}
-        onFocusChange={newFocusedInput => {
+        onFocusChange={selectedFocusedInput => {
+          let newFocusedInput = selectedFocusedInput;
+          if (newFocusedInput && !dates.startDate) newFocusedInput = 'startDate';
           setFocusedInput(newFocusedInput);
           onFocusChange(newFocusedInput);
         }}
@@ -154,10 +156,26 @@ export function DateRangePicker(props) {
         showClearDates
         {...datePickerProps}
       />
-      {error && (
-        <Caption ml={2} mt={2} className={inputClasses}>
-          {error}
-        </Caption>
+      {(errors.startDate || errors.endDate) && (
+        <Box ml={2} mt={2}>
+          {errors.startDate && (
+            <Caption
+              lineHeight={3}
+              className={inputClasses}
+            >
+              {errors.startDate}
+            </Caption>
+          )}
+
+          {errors.endDate && (
+            <Caption
+              lineHeight={3}
+              className={inputClasses}
+            >
+              {errors.endDate}
+            </Caption>
+          )}
+        </Box>
       )}
     </Box>
   );
