@@ -24,7 +24,7 @@ import i18next from '../../core/language';
 const t = i18next.t.bind(i18next);
 
 export const exportRpmReport = ({ config, results }) => {
-  let { startDate = '', endDate = '' } = {} = config?.rawConfig;
+  let { startDate = '', endDate = '' } = config?.rawConfig || {};
   startDate = startDate.replace(dateRegex, '$2/$3/$1');
   endDate = endDate.replace(dateRegex, '$2/$3/$1');
 
