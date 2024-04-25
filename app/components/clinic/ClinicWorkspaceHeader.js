@@ -202,9 +202,6 @@ export const ClinicWorkspaceHeader = (props) => {
                   sx={{
                     fontSize: 1,
                     fontWeight: 'medium',
-                    textDecoration: 'underline',
-                    color: 'text.link',
-                    '&:hover': { textDecoration: 'underline' },
                   }}
                 >
                   {t('Unlock Plans')}

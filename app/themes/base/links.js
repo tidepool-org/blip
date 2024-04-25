@@ -1,11 +1,11 @@
 export default ({ colors, fonts }) => {
   const defaultStyles = {
     fontFamily: fonts.default,
-    textDecoration: 'none',
+    textDecoration: 'underline',
     color: colors.text.link,
     '&:hover, &:active': {
       color: colors.text.link,
-      textDecoration: 'none',
+      textDecoration: 'underline',
     },
     '&:focus': {
       color: colors.text.link,
@@ -19,10 +19,6 @@ export default ({ colors, fonts }) => {
     inverted: {
       ...defaultStyles,
       color: colors.white,
-    },
-    underlined: {
-      ...defaultStyles,
-      textDecoration: 'underline',
     },
   };
 };
