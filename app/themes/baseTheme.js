@@ -168,7 +168,6 @@ const variants = {
   banners: banners({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space, shadows }),
   inputs: inputs({ borders, colors, fonts, radii, fontSizes, fontWeights, space }),
-  link: linkVariants.default,
   links: linkVariants,
   lists: lists(),
   paginators: paginators({ colors, fonts, fontSizes, breakpoints }),
@@ -245,10 +244,16 @@ const text = {
     lineHeight: 3,
   },
 
+  paragraph0: {
+    ...paragraphText,
+    fontSize: 0,
+    lineHeight: 2,
+  },
+
   paragraph1: {
     ...paragraphText,
     fontSize: 1,
-    lineHeight: 3,
+    lineHeight: 2,
   },
 
   paragraph2: {
@@ -282,6 +287,10 @@ const text = {
   },
 };
 
+const styles = {
+  a: linkVariants.default,
+};
+
 export default {
   breakpoints,
   buttons: buttons({
@@ -306,6 +315,7 @@ export default {
   radii,
   shadows,
   space,
+  styles,
   text,
   transitions,
   zIndices,
