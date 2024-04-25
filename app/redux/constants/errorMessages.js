@@ -134,6 +134,7 @@ export const ERR_UPDATING_CLINIC_PATIENT_TAG_DUPLICATE = t('Sorry, you already h
 export const ERR_DELETING_CLINIC_PATIENT_TAG = t('Something went wrong while deleting the patient tag.');
 export const ERR_FETCHING_INFO = t('Something went wrong while fetching server configuration.');
 export const ERR_FETCHING_TIDE_DASHBOARD_PATIENTS = t('Something went wrong while fetching patients for the dashboard.');
+export const ERR_FETCHING_RPM_REPORT_PATIENTS = t('Something went wrong while fetching patients for the report.');
 export const ERR_FETCHING_CLINIC_PATIENT_COUNT = t('Something went wrong while fetching the clinic patient count.');
 export const ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS = t('Something went wrong while fetching the clinic patient count settings.');
 

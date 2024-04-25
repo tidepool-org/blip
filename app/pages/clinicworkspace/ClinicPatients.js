@@ -63,7 +63,8 @@ import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
-import TideDashboardConfigForm, { validateConfig } from '../../components/clinic/TideDashboardConfigForm';
+import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
+import RpmReportConfigForm, { exportRpmReport } from '../../components/clinic/RpmReportConfigForm';
 import Pill from '../../components/elements/Pill';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import PopoverLabel from '../../components/elements/PopoverLabel';
@@ -72,6 +73,7 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
 import FilterIcon from '../../core/icons/FilterIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
+import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
 import LimitReached from './images/LimitReached.svg';
 
@@ -92,6 +94,7 @@ import {
   patientSchema as validationSchema,
   clinicPatientTagSchema,
   tideDashboardConfigSchema,
+  rpmReportConfigSchema,
   maxClinicPatientTags
 } from '../../core/clinicUtils';
 
@@ -432,11 +435,13 @@ export const ClinicPatients = (props) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
+  const rpmReportPatients = useSelector(state => state.blip.rpmReportPatients);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDeleteClinicPatientTagDialog, setShowDeleteClinicPatientTagDialog] = useState(false);
   const [showUpdateClinicPatientTagDialog, setShowUpdateClinicPatientTagDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
+  const [showRpmReportConfigDialog, setShowRpmReportConfigDialog] = useState(false);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
@@ -452,6 +457,7 @@ export const ClinicPatients = (props) => {
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
+  const [rpmReportFormContext, setRpmReportFormContext] = useState();
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
   const [clinicPatientTagFormContext, setClinicPatientTagFormContext] = useState();
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
@@ -464,8 +470,9 @@ export const ClinicPatients = (props) => {
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
-  const { showSummaryDashboard, showTideDashboard } = useFlags();
+  const { showSummaryDashboard, showTideDashboard, showRpmReport } = useFlags();
   let showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
+  const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
 
   const defaultPatientFetchOptions = useMemo(
@@ -581,6 +588,7 @@ export const ClinicPatients = (props) => {
     updatingClinicPatientTag,
     deletingClinicPatientTag,
     fetchingTideDashboardPatients,
+    fetchingRpmReportPatients,
   } = useSelector((state) => state.blip.working);
 
   // TODO: remove this when upgraded to React 18
@@ -598,6 +606,7 @@ export const ClinicPatients = (props) => {
   const previousCreatingClinicPatientTag = usePrevious(creatingClinicPatientTag);
   const previousUpdatingClinicPatientTag = usePrevious(updatingClinicPatientTag);
   const previousDeletingClinicPatientTag = usePrevious(deletingClinicPatientTag);
+  const previousFetchingRpmReportPatients = usePrevious(fetchingRpmReportPatients);
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
@@ -672,6 +681,13 @@ export const ClinicPatients = (props) => {
     patientFormContext?.status,
     previousCreatingClinicCustodialAccount?.inProgress,
   ]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...fetchingRpmReportPatients, prevInProgress: previousFetchingRpmReportPatients?.inProgress }, t('Your RPM Report will download shortly'), () => {
+      exportRpmReport(rpmReportPatients);
+      handleCloseOverlays();
+    });
+  }, [fetchingRpmReportPatients, rpmReportPatients, handleAsyncResult, handleCloseOverlays, previousFetchingRpmReportPatients?.inProgress, t]);
 
   useEffect(() => {
     handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
@@ -942,7 +958,7 @@ export const ClinicPatients = (props) => {
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
   function handleConfigureTideDashboard() {
-    if (validateConfig(tideDashboardConfig[localConfigKey], patientTags)) {
+    if (validateTideConfig(tideDashboardConfig[localConfigKey], patientTags)) {
       trackMetric('Clinic - Navigate to Tide Dashboard', { clinicId: selectedClinicId, source: 'Patients list' });
       dispatch(push('/dashboard/tide'));
     } else {
@@ -955,6 +971,16 @@ export const ClinicPatients = (props) => {
     trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId, source: 'Patients list' });
     tideDashboardFormContext?.handleSubmit();
   }, [tideDashboardFormContext, selectedClinicId, trackMetric]);
+
+  function handleConfigureRpmReport() {
+    trackMetric('Clinic - Show RPM Report config dialog', { clinicId: selectedClinicId, source: 'Patients list' });
+    setShowRpmReportConfigDialog(true);
+  }
+
+  const handleConfigureRpmReportConfirm = useCallback(() => {
+    trackMetric('Clinic - Show RPM Report config dialog confirmed', { clinicId: selectedClinicId, source: 'Patients list' });
+    rpmReportFormContext?.handleSubmit();
+  }, [rpmReportFormContext, selectedClinicId, trackMetric]);
 
   const handleCreateClinicPatientTag = useCallback(tag => {
     trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });
@@ -994,6 +1020,10 @@ export const ClinicPatients = (props) => {
 
   function handleTideDashboardConfigFormChange(formikContext) {
     setTideDashboardFormContext({...formikContext});
+  }
+
+  function handleRpmReporConfigFormChange(formikContext) {
+    setRpmReportFormContext({...formikContext});
   }
 
   function handleSearchChange(event) {
@@ -1787,6 +1817,30 @@ export const ClinicPatients = (props) => {
                     </Button>
                   </DialogActions>
                 </Popover>
+
+                {showRpmReportUI && (
+                  <Flex
+                    alignItems="center"
+                    color="grays.4"
+                    py="1px"
+                    pl={[0, 0, 3]}
+                    sx={{ borderLeft: ['none', null, borders.divider] }}
+                  >
+                    <Button
+                      id="open-rpm-report-config"
+                      variant="tertiary"
+                      onClick={handleConfigureRpmReport}
+                      fontSize={0}
+                      lineHeight={1.3}
+                      px={2}
+                      py={1}
+                      iconSrc={TabularReportIcon}
+                      iconPosition="left"
+                    >
+                      {t('RPM Report')}
+                    </Button>
+                  </Flex>
+                )}
               </Flex>
             )}
 
@@ -2476,6 +2530,57 @@ export const ClinicPatients = (props) => {
     );
   }, [activeFilters, bgLabels, handleFilterTimeInRange, pendingFilters, prefixPopHealthMetric, selectedClinicId, setActiveFilters, showTimeInRangeDialog, t, trackMetric]);
 
+  const renderRpmReportConfigDialog = useCallback(() => {
+    return (
+      <Dialog
+        id="rpmReportConfig"
+        aria-labelledby="dialog-title"
+        open={showRpmReportConfigDialog}
+        onClose={handleCloseOverlays}
+        maxWidth="md"
+        PaperProps={{ id: 'rpmReportConfigInner'}}
+      >
+        <DialogTitle onClose={handleCloseOverlays}>
+          <Box sx={{ flexGrow: 1 }} mr={2}>
+            <MediumTitle sx={{ fontSize: 4, textAlign: 'center' }} id="dialog-title">{t('RPM Report')}</MediumTitle>
+          </Box>
+        </DialogTitle>
+
+        <DialogContent sx={{ width: '609px' }} divider>
+          <RpmReportConfigForm
+            api={api}
+            trackMetric={trackMetric}
+            onFormChange={handleRpmReporConfigFormChange}
+            open={showRpmReportConfigDialog}
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="configureRpmReportCancel" variant="secondary" onClick={handleCloseOverlays}>
+            {t('Cancel')}
+          </Button>
+          <Button
+            id="configureRpmReportConfirm"
+            variant="primary"
+            onClick={handleConfigureRpmReportConfirm}
+            processing={fetchingRpmReportPatients.inProgress}
+            disabled={!fieldsAreValid(keys(rpmReportFormContext?.values), rpmReportConfigSchema, rpmReportFormContext?.values)}
+          >
+            {t('Generate Report')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [
+    api,
+    fetchingRpmReportPatients.inProgress,
+    handleConfigureRpmReportConfirm,
+    rpmReportFormContext?.values,
+    showRpmReportConfigDialog,
+    t,
+    trackMetric
+  ]);
+
   function handleCloseOverlays() {
     const resetList = showAddPatientDialog || showEditPatientDialog;
     setShowDeleteDialog(false);
@@ -2485,9 +2590,12 @@ export const ClinicPatients = (props) => {
     setShowTimeInRangeDialog(false);
     setShowSendUploadReminderDialog(false);
     setShowTideDashboardConfigDialog(false);
+    setShowRpmReportConfigDialog(false);
+
     if (resetList) {
       setPatientFetchOptions({ ...patientFetchOptions });
     }
+
     setTimeout(() => {
       setSelectedPatient(null);
     });
@@ -2983,6 +3091,7 @@ export const ClinicPatients = (props) => {
       {showAddPatientDialog && renderAddPatientDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
       {showTideDashboardUI && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
+      {showRpmReportUI && renderRpmReportConfigDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}

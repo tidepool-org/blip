@@ -15,7 +15,6 @@ import { push } from 'connected-react-router';
 import { worker } from '.';
 
 import utils from '../../core/utils';
-import mockTideDashboardPatients from '../../../test/fixtures/mockTideDashboardPatients.json';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 
 let win = window;
@@ -2881,19 +2880,6 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
   return (dispatch) => {
     dispatch(sync.fetchTideDashboardPatientsRequest());
 
-    // TODO: delete temp mocked data response
-    if (options.mockData) {
-      return setTimeout(() => {
-        return dispatch(sync.fetchTideDashboardPatientsSuccess({
-          ...mockTideDashboardPatients,
-          config: {
-            ...mockTideDashboardPatients.config,
-            ...options,
-          }
-        }));
-      }, 2000);
-    }
-
     api.clinics.getPatientsForTideDashboard(clinicId, options, (err, results) => {
       if (err) {
         dispatch(sync.fetchTideDashboardPatientsFailure(
@@ -2901,6 +2887,38 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
         ));
       } else {
         dispatch(sync.fetchTideDashboardPatientsSuccess(results));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Patients for RPM Report Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} [options] - report config options
+ * @param {String} [options.startDate] - UTC ISO datetime for start of the report range
+ * @param {String} [options.endDate] - UTC ISO datetime for end of the report range
+ * @param {Object} [options.rawConfig] - raw user-selected report config values
+ * @param {String} [options.rawConfig.startDate] - ISO date for first day of the report range
+ * @param {String} [options.rawConfig.endDate] - ISO date for last day of the report range
+ * @param {String} [options.rawConfig.timezone] - Timezone to use for the report
+ */
+export function fetchRpmReportPatients(api, clinicId, options) {
+  return (dispatch) => {
+    dispatch(sync.fetchRpmReportPatientsRequest());
+
+    const apiConfigOptions = _.pick(options, ['startDate', 'endDate']);
+
+    api.clinics.getPatientsForRpmReport(clinicId, apiConfigOptions, (err, results) => {
+      if (err) {
+        dispatch(sync.fetchRpmReportPatientsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_RPM_REPORT_PATIENTS, err), err
+        ));
+      } else {
+        if (results.config) results.config.rawConfig = options.rawConfig;
+        dispatch(sync.fetchRpmReportPatientsSuccess(results));
       }
     });
   };

@@ -8092,6 +8092,103 @@ describe('dataWorkerQueryData', () => {
     });
   });
 
+  describe('fetchRpmReportPatients', () => {
+    describe('request', () => {
+      it('should set fetchingRpmReportPatients.completed to null', () => {
+        expect(initialState.fetchingRpmReportPatients.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchRpmReportPatientsRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingRpmReportPatients.completed).to.be.null;
+
+        let successAction = actions.sync.fetchRpmReportPatientsSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingRpmReportPatients.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingRpmReportPatients.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingRpmReportPatients.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchRpmReportPatientsRequest();
+
+        expect(initialStateForTest.fetchingRpmReportPatients.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingRpmReportPatients.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingRpmReportPatients.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingRpmReportPatients.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchRpmReportPatientsFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingRpmReportPatients.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingRpmReportPatients.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingRpmReportPatients: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchRpmReportPatientsFailure(error);
+
+        expect(initialStateForTest.fetchingRpmReportPatients.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingRpmReportPatients.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingRpmReportPatients.inProgress).to.be.false;
+        expect(state.fetchingRpmReportPatients.notification.type).to.equal('error');
+        expect(state.fetchingRpmReportPatients.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingRpmReportPatients.completed to be true', () => {
+        expect(initialState.fetchingRpmReportPatients.completed).to.be.null;
+
+        let successAction = actions.sync.fetchRpmReportPatientsSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingRpmReportPatients.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingRpmReportPatients.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingRpmReportPatients: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchRpmReportPatientsSuccess('foo');
+
+        expect(initialStateForTest.fetchingRpmReportPatients.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingRpmReportPatients.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
   describe('fetchClinicPatientCount', () => {
     describe('request', () => {
       it('should set fetchingClinicPatientCount.completed to null', () => {
@@ -8176,7 +8273,6 @@ describe('dataWorkerQueryData', () => {
         });
 
         let tracked = mutationTracker.trackObj(initialStateForTest);
-
         let action = actions.sync.fetchClinicPatientCountSuccess('foo', { patientCount: 33 });
 
         expect(initialStateForTest.fetchingClinicPatientCount.inProgress).to.be.true;
