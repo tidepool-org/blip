@@ -215,7 +215,7 @@ export const RpmReportConfigForm = props => {
         </Box>
       </Element>
       <Box id='rpm-report-timezone-select' mb={3}>
-        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Confirm your clinic’s timezone')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Confirm your clinic\'s timezone')}</Body0>
 
         <Select
           {...getCommonFormikFieldProps('timezone', formikContext)}
