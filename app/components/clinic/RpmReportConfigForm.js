@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import compact from 'lodash/compact';
 import includes from 'lodash/includes';
 import isNull from 'lodash/isNull';
 import map from 'lodash/map';
@@ -77,17 +76,30 @@ export const RpmReportConfigForm = props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const [config, setConfig] = useLocalStorage('rpmReportConfig', {});
+  const [focusedDatePickerInput, setFocusedDatePickerInput] = useState();
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [showEndDateOffset, setShowEndDateOffset] = useState(false);
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const dateFormat = 'YYYY-MM-DD'
   const maxDays = 30;
-  const maxDaysInPast = 60;
+  const maxDaysInPast = 59;
+
+  // React-dates automatically assumes the local browser time zone when dealing with dates.
+  // We want to grab only the YYYY-MM-DD portion, and construct a UTC date with it.
+  // This avoids several complications, such as DST handling while disabling out-of-range dates.
+  // Upon form submission, we then express the date range in the time zone requested by the user.
+  const getCalendarDate = (date, timezone = 'UTC') => moment.utc(
+    moment.utc(date).tz(timezone).format(dateFormat).split('-').map(
+      // Month in date constructor array is zero-indexed, so needs to be decremented by 1
+      (part, i) => i === 1 ? parseInt(part) - 1 : parseInt(part)
+    )
+  );
+
+  const today = getCalendarDate();
 
   const defaultDates = () => {
     return {
-      startDate: moment.utc().subtract(maxDays - 1, 'days'),
-      endDate: moment.utc(),
+      startDate: moment.utc(today).subtract(maxDays - 1, 'days'),
+      endDate: moment.utc(today),
     };
   }
 
@@ -146,19 +158,8 @@ export const RpmReportConfigForm = props => {
   }, [values]);
 
   function setDates(dates) {
-    if (moment.isMoment(dates.startDate)) {
-      const endDate = moment.min(compact([
-        dates.endDate,
-        moment(),
-        moment(dates.startDate).add(maxDays - 1, 'days')
-      ]));
-
-      setFieldValue('startDate', dates.startDate.format(dateFormat));
-      setFieldValue('endDate', endDate.format(dateFormat));
-    } else {
-      setFieldValue('startDate', '');
-      setFieldValue('endDate', '');
-    }
+    setFieldValue('startDate', moment.isMoment(dates.startDate) ? moment(dates.startDate).format(dateFormat) : '');
+    setFieldValue('endDate', moment.isMoment(dates.endDate) ? moment(dates.endDate).format(dateFormat) : '');
   }
 
   return (
@@ -169,34 +170,55 @@ export const RpmReportConfigForm = props => {
     >
       <Element name="form-wrapper">
         <Box id='rpm-report-range-select' mb={3}>
-          <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Set the start date (30 days max)')}</Body0>
-          <Body0 sx={{ fontStyle: 'italic' }} mb={2}>{t('By default, this range is 30 days. Adjust the end date to shorten the range. The start date is limited to 60 days prior to today.')}</Body0>
+          <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Set the start date ({{maxDays}} days max)', { maxDays })}</Body0>
+          <Body0 sx={{ fontStyle: 'italic' }} mb={2}>{t('By default, this range is {{maxDays}} days. Adjust the end date to shorten the range. The start date is limited to {{maxDaysInPast}} days prior to today.', { maxDays, maxDaysInPast })}</Body0>
 
           <DateRangePicker
             startDate={values.startDate ? moment.utc(values.startDate) : null}
             startDateId="rpm-report-start-date"
+            startDateOffset={(!values.startDate && focusedDatePickerInput === 'endDate')
+              ? day => moment.max([
+                moment.utc(today).subtract(maxDaysInPast - 1, 'days'),
+                moment.utc(getCalendarDate(day)).subtract(maxDays - 1, 'days'),
+              ]).subtract(moment().utcOffset()) // we need to subtract the UTC offset here to match the internal calendar date handling in the react-dates component
+              : undefined
+            }
             endDate={values.endDate ? moment.utc(values.endDate) : null}
             endDateId="rpm-report-end-date"
-            endDateOffset={showEndDateOffset || !values.endDate
+            endDateOffset={(!values.endDate && focusedDatePickerInput === 'startDate')
               ? day => moment.min([
-                moment().endOf('day'),
-                day.add(maxDays - 1, 'days'),
-              ])
+                moment.utc(today),
+                moment.utc(getCalendarDate(day)).add(maxDays - 1, 'days'),
+              ]).subtract(moment().utcOffset()) // we need to subtract the UTC offset here to match the internal calendar date handling in the react-dates component
               : undefined
             }
             errors={errors}
-            focusedInput={!values.startDate ? 'startDate' : 'endDate'}
             onDatesChange={newDates => setDates(newDates)}
-            maxDate={moment()}
-            minDate={moment().subtract(60, 'days')}
-            isOutsideRange={day => (
-              moment().endOf('day').diff(moment(day).endOf('day')) < 0 ||
-              moment().startOf('day').diff(moment(day).startOf('day'), 'days', true) > maxDaysInPast - 1
-            )}
+            maxDate={moment(today)}
+            minDate={moment(today).subtract(maxDaysInPast, 'days')}
+            isDayBlocked={day => {
+              const daysFromToday = today.diff(getCalendarDate(day), 'days');
+
+              // If adjusting the end date, block out all dates 30 days or more beyond, and all dates prior to, the start date
+              if (values.startDate && focusedDatePickerInput === 'endDate') {
+                const daysFromStartDate = getCalendarDate(day).diff(getCalendarDate(values.startDate), 'days');
+                return daysFromStartDate > maxDays - 1 || daysFromStartDate < 0
+              }
+
+              // If adjusting the start date, block out all dates 30 days or more prior to, and all dates after, the end date
+              if (values.endDate && focusedDatePickerInput === 'startDate') {
+                const daysFromEndDate = getCalendarDate(values.endDate).diff(getCalendarDate(day), 'days');
+                return daysFromEndDate > maxDays - 1 || daysFromEndDate < 0
+              }
+
+              // By default block all future dates, and all days prior to 59 days ago
+              return daysFromToday < 0 || daysFromToday >= maxDaysInPast;
+            }}
             initialVisibleMonth={() => moment().subtract(1, 'month')}
             onFocusChange={input => {
+              setFocusedDatePickerInput(input);
               setDatePickerOpen(!!input);
-              setShowEndDateOffset(input === 'startDate');
+
               if (input) scroller.scrollTo('form-wrapper', {
                 delay: 0,
                 containerId: 'rpmReportConfigInner',
@@ -214,6 +236,7 @@ export const RpmReportConfigForm = props => {
           />
         </Box>
       </Element>
+
       <Box id='rpm-report-timezone-select' mb={3}>
         <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Confirm your clinic\'s timezone')}</Body0>
 
