@@ -456,16 +456,19 @@ export const rpmReportConfigSchema = yup.object().shape({
       value = moment(originalValue, dateFormat, true);
       return value.isValid() ? value.toDate() : undefined;
     })
-    .min(moment().subtract(59, 'days').startOf('day').format(dateFormat), t('Please enter a start date within the last 60 days'))
-    .max(moment().subtract(1, 'day').startOf('day').format(dateFormat), t('Please enter a start date prior to today'))
+    .min(moment.utc().subtract(58, 'days').startOf('day').format(dateFormat), t('Please enter a start date within the last 59 days'))
+    .max(moment.utc().subtract(1, 'day').startOf('day').format(dateFormat), t('Please enter a start date prior to today'))
     .required(t('Please select a start date')),
   endDate: yup.date()
     .transform((value, originalValue) => {
       value = moment(originalValue, dateFormat, true);
       return value.isValid() ? value.toDate() : undefined;
     })
-    .min(moment().subtract(59, 'days').endOf('day').format(dateFormat), t('Please enter an end date within the last 59 days'))
-    .max(moment().endOf('day').format(dateFormat), t('Please enter an end date no later than today'))
+    .min(moment.utc().subtract(58, 'days').endOf('day').format(dateFormat), t('Please enter an end date within the last 58 days'))
+    .max(moment.utc().endOf('day').format(dateFormat), t('Please enter an end date no later than today'))
+    .when('startDate', ([startDate], schema) => schema
+      .max(moment.utc(startDate).add(29, 'days').endOf('day').format(dateFormat), t('End date must be within 30 days of the start date'))
+    )
     .required(t('Please select an end date')),
   timezone: yup.string().oneOf(map(timezoneOptions, 'value')).required(t('Please select a timezone')),
 });
