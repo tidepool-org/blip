@@ -199,20 +199,22 @@ export const RpmReportConfigForm = props => {
             isDayBlocked={day => {
               const daysFromToday = today.diff(getCalendarDate(day), 'days');
 
+              // By default block all future dates, and all days prior to 59 days ago
+              let dayIsBlocked = daysFromToday < 0 || daysFromToday >= maxDaysInPast;
+
               // If adjusting the end date, block out all dates 30 days or more beyond, and all dates prior to, the start date
-              if (values.startDate && focusedDatePickerInput === 'endDate') {
+              if (!dayIsBlocked && values.startDate && focusedDatePickerInput === 'endDate') {
                 const daysFromStartDate = getCalendarDate(day).diff(getCalendarDate(values.startDate), 'days');
-                return daysFromStartDate > maxDays - 1 || daysFromStartDate < 0
+                dayIsBlocked = daysFromStartDate > maxDays - 1 || daysFromStartDate < 0;
               }
 
               // If adjusting the start date, block out all dates 30 days or more prior to, and all dates after, the end date
-              if (values.endDate && focusedDatePickerInput === 'startDate') {
+              if (!dayIsBlocked && values.endDate && focusedDatePickerInput === 'startDate') {
                 const daysFromEndDate = getCalendarDate(values.endDate).diff(getCalendarDate(day), 'days');
-                return daysFromEndDate > maxDays - 1 || daysFromEndDate < 0
+                dayIsBlocked = daysFromEndDate > maxDays - 1 || daysFromEndDate < 0;
               }
 
-              // By default block all future dates, and all days prior to 59 days ago
-              return daysFromToday < 0 || daysFromToday >= maxDaysInPast;
+              return dayIsBlocked;
             }}
             initialVisibleMonth={() => moment().subtract(1, 'month')}
             onFocusChange={input => {
