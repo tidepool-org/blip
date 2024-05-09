@@ -467,7 +467,7 @@ export const rpmReportConfigSchema = yup.object().shape({
     .min(moment.utc().subtract(58, 'days').endOf('day').format(dateFormat), t('Please enter an end date within the last 58 days'))
     .max(moment.utc().endOf('day').format(dateFormat), t('Please enter an end date no later than today'))
     .when('startDate', ([startDate], schema) => schema
-      .max(moment.utc(startDate).add(29, 'days').endOf('day').format(dateFormat), t('End date must be within 30 days of the start date'))
+      .max(moment.min([moment.utc(startDate).add(29, 'days'), moment.utc()]).endOf('day').format(dateFormat), t('End date must be within 30 days of the start date and no later than today'))
     )
     .required(t('Please select an end date')),
   timezone: yup.string().oneOf(map(timezoneOptions, 'value')).required(t('Please select a timezone')),
