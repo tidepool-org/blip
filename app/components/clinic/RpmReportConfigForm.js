@@ -119,10 +119,16 @@ export const RpmReportConfigForm = props => {
   const formikContext = useFormik({
     initialValues: defaultFormValues(config?.[localConfigKey]),
     onSubmit: values => {
+      const startDate = moment(values.startDate).tz(values.timezone).startOf('day');
+      const endDate = moment(values.endDate).tz(values.timezone).endOf('day');
+
+      // We keep the offset when converting to an ISO string to match the expected backend format
+      const keepOffset = true;
+
       const queryOptions = {
         rawConfig: values,
-        startDate: moment(values.startDate).tz(values.timezone).startOf('day').toISOString(),
-        endDate: moment(values.endDate).tz(values.timezone).endOf('day').toISOString(),
+        startDate: startDate.toISOString(keepOffset),
+        endDate: endDate.toISOString(keepOffset),
       };
 
       dispatch(async.fetchRpmReportPatients(api, selectedClinicId, queryOptions));
