@@ -191,7 +191,7 @@ export const RpmReportConfigForm = props => {
             }
             endDate={values.endDate ? moment.utc(values.endDate) : null}
             endDateId="rpm-report-end-date"
-            endDateOffset={(!values.endDate && focusedDatePickerInput === 'startDate')
+            endDateOffset={(focusedDatePickerInput === 'startDate')
               ? day => moment.min([
                 moment.utc(today),
                 moment.utc(getCalendarDate(day)).add(maxDays - 1, 'days'),
@@ -212,12 +212,6 @@ export const RpmReportConfigForm = props => {
               if (!dayIsBlocked && values.startDate && focusedDatePickerInput === 'endDate') {
                 const daysFromStartDate = getCalendarDate(day).diff(getCalendarDate(values.startDate), 'days');
                 dayIsBlocked = daysFromStartDate > maxDays - 1 || daysFromStartDate < 0;
-              }
-
-              // If adjusting the start date, block out all dates 30 days or more prior to, and all dates after, the end date
-              if (!dayIsBlocked && values.endDate && focusedDatePickerInput === 'startDate') {
-                const daysFromEndDate = getCalendarDate(values.endDate).diff(getCalendarDate(day), 'days');
-                dayIsBlocked = daysFromEndDate > maxDays - 1 || daysFromEndDate < 0;
               }
 
               return dayIsBlocked;
