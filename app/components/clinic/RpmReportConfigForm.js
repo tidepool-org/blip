@@ -119,16 +119,25 @@ export const RpmReportConfigForm = props => {
   const formikContext = useFormik({
     initialValues: defaultFormValues(config?.[localConfigKey]),
     onSubmit: values => {
-      const startDate = moment(values.startDate).tz(values.timezone).startOf('day');
-      const endDate = moment(values.endDate).tz(values.timezone).endOf('day');
+      // We construct the dates and add the timezone offset manually in order to
+      // provide a utc datetime in the expected backend format without any unexpected shifting
+      // of calendar dates due to timezone conversion
+      const start = [
+        getCalendarDate(values.startDate).format(dateFormat),
+        'T00:00:00.000',
+        moment(values.startDate).tz(values.timezone).startOf('day').toISOString(true).slice(-6),
+      ];
 
-      // We keep the offset when converting to an ISO string to match the expected backend format
-      const keepOffset = true;
+      const end = [
+        getCalendarDate(values.endDate).format(dateFormat),
+        'T11:59:59.999',
+        moment(values.endDate).tz(values.timezone).endOf('day').toISOString(true).slice(-6),
+      ];
 
       const queryOptions = {
         rawConfig: values,
-        startDate: startDate.toISOString(keepOffset),
-        endDate: endDate.toISOString(keepOffset),
+        startDate: start.join(''),
+        endDate: end.join(''),
       };
 
       dispatch(async.fetchRpmReportPatients(api, selectedClinicId, queryOptions));
