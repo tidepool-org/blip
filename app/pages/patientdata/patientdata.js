@@ -60,10 +60,6 @@ import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Paragraph2 } from '../../components/elements/FontStyles';
 
-import {
-  URL_TIDEPOOL_MOBILE_APP_STORE,
-} from '../../core/constants';
-
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
@@ -343,12 +339,7 @@ export const PatientDataClass = createReactClass({
                 >
                   Connect With
                 </Button>
-
               </Flex>
-
-              <Body1 color="mediumGrey" fontWeight={fontWeights.medium}>
-                To upload Dexcom with iPhone, get <a href={URL_TIDEPOOL_MOBILE_APP_STORE} className="uploader-color-override" target="_blank" rel="noreferrer noopener" onClick={handleClickBlipNotes}>Tidepool Mobile</a>
-              </Body1>
             </Box>
 
             <p className="patient-no-data-help">
