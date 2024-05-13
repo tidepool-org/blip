@@ -130,7 +130,7 @@ export const RpmReportConfigForm = props => {
 
       const end = [
         getCalendarDate(values.endDate).format(dateFormat),
-        'T11:59:59.999',
+        'T23:59:59.999',
         moment(values.endDate).tz(values.timezone).endOf('day').toISOString(true).slice(-6),
       ];
 
