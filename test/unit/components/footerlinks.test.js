@@ -35,9 +35,6 @@ describe('FooterLinks', () => {
       id: 'facebook',
       metric: 'Facebook',
     }, {
-      id: 'mobile',
-      metric: 'Mobile App',
-    }, {
       id: 'support',
       metric: 'Support',
     }, {
