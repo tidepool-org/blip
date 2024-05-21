@@ -3294,11 +3294,64 @@ describe('ClinicPatients', () => {
             expect(rpmReportButton).to.have.length(0);
           });
 
+          it('should open a patient count limit modal if current filtered count is > 1000', () => {
+            store = mockStore({
+              blip: {
+                ...tier0300ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0300ClinicState.blip.clinics.clinicID123,
+                    fetchedPatientCount: '1001',
+                  },
+                },
+              }
+            });
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
+            const dialog = () => wrapper.find('Dialog#rpmReportLimit');
+
+            // Clicking RPM report button should open dashboard limit popover since fetchedPatientCount > 1000
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.false;
+            rpmReportButton.simulate('click');
+            wrapper.update();
+            expect(dialog().props().open).to.be.true;
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show RPM Report limit dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+          });
+
           it('should open a modal to configure the report, and generate when configured', done => {
+            store = mockStore({
+              blip: {
+                ...tier0300ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0300ClinicState.blip.clinics.clinicID123,
+                    fetchedPatientCount: '1000',
+                  },
+                },
+              }
+            });
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
             const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
             const dialog = () => wrapper.find('Dialog#rpmReportConfig');
 
-            // Open dashboard config popover
+            // Clicking RPM report button should open dashboard config popover since fetchedPatientCount <= 1000
             expect(dialog()).to.have.length(1);
             expect(dialog().props().open).to.be.false;
             rpmReportButton.simulate('click');
