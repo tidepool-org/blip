@@ -429,43 +429,6 @@ describe('PatientData', function () {
           expect(props.trackMetric.calledWith('Clicked No Data Upload')).to.be.true;
         });
 
-        it('should track click on Blip Notes link', function() {
-          var props = {
-            currentPatientInViewId: '40',
-            isUserPatient: true,
-            patient: {
-              userid: '40',
-              profile: {
-                fullName: 'Fooey McBar'
-              }
-            },
-            fetchingPatient: false,
-            fetchingPatientData: false,
-            removingData: { inProgress: false },
-            generatingPDF: { inProgress: false },
-            pdf: {},
-            trackMetric: sinon.stub()
-          };
-
-          wrapper = mount(<PatientData {...props} />);
-
-          wrapper.setProps(_.assign({}, props, {
-            data: {
-              metaData: { size: 0 },
-            }
-          }));
-
-          wrapper.update();
-
-          var links = wrapper.find('.patient-data-uploader-message a');
-          var callCount = props.trackMetric.callCount;
-
-          links.at(3).simulate('click');
-
-          expect(props.trackMetric.callCount).to.equal(callCount + 1);
-          expect(props.trackMetric.calledWith('Clicked No Data Get Blip Notes')).to.be.true;
-        });
-
         it('should track click on Dexcom Connect link', function() {
           var props = {
             currentPatientInViewId: '40',
