@@ -53,6 +53,7 @@ import {
   MediumTitle,
   Body1,
   Paragraph1,
+  Body0,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
@@ -442,6 +443,7 @@ export const ClinicPatients = (props) => {
   const [showUpdateClinicPatientTagDialog, setShowUpdateClinicPatientTagDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showRpmReportConfigDialog, setShowRpmReportConfigDialog] = useState(false);
+  const [showRpmReportLimitDialog, setShowRpmReportLimitDialog] = useState(false);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
@@ -973,8 +975,13 @@ export const ClinicPatients = (props) => {
   }, [tideDashboardFormContext, selectedClinicId, trackMetric]);
 
   function handleConfigureRpmReport() {
-    trackMetric('Clinic - Show RPM Report config dialog', { clinicId: selectedClinicId, source: 'Patients list' });
-    setShowRpmReportConfigDialog(true);
+    if (clinic?.fetchedPatientCount > 1000) {
+      trackMetric('Clinic - Show RPM Report limit dialog', { clinicId: selectedClinicId, source: 'Patients list' });
+      setShowRpmReportLimitDialog(true);
+    } else {
+      trackMetric('Clinic - Show RPM Report config dialog', { clinicId: selectedClinicId, source: 'Patients list' });
+      setShowRpmReportConfigDialog(true);
+    }
   }
 
   const handleConfigureRpmReportConfirm = useCallback(() => {
@@ -2581,6 +2588,63 @@ export const ClinicPatients = (props) => {
     trackMetric
   ]);
 
+  const renderRpmReportLimitDialog = useCallback(() => {
+    return (
+      <Dialog
+        id="rpmReportLimit"
+        aria-labelledby="dialog-title"
+        open={showRpmReportLimitDialog}
+        onClose={handleCloseOverlays}
+        maxWidth="md"
+        PaperProps={{ id: 'rpmReportLimitInner'}}
+      >
+        <DialogTitle onClose={handleCloseOverlays}>
+          <Box sx={{ flexGrow: 1 }} mr={2}>
+            <MediumTitle sx={{ fontSize: 4, textAlign: 'center' }} id="dialog-title">{t('RPM Report')}</MediumTitle>
+          </Box>
+        </DialogTitle>
+
+        <DialogContent sx={{ width: '609px' }} divider>
+          <Flex
+            px={3}
+            py={4}
+            sx={{
+              borderRadius: radii.default,
+              bg: colors.banner.danger.bg,
+              border: 'none',
+              borderLeft: `3px solid ${colors.feedback.danger}`
+            }}
+          >
+            <Box>
+              <Body0 mb={2} sx={{ fontWeight: 'medium' }}>
+                <Text sx={{ fontWeight: 'bold', color: 'feedback.danger', fontSize: 1 }}>{t('Unable to create report')}</Text>
+                {t(' - The RPM Report can only be generated for up to 1,000 patients')}
+              </Body0>
+
+              <Body0 mb={2} sx={{ fontWeight: 'bold' }}>{t('Next Steps')}</Body0>
+              <Body0 sx={{ fontWeight: 'medium', 'ul,li': { m: 0 } }}>
+                <ul>
+                  <li>
+                    {t('Please filter your list further until there are fewer than 1,000 patients and try again')}
+                  </li>
+                </ul>
+              </Body0>
+            </Box>
+          </Flex>
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="rpmReportLimitClose" variant="secondary" onClick={handleCloseOverlays}>
+            {t('Close')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [
+    showRpmReportLimitDialog,
+    t,
+  ]);
+
   function handleCloseOverlays() {
     const resetList = showAddPatientDialog || showEditPatientDialog;
     setShowDeleteDialog(false);
@@ -2591,6 +2655,7 @@ export const ClinicPatients = (props) => {
     setShowSendUploadReminderDialog(false);
     setShowTideDashboardConfigDialog(false);
     setShowRpmReportConfigDialog(false);
+    setShowRpmReportLimitDialog(false);
 
     if (resetList) {
       setPatientFetchOptions({ ...patientFetchOptions });
@@ -3092,6 +3157,7 @@ export const ClinicPatients = (props) => {
       {showEditPatientDialog && renderEditPatientDialog()}
       {showTideDashboardUI && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showRpmReportUI && renderRpmReportConfigDialog()}
+      {showRpmReportUI && renderRpmReportLimitDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}
