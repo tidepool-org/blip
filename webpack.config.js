@@ -228,6 +228,7 @@ const resolve = {
     lodash: path.resolve('node_modules/lodash'),
     moment: path.resolve('node_modules/moment'),
     'moment-timezone': path.resolve('node_modules/moment-timezone'),
+    process: path.resolve('node_modules/process'),
     react: path.resolve('node_modules/react'),
     'react-addons-update': path.resolve('node_modules/react-addons-update'),
     'react-redux': path.resolve('node_modules/react-redux'),
