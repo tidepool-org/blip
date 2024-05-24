@@ -473,7 +473,7 @@ export const ClinicPatients = (props) => {
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const { showSummaryDashboard, showTideDashboard, showRpmReport } = useFlags();
-  let showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
+  const showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
 
@@ -2556,6 +2556,7 @@ export const ClinicPatients = (props) => {
         <DialogContent sx={{ width: '609px' }} divider>
           <RpmReportConfigForm
             api={api}
+            patientFetchOptions={patientFetchOptions}
             trackMetric={trackMetric}
             onFormChange={handleRpmReporConfigFormChange}
             open={showRpmReportConfigDialog}
@@ -2582,6 +2583,7 @@ export const ClinicPatients = (props) => {
     api,
     fetchingRpmReportPatients.inProgress,
     handleConfigureRpmReportConfirm,
+    patientFetchOptions,
     rpmReportFormContext?.values,
     showRpmReportConfigDialog,
     t,
