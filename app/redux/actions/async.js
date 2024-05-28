@@ -2954,8 +2954,6 @@ export function selectClinic(api, clinicId) {
     const clinic = clinics[clinicId];
 
     if (clinic) {
-      dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails({ ...clinic })));
-
       const fetchers = {};
 
       if (_.isNil(clinics[clinicId].patientCount)) {

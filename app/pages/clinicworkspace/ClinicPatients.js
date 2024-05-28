@@ -11,6 +11,7 @@ import forEach from 'lodash/forEach';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
@@ -473,7 +474,8 @@ export const ClinicPatients = (props) => {
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const { showSummaryDashboard, showTideDashboard, showRpmReport } = useFlags();
-  const showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
+  const [showSummaryData, setShowSummaryData] = useState();
+  const previousShowSummaryData = usePrevious(showSummaryData)
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
 
@@ -792,7 +794,7 @@ export const ClinicPatients = (props) => {
     if (
       loggedInUserId &&
       clinic?.id &&
-      !fetchingPatientsForClinic.inProgress &&
+      (!fetchingPatientsForClinic.inProgress || fetchingPatientsForClinic.completed === null) &&
       !isEmpty(patientFetchOptions) &&
       !(patientFetchOptions === previousFetchOptions)
     ) {
@@ -812,11 +814,26 @@ export const ClinicPatients = (props) => {
     loggedInUserId,
     patientFetchOptions,
     previousClinic?.id,
-    previousFetchOptions
+    previousFetchOptions,
   ]);
 
   useEffect(() => {
-    if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters) && !isFirstRender && isEqual(activeSummaryPeriod, previousSummaryPeriod))) {
+    setShowSummaryData(showSummaryDashboard || clinic?.entitlements?.summaryDashboard)
+  }, [showSummaryDashboard, clinic?.entitlements]);
+
+  useEffect(() => {
+    // Hold off on generating the fetch options until we know if we need to include summary filters
+    if (!isBoolean(showSummaryData)) return;
+
+    if(
+      // We always want to run this on first render if we have the showSummaryData entitlement available
+      isFirstRender ||
+       // On subsequent renders, we only update the fetch data if any of the following change
+      !isEqual(clinic?.id, previousClinic?.id) ||
+      !isEqual(showSummaryData, previousShowSummaryData) ||
+      !isEqual(activeFilters, previousActiveFilters) ||
+      !isEqual(activeSummaryPeriod, previousSummaryPeriod)
+    ) {
       const filterOptions = {
         offset: 0,
         sort: patientFetchOptions.sort || (showSummaryData && activeSort?.sort ? activeSort.sort : defaultPatientFetchOptions.sort),
