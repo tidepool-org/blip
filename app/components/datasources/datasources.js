@@ -69,6 +69,32 @@ export default withTranslation()(class DataSources extends Component {
           height: 840,
         },
       },
+      {
+        id: 'oauth/twiist',
+        restrictedTokenCreate: {
+            paths: [
+              '/v1/oauth/twiist',
+            ],
+        },
+        dataSourceFilter: {
+          providerType: 'oauth',
+          providerName: 'twiist',
+        },
+        content: {
+          description: t('Data will be synced from Twiist'),
+          connectButton: '',
+          disconnectButton: t('Disconnect'),
+        },
+        classNames: {
+          logo: 'DataSource-logo-twiist',
+          connectButton: 'btn DataSource-action-button-connect-twiist',
+          disconnectButton: 'btn DataSource-action-button-disconnect-twiist',
+        },
+        popup: {
+          width: 1080,
+          height: 840,
+        },
+      },
     ];
 
     this.state = {
