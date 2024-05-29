@@ -480,12 +480,22 @@ export const ClinicPatients = (props) => {
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
 
   const defaultPatientFetchOptions = useMemo(
-    () => ({
-      search: '',
-      offset: 0,
-      sort: showSummaryData ? '-lastUploadDate' : '+fullName',
-      sortType: 'cgm',
-    }),
+    () => {
+      const options = {
+        search: '',
+        offset: 0,
+      };
+
+      // We hold off setting the sort on initial render to allow us to properly detect what to sort
+      // by (unless we already have the showDashboard entitlements figured out).
+      // This prevents the a premature patient fetch to begin with an incorrect default sort.
+      if (!isFirstRender || (isBoolean(showSummaryDashboard) && isBoolean(clinic?.entitlements?.summaryDashboard))) {
+        options.sort = showSummaryData ? '-lastUploadDate' : '+fullName';
+        options.sortType = 'cgm';
+      }
+
+      return options;
+    },
     [showSummaryData]
   );
 
@@ -573,6 +583,10 @@ export const ClinicPatients = (props) => {
   });
 
   const debounceSearch = useCallback(debounce(search => {
+    // Prevent a premature update to patientFetchOptions, which would trigger an initial patient
+    // fetch with potentially incorrect sorting.
+    if (isFirstRender) return;
+
     setPatientFetchOptions({
       ...patientFetchOptions,
       offset: 0,
@@ -828,7 +842,7 @@ export const ClinicPatients = (props) => {
     if(
       // We always want to run this on first render if we have the showSummaryData entitlement available
       isFirstRender ||
-       // On subsequent renders, we only update the fetch data if any of the following change
+      // On subsequent renders, we only update the fetch data if any of the following change
       !isEqual(clinic?.id, previousClinic?.id) ||
       !isEqual(showSummaryData, previousShowSummaryData) ||
       !isEqual(activeFilters, previousActiveFilters) ||
@@ -836,8 +850,8 @@ export const ClinicPatients = (props) => {
     ) {
       const filterOptions = {
         offset: 0,
-        sort: patientFetchOptions.sort || (showSummaryData && activeSort?.sort ? activeSort.sort : defaultPatientFetchOptions.sort),
-        sortType: patientFetchOptions.sortType || (showSummaryData && activeSort?.sortType ? activeSort.sortType : defaultPatientFetchOptions.sortType),
+        sort: showSummaryData && activeSort?.sort ? activeSort.sort : defaultPatientFetchOptions.sort,
+        sortType: showSummaryData && activeSort?.sortType ? activeSort.sortType : defaultPatientFetchOptions.sortType,
         period: activeSummaryPeriod,
         limit: 50,
         search: patientFetchOptions.search,
@@ -848,7 +862,7 @@ export const ClinicPatients = (props) => {
       if (showSummaryData) {
         // If we are currently sorting by lastUpload date, ensure the sortType matches the filter
         // type if available, or falls back to the default sortType
-        if (filterOptions.sort.indexOf('lastUploadDate') === 1) {
+        if (filterOptions.sort?.indexOf('lastUploadDate') === 1) {
           filterOptions.sortType = activeFilters.lastUploadType || defaultPatientFetchOptions.sortType;
         }
 
@@ -3124,8 +3138,8 @@ export const ClinicPatients = (props) => {
           data={data}
           sx={tableStyle}
           onSort={handleSortChange}
-          order={sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
-          orderBy={sort.substring(1)}
+          order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
+          orderBy={sort?.substring(1)}
         />
 
         {pageCount > 1 && (

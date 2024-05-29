@@ -3348,6 +3348,31 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
+            // We'll start by filtering the patiet list, to make sure the filters are passed correctly to the RPM report api call
+            const cgmUseFilterTrigger = wrapper.find('#cgm-use-filter-trigger').hostNodes();
+            expect(cgmUseFilterTrigger).to.have.lengthOf(1);
+
+            const cgmUsePopover = () => wrapper.find('#cgmUseFilters').hostNodes();
+            expect(cgmUsePopover().props().style.visibility).to.equal('hidden');
+
+            // Open filters cgmUsePopover
+            cgmUseFilterTrigger.simulate('click');
+            expect(cgmUsePopover().props().style.visibility).to.be.undefined;
+
+            // Ensure filter options present
+            const cgmUseFilterOptions = cgmUsePopover().find('#cgm-use').find('label').hostNodes();
+            expect(cgmUseFilterOptions).to.have.lengthOf(2);
+            expect(cgmUseFilterOptions.at(0).text()).to.equal('Less than 70%');
+            expect(cgmUseFilterOptions.at(0).find('input').props().value).to.equal('<0.7');
+
+            expect(cgmUseFilterOptions.at(1).text()).to.equal('70% or more');
+            expect(cgmUseFilterOptions.at(1).find('input').props().value).to.equal('>=0.7');
+
+            // Apply button disabled until selection made
+            const cgmUseApplyButton = cgmUsePopover().find('#apply-cgm-use-filter').hostNodes();
+            cgmUseFilterOptions.at(1).find('input').last().simulate('change', { target: { name: 'cgm-use', value: '<0.7' } });
+            cgmUseApplyButton.simulate('click');
+
             const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
             const dialog = () => wrapper.find('Dialog#rpmReportConfig');
 
@@ -3423,6 +3448,7 @@ describe('ClinicPatients', () => {
                 {
                   startDate: sinon.match(value => isString(value)),
                   endDate: sinon.match(value => isString(value)),
+                  patientFilters: { 'cgm.timeCGMUsePercent': '<0.7' },
                 }
               );
 
