@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import includes from 'lodash/includes';
 import isNull from 'lodash/isNull';
 import map from 'lodash/map';
+import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import { useFormik } from 'formik';
 import moment from 'moment-timezone';
@@ -70,7 +71,7 @@ export const exportRpmReport = ({ config, results }) => {
 };
 
 export const RpmReportConfigForm = props => {
-  const { t, api, onFormChange, open, trackMetric, ...boxProps } = props;
+  const { t, api, onFormChange, open, patientFetchOptions, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
@@ -138,6 +139,15 @@ export const RpmReportConfigForm = props => {
         rawConfig: values,
         startDate: start.join(''),
         endDate: end.join(''),
+
+        // Set any currently applied patient filters so that RPM report patient list matches current view
+        patientFilters: omit(patientFetchOptions, [
+          'offset',
+          'sort',
+          'sortType',
+          'period',
+          'limit',
+        ]),
       };
 
       dispatch(async.fetchRpmReportPatients(api, selectedClinicId, queryOptions));
@@ -271,6 +281,7 @@ RpmReportConfigForm.propTypes = {
   api: PropTypes.object.isRequired,
   onFormChange: PropTypes.func.isRequired,
   open: PropTypes.bool,
+  patientFetchOptions: PropTypes.object.isRequired,
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
