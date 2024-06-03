@@ -86,6 +86,7 @@ export const RpmReportConfigForm = props => {
   const dateFormat = 'YYYY-MM-DD'
   const maxDays = 30;
   const maxDaysInPast = 59;
+  const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   // React-dates automatically assumes the local browser time zone when dealing with dates.
   // We want to grab only the YYYY-MM-DD portion, and construct a UTC date with it.
@@ -109,7 +110,7 @@ export const RpmReportConfigForm = props => {
 
   function defaultFormValues(config) {
     const { startDate, endDate } = defaultDates();
-    let fallbackTimezone = clinic?.timezone || new Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let fallbackTimezone = clinic?.timezone || browserTimezone;
     if (!includes(map(timezoneOptions, 'value'), fallbackTimezone)) fallbackTimezone = '';
 
     return {
@@ -210,7 +211,7 @@ export const RpmReportConfigForm = props => {
   }
 
   function setMomentToLocal() {
-    log('Setting moment back to default local timezone of', moment.tz.guess(true), new Intl.DateTimeFormat().resolvedOptions().timeZone)
+    log('Setting moment back to default local timezone of', browserTimezone)
     moment.tz.setDefault();
   }
 
