@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import bows from 'bows';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
@@ -23,6 +24,7 @@ import { async, sync } from '../../redux/actions';
 import i18next from '../../core/language';
 
 const t = i18next.t.bind(i18next);
+const log = bows('RpmReportConfigForm');
 
 export const exportRpmReport = ({ config, results }) => {
   let { startDate = '', endDate = '' } = config?.rawConfig || {};
@@ -177,8 +179,16 @@ export const RpmReportConfigForm = props => {
   // Set to default state when dialog is newly opened
   useEffect(() => {
     if (open) {
+      // Set global moment to use UTC timezone when config modal opens. This is required for our
+      // use within this form, since React-dates (used for our datepicker components) does not allow
+      // overriding the default moment-provided timezone, and we need to work with UTC dates for
+      // consistent behaviour across various timezones
+      setMomentToUTC();
       setValues(defaultFormValues(config?.[localConfigKey]), true)
       dispatch(sync.clearRpmReportPatients());
+    } else {
+      // Reset global moment to use local/browser timezone when config modal closes
+      setMomentToLocal();
     }
   }, [open]);
 
@@ -186,6 +196,23 @@ export const RpmReportConfigForm = props => {
     validateForm();
     onFormChange(formikContext);
   }, [values]);
+
+  useEffect(() => {
+    return () => {
+      // Reset global moment to use local/browser timezone when unmounting
+      setMomentToLocal();
+    };
+  }, []);
+
+  function setMomentToUTC() {
+    log('Setting moment to default to UTC timezone');
+    moment.tz.setDefault('UTC');
+  }
+
+  function setMomentToLocal() {
+    log('Setting moment back to default local timezone of', moment.tz.guess(true), new Intl.DateTimeFormat().resolvedOptions().timeZone)
+    moment.tz.setDefault();
+  }
 
   function setDates(dates) {
     setFieldValue('startDate', moment.isMoment(dates.startDate) ? moment(dates.startDate).format(dateFormat) : '');
