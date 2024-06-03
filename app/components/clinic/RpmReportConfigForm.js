@@ -149,7 +149,6 @@ export const RpmReportConfigForm = props => {
           'offset',
           'sort',
           'sortType',
-          'period',
           'limit',
         ]),
       };
