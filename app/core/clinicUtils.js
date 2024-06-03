@@ -456,7 +456,7 @@ export const rpmReportConfigSchema = yup.object().shape({
       value = moment(originalValue, dateFormat, true);
       return value.isValid() ? value.toDate() : undefined;
     })
-    .min(moment.utc().subtract(58, 'days').startOf('day').format(dateFormat), t('Please enter a start date within the last 59 days'))
+    .min(moment.utc().subtract(59, 'days').startOf('day').format(dateFormat), t('Please enter a start date within the last 59 days'))
     .max(moment.utc().subtract(1, 'day').startOf('day').format(dateFormat), t('Please enter a start date prior to today'))
     .required(t('Please select a start date')),
   endDate: yup.date()
