@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -149,6 +150,10 @@ export const RpmReportConfigForm = props => {
           'limit',
         ]),
       };
+
+      if (isEmpty(queryOptions.patientFilters.search)) {
+        delete queryOptions.patientFilters.search;
+      }
 
       dispatch(async.fetchRpmReportPatients(api, selectedClinicId, queryOptions));
 
