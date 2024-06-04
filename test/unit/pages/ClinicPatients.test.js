@@ -3388,7 +3388,7 @@ describe('ClinicPatients', () => {
             const filterOptions = summaryPeriodPopover().find('#summary-period-filters').find('label').hostNodes();
             filterOptions.at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
 
-            defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+            // Apply summary period filter
             const summaryPeriodApplyButton = summaryPeriodPopover().find('#apply-summary-period-filter').hostNodes();
             summaryPeriodApplyButton.simulate('click');
 
