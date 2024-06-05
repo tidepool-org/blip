@@ -271,7 +271,6 @@ export const RpmReportConfigForm = props => {
             minDate={moment.utc(today).add(utcDayShift, 'days').subtract(maxDaysInPast, 'days')}
             isDayBlocked={day => {
               const daysFromToday = moment.utc(today).endOf('day').add(utcDayShift, 'days').diff(moment.utc(day), 'days', true);
-              console.log('day', day.format(dateFormat), daysFromToday);
 
               // By default block all future dates, and all days prior to 59 days ago
               let dayIsBlocked = daysFromToday < 0 || daysFromToday >= maxDaysInPast;
