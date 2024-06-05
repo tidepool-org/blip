@@ -90,6 +90,16 @@ export const RpmReportConfigForm = props => {
   const [utcDayShift, setUtcDayShift] = useState(0);
   const today = moment.utc().startOf('day');
 
+  function setMomentToUTC() {
+    log('Setting moment to default to UTC timezone');
+    moment.tz.setDefault('UTC');
+  }
+
+  function setMomentToLocal() {
+    log('Setting moment back to default local timezone of', browserTimezone)
+    moment.tz.setDefault();
+  }
+
   const defaultDates = () => {
     return {
       startDate: moment.utc(today).subtract(maxDays - 1, 'days').add(utcDayShift, 'days'),
@@ -108,7 +118,6 @@ export const RpmReportConfigForm = props => {
       timezone: includes(map(timezoneOptions, 'value'), config?.timezone) ? config.timezone : fallbackTimezone,
     };
   }
-
 
   const formikContext = useFormik({
     initialValues: defaultFormValues(config?.[localConfigKey]),
@@ -219,16 +228,6 @@ export const RpmReportConfigForm = props => {
       setMomentToLocal();
     };
   }, []);
-
-  function setMomentToUTC() {
-    log('Setting moment to default to UTC timezone');
-    moment.tz.setDefault('UTC');
-  }
-
-  function setMomentToLocal() {
-    log('Setting moment back to default local timezone of', browserTimezone)
-    moment.tz.setDefault();
-  }
 
   function setDates(dates) {
     setFieldValue('startDate', moment.isMoment(dates.startDate) ? moment.utc(dates.startDate).format(dateFormat) : '');
