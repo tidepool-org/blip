@@ -184,21 +184,21 @@ export const RpmReportConfigForm = props => {
   useEffect(() => {
     if (!isEmpty(values.timezone)) {
       let newUtcDayShift;
-      const utcToday = moment.utc().tz('UTC');
-      const timezoneToday = moment.utc().tz(values.timezone);
+      const utcNow = moment.utc().tz('UTC');
+      const timezoneNow = moment.utc().tz(values.timezone);
 
       // If the current calendar date for the selected timezone has shifted to the next day ahead of
       // UTC, or UTC has shifted ahead for time zones on the other side of UTC, we need to track
       // the day shift so that we can apply it to calendar date availabilty and validation logic
-      if (utcToday.dayOfYear() === timezoneToday.dayOfYear()) {
+      if (utcNow.dayOfYear() === timezoneNow.dayOfYear()) {
         // no date shift needed on available calendar dates
         newUtcDayShift = 0;
-      } else if (utcToday.year() === timezoneToday.year()) {
+      } else if (utcNow.year() === timezoneNow.year()) {
         // same calendar year, so we shift a day in the appropriate direction
-        newUtcDayShift = timezoneToday.dayOfYear() > utcToday.dayOfYear() ? 1 : -1;
+        newUtcDayShift = timezoneNow.dayOfYear() > utcNow.dayOfYear() ? 1 : -1;
       } else {
         // rolled over into new year, so we shift a day in the appropriate direction
-        newUtcDayShift = timezoneToday.year() > utcToday.year() ? 1 : -1;
+        newUtcDayShift = timezoneNow.year() > utcNow.year() ? 1 : -1;
       }
 
       if (utcDayShift !== newUtcDayShift) {
