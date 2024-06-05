@@ -1053,15 +1053,15 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, prefixPopHealthMetric, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   function handlePatientFormChange(formikContext) {
-    setPatientFormContext({...formikContext});
+    setPatientFormContext({ ...formikContext });
   }
 
   function handleTideDashboardConfigFormChange(formikContext) {
-    setTideDashboardFormContext({...formikContext});
+    setTideDashboardFormContext({ ...formikContext });
   }
 
-  function handleRpmReporConfigFormChange(formikContext) {
-    setRpmReportFormContext({...formikContext});
+  function handleRpmReporConfigFormChange(formikContext, utcDayShift) {
+    setRpmReportFormContext({ ...formikContext, utcDayShift });
   }
 
   function handleSearchChange(event) {
@@ -2603,7 +2603,7 @@ export const ClinicPatients = (props) => {
             variant="primary"
             onClick={handleConfigureRpmReportConfirm}
             processing={fetchingRpmReportPatients.inProgress}
-            disabled={!fieldsAreValid(keys(rpmReportFormContext?.values), rpmReportConfigSchema, rpmReportFormContext?.values)}
+            disabled={!fieldsAreValid(keys(rpmReportFormContext?.values), rpmReportConfigSchema(rpmReportFormContext?.utcDayShift), rpmReportFormContext?.values)}
           >
             {t('Generate Report')}
           </Button>

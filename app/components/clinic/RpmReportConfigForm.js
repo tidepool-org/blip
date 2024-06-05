@@ -16,7 +16,7 @@ import { Element, scroller } from 'react-scroll';
 
 import { useLocalStorage } from '../../core/hooks';
 import { addEmptyOption, getCommonFormikFieldProps } from '../../core/forms';
-import { rpmReportConfigSchema as validationSchema, timezoneOptions, dateRegex } from '../../core/clinicUtils';
+import { rpmReportConfigSchema, timezoneOptions, dateRegex } from '../../core/clinicUtils';
 import { Body0 } from '../../components/elements/FontStyles';
 import Select from '../elements/Select';
 import DateRangePicker from '../elements/DateRangePicker';
@@ -87,24 +87,13 @@ export const RpmReportConfigForm = props => {
   const maxDays = 30;
   const maxDaysInPast = 59;
   const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-  // React-dates automatically assumes the local browser time zone when dealing with dates.
-  // We want to grab only the YYYY-MM-DD portion, and construct a UTC date with it.
-  // This avoids several complications, such as DST handling while disabling out-of-range dates.
-  // Upon form submission, we then express the date range in the time zone requested by the user.
-  const getCalendarDate = (date, timezone = 'UTC') => moment.utc(
-    moment.utc(date).tz(timezone).format(dateFormat).split('-').map(
-      // Month in date constructor array is zero-indexed, so needs to be decremented by 1
-      (part, i) => i === 1 ? parseInt(part) - 1 : parseInt(part)
-    )
-  );
-
-  const today = getCalendarDate();
+  const [utcDayShift, setUtcDayShift] = useState(0);
+  const today = moment.utc().startOf('day');
 
   const defaultDates = () => {
     return {
-      startDate: moment.utc(today).subtract(maxDays - 1, 'days'),
-      endDate: moment.utc(today),
+      startDate: moment.utc(today).subtract(maxDays - 1, 'days').add(utcDayShift, 'days'),
+      endDate: moment.utc(today).add(utcDayShift, 'days'),
     };
   }
 
@@ -128,15 +117,15 @@ export const RpmReportConfigForm = props => {
       // provide a utc datetime in the expected backend format without any unexpected shifting
       // of calendar dates due to timezone conversion
       const start = [
-        getCalendarDate(values.startDate).format(dateFormat),
+        moment.utc(values.startDate).format(dateFormat),
         'T00:00:00.000',
-        moment(values.startDate).tz(values.timezone).startOf('day').toISOString(true).slice(-6),
+        moment.utc(values.startDate).tz(values.timezone).startOf('day').toISOString(true).slice(-6),
       ];
 
       const end = [
-        getCalendarDate(values.endDate).format(dateFormat),
+        moment.utc(values.endDate).format(dateFormat),
         'T23:59:59.999',
-        moment(values.endDate).tz(values.timezone).endOf('day').toISOString(true).slice(-6),
+        moment.utc(values.endDate).tz(values.timezone).endOf('day').toISOString(true).slice(-6),
       ];
 
       const queryOptions = {
@@ -165,7 +154,7 @@ export const RpmReportConfigForm = props => {
         [localConfigKey]: pick(values, ['timezone']),
       });
     },
-    validationSchema,
+    validationSchema: rpmReportConfigSchema(utcDayShift),
   });
 
   const {
@@ -173,7 +162,7 @@ export const RpmReportConfigForm = props => {
     setFieldValue,
     values,
     setValues,
-    validateForm
+    validateForm,
   } = formikContext;
 
   // Set to default state when dialog is newly opened
@@ -193,9 +182,36 @@ export const RpmReportConfigForm = props => {
   }, [open]);
 
   useEffect(() => {
+    if (!isEmpty(values.timezone)) {
+      let newUtcDayShift;
+      const utcToday = moment.utc().tz('UTC');
+      const timezoneToday = moment.utc().tz(values.timezone);
+
+      // If the current calendar date for the selected timezone has shifted to the next day ahead of
+      // UTC, or UTC has shifted ahead for time zones on the other side of UTC, we need to track
+      // the day shift so that we can apply it to calendar date availabilty and validation logic
+      if (utcToday.dayOfYear() === timezoneToday.dayOfYear()) {
+        // no date shift needed on available calendar dates
+        newUtcDayShift = 0;
+      } else if (utcToday.year() === timezoneToday.year()) {
+        // same calendar year, so we shift a day in the appropriate direction
+        newUtcDayShift = timezoneToday.dayOfYear() > utcToday.dayOfYear() ? 1 : -1;
+      } else {
+        // rolled over into new year, so we shift a day in the appropriate direction
+        newUtcDayShift = timezoneToday.year() > utcToday.year() ? 1 : -1;
+      }
+
+      if (utcDayShift !== newUtcDayShift) {
+        log('utc day shift changed from', utcDayShift, 'to', newUtcDayShift);
+        setUtcDayShift(newUtcDayShift);
+      }
+    }
+  }, [values.timezone]);
+
+  useEffect(() => {
     validateForm();
-    onFormChange(formikContext);
-  }, [values]);
+    onFormChange(formikContext, utcDayShift);
+  }, [values, utcDayShift]);
 
   useEffect(() => {
     return () => {
@@ -215,8 +231,8 @@ export const RpmReportConfigForm = props => {
   }
 
   function setDates(dates) {
-    setFieldValue('startDate', moment.isMoment(dates.startDate) ? moment(dates.startDate).format(dateFormat) : '');
-    setFieldValue('endDate', moment.isMoment(dates.endDate) ? moment(dates.endDate).format(dateFormat) : '');
+    setFieldValue('startDate', moment.isMoment(dates.startDate) ? moment.utc(dates.startDate).format(dateFormat) : '');
+    setFieldValue('endDate', moment.isMoment(dates.endDate) ? moment.utc(dates.endDate).format(dateFormat) : '');
   }
 
   return (
@@ -235,39 +251,40 @@ export const RpmReportConfigForm = props => {
             startDateId="rpm-report-start-date"
             startDateOffset={(!values.startDate && focusedDatePickerInput === 'endDate')
               ? day => moment.max([
-                moment.utc(today).subtract(maxDaysInPast - 1, 'days'),
-                moment.utc(getCalendarDate(day)).subtract(maxDays - 1, 'days'),
-              ]).subtract(moment().utcOffset()) // we need to subtract the UTC offset here to match the internal calendar date handling in the react-dates component
+                moment.utc(today).subtract(maxDaysInPast - 1, 'days').add(utcDayShift, 'days'),
+                moment.utc(day).subtract(maxDays - 1, 'days'),
+              ])
               : undefined
             }
             endDate={values.endDate ? moment.utc(values.endDate) : null}
             endDateId="rpm-report-end-date"
             endDateOffset={(focusedDatePickerInput === 'startDate')
               ? day => moment.min([
-                moment.utc(today),
-                moment.utc(getCalendarDate(day)).add(maxDays - 1, 'days'),
-              ]).subtract(moment().utcOffset()) // we need to subtract the UTC offset here to match the internal calendar date handling in the react-dates component
+                moment.utc(today).add(utcDayShift, 'days'),
+                moment.utc(day).add(maxDays - 1, 'days'),
+              ])
               : undefined
             }
             errors={errors}
             onDatesChange={newDates => setDates(newDates)}
-            maxDate={moment(today)}
-            minDate={moment(today).subtract(maxDaysInPast, 'days')}
+            maxDate={moment.utc(today).add(utcDayShift, 'days')}
+            minDate={moment.utc(today).add(utcDayShift, 'days').subtract(maxDaysInPast, 'days')}
             isDayBlocked={day => {
-              const daysFromToday = today.diff(getCalendarDate(day), 'days');
+              const daysFromToday = moment.utc(today).endOf('day').add(utcDayShift, 'days').diff(moment.utc(day), 'days', true);
+              console.log('day', day.format(dateFormat), daysFromToday);
 
               // By default block all future dates, and all days prior to 59 days ago
               let dayIsBlocked = daysFromToday < 0 || daysFromToday >= maxDaysInPast;
 
               // If adjusting the end date, block out all dates 30 days or more beyond, and all dates prior to, the start date
               if (!dayIsBlocked && values.startDate && focusedDatePickerInput === 'endDate') {
-                const daysFromStartDate = getCalendarDate(day).diff(getCalendarDate(values.startDate), 'days');
+                const daysFromStartDate = day.diff(values.startDate, 'days');
                 dayIsBlocked = daysFromStartDate > maxDays - 1 || daysFromStartDate < 0;
               }
 
               return dayIsBlocked;
             }}
-            initialVisibleMonth={() => moment().subtract(1, 'month')}
+            initialVisibleMonth={() => moment.utc().subtract(1, 'month')}
             onFocusChange={input => {
               setFocusedDatePickerInput(input);
               setDatePickerOpen(!!input);
