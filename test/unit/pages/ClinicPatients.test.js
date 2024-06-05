@@ -3355,7 +3355,7 @@ describe('ClinicPatients', () => {
             const cgmUsePopover = () => wrapper.find('#cgmUseFilters').hostNodes();
             expect(cgmUsePopover().props().style.visibility).to.equal('hidden');
 
-            // Open filters cgmUsePopover
+            // Open cgmUse popover
             cgmUseFilterTrigger.simulate('click');
             expect(cgmUsePopover().props().style.visibility).to.be.undefined;
 
@@ -3368,10 +3368,29 @@ describe('ClinicPatients', () => {
             expect(cgmUseFilterOptions.at(1).text()).to.equal('70% or more');
             expect(cgmUseFilterOptions.at(1).find('input').props().value).to.equal('>=0.7');
 
-            // Apply button disabled until selection made
+            // Apply CGM use filter
             const cgmUseApplyButton = cgmUsePopover().find('#apply-cgm-use-filter').hostNodes();
             cgmUseFilterOptions.at(1).find('input').last().simulate('change', { target: { name: 'cgm-use', value: '<0.7' } });
             cgmUseApplyButton.simulate('click');
+
+            // Set summary period
+            const summaryPeriodFilterTrigger = wrapper.find('#summary-period-filter-trigger').hostNodes();
+            expect(summaryPeriodFilterTrigger).to.have.lengthOf(1);
+
+            const summaryPeriodPopover = () => wrapper.find('#summaryPeriodFilters').hostNodes();
+            expect(summaryPeriodPopover().props().style.visibility).to.equal('hidden');
+
+            // Open summary period popover
+            summaryPeriodFilterTrigger.simulate('click');
+            expect(summaryPeriodPopover().props().style.visibility).to.be.undefined;
+
+            // Set to 7 days
+            const filterOptions = summaryPeriodPopover().find('#summary-period-filters').find('label').hostNodes();
+            filterOptions.at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
+
+            // Apply summary period filter
+            const summaryPeriodApplyButton = summaryPeriodPopover().find('#apply-summary-period-filter').hostNodes();
+            summaryPeriodApplyButton.simulate('click');
 
             const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
             const dialog = () => wrapper.find('Dialog#rpmReportConfig');
@@ -3448,7 +3467,7 @@ describe('ClinicPatients', () => {
                 {
                   startDate: sinon.match(value => isString(value)),
                   endDate: sinon.match(value => isString(value)),
-                  patientFilters: { 'cgm.timeCGMUsePercent': '<0.7' },
+                  patientFilters: { period: '7d', 'cgm.timeCGMUsePercent': '<0.7' },
                 }
               );
 
