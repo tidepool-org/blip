@@ -490,7 +490,7 @@ export const ClinicPatients = (props) => {
       // by (unless we already have the showDashboard entitlements figured out).
       // This prevents the a premature patient fetch to begin with an incorrect default sort.
       if (!isFirstRender || (isBoolean(showSummaryDashboard) && isBoolean(clinic?.entitlements?.summaryDashboard))) {
-        options.sort = showSummaryData ? '-lastUploadDate' : '+fullName';
+        options.sort = showSummaryData || showSummaryDashboard || clinic?.entitlements?.summaryDashboard ? '-lastUploadDate' : '+fullName';
         options.sortType = 'cgm';
       }
 
