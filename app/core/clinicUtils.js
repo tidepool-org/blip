@@ -456,18 +456,18 @@ export const rpmReportConfigSchema = (utcDayShift = 0) => yup.object().shape({
       value = moment(originalValue, dateFormat, true);
       return value.isValid() ? value.toDate() : undefined;
     })
-    .min(moment.utc().subtract(58, 'days').startOf('day').format(dateFormat), t('Please enter a start date within the last 59 days'))
-    .max(moment.utc().subtract(1, 'day').add(utcDayShift, 'days').startOf('day').format(dateFormat), t('Please enter a start date prior to today'))
+    .min(moment.utc().add(utcDayShift, 'days').subtract(58, 'days').startOf('day').format(dateFormat), t('Please enter a start date within the last 59 days'))
+    .max(moment.utc().add(utcDayShift, 'days').subtract(1, 'day').startOf('day').format(dateFormat), t('Please enter a start date prior to today'))
     .required(t('Please select a start date')),
   endDate: yup.date()
     .transform((value, originalValue) => {
       value = moment(originalValue, dateFormat, true);
       return value.isValid() ? value.toDate() : undefined;
     })
-    .min(moment.utc().subtract(57, 'days').endOf('day').format(dateFormat), t('Please enter an end date within the last 58 days'))
-    .max(moment.utc().endOf('day').format(dateFormat), t('Please enter an end date no later than today'))
+    .min(moment.utc().add(utcDayShift, 'days').subtract(57, 'days').endOf('day').format(dateFormat), t('Please enter an end date within the last 58 days'))
+    .max(moment.utc().add(utcDayShift, 'days').endOf('day').format(dateFormat), t('Please enter an end date no later than today'))
     .when('startDate', ([startDate], schema) => schema
-      .max(moment.min([moment.utc(startDate).add(29, 'days'), moment.utc()]).endOf('day').add(utcDayShift, 'days').format(dateFormat), t('End date must be within 30 days of the start date and no later than today'))
+      .max(moment.min([moment.utc(startDate).add(29, 'days'), moment.utc().add(utcDayShift, 'days')]).endOf('day').format(dateFormat), t('End date must be within 30 days of the start date and no later than today'))
     )
     .required(t('Please select an end date')),
   timezone: yup.string().oneOf(map(timezoneOptions, 'value')).required(t('Please select a timezone')),
