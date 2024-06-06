@@ -7,7 +7,7 @@ import { withTranslation } from 'react-i18next';
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import BgRangeSummary from './BgRangeSummary';
 
-export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPeriod, t }) => {
+export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPeriod, showExtremeHigh, t }) => {
   const targetRange = useMemo(
     () =>
       map(
@@ -56,6 +56,7 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
           striped={cgmUsePercent < minCgmPercent}
           data={data}
           cgmUsePercent={cgmUsePercent}
+          showExtremeHigh={showExtremeHigh}
           targetRange={targetRange}
           bgUnits={clinicBgUnits}
         />
@@ -93,6 +94,7 @@ BgSummaryCell.propTypes = {
     high: PropTypes.number,
     veryHigh: PropTypes.number,
   }).isRequired,
+  showExtremeHigh: PropTypes.bool,
   striped: PropTypes.bool,
   targetRange: PropTypes.arrayOf(PropTypes.number).isRequired,
 }

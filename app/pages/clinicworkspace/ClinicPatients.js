@@ -129,6 +129,7 @@ const glycemicTargetThresholds = {
   timeInTargetPercent: { value: 70, comparator: '<' },
   timeInHighPercent: { value: 25, comparator: '>' },
   timeInVeryHighPercent: { value: 5, comparator: '>' },
+  timeInExtremeHighPercent: { value: 1, comparator: '>' },
 };
 
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
@@ -470,7 +471,7 @@ export const ClinicPatients = (props) => {
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
-  const { showSummaryDashboard, showTideDashboard, showRpmReport } = useFlags();
+  const { showExtremeHigh, showSummaryDashboard, showTideDashboard, showRpmReport } = useFlags();
   let showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
@@ -508,6 +509,7 @@ export const ClinicPatients = (props) => {
       ),
     [clinicBgUnits]
   );
+
   const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState, true);
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
@@ -2411,6 +2413,14 @@ export const ClinicPatients = (props) => {
       },
     ];
 
+    if (showExtremeHigh) timeInRangeFilterOptions.push({
+      value: 'timeInExtremeHighPercent',
+      threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
+      prefix: t('Greater than'),
+      tag: t('Extreme hyperglycemia'),
+      rangeName: 'extremeHigh',
+    });
+
     return (
       <Dialog
         id="timeInRangeDialog"
@@ -2741,8 +2751,9 @@ export const ClinicPatients = (props) => {
       config={summary?.cgmStats?.config}
       clinicBgUnits={clinicBgUnits}
       activeSummaryPeriod={activeSummaryPeriod}
+      showExtremeHigh={showExtremeHigh}
     />
-  }, [clinicBgUnits, activeSummaryPeriod]);
+  }, [clinicBgUnits, activeSummaryPeriod, showExtremeHigh]);
 
   const renderAverageGlucose = useCallback(({ summary }) => {
     const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucoseMmol;
