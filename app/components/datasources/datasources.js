@@ -82,7 +82,7 @@ export default withTranslation()(class DataSources extends Component {
         },
         content: {
           description: t('Data will be synced from Twiist'),
-          connectButton: '',
+          connectButton: t('Connect'),
           disconnectButton: t('Disconnect'),
         },
         classNames: {
