@@ -18,6 +18,7 @@ import Button from '../../../app/components/elements/Button';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import RpmReportConfigForm from '../../../app/components/clinic/RpmReportConfigForm';
 import mockRpmReportPatients from '../../fixtures/mockRpmReportPatients.json'
+import LDClientMock from '../../fixtures/LDClientMock';
 
 /* global chai */
 /* global sinon */
@@ -74,6 +75,11 @@ describe('ClinicPatients', () => {
     defaultProps.api.clinics.sendPatientDexcomConnectRequest.resetHistory();
     defaultProps.api.clinics.updateClinicPatient.resetHistory();
     defaultProps.api.clinics.getPatientsForRpmReport.resetHistory();
+    ClinicPatients.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
+  });
+
+  afterEach(() => {
+    ClinicPatients.__ResetDependency__('useLDClient');
   });
 
   after(() => {
