@@ -11,6 +11,7 @@ import forEach from 'lodash/forEach';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import indexOf from 'lodash/indexOf';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
@@ -41,7 +42,7 @@ import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
 import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
-import { useFlags } from 'launchdarkly-react-client-sdk';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import {
   bindPopover,
@@ -475,6 +476,8 @@ export const ClinicPatients = (props) => {
   let showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
+  const ldClient = useLDClient();
+  const ldContext = ldClient.getContext();
 
   const defaultPatientFetchOptions = useMemo(
     () => ({
@@ -915,6 +918,20 @@ export const ClinicPatients = (props) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchingPatientFromClinic, selectedPatient?.id]);
 
+  useEffect(() => {
+    // If the ld context is ready, and the currently selected clinic doesn't have access to the
+    // extreme high bg range, we should remove it from the activeFilters.timeInRange, otherwise, the
+    // filter count will be incorrect.
+    if (ldContext?.clinic?.tier && !showExtremeHigh && !!activeFilters?.timeInRange?.length) {
+      if (indexOf(activeFilters?.timeInRange, 'timeInExtremeHighPercent') !== -1) {
+        setActiveFilters({
+          ...activeFilters,
+          timeInRange: without(activeFilters.timeInRange, 'timeInExtremeHighPercent'),
+        });
+      }
+    }
+  }, [ldContext, showExtremeHigh, activeFilters]);
+
   const handleRefreshPatients = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
     let fetchOptions = { ...patientFetchOptions };
@@ -1108,6 +1125,7 @@ export const ClinicPatients = (props) => {
       inRange: includes(pendingFilters.timeInRange, 'timeInTargetPercent'),
       hyper: includes(pendingFilters.timeInRange, 'timeInHighPercent'),
       severeHyper: includes(pendingFilters.timeInRange, 'timeInVeryHighPercent'),
+      extremeHyper: includes(pendingFilters.timeInRange, 'timeInExtremeHighPercent'),
     });
 
     setActiveFilters({

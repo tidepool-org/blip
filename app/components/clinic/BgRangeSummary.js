@@ -25,7 +25,6 @@ export const BgRangeSummary = React.memo(props => {
     bgUnits,
     cgmUsePercent,
     data,
-    showExtremeHigh,
     striped,
     targetRange,
     t,
@@ -62,17 +61,11 @@ export const BgRangeSummary = React.memo(props => {
   const popoverFlexStyle = useMemo(() => ({ gap: 3 }), []);
   const wrapperStyle = useMemo(() => ({ position: 'relative', borderRadius: `${radii.input}px`, overflow: 'hidden' }), []);
   const flexWidth = useMemo(() => (['155px', '175px']),[])
-
   const bgLabels = generateBgRangeLabels(bgPrefs, { condensed: true });
-
-  // DELETEME: Test data //
-  data.extremeHigh = data.veryHigh / 4;
-  // DELETEME //
-
   const renderedData = pick(data, ['veryLow', 'low', 'target', 'high', 'veryHigh']);
   const barData = { ...renderedData };
 
-  if (showExtremeHigh) {
+  if (data.extremeHigh) {
     barData.veryHigh -= data.extremeHigh || 0;
     barData.extremeHigh = data.extremeHigh || 0;
     renderedData.extremeHigh = data.extremeHigh || 0;
@@ -161,7 +154,6 @@ BgRangeSummary.propTypes = {
     high: PropTypes.number,
     veryHigh: PropTypes.number,
   }).isRequired,
-  showExtremeHigh: PropTypes.bool,
   striped: PropTypes.bool,
   targetRange: PropTypes.arrayOf(PropTypes.number).isRequired,
 }

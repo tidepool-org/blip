@@ -26,14 +26,20 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
     (summary?.timeCGMUseMinutes || 0) / 60;
 
   const data = useMemo(
-    () => ({
-      veryLow: summary?.timeInVeryLowPercent,
-      low: summary?.timeInLowPercent,
-      target: summary?.timeInTargetPercent,
-      high: summary?.timeInHighPercent,
-      veryHigh: summary?.timeInVeryHighPercent,
-    }),
-    [summary]
+    () => {
+      const rangeData = {
+        veryLow: summary?.timeInVeryLowPercent,
+        low: summary?.timeInLowPercent,
+        target: summary?.timeInTargetPercent,
+        high: summary?.timeInHighPercent,
+        veryHigh: summary?.timeInVeryHighPercent,
+      };
+
+      if (showExtremeHigh) rangeData.extremeHigh = rangeData.veryHigh / 4; // TODO: Delete this test data
+      // if (showExtremeHigh) rangeData.extremeHigh = summary?.timeInExtremeHighPercent;
+
+      return rangeData;
+    }, [summary, showExtremeHigh]
   );
 
   const cgmUsePercent = (summary?.timeCGMUsePercent || 0);
@@ -56,7 +62,6 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
           striped={cgmUsePercent < minCgmPercent}
           data={data}
           cgmUsePercent={cgmUsePercent}
-          showExtremeHigh={showExtremeHigh}
           targetRange={targetRange}
           bgUnits={clinicBgUnits}
         />
