@@ -172,6 +172,7 @@ export const RpmReportConfigForm = props => {
     values,
     setValues,
     validateForm,
+    resetForm,
   } = formikContext;
 
   // Set to default state when dialog is newly opened
@@ -187,6 +188,7 @@ export const RpmReportConfigForm = props => {
     } else {
       // Reset global moment to use local/browser timezone when config modal closes
       setMomentToLocal();
+      resetForm();
     }
   }, [open]);
 
@@ -277,7 +279,7 @@ export const RpmReportConfigForm = props => {
               // If adjusting the end date, block out all dates 30 days or more beyond, and all dates prior to, the start date
               if (!dayIsBlocked && values.startDate && focusedDatePickerInput === 'endDate') {
                 const daysFromStartDate = moment.utc(day).diff(moment.utc(values.startDate), 'days', true);
-                dayIsBlocked = daysFromStartDate > maxDays - 1 || daysFromStartDate < 0;
+                dayIsBlocked = daysFromStartDate >= maxDays || daysFromStartDate < 0;
               }
 
               return dayIsBlocked;
