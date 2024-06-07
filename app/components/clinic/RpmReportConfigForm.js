@@ -276,7 +276,7 @@ export const RpmReportConfigForm = props => {
 
               // If adjusting the end date, block out all dates 30 days or more beyond, and all dates prior to, the start date
               if (!dayIsBlocked && values.startDate && focusedDatePickerInput === 'endDate') {
-                const daysFromStartDate = day.diff(values.startDate, 'days');
+                const daysFromStartDate = moment.utc(day).diff(moment.utc(values.startDate), 'days', true);
                 dayIsBlocked = daysFromStartDate > maxDays - 1 || daysFromStartDate < 0;
               }
 
