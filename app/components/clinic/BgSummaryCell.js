@@ -35,9 +35,7 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
         veryHigh: summary?.timeInVeryHighPercent,
       };
 
-      if (showExtremeHigh) rangeData.extremeHigh = rangeData.veryHigh / 4; // TODO: Delete this test data
-      // if (showExtremeHigh) rangeData.extremeHigh = summary?.timeInExtremeHighPercent;
-
+      if (showExtremeHigh) rangeData.extremeHigh = summary?.timeInExtremeHighPercent;
       return rangeData;
     }, [summary, showExtremeHigh]
   );
