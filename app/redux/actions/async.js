@@ -17,6 +17,8 @@ import { worker } from '.';
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 
+import mockTideDashboardPatients from '../../../test/fixtures/mockTideDashboardPatients.json'
+
 let win = window;
 
 function createActionError(usrErrMessage, apiError) {
@@ -2879,6 +2881,11 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  export function fetchTideDashboardPatients(api, clinicId, options) {
   return (dispatch) => {
     dispatch(sync.fetchTideDashboardPatientsRequest());
+
+    setTimeout(() => {
+      dispatch(sync.fetchTideDashboardPatientsSuccess(mockTideDashboardPatients));
+    }, 100)
+    return;
 
     api.clinics.getPatientsForTideDashboard(clinicId, options, (err, results) => {
       if (err) {
