@@ -69,10 +69,17 @@ import {
 
 import { DEFAULT_FILTER_THRESHOLDS, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import { colors, radii } from '../../themes/baseTheme';
+import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
-const { formatDateRange, getLocalizedCeiling, getOffset, getTimezoneFromTimePrefs } = vizUtils.datetime;
+
+const {
+  formatDateRange,
+  getLocalizedCeiling,
+  getOffset,
+  getTimezoneFromTimePrefs
+} = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -331,14 +338,7 @@ const TideDashboardSection = React.memo(props => {
   }, [patientTags]);
 
   const renderLastReviewed = useCallback(({ patient }) => {
-    const formattedValue = patient?.lastReviewed?.time || statEmptyText;
-
-    return (
-      <Box classname="patient-last-reviewed">
-        <Text sx={{ fontWeight: 'medium' }}>{formattedValue}</Text>
-        {/* {formattedValue !== statEmptyText && <Text sx={{ fontSize: '10px' }}> %</Text>} */}
-      </Box>
-    );
+    return <PatientLastReviewed patient={patient} recentlyReviewedThresholdDate={moment().startOf('week')} />
   }, []);
 
   const renderBgRangeSummary = useCallback(summary => {
