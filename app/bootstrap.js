@@ -88,6 +88,7 @@ appContext.render = async Component => {
     flags: {
       'showRpmReport': false,
       'showSummaryDashboard': false,
+      'showSummaryDashboardLastReviewed': false,
       'showTideDashboard': false,
       'showTideDashboardLastReviewed': false,
     },
