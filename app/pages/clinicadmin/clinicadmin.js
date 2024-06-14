@@ -281,7 +281,6 @@ export const ClinicAdmin = (props) => {
   useEffect(() => {
     if (clinic?.clinicians) {
       setClinicianArray(getClinicianArray());
-      setUserRolesInClinic()
     }
   }, [clinic?.clinicians]);
 

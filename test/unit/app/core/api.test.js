@@ -74,6 +74,7 @@ describe('api', () => {
       updateClinicPatientTag: sinon.stub(),
       deleteClinicPatientTag: sinon.stub(),
       getPatientsForTideDashboard: sinon.stub(),
+      getPatientsForRpmReport: sinon.stub(),
       saveSession: sinon.stub(),
       getClinicPatientCount: sinon.stub(),
       getClinicPatientCountSettings: sinon.stub(),
@@ -143,6 +144,8 @@ describe('api', () => {
     tidepool.createClinicPatientTag.resetHistory();
     tidepool.updateClinicPatientTag.resetHistory();
     tidepool.deleteClinicPatientTag.resetHistory();
+    tidepool.getPatientsForTideDashboard.resetHistory();
+    tidepool.getPatientsForRpmReport.resetHistory();
     tidepool.saveSession.resetHistory();
     tidepool.getClinicPatientCount.resetHistory();
     tidepool.getClinicPatientCountSettings.resetHistory();
@@ -1092,6 +1095,15 @@ describe('api', () => {
         const options = 'options123';
         api.clinics.getPatientsForTideDashboard(clinicId, options, cb);
         sinon.assert.calledWith(tidepool.getPatientsForTideDashboard, clinicId, options, cb);
+      });
+    });
+    describe('clinics.getPatientsForRpmReport', () => {
+      it('should call tidepool.getPatientsForRpmReport with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const options = 'options123';
+        api.clinics.getPatientsForRpmReport(clinicId, options, cb);
+        sinon.assert.calledWith(tidepool.getPatientsForRpmReport, clinicId, options, cb);
       });
     });
     describe('clinics.getClinicPatientCount', () => {

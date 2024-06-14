@@ -79,9 +79,17 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
       border-radius: 0;
     }
 
-    &.CalendarDay__blocked_out_of_range {
+    &.CalendarDay__blocked_out_of_range,
+    &.CalendarDay__blocked_out_of_range:hover {
       background-color: ${colors.lightestGrey};
       color: ${colors.blueGreyLight};
+      border-radius: 0;
+    }
+
+    &.CalendarDay__blocked_calendar,
+    &.CalendarDay__blocked_calendar:hover {
+      background-color: ${colors.lightGrey};
+      color: ${colors.blueGreyMedium};
       border-radius: 0;
     }
   }
@@ -91,7 +99,7 @@ export function DateRangePicker(props) {
   const {
     startDate,
     endDate,
-    error,
+    errors = {},
     focusedInput: focusedInputProp,
     label,
     onDatesChange,
@@ -109,7 +117,7 @@ export function DateRangePicker(props) {
   }, [startDate, endDate]);
 
   const inputClasses = cx({
-    error,
+    error: !!(errors.startDate || errors.endDate),
     required,
   });
 
@@ -138,9 +146,9 @@ export function DateRangePicker(props) {
           onDatesChange(newDates);
         }}
         focusedInput={focusedInput}
-        onFocusChange={newFocusedInput => {
-          setFocusedInput(newFocusedInput);
-          onFocusChange(newFocusedInput);
+        onFocusChange={selectedFocusedInput => {
+          setFocusedInput(selectedFocusedInput);
+          onFocusChange(selectedFocusedInput);
         }}
         numberOfMonths={2}
         displayFormat="MMM D, YYYY"
@@ -154,10 +162,26 @@ export function DateRangePicker(props) {
         showClearDates
         {...datePickerProps}
       />
-      {error && (
-        <Caption ml={2} mt={2} className={inputClasses}>
-          {error}
-        </Caption>
+      {(errors.startDate || errors.endDate) && (
+        <Box ml={2} mt={2}>
+          {errors.startDate && (
+            <Caption
+              lineHeight={3}
+              className={inputClasses}
+            >
+              {errors.startDate}
+            </Caption>
+          )}
+
+          {errors.endDate && (
+            <Caption
+              lineHeight={3}
+              className={inputClasses}
+            >
+              {errors.endDate}
+            </Caption>
+          )}
+        </Box>
       )}
     </Box>
   );
