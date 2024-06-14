@@ -264,7 +264,7 @@ const text = {
 
   caption: {
     ...defaultText,
-    display: 'inline-block',
+    display: 'block',
     fontSize: 0,
     lineHeight: 4,
 

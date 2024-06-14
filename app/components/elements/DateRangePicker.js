@@ -79,9 +79,17 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
       border-radius: 0;
     }
 
-    &.CalendarDay__blocked_out_of_range {
+    &.CalendarDay__blocked_out_of_range,
+    &.CalendarDay__blocked_out_of_range:hover {
       background-color: ${colors.lightestGrey};
       color: ${colors.blueGreyLight};
+      border-radius: 0;
+    }
+
+    &.CalendarDay__blocked_calendar,
+    &.CalendarDay__blocked_calendar:hover {
+      background-color: ${colors.lightGrey};
+      color: ${colors.blueGreyMedium};
       border-radius: 0;
     }
   }
@@ -139,10 +147,8 @@ export function DateRangePicker(props) {
         }}
         focusedInput={focusedInput}
         onFocusChange={selectedFocusedInput => {
-          let newFocusedInput = selectedFocusedInput;
-          if (newFocusedInput && !dates.startDate) newFocusedInput = 'startDate';
-          setFocusedInput(newFocusedInput);
-          onFocusChange(newFocusedInput);
+          setFocusedInput(selectedFocusedInput);
+          onFocusChange(selectedFocusedInput);
         }}
         numberOfMonths={2}
         displayFormat="MMM D, YYYY"
