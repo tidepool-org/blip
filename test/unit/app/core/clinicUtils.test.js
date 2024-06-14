@@ -699,9 +699,9 @@ describe('clinicUtils', function() {
 
   describe('rpmReportConfigSchema', () => {
     it('should return a yup schema for rpm report config fields', () => {
-      expect(clinicUtils.rpmReportConfigSchema).to.be.an('object');
+      expect(clinicUtils.rpmReportConfigSchema()).to.be.an('object');
 
-      expect(clinicUtils.rpmReportConfigSchema._nodes).to.be.an('array').and.have.members([
+      expect(clinicUtils.rpmReportConfigSchema()._nodes).to.be.an('array').and.have.members([
         'startDate',
         'endDate',
         'timezone',
