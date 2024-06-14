@@ -23,9 +23,6 @@ const COPY_STATUS_NULL = 0;
 const COPY_STATUS_SUCCESS = 10;
 const COPY_STATUS_FAIL = 20;
 
-const playstoreImageUrl = require('./images/google-play-badge.png');
-const appstoreImageUrl = require('./images/appstore-badge.svg');
-
 export default withTranslation()(class BrowserWarning extends Component {
   static propTypes = {
     trackMetric: PropTypes.func.isRequired
@@ -55,16 +52,6 @@ export default withTranslation()(class BrowserWarning extends Component {
     };
     var handleClickEdge = function() {
       self.props.trackMetric('Clicked Download Edge');
-    };
-    var handleClickiOS = function() {
-      self.props.trackMetric('No Data - Clicked iOS', {}, () => {
-        window.location.assign('https://itunes.apple.com/us/app/tidepool-mobile/id1026395200');
-      });
-    };
-    var handleClickAndroid = function() {
-      self.props.trackMetric('No Data - Clicked Android', {}, () => {
-        window.location.assign('https://play.google.com/store/apps/details?id=io.tidepool.urchin');
-      });
     };
 
     if (this.state.copyStatus === COPY_STATUS_SUCCESS) {
@@ -101,15 +88,6 @@ export default withTranslation()(class BrowserWarning extends Component {
             <span className="browser-warning-nowrap">{t('Mac or Windows.')}</span>
           </h1>
           {downloadBrowserCopy}
-          <div className="browser-warning-mobile">
-            <div className="browser-warning-mobile-message">
-              {t('Download Tidepool Mobile for iOS or Android to add notes and see your data on the go:')}
-            </div>
-            <div className="browser-warning-mobile-appstore-container">
-              <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" onClick={handleClickiOS}/>
-              <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" onClick={handleClickAndroid}/>
-            </div>
-          </div>
         </div>
       </div>
     );
