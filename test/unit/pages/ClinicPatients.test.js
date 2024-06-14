@@ -410,7 +410,7 @@ describe('ClinicPatients', () => {
                 },
                 cgmStats: {
                   dates: {
-                    lastUploadDate: moment().subtract(29, 'days').toISOString(),
+                    lastUploadDate: moment().subtract(30, 'days').toISOString(),
                   },
                   periods: { '14d': {
                     timeCGMUsePercent: 0.69,
@@ -429,7 +429,7 @@ describe('ClinicPatients', () => {
               summary: {
                 cgmStats: {
                   dates: {
-                    lastUploadDate: moment().subtract(30, 'days').toISOString(),
+                    lastUploadDate: moment().subtract(31, 'days').toISOString(),
                   },
                   periods: { '14d': {
                     timeCGMUsePercent: 0.69,
