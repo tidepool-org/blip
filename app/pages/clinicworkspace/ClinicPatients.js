@@ -11,6 +11,7 @@ import forEach from 'lodash/forEach';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
@@ -54,6 +55,7 @@ import {
   MediumTitle,
   Body1,
   Paragraph1,
+  Body0,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
@@ -444,6 +446,7 @@ export const ClinicPatients = (props) => {
   const [showUpdateClinicPatientTagDialog, setShowUpdateClinicPatientTagDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showRpmReportConfigDialog, setShowRpmReportConfigDialog] = useState(false);
+  const [showRpmReportLimitDialog, setShowRpmReportLimitDialog] = useState(false);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
@@ -473,17 +476,28 @@ export const ClinicPatients = (props) => {
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const { showSummaryDashboard, showSummaryDashboardLastReviewed, showTideDashboard, showRpmReport } = useFlags();
-  let showSummaryData = showSummaryDashboard || clinic?.entitlements?.summaryDashboard;
+  const [showSummaryData, setShowSummaryData] = useState();
+  const previousShowSummaryData = usePrevious(showSummaryData)
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
 
   const defaultPatientFetchOptions = useMemo(
-    () => ({
-      search: '',
-      offset: 0,
-      sort: showSummaryData ? '-lastUploadDate' : '+fullName',
-      sortType: 'cgm',
-    }),
+    () => {
+      const options = {
+        search: '',
+        offset: 0,
+      };
+
+      // We hold off setting the sort on initial render to allow us to properly detect what to sort
+      // by (unless we already have the showDashboard entitlements figured out).
+      // This prevents the a premature patient fetch to begin with an incorrect default sort.
+      if (!isFirstRender || (isBoolean(showSummaryDashboard) && isBoolean(clinic?.entitlements?.summaryDashboard))) {
+        options.sort = showSummaryData || showSummaryDashboard || clinic?.entitlements?.summaryDashboard ? '-lastUploadDate' : '+fullName';
+        options.sortType = 'cgm';
+      }
+
+      return options;
+    },
     [showSummaryData]
   );
 
@@ -571,6 +585,10 @@ export const ClinicPatients = (props) => {
   });
 
   const debounceSearch = useCallback(debounce(search => {
+    // Prevent a premature update to patientFetchOptions, which would trigger an initial patient
+    // fetch with potentially incorrect sorting.
+    if (isFirstRender) return;
+
     setPatientFetchOptions({
       ...patientFetchOptions,
       offset: 0,
@@ -792,7 +810,7 @@ export const ClinicPatients = (props) => {
     if (
       loggedInUserId &&
       clinic?.id &&
-      !fetchingPatientsForClinic.inProgress &&
+      (!fetchingPatientsForClinic.inProgress || fetchingPatientsForClinic.completed === null) &&
       !isEmpty(patientFetchOptions) &&
       !(patientFetchOptions === previousFetchOptions)
     ) {
@@ -812,15 +830,30 @@ export const ClinicPatients = (props) => {
     loggedInUserId,
     patientFetchOptions,
     previousClinic?.id,
-    previousFetchOptions
+    previousFetchOptions,
   ]);
 
   useEffect(() => {
-    if(!(isEqual(clinic?.id, previousClinic?.id) && isEqual(activeFilters, previousActiveFilters) && !isFirstRender && isEqual(activeSummaryPeriod, previousSummaryPeriod))) {
+    setShowSummaryData(showSummaryDashboard || clinic?.entitlements?.summaryDashboard)
+  }, [showSummaryDashboard, clinic?.entitlements]);
+
+  useEffect(() => {
+    // Hold off on generating the fetch options until we know if we need to include summary filters
+    if (!isBoolean(showSummaryData)) return;
+
+    if(
+      // We always want to run this on first render if we have the showSummaryData entitlement available
+      isFirstRender ||
+      // On subsequent renders, we only update the fetch data if any of the following change
+      !isEqual(clinic?.id, previousClinic?.id) ||
+      !isEqual(showSummaryData, previousShowSummaryData) ||
+      !isEqual(activeFilters, previousActiveFilters) ||
+      !isEqual(activeSummaryPeriod, previousSummaryPeriod)
+    ) {
       const filterOptions = {
         offset: 0,
-        sort: patientFetchOptions.sort || (showSummaryData && activeSort?.sort ? activeSort.sort : defaultPatientFetchOptions.sort),
-        sortType: patientFetchOptions.sortType || (showSummaryData && activeSort?.sortType ? activeSort.sortType : defaultPatientFetchOptions.sortType),
+        sort: showSummaryData && activeSort?.sort ? activeSort.sort : defaultPatientFetchOptions.sort,
+        sortType: showSummaryData && activeSort?.sortType ? activeSort.sortType : defaultPatientFetchOptions.sortType,
         period: activeSummaryPeriod,
         limit: 50,
         search: patientFetchOptions.search,
@@ -831,7 +864,7 @@ export const ClinicPatients = (props) => {
       if (showSummaryData) {
         // If we are currently sorting by lastUpload date, ensure the sortType matches the filter
         // type if available, or falls back to the default sortType
-        if (filterOptions.sort.indexOf('lastUploadDate') === 1) {
+        if (filterOptions.sort?.indexOf('lastUploadDate') === 1) {
           filterOptions.sortType = activeFilters.lastUploadType || defaultPatientFetchOptions.sortType;
         }
 
@@ -975,8 +1008,13 @@ export const ClinicPatients = (props) => {
   }, [tideDashboardFormContext, selectedClinicId, trackMetric]);
 
   function handleConfigureRpmReport() {
-    trackMetric('Clinic - Show RPM Report config dialog', { clinicId: selectedClinicId, source: 'Patients list' });
-    setShowRpmReportConfigDialog(true);
+    if (clinic?.fetchedPatientCount > 1000) {
+      trackMetric('Clinic - Show RPM Report limit dialog', { clinicId: selectedClinicId, source: 'Patients list' });
+      setShowRpmReportLimitDialog(true);
+    } else {
+      trackMetric('Clinic - Show RPM Report config dialog', { clinicId: selectedClinicId, source: 'Patients list' });
+      setShowRpmReportConfigDialog(true);
+    }
   }
 
   const handleConfigureRpmReportConfirm = useCallback(() => {
@@ -1017,15 +1055,15 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, prefixPopHealthMetric, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   function handlePatientFormChange(formikContext) {
-    setPatientFormContext({...formikContext});
+    setPatientFormContext({ ...formikContext });
   }
 
   function handleTideDashboardConfigFormChange(formikContext) {
-    setTideDashboardFormContext({...formikContext});
+    setTideDashboardFormContext({ ...formikContext });
   }
 
-  function handleRpmReporConfigFormChange(formikContext) {
-    setRpmReportFormContext({...formikContext});
+  function handleRpmReporConfigFormChange(formikContext, utcDayShift) {
+    setRpmReportFormContext({ ...formikContext, utcDayShift });
   }
 
   function handleSearchChange(event) {
@@ -2551,6 +2589,7 @@ export const ClinicPatients = (props) => {
         <DialogContent sx={{ width: '609px' }} divider>
           <RpmReportConfigForm
             api={api}
+            patientFetchOptions={patientFetchOptions}
             trackMetric={trackMetric}
             onFormChange={handleRpmReporConfigFormChange}
             open={showRpmReportConfigDialog}
@@ -2566,7 +2605,7 @@ export const ClinicPatients = (props) => {
             variant="primary"
             onClick={handleConfigureRpmReportConfirm}
             processing={fetchingRpmReportPatients.inProgress}
-            disabled={!fieldsAreValid(keys(rpmReportFormContext?.values), rpmReportConfigSchema, rpmReportFormContext?.values)}
+            disabled={!fieldsAreValid(keys(rpmReportFormContext?.values), rpmReportConfigSchema(rpmReportFormContext?.utcDayShift), rpmReportFormContext?.values)}
           >
             {t('Generate Report')}
           </Button>
@@ -2577,10 +2616,68 @@ export const ClinicPatients = (props) => {
     api,
     fetchingRpmReportPatients.inProgress,
     handleConfigureRpmReportConfirm,
+    patientFetchOptions,
     rpmReportFormContext?.values,
     showRpmReportConfigDialog,
     t,
     trackMetric
+  ]);
+
+  const renderRpmReportLimitDialog = useCallback(() => {
+    return (
+      <Dialog
+        id="rpmReportLimit"
+        aria-labelledby="dialog-title"
+        open={showRpmReportLimitDialog}
+        onClose={handleCloseOverlays}
+        maxWidth="md"
+        PaperProps={{ id: 'rpmReportLimitInner'}}
+      >
+        <DialogTitle onClose={handleCloseOverlays}>
+          <Box sx={{ flexGrow: 1 }} mr={2}>
+            <MediumTitle sx={{ fontSize: 4, textAlign: 'center' }} id="dialog-title">{t('RPM Report')}</MediumTitle>
+          </Box>
+        </DialogTitle>
+
+        <DialogContent sx={{ width: '609px' }} divider>
+          <Flex
+            px={3}
+            py={4}
+            sx={{
+              borderRadius: radii.default,
+              bg: colors.banner.danger.bg,
+              border: 'none',
+              borderLeft: `3px solid ${colors.feedback.danger}`
+            }}
+          >
+            <Box>
+              <Body0 mb={2} sx={{ fontWeight: 'medium' }}>
+                <Text sx={{ fontWeight: 'bold', color: 'feedback.danger', fontSize: 1 }}>{t('Unable to create report')}</Text>
+                {t(' - The RPM Report can only be generated for up to 1,000 patients')}
+              </Body0>
+
+              <Body0 mb={2} sx={{ fontWeight: 'bold' }}>{t('Next Steps')}</Body0>
+              <Body0 sx={{ fontWeight: 'medium', 'ul,li': { m: 0 } }}>
+                <ul>
+                  <li>
+                    {t('Please filter your list further until there are fewer than 1,000 patients and try again')}
+                  </li>
+                </ul>
+              </Body0>
+            </Box>
+          </Flex>
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="rpmReportLimitClose" variant="secondary" onClick={handleCloseOverlays}>
+            {t('Close')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [
+    showRpmReportLimitDialog,
+    t,
   ]);
 
   function handleCloseOverlays() {
@@ -2593,6 +2690,7 @@ export const ClinicPatients = (props) => {
     setShowSendUploadReminderDialog(false);
     setShowTideDashboardConfigDialog(false);
     setShowRpmReportConfigDialog(false);
+    setShowRpmReportLimitDialog(false);
 
     if (resetList) {
       setPatientFetchOptions({ ...patientFetchOptions });
@@ -3060,8 +3158,8 @@ export const ClinicPatients = (props) => {
           data={data}
           sx={tableStyle}
           onSort={handleSortChange}
-          order={sort.substring(0, 1) === '+' ? 'asc' : 'desc'}
-          orderBy={sort.substring(1)}
+          order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
+          orderBy={sort?.substring(1)}
         />
 
         {pageCount > 1 && (
@@ -3112,6 +3210,7 @@ export const ClinicPatients = (props) => {
       {showEditPatientDialog && renderEditPatientDialog()}
       {showTideDashboardUI && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showRpmReportUI && renderRpmReportConfigDialog()}
+      {showRpmReportUI && renderRpmReportLimitDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}

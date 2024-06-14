@@ -3294,11 +3294,108 @@ describe('ClinicPatients', () => {
             expect(rpmReportButton).to.have.length(0);
           });
 
+          it('should open a patient count limit modal if current filtered count is > 1000', () => {
+            store = mockStore({
+              blip: {
+                ...tier0300ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0300ClinicState.blip.clinics.clinicID123,
+                    fetchedPatientCount: '1001',
+                  },
+                },
+              }
+            });
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
+            const dialog = () => wrapper.find('Dialog#rpmReportLimit');
+
+            // Clicking RPM report button should open dashboard limit popover since fetchedPatientCount > 1000
+            expect(dialog()).to.have.length(1);
+            expect(dialog().props().open).to.be.false;
+            rpmReportButton.simulate('click');
+            wrapper.update();
+            expect(dialog().props().open).to.be.true;
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show RPM Report limit dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+          });
+
           it('should open a modal to configure the report, and generate when configured', done => {
+            store = mockStore({
+              blip: {
+                ...tier0300ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0300ClinicState.blip.clinics.clinicID123,
+                    fetchedPatientCount: '1000',
+                  },
+                },
+              }
+            });
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            // We'll start by filtering the patiet list, to make sure the filters are passed correctly to the RPM report api call
+            const cgmUseFilterTrigger = wrapper.find('#cgm-use-filter-trigger').hostNodes();
+            expect(cgmUseFilterTrigger).to.have.lengthOf(1);
+
+            const cgmUsePopover = () => wrapper.find('#cgmUseFilters').hostNodes();
+            expect(cgmUsePopover().props().style.visibility).to.equal('hidden');
+
+            // Open cgmUse popover
+            cgmUseFilterTrigger.simulate('click');
+            expect(cgmUsePopover().props().style.visibility).to.be.undefined;
+
+            // Ensure filter options present
+            const cgmUseFilterOptions = cgmUsePopover().find('#cgm-use').find('label').hostNodes();
+            expect(cgmUseFilterOptions).to.have.lengthOf(2);
+            expect(cgmUseFilterOptions.at(0).text()).to.equal('Less than 70%');
+            expect(cgmUseFilterOptions.at(0).find('input').props().value).to.equal('<0.7');
+
+            expect(cgmUseFilterOptions.at(1).text()).to.equal('70% or more');
+            expect(cgmUseFilterOptions.at(1).find('input').props().value).to.equal('>=0.7');
+
+            // Apply CGM use filter
+            const cgmUseApplyButton = cgmUsePopover().find('#apply-cgm-use-filter').hostNodes();
+            cgmUseFilterOptions.at(1).find('input').last().simulate('change', { target: { name: 'cgm-use', value: '<0.7' } });
+            cgmUseApplyButton.simulate('click');
+
+            // Set summary period
+            const summaryPeriodFilterTrigger = wrapper.find('#summary-period-filter-trigger').hostNodes();
+            expect(summaryPeriodFilterTrigger).to.have.lengthOf(1);
+
+            const summaryPeriodPopover = () => wrapper.find('#summaryPeriodFilters').hostNodes();
+            expect(summaryPeriodPopover().props().style.visibility).to.equal('hidden');
+
+            // Open summary period popover
+            summaryPeriodFilterTrigger.simulate('click');
+            expect(summaryPeriodPopover().props().style.visibility).to.be.undefined;
+
+            // Set to 7 days
+            const filterOptions = summaryPeriodPopover().find('#summary-period-filters').find('label').hostNodes();
+            filterOptions.at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
+
+            // Apply summary period filter
+            const summaryPeriodApplyButton = summaryPeriodPopover().find('#apply-summary-period-filter').hostNodes();
+            summaryPeriodApplyButton.simulate('click');
+
             const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
             const dialog = () => wrapper.find('Dialog#rpmReportConfig');
 
-            // Open dashboard config popover
+            // Clicking RPM report button should open dashboard config popover since fetchedPatientCount <= 1000
             expect(dialog()).to.have.length(1);
             expect(dialog().props().open).to.be.false;
             rpmReportButton.simulate('click');
@@ -3370,6 +3467,7 @@ describe('ClinicPatients', () => {
                 {
                   startDate: sinon.match(value => isString(value)),
                   endDate: sinon.match(value => isString(value)),
+                  patientFilters: { period: '7d', 'cgm.timeCGMUsePercent': '<0.7' },
                 }
               );
 
