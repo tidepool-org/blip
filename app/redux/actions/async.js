@@ -1077,7 +1077,7 @@ export function fetchPatientData(api, options, id) {
 
         // Now that we have the server time, we want to find the latest non-future diabetes datum
         // times, and use that to determine the ideal start and end date ranges for our data fetch
-        const datumTypesToFetch = [...DIABETES_DATA_TYPES, 'pumpSettings', 'upload'];
+        const datumTypesToFetch = [...DIABETES_DATA_TYPES, 'pumpSettings', 'upload', 'dosingDecision'];
 
         const latestDatumsFetchParams = {
           type: datumTypesToFetch.join(','),
