@@ -2735,6 +2735,55 @@ export function sendPatientUploadReminder(api, clinicId, patientId) {
   };
 }
 
+
+/**
+ * Mark a clinic patient as reviewed
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the patient
+ */
+export function setClinicPatientLastReviewedDate(api, clinicId, patientId) {
+  return (dispatch) => {
+    dispatch(sync.setClinicPatientLastReviewedDateRequest());
+
+    api.clinics.setClinicPatientLastReviewedDate(clinicId, patientId, (err, result) => {
+      if (err) {
+        dispatch(sync.setClinicPatientLastReviewedDateFailure(
+          createActionError(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED_DATE, err), err
+        ));
+      } else {
+        const { lastReviewedDate, previousLastReviewedDate } = result;
+        dispatch(sync.setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewedDate, previousLastReviewedDate));
+      }
+    });
+  };
+}
+
+/**
+ * Revert a clinic patient last reviewed date
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the patient
+ */
+export function revertClinicPatientLastReviewedDate(api, clinicId, patientId) {
+  return (dispatch) => {
+    dispatch(sync.revertClinicPatientLastReviewedDateRequest());
+
+    api.clinics.revertClinicPatientLastReviewedDate(clinicId, patientId, (err, result) => {
+      if (err) {
+        dispatch(sync.revertClinicPatientLastReviewedDateFailure(
+          createActionError(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_DATE, err), err
+        ));
+      } else {
+        const { lastReviewedDate, previousLastReviewedDate } = result;
+        dispatch(sync.revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewedDate, previousLastReviewedDate));
+      }
+    });
+  };
+}
+
 /**
  * Send a dexcom connect reqeust email to a clinic patient
  *

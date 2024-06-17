@@ -943,6 +943,25 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        lastReviewedDate,
+        previousLastReviewedDate,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...state[clinicId].patients[patientId],
+            lastReviewedDate,
+            previousLastReviewedDate,
+          } } },
+        },
+      });
+    }
     case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS: {
       const {
         clinicId,
