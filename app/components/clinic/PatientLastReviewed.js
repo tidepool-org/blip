@@ -57,7 +57,7 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
       reviewIsRecent = true;
     }
 
-    if (lastReviewIsToday && (patient?.previousLastReviewed?.time ? (patient?.previousLastReviewed?.clinicianId === loggedInUserId) : true)) {
+    if (lastReviewIsToday && patient?.lastReviewed?.clinicianId === loggedInUserId) {
       clickHandler = handleUndo;
       buttonText = t('Undo');
     };

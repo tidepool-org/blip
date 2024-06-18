@@ -2748,24 +2748,12 @@ export function setClinicPatientLastReviewedDate(api, clinicId, patientId, useMo
     dispatch(sync.setClinicPatientLastReviewedDateRequest());
 
     if (useMockData) {
-      const { blip: { loggedInUserId } } = getState();
+      const { blip: { loggedInUserId, clinics } } = getState();
 
       setTimeout(() => {
-        const mockPatients = _.keyBy([
-          ..._.map(mockTideDashboardPatients.results.timeInVeryLowPercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.timeInAnyLowPercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.dropInTimeInTargetPercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.timeInTargetPercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.timeCGMUsePercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.meetingTargets, 'patient'),
-        ], 'id');
-
-        const { lastReviewed: previousLastReviewed } = mockPatients[patientId];
-        const lastReviewed = {
-          clincianId: loggedInUserId,
-          time: moment.utc().toISOString(),
-        }
-        dispatch(sync.setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
+        const { lastReviewed: previousLastReviewed = {} } = clinics?.[clinicId]?.patients?.[patientId] || {};
+        const lastReviewed = { clinicianId: loggedInUserId, time: moment.utc().toISOString() };
+        dispatch(sync.setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, { ...previousLastReviewed }));
       }, 500)
       return;
     }
@@ -2791,23 +2779,14 @@ export function setClinicPatientLastReviewedDate(api, clinicId, patientId, useMo
  * @param {String} patientId - Id of the patient
  */
 export function revertClinicPatientLastReviewedDate(api, clinicId, patientId, useMockData = true) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.revertClinicPatientLastReviewedDateRequest());
 
     if (useMockData) {
       setTimeout(() => {
-        const mockPatients = _.keyBy([
-          ..._.map(mockTideDashboardPatients.results.timeInVeryLowPercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.timeInAnyLowPercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.dropInTimeInTargetPercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.timeInTargetPercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.timeCGMUsePercent, 'patient'),
-          ..._.map(mockTideDashboardPatients.results.meetingTargets, 'patient'),
-        ], 'id');
-
-        const { previousLastReviewed: lastReviewed } = mockPatients[patientId];
-
-        dispatch(sync.revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, undefined));
+        const { blip: {  clinics } } = getState();
+        const { previousLastReviewed: lastReviewed = {} } = clinics?.[clinicId]?.patients?.[patientId] || {};
+        dispatch(sync.revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, { ...lastReviewed }, undefined));
       }, 500)
       return;
     }
