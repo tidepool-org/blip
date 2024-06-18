@@ -121,8 +121,8 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FOR_CLINICIAN_REQUEST:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
     case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
-    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_REQUEST:
-    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_REQUEST:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
     case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
@@ -178,8 +178,8 @@ export default (state = initialWorkingState, action) => {
           types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST,
           types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
           types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
-          types.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_REQUEST,
-          types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_REQUEST,
+          types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
+          types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
           types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST,
           types.DATA_WORKER_REMOVE_DATA_REQUEST,
           types.CREATE_CLINIC_PATIENT_TAG_REQUEST,
@@ -197,6 +197,7 @@ export default (state = initialWorkingState, action) => {
                 notification: null,
                 completed: null, // For these types we don't persist the completed state
                 prescriptionId: _.get(action, ['payload', 'prescription', 'id']),
+                patientId: _.get(action, ['payload', 'patientId']),
               }
             }
           });
@@ -299,8 +300,8 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
     case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
-    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS:
-    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
@@ -482,8 +483,8 @@ export default (state = initialWorkingState, action) => {
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
     case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
-    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_FAILURE:
-    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_FAILURE:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
     case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:

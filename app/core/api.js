@@ -1073,12 +1073,12 @@ api.clinics.getClinicPatientCountSettings = function(clinicId, cb) {
   return tidepool.getClinicPatientCountSettings(clinicId, cb);
 };
 
-api.clinics.setClinicPatientLastReviewedDate = function(clinicId, patientId, cb) {
-  return tidepool.setClinicPatientLastReviewedDate(clinicId, patientId, cb);
+api.clinics.setClinicPatientLastReviewed = function(clinicId, patientId, cb) {
+  return tidepool.setClinicPatientLastReviewed(clinicId, patientId, cb);
 };
 
-api.clinics.revertClinicPatientLastReviewedDate = function(clinicId, patientId, cb) {
-  return tidepool.revertClinicPatientLastReviewedDate(clinicId, patientId, cb);
+api.clinics.revertClinicPatientLastReviewed = function(clinicId, patientId, cb) {
+  return tidepool.revertClinicPatientLastReviewed(clinicId, patientId, cb);
 };
 
 // ----- Errors -----

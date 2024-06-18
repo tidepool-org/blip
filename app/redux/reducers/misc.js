@@ -964,8 +964,8 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { $set: { ...state[clinicId], patients: _.keyBy(patients, 'id'), fetchedPatientCount: patients.length, lastPatientFetchTime: moment.utc().valueOf() } },
       });
     }
-    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS:
-    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS: {
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS: {
       const {
         clinicId,
         patientId,

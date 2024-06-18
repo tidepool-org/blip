@@ -2743,9 +2743,9 @@ export function sendPatientUploadReminder(api, clinicId, patientId) {
  * @param {String} clinicId - Id of the clinic
  * @param {String} patientId - Id of the patient
  */
-export function setClinicPatientLastReviewedDate(api, clinicId, patientId, useMockData = true) {
+export function setClinicPatientLastReviewed(api, clinicId, patientId, useMockData = true) {
   return (dispatch, getState) => {
-    dispatch(sync.setClinicPatientLastReviewedDateRequest());
+    dispatch(sync.setClinicPatientLastReviewedRequest());
 
     if (useMockData) {
       const { blip: { loggedInUserId, clinics } } = getState();
@@ -2753,19 +2753,26 @@ export function setClinicPatientLastReviewedDate(api, clinicId, patientId, useMo
       setTimeout(() => {
         const { lastReviewed: previousLastReviewed = {} } = clinics?.[clinicId]?.patients?.[patientId] || {};
         const lastReviewed = { clinicianId: loggedInUserId, time: moment.utc().toISOString() };
-        dispatch(sync.setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, { ...previousLastReviewed }));
-      }, 500)
+
+        if (Math.random() < 0.5) {
+          dispatch(sync.setClinicPatientLastReviewedFailure(
+            createActionError(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED, new Error()), new Error()
+          ));
+        } else {
+          dispatch(sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, { ...previousLastReviewed }));
+        }
+      }, 1000)
       return;
     }
 
-    api.clinics.setClinicPatientLastReviewedDate(clinicId, patientId, (err, result) => {
+    api.clinics.setClinicPatientLastReviewed(clinicId, patientId, (err, result) => {
       if (err) {
-        dispatch(sync.setClinicPatientLastReviewedDateFailure(
-          createActionError(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED_DATE, err), err
+        dispatch(sync.setClinicPatientLastReviewedFailure(
+          createActionError(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED, err), err
         ));
       } else {
         const { lastReviewed, previousLastReviewed } = result;
-        dispatch(sync.setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
+        dispatch(sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
       }
     });
   };
@@ -2778,27 +2785,34 @@ export function setClinicPatientLastReviewedDate(api, clinicId, patientId, useMo
  * @param {String} clinicId - Id of the clinic
  * @param {String} patientId - Id of the patient
  */
-export function revertClinicPatientLastReviewedDate(api, clinicId, patientId, useMockData = true) {
+export function revertClinicPatientLastReviewed(api, clinicId, patientId, useMockData = true) {
   return (dispatch, getState) => {
-    dispatch(sync.revertClinicPatientLastReviewedDateRequest());
+    dispatch(sync.revertClinicPatientLastReviewedRequest());
 
     if (useMockData) {
       setTimeout(() => {
         const { blip: {  clinics } } = getState();
         const { previousLastReviewed: lastReviewed = {} } = clinics?.[clinicId]?.patients?.[patientId] || {};
-        dispatch(sync.revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, { ...lastReviewed }, undefined));
-      }, 500)
+
+        if (Math.random() < 0.5) {
+          dispatch(sync.revertClinicPatientLastReviewedFailure(
+            createActionError(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED, new Error()), new Error()
+          ));
+        } else {
+          dispatch(sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, { ...lastReviewed }, undefined));
+        }
+      }, 1000)
       return;
     }
 
-    api.clinics.revertClinicPatientLastReviewedDate(clinicId, patientId, (err, result) => {
+    api.clinics.revertClinicPatientLastReviewed(clinicId, patientId, (err, result) => {
       if (err) {
-        dispatch(sync.revertClinicPatientLastReviewedDateFailure(
-          createActionError(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_DATE, err), err
+        dispatch(sync.revertClinicPatientLastReviewedFailure(
+          createActionError(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED, err), err
         ));
       } else {
         const { lastReviewed, previousLastReviewed } = result;
-        dispatch(sync.revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
+        dispatch(sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
       }
     });
   };

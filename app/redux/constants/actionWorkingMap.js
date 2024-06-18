@@ -439,15 +439,15 @@ export default (type) => {
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE:
       return 'fetchingClinicPatientCountSettings';
 
-    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_REQUEST:
-    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS:
-    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_FAILURE:
-      return 'settingClinicPatientLastReviewedDate';
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
+      return 'settingClinicPatientLastReviewed';
 
-    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_REQUEST:
-    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS:
-    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_FAILURE:
-      return 'revertingClinicPatientLastReviewedDate';
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
+      return 'revertingClinicPatientLastReviewed';
 
     default:
       return null;

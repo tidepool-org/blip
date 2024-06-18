@@ -2050,15 +2050,15 @@ export function sendPatientUploadReminderFailure(error, apiError) {
   };
 }
 
-export function setClinicPatientLastReviewedDateRequest() {
+export function setClinicPatientLastReviewedRequest() {
   return {
-    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_REQUEST,
+    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
   };
 }
 
-export function setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed) {
+export function setClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed) {
   return {
-    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS,
+    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS,
     payload: {
       clinicId: clinicId,
       patientId: patientId,
@@ -2068,9 +2068,9 @@ export function setClinicPatientLastReviewedDateSuccess(clinicId, patientId, las
   };
 }
 
-export function setClinicPatientLastReviewedDateFailure(error, apiError) {
+export function setClinicPatientLastReviewedFailure(error, apiError) {
   return {
-    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_FAILURE,
+    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
@@ -2078,15 +2078,15 @@ export function setClinicPatientLastReviewedDateFailure(error, apiError) {
   };
 }
 
-export function revertClinicPatientLastReviewedDateRequest() {
+export function revertClinicPatientLastReviewedRequest() {
   return {
-    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_REQUEST,
+    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
   };
 }
 
-export function revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed) {
+export function revertClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed) {
   return {
-    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS,
+    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS,
     payload: {
       clinicId: clinicId,
       patientId: patientId,
@@ -2096,9 +2096,9 @@ export function revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, 
   };
 }
 
-export function revertClinicPatientLastReviewedDateFailure(error, apiError) {
+export function revertClinicPatientLastReviewedFailure(error, apiError) {
   return {
-    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_FAILURE,
+    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
