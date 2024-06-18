@@ -222,6 +222,7 @@ const SortPopover = React.memo(props => {
 
 const TideDashboardSection = React.memo(props => {
   const {
+    api,
     clinicBgUnits,
     config,
     dispatch,
@@ -338,8 +339,8 @@ const TideDashboardSection = React.memo(props => {
   }, [patientTags]);
 
   const renderLastReviewed = useCallback(({ patient }) => {
-    return <PatientLastReviewed patient={patient} recentlyReviewedThresholdDate={moment().startOf('week')} />
-  }, []);
+    return <PatientLastReviewed api={api} patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('week')} />
+  }, [api]);
 
   const renderBgRangeSummary = useCallback(summary => {
     return <BgSummaryCell
@@ -962,6 +963,7 @@ export const TideDashboard = (props) => {
 
   const renderPatientGroups = useCallback(() => {
     const sectionProps = {
+      api,
       clinicBgUnits,
       config,
       dispatch,

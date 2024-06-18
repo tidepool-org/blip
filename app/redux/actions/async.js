@@ -2743,9 +2743,32 @@ export function sendPatientUploadReminder(api, clinicId, patientId) {
  * @param {String} clinicId - Id of the clinic
  * @param {String} patientId - Id of the patient
  */
-export function setClinicPatientLastReviewedDate(api, clinicId, patientId) {
-  return (dispatch) => {
+export function setClinicPatientLastReviewedDate(api, clinicId, patientId, useMockData = true) {
+  return (dispatch, getState) => {
     dispatch(sync.setClinicPatientLastReviewedDateRequest());
+
+    if (useMockData) {
+      const { blip: { loggedInUserId } } = getState();
+
+      setTimeout(() => {
+        const mockPatients = _.keyBy([
+          ..._.map(mockTideDashboardPatients.results.timeInVeryLowPercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.timeInAnyLowPercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.dropInTimeInTargetPercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.timeInTargetPercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.timeCGMUsePercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.meetingTargets, 'patient'),
+        ], 'id');
+
+        const { lastReviewed: previousLastReviewed } = mockPatients[patientId];
+        const lastReviewed = {
+          clincianId: loggedInUserId,
+          time: moment.utc().toISOString(),
+        }
+        dispatch(sync.setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
+      }, 500)
+      return;
+    }
 
     api.clinics.setClinicPatientLastReviewedDate(clinicId, patientId, (err, result) => {
       if (err) {
@@ -2753,8 +2776,8 @@ export function setClinicPatientLastReviewedDate(api, clinicId, patientId) {
           createActionError(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED_DATE, err), err
         ));
       } else {
-        const { lastReviewedDate, previousLastReviewedDate } = result;
-        dispatch(sync.setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewedDate, previousLastReviewedDate));
+        const { lastReviewed, previousLastReviewed } = result;
+        dispatch(sync.setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
       }
     });
   };
@@ -2767,9 +2790,27 @@ export function setClinicPatientLastReviewedDate(api, clinicId, patientId) {
  * @param {String} clinicId - Id of the clinic
  * @param {String} patientId - Id of the patient
  */
-export function revertClinicPatientLastReviewedDate(api, clinicId, patientId) {
+export function revertClinicPatientLastReviewedDate(api, clinicId, patientId, useMockData = true) {
   return (dispatch) => {
     dispatch(sync.revertClinicPatientLastReviewedDateRequest());
+
+    if (useMockData) {
+      setTimeout(() => {
+        const mockPatients = _.keyBy([
+          ..._.map(mockTideDashboardPatients.results.timeInVeryLowPercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.timeInAnyLowPercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.dropInTimeInTargetPercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.timeInTargetPercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.timeCGMUsePercent, 'patient'),
+          ..._.map(mockTideDashboardPatients.results.meetingTargets, 'patient'),
+        ], 'id');
+
+        const { previousLastReviewed: lastReviewed } = mockPatients[patientId];
+
+        dispatch(sync.revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, undefined));
+      }, 500)
+      return;
+    }
 
     api.clinics.revertClinicPatientLastReviewedDate(clinicId, patientId, (err, result) => {
       if (err) {
@@ -2777,8 +2818,8 @@ export function revertClinicPatientLastReviewedDate(api, clinicId, patientId) {
           createActionError(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_DATE, err), err
         ));
       } else {
-        const { lastReviewedDate, previousLastReviewedDate } = result;
-        dispatch(sync.revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewedDate, previousLastReviewedDate));
+        const { lastReviewed, previousLastReviewed } = result;
+        dispatch(sync.revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
       }
     });
   };
@@ -2927,14 +2968,16 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  * @param {Number} [options.lastUploadDateFrom] - ISO date for start of last upload date filter range
  * @param {Number} [options.lastUploadDateTo] - ISO date for end of last upload date filter range
  */
- export function fetchTideDashboardPatients(api, clinicId, options) {
+ export function fetchTideDashboardPatients(api, clinicId, options, useMockData = true) {
   return (dispatch) => {
     dispatch(sync.fetchTideDashboardPatientsRequest());
 
-    setTimeout(() => {
-      dispatch(sync.fetchTideDashboardPatientsSuccess(mockTideDashboardPatients));
-    }, 100)
-    return;
+    if (useMockData) {
+      setTimeout(() => {
+        dispatch(sync.fetchTideDashboardPatientsSuccess(mockTideDashboardPatients));
+      }, 100)
+      return;
+    }
 
     api.clinics.getPatientsForTideDashboard(clinicId, options, (err, results) => {
       if (err) {

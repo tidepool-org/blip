@@ -2056,14 +2056,14 @@ export function setClinicPatientLastReviewedDateRequest() {
   };
 }
 
-export function setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewedDate, previousLastReviewedDate) {
+export function setClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed) {
   return {
     type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS,
     payload: {
       clinicId: clinicId,
       patientId: patientId,
-      lastReviewedDate: lastReviewedDate,
-      previousLastReviewedDate: previousLastReviewedDate,
+      lastReviewed: lastReviewed,
+      previousLastReviewed: previousLastReviewed,
     },
   };
 }
@@ -2084,14 +2084,14 @@ export function revertClinicPatientLastReviewedDateRequest() {
   };
 }
 
-export function revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewedDate, previousLastReviewedDate) {
+export function revertClinicPatientLastReviewedDateSuccess(clinicId, patientId, lastReviewed, previousLastReviewed) {
   return {
     type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_DATE_SUCCESS,
     payload: {
       clinicId: clinicId,
       patientId: patientId,
-      lastReviewedDate: lastReviewedDate,
-      previousLastReviewedDate: previousLastReviewedDate,
+      lastReviewed: lastReviewed,
+      previousLastReviewed: previousLastReviewed,
     },
   };
 }

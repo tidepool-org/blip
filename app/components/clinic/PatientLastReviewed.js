@@ -10,6 +10,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import HoverButton from '../elements/HoverButton';
 import Icon from '../elements/Icon';
 import i18next from '../../core/language';
+import * as actions from '../../redux/actions';
 
 const {
   formatTimeAgo,
@@ -18,16 +19,20 @@ const {
 
 const t = i18next.t.bind(i18next);
 
-export const PatientLastReviewed = ({ patient, recentlyReviewedThresholdDate }) => {
+export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdDate }) => {
+  const dispatch = useDispatch();
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
+  const patient = clinic?.patients?.[patientId];
 
   const handleReview = () => {
-    console.log('handleReview', patient?.fullName);
+    dispatch(actions.async.setClinicPatientLastReviewedDate(api, selectedClinicId, patient?.id));
   };
 
   const handleUndo = () => {
-    console.log('handleUndo', patient?.fullName);
+    dispatch(actions.async.revertClinicPatientLastReviewedDate(api, selectedClinicId, patient?.id));
   };
 
   let clickHandler = handleReview;
@@ -52,7 +57,7 @@ export const PatientLastReviewed = ({ patient, recentlyReviewedThresholdDate }) 
       reviewIsRecent = true;
     }
 
-    if (lastReviewIsToday && patient?.previousLastReviewed?.time && (patient.previousLastReviewed.clinicianId === loggedInUserId)) {
+    if (lastReviewIsToday && (patient?.previousLastReviewed?.time ? (patient?.previousLastReviewed?.clinicianId === loggedInUserId) : true)) {
       clickHandler = handleUndo;
       buttonText = t('Undo');
     };
@@ -94,7 +99,8 @@ export const PatientLastReviewed = ({ patient, recentlyReviewedThresholdDate }) 
 
 PatientLastReviewed.propTypes = {
   ...FlexProps,
-  patient: PropTypes.object,
+  api: PropTypes.object.isRequired,
+  patientId: PropTypes.string.isRequired,
   recentlyReviewedThresholdDate: PropTypes.string.isRequired,
 }
 

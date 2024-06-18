@@ -1,7 +1,7 @@
 {
   "config": {
     "schemaVersion": 1,
-    "clinicId": "clinicID123",
+    "clinicId": "62419f38f85189a39ac4b68d",
     "period": "14d",
     "lastUploadDateFrom": "2023-05-16T04:00:00.000Z",
     "lastUploadDateTo": "2023-05-30T04:00:00.000Z",
@@ -41,11 +41,11 @@
           "fullName": "Charmane Fassman",
           "lastReviewed": {
             "clinicianId": "cbc242c79f",
-            "time": "2024-06-13T08:00:00.000Z"
+            "time": "2024-06-16T08:00:00.000Z"
           },
           "previousLastReviewed": {
             "clinicianId": "id123",
-            "time": "2024-06-12T08:00:00.000Z"
+            "time": "2024-06-15T08:00:00.000Z"
           },
           "tags": [
             "646f7edb08e23bc18d91caa5",
@@ -72,11 +72,11 @@
           "fullName": "Lora Painter",
           "lastReviewed": {
             "clinicianId": "cbc242c79f",
-            "time": "2024-06-14T08:00:00.000Z"
+            "time": "2024-06-17T08:00:00.000Z"
           },
           "previousLastReviewed": {
             "clinicianId": "id123",
-            "time": "2024-06-13T08:00:00.000Z"
+            "time": "2024-06-16T08:00:00.000Z"
           },
           "tags": [
             "646f7ed208e23bc18d91caa3"
@@ -134,11 +134,11 @@
           "fullName": "Elmo Jouning",
           "lastReviewed": {
             "clinicianId": "cbc242c79f",
-            "time": "2024-06-14T08:00:00.000Z"
+            "time": "2024-06-17T08:00:00.000Z"
           },
           "previousLastReviewed": {
             "clinicianId": "cbc242c79f",
-            "time": "2024-06-03T08:00:00.000Z"
+            "time": "2024-06-06T08:00:00.000Z"
           },
           "tags": [
             "646f7ed708e23bc18d91caa4",
@@ -166,7 +166,7 @@
           "fullName": "Joni Caccavari",
           "lastReviewed": {
             "clinicianId": "cbc242c79f",
-            "time": "2024-06-14T08:00:00.000Z"
+            "time": "2024-06-17T08:00:00.000Z"
           },
           "tags": [
             "63d811e11710f10c0422ce6d"
