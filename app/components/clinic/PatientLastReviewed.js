@@ -113,6 +113,7 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
         onClick: clickHandler,
         variant: 'quickActionCondensed',
         ml: canReview ? -2 : 0,
+        processing: settingClinicPatientLastReviewed.inProgress || revertingClinicPatientLastReviewed.inProgress,
       }}
       hideChildrenOnHover={canReview}
     >

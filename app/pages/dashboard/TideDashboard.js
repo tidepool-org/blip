@@ -339,7 +339,7 @@ const TideDashboardSection = React.memo(props => {
   }, [patientTags]);
 
   const renderLastReviewed = useCallback(({ patient }) => {
-    return <PatientLastReviewed api={api} patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('week')} />
+    return <PatientLastReviewed api={api} patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('isoWeek').toISOString()} />
   }, [api]);
 
   const renderBgRangeSummary = useCallback(summary => {

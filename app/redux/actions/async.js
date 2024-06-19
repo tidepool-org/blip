@@ -2754,7 +2754,7 @@ export function setClinicPatientLastReviewed(api, clinicId, patientId, useMockDa
         const { lastReviewed: previousLastReviewed = {} } = clinics?.[clinicId]?.patients?.[patientId] || {};
         const lastReviewed = { clinicianId: loggedInUserId, time: moment.utc().toISOString() };
 
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.25) {
           dispatch(sync.setClinicPatientLastReviewedFailure(
             createActionError(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED, new Error()), new Error()
           ));
@@ -2794,9 +2794,13 @@ export function revertClinicPatientLastReviewed(api, clinicId, patientId, useMoc
         const { blip: {  clinics } } = getState();
         const { previousLastReviewed: lastReviewed = {} } = clinics?.[clinicId]?.patients?.[patientId] || {};
 
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.25) {
+          const message = Math.random() > 0.5
+            ? ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED
+            : ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED;
+
           dispatch(sync.revertClinicPatientLastReviewedFailure(
-            createActionError(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED, new Error()), new Error()
+            createActionError(message, new Error()), new Error()
           ));
         } else {
           dispatch(sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, { ...lastReviewed }, undefined));
@@ -2807,8 +2811,14 @@ export function revertClinicPatientLastReviewed(api, clinicId, patientId, useMoc
 
     api.clinics.revertClinicPatientLastReviewed(clinicId, patientId, (err, result) => {
       if (err) {
+        let message = ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED;
+
+        if (err.status === 403) {
+          message = ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED;
+        }
+
         dispatch(sync.revertClinicPatientLastReviewedFailure(
-          createActionError(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED, err), err
+          createActionError(message, err), err
         ));
       } else {
         const { lastReviewed, previousLastReviewed } = result;
