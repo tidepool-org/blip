@@ -2743,7 +2743,7 @@ export function sendPatientUploadReminder(api, clinicId, patientId) {
  * @param {String} clinicId - Id of the clinic
  * @param {String} patientId - Id of the patient
  */
-export function setClinicPatientLastReviewed(api, clinicId, patientId, useMockData = true) {
+export function setClinicPatientLastReviewed(api, clinicId, patientId, useMockData = false) {
   return (dispatch, getState) => {
     dispatch(sync.setClinicPatientLastReviewedRequest());
 
@@ -2785,7 +2785,7 @@ export function setClinicPatientLastReviewed(api, clinicId, patientId, useMockDa
  * @param {String} clinicId - Id of the clinic
  * @param {String} patientId - Id of the patient
  */
-export function revertClinicPatientLastReviewed(api, clinicId, patientId, useMockData = true) {
+export function revertClinicPatientLastReviewed(api, clinicId, patientId, useMockData = false) {
   return (dispatch, getState) => {
     dispatch(sync.revertClinicPatientLastReviewedRequest());
 
@@ -2971,7 +2971,7 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  * @param {Number} [options.lastUploadDateFrom] - ISO date for start of last upload date filter range
  * @param {Number} [options.lastUploadDateTo] - ISO date for end of last upload date filter range
  */
- export function fetchTideDashboardPatients(api, clinicId, options, useMockData = true) {
+ export function fetchTideDashboardPatients(api, clinicId, options, useMockData = false) {
   return (dispatch) => {
     dispatch(sync.fetchTideDashboardPatientsRequest());
 
