@@ -78,6 +78,8 @@ describe('api', () => {
       saveSession: sinon.stub(),
       getClinicPatientCount: sinon.stub(),
       getClinicPatientCountSettings: sinon.stub(),
+      setClinicPatientLastReviewed: sinon.stub(),
+      revertClinicPatientLastReviewed: sinon.stub(),
     };
 
     rollbar = {
@@ -149,6 +151,8 @@ describe('api', () => {
     tidepool.saveSession.resetHistory();
     tidepool.getClinicPatientCount.resetHistory();
     tidepool.getClinicPatientCountSettings.resetHistory();
+    tidepool.setClinicPatientLastReviewed.resetHistory();
+    tidepool.revertClinicPatientLastReviewed.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -1120,6 +1124,22 @@ describe('api', () => {
         const clinicId = 'clinicId123';
         api.clinics.getClinicPatientCountSettings(clinicId, cb);
         sinon.assert.calledWith(tidepool.getClinicPatientCountSettings, clinicId, cb);
+      });
+    });
+    describe('clinics.setClinicPatientLastReviewed', () => {
+      it('should call tidepool.setClinicPatientLastReviewed with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.setClinicPatientLastReviewed(clinicId, cb);
+        sinon.assert.calledWith(tidepool.setClinicPatientLastReviewed, clinicId, cb);
+      });
+    });
+    describe('clinics.revertClinicPatientLastReviewed', () => {
+      it('should call tidepool.revertClinicPatientLastReviewed with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.revertClinicPatientLastReviewed(clinicId, cb);
+        sinon.assert.calledWith(tidepool.revertClinicPatientLastReviewed, clinicId, cb);
       });
     });
   });

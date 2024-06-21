@@ -135,6 +135,8 @@ describe('ClinicPatients', () => {
         deletingClinicPatientTag: defaultWorkingState,
         fetchingTideDashboardPatients: defaultWorkingState,
         fetchingRpmReportPatients: defaultWorkingState,
+        settingClinicPatientLastReviewed: defaultWorkingState,
+        revertingClinicPatientLastReviewed: defaultWorkingState,
       },
     },
   };
@@ -3226,6 +3228,79 @@ describe('ClinicPatients', () => {
 
             const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
             expect(tideDashboardButton).to.have.length(0);
+          });
+        });
+      });
+
+      describe.only('Managing patient last reviewed dates', () => {
+        context('showSummaryDashboardLastReviewed flag is true', () => {
+          beforeEach(() => {
+            store = mockStore(tier0300ClinicState);
+
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showSummaryDashboardLastReviewed: true,
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            defaultProps.trackMetric.resetHistory();
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useFlags');
+          });
+
+          it('should render the Last Reviewed column', () => {
+            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
+            expect(lastReviewedHeader).to.have.length(1);
+          });
+
+          it('should not render the Last Reviewed column if clinic tier < tier0300', () => {
+            store = mockStore(tier0100ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
+            expect(lastReviewedHeader).to.have.length(0);
+          });
+        });
+
+        context('showSummaryDashboardLastReviewed flag is false', () => {
+          beforeEach(() => {
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showSummaryDashboardLastReviewed: false,
+            }));
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useFlags');
+          });
+
+          it('should not show the Last Reviewed column, even if clinic tier >= tier0300', () => {
+            store = mockStore(tier0300ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
+            expect(lastReviewedHeader).to.have.length(0);
           });
         });
       });
