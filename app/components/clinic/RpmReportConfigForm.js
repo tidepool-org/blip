@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import compact from 'lodash/compact';
+import bows from 'bows';
 import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
 import map from 'lodash/map';
+import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import { useFormik } from 'formik';
 import moment from 'moment-timezone';
@@ -14,7 +16,7 @@ import { Element, scroller } from 'react-scroll';
 
 import { useLocalStorage } from '../../core/hooks';
 import { addEmptyOption, getCommonFormikFieldProps } from '../../core/forms';
-import { rpmReportConfigSchema as validationSchema, timezoneOptions, dateRegex } from '../../core/clinicUtils';
+import { rpmReportConfigSchema, timezoneOptions, dateRegex } from '../../core/clinicUtils';
 import { Body0 } from '../../components/elements/FontStyles';
 import Select from '../elements/Select';
 import DateRangePicker from '../elements/DateRangePicker';
@@ -22,6 +24,7 @@ import { async, sync } from '../../redux/actions';
 import i18next from '../../core/language';
 
 const t = i18next.t.bind(i18next);
+const log = bows('RpmReportConfigForm');
 
 export const exportRpmReport = ({ config, results }) => {
   let { startDate = '', endDate = '' } = config?.rawConfig || {};
@@ -71,29 +74,42 @@ export const exportRpmReport = ({ config, results }) => {
 };
 
 export const RpmReportConfigForm = props => {
-  const { t, api, onFormChange, open, trackMetric, ...boxProps } = props;
+  const { t, api, onFormChange, open, patientFetchOptions, trackMetric, ...boxProps } = props;
   const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const [config, setConfig] = useLocalStorage('rpmReportConfig', {});
+  const [focusedDatePickerInput, setFocusedDatePickerInput] = useState();
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [showEndDateOffset, setShowEndDateOffset] = useState(false);
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const dateFormat = 'YYYY-MM-DD'
   const maxDays = 30;
-  const maxDaysInPast = 60;
+  const maxDaysInPast = 59;
+  const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const [utcDayShift, setUtcDayShift] = useState(0);
+  const today = moment.utc().startOf('day');
+
+  function setMomentToUTC() {
+    log('Setting moment to default to UTC timezone');
+    moment.tz.setDefault('UTC');
+  }
+
+  function setMomentToLocal() {
+    log('Setting moment back to default local timezone of', browserTimezone)
+    moment.tz.setDefault();
+  }
 
   const defaultDates = () => {
     return {
-      startDate: moment.utc().subtract(maxDays - 1, 'days'),
-      endDate: moment.utc(),
+      startDate: moment.utc(today).subtract(maxDays - 1, 'days').add(utcDayShift, 'days'),
+      endDate: moment.utc(today).add(utcDayShift, 'days'),
     };
   }
 
   function defaultFormValues(config) {
     const { startDate, endDate } = defaultDates();
-    let fallbackTimezone = clinic?.timezone || new Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let fallbackTimezone = clinic?.timezone || browserTimezone;
     if (!includes(map(timezoneOptions, 'value'), fallbackTimezone)) fallbackTimezone = '';
 
     return {
@@ -103,15 +119,41 @@ export const RpmReportConfigForm = props => {
     };
   }
 
-
   const formikContext = useFormik({
     initialValues: defaultFormValues(config?.[localConfigKey]),
     onSubmit: values => {
+      // We construct the dates and add the timezone offset manually in order to
+      // provide a utc datetime in the expected backend format without any unexpected shifting
+      // of calendar dates due to timezone conversion
+      const start = [
+        moment.utc(values.startDate).format(dateFormat),
+        'T00:00:00.000',
+        moment.utc(values.startDate).tz(values.timezone).startOf('day').toISOString(true).slice(-6),
+      ];
+
+      const end = [
+        moment.utc(values.endDate).format(dateFormat),
+        'T23:59:59.999',
+        moment.utc(values.endDate).tz(values.timezone).endOf('day').toISOString(true).slice(-6),
+      ];
+
       const queryOptions = {
         rawConfig: values,
-        startDate: moment(values.startDate).tz(values.timezone).startOf('day').toISOString(),
-        endDate: moment(values.endDate).tz(values.timezone).endOf('day').toISOString(),
+        startDate: start.join(''),
+        endDate: end.join(''),
+
+        // Set any currently applied patient filters so that RPM report patient list matches current view
+        patientFilters: omit(patientFetchOptions, [
+          'offset',
+          'sort',
+          'sortType',
+          'limit',
+        ]),
       };
+
+      if (isEmpty(queryOptions.patientFilters.search)) {
+        delete queryOptions.patientFilters.search;
+      }
 
       dispatch(async.fetchRpmReportPatients(api, selectedClinicId, queryOptions));
 
@@ -121,7 +163,7 @@ export const RpmReportConfigForm = props => {
         [localConfigKey]: pick(values, ['timezone']),
       });
     },
-    validationSchema,
+    validationSchema: rpmReportConfigSchema(utcDayShift),
   });
 
   const {
@@ -129,36 +171,69 @@ export const RpmReportConfigForm = props => {
     setFieldValue,
     values,
     setValues,
-    validateForm
+    validateForm,
+    resetForm,
   } = formikContext;
 
   // Set to default state when dialog is newly opened
   useEffect(() => {
     if (open) {
+      // Set global moment to use UTC timezone when config modal opens. This is required for our
+      // use within this form, since React-dates (used for our datepicker components) does not allow
+      // overriding the default moment-provided timezone, and we need to work with UTC dates for
+      // consistent behaviour across various timezones
+      setMomentToUTC();
       setValues(defaultFormValues(config?.[localConfigKey]), true)
       dispatch(sync.clearRpmReportPatients());
+    } else {
+      // Reset global moment to use local/browser timezone when config modal closes
+      setMomentToLocal();
+      resetForm();
     }
   }, [open]);
 
   useEffect(() => {
+    if (!isEmpty(values.timezone)) {
+      let newUtcDayShift;
+      const utcNow = moment.utc().tz('UTC');
+      const timezoneNow = moment.utc().tz(values.timezone);
+
+      // If the current calendar date for the selected timezone has shifted to the next day ahead of
+      // UTC, or UTC has shifted ahead for time zones on the other side of UTC, we need to track
+      // the day shift so that we can apply it to calendar date availabilty and validation logic
+      if (utcNow.dayOfYear() === timezoneNow.dayOfYear()) {
+        // no date shift needed on available calendar dates
+        newUtcDayShift = 0;
+      } else if (utcNow.year() === timezoneNow.year()) {
+        // same calendar year, so we shift a day in the appropriate direction
+        newUtcDayShift = timezoneNow.dayOfYear() > utcNow.dayOfYear() ? 1 : -1;
+      } else {
+        // rolled over into new year, so we shift a day in the appropriate direction
+        newUtcDayShift = timezoneNow.year() > utcNow.year() ? 1 : -1;
+      }
+
+      if (utcDayShift !== newUtcDayShift) {
+        log('utc day shift changed from', utcDayShift, 'to', newUtcDayShift);
+        setUtcDayShift(newUtcDayShift);
+      }
+    }
+  }, [values.timezone]);
+
+  useEffect(() => {
     validateForm();
-    onFormChange(formikContext);
-  }, [values]);
+    onFormChange(formikContext, utcDayShift);
+  }, [values, utcDayShift]);
+
+  useEffect(() => {
+    return () => {
+      // Reset global moment to use local/browser timezone when unmounting
+      setMomentToLocal();
+    };
+  }, []);
 
   function setDates(dates) {
-    if (moment.isMoment(dates.startDate)) {
-      const endDate = moment.min(compact([
-        dates.endDate,
-        moment(),
-        moment(dates.startDate).add(maxDays - 1, 'days')
-      ]));
-
-      setFieldValue('startDate', dates.startDate.format(dateFormat));
-      setFieldValue('endDate', endDate.format(dateFormat));
-    } else {
-      setFieldValue('startDate', '');
-      setFieldValue('endDate', '');
-    }
+    setFieldValue('startDate', moment.isMoment(dates.startDate) ? moment.utc(dates.startDate).format(dateFormat) : '');
+    setFieldValue('endDate', moment.isMoment(dates.endDate) ? moment.utc(dates.endDate).format(dateFormat) : '');
   }
 
   return (
@@ -169,34 +244,51 @@ export const RpmReportConfigForm = props => {
     >
       <Element name="form-wrapper">
         <Box id='rpm-report-range-select' mb={3}>
-          <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Set the start date (30 days max)')}</Body0>
-          <Body0 sx={{ fontStyle: 'italic' }} mb={2}>{t('By default, this range is 30 days. Adjust the end date to shorten the range. The start date is limited to 60 days prior to today.')}</Body0>
+          <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Set the start date ({{maxDays}} days max)', { maxDays })}</Body0>
+          <Body0 sx={{ fontStyle: 'italic' }} mb={2}>{t('By default, this range is {{maxDays}} days. Adjust the end date to shorten the range. The start date is limited to {{maxDaysInPast}} days prior to today.', { maxDays, maxDaysInPast })}</Body0>
 
           <DateRangePicker
             startDate={values.startDate ? moment.utc(values.startDate) : null}
             startDateId="rpm-report-start-date"
+            startDateOffset={(!values.startDate && focusedDatePickerInput === 'endDate')
+              ? day => moment.max([
+                moment.utc(today).subtract(maxDaysInPast - 1, 'days').add(utcDayShift, 'days'),
+                moment.utc(day).subtract(maxDays - 1, 'days'),
+              ])
+              : undefined
+            }
             endDate={values.endDate ? moment.utc(values.endDate) : null}
             endDateId="rpm-report-end-date"
-            endDateOffset={showEndDateOffset || !values.endDate
+            endDateOffset={(focusedDatePickerInput === 'startDate')
               ? day => moment.min([
-                moment().endOf('day'),
-                day.add(maxDays - 1, 'days'),
+                moment.utc(today).add(utcDayShift, 'days'),
+                moment.utc(day).add(maxDays - 1, 'days'),
               ])
               : undefined
             }
             errors={errors}
-            focusedInput={!values.startDate ? 'startDate' : 'endDate'}
             onDatesChange={newDates => setDates(newDates)}
-            maxDate={moment()}
-            minDate={moment().subtract(60, 'days')}
-            isOutsideRange={day => (
-              moment().endOf('day').diff(moment(day).endOf('day')) < 0 ||
-              moment().startOf('day').diff(moment(day).startOf('day'), 'days', true) > maxDaysInPast - 1
-            )}
-            initialVisibleMonth={() => moment().subtract(1, 'month')}
+            maxDate={moment.utc(today).add(utcDayShift, 'days')}
+            minDate={moment.utc(today).add(utcDayShift, 'days').subtract(maxDaysInPast, 'days')}
+            isDayBlocked={day => {
+              const daysFromToday = moment.utc(today).endOf('day').add(utcDayShift, 'days').diff(moment.utc(day), 'days', true);
+
+              // By default block all future dates, and all days prior to 59 days ago
+              let dayIsBlocked = daysFromToday < 0 || daysFromToday >= maxDaysInPast;
+
+              // If adjusting the end date, block out all dates 30 days or more beyond, and all dates prior to, the start date
+              if (!dayIsBlocked && values.startDate && focusedDatePickerInput === 'endDate') {
+                const daysFromStartDate = moment.utc(day).diff(moment.utc(values.startDate), 'days', true);
+                dayIsBlocked = daysFromStartDate >= maxDays || daysFromStartDate < 0;
+              }
+
+              return dayIsBlocked;
+            }}
+            initialVisibleMonth={() => moment.utc().subtract(1, 'month')}
             onFocusChange={input => {
+              setFocusedDatePickerInput(input);
               setDatePickerOpen(!!input);
-              setShowEndDateOffset(input === 'startDate');
+
               if (input) scroller.scrollTo('form-wrapper', {
                 delay: 0,
                 containerId: 'rpmReportConfigInner',
@@ -214,8 +306,9 @@ export const RpmReportConfigForm = props => {
           />
         </Box>
       </Element>
+
       <Box id='rpm-report-timezone-select' mb={3}>
-        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Confirm your clinic’s timezone')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Confirm your clinic\'s timezone')}</Body0>
 
         <Select
           {...getCommonFormikFieldProps('timezone', formikContext)}
@@ -237,6 +330,7 @@ RpmReportConfigForm.propTypes = {
   api: PropTypes.object.isRequired,
   onFormChange: PropTypes.func.isRequired,
   open: PropTypes.bool,
+  patientFetchOptions: PropTypes.object.isRequired,
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
