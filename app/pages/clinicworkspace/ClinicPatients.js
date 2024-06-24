@@ -509,6 +509,7 @@ export const ClinicPatients = (props) => {
     glucoseManagementIndicator: 'desc',
     averageGlucoseMmol: 'desc',
     lastUploadDate: 'desc',
+    lastReviewed: 'asc',
     timeInVeryLowRecords: 'desc',
     timeInVeryHighRecords: 'desc',
   }), []);
@@ -3107,8 +3108,11 @@ export const ClinicPatients = (props) => {
       if (showSummaryDashboardLastReviewed) {
         cols.splice(12, 0, {
           title: t('Last Reviewed'),
-          field: 'lastReviewed',
+          field: 'lastReviewed.time',
           align: 'left',
+          sortable: true,
+          defaultOrder: defaultSortOrders.lastReviewed,
+          sortBy: 'time',
           render: renderLastReviewed,
           width: 140,
         })
