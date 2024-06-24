@@ -339,8 +339,8 @@ const TideDashboardSection = React.memo(props => {
   }, [patientTags]);
 
   const renderLastReviewed = useCallback(({ patient }) => {
-    return <PatientLastReviewed api={api} patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('isoWeek').toISOString()} />
-  }, [api]);
+    return <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="TIDE dashboard" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('isoWeek').toISOString()} />
+  }, [api, trackMetric]);
 
   const renderBgRangeSummary = useCallback(summary => {
     return <BgSummaryCell
@@ -543,7 +543,7 @@ const TideDashboardSection = React.memo(props => {
 
       <Table
         className='dashboard-table'
-        id={`dashboard-table-${section}`}
+        id={`dashboard-table-${section.groupKey}`}
         variant="tableGroup"
         label={'peopletablelabel'}
         columns={columns}

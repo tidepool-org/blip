@@ -22,7 +22,7 @@ const {
 
 const t = i18next.t.bind(i18next);
 
-export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdDate }) => {
+export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdDate, trackMetric, metricSource }) => {
   const dispatch = useDispatch();
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
@@ -66,10 +66,12 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
   }, [revertingClinicPatientLastReviewed]);
 
   const handleReview = () => {
+    trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, source: metricSource });
     dispatch(actions.async.setClinicPatientLastReviewed(api, selectedClinicId, patient?.id));
   };
 
   const handleUndo = () => {
+    trackMetric('Clinic - Undo mark patient reviewed', { clinicId: selectedClinicId, source: metricSource });
     dispatch(actions.async.revertClinicPatientLastReviewed(api, selectedClinicId, patient?.id));
   };
 
@@ -139,8 +141,10 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
 PatientLastReviewed.propTypes = {
   ...FlexProps,
   api: PropTypes.object.isRequired,
+  metricSource: PropTypes.string.isRequired,
   patientId: PropTypes.string.isRequired,
   recentlyReviewedThresholdDate: PropTypes.string.isRequired,
+  trackMetric: PropTypes.func.isRequired,
 }
 
 export default withTranslation()(PatientLastReviewed);

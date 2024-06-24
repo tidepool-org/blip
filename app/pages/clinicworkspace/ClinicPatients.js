@@ -2932,8 +2932,8 @@ export const ClinicPatients = (props) => {
   ), [handleClickPatient]);
 
   const renderLastReviewed = useCallback((patient) => {
-    return <PatientLastReviewed api={api} patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
-  }, [api]);
+    return <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="Patients list" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
+  }, [api, trackMetric]);
 
   const renderMore = useCallback((patient) => {
     return <MoreMenu
