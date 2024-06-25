@@ -3790,6 +3790,118 @@ describe('Actions', () => {
     });
   });
 
+  describe('setClinicPatientLastReviewedRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.setClinicPatientLastReviewedRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST', () => {
+      let action = sync.setClinicPatientLastReviewedRequest();
+      expect(action.type).to.equal('SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST');
+    });
+  });
+
+  describe('setClinicPatientLastReviewedSuccess', () => {
+    const clinicId = 'clinicId1';
+    const patientId = 'patientId1';
+    const clinicianId = 'clinicianId1';
+
+    const lastReviewed = {
+      clinicianId,
+      time: '2022-10-10T00:00:000Z',
+    };
+    const previousLastReviewed = {
+      clinicianId,
+      time: '2022-10-02T00:00:000Z',
+    };
+
+    it('should be a TSA', () => {
+      let action = sync.setClinicPatientLastReviewedSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', () => {
+      let action = sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed);
+      expect(action.type).to.equal('SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId1');
+      expect(action.payload.patientId).to.equal('patientId1');
+      expect(action.payload.lastReviewed).to.eql(lastReviewed);
+      expect(action.payload.previousLastReviewed).to.eql(previousLastReviewed);
+    });
+  });
+
+  describe('setClinicPatientLastReviewedFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('clinic migration failed :(');
+      let action = sync.setClinicPatientLastReviewedFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.setClinicPatientLastReviewedFailure(error);
+      expect(action.type).to.equal('SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
+  describe('revertClinicPatientLastReviewedRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.revertClinicPatientLastReviewedRequest();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST', () => {
+      let action = sync.revertClinicPatientLastReviewedRequest();
+      expect(action.type).to.equal('REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST');
+    });
+  });
+
+  describe('revertClinicPatientLastReviewedSuccess', () => {
+    const clinicId = 'clinicId1';
+    const patientId = 'patientId1';
+    const clinicianId = 'clinicianId1';
+
+    const lastReviewed = {
+      clinicianId,
+      time: '2022-10-10T00:00:000Z',
+    };
+    const previousLastReviewed = {
+      clinicianId,
+      time: '2022-10-02T00:00:000Z',
+    };
+
+    it('should be a TSA', () => {
+      let action = sync.revertClinicPatientLastReviewedSuccess(clinicId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', () => {
+      let action = sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed);
+      expect(action.type).to.equal('REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS');
+      expect(action.payload.clinicId).to.equal('clinicId1');
+      expect(action.payload.patientId).to.equal('patientId1');
+      expect(action.payload.lastReviewed).to.eql(lastReviewed);
+      expect(action.payload.previousLastReviewed).to.eql(previousLastReviewed);
+    });
+  });
+
+  describe('revertClinicPatientLastReviewedFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('clinic migration failed :(');
+      let action = sync.revertClinicPatientLastReviewedFailure(error);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE and error should equal passed error', () => {
+      let error = new Error('stink :(');
+      let action = sync.revertClinicPatientLastReviewedFailure(error);
+      expect(action.type).to.equal('REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE');
+      expect(action.error).to.equal(error);
+    });
+  });
+
   describe('sendPatientDexcomConnectRequestRequest', () => {
     it('should be a TSA', () => {
       let action = sync.sendPatientDexcomConnectRequestRequest();

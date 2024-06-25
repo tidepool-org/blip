@@ -137,6 +137,9 @@ export const ERR_FETCHING_TIDE_DASHBOARD_PATIENTS = t('Something went wrong whil
 export const ERR_FETCHING_RPM_REPORT_PATIENTS = t('Something went wrong while fetching patients for the report.');
 export const ERR_FETCHING_CLINIC_PATIENT_COUNT = t('Something went wrong while fetching the clinic patient count.');
 export const ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS = t('Something went wrong while fetching the clinic patient count settings.');
+export const ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED = t('Something went wrong while setting the patient\'s last reviewed date.');
+export const ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED = t('Something went wrong while reverting the patient\'s last reviewed date.');
+export const ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED = t('We were unable to revert the patient\'s last reviewed date, since it was set by a different clinic team member.');
 
 export const ERR_BIRTHDAY_INVALID = t('Birthday is invalid.');
 export const ERR_BIRTHDAY_MISSING = t('Birthday is required.');

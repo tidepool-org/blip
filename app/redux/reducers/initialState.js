@@ -158,6 +158,8 @@ const initialState = {
     fetchingRpmReportPatients: Object.assign({}, working),
     fetchingClinicPatientCount: Object.assign({}, working),
     fetchingClinicPatientCountSettings: Object.assign({}, working),
+    settingClinicPatientLastReviewed: Object.assign({}, working),
+    revertingClinicPatientLastReviewed: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {

@@ -69,10 +69,17 @@ import {
 
 import { DEFAULT_FILTER_THRESHOLDS, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import { colors, radii } from '../../themes/baseTheme';
+import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
-const { formatDateRange, getLocalizedCeiling, getOffset, getTimezoneFromTimePrefs } = vizUtils.datetime;
+
+const {
+  formatDateRange,
+  getLocalizedCeiling,
+  getOffset,
+  getTimezoneFromTimePrefs
+} = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -215,6 +222,7 @@ const SortPopover = React.memo(props => {
 
 const TideDashboardSection = React.memo(props => {
   const {
+    api,
     clinicBgUnits,
     config,
     dispatch,
@@ -228,6 +236,7 @@ const TideDashboardSection = React.memo(props => {
     setSections,
     setSelectedPatient,
     setShowEditPatientDialog,
+    showTideDashboardLastReviewed,
     t,
     trackMetric,
   } = props;
@@ -320,6 +329,7 @@ const TideDashboardSection = React.memo(props => {
 
     return (
       <TagList
+          maxTagsVisible={4}
           maxCharactersVisible={12}
           popupId={`tags-overflow-${patient?.id}`}
           tagProps={{ variant: 'compact' }}
@@ -327,6 +337,10 @@ const TideDashboardSection = React.memo(props => {
       />
     );
   }, [patientTags]);
+
+  const renderLastReviewed = useCallback(({ patient }) => {
+    return <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="TIDE dashboard" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('isoWeek').toISOString()} />
+  }, [api, trackMetric]);
 
   const renderBgRangeSummary = useCallback(summary => {
     return <BgSummaryCell
@@ -458,17 +472,30 @@ const TideDashboardSection = React.memo(props => {
       },
     ];
 
+    if (showTideDashboardLastReviewed) {
+      cols.splice(10, 0, {
+        title: t('Last Reviewed'),
+        field: 'lastReviewed',
+        align: 'left',
+        render: renderLastReviewed,
+        width: 140,
+      })
+    }
+
     return cols;
   }, [
+    highGlucoseThreshold,
     lowGlucoseThreshold,
     renderAverageGlucose,
     renderBgRangeSummary,
     renderGMI,
+    renderLastReviewed,
     renderMore,
     renderPatientName,
     renderPatientTags,
     renderTimeInPercent,
     renderTimeInTargetPercentDelta,
+    showTideDashboardLastReviewed,
     t,
     veryLowGlucoseThreshold,
   ]);
@@ -516,7 +543,7 @@ const TideDashboardSection = React.memo(props => {
 
       <Table
         className='dashboard-table'
-        id={`dashboard-table-${section}`}
+        id={`dashboard-table-${section.groupKey}`}
         variant="tableGroup"
         label={'peopletablelabel'}
         columns={columns}
@@ -566,7 +593,7 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { showTideDashboard } = useFlags();
+  const { showTideDashboard, showTideDashboardLastReviewed } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -936,6 +963,7 @@ export const TideDashboard = (props) => {
 
   const renderPatientGroups = useCallback(() => {
     const sectionProps = {
+      api,
       clinicBgUnits,
       config,
       dispatch,
@@ -945,6 +973,7 @@ export const TideDashboard = (props) => {
       setSections,
       setSelectedPatient,
       setShowEditPatientDialog,
+      showTideDashboardLastReviewed,
       t,
       trackMetric,
     };
@@ -1000,6 +1029,7 @@ export const TideDashboard = (props) => {
     selectedClinicId,
     setSelectedPatient,
     setShowEditPatientDialog,
+    showTideDashboardLastReviewed,
     t,
     trackMetric,
   ]);

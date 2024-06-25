@@ -17,6 +17,8 @@ import { worker } from '.';
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 
+import mockTideDashboardPatients from '../../../test/fixtures/mockTideDashboardPatients.json'
+
 let win = window;
 
 function createActionError(usrErrMessage, apiError) {
@@ -2733,6 +2735,99 @@ export function sendPatientUploadReminder(api, clinicId, patientId) {
   };
 }
 
+
+/**
+ * Mark a clinic patient as reviewed
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the patient
+ */
+export function setClinicPatientLastReviewed(api, clinicId, patientId, useMockData = false) {
+  return (dispatch, getState) => {
+    dispatch(sync.setClinicPatientLastReviewedRequest());
+
+    if (useMockData) {
+      const { blip: { loggedInUserId, clinics } } = getState();
+
+      setTimeout(() => {
+        const { lastReviewed: previousLastReviewed = {} } = clinics?.[clinicId]?.patients?.[patientId] || {};
+        const lastReviewed = { clinicianId: loggedInUserId, time: moment.utc().toISOString() };
+
+        if (Math.random() < 0.25) {
+          dispatch(sync.setClinicPatientLastReviewedFailure(
+            createActionError(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED, new Error()), new Error()
+          ));
+        } else {
+          dispatch(sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, { ...previousLastReviewed }));
+        }
+      }, 1000)
+      return;
+    }
+
+    api.clinics.setClinicPatientLastReviewed(clinicId, patientId, (err, result) => {
+      if (err) {
+        dispatch(sync.setClinicPatientLastReviewedFailure(
+          createActionError(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED, err), err
+        ));
+      } else {
+        const { lastReviewed, previousLastReviewed } = result;
+        dispatch(sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
+      }
+    });
+  };
+}
+
+/**
+ * Revert a clinic patient last reviewed date
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the patient
+ */
+export function revertClinicPatientLastReviewed(api, clinicId, patientId, useMockData = false) {
+  return (dispatch, getState) => {
+    dispatch(sync.revertClinicPatientLastReviewedRequest());
+
+    if (useMockData) {
+      setTimeout(() => {
+        const { blip: {  clinics } } = getState();
+        const { previousLastReviewed: lastReviewed = {} } = clinics?.[clinicId]?.patients?.[patientId] || {};
+
+        if (Math.random() < 0.25) {
+          const message = Math.random() > 0.5
+            ? ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED
+            : ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED;
+
+          dispatch(sync.revertClinicPatientLastReviewedFailure(
+            createActionError(message, new Error()), new Error()
+          ));
+        } else {
+          dispatch(sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, { ...lastReviewed }, undefined));
+        }
+      }, 1000)
+      return;
+    }
+
+    api.clinics.revertClinicPatientLastReviewed(clinicId, patientId, (err, result) => {
+      if (err) {
+        let message = ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED;
+
+        if (err.status === 403) {
+          message = ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED;
+        }
+
+        dispatch(sync.revertClinicPatientLastReviewedFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        const { lastReviewed, previousLastReviewed } = result;
+        dispatch(sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed));
+      }
+    });
+  };
+}
+
 /**
  * Send a dexcom connect reqeust email to a clinic patient
  *
@@ -2876,9 +2971,16 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  * @param {Number} [options.lastUploadDateFrom] - ISO date for start of last upload date filter range
  * @param {Number} [options.lastUploadDateTo] - ISO date for end of last upload date filter range
  */
- export function fetchTideDashboardPatients(api, clinicId, options) {
+ export function fetchTideDashboardPatients(api, clinicId, options, useMockData = false) {
   return (dispatch) => {
     dispatch(sync.fetchTideDashboardPatientsRequest());
+
+    if (useMockData) {
+      setTimeout(() => {
+        dispatch(sync.fetchTideDashboardPatientsSuccess(mockTideDashboardPatients));
+      }, 100)
+      return;
+    }
 
     api.clinics.getPatientsForTideDashboard(clinicId, options, (err, results) => {
       if (err) {

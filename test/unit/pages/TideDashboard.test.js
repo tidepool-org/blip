@@ -4,9 +4,11 @@ import moment from 'moment-timezone';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import merge from 'lodash/merge';
 import defaults from 'lodash/defaults';
+import Table from '../../../app/components/elements/Table';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
@@ -31,6 +33,9 @@ const mockStore = configureStore([thunk]);
 describe('TideDashboard', () => {
   let mount;
 
+  const today = moment().toISOString();
+  const yesterday = moment(today).subtract(1, 'day').toISOString();
+
   let wrapper;
   let defaultProps = {
     trackMetric: sinon.stub(),
@@ -40,13 +45,14 @@ describe('TideDashboard', () => {
         getPatientsForTideDashboard: sinon.stub(),
         getPatientFromClinic: sinon.stub(),
         updateClinicPatient: sinon.stub().callsArgWith(3, null, { id: 'stubbedId', stubbedUpdates: 'foo' }),
+        setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, { lastReviewed: today, previousLastReviewed: yesterday }),
+        revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, { lastReviewed: yesterday, previousLastReviewed: undefined }),
       },
     },
   };
 
   before(() => {
     mount = createMount();
-
   });
 
   beforeEach(() => {
@@ -120,21 +126,55 @@ describe('TideDashboard', () => {
         fetchingTideDashboardPatients: completedState,
         updatingClinicPatient: defaultWorkingState,
         fetchingPatientsForClinic: defaultWorkingState,
+        settingClinicPatientLastReviewed: defaultWorkingState,
+        revertingClinicPatientLastReviewed: defaultWorkingState,
       },
     },
   };
+
+  const lastReviewedOverrides = [
+    {
+      lastReviewed: { clinicianId: 'clinicianUserId123', time: today },
+      previousLastReviewed: { clinicianId: 'clinicianUserId123', time: yesterday },
+    },
+    {
+      lastReviewed: { clinicianId: 'clinicianUserId123', time: yesterday },
+      previousLastReviewed: undefined,
+    },
+    {
+      lastReviewed: { clinicianId: 'clinicianUserId123', time: moment(today).subtract(30, 'd').toISOString() },
+      previousLastReviewed: undefined,
+    },
+    {
+      lastReviewed: { clinicianId: 'clinicianUserId123', time: moment('2024-03-05T12:00:00.000Z').toISOString() },
+      previousLastReviewed: undefined,
+    },
+    {},
+  ];
+
+  const tideDashboardPatients = {
+    ...mockTideDashboardPatients,
+    results: {
+      ...mockTideDashboardPatients.results,
+      meetingTargets:  map(mockTideDashboardPatients.results.meetingTargets, (results, i) => ({
+        ...results,
+        patient: { ...results.patient, ...lastReviewedOverrides[i] },
+      })),
+    }
+  }
 
   const hasResultsState = merge({}, noResultsState, {
     blip: {
       allUsersMap: {
         clinicianUserId123,
       },
-      tideDashboardPatients: mockTideDashboardPatients,
+      tideDashboardPatients,
       timePrefs: { timezoneName: 'UTC' },
       clinics: {
         clinicID123: {
           ...defaultClinic,
           ...clinicUIDetails(defaultClinic),
+          patients: keyBy(map(tideDashboardPatients.results.meetingTargets, ({ patient }) => patient), 'id'),
         },
       },
       working: {
@@ -142,6 +182,8 @@ describe('TideDashboard', () => {
         fetchingTideDashboardPatients: completedState,
         updatingClinicPatient: defaultWorkingState,
         sendingPatientDexcomConnectRequest: defaultWorkingState,
+        settingClinicPatientLastReviewed: defaultWorkingState,
+        revertingClinicPatientLastReviewed: defaultWorkingState,
       },
     },
   });
@@ -150,7 +192,7 @@ describe('TideDashboard', () => {
     blip: {
       ...hasResultsState.blip,
       tideDashboardPatients: {
-        ...mockTideDashboardPatients,
+        ...tideDashboardPatients,
         results: {
           timeInVeryLowPercent: [],
           timeInAnyLowPercent: [],
@@ -451,9 +493,9 @@ describe('TideDashboard', () => {
         blip: {
           ...hasResultsState.blip,
           tideDashboardPatients: {
-            ...mockTideDashboardPatients,
+            ...tideDashboardPatients,
             config: {
-              ...mockTideDashboardPatients.config,
+              ...tideDashboardPatients.config,
               period: '17d',
             },
           },
@@ -471,7 +513,7 @@ describe('TideDashboard', () => {
       const header = wrapper.find('#tide-dashboard-header').hostNodes();
       expect(header.text()).to.equal('TIDE Dashboard');
 
-      const expectedLastUploadTo = moment.utc(mockTideDashboardPatients.config.lastUploadDateFrom).toISOString()
+      const expectedLastUploadTo = moment.utc(tideDashboardPatients.config.lastUploadDateFrom).toISOString()
       const expectedLastUploadFrom = moment(expectedLastUploadTo).subtract(1, 'ms').toISOString();
 
       const dates = wrapper.find('#tide-dashboard-upload-dates').hostNodes();
@@ -601,9 +643,9 @@ describe('TideDashboard', () => {
         blip: {
           ...hasResultsState.blip,
           tideDashboardPatients: {
-            ...mockTideDashboardPatients,
+            ...tideDashboardPatients,
             results: {
-              ...mockTideDashboardPatients.results,
+              ...tideDashboardPatients.results,
               timeInVeryLowPercent: [],
             }
           },
@@ -690,6 +732,152 @@ describe('TideDashboard', () => {
 
         expect(getTableRow(0, 0).find('th').at(5).text()).contains('% Time 3.0-3.9');
         expect(getTableRow(0, 2).find('td').at(4).text()).contains('17 %');
+      });
+    });
+
+    describe('Managing patient last reviewed dates', () => {
+      context('showSummaryDashboardLastReviewed flag is true', () => {
+        beforeEach(() => {
+          store = mockStore(hasResultsState);
+
+          TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+            showTideDashboardLastReviewed: true,
+          }));
+
+          wrapper = mount(
+            <Provider store={store}>
+              <ToastProvider>
+                <TideDashboard {...defaultProps} />
+              </ToastProvider>
+            </Provider>
+          );
+        });
+
+        afterEach(() => {
+          TideDashboard.__ResetDependency__('useFlags');
+        });
+
+        it('should render the Last Reviewed column', () => {
+          const lastReviewedHeader = wrapper.find('#dashboard-table-meetingTargets-header-lastReviewed').hostNodes();
+          expect(lastReviewedHeader).to.have.length(1);
+
+          const table = wrapper.find('table#dashboard-table-meetingTargets');
+          const rows = table.find('tbody tr');
+          const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(10);
+
+          expect(lastReviewData(4).text()).to.contain('Today');
+          expect(lastReviewData(1).text()).to.contain('Yesterday');
+          expect(lastReviewData(2).text()).to.contain('30 days ago');
+          expect(lastReviewData(3).text()).to.contain('2024-03-05');
+        });
+
+        it('should allow setting last reviewed date', done => {
+          const table = wrapper.find('table#dashboard-table-meetingTargets');
+          const rows = table.find('tbody tr');
+          const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(10);
+          const updateButton = () =>lastReviewData(1).find('button');
+
+          expect(lastReviewData(1).text()).to.contain('Yesterday');
+          expect(updateButton().text()).to.equal('Mark Reviewed');
+
+          store.clearActions();
+          updateButton().simulate('click');
+          setTimeout(() => {
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'TIDE dashboard' }));
+
+            sinon.assert.calledWith(
+              defaultProps.api.clinics.setClinicPatientLastReviewed,
+              'clinicID123',
+            );
+
+            expect(store.getActions()).to.eql([
+              { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+              {
+                type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
+                payload: { clinicId: 'clinicID123', patientId: 'ea8ab4da-d4ed-bc6a-dec3-6aa170a99d49', lastReviewed: today , previousLastReviewed: yesterday },
+              },
+            ]);
+
+            done();
+          });
+        });
+
+        it('should allow undoing last reviewed date', done => {
+          const table = wrapper.find('table#dashboard-table-meetingTargets');
+          const rows = table.find('tbody tr');
+          const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(10);
+          const updateButton = () =>lastReviewData(4).find('button');
+
+          expect(lastReviewData(4).text()).to.contain('Today');
+          expect(updateButton().text()).to.equal('Undo');
+
+          store.clearActions();
+          updateButton().simulate('click');
+          setTimeout(() => {
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Undo mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'TIDE dashboard' }));
+
+            sinon.assert.calledWith(
+              defaultProps.api.clinics.revertClinicPatientLastReviewed,
+              'clinicID123',
+            );
+
+            expect(store.getActions()).to.eql([
+              { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+              {
+                type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
+                payload: { clinicId: 'clinicID123', patientId: 'ecabff50-0698-ec3d-f2b9-b9d3720cbe14', lastReviewed: yesterday , previousLastReviewed: undefined },
+              },
+            ]);
+
+            done();
+          });
+        });
+
+        it('should not render the Last Reviewed column if showSummarData flag is false', () => {
+          TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+            showSummaryData: false,
+          }));
+
+          store = mockStore(hasResultsState);
+          wrapper = mount(
+            <Provider store={store}>
+              <ToastProvider>
+                <TideDashboard {...defaultProps} />
+              </ToastProvider>
+            </Provider>
+          );
+
+          const lastReviewedHeader = wrapper.find('#dashboard-table-meetingTargets-header-lastReviewed').hostNodes();
+          expect(lastReviewedHeader).to.have.length(0);
+
+          TideDashboard.__ResetDependency__('useFlags');
+        });
+      });
+
+      context('showSummaryDashboardLastReviewed flag is false', () => {
+        beforeEach(() => {
+          TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+            showSummaryDashboardLastReviewed: false,
+          }));
+        });
+
+        afterEach(() => {
+          TideDashboard.__ResetDependency__('useFlags');
+        });
+
+        it('should not show the Last Reviewed column, even if clinic tier >= tier0300', () => {
+          store = mockStore(hasResultsState);
+          wrapper = mount(
+            <Provider store={store}>
+              <ToastProvider>
+                <TideDashboard {...defaultProps} />
+              </ToastProvider>
+            </Provider>
+          );
+
+          const lastReviewedHeader = wrapper.find('#dashboard-table-meetingTargets-header-lastReviewed').hostNodes();
+          expect(lastReviewedHeader).to.have.length(0);
+        });
       });
     });
   });
