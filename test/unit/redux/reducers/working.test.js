@@ -7504,6 +7504,104 @@ describe('dataWorkerQueryData', () => {
     });
   });
 
+  describe('setClinicPatientLastReviewed', () => {
+    describe('request', () => {
+      it('should set settingClinicPatientLastReviewed.completed to null', () => {
+        expect(initialState.settingClinicPatientLastReviewed.completed).to.be.null;
+
+        let requestAction = actions.sync.setClinicPatientLastReviewedRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.settingClinicPatientLastReviewed.completed).to.be.null;
+
+        let successAction = actions.sync.setClinicPatientLastReviewedSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.settingClinicPatientLastReviewed.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.settingClinicPatientLastReviewed.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set settingClinicPatientLastReviewed.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.setClinicPatientLastReviewedRequest();
+
+        expect(initialStateForTest.settingClinicPatientLastReviewed.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.settingClinicPatientLastReviewed.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set settingClinicPatientLastReviewed.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.settingClinicPatientLastReviewed.completed).to.be.null;
+
+        let failureAction = actions.sync.setClinicPatientLastReviewedFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.settingClinicPatientLastReviewed.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set settingClinicPatientLastReviewed.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          settingClinicPatientLastReviewed: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.setClinicPatientLastReviewedFailure(error);
+
+        expect(initialStateForTest.settingClinicPatientLastReviewed.inProgress).to.be.true;
+        expect(initialStateForTest.settingClinicPatientLastReviewed.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.settingClinicPatientLastReviewed.inProgress).to.be.false;
+        expect(state.settingClinicPatientLastReviewed.notification.type).to.equal('error');
+        expect(state.settingClinicPatientLastReviewed.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set settingClinicPatientLastReviewed.completed to be true', () => {
+        expect(initialState.settingClinicPatientLastReviewed.completed).to.be.null;
+
+        let successAction = actions.sync.setClinicPatientLastReviewedSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.settingClinicPatientLastReviewed.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set settingClinicPatientLastReviewed.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          settingClinicPatientLastReviewed: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.setClinicPatientLastReviewedSuccess('strava', 'blah');
+
+        expect(initialStateForTest.settingClinicPatientLastReviewed.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.settingClinicPatientLastReviewed.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
   describe('sendPatientDexcomConnectRequest', () => {
     describe('request', () => {
       it('should set sendingPatientDexcomConnectRequest.completed to null', () => {
