@@ -47,6 +47,28 @@ describe('constants', function() {
     expect(Constants.LBS_PER_KG).to.equal(2.2046226218);
   });
 
+  it('should define the default filter thresholds', () => {
+    expect(Constants.DEFAULT_FILTER_THRESHOLDS).to.be.an('object').and.have.all.keys([
+      'veryLow',
+      'low',
+      'target',
+      'high',
+      'veryHigh',
+      'extremeHigh',
+      'cgmUse',
+      'timeInTargetPercentDelta',
+    ]);
+
+    expect(Constants.DEFAULT_FILTER_THRESHOLDS.veryLow).to.eql(['>', 1]);
+    expect(Constants.DEFAULT_FILTER_THRESHOLDS.low).to.eql(['>', 4]);
+    expect(Constants.DEFAULT_FILTER_THRESHOLDS.target).to.eql(['<', 70]);
+    expect(Constants.DEFAULT_FILTER_THRESHOLDS.high).to.eql(['>', 25]);
+    expect(Constants.DEFAULT_FILTER_THRESHOLDS.veryHigh).to.eql(['>', 5]);
+    expect(Constants.DEFAULT_FILTER_THRESHOLDS.extremeHigh).to.eql(['>', 1]);
+    expect(Constants.DEFAULT_FILTER_THRESHOLDS.cgmUse).to.eql(['<', 70]);
+    expect(Constants.DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta).to.eql(['>', 15, 1]);
+  });
+
   it('should define the tidepool big data donation account email', function() {
     expect(Constants.TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL).to.equal('bigdata@tidepool.org');
   });

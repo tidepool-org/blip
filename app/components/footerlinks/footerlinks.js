@@ -59,12 +59,6 @@ const FooterLinks = (props) => {
       </div>
       <div className='footer-link secondary large-format-only'>
         <a
-          href="http://tidepool.org/products/tidepool-mobile/"
-          id='mobile'
-          onClick={metricFnMkr('Mobile App')}
-          target="_blank"
-          rel="noreferrer noopener">{t('Get Mobile App')}</a>
-        <a
           href="http://support.tidepool.org/"
           id='support'
           onClick={metricFnMkr('Support')}

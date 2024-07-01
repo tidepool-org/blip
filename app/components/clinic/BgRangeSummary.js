@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, Flex } from 'theme-ui';
 import map from 'lodash/map';
+import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 import { withTranslation } from 'react-i18next';
 
@@ -20,7 +21,16 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
 export const BgRangeSummary = React.memo(props => {
-  const { bgUnits, cgmUsePercent, data, striped, targetRange, t, ...themeProps } = props;
+  const {
+    bgUnits,
+    cgmUsePercent,
+    data,
+    striped,
+    targetRange,
+    t,
+    ...themeProps
+  } = props;
+
   const formattedBgUnits = bgUnits.replace(/l$/, 'L');
 
   const popupState = usePopupState({
@@ -51,15 +61,22 @@ export const BgRangeSummary = React.memo(props => {
   const popoverFlexStyle = useMemo(() => ({ gap: 3 }), []);
   const wrapperStyle = useMemo(() => ({ position: 'relative', borderRadius: `${radii.input}px`, overflow: 'hidden' }), []);
   const flexWidth = useMemo(() => (['155px', '175px']),[])
-
   const bgLabels = generateBgRangeLabels(bgPrefs, { condensed: true });
+  const renderedData = pick(data, ['veryLow', 'low', 'target', 'high', 'veryHigh']);
+  const barData = { ...renderedData };
+
+  if (data.extremeHigh) {
+    barData.veryHigh -= data.extremeHigh || 0;
+    barData.extremeHigh = data.extremeHigh || 0;
+    renderedData.extremeHigh = data.extremeHigh || 0;
+  }
 
   return (
     <>
       <Box sx={wrapperStyle} {...themeProps}>
         <Flex className="range-summary-bars" sx={{ width: flexWidth, height: '18px', justifyContent: 'center' }} {...bindHover(popupState)}>
-          {map(data, (value, key) => (
-              <Box className={`range-summary-bars-${key}`} key={key} data-width={`${value * 100}%`} sx={{ bg: `bg.${key}`, width: `${value * 100}%` }}/>
+          {map(barData, (value, key) => (
+            <Box className={`range-summary-bars-${key}`} key={key} data-width={`${value * 100}%`} sx={{ bg: `bg.${key}`, width: `${value * 100}%` }}/>
           ))}
         </Flex>
 
@@ -91,8 +108,18 @@ export const BgRangeSummary = React.memo(props => {
       >
         <Box px={2} py={1}>
           <Flex mb="12px" sx={{ ...popoverFlexStyle, justifyContent: 'space-between', flexWrap: 'nowrap' }}>
-            {map(data, (value, key) => (
-              <Flex key={key} sx={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            {map(renderedData, (value, key) => (
+              <Flex
+                key={key}
+                pl={key === 'extremeHigh' ? '12px' : 0}
+                ml={key === 'extremeHigh' ? '-4px' : 0}
+                sx={{
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderLeft: key === 'extremeHigh' ? 'divider' : 'none'
+                }}
+                >
                 <Flex className={`range-summary-value-${key}`} mb={1} sx={{ flexWrap: 'nowrap', textAlign: 'center', alignItems: 'flex-end',  color: `bg.${key}` }} key={key}>
                   <Text sx={{ fontWeight: 'bold', lineHeight: 0, fontSize: 1 }}>
                     {utils.formatThresholdPercentage(value, ...DEFAULT_FILTER_THRESHOLDS[key])}

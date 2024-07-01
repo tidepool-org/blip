@@ -28,6 +28,7 @@ export const colors = {
     target: '#8DD0A9',
     high: '#B69CE2',
     veryHigh: '#856ACF',
+    extremeHigh: '#5438A3',
   },
   border: {
     focus: '#4C9AFF',

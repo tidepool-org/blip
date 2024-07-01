@@ -11,6 +11,7 @@ import forEach from 'lodash/forEach';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import indexOf from 'lodash/indexOf';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
@@ -42,7 +43,7 @@ import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
 import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
-import { useFlags } from 'launchdarkly-react-client-sdk';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import {
   bindPopover,
@@ -131,6 +132,7 @@ const glycemicTargetThresholds = {
   timeInTargetPercent: { value: 70, comparator: '<' },
   timeInHighPercent: { value: 25, comparator: '>' },
   timeInVeryHighPercent: { value: 5, comparator: '>' },
+  timeInExtremeHighPercent: { value: 1, comparator: '>' },
 };
 
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
@@ -473,11 +475,13 @@ export const ClinicPatients = (props) => {
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
-  const { showSummaryDashboard, showTideDashboard, showRpmReport } = useFlags();
+  const { showExtremeHigh, showSummaryDashboard, showTideDashboard, showRpmReport } = useFlags();
   const [showSummaryData, setShowSummaryData] = useState();
   const previousShowSummaryData = usePrevious(showSummaryData)
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
+  const ldClient = useLDClient();
+  const ldContext = ldClient.getContext();
 
   const defaultPatientFetchOptions = useMemo(
     () => {
@@ -522,6 +526,7 @@ export const ClinicPatients = (props) => {
       ),
     [clinicBgUnits]
   );
+
   const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState, true);
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
@@ -904,6 +909,7 @@ export const ClinicPatients = (props) => {
           'cgm.timeInTargetPercent',
           'cgm.timeInHighPercent',
           'cgm.timeInVeryHighPercent',
+          'cgm.timeInExtremeHighPercent',
         ]),
         ...filterOptions,
       };
@@ -945,6 +951,20 @@ export const ClinicPatients = (props) => {
     if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchingPatientFromClinic, selectedPatient?.id]);
+
+  useEffect(() => {
+    // If the ld context is ready, and the currently selected clinic doesn't have access to the
+    // extreme high bg range, we should remove it from the activeFilters.timeInRange, otherwise, the
+    // filter count will be incorrect.
+    if (ldContext?.clinic?.tier && !showExtremeHigh && !!activeFilters?.timeInRange?.length) {
+      if (indexOf(activeFilters?.timeInRange, 'timeInExtremeHighPercent') !== -1) {
+        setActiveFilters({
+          ...activeFilters,
+          timeInRange: without(activeFilters.timeInRange, 'timeInExtremeHighPercent'),
+        });
+      }
+    }
+  }, [ldContext, showExtremeHigh, activeFilters]);
 
   const handleRefreshPatients = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
@@ -1144,6 +1164,7 @@ export const ClinicPatients = (props) => {
       inRange: includes(pendingFilters.timeInRange, 'timeInTargetPercent'),
       hyper: includes(pendingFilters.timeInRange, 'timeInHighPercent'),
       severeHyper: includes(pendingFilters.timeInRange, 'timeInVeryHighPercent'),
+      extremeHyper: includes(pendingFilters.timeInRange, 'timeInExtremeHighPercent'),
     });
 
     setActiveFilters({
@@ -2449,6 +2470,14 @@ export const ClinicPatients = (props) => {
       },
     ];
 
+    if (showExtremeHigh) timeInRangeFilterOptions.push({
+      value: 'timeInExtremeHighPercent',
+      threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
+      prefix: t('Greater than'),
+      tag: t('Extreme hyperglycemia'),
+      rangeName: 'extremeHigh',
+    });
+
     return (
       <Dialog
         id="timeInRangeDialog"
@@ -2839,8 +2868,9 @@ export const ClinicPatients = (props) => {
       config={summary?.cgmStats?.config}
       clinicBgUnits={clinicBgUnits}
       activeSummaryPeriod={activeSummaryPeriod}
+      showExtremeHigh={showExtremeHigh}
     />
-  }, [clinicBgUnits, activeSummaryPeriod]);
+  }, [clinicBgUnits, activeSummaryPeriod, showExtremeHigh]);
 
   const renderAverageGlucose = useCallback(({ summary }) => {
     const averageGlucose = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.averageGlucoseMmol;

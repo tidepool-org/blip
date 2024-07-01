@@ -2,6 +2,7 @@ import get from 'lodash/get';
 import filter from 'lodash/filter';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isNull from 'lodash/isNull';
 import bows from 'bows';
 import config from '../../config';
@@ -67,7 +68,11 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
     };
 
     log(actionName, updatedData);
-    dispatch(setPendoData(updatedData));
+
+    if (!isEqual(pendoData, updatedData)) {
+      dispatch(setPendoData(updatedData));
+    }
+
     action(updatedData);
   };
 
