@@ -909,6 +909,7 @@ export const ClinicPatients = (props) => {
           'cgm.timeInTargetPercent',
           'cgm.timeInHighPercent',
           'cgm.timeInVeryHighPercent',
+          'cgm.timeInExtremeHighPercent',
         ]),
         ...filterOptions,
       };

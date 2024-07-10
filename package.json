@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.79.0-web-2961-pdf-range-error.1",
+  "version": "1.79.0",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
@@ -66,7 +66,7 @@
     "@storybook/react": "7.5.0",
     "@storybook/react-webpack5": "7.5.0",
     "@testing-library/react-hooks": "8.0.1",
-    "@tidepool/viz": "1.40.0-extreme-bg.1",
+    "@tidepool/viz": "1.40.0",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",
@@ -184,7 +184,7 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.28.1-web-2959-dep-update",
+    "tideline": "1.28.1",
     "tidepool-platform-client": "0.58.0",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
