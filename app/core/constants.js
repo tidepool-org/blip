@@ -97,6 +97,7 @@ export const DEFAULT_FILTER_THRESHOLDS = {
   target: ['<', 70],
   high: ['>', 25],
   veryHigh: ['>', 5],
+  extremeHigh: ['>', 1],
   cgmUse: ['<', 70],
   timeInTargetPercentDelta: ['>', 15, 1],
 };

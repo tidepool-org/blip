@@ -7,7 +7,7 @@ import { withTranslation } from 'react-i18next';
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import BgRangeSummary from './BgRangeSummary';
 
-export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPeriod, t }) => {
+export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPeriod, showExtremeHigh, t }) => {
   const targetRange = useMemo(
     () =>
       map(
@@ -26,14 +26,18 @@ export const BgSummaryCell = ({ summary, config, clinicBgUnits, activeSummaryPer
     (summary?.timeCGMUseMinutes || 0) / 60;
 
   const data = useMemo(
-    () => ({
-      veryLow: summary?.timeInVeryLowPercent,
-      low: summary?.timeInLowPercent,
-      target: summary?.timeInTargetPercent,
-      high: summary?.timeInHighPercent,
-      veryHigh: summary?.timeInVeryHighPercent,
-    }),
-    [summary]
+    () => {
+      const rangeData = {
+        veryLow: summary?.timeInVeryLowPercent,
+        low: summary?.timeInLowPercent,
+        target: summary?.timeInTargetPercent,
+        high: summary?.timeInHighPercent,
+        veryHigh: summary?.timeInVeryHighPercent,
+      };
+
+      if (showExtremeHigh) rangeData.extremeHigh = summary?.timeInExtremeHighPercent;
+      return rangeData;
+    }, [summary, showExtremeHigh]
   );
 
   const cgmUsePercent = (summary?.timeCGMUsePercent || 0);
@@ -93,6 +97,7 @@ BgSummaryCell.propTypes = {
     high: PropTypes.number,
     veryHigh: PropTypes.number,
   }).isRequired,
+  showExtremeHigh: PropTypes.bool,
   striped: PropTypes.bool,
   targetRange: PropTypes.arrayOf(PropTypes.number).isRequired,
 }

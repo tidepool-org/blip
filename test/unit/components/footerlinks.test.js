@@ -22,8 +22,8 @@ describe('FooterLinks', () => {
   });
 
   describe('render', () => {
-    it('should render six links', () => {
-      expect(wrapper.find('a').length).to.equal(6);
+    it('should render five links', () => {
+      expect(wrapper.find('a').length).to.equal(5);
     });
   });
 
@@ -34,9 +34,6 @@ describe('FooterLinks', () => {
     }, {
       id: 'facebook',
       metric: 'Facebook',
-    }, {
-      id: 'mobile',
-      metric: 'Mobile App',
     }, {
       id: 'support',
       metric: 'Support',
