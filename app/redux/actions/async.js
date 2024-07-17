@@ -2813,7 +2813,7 @@ export function revertClinicPatientLastReviewed(api, clinicId, patientId, useMoc
       if (err) {
         let message = ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED;
 
-        if (err.status === 403) {
+        if (err.status === 409) {
           message = ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED;
         }
 
