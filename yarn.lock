@@ -22992,9 +22992,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.28.1-web-2959-dep-update":
-  version: 1.28.1-web-2959-dep-update
-  resolution: "tideline@npm:1.28.1-web-2959-dep-update"
+"tideline@npm:1.28.1":
+  version: 1.28.1
+  resolution: "tideline@npm:1.28.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -23014,7 +23014,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 8a8448c6906fb8d0cd201a32f959fb5da56d634898ee88feae10d128db7b40975ef023da52b6c88de06f65db0188a344d56e0f388e018d8eab1bb007e1a03515
+  checksum: e65581c9cdd8f067190339831700e9eb73834b20c54b8d70f621c13db3437b898af1508e8ba8e40e7bded27153d4065b3ea66c0337c7eec926e8fc9cc72eb789
   languageName: node
   linkType: hard
 

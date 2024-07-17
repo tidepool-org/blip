@@ -86,6 +86,7 @@ appContext.render = async Component => {
     context: ldContext,
     options: { streaming: true },
     flags: {
+      'showExtremeHigh': false,
       'showRpmReport': false,
       'showSummaryDashboard': false,
       'showSummaryDashboardLastReviewed': false,
