@@ -3281,7 +3281,7 @@ describe('ClinicPatients', () => {
           });
 
           it('should render the Last Reviewed column', () => {
-            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed-time').hostNodes();
+            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
             expect(lastReviewedHeader).to.have.length(1);
 
             const table = wrapper.find(Table);
@@ -3360,15 +3360,15 @@ describe('ClinicPatients', () => {
             const table = wrapper.find(Table);
             expect(table).to.have.length(1);
 
-            const lastReviewedHeader = table.find('#peopleTable-header-lastReviewed-time .MuiTableSortLabel-root').at(0);
+            const lastReviewedHeader = table.find('#peopleTable-header-lastReviewed .MuiTableSortLabel-root').at(0);
 
             defaultProps.api.clinics.getPatientsForClinic.resetHistory();
             lastReviewedHeader.simulate('click');
-            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sortType: 'lastReviewed', sort: '+time' }));
+            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+lastReviewed' }));
 
             defaultProps.api.clinics.getPatientsForClinic.resetHistory();
             lastReviewedHeader.simulate('click');
-            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sortType: 'lastReviewed', sort: '-time' }));
+            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastReviewed' }));
           });
 
           it('should not render the Last Reviewed column if showSummarData flag is false', () => {
@@ -3385,7 +3385,7 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
-            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed-time').hostNodes();
+            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
             expect(lastReviewedHeader).to.have.length(0);
 
             ClinicPatients.__ResetDependency__('useFlags');
@@ -3414,7 +3414,7 @@ describe('ClinicPatients', () => {
             );
 
             wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
-            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed-time').hostNodes();
+            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
             expect(lastReviewedHeader).to.have.length(0);
           });
         });

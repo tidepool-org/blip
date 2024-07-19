@@ -3138,11 +3138,10 @@ export const ClinicPatients = (props) => {
       if (showSummaryDashboardLastReviewed) {
         cols.splice(12, 0, {
           title: t('Last Reviewed'),
-          field: 'lastReviewed.time',
+          field: 'lastReviewed',
           align: 'left',
           sortable: true,
           defaultOrder: defaultSortOrders.lastReviewed,
-          sortBy: 'time',
           render: renderLastReviewed,
           width: 140,
         })
