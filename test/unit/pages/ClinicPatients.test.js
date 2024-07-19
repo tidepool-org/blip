@@ -59,8 +59,8 @@ describe('ClinicPatients', () => {
         deleteClinicPatientTag: sinon.stub(),
         deleteClinicPatientTag: sinon.stub(),
         getPatientsForRpmReport: sinon.stub().callsArgWith(2, null, mockRpmReportPatients),
-        setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, { lastReviewed: today, previousLastReviewed: yesterday }),
-        revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, { lastReviewed: yesterday, previousLastReviewed: undefined }),
+        setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [today, yesterday]),
+        revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [yesterday]),
       },
     },
   };
@@ -322,8 +322,10 @@ describe('ClinicPatients', () => {
               summary: {},
               permissions: { custodian : {} },
               tags: [],
-              lastReviewed: { clinicianId: 'clinicianUserId123', time: today },
-              previousLastReviewed: { clinicianId: 'clinicianUserId123', time: yesterday },
+              reviews: [
+                { clinicianId: 'clinicianUserId123', time: today },
+                { clinicianId: 'clinicianUserId123', time: yesterday },
+              ],
             },
             patient2: {
               id: 'patient2',
@@ -356,7 +358,7 @@ describe('ClinicPatients', () => {
               },
               permissions: { custodian : undefined },
               tags: ['tag1'],
-              lastReviewed: { clinicianId: 'clinicianUserId123', time: yesterday },
+              reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
             },
             patient3: {
               id: 'patient3',
@@ -405,7 +407,7 @@ describe('ClinicPatients', () => {
                 },
               },
               tags: ['tag1', 'tag2', 'tag3'],
-              lastReviewed: { clinicianId: 'clinicianUserId123', time: moment(today).subtract(30, 'd').toISOString() },
+              reviews: [{ clinicianId: 'clinicianUserId123', time: moment(today).subtract(30, 'd').toISOString() }],
             },
             patient4: {
               id: 'patient4',
@@ -436,7 +438,7 @@ describe('ClinicPatients', () => {
                   } },
                 },
               },
-              lastReviewed: { clinicianId: 'clinicianUserId123', time: moment('2024-03-05T12:00:00.000Z').toISOString() },
+              reviews: [{ clinicianId: 'clinicianUserId123', time: moment('2024-03-05T12:00:00.000Z').toISOString() }],
             },
             patient5: {
               id: 'patient5',
@@ -2810,8 +2812,10 @@ describe('ClinicPatients', () => {
                 email: 'patient1@test.ca',
                 permissions: { custodian: {} },
                 tags: ['tag1', 'tag2'],
-                lastReviewed: { clinicianId: 'clinicianUserId123', time: today },
-                previousLastReviewed: { clinicianId: 'clinicianUserId123', time: yesterday },
+                reviews: [
+                  { clinicianId: 'clinicianUserId123', time: today },
+                  { clinicianId: 'clinicianUserId123', time: yesterday },
+                ],
                 summary: {},
               }
             );
@@ -2911,7 +2915,7 @@ describe('ClinicPatients', () => {
                   },
                 },
                 tags: ['tag3'],
-                lastReviewed: { clinicianId: 'clinicianUserId123', time: yesterday },
+                reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
               }
             );
 
@@ -3313,7 +3317,7 @@ describe('ClinicPatients', () => {
                 { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
                 {
                   type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
-                  payload: { clinicId: 'clinicID123', patientId: 'patient2', lastReviewed: today , previousLastReviewed: yesterday },
+                  payload: { clinicId: 'clinicID123', patientId: 'patient2', reviews: [today, yesterday] },
                 },
               ]);
 
@@ -3344,7 +3348,7 @@ describe('ClinicPatients', () => {
                 { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
                 {
                   type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
-                  payload: { clinicId: 'clinicID123', patientId: 'patient1', lastReviewed: yesterday , previousLastReviewed: undefined },
+                  payload: { clinicId: 'clinicID123', patientId: 'patient1', reviews: [yesterday] },
                 },
               ]);
 

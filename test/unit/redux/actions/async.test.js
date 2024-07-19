@@ -8356,13 +8356,13 @@ describe('Actions', () => {
 
         let api = {
           clinics: {
-            setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, { lastReviewed, previousLastReviewed }),
+            setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [lastReviewed, previousLastReviewed]),
           },
         };
 
         let expectedActions = [
           { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
-          { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', payload: { clinicId, patientId, lastReviewed, previousLastReviewed } }
+          { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', payload: { clinicId, patientId, reviews: [lastReviewed, previousLastReviewed] } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -8423,13 +8423,13 @@ describe('Actions', () => {
 
         let api = {
           clinics: {
-            revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, { lastReviewed, previousLastReviewed }),
+            revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [lastReviewed, previousLastReviewed]),
           },
         };
 
         let expectedActions = [
           { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
-          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', payload: { clinicId, patientId, lastReviewed, previousLastReviewed } }
+          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', payload: { clinicId, patientId, reviews: [lastReviewed, previousLastReviewed] } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -8477,16 +8477,16 @@ describe('Actions', () => {
         const patientId = 'patientId1';
         let api = {
           clinics: {
-            revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, {status: 403, body: 'Error!'}, null),
+            revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, {status: 409, body: 'Error!'}, null),
           },
         };
 
         let err = new Error(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED);
-        err.status = 403;
+        err.status = 409;
 
         let expectedActions = [
           { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
-          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE', error: err, meta: { apiError: {status: 403, body: 'Error!'} } }
+          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE', error: err, meta: { apiError: {status: 409, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

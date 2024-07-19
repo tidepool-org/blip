@@ -2056,14 +2056,13 @@ export function setClinicPatientLastReviewedRequest() {
   };
 }
 
-export function setClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed) {
+export function setClinicPatientLastReviewedSuccess(clinicId, patientId, reviews) {
   return {
     type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS,
     payload: {
       clinicId: clinicId,
       patientId: patientId,
-      lastReviewed: lastReviewed,
-      previousLastReviewed: previousLastReviewed,
+      reviews: reviews,
     },
   };
 }
@@ -2084,14 +2083,13 @@ export function revertClinicPatientLastReviewedRequest() {
   };
 }
 
-export function revertClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed) {
+export function revertClinicPatientLastReviewedSuccess(clinicId, patientId, reviews) {
   return {
     type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS,
     payload: {
       clinicId: clinicId,
       patientId: patientId,
-      lastReviewed: lastReviewed,
-      previousLastReviewed: previousLastReviewed,
+      reviews: reviews,
     },
   };
 }

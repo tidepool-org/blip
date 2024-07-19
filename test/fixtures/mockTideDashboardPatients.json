@@ -39,14 +39,16 @@
           "email": null,
           "id": "6da2c016-263b-92db-1c3e-11ed92f5be4b",
           "fullName": "Charmane Fassman",
-          "lastReviewed": {
-            "clinicianId": "cbc242c79f",
-            "time": "2024-06-17T08:00:00.000Z"
-          },
-          "previousLastReviewed": {
-            "clinicianId": "id123",
-            "time": "2024-06-16T08:00:00.000Z"
-          },
+          "reviews": [
+            {
+              "clinicianId": "cbc242c79f",
+              "time": "2024-06-17T08:00:00.000Z"
+            },
+            {
+              "clinicianId": "id123",
+              "time": "2024-06-16T08:00:00.000Z"
+            }
+          ],
           "tags": [
             "646f7edb08e23bc18d91caa5",
             "646f7efd08e23bc18d91caa6",
@@ -74,10 +76,12 @@
             "clinicianId": "cbc242c79f",
             "time": "2024-06-18T08:00:00.000Z"
           },
-          "previousLastReviewed": {
-            "clinicianId": "id123",
-            "time": "2024-06-17T08:00:00.000Z"
-          },
+          "reviews": [
+            {
+              "clinicianId": "id123",
+              "time": "2024-06-17T08:00:00.000Z"
+            }
+          ],
           "tags": [
             "646f7ed208e23bc18d91caa3"
           ]
@@ -98,14 +102,16 @@
           "email": "cphilipsson2@g.co",
           "id": "a57f1b5e-a0f2-2fb9-bbea-48cb06cc6bf8",
           "fullName": "Carlo Philipsson",
-          "lastReviewed": {
-            "clinicianId": "cbc242c79f",
-            "time": "2024-06-03T08:00:00.000Z"
-          },
-          "previousLastReviewed": {
-            "clinicianId": "id123",
-            "time": "2024-06-02T08:00:00.000Z"
-          },
+          "reviews": [
+            {
+              "clinicianId": "cbc242c79f",
+              "time": "2024-06-03T08:00:00.000Z"
+            },
+            {
+              "clinicianId": "id123",
+              "time": "2024-06-02T08:00:00.000Z"
+            }
+          ],
           "tags": [
             "643f0674dbbc8aa9fad54c78",
             "646f7ed708e23bc18d91caa4",
@@ -132,14 +138,16 @@
           "email": null,
           "id": "afb4bad7-156f-ffed-fe6a-681c88ac6303",
           "fullName": "Elmo Jouning",
-          "lastReviewed": {
-            "clinicianId": "cbc242c79f",
-            "time": "2024-06-18T08:00:00.000Z"
-          },
-          "previousLastReviewed": {
-            "clinicianId": "cbc242c79f",
-            "time": "2024-06-06T08:00:00.000Z"
-          },
+          "reviews": [
+            {
+              "clinicianId": "cbc242c79f",
+              "time": "2024-06-18T08:00:00.000Z"
+            },
+            {
+              "clinicianId": "cbc242c79f",
+              "time": "2024-06-06T08:00:00.000Z"
+            }
+          ],
           "tags": [
             "646f7ed708e23bc18d91caa4",
             "645a9fc9d59edded4e573496",

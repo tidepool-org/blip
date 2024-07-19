@@ -45,8 +45,8 @@ describe('TideDashboard', () => {
         getPatientsForTideDashboard: sinon.stub(),
         getPatientFromClinic: sinon.stub(),
         updateClinicPatient: sinon.stub().callsArgWith(3, null, { id: 'stubbedId', stubbedUpdates: 'foo' }),
-        setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, { lastReviewed: today, previousLastReviewed: yesterday }),
-        revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, { lastReviewed: yesterday, previousLastReviewed: undefined }),
+        setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [today, yesterday]),
+        revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [yesterday]),
       },
     },
   };
@@ -133,23 +133,20 @@ describe('TideDashboard', () => {
   };
 
   const lastReviewedOverrides = [
-    {
-      lastReviewed: { clinicianId: 'clinicianUserId123', time: today },
-      previousLastReviewed: { clinicianId: 'clinicianUserId123', time: yesterday },
-    },
-    {
-      lastReviewed: { clinicianId: 'clinicianUserId123', time: yesterday },
-      previousLastReviewed: undefined,
-    },
-    {
-      lastReviewed: { clinicianId: 'clinicianUserId123', time: moment(today).subtract(30, 'd').toISOString() },
-      previousLastReviewed: undefined,
-    },
-    {
-      lastReviewed: { clinicianId: 'clinicianUserId123', time: moment('2024-03-05T12:00:00.000Z').toISOString() },
-      previousLastReviewed: undefined,
-    },
-    {},
+    [
+      { clinicianId: 'clinicianUserId123', time: today },
+      { clinicianId: 'clinicianUserId123', time: yesterday },
+    ],
+    [
+      { clinicianId: 'clinicianUserId123', time: yesterday },
+    ],
+    [
+      { clinicianId: 'clinicianUserId123', time: moment(today).subtract(30, 'd').toISOString() },
+    ],
+    [
+      { clinicianId: 'clinicianUserId123', time: moment('2024-03-05T12:00:00.000Z').toISOString() },
+    ],
+    [],
   ];
 
   const tideDashboardPatients = {
@@ -158,7 +155,7 @@ describe('TideDashboard', () => {
       ...mockTideDashboardPatients.results,
       meetingTargets:  map(mockTideDashboardPatients.results.meetingTargets, (results, i) => ({
         ...results,
-        patient: { ...results.patient, ...lastReviewedOverrides[i] },
+        patient: { ...results.patient, reviews: lastReviewedOverrides[i] },
       })),
     }
   }
@@ -794,7 +791,7 @@ describe('TideDashboard', () => {
               { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
               {
                 type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
-                payload: { clinicId: 'clinicID123', patientId: 'ea8ab4da-d4ed-bc6a-dec3-6aa170a99d49', lastReviewed: today , previousLastReviewed: yesterday },
+                payload: { clinicId: 'clinicID123', patientId: 'ea8ab4da-d4ed-bc6a-dec3-6aa170a99d49', reviews: [today, yesterday] },
               },
             ]);
 
@@ -825,7 +822,7 @@ describe('TideDashboard', () => {
               { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
               {
                 type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
-                payload: { clinicId: 'clinicID123', patientId: 'ecabff50-0698-ec3d-f2b9-b9d3720cbe14', lastReviewed: yesterday , previousLastReviewed: undefined },
+                payload: { clinicId: 'clinicID123', patientId: 'ecabff50-0698-ec3d-f2b9-b9d3720cbe14', reviews: [yesterday] },
               },
             ]);
 

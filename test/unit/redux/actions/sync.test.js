@@ -3822,12 +3822,11 @@ describe('Actions', () => {
     });
 
     it('type should equal SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', () => {
-      let action = sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed);
+      let action = sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, [lastReviewed, previousLastReviewed]);
       expect(action.type).to.equal('SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS');
       expect(action.payload.clinicId).to.equal('clinicId1');
       expect(action.payload.patientId).to.equal('patientId1');
-      expect(action.payload.lastReviewed).to.eql(lastReviewed);
-      expect(action.payload.previousLastReviewed).to.eql(previousLastReviewed);
+      expect(action.payload.reviews).to.eql([lastReviewed, previousLastReviewed]);
     });
   });
 
@@ -3878,12 +3877,11 @@ describe('Actions', () => {
     });
 
     it('type should equal REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', () => {
-      let action = sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed);
+      let action = sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, [lastReviewed, previousLastReviewed]);
       expect(action.type).to.equal('REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS');
       expect(action.payload.clinicId).to.equal('clinicId1');
       expect(action.payload.patientId).to.equal('patientId1');
-      expect(action.payload.lastReviewed).to.eql(lastReviewed);
-      expect(action.payload.previousLastReviewed).to.eql(previousLastReviewed);
+      expect(action.payload.reviews).to.eql([lastReviewed, previousLastReviewed]);
     });
   });
 

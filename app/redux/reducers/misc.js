@@ -969,16 +969,14 @@ export const clinics = (state = initialState.clinics, action) => {
       const {
         clinicId,
         patientId,
-        lastReviewed,
-        previousLastReviewed,
+        reviews,
       } = action.payload;
 
       return update(state, {
         [clinicId]: {
           patients: { [patientId]: { $set: {
             ...(state[clinicId].patients[patientId] || { id: patientId }),
-            lastReviewed,
-            previousLastReviewed,
+            reviews,
           } } },
         },
       });

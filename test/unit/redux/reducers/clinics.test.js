@@ -733,10 +733,9 @@ describe('clinics', () => {
           },
         },
       };
-      let action = actions.sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed);
+      let action = actions.sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, [lastReviewed, previousLastReviewed]);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patients.patientId123.lastReviewed).to.eql(lastReviewed);
-      expect(state.clinicId123.patients.patientId123.previousLastReviewed).to.eql(previousLastReviewed);
+      expect(state.clinicId123.patients.patientId123.reviews).to.eql([lastReviewed, previousLastReviewed]);
     });
   });
 
@@ -763,10 +762,9 @@ describe('clinics', () => {
           },
         },
       };
-      let action = actions.sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, lastReviewed, previousLastReviewed);
+      let action = actions.sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, [lastReviewed, previousLastReviewed]);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patients.patientId123.lastReviewed).to.eql(lastReviewed);
-      expect(state.clinicId123.patients.patientId123.previousLastReviewed).to.eql(previousLastReviewed);
+      expect(state.clinicId123.patients.patientId123.reviews).to.eql([lastReviewed, previousLastReviewed]);
     });
   });
 

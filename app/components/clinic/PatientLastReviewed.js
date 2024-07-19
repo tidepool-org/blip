@@ -84,20 +84,20 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
   let canReview = true;
   let color = 'feedback.warning';
 
-  if (patient?.lastReviewed?.time) {
-    formattedLastReviewed = formatTimeAgo(patient.lastReviewed.time, timePrefs);
-    lastReviewIsToday = moment.utc(patient.lastReviewed.time).tz(getTimezoneFromTimePrefs(timePrefs)).isSame(moment(), 'day');
+  if (patient?.reviews?.[0]?.time) {
+    formattedLastReviewed = formatTimeAgo(patient.reviews[0].time, timePrefs);
+    lastReviewIsToday = moment.utc(patient.reviews[0].time).tz(getTimezoneFromTimePrefs(timePrefs)).isSame(moment(), 'day');
 
     if (lastReviewIsToday) {
       canReview = false;
       clickHandler = null;
     }
 
-    if (moment.utc(patient.lastReviewed.time).isSameOrAfter(moment(recentlyReviewedThresholdDate))) {
+    if (moment.utc(patient.reviews[0].time).isSameOrAfter(moment(recentlyReviewedThresholdDate))) {
       reviewIsRecent = true;
     }
 
-    if (lastReviewIsToday && patient?.lastReviewed?.clinicianId === loggedInUserId) {
+    if (lastReviewIsToday && patient.reviews[0].clinicianId === loggedInUserId) {
       clickHandler = handleUndo;
       buttonText = t('Undo');
     };
