@@ -830,7 +830,7 @@ describe('TideDashboard', () => {
           });
         });
 
-        it('should not render the Last Reviewed column if showSummarData flag is false', () => {
+        it('should not render the Last Reviewed column if showSummaryData flag is false', () => {
           TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
             showSummaryData: false,
           }));
