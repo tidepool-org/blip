@@ -26,6 +26,7 @@ import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Link, Text } from 'theme-ui';
 import AddIcon from '@material-ui/icons/Add';
+import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
 import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
@@ -66,6 +67,7 @@ import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
+import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
 import RpmReportConfigForm, { exportRpmReport } from '../../components/clinic/RpmReportConfigForm';
 import Pill from '../../components/elements/Pill';
@@ -107,7 +109,7 @@ import PopoverElement from '../../components/elements/PopoverElement';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
-const { getLocalizedCeiling } = vizUtils.datetime;
+const { getLocalizedCeiling, getTimezoneFromTimePrefs, formatTimeAgo } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -475,7 +477,7 @@ export const ClinicPatients = (props) => {
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
-  const { showExtremeHigh, showSummaryDashboard, showTideDashboard, showRpmReport } = useFlags();
+  const { showExtremeHigh, showSummaryDashboard, showSummaryDashboardLastReviewed, showTideDashboard, showRpmReport } = useFlags();
   const [showSummaryData, setShowSummaryData] = useState();
   const previousShowSummaryData = usePrevious(showSummaryData)
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
@@ -511,6 +513,7 @@ export const ClinicPatients = (props) => {
     glucoseManagementIndicator: 'desc',
     averageGlucoseMmol: 'desc',
     lastUploadDate: 'desc',
+    lastReviewed: 'asc',
     timeInVeryLowRecords: 'desc',
     timeInVeryHighRecords: 'desc',
   }), []);
@@ -2738,39 +2741,41 @@ export const ClinicPatients = (props) => {
   ), [handleClickPatient, showSummaryData, t]);
 
   const renderLastUploadDate = useCallback(({ summary }) => {
-    const getFormattedLastUploadDate = date => {
-      const lastUploadDateMoment = moment.utc(date);
-      const endOfToday = moment.utc(getLocalizedCeiling(new Date().toISOString(), timePrefs));
-      const daysAgo = endOfToday.diff(lastUploadDateMoment, 'days', true);
-      let color = 'inherit';
-      let fontWeight = 'regular';
-      let text = lastUploadDateMoment.format(dateFormat);
-
-      if (daysAgo < 2) {
-        color = 'greens.9';
-        fontWeight = 'medium';
-        text = (daysAgo > 1) ? t('Yesterday') : t('Today');
-      } else if (daysAgo <=30) {
-        color = '#E29147';
-        fontWeight = 'medium';
-        text = t('{{days}} days ago', { days: Math.ceil(daysAgo) });
-      }
-
-      return {
-        color,
-        fontWeight,
-        text,
-      }
-    };
-
     let formattedLastUploadDateCGM, formattedLastUploadDateBGM;
 
+    const defaultStyles = {
+      color: 'inherit',
+      fontWeight: '400',
+    };
+
     if (summary?.cgmStats?.dates?.lastUploadDate) {
-      formattedLastUploadDateCGM = getFormattedLastUploadDate(summary.cgmStats.dates.lastUploadDate)
+      formattedLastUploadDateCGM = {
+        ...formatTimeAgo(summary.cgmStats.dates.lastUploadDate, timePrefs),
+        ...defaultStyles,
+      };
+
+      if (formattedLastUploadDateCGM.daysAgo < 2) {
+        formattedLastUploadDateCGM.color = 'feedback.success';
+        formattedLastUploadDateCGM.fontWeight = 'medium';
+      } else if (formattedLastUploadDateCGM.daysAgo <= 30) {
+        formattedLastUploadDateCGM.color = 'feedback.warning';
+        formattedLastUploadDateCGM.fontWeight = 'medium';
+      }
     }
 
     if (summary?.bgmStats?.dates?.lastUploadDate) {
-      formattedLastUploadDateBGM = getFormattedLastUploadDate(summary.bgmStats.dates.lastUploadDate)
+      formattedLastUploadDateBGM = {
+        ...formatTimeAgo(summary.bgmStats.dates.lastUploadDate, timePrefs),
+        ...defaultStyles,
+      };
+
+      if (formattedLastUploadDateBGM.daysAgo < 2) {
+        formattedLastUploadDateBGM.color = 'feedback.success';
+        formattedLastUploadDateBGM.fontWeight = 'medium';
+      } else if (formattedLastUploadDateBGM.daysAgo <= 30) {
+        formattedLastUploadDateBGM.color = 'feedback.warning';
+        formattedLastUploadDateBGM.fontWeight = 'medium';
+      }
     }
 
     return (
@@ -2890,7 +2895,7 @@ export const ClinicPatients = (props) => {
         <Text sx={{ display: 'block', fontSize: [0, null, '10px'] }}>{averageDailyRecordsText}</Text>
       </Box>
     ) : null;
-  }, [clinicBgUnits, activeSummaryPeriod, t]);;
+  }, [clinicBgUnits, activeSummaryPeriod, t]);
 
   const renderBGEvent = useCallback((type, { summary }) => {
     const rotation = type === 'low' ? 90 : -90;
@@ -2947,14 +2952,18 @@ export const ClinicPatients = (props) => {
   );
 
   const renderLinkedField = useCallback((field, patient) => (
-      <Box
-        classname={`patient-${field}`}
-        onClick={handleClickPatient(patient)}
-        sx={{ cursor: 'pointer' }}
-      >
-        <Text sx={{ fontWeight: 'medium' }}>{patient[field]}</Text>
-      </Box>
-    ), [handleClickPatient]);
+    <Box
+      classname={`patient-${field}`}
+      onClick={handleClickPatient(patient)}
+      sx={{ cursor: 'pointer' }}
+    >
+      <Text sx={{ fontWeight: 'medium' }}>{patient[field]}</Text>
+    </Box>
+  ), [handleClickPatient]);
+
+  const renderLastReviewed = useCallback((patient) => {
+    return <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="Patients list" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
+  }, [api, trackMetric]);
 
   const renderMore = useCallback((patient) => {
     return <MoreMenu
@@ -3125,6 +3134,18 @@ export const ClinicPatients = (props) => {
           },
         ]
       );
+
+      if (showSummaryDashboardLastReviewed) {
+        cols.splice(12, 0, {
+          title: t('Last Reviewed'),
+          field: 'lastReviewed',
+          align: 'left',
+          sortable: true,
+          defaultOrder: defaultSortOrders.lastReviewed,
+          render: renderLastReviewed,
+          width: 140,
+        })
+      }
     }
     return cols;
   }, [
@@ -3133,12 +3154,14 @@ export const ClinicPatients = (props) => {
     renderBGEvent,
     renderBgRangeSummary,
     renderGMI,
+    renderLastReviewed,
     renderLastUploadDate,
     renderLinkedField,
     renderMore,
     renderPatient,
     renderPatientTags,
     showSummaryData,
+    showSummaryDashboardLastReviewed,
     t,
     activeFilters.lastUploadType,
     defaultSortOrders.averageGlucoseMmol,

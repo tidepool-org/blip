@@ -117,6 +117,7 @@ export const TagList = withTranslation()(props => {
     tags,
     onClickEdit,
     maxCharactersVisible,
+    maxTagsVisible,
     tagProps,
     selectedTagProps,
     sx = {},
@@ -128,9 +129,16 @@ export const TagList = withTranslation()(props => {
   const visibleTags = [];
   const hiddenTags = [];
 
-  if (maxCharactersVisible) {
+  if (maxCharactersVisible || maxTagsVisible) {
     reduce(tags, (remainingChars, { name = '' }, i) => {
-      const tagArray = (name.length <= remainingChars || i === 0) ? visibleTags : hiddenTags;
+      let tagArray;
+
+      if (isFinite(maxTagsVisible) && visibleTags.length >= maxTagsVisible) {
+        tagArray = hiddenTags;
+      } else {
+        tagArray = (name.length <= remainingChars || i === 0) ? visibleTags : hiddenTags;
+      }
+
       if (tags[i]) tagArray.push(tags[i]);
       return remainingChars - name.length;
     }, maxCharactersVisible);
@@ -251,6 +259,7 @@ export const TagList = withTranslation()(props => {
 TagList.propTypes = {
   ...FlexProps,
   maxCharactersVisible: PropTypes.number,
+  maxTagsVisible: PropTypes.number,
   onClickEdit: PropTypes.func,
   tags: PropTypes.arrayOf(PropTypes.shape(pick(Tag.propTypes, ['name', 'id']))),
   tagProps: PropTypes.shape(omit(Tag.propTypes, ['name', 'id'])),

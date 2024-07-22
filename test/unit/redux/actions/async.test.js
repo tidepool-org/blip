@@ -8339,6 +8339,169 @@ describe('Actions', () => {
       });
     });
 
+    describe('setClinicPatientLastReviewed', () => {
+      it('should trigger SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS and it should call clinics.setClinicPatientLastReviewed once for a successful request', () => {
+        const clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        const clinicianId = 'clinicianId1';
+
+        const lastReviewed = {
+          clinicianId,
+          time: '2022-10-10T00:00:000Z',
+        };
+        const previousLastReviewed = {
+          clinicianId,
+          time: '2022-10-02T00:00:000Z',
+        };
+
+        let api = {
+          clinics: {
+            setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [lastReviewed, previousLastReviewed]),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+          { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', payload: { clinicId, patientId, reviews: [lastReviewed, previousLastReviewed] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.setClinicPatientLastReviewed(api, clinicId, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.setClinicPatientLastReviewed.callCount).to.equal(1);
+      });
+
+      it('should trigger SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        let api = {
+          clinics: {
+            setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+          { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.setClinicPatientLastReviewed(api, clinicId, patientId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.setClinicPatientLastReviewed.callCount).to.equal(1);
+      });
+    });
+
+    describe('revertClinicPatientLastReviewed', () => {
+      it('should trigger REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS and it should call clinics.revertClinicPatientLastReviewed once for a successful request', () => {
+        const clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        const clinicianId = 'clinicianId1';
+
+        const lastReviewed = {
+          clinicianId,
+          time: '2022-10-10T00:00:000Z',
+        };
+        const previousLastReviewed = {
+          clinicianId,
+          time: '2022-10-02T00:00:000Z',
+        };
+
+        let api = {
+          clinics: {
+            revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [lastReviewed, previousLastReviewed]),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS', payload: { clinicId, patientId, reviews: [lastReviewed, previousLastReviewed] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.revertClinicPatientLastReviewed(api, clinicId, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.revertClinicPatientLastReviewed.callCount).to.equal(1);
+      });
+
+      it('should trigger REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE and it should call error once for a failed request', () => {
+        let clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        let api = {
+          clinics: {
+            revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.revertClinicPatientLastReviewed(api, clinicId, patientId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.revertClinicPatientLastReviewed.callCount).to.equal(1);
+      });
+
+      it('should trigger REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE and it should call error once for a failed request due to clinicianID mismatch', () => {
+        let clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        let api = {
+          clinics: {
+            revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, {status: 409, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED);
+        err.status = 409;
+
+        let expectedActions = [
+          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+          { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE', error: err, meta: { apiError: {status: 409, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.revertClinicPatientLastReviewed(api, clinicId, patientId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.revertClinicPatientLastReviewed.callCount).to.equal(1);
+      });
+    });
+
     describe('sendPatientDexcomConnectRequest', () => {
       it('should trigger SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS and it should call clinics.sendPatientDexcomConnectRequest once for a successful request', () => {
         const clinicId = 'clinicId1';

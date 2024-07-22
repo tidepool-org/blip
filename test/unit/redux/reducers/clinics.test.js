@@ -649,6 +649,125 @@ describe('clinics', () => {
     });
   });
 
+  describe('fetchTideDashboardPatientsSuccess', () => {
+    it('should set clinic.patients to patients returned in report', () => {
+      let clinicId = 'clinicId123';
+
+      const payload = {
+        config: { clinicId },
+        results: {
+          timeInVeryLowPercent: [{
+            patient: { id: 'timeInVeryLowPercentID'}
+          }],
+          timeInAnyLowPercent: [{
+            patient: { id: 'timeInAnyLowPercentID'}
+          }],
+          dropInTimeInTargetPercent: [{
+            patient: { id: 'dropInTimeInTargetPercentID'}
+          }],
+          timeInTargetPercent: [{
+            patient: { id: 'timeInTargetPercentID'}
+          }],
+          timeCGMUsePercent: [{
+            patient: { id: 'timeCGMUsePercentID'}
+          }],
+          meetingTargets: [{
+            patient: { id: 'meetingTargetsID'}
+          }],
+        }
+      }
+
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patients: {},
+        },
+      };
+
+      let action = actions.sync.fetchTideDashboardPatientsSuccess(payload);
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.clinicId123.patients).to.eql({
+        timeInVeryLowPercentID: {
+          id: 'timeInVeryLowPercentID',
+        },
+        timeInAnyLowPercentID: {
+          id: 'timeInAnyLowPercentID',
+        },
+        dropInTimeInTargetPercentID: {
+          id: 'dropInTimeInTargetPercentID',
+        },
+        timeInTargetPercentID: {
+          id: 'timeInTargetPercentID',
+        },
+        timeCGMUsePercentID: {
+          id: 'timeCGMUsePercentID',
+        },
+        meetingTargetsID: {
+          id: 'meetingTargetsID',
+        },
+      });
+    });
+  });
+
+  describe('setClinicPatientLastReviewedSuccess', () => {
+    it('should update patient `lastReviewed` and `previousLastReviewed` in state', () => {
+      let clinicId = 'clinicId123';
+      let patientId = 'patientId123';
+      const clinicianId = 'clinicianId123';
+
+      const lastReviewed = {
+        clinicianId,
+        time: '2022-10-10T00:00:000Z',
+      };
+      const previousLastReviewed = {
+        clinicianId,
+        time: '2022-10-02T00:00:000Z',
+      };
+
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patients: {
+            [patientId]: {},
+          },
+        },
+      };
+      let action = actions.sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, [lastReviewed, previousLastReviewed]);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients.patientId123.reviews).to.eql([lastReviewed, previousLastReviewed]);
+    });
+  });
+
+  describe('revertClinicPatientLastReviewedSuccess', () => {
+    it('should update patient `lastReviewed` and `previousLastReviewed` in state', () => {
+      let clinicId = 'clinicId123';
+      let patientId = 'patientId123';
+      const clinicianId = 'clinicianId123';
+
+      const lastReviewed = {
+        clinicianId,
+        time: '2022-10-10T00:00:000Z',
+      };
+      const previousLastReviewed = {
+        clinicianId,
+        time: '2022-10-02T00:00:000Z',
+      };
+
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patients: {
+            [patientId]: {},
+          },
+        },
+      };
+      let action = actions.sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, [lastReviewed, previousLastReviewed]);
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients.patientId123.reviews).to.eql([lastReviewed, previousLastReviewed]);
+    });
+  });
+
   describe('sendPatientDexcomConnectRequestSuccess', () => {
     it('should update patient `lastRequestedDexcomConnectTime` in state', () => {
       let clinicId = 'clinicId123';
