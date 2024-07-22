@@ -863,7 +863,7 @@ describe('TideDashboard', () => {
         });
 
         it('should not show the Last Reviewed column, even if clinic tier >= tier0300', () => {
-          store = mockStore(hasResultsState);
+          store = mockStore(tier0300ClinicState);
           wrapper = mount(
             <Provider store={store}>
               <ToastProvider>
