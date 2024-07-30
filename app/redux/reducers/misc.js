@@ -943,6 +943,44 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS: {
+      const {
+        config,
+        results,
+      } = action.payload.results;
+
+      const { clinicId } = config;
+
+      const patients = [
+        ..._.map(results.timeInVeryLowPercent, 'patient'),
+        ..._.map(results.timeInAnyLowPercent, 'patient'),
+        ..._.map(results.dropInTimeInTargetPercent, 'patient'),
+        ..._.map(results.timeInTargetPercent, 'patient'),
+        ..._.map(results.timeCGMUsePercent, 'patient'),
+        ..._.map(results.meetingTargets, 'patient'),
+      ];
+
+      return update(state, {
+        [clinicId]: { $set: { ...state[clinicId], patients: _.keyBy(patients, 'id'), fetchedPatientCount: patients.length, lastPatientFetchTime: moment.utc().valueOf() } },
+      });
+    }
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        reviews,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...(state[clinicId].patients[patientId] || { id: patientId }),
+            reviews,
+          } } },
+        },
+      });
+    }
     case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS: {
       const {
         clinicId,

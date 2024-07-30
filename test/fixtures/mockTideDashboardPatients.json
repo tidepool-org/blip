@@ -1,7 +1,7 @@
 {
   "config": {
     "schemaVersion": 1,
-    "clinicId": "clinicID123",
+    "clinicId": "62419f38f85189a39ac4b68d",
     "period": "14d",
     "lastUploadDateFrom": "2023-05-16T04:00:00.000Z",
     "lastUploadDateTo": "2023-05-30T04:00:00.000Z",
@@ -39,6 +39,16 @@
           "email": null,
           "id": "6da2c016-263b-92db-1c3e-11ed92f5be4b",
           "fullName": "Charmane Fassman",
+          "reviews": [
+            {
+              "clinicianId": "cbc242c79f",
+              "time": "2024-06-17T08:00:00.000Z"
+            },
+            {
+              "clinicianId": "id123",
+              "time": "2024-06-16T08:00:00.000Z"
+            }
+          ],
           "tags": [
             "646f7edb08e23bc18d91caa5",
             "646f7efd08e23bc18d91caa6",
@@ -62,6 +72,16 @@
           "email": null,
           "id": "edb2acd19d",
           "fullName": "Lora Painter",
+          "lastReviewed": {
+            "clinicianId": "cbc242c79f",
+            "time": "2024-06-18T08:00:00.000Z"
+          },
+          "reviews": [
+            {
+              "clinicianId": "id123",
+              "time": "2024-06-17T08:00:00.000Z"
+            }
+          ],
           "tags": [
             "646f7ed208e23bc18d91caa3"
           ]
@@ -82,6 +102,16 @@
           "email": "cphilipsson2@g.co",
           "id": "a57f1b5e-a0f2-2fb9-bbea-48cb06cc6bf8",
           "fullName": "Carlo Philipsson",
+          "reviews": [
+            {
+              "clinicianId": "cbc242c79f",
+              "time": "2024-06-03T08:00:00.000Z"
+            },
+            {
+              "clinicianId": "id123",
+              "time": "2024-06-02T08:00:00.000Z"
+            }
+          ],
           "tags": [
             "643f0674dbbc8aa9fad54c78",
             "646f7ed708e23bc18d91caa4",
@@ -108,6 +138,16 @@
           "email": null,
           "id": "afb4bad7-156f-ffed-fe6a-681c88ac6303",
           "fullName": "Elmo Jouning",
+          "reviews": [
+            {
+              "clinicianId": "cbc242c79f",
+              "time": "2024-06-18T08:00:00.000Z"
+            },
+            {
+              "clinicianId": "cbc242c79f",
+              "time": "2024-06-06T08:00:00.000Z"
+            }
+          ],
           "tags": [
             "646f7ed708e23bc18d91caa4",
             "645a9fc9d59edded4e573496",
@@ -132,6 +172,10 @@
           "email": null,
           "id": "c9ddb1ec-efca-6bb3-f596-ff9d5eeb7155",
           "fullName": "Joni Caccavari",
+          "lastReviewed": {
+            "clinicianId": "id123",
+            "time": "2024-06-18T08:00:00.000Z"
+          },
           "tags": [
             "63d811e11710f10c0422ce6d"
           ]
@@ -153,6 +197,10 @@
           "email": null,
           "id": "41abaec7-aafb-2561-8217-f8e51b4dc7bc",
           "fullName": "Guinna Turfrey",
+          "lastReviewed": {
+            "clinicianId": "id123",
+            "time": "2024-03-03T08:00:00.000Z"
+          },
           "tags": [
             "646f7efd08e23bc18d91caa6",
             "643f0674dbbc8aa9fad54c78"

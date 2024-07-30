@@ -37,6 +37,9 @@ const mockStore = configureStore([thunk]);
 describe('ClinicPatients', () => {
   let mount;
 
+  const today = moment().toISOString();
+  const yesterday = moment(today).subtract(1, 'day').toISOString();
+
   let wrapper;
   let defaultProps = {
     trackMetric: sinon.stub(),
@@ -56,6 +59,8 @@ describe('ClinicPatients', () => {
         deleteClinicPatientTag: sinon.stub(),
         deleteClinicPatientTag: sinon.stub(),
         getPatientsForRpmReport: sinon.stub().callsArgWith(2, null, mockRpmReportPatients),
+        setClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [today, yesterday]),
+        revertClinicPatientLastReviewed: sinon.stub().callsArgWith(2, null, [yesterday]),
       },
     },
   };
@@ -141,6 +146,8 @@ describe('ClinicPatients', () => {
         deletingClinicPatientTag: defaultWorkingState,
         fetchingTideDashboardPatients: defaultWorkingState,
         fetchingRpmReportPatients: defaultWorkingState,
+        settingClinicPatientLastReviewed: defaultWorkingState,
+        revertingClinicPatientLastReviewed: defaultWorkingState,
       },
     },
   };
@@ -315,6 +322,10 @@ describe('ClinicPatients', () => {
               summary: {},
               permissions: { custodian : {} },
               tags: [],
+              reviews: [
+                { clinicianId: 'clinicianUserId123', time: today },
+                { clinicianId: 'clinicianUserId123', time: yesterday },
+              ],
             },
             patient2: {
               id: 'patient2',
@@ -325,7 +336,7 @@ describe('ClinicPatients', () => {
               summary:{
                 bgmStats: {
                   dates: {
-                    lastUploadDate: moment().subtract(1, 'day').toISOString(),
+                    lastUploadDate: yesterday,
                   },
                   periods: { '14d': {
                     averageGlucoseMmol: 10.5,
@@ -336,7 +347,7 @@ describe('ClinicPatients', () => {
                 },
                 cgmStats: {
                   dates: {
-                    lastUploadDate: moment().toISOString(),
+                    lastUploadDate: today,
                   },
                   periods: { '14d': {
                     timeCGMUsePercent: 0.85,
@@ -347,6 +358,7 @@ describe('ClinicPatients', () => {
               },
               permissions: { custodian : undefined },
               tags: ['tag1'],
+              reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
             },
             patient3: {
               id: 'patient3',
@@ -368,7 +380,7 @@ describe('ClinicPatients', () => {
                 },
                 cgmStats: {
                   dates: {
-                    lastUploadDate: moment().subtract(1, 'day').toISOString(),
+                    lastUploadDate: yesterday,
                   },
                   periods: {
                     '30d': {
@@ -395,6 +407,7 @@ describe('ClinicPatients', () => {
                 },
               },
               tags: ['tag1', 'tag2', 'tag3'],
+              reviews: [{ clinicianId: 'clinicianUserId123', time: moment(today).subtract(30, 'd').toISOString() }],
             },
             patient4: {
               id: 'patient4',
@@ -405,7 +418,7 @@ describe('ClinicPatients', () => {
               summary: {
                 bgmStats: {
                   dates: {
-                    lastUploadDate: moment().subtract(1, 'day').toISOString(),
+                    lastUploadDate: yesterday,
                   },
                   periods: { '14d': {
                     averageGlucoseMmol: 12.5,
@@ -416,7 +429,7 @@ describe('ClinicPatients', () => {
                 },
                 cgmStats: {
                   dates: {
-                    lastUploadDate: moment().subtract(29, 'days').toISOString(),
+                    lastUploadDate: moment().subtract(30, 'days').toISOString(),
                   },
                   periods: { '14d': {
                     timeCGMUsePercent: 0.69,
@@ -425,6 +438,7 @@ describe('ClinicPatients', () => {
                   } },
                 },
               },
+              reviews: [{ clinicianId: 'clinicianUserId123', time: moment('2024-03-05T12:00:00.000Z').toISOString() }],
             },
             patient5: {
               id: 'patient5',
@@ -435,7 +449,7 @@ describe('ClinicPatients', () => {
               summary: {
                 cgmStats: {
                   dates: {
-                    lastUploadDate: moment().subtract(30, 'days').toISOString(),
+                    lastUploadDate: moment().subtract(31, 'days').toISOString(),
                   },
                   periods: { '14d': {
                     timeCGMUsePercent: 0.69,
@@ -1498,8 +1512,8 @@ describe('ClinicPatients', () => {
             expect(popover()).to.have.lengthOf(1);
 
             const link = popover().find('#addPatientUnlockPlansLink').hostNodes();
-            expect(link).to.have.lengthOf(1)
-            expect(link.props().href).to.equal(URL_TIDEPOOL_PLUS_PLANS)
+            expect(link).to.have.lengthOf(1);
+            expect(link.props().href).to.equal(URL_TIDEPOOL_PLUS_PLANS);
           });
         });
       });
@@ -2798,6 +2812,10 @@ describe('ClinicPatients', () => {
                 email: 'patient1@test.ca',
                 permissions: { custodian: {} },
                 tags: ['tag1', 'tag2'],
+                reviews: [
+                  { clinicianId: 'clinicianUserId123', time: today },
+                  { clinicianId: 'clinicianUserId123', time: yesterday },
+                ],
                 summary: {},
               }
             );
@@ -2897,6 +2915,7 @@ describe('ClinicPatients', () => {
                   },
                 },
                 tags: ['tag3'],
+                reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
               }
             );
 
@@ -3232,6 +3251,171 @@ describe('ClinicPatients', () => {
 
             const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
             expect(tideDashboardButton).to.have.length(0);
+          });
+        });
+      });
+
+      describe('Managing patient last reviewed dates', () => {
+        context('showSummaryDashboardLastReviewed flag is true', () => {
+          beforeEach(() => {
+            store = mockStore(tier0300ClinicState);
+
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showSummaryDashboardLastReviewed: true,
+            }));
+
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            defaultProps.trackMetric.resetHistory();
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useFlags');
+          });
+
+          it('should render the Last Reviewed column', () => {
+            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
+            expect(lastReviewedHeader).to.have.length(1);
+
+            const table = wrapper.find(Table);
+            const rows = table.find('tbody tr');
+            const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(12);
+
+            expect(lastReviewData(0).text()).to.contain('Today');
+            expect(lastReviewData(1).text()).to.contain('Yesterday');
+            expect(lastReviewData(2).text()).to.contain('30 days ago');
+            expect(lastReviewData(3).text()).to.contain('2024-03-05');
+          });
+
+          it('should allow setting last reviewed date', done => {
+            const table = wrapper.find(Table);
+            const rows = table.find('tbody tr');
+            const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(12);
+            const updateButton = () =>lastReviewData(1).find('button');
+
+            expect(lastReviewData(1).text()).to.contain('Yesterday');
+            expect(updateButton().text()).to.equal('Mark Reviewed');
+
+            store.clearActions();
+            updateButton().simulate('click');
+            setTimeout(() => {
+              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+              sinon.assert.calledWith(
+                defaultProps.api.clinics.setClinicPatientLastReviewed,
+                'clinicID123',
+              );
+
+              expect(store.getActions()).to.eql([
+                { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+                {
+                  type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
+                  payload: { clinicId: 'clinicID123', patientId: 'patient2', reviews: [today, yesterday] },
+                },
+              ]);
+
+              done();
+            });
+          });
+
+          it('should allow undoing last reviewed date', done => {
+            const table = wrapper.find(Table);
+            const rows = table.find('tbody tr');
+            const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(12);
+            const updateButton = () =>lastReviewData(0).find('button');
+
+            expect(lastReviewData(0).text()).to.contain('Today');
+            expect(updateButton().text()).to.equal('Undo');
+
+            store.clearActions();
+            updateButton().simulate('click');
+            setTimeout(() => {
+              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Undo mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+              sinon.assert.calledWith(
+                defaultProps.api.clinics.revertClinicPatientLastReviewed,
+                'clinicID123',
+              );
+
+              expect(store.getActions()).to.eql([
+                { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+                {
+                  type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
+                  payload: { clinicId: 'clinicID123', patientId: 'patient1', reviews: [yesterday] },
+                },
+              ]);
+
+              done();
+            });
+          });
+
+          it('should refetch patients with updated sort parameter when Last Reviewed header is clicked', () => {
+            const table = wrapper.find(Table);
+            expect(table).to.have.length(1);
+
+            const lastReviewedHeader = table.find('#peopleTable-header-lastReviewed .MuiTableSortLabel-root').at(0);
+
+            defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+            lastReviewedHeader.simulate('click');
+            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+lastReviewed' }));
+
+            defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+            lastReviewedHeader.simulate('click');
+            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastReviewed' }));
+          });
+
+          it('should not render the Last Reviewed column if showSummarData flag is false', () => {
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showSummaryData: false,
+            }));
+
+            store = mockStore(tier0100ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
+            expect(lastReviewedHeader).to.have.length(0);
+
+            ClinicPatients.__ResetDependency__('useFlags');
+          });
+        });
+
+        context('showSummaryDashboardLastReviewed flag is false', () => {
+          beforeEach(() => {
+            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+              showSummaryDashboardLastReviewed: false,
+            }));
+          });
+
+          afterEach(() => {
+            ClinicPatients.__ResetDependency__('useFlags');
+          });
+
+          it('should not show the Last Reviewed column, even if clinic tier >= tier0300', () => {
+            store = mockStore(tier0300ClinicState);
+            wrapper = mount(
+              <Provider store={store}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
+            expect(lastReviewedHeader).to.have.length(0);
           });
         });
       });

@@ -103,6 +103,17 @@ export default ({
     },
   };
 
+  const quickActionStyles = {
+    ...defaultStyles,
+    backgroundColor: '#F4F5FF',
+    color: colors.text.primary,
+    border: 0,
+    borderRadius: radii.default,
+    fontWeight: 'medium',
+    px: 2,
+    py: 1,
+  };
+
   const textButtonStyles = {
     border: 0,
     borderRadius: 0,
@@ -151,6 +162,12 @@ export default ({
     tertiary: tertiaryStyles,
     tertiaryCondensed: {
       ...tertiaryStyles,
+      py: '6px',
+      fontSize: 0,
+    },
+    quickAction: quickActionStyles,
+    quickActionCondensed: {
+      ...quickActionStyles,
       py: '6px',
       fontSize: 0,
     },

@@ -2733,6 +2733,59 @@ export function sendPatientUploadReminder(api, clinicId, patientId) {
   };
 }
 
+
+/**
+ * Mark a clinic patient as reviewed
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the patient
+ */
+export function setClinicPatientLastReviewed(api, clinicId, patientId) {
+  return dispatch => {
+    dispatch(sync.setClinicPatientLastReviewedRequest());
+
+    api.clinics.setClinicPatientLastReviewed(clinicId, patientId, (err, result) => {
+      if (err) {
+        dispatch(sync.setClinicPatientLastReviewedFailure(
+          createActionError(ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED, err), err
+        ));
+      } else {
+        dispatch(sync.setClinicPatientLastReviewedSuccess(clinicId, patientId, result));
+      }
+    });
+  };
+}
+
+/**
+ * Revert a clinic patient last reviewed date
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the patient
+ */
+export function revertClinicPatientLastReviewed(api, clinicId, patientId) {
+  return dispatch => {
+    dispatch(sync.revertClinicPatientLastReviewedRequest());
+
+    api.clinics.revertClinicPatientLastReviewed(clinicId, patientId, (err, result) => {
+      if (err) {
+        let message = ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED;
+
+        if (err.status === 409) {
+          message = ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED_UNAUTHORIZED;
+        }
+
+        dispatch(sync.revertClinicPatientLastReviewedFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        dispatch(sync.revertClinicPatientLastReviewedSuccess(clinicId, patientId, result));
+      }
+    });
+  };
+}
+
 /**
  * Send a dexcom connect reqeust email to a clinic patient
  *
