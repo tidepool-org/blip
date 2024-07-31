@@ -832,7 +832,7 @@ export const PatientDataClass = createReactClass({
       chartType,
     } = state;
 
-    const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
+    const manufacturer = this.getMetaData('latestPumpUpload.manufacturer', '');
     const bgSource = this.getMetaData('bgSources.current');
     const endpoints = this.getCurrentData('endpoints');
     const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
