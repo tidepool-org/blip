@@ -955,6 +955,8 @@ export const PatientDataClass = createReactClass({
       }, {});
 
       props.generateAGPImagesSuccess(processedImages);
+    } else {
+      props.generateAGPImagesSuccess(results);
     }
   },
 
