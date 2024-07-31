@@ -1073,6 +1073,14 @@ api.clinics.getClinicPatientCountSettings = function(clinicId, cb) {
   return tidepool.getClinicPatientCountSettings(clinicId, cb);
 };
 
+api.clinics.setClinicPatientLastReviewed = function(clinicId, patientId, cb) {
+  return tidepool.setClinicPatientLastReviewed(clinicId, patientId, cb);
+};
+
+api.clinics.revertClinicPatientLastReviewed = function(clinicId, patientId, cb) {
+  return tidepool.revertClinicPatientLastReviewed(clinicId, patientId, cb);
+};
+
 // ----- Errors -----
 
 api.errors = {};

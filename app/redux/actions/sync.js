@@ -2050,6 +2050,60 @@ export function sendPatientUploadReminderFailure(error, apiError) {
   };
 }
 
+export function setClinicPatientLastReviewedRequest() {
+  return {
+    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
+  };
+}
+
+export function setClinicPatientLastReviewedSuccess(clinicId, patientId, reviews) {
+  return {
+    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      reviews: reviews,
+    },
+  };
+}
+
+export function setClinicPatientLastReviewedFailure(error, apiError) {
+  return {
+    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function revertClinicPatientLastReviewedRequest() {
+  return {
+    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
+  };
+}
+
+export function revertClinicPatientLastReviewedSuccess(clinicId, patientId, reviews) {
+  return {
+    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      reviews: reviews,
+    },
+  };
+}
+
+export function revertClinicPatientLastReviewedFailure(error, apiError) {
+  return {
+    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function sendPatientDexcomConnectRequestRequest() {
   return {
     type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST,
