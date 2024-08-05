@@ -5268,9 +5268,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.42.0-web-3005-web-3306-web-3007-web-3008-loop-stats.2":
-  version: 1.42.0-web-3005-web-3306-web-3007-web-3008-loop-stats.2
-  resolution: "@tidepool/viz@npm:1.42.0-web-3005-web-3306-web-3007-web-3008-loop-stats.2"
+"@tidepool/viz@npm:1.42.0-rc.1":
+  version: 1.42.0-rc.1
+  resolution: "@tidepool/viz@npm:1.42.0-rc.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5330,7 +5330,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: d64737a66f6f59d7df463e34035e8b7584ec0d37c4a71ae1224598a072999ec13c5ef43699fa9e7b077e33b41783ffa398a71b7a68cd448cde188b7e4809e88a
+  checksum: 40087a7188186a2471314d0714b55a7be8186ae4e8fcaad8a2acbf2ca181cbc0f73b9e9d282b9b62ac98bd2fafc9efeabc20947ba012f72ce388ca272df7db1d
   languageName: node
   linkType: hard
 
@@ -7427,7 +7427,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.42.0-web-3005-web-3306-web-3007-web-3008-loop-stats.2
+    "@tidepool/viz": 1.42.0-rc.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7552,7 +7552,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.30.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1
+    tideline: 1.30.0-rc.1
     tidepool-platform-client: 0.59.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22992,9 +22992,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.30.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1":
-  version: 1.30.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1
-  resolution: "tideline@npm:1.30.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1"
+"tideline@npm:1.30.0-rc.1":
+  version: 1.30.0-rc.1
+  resolution: "tideline@npm:1.30.0-rc.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -23014,7 +23014,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: cc11a683c8b29931493de204aa151bfed638d2c485f278207caa7889528fc6a921d74515de255b3331162de8677f2861e7f86699e455d1f3ec8110476e982fec
+  checksum: 4d642bb5800ea84bc309601c121968175f6a9c841e31b079de204a1c87450973f00ef62fa9a33d73ade951c99ab757c825aa99acade206d6a7b7586d958546c6
   languageName: node
   linkType: hard
 
