@@ -920,6 +920,7 @@ export const PatientDataClass = createReactClass({
 
   generateAGPImages: async function(props = this.props, reportTypes = []) {
     const promises = [];
+    let errored = false
 
     await _.each(reportTypes, async reportType => {
       let images;
@@ -927,6 +928,7 @@ export const PatientDataClass = createReactClass({
       try{
         images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.[reportType] });
       } catch(e) {
+        errored = true
         return props.generateAGPImagesFailure(e);
       }
 
@@ -955,7 +957,7 @@ export const PatientDataClass = createReactClass({
       }, {});
 
       props.generateAGPImagesSuccess(processedImages);
-    } else {
+    } else if (!errored) {
       props.generateAGPImagesSuccess(results);
     }
   },
