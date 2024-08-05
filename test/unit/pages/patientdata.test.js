@@ -3332,23 +3332,6 @@ describe('PatientData', function () {
   describe('generateAGPImages', () => {
     let wrapper;
     let instance;
-    before(() => {
-      PD.__Rewire__('vizUtils', {
-        agp: {
-          generateAGPFigureDefinitions: sinon.stub()
-            .onFirstCall().resolves(['stubbed image data'])
-            .onSecondCall().rejects(new Error('failed image generation')),
-        },
-      });
-      PD.__Rewire__('Plotly', {
-        toImage: sinon.stub().returns('stubbed image data')
-      });
-    });
-
-    after(() => {
-      PD.__ResetDependency__('vizUtils');
-      PD.__ResetDependency__('Plotly');
-    });
 
     beforeEach(() => {
       wrapper = shallow(<PatientDataClass {...defaultProps} />);
@@ -3357,27 +3340,59 @@ describe('PatientData', function () {
       defaultProps.generateAGPImagesFailure.resetHistory();
     });
 
-    it('should call generateAGPImagesSuccess with image data upon successful image generation', done => {
-      instance.generateAGPImages(undefined, ['agpCGM']);
-      wrapper.update();
-      setTimeout(() => {
-        sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 0);
-        sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 1);
-        sinon.assert.calledWithMatch(defaultProps.generateAGPImagesSuccess, {
-          agpCGM: { 0: 'stubbed image data' },
+    context('successful image generation', () => {
+      before(() => {
+        PD.__Rewire__('vizUtils', {
+          agp: {
+            generateAGPFigureDefinitions: sinon.stub().resolves(['stubbed image data']),
+          },
         });
-        done();
+        PD.__Rewire__('Plotly', {
+          toImage: sinon.stub().returns('stubbed image data')
+        });
+      });
+
+      after(() => {
+        PD.__ResetDependency__('vizUtils');
+        PD.__ResetDependency__('Plotly');
+      });
+
+      it('should call generateAGPImagesSuccess with image data upon successful image generation', done => {
+        instance.generateAGPImages(undefined, ['agpCGM']);
+        wrapper.update();
+        setTimeout(() => {
+          sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 0);
+          sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 1);
+          sinon.assert.calledWithMatch(defaultProps.generateAGPImagesSuccess, {
+            agpCGM: { 0: 'stubbed image data' },
+          });
+          done();
+        });
       });
     });
 
-    it('should call generateAGPImagesFailure with error upon failed image generation', done => {
-      instance.generateAGPImages(undefined, ['agpCGM']);
-      wrapper.update();
-      setTimeout(() => {
-        sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 0);
-        sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 1);
-        expect(defaultProps.generateAGPImagesFailure.getCall(0).lastArg.message).to.equal('failed image generation');
-        done();
+    context('failed image generation', () => {
+      before(() => {
+        PD.__Rewire__('vizUtils', {
+          agp: {
+            generateAGPFigureDefinitions: sinon.stub().rejects(new Error('failed image generation')),
+          },
+        });
+      });
+
+      after(() => {
+        PD.__ResetDependency__('vizUtils');
+      });
+
+      it('should call generateAGPImagesFailure with error upon failed image generation', done => {
+        instance.generateAGPImages(undefined, ['agpCGM']);
+        wrapper.update();
+        setTimeout(() => {
+          sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 0);
+          sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 1);
+          expect(defaultProps.generateAGPImagesFailure.getCall(0).lastArg.message).to.equal('failed image generation');
+          done();
+        });
       });
     });
   });
