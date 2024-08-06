@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.81.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1",
+  "version": "1.82.0-web-2853-use-dexcom-timezone-offset.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
