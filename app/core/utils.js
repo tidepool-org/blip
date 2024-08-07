@@ -17,6 +17,7 @@
 
 import _  from 'lodash';
 import sundial from 'sundial';
+import moment from 'moment';
 import { format } from 'd3-format';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
@@ -330,9 +331,22 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
     setNewTimePrefs(queryParams.timezone, false);
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
-  else if (!_.isEmpty(latestUpload) && !_.isEmpty(latestUpload.timezone)) {
-    setNewTimePrefs(latestUpload.timezone);
-    console.log('Defaulting to display in timezone of most recent upload at', latestUpload.normalTime, latestUpload.timezone);
+  else if (!_.isEmpty(latestUpload) && (!_.isEmpty(latestUpload.timezone) || _.isFinite(latestUpload.timezoneOffset))) {
+    let timezone = latestUpload.timezone;
+
+    // If timezone is empty, set to the nearest Etc/GMT timezone using the timezoneOffset
+    if (_.isEmpty(timezone)) {
+      // GMT offsets signs in Etc/GMT timezone names are reversed from the actual offset
+      const offsetSign = Math.sign(latestUpload.timezoneOffset) === -1 ? '+' : '-';
+      const offsetDuration = moment.duration(Math.abs(latestUpload.timezoneOffset), 'minutes');
+      let offsetHours = offsetDuration.hours();
+      const offsetMinutes = offsetDuration.minutes();
+      if (offsetMinutes >= 30) offsetHours += 1;
+      timezone = `Etc/GMT${offsetSign}${offsetHours}`;
+    }
+
+    setNewTimePrefs(timezone);
+    console.log('Defaulting to display in timezone of most recent upload at', latestUpload.normalTime, timezone);
   }
   else if (browserTimezone) {
     setNewTimePrefs(browserTimezone);

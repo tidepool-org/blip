@@ -444,7 +444,7 @@ describe('utils', () => {
     });
 
     context('Timezone provided from most recent upload', () => {
-      it('should set a valid timezone from a query param', () => {
+      it('should set a valid timezone from `latestUpload.timezone`', () => {
         expect(utils.getTimePrefsForDataProcessing(latestUpload, queryParams)).to.eql({
           timezoneAware: true,
           timezoneName: 'US/Pacific',
@@ -477,6 +477,79 @@ describe('utils', () => {
           type: 'upload',
           time: '2018-02-10T00:00:00.000Z',
           timezone: 'invalid',
+        };
+
+        const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => {
+            return { timeZone: undefined };
+          },
+        });
+
+        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+          timezoneAware: false,
+        });
+
+        DateTimeFormatStub.restore();
+      });
+    });
+
+    context('Timezone offset provided from most recent upload', () => {
+      it('should set a valid timezone from `latestUpload.timezoneOffset`', () => {
+        expect(utils.getTimePrefsForDataProcessing({
+          ...latestUpload,
+          timezone: undefined,
+          timezoneOffset: -420,
+        }, queryParams)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'Etc/GMT+7',
+        });
+
+        // should round to the nearest hour
+        expect(utils.getTimePrefsForDataProcessing({
+          ...latestUpload,
+          timezone: undefined,
+          timezoneOffset: -(420 + 29),
+        }, queryParams)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'Etc/GMT+7',
+        });
+
+        expect(utils.getTimePrefsForDataProcessing({
+          ...latestUpload,
+          timezone: undefined,
+          timezoneOffset: -(420 + 30),
+        }, queryParams)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'Etc/GMT+8',
+        });
+      });
+
+      it('should fall back to browser time when given an invalid timezone', () => {
+        const dataWithInvalidTimezone = {
+          type: 'upload',
+          time: '2018-02-10T00:00:00.000Z',
+          timezoneOffset: -1000, // Too large: will not match an Etc/GMT timezone
+        };
+
+        const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
+          resolvedOptions: () => {
+            return { timeZone: 'Europe/Budapest' };
+          },
+        });
+
+        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'Europe/Budapest',
+        });
+
+        DateTimeFormatStub.restore();
+      });
+
+      it('should fall back to timezone-naive display time when given an invalid timezone and cannot determine timezone from browser', () => {
+        const dataWithInvalidTimezone = {
+          type: 'upload',
+          time: '2018-02-10T00:00:00.000Z',
+          timezoneOffset: -1000, // Too large: will not match an Etc/GMT timezone
         };
 
         const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
