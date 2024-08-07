@@ -41,7 +41,6 @@ describe('ClinicWorkspace', () => {
     ClinicWorkspace.__Rewire__('PatientInvites', () => (<div>stubbed patient invites</div>));
     ClinicWorkspace.__Rewire__('ClinicPatients', () => (<div>stubbed clinic patients</div>));
     ClinicWorkspace.__Rewire__('Prescriptions', sinon.stub().returns('stubbed patient prescriptions'));
-    ClinicWorkspace.__Rewire__('config', { RX_ENABLED: true });
   });
 
   after(() => {
@@ -50,7 +49,6 @@ describe('ClinicWorkspace', () => {
     ClinicWorkspace.__ResetDependency__('PatientInvites');
     ClinicWorkspace.__ResetDependency__('ClinicPatients');
     ClinicWorkspace.__ResetDependency__('Prescriptions');
-    ClinicWorkspace.__ResetDependency__('config');
   });
 
   afterEach(() => {

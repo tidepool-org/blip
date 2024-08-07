@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
 import bows from 'bows';
 import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
@@ -29,6 +30,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import { Box, Flex, Text } from 'theme-ui';
 import canonicalize from 'canonicalize';
 import { sha512 } from 'crypto-hash';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -281,11 +283,20 @@ export const PrescriptionForm = props => {
   const clinics = useSelector((state) => state.blip.clinics);
   const clinic = get(clinics, selectedClinicId);
   const isPrescriber = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'PRESCRIBER');
+  const { showPrescriptions } = useFlags();
+  const ldClient = useLDClient();
+  const ldContext = ldClient.getContext();
 
   const {
     creatingPrescription,
     creatingPrescriptionRevision,
   } = useSelector((state) => state.blip.working);
+
+  useEffect(() => {
+    // Redirect to the base workspace if the LD clinic context is set and showPrescriptions flag is false
+    // and the clinic does not have the prescriptions entitlement
+    if ((clinic?.entitlements && !clinic.entitlements.prescriptions) && (ldContext?.clinic?.tier && !showPrescriptions)) dispatch(push('/clinic-workspace'));
+  }, [ldContext, showPrescriptions, selectedClinicId, clinic?.entitlements, dispatch]);
 
   useEffect(() => {
     // Schema needs to be recreated to account for conditional mins and maxes as values update

@@ -46,7 +46,6 @@ describe('ClinicAdmin', () => {
   before(() => {
     mount = createMount();
     ClinicAdmin.__Rewire__('ClinicWorkspaceHeader', sinon.stub().returns('stubbed clinic workspace header'));
-    ClinicAdmin.__Rewire__('config', { RX_ENABLED: true });
   });
 
   beforeEach(() => {
@@ -61,7 +60,6 @@ describe('ClinicAdmin', () => {
   after(() => {
     mount.cleanUp();
     ClinicAdmin.__ResetDependency__('ClinicWorkspaceHeader');
-    ClinicAdmin.__ResetDependency__('config');
   });
 
   const defaultWorkingState = {

@@ -87,6 +87,7 @@ appContext.render = async Component => {
     options: { streaming: true },
     flags: {
       'showExtremeHigh': false,
+      'showPrescriptions': false,
       'showRpmReport': false,
       'showSummaryDashboard': false,
       'showSummaryDashboardLastReviewed': false,
