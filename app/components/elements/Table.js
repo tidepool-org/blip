@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import { default as Base, TableProps } from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -7,8 +8,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import { Box, Text, BoxProps } from 'rebass/styled-components';
-import Pagination from './Pagination';
+import { Box, Text, BoxProps } from 'theme-ui';
 import map from 'lodash/map';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
@@ -17,9 +17,13 @@ import flatten from 'lodash/flatten';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import isFunction from 'lodash/isFunction';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
+import Pagination from './Pagination';
+import Pill from './Pill';
+import { radii } from '../../themes/baseTheme';
 import i18next from '../../core/language';
+
 const t = i18next.t.bind(i18next);
 
 function descendingComparator(a, b, orderBy) {
@@ -65,31 +69,35 @@ function filterData(data, fields, queryText, cb) {
 }
 
 const StyledTable = styled(Base)`
-  .MuiTableCell-head,
-  .MuiTableCell-root,
-  .MuiTableCell-body {
-    color: inherit;
-    font-size: inherit;
-    font-family: inherit;
-  }
+ && {
+   .MuiTableCell-head,
+   .MuiTableCell-root,
+   .MuiTableCell-body {
+     color: inherit;
+     font-size: inherit;
+     font-family: inherit;
+     background-clip: padding-box;
+   }
 
-  .MuiTableCell-stickyHeader {
-    color: inherit;
-  }
+   .MuiTableCell-stickyHeader {
+     color: inherit;
+   }
 
-  .MuiTableSortLabel-root {
-    color: inherit;
-  }
+   .MuiTableSortLabel-root {
+     color: inherit;
+   }
 
-  .MuiTableRow-root {
-    cursor: ${props => (isFunction(props.onClickRow) ? 'pointer' : 'auto')}
-  }
+   .MuiTableRow-root {
+     cursor: ${props => (isFunction(props.onClickRow) ? 'pointer' : 'auto')}
+   }
+ }
 `;
 
-export const Table = props => {
+export const Table = React.memo(props => {
   const {
     columns,
     data,
+    emptyContentNode,
     emptyText,
     id,
     label,
@@ -99,14 +107,24 @@ export const Table = props => {
     searchText,
     onSort,
     variant,
+    orderBy: orderByProp,
     pagination,
     paginationProps,
+    containerProps,
     ...tableProps
   } = props;
 
+  let EmptyContentNode = emptyContentNode;
+  if (!emptyContentNode && emptyText) {
+    EmptyContentNode = (
+      <Text p={3} className="table-empty-text" sx={{ color: 'text.primary', display: 'block', fontSize: 1, textAlign: 'center' }}>{emptyText}</Text>
+    );
+  }
+
   const [order, setOrder] = useState(props.order || 'asc');
-  const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
-  const [page, setPage] = React.useState(1);
+  const [orderBy, setOrderBy] = useState(orderByProp || columns[0].field);
+
+  const [page, setPage] = React.useState(props.page);
 
   const handleRequestSort = property => {
     const isAsc = orderBy === property && order === 'asc';
@@ -114,7 +132,8 @@ export const Table = props => {
     setOrderBy(property);
   };
 
-  const createSortHandler = property => () => (onSort || handleRequestSort)(property);
+  const createSortHandler = (property, field) => () =>
+    (onSort || handleRequestSort)(property, field);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
@@ -128,7 +147,7 @@ export const Table = props => {
 
   const searchFields = filter(
     flatten(map(columns, col => col.searchable && (col.searchBy || col.field))),
-    Boolean,
+    Boolean
   );
 
   const filteredData = searchText
@@ -148,11 +167,20 @@ export const Table = props => {
 
   useEffect(() => {
     setOrder(props.order);
-    setOrderBy(props.orderBy);
-  }, [props.order, props.orderBy]);
+    setOrderBy(orderByProp);
+  }, [props.order, orderByProp]);
+
+  useEffect(() => {
+    setPage(props.page);
+  }, [props.page]);
+
+  const tableCellClassNames = (col, d = {}) => cx({
+    'no-margin': col.hideEmpty && !d[col.field],
+    [col.className]: !!col.className,
+  });
 
   return (
-    <TableContainer>
+    <Box as={TableContainer} {...containerProps}>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
         <TableHead>
           <TableRow>
@@ -162,19 +190,32 @@ export const Table = props => {
 
               return (
                 <TableCell
-                  id={`${id}-header-${col.field}`}
-                  key={`${id}-header-${col.field}`}
+                  id={`${id}-header-${col.field?.replace(/\./g, '-')}`}
+                  key={`${id}-header-${col.field?.replace(/\./g, '-')}`}
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   sortDirection={orderBy === colSortBy ? order : false}
+                  className={tableCellClassNames(col, undefined)}
+                  width={col.width}
                 >
                   <Box
                     className="table-header-inner-cell"
                     as={InnerCell}
                     active={orderBy === colSortBy}
-                    direction={orderBy.split('.')[0] === colSortBy ? order : 'asc'}
-                    onClick={col.sortable ? createSortHandler(colSortBy) : noop}
+                    direction={orderBy === colSortBy ? order : col.defaultOrder || 'asc'}
+                    onClick={col.sortable ? createSortHandler(colSortBy, col.field) : noop}
                   >
-                    {col.title}
+                    {col.tag && (
+                      <Pill
+                        label={col.tag}
+                        py="1px"
+                        px="3px"
+                        sx={{ borderRadius: radii.input, fontSize: '9px', fontWeight: 'medium' }}
+                        colorPalette={['grays.4', 'white']}
+                        text={col.tag}
+                      />
+                    )}
+
+                    {col.titleComponent ? <col.titleComponent /> : col.title}
                   </Box>
                 </TableCell>
               );
@@ -198,8 +239,18 @@ export const Table = props => {
                   align={col.align || (index === 0 ? 'left' : 'right')}
                   size={get(col, 'size', 'medium')}
                   padding={get(col, 'padding', 'default')}
+                  className={tableCellClassNames(col, d)}
                 >
-                  {isFunction(col.render) ? col.render(d) : d[col.field]}
+                  {!(col.hideEmpty && !d[col.field]) && (
+                    <>
+                      {(col.titleComponent || col.title) && index > 0 && (
+                        <Text sx={{ fontSize: ['13px', '14px'], fontWeight: 'medium', display: ['block', null, 'none'] }}>
+                          {col.titleComponent ? <col.titleComponent /> : col.title}
+                        </Text>
+                      )}
+                      {isFunction(col.render) ? col.render(d) : d[col.field]}
+                    </>
+                  )}
                 </TableCell>
               ))}
             </TableRow>
@@ -207,7 +258,7 @@ export const Table = props => {
         </TableBody>
       </Box>
 
-      {pagedData.length === 0 && emptyText && <Text p={3} fontSize={1} color="text.primary" className="table-empty-text" textAlign="center">{emptyText}</Text>}
+      {pagedData.length === 0 && EmptyContentNode && React.cloneElement(EmptyContentNode, {})}
 
       {pagination && <Pagination
         id={`${id}-pagination`}
@@ -220,9 +271,9 @@ export const Table = props => {
         my={3}
         {...paginationProps}
       />}
-    </TableContainer>
+    </Box>
   );
-};
+});
 
 Table.propTypes = {
   ...TableProps,
@@ -238,9 +289,12 @@ Table.propTypes = {
     render: PropTypes.func,
     size: PropTypes.string,
     padding: PropTypes.string,
+    hideEmpty: PropTypes.bool,
+    tag: PropTypes.string,
   })).isRequired,
   data: PropTypes.array.isRequired,
   emptyText: PropTypes.string,
+  emptyContentNode: PropTypes.node,
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   onClickRow: PropTypes.func,
@@ -255,6 +309,7 @@ Table.propTypes = {
   onSort: PropTypes.func,
   stickyHeader: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'condensed']),
+  containerProps: PropTypes.object,
 };
 
 Table.defaultProps = {
@@ -265,6 +320,7 @@ Table.defaultProps = {
   paginationProps: {
     style: { fontSize: '14px' },
   },
+  containerProps: {},
 };
 
 export default Table;

@@ -23,8 +23,8 @@ import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate, Trans } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { withTranslation, Trans } from 'react-i18next';
+import { Box, Flex } from 'theme-ui';
 
 import Stats from './stats';
 import DeviceSelection from './deviceSelection';
@@ -37,7 +37,8 @@ import Checkbox from '../elements/Checkbox';
 import { colors } from '../../themes/baseTheme';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
-const Loader = vizComponents.Loader;
+const { ClipboardButton, Loader } = vizComponents;
+const { bgLogText } = vizUtils.text;
 const { getLocalizedCeiling } = vizUtils.datetime;
 
 import Header from './header';
@@ -138,11 +139,9 @@ class BgLogChart extends Component {
   };
 
   render = () => {
-    /* jshint ignore:start */
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
     );
-    /* jshint ignore:end */
   };
 
   // handlers
@@ -243,9 +242,13 @@ class BgLog extends Component {
     let renderedContent;
 
     const checkboxStyles = {
-      themeProps: { color: 'stat.text' },
-      backgroundColor: 'white',
+      themeProps: {
+        mb: 0,
+        sx: { color: 'stat.text' },
+        backgroundColor: 'inherit',
+      },
       sx: {
+        backgroundColor: 'white',
         boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
         color: colors.grays[2],
       },
@@ -264,14 +267,23 @@ class BgLog extends Component {
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {renderedContent}
 
-              <Flex mt={4} mb={5} pl="50px" pr="30px" alignItems="center" justifyContent="space-between">
+              <Flex
+                mt={4}
+                mb={5}
+                pl="50px"
+                pr="30px"
+                sx={{
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {t('Refresh')}
                 </Button>
 
                 <Flex
                   variant="inputs.checkboxGroup.horizontal"
-                  alignItems="center"
+                  sx={{ alignItems: 'center' }}
                   bg="lightestGrey"
                   px={3}
                   py={2}
@@ -289,6 +301,13 @@ class BgLog extends Component {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
+              <Box mb={2}>
+                <ClipboardButton
+                  buttonTitle={t('For email or notes')}
+                  onSuccess={this.handleCopyBgLogClicked}
+                  getText={bgLogText.bind(this, this.props.patient, this.props.data, this.props.stats)}
+                />
+              </Box>
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
@@ -526,6 +545,10 @@ class BgLog extends Component {
     }
     this.setState({showingValues: !this.state.showingValues});
   };
+
+  handleCopyBgLogClicked = () => {
+    this.props.trackMetric('Clicked Copy Settings', { source: 'BG Log' });
+  };
 }
 
-export default translate()(BgLog);
+export default withTranslation()(BgLog);

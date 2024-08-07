@@ -43,6 +43,7 @@ import {
   showingWelcomeMessage,
   showingDonateBanner,
   showingDexcomConnectBanner,
+  showingPatientLimitBanner,
   showingShareDataBanner,
   seenShareDataBannerMax,
   showingUpdateTypeBanner,
@@ -57,6 +58,11 @@ import {
   pendingSentClinicianInvites,
   pendingReceivedClinicianInvites,
   clinicFlowActive,
+  keycloakConfig,
+  tideDashboardPatients,
+  rpmReportPatients,
+  ssoEnabledDisplay,
+  pendoData,
 } from './misc';
 
 export default combineReducers({
@@ -82,6 +88,7 @@ export default combineReducers({
   showingWelcomeMessage,
   showingDonateBanner,
   showingDexcomConnectBanner,
+  showingPatientLimitBanner,
   showingShareDataBanner,
   seenShareDataBannerMax,
   showingUpdateTypeBanner,
@@ -96,7 +103,12 @@ export default combineReducers({
   pendingSentClinicianInvites,
   pendingReceivedClinicianInvites,
   clinicFlowActive,
+  keycloakConfig,
+  tideDashboardPatients,
+  rpmReportPatients,
+  ssoEnabledDisplay,
   pdf,
   data,
   working,
+  pendoData,
 });

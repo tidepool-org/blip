@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import get from 'lodash/get';
 
 import Toast from '../components/elements/Toast';
@@ -14,11 +14,12 @@ export function ToastProvider({ children }) {
     setOpen(get(toast, 'open', !!toast));
   }, [toast]);
 
-  const set = toast => setToast(toast);
-  const clear = () => setToast(null);
+  const set = useCallback(toast => setToast(toast), []);
+  const clear = useCallback(() => setToast(null), []);
+  const value = useMemo(() => ({set,clear}), [clear, set]);
 
   return (
-    <ToastContext.Provider value={{ set, clear }}>
+    <ToastContext.Provider value={value}>
       {children}
       {toast && <Toast onClose={clear} open={open} {...toast}/>}
     </ToastContext.Provider>

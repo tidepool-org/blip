@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Flex, Box, Text, BoxProps } from 'rebass/styled-components';
-import { Label, Input as Base, InputProps } from '@rebass/forms/styled-components';
+import styled from '@emotion/styled';
+import { Flex, Box, BoxProps, Text, Label, Input as Base, InputProps } from 'theme-ui';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
-import { shadows } from '../../themes/baseTheme';
-
+import { fontWeights, shadows } from '../../themes/baseTheme';
 
 const StyledWrapper = styled(Flex)`
   position: relative;
@@ -24,9 +22,10 @@ const StyledWrapper = styled(Flex)`
   }
 `;
 
-export const TextInput = (props) => {
+export function TextInput(props) {
   const {
     label,
+    hideLabel,
     name,
     width = ['100%', '75%', '50%'],
     icon,
@@ -41,19 +40,38 @@ export const TextInput = (props) => {
     placeholder,
     error,
     warning,
+    description,
+    captionProps,
+    className = {},
+    sx = {},
     ...inputProps
   } = props;
 
   const inputClasses = cx({
+    ...className,
     error,
     required,
     warning: !error && warning,
   });
   return (
-    <Box width={width} {...themeProps}>
+    <Box sx={{ width, ...sx }} {...themeProps}>
       {label && (
-        <Label htmlFor={name}>
-          <Caption className={inputClasses}>{label}</Caption>
+        <Label
+          htmlFor={name}
+          sx={{
+            visibility: hideLabel ? 'hidden' : 'visible',
+            display: hideLabel ? ['none !important', 'block !important'] : 'block',
+          }}
+        >
+          <Caption
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1
+            }}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
       <StyledWrapper variant={`inputs.text.${variant}`}>
@@ -79,19 +97,15 @@ export const TextInput = (props) => {
         )}
         {suffix && <Text className="suffix">{suffix}</Text>}
       </StyledWrapper>
-      {error && (
-        <Caption ml={2} mt={2} className={inputClasses}>
-          {error}
-        </Caption>
-      )}
-      {!error && warning && (
-        <Caption ml={2} mt={2} className={inputClasses}>
-          {warning}
+
+      {(error || warning || description) && (
+        <Caption ml={2} mt={2} className={inputClasses} {...captionProps}>
+          {error || warning || description}
         </Caption>
       )}
     </Box>
   );
-};
+}
 
 TextInput.propTypes = {
   ...InputProps,
@@ -102,6 +116,7 @@ TextInput.propTypes = {
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   label: PropTypes.string,
+  hideLabel: PropTypes.bool,
   onClickIcon: PropTypes.func,
   prefix: PropTypes.string,
   suffix: PropTypes.string,
@@ -112,7 +127,7 @@ TextInput.propTypes = {
   themeProps: PropTypes.shape(BoxProps),
   variant: PropTypes.oneOf(['default', 'condensed']),
   required: PropTypes.bool,
-  error: PropTypes.string,
+  error: PropTypes.node,
   warning: PropTypes.string,
 };
 

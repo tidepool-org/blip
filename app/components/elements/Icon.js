@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Box, BoxProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Box, BoxProps } from 'theme-ui';
 import cx from 'classnames';
 
 import { transitions } from '../../themes/baseTheme';
@@ -19,13 +19,19 @@ const StyledIcon = styled(Box)`
   .MuiSvgIcon-root {
     font-size: inherit;
   }
+
+  .icon-custom-svg {
+    width: 100%;
+    height: 'auto';
+  }
 `;
 
-export const Icon = props => {
+export function Icon(props) {
   const {
     active,
     cursor = 'pointer',
     icon: IconElement,
+    iconSrc,
     innerRef,
     label,
     variant,
@@ -50,16 +56,17 @@ export const Icon = props => {
       ref={innerRef}
       {...buttonProps}
     >
-      <IconElement />
+      {iconSrc ? <img className="icon-custom-svg" src={iconSrc} /> : <IconElement />}
     </StyledIcon>
   );
-};
+}
 
 Icon.propTypes = {
   ...BoxProps,
   active: PropTypes.bool,
   disabled: PropTypes.bool,
-  icon: PropTypes.elementType.isRequired,
+  icon: PropTypes.elementType,
+  iconSrc: PropTypes.string,
   innerRef: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.any }),

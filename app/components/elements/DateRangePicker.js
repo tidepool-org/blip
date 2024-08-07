@@ -6,9 +6,8 @@ import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded'
 import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import noop from 'lodash/noop';
-import styled from 'styled-components';
-import { Label } from '@rebass/forms';
-import { Box, BoxProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Label, Box, BoxProps } from 'theme-ui';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
@@ -18,6 +17,8 @@ import { Icon } from './Icon';
 import {
   default as baseTheme,
   colors,
+  fontSizes,
+  fontWeights,
   radii,
   shadows,
   space,
@@ -26,20 +27,22 @@ import {
 const StyledDateRangePicker = styled(StyledDatePickerBase)`
   .DateRangePickerInput {
     border-radius: ${radii.input}px;
-    border-color: ${colors.borderColor};
+    border-color: ${colors.border.inputLight};
 
     .DateInput {
       border-radius: ${radii.input}px;
 
       input {
         border-radius: ${radii.input}px;
+        font-size: ${fontSizes[1]}px;
+        padding: ${space[2]}px;
       }
     }
   }
 
   .DateRangePicker_picker {
     box-shadow: ${shadows.small};
-    margin-top: ${space[3]}px;
+    margin-top: ${space[2]}px;
   }
 
   .DateRangePickerInput_clearDates {
@@ -76,19 +79,27 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
       border-radius: 0;
     }
 
-    &.CalendarDay__blocked_out_of_range {
+    &.CalendarDay__blocked_out_of_range,
+    &.CalendarDay__blocked_out_of_range:hover {
       background-color: ${colors.lightestGrey};
       color: ${colors.blueGreyLight};
+      border-radius: 0;
+    }
+
+    &.CalendarDay__blocked_calendar,
+    &.CalendarDay__blocked_calendar:hover {
+      background-color: ${colors.lightGrey};
+      color: ${colors.blueGreyMedium};
       border-radius: 0;
     }
   }
 `;
 
-export const DateRangePicker = props => {
+export function DateRangePicker(props) {
   const {
     startDate,
     endDate,
-    error,
+    errors = {},
     focusedInput: focusedInputProp,
     label,
     onDatesChange,
@@ -106,7 +117,7 @@ export const DateRangePicker = props => {
   }, [startDate, endDate]);
 
   const inputClasses = cx({
-    error,
+    error: !!(errors.startDate || errors.endDate),
     required,
   });
 
@@ -114,7 +125,15 @@ export const DateRangePicker = props => {
     <Box as={StyledDateRangePicker} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption className={inputClasses}>{label}</Caption>
+          <Caption
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1,
+            }}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
       <DateRangePickerBase
@@ -127,9 +146,9 @@ export const DateRangePicker = props => {
           onDatesChange(newDates);
         }}
         focusedInput={focusedInput}
-        onFocusChange={newFocusedInput => {
-          setFocusedInput(newFocusedInput);
-          onFocusChange(newFocusedInput);
+        onFocusChange={selectedFocusedInput => {
+          setFocusedInput(selectedFocusedInput);
+          onFocusChange(selectedFocusedInput);
         }}
         numberOfMonths={2}
         displayFormat="MMM D, YYYY"
@@ -143,14 +162,30 @@ export const DateRangePicker = props => {
         showClearDates
         {...datePickerProps}
       />
-      {error && (
-        <Caption ml={2} mt={2} className={inputClasses}>
-          {error}
-        </Caption>
+      {(errors.startDate || errors.endDate) && (
+        <Box ml={2} mt={2}>
+          {errors.startDate && (
+            <Caption
+              lineHeight={3}
+              className={inputClasses}
+            >
+              {errors.startDate}
+            </Caption>
+          )}
+
+          {errors.endDate && (
+            <Caption
+              lineHeight={3}
+              className={inputClasses}
+            >
+              {errors.endDate}
+            </Caption>
+          )}
+        </Box>
       )}
     </Box>
   );
-};
+}
 
 DateRangePicker.propTypes = {
   ...DateRangePickerShape,

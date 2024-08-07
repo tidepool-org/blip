@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Flex } from 'rebass/styled-components'
-import { translate } from 'react-i18next';
+import { Flex, Box } from 'theme-ui'
+import { withTranslation } from 'react-i18next';
 import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
-
 import _ from 'lodash';
 
 import personUtils from '../../core/personutils';
@@ -12,9 +11,10 @@ import NavbarPatientCard from '../navbarpatientcard';
 import WorkspaceSwitcher from '../clinic/WorkspaceSwitcher';
 import NavigationMenu from './NavigationMenu';
 import Button from '../elements/Button';
+import tidepoolLogo from './images/tidepoolLogo.svg';
+import tidepoolPlusLogo from './images/tidepool+Logo.svg';
 
-import logoSrc from './images/tidepool-logo-408x46.png';
-export default translate()(class extends React.Component {
+export default withTranslation()(class extends React.Component {
   static propTypes = {
     clinicFlowActive: PropTypes.bool,
     clinics: PropTypes.array,
@@ -35,22 +35,42 @@ export default translate()(class extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
-    const patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
-    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage);
+    const { t, query } = this.props;
+    let patientListLink = this.props.clinicFlowActive && this.props.selectedClinicId ? '/clinic-workspace/patients' : '/patients';
+    if (query?.dashboard) patientListLink = `/dashboard/${query.dashboard}`;
+
+    const linkText = query?.dashboard
+      ? t('Back to Dashboard')
+      : t('Back to Patient List');
+
+    const isDashboardView = /^\/dashboard\//.test(this.props.currentPage);
+
+    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && (
+      /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage) ||
+      isDashboardView
+    );
 
     return (
       <>
         <Flex
           className="Navbar"
-          flexWrap="wrap"
-          justifyContent={['center', 'space-between']}
-          alignItems="center"
-          sx={{ minHeight: '60px' }}
+          sx={{
+            flexWrap: 'wrap',
+            justifyContent: ['center', 'space-between'],
+            alignItems: 'center',
+          }}
         >
-          {this.renderLogoSection()}
-          {this.renderMiddleSection()}
-          {this.renderMenuSection()}
+          <Box sx={{ flex: 1, minWidth: ['100%', '100%', '33%'] }} py={[3, 3, 4]}>
+            {this.renderLogoSection()}
+          </Box>
+
+          <Box sx={{ order: [3, 2], flex: 1, minWidth: ['100%', '50%', '33%'] }} py={1}>
+            {this.renderMiddleSection()}
+          </Box>
+
+          <Box sx={{ order: [2, 3], flex: 1, minWidth: ['100%', '50%', '33%'] }} py={1}>
+            {this.renderMenuSection()}
+          </Box>
         </Flex>
 
         {showPatientListLink && (
@@ -62,11 +82,11 @@ export default translate()(class extends React.Component {
               id="patientListLink"
               onClick={() => this.props.trackMetric('Clinic - View patient list', {
                 clinicId: this.props.selectedClinicId,
-                source: 'Patient data',
+                source: isDashboardView ? 'Dashboard' : 'Patient data',
               })}
               sx={{ display: 'inline-flex !important' }}
             >
-              {t('Back to Patient List')}
+              {linkText}
             </Button>
           </Link>
         )}
@@ -76,9 +96,9 @@ export default translate()(class extends React.Component {
 
   renderLogoSection = () => {
     return (
-      <div className="Navbar-logoSection">
+      <Flex className="Navbar-logoSection" sx={{ justifyContent: ['center', 'flex-start'] }}>
         {this.renderLogo()}
-      </div>
+      </Flex>
     );
   };
 
@@ -89,8 +109,10 @@ export default translate()(class extends React.Component {
     };
 
     let linkDisabled = false;
+    let logo = tidepoolLogo;
 
     if (this.props.clinicFlowActive) {
+      logo = tidepoolPlusLogo
       const userClinics = _.filter(_.values(this.props.clinics), ({ clinicians }) => _.has(clinicians, _.get(this.props, 'user.userid')));
       // Disable logo link if the clinician is only a member of a single clinic,
       // or is not on a clinic workspace tab, the private workspace, or the account settings page
@@ -103,7 +125,7 @@ export default translate()(class extends React.Component {
         to="/"
         className="Navbar-logo"
         onClick={handleClick}>
-        <img src={logoSrc}/>
+        <img src={logo}/>
       </Link>
     );
   };
@@ -126,17 +148,16 @@ export default translate()(class extends React.Component {
           '/clinic-admin',
           '/prescriptions',
           '/clinic-invite',
+          '/clinic-profile',
           '/clinic-workspace',
           '/clinic-workspace/patients',
           '/clinic-workspace/invites',
           '/clinic-workspace/prescriptions',
-          '/clinician-edit'
+          '/clinician-edit',
         ], this.props.currentPage) && personUtils.isClinicianAccount(this.props.user)
       ) {
         return (
-          <Flex flex={1} alignItems="center" justifyContent="center">
-            <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
-          </Flex>
+          <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
         );
       }
       return <div className="Navbar-patientSection"></div>;
@@ -194,9 +215,7 @@ export default translate()(class extends React.Component {
     };
 
     return (
-      <Flex flex={1} justifyContent="flex-end">
         <NavigationMenu api={this.props.api} trackMetric={this.props.trackMetric} />
-      </Flex>
     );
   };
 

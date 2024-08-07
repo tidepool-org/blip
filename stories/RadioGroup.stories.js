@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, boolean, text, optionsKnob as options } from '@storybook/addon-knobs';
-import { ThemeProvider } from 'styled-components';
+
+import { boolean, text, optionsKnob as options } from '@storybook/addon-knobs';
+import { ThemeProvider } from '@emotion/react';
 import mapValues from 'lodash/mapValues';
 import keyBy from 'lodash/keyBy';
 
 import baseTheme from '../app/themes/baseTheme';
 import RadioGroup from '../app/components/elements/RadioGroup';
 
-const withTheme = Story => (
+const withTheme = (Story) => (
   <ThemeProvider theme={baseTheme}>
     <Story />
   </ThemeProvider>
@@ -16,56 +16,59 @@ const withTheme = Story => (
 
 export default {
   title: 'Radios',
-  decorators: [withDesign, withKnobs, withTheme],
+  decorators: [withTheme],
 };
 
-export const RadioGroupStory = () => {
-  const radioOptions = [
-    { value: '', label: 'None' },
-    { value: 'one', label: 'One' },
-    { value: 'two', label: 'Two' },
-    { value: 'three', label: 'Three' },
-  ];
+export const RadioGroupStory = {
+  render: () => {
+    const radioOptions = [
+      { value: '', label: 'None' },
+      { value: 'one', label: 'One' },
+      { value: 'two', label: 'Two' },
+      { value: 'three', label: 'Three' },
+    ];
 
-  const knobOptions = mapValues(keyBy(radioOptions, 'label'), 'value');
+    const knobOptions = mapValues(keyBy(radioOptions, 'label'), 'value');
 
-  const label = () => text('Label', 'Group Label');
-  const defaultValue = () => options('Default Value', knobOptions, 'two', { display: 'inline-radio' });
-  const disabled = () => boolean('Disabled', false);
-  const error = () => boolean('Errored', false);
-  const required = () => boolean('Required', false);
+    const label = () => text('Label', 'Group Label');
+    const defaultValue = () =>
+      options('Default Value', knobOptions, 'two', { display: 'inline-radio' });
+    const disabled = () => boolean('Disabled', false);
+    const error = () => boolean('Errored', false);
+    const required = () => boolean('Required', false);
 
-  const orientations = {
-    Horizontal: 'horizontal',
-    Vertical: 'vertical',
-  };
+    const orientations = {
+      Horizontal: 'horizontal',
+      Vertical: 'vertical',
+    };
 
-  const orientation = () => options('Orientation', orientations, 'vertical', { display: 'inline-radio' });
+    const orientation = () =>
+      options('Orientation', orientations, 'vertical', { display: 'inline-radio' });
 
-  const [selected, setSelected] = useState(defaultValue());
+    const [selected, setSelected] = useState(defaultValue());
 
-  const handleChange = event => {
-    setSelected(event.target.value);
-  };
+    const handleChange = (event) => {
+      setSelected(event.target.value);
+    };
 
-  return (
-    <RadioGroup
-      disabled={disabled()}
-      id="my-radio-group"
-      label={label()}
-      name="mySelect"
-      options={radioOptions}
-      value={selected}
-      onChange={handleChange}
-      variant={orientation()}
-      required={required()}
-      error={error() ? 'Invalid selection' : null}
-    />
-  );
-};
+    return (
+      <RadioGroup
+        disabled={disabled()}
+        id="my-radio-group"
+        label={label()}
+        name="mySelect"
+        options={radioOptions}
+        value={selected}
+        onChange={handleChange}
+        variant={orientation()}
+        required={required()}
+        error={error() ? 'Invalid selection' : null}
+      />
+    );
+  },
 
-RadioGroupStory.story = {
   name: 'Radio Group',
+
   parameters: {
     design: {
       type: 'figma',

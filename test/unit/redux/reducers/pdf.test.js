@@ -55,6 +55,70 @@ describe('pdf reducer', () => {
     });
   });
 
+  describe('GENERATE_AGP_IMAGES_REQUEST', () => {
+    it('should merge the payload to state', () => {
+      const payload = {
+        query: 'someQuery',
+        data: 'someData',
+      };
+
+      const initialState = { existing: 'existingState' };
+      const tracked = mutationTracker.trackObj(initialState);
+
+      expect(reducer(initialState, {
+        type: actionTypes.GENERATE_AGP_IMAGES_REQUEST,
+        payload,
+      })).to.deep.equal({
+        existing: 'existingState',
+        query: 'someQuery',
+        data: 'someData',
+      });
+
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
+  describe('GENERATE_AGP_IMAGES_SUCCESS', () => {
+    it('should merge the payload.images to state.opts.svgDataURLS', () => {
+      const payload = {
+        images: 'someImages',
+      };
+
+      const initialState = { opts: { patient: 'somePatient' } };
+      const tracked = mutationTracker.trackObj(initialState);
+
+      expect(reducer(initialState, {
+        type: actionTypes.GENERATE_AGP_IMAGES_SUCCESS,
+        payload,
+      })).to.deep.equal({
+        opts: {
+          patient: 'somePatient',
+          svgDataURLS: 'someImages'
+        },
+      });
+
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
+  describe('GENERATE_AGP_IMAGES_FAILURE', () => {
+    it('should reset to the initial state of {}', () => {
+      const pdfObject = {
+        url: 'someUrl',
+        blob: 'someBlob',
+      };
+
+      const initialState = { bgLog: pdfObject };
+      const tracked = mutationTracker.trackObj(initialState);
+
+      expect(reducer(initialState, {
+        type: actionTypes.GENERATE_AGP_IMAGES_FAILURE,
+      })).to.deep.equal({});
+
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
   describe('REMOVE_GENERATED_PDFS', () => {
     it('should reset to the initial state of {}', () => {
       const pdfObject = {

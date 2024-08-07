@@ -24,6 +24,7 @@ dist/
 config/*
 !config/local.sh
 !config/local.example.js
+!config/startLocal.sh
 test/bin
 web/
 artifact_node.sh
@@ -42,3 +43,12 @@ locales/*/*_old.json
 
 # npm-link-up
 .nlu.json
+
+# yarn (ref https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored)
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

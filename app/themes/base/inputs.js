@@ -69,7 +69,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     border: 0,
     borderRadius: 0,
     color: colors.text.primary,
-    fontSize: fontSizes[1],
+    fontSize: 'inherit',
   };
 
   const checkboxes = {
@@ -78,7 +78,6 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     borderRadius: 0,
     color: colors.text.primary,
     width: 'auto',
-    marginBottom: 2,
     alignItems: 'center',
     fontSize: fontSizes[1],
     fontWeight: fontWeights.medium,
@@ -160,6 +159,29 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           marginRight: `${space[2]}px`,
         },
       },
+      ultraCondensed: {
+        ...textInputs,
+        fontSize: fontSizes[0],
+        input: {
+          ...textInputs.input,
+          padding: `${space[1]}px ${space[1] * 1.5}px`,
+          border: 'none',
+          '&:focus': {
+            outline: 'none',
+            border: 'none',
+          },
+          '&[type="time"]': {
+            paddingTop: `calc(${space[1]}px - 1px)`,
+            paddingBottom: `calc(${space[1]}px - 1px)`,
+          },
+        },
+        '.prefix': {
+          marginLeft: `${space[1]}px`,
+        },
+        '.suffix, .icon': {
+          marginRight: `${space[1]}px`,
+        },
+      },
     },
     select: {
       default: {
@@ -172,6 +194,21 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
         ...selects,
         select: {
           padding: `${space[2]}px`,
+        },
+      },
+      multi: {
+        ...selects,
+      },
+      ultraCondensed: {
+        ...selects,
+        fontSize: fontSizes[0],
+        select: {
+          px: `${space[2]}px`,
+          py: `${space[0]}px`,
+        },
+        '.MuiSvgIcon-root': {
+          right: `${space[1]}px !important`,
+          fontSize: '1rem',
         },
       },
     },

@@ -13,13 +13,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+/* global __LAUNCHDARKLY_CLIENT_TOKEN__ */
+
 import React from 'react';
 import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
+import { asyncWithLDProvider } from 'launchdarkly-react-client-sdk';
 
 import './core/language'; // Set the language before loading components
 import blipCreateStore from './redux/store';
+import { ldContext } from './redux/utils/launchDarklyMiddleware';
 
 import { getRoutes } from './routes';
 
@@ -41,11 +45,11 @@ export let appContext = {
   config: config
 };
 
-// This anonymous function must remain in ES5 format because
-// the argument parameter used is not bound when using arrow functions
-// See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
-appContext.trackMetric = function() {
-  const args = Array.prototype.slice.call(arguments);
+appContext.trackMetric = (...args) => {
+  let selectedClinicId = appContext.store?.getState()?.blip?.selectedClinicId;
+  if (selectedClinicId) {
+    _.defaultsDeep(args, [, { clinicId: selectedClinicId }]);
+  }
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };
 
@@ -76,13 +80,28 @@ appContext.init = callback => {
   beginInit();
 };
 
-appContext.render = Component => {
+appContext.render = async Component => {
+  const LDProvider = await asyncWithLDProvider({
+    clientSideID: __LAUNCHDARKLY_CLIENT_TOKEN__,
+    context: ldContext,
+    options: { streaming: true },
+    flags: {
+      'showExtremeHigh': false,
+      'showRpmReport': false,
+      'showSummaryDashboard': false,
+      'showSummaryDashboardLastReviewed': false,
+      'showTideDashboard': false,
+      'showTideDashboardLastReviewed': false,
+    },
+  });
+
   render(
-    <Component store={appContext.store} routing={appContext.routing} />,
+    <LDProvider>
+      <Component store={appContext.store} routing={appContext.routing} />,
+    </LDProvider>,
     document.getElementById('app'),
   );
 };
-
 
 /**
  * Application start function. This is what should be called

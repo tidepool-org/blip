@@ -15,7 +15,7 @@
 
 @browser-warning-zindex:       @zindex-overlay-background;
 @browser-warning-text-zindex:  @zindex-overlay;
-@browser-warning-box-width:    530px;
+@browser-warning-box-width:    540px;
 
 .browser-warning {
   background: #fff;
@@ -82,6 +82,7 @@
     border-radius: 8px;
     border: none;
     margin: 0 auto 20px;
+    display: block;
   }
 
   .browser-warning-download-text {
@@ -99,8 +100,18 @@
     background: url('./images/chrome-logo.svg') no-repeat;
     width: 100px;
     height: 100px;
-    margin: 0 auto 16px;
+    margin: 0 5px 16px auto;
     background-size: cover;
+    display: inline-block;
+  }
+
+  .browser-warning-edge-image {
+    background: url('./images/edge-logo.svg') no-repeat;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 16px 5px;
+    background-size: cover;
+    display: inline-block;
   }
 
   .browser-warning-mobile {

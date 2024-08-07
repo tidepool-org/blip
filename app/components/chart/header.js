@@ -2,17 +2,18 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 
 import Icon from '../elements/Icon';
 
-const Header = translate()(class Header extends Component {
+const Header = withTranslation()(class Header extends Component {
   static propTypes = {
     patient: PropTypes.object,
     title: PropTypes.string.isRequired,
     chartType: PropTypes.string.isRequired,
+    chartPrefs: PropTypes.object,
     inTransition: PropTypes.bool.isRequired,
     atMostRecent: PropTypes.bool.isRequired,
     iconBack: PropTypes.string,
@@ -36,9 +37,6 @@ const Header = translate()(class Header extends Component {
 
   renderStandard = () => {
     const { t } = this.props;
-
-    const printViews = ['basics', 'daily', 'bgLog', 'settings'];
-    const showPrintLink = _.includes(printViews, this.props.chartType);
 
     const basicsLinkClass = cx({
       'js-basics': true,
@@ -116,7 +114,7 @@ const Header = translate()(class Header extends Component {
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
       'patient-data-subnav-active': false,
-      'patient-data-subnav-hidden': !showPrintLink,
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
     return (

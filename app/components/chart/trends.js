@@ -7,8 +7,8 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
+import { withTranslation } from 'react-i18next';
+import { Flex } from 'theme-ui';
 
 import Header from './header';
 import SubNav from './trendssubnav';
@@ -37,7 +37,7 @@ const {
   FocusedSMBGPointLabel,
 } = vizComponents;
 
-const Trends = translate()(class Trends extends PureComponent {
+const Trends = withTranslation()(class Trends extends PureComponent {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
@@ -46,6 +46,7 @@ const Trends = translate()(class Trends extends PureComponent {
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
     onClickRefresh: PropTypes.func.isRequired,
+    onClickPrint: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
@@ -78,6 +79,7 @@ const Trends = translate()(class Trends extends PureComponent {
     this.getTitle = this.getTitle.bind(this);
     this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleClickBack = this.handleClickBack.bind(this);
+    this.handleClickPrint = this.handleClickPrint.bind(this);
     this.handleClickDaily = this.handleClickDaily.bind(this);
     this.handleClickForward = this.handleClickForward.bind(this);
     this.handleClickFourWeeks = this.handleClickFourWeeks.bind(this);
@@ -146,7 +148,7 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   handleWindowResize(windowSize) {
-    this.refs.chart.mountData();
+    this.refs.chart?.mountData();
   }
 
   handleClickBack(e) {
@@ -257,6 +259,14 @@ const Trends = translate()(class Trends extends PureComponent {
     const datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToBgLog(datetime);
   }
+
+  handleClickPrint = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickPrint(this.props.pdf);
+  };
 
   handleDatetimeLocationChange(datetimeLocationEndpoints) {
     this.setState({
@@ -448,17 +458,18 @@ const Trends = translate()(class Trends extends PureComponent {
 
     const checkboxStyles = {
       themeProps: {
-        color: 'stat.text',
         mr: 3,
+        mb: 0,
         sx: {
+          color: 'stat.text',
           '&:last-child': { marginRight: 0 },
           backgroundColor: 'inherit',
           display: 'inline-flex !important',
           lineHeight: '1em',
         }
       },
-      backgroundColor: 'white',
       sx: {
+        backgroundColor: 'white',
         boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
         color: colors.grays[2],
       },
@@ -476,14 +487,14 @@ const Trends = translate()(class Trends extends PureComponent {
                 {dataQueryComplete && this.renderChart()}
               </div>
 
-              <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" alignItems="center" justifyContent="space-between">
+              <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" sx={{alignItems: 'center', justifyContent: 'space-between' }}>
                 <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
                   {t('Refresh')}
                 </Button>
 
                 <Flex
                   variant="inputs.checkboxGroup.horizontal"
-                  alignItems="center"
+                  sx={{ alignItems: 'center' }}
                   bg="lightestGrey"
                   px={3}
                   py={2}
@@ -561,17 +572,19 @@ const Trends = translate()(class Trends extends PureComponent {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-              <ClipboardButton
-                buttonTitle={t('For email or notes')}
-                onSuccess={this.handleCopyTrendsClicked}
-                getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
-              />
-              <BgSourceToggle
-                bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
-                chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                onClickBgSourceToggle={this.toggleBgDataSource}
-              />
+              <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <ClipboardButton
+                  buttonTitle={t('For email or notes')}
+                  onSuccess={this.handleCopyTrendsClicked}
+                  getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
+                />
+                <BgSourceToggle
+                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  onClickBgSourceToggle={this.toggleBgDataSource}
+                />
+              </Flex>
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
@@ -599,6 +612,7 @@ const Trends = translate()(class Trends extends PureComponent {
     return (
       <Header
         chartType={this.chartType}
+        chartPrefs={this.props.chartPrefs}
         patient={this.props.patient}
         inTransition={this.state.inTransition}
         atMostRecent={this.isAtMostRecent()}
@@ -614,6 +628,7 @@ const Trends = translate()(class Trends extends PureComponent {
         onClickOneDay={this.handleClickDaily}
         onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
+        onClickPrint={this.handleClickPrint}
         ref="header" />
     );
   }

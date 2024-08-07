@@ -67,7 +67,7 @@ describe('ClinicianPatients', () => {
       },
       access: {
         leaveGroup: sinon.stub(),
-      }
+      },
     },
   };
 
@@ -115,10 +115,13 @@ describe('ClinicianPatients', () => {
       loggedInUserId,
       allUsersMap: { clinicianUserId123 },
       working: {
+        updatingClinicPatient: defaultWorkingState,
         fetchingAssociatedAccounts: completedState,
         removingMembershipInOtherCareTeam: defaultWorkingState,
         updatingPatient: defaultWorkingState,
         creatingVCACustodialAccount: defaultWorkingState,
+        sendingPatientDexcomConnectRequest: defaultWorkingState,
+        fetchingPatientsForClinic: defaultWorkingState,
       },
     },
   };
@@ -151,7 +154,7 @@ describe('ClinicianPatients', () => {
         </Provider>
       );
 
-      wrapper.find('button#patients-view-toggle').simulate('click');
+      wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
       defaultProps.trackMetric.resetHistory();
     });
 
@@ -164,7 +167,7 @@ describe('ClinicianPatients', () => {
 
     it('should open a modal for adding a new patient', done => {
       const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add a New Patient');
+      expect(addButton.text()).to.equal('Add New Patient');
 
       const dialog = () => wrapper.find('Dialog#addPatient');
 
@@ -196,6 +199,9 @@ describe('ClinicianPatients', () => {
       patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
       expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
 
+      // should not show the dexcom connection section
+      expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
+
       store.clearActions();
       dialog().find('Button#addPatientConfirm').simulate('click');
 
@@ -225,6 +231,47 @@ describe('ClinicianPatients', () => {
         done();
       }, 0);
     });
+
+    it('should prevent adding a new patient with an invalid birthday', () => {
+      const addButton = wrapper.find('button#add-patient');
+      expect(addButton.text()).to.equal('Add New Patient');
+
+      const dialog = () => wrapper.find('Dialog#addPatient');
+
+      expect(dialog()).to.have.length(0);
+      addButton.simulate('click');
+      wrapper.update();
+      expect(dialog()).to.have.length(1);
+      expect(dialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinician - Add patient')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const patientForm = () => dialog().find('form#clinic-patient-form');
+      expect(patientForm()).to.have.lengthOf(1);
+
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
+      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '13/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('13/21/1999');
+
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '123456' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('123456');
+
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
+      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+
+      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+    });
   });
 
   context('has patients', () => {
@@ -242,26 +289,26 @@ describe('ClinicianPatients', () => {
 
     describe('showNames', function () {
       it('should show a row of data for each person', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         // 2 people plus one row for the header
         expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
       });
 
       it('should trigger a call to trackMetric', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(defaultProps.trackMetric.calledWith('Clicked Show All')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
       it('should not have instructions displayed', function () {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
       });
     });
 
     context('show names clicked', () => {
       beforeEach(() => {
-        wrapper.find('button#patients-view-toggle').simulate('click');
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         defaultProps.trackMetric.resetHistory();
       });
 
@@ -297,7 +344,7 @@ describe('ClinicianPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientName = table.find('tr').at(1).find('th').find('div').at(1).hostNodes();
+        const firstPatientName = table.find('tr').at(1).find('th').find('span').at(0).hostNodes();
         expect(firstPatientName.text()).contains('Patient One');
 
         store.clearActions();
@@ -315,7 +362,7 @@ describe('ClinicianPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientBirthday = table.find('tr').at(1).find('td').at(0).find('div').at(1).hostNodes();
+        const firstPatientBirthday = table.find('tr').at(1).find('td').at(0).find('span').at(1).hostNodes();
         expect(firstPatientBirthday.text()).contains('1999-01-01');
 
         store.clearActions();
@@ -384,11 +431,14 @@ describe('ClinicianPatients', () => {
 
         expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn123');
         patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn456');
+        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
 
         expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient2@test.ca');
         patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
         expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
+
+        // should not show the dexcom connection section
+        expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
 
         store.clearActions();
         dialog().find('Button#editPatientConfirm').simulate('click');
@@ -404,7 +454,7 @@ describe('ClinicianPatients', () => {
               profile: {
                 emails: ['patient-two@test.ca'],
                 fullName: 'Patient 2',
-                patient: { birthday: '1999-01-01', mrn: 'mrn456' },
+                patient: { birthday: '1999-01-01', mrn: 'MRN456' },
               },
               userid: 'patient2',
               username: 'patient-two@test.ca',
@@ -445,7 +495,7 @@ describe('ClinicianPatients', () => {
         store.clearActions();
 
         confirmRemoveButton.simulate('click');
-        console.log('store.getActions()', store.getActions());
+
         expect(store.getActions()).to.eql([
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
         ]);

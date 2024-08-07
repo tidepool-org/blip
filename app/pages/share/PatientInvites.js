@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate } from 'react-i18next';
-import filter from 'lodash/filter';
+import { withTranslation } from 'react-i18next';
 import forEach from 'lodash/forEach';
+import compact from 'lodash/compact';
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty';
+import keys from 'lodash/keys';
 import map from 'lodash/map';
+import reject from 'lodash/reject';
 import values from 'lodash/values';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
@@ -19,7 +22,9 @@ import {
 
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
+import PatientForm from '../../components/clinic/PatientForm';
 
 import {
   Dialog,
@@ -31,7 +36,10 @@ import {
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
+import { fieldsAreValid } from '../../core/forms';
 import { borders, colors } from '../../themes/baseTheme';
+import { patientSchema as validationSchema } from '../../core/clinicUtils';
+import { clinicPatientFromPatientInvite } from '../../core/personutils';
 
 export const PatientInvites = (props) => {
   const { t, api, trackMetric } = props;
@@ -43,10 +51,22 @@ export const PatientInvites = (props) => {
   const [selectedInvitation, setSelectedInvitation] = useState(null);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [searchText, setSearchText] = React.useState('');
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
+  const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [patientFormContext, setPatientFormContext] = useState();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const clinic = get(clinics, selectedClinicId);
+  const openPatientModalOnAccept = clinic?.mrnSettings?.required || clinic?.entitlements?.summaryDashboard;
+  const rowsPerPage = 8;
+
+  const existingMRNs = useMemo(
+    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
+    [clinic?.patients, selectedPatient?.id]
+  );
 
   const {
     fetchingPatientInvites,
@@ -54,19 +74,16 @@ export const PatientInvites = (props) => {
     deletingPatientInvitation,
   } = useSelector((state) => state.blip.working);
 
-  function handleAsyncResult(workingState, successMessage) {
+  const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification } = workingState;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
-        setShowDeleteDialog(false);
-
-        setToast({
+        onComplete();
+        successMessage && setToast({
           message: successMessage,
           variant: 'success',
         });
-
-        setSelectedInvitation(null);
       }
 
       if (completed === false) {
@@ -76,7 +93,7 @@ export const PatientInvites = (props) => {
         });
       }
     }
-  }
+  }, [isFirstRender, setToast]);
 
   useEffect(() => {
     handleAsyncResult(acceptingPatientInvitation, t('Patient invite for {{name}} has been accepted.', {
@@ -113,6 +130,7 @@ export const PatientInvites = (props) => {
   useEffect(() => {
     if (clinic) {
       setPendingInvites(map(values(clinic?.patientInvites), invite => ({
+        creatorId: invite.creatorId,
         key: invite.key,
         name: get(invite, 'creator.profile.fullName', ''),
         nameOrderable: get(invite, 'creator.profile.fullName', '').toLowerCase(),
@@ -120,6 +138,10 @@ export const PatientInvites = (props) => {
       })));
     }
   }, [clinic]);
+
+  useEffect(() => {
+    setPageCount(Math.ceil(pendingInvites.length / rowsPerPage));
+  }, [pendingInvites]);
 
   useEffect(() => {
     if (selectedInvitation) {
@@ -144,9 +166,36 @@ export const PatientInvites = (props) => {
     }
   }, [fetchingPatientInvites]);
 
+  function handleCloseOverlays() {
+    setShowEditPatientDialog(false);
+    setShowDeleteDialog(false);
+
+    setTimeout(() => {
+      setSelectedPatient(null);
+      setSelectedInvitation(null)
+    });
+  }
+
+  function handlePatientFormChange(formikContext) {
+    setPatientFormContext({...formikContext});
+  }
+
+  const handleEditPatientConfirm = useCallback(() => {
+    trackMetric('Clinic - Edit invited patient details confirm', { clinicId: selectedClinicId });
+    patientFormContext?.handleSubmit();
+  }, [patientFormContext, selectedClinicId, trackMetric]);
+
   function handleAccept(invite) {
-    trackMetric('Clinic - Accept patient invite', { clinicId: selectedClinicId });
-    dispatch(actions.async.acceptPatientInvitation(api, clinic.id, invite.key));
+    if (openPatientModalOnAccept) {
+      trackMetric('Clinic - Edit invited patient', { clinicId: selectedClinicId });
+      const patientInvite = clinic?.patientInvites?.[invite.key];
+      const patient = clinicPatientFromPatientInvite(patientInvite);
+      setSelectedPatient(patient);
+      setShowEditPatientDialog(true);
+    } else {
+      trackMetric('Clinic - Accept patient invite', { clinicId: selectedClinicId });
+      dispatch(actions.async.acceptPatientInvitation(api, clinic.id, invite.key, invite.creatorId));
+    }
   }
 
   function handleDecline(member) {
@@ -166,16 +215,92 @@ export const PatientInvites = (props) => {
   }
 
   function handleSearchChange(event) {
+    setPage(1);
     setSearchText(event.target.value);
+    if (isEmpty(event.target.value)) {
+      setPageCount(Math.ceil(pendingInvites.length / rowsPerPage));
+    }
   }
 
-  function clearSearchText() {
+  function handleClearSearch() {
+    setPage(1);
     setSearchText('');
+    setPageCount(Math.ceil(pendingInvites.length / rowsPerPage));
   }
+
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  const handleTableFilter = (data) => {
+    setPageCount(Math.ceil(data.length / rowsPerPage));
+  };
+
+  const renderEditPatientDialog = useCallback(() => {
+    return (
+      <Dialog
+        id="editInvitedPatient"
+        aria-labelledby="dialog-title"
+        open={showEditPatientDialog}
+        onClose={handleCloseOverlays}
+      >
+        <DialogTitle onClose={() => {
+          trackMetric('Clinic - Edit invited patient close', { clinicId: selectedClinicId });
+          handleCloseOverlays();
+        }}>
+          <MediumTitle id="dialog-title">{t('Confirm Patient Details')}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <PatientForm
+            api={api}
+            trackMetric={trackMetric}
+            invite={selectedInvitation}
+            onFormChange={handlePatientFormChange}
+            patient={selectedPatient}
+            initialFocusedInput="mrn"
+            action="acceptInvite"
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="editInvitedPatientCancel" variant="secondary" onClick={() => {
+            trackMetric('Clinic - Edit invited patient cancel', { clinicId: selectedClinicId });
+            handleCloseOverlays();
+          }}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="editInvitedPatientConfirm"
+            variant="primary"
+            onClick={handleEditPatientConfirm}
+            processing={acceptingPatientInvitation.inProgress}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings: clinic?.mrnSettings, existingMRNs}), patientFormContext?.values)}
+          >
+            {t('Save')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [
+    api,
+    acceptingPatientInvitation.inProgress,
+    existingMRNs,
+    handleEditPatientConfirm,
+    clinic?.mrnSettings,
+    patientFormContext?.values,
+    selectedClinicId,
+    selectedInvitation,
+    selectedPatient,
+    showEditPatientDialog,
+    t,
+    trackMetric,
+  ]);
 
   const renderName = ({ name }) => (
     <Box>
-      <Text>{name}</Text>
+      <Text fontWeight={['medium', null, 'regular']}>{name}</Text>
     </Box>
   );
 
@@ -186,7 +311,7 @@ export const PatientInvites = (props) => {
   );
 
   const renderActions = member => (
-    <Flex justifyContent="flex-end">
+    <Flex sx={{ justifyContent: 'flex-end' }}>
       <Button
         className="decline-invite"
         onClick={() => handleDecline(member)}
@@ -204,8 +329,7 @@ export const PatientInvites = (props) => {
         }}
         processing={acceptingPatientInvitation.inProgress && member.key === selectedInvitation.key}
         variant="primary"
-        color="purpleMedium"
-        bg="white"
+        sx={{ color: 'purpleMedium', bg: 'white' }}
         ml={2}
       >
         {t('Accept')}
@@ -230,108 +354,130 @@ export const PatientInvites = (props) => {
       sortable: true,
       sortBy: 'birthday',
       render: renderBirthday,
+      className: 'justify-flex-start'
     },
     {
       title: '',
       field: 'actions',
       render: renderActions,
       align: 'left',
+      className: 'justify-flex-end action-buttons'
     },
   ];
 
   return (
     <>
-      <Flex>
+      <Box mb={4} flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
         <TextInput
           themeProps={{
-            minWidth: '250px',
-            mb: 4,
-            flexBasis: 1/2,
+            sx: { width: ['100%', null, '250px'] },
           }}
+          sx={{ fontSize: 0 }}
+          id="search-invites"
           placeholder={t('Search by Name')}
-          icon={searchText ? CloseRoundedIcon : SearchIcon}
-          iconLabel="search"
-          onClickIcon={searchText ? clearSearchText : null}
+          icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+          iconLabel={t('Search')}
+          onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
           name="search-invites"
           onChange={handleSearchChange}
           value={searchText}
           variant="condensed"
         />
-      </Flex>
+      </Box>
 
-      <Table
-        id="patientInvitesTable"
-        label={t('Clinician Table')}
-        columns={columns}
-        data={pendingInvites}
-        orderBy="nameOrderable"
-        order="asc"
-        searchText={searchText}
-        emptyText={null}
-        rowHover={false}
-        rowsPerPage={10}
-        pagination={pendingInvites.length > 10}
-        fontSize={1}
-      />
+      <Box sx={{ position: 'relative' }}>
+        <Table
+          id="patientInvitesTable"
+          label={t('Clinician Table')}
+          columns={columns}
+          data={pendingInvites}
+          orderBy="nameOrderable"
+          order="asc"
+          rowHover={false}
+          rowsPerPage={rowsPerPage}
+          searchText={searchText}
+          page={page}
+          onFilter={handleTableFilter}
+          emptyText={null}
+          sx={{ fontSize: 1 }}
+        />
 
-      {pendingInvites.length === 0 && (
-        <Box id="no-invites" pt={3} sx={{ borderTop: borders.divider }}>
-          <Text p={3} fontSize={1} color="text.primary" textAlign="center">
-            {t('There are no invites. Refresh to check for pending invites.')}
-          </Text>
+        {pendingInvites.length > rowsPerPage && (
+          <Pagination
+            px="5%"
+            sx={{ position: 'absolute', bottom: '-50px' }}
+            width="100%"
+            id="clinic-invites-pagination"
+            count={pageCount}
+            page={page}
+            disabled={pageCount < 2}
+            onChange={handlePageChange}
+            showFirstButton={false}
+            showLastButton={false}
+          />
+        )}
 
-          <Flex justifyContent="center">
+        {pendingInvites.length === 0 && (
+          <Box id="no-invites" pt={3} mb={4} sx={{ borderTop: borders.divider }}>
+            <Text p={3} sx={{ display: 'block', fontSize: 1, color: 'text.primary', textAlign: 'center' }}>
+              {t('There are no invites. Refresh to check for pending invites.')}
+            </Text>
+
+            <Flex sx={{ justifyContent: 'center' }}>
+              <Button
+                id="refresh-invites"
+                variant="secondary"
+                icon={RefreshRoundedIcon}
+                iconPosition="left"
+                processing={fetchingPatientInvites.inProgress}
+                onClick={handleRefetchInvites}
+                sx={{
+                  '&:hover,&:active,&.active,&.processing': {
+                    color: colors.purpleMedium,
+                    backgroundColor: colors.white,
+                    borderColor: colors.purpleMedium,
+                  },
+                }}
+              >
+                {t('Refresh')}
+              </Button>
+            </Flex>
+          </Box>
+        )}
+
+        <Dialog
+          id="declinePatientInvite"
+          aria-labelledby="dialog-title"
+          open={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+        >
+          <DialogTitle onClose={() => setShowDeleteDialog(false)}>
+            <MediumTitle id="dialog-title">{deleteDialogContent?.title}</MediumTitle>
+          </DialogTitle>
+          <DialogContent>
+            <Body1>
+              {deleteDialogContent?.body}
+            </Body1>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>
+              {t('Cancel')}
+            </Button>
             <Button
-              id="refresh-invites"
-              variant="secondary"
-              icon={RefreshRoundedIcon}
-              iconPosition="left"
-              processing={fetchingPatientInvites.inProgress}
-              onClick={handleRefetchInvites}
-              sx={{
-                '&:hover,&:active,&.active,&.processing': {
-                  color: colors.purpleMedium,
-                  backgroundColor: colors.white,
-                  borderColor: colors.purpleMedium,
-                },
+              className="decline-invite"
+              variant="danger"
+              processing={deletingPatientInvitation.inProgress}
+              onClick={() => {
+                handleConfirmDecline(selectedInvitation);
               }}
             >
-              {t('Refresh')}
+              {deleteDialogContent?.submitText}
             </Button>
-          </Flex>
-        </Box>
-      )}
+          </DialogActions>
+        </Dialog>
+      </Box>
 
-      <Dialog
-        id="declinePatientInvite"
-        aria-labelledBy="dialog-title"
-        open={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-      >
-        <DialogTitle onClose={() => setShowDeleteDialog(false)}>
-          <MediumTitle id="dialog-title">{deleteDialogContent?.title}</MediumTitle>
-        </DialogTitle>
-        <DialogContent>
-          <Body1>
-            {deleteDialogContent?.body}
-          </Body1>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>
-            {t('Cancel')}
-          </Button>
-          <Button
-            className="decline-invite"
-            variant="danger"
-            processing={deletingPatientInvitation.inProgress}
-            onClick={() => {
-              handleConfirmDecline(selectedInvitation);
-            }}
-          >
-            {deleteDialogContent?.submitText}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {showEditPatientDialog && renderEditPatientDialog()}
     </>
   );
 };
@@ -341,4 +487,4 @@ PatientInvites.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(PatientInvites);
+export default withTranslation()(PatientInvites);

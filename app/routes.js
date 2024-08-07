@@ -6,10 +6,10 @@ import { push } from 'connected-react-router';
 
 import AppComponent from './pages/app';
 import BrowserWarning from './pages/browserwarning';
-import ClinicianDetails from './pages/cliniciandetails';
 import ClinicDetails from './pages/clinicdetails';
 import ClinicAdmin from './pages/clinicadmin';
 import ClinicWorkspace from './pages/clinicworkspace';
+import { TideDashboard } from './pages/dashboard';
 import ClinicInvite from './pages/clinicinvite';
 import ClinicianEdit from './pages/clinicianedit';
 import Workspaces from './pages/workspaces';
@@ -17,6 +17,7 @@ import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
 import Login from './pages/login';
 import { PrescriptionForm } from './pages/prescription';
+import OAuthConnection from './pages/oauth/OAuthConnection';
 import PatientData from './pages/patientdata';
 import PatientNew from './pages/patientnew';
 import PatientProfile from './pages/patientprofile/patientprofile';
@@ -27,22 +28,25 @@ import Terms from './pages/terms';
 import UserProfile from './pages/userprofile';
 import VerificationWithPassword from './pages/verificationwithpassword';
 import Gate from './components/gate';
+import UploadRedirect from './pages/uploadredirect';
+import LoggedOut from './pages/loggedout';
 
 import utils from './core/utils';
 import personUtils from './core/personutils';
 import config from './config';
 
 import * as actions from './redux/actions';
-import { AccessManagement, InviteClinic, InviteMember } from './pages/share';
+import { AccessManagement, ShareInvite } from './pages/share';
+import * as ErrorMessages from './redux/constants/errorMessages';
 
 /**
- * This function checks if the user is using chrome - if they are not it will redirect
+ * This function checks if the user is using a supported browser - if they are not it will redirect
  * the user to a browser warning page
  *
  * @param  {Function} next
  */
-export const requireChrome = (next, ...args) => (dispatch) => {
-  if (!utils.isChrome()) {
+export const requireSupportedBrowser = (next, ...args) => (dispatch) => {
+  if (!utils.isSupportedBrowser()) {
     dispatch(push('/browser-warning'));
   } else {
     !!next && dispatch(next(...args));
@@ -63,14 +67,19 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
 
   const routes = {
     patients: '/patients',
+    newPatient: '/patients/new',
     workspaces: '/workspaces',
     clinicDetails: '/clinic-details',
-    clinicianDetails: '/clinician-details',
     clinicWorkspace: '/clinic-workspace',
+    dashboard: '/dashboard',
   };
 
   if (!api.user.isAuthenticated()) {
-    dispatch(push('/login'));
+    let dest = '';
+    if (routerState?.location?.pathname) {
+      dest = `?dest=${encodeURIComponent(routerState.location.pathname + routerState.location.search + routerState.location.hash)}`;
+    }
+    dispatch(push(`/login${dest}`));
   } else {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     if (!_.isEmpty(user)) {
@@ -91,8 +100,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
 
     function getClinicsForMember(user) {
       if (
-        config.CLINICS_ENABLED
-        && !state.working.fetchingClinicsForClinician.inProgress
+        !state.working.fetchingClinicsForClinician.inProgress
         && !state.working.fetchingClinicsForClinician.completed
         && !state.working.fetchingClinicsForClinician.notification
         || (
@@ -103,7 +111,7 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
         )
       ) {
         const fetchers = {
-          clinics: cb => dispatch(actions.async.getClinicsForClinician(api, user.userid, {}, cb)),
+          clinics: cb => dispatch(actions.async.getClinicsForClinician(api, user.userid, { limit: 1000, offset: 0 }, cb)),
           invites: cb => dispatch(actions.async.fetchClinicianInvites(api, user.userid, cb)),
         };
 
@@ -113,21 +121,22 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
 
           const currentPathname = routerState.location?.pathname;
           const isClinicianAccount = personUtils.isClinicianAccount(user);
+          const hasClinicianRole = _.includes(user.roles, 'clinician');
+          const hasLegacyClinicRole = _.includes(user.roles, 'clinic');
           const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
           const firstEmptyOrUnmigratedClinic = _.find(values.clinics, clinic => _.isEmpty(clinic.clinic?.name) || clinic.clinic?.canMigrate);
 
           const unrestrictedClinicUIRoutes = [
             routes.clinicDetails,
-            routes.clinicianDetails,
+            routes.workspaces,
           ];
 
           const restrictedClinicUIRoutes = [
             '/clinic-admin',
-            '/clinic-details',
             '/clinic-invite',
+            '/clinic-profile',
             '/clinic-workspace',
             '/clinician-edit',
-            '/workspaces',
             '/prescriptions',
           ];
 
@@ -139,18 +148,22 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
             // let alone the migration/profile state, so we send them to the patients page if they
             // are on any Clinic UI route, except for the clinician account details route, where
             // missing clinic information would be irrelevant.
-            if (isClinicUIRoute && currentPathname !== routes.clinicianDetails) dispatch(push(routes.patients));
+            if (isClinicUIRoute && !_.startsWith(currentPathname, routes.clinicDetails)) dispatch(push(routes.patients));
             return cb();
           }
 
-          if (isClinicianAccount && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
-            // Navigate to the appropriate page for a clinician user or team member who needs to
+          if (hasLegacyClinicRole && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
+            // Navigate to the appropriate page for a legacy clinician user or team member who needs to
             // complete the setup process
-            if (firstEmptyOrUnmigratedClinic) dispatch(actions.sync.selectClinic(firstEmptyOrUnmigratedClinic.clinic.id));
-            dispatch(push(state.clinicFlowActive || state.selectedClinicId ? routes.clinicDetails : routes.clinicianDetails));
+            if (firstEmptyOrUnmigratedClinic) dispatch(actions.async.selectClinic(api, firstEmptyOrUnmigratedClinic.clinic.id));
+            const routeState = { selectedClinicId: state.selectedClinicId || null };
+            const routeAction = firstEmptyOrUnmigratedClinic ? 'migrate' : 'profile';
+            dispatch(push(`${routes.clinicDetails}/${routeAction}`, routeState));
+          } else if (hasClinicianRole && !hasClinicProfile) {
+            dispatch(push(`${routes.clinicDetails}/profile`));
           } else if (values.invites?.length) {
-            // Redirect user to address clinic invite
-            dispatch(push(!hasClinicProfile ? routes.clinicDetails : routes.workspaces));
+            // Redirect user to address clinic invite, or first fill in profile info if missing
+            dispatch(push(!hasClinicProfile ? `${routes.clinicDetails}/profile` : routes.workspaces));
           } else if (
             (isClinicUIRoute && !isClinicianAccount) ||
             (isRestrictedClinicUIRoute && !(state.clinicFlowActive || state.selectedClinicId))
@@ -162,7 +175,70 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
           cb();
         });
       } else {
-        // Clinic UI feature is off. Callback and continue
+        // if we've already fetched clinic information, we can use current state to check
+        // for route restriction based on account type and clinic selection
+        if (
+          !state.working.fetchingClinicsForClinician.inProgress &&
+          state.working.fetchingClinicsForClinician.completed &&
+          !state.working.fetchingClinicsForClinician.notification
+        ) {
+          const currentPathname = routerState?.location?.pathname;
+          const isClinicianAccount = personUtils.isClinicianAccount(user);
+          const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
+          const isPatientAccount = _.includes(user.roles, 'patient');
+          const hasProfileFullName = !_.isEmpty(user.profile.fullName);
+
+          const unrestrictedClinicUIRoutes = [routes.workspaces];
+
+          const requireSelectedClinicUIRoutes = [
+            '/clinic-admin',
+            '/clinic-details',
+            '/clinic-invite',
+            '/clinic-profile',
+            '/clinic-workspace',
+            '/clinician-edit',
+            '/prescriptions',
+            routes.dashboard,
+          ];
+
+          const isCreateNewClinicRoute = _.startsWith(
+            currentPathname,
+            '/clinic-details/new'
+          );
+
+          const isClinicProfileRoute = _.startsWith(
+            currentPathname,
+            '/clinic-details/profile'
+          );
+
+          const isClinicUIRoute = _.some(
+            [...unrestrictedClinicUIRoutes, ...requireSelectedClinicUIRoutes],
+            (route) => _.startsWith(currentPathname, route)
+          );
+
+          const isRestrictedClinicUIRoute = _.some(
+            requireSelectedClinicUIRoutes,
+            (route) => _.startsWith(currentPathname, route)
+          );
+
+          if (isClinicUIRoute && !isClinicianAccount) {
+            dispatch(push(routes.patients));
+          } else {
+            if (
+              isRestrictedClinicUIRoute &&
+              !(
+                state.clinicFlowActive &&
+                (state.selectedClinicId || isCreateNewClinicRoute || (isClinicProfileRoute && !hasClinicProfile))
+              )
+            ) {
+              dispatch(push(routes.workspaces));
+            }
+          }
+
+          if (isPatientAccount && !hasProfileFullName) {
+            dispatch(push(routes.newPatient));
+          }
+        }
         cb();
       }
     }
@@ -215,7 +291,10 @@ export const ensureNoAuth = (api, cb = _.noop) => () => {
  * @param  {Object} api
  */
 export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
-  const { blip: state } = getState();
+  const { blip: state, router: routerState } = getState();
+  if (routerState?.location?.query?.ssoEnabled === 'true') {
+    dispatch(actions.sync.setSSOEnabledDisplay(true));
+  }
   if (api.user.isAuthenticated()) {
     const user = _.get(state.allUsersMap, state.loggedInUserId, {});
     const isClinicianAccount = personUtils.isClinicianAccount(user);
@@ -225,7 +304,7 @@ export const requireNoAuth = (api, cb = _.noop) => (dispatch, getState) => {
     // We don't want to navigate forward to a workspace if a clinician who needs to set up their
     // profile, or a clinician profile, navigates to the root url with the browser back button
     if (isClinicianAccount && (firstEmptyOrUnmigratedClinic || !hasClinicProfile)) {
-      if (firstEmptyOrUnmigratedClinic) dispatch(actions.sync.selectClinic(firstEmptyOrUnmigratedClinic.id));
+      if (firstEmptyOrUnmigratedClinic) dispatch(actions.async.selectClinic(api, firstEmptyOrUnmigratedClinic.id));
       dispatch(push(state.clinicFlowActive || state.selectedClinicId ? '/clinic-details' : '/clinician-details'));
     } else {
       dispatch(push(state.clinicFlowActive || state.selectedClinicId ? '/workspaces' : '/patients'));
@@ -249,14 +328,16 @@ export const requireNotVerified = (api, cb = _.noop) => (dispatch, getState) => 
   } else {
     dispatch(actions.async.fetchUser(api, (err, user) => {
       if (err) {
-        // we expect a 401 Unauthorized when navigating to /email-verification
-        // when not logged in (e.g., in a new tab after initial sign-up)
-        if (err.status === 401) {
-          return cb();
+        if(err.message !== ErrorMessages.ERR_EMAIL_NOT_VERIFIED){
+          // we expect a 401 Unauthorized when navigating to /email-verification
+          // when not logged in (e.g., in a new tab after initial sign-up)
+          if (err.status === 401) {
+            return cb();
+          }
+          const error = new Error('Error getting user at /email-verification');
+          error.originalError = err;
+          throw error;
         }
-        const error = new Error('Error getting user at /email-verification');
-        error.originalError = err;
-        throw error;
       }
 
       checkIfVerified(user);
@@ -311,7 +392,7 @@ export const getRoutes = (appContext) => {
   const boundRequireAuth = requireAuth.bind(null, api);
   const boundRequireNotVerified = requireNotVerified.bind(null, api);
   const boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
-  const boundRequireChrome = requireChrome.bind(null, boundRequireAuth);
+  const boundRequireSupportedBrowser = requireSupportedBrowser.bind(null, boundRequireAuth);
   const boundEnsureNoAuth = ensureNoAuth.bind(null, api);
   const boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
   const authenticatedFallbackRoute = state.selectedClinicId ? '/workspaces' : '/patients';
@@ -324,29 +405,31 @@ export const getRoutes = (appContext) => {
           <Route path='/login' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
           <Route path='/terms' render={routeProps => (<Terms {...routeProps} {...props} />)} />
           <Route path='/signup' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Signup {...routeProps} {...props} /></Gate>)} />
-          <Route path='/clinician-details' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicianDetails {...routeProps} {...props} /></Gate>)} />
-          {config.CLINICS_ENABLED && <Route path='/clinic-admin' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicAdmin {...routeProps} {...props} /></Gate>)} />}
-          {config.CLINICS_ENABLED && <Route path='/clinic-details' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicDetails {...routeProps} {...props} /></Gate>)} />}
-          {config.CLINICS_ENABLED && <Route path='/clinic-invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicInvite {...routeProps} {...props} /></Gate>)} />}
-          {config.CLINICS_ENABLED && <Route path='/clinic-workspace/:tab?' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicWorkspace {...routeProps} {...props} /></Gate>)} />}
-          {config.CLINICS_ENABLED && <Route path='/clinician-edit' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicianEdit {...routeProps} {...props} /></Gate>)} />}
-          {config.CLINICS_ENABLED && <Route path='/workspaces' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Workspaces {...routeProps} {...props} /></Gate>)} />}
+          <Route path='/clinic-admin' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicAdmin {...routeProps} {...props} /></Gate>)} />
+          <Route path='/clinic-details/:action' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicDetails {...routeProps} {...props} /></Gate>)} />
+          <Route path='/clinic-invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicInvite {...routeProps} {...props} /></Gate>)} />
+          <Route path='/clinic-workspace/:tab?' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicWorkspace {...routeProps} {...props} /></Gate>)} />
+          <Route path='/dashboard/tide' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><TideDashboard {...routeProps} {...props} /></Gate>)} />
+          <Route path='/clinician-edit' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicianEdit {...routeProps} {...props} /></Gate>)} />
+          <Route path='/workspaces' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Workspaces {...routeProps} {...props} /></Gate>)} />
           <Route path='/email-verification' render={routeProps => (<Gate onEnter={boundRequireNotVerified} key={routeProps.match.path}><EmailVerification {...routeProps} {...props} /></Gate>)} />
           <Route path='/profile' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UserProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Patients {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/new' render={routeProps => (<Gate onEnter={boundRequireAuthAndNoPatient} key={routeProps.match.path}><PatientNew {...routeProps} {...props} /></Gate>)} />
           {config.RX_ENABLED && <Route exact path='/prescriptions/new' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
           {config.RX_ENABLED && <Route exact path='/prescriptions/:id' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
-          <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowser} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><AccessManagement {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/share/member' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><InviteMember {...routeProps} {...props} /></Gate>)} />
-          {config.CLINICS_ENABLED && <Route exact path='/patients/:id/share/clinic' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><InviteClinic {...routeProps} {...props} /></Gate>)} />}
-          <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/share/invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ShareInvite {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowser} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
           <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
+          <Route path='/oauth/:providerName/:status' render={routeProps => (<OAuthConnection {...routeProps} {...props} />)} />
           <Route path='/request-password-from-uploader' render={routeProps => (<Gate onEnter={boundOnUploaderPasswordReset} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
+          <Route path="/upload-redirect" render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UploadRedirect {...routeProps} {...props} /></Gate>)} />
+          <Route path="/logged-out" render={routeProps => (<LoggedOut {...routeProps} {...props}/>)} />
           <Route>
             { api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to='/login' /> }
           </Route>

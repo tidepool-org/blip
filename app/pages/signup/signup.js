@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate, Trans} from 'react-i18next';
+import { withTranslation, Trans} from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import sundial from 'sundial';
 
@@ -15,10 +15,14 @@ import { URL_TERMS_OF_USE, URL_PRIVACY_POLICY } from '../../core/constants';
 import utils from '../../core/utils';
 import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
+import { keycloak } from '../../keycloak';
+import { components as vizComponents} from '@tidepool/viz';
+const { Loader } = vizComponents;
 
 import check from './images/check.svg';
+let win = window;
 
-export let Signup = translate()(class extends React.Component {
+export let Signup = withTranslation()(class extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     api: PropTypes.object.isRequired,
@@ -148,16 +152,51 @@ export let Signup = translate()(class extends React.Component {
   };
 
   render() {
+    const { keycloakConfig, fetchingInfo, inviteEmail } = this.props;
     let form = this.renderForm();
     let inviteIntro = this.renderInviteIntroduction();
     let typeSelection = this.renderTypeSelection();
+    let isLoading = fetchingInfo.inProgress ||
+      !(fetchingInfo.completed || !!fetchingInfo.notification) ||
+      (!!keycloakConfig.url && !keycloakConfig.initialized);
+
+    if(keycloakConfig.initialized){
+      let options = {
+        redirectUri: win.location.origin
+      };
+      if(inviteEmail){
+        options.loginHint = inviteEmail;
+      }
+
+      // Build Keycloak register URL with role parameter
+      let registerUrl = keycloak.createRegisterUrl(options);
+      switch (this.state.selected) {
+        case 'personal':
+          registerUrl += '&role=patient';
+          break;
+
+        case 'clinician':
+          registerUrl += '&role=clinician';
+          break;
+      }
+
+      // Assign window location to Keycloak register URL
+      win.location.assign(registerUrl);
+    }
+
+    let content = isLoading || keycloakConfig.initialized ? null : (
+      <>
+        <LoginLogo />
+        {inviteIntro}
+        {typeSelection}
+        {form}
+      </>
+    );
     if (!this.state.loading) {
       return (
         <div className="signup">
-          <LoginLogo />
-          {inviteIntro}
-          {typeSelection}
-          {form}
+          <Loader show={isLoading} overlay={true} />
+          {content}
         </div>
       );
     }
@@ -424,8 +463,8 @@ export let Signup = translate()(class extends React.Component {
         values.termsAccepted = sundial.utcDateString();
       }
 
-      if (_.indexOf(roles, 'clinic') === -1) {
-        values.roles.push('clinic');
+      if (_.indexOf(roles, 'clinician') === -1) {
+        values.roles.push('clinician');
       }
     }
 
@@ -441,6 +480,8 @@ export function mapStateToProps(state) {
   return {
     notification: state.blip.working.signingUp.notification,
     working: state.blip.working.signingUp.inProgress,
+    fetchingInfo: state.blip.working.fetchingInfo,
+    keycloakConfig: state.blip.keycloakConfig,
   };
 }
 

@@ -16,12 +16,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import utils from '../../core/utils';
 import personUtils from '../../core/personutils';
 
-var Invitation = translate()(class extends React.Component {
+var Invitation = withTranslation()(class extends React.Component {
   static propTypes = {
     invitation: PropTypes.object.isRequired,
     onAcceptInvitation: PropTypes.func.isRequired,

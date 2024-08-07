@@ -45,6 +45,9 @@
   .message-link {
     display: inline-block;
     &:extend(.dexcomBannerLink);
+    padding-left: .25em;
+    padding-right: .25em;
+    cursor: pointer;
 
     &:hover {
       &:extend(.dexcomBannerLinkHover);
@@ -56,6 +59,7 @@
   width: 24px;
   text-align: right;
   padding-top: 5px;
+  flex-shrink: 0;
 
   a {
     &:extend(.dexcomBannerLink);
@@ -79,6 +83,7 @@
     border-radius: 4px;
     padding: 7px 12px;
     font-weight: 600;
+    white-space: nowrap;
 
     &:hover {
       background-color: @white-color;

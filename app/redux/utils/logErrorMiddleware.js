@@ -20,7 +20,7 @@ import _ from 'lodash';
 export default (api) => {
   return ({ getState }) => (next) => (action) => {
     const err = _.get(action, 'error', {});
-    if (!_.isEmpty(err)) {
+    if (!_.isEmpty(err) || _.isError(err)) {
       api.errors.log(
         err,
         _.get(action, 'meta.apiError.status', null) ? 'API error' : null,

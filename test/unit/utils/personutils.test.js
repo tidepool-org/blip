@@ -644,6 +644,31 @@ describe('personutils', () => {
     });
   });
 
+  describe('clinicPatientFromPatientInvite', () => {
+    it('should map fields from a patient invite to a clinic patient object', () => {
+      const invite = {
+        creatorId: 'someID',
+        context: { foo: 'bar' },
+        creator: { profile: {
+          fullName: 'Joe Jackson',
+          emails: ['someEmail'],
+          patient: {
+            birthday: '1979-01-01',
+            mrn: 'someMRN',
+          },
+        } },
+      };
+
+      expect(personUtils.clinicPatientFromPatientInvite(invite)).to.eql({
+        fullName: 'Joe Jackson',
+        birthDate: '1979-01-01',
+        mrn: 'someMRN',
+        id: 'someID',
+        permissions: { foo: 'bar' },
+      });
+    });
+  });
+
   describe('combinedAccountAndClinicPatient', () => {
     it('should provide a deeply-merged user account object, using the clinic patient object for default values, with any additional patient values added', () => {
       const patient = {
@@ -688,6 +713,26 @@ describe('personutils', () => {
             foo: 'bar',
           },
         },
+      });
+    });
+  });
+
+  describe('splitNamesFromFullname', () => {
+    it('should split a fullName string into first and last name parts', () => {
+      expect(personUtils.splitNamesFromFullname('Test Van der Name')).to.eql({
+        firstName: 'Test',
+        lastName: 'Van der Name',
+      });
+    });
+  });
+
+  describe('fullnameFromSplitNames', () => {
+    it('should split a fullName string into first and last name parts', () => {
+      it('should split a fullName string into first and last name parts', () => {
+        expect(personUtils.fullnameFromSplitNames({
+          firstName: 'Test',
+          lastName: 'Van der Name',
+        })).to.eql('Test Van der Name');
       });
     });
   });

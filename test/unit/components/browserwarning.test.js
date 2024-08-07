@@ -4,9 +4,9 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
+import { mount } from 'enzyme';
 import BrowserWarning from '../../../app/components/browserwarning';
 
 describe('BrowserWarning', function () {
@@ -20,7 +20,7 @@ describe('BrowserWarning', function () {
         trackMetric: function() {}
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
+      var elem = mount(browserWarningElem);
       expect(elem).to.be.ok;
     });
 
@@ -29,39 +29,52 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
+      var elem = mount(browserWarningElem);
       expect(elem).to.be.ok;
       expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Chrome Required - Screen Displayed')).to.be.true;
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
     });
 
-    it('should fire metric when google play clicked', function() {
+    it('should fire metric when google chrome clicked', function() {
       var props = {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      var playButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'playstore-badge');
+      var elem = mount(browserWarningElem);
+      var chromeIcon = elem.find('.browser-warning-chrome-image');
       expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Chrome Required - Screen Displayed')).to.be.true;
-      TestUtils.Simulate.click(playButton);
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
+      chromeIcon.simulate('click')
       expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.trackMetric.calledWith('No Data - Clicked Android')).to.be.true;
+      expect(props.trackMetric.calledWith('Clicked Download Chrome')).to.be.true;
     });
 
-
-    it('should fire metric when apple play store clicked', function() {
+    it('should fire metric when Chrome clicked', function() {
       var props = {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      var appStoreButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'appstore-badge');
+      var elem = mount(browserWarningElem);
+      var chromeLink = elem.find('.chromeBrowserLink');
       expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Chrome Required - Screen Displayed')).to.be.true;
-      TestUtils.Simulate.click(appStoreButton);
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
+      chromeLink.simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.trackMetric.calledWith('No Data - Clicked iOS')).to.be.true;
+      expect(props.trackMetric.calledWith('Clicked Download Chrome')).to.be.true;
+    });
+
+    it('should fire metric when Edge clicked', function() {
+      var props = {
+        trackMetric: sinon.stub()
+      };
+      var browserWarningElem = React.createElement(BrowserWarning, props);
+      var elem = mount(browserWarningElem);
+      var edgeLink = elem.find('.edgeBrowserLink');
+      expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
+      edgeLink.simulate('click');
+      expect(props.trackMetric.callCount).to.equal(2);
+      expect(props.trackMetric.calledWith('Clicked Download Edge')).to.be.true;
     });
   });
 });

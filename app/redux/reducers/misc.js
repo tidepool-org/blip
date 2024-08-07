@@ -17,6 +17,7 @@
 import _ from 'lodash';
 import update from 'immutability-helper';
 import { generateCacheTTL } from 'redux-cache';
+import moment from 'moment';
 
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
@@ -52,6 +53,7 @@ export const notification = (state = initialState.notification, action) => {
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
     case types.ADD_CLINICIAN_TO_CLINIC_FAILURE:
     case types.CREATE_CLINIC_FAILURE:
+    case types.KEYCLOAK_INIT_ERROR:
       const err = _.get(action, 'error', null);
       if (err) {
         return {
@@ -103,7 +105,7 @@ export const showingDonateBanner = (state = initialState.showingDonateBanner, ac
       const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDonateYourDataBannerTime');
       return dismissedBanner ? false : state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'donate') ? null : state;
+      return (action.payload.type === 'donate') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -117,12 +119,12 @@ export const showingDexcomConnectBanner = (state = initialState.showingDexcomCon
       return (action.payload.type === 'dexcom' && state !== false) ? true : state;
     case types.DISMISS_BANNER:
       return (action.payload.type === 'dexcom') ? false : state;
-    case types.FETCH_USER_SUCCESS:
-      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDexcomConnectBannerTime');
-      const clickedBanner = _.get(action.payload, 'user.preferences.clickedDexcomConnectBannerTime');
-      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
+      const patientDexcomDataSourceConnectState = (_.find(action.payload.patient?.dataSources, { providerName: 'dexcom' }) || {}).state;
+      return patientDexcomDataSourceConnectState === 'error' || state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'dexcom') ? null : state;
+      return (action.payload.type === 'dexcom') ? null : state;
+    case types.DATA_WORKER_REMOVE_DATA_REQUEST:
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -141,7 +143,7 @@ export const showingUpdateTypeBanner = (state = initialState.showingUpdateTypeBa
       const clickedBanner = _.get(action.payload, 'user.preferences.clickedUpdateTypeBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'updatetype') ? null : state;
+      return (action.payload.type === 'updatetype') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -160,7 +162,7 @@ export const showingUploaderBanner = (state = initialState.showingUploaderBanner
       const clickedBanner = _.get(action.payload, 'user.preferences.clickedUploaderBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'uploader') ? null : state;
+      return (action.payload.type === 'uploader') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -179,7 +181,7 @@ export const showingShareDataBanner = (state = initialState.showingShareDataBann
       const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
-        return (action.payload.type === 'sharedata') ? null : state;
+      return (action.payload.type === 'sharedata') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -192,6 +194,22 @@ export const seenShareDataBannerMax = (state = initialState.seenShareDataBannerM
     case types.SHOW_BANNER:
       return (action.payload.count > 2) ? true : state;
     case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const showingPatientLimitBanner = (state = initialState.showingShareDataBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'patientLimit' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'patientLimit') ? false : state;
+    case types.HIDE_BANNER:
+      return (action.payload.type === 'patientLimit') ? null : state;
+    case types.LOGOUT_REQUEST:
+    case types.SELECT_CLINIC_SUCCESS:
       return null;
     default:
       return state;
@@ -311,6 +329,13 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       return update(state, { [action.payload.userId]: { $merge: action.payload.updatedUser }});
     case types.UPDATE_PATIENT_SUCCESS:
       return update(state, { [action.payload.updatedPatient.userid]: { $merge: action.payload.updatedPatient }});
+    case types.UPDATE_CLINIC_PATIENT_SUCCESS: {
+      const patientId = _.get(action.payload, 'patientId');
+      return update(state, {
+        // Remove stored user cache key so any changes are pulled in on next data view
+        $unset: [`${patientId}_cacheUntil`],
+      });
+    }
     case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
       return update(state, { [action.payload.patientId]: { $set: action.payload.patient }});
     case types.UPDATE_SETTINGS_SUCCESS:
@@ -685,12 +710,12 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
       let { clinicId, patients, count } = action.payload;
-      const newPatientSet = _.reduce(patients, (newSet, patient) => {
-        newSet[patient.id] = patient
+      const newPatientSet = _.reduce(patients, (newSet, patient, i) => {
+        newSet[patient.id] = { ...patient, sortIndex: i };
         return newSet;
       }, {});
       return update(state, {
-        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, patientCount: count } },
+        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, fetchedPatientCount: count, lastPatientFetchTime: moment.utc().valueOf() } },
       });
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE: {
@@ -701,7 +726,7 @@ export const clinics = (state = initialState.clinics, action) => {
         } = action;
         return update(state, {
           [clinicId]: {
-            $set: { ...state[clinicId], patients: {}, patientCount: 0 },
+            $set: { ...state[clinicId], patients: {}, fetchedPatientCount: 0 },
           },
         });
       }
@@ -709,10 +734,11 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS: {
       let { clinicId, patient } = action.payload;
+      const existingSortIndex = state[clinicId]?.patients?.[patient.id]?.sortIndex;
       return update(state, {
         [clinicId]: { patients: { $set: {
           ...state[clinicId].patients,
-          [patient.id]: patient
+          [patient.id]: { ...patient, sortIndex: existingSortIndex }
         } } }
       });
     }
@@ -733,6 +759,7 @@ export const clinics = (state = initialState.clinics, action) => {
       let inviteId = _.get(action.payload, 'inviteId');
       let clinicId = _.get(action.payload, 'clinicId');
       let newState = _.cloneDeep(state);
+      if (_.isFinite(newState[clinicId]?.patientCount)) newState[clinicId].patientCount++;
       delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
@@ -743,16 +770,13 @@ export const clinics = (state = initialState.clinics, action) => {
       delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
-    case types.CREATE_CLINIC_SUCCESS: {
-      let clinic = _.get(action.payload, 'clinic', {});
-      return update(state, {
-        [clinic.id]: { $set: { clinicians: {}, patients: {}, patientInvites: {} } },
-      });
-    }
+    case types.CREATE_CLINIC_SUCCESS:
     case types.FETCH_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic', {});
+      let updateAction = state[clinic.id] ? '$merge' : '$set';
+      let initialClinicState = { patients: {}, clinicians: {}, patientInvites: {}, ...(state[clinic.id] || {}) };
       return update(state, {
-        [clinic.id]: { $set: { clinicians: {}, patients: {}, patientInvites: {}, ...clinic } },
+        [clinic.id]: { [updateAction]: { ...initialClinicState, ...clinic } },
       });
     }
     case types.FETCH_CLINICS_BY_IDS_SUCCESS: {
@@ -803,8 +827,20 @@ export const clinics = (state = initialState.clinics, action) => {
       const patient = _.get(action.payload, 'patient');
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
+      let fetchedPatientCount = state[clinicId].fetchedPatientCount;
+      let patientCount = state[clinicId].patientCount;
+
+      // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
+      // list for easy visibility of the newly created patient.
+      const existingSortIndex = state[clinicId]?.patients?.[patientId]?.sortIndex || -1;
+
+      if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) {
+        fetchedPatientCount++;
+        patientCount++;
+      }
+
       return update(state, {
-        [clinicId]: { patients: { [patientId]: { $set: patient } } },
+        [clinicId]: { patients: { [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } }, fetchedPatientCount: { $set: fetchedPatientCount }, patientCount: { $set: patientCount } },
       });
     }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
@@ -819,6 +855,8 @@ export const clinics = (state = initialState.clinics, action) => {
       let patientId = _.get(action.payload, 'patientId');
       let newState = _.cloneDeep(state);
       delete newState[clinicId]?.patients?.[patientId];
+      if (newState[clinicId]?.fetchedPatientCount) newState[clinicId].fetchedPatientCount--;
+      if (newState[clinicId]?.patientCount) newState[clinicId].patientCount--;
       return newState;
     }
     case types.SEND_CLINICIAN_INVITE_SUCCESS: {
@@ -889,6 +927,129 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { canMigrate: { $set: false } },
       });
     }
+    case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        lastUploadReminderTime,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...state[clinicId].patients[patientId],
+            lastUploadReminderTime,
+          } } },
+        },
+      });
+    }
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS: {
+      const {
+        config,
+        results,
+      } = action.payload.results;
+
+      const { clinicId } = config;
+
+      const patients = [
+        ..._.map(results.timeInVeryLowPercent, 'patient'),
+        ..._.map(results.timeInAnyLowPercent, 'patient'),
+        ..._.map(results.dropInTimeInTargetPercent, 'patient'),
+        ..._.map(results.timeInTargetPercent, 'patient'),
+        ..._.map(results.timeCGMUsePercent, 'patient'),
+        ..._.map(results.meetingTargets, 'patient'),
+      ];
+
+      return update(state, {
+        [clinicId]: { $set: { ...state[clinicId], patients: _.keyBy(patients, 'id'), fetchedPatientCount: patients.length, lastPatientFetchTime: moment.utc().valueOf() } },
+      });
+    }
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        reviews,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...(state[clinicId].patients[patientId] || { id: patientId }),
+            reviews,
+          } } },
+        },
+      });
+    }
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        lastRequestedDexcomConnectTime,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...state[clinicId].patients[patientId],
+            lastRequestedDexcomConnectTime,
+          } } },
+        },
+      });
+    }
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const {
+        clinicId,
+        patientTags,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $set: patientTags } },
+      });
+    }
+    case types.FETCH_CLINIC_EHR_SETTINGS_SUCCESS: {
+      const {
+        clinicId,
+        settings,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: { ehrSettings: { $set: settings } },
+      });
+    }
+    case types.FETCH_CLINIC_MRN_SETTINGS_SUCCESS: {
+      const {
+        clinicId,
+        settings,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: { mrnSettings: { $set: settings } },
+      });
+    }
+    case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS: {
+      const { clinicId, patientCount } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientCount: { $set: patientCount } },
+      });
+    }
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS: {
+      const { clinicId, patientCountSettings } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientCountSettings: { $set: patientCountSettings } },
+      });
+    }
+    case types.SET_CLINIC_UI_DETAILS: {
+      const { clinicId, uiDetails } = action.payload;
+
+      return update(state, {
+        [clinicId]: { $set: { ...state[clinicId], ...uiDetails } },
+      });
+    }
     case types.LOGOUT_REQUEST:
       return initialState.clinics;
     default:
@@ -898,7 +1059,7 @@ export const clinics = (state = initialState.clinics, action) => {
 
 export const selectedClinicId = (state = initialState.selectedClinicId, action) => {
   switch(action.type) {
-    case types.SELECT_CLINIC:
+    case types.SELECT_CLINIC_SUCCESS:
       return _.get(action.payload, 'clinicId', null);
     case types.LOGOUT_REQUEST:
       return null;
@@ -954,8 +1115,88 @@ export const clinicFlowActive = (state = initialState.clinicFlowActive, action) 
       return action.payload.invites.length > 0 || state;
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
       return action.payload.clinics.length > 0 || state;
+    case types.FETCH_USER_SUCCESS:
+    case types.LOGIN_SUCCESS:
+      return _.includes(action.payload?.user?.roles, 'clinician') || state;
     case types.LOGOUT_REQUEST:
       return initialState.clinicFlowActive;
+    default:
+      return state;
+  }
+};
+
+export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
+  switch (action.type) {
+    case types.FETCH_INFO_SUCCESS:
+      if (!_.isMatch(state, action?.payload?.info?.auth)) {
+        return _.get(action.payload, 'info.auth', {});
+      }
+    case types.KEYCLOAK_READY:
+      let logoutUrl = _.get(action.payload, 'logoutUrl', '');
+      return _.extend({}, state, { initialized: true, logoutUrl });
+    case types.KEYCLOAK_AUTH_ERROR:
+      let error = _.get(action.payload, 'error', {});
+      let message = _.get(error, 'error', null);
+      return _.extend({}, state, { error: message });
+    default:
+      return state;
+  }
+};
+
+export const tideDashboardPatients = (state = initialState.tideDashboardPatients, action) => {
+  switch (action.type) {
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
+      return action?.payload?.results || initialState.tideDashboardPatients;
+    case types.UPDATE_CLINIC_PATIENT_SUCCESS:
+      const patient = _.get(action.payload, 'patient');
+      const patientId = _.get(action.payload, 'patientId');
+
+      const newResults = _.reduce(state.results, (results, value, key) => {
+        const matchingPatientIndex = _.findIndex(value, ({ patient }) => patient?.id === patientId);
+        results[key] = _.cloneDeep(value);
+        if (matchingPatientIndex >= 0) results[key][matchingPatientIndex].patient = patient;
+        return results;
+      }, {});
+
+      return update(state, {
+        results: { $set: newResults },
+      });
+
+    case types.LOGOUT_REQUEST:
+    case types.CLEAR_TIDE_DASHBOARD_PATIENTS:
+      return initialState.tideDashboardPatients;
+    default:
+      return state;
+  }
+};
+
+export const rpmReportPatients = (state = initialState.rpmReportPatients, action) => {
+  switch (action.type) {
+    case types.FETCH_RPM_REPORT_PATIENTS_SUCCESS:
+      return action?.payload?.results || initialState.rpmReportPatients;
+    case types.LOGOUT_REQUEST:
+    case types.CLEAR_RPM_REPORT_PATIENTS:
+      return initialState.rpmReportPatients;
+    default:
+      return state;
+  }
+};
+
+export const ssoEnabledDisplay = (state = initialState.ssoEnabledDisplay, action) => {
+  switch (action.type) {
+    case types.SET_SSO_ENABLED_DISPLAY:
+      return action.payload.value;
+    default:
+      return state;
+  }
+};
+
+export const pendoData = (state = initialState.pendoData, action) => {
+  switch (action.type) {
+    case types.SET_PENDO_DATA:
+      return action.payload.data;
+    case types.LOGOUT_REQUEST:
+      return initialState.pendoData;
     default:
       return state;
   }

@@ -24,7 +24,9 @@ describe('api', () => {
       getCurrentUser: sinon.stub(),
       getAssociatedUsersDetails: sinon.stub(),
       updateCustodialUser: sinon.stub(),
+      updateCurrentUser: sinon.stub(),
       addOrUpdateProfile: sinon.stub(),
+      addOrUpdatePreferences: sinon.stub(),
       signupStart: sinon.stub(),
       login: sinon.stub().callsArgWith(2, null, { userid: currentUserId }),
       logout: sinon.stub().callsArgWith(0, null),
@@ -66,6 +68,18 @@ describe('api', () => {
       deletePatientInvitation: sinon.stub(),
       getClinicByShareCode: sinon.stub(),
       triggerInitialClinicMigration: sinon.stub(),
+      sendPatientUploadReminder: sinon.stub(),
+      sendPatientDexcomConnectRequest: sinon.stub(),
+      createClinicPatientTag: sinon.stub(),
+      updateClinicPatientTag: sinon.stub(),
+      deleteClinicPatientTag: sinon.stub(),
+      getPatientsForTideDashboard: sinon.stub(),
+      getPatientsForRpmReport: sinon.stub(),
+      saveSession: sinon.stub(),
+      getClinicPatientCount: sinon.stub(),
+      getClinicPatientCountSettings: sinon.stub(),
+      setClinicPatientLastReviewed: sinon.stub(),
+      revertClinicPatientLastReviewed: sinon.stub(),
     };
 
     rollbar = {
@@ -84,7 +98,9 @@ describe('api', () => {
     tidepool.getAssociatedUsersDetails.resetHistory();
     tidepool.findProfile.resetHistory();
     tidepool.updateCustodialUser.resetHistory();
+    tidepool.updateCurrentUser.resetHistory();
     tidepool.addOrUpdateProfile.resetHistory();
+    tidepool.addOrUpdatePreferences.resetHistory();
     tidepool.signupStart.resetHistory();
     tidepool.login.resetHistory();
     tidepool.logout.resetHistory();
@@ -125,6 +141,18 @@ describe('api', () => {
     tidepool.deletePatientInvitation.resetHistory();
     tidepool.getClinicByShareCode.resetHistory();
     tidepool.triggerInitialClinicMigration.resetHistory();
+    tidepool.sendPatientUploadReminder.resetHistory();
+    tidepool.sendPatientDexcomConnectRequest.resetHistory();
+    tidepool.createClinicPatientTag.resetHistory();
+    tidepool.updateClinicPatientTag.resetHistory();
+    tidepool.deleteClinicPatientTag.resetHistory();
+    tidepool.getPatientsForTideDashboard.resetHistory();
+    tidepool.getPatientsForRpmReport.resetHistory();
+    tidepool.saveSession.resetHistory();
+    tidepool.getClinicPatientCount.resetHistory();
+    tidepool.getClinicPatientCountSettings.resetHistory();
+    tidepool.setClinicPatientLastReviewed.resetHistory();
+    tidepool.revertClinicPatientLastReviewed.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -312,6 +340,110 @@ describe('api', () => {
       });
     });
 
+    describe('put', () => {
+      before(() => {
+        tidepool.updateCurrentUser.callsArgWith(1, null, {
+          username: 'awesomeUsername2',
+        });
+        tidepool.addOrUpdateProfile.callsArgWith(2, null, {
+          here: 'be more dragons',
+        });
+        tidepool.addOrUpdatePreferences.callsArgWith(2, null, {
+          stuff: 'they really like',
+        });
+      });
+
+      beforeEach(() => {
+        tidepool.updateCurrentUser.resetHistory();
+        tidepool.addOrUpdateProfile.resetHistory();
+        tidepool.addOrUpdatePreferences.resetHistory();
+      });
+
+      after(() => {
+        tidepool.updateCurrentUser.reset();
+        tidepool.addOrUpdateProfile.reset();
+        tidepool.addOrUpdatePreferences.reset();
+      });
+
+      it('should update account, profile and preferences', () => {
+        const cb = sinon.stub();
+
+        api.user.put(
+          {
+            userid: 'bestUserIdEver',
+            username: 'awesomeUsername',
+            password: 'rockinPassword',
+            emails: ['awesomeUsername'],
+            profile: {
+              here: 'be dragons',
+            },
+            preferences: {
+              stuff: 'they like',
+            },
+          },
+          cb
+        );
+
+        sinon.assert.calledWith(tidepool.updateCurrentUser, {
+          username: 'awesomeUsername',
+          password: 'rockinPassword',
+          emails: ['awesomeUsername'],
+        });
+        sinon.assert.calledWith(tidepool.addOrUpdateProfile, 'bestUserIdEver', {
+          here: 'be dragons',
+        });
+        sinon.assert.calledWith(
+          tidepool.addOrUpdatePreferences,
+          'bestUserIdEver',
+          { stuff: 'they like' }
+        );
+        sinon.assert.calledWith(cb, null, {
+          username: 'awesomeUsername2',
+          profile: {
+            here: 'be more dragons',
+          },
+          preferences: {
+            stuff: 'they really like',
+          },
+        });
+      });
+
+      it('should only make user update call if necessary', () => {
+        const cb = sinon.stub();
+
+        api.user.put(
+          {
+            userid: 'bestUserIdEver',
+            profile: {
+              here: 'be dragons',
+            },
+            preferences: {
+              stuff: 'they like',
+            },
+          },
+          cb
+        );
+
+        sinon.assert.notCalled(tidepool.updateCurrentUser);
+        sinon.assert.calledWith(tidepool.addOrUpdateProfile, 'bestUserIdEver', {
+          here: 'be dragons',
+        });
+        sinon.assert.calledWith(
+          tidepool.addOrUpdatePreferences,
+          'bestUserIdEver',
+          { stuff: 'they like' }
+        );
+        sinon.assert.calledWith(cb, null, {
+          profile: {
+            here: 'be more dragons',
+          },
+          preferences: {
+            stuff: 'they really like',
+          },
+        });
+      });
+    });
+
     describe('getAssociatedAccounts', () => {
       it('should call `tidepool.getAssociatedUsersDetails` with the current userId', () => {
         api.user.getAssociatedAccounts(noop);
@@ -367,12 +499,16 @@ describe('api', () => {
     });
 
     describe('login', () => {
-      it('should set the user config in Rollbar', () => {
-        const cb = sinon.stub();
-        const user = {
-          username: 'user@account.com',
-        }
+      const cb = sinon.stub();
+      const user = {
+        username: 'user@account.com',
+      };
 
+      afterEach(() => {
+        cb.resetHistory();
+      });
+
+      it('should set the user config in Rollbar', () => {
         api.user.login(user, cb);
 
         sinon.assert.calledOnce(rollbar.configure);
@@ -385,6 +521,16 @@ describe('api', () => {
             },
           },
         });
+      });
+
+      it('should not attempt to login a user who is already logged in', () => {
+        tidepool.isLoggedIn.returns(true);
+        sinon.assert.notCalled(tidepool.isLoggedIn);
+        api.user.login(user, cb);
+        sinon.assert.calledOnce(tidepool.isLoggedIn);
+        sinon.assert.notCalled(tidepool.login);
+        sinon.assert.calledOnce(cb);
+        tidepool.isLoggedIn.resetBehavior();
       });
     });
 
@@ -400,6 +546,30 @@ describe('api', () => {
             person: null,
           },
         });
+      });
+    });
+
+    describe('saveSession', () => {
+      const cb = sinon.stub();
+      const userId = 'userID123';
+      const token = 'sessionToken';
+      const options = { some: 'option' };
+
+      it('should set the appropriate session information', () => {
+        api.user.saveSession(userId, token, options, cb);
+        sinon.assert.calledOnce(tidepool.saveSession);
+        sinon.assert.calledWith(
+          tidepool.saveSession,
+          userId,
+          token,
+          options
+        );
+      });
+
+      it('should allow omitting options', () => {
+        api.user.saveSession(userId, token, cb);
+        sinon.assert.calledOnce(tidepool.saveSession);
+        sinon.assert.calledWith(tidepool.saveSession, userId, token, {});
       });
     });
   });
@@ -874,6 +1044,102 @@ describe('api', () => {
         const clinicId = 'clinicId123';
         api.clinics.triggerInitialClinicMigration(clinicId, cb);
         sinon.assert.calledWith(tidepool.triggerInitialClinicMigration, clinicId, cb);
+      });
+    });
+    describe('clinics.sendPatientUploadReminder', () => {
+      it('should call tidepool.sendPatientUploadReminder with the appropriate args', () => {
+        const cb = sinon.stub();
+        const patientId = 'patientId123';
+        const clinicId = 'clinicId123';
+        api.clinics.sendPatientUploadReminder(clinicId, patientId, cb);
+        sinon.assert.calledWith(tidepool.sendPatientUploadReminder, clinicId, patientId, cb);
+      });
+    });
+    describe('clinics.sendPatientDexcomConnectRequest', () => {
+      it('should call tidepool.sendPatientDexcomConnectRequest with the appropriate args', () => {
+        const cb = sinon.stub();
+        const patientId = 'patientId123';
+        const clinicId = 'clinicId123';
+        api.clinics.sendPatientDexcomConnectRequest(clinicId, patientId, cb);
+        sinon.assert.calledWith(tidepool.sendPatientDexcomConnectRequest, clinicId, patientId, cb);
+      });
+    });
+    describe('clinics.createClinicPatientTag', () => {
+      it('should call tidepool.createClinicPatientTag with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const patientTag = { name: 'patientTag123' };
+        api.clinics.createClinicPatientTag(clinicId, patientTag, cb);
+        sinon.assert.calledWith(tidepool.createClinicPatientTag, clinicId, patientTag, cb);
+      });
+    });
+    describe('clinics.updateClinicPatientTag', () => {
+      it('should call tidepool.updateClinicPatientTag with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const patientTagId = 'patientTagId123';
+        const patientTag = { name: 'patientTag123' };
+        api.clinics.updateClinicPatientTag(clinicId, patientTagId, patientTag, cb);
+        sinon.assert.calledWith(tidepool.updateClinicPatientTag, clinicId, patientTagId, patientTag, cb);
+      });
+    });
+    describe('clinics.deleteClinicPatientTag', () => {
+      it('should call tidepool.deleteClinicPatientTag with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const patientTagId = 'patientTagId123';
+        api.clinics.deleteClinicPatientTag(clinicId, patientTagId, cb);
+        sinon.assert.calledWith(tidepool.deleteClinicPatientTag, clinicId, patientTagId, cb);
+      });
+    });
+    describe('clinics.getPatientsForTideDashboard', () => {
+      it('should call tidepool.getPatientsForTideDashboard with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const options = 'options123';
+        api.clinics.getPatientsForTideDashboard(clinicId, options, cb);
+        sinon.assert.calledWith(tidepool.getPatientsForTideDashboard, clinicId, options, cb);
+      });
+    });
+    describe('clinics.getPatientsForRpmReport', () => {
+      it('should call tidepool.getPatientsForRpmReport with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        const options = 'options123';
+        api.clinics.getPatientsForRpmReport(clinicId, options, cb);
+        sinon.assert.calledWith(tidepool.getPatientsForRpmReport, clinicId, options, cb);
+      });
+    });
+    describe('clinics.getClinicPatientCount', () => {
+      it('should call tidepool.getClinicPatientCount with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.getClinicPatientCount(clinicId, cb);
+        sinon.assert.calledWith(tidepool.getClinicPatientCount, clinicId, cb);
+      });
+    });
+    describe('clinics.getClinicPatientCountSettings', () => {
+      it('should call tidepool.getClinicPatientCountSettings with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.getClinicPatientCountSettings(clinicId, cb);
+        sinon.assert.calledWith(tidepool.getClinicPatientCountSettings, clinicId, cb);
+      });
+    });
+    describe('clinics.setClinicPatientLastReviewed', () => {
+      it('should call tidepool.setClinicPatientLastReviewed with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.setClinicPatientLastReviewed(clinicId, cb);
+        sinon.assert.calledWith(tidepool.setClinicPatientLastReviewed, clinicId, cb);
+      });
+    });
+    describe('clinics.revertClinicPatientLastReviewed', () => {
+      it('should call tidepool.revertClinicPatientLastReviewed with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId123';
+        api.clinics.revertClinicPatientLastReviewed(clinicId, cb);
+        sinon.assert.calledWith(tidepool.revertClinicPatientLastReviewed, clinicId, cb);
       });
     });
   });

@@ -96,6 +96,7 @@ describe('ClinicianEdit', () => {
         clinicID456: {
           clinicians: {
             clinicianUserId123: {
+              name:'clinician_user_name',
               id:'clinicianUserId123',
               roles: ['CLINIC_MEMBER'],
             },
@@ -105,12 +106,6 @@ describe('ClinicianEdit', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       loggedInUserId: 'clinicianUserId123',
@@ -119,7 +114,7 @@ describe('ClinicianEdit', () => {
     },
   });
 
-  const fetchedAdminState = _.merge({}, fetchedDataState, {
+  const fetchedLastAdminState = _.merge({}, fetchedDataState, {
     blip: {
       clinics: {
         clinicID456: {
@@ -132,6 +127,38 @@ describe('ClinicianEdit', () => {
       },
     },
   });
+
+  const fetchedAdminState = _.merge({}, fetchedDataState, {
+    blip: {
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              roles: ['CLINIC_ADMIN'],
+            },
+            clinicianUserId456: {
+              roles: ['CLINIC_ADMIN'],
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const fetchedAdminInvitedState = _.merge({}, fetchedAdminState, {
+    blip: {
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId456: {
+              inviteId: 'some-awesome-inviteId-here',
+            },
+          },
+        },
+      },
+    },
+
+  })
 
   const noClinicianState = { state: {} };
 
@@ -223,14 +250,84 @@ describe('ClinicianEdit', () => {
       expect(wrapper.find(Checkbox).props().checked).to.be.false;
       wrapper
         .find('input[type="checkbox"]').at(0)
-        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', checked: true, value: true } });
       expect(wrapper.find(Checkbox).props().checked).to.be.true;
     });
 
     it('should show confirmation dialog when delete clicked', () => {
-      expect(wrapper.find('Dialog#deleteDialog').props().open).to.be.false;
-      wrapper.find('div[color="feedback.danger"]').at(0).simulate('click');
-      expect(wrapper.find('Dialog#deleteDialog').props().open).to.be.true;
+      let deleteDialog = () => wrapper.find('Dialog#deleteDialog');
+      expect(deleteDialog().props().open).to.be.false;
+      wrapper.find('span#remove-team-member').at(0).simulate('click');
+      expect(deleteDialog().props().open).to.be.true;
+      expect(deleteDialog().find('DialogTitle').text()).to.equal('Remove clinician_user_name');
+      expect(deleteDialog().find('Button#deleteDialogCancel')).to.have.lengthOf(1);
+      expect(deleteDialog().find('Button#deleteDialogRemove')).to.have.lengthOf(1);
+    });
+
+    context('user is last admin', () => {
+      beforeEach(() => {
+        store = mockStore(fetchedLastAdminState);
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicianEdit {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+      });
+
+      it("should prevent user from removing themselves if they're the last admin", () => {
+        let deleteDialog = () => wrapper.find('Dialog#deleteDialog');
+        expect(deleteDialog().props().open).to.be.false;
+        wrapper.find('span#remove-team-member').at(0).simulate('click');
+        expect(deleteDialog().props().open).to.be.true;
+        expect(deleteDialog().find('DialogTitle').text()).to.equal(
+          'Unable to remove yourself'
+        );
+        expect(
+          deleteDialog().find('Button#deleteDialogCancel')
+        ).to.have.lengthOf(1);
+        expect(
+          deleteDialog().find('Button#deleteDialogRemove')
+        ).to.have.lengthOf(0);
+      });
+
+      it("should prevent user from changing permissions if they're the last admin", () => {
+        expect(wrapper.find('RadioGroup').props().disabled).to.be.true;
+      });
+    });
+
+    context('user is last admin with another admin invited', () => {
+      beforeEach(() => {
+        store = mockStore(fetchedAdminInvitedState);
+        wrapper = mount(
+          <Provider store={store}>
+            <ToastProvider>
+              <ClinicianEdit {...defaultProps} />
+            </ToastProvider>
+          </Provider>
+        );
+      });
+
+      it("should prevent user from removing themselves if they're the last admin", () => {
+        let deleteDialog = () => wrapper.find('Dialog#deleteDialog');
+        expect(deleteDialog().props().open).to.be.false;
+        wrapper.find('span#remove-team-member').at(0).simulate('click');
+        expect(deleteDialog().props().open).to.be.true;
+        expect(deleteDialog().find('DialogTitle').text()).to.equal(
+          'Unable to remove yourself'
+        );
+        expect(
+          deleteDialog().find('Button#deleteDialogCancel')
+        ).to.have.lengthOf(1);
+        expect(
+          deleteDialog().find('Button#deleteDialogRemove')
+        ).to.have.lengthOf(0);
+      });
+
+      it("should prevent user from changing permissions if they're the last admin", () => {
+        expect(wrapper.find('RadioGroup').props().disabled).to.be.true;
+      });
     });
 
     it('should navigate to "clinic-admin" when back button pushed without edit', () => {
@@ -267,7 +364,7 @@ describe('ClinicianEdit', () => {
 
       wrapper
         .find('input[type="checkbox"]').at(0)
-        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', value: true } });
+        .simulate('change', { persist: _.noop, target: { name: 'prescriberPermission', checked: true, value: true } });
 
       wrapper.find('Button#submit').simulate('submit');
       setTimeout(() => {
@@ -276,7 +373,7 @@ describe('ClinicianEdit', () => {
           defaultProps.api.clinics.updateClinician,
           'clinicID456',
           'clinicianUserId123',
-          { id: 'clinicianUserId123', roles: ['CLINIC_MEMBER', 'PRESCRIBER'] },
+          {name: 'clinician_user_name', id: 'clinicianUserId123', roles: ['CLINIC_MEMBER', 'PRESCRIBER'] },
         );
 
         expect(store.getActions()).to.eql([
@@ -287,6 +384,7 @@ describe('ClinicianEdit', () => {
               'clinicId': 'clinicID456',
               'clinicianId': 'clinicianUserId123',
               'clinician': {
+                'name': 'clinician_user_name',
                 'id': 'clinicianUserId123',
                 'roles': ['CLINIC_MEMBER', 'PRESCRIBER'],
               },

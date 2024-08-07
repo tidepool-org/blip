@@ -5,7 +5,7 @@ import filter from 'lodash/filter';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
-import { Flex, Box } from 'rebass/styled-components';
+import { Flex, Box } from 'theme-ui';
 import moment from 'moment-timezone';
 
 import Button from './elements/Button';
@@ -153,7 +153,7 @@ export const ChartDateRangeModal = (props) => {
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{title}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider minWidth="400px" p={0}>
+      <DialogContent divider sx={{ minWidth: '400px' }} p={0}>
         <Box px={3}>
           <Box mb={5}>
             <Body1 mb={2}>{t('Number of days (most recent)')}</Body1>
@@ -190,23 +190,25 @@ export const ChartDateRangeModal = (props) => {
               )}
               onFocusChange={input => setDatePickerOpen(!!input)}
               themeProps={{
-                minWidth: '580px',
-                minHeight: datePickerOpen ? '350px' : undefined,
+                sx: {
+                  minWidth: '580px',
+                  minHeight: datePickerOpen ? '326px' : undefined,
+                },
               }}
             />
           </Box>
           {errors && (
-            <Caption mt={2} color="feedback.danger" id="chart-dates-error">
+            <Caption mt={2} sx={{ color: 'feedback.danger' }} id="chart-dates-error">
               {errors}
             </Caption>
           )}
         </Box>
       </DialogContent>
-      <DialogActions justifyContent="space-between" py={2}>
+      <DialogActions sx={{ justifyContent: 'space-between' }} py="12px">
         <Button variant="textSecondary" className="chart-dates-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>
-        <Button variant="textPrimary" className="chart-dates-submit" processing={processing} onClick={handleSubmit}>
+        <Button variant="primary" className="chart-dates-submit" processing={processing} onClick={handleSubmit}>
           {t('Apply')}
         </Button>
       </DialogActions>

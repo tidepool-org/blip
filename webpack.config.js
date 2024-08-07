@@ -2,10 +2,11 @@ const path = require('path');
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const RollbarSourceMapPlugin = require('rollbar-sourcemap-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const terser = require('terser');
 const fs = require('fs');
 const pkg = require('./package.json');
@@ -20,15 +21,16 @@ const isProd = (process.env.NODE_ENV === 'production');
 // Get config from local config file or process.env
 const linkedPackages = (isDev || isTest) ? _.get(optional('./config/local'), 'linkedPackages', {}) : {};
 const apiHost = _.get(optional('./config/local'), 'apiHost', process.env.API_HOST || null);
+const uploadApi = _.get(optional('./config/local'), 'uploadApi', process.env.UPLOAD_API || null);
+const launchDarklyClientToken = _.get(optional('./config/local'), 'launchDarklyClientToken', process.env.LAUNCHDARKLY_CLIENT_TOKEN || null);
 const featureFlags = _.get(optional('./config/local'), 'featureFlags', {
   i18nEnabled: process.env.I18N_ENABLED || false,
   rxEnabled: process.env.RX_ENABLED || false,
   pendoEnabled: process.env.PENDO_ENABLED || true,
-  clinicsEnabled: process.env.CLINICS_ENABLED || false,
 });
 
 const VERSION = pkg.version;
-const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
+const ROLLBAR_POST_CLIENT_TOKEN = '6158068d70fd485ba03e72ce5ffb8998';
 const ROLLBAR_POST_SERVER_TOKEN = process.env.ROLLBAR_POST_SERVER_TOKEN;
 
 const VERSION_SHA = process.env.TRAVIS_COMMIT
@@ -43,28 +45,27 @@ const localIdentName = process.env.NODE_ENV === 'test'
   : '[name]--[local]--[hash:base64:5]';
 
 const styleLoaderConfiguration = {
-  test: /\.(less|css)$/,
+  test: /\.((c|le)ss)$/i,
   use: [
     (isDev || isTest) ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
       loader: 'css-loader',
-      query: {
+      options: {
         importLoaders: 2,
-        localIdentName,
         sourceMap: isDev,
       },
     },
     {
       loader: 'postcss-loader',
-      options: {
-        sourceMap: isDev,
-      },
     },
     {
       loader: 'less-loader',
       options: {
         sourceMap: isDev,
-        javascriptEnabled: true,
+        lessOptions: {
+          javascriptEnabled: true,
+          math: 'always',
+        },
       },
     },
   ],
@@ -92,49 +93,39 @@ const babelLoaderConfiguration = [
       loader: 'source-map-loader',
     },
   },
+  { // Needed to resolve material-ui
+    test: /\.m?js/,
+    resolve: {
+      fullySpecified: false,
+    }
+  },
 ];
 
 // This is needed for webpack to import static images in JavaScript files
 const imageLoaderConfiguration = {
   test: /\.(gif|jpe?g|png|svg)$/,
-  use: {
-    loader: 'url-loader',
-    options: {
-      name: '[name].[ext]',
-    },
+  exclude: [
+    /node_modules\/@tidepool\/viz(([/\\]).*)static-assets/,
+    /node_modules\/@tidepool\/viz(([/\\]).*)lazy-assets/,
+  ],
+  type: 'asset',
+  generator: {
+    filename: '[name].[ext]',
   },
 };
 
 const fontLoaderConfiguration = [
   {
     test: /\.eot$/,
-    use: {
-      loader: 'url-loader',
-      query: {
-        limit: 10000,
-        mimetype: 'application/vnd.ms-fontobject',
-      },
-    },
+    type: 'asset',
   },
   {
     test: /\.woff$/,
-    use: {
-      loader: 'url-loader',
-      query: {
-        limit: 10000,
-        mimetype: 'application/font-woff',
-      },
-    },
+    type: 'asset',
   },
   {
     test: /\.ttf$/,
-    use: {
-      loader: 'url-loader',
-      query: {
-        limit: 10000,
-        mimetype: 'application/octet-stream',
-      },
-    },
+    type: 'asset',
   },
 ];
 
@@ -146,7 +137,7 @@ const plugins = [
     'process.env': {
       'NODE_ENV': isDev ? JSON.stringify('development') : JSON.stringify('production'),
     },
-    __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
+    __UPLOAD_API__: JSON.stringify(uploadApi),
     __API_HOST__: JSON.stringify(apiHost),
     __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
     __LATEST_TERMS__: JSON.stringify(process.env.LATEST_TERMS || null),
@@ -156,32 +147,35 @@ const plugins = [
     __I18N_ENABLED__: JSON.stringify(featureFlags.i18nEnabled),
     __RX_ENABLED__: JSON.stringify(featureFlags.rxEnabled),
     __PENDO_ENABLED__: JSON.stringify(featureFlags.pendoEnabled),
-    __CLINICS_ENABLED__: JSON.stringify(featureFlags.clinicsEnabled),
     __VERSION__: JSON.stringify(VERSION),
     __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
+    __LAUNCHDARKLY_CLIENT_TOKEN__: JSON.stringify(launchDarklyClientToken),
     __VERSION_SHA__: JSON.stringify(VERSION_SHA),
     __DEV__: isDev,
     __TEST__: isTest,
     __PROD__: isProd,
     __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq
   }),
+  new webpack.ProvidePlugin({
+    Buffer: ['buffer', 'Buffer'],
+    process: 'process/browser.js',
+  }),
   new MiniCssExtractPlugin({
     filename: isDev ? 'style.css' : 'style.[contenthash].css',
   }),
-  new CopyWebpackPlugin([
-    {
-      from: 'static',
-      transform: (content, path) => {
-        if (isDev) {
-         return content;
-        }
-
-        const code = fs.readFileSync(path, 'utf8');
-        const result = terser.minify(code);
-        return result.code;
-      }
-    }
-  ]),
+  new CopyWebpackPlugin({
+    patterns: [
+      {
+        from: 'static',
+        transform: (content, path) => {
+          if (isDev || !path.endsWith('js')) return content;
+          const code = fs.readFileSync(path, 'utf8');
+          const result = terser.minify(code);
+          return result.code;
+        },
+      },
+    ],
+  }),
   new HtmlWebpackPlugin({
     template: 'index.ejs',
     favicon: 'favicon.ico',
@@ -193,6 +187,7 @@ const plugins = [
 
 if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin());
+  plugins.push(new ReactRefreshWebpackPlugin({ overlay: false}));
 } else if (isProd) {
   plugins.push(
     /** Upload sourcemap to Rollbar */
@@ -218,7 +213,8 @@ const entry = isDev
   ];
 
 const output = {
-  filename: 'bundle.js',
+  filename: '[name].js',
+  chunkFilename: '[name].chunk.js',
   path: path.join(__dirname, '/dist'),
   publicPath: isDev ? devPublicPath : '/',
   globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
@@ -232,11 +228,21 @@ const resolve = {
     lodash: path.resolve('node_modules/lodash'),
     moment: path.resolve('node_modules/moment'),
     'moment-timezone': path.resolve('node_modules/moment-timezone'),
+    process: path.resolve('node_modules/process'),
     react: path.resolve('node_modules/react'),
-    'react-dom': '@hot-loader/react-dom',
     'react-addons-update': path.resolve('node_modules/react-addons-update'),
     'react-redux': path.resolve('node_modules/react-redux'),
     redux: path.resolve('node_modules/redux'),
+  },
+  fallback: {
+    // crypto module is not necessary at browser
+    crypto: false,
+    // fallbacks for native node libraries (required for PDFKit)
+    buffer: require.resolve('buffer/'),
+    stream: require.resolve('readable-stream'),
+    zlib: require.resolve('browserify-zlib'),
+    util: require.resolve('util/'),
+    assert: require.resolve('assert/')
   },
 };
 
@@ -245,10 +251,20 @@ if (process.env.WEBPACK_DEVTOOL === false) devtool = undefined;
 
 module.exports = {
   devServer: {
-    publicPath: output.publicPath,
+    static: { publicPath: output.publicPath },
     historyApiFallback: true,
     hot: isDev,
-    clientLogLevel: 'info',
+    client: {
+      logging: 'info',
+      overlay: {
+        runtimeErrors: (error) => {
+          if(error.name === 'LaunchDarklyFlagFetchError') {
+            return false;
+          }
+          return true;
+        }
+      }
+     },
   },
   devtool,
   entry,
@@ -282,7 +298,7 @@ module.exports = {
           }
         }
       }),
-      new OptimizeCSSAssetsPlugin({}),
+      new CssMinimizerPlugin(),
     ],
   },
   output,
@@ -291,9 +307,6 @@ module.exports = {
   resolveLoader: resolve,
   cache: isDev,
   watchOptions: {
-    ignored: [
-      /node_modules([\\]+|\/)+(?!(tideline|tidepool-platform-client|@tidepool\/viz))/,
-      /(tideline|tidepool-platform-client|@tidepool\/viz)([\\]+|\/)node_modules/
-    ]
+    ignored: /node_modules([\\]+|\/)+(?!(tideline|tidepool-platform-client|@tidepool\/viz))|(tideline|tidepool-platform-client|@tidepool\/viz)([\\]+|\/)node_modules/,
   },
 };

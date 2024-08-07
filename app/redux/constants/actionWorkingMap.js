@@ -349,6 +349,16 @@ export default (type) => {
     case types.UPDATE_PATIENT_PERMISSIONS_FAILURE:
       return 'updatingPatientPermissions';
 
+    case types.FETCH_CLINIC_MRN_SETTINGS_REQUEST:
+    case types.FETCH_CLINIC_MRN_SETTINGS_SUCCESS:
+    case types.FETCH_CLINIC_MRN_SETTINGS_FAILURE:
+      return 'fetchingClinicMRNSettings';
+
+    case types.FETCH_CLINIC_EHR_SETTINGS_REQUEST:
+    case types.FETCH_CLINIC_EHR_SETTINGS_SUCCESS:
+    case types.FETCH_CLINIC_EHR_SETTINGS_FAILURE:
+      return 'fetchingClinicEHRSettings';
+
     case types.FETCH_CLINICS_FOR_PATIENT_REQUEST:
     case types.FETCH_CLINICS_FOR_PATIENT_SUCCESS:
     case types.FETCH_CLINICS_FOR_PATIENT_FAILURE:
@@ -378,6 +388,66 @@ export default (type) => {
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
       return 'triggeringInitialClinicMigration';
+
+    case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
+      return 'sendingPatientUploadReminder';
+
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE:
+      return 'sendingPatientDexcomConnectRequest';
+
+    case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
+      return 'creatingClinicPatientTag';
+
+    case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:
+      return 'updatingClinicPatientTag';
+
+    case types.DELETE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
+      return 'deletingClinicPatientTag';
+
+    case types.FETCH_INFO_REQUEST:
+    case types.FETCH_INFO_SUCCESS:
+    case types.FETCH_INFO_FAILURE:
+      return 'fetchingInfo';
+
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST:
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE:
+      return 'fetchingTideDashboardPatients';
+
+    case types.FETCH_RPM_REPORT_PATIENTS_REQUEST:
+    case types.FETCH_RPM_REPORT_PATIENTS_SUCCESS:
+    case types.FETCH_RPM_REPORT_PATIENTS_FAILURE:
+      return 'fetchingRpmReportPatients';
+
+    case types.FETCH_CLINIC_PATIENT_COUNT_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNT_FAILURE:
+      return 'fetchingClinicPatientCount';
+
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE:
+      return 'fetchingClinicPatientCountSettings';
+
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
+      return 'settingClinicPatientLastReviewed';
+
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
+      return 'revertingClinicPatientLastReviewed';
 
     default:
       return null;

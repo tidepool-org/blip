@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import MuiDialog, { DialogProps } from '@material-ui/core/Dialog';
-import styled from 'styled-components';
-import { Flex, FlexProps, Box, BoxProps } from 'rebass/styled-components';
+import styled from '@emotion/styled';
+import { Flex, FlexProps, Box, BoxProps } from 'theme-ui';
 
 import { Icon } from './Icon';
 
@@ -15,20 +15,19 @@ import {
 } from '../../themes/baseTheme';
 
 /* Dialog Title Start */
-export const DialogTitle = props => {
+export function DialogTitle(props) {
   const {
     children,
     closeIcon,
     onClose,
+    sx = {},
     ...dialogTitleProps
   } = props;
 
   return (
     <Flex
       p={3}
-      justifyContent="space-between"
-      alignItems="center"
-      sx={{ borderBottom: props.divider ? borders.divider : 'unset' }}
+      sx={{ alignItems: 'center', justifyContent: 'space-between', borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
       {...dialogTitleProps}
     >
       {children}
@@ -38,11 +37,14 @@ export const DialogTitle = props => {
           onClick={onClose}
           icon={CloseRoundedIcon}
           variant="button"
+          sx={{
+            zIndex: 1,
+          }}
         />
       )}
     </Flex>
   );
-};
+}
 
 DialogTitle.propTypes = {
   ...FlexProps,
@@ -67,13 +69,13 @@ const StyledDialogContent = styled(Box)`
   }
 `;
 
-export const DialogContent = props => (
-  <StyledDialogContent
+export function DialogContent({ sx = {}, ...props }) {
+  return <StyledDialogContent
     p={3}
-    sx={{ borderBottom: props.divider ? borders.divider : 'unset' }}
+    sx={{ borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
     {...props}
-  />
-);
+  />;
+}
 
 DialogContent.propTypes = {
   ...BoxProps,
@@ -92,13 +94,13 @@ const StyledDialogActions = styled(Flex)`
   }
 `;
 
-export const DialogActions = props => (
-  <StyledDialogActions
-    justifyContent="flex-end"
+export function DialogActions(props) {
+  return <StyledDialogActions
+    sx={{ justifyContent: 'flex-end' }}
     p={3}
     {...props}
-  />
-);
+  />;
+}
 
 DialogActions.propTypes = {
   ...FlexProps,
@@ -108,6 +110,10 @@ DialogActions.propTypes = {
 /* Dialog Start */
 const StyledDialog = styled(MuiDialog)`
   z-index: ${props => (props.zIndex || '1310')} !important;
+
+  &[aria-hidden] {
+    z-index: -1 !important;
+  }
 
   .MuiBackdrop-root {
     background-color: rgba(66, 90, 112, 0.81);
@@ -119,7 +125,9 @@ const StyledDialog = styled(MuiDialog)`
   }
 `;
 
-export const Dialog = props => <StyledDialog {...props} />;
+export function Dialog(props) {
+  return <StyledDialog {...props} container={() => document.getElementById('dialog-container')} />;
+}
 
 Dialog.propTypes = {
   ...DialogProps,

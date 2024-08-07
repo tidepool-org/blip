@@ -69,6 +69,16 @@ api.server.getTime = function(cb) {
   });
 };
 
+api.server.getInfo = (cb) => {
+  api.log('GET /info');
+  tidepool.checkUploadVersions((err, resp) => {
+    if (err) {
+      return cb(err);
+    }
+    return cb(null, resp);
+  });
+};
+
 // ----- User -----
 api.user = {};
 
@@ -76,7 +86,7 @@ api.user.isAuthenticated = function() {
   return tidepool.isLoggedIn();
 };
 
-api.user.login = function(user, options, cb) {
+api.user.login = function (user, options, cb) {
   api.log('POST /user/login');
 
   options = options || {};
@@ -85,22 +95,40 @@ api.user.login = function(user, options, cb) {
     options = {};
   }
 
-  tidepool.login(user, options, function(err, data) {
+  if (!tidepool.isLoggedIn()) {
+    tidepool.login(user, options, function (err, data) {
+      if (err) {
+        return cb(err);
+      }
+
+      // Set account info in Rollbar config
+      _.isFunction(rollbar.configure) && rollbar.configure({
+        payload: {
+          person: {
+            id: data.userid,
+            email: user.username,
+            username: user.username,
+          }
+        }
+      });
+      cb();
+    });
+  } else {
+    cb();
+  }
+};
+
+api.user.saveSession = function (userId, token, options, cb) {
+  api.log('saveSession');
+  options = options || {};
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
+  }
+  tidepool.saveSession(userId, token, options, function (err, session) {
     if (err) {
       return cb(err);
     }
-
-    // Set account info in Rollbar config
-    _.isFunction(rollbar.configure) && rollbar.configure({
-      payload: {
-        person: {
-          id: data.userid,
-          email: user.username,
-          username: user.username,
-        }
-      }
-    });
-
     cb();
   });
 };
@@ -303,8 +331,10 @@ api.user.put = function(user, cb) {
   const profile = profileFromUser(user);
   const preferences = preferencesFromUser(user);
 
+  const accountUpdates = _.pick(account, 'username', 'password', 'emails', 'termsAccepted');
+
   async.series({
-    account: tidepool.updateCurrentUser.bind(tidepool, account),
+    account: !_.isEmpty(accountUpdates) ? tidepool.updateCurrentUser.bind(tidepool, account) : (cb) => cb(null, account),
     profile: tidepool.addOrUpdateProfile.bind(tidepool, user.userid, profile),
     preferences: tidepool.addOrUpdatePreferences.bind(tidepool, user.userid, preferences)
   },
@@ -955,8 +985,8 @@ api.clinics.getPatientInvites = function(clinicId, cb) {
   return tidepool.getPatientInvites(clinicId, cb);
 };
 
-api.clinics.acceptPatientInvitation = function(clinicId, inviteId, cb) {
-  return tidepool.acceptPatientInvitation(clinicId, inviteId, cb);
+api.clinics.acceptPatientInvitation = function(clinicId, inviteId, patientDetails, cb) {
+  return tidepool.acceptPatientInvitation(clinicId, inviteId, patientDetails, cb);
 };
 
 api.clinics.deletePatientInvitation = function(clinicId, inviteId, cb) {
@@ -965,6 +995,14 @@ api.clinics.deletePatientInvitation = function(clinicId, inviteId, cb) {
 
 api.clinics.updatePatientPermissions = function(clinicId, patientId, permissions, cb) {
   return tidepool.updatePatientPermissions(clinicId, patientId, permissions, cb);
+};
+
+api.clinics.getMRNSettings = function(clinicId, cb) {
+  return tidepool.getClinicMRNSettings(clinicId, cb);
+};
+
+api.clinics.getEHRSettings = function(clinicId, cb) {
+  return tidepool.getClinicEHRSettings(clinicId, cb);
 };
 
 api.clinics.getClinicsForPatient = function(userId, options, cb) {
@@ -997,6 +1035,50 @@ api.clinics.getClinicByShareCode = function(shareCode, cb) {
 
 api.clinics.triggerInitialClinicMigration = function(clinicId, cb) {
   return tidepool.triggerInitialClinicMigration(clinicId, cb);
+};
+
+api.clinics.sendPatientUploadReminder = function(clinicId, patientId, cb) {
+  return tidepool.sendPatientUploadReminder(clinicId, patientId, cb);
+};
+
+api.clinics.sendPatientDexcomConnectRequest = function(clinicId, patientId, cb) {
+  return tidepool.sendPatientDexcomConnectRequest(clinicId, patientId, cb);
+};
+
+api.clinics.createClinicPatientTag = function(clinicId, patientTag, cb) {
+  return tidepool.createClinicPatientTag(clinicId, patientTag, cb);
+};
+
+api.clinics.updateClinicPatientTag = function(clinicId, patientTagId, patientTag, cb) {
+  return tidepool.updateClinicPatientTag(clinicId, patientTagId, patientTag, cb);
+};
+
+api.clinics.deleteClinicPatientTag = function(clinicId, patientTagId, cb) {
+  return tidepool.deleteClinicPatientTag(clinicId, patientTagId, cb);
+};
+
+api.clinics.getPatientsForTideDashboard = function(clinicId, options, cb) {
+  return tidepool.getPatientsForTideDashboard(clinicId, options, cb);
+};
+
+api.clinics.getPatientsForRpmReport = function(clinicId, options, cb) {
+  return tidepool.getPatientsForRpmReport(clinicId, options, cb);
+};
+
+api.clinics.getClinicPatientCount = function(clinicId, cb) {
+  return tidepool.getClinicPatientCount(clinicId, cb);
+};
+
+api.clinics.getClinicPatientCountSettings = function(clinicId, cb) {
+  return tidepool.getClinicPatientCountSettings(clinicId, cb);
+};
+
+api.clinics.setClinicPatientLastReviewed = function(clinicId, patientId, cb) {
+  return tidepool.setClinicPatientLastReviewed(clinicId, patientId, cb);
+};
+
+api.clinics.revertClinicPatientLastReviewed = function(clinicId, patientId, cb) {
+  return tidepool.revertClinicPatientLastReviewed(clinicId, patientId, cb);
 };
 
 // ----- Errors -----

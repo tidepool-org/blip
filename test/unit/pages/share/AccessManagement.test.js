@@ -47,10 +47,6 @@ describe('AccessManagement', () => {
   };
 
   before(() => {
-    AccessManagement.__Rewire__('config', {
-      CLINICS_ENABLED: true,
-    });
-
     mount = createMount();
   });
 
@@ -63,7 +59,6 @@ describe('AccessManagement', () => {
   });
 
   after(() => {
-    AccessManagement.__ResetDependency__('config');
     mount.cleanUp();
   });
 
@@ -136,12 +131,6 @@ describe('AccessManagement', () => {
           address: '2 Address Ln, City Zip',
           name: 'other_clinic_name',
           email: 'other_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 444-4444',
-              type: 'Office',
-            },
-          ],
         },
         clinicID456: {
           clinicians:{},
@@ -156,12 +145,6 @@ describe('AccessManagement', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       membersOfTargetCareTeam: [
@@ -210,10 +193,10 @@ describe('AccessManagement', () => {
     );
   });
 
-  it('should render an Invite New Member button', () => {
-    const inviteButton = wrapper.find('button#invite-member');
+  it('should render a Share Data button', () => {
+    const inviteButton = wrapper.find('button#invite');
     expect(inviteButton).to.have.length(1);
-    expect(inviteButton.text()).to.equal('Invite New Member');
+    expect(inviteButton.text()).to.equal('Share Data');
     expect(inviteButton.props().onClick).to.be.a('function');
 
     const expectedActions = [
@@ -221,31 +204,7 @@ describe('AccessManagement', () => {
         type: '@@router/CALL_HISTORY_METHOD',
         payload: {
           args: [
-            `/patients/${loggedInUserId}/share/member`,
-          ],
-          method: 'push',
-        },
-      },
-    ];
-
-    inviteButton.props().onClick();
-    const actions = store.getActions();
-    expect(actions).to.eql(expectedActions);
-  });
-
-  // Skipping this test during the clinic UI LMR
-  it.skip('should render an Invite New Clinic button', () => {
-    const inviteButton = wrapper.find('button#invite-clinic');
-    expect(inviteButton).to.have.length(1);
-    expect(inviteButton.text()).to.equal('Invite new clinic');
-    expect(inviteButton.props().onClick).to.be.a('function');
-
-    const expectedActions = [
-      {
-        type: '@@router/CALL_HISTORY_METHOD',
-        payload: {
-          args: [
-            `/patients/${loggedInUserId}/share/clinic`,
+            `/patients/${loggedInUserId}/share/invite`,
           ],
           method: 'push',
         },
@@ -331,8 +290,8 @@ describe('AccessManagement', () => {
         { upload: undefined, view: {} }
       );
 
-      // Click remove account button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Remove account');
+      // Click Remove Care Team Member button to open confirmation modal
+      expect(popoverActionButtons.at(1).text()).contains('Remove Care Team Member');
       expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();
@@ -383,8 +342,8 @@ describe('AccessManagement', () => {
         { upload: undefined, view: {} }
       );
 
-      // Click remove account button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Remove account');
+      // Click Remove Care Team Member button to open confirmation modal
+      expect(popoverActionButtons.at(1).text()).contains('Remove Care Team Member');
       expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();
@@ -533,8 +492,8 @@ describe('AccessManagement', () => {
         { upload: undefined, view: {} }
       );
 
-      // Click remove account button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Remove clinic');
+      // Click Remove Clinic button to open confirmation modal
+      expect(popoverActionButtons.at(1).text()).contains('Remove Clinic');
       expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
       wrapper.update();

@@ -16,11 +16,12 @@ import Button from './Button';
 import Popover from './Popover';
 import { Icon } from './Icon';
 
-const PopoverMenu = props => {
+function PopoverMenu(props) {
   const {
     anchorOrigin,
     icon,
     iconLabel,
+    iconSrc,
     id,
     items,
     popoverWidth,
@@ -40,6 +41,7 @@ const PopoverMenu = props => {
         color="text.primary"
         label="info"
         icon={icon}
+        iconSrc={iconSrc}
         variant="button"
         active={popupState.isOpen}
         {...triggerProps}
@@ -56,6 +58,7 @@ const PopoverMenu = props => {
             className="action-list-item"
             disabled={item.disabled}
             icon={item.processing ? CircularProgress : item.icon}
+            iconSrc={item.processing ? null : item.iconSrc}
             iconLabel={item.iconLabel}
             iconPosition={item.iconPosition}
             id={item.id}
@@ -69,7 +72,7 @@ const PopoverMenu = props => {
       </Popover>
     </React.Fragment>
   );
-};
+}
 
 PopoverMenu.propTypes = {
   anchorOrigin: PropTypes.shape({
@@ -82,6 +85,7 @@ PopoverMenu.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape({
     disabled: PropTypes.bool,
     icon: PropTypes.elementType,
+    iconSrc: PropTypes.string,
     iconLabel: PropTypes.string,
     iconPosition: PropTypes.oneOf(['left', 'right']).isRequired,
     id: PropTypes.string.isRequired,

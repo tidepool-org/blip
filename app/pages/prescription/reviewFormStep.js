@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
-import { Box, Flex, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, BoxProps } from 'theme-ui';
 import bows from 'bows';
 import compact from 'lodash/compact';
 import find from 'lodash/find';
@@ -44,9 +44,7 @@ const fieldsetPropTypes = {
 
 const emptyValueText = t('Not specified');
 
-const patientRows = values => {
-  const formikContext = useFormikContext();
-
+const patientRows = (values, formikContext) => {
   return [
     {
       label: t('Email'),
@@ -88,8 +86,7 @@ const patientRows = values => {
   ];
 };
 
-const therapySettingsRows = (pump) => {
-  const formikContext = useFormikContext();
+const therapySettingsRows = (pump, formikContext) => {
   const { values } = formikContext;
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits');
   const thresholds = warningThresholds(pump, bgUnits, values);
@@ -302,8 +299,9 @@ export const PatientInfo = props => {
 
   const nameStep = [0, 1];
   const currentStep = [4, 0];
+  const formikContext = useFormikContext();
 
-  const { values } = useFormikContext();
+  const { values } = formikContext;
 
   const {
     firstName,
@@ -311,13 +309,13 @@ export const PatientInfo = props => {
   } = values;
 
   const patientName = [firstName, lastName].join(' ');
-  const rows = patientRows(values);
+  const rows = patientRows(values, formikContext);
 
   const Row = ({ label, value, step, initialFocusedInput, error }) => (
-    <Flex mb={4} justifyContent="space-between" alignItems="center">
+    <Flex mb={4} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
       <Body1>{label}</Body1>
       <Box>
-        <Flex alignItems="center">
+        <Flex sx={{ alignItems: 'center' }}>
           <Body1 mr={3} color={(isEditable && error) ? 'feedback.danger' : 'text.primary'}>{value}</Body1>
           {isEditable && <Icon
             variant="button"
@@ -333,8 +331,8 @@ export const PatientInfo = props => {
 
   return (
     <Box {...themeProps}>
-      <Flex mb={4} alignItems="center" justifyContent="space-between">
-        <Headline color={((firstName && lastName) || !isEditable) ? 'text.primary' : 'feedback.danger'} mr={2}>{patientName}</Headline>
+      <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <Headline sx={{ color: (firstName && lastName) || !isEditable ? 'text.primary' : 'feedback.danger' }} mr={2}>{patientName}</Headline>
         {isEditable && <Icon
           variant="button"
           icon={EditRoundedIcon}
@@ -363,7 +361,8 @@ export const TherapySettings = props => {
   const therapySettingsStep = [3, 0];
   const currentStep = [4, 0];
 
-  const { values } = useFormikContext();
+  const formikContext = useFormikContext();
+  const { values } = formikContext;
 
   const {
     firstName,
@@ -372,7 +371,7 @@ export const TherapySettings = props => {
 
   const patientName = [firstName, lastName].join(' ');
 
-  const rows = therapySettingsRows(pump);
+  const rows = therapySettingsRows(pump, formikContext);
 
   const Row = ({ label, value, warning, id, index, error }) => {
     let rowValues = isArray(value) ? value : [value];
@@ -393,14 +392,14 @@ export const TherapySettings = props => {
         sx={{
           borderTop: index === 0 ? 'default' : 'none',
           borderBottom: isEditable || (index < rows.length - 1) ? 'default' : 'none',
+          alignItems: 'flex-start',
         }}
-        alignItems="flex-start"
       >
         <Body1 flex="1">{label}</Body1>
         <Box flex="1">
           {map(rowValues, (val, i) => (
             <Flex key={i}>
-              <Body1 color={valueColor(i)} key={i} flexGrow={1}>{val}</Body1>
+              <Body1 color={valueColor(i)} key={i} sx={{ flexGrow: 1 }}>{val}</Body1>
               {errors[i] && (
                 <PopoverLabel
                   id={`${id}-${i}`}
@@ -438,7 +437,7 @@ export const TherapySettings = props => {
 
   return (
     <Box {...themeProps}>
-      <Flex mb={3} alignItems="center" justifyContent="space-between">
+      <Flex mb={3} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Headline mr={2}>{title}</Headline>
         <Box
           theme={baseTheme}
@@ -474,7 +473,7 @@ export const TherapySettings = props => {
             buttonTitle={t('Copy therapy settings order as text')}
             buttonText={(
               <Icon
-                variant="button"
+                variant="static"
                 icon={FileCopyRoundedIcon}
                 label={t('Copy therapy settings order as text')}
                 title={t('Copy therapy settings order as text')}
@@ -487,8 +486,8 @@ export const TherapySettings = props => {
                 label: t('Name'),
                 value: patientName,
               },
-              ...patientRows(values),
-            ], therapySettingsRows(pump, values))}
+              ...patientRows(values, formikContext),
+            ], therapySettingsRows(pump, formikContext))}
           />
         </Box>
       </Flex>
@@ -516,7 +515,7 @@ export const TherapySettings = props => {
 
 TherapySettings.propTypes = fieldsetPropTypes;
 
-export const PrescriptionReview = translate()(props => {
+export const PrescriptionReview = withTranslation()(props => {
   const { validateForm, values } = useFormikContext();
 
   // At this point we consider the prescription ready to send so we ensure the values are validated
@@ -527,7 +526,7 @@ export const PrescriptionReview = translate()(props => {
 
   return (
     <Flex
-      flexWrap="wrap"
+      sx={{ flexWrap: 'wrap' }}
       margin="auto"
       maxWidth="1280px"
     >

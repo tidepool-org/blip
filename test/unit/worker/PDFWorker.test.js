@@ -33,6 +33,8 @@ describe('PDFWorker', () => {
   const renderer = sinon.stub().usingPromise(Promise);
 
   const queryResults = {
+    agpBGM: { data: { current: { data: [] } } },
+    agpCGM: { data: { current: { data: ['foo'] } } },
     basics: { data: { current: { aggregationsByDate: {
       basals: {},
       boluses: {},
@@ -56,27 +58,26 @@ describe('PDFWorker', () => {
     blob: 'someBlob',
   };
 
-  const payload = {
-    type: 'combined',
-    queries: {
-      basics: 'basics',
-      daily: 'daily',
-      bgLog: 'bgLog',
-      settings: 'settings',
-    },
-    opts: {
-      basics: {},
-      daily: {},
-      bgLog: {},
-      settings: {},
-    },
+  const type = 'combined';
+
+  const queries = {
+    agpBGM: 'agpBGM',
+    agpCGM: 'agpCGM',
+    basics: 'basics',
+    daily: 'daily',
+    bgLog: 'bgLog',
+    settings: 'settings',
   };
 
-  const {
-    type,
-    queries,
-    opts,
-  } = payload;
+  const opts = () => ({
+    agpBGM: {},
+    agpCGM: {},
+    basics: {},
+    daily: {},
+    bgLog: {},
+    settings: {},
+    svgDataURLS: 'imageURLs',
+  });
 
   beforeEach(() => {
     Worker = new PDFWorker(dataUtil, importer, renderer);
@@ -95,31 +96,19 @@ describe('PDFWorker', () => {
     expect(Worker.handleMessage).to.be.a('function');
   });
 
-  it('should import the required static files upon pdf generation request', () => {
-    renderer.resolves(pdf);
-
-    const postMessage = sinon.stub();
-
-    const action = actions.generatePDFRequest(type, queries, opts);
-    const origin = action.meta.origin;
-
-    Worker.handleMessage({ data: action }, postMessage);
-
-    sinon.assert.calledOnce(importer);
-    sinon.assert.calledWithExactly(importer, `${origin}/pdfkit.js`, `${origin}/blob-stream.js`);
-  });
-
   it('should call the pdf rendering method properly upon request', () => {
     renderer.resolves(pdf);
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, queries, opts);
+    const action = actions.generatePDFRequest(type, queries, opts());
     Worker.handleMessage({ data: action }, postMessage);
 
     sinon.assert.calledOnce(renderer);
     sinon.assert.calledWithExactly(renderer, queryResults, {
-      ...opts,
+      ...opts(),
+      agpBGM: { disabled: true },
+      agpCGM: { disabled: false },
       basics: { disabled: true },
       daily: { disabled: false },
       bgLog: { disabled: true },
@@ -127,42 +116,62 @@ describe('PDFWorker', () => {
     });
   });
 
-  it('should fire a success action upon succesful rendering', () => {
+  it('should fire a success action upon succesful rendering', done => {
     renderer.resolves(pdf);
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, queries, opts);
+    const action = actions.generatePDFRequest(type, queries, opts());
     Worker.handleMessage({ data: action }, postMessage);
 
     const data = {};
 
-    return Worker.renderer(data, opts).then(result => {
+    Worker.renderer(data, opts()).then(result => {
       sinon.assert.calledOnce(postMessage);
       sinon.assert.calledWithExactly(
         postMessage,
         actions.generatePDFSuccess({ [type]: result })
       );
+      done()
     });
   });
 
-  it('should fire a failure action upon failed rendering', () => {
+  it('should fire a failure action upon failed rendering', done => {
     renderer.rejects(new Error());
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, queries, opts);
+    const action = actions.generatePDFRequest(type, queries, opts());
     Worker.handleMessage({ data: action }, postMessage);
 
     const data = {};
 
-    return Worker.renderer(data, opts).then().catch(error => {
+    Worker.renderer(data, opts()).then().catch(error => {
       sinon.assert.calledOnce(postMessage);
       sinon.assert.calledWithExactly(
         postMessage,
         actions.generatePDFFailure(error)
       );
+      done();
     });
+  });
+
+  it('should fire a failure action uplon failed query', () => {
+    const postMessage = sinon.stub();
+    const error = new Error('query error');
+    dataUtil.query.throws(error);
+
+    Worker = new PDFWorker(dataUtil, importer, renderer);
+
+    const action = actions.generatePDFRequest(type, queries, opts());
+    Worker.handleMessage({ data: action }, postMessage);
+
+    sinon.assert.calledOnce(postMessage);
+    sinon.assert.calledWithExactly(
+      postMessage,
+      actions.generatePDFFailure(error)
+    );
+    dataUtil.query = sinon.stub().callsFake(key => queryResults[key]);
   });
 
   it('should throw an error if it receives an unhandled action type', () => {
@@ -179,5 +188,49 @@ describe('PDFWorker', () => {
     }
 
     expect(spy.threw()).to.be.true;
+  });
+
+  it('should request images if agp is requested, and images are not present in opts, instead of generating the PDF', () => {
+    const postMessage = sinon.stub();
+
+    let action = actions.generatePDFRequest(
+      type,
+      { ...queries, agpCGM: 'agpCGM' },
+      { ...opts(), svgDataURLS: undefined },
+    );
+
+    Worker.handleMessage({ data: action }, postMessage);
+
+    sinon.assert.notCalled(renderer);
+
+    sinon.assert.calledWithExactly(
+      postMessage,
+      {
+        type: 'GENERATE_AGP_IMAGES_REQUEST',
+        payload: {
+          data: {
+            agpBGM: { data: { current: { data: [] } } },
+            agpCGM: { data: { current: { data: ['foo'] } } }
+          },
+          opts: {
+            agpBGM: { disabled: true },
+            agpCGM: { disabled: false },
+            basics: {  },
+            bgLog: {  },
+            daily: {  },
+            settings: {  },
+            svgDataURLS: undefined,
+          },
+          queries: {
+            agpBGM: 'agpBGM',
+            agpCGM: 'agpCGM',
+            basics: 'basics',
+            bgLog: 'bgLog',
+            daily: 'daily',
+            settings: 'settings',
+          },
+        },
+      },
+    );
   });
 });

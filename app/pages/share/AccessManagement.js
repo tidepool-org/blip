@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -13,7 +13,7 @@ import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import indexOf from 'lodash/indexOf';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
@@ -29,6 +29,7 @@ import {
 
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Pill from '../../components/elements/Pill';
 
@@ -51,6 +52,8 @@ export const AccessManagement = (props) => {
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
   const [sharedAccounts, setSharedAccounts] = useState([]);
@@ -58,6 +61,7 @@ export const AccessManagement = (props) => {
   const [selectedSharedAccount, setSelectedSharedAccount] = useState(null);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [popupState, setPopupState] = useState(null);
+  const rowsPerPage = 8;
 
   useEffect(() => {
     if (trackMetric) {
@@ -309,6 +313,10 @@ export const AccessManagement = (props) => {
     }
   }, [selectedSharedAccount]);
 
+  useEffect(() => {
+    setPageCount(Math.ceil(sharedAccounts.length / rowsPerPage));
+  }, [sharedAccounts]);
+
   function hasClinicRole(user){
     return indexOf(get(user, 'roles', []), 'clinic') !== -1
   }
@@ -376,21 +384,29 @@ export const AccessManagement = (props) => {
     );
   }
 
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  const handleTableFilter = (data) => {
+    setPageCount(Math.ceil(data.length / rowsPerPage));
+  };
+
   const renderMember = ({ email, name }) => (
     email ? (
       <Box>
-        <Text>{name}</Text>
+        <Text fontWeight="medium">{name}</Text>
         <Text>{email}</Text>
       </Box>
     ) : (
       <Box>
-        <Text>{name}</Text>
+        <Text fontWeight="medium">{name}</Text>
       </Box>
     )
   );
 
   const renderStatus = ({ status }) => (
-    <Box>
+    <Box sx={{ whiteSpace: 'nowrap' }}>
       {status ? (
         <Pill
           text={status === 'pending' ? t('invite sent') : t('invite declined')}
@@ -407,11 +423,11 @@ export const AccessManagement = (props) => {
   );
 
   const renderUploadPermission = ({ uploadPermission }) => (
-    <Box>
+    uploadPermission ? <Box>
       <Text>
-        {uploadPermission ? t('Yes') : ''}
+        {t('Yes')}
       </Text>
-    </Box>
+    </Box> : null
   );
 
   const renderRole = ({ role }) => (
@@ -429,7 +445,7 @@ export const AccessManagement = (props) => {
       : t('Allow upload permission');
 
       const removeLabel = t('Remove {{memberType}}', {
-        memberType: member.type,
+        memberType: member.type === 'account' ? t('Care Team Member') : t('Clinic'),
       });
 
       items.push({
@@ -525,6 +541,7 @@ export const AccessManagement = (props) => {
       sortable: true,
       sortBy: 'status',
       render: renderStatus,
+      className: 'hide-if-empty',
     },
     {
       title: t('Upload Permission'),
@@ -533,6 +550,7 @@ export const AccessManagement = (props) => {
       sortable: true,
       sortBy: 'uploadPermission',
       render: renderUploadPermission,
+      hideEmpty: true,
     },
     {
       title: t('Role'),
@@ -547,6 +565,7 @@ export const AccessManagement = (props) => {
       field: 'more',
       render: renderMore,
       align: 'right',
+      className: 'action-menu',
     },
   ];
 
@@ -561,67 +580,71 @@ export const AccessManagement = (props) => {
 
   return (
     <>
-      <Box variant="containers.largeBordered">
-        <Flex
-          sx={{ borderBottom: baseTheme.borders.default }}
-          alignItems={'center'}
-          flexWrap={['wrap', 'nowrap']}
-          px={[3, 4, 5, 6]}
-        >
-          <Title flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
-            {t('Access Management')}
-          </Title>
-          <Flex width={['100%', 'auto']} justifyContent='center' pb={[3, 0]}>
-            <Button
-              id="invite-member"
-              variant="primary"
-              onClick={() => {
-                dispatch(push(`/patients/${loggedInUserId}/share/member`));
-              }}
-            >
-              {t('Invite New Member')}
-            </Button>
-            {/* Clinic invite button is hidden during clinic LMR */}
-            {/* {config.CLINICS_ENABLED && (
+      <Box mb={8}>
+        <Box variant="containers.largeBordered" mb={4}>
+          <Flex
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center', flexWrap:['wrap', 'nowrap'] }}
+            px={[3, 4]}
+          >
+            <Title sx={{ flexGrow: 1, textAlign: ['center', 'left'] }} pr={[0, 3]} py={[3, 4]}>
+              {t('Access Management')}
+            </Title>
+            <Flex width={['100%', 'auto']} sx={{ justifyContent: 'center' }} pb={[3, 0]}>
               <Button
-                ml={3}
-                id="invite-clinic"
-                variant="secondary"
-                className="active"
+                id="invite"
+                variant="primary"
                 onClick={() => {
-                  dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
+                  dispatch(push(`/patients/${loggedInUserId}/share/invite`));
                 }}
               >
-                {t('Invite New Clinic')}
+                {t('Share Data')}
               </Button>
-            )} */}
+            </Flex>
           </Flex>
-        </Flex>
 
-        <Body2 id="member-invites-label" px={[3, 4, 5, 6]} py={[4, 5]}>{sharedAccounts.length
-          ? t('You have invited the following members to view your data:')
-          : t('You have not invited any other members to view your data.')}
-        </Body2>
+          <Body2 id="member-invites-label" px={[3, 4]} py={[4, 5]}>{sharedAccounts.length
+            ? t('You have invited the following members to view your data:')
+            : t('You have not invited any other members to view your data.')}
+          </Body2>
 
-        {!!sharedAccounts.length && (
-          <Box px={[0, 0, 5, 6] } pb={[0, 0, 7, 8]}>
-            <Table
-              id="clinicianTable"
-              label={t('Clinician Table')}
-              columns={columns}
-              data={sharedAccounts}
-              orderBy="nameOrderable"
-              order="asc"
-              rowsPerPage={10}
-              pagination={sharedAccounts.length > 10}
-              fontSize={1}
+          {!!sharedAccounts.length && (
+            <Box px={[3, 4]} pb={0}>
+              <Table
+                id="clinicianTable"
+                label={t('Clinician Table')}
+                columns={columns}
+                data={sharedAccounts}
+                orderBy="nameOrderable"
+                order="asc"
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onFilter={handleTableFilter}
+                sx={{ fontSize: 1 }}
+              />
+            </Box>
+          )}
+        </Box>
+
+        {sharedAccounts.length > rowsPerPage && (
+          <Box variant="containers.large" bg="transparent" mb={0}>
+            <Pagination
+              px="5%"
+              width="100%"
+              id="access-management-pagination"
+              count={pageCount}
+              page={page}
+              disabled={pageCount < 2}
+              onChange={handlePageChange}
+              showFirstButton={false}
+              showLastButton={false}
             />
           </Box>
         )}
       </Box>
+
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
       >
@@ -651,7 +674,7 @@ export const AccessManagement = (props) => {
       </Dialog>
       <Dialog
         id="resendInvite"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showResendInviteDialog}
         onClose={() => setShowResendInviteDialog(false)}
       >
@@ -695,4 +718,4 @@ AccessManagement.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(AccessManagement);
+export default withTranslation()(AccessManagement);

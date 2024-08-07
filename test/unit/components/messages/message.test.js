@@ -4,7 +4,7 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-dom/test-utils');
+import { mount } from 'enzyme';
 var expect = chai.expect;
 
 var Message = require('../../../../app/components/messages/message');
@@ -24,10 +24,10 @@ describe('Message', function () {
           fullName:'Test User'
         }
       };
-      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />).getWrappedInstance();
+      var elem = mount(<Message theNote={note} timePrefs={timePrefs} />);
       expect(elem).to.be.ok;
 
-      var initialState = elem.getInitialState();
+      var initialState = elem.childAt(0).instance().getInitialState();
       expect(Object.keys(initialState).length).to.equal(1);
       expect(initialState.editing).to.equal(false);
     });
@@ -43,20 +43,20 @@ describe('Message', function () {
         }
       };
 
-      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />).getWrappedInstance();
+      var elem = mount(<Message theNote={note} timePrefs={timePrefs} />);
       expect(elem).to.be.ok;
 
       // actual rendered text is modified version of input 'note'
-      var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'message-header');
+      var headerElem = elem.find('.message-header');
       expect(headerElem).to.be.ok;
 
       // actual rendered text is modified version of input 'note'
-      var timestampElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'message-timestamp');
+      var timestampElem = elem.find('.message-timestamp');
       expect(timestampElem).to.be.ok;
 
-      var textElem = elem.refs.messageText;
+      var textElem = elem.find('.messageText');
       expect(textElem).to.be.ok;
-      expect(textElem.textContent).to.equal(note.messagetext);
+      expect(textElem.text()).to.equal(note.messagetext);
     });
   });
 });

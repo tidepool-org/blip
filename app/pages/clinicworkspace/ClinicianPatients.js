@@ -2,25 +2,30 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import SearchIcon from '@material-ui/icons/Search';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
+  Title,
   MediumTitle,
   Body1,
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
+import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import PatientForm from '../../components/clinic/PatientForm';
 import PopoverMenu from '../../components/elements/PopoverMenu';
@@ -38,6 +43,7 @@ import { useIsFirstRender } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 import { patientSchema as validationSchema } from '../../core/clinicUtils';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
+import baseTheme from '../../themes/baseTheme';
 
 const { Loader } = vizComponents;
 
@@ -52,10 +58,13 @@ export const ClinicianPatients = (props) => {
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
-  const [search, setSearch] = useState('');
+  const [searchText, setSearchText] = React.useState('');
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
+  const rowsPerPage = 8;
 
   const {
     fetchingAssociatedAccounts,
@@ -106,58 +115,70 @@ export const ClinicianPatients = (props) => {
     setLoading(fetchingAssociatedAccounts.inProgress);
   }, [fetchingAssociatedAccounts.inProgress]);
 
+  useEffect(() => {
+    setPageCount(Math.ceil(patients.length / rowsPerPage));
+  }, [patients]);
+
   const renderHeader = () => {
-    const toggleLabel = showNames ? t('Hide All') : t('Show All');
+    const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
 
     return (
-      <Flex mb={4} alignItems="center" justifyContent="space-between">
+      <>
         <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          flexGrow={1}
-          pt={0}
+          mb={4}
+          py={2}
+          sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
         >
-          <Flex
-            alignItems="center"
-            justifyContent="flex-start"
-          >
-            <TextInput
-              themeProps={{
-                width: 'auto',
-                minWidth: '250px',
-              }}
-              id="patients-search"
-              placeholder={t('Search')}
-              icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
-              iconLabel={t('Search')}
-              onClickIcon={!isEmpty(search) ? handleClearSearch : null}
-              name="search-patients"
-              onChange={handleSearchChange}
-              value={search}
-              variant="condensed"
-            />
-            <Button
-              id="patients-view-toggle"
-              variant="textSecondary"
-              disabled={!isEmpty(search)}
-              onClick={handleToggleShowNames}
-              mr={0}
-              ml={2}
-            >
-              {toggleLabel}
-            </Button>
-          </Flex>
-
-          <Button
-            id="add-patient"
-            variant="primary"
-            onClick={handleAddPatient}
-            mr={0}
-          >
-            {t('Add a New Patient')}
-          </Button>
+          <Title sx={{ flexGrow: 1 }}>
+            {t('Patients')}
+          </Title>
         </Flex>
-      </Flex>
+
+        <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+          <Flex
+            sx={{ width: '100%', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <Button
+              id="add-patient"
+              variant="primary"
+              onClick={handleAddPatient}
+              px={[2, 3]}
+              sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
+            >
+              {t('Add New Patient')}
+            </Button>
+
+            <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+              <TextInput
+                themeProps={{
+                  width: ['100%', null, '250px'],
+                  fontSize: '12px',
+                }}
+                id="patients-search"
+                placeholder={t('Search')}
+                icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+                iconLabel={t('Search')}
+                onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
+                name="search-patients"
+                onChange={handleSearchChange}
+                value={searchText}
+                variant="condensed"
+              />
+            </Box>
+
+            <Icon
+              id="patients-view-toggle"
+              variant="default"
+              sx={{ color: 'grays.4' }}
+              ml={1}
+              icon={VisibilityIcon}
+              label={t('Toggle visibility')}
+              disabled={!isEmpty(searchText)}
+              onClick={handleToggleShowNames}
+            />
+          </Flex>
+        </Flex>
+      </>
     );
   };
 
@@ -173,7 +194,7 @@ export const ClinicianPatients = (props) => {
 
   const renderPeopleInstructions = () => {
     return (
-      <Text fontSize={1} py={4} textAlign="center" sx={{ a: { color: 'text.link', cursor: 'pointer' } }}>
+      <Text py={4} mb={6} sx={{ display: 'block', fontSize:1, textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
         <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
           Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={handleToggleShowNames}>Show All</a> to display all patients.
         </Trans>
@@ -187,7 +208,7 @@ export const ClinicianPatients = (props) => {
     return (
       <Dialog
         id="deleteUser"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showDeleteDialog}
         onClose={handleCloseOverlay}
       >
@@ -226,7 +247,7 @@ export const ClinicianPatients = (props) => {
     return (
       <Dialog
         id="addPatient"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showAddPatientDialog}
         onClose={handleCloseOverlay}
       >
@@ -235,7 +256,7 @@ export const ClinicianPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} action="create" />
         </DialogContent>
 
         <DialogActions>
@@ -247,7 +268,7 @@ export const ClinicianPatients = (props) => {
             variant="primary"
             onClick={handleAddPatientConfirm}
             processing={creatingVCACustodialAccount.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema(), patientFormContext?.values)}
           >
             {t('Add Patient')}
           </Button>
@@ -260,7 +281,7 @@ export const ClinicianPatients = (props) => {
     return (
       <Dialog
         id="editPatient"
-        aria-labelledBy="dialog-title"
+        aria-labelledby="dialog-title"
         open={showEditPatientDialog}
         onClose={handleCloseOverlay}
       >
@@ -269,7 +290,7 @@ export const ClinicianPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} />
+          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} patient={selectedPatient} action="edit" />
         </DialogContent>
 
         <DialogActions>
@@ -282,7 +303,7 @@ export const ClinicianPatients = (props) => {
             variant="primary"
             onClick={handleEditPatientConfirm}
             processing={updatingPatient.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema, patientFormContext?.values)}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema(), patientFormContext?.values)}
           >
             {t('Save Changes')}
           </Button>
@@ -344,24 +365,39 @@ export const ClinicianPatients = (props) => {
   }
 
   function handleSearchChange(event) {
-    setSearch(event.target.value);
+    setPage(1);
+    setSearchText(event.target.value);
+    setShowNames(true);
+    if (isEmpty(event.target.value)) {
+      setPageCount(Math.ceil(patients.length / rowsPerPage));
+    }
   }
 
   function handleClearSearch(event) {
-    setSearch('');
+    setPage(1);
+    setSearchText('');
+    setPageCount(Math.ceil(patients.length / rowsPerPage));
   }
+
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  const handleTableFilter = (data) => {
+    setPageCount(Math.ceil(data.length / rowsPerPage));
+  };
 
   const renderPatient = patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient.fullName}</Text>
-      <Text>{patient.email || '\u00A0'}</Text>
+      {patient.email && <Text>{patient.email}</Text>}
     </Box>
   );
 
   const renderLinkedField = (field, patient) => (
-    <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    patient[field] ? <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient[field]}</Text>
-    </Box>
+    </Box> : null
   );
 
   const renderMore = patient => {
@@ -403,7 +439,7 @@ export const ClinicianPatients = (props) => {
     const { t } = props;
     const columns = [
       {
-        title: t('Patient'),
+        title: t('Patient Details'),
         field: 'fullName',
         align: 'left',
         sortable: true,
@@ -423,12 +459,14 @@ export const ClinicianPatients = (props) => {
         field: 'mrn',
         align: 'left',
         render: renderLinkedField.bind(null, 'mrn'),
+        hideEmpty: true,
       },
       {
         title: '',
         field: 'more',
         render: renderMore,
         align: 'right',
+        className: 'action-menu',
       },
     ];
 
@@ -440,19 +478,20 @@ export const ClinicianPatients = (props) => {
           label={'peopletablelabel'}
           columns={columns}
           data={map(patients, clinicPatientFromAccountInfo)}
-          style={{ fontSize:'14px' }}
+          sx={{ fontSize: 1 }}
           orderBy="fullNameOrderable"
           order="asc"
-          rowsPerPage={8}
-          searchText={search}
-          pagination={patients.length > 8}
+          rowsPerPage={rowsPerPage}
+          searchText={searchText}
+          page={page}
+          onFilter={handleTableFilter}
         />
       </Box>
     );
   }
 
   const renderPeopleArea = () => {
-    if (!showNames && !search) {
+    if (!showNames && !searchText) {
       return renderPeopleInstructions();
     } else {
       return renderPeopleTable();
@@ -460,13 +499,32 @@ export const ClinicianPatients = (props) => {
   }
 
   return (
-    <Box pt={4}>
-      {renderHeader()}
-      {renderPeopleArea()}
-      {renderRemoveDialog()}
-      {showAddPatientDialog && renderAddPatientDialog()}
-      {showEditPatientDialog && renderEditPatientDialog()}
-    </Box>
+    <>
+      <Box>
+        {renderHeader()}
+        {renderPeopleArea()}
+        {renderRemoveDialog()}
+        {showAddPatientDialog && renderAddPatientDialog()}
+        {showEditPatientDialog && renderEditPatientDialog()}
+      </Box>
+
+      {showNames && patients.length > rowsPerPage && (
+        <Box variant="containers.large" sx={{ bg: 'transparent', width: ['100%', '100%'] }} mb={0}>
+          <Pagination
+            px="5%"
+            sx={{ position: 'absolute', bottom: '-50px' }}
+            width="100%"
+            id="clinic-invites-pagination"
+            count={pageCount}
+            page={page}
+            disabled={pageCount < 2}
+            onChange={handlePageChange}
+            showFirstButton={false}
+            showLastButton={false}
+          />
+        </Box>
+      )}
+    </>
   );
 };
 
@@ -476,4 +534,4 @@ ClinicianPatients.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicianPatients);
+export default withTranslation()(ClinicianPatients);

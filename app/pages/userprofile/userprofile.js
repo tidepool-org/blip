@@ -18,34 +18,57 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { push } from 'connected-react-router';
 
 import * as actions from '../../redux/actions';
 
-import {translate} from 'react-i18next';
+import {withTranslation} from 'react-i18next';
 import _ from 'lodash';
 import { validateForm } from '../../core/validation';
 
 import config from '../../config';
 
 import SimpleForm from '../../components/simpleform';
+import ToastContext from '../../providers/ToastProvider';
 
-// A different namespace than the default can be specified in translate()
-export var UserProfile = translate()(class extends React.Component {
+// A different namespace than the default can be specified in withTranslation()
+export var UserProfileClass = class extends React.Component {
   static propTypes = {
     fetchingUser: PropTypes.bool.isRequired,
+    updatingUser: PropTypes.object.isRequired,
     history: PropTypes.object.isRequired,
     onSubmit: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
+    login: PropTypes.func.isRequired,
     user: PropTypes.object
   };
+  static contextType = ToastContext;
 
   formInputs = () => {
-    const {t} = this.props;
+    const { t, user } = this.props;
+    const userRoles = _.get(user, 'roles', []);
+    const isBrokeredAccount =
+      _.intersection(userRoles, ['brokered']).length > 0;
     const inputs = [
-      {name: 'fullName', label: t('Full name'), type: 'text'},
-      {name: 'username', label: t('Email'), type: 'email'},
-      {name: 'password', label: t('Password'), type: 'password'},
-      {name: 'passwordConfirm', label: t('Confirm password'), type: 'password'}
+      { name: 'fullName', label: t('Full name'), type: 'text' },
+      {
+        name: 'username',
+        label: t('Email'),
+        type: 'email',
+        disabled: isBrokeredAccount,
+      },
+      {
+        name: 'password',
+        label: t('Password'),
+        type: 'password',
+        disabled: isBrokeredAccount,
+      },
+      {
+        name: 'passwordConfirm',
+        label: t('Confirm password'),
+        type: 'password',
+        disabled: isBrokeredAccount,
+      },
     ];
 
     if (config.I18N_ENABLED) {
@@ -79,14 +102,55 @@ export var UserProfile = translate()(class extends React.Component {
   };
 
   componentDidMount() {
+    const { user: { profile: { fullName } }, t } = this.props;
+    if (_.isEmpty(fullName)) {
+      this.context.set({
+        message: t('Please enter your full name.'),
+        autoHideDuration: null,
+      });
+      this.setState({
+        validationErrors: {
+          fullName: t('Full name is required.')
+        }
+      });
+    }
     if (this.props.trackMetric) {
       this.props.trackMetric('Viewed Account Edit');
     }
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
+    const {t} = this.props;
+    const isUploadLaunch = this.props.history.location.state?.referrer === 'upload-launch';
     // Keep form values in sync with upstream changes
     this.setState({formValues: this.formValuesFromUser(nextProps.user)});
+    if(_.isEmpty(this.props.user?.profile?.fullName) && !_.isEmpty(nextProps.user?.profile?.fullName)){
+      this.context.clear();
+      if (!isUploadLaunch) {
+        this.props.login();
+      }
+    }
+    let updatingUser = this.props.updatingUser;
+    if (
+      updatingUser.inProgress &&
+      !nextProps.updatingUser.inProgress &&
+      nextProps.updatingUser.completed
+    ) {
+      this.setState({
+        notification: { type: 'success', message: t('All changes saved.') },
+      });
+
+      this.messageTimeoutId = setTimeout(() => {
+        this.setState({ notification: null });
+      }, this.MESSAGE_TIMEOUT);
+
+      if (isUploadLaunch) {
+        this.props.push({
+          pathname: '/upload-redirect',
+          state: { referrer: 'profile' },
+        });
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -141,6 +205,7 @@ export var UserProfile = translate()(class extends React.Component {
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={t('Save')}
+        submitDisabled={this.props.updatingUser.inProgress}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
         disabled={disabled}/>
@@ -219,19 +284,9 @@ export var UserProfile = translate()(class extends React.Component {
   };
 
   submitFormValues = (formValues) => {
-    const {t} = this.props;
-    var self = this;
     var submit = this.props.onSubmit;
 
-    // Save optimistically
     submit(formValues);
-    this.setState({
-      notification: {type: 'success', message: t('All changes saved.')}
-    });
-
-    this.messageTimeoutId = setTimeout(function() {
-      self.setState({notification: null});
-    }, this.MESSAGE_TIMEOUT);
   };
 
   state = {
@@ -239,8 +294,12 @@ export var UserProfile = translate()(class extends React.Component {
     validationErrors: {},
     notification: null
   };
-});
+};
 
+// We need to apply the contextType prop to use the Toast provider with create-react-class.
+// This produces an issue with the current enzyme mounting and breaks unit tests.
+// Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
+export const UserProfile = withTranslation()(props => <UserProfileClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -257,18 +316,24 @@ export function mapStateToProps(state) {
 
   return {
     user: user,
-    fetchingUser: state.blip.working.fetchingUser.inProgress
+    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    updatingUser: state.blip.working.updatingUser,
   };
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  updateUser: actions.async.updateUser
+  updateUser: actions.async.updateUser,
+  login: actions.async.login,
+  push,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.api;
   return Object.assign({}, _.pick(ownProps, ['history', 'trackMetric']), stateProps, {
     onSubmit: dispatchProps.updateUser.bind(null, api),
+    login: dispatchProps.login.bind(null, api),
+    push: dispatchProps.push,
   });
 };
+
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(UserProfile);

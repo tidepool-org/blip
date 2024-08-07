@@ -9,18 +9,19 @@
 
 var React = require('react');
 var _ = require('lodash');
-var TestUtils = require('react-dom/test-utils');
 
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
 import {
   mapStateToProps,
   getFetchers,
 } from '../../../app/pages/app/app.js';
 import initialState from '../../../app/redux/reducers/initialState';
+import LDClientMock from '../../fixtures/LDClientMock';
 
 import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
 
+var AppWrapper = require('../../../app/pages/app/app.js');
 var App = require('../../../app/pages/app/app.js').AppComponent;
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
@@ -29,6 +30,12 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 describe('App', () => {
+
+  const defaultLDContext = {
+    kind: 'multi',
+    user: { key: 'anon' },
+    clinic: { key: 'none' },
+  };
 
   api.log = sinon.stub();
 
@@ -39,8 +46,10 @@ describe('App', () => {
       config: {},
       log: sinon.stub(),
       personUtils: personUtils,
-      trackMetric: sinon.stub()
+      trackMetric: sinon.stub(),
     },
+    updateShareDataBannerSeen: sinon.stub(),
+    ldClient: new LDClientMock(defaultLDContext),
   };
 
   describe('constructor', () => {
@@ -69,10 +78,25 @@ describe('App', () => {
       wrapper = shallow(<App {...props} />);
     });
 
-    it('should set the `dexcomShowBannerMetricTracked` state to false', () => {
-      expect(wrapper.state().dexcomShowBannerMetricTracked).to.be.false;
+    it('should set the `uploaderBanner.metricTrackedForPatient` state to an empty object', () => {
+      expect(wrapper.state().uploaderBanner.metricTrackedForPatient).to.eql({});
     });
 
+    it('should set the `shareDataBanner.metricTrackedForPatient` state to an empty object', () => {
+      expect(wrapper.state().shareDataBanner.metricTrackedForPatient).to.eql({});
+    });
+
+    it('should set the `donateBanner.metricTrackedForPatient` state to an empty object', () => {
+      expect(wrapper.state().donateBanner.metricTrackedForPatient).to.eql({});
+    });
+
+    it('should set the `dexcomConnectBanner.metricTrackedForPatient` state to an empty object', () => {
+      expect(wrapper.state().dexcomConnectBanner.metricTrackedForPatient).to.eql({});
+    });
+
+    it('should set the `updateTypeBanner.metricTrackedForPatient` state to an empty object', () => {
+      expect(wrapper.state().updateTypeBanner.metricTrackedForPatient).to.eql({});
+    });
   });
 
   describe('render', () => {
@@ -97,9 +121,9 @@ describe('App', () => {
         onLogout: sinon.stub()
       });
 
-      var elem = TestUtils.renderIntoDocument(<App {...props}/>);
+      var elem = mount(<App {...props}/>);
       expect(elem).to.be.ok;
-      var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
+      var app = elem.find('.app');
       expect(app).to.be.ok;
     });
 
@@ -107,33 +131,88 @@ describe('App', () => {
     it('should console.error when required props not provided', () => {
       console.error = sinon.stub();
 
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps}/>);
+      var elem = mount(<App {...baseProps}/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(11);
-      var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
+      var app = elem.find('.app');
       expect(app).to.be.ok;
     });
 
     it('should render footer', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps} />);
-      var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
+      var elem = mount(<App {...baseProps} />);
+      var footer = elem.find('.footer');
       expect(footer).to.be.ok;
     });
 
     it('should not render a version element when version not set in config', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : null };
-      var elem = TestUtils.renderIntoDocument(<App {...props} />);
-      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Navbar-version');
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Navbar-version');
       expect(versionElems.length).to.equal(0);
     });
 
-    it('should render version when version present in config', () => {
+    it('should render version and hostname when version present in config', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4 };
-      var elem = TestUtils.renderIntoDocument(<App {...props} />);
-      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Version');
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Version');
       expect(versionElems.length).to.equal(1);
+      expect(versionElems.text()).to.equal('v1.4-localhost');
+    });
+
+    it('should include api enviroment in version when available', () => {
+      var props = _.clone(baseProps);
+      props.context.config = { VERSION : 1.4, API_HOST: 'qa2.development.tidepool.org' };
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Version');
+      expect(versionElems.length).to.equal(1);
+      expect(versionElems.text()).to.equal('v1.4-localhost-qa2');
+    });
+
+    it('should not include the hostname in version if it matches api environment', () => {
+      var props = _.clone(baseProps);
+      props.context.config = { VERSION : 1.4, API_HOST: 'localhost.tidepool.org' };
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Version');
+      expect(versionElems.length).to.equal(1);
+      expect(versionElems.text()).to.equal('v1.4-localhost');
+    });
+
+    it('should not include hostname or api enviroment in version for production environment', () => {
+      var props = _.clone(baseProps);
+      props.context.config = { VERSION : 1.4, API_HOST: 'app.tidepool.org' };
+      var elem = mount(<App {...props} />);
+      var versionElems = elem.find('.Version');
+      expect(versionElems.length).to.equal(1);
+      expect(versionElems.text()).to.equal('v1.4');
+    });
+  });
+
+  describe('renderPatientLimitBanner', () => {
+    let props = _.assign({}, baseProps, {
+      showingPatientLimitBanner: null,
+      showBanner: sinon.stub(),
+      hideBanner: sinon.stub(),
+      dismissBanner: sinon.stub(),
+      t: sinon.stub().callsFake((string) => string),
+      user: {},
+    });
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = shallow(<App {...props} />);
+    });
+
+    it('should render the banner or not based on the `showingPatientLimitBanner` prop value', () => {
+      wrapper.setProps({ showingPatientLimitBanner: true });
+      expect(wrapper.find('#patientLimitBanner').length).to.equal(1);
+
+      wrapper.setProps({ showingPatientLimitBanner: null });
+      expect(wrapper.find('#patientLimitBanner').length).to.equal(0);
+
+      wrapper.setProps({ showingPatientLimitBanner: false });
+      expect(wrapper.find('#patientLimitBanner').length).to.equal(0);
     });
   });
 
@@ -324,6 +403,7 @@ describe('App', () => {
     let props = _.assign({}, baseProps, {
       showBanner: sinon.stub(),
       hideBanner: sinon.stub(),
+      currentPatientInViewId: 'patient123',
       context: {
         log: sinon.stub(),
         trackMetric: sinon.stub(),
@@ -342,6 +422,48 @@ describe('App', () => {
       props.context.trackMetric.reset();
     });
 
+    context('LaunchDarkly context', () => {
+      afterEach(() => {
+        AppWrapper.__ResetDependency__('ldContext');
+      });
+
+      it('should update the LaunchDarkly client context when the user context changes', () => {
+        let updatedLDContext= {
+          ...defaultLDContext,
+          user: { key: 'patient123' },
+        };;
+
+        AppWrapper.__Rewire__('ldContext', updatedLDContext);
+
+        const ldClient = new LDClientMock(defaultLDContext);
+        ldClient.identify = sinon.stub();
+
+        wrapper.setProps({
+          ldClient,
+        });
+
+        sinon.assert.calledWith(ldClient.identify, updatedLDContext);
+      });
+
+      it('should update the LaunchDarkly client context when the clinic context changes', () => {
+        let updatedLDContext= {
+          ...defaultLDContext,
+          clinic: { key: 'clinic123' },
+        };;
+
+        AppWrapper.__Rewire__('ldContext', updatedLDContext);
+
+        const ldClient = new LDClientMock(defaultLDContext);
+        ldClient.identify = sinon.stub();
+
+        wrapper.setProps({
+          ldClient,
+        });
+
+        sinon.assert.calledWith(ldClient.identify, updatedLDContext);
+      });
+    });
+
     context('user has uploaded data, dismissed the uploader banner, and has not shared data with a clinician', () => {
       it('should show the share data banner, but only if user is on a patient data view', () => {
         wrapper.setProps({
@@ -356,8 +478,13 @@ describe('App', () => {
         sinon.assert.callCount(props.showBanner, 0);
 
         wrapper.setProps({ location: '/patients/1234/data' })
-        sinon.assert.callCount(props.showBanner, 1);
+        expect(wrapper.find('.App-sharedatabanner')).to.have.lengthOf(0);
         sinon.assert.calledWith(props.showBanner, 'sharedata');
+        wrapper.setProps({ ...wrapper.props, showingShareDataBanner: true });
+
+        sinon.assert.callCount(props.context.trackMetric, 1);
+        sinon.assert.calledWith(props.context.trackMetric, 'Share Data banner displayed');
+        expect(wrapper.find('.App-sharedatabanner')).to.have.lengthOf(1);
       });
 
       it('should not show the share data banner if user has dismissed it', () => {
@@ -372,7 +499,6 @@ describe('App', () => {
           updateShareDataBannerSeen: sinon.stub(),
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.calledWith(props.showBanner, 'sharedata');
         props.showBanner.reset();
 
@@ -427,10 +553,15 @@ describe('App', () => {
         });
 
         sinon.assert.callCount(props.showBanner, 0);
+        expect(wrapper.find('.App-donatebanner')).to.have.lengthOf(0);
 
         wrapper.setProps({ location: '/patients/1234/data' })
-        sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.calledWith(props.showBanner, 'donate');
+        wrapper.setProps({ ...wrapper.props, showingDonateBanner: true });
+
+        sinon.assert.callCount(props.context.trackMetric, 1);
+        sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
+        expect(wrapper.find('.App-donatebanner')).to.have.lengthOf(1);
       });
 
       it('should not show the donate banner if user has dismissed it', () => {
@@ -442,7 +573,6 @@ describe('App', () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.calledWith(props.showBanner, 'donate');
         props.showBanner.reset();
 
@@ -451,6 +581,57 @@ describe('App', () => {
         });
 
         sinon.assert.neverCalledWithMatch(props.showBanner, 'donate');
+      });
+    });
+
+    context('enforced clinic patient limit has been reached', () => {
+      it('should show the patientLimit banner, but only if user is on a clinic workspace view', () => {
+        wrapper.setProps({
+          clinics: {
+            clinicId123: {
+              patientLimitEnforced: true,
+              ui: { warnings: { limitReached: 'yep' } }
+            },
+          },
+          location: '/patients/1234/data',
+          selectedClinicId: 'clinicId123',
+          showingPatientLimitBanner: null,
+          t: sinon.stub().callsFake((string) => string),
+        });
+
+        sinon.assert.callCount(props.showBanner, 0);
+        expect(wrapper.find('#patientLimitBanner')).to.have.lengthOf(0);
+
+        wrapper.setProps({ location: '/clinic-workspace/patients' })
+        sinon.assert.calledWith(props.showBanner, 'patientLimit');
+        wrapper.setProps({ ...wrapper.props, showingPatientLimitBanner: true });
+
+        sinon.assert.callCount(props.context.trackMetric, 1);
+        sinon.assert.calledWith(props.context.trackMetric, 'Patient limit banner: displayed');
+        expect(wrapper.find('#patientLimitBanner')).to.have.lengthOf(1);
+      });
+
+      it('should not show the donate banner if user has dismissed it', () => {
+        wrapper.setProps({
+          clinics: {
+            clinicId123: {
+              patientLimitEnforced: true,
+              ui: { warnings: { limitReached: 'yep' } }
+            },
+          },
+          location: '/clinic-workspace/patients',
+          selectedClinicId: 'clinicId123',
+          showingPatientLimitBanner: null,
+        });
+
+        sinon.assert.calledWith(props.showBanner, 'patientLimit');
+        props.showBanner.reset();
+
+        wrapper.setProps({
+          showingPatientLimitBanner: false,
+        });
+
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'patientLimit');
       });
     });
 
@@ -463,7 +644,7 @@ describe('App', () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showBanner, 0);
+        sinon.assert.neverCalledWith(props.showBanner, 'donate');
         sinon.assert.callCount(props.hideBanner, 1);
         sinon.assert.calledWith(props.hideBanner, 'donate');
       });
@@ -478,7 +659,7 @@ describe('App', () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showBanner, 0);
+        sinon.assert.neverCalledWith(props.showBanner, 'donate');
         sinon.assert.callCount(props.hideBanner, 1);
         sinon.assert.calledWith(props.hideBanner, 'donate');
       });
@@ -496,8 +677,9 @@ describe('App', () => {
           location: '/patients/1234/data',
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.calledWith(props.showBanner, 'donate');
+        sinon.assert.callCount(props.context.trackMetric, 1);
+        sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
       });
     });
 
@@ -526,28 +708,39 @@ describe('App', () => {
           showingDonateBanner: true,
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
+        expect(wrapper.find('.App-donatebanner')).to.have.lengthOf(1);
+        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(0);
         sinon.assert.calledWithMatch(props.showBanner, 'donate');
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom');
         sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
       });
 
-      it('should only track the display banner metric once', () => {
+      it('should only track the display banner metric once per patient', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
           location: '/patients/1234/data',
+          showingUploaderBanner: false,
           showingShareDataBanner: false,
+          showingDonateBanner: true,
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
+        expect(wrapper.find('.App-donatebanner')).to.have.lengthOf(1);
         sinon.assert.callCount(props.context.trackMetric, 1);
 
         wrapper.setProps({});
         wrapper.setProps({});
 
-        sinon.assert.callCount(props.showBanner, 3);
         sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          currentPatientInViewId: 'patient456',
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingShareDataBanner: true,
+        });
+
+        sinon.assert.callCount(props.context.trackMetric, 2);
       });
     });
 
@@ -568,11 +761,13 @@ describe('App', () => {
             userHasData: true,
           });
 
-          sinon.assert.callCount(props.showBanner, 0);
+          sinon.assert.neverCalledWith(props.showBanner, 'dexcom');
+          expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(0);
 
           wrapper.setProps({ location: '/patients/1234/data' })
-          sinon.assert.callCount(props.showBanner, 1);
           sinon.assert.calledWith(props.showBanner, 'dexcom');
+          wrapper.setProps({ ...wrapper.props, showingDexcomConnectBanner: true });
+          expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
         });
 
         it('should not show the dexcom banner if user has dismissed it', () => {
@@ -583,12 +778,11 @@ describe('App', () => {
             location: '/patients/1234/data',
           });
 
-          sinon.assert.callCount(props.showBanner, 1);
           sinon.assert.calledWith(props.showBanner, 'dexcom');
           props.showBanner.reset();
 
           wrapper.setProps({
-            showingDexcomConnectBanner: false,
+            user: { preferences: { dismissedDexcomConnectBannerTime: '2022-01-01T00:00:00.000z' } },
           });
 
           sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom');
@@ -596,7 +790,7 @@ describe('App', () => {
       });
 
       context('user has not uploaded data and has not connected to a data source', () => {
-        it('should not show the dexcom banner', () => {
+        it('should show the dexcom banner', () => {
           wrapper.setProps({
             userIsCurrentPatient: true,
             userHasConnectedDataSources: false,
@@ -604,7 +798,9 @@ describe('App', () => {
             location: '/patients/1234/data',
           });
 
-          sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom')
+          sinon.assert.calledWith(props.showBanner, 'dexcom');
+          wrapper.setProps({ ...wrapper.props, showingDexcomConnectBanner: true });
+          expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
         });
       });
 
@@ -629,8 +825,9 @@ describe('App', () => {
             location: '/patients/1234/data',
           });
 
-          sinon.assert.callCount(props.showBanner, 1);
           sinon.assert.calledWith(props.showBanner, 'dexcom');
+          wrapper.setProps({ ...wrapper.props, showingDexcomConnectBanner: true });
+          expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
         });
       });
 
@@ -710,12 +907,13 @@ describe('App', () => {
           showingDonateBanner: false,
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.calledWithMatch(props.showBanner, 'dexcom');
+        wrapper.setProps({ ...wrapper.props, showingDexcomConnectBanner: true });
+        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
         sinon.assert.calledWith(props.context.trackMetric, 'Dexcom OAuth banner displayed');
       });
 
-      it('should only track the display banner metric once', () => {
+      it('should only track the display banner metric once per patient', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
@@ -723,17 +921,45 @@ describe('App', () => {
           patient: {
             userid: '1234'
           },
+          showingDexcomConnectBanner: true,
           updateShareDataBannerSeen: sinon.stub(),
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
+        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
         sinon.assert.callCount(props.context.trackMetric, 1);
 
         wrapper.setProps({});
         wrapper.setProps({});
 
-        sinon.assert.callCount(props.showBanner, 3);
         sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          currentPatientInViewId: 'patient456',
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDexcomConnectBanner: true,
+        });
+
+        sinon.assert.callCount(props.context.trackMetric, 2);
+      });
+
+      it('should prioritize over other banners, but only if connection is in error state', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingUploaderBanner: true,
+          showingDexcomConnectBanner: true,
+        });
+
+        expect(wrapper.find('.App-uploaderbanner')).to.have.lengthOf(1);
+        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(0);
+
+        wrapper.setProps({ patientDexcomDataSource: { state: 'error' } })
+
+        expect(wrapper.find('.App-uploaderbanner')).to.have.lengthOf(0);
+        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
       });
     });
 
@@ -752,12 +978,13 @@ describe('App', () => {
           updateShareDataBannerSeen: sinon.stub(),
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.calledWithMatch(props.showBanner, 'sharedata');
+        wrapper.setProps({ ...wrapper.props, showingShareDataBanner: true });
+        expect(wrapper.find('.App-sharedatabanner')).to.have.lengthOf(1);
         sinon.assert.calledWith(props.context.trackMetric, 'Share Data banner displayed');
       });
 
-      it('should only track the display banner metric once', () => {
+      it('should only track the display banner metric once per patient', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
@@ -766,16 +993,26 @@ describe('App', () => {
             userid: '1234'
           },
           updateShareDataBannerSeen: sinon.stub(),
+          showingShareDataBanner: true,
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
+        expect(wrapper.find('.App-sharedatabanner')).to.have.lengthOf(1);
         sinon.assert.callCount(props.context.trackMetric, 1);
 
         wrapper.setProps({});
         wrapper.setProps({});
 
-        sinon.assert.callCount(props.showBanner, 3);
         sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          currentPatientInViewId: 'patient456',
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingShareDataBanner: true,
+        });
+
+        sinon.assert.callCount(props.context.trackMetric, 2);
       });
     });
 
@@ -791,22 +1028,39 @@ describe('App', () => {
           showingDexcomConnectBanner: false,
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.calledWithMatch(props.showBanner, 'updatetype');
+        wrapper.setProps({ ...wrapper.props, showingUpdateTypeBanner: true });
+        expect(wrapper.find('.App-updatetypebanner')).to.have.lengthOf(1);
         sinon.assert.calledWith(props.context.trackMetric, 'Update Type banner displayed');
       });
 
-      it('should only track the display banner metric once', () => {
+      it('should only track the display banner metric once per patient', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
           location: '/patients/1234/data',
           showingUploaderBanner: false,
           showingShareDataBanner: false,
+          showingUpdateTypeBanner: true,
         });
 
-        sinon.assert.callCount(props.showBanner, 1);
+        expect(wrapper.find('.App-updatetypebanner')).to.have.lengthOf(1);
         sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({});
+        wrapper.setProps({});
+
+        sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          currentPatientInViewId: 'patient456',
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingUpdateTypeBanner: true,
+        });
+
+        sinon.assert.callCount(props.context.trackMetric, 2);
       });
     });
 
@@ -843,33 +1097,33 @@ describe('App', () => {
   describe('isPatientVisibleInNavbar', () => {
     it('should return true when page is /patients/a1b2c3/data', () => {
       var context = _.assign({}, baseProps, {location: '/patients/a1b2c3'});
-      var elem = TestUtils.renderIntoDocument(<App {...context} />);
+      var elem = mount(<App {...context} />);
       expect(elem).to.be.ok;
-      expect(elem.isPatientVisibleInNavbar()).to.be.true;
+      expect(elem.instance().isPatientVisibleInNavbar()).to.be.true;
     });
 
     it('should return false when page is /patients', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />);
       expect(elem).to.be.ok;
 
       elem.setState({page: '/patients'});
-      expect(elem.isPatientVisibleInNavbar()).to.be.false;
+      expect(elem.instance().isPatientVisibleInNavbar()).to.be.false;
     });
 
     it('should return false when page is /profile', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />);
       expect(elem).to.be.ok;
 
       elem.setState({page: '/profile'});
-      expect(elem.isPatientVisibleInNavbar()).to.be.false;
+      expect(elem.instance().isPatientVisibleInNavbar()).to.be.false;
     });
 
     it('should return false when page is /foo', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />);
       expect(elem).to.be.ok;
 
       elem.setState({page: '/foo'});
-      expect(elem.isPatientVisibleInNavbar()).to.be.false;
+      expect(elem.instance().isPatientVisibleInNavbar()).to.be.false;
     });
   });
 
@@ -968,6 +1222,7 @@ describe('App', () => {
           fetchingPatient: {inProgress: false, notification: {type: 'error'}},
           loggingOut: {inProgress: false},
           resendingEmailVerification: {inProgress: false},
+          fetchingInfo: {inProgress: false},
         },
         resentEmailVerification: false,
         selectedClinicId: null,
@@ -1208,11 +1463,16 @@ describe('App', () => {
             inProgress: false,
             completed: null,
           },
+          fetchingInfo: {
+            inProgress: false,
+            completed: null,
+          },
         };
 
         const dispatchProps = {
           fetchUser: sinon.stub().returns('fetchUser'),
           fetchDataSources: sinon.stub().returns('fetchDataSources'),
+          fetchInfo: sinon.stub().returns('fetchInfo'),
         };
 
         const api = {};
@@ -1223,11 +1483,13 @@ describe('App', () => {
           expect(result[0]()).to.equal('fetchUser');
           expect(result[1]).to.be.a('function');
           expect(result[1]()).to.equal('fetchDataSources');
+          expect(result[2]).to.be.a('function');
+          expect(result[2]()).to.equal('fetchInfo');
         });
 
         it('should only add the user and data source fetchers if fetches are not already in progress or completed', () => {
           const standardResult = getFetchers(stateProps, dispatchProps, api);
-          expect(standardResult.length).to.equal(2);
+          expect(standardResult.length).to.equal(3);
 
           const inProgressResult = getFetchers({
             authenticated: true,
@@ -1239,6 +1501,10 @@ describe('App', () => {
               inProgress: true,
               completed: null,
             },
+            fetchingInfo: {
+              inProgress: true,
+              completed: null,
+            }
           }, dispatchProps, api);
 
           expect(inProgressResult.length).to.equal(0);
@@ -1253,13 +1519,17 @@ describe('App', () => {
               inProgress: false,
               completed: true,
             },
+            fetchingInfo: {
+              inProgress: false,
+              completed: true,
+            }
           }, dispatchProps, api);
           expect(completedResult.length).to.equal(0);
         });
 
         it('should return an array containing the data sources fetcher from dispatchProps, but only if authenticated', () => {
           const result = getFetchers(_.assign({}, stateProps, { authenticated: false } ), dispatchProps, api);
-          expect(result[1]).to.be.undefined;
+          expect(result[2]).to.be.undefined;
 
           const loggedInResult = getFetchers(_.assign({}, stateProps, { authenticated: true } ), dispatchProps, api);
           expect(loggedInResult[1]).to.be.a('function');

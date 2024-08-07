@@ -112,12 +112,26 @@ export default (state = initialWorkingState, action) => {
     case types.ACCEPT_PATIENT_INVITATION_REQUEST:
     case types.DELETE_PATIENT_INVITATION_REQUEST:
     case types.UPDATE_PATIENT_PERMISSIONS_REQUEST:
+    case types.FETCH_CLINIC_MRN_SETTINGS_REQUEST:
+    case types.FETCH_CLINIC_EHR_SETTINGS_REQUEST:
     case types.FETCH_CLINICS_FOR_PATIENT_REQUEST:
     case types.FETCH_CLINICIAN_INVITES_REQUEST:
     case types.ACCEPT_CLINICIAN_INVITE_REQUEST:
     case types.DISMISS_CLINICIAN_INVITE_REQUEST:
     case types.GET_CLINICS_FOR_CLINICIAN_REQUEST:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_REQUEST:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST:
+    case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.DELETE_CLINIC_PATIENT_TAG_REQUEST:
+    case types.FETCH_INFO_REQUEST:
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST:
+    case types.FETCH_RPM_REPORT_PATIENTS_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNT_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
@@ -163,6 +177,18 @@ export default (state = initialWorkingState, action) => {
           types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST,
           types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST,
           types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST,
+          types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
+          types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
+          types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
+          types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST,
+          types.DATA_WORKER_REMOVE_DATA_REQUEST,
+          types.CREATE_CLINIC_PATIENT_TAG_REQUEST,
+          types.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
+          types.DELETE_CLINIC_PATIENT_TAG_REQUEST,
+          types.FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST,
+          types.FETCH_RPM_REPORT_PATIENTS_REQUEST,
+          types.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
+          types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
@@ -171,6 +197,7 @@ export default (state = initialWorkingState, action) => {
                 notification: null,
                 completed: null, // For these types we don't persist the completed state
                 prescriptionId: _.get(action, ['payload', 'prescription', 'id']),
+                patientId: _.get(action, ['payload', 'patientId']),
               }
             }
           });
@@ -264,12 +291,26 @@ export default (state = initialWorkingState, action) => {
     case types.ACCEPT_PATIENT_INVITATION_SUCCESS:
     case types.DELETE_PATIENT_INVITATION_SUCCESS:
     case types.UPDATE_PATIENT_PERMISSIONS_SUCCESS:
+    case types.FETCH_CLINIC_MRN_SETTINGS_SUCCESS:
+    case types.FETCH_CLINIC_EHR_SETTINGS_SUCCESS:
     case types.FETCH_CLINICS_FOR_PATIENT_SUCCESS:
     case types.FETCH_CLINICIAN_INVITES_SUCCESS:
     case types.ACCEPT_CLINICIAN_INVITE_SUCCESS:
     case types.DISMISS_CLINICIAN_INVITE_SUCCESS:
     case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_SUCCESS:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS:
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.FETCH_INFO_SUCCESS:
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
+    case types.FETCH_RPM_REPORT_PATIENTS_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -314,7 +355,10 @@ export default (state = initialWorkingState, action) => {
               }
             }
           });
-        } else if (action.type === types.FETCH_CLINIC_SUCCESS) {
+        } else if (_.includes([
+          types.CREATE_CLINIC_SUCCESS,
+          types.FETCH_CLINIC_SUCCESS,
+        ], action.type)) {
           return update(state, {
             [key]: {
               $set: {
@@ -322,6 +366,22 @@ export default (state = initialWorkingState, action) => {
                 notification: _.get(action, ['payload', 'notification'], null),
                 completed: true,
                 clinicId: _.get(action, ['payload', 'clinic', 'id']),
+              }
+            }
+          });
+        } else if (_.includes([
+          types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS,
+          types.UPDATE_CLINIC_PATIENT_SUCCESS,
+          types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS,
+          types.ACCEPT_PATIENT_INVITATION_SUCCESS,
+        ], action.type)) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: false,
+                notification: _.get(action, ['payload', 'notification'], null),
+                completed: true,
+                patientId: _.get(action, ['payload', 'patientId']),
               }
             }
           });
@@ -414,12 +474,26 @@ export default (state = initialWorkingState, action) => {
     case types.ACCEPT_PATIENT_INVITATION_FAILURE:
     case types.DELETE_PATIENT_INVITATION_FAILURE:
     case types.UPDATE_PATIENT_PERMISSIONS_FAILURE:
+    case types.FETCH_CLINIC_MRN_SETTINGS_FAILURE:
+    case types.FETCH_CLINIC_EHR_SETTINGS_FAILURE:
     case types.FETCH_CLINICS_FOR_PATIENT_FAILURE:
     case types.FETCH_CLINICIAN_INVITES_FAILURE:
     case types.ACCEPT_CLINICIAN_INVITE_FAILURE:
     case types.DISMISS_CLINICIAN_INVITE_FAILURE:
     case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
     case types.TRIGGER_INITIAL_CLINIC_MIGRATION_FAILURE:
+    case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
+    case types.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
+    case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
+    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE:
+    case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
+    case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:
+    case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
+    case types.FETCH_INFO_FAILURE:
+    case types.FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE:
+    case types.FETCH_RPM_REPORT_PATIENTS_FAILURE:
+    case types.FETCH_CLINIC_PATIENT_COUNT_FAILURE:
+    case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {
@@ -438,7 +512,7 @@ export default (state = initialWorkingState, action) => {
         return state;
       }
 
-    case types.SELECT_CLINIC:
+    case types.SELECT_CLINIC_SUCCESS:
       const newState = _.cloneDeep(state);
       _.forEach([
         'fetchingCliniciansFromClinic',

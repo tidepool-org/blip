@@ -200,7 +200,7 @@ describe('data reducer', () => {
       });
     });
 
-    it('should reset back to the initial state, but preserve some fields for caching purposes', () => {
+    it('should reset back to the initial state, but preserve some fields for caching purposes, and set `queryDataCount` back to zero', () => {
       initialStateForTest.data.combined = [ 1 ];
       initialStateForTest.data.aggregationsByDate = { foo: 'bar' };
       initialStateForTest.data.current = 'current state';
@@ -213,6 +213,7 @@ describe('data reducer', () => {
       initialStateForTest.metaData = {
         patientId: 'abc123',
         foo: 'bar',
+        queryDataCount: 3,
       };
 
       tracked = mutationTracker.trackObj(initialStateForTest);
@@ -238,6 +239,7 @@ describe('data reducer', () => {
           metaData: {
             patientId: 'abc123',
             foo: 'bar',
+            queryDataCount: 0,
           },
         });
       });

@@ -13,23 +13,23 @@ import _ from 'lodash';
 import utils from '../../app/core/utils';
 
 import {
-  requireChrome,
   requireAuth,
   requireAuthAndNoPatient,
   requireNoAuth,
   requireNotVerified,
   onUploaderPasswordReset,
   ensureNoAuth,
+  requireSupportedBrowser,
 } from '../../app/routes';
 
 import config from '../../app/config';
 
 var expect = chai.expect;
 
-function routeAction(path) {
+function routeAction(path, routeState) {
   return {
     type: '@@router/CALL_HISTORY_METHOD',
-    payload: { args: [path], method: 'push' },
+    payload: { args: [].slice.call(arguments), method: 'push' },
   };
 }
 
@@ -61,16 +61,16 @@ describe('routes', () => {
     cb.resetHistory();
   });
 
-  describe('requireChrome', () => {
+  describe('requireSupportedBrowser', () => {
     let next = sinon.stub().returns( (dispatch) => {} );
 
     afterEach(()=>{
       next.resetHistory();
     });
 
-    it('should not redirect and call cb when isChrome is true', () => {
-      sinon.stub(utils, 'isChrome');
-      utils.isChrome.returns(true);
+    it('should not redirect and call cb when isSupportedBrowser is true', () => {
+      sinon.stub(utils, 'isSupportedBrowser');
+      utils.isSupportedBrowser.returns(true);
 
       let args = { additional: 'args' };
 
@@ -80,19 +80,19 @@ describe('routes', () => {
 
       let expectedActions = [];
 
-      store.dispatch(requireChrome(next, {...args}));
+      store.dispatch(requireSupportedBrowser(next, {...args}));
 
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
-      expect(utils.isChrome.callCount).to.equal(1);
+      expect(utils.isSupportedBrowser.callCount).to.equal(1);
       expect(next.callCount).to.equal(1);
       expect(next.calledWith({ ...args })).to.be.true;
-      utils.isChrome.restore();
+      utils.isSupportedBrowser.restore();
     });
 
-    it('should redirect and not call cb when isChrome is false', () => {
-      sinon.stub(utils, 'isChrome');
-      utils.isChrome.returns(false);
+    it('should redirect and not call cb when isSupportedBrowser is false', () => {
+      sinon.stub(utils, 'isSupportedBrowser');
+      utils.isSupportedBrowser.returns(false);
 
       let args = { additional: 'args' };
 
@@ -102,13 +102,13 @@ describe('routes', () => {
 
       let expectedActions = [routeAction('/browser-warning')];
 
-      store.dispatch(requireChrome(cb, {...args}));
+      store.dispatch(requireSupportedBrowser(cb, {...args}));
 
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
-      expect(utils.isChrome.callCount).to.equal(1);
+      expect(utils.isSupportedBrowser.callCount).to.equal(1);
       expect(next.callCount).to.equal(0);
-      utils.isChrome.restore();
+      utils.isSupportedBrowser.restore();
     });
   });
 
@@ -131,6 +131,27 @@ describe('routes', () => {
       });
 
       let expectedActions = [routeAction('/login')];
+
+      store.dispatch(requireAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should update route to /login with dest if user is not authenticated and destination available', () => {
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(false),
+          get: sinon.stub(),
+        },
+      };
+
+      let store = mockStore({
+        blip: {},
+        router: { location: { pathname: '/otherDestination', hash: '#bar', search: '?param=foo' } },
+      });
+
+      let expectedActions = [routeAction('/login?dest=%2FotherDestination%3Fparam%3Dfoo%23bar')];
 
       store.dispatch(requireAuth(api));
 
@@ -297,7 +318,6 @@ describe('routes', () => {
 
     it('should fetch clinics for the user if they have not already been fetched', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -347,7 +367,6 @@ describe('routes', () => {
 
     it('should redirect user to /patients if clinic status cannot be determined due to backend error', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -414,9 +433,8 @@ describe('routes', () => {
       expect(actions).to.eql(expectedActions);
     });
 
-    it('should redirect the user to `/clinic-details` if the first returned clinic is empty', () => {
+    it('should redirect the user to `/clinic-details/migrate` if the first returned clinic is empty', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -437,6 +455,8 @@ describe('routes', () => {
         clinics: {
           getClinicsForClinician: sinon.stub().callsArgWith(2, null, [{ clinic: { id: 'newClinic' } }]),
           getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+          getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+          getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
         },
       };
 
@@ -462,10 +482,14 @@ describe('routes', () => {
           clinicianId: 'a1b2c3',
           clinics: [{ clinic: { id: 'newClinic' } }],
         } },
+        { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+        { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
+        { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+        { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
-        { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
-        routeAction('/clinic-details'),
+        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic' } },
+        routeAction('/clinic-details/migrate', { selectedClinicId: null }),
       ];
 
       store.dispatch(requireAuth(api));
@@ -474,9 +498,8 @@ describe('routes', () => {
       expect(actions).to.eql(expectedActions);
     });
 
-    it('should redirect the user to `/clinic-details` if the first returned clinic ready to migrate', () => {
+    it('should redirect the user to `/clinic-details/migrate` if the first returned clinic ready to migrate', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -497,6 +520,8 @@ describe('routes', () => {
         clinics: {
           getClinicsForClinician: sinon.stub().callsArgWith(2, null, [{ clinic: { id: 'newClinic', name: 'Clinic ABC', canMigrate: true } }]),
           getClinicianInvites: sinon.stub().callsArgWith(1, null, []),
+          getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+          getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
         },
       };
 
@@ -522,10 +547,14 @@ describe('routes', () => {
           clinicianId: 'a1b2c3',
           clinics: [{ clinic: { id: 'newClinic', name: 'Clinic ABC', canMigrate: true } }],
         } },
+        { type: 'FETCH_CLINIC_EHR_SETTINGS_REQUEST' },
+        { type: 'FETCH_CLINIC_EHR_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
+        { type: 'FETCH_CLINIC_MRN_SETTINGS_REQUEST' },
+        { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
-        { type: 'SELECT_CLINIC', payload: { clinicId: 'newClinic' } },
-        routeAction('/clinic-details'),
+        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic' } },
+        routeAction('/clinic-details/migrate', { selectedClinicId: null }),
       ];
 
       store.dispatch(requireAuth(api));
@@ -534,9 +563,8 @@ describe('routes', () => {
       expect(actions).to.eql(expectedActions);
     });
 
-    it('should redirect the user to `/clinic-details` if the user has a clinic invite and no clinic profile', () => {
+    it('should redirect the user to `/clinic-details/profile` if the user has a clinic invite and no clinic profile', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -580,7 +608,7 @@ describe('routes', () => {
         { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 'a1b2c3', clinics: [] } },
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [{ id: 'inviteId' }] } },
-        routeAction('/clinic-details'),
+        routeAction('/clinic-details/profile', { selectedClinicId: null }),
       ];
 
       store.dispatch(requireAuth(api));
@@ -591,7 +619,6 @@ describe('routes', () => {
 
     it('should redirect the user to `/workspaces` if the user has a clinic invite and has a clinic profile', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -647,7 +674,6 @@ describe('routes', () => {
 
     it('should redirect a non-clinic member user to `/patients` if they are on a Clinic UI route', () => {
       config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
-      config.CLINICS_ENABLED = true;
       let user = {
         userid: 'a1b2c3',
         emailVerified: true,
@@ -700,6 +726,89 @@ describe('routes', () => {
 
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
+    });
+
+    describe('clinic information already fetched', () => {
+      it('should redirect user to `/patients` if trying to access clinic pages as non-clinician', () => {
+        config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(true),
+            get: sinon.stub(),
+          },
+        };
+
+        let store = mockStore({
+          blip: {
+            loggedInUserId: 'user123',
+            allUsersMap: {
+              user123: {
+                profile: {},
+                termsAccepted: '2015-01-01T00:00:00-08:00',
+              },
+            },
+            working: {
+              fetchingClinicsForClinician: {
+                inProgress: false,
+                completed: true,
+                notification: false,
+              },
+              triggeringInitialClinicMigration: {
+                completed: null,
+              },
+            },
+          },
+          router: { location: { pathname: '/workspaces' } },
+        });
+
+        let expectedActions = [routeAction('/patients')];
+
+        store.dispatch(requireAuth(api));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+
+      it('should redirect user to `/workspaces` if clinic-specific page with no selected clinic', () => {
+        config.LATEST_TERMS = '2014-01-01T00:00:00-08:00';
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(true),
+            get: sinon.stub(),
+          },
+        };
+
+        let store = mockStore({
+          blip: {
+            loggedInUserId: 'user123',
+            allUsersMap: {
+              user123: {
+                profile: {},
+                termsAccepted: '2015-01-01T00:00:00-08:00',
+                isClinicMember: true,
+              },
+            },
+            working: {
+              fetchingClinicsForClinician: {
+                inProgress: false,
+                completed: true,
+                notification: false,
+              },
+              triggeringInitialClinicMigration: {
+                completed: null,
+              },
+            },
+          },
+          router: { location: { pathname: '/clinic-admin' } },
+        });
+
+        let expectedActions = [routeAction('/workspaces')];
+
+        store.dispatch(requireAuth(api));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
     });
   });
 
@@ -959,6 +1068,10 @@ describe('routes', () => {
             user: {
               isAuthenticated: sinon.stub().returns(true),
             },
+            clinics: {
+              getClinicPatientCount: sinon.stub(),
+              getClinicPatientCountSettings: sinon.stub(),
+            },
           };
 
           let store = mockStore({
@@ -975,7 +1088,9 @@ describe('routes', () => {
           });
 
           let expectedActions = [
-            { type: 'SELECT_CLINIC', payload: { clinicId: 'clinic123' } },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' } },
+            { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+            { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
             routeAction('/clinic-details'),
           ];
 
@@ -1047,6 +1162,39 @@ describe('routes', () => {
       });
 
       let expectedActions = [];
+
+      store.dispatch(requireNoAuth(api));
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should set sso enabled display if present in location', () => {
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(false),
+        },
+      };
+
+      let store = mockStore({
+        blip: {},
+        router: {
+          location: {
+            query: {
+              ssoEnabled: 'true',
+            },
+          },
+        },
+      });
+
+      let expectedActions = [
+        {
+          type: 'SET_SSO_ENABLED_DISPLAY',
+          payload: {
+            value: true,
+          },
+        },
+      ];
 
       store.dispatch(requireNoAuth(api));
 

@@ -1,12 +1,14 @@
-import {useCallback, useRef, useEffect, useState} from 'react'
+import { useCallback, useRef, useEffect, useState } from 'react'
 import update from 'immutability-helper'
 
 import { useField, useFormikContext } from 'formik';
+import { isPlainObject } from 'lodash';
 
 // c.f. https://gist.github.com/joshsalverda/d808d92f46a7085be062b2cbde978ae6
 // Avoids some performance issues in Formik's native <FieldArray />
 // Solution stems from this issue on Formik's GH: https://github.com/jaredpalmer/formik/issues/1476
-export const useFieldArray = (props, formikContext = useFormikContext()) => {
+export const useFieldArray = (props, formikContext) => {
+  formikContext = formikContext ?? useFormikContext(); // eslint-disable-line react-hooks/rules-of-hooks
   const [field, meta] = useField(props);
   const fieldArray = useRef(field.value);
   const { setFieldValue } = formikContext;
@@ -119,26 +121,32 @@ export const usePrevious = value => {
 };
 
 // c.f. https://usehooks.com/useLocalStorage/
-// Note: this is currently only used as a mock data store for use while backend services are not yet implemented
-export const useLocalStorage = (key, initialValue) => {
+export const useLocalStorage = (key, defaultValue, mergeLocalWithDefault = false) => {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
   const [storedValue, setStoredValue] = useState(() => {
     try {
       // Get from local storage by key
-      const item = window.localStorage.getItem(key);
-      // Parse stored json or if none return initialValue
-      return item ? JSON.parse(item) : initialValue;
+      let item = window.localStorage.getItem(key);
+
+      // Parse and return stored json
+      if (item) {
+        item = JSON.parse(item);
+        return (mergeLocalWithDefault && isPlainObject(item)) ? { ...defaultValue, ...item } : item;
+      }
+
+      // If missing, return defaultValue
+      return defaultValue;
     } catch (error) {
-      // If error also return initialValue
+      // If error, return defaultValue
       console.log(error);
-      return initialValue;
+      return defaultValue;
     }
   });
 
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to localStorage.
-  const setValue = value => {
+  const setValue = useCallback(value => {
     try {
       // Allow value to be a function so we have same API as useState
       const valueToStore =
@@ -151,7 +159,7 @@ export const useLocalStorage = (key, initialValue) => {
       // A more advanced implementation would handle the error case
       console.log(error);
     }
-  };
+  }, [storedValue, key]);
 
   return [storedValue, setValue];
 };

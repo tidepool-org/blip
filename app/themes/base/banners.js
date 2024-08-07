@@ -1,42 +1,43 @@
 export default ({ colors, fonts, fontSizes, fontWeights }) => {
-  const common = {
-    color: colors.white,
+  const common = variant => ({
+    color: colors.banner[variant].message,
     display: 'flex',
-    flexFlow: 'row',
-    height: '40px',
-    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingRight: 12,
-    paddingLeft: 16,
+    padding: '12px',
+    bg: colors.banner[variant].bg,
+
+    '.icon': {
+      color: colors.banner[variant].icon,
+      fontSize: fontSizes[4],
+    },
 
     '.message': {
       fontFamily: fonts.default,
-      fontSize: fontSizes[1],
+      fontSize: fontSizes[0],
       fontWeight: fontWeights.medium,
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
+    },
+
+    'button.action': {
+      fontFamily: fonts.default,
+      fontSize: fontSizes[0],
+      fontWeight: fontWeights.medium,
+      bg: colors.banner[variant].action.bg,
+      borderColor: colors.banner[variant].action.bg,
+      color: colors.banner[variant].action.text,
+      ml: 2,
     },
 
     '.close-icon': {
-      color: colors.white,
-      fontSize: fontSizes[1],
+      color: colors.banner[variant].closeIcon,
+      fontSize: fontSizes[3],
     },
-  };
+  });
 
   return {
-    default: {
-      ...common,
-      backgroundColor: colors.feedback.info,
-    },
-    warning: {
-      ...common,
-      backgroundColor: colors.feedback.warning,
-    },
-    danger: {
-      ...common,
-      backgroundColor: colors.feedback.danger,
-    },
+    info: common('info'),
+    warning: common('warning'),
+    danger: common('danger'),
+    success: common('success'),
   };
 };

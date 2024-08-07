@@ -17,6 +17,8 @@
 
 import _  from 'lodash';
 import sundial from 'sundial';
+import moment from 'moment';
+import { format } from 'd3-format';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 import { utils as vizUtils } from '@tidepool/viz';
@@ -24,6 +26,8 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
 
 const utils = {};
+
+utils.emailRegex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 /**
  * Convenience function for capitalizing a string
@@ -67,9 +71,9 @@ utils.getIn = (obj, props, notFound) => {
   return result.child;
 };
 
-utils.isChrome = () => {
+utils.isSupportedBrowser = () => {
   var userAgent = navigator.userAgent.toLowerCase();
-  return (userAgent.indexOf('chrome') > -1 && userAgent.indexOf('edge') === -1);
+  return (userAgent.indexOf('chrome') > -1 && userAgent.indexOf('opr') === -1 && userAgent.indexOf('mobi') === -1);
 };
 
 utils.isMobile = () => {
@@ -178,7 +182,7 @@ utils.getSignupKey = function(location) {
       return signupKey;
     }
   }
-  return false;
+  return null;
 }
 
 utils.getSignupEmail = function (location) {
@@ -327,9 +331,22 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
     setNewTimePrefs(queryParams.timezone, false);
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
-  else if (!_.isEmpty(latestUpload) && !_.isEmpty(latestUpload.timezone)) {
-    setNewTimePrefs(latestUpload.timezone);
-    console.log('Defaulting to display in timezone of most recent upload at', latestUpload.normalTime, latestUpload.timezone);
+  else if (!_.isEmpty(latestUpload) && (!_.isEmpty(latestUpload.timezone) || _.isFinite(latestUpload.timezoneOffset))) {
+    let timezone = latestUpload.timezone;
+
+    // If timezone is empty, set to the nearest Etc/GMT timezone using the timezoneOffset
+    if (_.isEmpty(timezone)) {
+      // GMT offsets signs in Etc/GMT timezone names are reversed from the actual offset
+      const offsetSign = Math.sign(latestUpload.timezoneOffset) === -1 ? '+' : '-';
+      const offsetDuration = moment.duration(Math.abs(latestUpload.timezoneOffset), 'minutes');
+      let offsetHours = offsetDuration.hours();
+      const offsetMinutes = offsetDuration.minutes();
+      if (offsetMinutes >= 30) offsetHours += 1;
+      timezone = `Etc/GMT${offsetSign}${offsetHours}`;
+    }
+
+    setNewTimePrefs(timezone);
+    console.log('Defaulting to display in timezone of most recent upload at', latestUpload.normalTime, timezone);
   }
   else if (browserTimezone) {
     setNewTimePrefs(browserTimezone);
@@ -341,25 +358,35 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
-  var bgUnits = _.get(patientSettings, 'units.bg', queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS);
+utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, source: overrideSource }) => {
+  // Allow overriding stored BG Unit preferences via query param or preferred clinic BG units
+  // If no override is specified, use patient settings units if availiable, otherwise 'mg/dL'
+  const patientSettingsBgUnits = patientSettings?.units?.bg || MGDL_UNITS;
 
+  const bgUnits = overrideUnits
+    ? (overrideUnits?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS)
+    : patientSettingsBgUnits;
+
+  const settingsOverrideActive = patientSettingsBgUnits !== bgUnits;
   const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
   const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
 
   var bgClasses = {
-    low: { boundary: utils.roundBgTarget(low, bgUnits) },
-    target: { boundary: utils.roundBgTarget(high, bgUnits) },
+    low: {
+      boundary: utils.roundBgTarget(
+        settingsOverrideActive && patientSettings?.bgTarget?.low ? utils.translateBg(patientSettings.bgTarget.low, bgUnits) : low,
+        bgUnits
+      )
+    },
+    target: {
+      boundary: utils.roundBgTarget(
+        settingsOverrideActive && patientSettings?.bgTarget?.high ? utils.translateBg(patientSettings.bgTarget.high, bgUnits) : high,
+        bgUnits
+      )
+    },
   };
 
-  // Allow overriding stored BG Unit preferences via query param
-  const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
-  if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], queryParams.units)) {
-    bgUnits = queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
-    bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.low, bgUnits), bgUnits);
-    bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.high, bgUnits), bgUnits);
-    console.log(`Displaying BG in ${bgUnits} from query params`);
-  }
+  if (settingsOverrideActive) console.log(`Displaying BG in ${bgUnits} from ${overrideSource}`);
 
   return {
     bgUnits,
@@ -423,5 +450,85 @@ utils.readableChartName = chartType => ({
   daily: 'Daily',
   trends: 'Trends',
 }[chartType] || chartType);
+
+utils.formatDecimal = (val, precision) => {
+  if (precision === null || precision === undefined) {
+    return format('d')(val);
+  }
+  return format(`.${precision}f`)(val);
+};
+
+utils.roundToPrecision = (value, precision = 0) => {
+  const shift = precision > 0 ? 10 ** precision : 1;
+  return Math.round(value * shift) / shift;
+};
+
+utils.roundUp = (value, precision = 0) => {
+  const shift = precision > 0 ? 10 ** precision : 1;
+  return Math.ceil(value * shift) / shift;
+};
+
+utils.roundDown = (value, precision = 0) => {
+  const shift = precision > 0 ? 10 ** precision : 1;
+  return Math.floor(value * shift) / shift;
+};
+
+utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecision = 0) => {
+  let precision = defaultPrecision;
+  let percentage = value * 100;
+  let customRoundingRange;
+
+  switch (comparator) {
+    case '<':
+    case '>=':
+      // not fine to round up to the threshold
+      // fine to round down to the threshold
+      // lower than threshold should round down
+      customRoundingRange = [threshold - 0.5, threshold];
+
+      if (percentage >= customRoundingRange[0] && percentage < customRoundingRange[1]) {
+        precision = 1;
+
+        // If natural rounding would round to threshold, force rounding down
+        if (percentage >= threshold - 0.05) {
+          percentage = utils.roundDown(percentage, precision);
+        }
+      }
+      break;
+
+    case '>':
+    case '<=':
+      // fine to round up to the threshold
+      // not fine to round down to the threshold
+      // greater than threshold should round up
+      customRoundingRange = [threshold, threshold + 0.5];
+
+      if (percentage > customRoundingRange[0] && percentage < customRoundingRange[1]) {
+        precision = 1;
+
+        // If natural rounding would round to threshold, force rounding up
+        if (percentage < threshold + 0.05) {
+          percentage = utils.roundUp(percentage, precision);
+        }
+      }
+      break;
+  }
+
+  // We want to force extra precision on very small percentages, and for extra small numbers,
+  // force rounding up so that we always show at least 0.01% if the value is technically above zero
+  if (percentage > 0 && percentage < 0.5) {
+    precision = 1;
+
+    if (percentage < 0.05) {
+      precision = 2;
+
+      if (percentage < 0.005) {
+        percentage = utils.roundUp(percentage, precision);
+      }
+    }
+  }
+
+  return format(`.${precision}f`)(utils.roundToPrecision(percentage, precision));
+}
 
 export default utils;

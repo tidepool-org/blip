@@ -3,14 +3,17 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useFormik } from 'formik';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import includes from 'lodash/includes';
 import cloneDeep from 'lodash/cloneDeep';
+import filter from 'lodash/filter';
+import indexOf from 'lodash/indexOf';
+import isUndefined from 'lodash/isUndefined';
 import * as yup from 'yup';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
@@ -52,25 +55,44 @@ export const ClinicianEdit = (props) => {
   const { updatingClinician, fetchingCliniciansFromClinic } = useSelector((state) => state.blip.working);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const selectedClinic = get(location, 'state.clinicId', false);
-
-  const selectedClinician = useSelector((state) =>
-    get(state, [
-      'blip',
-      'clinics',
-      selectedClinic,
-      'clinicians',
-      selectedClinicianId,
-    ])
+  const clinicians = useSelector((state) =>
+    get(state, ['blip', 'clinics', selectedClinic, 'clinicians'])
   );
+  const selectedClinician = get(clinicians, selectedClinicianId);
 
   const selectedClinicianRoles = selectedClinician?.roles;
   const clinicianName = selectedClinician?.name;
+  const activeAdmins = filter(
+    clinicians,
+    (clinician) =>
+      indexOf(clinician.roles, 'CLINIC_ADMIN') !== -1 &&
+      isUndefined(clinician.inviteId)
+  );
+  const adminCount = activeAdmins.length;
+  const userId = useSelector((state) => state.blip.loggedInUserId);
+  const isOnlyClinicAdmin = adminCount === 1 && userId === selectedClinicianId;
+  let deleteSubmitText,
+    deleteCancelText = t('Cancel');
+  let deleteTitle = t('Remove {{clinicianName}}', { clinicianName });
+  let deleteBody = t(
+    '{{clinicianName}} will lose all access to this clinic workspace and its patient list. Are you sure you want to remove this user?',
+    { clinicianName }
+  );
+
+  if (isOnlyClinicAdmin) {
+    deleteTitle = t('Unable to remove yourself');
+    deleteBody = t('Before you remove yourself from this Clinic account, please assign Admin permissions to at least one other Clinic member.');
+    deleteCancelText = t('OK');
+  } else {
+    deleteSubmitText = t('Remove User');
+  }
 
   const clinicAdminDesc = (
     <>
       <Title mt="-0.25em">{t('Clinic Admin')}</Title>
       <Body1>
         {t('Clinic admins have complete access to a workspace and can manage patients, clinicians and the clinic profile.')}
+        {isOnlyClinicAdmin && <><br/>{t('You cannot remove your admin permissions if you are the only clinic admin.')}</>}
       </Body1>
     </>
   );
@@ -243,19 +265,18 @@ export const ClinicianEdit = (props) => {
       {selectedClinician ? (
         <>
           <Flex
-            sx={{ borderBottom: baseTheme.borders.default }}
-            alignItems="center"
+            sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center' }}
             p={4}
             mb={4}
             px={6}
           >
-            <Box flexGrow={1}>
-              <Text fontWeight="medium">{clinicianName}</Text>
-              <Text>{selectedClinician.email}</Text>
+            <Box sx={{ flexGrow: 1 }}>
+              <Text sx={{ display: 'block', fontWeight: 'medium' }}>{clinicianName}</Text>
+              <Text sx={{ display: 'block' }}>{selectedClinician.email}</Text>
             </Box>
             <Text
-              color="feedback.danger"
-              sx={{ cursor: 'pointer' }}
+              id="remove-team-member"
+              sx={{ color: 'feedback.danger', cursor: 'pointer' }}
               onClick={() => handleClickDelete()}
             >
               {t('Remove User')}
@@ -270,6 +291,7 @@ export const ClinicianEdit = (props) => {
             <RadioGroup
               id="clinician-type"
               options={typeOptions}
+              disabled={isOnlyClinicAdmin}
               {...getCommonFormikFieldProps('clinicianType', formikContext)}
               variant="verticalBordered"
               sx={{
@@ -313,7 +335,7 @@ export const ClinicianEdit = (props) => {
               Learn more about clinician roles and permissions
             </Button>
 
-            <Flex p={4} justifyContent="flex-end">
+            <Flex p={4} sx={{ justifyContent: 'flex-end' }}>
               <Button id="cancel" variant="secondary" onClick={handleBack}>
                 {t('Back')}
               </Button>
@@ -326,17 +348,17 @@ export const ClinicianEdit = (props) => {
 
           <Dialog
             id="deleteDialog"
-            aria-labelledBy="dialog-title"
+            aria-labelledby="dialog-title"
             open={deleteDialogOpen}
             onClose={handleCloseDeleteDialog}
           >
             <DialogTitle onClose={handleCloseDeleteDialog}>
-              <MediumTitle id="dialog-title">{t('Remove {{clinicianName}}', { clinicianName })}</MediumTitle>
+              <MediumTitle id="dialog-title">{deleteTitle}</MediumTitle>
             </DialogTitle>
 
             <DialogContent>
               <Body1>
-                {t('{{clinicianName}} will lose all access to this clinic workspace and its patient list. Are you sure you want to remove this user?', { clinicianName })}
+                {deleteBody}
               </Body1>
             </DialogContent>
 
@@ -346,22 +368,23 @@ export const ClinicianEdit = (props) => {
                 variant="secondary"
                 onClick={handleCloseDeleteDialog}
               >
-                {t('Cancel')}
+                {deleteCancelText}
               </Button>
-
-              <Button
-                id="deleteDialogRemove"
-                variant="danger"
-                onClick={handleConfirmDeleteDialog}
-              >
-                {t('Remove User')}
-              </Button>
+              {deleteSubmitText && (
+                <Button
+                  id="deleteDialogRemove"
+                  variant="danger"
+                  onClick={handleConfirmDeleteDialog}
+                >
+                  {deleteSubmitText}
+                </Button>
+              )}
             </DialogActions>
           </Dialog>
 
           <Dialog
             id="confirmDialog"
-            aria-labelledBy="dialog-title"
+            aria-labelledby="dialog-title"
             open={confirmDialogOpen}
             onClose={handleCloseConfirmDialog}
           >
@@ -406,4 +429,4 @@ ClinicianEdit.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicianEdit);
+export default withTranslation()(ClinicianEdit);

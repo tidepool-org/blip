@@ -1,6 +1,7 @@
 import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
+import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import Workspaces from '../../../../app/pages/workspaces';
@@ -33,6 +34,9 @@ describe('Workspaces', () => {
         deleteClinicianFromClinic: sinon.stub().callsArgWith(2, null, { deleteClinicianReturn: 'success' }),
         acceptClinicianInvite: sinon.stub().callsArgWith(2, null, { acceptInvite: 'success' }),
         dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
+        getCliniciansFromClinic: sinon.stub().callsArgWith(2, null, { cliniciansReturn: 'success' }),
+        getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 3 }),
+        getClinicPatientCountSettings: sinon.stub().callsArgWith(1, null, 'success'),
       },
     },
   };
@@ -59,6 +63,7 @@ describe('Workspaces', () => {
 
   const defaultState = {
     blip: {
+      clinics: {},
       working: {
         fetchingClinicianInvites: defaultWorkingState,
         fetchingClinicsForClinician: defaultWorkingState,
@@ -107,18 +112,16 @@ describe('Workspaces', () => {
               id: 'clinicianUserId123',
               roles: ['CLINIC_MEMBER'],
             },
+            clinicianUserId456: {
+              id: 'clinicianUserId456',
+              roles: ['CLINIC_ADMIN'],
+            }
           },
           patients: {},
           id: 'clinicID456',
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
       pendingReceivedClinicianInvites: [
@@ -135,11 +138,122 @@ describe('Workspaces', () => {
           },
           context: null,
           created: '2021-07-27T16:16:46.891Z',
-          status: 'pending'
+          status: 'pending',
+          restrictions: {
+            canAccept: true,
+          }
         }
       ],
     },
   };
+
+  const fetchedDataEmptyState = {
+    blip: {
+      ...fetchedDataState.blip,
+      clinics: {},
+      pendingReceivedClinicianInvites: [],
+    },
+  };
+
+  const fetchedDataLastAdminState = {
+    blip: {
+      ...fetchedDataState.blip,
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_ADMIN'],
+            }
+          },
+          patients: {},
+          id: 'clinicID456',
+          address: '1 Address Ln, City Zip',
+          name: 'new_clinic_name',
+          email: 'new_clinic_email_address@example.com',
+        },
+      },
+    }
+  }
+
+  const fetchedDataLastAdminInvitedState = {
+    blip: {
+      ...fetchedDataState.blip,
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_ADMIN'],
+            },
+            clinicianUserId456: {
+              id: 'clinicianUserId456',
+              roles: ['CLINIC_ADMIN'],
+              inviteId: 'invite_id_456',
+            }
+          },
+          patients: {},
+          id: 'clinicID456',
+          address: '1 Address Ln, City Zip',
+          name: 'new_clinic_name',
+          email: 'new_clinic_email_address@example.com',
+        },
+      },
+    }
+  }
+
+  const fetchedNoIdpEmailMismatchState = {
+    blip: {
+      ...fetchedDataState.blip,
+      pendingReceivedClinicianInvites: [
+        {
+          key: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
+          type: 'clinician_invitation',
+          email: 'clinic@example.com',
+          clinicId: '61003144b78cc595b9560e7d',
+          creatorId: 'bf62d3c88b',
+          creator: {
+            userid: 'bf62d3c88b',
+            clinicId: '61003144b78cc595b9560e7d',
+            clinicName: 'Example Health'
+          },
+          context: null,
+          created: '2021-07-27T16:16:46.891Z',
+          status: 'pending',
+          restrictions: {
+            canAccept: false,
+          }
+        }
+      ],
+    }
+  }
+
+  const fetchedIdpEmailMatchState = {
+    blip: {
+      ...fetchedDataState.blip,
+      pendingReceivedClinicianInvites: [
+        {
+          key: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
+          type: 'clinician_invitation',
+          email: 'clinic@example.com',
+          clinicId: '61003144b78cc595b9560e7d',
+          creatorId: 'bf62d3c88b',
+          creator: {
+            userid: 'bf62d3c88b',
+            clinicId: '61003144b78cc595b9560e7d',
+            clinicName: 'Example Health'
+          },
+          context: null,
+          created: '2021-07-27T16:16:46.891Z',
+          status: 'pending',
+          restrictions: {
+            canAccept: false,
+            requiredIdp: 'awesome-idp'
+          }
+        }
+      ],
+    }
+  }
 
   let mountWrapper;
   let store;
@@ -151,7 +265,9 @@ describe('Workspaces', () => {
       return mount(
         <Provider store={store}>
           <ToastProvider>
-            <Workspaces {...props} />
+            <MemoryRouter initialEntries={['/workspaces']}>
+              <Route path='/workspaces' children={() => (<Workspaces {...props} />)} />
+            </MemoryRouter>
           </ToastProvider>
         </Provider>
       );
@@ -186,7 +302,7 @@ describe('Workspaces', () => {
     });
   });
 
-  context('clinician invites fetched', () => {
+  context('clinic and invite data fetched', () => {
     beforeEach(() => {
       wrapper = mountWrapper(mockStore(fetchedDataState));
     });
@@ -197,13 +313,44 @@ describe('Workspaces', () => {
     });
 
     it('should render the workspaces title', () => {
-      const title = wrapper.find('h3').at(0);
+      const title = wrapper.find('h2').at(0);
       expect(title.text()).to.equal('Welcome To Tidepool');
     });
 
     it('should render the workspaces section heading', () => {
-      const heading = wrapper.find('h4').at(0);
+      const heading = wrapper.find('h3').at(0);
       expect(heading.text()).to.equal('Clinic Workspace');
+    });
+
+    it('should render a button to add a new clinic', () => {
+      const button = wrapper.find('button#workspace-create-clinic');
+      expect(button).to.have.lengthOf(1);
+      expect(button.text()).contains('Create a New Clinic');
+
+      store.clearActions();
+      button.simulate('click');
+      expect(store.getActions()).to.eql([
+        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: null } },
+        {
+          type: '@@router/CALL_HISTORY_METHOD',
+          payload: {
+            args: ['/clinic-details/new', { selectedClinicId: null, referrer: '/workspaces' }],
+            method: 'push',
+          },
+        },
+      ]);
+    });
+
+    context('no clinics or invites', () => {
+      beforeEach(() => {
+        wrapper = mountWrapper(mockStore(fetchedDataEmptyState));
+      });
+
+      it('should render new clinic creation info', () => {
+        const emptyWorkspaces = wrapper.find('#workspaces-empty').hostNodes();
+        expect(emptyWorkspaces).to.have.lengthOf(1);
+        expect(emptyWorkspaces.text()).contains('Start by creating a new clinic.');
+      });
     });
 
     it('should render a list of clinics and pending invites for the clinician', () => {
@@ -231,15 +378,35 @@ describe('Workspaces', () => {
       navigateButton.simulate('click');
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
           },
         },
         {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST',
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST',
+        },
+        {
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCount: 3,
+          },
+        },
+        {
+         type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
+          payload: {
+            clinicId: 'clinicID456',
+            patientCountSettings: 'success',
+          },
+        },
+        {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/clinic-workspace'],
+            args: ['/clinic-workspace', { selectedClinicId: 'clinicID456' }],
             method: 'push',
           },
         },
@@ -282,6 +449,60 @@ describe('Workspaces', () => {
           },
         },
       ]);
+    });
+
+    it('should prevent the last admin clinician from leaving a clinic', () => {
+      wrapper = mountWrapper(mockStore(fetchedDataLastAdminState));
+      const clinic = wrapper.find('div.workspace-item-clinic').at(0);
+
+      const deleteDialog = () => wrapper.find('Dialog');
+      expect(deleteDialog()).to.have.lengthOf(1);
+      expect(deleteDialog().props().open).to.be.false;
+
+      const leaveButton = clinic.find('Button[variant="secondary"]');
+      expect(leaveButton).to.have.lengthOf(1);
+      expect(leaveButton.text()).to.equal('Leave Clinic');
+
+      leaveButton.simulate('click');
+      expect(deleteDialog().props().open).to.be.true;
+
+      const dialogTitle = deleteDialog().find('#dialog-title').hostNodes();
+      expect(dialogTitle).to.have.lengthOf(1);
+      expect(dialogTitle.text()).to.equal('Unable to leave new_clinic_name');
+
+      const confirmLeaveButton = deleteDialog().find('Button[variant="danger"]');
+      expect(confirmLeaveButton).to.have.lengthOf(0);
+
+      const cancelLeaveButton = deleteDialog().find('Button[variant="secondary"]');
+      expect(cancelLeaveButton).to.have.lengthOf(1);
+      expect(cancelLeaveButton.text()).to.equal('OK');
+    });
+
+    it('should prevent the last admin clinician from leaving a clinic with invited clinic admins', () => {
+      wrapper = mountWrapper(mockStore(fetchedDataLastAdminInvitedState));
+      const clinic = wrapper.find('div.workspace-item-clinic').at(0);
+
+      const deleteDialog = () => wrapper.find('Dialog');
+      expect(deleteDialog()).to.have.lengthOf(1);
+      expect(deleteDialog().props().open).to.be.false;
+
+      const leaveButton = clinic.find('Button[variant="secondary"]');
+      expect(leaveButton).to.have.lengthOf(1);
+      expect(leaveButton.text()).to.equal('Leave Clinic');
+
+      leaveButton.simulate('click');
+      expect(deleteDialog().props().open).to.be.true;
+
+      const dialogTitle = deleteDialog().find('#dialog-title').hostNodes();
+      expect(dialogTitle).to.have.lengthOf(1);
+      expect(dialogTitle.text()).to.equal('Unable to leave new_clinic_name');
+
+      const confirmLeaveButton = deleteDialog().find('Button[variant="danger"]');
+      expect(confirmLeaveButton).to.have.lengthOf(0);
+
+      const cancelLeaveButton = deleteDialog().find('Button[variant="secondary"]');
+      expect(cancelLeaveButton).to.have.lengthOf(1);
+      expect(cancelLeaveButton.text()).to.equal('OK');
     });
 
     it('should allow a clinician to accept a clinic invite', () => {
@@ -337,6 +558,52 @@ describe('Workspaces', () => {
           type: 'DISMISS_CLINICIAN_INVITE_SUCCESS',
           payload: {
             inviteId: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
+          },
+        },
+      ]);
+    });
+
+    it('should display an error and SSO link button if an IDP is required', () => {
+      wrapper = mountWrapper(mockStore(fetchedIdpEmailMatchState));
+      const invite = wrapper
+        .find('div.workspace-item-clinician_invitation')
+        .at(0);
+      const acceptButton = invite.find('Button[variant="primary"]');
+      expect(acceptButton).to.have.lengthOf(1);
+      expect(acceptButton.text()).to.equal('Link Account');
+      const error = wrapper.find('.workspace-error').hostNodes();
+      expect(error.text()).to.equal(
+        'Single Sign-On (SSO) is required to join this Clinic. Please link your account to enable SSO.'
+      );
+    });
+
+    it('should display an error and disabled accept button if email mismatch', () => {
+      wrapper = mountWrapper(mockStore(fetchedNoIdpEmailMismatchState));
+      const invite = wrapper
+        .find('div.workspace-item-clinician_invitation')
+        .at(0);
+      const acceptButton = invite.find('Button[variant="primary"]');
+      expect(acceptButton).to.have.lengthOf(1);
+      expect(acceptButton.text()).to.equal('Accept Invite');
+      expect(acceptButton.props().disabled).to.be.true;
+      const error = wrapper.find('.workspace-error').hostNodes();
+      expect(error.text()).to.equal(
+        "Your account doesn't satisfy the security requirements. Please contact this clinic's IT administrator."
+      );
+    });
+
+    it('should set SSO enabled display state to false if it is true', () => {
+      wrapper = mountWrapper(
+        mockStore({
+          blip: { ...fetchedClinicInvitesState.blip, ssoEnabledDisplay: true },
+        })
+      );
+
+      expect(store.getActions()).to.eql([
+        {
+          type: 'SET_SSO_ENABLED_DISPLAY',
+          payload: {
+            value: false,
           },
         },
       ]);

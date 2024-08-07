@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Flex, Text } from 'rebass/styled-components';
-import { Radio as Base, RadioProps, Label } from '@rebass/forms';
-import styled from 'styled-components';
+import { Box, Flex, Text, Radio as Base, RadioProps, Label } from 'theme-ui';
+import styled from '@emotion/styled';
 import map from 'lodash/map';
 import cx from 'classnames';
 
@@ -10,6 +9,7 @@ import { Caption } from './FontStyles';
 import {
   default as baseTheme,
   colors,
+  fontWeights,
   transitions,
 } from '../../themes/baseTheme';
 
@@ -38,8 +38,9 @@ const StyledRadio = styled(Base)`
 `;
 
 const StyledRadioLabel = styled(Text)`
+  display: 'inline-block',
   margin-right: 2em;
-  margin-top: .15em;
+  margin-top: .05em;
 
   &.disabled {
     color: ${colors.text.primaryDisabled};
@@ -50,7 +51,7 @@ const StyledRadioLabel = styled(Text)`
   }
 `;
 
-const Radio = (props) => {
+function Radio(props) {
   const { error, label, innerRef, ...radioProps } = props;
 
   const classNames = cx({
@@ -60,8 +61,8 @@ const Radio = (props) => {
   });
 
   return (
-    <Label width="auto" mb={2} alignItems="flex-start">
-      <Box minWidth="auto">
+    <Label mb={2} sx={{ width: 'auto', '&:last-child': { mb: 0 }, alignItems: 'flex-start' }}>
+      <Box sx={{ minWidth: 'auto' }}>
         <StyledRadio ref={innerRef} className={classNames} {...radioProps} />
       </Box>
       <StyledRadioLabel className={classNames} as="span">
@@ -69,14 +70,14 @@ const Radio = (props) => {
       </StyledRadioLabel>
     </Label>
   );
-};
+}
 
 Radio.propTypes = {
   ...RadioProps,
   label: PropTypes.string.isRequired,
 };
 
-export const RadioGroup = (props) => {
+export function RadioGroup(props) {
   const {
     disabled,
     id,
@@ -88,6 +89,7 @@ export const RadioGroup = (props) => {
     required,
     onChange,
     error,
+    sx = {},
     ...wrapperProps
   } = props;
 
@@ -103,15 +105,24 @@ export const RadioGroup = (props) => {
       role="radiogroup"
       id={id}
       aria-labelledby={ariaLabelledBy}
+      sx={{ fontSize: 1, color: colors.text.default, ...sx }}
       {...wrapperProps}
     >
       {label && (
-        <Label mb={2} id={labelId}>
-          <Caption className={inputClasses}>{label}</Caption>
+        <Label for={name} mb={2} id={labelId}>
+          <Caption
+            sx={{
+              fontWeight: fontWeights.medium,
+              fontSize: 1,
+            }}
+            className={inputClasses}
+          >
+            {label}
+          </Caption>
         </Label>
       )}
       <Flex
-        justifyContent="flex-start"
+        sx={{ justifyContent: 'flex-start' }}
         theme={baseTheme}
         variant={`inputs.radios.${variant}`}
       >
@@ -137,7 +148,7 @@ export const RadioGroup = (props) => {
       )}
     </Box>
   );
-};
+}
 
 RadioGroup.propTypes = {
   id: PropTypes.string.isRequired,
@@ -156,9 +167,9 @@ RadioGroup.propTypes = {
   variant: PropTypes.oneOf(['horizontal', 'vertical', 'verticalBordered']),
   options: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       label: PropTypes.string.isRequired,
-    }),
+    })
   ).isRequired,
   required: PropTypes.bool,
   error: PropTypes.string,
@@ -166,7 +177,6 @@ RadioGroup.propTypes = {
 
 RadioGroup.defaultProps = {
   variant: 'vertical',
-  color: colors.text.default,
 };
 
 export default RadioGroup;

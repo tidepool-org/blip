@@ -1737,12 +1737,13 @@ export function acceptPatientInvitationRequest() {
   };
 }
 
-export function acceptPatientInvitationSuccess(clinicId, inviteId) {
+export function acceptPatientInvitationSuccess(clinicId, inviteId, patientId) {
   return {
     type: ActionTypes.ACCEPT_PATIENT_INVITATION_SUCCESS,
     payload: {
       inviteId: inviteId,
       clinicId: clinicId,
+      patientId: patientId,
     },
   };
 }
@@ -1803,6 +1804,58 @@ export function updatePatientPermissionsSuccess(clinicId, patientId, permissions
 export function updatePatientPermissionsFailure(error, apiError) {
   return {
     type: ActionTypes.UPDATE_PATIENT_PERMISSIONS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchClinicMRNSettingsRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_MRN_SETTINGS_REQUEST,
+  };
+}
+
+export function fetchClinicMRNSettingsSuccess(clinicId, settings) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_MRN_SETTINGS_SUCCESS,
+    payload: {
+      clinicId,
+      settings,
+    },
+  };
+}
+
+export function fetchClinicMRNSettingsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_MRN_SETTINGS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchClinicEHRSettingsRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_EHR_SETTINGS_REQUEST,
+  };
+}
+
+export function fetchClinicEHRSettingsSuccess(clinicId, settings) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_EHR_SETTINGS_SUCCESS,
+    payload: {
+      clinicId,
+      settings,
+    },
+  };
+}
+
+export function fetchClinicEHRSettingsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_EHR_SETTINGS_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
@@ -1936,9 +1989,9 @@ export function getClinicsForClinicianFailure(error, apiError) {
   };
 }
 
-export function selectClinic(clinicId) {
+export function selectClinicSuccess(clinicId) {
   return {
-    type: ActionTypes.SELECT_CLINIC,
+    type: ActionTypes.SELECT_CLINIC_SUCCESS,
     payload: {
       clinicId
     },
@@ -1967,5 +2020,445 @@ export function triggerInitialClinicMigrationFailure(error, apiError) {
     meta: {
       apiError: apiError || null,
     },
+  };
+}
+
+export function sendPatientUploadReminderRequest() {
+  return {
+    type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
+  };
+}
+
+export function sendPatientUploadReminderSuccess(clinicId, patientId, lastUploadReminderTime) {
+  return {
+    type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      lastUploadReminderTime: lastUploadReminderTime,
+    },
+  };
+}
+
+export function sendPatientUploadReminderFailure(error, apiError) {
+  return {
+    type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function setClinicPatientLastReviewedRequest() {
+  return {
+    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
+  };
+}
+
+export function setClinicPatientLastReviewedSuccess(clinicId, patientId, reviews) {
+  return {
+    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      reviews: reviews,
+    },
+  };
+}
+
+export function setClinicPatientLastReviewedFailure(error, apiError) {
+  return {
+    type: ActionTypes.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function revertClinicPatientLastReviewedRequest() {
+  return {
+    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
+  };
+}
+
+export function revertClinicPatientLastReviewedSuccess(clinicId, patientId, reviews) {
+  return {
+    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      reviews: reviews,
+    },
+  };
+}
+
+export function revertClinicPatientLastReviewedFailure(error, apiError) {
+  return {
+    type: ActionTypes.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function sendPatientDexcomConnectRequestRequest() {
+  return {
+    type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST,
+  };
+}
+
+export function sendPatientDexcomConnectRequestSuccess(clinicId, patientId, lastRequestedDexcomConnectTime) {
+  return {
+    type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      lastRequestedDexcomConnectTime: lastRequestedDexcomConnectTime,
+    },
+  };
+}
+
+export function sendPatientDexcomConnectRequestFailure(error, apiError) {
+  return {
+    type: ActionTypes.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createClinicPatientTagRequest() {
+  return {
+    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_REQUEST,
+  };
+}
+
+export function createClinicPatientTagSuccess(clinicId, patientTags) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientTags: patientTags,
+    },
+  };
+}
+
+export function createClinicPatientTagFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function updateClinicPatientTagRequest() {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
+  };
+}
+
+export function updateClinicPatientTagSuccess(clinicId, patientTags) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_PATIENT_TAG_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientTags: patientTags,
+    },
+  };
+}
+
+export function updateClinicPatientTagFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_PATIENT_TAG_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deleteClinicPatientTagRequest() {
+  return {
+    type: ActionTypes.DELETE_CLINIC_PATIENT_TAG_REQUEST,
+  };
+}
+
+export function deleteClinicPatientTagSuccess(clinicId, patientTags) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_PATIENT_TAG_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientTags: patientTags,
+    },
+  };
+}
+
+export function deleteClinicPatientTagFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_PATIENT_TAG_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function keycloakReady(event, error, logoutUrl){
+  return {
+    type: ActionTypes.KEYCLOAK_READY,
+    payload: { error, event, logoutUrl },
+  };
+}
+
+export function keycloakInitError(event, error){
+  return {
+    type: ActionTypes.KEYCLOAK_INIT_ERROR,
+    error: error,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthSuccess(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_SUCCESS,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthError(event, error){
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_ERROR,
+    error: error,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthRefreshSuccess(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_REFRESH_SUCCESS,
+    payload: { event, error }
+  };
+}
+
+export function keycloakAuthRefreshError(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_REFRESH_ERROR,
+    error: error,
+    payload: { error, event },
+  };
+}
+
+export function keycloakTokenExpired(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_TOKEN_EXPIRED,
+    payload: { error, event },
+  };
+}
+
+export function keycloakAuthLogout(event, error) {
+  return {
+    type: ActionTypes.KEYCLOAK_AUTH_LOGOUT,
+    payload: { error, event },
+  };
+}
+
+export function keycloakTokensReceived(tokens) {
+  return {
+    type: ActionTypes.KEYCLOAK_TOKENS_RECEIVED,
+    payload: { tokens },
+  };
+}
+
+export function fetchInfoRequest() {
+  return {
+    type: ActionTypes.FETCH_INFO_REQUEST,
+  };
+}
+
+export function fetchInfoSuccess(info) {
+  return {
+    type: ActionTypes.FETCH_INFO_SUCCESS,
+    payload: {
+      info
+    },
+  };
+}
+
+export function fetchInfoFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_INFO_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchTideDashboardPatientsRequest() {
+  return {
+    type: ActionTypes.FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST,
+  };
+}
+
+export function fetchTideDashboardPatientsSuccess(results) {
+  return {
+    type: ActionTypes.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS,
+    payload: {
+      results: results,
+    },
+  };
+}
+
+export function fetchTideDashboardPatientsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function clearTideDashboardPatients() {
+  return {
+    type: ActionTypes.CLEAR_TIDE_DASHBOARD_PATIENTS,
+  };
+}
+
+export function fetchRpmReportPatientsRequest() {
+  return {
+    type: ActionTypes.FETCH_RPM_REPORT_PATIENTS_REQUEST,
+  };
+}
+
+export function fetchRpmReportPatientsSuccess(results) {
+  return {
+    type: ActionTypes.FETCH_RPM_REPORT_PATIENTS_SUCCESS,
+    payload: {
+      results: results,
+    },
+  };
+}
+
+export function fetchRpmReportPatientsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_RPM_REPORT_PATIENTS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function clearRpmReportPatients() {
+  return {
+    type: ActionTypes.CLEAR_RPM_REPORT_PATIENTS,
+  };
+}
+
+export function generateAGPImagesRequest(data, opts, queries) {
+  return {
+    type: ActionTypes.GENERATE_AGP_IMAGES_REQUEST,
+    payload: {
+      data,
+      opts,
+      queries,
+    },
+  };
+}
+
+export function generateAGPImagesSuccess(images) {
+  return {
+    type: ActionTypes.GENERATE_AGP_IMAGES_SUCCESS,
+    payload: { images },
+  };
+}
+
+export function generateAGPImagesFailure(error) {
+  return {
+    type: ActionTypes.GENERATE_AGP_IMAGES_FAILURE,
+    error,
+  };
+}
+
+export function setSSOEnabledDisplay(value) {
+  return {
+    type: ActionTypes.SET_SSO_ENABLED_DISPLAY,
+    payload: { value },
+  };
+}
+
+export function fetchClinicPatientCountRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
+  };
+}
+
+export function fetchClinicPatientCountSuccess(clinicId, results) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientCount: results.patientCount,
+    },
+  };
+}
+
+export function fetchClinicPatientCountFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_FAILURE,
+    error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchClinicPatientCountSettingsRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST,
+  };
+}
+
+export function fetchClinicPatientCountSettingsSuccess(clinicId, patientCountSettings) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientCountSettings: patientCountSettings,
+    },
+  };
+}
+
+export function fetchClinicPatientCountSettingsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE,
+    error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function setClinicUIDetails(clinicId, uiDetails) {
+  return {
+    type: ActionTypes.SET_CLINIC_UI_DETAILS,
+    payload: {
+      clinicId: clinicId,
+      uiDetails: uiDetails,
+    },
+  };
+}
+
+export function setPendoData(data) {
+  return {
+    type: ActionTypes.SET_PENDO_DATA,
+    payload: { data },
   };
 }

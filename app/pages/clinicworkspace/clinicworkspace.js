@@ -3,15 +3,15 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { translate } from 'react-i18next';
-import filter from 'lodash/filter'
+import { withTranslation } from 'react-i18next';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import values from 'lodash/values'
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
+import { Element } from 'react-scroll';
 
 import TabGroup from '../../components/elements/TabGroup';
-import ClinicProfile from '../../components/clinic/ClinicProfile';
+import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import ClinicPatients from './ClinicPatients';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
@@ -26,8 +26,7 @@ export const ClinicWorkspace = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const { fetchingPatientInvites } = useSelector((state) => state.blip.working);
-  const clinics = useSelector((state) => state.blip.clinics);
-  const clinic = get(clinics, selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patientInvites = values(clinic?.patientInvites);
 
   const tabIndices = {
@@ -88,7 +87,11 @@ export const ClinicWorkspace = (props) => {
   useEffect(() => {
     dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     dispatch(actions.sync.clearPatientInView());
-  }, []);
+
+    if (props.location?.state?.selectedClinicId && props.location?.state?.selectedClinicId !== selectedClinicId) {
+      dispatch(actions.async.selectClinic(api, props.location?.state?.selectedClinicId));
+    }
+  }, [props.location?.state?.selectedClinicId]);
 
   function handleSelectTab(event, newValue) {
     trackMetric(tabs[newValue]?.metric, { clinicId: selectedClinicId, source: 'Workspace table' });
@@ -98,10 +101,12 @@ export const ClinicWorkspace = (props) => {
 
   return (
     <>
-      <ClinicProfile api={api} trackMetric={trackMetric} />
+      <ClinicWorkspaceHeader api={api} trackMetric={trackMetric} />
 
-      <Box id="clinic-workspace" variant="containers.largeBordered">
+      <Box id="clinic-workspace" sx={{ alignItems: 'center' }} variant="containers.largeBordered" mb={9}>
+        <Element name="workspaceTabsTop" />
         <TabGroup
+          aria-label="Clinic workspace tabs"
           id="clinic-workspace-tabs"
           variant="horizontal"
           tabs={tabs}
@@ -110,13 +115,15 @@ export const ClinicWorkspace = (props) => {
           themeProps={{
             panel: {
               p: 4,
-              pb: 6,
-              minHeight: '10em',
+              pb: 0,
+              sx: {
+                minHeight: '10em',
+              },
             },
           }}
         >
           <Box id="patientsTab">
-            {selectedTab === 0 && <ClinicPatients {...props} />}
+            {selectedTab === 0 && <ClinicPatients key={clinic?.id} {...props} />}
           </Box>
 
           <Box id="invitesTab">
@@ -137,4 +144,4 @@ ClinicWorkspace.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default translate()(ClinicWorkspace);
+export default withTranslation()(ClinicWorkspace);

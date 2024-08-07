@@ -18,9 +18,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import update from 'immutability-helper';
-import { Box } from 'rebass/styled-components';
+import { Box } from 'theme-ui';
 
 import * as actions from '../../redux/actions';
 import utils from '../../core/utils';
@@ -37,7 +37,7 @@ import BrowserWarning from '../../components/browserwarning';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 
-export let Patients = translate()(class extends React.Component {
+export let Patients = withTranslation()(class extends React.Component {
   static propTypes = {
     clearPatientInView: PropTypes.func.isRequired,
     currentPatientInViewId: PropTypes.string,
@@ -54,6 +54,8 @@ export let Patients = translate()(class extends React.Component {
     onHideWelcomeSetup: PropTypes.func.isRequired,
     onRemovePatient: PropTypes.func.isRequired,
     patients: PropTypes.array.isRequired,
+    selectedClinicId: PropTypes.string,
+    selectClinic: PropTypes.func.isRequired,
     showWelcomeMessage: PropTypes.func.isRequired,
     showingWelcomeMessage: PropTypes.bool,
     trackMetric: PropTypes.func.isRequired,
@@ -111,7 +113,7 @@ export let Patients = translate()(class extends React.Component {
         <div>
           {t('Tidepool provides free, secure data storage for diabetes data.')}
           <br />
-          {t('Would you like to set up data storage for someone’s diabetes data?')}
+          {t('Would you like to set up data storage for yourself or for someone else\'s diabetes data?')}
         </div>
         <div className="patients-welcomesetup-actions">
           <button className="btn btn-tertiary" onClick={handleClickNo}>{t('No, not now')}</button>
@@ -151,9 +153,9 @@ export let Patients = translate()(class extends React.Component {
       return null;
     }
     return (
-      <Box textAlign="center">
+      <Box sx={{ textAlign: 'center' }}>
         <Trans className="patients-message" i18nKey="html.patients-no-data">
-          Looks like you don’t have access to any data yet.
+          Looks like you don't have access to any data yet.
           <br />
           Please ask someone to invite you to see their data.
         </Trans>
@@ -178,7 +180,7 @@ export let Patients = translate()(class extends React.Component {
       return null;
     }
 
-    if (!utils.isChrome()) {
+    if (!utils.isSupportedBrowser()) {
       return <BrowserWarning
         trackMetric={this.props.trackMetric} />;
     }
@@ -191,7 +193,7 @@ export let Patients = translate()(class extends React.Component {
         <Box
           variant="containers.largeBordered"
           px={4}
-          pb={6}
+          mb={9}
           width={['100%', '100%']}
         >
           <ClinicianPatients {...this.props} />
@@ -309,6 +311,10 @@ export let Patients = translate()(class extends React.Component {
     if (this.props.clearPatientInView) {
       this.props.clearPatientInView();
     }
+
+    if (this.props.selectedClinicId) {
+      this.props.selectClinic(null);
+    }
   }
 
   /**
@@ -411,6 +417,7 @@ export function mapStateToProps(state) {
     loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
     patients: _.values(patientMap),
+    selectedClinicId: state.blip.selectedClinicId,
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user,
   }
@@ -425,7 +432,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,
-  onHideWelcomeSetup: actions.sync.hideWelcomeMessage
+  onHideWelcomeSetup: actions.sync.hideWelcomeMessage,
+  selectClinic: actions.async.selectClinic,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -446,6 +454,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
       onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
       onRemovePatient: dispatchProps.removeMembershipInOtherCareTeam.bind(null, api),
+      selectClinic: dispatchProps.selectClinic.bind(null, api),
       trackMetric: ownProps.trackMetric,
       history: ownProps.history,
       api,

@@ -60,15 +60,22 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should have disabled download buttons if no URLs have been set', () => {
-      wrapper.setState({
+      wrapper.childAt(0).instance().setState({
         latestWinRelease: null,
         latestMacRelease: null,
       });
-      expect(wrapper.find('a.disabled')).to.have.length(2);
+
+      const macButton = wrapper.find('button.btn-download-mac');
+      expect(macButton).to.have.length(1);
+      expect(macButton.prop('disabled')).to.be.true;
+
+      const winButton = wrapper.find('button.btn-download-win');
+      expect(winButton).to.have.length(1);
+      expect(winButton.prop('disabled')).to.be.true;
     });
 
     it('should have active buttons if URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).instance().setState({
         latestMacRelease: 'test',
         latestWinRelease: 'test',
         uploadDismiss: 'test',
@@ -79,7 +86,7 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should display download link if error retrieving github releases', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.childAt(0).instance().setState({
         error: 'some error',
       });
       wrapper.update();

@@ -1,30 +1,14 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Button as Base, Flex, Box, ButtonProps } from 'rebass/styled-components';
-import styled, { ThemeContext } from 'styled-components';
+import { Button as Base, Flex, Box, ButtonProps } from 'theme-ui';
+import styled from '@emotion/styled';
+import { ThemeContext } from '@emotion/react';
 import cx from 'classnames';
 
 import Icon from './Icon';
-import baseTheme, { transitions } from '../../themes/baseTheme';
-
-const StyledButton = styled(Base)`
-  transition: ${transitions.easeOut};
-  position: relative;
-
-  &:disabled {
-    pointer-events: none;
-  }
-
-  &.processing {
-    pointer-events: none;
-
-    > div:first-child, .icon {
-      transition: none;
-      visibility: hidden;
-    }
-  }
-`;
+import Pill from './Pill';
+import baseTheme from '../../themes/baseTheme';
 
 const StyledCircularProgress = styled(Box)`
   display: flex;
@@ -34,8 +18,29 @@ const StyledCircularProgress = styled(Box)`
   transform: translate(-50%, -50%);
 `;
 
-export const Button = props => {
-  const { children, selected, processing, icon, iconLabel, iconPosition, className = '', ...buttonProps } = props;
+export function BaseButton(props) {
+  return <Base {...props} variant={`buttons.${props.variant}`} />;
+}
+
+export function Button(props) {
+  const {
+    children,
+    selected,
+    processing,
+    icon,
+    iconLabel,
+    iconPosition,
+    iconFontSize,
+    iconSrc,
+    tag,
+    tagColorPalette,
+    tagFontSize,
+    className = '',
+    sx = {},
+    variant,
+    ...buttonProps
+  } = props;
+
   const classNames = cx({ processing, selected });
   const themeContext = useContext(ThemeContext);
   const isLeftIcon = iconPosition === 'left';
@@ -46,27 +51,68 @@ export const Button = props => {
     right: isLeftIcon ? 2 : 0,
   };
 
+  const isLeftTag = iconPosition === 'left';
+
+  const tagMargins = {
+    left: isLeftTag ? 0 : 2,
+    right: isLeftTag ? 2 : 0,
+  };
+
   let justifyContent = 'center';
   if (icon) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
 
   return (
-    <Flex as={StyledButton} flexDirection={flexDirection} alignItems="center" justifyContent={justifyContent} {...buttonProps} className={`${classNames} ${className}`}>
-      <Box justifyContent="center">{children}</Box>
-      {icon && (
-        <Icon tabIndex={-1} className="icon" mr={iconMargins.right} ml={iconMargins.left} theme={baseTheme} variant="static" icon={icon} label={iconLabel} />
+    <Flex
+      sx={{
+        flexDirection,
+        alignItems: 'center',
+        justifyContent: ['center', justifyContent],
+        ...sx,
+      }}
+      as={BaseButton}
+      variant={`buttons.${variant}`}
+      {...buttonProps}
+      className={`${classNames} ${className}`}
+    >
+      <Flex sx={{ justifyContent: 'center' }}>{children}</Flex>
+      {tag && (
+        <Pill
+          tabIndex={-1}
+          className="tag"
+          sx={{ fontSize: tagFontSize }}
+          mr={tagMargins.right}
+          ml={tagMargins.left}
+          theme={baseTheme}
+          colorPalette={tagColorPalette}
+          text={tag}
+        />
+      )}
+      {(icon || iconSrc) && (
+        <Icon
+          tabIndex={-1}
+          className="icon"
+          mr={iconMargins.right}
+          ml={iconMargins.left}
+          theme={baseTheme}
+          variant="static"
+          icon={icon}
+          iconSrc={iconSrc}
+          label={iconLabel}
+          sx={{ fontSize: iconFontSize }}
+        />
       )}
       {processing && (
         <StyledCircularProgress>
           <CircularProgress
             color="inherit"
-            size={themeContext?.fontSizes[3]}
+            size={themeContext?.fontSizes?.[3]}
             thickness={5}
           />
         </StyledCircularProgress>
       )}
     </Flex>
   );
-};
+}
 
 Button.propTypes = {
   ...ButtonProps,
@@ -75,6 +121,23 @@ Button.propTypes = {
   icon: PropTypes.elementType,
   iconLabel: PropTypes.string,
   iconPosition: PropTypes.oneOf(['left', 'right']),
+  iconFontSize: PropTypes.string,
+  iconSrc: PropTypes.string,
+  tag: PropTypes.string,
+  tagColorPalette: PropTypes.oneOfType([
+    PropTypes.oneOf([
+      'blues',
+      'cyans',
+      'grays',
+      'greens',
+      'indigos',
+      'oranges',
+      'pinks',
+      'purples',
+    ]),
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
+  tagFontSize: PropTypes.string,
   variant: PropTypes.oneOf([
     'primary',
     'secondary',
@@ -94,6 +157,9 @@ Button.propTypes = {
 
 Button.defaultProps = {
   iconPosition: 'right',
+  iconFontSize: 'inherit',
+  tagColorPalette: 'greens',
+  tagFontSize: '0.75em',
   type: 'button',
   variant: 'primary',
 };

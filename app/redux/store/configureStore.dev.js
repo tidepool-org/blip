@@ -18,18 +18,16 @@
 /* global __DEV_TOOLS__ */
 
 import { createBrowserHistory } from 'history';
-import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
+import { legacy_createStore as createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { persistState } from 'redux-devtools';
 import thunkMiddleware from 'redux-thunk';
-import createLogger from 'redux-logger';
+import { createLogger } from 'redux-logger';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import mutationTracker from 'redux-immutable-state-invariant';
 import qhistory from 'qhistory';
 import assign from 'lodash/assign';
 import throttle from 'lodash/throttle';
 import { stringify, parse } from 'qs';
-
-import Worker from 'worker-loader?inline!./../../worker/index';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
@@ -39,6 +37,8 @@ import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
 import pendoMiddleware from '../utils/pendoMiddleware';
+import launchDarklyMiddleware from '../utils/launchDarklyMiddleware';
+import { keycloakMiddleware } from '../../keycloak';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -57,38 +57,44 @@ const loggerMiddleware = createLogger({
   collapsed: true,
 });
 
-const worker = new Worker;
+const worker = new Worker(new URL('./../../worker/index', import.meta.url));
 const workerMiddleware = createWorkerMiddleware(worker);
 
 let enhancer;
 if (!__DEV_TOOLS__) {
   enhancer = (api) => {
+    const middlewares = [
+      workerMiddleware,
+      thunkMiddleware,
+      routerMiddleware(history),
+      createErrorLogger(api),
+      trackingMiddleware(api),
+      pendoMiddleware(api),
+      launchDarklyMiddleware(api),
+      keycloakMiddleware(api),
+    ];
     return compose(
-      applyMiddleware(
-        workerMiddleware,
-        thunkMiddleware,
-        routerMiddleware(history),
-        createErrorLogger(api),
-        trackingMiddleware(api),
-        pendoMiddleware(api),
-      ),
+      applyMiddleware(...middlewares),
       persistState(getDebugSessionKey()),
     );
   }
 } else {
   enhancer = (api) => {
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+    const middlewares = [
+      workerMiddleware,
+      thunkMiddleware,
+      loggerMiddleware,
+      routerMiddleware(history),
+      createErrorLogger(api),
+      trackingMiddleware(api),
+      pendoMiddleware(api),
+      launchDarklyMiddleware(api),
+      mutationTracker(),
+      keycloakMiddleware(api),
+    ];
     return composeEnhancers(
-      applyMiddleware(
-        workerMiddleware,
-        thunkMiddleware,
-        loggerMiddleware,
-        routerMiddleware(history),
-        createErrorLogger(api),
-        trackingMiddleware(api),
-        pendoMiddleware(api),
-        mutationTracker(),
-      ),
+      applyMiddleware(...middlewares),
       // We can persist debug sessions this way
       persistState(getDebugSessionKey()),
     );

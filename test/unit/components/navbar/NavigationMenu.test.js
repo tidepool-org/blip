@@ -29,6 +29,8 @@ describe('NavigationMenu', () => {
       clinics: {
         getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
         getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
+        getClinicPatientCount: sinon.stub(),
+        getClinicPatientCountSettings: sinon.stub(),
       },
       user: {
         logout: sinon.stub(),
@@ -128,14 +130,9 @@ describe('NavigationMenu', () => {
           address: '1 Address Ln, City Zip',
           name: 'new_clinic_name',
           email: 'new_clinic_email_address@example.com',
-          phoneNumbers: [
-            {
-              number: '(888) 555-5555',
-              type: 'Office',
-            },
-          ],
         },
       },
+      clinicFlowActive: true,
       pendingSentInvites: [],
       selectedClinicId: 'clinicID456',
     },
@@ -182,7 +179,7 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null, // null is appropriate for switch to private workspace
           },
@@ -190,7 +187,7 @@ describe('NavigationMenu', () => {
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/patients'],
+            args: ['/patients', { selectedClinicId: null }],
             method: 'push',
           },
         },
@@ -221,7 +218,6 @@ describe('NavigationMenu', () => {
         {
           meta: {
             WebWorker: true,
-            origin: 'http://localhost:9876',
             patientId: undefined,
             worker: 'data',
           },
@@ -258,15 +254,17 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
           },
         },
+        { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+        { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/clinic-workspace'],
+            args: ['/clinic-workspace', { selectedClinicId: 'clinicID456' }],
             method: 'push',
           },
         },
@@ -292,7 +290,7 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
-          type: 'SELECT_CLINIC',
+          type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null,
           },
@@ -300,7 +298,7 @@ describe('NavigationMenu', () => {
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
-            args: ['/patients'],
+            args: ['/patients', { selectedClinicId: null }],
             method: 'push',
           },
         },
@@ -331,7 +329,6 @@ describe('NavigationMenu', () => {
         {
           meta: {
             WebWorker: true,
-            origin: 'http://localhost:9876',
             patientId: undefined,
             worker: 'data',
           },
@@ -388,7 +385,7 @@ describe('NavigationMenu', () => {
 
         expect(store.getActions()).to.eql([
           {
-            type: 'SELECT_CLINIC',
+            type: 'SELECT_CLINIC_SUCCESS',
             payload: {
               clinicId: null, // null is appropriate for switch to private workspace
             },
@@ -396,7 +393,7 @@ describe('NavigationMenu', () => {
           {
             type: '@@router/CALL_HISTORY_METHOD',
             payload: {
-              args: ['/patients'],
+              args: ['/patients', { selectedClinicId: null }],
               method: 'push',
             },
           },
@@ -435,7 +432,7 @@ describe('NavigationMenu', () => {
 
         expect(store.getActions()).to.eql([
           {
-            type: 'SELECT_CLINIC',
+            type: 'SELECT_CLINIC_SUCCESS',
             payload: {
               clinicId: null, // null is appropriate for switch to private workspace
             },
@@ -443,7 +440,7 @@ describe('NavigationMenu', () => {
           {
             type: '@@router/CALL_HISTORY_METHOD',
             payload: {
-              args: ['/patients'],
+              args: ['/patients', { selectedClinicId: null }],
               method: 'push',
             },
           },
@@ -484,6 +481,7 @@ describe('NavigationMenu', () => {
           pendingReceivedClinicianInvites: [
             'clinicInvite123',
           ],
+          clinicFlowActive: true,
         },
       }));
     });
@@ -502,7 +500,7 @@ describe('NavigationMenu', () => {
 
   context('clinician profile form page', () => {
     before(() => {
-      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinician-details' }));
+      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details/profile' }));
       mount = createMount();
     });
 
@@ -521,9 +519,9 @@ describe('NavigationMenu', () => {
     });
   });
 
-  context('clinic profile form page', () => {
+  context('clinic migration form page', () => {
     before(() => {
-      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details' }));
+      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details/migrate' }));
       mount = createMount();
     });
 

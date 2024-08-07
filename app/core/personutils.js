@@ -210,9 +210,25 @@ personUtils.clinicPatientFromAccountInfo = patient => ({
   mrn: _.get(patient, 'profile.patient.mrn'),
 });
 
+personUtils.clinicPatientFromPatientInvite = invite => ({
+  permissions: invite.context,
+  id: invite.creatorId,
+  fullName: personUtils.patientFullName(invite.creator),
+  birthDate: _.get(invite, 'creator.profile.patient.birthday'),
+  mrn: _.get(invite, 'creator.profile.patient.mrn'),
+});
+
 personUtils.combinedAccountAndClinicPatient = (
   patient = {},
   clinicPatient = {}
 ) => _.defaultsDeep(personUtils.accountInfoFromClinicPatient(clinicPatient), patient);
+
+personUtils.splitNamesFromFullname = (fullName = '') => {
+  const [firstName = '', ...lastNameParts] = fullName.split(' ') || [];
+  const lastName = lastNameParts.length ? lastNameParts.join(' ') : '';
+  return { firstName, lastName };
+};
+
+personUtils.fullnameFromSplitNames = (firstName = '', lastName = '') => [firstName, lastName].join(' ');
 
 module.exports = personUtils;

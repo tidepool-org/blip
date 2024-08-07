@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
-import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, Text, BoxProps } from 'theme-ui';
 import bows from 'bows';
 import each from 'lodash/each';
 import get from 'lodash/get';
@@ -12,7 +12,7 @@ import max from 'lodash/max';
 import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
 import i18next from '../../core/language';
-import { Paragraph2, Body2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
+import { Paragraph2, Body2, Headline, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import TextInput from '../../components/elements/TextInput';
@@ -233,7 +233,7 @@ export const GlucoseSettings = props => {
           )}
         />
 
-        <Flex mb={5} alignItems="flex-start">
+        <Flex mb={5} sx={{ alignItems: 'flex-start' }}>
           <Field
             as={TextInput}
             label={t('Lower Target')}
@@ -284,7 +284,7 @@ export const GlucoseSettings = props => {
           )}
         />
 
-        <Flex mb={3} alignItems="flex-start">
+        <Flex mb={3} sx={{ alignItems: 'flex-start' }}>
           <Field
             as={TextInput}
             label={t('Lower Target')}
@@ -512,7 +512,7 @@ export const InsulinSettings = props => {
                 {t('You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you’ll select now.')}
               </Paragraph2>
               <Paragraph2>
-                <OrderedList>
+                <Box as='ol' variant="lists.ordered">
                   <li>
                     {t('Rapid-Acting - Adult Model')}<br />
                     {t('This model assumes peak insulin activity at {{minutes}} minutes.', { minutes: 75 })}
@@ -521,7 +521,7 @@ export const InsulinSettings = props => {
                     {t('Rapid-Acting - Child Model')}<br />
                     {t('This model assumes peak insulin activity at {{minutes}} minutes.', { minutes: 65 })}
                   </li>
-                </OrderedList>
+                </Box>
               </Paragraph2>
             </Box>
           )}
@@ -542,7 +542,7 @@ export const InsulinSettings = props => {
 
 InsulinSettings.propTypes = fieldsetPropTypes;
 
-export const TherapySettings = translate()(props => {
+export const TherapySettings = withTranslation()(props => {
   const formikContext = useFormikContext();
 
   const {

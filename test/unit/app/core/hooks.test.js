@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { usePrevious, useFieldArray, useInitialFocusedInput } from '../../../../app/core/hooks';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-hooks/dom';
 import { Formik } from 'formik';
 import _ from 'lodash';
 import { mount } from 'enzyme';
@@ -28,12 +28,13 @@ describe('hooks', function() {
     let setFieldValue;
 
     beforeEach(() => {
-      function fooHook() {
+      function FooHook() {
         const [foo, setFoo] = useState(initialFoo);
         return { foo, setFoo };
       }
 
-      const { result: fooResult } = renderHook(() => fooHook());
+      // eslint-disable-next-line new-cap
+      const { result: fooResult } = renderHook(() => FooHook());
       expect(fooResult.current.foo).to.equal(initialFoo);
 
       setFieldValue = sinon.stub().callsFake((name, value) => {
@@ -187,12 +188,13 @@ describe('hooks', function() {
 
   describe('usePrevious', () => {
     it('should store the previous state', () => {
-      function fooHook() {
+      function FooHook() {
         const [foo, setFoo] = useState('foo');
         return { foo, setFoo };
       }
 
-      const { result: fooResult } = renderHook(() => fooHook());
+      // eslint-disable-next-line new-cap
+      const { result: fooResult } = renderHook(() => FooHook());
       expect(fooResult.current.foo).to.equal('foo');
 
       const { result: usePreviousResult, rerender } = renderHook(() => usePrevious(fooResult.current.foo));

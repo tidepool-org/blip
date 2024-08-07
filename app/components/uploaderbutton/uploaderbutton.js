@@ -3,15 +3,17 @@ import React, { Component } from 'react';
 import GitHub from 'github-api';
 import _ from 'lodash';
 import utils from '../../core/utils';
-import { translate } from 'react-i18next';
-import { Flex, Box } from 'rebass/styled-components';
+import { withTranslation } from 'react-i18next';
+import { Flex, Box } from 'theme-ui';
 
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
+import AppleIcon from '../../core/icons/Apple.svg';
+import WindowsIcon from '../../core/icons/Windows.svg';
 import Button from '../elements/Button';
 
 const github = new GitHub();
 
-export default translate()(class UploaderButton extends Component {
+export default withTranslation()(class UploaderButton extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -38,7 +40,7 @@ export default translate()(class UploaderButton extends Component {
 
   renderErrorText = () => {
     return (
-      <Flex justifyContent="center">
+      <Flex sx={{ justifyContent: 'center' }}>
         <Box mx={2}>
           <a className='link-uploader-download'
             href={URL_UPLOADER_DOWNLOAD_PAGE}
@@ -62,22 +64,8 @@ export default translate()(class UploaderButton extends Component {
       content = this.renderErrorText();
     } else {
       content = [
-        <Flex justifyContent="center">
-          <Box mx={2}>
-            <a className='link-download-win'
-              href={this.state.latestWinRelease}
-              onClick={this.props.onClick}
-              style={{ textDecoration: 'none' }}
-            >
-              <Button
-                className="btn-download-win"
-                variant="large"
-                key={'pc'}
-                disabled={!this.state.latestWinRelease}
-              >Download for PC</Button>
-            </a>
-          </Box>
-          <Box mx={2}>
+        <Flex sx={{ justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+          <Box>
             <a className='link-download-mac'
               href={this.state.latestMacRelease}
               onClick={this.props.onClick}
@@ -85,10 +73,39 @@ export default translate()(class UploaderButton extends Component {
             >
               <Button
                 className="btn-download-mac"
-                variant="large"
+                variant="primary"
+                py={1}
+                px="12px"
                 key={'mac'}
                 disabled={!this.state.latestMacRelease}
-              >Download for Mac</Button>
+                iconSrc={AppleIcon}
+                iconPosition="left"
+                sx={{ lineHeight: '22px', fontWeight: 'medium', '.icon': { minWidth: 'auto' } }}
+              >
+                Download for Mac
+              </Button>
+            </a>
+          </Box>
+
+          <Box>
+            <a className='link-download-win'
+              href={this.state.latestWinRelease}
+              onClick={this.props.onClick}
+              style={{ textDecoration: 'none' }}
+            >
+              <Button
+                className="btn-download-win"
+                variant="primary"
+                py={1}
+                px="12px"
+                key={'pc'}
+                disabled={!this.state.latestWinRelease}
+                iconSrc={WindowsIcon}
+                iconPosition="left"
+                sx={{ lineHeight: '22px', fontWeight: 'medium', '.icon': { minWidth: 'auto' } }}
+              >
+                Download for PC
+              </Button>
             </a>
           </Box>
         </Flex>
@@ -96,7 +113,7 @@ export default translate()(class UploaderButton extends Component {
     }
 
     return (
-      <Flex justifyContent="center">
+      <Flex sx={{ justifyContent: 'center' }}>
         {content}
       </Flex>
     );

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -19,8 +20,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
+import Plotly from 'plotly.js-basic-dist-min';
 
 import _ from 'lodash';
 import bows from 'bows';
@@ -40,7 +42,9 @@ import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-import baseTheme from '../../themes/baseTheme';
+import baseTheme, { fontWeights, borders, radii } from '../../themes/baseTheme';
+import { Body1, Title } from '../../components/elements/FontStyles';
+import DexcomLogoIcon from '../../core/icons/DexcomLogo.svg';
 
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
@@ -51,14 +55,10 @@ import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
 
-import { Box } from 'rebass/styled-components';
+import { Box, Flex } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Paragraph2 } from '../../components/elements/FontStyles';
-
-import {
-  URL_TIDEPOOL_MOBILE_APP_STORE,
-} from '../../core/constants';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -94,6 +94,8 @@ export const PatientDataClass = createReactClass({
     queryingData: PropTypes.object.isRequired,
     queryParams: PropTypes.object.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
+    generateAGPImagesSuccess: PropTypes.func.isRequired,
+    generateAGPImagesFailure: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateBasicsSettings: PropTypes.func.isRequired,
     updatingDatum: PropTypes.object.isRequired,
@@ -155,6 +157,12 @@ export const PatientDataClass = createReactClass({
         bgLog: {
           bgSource: 'smbg',
           extentSize: 14,
+        },
+        agpBGM: {
+          bgSource: 'smbg',
+        },
+        agpCGM: {
+          bgSource: 'cbg',
         },
         settings: {
           touched: false,
@@ -263,6 +271,10 @@ export const PatientDataClass = createReactClass({
     var handleClickBlipNotes = function() {
       self.props.trackMetric('Clicked No Data Get Blip Notes');
     };
+    var handleClickDexcomConnect = function() {
+      self.props.trackMetric('Clicked No Data Connect Dexcom');
+      self.props.history.push(`/patients/${self.props.currentPatientInViewId}/profile?dexcomConnect=patient-empty-data`);
+    };
     var handleClickLaunch = function(e) {
       if (e) {
         e.preventDefault();
@@ -275,17 +287,66 @@ export const PatientDataClass = createReactClass({
     if (this.props.isUserPatient) {
       content = (
         <Trans className="patient-data-uploader-message" i18nKey="html.patientdata-uploaded-message">
-          <h1>To see your data, you’ll need the Tidepool Uploader</h1>
-          <UploaderButton
-            onClick={handleClickUpload}
-            buttonText='Get the Tidepool Uploader' />
-          <p>Already have the Tidepool Uploader? Launch it <a className="uploader-color-override" href='' onClick={handleClickLaunch} title="Upload data">here</a></p>
-          <p>To upload Dexcom with iPhone, get <a href={URL_TIDEPOOL_MOBILE_APP_STORE} className="uploader-color-override" target="_blank" rel="noreferrer noopener" onClick={handleClickBlipNotes}>Tidepool Mobile</a></p>
-          <p className="patient-no-data-help">
-            Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
-            <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
-          </p>
-        </Trans>
+            <Box
+              variant="containers.smallBordered"
+              py={[3, 5, 6]}
+              px={[2, 3]}
+              sx={{
+                borderTop: ['none', borders.default],
+                borderBottom: ['none', borders.default],
+              }}
+            >
+              <Title mb={3} fontSize={3} sx={{ fontWeight: fontWeights.medium }}>To upload your data, install Tidepool Uploader</Title>
+
+              <UploaderButton
+                onClick={handleClickUpload}
+                buttonText={t('Get the Tidepool Uploader')}
+              />
+
+              <Body1 color="mediumGrey" fontWeight={fontWeights.medium} mt={3} mb={6}>
+                If you already have Tidepool Uploader, launch it <a className="uploader-color-override" href='' onClick={handleClickLaunch} title="Upload data">here</a>
+              </Body1>
+
+              <Flex
+                py={1}
+                px={1}
+                mb={4}
+                sx={{
+                  alignItems: 'center',
+                  gap: 9,
+                  display: 'inline-flex !important',
+                  border: borders.input,
+                  borderRadius: radii.large,
+                }}
+              >
+                <Body1 ml={2} color="mediumGrey" fontWeight={fontWeights.medium}>
+                  Sync CGM Data
+                </Body1>
+
+                <Button
+                  id='dexcom-connect-link'
+                  variant="textPrimary"
+                  color="brand.dexcom"
+                  iconSrc={DexcomLogoIcon}
+                  label={t('Connect with Dexcom')}
+                  pr={0}
+                  sx={{
+                    fontWeight: 'medium',
+                    '&:hover': { color: 'brand.dexcom' },
+                    '.icon': { top: '-2px', left: '-2px' },
+                  }}
+                  onClick={handleClickDexcomConnect}
+                >
+                  Connect With
+                </Button>
+              </Flex>
+            </Box>
+
+            <p className="patient-no-data-help">
+              Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
+              <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
+            </p>
+          </Trans>
       );
     }
 
@@ -372,7 +433,10 @@ export const PatientDataClass = createReactClass({
     return (
       <PrintDateRangeModal
         id="print-dialog"
+        loggedInUserId={this.props.user?.userid}
         mostRecentDatumDates={{
+          agpBGM: this.getMostRecentDatumTimeByChartType(this.props, 'agpBGM'),
+          agpCGM: this.getMostRecentDatumTimeByChartType(this.props, 'agpCGM'),
           basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),
           bgLog: this.getMostRecentDatumTimeByChartType(this.props, 'bgLog'),
           daily: this.getMostRecentDatumTimeByChartType(this.props, 'daily'),
@@ -383,9 +447,12 @@ export const PatientDataClass = createReactClass({
           this.setState({ printDialogProcessing: true })
 
           // Determine the earliest startDate needed to fetch data to.
-          const earliestPrintDate = _.min(_.at(opts, _.map(_.keys(opts), key => `${key}.endpoints.0`)));
+          const enabledOpts = _.filter(opts, { disabled: false });
+          const earliestPrintDate = _.min(_.at(enabledOpts, _.map(_.keys(enabledOpts), key => `${key}.endpoints.0`)));
           const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString()
           const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+
+          let setStateCallback = this.generatePDF;
 
           if (startDate < fetchedUntil) {
             this.fetchEarlierData({
@@ -402,10 +469,12 @@ export const PatientDataClass = createReactClass({
               this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`);
             }
 
-            this.setState({ printDialogPDFOpts: opts });
-          } else {
-            this.generatePDF(this.props, this.state, opts);
+            setStateCallback = _.noop;
           }
+
+          this.setState({ printDialogPDFOpts: opts }, () => {
+            setStateCallback();
+          });
         }}
         processing={this.state.printDialogProcessing}
         timePrefs={this.state.timePrefs}
@@ -540,6 +609,7 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
+            onClickPrint={this.handleClickPrint}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
@@ -606,7 +676,8 @@ export const PatientDataClass = createReactClass({
               label={t('Use default BG ranges')}
               onChange={this.toggleDefaultBgRange}
               themeProps={{
-                color: 'stat.text',
+                mb: 0,
+                sx: { color: 'stat.text' },
               }}
             />
           )}
@@ -706,12 +777,17 @@ export const PatientDataClass = createReactClass({
     const patientSettings = _.get(this.props, 'patient.settings', {});
     let bgPrefs = this.state.bgPrefs || {};
 
+    const bgUnitsOverride = {
+      units: this.props.queryParams?.units || this.props.clinic?.preferredBgUnits,
+      source: this.props.queryParams?.units ? 'query params' : 'preferred clinic units',
+    };
+
     if (!bgPrefs.useDefaultRange) {
-      bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, this.props.queryParams);
+      bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, bgUnitsOverride);
       bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
       bgPrefs.useDefaultRange = true;
     } else {
-      bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
+      bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
       bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
       bgPrefs.useDefaultRange = false;
     }
@@ -740,13 +816,13 @@ export const PatientDataClass = createReactClass({
 
   closeMessageThread: function(){
     this.props.onCloseMessageThread();
-    this.refs.tideline.getWrappedInstance().closeMessageThread();
+    this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
-    this.refs.tideline.getWrappedInstance().closeMessageThread();
+    this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
   },
 
@@ -756,7 +832,7 @@ export const PatientDataClass = createReactClass({
       chartType,
     } = state;
 
-    const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
+    const manufacturer = this.getMetaData('latestPumpUpload.manufacturer', '');
     const bgSource = this.getMetaData('bgSources.current');
     const endpoints = this.getCurrentData('endpoints');
     const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
@@ -766,7 +842,7 @@ export const PatientDataClass = createReactClass({
       const stat = getStatDefinition(data, statType, {
         bgSource,
         collapsible: !_.includes(['averageGlucose', 'standardDev'], statType),
-        days: endpoints.activeDays || endpoints.days,
+        days: _.isFinite(endpoints.activeDays) ? endpoints.activeDays : endpoints.days,
         bgPrefs,
         manufacturer,
       });
@@ -788,7 +864,7 @@ export const PatientDataClass = createReactClass({
 
         const averageDailyDoseStat = getStatDefinition(averageDailyDose, 'averageDailyDose', {
           bgSource,
-          days: endpoints.activeDays || endpoints.days,
+          days: _.isFinite(endpoints.activeDays) ? endpoints.activeDays : endpoints.days,
           bgPrefs,
           manufacturer,
         });
@@ -842,52 +918,92 @@ export const PatientDataClass = createReactClass({
     return stats;
   },
 
-  generatePDF: function(props = this.props, state = this.state, pdfOpts = {}) {
+  generateAGPImages: async function(props = this.props, reportTypes = []) {
+    const promises = [];
+    let errored = false
+
+    await _.each(reportTypes, async reportType => {
+      let images;
+
+      try{
+        images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.[reportType] });
+      } catch(e) {
+        errored = true
+        return props.generateAGPImagesFailure(e);
+      }
+
+      promises.push(..._.map(images, async (image, key) => {
+        if (_.isArray(image)) {
+          const processedArray = await Promise.all(
+            _.map(image, async (img) => {
+              return await Plotly.toImage(img, { format: 'svg' });
+            })
+          );
+          return [reportType, [key, processedArray]];
+        } else {
+          const processedValue = await Plotly.toImage(image, { format: 'svg' });
+          return [reportType, [key, processedValue]];
+        }
+      }));
+    });
+
+    const results = await Promise.all(promises);
+
+    if (results.length) {
+      const processedImages = _.reduce(results, (res, entry, i) => {
+        const processedImage = _.fromPairs(entry.slice(1));
+        res[entry[0]] = {...res[entry[0]], ...processedImage };
+        return res;
+      }, {});
+
+      props.generateAGPImagesSuccess(processedImages);
+    } else if (!errored) {
+      props.generateAGPImagesSuccess(results);
+    }
+  },
+
+  generatePDF: function(props = this.props, state = this.state) {
     const patientSettings = _.get(props, 'patient.settings', {});
+    const printDialogPDFOpts = state.printDialogPDFOpts || {};
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
     const pdfPatient = _.assign({}, props.patient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
-    const opts = {
-      patient: pdfPatient,
-      ..._.mapValues(pdfOpts, chartType => ({ disabled: chartType.disabled })),
-    };
-
     const commonQueries = {
       bgPrefs: state.bgPrefs,
       metaData: 'latestPumpUpload, bgSources',
       timePrefs: state.timePrefs,
-      excludedDevices: state.chartPrefs.excludedDevices,
+      excludedDevices: state.chartPrefs?.excludedDevices,
     };
 
     const queries = {};
 
-    if (!opts.basics.disabled) {
+    if (!printDialogPDFOpts.basics?.disabled) {
       queries.basics = {
-        endpoints: pdfOpts.basics.endpoints,
+        endpoints: printDialogPDFOpts.basics?.endpoints,
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-        bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+        bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
-        excludeDaysWithoutBolus: _.get(this.state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
+        excludeDaysWithoutBolus: _.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
         ...commonQueries,
       };
     }
 
-    if (!opts.bgLog.disabled) {
+    if (!printDialogPDFOpts.bgLog?.disabled) {
       queries.bgLog = {
-        endpoints: pdfOpts.bgLog.endpoints,
+        endpoints: printDialogPDFOpts.bgLog?.endpoints,
         aggregationsByDate: 'dataByDate',
         stats: this.getStatsByChartType('bgLog'),
         types: { smbg: {} },
-        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+        bgSource: _.get(state.chartPrefs, 'bgLog.bgSource'),
         ...commonQueries,
       };
     }
 
-    if (!opts.daily.disabled) {
+    if (!printDialogPDFOpts.daily?.disabled) {
       queries.daily = {
-        endpoints: pdfOpts.daily.endpoints,
+        endpoints: printDialogPDFOpts.daily?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         stats: this.getStatsByChartType('daily'),
         types: {
@@ -900,18 +1016,40 @@ export const PatientDataClass = createReactClass({
           smbg: {},
           wizard: {},
         },
-        bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
+        bgSource: _.get(state.chartPrefs, 'daily.bgSource'),
         ...commonQueries,
       };
     }
 
-    if (!opts.settings.disabled) {
+    if (!printDialogPDFOpts.agpBGM?.disabled) {
+      queries.agpBGM = {
+        endpoints: printDialogPDFOpts.agpBGM?.endpoints,
+        aggregationsByDate: 'dataByDate, statsByDate',
+        bgSource: _.get(state.chartPrefs, 'agpBGM.bgSource'),
+        stats: this.getStatsByChartType('agpBGM'),
+        types: { smbg: {} },
+        ...commonQueries,
+      };
+    }
+
+    if (!printDialogPDFOpts.agpCGM?.disabled) {
+      queries.agpCGM = {
+        endpoints: printDialogPDFOpts.agpCGM?.endpoints,
+        aggregationsByDate: 'dataByDate, statsByDate',
+        bgSource: _.get(state.chartPrefs, 'agpCGM.bgSource'),
+        stats: this.getStatsByChartType('agpCGM'),
+        types: { cbg: {} },
+        ...commonQueries,
+      };
+    }
+
+    if (!printDialogPDFOpts.settings?.disabled) {
       queries.settings = {
         ...commonQueries,
       };
     }
 
-    this.log('Generating PDF with', queries, opts);
+    this.log('Generating PDF with', queries, printDialogPDFOpts);
 
     window.downloadPDFDataQueries = () => {
       console.save(queries, 'PDFDataQueries.json');
@@ -920,8 +1058,12 @@ export const PatientDataClass = createReactClass({
     props.generatePDFRequest(
       'combined',
       queries,
-      opts,
+      {
+        ...printDialogPDFOpts,
+        patient: pdfPatient,
+      },
       this.props.currentPatientInViewId,
+      props.pdf?.data,
     );
   },
 
@@ -1111,9 +1253,20 @@ export const PatientDataClass = createReactClass({
   },
 
   handleClickPrint: function() {
-    this.props.trackMetric('Clicked Print', {
-      fromChart: this.state.chartType
-    });
+    const metricProps = { fromChart: this.state.chartType };
+
+    if (_.includes(['basics', 'daily', 'trends'], this.state.chartType)) {
+      const bgSource = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']);
+
+      const bgSourceLabels = {
+        cbg: 'cgm',
+        smbg: 'bgm',
+      };
+
+      metricProps.dataToggle = bgSourceLabels[bgSource];
+    }
+
+    this.props.trackMetric('Clicked Print', metricProps);
 
     this.props.removeGeneratedPDFS();
     this.setState({ printDialogOpen: true });
@@ -1302,6 +1455,23 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.coefficientOfVariation);
         break;
 
+      case 'agpBGM':
+        stats.push(commonStats.averageGlucose,);
+        stats.push(commonStats.bgExtents,);
+        stats.push(commonStats.coefficientOfVariation,);
+        stats.push(commonStats.glucoseManagementIndicator,);
+        stats.push(commonStats.readingsInRange,);
+        break;
+
+      case 'agpCGM':
+        stats.push(commonStats.averageGlucose);
+        stats.push(commonStats.bgExtents);
+        stats.push(commonStats.coefficientOfVariation);
+        stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.sensorUsage);
+        stats.push(commonStats.timeInRange);
+        break;
+
       case 'trends':
         cbgSelected && stats.push(commonStats.timeInRange);
         smbgSelected && stats.push(commonStats.readingsInRange);
@@ -1380,6 +1550,18 @@ export const PatientDataClass = createReactClass({
         ]);
         break;
 
+      case 'agpBGM':
+        latestDatums = getLatestDatums([
+          'smbg',
+        ]);
+        break;
+
+      case 'agpCGM':
+        latestDatums = getLatestDatums([
+          'cbg',
+        ]);
+        break;
+
       case 'trends':
         latestDatums = getLatestDatums([
           'cbg',
@@ -1407,6 +1589,7 @@ export const PatientDataClass = createReactClass({
         'patientId',
         'size',
         'devices',
+        'matchedDevices',
       ],
       types: '*',
       raw,
@@ -1504,8 +1687,14 @@ export const PatientDataClass = createReactClass({
 
       // Set bgPrefs to state
       let bgPrefs = this.state.bgPrefs;
+
       if (!bgPrefs) {
-        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
+        const bgUnitsOverride = {
+          units: nextProps.queryParams?.units || nextProps.clinic?.preferredBgUnits,
+          source: nextProps.queryParams?.units ? 'query params' : 'preferred clinic units',
+        };
+
+        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
         if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
         stateUpdates.bgPrefs = bgPrefs;
@@ -1531,6 +1720,7 @@ export const PatientDataClass = createReactClass({
           excludedDevices: undefined,
           timePrefs,
           bgPrefs,
+          forceRemountAfterQuery: this.state.chartKey > 0
         });
       }
 
@@ -1589,7 +1779,7 @@ export const PatientDataClass = createReactClass({
 
         // If new data was fetched to support requested PDF dates, kick off pdf generation.
         if (this.state.printDialogPDFOpts) {
-          this.generatePDF(nextProps, this.state, this.state.printDialogPDFOpts);
+          this.generatePDF(nextProps);
         }
 
         // If new data was fetched to support new chart dates,
@@ -1597,6 +1787,22 @@ export const PatientDataClass = createReactClass({
         if (this.state.datesDialogFetchingData) {
           this.closeDatesDialog();
         }
+      }
+
+      const needsAgpBGMImagesGenerated = this.props.pdf?.opts?.agpBGM?.disabled === undefined && nextProps.pdf?.opts?.agpBGM?.disabled === false && !_.isObject(nextProps.pdf.images);
+      const needsAgpCGMImagesGenerated = this.props.pdf?.opts?.agpCGM?.disabled === undefined && nextProps.pdf?.opts?.agpCGM?.disabled === false && !_.isObject(nextProps.pdf.images);
+      const agpImagesGenerated = !_.isObject(this.props.pdf.opts?.svgDataURLS) && _.isObject(nextProps.pdf.opts?.svgDataURLS);
+
+      if (needsAgpBGMImagesGenerated || needsAgpCGMImagesGenerated ) {
+        const reportTypes = [];
+        needsAgpBGMImagesGenerated && reportTypes.push('agpBGM');
+        needsAgpCGMImagesGenerated && reportTypes.push('agpCGM');
+        this.generateAGPImages(nextProps, reportTypes);
+      } else if (agpImagesGenerated) {
+        this.generatePDF(nextProps, {
+          ...this.state,
+          printDialogPDFOpts: nextProps.pdf.opts,
+        });
       }
     }
   },
@@ -1635,8 +1841,7 @@ export const PatientDataClass = createReactClass({
               action: (
                 <Button
                   p={0}
-                  lineHeight={1.5}
-                  fontSize={1}
+                  sx= {{ lineHeight: 1.5, fontSize: 1 }}
                   variant="textPrimary"
                   onClick={() => {
                     this.printWindowRef = window.open(nextProps.pdf.combined.url);
@@ -1660,7 +1865,7 @@ export const PatientDataClass = createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,devices,excludedDevices,queryDataCount',
+      metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
     });
 
     if (this.state.queryingData) return;
@@ -1924,7 +2129,7 @@ PatientDataClass.contextType = ToastContext;
 // We need to apply the contextType prop to use the Toast provider with create-react-class.
 // This produces an issue with the current enzyme mounting and breaks unit tests.
 // Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
-export const PatientData = translate()(props => <PatientDataClass {...props}/>);
+export const PatientData = withTranslation()(props => <PatientDataClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -1944,6 +2149,43 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
+  if (stateProps.selectedClinicId && !stateProps.fetchingPatientFromClinic.inProgress && !stateProps.fetchingPatientFromClinic.completed) {
+    fetchers.push(dispatchProps.fetchPatientFromClinic.bind(null, api, stateProps.selectedClinicId, ownProps.match.params.id));
+  }
+
+  // if is clinician user viewing a patient's data with no selected clinic
+  // we need to check clinics for patient and then select the relevant clinic
+
+  let clinicToSelect = null;
+  _.forEach(stateProps.clinics, (clinic, clinicId) => {
+    let patient = _.get(clinic.patients, ownProps.match.params.id, null);
+    if (patient) {
+      clinicToSelect = clinicId;
+    }
+  });
+
+  if (
+    personUtils.isClinicianAccount(stateProps.user) &&
+    stateProps.user.userid !== ownProps.match.params.id &&
+    (!stateProps.selectedClinicId || stateProps.selectedClinicId !== clinicToSelect) &&
+    !stateProps.fetchingPatientFromClinic.inProgress
+  ) {
+    if (clinicToSelect) {
+      dispatchProps.selectClinic(api, clinicToSelect);
+    } else {
+      _.forEach(stateProps.clinics, (clinic, clinicId) => {
+        fetchers.push(
+          dispatchProps.fetchPatientFromClinic.bind(
+            null,
+            api,
+            clinicId,
+            ownProps.match.params.id
+          )
+        );
+      });
+    }
+  }
+
   return fetchers;
 }
 
@@ -1959,20 +2201,37 @@ export function mapStateToProps(state, props) {
     }
 
     if (state.blip.currentPatientInViewId) {
-      patient = _.get(
+      patient = _.cloneDeep(_.get(
         state.blip.allUsersMap,
         state.blip.currentPatientInViewId,
         null
-      );
+      ));
+
       permissions = _.get(
         state.blip.permissionsOfMembersInTargetCareTeam,
         state.blip.currentPatientInViewId,
         {}
       );
+
+      if (patient && state.blip.selectedClinicId) {
+        _.set(
+          patient,
+          'profile.patient.mrn',
+          _.get(state.blip, [
+            'clinics',
+            state.blip.selectedClinicId,
+            'patients',
+            state.blip.currentPatientInViewId,
+            'mrn'
+          ])
+        );
+      }
+
       // if the logged-in user is viewing own data, we pass through their own permissions as permsOfLoggedInUser
       if (state.blip.currentPatientInViewId === state.blip.loggedInUserId) {
         permsOfLoggedInUser = permissions;
       }
+
       // otherwise, we need to pull the perms of the loggedInUser wrt the patient in view from membershipPermissionsInOtherCareTeams
       else {
         permsOfLoggedInUser = state.blip.selectedClinicId
@@ -2002,6 +2261,7 @@ export function mapStateToProps(state, props) {
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
+    fetchingPatientFromClinic: state.blip.working.fetchingPatientFromClinic,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
@@ -2013,6 +2273,8 @@ export function mapStateToProps(state, props) {
     pdf: state.blip.pdf,
     data: state.blip.data,
     selectedClinicId: state.blip.selectedClinicId,
+    clinic: state.blip.clinics?.[state.blip.selectedClinicId],
+    clinics: state.blip.clinics,
   };
 }
 
@@ -2026,10 +2288,14 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
+  fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
+  generateAGPImagesSuccess: actions.sync.generateAGPImagesSuccess,
+  generateAGPImagesFailure: actions.sync.generateAGPImagesFailure,
+  selectClinic: actions.async.selectClinic,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
@@ -2045,10 +2311,13 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     'generatePDFRequest',
     'processPatientDataRequest',
     'removeGeneratedPDFS',
+    'generateAGPImagesSuccess',
+    'generateAGPImagesFailure',
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
+    history: ownProps.history,
     uploadUrl: api.getUploadUrl(),
     onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom, medtronic }),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
@@ -2061,6 +2330,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     currentPatientInViewId: ownProps.match.params.id,
     updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
     onFetchEarlierData: dispatchProps.fetchPatientData.bind(null, api),
+    selectClinic: dispatchProps.selectClinic.bind(null, api),
     carelink: carelink,
     dexcom: dexcom,
     medtronic: medtronic,
