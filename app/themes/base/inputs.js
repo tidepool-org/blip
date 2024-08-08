@@ -244,6 +244,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
       horizontal: {
         ...radios,
         flexDirection: 'row',
+        columnGap: 3,
       },
       vertical: {
         ...radios,

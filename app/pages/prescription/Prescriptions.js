@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
@@ -21,6 +22,7 @@ import reduce from 'lodash/reduce';
 import transform from 'lodash/transform';
 import values from 'lodash/values';
 import without from 'lodash/without';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import {
   bindPopover,
@@ -49,7 +51,7 @@ import { useToasts } from '../../providers/ToastProvider';
 import { useIsFirstRender } from '../../core/hooks';
 import FilterIcon from '../../core/icons/FilterIcon.svg';
 import * as actions from '../../redux/actions';
-import { borders, radii } from '../../themes/baseTheme';
+import { borders } from '../../themes/baseTheme';
 
 const Prescriptions = props => {
   const { t, history, api, trackMetric } = props;
@@ -58,12 +60,22 @@ const Prescriptions = props => {
   const prescriptions = useSelector((state) => state.blip.prescriptions);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const { showPrescriptions } = useFlags();
+  const ldClient = useLDClient();
+  const ldContext = ldClient.getContext();
 
   const {
     deletingPrescription,
     fetchingAssociatedAccounts,
     fetchingClinicPrescriptions,
   } = useSelector((state) => state.blip.working);
+
+  useEffect(() => {
+    // Redirect to the base workspace if the LD clinic context is set and showPrescriptions flag is false
+    // and the clinic does not have the prescriptions entitlement
+    if ((clinic?.entitlements && !clinic.entitlements.prescriptions) && (ldContext?.clinic?.tier && !showPrescriptions)) dispatch(push('/clinic-workspace/patients'));
+  }, [ldContext, showPrescriptions, selectedClinicId, clinic?.entitlements, dispatch]);
 
   // Fetchers
   useEffect(() => {
@@ -306,10 +318,12 @@ const Prescriptions = props => {
             {t('Add New Prescription')}
           </Button>
 
-          <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+          <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
             <TextInput
               themeProps={{
-                width: ['100%', null, '250px'],
+                sx: {
+                  width: ['100%', null, '250px'],
+                },
               }}
               fontSize="12px"
               id="search-prescriptions"

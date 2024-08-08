@@ -22,6 +22,7 @@ import {
   MGDL_UNITS,
   MMOLL_UNITS,
 } from '../core/constants';
+import { prescription } from './api';
 
 const t = i18next.t.bind(i18next);
 
@@ -139,6 +140,7 @@ export const clinicTierDetails = (clinic = {}) => {
     summaryDashboard: false,
     tideDashboard: false,
     patientTags: false,
+    prescriptions: true,
   };
 
   const display = {
@@ -166,6 +168,7 @@ export const clinicTierDetails = (clinic = {}) => {
     tier0101: {
       planName: 'internationalBase',
       display: { ...display, planName: false },
+      entitlements: { ...entitlements, prescriptions: false },
     },
     tier0102: {
       planName: 'honoredBase',

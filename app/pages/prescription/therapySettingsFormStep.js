@@ -34,9 +34,7 @@ import {
 import {
   inlineInputStyles,
   inputStyles,
-  fieldsetStyles,
-  wideFieldsetStyles,
-  borderedFieldsetStyles,
+  wideBorderedFieldsetStyles,
   scheduleGroupStyles,
 } from './prescriptionFormStyles';
 
@@ -62,11 +60,11 @@ export const PatientInfo = props => {
   } = useFormikContext();
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Headline mb={2}>{t('Tidepool Loop Order Form and Treatment Plan')}</Headline>
-      <Text>{firstName} {lastName}</Text>
-      <Text>{t('Date of Birth:')} {birthday}</Text>
-      <Text>{t('Email:')} {email}</Text>
+      <Text sx={{ display: 'block' }}>{firstName} {lastName}</Text>
+      <Text sx={{ display: 'block' }}>{t('Date of Birth:')} {birthday}</Text>
+      <Text sx={{ display: 'block' }}>{t('Email:')} {email}</Text>
     </Box>
   );
 };
@@ -81,7 +79,7 @@ export const DefaultCalculatorSettings = props => {
   const weightUnits = get(values, 'calculator.weightUnits');
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Body2 mb={3}>
         {t('Recommended default settings from AACE calculator:')}
       </Body2>
@@ -100,7 +98,7 @@ export const PatientTraining = props => {
   const formikContext = useFormikContext();
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Paragraph2>
         {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{displayName}}.', {
           displayName: get(pump, 'displayName'),
@@ -126,7 +124,7 @@ export const InModuleTrainingNotification = props => {
   const { t, pump, ...themeProps } = props;
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Paragraph2>
         {t('You have selected Tidepool Loop in-app tutorial self start. A request will not be sent for this patient to receive CPT training.')}
       </Paragraph2>
@@ -149,7 +147,7 @@ export const GlucoseSettings = props => {
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Glucose Settings')}</Title>
       <Box px={3}>
         <PopoverLabel
@@ -341,7 +339,7 @@ export const InsulinSettings = props => {
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Insulin Settings')}</Title>
       <Box px={3}>
         <PopoverLabel
@@ -509,7 +507,7 @@ export const InsulinSettings = props => {
                 {t('Tidepool Loop assumes that the insulin it has delivered is actively working to lower your glucose for 6 hours. This setting cannot be changed.')}
               </Paragraph2>
               <Paragraph2>
-                {t('You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you’ll select now.')}
+                {t('You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you\'ll select now.')}
               </Paragraph2>
               <Paragraph2>
                 <Box as='ol' variant="lists.ordered">

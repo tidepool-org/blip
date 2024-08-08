@@ -9,6 +9,7 @@ import get from 'lodash/get'
 import values from 'lodash/values'
 import { Box } from 'theme-ui';
 import { Element } from 'react-scroll';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import TabGroup from '../../components/elements/TabGroup';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
@@ -28,6 +29,7 @@ export const ClinicWorkspace = (props) => {
   const { fetchingPatientInvites } = useSelector((state) => state.blip.working);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patientInvites = values(clinic?.patientInvites);
+  const { showPrescriptions } = useFlags();
 
   const tabIndices = {
     patients: 0,
@@ -48,7 +50,7 @@ export const ClinicWorkspace = (props) => {
     },
   ];
 
-  if (config.RX_ENABLED) {
+  if (showPrescriptions) {
     tabs.push({
       name: 'prescriptions',
       label: t('Prescriptions'),
@@ -131,7 +133,7 @@ export const ClinicWorkspace = (props) => {
           </Box>
 
           <Box id="prescriptionsTab">
-            {config.RX_ENABLED && selectedTab === 2 && <Prescriptions {...props} />}
+            {selectedTab === 2 && <Prescriptions {...props} />}
           </Box>
         </TabGroup>
       </Box>
