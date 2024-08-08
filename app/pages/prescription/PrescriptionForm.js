@@ -39,6 +39,7 @@ import profileFormSteps from './profileFormSteps';
 import settingsCalculatorFormSteps from './settingsCalculatorFormSteps';
 import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
+import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import Button from '../../components/elements/Button';
 import Pill from '../../components/elements/Pill';
 import Stepper from '../../components/elements/Stepper';
@@ -66,7 +67,7 @@ const log = bows('PrescriptionForm');
 let schema;
 
 const prescriptionFormWrapper = Component => props => {
-  const { api } = props;
+  const { api, trackMetric } = props;
   const dispatch = useDispatch();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const devices = useSelector((state) => state.blip.devices);
@@ -104,9 +105,17 @@ const prescriptionFormWrapper = Component => props => {
     }
   }, [loggedInUserId, selectedClinicId]);
 
-  return fetchingDevices.completed && fetchingClinicPrescriptions.completed
-    ? <Component prescription={prescription} devices={devices} {...props} />
-    : <Loader />;
+  return (
+    <>
+      <ClinicWorkspaceHeader api={api} trackMetric={trackMetric} />
+
+      <Box id="clinic-workspace" sx={{ alignItems: 'center', minHeight: '10em' }} variant="containers.largeBordered" mb={9}>
+        {fetchingDevices.completed && fetchingClinicPrescriptions.completed
+          ? <Component prescription={prescription} devices={devices} {...props} />
+          : <Loader />}
+      </Box>
+    </>
+  );
 }
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
@@ -337,8 +346,6 @@ export const PrescriptionForm = props => {
       while (isUndefined(firstInvalidStep) && currentStep < stepValidationFields.length) {
         while (currentSubStep < stepValidationFields[currentStep].length) {
           if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], schema, values)) {
-            console.log('values.calculator', values.calculator);
-            console.log('stepValidationFields[currentStep][currentSubStep]', stepValidationFields[currentStep][currentSubStep]);
             firstInvalidStep = currentStep;
             firstInvalidSubStep = currentSubStep;
             break;
@@ -611,8 +618,6 @@ export const PrescriptionForm = props => {
       as='form'
       id="prescription-form"
       onSubmit={isEditable ? handleSubmit : noop}
-      mb={5}
-      mx={3}
       bg="white"
     >
       <Flex
@@ -620,7 +625,7 @@ export const PrescriptionForm = props => {
         mb={3}
         px={4}
         py={3}
-        sx={{ justifyContent: 'space-between', alignItems: 'center', borderBottom: borders.divider }}
+        sx={{ justifyContent: 'space-between', alignItems: 'center', borderBottom: borders.dividerDark }}
       >
         <Button
           id="back-to-prescriptions"

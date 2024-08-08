@@ -316,7 +316,7 @@ export const PatientInfo = props => {
       <Body1>{label}</Body1>
       <Box>
         <Flex sx={{ alignItems: 'center' }}>
-          <Body1 mr={3} color={(isEditable && error) ? 'feedback.danger' : 'text.primary'}>{value}</Body1>
+          <Body1 mr={3} sx={{ color: (isEditable && error) ? 'feedback.danger' : 'text.primary' }}>{value}</Body1>
           {isEditable && <Icon
             variant="button"
             icon={EditRoundedIcon}
@@ -395,15 +395,15 @@ export const TherapySettings = props => {
           alignItems: 'flex-start',
         }}
       >
-        <Body1 flex="1">{label}</Body1>
-        <Box flex="1">
+        <Body1 sx={{ flex: '1' }}>{label}</Body1>
+        <Box sx={{ flex: '1' }}>
           {map(rowValues, (val, i) => (
             <Flex key={i}>
-              <Body1 color={valueColor(i)} key={i} sx={{ flexGrow: 1 }}>{val}</Body1>
+              <Body1  key={i} sx={{ flexGrow: 1, color: valueColor(i) }}>{val}</Body1>
               {errors[i] && (
                 <PopoverLabel
                   id={`${id}-${i}`}
-                  width="auto"
+                  sx={{ width: 'auto' }}
                   popoverContent={(
                     <Box p={3}>
                       {map(compact(isArray(errors[i]) ? errors[i] : [errors[i]]), (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)}
@@ -414,7 +414,7 @@ export const TherapySettings = props => {
               {!errors[i] && warnings[i] && (
                 <PopoverLabel
                   id={`${id}-${i}`}
-                  width="auto"
+                  sx={{ width: 'auto' }}
                   popoverContent={(
                     <Box p={3}>
                       {map(compact(isArray(warnings[i]) ? warnings[i] : [warnings[i]]), (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)}
@@ -439,13 +439,18 @@ export const TherapySettings = props => {
     <Box {...themeProps}>
       <Flex mb={3} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Headline mr={2}>{title}</Headline>
-        <Box
+        <Flex
           theme={baseTheme}
           sx={{
+            columnGap: 2,
+            alignItems: 'center',
             button: {
               border: 'none',
               color: 'text.primary',
-              paddingRight: 0,
+              top: '1px',
+              p: 0,
+              m: 0,
+              position: 'relative',
               '&:hover,&:active': {
                 border: 'none',
                 color: 'text.primary',
@@ -453,11 +458,9 @@ export const TherapySettings = props => {
               },
             },
             '.success': {
-              padding: '.25em 0 0',
+              position: 'relative',
               display: 'block',
-              fontSize: '1.5em',
-              textAlign: 'center',
-              lineHeight: '1.125em',
+              top: '2px',
             },
           }}
         >
@@ -489,7 +492,7 @@ export const TherapySettings = props => {
               ...patientRows(values, formikContext),
             ], therapySettingsRows(pump, formikContext))}
           />
-        </Box>
+        </Flex>
       </Flex>
 
       <Box mb={4} as={Body1}>{subtitle}</Box>
@@ -526,31 +529,38 @@ export const PrescriptionReview = withTranslation()(props => {
 
   return (
     <Flex
-      sx={{ flexWrap: 'wrap' }}
-      margin="auto"
-      maxWidth="1280px"
+      sx={{
+        flexWrap: 'wrap',
+        margin: 'auto',
+        maxWidth: '1280px',
+      }}
     >
       <PatientInfo
         {...fieldsetStyles}
         flex="0 0 auto"
-        alignSelf="flex-start"
         mb={4}
         px={4}
         py={3}
-        width={[1, 1, 0.45, 0.35]}
         sx={{
+          ...fieldsetStyles.sx,
+          alignSelf: 'flex-start',
+          flex: '0 0 auto',
+          width: ['100%', null, '45%', '35%'],
           border: 'default',
         }}
         {...props}
       />
       <TherapySettings
         {...fieldsetStyles}
-        flex="0 0 auto"
         mb={4}
         pr={[4, 4, 0, 0]}
         pl={[4, 4, 5, 7]}
         pb={3}
-        width={[1, 1, 0.55, 0.65]}
+        sx={{
+          ...fieldsetStyles.sx,
+          flex: '0 0 auto',
+          width: ['100%', null, '55%', '65%'],
+        }}
         {...props}
       />
     </Flex>
