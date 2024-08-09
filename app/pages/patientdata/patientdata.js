@@ -59,6 +59,7 @@ import { Box, Flex } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Paragraph2 } from '../../components/elements/FontStyles';
+import { DIABETES_DATA_TYPES } from '../../core/constants';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -1704,7 +1705,16 @@ export const PatientDataClass = createReactClass({
       let timePrefs = this.state.timePrefs;
       if (_.isEmpty(timePrefs)) {
         const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
-        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, this.props.queryParams);
+
+        const latestDiabetesDatum = _.maxBy(
+          _.filter(
+            _.values(_.get(nextProps, 'data.metaData.latestDatumByType', {})),
+            ({ type }) => _.includes(DIABETES_DATA_TYPES, type)
+          ),
+          'time'
+        );
+
+        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, latestDiabetesDatum, this.props.queryParams);
         stateUpdates.timePrefs = timePrefs;
       }
 
