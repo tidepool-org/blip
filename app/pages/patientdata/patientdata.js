@@ -59,6 +59,7 @@ import { Box, Flex } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Paragraph2 } from '../../components/elements/FontStyles';
+import { DIABETES_DATA_TYPES } from '../../core/constants';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -832,7 +833,7 @@ export const PatientDataClass = createReactClass({
       chartType,
     } = state;
 
-    const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
+    const manufacturer = this.getMetaData('latestPumpUpload.manufacturer', '');
     const bgSource = this.getMetaData('bgSources.current');
     const endpoints = this.getCurrentData('endpoints');
     const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
@@ -920,6 +921,7 @@ export const PatientDataClass = createReactClass({
 
   generateAGPImages: async function(props = this.props, reportTypes = []) {
     const promises = [];
+    let errored = false
 
     await _.each(reportTypes, async reportType => {
       let images;
@@ -927,6 +929,7 @@ export const PatientDataClass = createReactClass({
       try{
         images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.[reportType] });
       } catch(e) {
+        errored = true
         return props.generateAGPImagesFailure(e);
       }
 
@@ -955,6 +958,8 @@ export const PatientDataClass = createReactClass({
       }, {});
 
       props.generateAGPImagesSuccess(processedImages);
+    } else if (!errored) {
+      props.generateAGPImagesSuccess(results);
     }
   },
 
@@ -1700,7 +1705,16 @@ export const PatientDataClass = createReactClass({
       let timePrefs = this.state.timePrefs;
       if (_.isEmpty(timePrefs)) {
         const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
-        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, this.props.queryParams);
+
+        const latestDiabetesDatum = _.maxBy(
+          _.filter(
+            _.values(_.get(nextProps, 'data.metaData.latestDatumByType', {})),
+            ({ type }) => _.includes(DIABETES_DATA_TYPES, type)
+          ),
+          'time'
+        );
+
+        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, latestDiabetesDatum, this.props.queryParams);
         stateUpdates.timePrefs = timePrefs;
       }
 

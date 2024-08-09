@@ -396,6 +396,7 @@ class Daily extends Component {
           }}
           side={this.state.hoveredPumpSettingsOverride.side}
           override={this.state.hoveredPumpSettingsOverride.data}
+          bgPrefs={bgPrefs}
           timePrefs={timePrefs}
         />}
         <WindowSizeListener onResize={this.handleWindowResize} />

@@ -130,6 +130,7 @@ describe('constants', function() {
       'food',
       'cgmSettings',
       'deviceEvent',
+      'dosingDecision',
       'insulin',
       'physicalActivity',
       'pumpSettings',
