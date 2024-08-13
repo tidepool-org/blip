@@ -140,7 +140,7 @@ export const clinicTierDetails = (clinic = {}) => {
     summaryDashboard: false,
     tideDashboard: false,
     patientTags: false,
-    prescriptions: true,
+    prescriptions: false,
   };
 
   const display = {
@@ -168,7 +168,7 @@ export const clinicTierDetails = (clinic = {}) => {
     tier0101: {
       planName: 'internationalBase',
       display: { ...display, planName: false },
-      entitlements: { ...entitlements, prescriptions: false },
+      entitlements: { ...entitlements },
     },
     tier0102: {
       planName: 'honoredBase',
@@ -195,7 +195,7 @@ export const clinicTierDetails = (clinic = {}) => {
     },
     tier0301: {
       planName: 'professional',
-      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0302: {
       planName: 'professional',
@@ -203,11 +203,11 @@ export const clinicTierDetails = (clinic = {}) => {
     },
     tier0303: {
       planName: 'professional',
-      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0400: {
       planName: 'enterprise',
-      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
     },
   };
 

@@ -12,7 +12,7 @@ const expect = chai.expect;
 
 const devices = {
   cgms: [{ id: prescriptionFormConstants.deviceIdMap.dexcomG6 }],
-  pumps: [{ id: prescriptionFormConstants.deviceIdMap.omnipodHorizon }],
+  pumps: [{ id: prescriptionFormConstants.deviceIdMap.palmtree }],
 };
 
 describe('prescriptionFormConstants', function() {
@@ -51,7 +51,7 @@ describe('prescriptionFormConstants', function() {
   it('should export a device-id map with known device IDs', () => {
     expect(prescriptionFormConstants.deviceIdMap).to.eql({
       dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
-      omnipodHorizon: '6678c377-928c-49b3-84c1-19e2dafaff8d',
+      palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
     });
   });
 
@@ -61,13 +61,13 @@ describe('prescriptionFormConstants', function() {
       'pumps',
     ]);
     expect(prescriptionFormConstants.validDeviceIds.cgms).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.dexcomG6);
-    expect(prescriptionFormConstants.validDeviceIds.pumps).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.omnipodHorizon);
+    expect(prescriptionFormConstants.validDeviceIds.pumps).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.palmtree);
   });
 
   it('should export a JSX element for extra info about each device', () => {
     expect(prescriptionFormConstants.deviceExtraInfo).to.be.an('object').and.have.keys([
       prescriptionFormConstants.deviceIdMap.dexcomG6,
-      prescriptionFormConstants.deviceIdMap.omnipodHorizon,
+      prescriptionFormConstants.deviceIdMap.palmtree,
     ]);
     _.each(prescriptionFormConstants.deviceExtraInfo, info => {
       expect(info).to.be.an('object');
@@ -79,7 +79,7 @@ describe('prescriptionFormConstants', function() {
     const pumpDeviceOptions = prescriptionFormConstants.pumpDeviceOptions(devices);
     expect(pumpDeviceOptions).to.be.an('array');
     expect(_.map(pumpDeviceOptions, 'value')).to.eql([
-      prescriptionFormConstants.deviceIdMap.omnipodHorizon,
+      prescriptionFormConstants.deviceIdMap.palmtree,
     ]);
 
     _.each(pumpDeviceOptions, device => {

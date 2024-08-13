@@ -13,15 +13,19 @@ import {
   generateTherapySettingsOrderText,
   prescriptionForm,
   PrescriptionForm,
+  default as PF,
 } from '../../../../app/pages/prescription/PrescriptionForm';
 
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
+import LDClientMock from '../../../fixtures/LDClientMock';
 
 /* global chai */
 /* global sinon */
 /* global describe */
 /* global it */
 /* global beforeEach */
+/* global before */
+/* global after */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -59,6 +63,19 @@ describe('PrescriptionForm', () => {
         creatingPrescriptionRevision: defaultWorkingState,
       },
     },
+  });
+
+  before(() => {
+    PF.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
+
+    PF.__Rewire__('useFlags', sinon.stub().returns({
+      showPrescriptions: true,
+    }));
+  });
+
+  after(() => {
+    PF.__ResetDependency__('useLDClient');
+    PF.__ResetDependency__('useFlags');
   });
 
   beforeEach(() => {

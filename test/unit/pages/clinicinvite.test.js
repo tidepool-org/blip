@@ -38,10 +38,16 @@ describe('ClinicInvite', () => {
   before(() => {
     mount = createMount();
     ClinicInvite.__Rewire__('useLocation', sinon.stub().returns({ state: {} }));
+
+    ClinicInvite.__Rewire__('useFlags', sinon.stub().returns({
+      showPrescriptions: true,
+    }));
   });
 
   after(() => {
     mount.cleanUp();
+    ClinicInvite.__ResetDependency__('useLocation');
+    ClinicInvite.__ResetDependency__('useFlags');
   });
 
   const defaultWorkingState = {
