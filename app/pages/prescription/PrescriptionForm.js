@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
 import bows from 'bows';
 import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
@@ -29,6 +30,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import { Box, Flex, Text } from 'theme-ui';
 import canonicalize from 'canonicalize';
 import { sha512 } from 'crypto-hash';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -37,6 +39,7 @@ import profileFormSteps from './profileFormSteps';
 import settingsCalculatorFormSteps from './settingsCalculatorFormSteps';
 import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
+import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import Button from '../../components/elements/Button';
 import Pill from '../../components/elements/Pill';
 import Stepper from '../../components/elements/Stepper';
@@ -64,7 +67,7 @@ const log = bows('PrescriptionForm');
 let schema;
 
 const prescriptionFormWrapper = Component => props => {
-  const { api } = props;
+  const { api, trackMetric } = props;
   const dispatch = useDispatch();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const devices = useSelector((state) => state.blip.devices);
@@ -102,9 +105,17 @@ const prescriptionFormWrapper = Component => props => {
     }
   }, [loggedInUserId, selectedClinicId]);
 
-  return fetchingDevices.completed && fetchingClinicPrescriptions.completed
-    ? <Component prescription={prescription} devices={devices} {...props} />
-    : <Loader />;
+  return (
+    <>
+      <ClinicWorkspaceHeader api={api} trackMetric={trackMetric} />
+
+      <Box id="clinic-workspace" sx={{ alignItems: 'center', minHeight: '10em' }} variant="containers.largeBordered" mb={9}>
+        {fetchingDevices.completed && fetchingClinicPrescriptions.completed
+          ? <Component prescription={prescription} devices={devices} {...props} />
+          : <Loader />}
+      </Box>
+    </>
+  );
 }
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
@@ -138,6 +149,9 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         weightUnits: get(props, 'prescription.latestRevision.attributes.calculator.weightUnits', defaultUnits.weight),
         totalDailyDose: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDose'),
         totalDailyDoseScaleFactor: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDoseScaleFactor', 1),
+        recommendedBasalRate: get(props, 'prescription.latestRevision.attributes.calculator.recommendedBasalRate'),
+        recommendedInsulinSensitivity: get(props, 'prescription.latestRevision.attributes.calculator.recommendedInsulinSensitivity'),
+        recommendedCarbohydrateRatio: get(props, 'prescription.latestRevision.attributes.calculator.recommendedCarbohydrateRatio'),
       },
       initialSettings: {
         bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
@@ -275,11 +289,23 @@ export const PrescriptionForm = props => {
   const prescriptionState = get(prescription, 'state', 'draft');
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
   const isEditable = includes(['draft', 'pending'], prescriptionState);
+  const clinics = useSelector((state) => state.blip.clinics);
+  const clinic = get(clinics, selectedClinicId);
+  const isPrescriber = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'PRESCRIBER');
+  const { showPrescriptions } = useFlags();
+  const ldClient = useLDClient();
+  const ldContext = ldClient.getContext();
 
   const {
     creatingPrescription,
     creatingPrescriptionRevision,
   } = useSelector((state) => state.blip.working);
+
+  useEffect(() => {
+    // Redirect to the base workspace if the LD clinic context is set and showPrescriptions flag is false
+    // and the clinic does not have the prescriptions entitlement
+    if ((clinic?.entitlements && !clinic.entitlements.prescriptions) && (ldContext?.clinic?.tier && !showPrescriptions)) dispatch(push('/clinic-workspace'));
+  }, [ldContext, showPrescriptions, selectedClinicId, clinic?.entitlements, dispatch]);
 
   useEffect(() => {
     // Schema needs to be recreated to account for conditional mins and maxes as values update
@@ -374,8 +400,9 @@ export const PrescriptionForm = props => {
       if (completed) {
         setStepAsyncState(asyncStates.completed);
         if (isLastStep) {
-          let messageAction = 'sent';
-          if (isDraft) messageAction = isRevision ? 'updated' : 'created';
+
+          let messageAction = isRevision ? t('updated') : t('created');
+          if (isPrescriber) messageAction = t('finalized and sent');
 
           setToast({
             message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction }),
@@ -480,8 +507,11 @@ export const PrescriptionForm = props => {
       }
 
       const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
-      prescriptionAttributes.state = 'draft';
       prescriptionAttributes.createdUserId = loggedInUserId;
+      prescriptionAttributes.prescriberTermsAccepted = isPrescriber && get(values, 'therapySettingsReviewed');
+
+      if (isLastStep) prescriptionAttributes.state = isPrescriber ? 'submitted' : 'pending';
+      setFieldValue('state', prescriptionAttributes.state);
 
       prescriptionAttributes.revisionHash = await sha512(
         canonicalize(prescriptionAttributes),
@@ -500,7 +530,7 @@ export const PrescriptionForm = props => {
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
   const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
   const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
-  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable);
+  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber);
 
   const stepProps = step => ({
     ...step,
@@ -588,8 +618,6 @@ export const PrescriptionForm = props => {
       as='form'
       id="prescription-form"
       onSubmit={isEditable ? handleSubmit : noop}
-      mb={5}
-      mx={3}
       bg="white"
     >
       <Flex
@@ -597,7 +625,7 @@ export const PrescriptionForm = props => {
         mb={3}
         px={4}
         py={3}
-        sx={{ justifyContent: 'space-between', alignItems: 'center', borderBottom: borders.divider }}
+        sx={{ justifyContent: 'space-between', alignItems: 'center', borderBottom: borders.dividerDark }}
       >
         <Button
           id="back-to-prescriptions"

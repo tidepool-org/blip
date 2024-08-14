@@ -24,7 +24,7 @@ export const dateRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
 
 export const deviceIdMap = {
   dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
-  omnipodHorizon: '6678c377-928c-49b3-84c1-19e2dafaff8d',
+  palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
 };
 
 export const validDeviceIds = {
@@ -32,7 +32,7 @@ export const validDeviceIds = {
     deviceIdMap.dexcomG6,
   ],
   pumps: [
-    deviceIdMap.omnipodHorizon,
+    deviceIdMap.palmtree,
   ],
 };
 
@@ -42,9 +42,9 @@ export const deviceExtraInfo = {
       Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
     </Trans>
   ),
-  [deviceIdMap.omnipodHorizon]: (
+  [deviceIdMap.palmtree]: (
     <Trans>
-      Find information on how to prescribe Omnipod products <Link to="#">here</Link>.
+      Find information on how to prescribe Palmtree products <Link to="#">here</Link>.
     </Trans>
   ),
 };

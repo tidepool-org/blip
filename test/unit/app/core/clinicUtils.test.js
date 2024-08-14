@@ -109,6 +109,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -136,6 +137,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -163,6 +165,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -190,6 +193,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -217,6 +221,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -240,6 +245,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
         tideDashboard: false,
@@ -263,6 +269,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        prescriptions: false,
         rpmReport: false,
         summaryDashboard: true,
         tideDashboard: false,
@@ -286,6 +293,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        prescriptions: false,
         rpmReport: false,
         summaryDashboard: true,
         tideDashboard: false,
@@ -309,6 +317,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        prescriptions: false,
         rpmReport: false,
         summaryDashboard: true,
         tideDashboard: false,
@@ -332,6 +341,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        prescriptions: false,
         rpmReport: true,
         summaryDashboard: true,
         tideDashboard: true,
@@ -355,6 +365,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        prescriptions: false,
         rpmReport: true,
         summaryDashboard: true,
         tideDashboard: false,
@@ -378,6 +389,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        prescriptions: false,
         rpmReport: true,
         summaryDashboard: true,
         tideDashboard: true,
@@ -401,6 +413,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        prescriptions: false,
         rpmReport: true,
         summaryDashboard: true,
         tideDashboard: true,
