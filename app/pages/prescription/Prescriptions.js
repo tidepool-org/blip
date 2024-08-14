@@ -167,10 +167,12 @@ const Prescriptions = props => {
     setSearchText('');
   }
 
-  const handleAddNew = () => props.history.push('/prescriptions/new');
+  // const handleAddNew = () => props.history.push('/prescriptions/new');
+  const handleAddNew = () => dispatch(push('/prescriptions/new'));
 
   const handleOpenPrescription = prescription => popupState => {
-    props.history.push(`/prescriptions/${prescription.id}`);
+    // props.history.push(`/prescriptions/${prescription.id}`);
+    dispatch(push(`/prescriptions/${prescription.id}`));
   };
 
   const handleDeletePrescription = prescription => popupState => {
@@ -197,22 +199,22 @@ const Prescriptions = props => {
     const items = [
       {
         icon: isEditable ? EditRoundedIcon : VisibilityRoundedIcon,
-        iconLabel: isEditable ? t('Update') : t('View'),
+        iconLabel: isEditable ? t('Update Prescription') : t('View Prescription'),
         iconPosition: 'left',
         id: isEditable ? 'update' : 'view',
         onClick: handleOpenPrescription(prescription),
-        text: isEditable ? t('Update prescription') : t('View Prescription'),
+        text: isEditable ? t('Update Prescription') : t('View Prescription'),
         variant: 'actionListItem',
       },
     ];
 
     if (isEditable) items.push({
       icon: DeleteForeverRoundedIcon,
-      iconLabel: 'Delete',
+      iconLabel: 'Delete Prescription',
       iconPosition: 'left',
       id: 'delete',
       onClick: handleDeletePrescription(prescription),
-      text: t('Delete prescription'),
+      text: t('Delete Prescription'),
       variant: 'actionListItemDanger',
       disabled: !isEditable,
     });
@@ -509,6 +511,7 @@ const Prescriptions = props => {
           columns={columns}
           rowsPerPage={10}
           searchText={searchText}
+          emptyText={t('There are no prescriptions to show.')}
           onClickRow={handleRowClick}
           orderBy="createdTime"
           order="desc"
@@ -516,7 +519,7 @@ const Prescriptions = props => {
         />
 
         <Dialog
-          id={'prescription-delete'}
+          id="prescription-delete"
           aria-labelledby="dialog-title"
           open={deleteDialog.open}
           onClose={closeDeleteDialog}
@@ -537,6 +540,7 @@ const Prescriptions = props => {
             </Button>
 
             <Button
+              id="prescription-delete-confirm"
               variant="danger"
               processing={deletingPrescription.inProgress}
               onClick={handleConfirmDeletePrescription}
