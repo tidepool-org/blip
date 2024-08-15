@@ -167,11 +167,9 @@ const Prescriptions = props => {
     setSearchText('');
   }
 
-  // const handleAddNew = () => props.history.push('/prescriptions/new');
   const handleAddNew = () => dispatch(push('/prescriptions/new'));
 
   const handleOpenPrescription = prescription => popupState => {
-    // props.history.push(`/prescriptions/${prescription.id}`);
     dispatch(push(`/prescriptions/${prescription.id}`));
   };
 
