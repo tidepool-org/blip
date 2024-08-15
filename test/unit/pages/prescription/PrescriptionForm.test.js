@@ -18,6 +18,7 @@ import {
 
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 import LDClientMock from '../../../fixtures/LDClientMock';
+import { deviceIdMap } from '../../../../app/pages/prescription/prescriptionFormConstants';
 
 /* global chai */
 /* global sinon */
@@ -85,7 +86,7 @@ describe('PrescriptionForm', () => {
     wrapper = mount(
       <Provider store={defaultState}>
         <ToastProvider>
-          <Element {...defaultProps} />
+          <Element />
         </ToastProvider>
       </Provider>
     );
@@ -103,6 +104,23 @@ describe('PrescriptionForm', () => {
   });
 
   it('should render the form steps', () => {
+    const nonSkippedPumpProps = {
+      ...defaultProps,
+      devices: {
+        cgm: [{ id: deviceIdMap.dexcomG6 }],
+        pumps: [{ id: 'somedevice' }],
+      },
+    };
+
+    const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...nonSkippedPumpProps} {...formikProps} />);
+    wrapper = mount(
+      <Provider store={defaultState}>
+        <ToastProvider>
+          <Element />
+        </ToastProvider>
+      </Provider>
+    );
+
     const stepper = wrapper.find('#prescription-form-steps').hostNodes();
     expect(stepper).to.have.length(1);
 
@@ -116,6 +134,38 @@ describe('PrescriptionForm', () => {
     expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Therapy Settings Calculator');
     expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
     expect(steps.at(4).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
+  });
+
+  it('should not render the calculator form steps when using a palmtree pump', () => {
+    const skippedPumpProps = {
+      ...defaultProps,
+      devices: {
+        cgm: [{ id: deviceIdMap.dexcomG6 }],
+        pumps: [{ id: deviceIdMap.palmtree }],
+      },
+    };
+
+    const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...skippedPumpProps} {...formikProps} />);
+    wrapper = mount(
+      <Provider store={defaultState}>
+        <ToastProvider>
+          <Element />
+        </ToastProvider>
+      </Provider>
+    );
+
+    const stepper = wrapper.find('#prescription-form-steps').hostNodes();
+    expect(stepper).to.have.length(1);
+
+    const steps = stepper.find('.MuiStep-root');
+    expect(steps).to.have.length(4);
+
+    expect(steps.at(0).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Create Patient Account');
+    expect(steps.at(0).hasClass('active')).to.be.true;
+
+    expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
+    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
+    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
   });
 
   it('should render the form actions, with only the `next` button on the first step', () => {

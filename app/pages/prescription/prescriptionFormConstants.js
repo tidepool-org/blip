@@ -36,17 +36,22 @@ export const validDeviceIds = {
   ],
 };
 
-export const deviceExtraInfo = {
-  [deviceIdMap.dexcomG6]: (
-    <Trans>
-      Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
-    </Trans>
-  ),
-  [deviceIdMap.palmtree]: (
-    <Trans>
-      Find information on how to prescribe Palmtree products <Link to="#">here</Link>.
-    </Trans>
-  ),
+export const deviceDetails = {
+  [deviceIdMap.dexcomG6]: {
+    description: (
+      <Trans>
+        Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
+      </Trans>
+    ),
+  },
+  [deviceIdMap.palmtree]: {
+    description: (
+      <Trans>
+        Find information on how to prescribe Palmtree products <Link to="#">here</Link>.
+      </Trans>
+    ),
+    skipCalculator: true,
+  },
 };
 
 export const pumpDeviceOptions = ({ pumps } = {}) => map(
@@ -54,7 +59,7 @@ export const pumpDeviceOptions = ({ pumps } = {}) => map(
   pump => ({
     value: pump.id,
     label: t('{{displayName}}', { displayName: pump.displayName }),
-    extraInfo: deviceExtraInfo[pump.id] || null,
+    ...(deviceDetails[pump.id] || {}),
   }),
 );
 
@@ -63,7 +68,7 @@ export const cgmDeviceOptions = ({ cgms } = {}) => map(
   cgm => ({
     value: cgm.id,
     label: t('{{displayName}}', { displayName: cgm.displayName }),
-    extraInfo: deviceExtraInfo[cgm.id] || null,
+    ...(deviceDetails[cgm.id] || {}),
   }),
 );
 

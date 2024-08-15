@@ -15,7 +15,7 @@ const devices = {
   pumps: [{ id: prescriptionFormConstants.deviceIdMap.palmtree }],
 };
 
-describe('prescriptionFormConstants', function() {
+describe.only('prescriptionFormConstants', function() {
   it('should export the `dateFormat`', function() {
     expect(prescriptionFormConstants.dateFormat).to.equal('YYYY-MM-DD');
   });
@@ -65,13 +65,13 @@ describe('prescriptionFormConstants', function() {
   });
 
   it('should export a JSX element for extra info about each device', () => {
-    expect(prescriptionFormConstants.deviceExtraInfo).to.be.an('object').and.have.keys([
+    expect(prescriptionFormConstants.deviceDetails).to.be.an('object').and.have.keys([
       prescriptionFormConstants.deviceIdMap.dexcomG6,
       prescriptionFormConstants.deviceIdMap.palmtree,
     ]);
-    _.each(prescriptionFormConstants.deviceExtraInfo, info => {
-      expect(info).to.be.an('object');
-      expect(info.props).to.be.an('object').and.have.keys(['children']);
+    _.each(prescriptionFormConstants.deviceDetails, info => {
+      expect(info.description).to.be.an('object');
+      expect(info.description.props).to.be.an('object').and.have.keys(['children']);
     });
   });
 
@@ -85,7 +85,7 @@ describe('prescriptionFormConstants', function() {
     _.each(pumpDeviceOptions, device => {
       expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
-      expect(device.extraInfo).to.be.an('object');
+      expect(device.description).to.be.an('object');
     })
   });
 
@@ -99,7 +99,7 @@ describe('prescriptionFormConstants', function() {
     _.each(cgmDeviceOptions, device => {
       expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
-      expect(device.extraInfo).to.be.an('object');
+      expect(device.description).to.be.an('object');
     })
   });
 
