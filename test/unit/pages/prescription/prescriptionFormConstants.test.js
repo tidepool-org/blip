@@ -15,7 +15,7 @@ const devices = {
   pumps: [{ id: prescriptionFormConstants.deviceIdMap.palmtree }],
 };
 
-describe.only('prescriptionFormConstants', function() {
+describe('prescriptionFormConstants', function() {
   it('should export the `dateFormat`', function() {
     expect(prescriptionFormConstants.dateFormat).to.equal('YYYY-MM-DD');
   });
@@ -64,14 +64,19 @@ describe.only('prescriptionFormConstants', function() {
     expect(prescriptionFormConstants.validDeviceIds.pumps).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.palmtree);
   });
 
-  it('should export a JSX element for extra info about each device', () => {
+  it('should export extra details about each device', () => {
     expect(prescriptionFormConstants.deviceDetails).to.be.an('object').and.have.keys([
       prescriptionFormConstants.deviceIdMap.dexcomG6,
       prescriptionFormConstants.deviceIdMap.palmtree,
     ]);
-    _.each(prescriptionFormConstants.deviceDetails, info => {
-      expect(info.description).to.be.an('object');
-      expect(info.description.props).to.be.an('object').and.have.keys(['children']);
+
+    _.each(prescriptionFormConstants.deviceDetails, (details, deviceId) => {
+      expect(details.description).to.be.an('object');
+      expect(details.description.props).to.be.an('object').and.have.keys(['children']);
+
+      if (deviceId === prescriptionFormConstants.deviceIdMap.palmtree) {
+        expect(details.skipCalculator).to.be.true;
+      }
     });
   });
 
