@@ -644,7 +644,7 @@ export const TherapySettings = withTranslation()(props => {
   });
 
   return (
-    <Box>
+    <Box id="therapy-settings-step">
       <PatientInfo mb={4} {...props} />
       {hasCalculatorResults(values) && <DefaultCalculatorSettings mt={0} mb={4} {...props} />}
       <PatientTraining mt={0} mb={4} {...props} />

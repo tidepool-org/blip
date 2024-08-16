@@ -53,6 +53,7 @@ import * as actions from '../../redux/actions';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
+  cgmDeviceOptions,
   defaultUnits,
   deviceIdMap,
   prescriptionStateOptions,
@@ -335,7 +336,7 @@ export const PrescriptionForm = props => {
   const [singleStepEditValues, setSingleStepEditValues] = useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   const validationFields = [ ...stepValidationFields ];
-  const isLastStep = activeStep === validationFields.length - 1;
+  const isLastStep = () => activeStep === validationFields.length - 1;
   const isNewPrescription = isEmpty(get(values, 'id'));
 
   const handlers = {
@@ -379,7 +380,7 @@ export const PrescriptionForm = props => {
       // We can't simply delete all future steps, as the clinician may have returned to the current
       // step via 'Back' button navigation and we don't want to lose existing data previously
       // entered in the later steps.
-      if (!isLastStep) {
+      if (!isLastStep()) {
         const emptyFieldsInFutureSteps = remove(
           flattenDeep(slice(validationFields, activeStep + 1)),
           fieldPath => {
@@ -415,7 +416,7 @@ export const PrescriptionForm = props => {
       prescriptionAttributes.createdUserId = loggedInUserId;
       prescriptionAttributes.prescriberTermsAccepted = isPrescriber && get(values, 'therapySettingsReviewed');
 
-      if (isLastStep) prescriptionAttributes.state = isPrescriber ? 'submitted' : 'pending';
+      if (isLastStep()) prescriptionAttributes.state = isPrescriber ? 'submitted' : 'pending';
       setFieldValue('state', prescriptionAttributes.state);
 
       prescriptionAttributes.revisionHash = await sha512(
@@ -480,8 +481,19 @@ export const PrescriptionForm = props => {
     },
   ];
 
-  // Remove calculator step if selected pump, or all available pump options are set to skip aace calculator
   const pumpDevices = pumpDeviceOptions(devices);
+  const cgmDevices = cgmDeviceOptions(devices);
+
+  // Skip device selection substep and set default pump and cgm IDs if there aren't multiple choices available
+  const skipDeviceSelection = cgmDevices.length === 1 && pumpDevices.length === 1;
+  if (skipDeviceSelection) {
+    if (!values.initialSettings?.cgmId) setFieldValue('initialSettings.cgmId', cgmDevices[0].value);
+    if (!values.initialSettings?.pumpId) setFieldValue('initialSettings.pumpId', pumpDevices[0].value);
+    validationFields[1].splice(2, 1);
+    steps[1].subSteps.splice(3, 1);
+  }
+
+  // Skip calculator step if selected pump, or all available pump options are set to skip aace calculator
   const skipCalculator = !!(pumpDevices.length && every(pumpDevices, { skipCalculator: true })) || !!find(devices, { value: pumpId })?.skipCalculator;
   if (skipCalculator) {
     validationFields.splice(2, 1);
@@ -552,7 +564,7 @@ export const PrescriptionForm = props => {
     if (!isFirstRender && !inProgress) {
       if (completed) {
         setStepAsyncState(asyncStates.completed);
-        if (isLastStep) {
+        if (isLastStep()) {
 
           let messageAction = isRevision ? t('updated') : t('created');
           if (isPrescriber) messageAction = t('finalized and sent');

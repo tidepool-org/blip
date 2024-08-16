@@ -24,7 +24,7 @@ export const AccountType = withTranslation()(props => {
   const formikContext = useFormikContext();
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id="account-type-step" {...fieldsetStyles}>
       <Headline mb={4}>{t('Who are you creating an account for?')}</Headline>
       <FastField
         as={RadioGroup}
@@ -55,7 +55,7 @@ export const PatientInfo = withTranslation()(props => {
   const maskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id="patient-info-step" {...fieldsetStyles}>
       <Headline mb={4}>{t('Please enter the patient\'s name and birthdate')}</Headline>
       <FastField
         as={TextInput}
@@ -138,7 +138,7 @@ export const PatientEmail = withTranslation()(props => {
   }, []);
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id="patient-email-step" {...fieldsetStyles}>
       <Headline mb={4}>{headline}</Headline>
       {isCaregiverAccount && (
         <FastField
