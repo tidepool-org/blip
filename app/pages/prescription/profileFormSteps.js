@@ -168,7 +168,7 @@ export const PatientDevices = withTranslation()(props => {
               }}
               {...checkboxStyles}
             />
-            <Caption mt={1}>{device.extraInfo}</Caption>
+            <Caption mt={1}>{device.description}</Caption>
           </React.Fragment>
         ))}
       </Flex>
@@ -187,7 +187,7 @@ export const PatientDevices = withTranslation()(props => {
               error={getFieldError('initialSettings.cgmId', formikContext)}
               {...checkboxStyles}
             />
-            <Caption mt={1}>{device.extraInfo}</Caption>
+            <Caption mt={1}>{device.description}</Caption>
           </React.Fragment>
         ))}
       </Flex>

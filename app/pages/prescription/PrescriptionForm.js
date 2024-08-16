@@ -8,6 +8,7 @@ import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { PersistFormikValues } from 'formik-persist-values';
 import each from 'lodash/each';
+import every from 'lodash/every';
 import find from 'lodash/find';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
@@ -55,6 +56,7 @@ import {
   defaultUnits,
   deviceIdMap,
   prescriptionStateOptions,
+  pumpDeviceOptions,
   stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
@@ -284,7 +286,7 @@ export const PrescriptionForm = props => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
-  const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
+  const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.palmtree);
   const pump = find(devices.pumps, { id: pumpId });
   const prescriptionState = get(prescription, 'state', 'draft');
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
@@ -332,8 +334,159 @@ export const PrescriptionForm = props => {
   const [initialFocusedInput, setInitialFocusedInput] = useState();
   const [singleStepEditValues, setSingleStepEditValues] = useState(values);
   const isSingleStepEdit = !!pendingStep.length;
-  const isLastStep = activeStep === stepValidationFields.length - 1;
+  const validationFields = [ ...stepValidationFields ];
+  const isLastStep = activeStep === validationFields.length - 1;
   const isNewPrescription = isEmpty(get(values, 'id'));
+
+  const handlers = {
+    activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
+      setActiveStep(step);
+      setActiveSubStep(subStep);
+      setPendingStep(fromStep);
+      setInitialFocusedInput(initialFocusedInput);
+    },
+
+    clearCalculator: clearCalculator.bind(null, formikContext),
+    clearCalculatorInputs: clearCalculatorInputs.bind(null, formikContext),
+    clearCalculatorResults: clearCalculatorResults.bind(null, formikContext),
+    generateTherapySettingsOrderText,
+    goToFirstSubStep: () => setActiveSubStep(0),
+
+    handleCopyTherapySettingsClicked: () => {
+      trackMetric('Clicked Copy Therapy Settings Order');
+    },
+
+    singleStepEditComplete: (cancelFieldUpdates) => {
+      if (cancelFieldUpdates) {
+        resetForm({values: cloneDeep(singleStepEditValues) });
+      } else {
+        resetForm({ values: cloneDeep(values) });
+      }
+
+      handlers.activeStepUpdate(pendingStep);
+    },
+
+    stepSubmit: async () => {
+      setStepAsyncState(asyncStates.pending);
+      // Delete fields that we never want to send to the backend
+      const fieldsToDelete = [
+        'emailConfirm',
+        'id',
+        'therapySettingsReviewed',
+      ];
+
+      // Also delete any fields from future form steps if empty
+      // We can't simply delete all future steps, as the clinician may have returned to the current
+      // step via 'Back' button navigation and we don't want to lose existing data previously
+      // entered in the later steps.
+      if (!isLastStep) {
+        const emptyFieldsInFutureSteps = remove(
+          flattenDeep(slice(validationFields, activeStep + 1)),
+          fieldPath => {
+            const value = get(values, fieldPath);
+
+            // Return schedule field arrays that are set to the initial values with only a start time
+            const scheduleArrays = [
+              'initialSettings.bloodGlucoseTargetSchedule',
+              'initialSettings.basalRateSchedule',
+              'initialSettings.carbohydrateRatioSchedule',
+              'initialSettings.insulinSensitivitySchedule',
+            ];
+
+            if (includes(scheduleArrays, fieldPath) && value.length === 1) {
+              return keys(value[0]).length = 1;
+            }
+
+            // Return empty values for non-array fields
+            return isEmpty(value);
+          }
+        );
+
+        // Add empty future fields to the array of fieldpaths to delete.
+        // N.B. There are some fieldpaths we check that end in '.value' or '.number'. If those keys
+        // are empty, we exclude the parent object.
+        fieldsToDelete.push(...map(
+          emptyFieldsInFutureSteps,
+          fieldPath => fieldPath.replace(/\.(value|number)$/, '')
+        ));
+      }
+
+      const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
+      prescriptionAttributes.createdUserId = loggedInUserId;
+      prescriptionAttributes.prescriberTermsAccepted = isPrescriber && get(values, 'therapySettingsReviewed');
+
+      if (isLastStep) prescriptionAttributes.state = isPrescriber ? 'submitted' : 'pending';
+      setFieldValue('state', prescriptionAttributes.state);
+
+      prescriptionAttributes.revisionHash = await sha512(
+        canonicalize(prescriptionAttributes),
+        { outputFormat: 'hex' }
+      );
+
+      if (isNewPrescription) {
+        dispatch(actions.async.createPrescription(api, selectedClinicId, prescriptionAttributes));
+      } else {
+        dispatch(actions.async.createPrescriptionRevision(api, selectedClinicId, prescriptionAttributes, values.id));
+      }
+    },
+  };
+
+  const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
+  const profileFormStepsProps = profileFormSteps(schema, devices, values);
+  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
+  const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
+  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber);
+
+  const stepProps = step => ({
+    ...step,
+    completeText: isSingleStepEdit ? t('Update and Review') : step.completeText,
+    backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
+    hideBack: isSingleStepEdit ? false : step.hideBack,
+    disableBack: isSingleStepEdit ? false : step.disableBack,
+    onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
+    onBack: isSingleStepEdit ? handlers.singleStepEditComplete.bind(null, true) : step.onBack,
+  });
+
+  const subStepProps = subSteps => map(subSteps, subStep => stepProps(subStep));
+
+  const steps = [
+    {
+      ...accountFormStepsProps,
+      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
+      asyncState: isSingleStepEdit ? null : stepAsyncState,
+      subSteps: subStepProps(accountFormStepsProps.subSteps),
+    },
+    {
+      ...profileFormStepsProps,
+      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
+      asyncState: isSingleStepEdit ? null : stepAsyncState,
+      subSteps: subStepProps(profileFormStepsProps.subSteps),
+    },
+    {
+      ...settingsCalculatorFormStepsProps,
+      onComplete: handlers.stepSubmit,
+      asyncState: stepAsyncState,
+      subSteps: subStepProps(settingsCalculatorFormStepsProps.subSteps),
+    },
+    {
+      ...stepProps(therapySettingsFormStepProps),
+      onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handlers.stepSubmit,
+      asyncState: isSingleStepEdit ? null : stepAsyncState,
+    },
+    {
+      ...reviewFormStepProps,
+      onComplete: handlers.stepSubmit,
+      asyncState: stepAsyncState,
+    },
+  ];
+
+  // Remove calculator step if selected pump, or all available pump options are set to skip aace calculator
+  const pumpDevices = pumpDeviceOptions(devices);
+  const skipCalculator = !!(pumpDevices.length && every(pumpDevices, { skipCalculator: true })) || !!find(devices, { value: pumpId })?.skipCalculator;
+  if (skipCalculator) {
+    validationFields.splice(2, 1);
+    steps.splice(2, 1);
+  }
 
   useEffect(() => {
     // Determine the latest incomplete step, and default to starting there
@@ -343,9 +496,9 @@ export const PrescriptionForm = props => {
       let currentStep = 0;
       let currentSubStep = 0;
 
-      while (isUndefined(firstInvalidStep) && currentStep < stepValidationFields.length) {
-        while (currentSubStep < stepValidationFields[currentStep].length) {
-          if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], schema, values)) {
+      while (isUndefined(firstInvalidStep) && currentStep < validationFields.length) {
+        while (currentSubStep < validationFields[currentStep].length) {
+          if (!fieldsAreValid(validationFields[currentStep][currentSubStep], schema, values)) {
             firstInvalidStep = currentStep;
             firstInvalidSubStep = currentSubStep;
             break;
@@ -357,7 +510,7 @@ export const PrescriptionForm = props => {
         currentSubStep = 0;
       }
 
-      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 4);
+      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : steps.length - 1);
       setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
     }
 
@@ -433,117 +586,6 @@ export const PrescriptionForm = props => {
     }
   }, [stepAsyncState.complete]);
 
-  const handlers = {
-    activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
-      setActiveStep(step);
-      setActiveSubStep(subStep);
-      setPendingStep(fromStep);
-      setInitialFocusedInput(initialFocusedInput);
-    },
-
-    clearCalculator: clearCalculator.bind(null, formikContext),
-    clearCalculatorInputs: clearCalculatorInputs.bind(null, formikContext),
-    clearCalculatorResults: clearCalculatorResults.bind(null, formikContext),
-    generateTherapySettingsOrderText,
-    goToFirstSubStep: () => setActiveSubStep(0),
-
-    handleCopyTherapySettingsClicked: () => {
-      trackMetric('Clicked Copy Therapy Settings Order');
-    },
-
-    singleStepEditComplete: (cancelFieldUpdates) => {
-      if (cancelFieldUpdates) {
-        resetForm({values: cloneDeep(singleStepEditValues) });
-      } else {
-        resetForm({ values: cloneDeep(values) });
-      }
-
-      handlers.activeStepUpdate(pendingStep);
-    },
-
-    stepSubmit: async () => {
-      setStepAsyncState(asyncStates.pending);
-      // Delete fields that we never want to send to the backend
-      const fieldsToDelete = [
-        'emailConfirm',
-        'id',
-        'therapySettingsReviewed',
-      ];
-
-      // Also delete any fields from future form steps if empty
-      // We can't simply delete all future steps, as the clinician may have returned to the current
-      // step via 'Back' button navigation and we don't want to lose existing data previously
-      // entered in the later steps.
-      if (!isLastStep) {
-        const emptyFieldsInFutureSteps = remove(
-          flattenDeep(slice(stepValidationFields, activeStep + 1)),
-          fieldPath => {
-            const value = get(values, fieldPath);
-
-            // Return schedule field arrays that are set to the initial values with only a start time
-            const scheduleArrays = [
-              'initialSettings.bloodGlucoseTargetSchedule',
-              'initialSettings.basalRateSchedule',
-              'initialSettings.carbohydrateRatioSchedule',
-              'initialSettings.insulinSensitivitySchedule',
-            ];
-
-            if (includes(scheduleArrays, fieldPath) && value.length === 1) {
-              return keys(value[0]).length = 1;
-            }
-
-            // Return empty values for non-array fields
-            return isEmpty(value);
-          }
-        );
-
-        // Add empty future fields to the array of fieldpaths to delete.
-        // N.B. There are some fieldpaths we check that end in '.value' or '.number'. If those keys
-        // are empty, we exclude the parent object.
-        fieldsToDelete.push(...map(
-          emptyFieldsInFutureSteps,
-          fieldPath => fieldPath.replace(/\.(value|number)$/, '')
-        ));
-      }
-
-      const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
-      prescriptionAttributes.createdUserId = loggedInUserId;
-      prescriptionAttributes.prescriberTermsAccepted = isPrescriber && get(values, 'therapySettingsReviewed');
-
-      if (isLastStep) prescriptionAttributes.state = isPrescriber ? 'submitted' : 'pending';
-      setFieldValue('state', prescriptionAttributes.state);
-
-      prescriptionAttributes.revisionHash = await sha512(
-        canonicalize(prescriptionAttributes),
-        { outputFormat: 'hex' }
-      );
-
-      if (isNewPrescription) {
-        dispatch(actions.async.createPrescription(api, selectedClinicId, prescriptionAttributes));
-      } else {
-        dispatch(actions.async.createPrescriptionRevision(api, selectedClinicId, prescriptionAttributes, values.id));
-      }
-    },
-  };
-
-  const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
-  const profileFormStepsProps = profileFormSteps(schema, devices, values);
-  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
-  const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
-  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber);
-
-  const stepProps = step => ({
-    ...step,
-    completeText: isSingleStepEdit ? t('Update and Review') : step.completeText,
-    backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
-    hideBack: isSingleStepEdit ? false : step.hideBack,
-    disableBack: isSingleStepEdit ? false : step.disableBack,
-    onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
-    onBack: isSingleStepEdit ? handlers.singleStepEditComplete.bind(null, true) : step.onBack,
-  });
-
-  const subStepProps = subSteps => map(subSteps, subStep => stepProps(subStep));
-
   const stepperProps = {
     activeStep,
     activeSubStep,
@@ -563,36 +605,7 @@ export const PrescriptionForm = props => {
 
       log('Step to', newStep.join(','));
     },
-    steps: [
-      {
-        ...accountFormStepsProps,
-        onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
-        asyncState: isSingleStepEdit ? null : stepAsyncState,
-        subSteps: subStepProps(accountFormStepsProps.subSteps),
-      },
-      {
-        ...profileFormStepsProps,
-        onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
-        asyncState: isSingleStepEdit ? null : stepAsyncState,
-        subSteps: subStepProps(profileFormStepsProps.subSteps),
-      },
-      {
-        ...settingsCalculatorFormStepsProps,
-        onComplete: handlers.stepSubmit,
-        asyncState: stepAsyncState,
-        subSteps: subStepProps(settingsCalculatorFormStepsProps.subSteps),
-      },
-      {
-        ...stepProps(therapySettingsFormStepProps),
-        onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handlers.stepSubmit,
-        asyncState: isSingleStepEdit ? null : stepAsyncState,
-      },
-      {
-        ...reviewFormStepProps,
-        onComplete: handlers.stepSubmit,
-        asyncState: stepAsyncState,
-      },
-    ],
+    steps,
     themeProps: {
       wrapper: {
         padding: 4,
