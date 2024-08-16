@@ -529,6 +529,7 @@ export const PrescriptionReview = withTranslation()(props => {
 
   return (
     <Flex
+      id="prescription-review-step"
       sx={{
         flexWrap: 'wrap',
         margin: 'auto',
