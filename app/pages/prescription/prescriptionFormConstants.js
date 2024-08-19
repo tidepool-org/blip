@@ -299,16 +299,31 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
   const patientAge = moment().diff(moment(get(values, 'birthday'), dateFormat), 'years', true);
   const isPediatric = patientAge < 18;
+  const isPalmtree = pump.id === deviceIdMap.palmtree;
+
+  let bloodGlucoseTarget = {
+    low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
+    high: getBgInTargetUnits(105, MGDL_UNITS, bgUnits),
+  };
+
+  if (isPalmtree) {
+    bloodGlucoseTarget = {
+      low: getBgInTargetUnits(115, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(125, MGDL_UNITS, bgUnits),
+    };
+  } else if (isPediatric) {
+    bloodGlucoseTarget = {
+      low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(125, MGDL_UNITS, bgUnits),
+    };
+  }
 
   return {
     basalRate: recommendedBasalRate || 0.05,
     basalRateMaximum: isFinite(maxBasalRate)
       ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
       : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
-    bloodGlucoseTarget: {
-      low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
-      high: getBgInTargetUnits(isPediatric ? 115 : 105, MGDL_UNITS, bgUnits),
-    },
+    bloodGlucoseTarget,
     bloodGlucoseTargetPhysicalActivity: {
       low: getBgInTargetUnits(150, MGDL_UNITS, bgUnits),
       high: getBgInTargetUnits(170, MGDL_UNITS, bgUnits),
@@ -319,7 +334,7 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
     },
     carbohydrateRatio: recommendedCarbohydrateRatio,
     insulinSensitivity: recommendedInsulinSensitivity,
-    glucoseSafetyLimit: getBgInTargetUnits(isPediatric ? 80 : 75, MGDL_UNITS, bgUnits),
+    glucoseSafetyLimit: getBgInTargetUnits(isPediatric || isPalmtree ? 80 : 75, MGDL_UNITS, bgUnits),
   };
 };
 
