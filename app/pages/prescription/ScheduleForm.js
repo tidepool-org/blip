@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'theme-ui';
+import filter from 'lodash/filter';
 import get from 'lodash/get';
+import includes from 'lodash/includes';
 import map from 'lodash/map';
 import isInteger from 'lodash/isInteger';
 import sortedLastIndexBy from 'lodash/sortedLastIndexBy';
@@ -49,6 +51,8 @@ const ScheduleForm = props => {
 
   const [schedules, , { move, remove, replace, push }] = useFieldArray({ name: fieldArrayName });
   const schedulesLength = schedules.value.length;
+  const lastSchedule = useMemo(() => schedules.value[schedulesLength - 1], [schedules.value, schedulesLength]);
+  const msIncrement = minutesIncrement * MS_IN_MIN;
 
   React.useEffect(() => {
     // add or remove refs as the schedule length changes
@@ -64,11 +68,16 @@ const ScheduleForm = props => {
   const FieldElement = useFastField ? FastField : Field;
 
   const timeOptions = [];
-  const msIncrement = minutesIncrement * MS_IN_MIN;
 
   for (let startTime = msIncrement; startTime <= (MS_IN_DAY - (msIncrement)); startTime += msIncrement) {
     timeOptions.push({ label: convertMsPer24ToTimeString(startTime, 'hh:mm'), value: startTime });
   }
+
+  const selectedTimes = useMemo(() => map(schedules.value, 'start'), [schedules.value]);
+
+  let availableTimeOptions = (currentStart, previousStart) => filter(timeOptions, option => {
+    return option.value === currentStart || (option.value > previousStart && !includes(selectedTimes, option.value));
+  });
 
   return (
     <Box {...boxProps}>
@@ -77,7 +86,7 @@ const ScheduleForm = props => {
           <Field
             as={index === 0 ? TextInput : Select}
             label={index === 0 ? t('Start Time') : null}
-            options={timeOptions}
+            options={availableTimeOptions(schedule.start, schedules.value[index - 1]?.start || 0)}
             readOnly={index === 0}
             value={index === 0 ? convertMsPer24ToTimeString(schedule.start) : schedule.start}
             onChange={e => {
@@ -149,11 +158,9 @@ const ScheduleForm = props => {
           },
         }}
         disabled={(() => {
-          const lastSchedule = schedules.value[schedules.value.length - 1];
-          return (schedules.value.length >= max) || (lastSchedule.start >= (MS_IN_DAY - (msIncrement)));
+          return (schedulesLength >= max) || (lastSchedule.start >= (MS_IN_DAY - (msIncrement)));
         })()}
         onClick={() => {
-          const lastSchedule = schedules.value[schedules.value.length - 1];
           return push({
             ...lastSchedule,
             start: lastSchedule.start + (msIncrement),
