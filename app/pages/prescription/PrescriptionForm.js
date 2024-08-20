@@ -420,7 +420,7 @@ export const PrescriptionForm = props => {
       setFieldValue('state', prescriptionAttributes.state);
 
       prescriptionAttributes.revisionHash = await sha512(
-        canonicalize(prescriptionAttributes),
+        canonicalize(omit(prescriptionAttributes, 'createdUserId')),
         { outputFormat: 'hex' }
       );
 
