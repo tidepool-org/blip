@@ -100,11 +100,14 @@ export const roundValueToIncrement = (value, increment = 1) => {
 };
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
+  const isPalmtree = pump.id === deviceIdMap.palmtree;
+
   const ranges = {
     basalRate: {
       min: max([getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05), 0.05]),
       max: min([getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30), 30]),
       increment: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
+      schedules: { max: isPalmtree ? 24 : 48, minutesIncrement: 30 },
     },
     basalRateMaximum: {
       min: max(filter([
@@ -124,6 +127,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       ], isFinite)),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.maximum', 180), MGDL_UNITS, bgUnits),
       increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      schedules: { max: 48, minutesIncrement: 30 },
     },
     bloodGlucoseTargetPhysicalActivity: {
       min: max(filter([
@@ -151,11 +155,13 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       max: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.maximum', 150),
       increment: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.increment', 0.01),
       inputStep: 1,
+      schedules: { max: 48, minutesIncrement: 30 },
     },
     insulinSensitivityFactor: {
       min: getBgInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.minimum', 10), MGDL_UNITS, bgUnits),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.maximum', 500), MGDL_UNITS, bgUnits),
       increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      schedules: { max: 48, minutesIncrement: 30 },
     },
     glucoseSafetyLimit: {
       min: getBgInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 67), MGDL_UNITS, bgUnits),

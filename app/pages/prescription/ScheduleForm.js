@@ -15,6 +15,7 @@ import i18next from '../../core/language';
 import TextInput from '../../components/elements/TextInput';
 import Icon from '../../components/elements/Icon';
 import Button from '../../components/elements/Button';
+import Select from '../../components/elements/Select';
 import { MS_IN_MIN, MS_IN_DAY } from '../../core/constants';
 import { convertMsPer24ToTimeString, convertTimeStringToMsPer24 } from '../../core/datetime';
 import { inlineInputStyles } from './prescriptionFormStyles';
@@ -27,6 +28,8 @@ const ScheduleForm = props => {
     addButtonText,
     fieldArrayName,
     fields,
+    max,
+    minutesIncrement,
     separator,
     t,
     useFastField,
@@ -60,21 +63,27 @@ const ScheduleForm = props => {
 
   const FieldElement = useFastField ? FastField : Field;
 
+  const timeOptions = [];
+  const msIncrement = minutesIncrement * MS_IN_MIN;
+
+  for (let startTime = msIncrement; startTime <= (MS_IN_DAY - (msIncrement)); startTime += msIncrement) {
+    timeOptions.push({ label: convertMsPer24ToTimeString(startTime, 'hh:mm'), value: startTime });
+  }
+
   return (
     <Box {...boxProps}>
       {map(schedules.value, (schedule, index) => (
         <Flex className='schedule-row' key={index} sx={{ alignItems: 'flex-start' }} mb={3}>
           <Field
-            as={TextInput}
+            as={index === 0 ? TextInput : Select}
             label={index === 0 ? t('Start Time') : null}
-            type="time"
+            options={timeOptions}
             readOnly={index === 0}
-            step={MS_IN_MIN * 30 / 1000}
-            value={convertMsPer24ToTimeString(schedule.start, 'hh:mm')}
+            value={index === 0 ? convertMsPer24ToTimeString(schedule.start) : schedule.start}
             onChange={e => {
-              const start = convertTimeStringToMsPer24(e.target.value);
-              const newValue = {...schedules.value[index], start};
-              const valuesCopy = [...schedules.value];
+              const start = index === 0 ? convertTimeStringToMsPer24(e.target.value) : parseInt(e.target.value, 10);
+              const newValue = { ...schedules.value[index], start };
+              const valuesCopy = [ ...schedules.value ];
               valuesCopy.splice(index, 1);
               const newPos = sortedLastIndexBy(valuesCopy, newValue, function(o) { return o.start; });
               replace(index, newValue);
@@ -141,13 +150,13 @@ const ScheduleForm = props => {
         }}
         disabled={(() => {
           const lastSchedule = schedules.value[schedules.value.length - 1];
-          return lastSchedule.start >= (MS_IN_DAY - (MS_IN_MIN * 30));
+          return (schedules.value.length >= max) || (lastSchedule.start >= (MS_IN_DAY - (msIncrement)));
         })()}
         onClick={() => {
           const lastSchedule = schedules.value[schedules.value.length - 1];
           return push({
             ...lastSchedule,
-            start: lastSchedule.start + (MS_IN_MIN * 30),
+            start: lastSchedule.start + (msIncrement),
           });
         }}
       >
@@ -171,6 +180,8 @@ ScheduleForm.propTypes = {
     suffix: PropTypes.string,
     type: PropTypes.string,
   })),
+  max: PropTypes.number,
+  minutesIncrement: PropTypes.number,
   separator: PropTypes.string,
   useFastField: PropTypes.bool,
 };
@@ -179,6 +190,8 @@ ScheduleForm.defaultProps = {
   addButtonText: t('Add another'),
   fields: [],
   useFastField: false,
+  max: 48,
+  minutesIncrement: 30,
 };
 
 export default withTranslation()(ScheduleForm);
