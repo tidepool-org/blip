@@ -101,6 +101,7 @@ export const roundValueToIncrement = (value, increment = 1) => {
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const isPalmtree = pump.id === deviceIdMap.palmtree;
+  const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
 
   const ranges = {
     basalRate: {
@@ -116,7 +117,10 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       ], isFinite)),
       max: min(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
-        70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
+        max([
+          70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
+          parseFloat((maxBasalRate * 6.4).toFixed(2))
+        ]),
       ], isFinite)),
       increment: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.05),
     },
