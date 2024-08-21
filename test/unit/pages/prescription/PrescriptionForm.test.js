@@ -39,7 +39,10 @@ describe('PrescriptionForm', () => {
     t: sinon.stub().callsFake(string => string.replace('{{today}}', today)),
     creatingPrescription: { inProgress: false, completed: false },
     creatingPrescriptionRevision: { inProgress: false, completed: false },
-    devices: {},
+    devices: {
+      cgm: [{ id: deviceIdMap.dexcomG6 }],
+      pumps: [{ id: deviceIdMap.palmtree }],
+    },
     trackMetric: sinon.stub(),
   };
 
@@ -304,7 +307,7 @@ describe('PrescriptionForm', () => {
     let wrapper;
     let reviewStepProps = {
       ...defaultProps,
-      location: { search: '?prescription-form-steps-step=4,0' },
+      location: { search: '?prescription-form-steps-step=3,0' },
     };
 
     beforeEach(() => {

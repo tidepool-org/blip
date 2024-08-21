@@ -100,7 +100,7 @@ export const roundValueToIncrement = (value, increment = 1) => {
 };
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
-  const isPalmtree = pump.id === deviceIdMap.palmtree;
+  const isPalmtree = pump?.id === deviceIdMap.palmtree;
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
 
   const ranges = {
@@ -323,7 +323,7 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
   } else if (isPediatric) {
     bloodGlucoseTarget = {
       low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
-      high: getBgInTargetUnits(125, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(115, MGDL_UNITS, bgUnits),
     };
   }
 
