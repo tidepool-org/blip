@@ -264,7 +264,6 @@ export const PrescriptionForm = props => {
     t,
     api,
     devices,
-    history,
     location,
     prescription,
     trackMetric,

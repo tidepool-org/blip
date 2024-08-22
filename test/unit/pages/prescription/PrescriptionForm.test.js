@@ -2,6 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import moment from 'moment';
 import { Provider } from 'react-redux';
+import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { withFormik } from 'formik';
@@ -89,7 +90,9 @@ describe('PrescriptionForm', () => {
     wrapper = mount(
       <Provider store={defaultState}>
         <ToastProvider>
-          <Element />
+            <MemoryRouter initialEntries={['/prescriptions/new']}>
+              <Route path='/prescriptions/new' children={() => <Element />} />
+            </MemoryRouter>
         </ToastProvider>
       </Provider>
     );
@@ -119,7 +122,9 @@ describe('PrescriptionForm', () => {
     wrapper = mount(
       <Provider store={defaultState}>
         <ToastProvider>
-          <Element />
+            <MemoryRouter initialEntries={['/prescriptions/new']}>
+              <Route path='/prescriptions/new' children={() => <Element />} />
+            </MemoryRouter>
         </ToastProvider>
       </Provider>
     );
@@ -152,7 +157,9 @@ describe('PrescriptionForm', () => {
     wrapper = mount(
       <Provider store={defaultState}>
         <ToastProvider>
-          <Element />
+            <MemoryRouter initialEntries={['/prescriptions/new']}>
+              <Route path='/prescriptions/new' children={() => <Element />} />
+            </MemoryRouter>
         </ToastProvider>
       </Provider>
     );
@@ -308,6 +315,7 @@ describe('PrescriptionForm', () => {
     let reviewStepProps = {
       ...defaultProps,
       location: { search: '?prescription-form-steps-step=3,0' },
+      prescription: { state: 'submitted' }
     };
 
     beforeEach(() => {
@@ -315,7 +323,9 @@ describe('PrescriptionForm', () => {
       wrapper = mount(
         <Provider store={defaultState}>
           <ToastProvider>
-            <Element {...reviewStepProps} />
+            <MemoryRouter initialEntries={['/prescriptions/new']}>
+              <Route path='/prescriptions/new' children={() => <Element {...reviewStepProps} />} />
+            </MemoryRouter>
           </ToastProvider>
         </Provider>
       );
