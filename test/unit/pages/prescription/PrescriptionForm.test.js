@@ -316,7 +316,7 @@ describe('PrescriptionForm', () => {
   describe('persistent storage', () => {
     let wrapper;
     let Element;
-    let mockedLocalStorage;
+    let mockedLocalStorage = {};
 
     context('prescription create flow', () => {
       const props = {
@@ -332,6 +332,18 @@ describe('PrescriptionForm', () => {
         status: { hydratedValues: {} },
       };
 
+      before(() => {
+        PF.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+          defaults(mockedLocalStorage, { [key]: {} });
+          return [
+            mockedLocalStorage[key],
+            sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+          ];
+        }));
+
+        PF.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
+      });
+
       beforeEach(() => {
         formikContext.setValues.resetHistory();
 
@@ -342,20 +354,10 @@ describe('PrescriptionForm', () => {
           },
         };
 
-        PF.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
-          defaults(mockedLocalStorage, { [key]: {} });
-          return [
-            mockedLocalStorage[key],
-            sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
-          ];
-        }));
-
-        PF.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
-
         Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...props} {...formikProps} />);
       });
 
-      afterEach(() => {
+      after(() => {
         PF.__ResetDependency__('useLocalStorage');
         PF.__ResetDependency__('useFormikContext');
       })
@@ -407,7 +409,6 @@ describe('PrescriptionForm', () => {
 
       const props = {
         ...defaultProps,
-        // location: { search: '?prescription-form-steps-step=0,1' },
         prescription: { state: 'draft', id: prescriptionId },
       };
 
@@ -417,6 +418,18 @@ describe('PrescriptionForm', () => {
         values: props.prescription,
         status: { hydratedValues: {} },
       };
+
+      before(() => {
+        PF.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+          defaults(mockedLocalStorage, { [key]: {} });
+          return [
+            mockedLocalStorage[key],
+            sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+          ];
+        }));
+
+        PF.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
+      });
 
       beforeEach(() => {
         formikContext.setValues.resetHistory();
@@ -429,20 +442,10 @@ describe('PrescriptionForm', () => {
           },
         };
 
-        PF.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
-          defaults(mockedLocalStorage, { [key]: {} });
-          return [
-            mockedLocalStorage[key],
-            sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
-          ];
-        }));
-
-        PF.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
-
         Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...props} {...formikProps} />);
       });
 
-      afterEach(() => {
+      after(() => {
         PF.__ResetDependency__('useLocalStorage');
         PF.__ResetDependency__('useFormikContext');
       })
