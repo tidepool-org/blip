@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -617,7 +617,7 @@ export const PrescriptionForm = props => {
     }
   }, [stepAsyncState.complete]);
 
-  const stepperProps = useMemo(() => ({
+  const stepperProps = {
     activeStep,
     activeSubStep,
     'aria-label': t('New Prescription Form'),
@@ -627,7 +627,6 @@ export const PrescriptionForm = props => {
     id: stepperId,
     location: get(window, 'location', location),
     onStepChange: (newStep) => {
-      if (!formPersistReady) return;
       setStepAsyncState(asyncStates.initial);
       if (isSingleStepEdit) {
         setSingleStepEditValues(values)
@@ -649,12 +648,7 @@ export const PrescriptionForm = props => {
         justifyContent: 'center',
       }
     },
-  }), [
-    formPersistReady,
-    activeStep,
-    activeSubStep,
-    steps,
-  ]);
+  };
 
   const title = isNewPrescriptionFlow() ? t('Create New Prescription') : t('Prescription: {{name}}', {
     name: [values.firstName, values.lastName].join(' '),
