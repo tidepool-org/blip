@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -508,10 +508,10 @@ export const PrescriptionForm = props => {
 
     // Hydrate the locally stored values only in the following cases, allowing us to persist data
     // entered in form substeps but not yet saved to the database
-    // 1. It's a new prescription and there is no locally stored id, and there aren't step and substep query params
+    // 1. It's a new prescription and there is no locally stored id, and there are step and substep query params
     // 2. We're editing an existing prescription, and the locally stored id matches the id in the url param
     if (
-      (isNewPrescriptionFlow() && !storedValues?.id && (!isUndefined(activeStep) || !isUndefined(activeSubStep))) ||
+      (isNewPrescriptionFlow() && !storedValues?.id && !isUndefined(activeStep) && !isUndefined(activeSubStep)) ||
       (id && id === storedValues?.id)
     ) {
       initialValues = { ...values, ...storedValues };
@@ -617,7 +617,7 @@ export const PrescriptionForm = props => {
     }
   }, [stepAsyncState.complete]);
 
-  const stepperProps = {
+  const stepperProps = useMemo(() => ({
     activeStep,
     activeSubStep,
     'aria-label': t('New Prescription Form'),
@@ -627,6 +627,7 @@ export const PrescriptionForm = props => {
     id: stepperId,
     location: get(window, 'location', location),
     onStepChange: (newStep) => {
+      if (!formPersistReady) return;
       setStepAsyncState(asyncStates.initial);
       if (isSingleStepEdit) {
         setSingleStepEditValues(values)
@@ -648,7 +649,12 @@ export const PrescriptionForm = props => {
         justifyContent: 'center',
       }
     },
-  };
+  }), [
+    formPersistReady,
+    activeStep,
+    activeSubStep,
+    steps,
+  ]);
 
   const title = isNewPrescriptionFlow() ? t('Create New Prescription') : t('Prescription: {{name}}', {
     name: [values.firstName, values.lastName].join(' '),
@@ -674,7 +680,7 @@ export const PrescriptionForm = props => {
         <Button
           id="back-to-prescriptions"
           variant="primary"
-          onClick={() => props.history.push('/clinic-workspace/prescriptions')}
+          onClick={() => dispatch(push('/clinic-workspace/prescriptions'))}
           mr={5}
         >
           {t('Back To Prescriptions')}

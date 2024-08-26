@@ -6,6 +6,7 @@ import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { withFormik } from 'formik';
+import defaults from 'lodash/defaults';
 
 import {
   clearCalculator,
@@ -26,8 +27,10 @@ import { deviceIdMap } from '../../../../app/pages/prescription/prescriptionForm
 /* global describe */
 /* global it */
 /* global beforeEach */
+/* global afterEach */
 /* global before */
 /* global after */
+/* global context */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -307,6 +310,177 @@ describe('PrescriptionForm', () => {
       ].join('\n');
 
       expect(textString).to.equal(`${expectedHeaderText}\n\n${expectedProfileText}\n\n${expectedTherapySettingsText}\n`);
+    });
+  });
+
+  describe('persistent storage', () => {
+    let wrapper;
+    let Element;
+    let mockedLocalStorage;
+
+    context('prescription create flow', () => {
+      const props = {
+        ...defaultProps,
+        location: { search: '?prescription-form-steps-step=0,1' },
+        prescription: { state: 'draft' },
+      };
+
+      const formikContext = {
+        setValues: sinon.stub(),
+        setStatus: sinon.stub(),
+        values: props.prescription,
+        status: { hydratedValues: {} },
+      };
+
+      beforeEach(() => {
+        formikContext.setValues.resetHistory();
+
+        mockedLocalStorage = {
+          prescriptionForm: {
+            accountType: 'patient',
+            foo: 'bar',
+          },
+        };
+
+        PF.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+          defaults(mockedLocalStorage, { [key]: {} });
+          return [
+            mockedLocalStorage[key],
+            sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+          ];
+        }));
+
+        PF.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
+
+        Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...props} {...formikProps} />);
+      });
+
+      afterEach(() => {
+        PF.__ResetDependency__('useLocalStorage');
+        PF.__ResetDependency__('useFormikContext');
+      })
+
+      it('should hydrate from localstorage if there is no stored `id` and there are active step query params', () => {
+        wrapper = mount(
+          <Provider store={defaultState}>
+            <ToastProvider>
+              <MemoryRouter initialEntries={['/prescriptions/new']}>
+                <Route path='/prescriptions/new' children={() => <Element {...props} />} />
+              </MemoryRouter>
+            </ToastProvider>
+          </Provider>
+        );
+
+        sinon.assert.callCount(formikContext.setValues, 1);
+        sinon.assert.calledWith(formikContext.setValues, sinon.match({
+          ...props.prescription,
+          accountType: 'patient',
+          foo: 'bar',
+        }));
+      });
+
+      it('should not hydrate from localstorage if there is a stored `id`', () => {
+        mockedLocalStorage = {
+          prescriptionForm: {
+            accountType: 'patient',
+            foo: 'bar',
+            id: 'rxId123',
+          },
+        };
+
+        wrapper = mount(
+          <Provider store={defaultState}>
+            <ToastProvider>
+              <MemoryRouter initialEntries={['/prescriptions/new']}>
+                <Route path='/prescriptions/new' children={() => <Element {...props} />} />
+              </MemoryRouter>
+            </ToastProvider>
+          </Provider>
+        );
+
+        sinon.assert.notCalled(formikContext.setValues);
+      });
+    });
+
+    context('prescription edit flow', () => {
+      const prescriptionId = 'rxId123';
+
+      const props = {
+        ...defaultProps,
+        // location: { search: '?prescription-form-steps-step=0,1' },
+        prescription: { state: 'draft', id: prescriptionId },
+      };
+
+      const formikContext = {
+        setValues: sinon.stub(),
+        setStatus: sinon.stub(),
+        values: props.prescription,
+        status: { hydratedValues: {} },
+      };
+
+      beforeEach(() => {
+        formikContext.setValues.resetHistory();
+
+        mockedLocalStorage = {
+          prescriptionForm: {
+            id: prescriptionId,
+            accountType: 'patient',
+            foo: 'bar',
+          },
+        };
+
+        PF.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+          defaults(mockedLocalStorage, { [key]: {} });
+          return [
+            mockedLocalStorage[key],
+            sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
+          ];
+        }));
+
+        PF.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
+
+        Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...props} {...formikProps} />);
+      });
+
+      afterEach(() => {
+        PF.__ResetDependency__('useLocalStorage');
+        PF.__ResetDependency__('useFormikContext');
+      })
+
+      it('should hydrate from localstorage if stored `id` matches the URL `id` param', () => {
+        wrapper = mount(
+          <Provider store={defaultState}>
+            <ToastProvider>
+              <MemoryRouter initialEntries={[`/prescriptions/${prescriptionId}`]}>
+                <Route path='/prescriptions/:id' children={() => <Element {...props} />} />
+              </MemoryRouter>
+            </ToastProvider>
+          </Provider>
+        );
+
+        sinon.assert.callCount(formikContext.setValues, 1);
+        sinon.assert.calledWith(formikContext.setValues, sinon.match({
+          ...props.prescription,
+          accountType: 'patient',
+          foo: 'bar',
+        }));
+      });
+
+      it('should not hydrate from localstorage if stored `id` does not match the URL `id` param', () => {
+        const nonMatchingPrescriptionId = 'rxId456';
+
+        wrapper = mount(
+          <Provider store={defaultState}>
+            <ToastProvider>
+              <MemoryRouter initialEntries={[`/prescriptions/${nonMatchingPrescriptionId}`]}>
+                <Route path='/prescriptions/:id' children={() => <Element {...props} />} />
+              </MemoryRouter>
+            </ToastProvider>
+          </Provider>
+        );
+
+        sinon.assert.notCalled(formikContext.setValues);
+      });
     });
   });
 
