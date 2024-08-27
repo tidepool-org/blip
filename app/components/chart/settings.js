@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import bows from 'bows';
 import PropTypes from 'prop-types';
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Trans, withTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import moment from 'moment-timezone';
@@ -73,7 +73,7 @@ const Settings = ({
   const [selectedSettingsId, setSelectedSettingsId] = useState(null);
   const [settingsOptions, setSettingsOptions] = useState([]);
   const [devices, setDevices] = useState([]);
-  const [groupedData, setGroupedData] = useState({});
+  const [groupedData, setGroupedData] = useState([]);
   const previousSelectedDevice = usePrevious(selectedDevice);
 
   const deviceSelectionPopupState = usePopupState({

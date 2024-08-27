@@ -5268,9 +5268,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.42.0-web-3034-settings-selection.1":
-  version: 1.42.0-web-3034-settings-selection.1
-  resolution: "@tidepool/viz@npm:1.42.0-web-3034-settings-selection.1"
+"@tidepool/viz@npm:1.42.0-web-3034-settings-selection.2":
+  version: 1.42.0-web-3034-settings-selection.2
+  resolution: "@tidepool/viz@npm:1.42.0-web-3034-settings-selection.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5330,7 +5330,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: a4deb1e179de08df53dab799ebf6a304d9da19edb088f5f6094419dd53f75da37d4c44face3745aa2333ff5da924e078a27d2892464f9a9e2f718e9c9edb47d4
+  checksum: 7f4a4ec580f619c24b657972e26809344ea944621fb5c246759f23390c954c24513a1696f6cc3daf38b48b63addb97bcec5c3fe05a9fd1dd781c03911f3ea827
   languageName: node
   linkType: hard
 
@@ -7427,7 +7427,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.42.0-web-3034-settings-selection.1
+    "@tidepool/viz": 1.42.0-web-3034-settings-selection.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7522,7 +7522,6 @@ __metadata:
     react-scroll: 1.9.0
     react-scroll-to-top: 3.0.0
     react-select: 5.7.7
-    react-test-renderer: 16.14.0
     react-window-size-listener: 1.5.4
     readable-stream: 4.4.2
     redux: 4.2.1
@@ -19977,7 +19976,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-test-renderer@npm:16.14.0, react-test-renderer@npm:^16.0.0-0":
+"react-test-renderer@npm:^16.0.0-0":
   version: 16.14.0
   resolution: "react-test-renderer@npm:16.14.0"
   dependencies:
