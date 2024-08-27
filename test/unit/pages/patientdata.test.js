@@ -4755,6 +4755,7 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
+        onFetchEarlierData: sinon.stub(),
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
@@ -4766,16 +4767,26 @@ describe('PatientData', function () {
       var elem = mount(<PatientData {...props} />).find(PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
+      elem.instance().setState({
+        endpoints: [100,200],
+      });
       elem.instance().handleSwitchToSettings();
-      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.callCount).to.equal(callCount + 2);
       expect(props.trackMetric.calledWith('Clicked Switch To Settings')).to.be.true;
     });
 
     it('should set the `chartType` state to `settings`', () => {
-      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      var props = {
+        ...defaultProps,
+        onFetchEarlierData: sinon.stub(),
+      };
+      const wrapper = shallow(<PatientDataClass {...props} />);
       const instance = wrapper.instance();
 
-      wrapper.setState({chartType: 'daily'});
+      wrapper.setState({
+        chartType: 'daily',
+        endpoints: [100,200],
+      });
 
       instance.handleSwitchToSettings();
       expect(wrapper.state('chartType')).to.equal('settings');

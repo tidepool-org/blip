@@ -66,7 +66,7 @@
     "@storybook/react": "7.5.0",
     "@storybook/react-webpack5": "7.5.0",
     "@testing-library/react-hooks": "8.0.1",
-    "@tidepool/viz": "1.42.0-web-3005-web-3306-web-3007-web-3008-loop-stats.2",
+    "@tidepool/viz": "1.42.0-web-3034-settings-selection.1",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",

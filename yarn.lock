@@ -5268,9 +5268,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.42.0-web-3005-web-3306-web-3007-web-3008-loop-stats.2":
-  version: 1.42.0-web-3005-web-3306-web-3007-web-3008-loop-stats.2
-  resolution: "@tidepool/viz@npm:1.42.0-web-3005-web-3306-web-3007-web-3008-loop-stats.2"
+"@tidepool/viz@npm:1.42.0-web-3034-settings-selection.1":
+  version: 1.42.0-web-3034-settings-selection.1
+  resolution: "@tidepool/viz@npm:1.42.0-web-3034-settings-selection.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5330,7 +5330,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: d64737a66f6f59d7df463e34035e8b7584ec0d37c4a71ae1224598a072999ec13c5ef43699fa9e7b077e33b41783ffa398a71b7a68cd448cde188b7e4809e88a
+  checksum: a4deb1e179de08df53dab799ebf6a304d9da19edb088f5f6094419dd53f75da37d4c44face3745aa2333ff5da924e078a27d2892464f9a9e2f718e9c9edb47d4
   languageName: node
   linkType: hard
 
@@ -7427,7 +7427,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.42.0-web-3005-web-3306-web-3007-web-3008-loop-stats.2
+    "@tidepool/viz": 1.42.0-web-3034-settings-selection.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
