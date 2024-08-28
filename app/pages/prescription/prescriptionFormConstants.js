@@ -100,11 +100,15 @@ export const roundValueToIncrement = (value, increment = 1) => {
 };
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
+  const isPalmtree = pump?.id === deviceIdMap.palmtree;
+  const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
+
   const ranges = {
     basalRate: {
       min: max([getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05), 0.05]),
       max: min([getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30), 30]),
       increment: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
+      schedules: { max: isPalmtree ? 24 : 48, minutesIncrement: 30 },
     },
     basalRateMaximum: {
       min: max(filter([
@@ -113,7 +117,10 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       ], isFinite)),
       max: min(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
-        70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
+        max([
+          70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
+          parseFloat((maxBasalRate * 6.4).toFixed(2))
+        ]),
       ], isFinite)),
       increment: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.05),
     },
@@ -124,6 +131,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       ], isFinite)),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.maximum', 180), MGDL_UNITS, bgUnits),
       increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      schedules: { max: 48, minutesIncrement: 30 },
     },
     bloodGlucoseTargetPhysicalActivity: {
       min: max(filter([
@@ -149,13 +157,14 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
     carbRatio: {
       min: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.minimum', 2),
       max: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.maximum', 150),
-      increment: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.increment', 0.01),
-      inputStep: 1,
+      increment: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.increment', 0.1),
+      schedules: { max: 48, minutesIncrement: 30 },
     },
     insulinSensitivityFactor: {
       min: getBgInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.minimum', 10), MGDL_UNITS, bgUnits),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.maximum', 500), MGDL_UNITS, bgUnits),
       increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      schedules: { max: 48, minutesIncrement: 30 },
     },
     glucoseSafetyLimit: {
       min: getBgInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 67), MGDL_UNITS, bgUnits),
@@ -299,16 +308,31 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
   const patientAge = moment().diff(moment(get(values, 'birthday'), dateFormat), 'years', true);
   const isPediatric = patientAge < 18;
+  const isPalmtree = pump.id === deviceIdMap.palmtree;
+
+  let bloodGlucoseTarget = {
+    low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
+    high: getBgInTargetUnits(105, MGDL_UNITS, bgUnits),
+  };
+
+  if (isPalmtree) {
+    bloodGlucoseTarget = {
+      low: getBgInTargetUnits(115, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(125, MGDL_UNITS, bgUnits),
+    };
+  } else if (isPediatric) {
+    bloodGlucoseTarget = {
+      low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(115, MGDL_UNITS, bgUnits),
+    };
+  }
 
   return {
     basalRate: recommendedBasalRate || 0.05,
     basalRateMaximum: isFinite(maxBasalRate)
       ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
       : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
-    bloodGlucoseTarget: {
-      low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
-      high: getBgInTargetUnits(isPediatric ? 115 : 105, MGDL_UNITS, bgUnits),
-    },
+    bloodGlucoseTarget,
     bloodGlucoseTargetPhysicalActivity: {
       low: getBgInTargetUnits(150, MGDL_UNITS, bgUnits),
       high: getBgInTargetUnits(170, MGDL_UNITS, bgUnits),
@@ -319,7 +343,7 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
     },
     carbohydrateRatio: recommendedCarbohydrateRatio,
     insulinSensitivity: recommendedInsulinSensitivity,
-    glucoseSafetyLimit: getBgInTargetUnits(isPediatric ? 80 : 75, MGDL_UNITS, bgUnits),
+    glucoseSafetyLimit: getBgInTargetUnits(isPediatric || isPalmtree ? 80 : 75, MGDL_UNITS, bgUnits),
   };
 };
 
