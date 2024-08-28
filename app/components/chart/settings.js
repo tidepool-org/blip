@@ -93,7 +93,11 @@ const Settings = ({
   useEffect(() => {
     const sortedData = _.sortBy(_.filter(_.cloneDeep(data?.data?.combined), { type: 'pumpSettings' }), 'normalTime');
 
-    const groupedBySource = _.groupBy(sortedData, 'source');
+    let groupedBySource = _.groupBy(sortedData, 'source');
+
+    if (_.has(groupedBySource, 'Unspecified Data Source')) {
+      groupedBySource = _.omit(groupedBySource, 'Unspecified Data Source');
+    }
 
     const groupedData = _.mapValues(groupedBySource, (sourceGroup) => {
       const dateGroups = _.groupBy(sourceGroup, (obj) => {
@@ -151,6 +155,7 @@ const Settings = ({
     setDevices(_.map(groupedData, (group, i) => {
       const source = group[0];
       const serial = group[1][0]?.deviceSerialNumber || '';
+      const serialText = serial === 'Unknown' ? '' : `(Serial #: ${serial})`;
       const sourceName = deviceName(_.toLower(source));
       return {
         value: source,
@@ -160,7 +165,7 @@ const Settings = ({
             {serial && (<>
               {' '}
               <span style={{ fontSize: '0.8em', fontWeight: 'normal' }}>
-                (Serial #: {serial})
+                {serialText}
               </span></>
             )}
           </span>

@@ -553,6 +553,77 @@ describe('Settings', () => {
     expect(radioOptions.at(1).text()).to.equal('source1 (Serial #: 1234)');
   });
 
+  it('omits device serial number from device selection options when not available', () => {
+    mountWrapper({
+      data: {
+        data: {
+          combined: [
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
+              source: 'source1',
+            },
+          ],
+        },
+        timePrefs: { timezoneName: 'UTC' },
+      },
+    });
+    wrapper.update();
+    const deviceRadioGroup = wrapper.find('RadioGroup#device');
+    const radioOptions = deviceRadioGroup.find('Radio');
+    expect(radioOptions).to.have.lengthOf(1);
+    expect(radioOptions.at(0).text()).to.equal('source1');
+  });
+
+  it('discards settings from "unspecified data source" when generating device selection options', () => {
+    mountWrapper({
+      data: {
+        data: {
+          combined: [
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
+              source: 'Unspecified Data Source',
+              deviceSerialNumber: '1234',
+            },
+          ],
+        },
+        timePrefs: { timezoneName: 'UTC' },
+      },
+    });
+    wrapper.update();
+    let deviceRadioGroup = wrapper.find('RadioGroup#device');
+    let radioOptions = deviceRadioGroup.find('Radio');
+    expect(radioOptions).to.have.lengthOf(0);
+
+    mountWrapper({
+      data: {
+        data: {
+          combined: [
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
+              source: 'Unspecified Data Source',
+              deviceSerialNumber: '1234',
+            },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
+              source: 'source1',
+              deviceSerialNumber: '1234',
+            },
+          ],
+        },
+        timePrefs: { timezoneName: 'UTC' },
+      },
+    });
+    wrapper.update();
+    deviceRadioGroup = wrapper.find('RadioGroup#device');
+    radioOptions = deviceRadioGroup.find('Radio');
+    expect(radioOptions).to.have.lengthOf(1);
+    expect(radioOptions.at(0).text()).to.equal('source1 (Serial #: 1234)');
+  });
+
   it('generates settings selection options correctly with a single entry from a single source', () => {
     clock.jump(new Date('2023-01-02T00:00:00Z').getTime());
     mountWrapper({
