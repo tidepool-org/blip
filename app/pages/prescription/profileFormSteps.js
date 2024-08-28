@@ -47,7 +47,7 @@ export const PatientPhone = withTranslation()(props => {
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id='patient-phone-step' {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the mobile phone number {{patientName}} will use with Tidepool Loop?', { patientName })}</Headline>
       <FastField
         as={({ innerRef }) => (
@@ -90,7 +90,7 @@ export const PatientMRN = withTranslation()(props => {
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id='patient-mrn-step' {...fieldsetStyles}>
       <Headline mb={4}>{t('What is {{patientName}}\'s Medical Record Number?', { patientName })}</Headline>
       <FastField
         as={TextInput}
@@ -113,7 +113,7 @@ export const PatientGender = withTranslation()(props => {
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id='patient-gender-step' {...fieldsetStyles}>
       <Headline mb={4}>{t('What is {{patientName}}\'s gender?', { patientName })}</Headline>
       <FastField
         as={RadioGroup}
@@ -144,7 +144,7 @@ export const PatientDevices = withTranslation()(props => {
   const [hasInitialFocus, setHasInitialFocus] = React.useState(true);
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id='patient-devices-step' {...fieldsetStyles}>
       <Headline mb={4}>{t('Does {{patientName}} have the necessary prescriptions for Tidepool Loop compatible devices?', { patientName })}</Headline>
       <Flex {...checkboxGroupStyles}>
         {map(pumpDeviceOptions(devices), device => (
@@ -168,7 +168,7 @@ export const PatientDevices = withTranslation()(props => {
               }}
               {...checkboxStyles}
             />
-            <Caption mt={1}>{device.extraInfo}</Caption>
+            <Caption mt={1}>{device.description}</Caption>
           </React.Fragment>
         ))}
       </Flex>
@@ -187,7 +187,7 @@ export const PatientDevices = withTranslation()(props => {
               error={getFieldError('initialSettings.cgmId', formikContext)}
               {...checkboxStyles}
             />
-            <Caption mt={1}>{device.extraInfo}</Caption>
+            <Caption mt={1}>{device.description}</Caption>
           </React.Fragment>
         ))}
       </Flex>

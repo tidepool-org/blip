@@ -12,7 +12,7 @@ const expect = chai.expect;
 
 const devices = {
   cgms: [{ id: prescriptionFormConstants.deviceIdMap.dexcomG6 }],
-  pumps: [{ id: prescriptionFormConstants.deviceIdMap.omnipodHorizon }],
+  pumps: [{ id: prescriptionFormConstants.deviceIdMap.palmtree }],
 };
 
 describe('prescriptionFormConstants', function() {
@@ -51,7 +51,7 @@ describe('prescriptionFormConstants', function() {
   it('should export a device-id map with known device IDs', () => {
     expect(prescriptionFormConstants.deviceIdMap).to.eql({
       dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
-      omnipodHorizon: '6678c377-928c-49b3-84c1-19e2dafaff8d',
+      palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
     });
   });
 
@@ -61,17 +61,22 @@ describe('prescriptionFormConstants', function() {
       'pumps',
     ]);
     expect(prescriptionFormConstants.validDeviceIds.cgms).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.dexcomG6);
-    expect(prescriptionFormConstants.validDeviceIds.pumps).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.omnipodHorizon);
+    expect(prescriptionFormConstants.validDeviceIds.pumps).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.palmtree);
   });
 
-  it('should export a JSX element for extra info about each device', () => {
-    expect(prescriptionFormConstants.deviceExtraInfo).to.be.an('object').and.have.keys([
+  it('should export extra details about each device', () => {
+    expect(prescriptionFormConstants.deviceDetails).to.be.an('object').and.have.keys([
       prescriptionFormConstants.deviceIdMap.dexcomG6,
-      prescriptionFormConstants.deviceIdMap.omnipodHorizon,
+      prescriptionFormConstants.deviceIdMap.palmtree,
     ]);
-    _.each(prescriptionFormConstants.deviceExtraInfo, info => {
-      expect(info).to.be.an('object');
-      expect(info.props).to.be.an('object').and.have.keys(['children']);
+
+    _.each(prescriptionFormConstants.deviceDetails, (details, deviceId) => {
+      expect(details.description).to.be.an('object');
+      expect(details.description.props).to.be.an('object').and.have.keys(['children']);
+
+      if (deviceId === prescriptionFormConstants.deviceIdMap.palmtree) {
+        expect(details.skipCalculator).to.be.true;
+      }
     });
   });
 
@@ -79,13 +84,13 @@ describe('prescriptionFormConstants', function() {
     const pumpDeviceOptions = prescriptionFormConstants.pumpDeviceOptions(devices);
     expect(pumpDeviceOptions).to.be.an('array');
     expect(_.map(pumpDeviceOptions, 'value')).to.eql([
-      prescriptionFormConstants.deviceIdMap.omnipodHorizon,
+      prescriptionFormConstants.deviceIdMap.palmtree,
     ]);
 
     _.each(pumpDeviceOptions, device => {
       expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
-      expect(device.extraInfo).to.be.an('object');
+      expect(device.description).to.be.an('object');
     })
   });
 
@@ -99,7 +104,7 @@ describe('prescriptionFormConstants', function() {
     _.each(cgmDeviceOptions, device => {
       expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
-      expect(device.extraInfo).to.be.an('object');
+      expect(device.description).to.be.an('object');
     })
   });
 
@@ -376,6 +381,7 @@ describe('prescriptionFormConstants', function() {
   describe('pumpRanges', () => {
     it('should export the pump-specific ranges with mg/dL as default bg unit if pump is provided', () => {
       const pump = {
+        id: prescriptionFormConstants.deviceIdMap.palmtree,
         guardRails: {
           basalRates: { absoluteBounds: {
             minimum: { units: 1, nanos: 0 },
@@ -427,12 +433,12 @@ describe('prescriptionFormConstants', function() {
       };
 
       expect(prescriptionFormConstants.pumpRanges(pump)).to.eql({
-        basalRate: { min: 1, max: 11, increment: 1 },
+        basalRate: { min: 1, max: 11, increment: 1, schedules: { max: 24, minutesIncrement: 30 } },
         basalRateMaximum: { min: 2, max: 12, increment: 2 },
-        bloodGlucoseTarget: { min: 3, max: 13, increment: 3 },
+        bloodGlucoseTarget: { min: 3, max: 13, increment: 3, schedules: { max: 48, minutesIncrement: 30 } },
         bolusAmountMaximum: { min: 4, max: 14, increment: 4 },
-        carbRatio: { min: 5, max: 15, increment: 5, inputStep: 1 },
-        insulinSensitivityFactor: { min: 6, max: 16, increment: 6 },
+        carbRatio: { min: 5, max: 15, increment: 5, schedules: { max: 48, minutesIncrement: 30 } },
+        insulinSensitivityFactor: { min: 6, max: 16, increment: 6, schedules: { max: 48, minutesIncrement: 30 } },
         bloodGlucoseTargetPreprandial: { min: 9, max: 17, increment: 7 }, // Uses the glucoseSafetyLimit min since it's higher
         bloodGlucoseTargetPhysicalActivity: { min: 8, max: 18, increment: 8 },
         glucoseSafetyLimit: { min: 9, max: 19, increment: 9 },
@@ -441,12 +447,12 @@ describe('prescriptionFormConstants', function() {
 
     it('should export the default ranges with mg/dL as default bg unit if pump is not provided', () => {
       expect(prescriptionFormConstants.pumpRanges()).to.eql({
-        basalRate: { min: 0.05, max: 30, increment: 0.05 },
+        basalRate: { min: 0.05, max: 30, increment: 0.05, schedules: { max: 48, minutesIncrement: 30 } },
         basalRateMaximum: { min: 0, max: 30, increment: 0.05 },
-        bloodGlucoseTarget: { min: 87, max: 180, increment: 1 },
+        bloodGlucoseTarget: { min: 87, max: 180, increment: 1, schedules: { max: 48, minutesIncrement: 30 } },
         bolusAmountMaximum: { min: 0.05, max: 30, increment: 0.05 },
-        carbRatio: { min: 2, max: 150, increment: 0.01, inputStep: 1 },
-        insulinSensitivityFactor: { min: 10, max: 500, increment: 1 },
+        carbRatio: { min: 2, max: 150, increment: 0.1, schedules: { max: 48, minutesIncrement: 30 } },
+        insulinSensitivityFactor: { min: 10, max: 500, increment: 1, schedules: { max: 48, minutesIncrement: 30 } },
         bloodGlucoseTargetPreprandial: { min: 67, max: 130, increment: 1 },
         bloodGlucoseTargetPhysicalActivity: { min: 87, max: 250, increment: 1 },
         glucoseSafetyLimit: { min: 67, max: 110, increment: 1 },

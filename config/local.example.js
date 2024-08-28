@@ -22,7 +22,6 @@ const linkedPackages = {
 const featureFlags = {
   i18nEnabled: false,
   pendoEnabled: true,
-  rxEnabled: false,
 };
 
 const environments = {

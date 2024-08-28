@@ -34,9 +34,7 @@ import {
 import {
   inlineInputStyles,
   inputStyles,
-  fieldsetStyles,
-  wideFieldsetStyles,
-  borderedFieldsetStyles,
+  wideBorderedFieldsetStyles,
   scheduleGroupStyles,
 } from './prescriptionFormStyles';
 
@@ -62,11 +60,11 @@ export const PatientInfo = props => {
   } = useFormikContext();
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Headline mb={2}>{t('Tidepool Loop Order Form and Treatment Plan')}</Headline>
-      <Text>{firstName} {lastName}</Text>
-      <Text>{t('Date of Birth:')} {birthday}</Text>
-      <Text>{t('Email:')} {email}</Text>
+      <Text sx={{ display: 'block' }}>{firstName} {lastName}</Text>
+      <Text sx={{ display: 'block' }}>{t('Date of Birth:')} {birthday}</Text>
+      <Text sx={{ display: 'block' }}>{t('Email:')} {email}</Text>
     </Box>
   );
 };
@@ -81,7 +79,7 @@ export const DefaultCalculatorSettings = props => {
   const weightUnits = get(values, 'calculator.weightUnits');
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Body2 mb={3}>
         {t('Recommended default settings from AACE calculator:')}
       </Body2>
@@ -100,7 +98,7 @@ export const PatientTraining = props => {
   const formikContext = useFormikContext();
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Paragraph2>
         {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{displayName}}.', {
           displayName: get(pump, 'displayName'),
@@ -126,7 +124,7 @@ export const InModuleTrainingNotification = props => {
   const { t, pump, ...themeProps } = props;
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Paragraph2>
         {t('You have selected Tidepool Loop in-app tutorial self start. A request will not be sent for this patient to receive CPT training.')}
       </Paragraph2>
@@ -147,9 +145,10 @@ export const GlucoseSettings = props => {
   } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
+  const { schedules: bloodGlucoseTargetSchedule, ...bloodGlucoseTargetRange } = ranges.bloodGlucoseTarget;
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Glucose Settings')}</Title>
       <Box px={3}>
         <PopoverLabel
@@ -205,7 +204,7 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
-                ...ranges.bloodGlucoseTarget,
+                ...bloodGlucoseTargetRange,
               },
               {
                 label: t('Upper Target'),
@@ -213,9 +212,10 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
-                ...ranges.bloodGlucoseTarget,
+                ...bloodGlucoseTargetRange,
               },
             ]}
+            {...bloodGlucoseTargetSchedule}
             separator="-"
           />
         </Box>
@@ -339,9 +339,12 @@ export const InsulinSettings = props => {
   } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
+  const { schedules: carbRatioSchedule, ...carbRatioRange } = ranges.carbRatio;
+  const { schedules: basalRateSchedule, ...basalRateRange } = ranges.basalRate;
+  const { schedules: insulinSensitivityFactorSchedule, ...insulinSensitivityFactorRange } = ranges.insulinSensitivityFactor;
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...wideBorderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Insulin Settings')}</Title>
       <Box px={3}>
         <PopoverLabel
@@ -368,9 +371,10 @@ export const InsulinSettings = props => {
                 suffix: t('g/U'),
                 threshold: thresholds.carbRatio,
                 type: 'number',
-                ...ranges.carbRatio,
+                ...carbRatioRange,
               },
             ]}
+            {...carbRatioSchedule}
           />
         </Box>
 
@@ -398,9 +402,10 @@ export const InsulinSettings = props => {
                 suffix: t('U/hr'),
                 threshold: thresholds.basalRate,
                 type: 'number',
-                ...ranges.basalRate,
+                ...basalRateRange,
               },
             ]}
+            {...basalRateSchedule}
           />
         </Box>
 
@@ -431,9 +436,10 @@ export const InsulinSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.insulinSensitivityFactor,
                 type: 'number',
-                ...ranges.insulinSensitivityFactor,
+                ...insulinSensitivityFactorRange,
               },
             ]}
+            {...insulinSensitivityFactorSchedule}
             useFastField
           />
         </Box>
@@ -509,7 +515,7 @@ export const InsulinSettings = props => {
                 {t('Tidepool Loop assumes that the insulin it has delivered is actively working to lower your glucose for 6 hours. This setting cannot be changed.')}
               </Paragraph2>
               <Paragraph2>
-                {t('You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you’ll select now.')}
+                {t('You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you\'ll select now.')}
               </Paragraph2>
               <Paragraph2>
                 <Box as='ol' variant="lists.ordered">
@@ -646,7 +652,7 @@ export const TherapySettings = withTranslation()(props => {
   });
 
   return (
-    <Box>
+    <Box id="therapy-settings-step">
       <PatientInfo mb={4} {...props} />
       {hasCalculatorResults(values) && <DefaultCalculatorSettings mt={0} mb={4} {...props} />}
       <PatientTraining mt={0} mb={4} {...props} />

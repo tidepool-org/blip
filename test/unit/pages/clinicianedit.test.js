@@ -42,12 +42,15 @@ describe('ClinicianEdit', () => {
       'useLocation',
       sinon.stub().returns({ state: {} })
     );
-    ClinicianEdit.__Rewire__('config', { RX_ENABLED: true });
+
+    ClinicianEdit.__Rewire__('useFlags', sinon.stub().returns({
+      showPrescriptions: true,
+    }));
   });
 
   after(() => {
     mount.cleanUp();
-    ClinicianEdit.__ResetDependency__('config');
+    ClinicianEdit.__ResetDependency__('useFlags');
   });
 
   const defaultWorkingState = {

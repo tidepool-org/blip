@@ -6014,6 +6014,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -6494,6 +6495,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -6708,6 +6710,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -7636,6 +7639,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -9089,6 +9093,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -9163,6 +9168,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,

@@ -22,6 +22,7 @@ import {
   MGDL_UNITS,
   MMOLL_UNITS,
 } from '../core/constants';
+import { prescription } from './api';
 
 const t = i18next.t.bind(i18next);
 
@@ -139,6 +140,7 @@ export const clinicTierDetails = (clinic = {}) => {
     summaryDashboard: false,
     tideDashboard: false,
     patientTags: false,
+    prescriptions: false,
   };
 
   const display = {
@@ -166,6 +168,7 @@ export const clinicTierDetails = (clinic = {}) => {
     tier0101: {
       planName: 'internationalBase',
       display: { ...display, planName: false },
+      entitlements: { ...entitlements },
     },
     tier0102: {
       planName: 'honoredBase',
@@ -192,7 +195,7 @@ export const clinicTierDetails = (clinic = {}) => {
     },
     tier0301: {
       planName: 'professional',
-      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0302: {
       planName: 'professional',
@@ -200,11 +203,11 @@ export const clinicTierDetails = (clinic = {}) => {
     },
     tier0303: {
       planName: 'professional',
-      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0400: {
       planName: 'enterprise',
-      entitlements: { rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
     },
   };
 

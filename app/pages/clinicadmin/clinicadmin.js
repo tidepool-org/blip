@@ -21,6 +21,7 @@ import InputIcon from '@material-ui/icons/Input';
 import SearchIcon from '@material-ui/icons/Search';
 import sundial from 'sundial';
 import { useFormik } from 'formik';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import {
   Title,
@@ -65,6 +66,7 @@ const clinicTypesLabels = mapValues(keyBy(clinicTypes, 'value'), 'label');
 
 export const ClinicAdmin = (props) => {
   const { t, api, trackMetric } = props;
+  const { showPrescriptions } = useFlags();
   const dispatch = useDispatch();
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
@@ -580,7 +582,7 @@ export const ClinicAdmin = (props) => {
     },
   ];
 
-  if (config.RX_ENABLED) {
+  if (showPrescriptions) {
     columns.push({
       title: t('Permission'),
       field: 'prescriberPermission',
