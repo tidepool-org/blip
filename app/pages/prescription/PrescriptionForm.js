@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import bows from 'bows';
 import moment from 'moment';
@@ -48,7 +49,7 @@ import i18next from '../../core/language';
 import { useToasts } from '../../providers/ToastProvider';
 import { Headline } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
-import { useIsFirstRender } from '../../core/hooks';
+import { useIsFirstRender, useLocalStorage } from '../../core/hooks';
 import * as actions from '../../redux/actions';
 import { components as vizComponents } from '@tidepool/viz';
 
@@ -263,7 +264,6 @@ export const PrescriptionForm = props => {
     t,
     api,
     devices,
-    history,
     location,
     prescription,
     trackMetric,
@@ -271,17 +271,22 @@ export const PrescriptionForm = props => {
 
   const dispatch = useDispatch();
   const formikContext = useFormikContext();
+  const { id } = useParams();
+  const isNewPrescriptionFlow = () => isEmpty(id);
 
   const {
     handleSubmit,
     resetForm,
     setFieldValue,
+    setValues,
     setStatus,
     status,
     values,
   } = formikContext;
 
   const isFirstRender = useIsFirstRender();
+  const storageKey = 'prescriptionForm';
+  const [storedValues, setStoredValues] = useLocalStorage(storageKey);
   const { set: setToast } = useToasts();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -325,7 +330,6 @@ export const PrescriptionForm = props => {
   const params = () => new URLSearchParams(location.search);
   const activeStepParamKey = `${stepperId}-step`;
   const activeStepsParam = params().get(activeStepParamKey);
-  const storageKey = 'prescriptionForm';
 
   const [formPersistReady, setFormPersistReady] = useState(false);
   const [stepAsyncState, setStepAsyncState] = useState(asyncStates.initial);
@@ -337,7 +341,6 @@ export const PrescriptionForm = props => {
   const isSingleStepEdit = !!pendingStep.length;
   const validationFields = [ ...stepValidationFields ];
   const isLastStep = () => activeStep === validationFields.length - 1;
-  const isNewPrescription = isEmpty(get(values, 'id'));
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
@@ -420,14 +423,14 @@ export const PrescriptionForm = props => {
       setFieldValue('state', prescriptionAttributes.state);
 
       prescriptionAttributes.revisionHash = await sha512(
-        canonicalize(prescriptionAttributes),
+        canonicalize(omit(prescriptionAttributes, 'createdUserId')),
         { outputFormat: 'hex' }
       );
 
-      if (isNewPrescription) {
-        dispatch(actions.async.createPrescription(api, selectedClinicId, prescriptionAttributes));
-      } else {
+      if (values.id) {
         dispatch(actions.async.createPrescriptionRevision(api, selectedClinicId, prescriptionAttributes, values.id));
+      } else {
+        dispatch(actions.async.createPrescription(api, selectedClinicId, prescriptionAttributes));
       }
     },
   };
@@ -501,8 +504,25 @@ export const PrescriptionForm = props => {
   }
 
   useEffect(() => {
+    let initialValues = { ...values }
+
+    // Hydrate the locally stored values only in the following cases, allowing us to persist data
+    // entered in form substeps but not yet saved to the database
+    // 1. It's a new prescription and there is no locally stored id, and there are step and substep query params
+    // 2. We're editing an existing prescription, and the locally stored id matches the id in the url param
+    if (
+      (isNewPrescriptionFlow() && !storedValues?.id && !isUndefined(activeStep) && !isUndefined(activeSubStep)) ||
+      (id && id === storedValues?.id)
+    ) {
+      initialValues = { ...values, ...storedValues };
+      setValues(initialValues);
+    }
+
+    // After hydrating any relevant values, we delete the localStorage values so formikPersist has a clean start
+    delete localStorage[storageKey];
+
     // Determine the latest incomplete step, and default to starting there
-    if (isEditable && (isUndefined(activeStep) || isUndefined(activeSubStep))) {
+    if (isEditable) {
       let firstInvalidStep;
       let firstInvalidSubStep;
       let currentStep = 0;
@@ -510,7 +530,7 @@ export const PrescriptionForm = props => {
 
       while (isUndefined(firstInvalidStep) && currentStep < validationFields.length) {
         while (currentSubStep < validationFields[currentStep].length) {
-          if (!fieldsAreValid(validationFields[currentStep][currentSubStep], schema, values)) {
+          if (!fieldsAreValid(validationFields[currentStep][currentSubStep], schema, initialValues)) {
             firstInvalidStep = currentStep;
             firstInvalidSubStep = currentSubStep;
             break;
@@ -526,15 +546,9 @@ export const PrescriptionForm = props => {
       setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
     }
 
-    // When a user comes to this component initially, without the active step and subStep set by the
-    // Stepper component in the url, or when editing an existing prescription,
-    // we delete any persisted state from localStorage.
-    if (status.isPrescriptionEditFlow || (get(localStorage, storageKey) && activeStepsParam === null)) {
-      delete localStorage[storageKey];
-    }
-
-    // Only use the localStorage persistence for new prescriptions - not while editing an existing one.
-    setFormPersistReady(!prescription);
+    // Now that any hydration is complete and we've cleared locally stored values,
+    // we're ready for formikPersist to take over form persistence
+    setFormPersistReady(true);
   }, []);
 
   // Save whether or not we are editing a single step to the formik form status for easy reference
@@ -556,14 +570,13 @@ export const PrescriptionForm = props => {
   // Handle changes to stepper async state for completed prescription creation and revision updates
   useEffect(() => {
     const isRevision = !!get(values, 'id');
-    const isDraft = get(values, 'state') === 'draft';
     const { inProgress, completed, notification, prescriptionId } = isRevision ? creatingPrescriptionRevision : creatingPrescription;
-
-    if (prescriptionId) setFieldValue('id', prescriptionId);
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
         setStepAsyncState(asyncStates.completed);
+        if (prescriptionId) setFieldValue('id', prescriptionId);
+
         if (isLastStep()) {
 
           let messageAction = isRevision ? t('updated') : t('created');
@@ -574,7 +587,13 @@ export const PrescriptionForm = props => {
             variant: 'success',
           });
 
-          history.push('/clinic-workspace/prescriptions');
+          dispatch(push('/clinic-workspace/prescriptions'));
+        } else {
+          if (prescriptionId && isNewPrescriptionFlow()) {
+            // Redirect to normal prescription edit flow once we have a prescription ID
+            setStoredValues({ ...values, id: prescriptionId })
+            dispatch(push(`/prescriptions/${prescriptionId}`));
+          }
         }
       }
 
@@ -631,7 +650,7 @@ export const PrescriptionForm = props => {
     },
   };
 
-  const title = isNewPrescription ? t('Create New Prescription') : t('Prescription: {{name}}', {
+  const title = isNewPrescriptionFlow() ? t('Create New Prescription') : t('Prescription: {{name}}', {
     name: [values.firstName, values.lastName].join(' '),
   });
 
@@ -655,7 +674,7 @@ export const PrescriptionForm = props => {
         <Button
           id="back-to-prescriptions"
           variant="primary"
-          onClick={() => props.history.push('/clinic-workspace/prescriptions')}
+          onClick={() => dispatch(push('/clinic-workspace/prescriptions'))}
           mr={5}
         >
           {t('Back To Prescriptions')}

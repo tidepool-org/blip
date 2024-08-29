@@ -1,8 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Formik } from 'formik';
+import noop from 'lodash/noop';
 
 import ScheduleForm from '../../../../app/pages/prescription/ScheduleForm';
+import { convertTimeStringToMsPer24 } from '../../../../app/core/datetime';
 
 /* global chai */
 /* global sinon */
@@ -85,7 +87,7 @@ describe('ScheduleForm', () => {
     // Start Time Input
     const startTimeInput = wrapper.find('[id="fooSchedule.0.start"]').hostNodes();
     expect(startTimeInput).to.have.length(1);
-    expect(startTimeInput.prop('type')).to.equal('time');
+    expect(startTimeInput.prop('type')).to.equal('text');
     expect(startTimeInput.prop('value')).to.equal('00:00');
     expect(startTimeInput.prop('readOnly')).to.be.true;
     expect(startTimeInput.hasClass('error')).to.be.true;
@@ -138,11 +140,9 @@ describe('ScheduleForm', () => {
     expect(secondRowlabels).to.have.length(0);
 
     // Start Time Input
-    const startTimeInput = wrapper.find('[id="fooSchedule.1.start"]').hostNodes();
+    const startTimeInput = wrapper.find('select[id="fooSchedule.1.start"]').hostNodes();
     expect(startTimeInput).to.have.length(1);
-    expect(startTimeInput.prop('type')).to.equal('time');
-    expect(startTimeInput.prop('value')).to.equal('00:30');
-    expect(startTimeInput.prop('readOnly')).to.be.false;
+    expect(startTimeInput.prop('value')).to.equal(convertTimeStringToMsPer24('00:30'));
     expect(startTimeInput.hasClass('error')).to.be.false;
 
     // Rate Input
@@ -184,16 +184,16 @@ describe('ScheduleForm', () => {
 
     expect(rows()).to.have.length(2);
 
-    const startTimeInput = () => wrapper.find('[id="fooSchedule.1.start"]').hostNodes();
+    const startTimeInput = () => wrapper.find('select[id="fooSchedule.1.start"]').hostNodes();
     expect(startTimeInput()).to.have.length(1);
-    expect(startTimeInput().prop('value')).to.equal('00:30');
+    expect(startTimeInput().prop('value')).to.equal(convertTimeStringToMsPer24('00:30'));
 
     expect(addButton().prop('disabled')).to.be.false;
 
-    startTimeInput().at(0).simulate('change', { target: { name: 'fooSchedule.1.start', value: '23:30' } });
+    startTimeInput().at(0).simulate('change', { persist: noop, target: { name: 'fooSchedule.1.start', value: convertTimeStringToMsPer24('23:30') } });
     expect(addButton().prop('disabled')).to.be.true;
 
-    startTimeInput().at(0).simulate('change', { target: { name: 'fooSchedule.1.start', value: '23:29' } });
+    startTimeInput().at(0).simulate('change', { persist: noop, target: { name: 'fooSchedule.1.start', value: convertTimeStringToMsPer24('23:00') } });
     expect(addButton().prop('disabled')).to.be.false;
   });
 
@@ -211,8 +211,8 @@ describe('ScheduleForm', () => {
     expect(rows()).to.have.length(3);
 
     const startTimeInput1 = () => wrapper.find('[id="fooSchedule.0.start"]').hostNodes();
-    const startTimeInput2 = () => wrapper.find('[id="fooSchedule.1.start"]').hostNodes();
-    const startTimeInput3 = () => wrapper.find('[id="fooSchedule.2.start"]').hostNodes();
+    const startTimeInput2 = () => wrapper.find('select[id="fooSchedule.1.start"]').hostNodes();
+    const startTimeInput3 = () => wrapper.find('select[id="fooSchedule.2.start"]').hostNodes();
 
     const rateTimeInput1 = () => wrapper.find('[id="fooSchedule.0.rate"]').hostNodes();
     const rateTimeInput2 = () => wrapper.find('[id="fooSchedule.1.rate"]').hostNodes();
@@ -224,21 +224,21 @@ describe('ScheduleForm', () => {
     expect(startTimeInput1().prop('value')).to.equal('00:00');
     expect(rateTimeInput1().prop('value')).to.equal(1);
 
-    expect(startTimeInput2().prop('value')).to.equal('00:30');
+    expect(startTimeInput2().prop('value')).to.equal(convertTimeStringToMsPer24('00:30'));
     expect(rateTimeInput2().prop('value')).to.equal(2);
 
-    expect(startTimeInput3().prop('value')).to.equal('01:00');
+    expect(startTimeInput3().prop('value')).to.equal(convertTimeStringToMsPer24('01:00'));
     expect(rateTimeInput3().prop('value')).to.equal(3);
 
     // Change the middle input time to a later value than the 3rd. The time and rate inputs should move together
-    startTimeInput2().simulate('change', { target: { name: 'fooSchedule.1.start', value: '2:00' } });
+    startTimeInput2().simulate('change', { persist: noop, target: { name: 'fooSchedule.1.start', value: convertTimeStringToMsPer24('2:00') } });
     expect(startTimeInput1().prop('value')).to.equal('00:00');
     expect(rateTimeInput1().prop('value')).to.equal(1);
 
-    expect(startTimeInput2().prop('value')).to.equal('01:00');
+    expect(startTimeInput2().prop('value')).to.equal(convertTimeStringToMsPer24('01:00'));
     expect(rateTimeInput2().prop('value')).to.equal(3);
 
-    expect(startTimeInput3().prop('value')).to.equal('02:00');
+    expect(startTimeInput3().prop('value')).to.equal(convertTimeStringToMsPer24('02:00'));
     expect(rateTimeInput3().prop('value')).to.equal(2);
   });
 

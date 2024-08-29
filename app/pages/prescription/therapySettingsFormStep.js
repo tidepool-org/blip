@@ -145,6 +145,7 @@ export const GlucoseSettings = props => {
   } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
+  const { schedules: bloodGlucoseTargetSchedule, ...bloodGlucoseTargetRange } = ranges.bloodGlucoseTarget;
 
   return (
     <Box {...wideBorderedFieldsetStyles} {...themeProps}>
@@ -203,7 +204,7 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
-                ...ranges.bloodGlucoseTarget,
+                ...bloodGlucoseTargetRange,
               },
               {
                 label: t('Upper Target'),
@@ -211,9 +212,10 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
-                ...ranges.bloodGlucoseTarget,
+                ...bloodGlucoseTargetRange,
               },
             ]}
+            {...bloodGlucoseTargetSchedule}
             separator="-"
           />
         </Box>
@@ -337,6 +339,9 @@ export const InsulinSettings = props => {
   } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
+  const { schedules: carbRatioSchedule, ...carbRatioRange } = ranges.carbRatio;
+  const { schedules: basalRateSchedule, ...basalRateRange } = ranges.basalRate;
+  const { schedules: insulinSensitivityFactorSchedule, ...insulinSensitivityFactorRange } = ranges.insulinSensitivityFactor;
 
   return (
     <Box {...wideBorderedFieldsetStyles} {...themeProps}>
@@ -366,9 +371,10 @@ export const InsulinSettings = props => {
                 suffix: t('g/U'),
                 threshold: thresholds.carbRatio,
                 type: 'number',
-                ...ranges.carbRatio,
+                ...carbRatioRange,
               },
             ]}
+            {...carbRatioSchedule}
           />
         </Box>
 
@@ -396,9 +402,10 @@ export const InsulinSettings = props => {
                 suffix: t('U/hr'),
                 threshold: thresholds.basalRate,
                 type: 'number',
-                ...ranges.basalRate,
+                ...basalRateRange,
               },
             ]}
+            {...basalRateSchedule}
           />
         </Box>
 
@@ -429,9 +436,10 @@ export const InsulinSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.insulinSensitivityFactor,
                 type: 'number',
-                ...ranges.insulinSensitivityFactor,
+                ...insulinSensitivityFactorRange,
               },
             ]}
+            {...insulinSensitivityFactorSchedule}
             useFastField
           />
         </Box>

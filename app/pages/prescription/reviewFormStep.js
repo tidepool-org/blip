@@ -290,6 +290,7 @@ const therapySettingsRows = (pump, formikContext) => {
 export const PatientInfo = props => {
   const {
     t,
+    currentStep,
     handlers: { activeStepUpdate },
     isEditable,
     ...themeProps
@@ -298,7 +299,6 @@ export const PatientInfo = props => {
   const initialFocusedInputRef = useInitialFocusedInput();
 
   const nameStep = [0, 1];
-  const currentStep = [4, 0];
   const formikContext = useFormikContext();
 
   const { values } = formikContext;
@@ -352,14 +352,14 @@ PatientInfo.propTypes = fieldsetPropTypes;
 export const TherapySettings = props => {
   const {
     t,
+    currentStep,
     handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
     isEditable,
     pump,
     ...themeProps
   } = props;
 
-  const therapySettingsStep = [3, 0];
-  const currentStep = [4, 0];
+  const therapySettingsStep = [currentStep[0] - 1, 0];
 
   const formikContext = useFormikContext();
   const { values } = formikContext;
@@ -519,6 +519,14 @@ export const TherapySettings = props => {
 TherapySettings.propTypes = fieldsetPropTypes;
 
 export const PrescriptionReview = withTranslation()(props => {
+  const stepperId = 'prescription-form-steps';
+  const params = () => new URLSearchParams(location.search);
+  const activeStepParamKey = `${stepperId}-step`;
+  const activeStepsParam = params().get(activeStepParamKey);
+  const activeStep = activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined;
+  const activeSubStep = activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined;
+  const currentStep = [activeStep, activeSubStep];
+
   const { validateForm, values } = useFormikContext();
 
   // At this point we consider the prescription ready to send so we ensure the values are validated
@@ -549,6 +557,7 @@ export const PrescriptionReview = withTranslation()(props => {
           width: ['100%', null, '45%', '35%'],
           border: 'default',
         }}
+        currentStep={currentStep}
         {...props}
       />
       <TherapySettings
@@ -562,6 +571,7 @@ export const PrescriptionReview = withTranslation()(props => {
           flex: '0 0 auto',
           width: ['100%', null, '55%', '65%'],
         }}
+        currentStep={currentStep}
         {...props}
       />
     </Flex>
