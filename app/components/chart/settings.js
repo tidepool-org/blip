@@ -161,7 +161,9 @@ const Settings = ({
         value: source,
         label: (
           <span>
-            {sourceName}
+            <span style={{ fontWeight: 'bold' }}>
+              {sourceName}
+            </span>
             {serial && (<>
               {' '}
               <span style={{ fontSize: '0.8em', fontWeight: 'normal' }}>
@@ -439,7 +441,7 @@ const Settings = ({
                   disabled={!settingsOptions.length}
                   sx={{
                     fontSize: 1,
-                    lineHeight: 1.3,
+                    lineHeight: 1.2,
                     ml: 2,
                     mr: 2,
                     px: 3,
@@ -454,8 +456,10 @@ const Settings = ({
                     label="Select Settings"
                     icon={DateRangeRoundedIcon}
                   />
-                  {_.find(settingsOptions, { value: selectedSettingsId })
-                    ?.label || t('Select Settings')}
+                  <span style={{ alignSelf: 'end'}}>
+                    {_.find(settingsOptions, { value: selectedSettingsId })
+                      ?.label || t('Select Settings')}
+                  </span>
                 </Button>
               </Box>
 
