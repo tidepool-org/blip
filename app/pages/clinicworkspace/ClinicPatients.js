@@ -3199,8 +3199,7 @@ export const ClinicPatients = (props) => {
         {pageCount > 1 && (
           <Pagination
             px="5%"
-            sx={{ position: 'absolute', bottom: '-50px' }}
-            width="100%"
+            sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}
             id="clinic-patients-pagination"
             count={pageCount}
             disabled={pageCount < 2}
