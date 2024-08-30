@@ -155,7 +155,6 @@
     "react-scroll": "1.9.0",
     "react-scroll-to-top": "3.0.0",
     "react-select": "5.7.7",
-    "react-test-renderer": "16.14.0",
     "react-window-size-listener": "1.5.4",
     "readable-stream": "4.4.2",
     "redux": "4.2.1",
