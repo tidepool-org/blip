@@ -1245,9 +1245,17 @@ export const PatientDataClass = createReactClass({
     this.props.trackMetric('Clicked Switch To Settings', {
       fromChart: this.state.chartType
     });
+
     if (e) {
       e.preventDefault();
     }
+
+    this.fetchEarlierData({
+      returnData: false,
+      showLoading: true,
+      startDate: moment.utc().subtract(10, 'year').toISOString(),
+      type: 'pumpSettings,upload',
+    });
 
     this.updateChart('settings');
   },
@@ -1936,6 +1944,14 @@ export const PatientDataClass = createReactClass({
 
           chartQuery.aggregationsByDate = 'boluses';
           break;
+
+        case 'settings':
+          chartQuery.types = {
+            pumpSettings: {},
+            upload: {},
+          };
+          chartQuery.endpoints[0] = 0;
+          break;
       }
 
       const { next: nextDays, prev: prevDays } = this.getDaysByType();
@@ -2047,6 +2063,26 @@ export const PatientDataClass = createReactClass({
     }
   },
 
+/**
+ * Fetches earlier data for the current patient.
+ *
+ * This function is responsible for fetching earlier data for the patient currently in view.
+ * It checks if data is already being fetched and returns early if so. Otherwise, it constructs
+ * the options for the data fetch, updates the component state to indicate loading, logs the
+ * fetching action, and triggers the data fetch via the `onFetchEarlierData` prop.
+ *
+ * @param {Object} [options={}] - Optional configuration object for the data fetch.
+ * @param {boolean} [options.showLoading=true] - Whether to show the loading indicator.
+ * @param {string} [options.startDate] - The start date for the data fetch. Defaults to 16 weeks before the earliest requested data.
+ * @param {string} [options.endDate] - The end date for the data fetch. Defaults to 1 millisecond before the earliest requested data.
+ * @param {boolean} [options.carelink=this.props.carelink] - Whether to include Carelink data.
+ * @param {boolean} [options.dexcom=this.props.dexcom] - Whether to include Dexcom data.
+ * @param {boolean} [options.medtronic=this.props.medtronic] - Whether to include Medtronic data.
+ * @param {boolean} [options.useCache=false] - Whether to use cached data.
+ * @param {boolean} [options.initial=false] - Whether this is the initial data fetch.
+ *
+ * @returns {void}
+ */
   fetchEarlierData: function(options = {}) {
     // Return if we are currently fetching data
     if (this.props.fetchingPatientData) {

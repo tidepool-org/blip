@@ -16,11 +16,12 @@
 import Basics from './basics';
 import Daily from './daily';
 import BgLog from './bgLog';
+import Settings from './settings';
 
 module.exports = {
   basics: Basics,
   daily: Daily,
   bgLog: BgLog,
-  settings: require('./settings'),
+  settings: Settings,
   header: require('./header'),
 };
