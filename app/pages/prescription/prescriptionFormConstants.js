@@ -327,7 +327,7 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
   }
 
   return {
-    basalRate: recommendedBasalRate || 0.05,
+    basalRate: recommendedBasalRate || getPumpGuardrail(pump, 'basalRates.defaultValue', undefined),
     basalRateMaximum: isFinite(maxBasalRate)
       ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
       : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
