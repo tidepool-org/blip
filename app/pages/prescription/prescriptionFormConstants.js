@@ -107,7 +107,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       min: max([getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05), 0.05]),
       max: min([getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30), 30]),
       increment: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
-      schedules: { max: pump?.basalRates?.maxSegments || 48, minutesIncrement: 30 },
+      schedules: { max: pump?.guardRails?.basalRates?.maxSegments || 48, minutesIncrement: 30 },
     },
     basalRateMaximum: {
       min: max(filter([
