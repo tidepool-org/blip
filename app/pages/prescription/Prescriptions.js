@@ -288,8 +288,8 @@ const Prescriptions = props => {
   }, [selectedClinicId]);
 
 
-  const renderAccessCode = ({ accessCode }) => {
-    return (
+  const renderAccessCode = ({ accessCode, state }) => {
+    return includes(['draft', 'pending'], state) ? '' : (
       <Flex
         onClick={e => {
           // Prevent clicks from propogating up to the table row click handlers
