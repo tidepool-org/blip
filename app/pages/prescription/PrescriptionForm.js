@@ -262,6 +262,7 @@ export const PrescriptionForm = props => {
     location,
     prescription,
     trackMetric,
+    skippedFields: skippedFieldsProp
   } = props;
 
   const dispatch = useDispatch();
@@ -327,7 +328,7 @@ export const PrescriptionForm = props => {
 
   const [formPersistReady, setFormPersistReady] = useState(false);
   const [formSteps, setFormSteps] = useState([]);
-  const [skippedFields, setSkippedFields] = useState([]);
+  const [skippedFields, setSkippedFields] = useState(skippedFieldsProp);
   const [stepAsyncState, setStepAsyncState] = useState(asyncStates.initial);
   const [activeStep, setActiveStep] = useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined);
   const [activeSubStep, setActiveSubStep] = useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined);
@@ -452,13 +453,7 @@ export const PrescriptionForm = props => {
   useEffect(() => {
     const pumpDevices = pumpDeviceOptions(devices);
     const cgmDevices = cgmDeviceOptions(devices);
-
-    const newSkippedFields = [
-      'calculator',
-      'mrn',
-      'phoneNumber',
-      'training',
-    ];
+    const newSkippedFields = [...skippedFields];
 
     // Skip device selection substep and set default pump and cgm IDs if there aren't multiple choices available
     const skipDeviceSelection = cgmDevices.length === 1 && pumpDevices.length === 1;
@@ -683,10 +678,17 @@ PrescriptionForm.propTypes = {
     pathname: PropTypes.string,
     search: PropTypes.string,
   }),
+  skippedFields: PropTypes.arrayOf(PropTypes.string),
 };
 
 PrescriptionForm.defaultProps = {
   location: window.location,
+  skippedFields: [
+    'calculator',
+    'mrn',
+    'phoneNumber',
+    'training',
+  ],
 };
 
 export default prescriptionFormWrapper(withFormik(prescriptionForm())(withTranslation()(PrescriptionForm)));
