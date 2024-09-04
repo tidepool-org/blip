@@ -2,10 +2,11 @@ import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'theme-ui';
 import bows from 'bows';
-import isEmpty from 'lodash/isEmpty';
-import isFinite from 'lodash/isFinite';
+import each from 'lodash/each';
 import find from 'lodash/find';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isFinite from 'lodash/isFinite';
 import map from 'lodash/map';
 import max from 'lodash/max';
 import mean from 'lodash/mean';
@@ -681,3 +682,13 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
 
   return formSteps;
 };
+
+export const getFieldStepMap = steps => reduce(steps, (fieldMap, step, stepIndex) => {
+  each(map(step.subSteps, 'fields'), (fieldsArr, subStepIndex) => {
+    each(fieldsArr, field => {
+      fieldMap[field] = [stepIndex, subStepIndex];
+    });
+  });
+
+  return fieldMap;
+}, {});

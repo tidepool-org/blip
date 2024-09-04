@@ -18,7 +18,7 @@ import { components as vizComponents } from '@tidepool/viz';
 
 import { getThresholdWarning, getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import { dateRegex, insulinModelOptions, warningThresholds } from './prescriptionFormConstants';
+import { dateRegex, getFieldStepMap, insulinModelOptions, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
@@ -43,46 +43,46 @@ const fieldsetPropTypes = {
 
 const emptyValueText = t('Not specified');
 
-const patientRows = (values, formikContext, skippedFields = []) => { // TODO: Skip skipped fields
+const patientRows = (values, formikContext, skippedFields = [], fieldStepMap = {}) => {
   const rows = [
     {
       label: t('Email'),
       value: get(values, 'email', emptyValueText),
       error: getFieldError('email', formikContext, true),
-      step: [0, 2],
+      step: fieldStepMap.email,
     },
     {
       label: t('Mobile Number'),
       value: get(values, 'phoneNumber.number', emptyValueText),
       error: get(values, 'phoneNumber.number') && getFieldError('phoneNumber.number', formikContext, true),
       skipped: includes(skippedFields, 'phoneNumber'),
-      step: [1, 0],
+      step: fieldStepMap['phoneNumber.number'],
     },
     {
       label: t('Type of Account'),
       value: get(values, 'accountType') ? capitalize(values.accountType) : emptyValueText,
       error: getFieldError('accountType', formikContext, true),
-      step: [0, 0],
+      step: fieldStepMap.accountType,
     },
     {
       label: t('Birthdate'),
       value: get(values, 'birthday', emptyValueText).replace(dateRegex, '$2/$3/$1'),
       error: getFieldError('birthday', formikContext, true),
-      step: [0, 1],
+      step: fieldStepMap.birthday,
       initialFocusedInput: 'birthday',
     },
     {
       label: t('Gender'),
       value: get(values, 'sex') ? capitalize(values.sex) : emptyValueText,
       error: getFieldError('sex', formikContext, true),
-      step: [1, 2],
+      step: fieldStepMap.sex,
     },
     {
       label: t('MRN'),
       value: get(values, 'mrn', emptyValueText),
       error: getFieldError('mrn', formikContext, true),
       skipped: includes(skippedFields, 'mrn'),
-      step: [1, 1],
+      step: fieldStepMap.mrn,
     },
   ];
 
@@ -297,6 +297,7 @@ export const PatientInfo = props => {
   const {
     t,
     currentStep,
+    fieldStepMap,
     handlers: { activeStepUpdate },
     isEditable,
     skippedFields,
@@ -305,7 +306,7 @@ export const PatientInfo = props => {
 
   const initialFocusedInputRef = useInitialFocusedInput();
 
-  const nameStep = [0, 1];
+  const nameStep = fieldStepMap.firstName;
   const formikContext = useFormikContext();
 
   const { values } = formikContext;
@@ -316,7 +317,7 @@ export const PatientInfo = props => {
   } = values;
 
   const patientName = [firstName, lastName].join(' ');
-  const rows = patientRows(values, formikContext, skippedFields);
+  const rows = patientRows(values, formikContext, skippedFields, fieldStepMap);
 
   const Row = ({ label, value, step, initialFocusedInput, error }) => (
     <Flex mb={4} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
@@ -360,6 +361,7 @@ export const TherapySettings = props => {
   const {
     t,
     currentStep,
+    fieldStepMap,
     handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
     isEditable,
     pump,
@@ -367,7 +369,7 @@ export const TherapySettings = props => {
     ...themeProps
   } = props;
 
-  const therapySettingsStep = [currentStep[0] - 1, 0];
+  const therapySettingsStep = fieldStepMap['initialSettings.basalRateSchedule'];
 
   const formikContext = useFormikContext();
   const { values } = formikContext;
@@ -497,7 +499,7 @@ export const TherapySettings = props => {
                 label: t('Name'),
                 value: patientName,
               },
-              ...patientRows(values, formikContext, patientRows),
+              ...patientRows(values, formikContext, skippedFields, fieldStepMap),
             ], therapySettingsRows(pump, formikContext, skippedFields))}
           />
         </Flex>
@@ -534,6 +536,7 @@ export const PrescriptionReview = withTranslation()(props => {
   const activeStep = activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined;
   const activeSubStep = activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined;
   const currentStep = [activeStep, activeSubStep];
+  const fieldStepMap = getFieldStepMap(props.steps);
 
   const { validateForm, values } = useFormikContext();
 
@@ -566,6 +569,7 @@ export const PrescriptionReview = withTranslation()(props => {
           border: 'default',
         }}
         currentStep={currentStep}
+        fieldStepMap={fieldStepMap}
         {...props}
       />
       <TherapySettings
@@ -580,6 +584,7 @@ export const PrescriptionReview = withTranslation()(props => {
           width: ['100%', null, '55%', '65%'],
         }}
         currentStep={currentStep}
+        fieldStepMap={fieldStepMap}
         {...props}
       />
     </Flex>

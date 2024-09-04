@@ -388,6 +388,7 @@ export function Stepper(props) {
       key: activeStep,
       id: `${id}-step-panel-${activeStep}`,
       'aria-labelledby': getStepId(activeStep),
+      steps,
     }) : null;
   };
 
