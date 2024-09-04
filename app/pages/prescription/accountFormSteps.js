@@ -2,21 +2,16 @@ import React from 'react';
 import { withTranslation } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
 import { Box } from 'theme-ui';
-import bows from 'bows';
 import InputMask from 'react-input-mask';
 import get from 'lodash/get';
 
-import { fieldsAreValid, getFieldError } from '../../core/forms';
+import { getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Caption, Headline } from '../../components/elements/FontStyles';
-import { dateRegex, stepValidationFields, typeOptions } from './prescriptionFormConstants';
+import { dateRegex, typeOptions } from './prescriptionFormConstants';
 import { fieldsetStyles, condensedInputStyles } from './prescriptionFormStyles';
-
-const t = i18next.t.bind(i18next);
-const log = bows('PrescriptionAccount');
 
 export const AccountType = withTranslation()(props => {
   const { t } = props;
@@ -184,27 +179,3 @@ export const PatientEmail = withTranslation()(props => {
     </Box>
   );
 });
-
-const accountFormSteps = (schema, initialFocusedInput, values) => ({
-  label: t('Create Patient Account'),
-  subSteps: [
-    {
-      disableComplete: !fieldsAreValid(stepValidationFields[0][0], schema, values),
-      hideBack: true,
-      onComplete: () => log('Account Type Complete'),
-      panelContent: <AccountType />,
-    },
-    {
-      disableComplete: !fieldsAreValid(stepValidationFields[0][1], schema, values),
-      onComplete: () => log('Patient Info Complete'),
-      panelContent: <PatientInfo initialFocusedInput={initialFocusedInput} />,
-    },
-    {
-      disableComplete: !fieldsAreValid(stepValidationFields[0][2], schema, values),
-      onComplete: () => log('Patient Email Complete'),
-      panelContent: <PatientEmail />,
-    },
-  ],
-});
-
-export default accountFormSteps;

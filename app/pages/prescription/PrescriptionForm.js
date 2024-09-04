@@ -9,8 +9,7 @@ import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { PersistFormikValues } from 'formik-persist-values';
 import each from 'lodash/each';
-import every from 'lodash/every';
-import find from 'lodash/find';
+import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -19,8 +18,8 @@ import keyBy from 'lodash/keyBy';
 import keys from 'lodash/keys';
 import noop from 'lodash/noop';
 import omit from 'lodash/omit';
+import reduce from 'lodash/reduce';
 import remove from 'lodash/remove';
-import slice from 'lodash/slice';
 import flattenDeep from 'lodash/flattenDeep';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
@@ -28,6 +27,7 @@ import isInteger from 'lodash/isInteger';
 import isArray from 'lodash/isArray';
 import { default as _values } from 'lodash/values';
 import includes from 'lodash/includes';
+import last from 'lodash/last';
 import { utils as vizUtils } from '@tidepool/viz';
 import { Box, Flex, Text } from 'theme-ui';
 import canonicalize from 'canonicalize';
@@ -36,11 +36,6 @@ import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
-import accountFormSteps from './accountFormSteps';
-import profileFormSteps from './profileFormSteps';
-import settingsCalculatorFormSteps from './settingsCalculatorFormSteps';
-import therapySettingsFormStep from './therapySettingsFormStep';
-import reviewFormStep from './reviewFormStep';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import Button from '../../components/elements/Button';
 import Pill from '../../components/elements/Pill';
@@ -57,9 +52,9 @@ import {
   cgmDeviceOptions,
   defaultUnits,
   deviceIdMap,
+  getFormSteps,
   prescriptionStateOptions,
   pumpDeviceOptions,
-  stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
 
@@ -293,7 +288,6 @@ export const PrescriptionForm = props => {
   const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.palmtree);
-  const pump = find(devices.pumps, { id: pumpId });
   const prescriptionState = get(prescription, 'state', 'draft');
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
   const isEditable = includes(['draft', 'pending'], prescriptionState);
@@ -332,6 +326,8 @@ export const PrescriptionForm = props => {
   const activeStepsParam = params().get(activeStepParamKey);
 
   const [formPersistReady, setFormPersistReady] = useState(false);
+  const [formSteps, setFormSteps] = useState([]);
+  const [skippedFields, setSkippedFields] = useState([]);
   const [stepAsyncState, setStepAsyncState] = useState(asyncStates.initial);
   const [activeStep, setActiveStep] = useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined);
   const [activeSubStep, setActiveSubStep] = useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined);
@@ -339,8 +335,7 @@ export const PrescriptionForm = props => {
   const [initialFocusedInput, setInitialFocusedInput] = useState();
   const [singleStepEditValues, setSingleStepEditValues] = useState(values);
   const isSingleStepEdit = !!pendingStep.length;
-  const validationFields = [ ...stepValidationFields ];
-  const isLastStep = () => activeStep === validationFields.length - 1;
+  const isLastStep = () => activeStep === formSteps.length - 1;
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
@@ -379,13 +374,32 @@ export const PrescriptionForm = props => {
         'therapySettingsReviewed',
       ];
 
+      // Delete fields that are intentionally skipped for the selected pump
+      if (skippedFields.length) {
+        fieldsToDelete.push(...(filter(skippedFields, fieldPath => {
+          const pathParts = fieldPath.split('.');
+          const value = get(values, pathParts);
+
+          // Skipped top-level fields can always be deleted from the payload
+          // Only delete nested skipped fields if they are empty.
+          return pathParts.length > 1 ? isEmpty(value) : true;
+        })));
+      }
+
       // Also delete any fields from future form steps if empty
       // We can't simply delete all future steps, as the clinician may have returned to the current
       // step via 'Back' button navigation and we don't want to lose existing data previously
       // entered in the later steps.
       if (!isLastStep()) {
+        const fieldsInFutureSteps = reduce(formSteps, (fields, step, index) => {
+          if (index <= activeStep) return fields;
+
+          fields.push(...map(step.subSteps, 'fields'));
+          return fields;
+        }, []);
+
         const emptyFieldsInFutureSteps = remove(
-          flattenDeep(slice(validationFields, activeStep + 1)),
+          flattenDeep(fieldsInFutureSteps),
           fieldPath => {
             const value = get(values, fieldPath);
 
@@ -435,121 +449,87 @@ export const PrescriptionForm = props => {
     },
   };
 
-  const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
-  const profileFormStepsProps = profileFormSteps(schema, devices, values);
-  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
-  const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
-  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber);
+  useEffect(() => {
+    const pumpDevices = pumpDeviceOptions(devices);
+    const cgmDevices = cgmDeviceOptions(devices);
 
-  const stepProps = step => ({
-    ...step,
-    completeText: isSingleStepEdit ? t('Update and Review') : step.completeText,
-    backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
-    hideBack: isSingleStepEdit ? false : step.hideBack,
-    disableBack: isSingleStepEdit ? false : step.disableBack,
-    onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
-    onBack: isSingleStepEdit ? handlers.singleStepEditComplete.bind(null, true) : step.onBack,
-  });
+    const newSkippedFields = [
+      'calculator',
+      'mrn',
+      'phoneNumber',
+      'training',
+    ];
 
-  const subStepProps = subSteps => map(subSteps, subStep => stepProps(subStep));
+    // Skip device selection substep and set default pump and cgm IDs if there aren't multiple choices available
+    const skipDeviceSelection = cgmDevices.length === 1 && pumpDevices.length === 1;
+    if (skipDeviceSelection) {
+      if (!values.initialSettings?.cgmId) setFieldValue('initialSettings.cgmId', cgmDevices[0].value);
+      if (!values.initialSettings?.pumpId) setFieldValue('initialSettings.pumpId', pumpDevices[0].value);
+      newSkippedFields.push('initialSettings.pumpId', 'initialSettings.cgmId');
+    }
 
-  const steps = [
-    {
-      ...accountFormStepsProps,
-      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
-      asyncState: isSingleStepEdit ? null : stepAsyncState,
-      subSteps: subStepProps(accountFormStepsProps.subSteps),
-    },
-    {
-      ...profileFormStepsProps,
-      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
-      asyncState: isSingleStepEdit ? null : stepAsyncState,
-      subSteps: subStepProps(profileFormStepsProps.subSteps),
-    },
-    {
-      ...settingsCalculatorFormStepsProps,
-      onComplete: handlers.stepSubmit,
-      asyncState: stepAsyncState,
-      subSteps: subStepProps(settingsCalculatorFormStepsProps.subSteps),
-    },
-    {
-      ...stepProps(therapySettingsFormStepProps),
-      onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handlers.stepSubmit,
-      asyncState: isSingleStepEdit ? null : stepAsyncState,
-    },
-    {
-      ...reviewFormStepProps,
-      onComplete: handlers.stepSubmit,
-      asyncState: stepAsyncState,
-    },
-  ];
+    const newFormSteps = getFormSteps(schema, devices, values, handlers, {
+      skippedFields: newSkippedFields,
+      initialFocusedInput,
+      isEditable,
+      isPrescriber,
+      isSingleStepEdit,
+      stepAsyncState,
+    });
 
-  const pumpDevices = pumpDeviceOptions(devices);
-  const cgmDevices = cgmDeviceOptions(devices);
-
-  // Skip device selection substep and set default pump and cgm IDs if there aren't multiple choices available
-  const skipDeviceSelection = cgmDevices.length === 1 && pumpDevices.length === 1;
-  if (skipDeviceSelection) {
-    if (!values.initialSettings?.cgmId) setFieldValue('initialSettings.cgmId', cgmDevices[0].value);
-    if (!values.initialSettings?.pumpId) setFieldValue('initialSettings.pumpId', pumpDevices[0].value);
-    validationFields[1].splice(2, 1);
-    steps[1].subSteps.splice(3, 1);
-  }
-
-  // Skip calculator step if selected pump, or all available pump options are set to skip aace calculator
-  const skipCalculator = !!(pumpDevices.length && every(pumpDevices, { skipCalculator: true })) || !!find(devices, { value: pumpId })?.skipCalculator;
-  if (skipCalculator) {
-    validationFields.splice(2, 1);
-    steps.splice(2, 1);
-  }
+    setFormSteps(newFormSteps);
+    setSkippedFields(newSkippedFields);
+  }, [values, devices, initialFocusedInput, isEditable, isPrescriber, isSingleStepEdit, stepAsyncState])
 
   useEffect(() => {
-    let initialValues = { ...values }
+    if (formSteps.length && !formPersistReady) {
+      let initialValues = { ...values }
 
-    // Hydrate the locally stored values only in the following cases, allowing us to persist data
-    // entered in form substeps but not yet saved to the database
-    // 1. It's a new prescription and there is no locally stored id, and there are step and substep query params
-    // 2. We're editing an existing prescription, and the locally stored id matches the id in the url param
-    if (
-      (isNewPrescriptionFlow() && !storedValues?.id && !isUndefined(activeStep) && !isUndefined(activeSubStep)) ||
-      (id && id === storedValues?.id)
-    ) {
-      initialValues = { ...values, ...storedValues };
-      setValues(initialValues);
-    }
-
-    // After hydrating any relevant values, we delete the localStorage values so formikPersist has a clean start
-    delete localStorage[storageKey];
-
-    // Determine the latest incomplete step, and default to starting there
-    if (isEditable) {
-      let firstInvalidStep;
-      let firstInvalidSubStep;
-      let currentStep = 0;
-      let currentSubStep = 0;
-
-      while (isUndefined(firstInvalidStep) && currentStep < validationFields.length) {
-        while (currentSubStep < validationFields[currentStep].length) {
-          if (!fieldsAreValid(validationFields[currentStep][currentSubStep], schema, initialValues)) {
-            firstInvalidStep = currentStep;
-            firstInvalidSubStep = currentSubStep;
-            break;
-          }
-          currentSubStep++
-        }
-
-        currentStep++;
-        currentSubStep = 0;
+      // Hydrate the locally stored values only in the following cases, allowing us to persist data
+      // entered in form substeps but not yet saved to the database
+      // 1. It's a new prescription and there is no locally stored id, and there are step and substep query params
+      // 2. We're editing an existing prescription, and the locally stored id matches the id in the url param
+      if (
+        (isNewPrescriptionFlow() && !storedValues?.id && !isUndefined(activeStep) && !isUndefined(activeSubStep)) ||
+        (id && id === storedValues?.id)
+      ) {
+        initialValues = { ...values, ...storedValues };
+        setValues(initialValues);
       }
 
-      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : steps.length - 1);
-      setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
-    }
+      // After hydrating any relevant values, we delete the localStorage values so formikPersist has a clean start
+      delete localStorage[storageKey];
 
-    // Now that any hydration is complete and we've cleared locally stored values,
-    // we're ready for formikPersist to take over form persistence
-    setFormPersistReady(true);
-  }, []);
+      // Determine the latest incomplete step, and default to starting there
+      if (isEditable) {
+        let firstInvalidStep;
+        let firstInvalidSubStep;
+        let currentStep = 0;
+        let currentSubStep = 0;
+
+        while (isUndefined(firstInvalidStep) && currentStep < formSteps.length) {
+          while (currentSubStep < formSteps[currentStep].subSteps.length) {
+            if (!fieldsAreValid(formSteps[currentStep].subSteps[currentSubStep].fields, schema, initialValues)) {
+              firstInvalidStep = currentStep;
+              firstInvalidSubStep = currentSubStep;
+              break;
+            }
+            currentSubStep++
+          }
+
+          currentStep++;
+          currentSubStep = 0;
+        }
+
+        setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : formSteps.length - 1);
+        setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
+      }
+
+      // Now that any hydration is complete and we've cleared locally stored values,
+      // we're ready for formikPersist to take over form persistence
+      setFormPersistReady(true);
+    }
+  }, [formSteps.length]);
 
   // Save whether or not we are editing a single step to the formik form status for easy reference
   useEffect(() => {
@@ -636,7 +616,7 @@ export const PrescriptionForm = props => {
 
       log('Step to', newStep.join(','));
     },
-    steps,
+    steps: formSteps,
     themeProps: {
       wrapper: {
         padding: 4,
@@ -684,11 +664,11 @@ export const PrescriptionForm = props => {
         <Pill label="prescription status" colorPalette={prescriptionStateColorPalette} text={prescriptionStateLabel} />
       </Flex>
 
-      {isEditable && !isUndefined(activeStep) && <Stepper {...stepperProps} />}
+      {formSteps.length && isEditable && !isUndefined(activeStep) && <Stepper {...stepperProps} />}
 
-      {!isEditable && (
+      {formSteps.length && !isEditable && (
         <Box px={4}>
-          {reviewFormStepProps.panelContent}
+          {last(formSteps).subSteps[0].panelContent}
         </Box>
       )}
 

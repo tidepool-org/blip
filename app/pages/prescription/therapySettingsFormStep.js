@@ -3,15 +3,14 @@ import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'theme-ui';
-import bows from 'bows';
 import each from 'lodash/each';
 import get from 'lodash/get';
+import includes from 'lodash/includes';
 import map from 'lodash/map';
 import max from 'lodash/max';
 
-import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
+import { getFieldError, getThresholdWarning } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import i18next from '../../core/language';
 import { Paragraph2, Body2, Headline, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import PopoverLabel from '../../components/elements/PopoverLabel';
@@ -26,7 +25,6 @@ import {
   pumpRanges,
   roundValueToIncrement,
   shouldUpdateDefaultValue,
-  stepValidationFields,
   trainingOptions,
   warningThresholds,
 } from './prescriptionFormConstants';
@@ -37,9 +35,6 @@ import {
   wideBorderedFieldsetStyles,
   scheduleGroupStyles,
 } from './prescriptionFormStyles';
-
-const t = i18next.t.bind(i18next);
-const log = bows('PrescriptionTherapySettings');
 
 const fieldsetPropTypes = {
   ...BoxProps,
@@ -655,18 +650,10 @@ export const TherapySettings = withTranslation()(props => {
     <Box id="therapy-settings-step">
       <PatientInfo mb={4} {...props} />
       {hasCalculatorResults(values) && <DefaultCalculatorSettings mt={0} mb={4} {...props} />}
-      <PatientTraining mt={0} mb={4} {...props} />
+      {!includes(props.skippedFields, 'training') && <PatientTraining mt={0} mb={4} {...props} />}
       {values.training === 'inModule' && <InModuleTrainingNotification mt={0} mb={4} {...props} />}
       <GlucoseSettings mt={0} mb={4} {...{ ranges, thresholds, ...props }} />
       <InsulinSettings mt={0} {...{ ranges, thresholds, ...props }} />
     </Box>
   );
 });
-
-const therapySettingsFormStep = (schema, pump, values) => ({
-  label: t('Enter Therapy Settings'),
-  disableComplete: !fieldsAreValid(stepValidationFields[3][0], schema, values),
-  panelContent: <TherapySettings pump={pump} />
-});
-
-export default therapySettingsFormStep;

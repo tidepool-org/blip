@@ -2,15 +2,13 @@ import React from 'react';
 import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex } from 'theme-ui';
-import bows from 'bows';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import InputMask from 'react-input-mask';
 
-import { fieldsAreValid, getFieldError } from '../../core/forms';
+import { getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
 import TextInput from '../../components/elements/TextInput';
@@ -27,11 +25,7 @@ import {
   sexOptions,
   cgmDeviceOptions,
   pumpDeviceOptions,
-  stepValidationFields,
 } from './prescriptionFormConstants';
-
-const t = i18next.t.bind(i18next);
-const log = bows('PrescriptionProfile');
 
 export const PatientPhone = withTranslation()(props => {
   const { t } = props;
@@ -194,31 +188,3 @@ export const PatientDevices = withTranslation()(props => {
     </Box>
   );
 });
-
-const profileFormSteps = (schema, devices, values) => ({
-  label: t('Complete Patient Profile'),
-  subSteps: [
-    {
-      disableComplete: !fieldsAreValid(stepValidationFields[1][0], schema, values),
-      onComplete: () => log('Patient Phone Number Complete'),
-      panelContent: <PatientPhone />
-    },
-    {
-      disableComplete: !fieldsAreValid(stepValidationFields[1][1], schema, values),
-      onComplete: () => log('Patient MRN Complete'),
-      panelContent: <PatientMRN />,
-    },
-    {
-      disableComplete: !fieldsAreValid(stepValidationFields[1][2], schema, values),
-      onComplete: () => log('Patient Gender Complete'),
-      panelContent: <PatientGender />,
-    },
-    {
-      disableComplete: !fieldsAreValid(stepValidationFields[1][3], schema, values),
-      onComplete: () => log('Patient Devices Complete'),
-      panelContent: <PatientDevices devices={devices} />,
-    },
-  ],
-});
-
-export default profileFormSteps;

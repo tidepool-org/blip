@@ -73,10 +73,6 @@ describe('prescriptionFormConstants', function() {
     _.each(prescriptionFormConstants.deviceDetails, (details, deviceId) => {
       expect(details.description).to.be.an('object');
       expect(details.description.props).to.be.an('object').and.have.keys(['children']);
-
-      if (deviceId === prescriptionFormConstants.deviceIdMap.palmtree) {
-        expect(details.skipCalculator).to.be.true;
-      }
     });
   });
 

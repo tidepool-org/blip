@@ -1,22 +1,35 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'theme-ui';
+import bows from 'bows';
+import isEmpty from 'lodash/isEmpty';
 import isFinite from 'lodash/isFinite';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import max from 'lodash/max';
 import mean from 'lodash/mean';
 import min from 'lodash/min';
+import noop from 'lodash/noop';
 import filter from 'lodash/filter';
 import includes from 'lodash/includes';
+import reduce from 'lodash/reduce';
+import reject from 'lodash/reject';
 import moment from 'moment';
 
 import i18next from '../../core/language';
 import { LBS_PER_KG, MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import utils from '../../core/utils';
 import { getFloatFromUnitsAndNanos } from '../../core/data';
+import { fieldsAreValid } from '../../core/forms';
+
+import { AccountType, PatientEmail, PatientInfo } from './accountFormSteps';
+import { PatientDevices, PatientGender, PatientMRN, PatientPhone } from './profileFormSteps';
+import { CalculatorInputs, CalculatorMethod } from './settingsCalculatorFormSteps';
+import { TherapySettings } from './therapySettingsFormStep';
+import { PrescriptionReview } from './reviewFormStep';
 
 const t = i18next.t.bind(i18next);
+const log = bows('PrescriptionForm');
 
 export const dateFormat = 'YYYY-MM-DD';
 export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
@@ -50,7 +63,6 @@ export const deviceDetails = {
         Find information on how to prescribe Palmtree products <Link to="#">here</Link>.
       </Trans>
     ),
-    skipCalculator: true,
   },
 };
 
@@ -480,46 +492,191 @@ export const weightUnitOptions = [
 
 export const validCountryCodes = [1];
 
-export const stepValidationFields = [
-  [
-    ['accountType'],
-    ['firstName', 'lastName', 'birthday'],
-    ['caregiverFirstName', 'caregiverLastName', 'email', 'emailConfirm'],
-  ],
-  [
-    ['phoneNumber.number'],
-    ['mrn'],
-    ['sex'],
-    ['initialSettings.pumpId', 'initialSettings.cgmId'],
-  ],
-  [
-    ['calculator.method'],
-    [
-      'calculator.totalDailyDose',
-      'calculator.totalDailyDoseScaleFactor',
-      'calculator.weight',
-      'calculator.weightUnits',
-      'calculator.recommendedBasalRate',
-      'calculator.recommendedInsulinSensitivity',
-      'calculator.recommendedCarbohydrateRatio',
-    ],
-  ],
-  [
-    [
-      'training',
-      'initialSettings.glucoseSafetyLimit',
-      'initialSettings.insulinModel',
-      'initialSettings.basalRateMaximum.value',
-      'initialSettings.bolusAmountMaximum.value',
-      'initialSettings.bloodGlucoseTargetSchedule',
-      'initialSettings.bloodGlucoseTargetPhysicalActivity',
-      'initialSettings.bloodGlucoseTargetPreprandial',
-      'initialSettings.basalRateSchedule',
-      'initialSettings.carbohydrateRatioSchedule',
-      'initialSettings.insulinSensitivitySchedule',
-    ],
-  ],
-  [
-    ['therapySettingsReviewed'],
-  ],
-];
+export const getFormSteps = (schema, devices, values, handlers, options = {}) => {
+  const {
+    skippedFields = [],
+    isEditable,
+    isPrescriber,
+    initialFocusedInput,
+    isSingleStepEdit,
+    stepAsyncState,
+  } = options;
+
+  const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.palmtree);
+  const pump = find(devices.pumps, { id: pumpId });
+
+  const allSteps = [
+    {
+      key: 'account',
+      label: t('Create Patient Account'),
+      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
+      asyncState: isSingleStepEdit ? null : stepAsyncState,
+      subSteps: [
+        {
+          fields: ['accountType'],
+          hideBack: true,
+          onComplete: () => log('Account Type Complete'),
+          panelContent: <AccountType />,
+        },
+        {
+          fields: ['firstName', 'lastName', 'birthday'],
+          onComplete: () => log('Patient Info Complete'),
+          panelContent: <PatientInfo initialFocusedInput={initialFocusedInput} />,
+        },
+        {
+          fields: ['caregiverFirstName', 'caregiverLastName', 'email', 'emailConfirm'],
+          onComplete: () => log('Patient Email Complete'),
+          panelContent: <PatientEmail />,
+        },
+      ],
+    },
+    {
+      key: 'profile',
+      label: t('Complete Patient Profile'),
+      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
+      asyncState: isSingleStepEdit ? null : stepAsyncState,
+      subSteps: [
+        {
+          fields: ['phoneNumber.number'],
+          onComplete: () => log('Patient Phone Number Complete'),
+          panelContent: <PatientPhone />
+        },
+        {
+          fields: ['mrn'],
+          onComplete: () => log('Patient MRN Complete'),
+          panelContent: <PatientMRN />,
+        },
+        {
+          fields: ['sex'],
+          onComplete: () => log('Patient Gender Complete'),
+          panelContent: <PatientGender />,
+        },
+        {
+          fields: ['initialSettings.pumpId', 'initialSettings.cgmId'],
+          onComplete: () => log('Patient Devices Complete'),
+          panelContent: <PatientDevices devices={devices} />,
+        },
+      ],
+    },
+    {
+      key: 'calculator',
+      label: t('Therapy Settings Calculator'),
+      optional: true,
+      onSkip: handlers.clearCalculator,
+      onEnter: handlers.goToFirstSubStep,
+      onComplete: handlers.stepSubmit,
+      asyncState: stepAsyncState,
+      subSteps: [
+        {
+          fields: ['calculator.method'],
+          onComplete: () => log('Calculator Method Complete'),
+          panelContent: <CalculatorMethod onMethodChange={() => {
+            handlers.clearCalculatorInputs();
+            handlers.clearCalculatorResults();
+          }} />,
+        },
+        {
+          fields: [
+            'calculator.totalDailyDose',
+            'calculator.totalDailyDoseScaleFactor',
+            'calculator.weight',
+            'calculator.weightUnits',
+            'calculator.recommendedBasalRate',
+            'calculator.recommendedInsulinSensitivity',
+            'calculator.recommendedCarbohydrateRatio',
+          ],
+          onComplete: () => log('Calculator Inputs Complete'),
+          panelContent: <CalculatorInputs schema={schema} />
+        },
+      ],
+    },
+    {
+      key: 'therapySettings',
+      label: t('Enter Therapy Settings'),
+      onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handlers.stepSubmit,
+      asyncState: isSingleStepEdit ? null : stepAsyncState,
+      subSteps: [
+        {
+          fields: [
+            'training',
+            'initialSettings.glucoseSafetyLimit',
+            'initialSettings.insulinModel',
+            'initialSettings.basalRateMaximum.value',
+            'initialSettings.bolusAmountMaximum.value',
+            'initialSettings.bloodGlucoseTargetSchedule',
+            'initialSettings.bloodGlucoseTargetPhysicalActivity',
+            'initialSettings.bloodGlucoseTargetPreprandial',
+            'initialSettings.basalRateSchedule',
+            'initialSettings.carbohydrateRatioSchedule',
+            'initialSettings.insulinSensitivitySchedule',
+          ],
+          panelContent: <TherapySettings pump={pump} skippedFields={skippedFields} />,
+        },
+      ],
+    },
+    {
+      key: 'review',
+      label: t('Review and {{action}} Prescription', { action: isPrescriber ? 'Send' : 'Save' }),
+      onComplete: handlers.stepSubmit,
+      asyncState: stepAsyncState,
+      subSteps: [
+        {
+          fields: ['therapySettingsReviewed'],
+          completeText: t('{{action}} Prescription', { action: isPrescriber ? 'Send Final' : 'Save Pending' }),
+          panelContent: <PrescriptionReview pump={pump} handlers={handlers} isEditable={isEditable} skippedFields={skippedFields} />
+        },
+      ],
+    },
+  ];
+
+  const addCommonStepProps = step => ({
+    ...step,
+    completeText: isSingleStepEdit ? t('Update and Review') : step.completeText,
+    backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
+    hideBack: isSingleStepEdit ? false : step.hideBack,
+    disableBack: isSingleStepEdit ? false : step.disableBack,
+    onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
+    onBack: isSingleStepEdit ? handlers.singleStepEditComplete.bind(null, true) : step.onBack,
+  });
+
+  const enabledFields = [];
+
+  const formSteps = reduce(allSteps, (result, step) => {
+    if (includes(skippedFields, step.key)) return result;
+
+    const subSteps = reduce(step.subSteps, (subStepResult, subStep) => {
+      const fields = reject(subStep.fields, field => includes(skippedFields, field) || includes(skippedFields, field.split('.')[0]));
+      if (!fields.length) return subStepResult;
+
+      enabledFields.push(...fields);
+
+      let disableComplete = !fieldsAreValid(fields, schema, values);
+
+      if (!disableComplete) {
+        if (includes(fields, 'calculator.method')) {
+          disableComplete = isEmpty(get(values, 'calculator.method'));
+        }
+        if (includes(fields, 'therapySettingsReviewed')) {
+          disableComplete = !fieldsAreValid(enabledFields, schema, values);
+        }
+      }
+
+      subStepResult.push(addCommonStepProps({
+        ...subStep,
+        fields,
+        disableComplete,
+      }));
+
+      return subStepResult;
+    }, []);
+
+    if (subSteps.length) result.push(addCommonStepProps({
+      ...step,
+      subSteps,
+    }));
+
+    return result;
+  }, []);
+
+  return formSteps;
+};
