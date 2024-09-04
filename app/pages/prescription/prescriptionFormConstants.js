@@ -4,6 +4,7 @@ import { Link } from 'theme-ui';
 import bows from 'bows';
 import isEmpty from 'lodash/isEmpty';
 import isFinite from 'lodash/isFinite';
+import find from 'lodash/find';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import max from 'lodash/max';
