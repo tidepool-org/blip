@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import reviewFormStep from '../../../../app/pages/prescription/reviewFormStep';
+import { deviceIdMap, getFormSteps } from '../../../../app/pages/prescription/prescriptionFormConstants';
 
 /* global chai */
 /* global sinon */
@@ -11,7 +11,7 @@ import reviewFormStep from '../../../../app/pages/prescription/reviewFormStep';
 
 const expect = chai.expect;
 
-const values = {
+const defaultValues = {
   accountType: 'goodField',
   firstName: 'goodField',
   lastName: 'goodField',
@@ -37,7 +37,7 @@ const values = {
     recommendedCarbohydrateRatio: 'goodField',
   },
   initialSettings: {
-    pumpId: 'goodField',
+    pumpId: deviceIdMap.palmtree,
     cgmId: 'goodField',
     glucoseSafetyLimit: 'goodField',
     insulinModel: 'goodField',
@@ -53,92 +53,102 @@ const values = {
   therapySettingsReviewed: 'goodField',
 };
 
+const defaultOptions = {
+  skippedFields: [],
+  isEditable: true,
+  isPrescriber: true,
+  initialFocusedInput: 'myInput',
+  isSingleStepEdit: false,
+  stepAsyncState: null,
+};
+
 const validateSyncAt = sinon.stub().callsFake((fieldKey, values) => {
   if (_.get(values, fieldKey) === 'badField') {
     throw('error');
   }
 });
 
-const schema = { validateSyncAt };
-
-const invalidateValue = fieldPath => _.set({ ...values }, fieldPath, 'badField');
-
-const pump = { id: 'myPump' };
-
 const handlers = {
   activeStepUpdate: sinon.stub(),
 };
 
-const isEditable = true;
+const devices = {
+  cgms: [{ id: deviceIdMap.dexcomG6 }],
+  pumps: [{ id: deviceIdMap.palmtree }],
+};
+
+const schema = { validateSyncAt };
+const reviewFormStep = (values = defaultValues, options = defaultOptions) => _.find(getFormSteps(schema, devices, values, handlers, options), { key: 'review' });
+const invalidateValue = fieldPath => _.set({ ...defaultValues }, fieldPath, 'badField');
 
 describe('reviewFormStep', function() {
   afterEach(() => {
     handlers.activeStepUpdate.resetHistory();
   });
 
-  it('should export a reviewFormStep function', function() {
-    expect(reviewFormStep).to.be.a('function');
+  it('should include the step label for a clinician with prescriber permissions', () => {
+    expect(reviewFormStep().label).to.equal('Review and Send Prescription');
   });
 
-  it('should include the step label', () => {
-    expect(reviewFormStep().label).to.equal('Review and Save Prescription');
-  });
-
-  it('should include the custom next button text for a clinician without prescriber permissions', () => {
-    const isPrescriber = false;
-    expect(reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber).completeText).to.equal('Save Pending Prescription');
+  it('should include the step label for a clinician without prescriber permissions', () => {
+    expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).label).to.equal('Review and Save Prescription');
   });
 
   it('should include the custom next button text for a clinician with prescriber permissions', () => {
-    const isPrescriber = true;
-    expect(reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber).completeText).to.equal('Send Final Prescription');
+    expect(reviewFormStep().subSteps[0].completeText).to.equal('Send Final Prescription');
+  });
+
+  it('should include the custom next button text for a clinician without prescriber permissions', () => {
+    expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).subSteps[0].completeText).to.equal('Save Pending Prescription');
   });
 
   it('should include panel content with pump and handlers passed along as props', () => {
-    const step = reviewFormStep(schema, pump, handlers, values);
-    expect(step.panelContent.type).to.be.a('function');
-    expect(step.panelContent.props.pump).to.eql(pump);
-    expect(step.panelContent.props.handlers).to.eql(handlers);
+    const subSteps = reviewFormStep().subSteps;
+
+    expect(subSteps).to.be.an('array').and.have.lengthOf(1);
+    expect(subSteps[0].panelContent.type).to.be.a('function');
+    expect(subSteps[0].panelContent.props.pump).to.eql(devices.pumps[0]);
+    expect(subSteps[0].panelContent.props.handlers).to.eql(handlers);
   });
 
   it('should disable the complete button if the any of the prescriptions fields are invalid', () => {
-    expect(reviewFormStep(schema, pump, handlers, values).disableComplete).to.be.false;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('accountType')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('firstName')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('lastName')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('birthday')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('caregiverFirstName')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('caregiverLastName')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('email')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('emailConfirm')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('phoneNumber.number')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('mrn')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('sex')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.method')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.totalDailyDose')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.totalDailyDoseScaleFactor')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.weight')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.weightUnits')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.recommendedBasalRate')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.recommendedInsulinSensitivity')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.recommendedCarbohydrateRatio')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('training')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.pumpId')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.cgmId')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.glucoseSafetyLimit')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.insulinModel')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.basalRateMaximum')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.bolusAmountMaximum')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.bloodGlucoseTargetSchedule')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.bloodGlucoseTargetPhysicalActivity')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.bloodGlucoseTargetPreprandial')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.basalRateSchedule')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.carbohydrateRatioSchedule')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.insulinSensitivitySchedule')).disableComplete).to.be.true;
-    expect(reviewFormStep(schema, pump, handlers, invalidateValue('therapySettingsReviewed')).disableComplete).to.be.true;
+    expect(reviewFormStep().subSteps[0].disableComplete).to.be.false;
+    expect(reviewFormStep(invalidateValue('accountType')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('firstName')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('lastName')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('birthday')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('caregiverFirstName')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('caregiverLastName')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('email')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('emailConfirm')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('mrn')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('sex')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('calculator.method')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('calculator.totalDailyDose')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('calculator.totalDailyDoseScaleFactor')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('calculator.weight')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('calculator.weightUnits')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('calculator.recommendedBasalRate')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('calculator.recommendedInsulinSensitivity')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('calculator.recommendedCarbohydrateRatio')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('training')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.pumpId')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.cgmId')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.glucoseSafetyLimit')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.insulinModel')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.basalRateMaximum')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.bolusAmountMaximum')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.bloodGlucoseTargetSchedule')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPhysicalActivity')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPreprandial')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.basalRateSchedule')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.carbohydrateRatioSchedule')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('initialSettings.insulinSensitivitySchedule')).subSteps[0].disableComplete).to.be.true;
+    expect(reviewFormStep(invalidateValue('therapySettingsReviewed')).subSteps[0].disableComplete).to.be.true;
   });
 
   it('should not hide the back button', () => {
-    expect(reviewFormStep().hideBack).to.be.undefined;
+    expect(reviewFormStep().subSteps[0].hideBack).to.be.undefined;
   });
 });

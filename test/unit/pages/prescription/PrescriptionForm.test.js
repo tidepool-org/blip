@@ -112,16 +112,17 @@ describe('PrescriptionForm', () => {
     expect(idField).to.have.length(1);
   });
 
-  it('should render the form steps', () => {
-    const nonSkippedPumpProps = {
+  it('should render the all the form steps when skippedFieldsProps is provided as an empty array', () => {
+    const noSkippedFieldsProps = {
       ...defaultProps,
       devices: {
         cgm: [{ id: deviceIdMap.dexcomG6 }],
-        pumps: [{ id: 'somedevice' }],
+        pumps: [{ id: deviceIdMap.palmtree }],
       },
+      skippedFields: [],
     };
 
-    const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...nonSkippedPumpProps} {...formikProps} />);
+    const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...noSkippedFieldsProps} {...formikProps} />);
     wrapper = mount(
       <Provider store={defaultState}>
         <ToastProvider>
@@ -147,16 +148,17 @@ describe('PrescriptionForm', () => {
     expect(steps.at(4).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
   });
 
-  it('should not render the calculator form steps when using a palmtree pump', () => {
-    const skippedPumpProps = {
+  it('should not render the calculator form steps when using the default-provided skipFields props', () => {
+    const defaultSkippedFieldProps = {
       ...defaultProps,
       devices: {
         cgm: [{ id: deviceIdMap.dexcomG6 }],
         pumps: [{ id: deviceIdMap.palmtree }],
       },
+      skippedFields: undefined,
     };
 
-    const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...skippedPumpProps} {...formikProps} />);
+    const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...defaultSkippedFieldProps} {...formikProps} />);
     wrapper = mount(
       <Provider store={defaultState}>
         <ToastProvider>
@@ -179,6 +181,42 @@ describe('PrescriptionForm', () => {
     expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
     expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
     expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
+  });
+
+  it('should render the calculator form steps when using custom skipFields prop that does not exclude calculator', () => {
+    const skippedFieldProps = {
+      ...defaultProps,
+      devices: {
+        cgm: [{ id: deviceIdMap.dexcomG6 }],
+        pumps: [{ id: deviceIdMap.palmtree }],
+      },
+      skippedFields: ['mrn'],
+    };
+
+    const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...skippedFieldProps} {...formikProps} />);
+    wrapper = mount(
+      <Provider store={defaultState}>
+        <ToastProvider>
+            <MemoryRouter initialEntries={['/prescriptions/new']}>
+              <Route path='/prescriptions/new' children={() => <Element />} />
+            </MemoryRouter>
+        </ToastProvider>
+      </Provider>
+    );
+
+    const stepper = wrapper.find('#prescription-form-steps').hostNodes();
+    expect(stepper).to.have.length(1);
+
+    const steps = stepper.find('.MuiStep-root');
+    expect(steps).to.have.length(5);
+
+    expect(steps.at(0).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Create Patient Account');
+    expect(steps.at(0).hasClass('active')).to.be.true;
+
+    expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
+    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Therapy Settings Calculator');
+    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
+    expect(steps.at(4).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
   });
 
   it('should render the form actions, with only the `next` button on the first step', () => {

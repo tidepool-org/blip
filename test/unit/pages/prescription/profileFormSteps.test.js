@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import profileFormSteps from '../../../../app/pages/prescription/profileFormSteps';
+import { deviceIdMap, getFormSteps } from '../../../../app/pages/prescription/prescriptionFormConstants';
 
 /* global chai */
 /* global describe */
@@ -9,7 +9,7 @@ import profileFormSteps from '../../../../app/pages/prescription/profileFormStep
 
 const expect = chai.expect;
 
-const values = {
+const defaultValues = {
   phoneNumber: {
     number: 'goodField',
   },
@@ -21,48 +21,60 @@ const values = {
   },
 };
 
+const defaultOptions = {
+  skippedFields: [],
+  isEditable: true,
+  isPrescriber: true,
+  initialFocusedInput: 'myInput',
+  isSingleStepEdit: false,
+  stepAsyncState: null,
+};
+
 const validateSyncAt = sinon.stub().callsFake((fieldKey, values) => {
   if (_.get(values, fieldKey) === 'badField') {
     throw('error');
   }
 });
 
-const schema = { validateSyncAt };
+const handlers = {};
 
-const invalidateValue = fieldPath => _.set({ ...values }, fieldPath, 'badField');
+const devices = {
+  cgms: [{ id: deviceIdMap.dexcomG6 }],
+  pumps: [{ id: deviceIdMap.palmtree }],
+};
+
+const schema = { validateSyncAt };
+const profileFormSteps = (values = defaultValues, options = defaultOptions) => _.find(getFormSteps(schema, devices, values, handlers, options), { key: 'profile' });
+const invalidateValue = fieldPath => _.set({ ...defaultValues }, fieldPath, 'badField');
 
 describe('profileFormSteps', function() {
-  it('should export a profileFormSteps function', function() {
-    expect(profileFormSteps).to.be.a('function');
-  });
-
   it('should include the step label', () => {
     expect(profileFormSteps().label).to.equal('Complete Patient Profile');
   });
 
   it('should include the step subSteps with devices passed to 4th substep', () => {
-    const subSteps = profileFormSteps(schema, 'myDevices', values).subSteps;
+    const subSteps = profileFormSteps().subSteps;
 
     expect(subSteps).to.be.an('array').and.have.lengthOf(4);
 
     _.each(subSteps, (subStep, index) => {
       expect(subStep.panelContent.type).to.be.a('function');
-      if (index === 3) expect(subStep.panelContent.props.devices).to.equal('myDevices');
+      if (index === 3) expect(subStep.panelContent.props.devices).to.eql(devices);
     });
   });
 
   it('should disable the complete button for any invalid fields within a subStep', () => {
-    const subSteps = profileFormSteps(schema, null, values).subSteps;
+    const subSteps = profileFormSteps().subSteps;
     expect(subSteps[0].disableComplete).to.be.false;
     expect(subSteps[1].disableComplete).to.be.false;
     expect(subSteps[2].disableComplete).to.be.false;
     expect(subSteps[3].disableComplete).to.be.false;
 
-    expect(profileFormSteps(schema, null, invalidateValue('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
-    expect(profileFormSteps(schema, null, invalidateValue('mrn')).subSteps[1].disableComplete).to.be.true;
-    expect(profileFormSteps(schema, null, invalidateValue('sex')).subSteps[2].disableComplete).to.be.true;
-    expect(profileFormSteps(schema, null, invalidateValue('initialSettings.pumpId')).subSteps[3].disableComplete).to.be.true;
-    expect(profileFormSteps(schema, null, invalidateValue('initialSettings.cgmId')).subSteps[3].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('mrn')).subSteps[1].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('sex')).subSteps[2].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('initialSettings.pumpId')).subSteps[3].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('initialSettings.cgmId')).subSteps[3].disableComplete).to.be.true;
   });
 
   it('should not hide the back button for the any subSteps', () => {

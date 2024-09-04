@@ -379,11 +379,14 @@ describe('prescriptionFormConstants', function() {
       const pump = {
         id: prescriptionFormConstants.deviceIdMap.palmtree,
         guardRails: {
-          basalRates: { absoluteBounds: {
-            minimum: { units: 1, nanos: 0 },
-            maximum: { units: 11, nanos: 0 },
-            increment: { units: 1, nanos: 0 },
-          } },
+          basalRates: {
+            absoluteBounds: {
+              minimum: { units: 1, nanos: 0 },
+              maximum: { units: 11, nanos: 0 },
+              increment: { units: 1, nanos: 0 },
+            },
+            maxSegments: 24,
+          },
           basalRateMaximum: { absoluteBounds: {
             minimum: { units: 2, nanos: 0 },
             maximum: { units: 12, nanos: 0 },
@@ -734,14 +737,14 @@ describe('prescriptionFormConstants', function() {
       expect(result.basalRate).to.equal(0.2);
     });
 
-    it('should return a default value for basalRate when not provided by calculator', () => {
+    it('should return undefined value for basalRate when not provided by calculator', () => {
       const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
         calculator: {
           recommendedBasalRate: undefined,
         },
       });
 
-      expect(result.basalRate).to.equal(0.05);
+      expect(result.basalRate).to.be.undefined;
     });
 
     it('should return a default value for insulinSensitivity as provided by calculator', () => {
