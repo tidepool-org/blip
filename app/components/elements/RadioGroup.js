@@ -38,7 +38,7 @@ const StyledRadio = styled(Base)`
 `;
 
 const StyledRadioLabel = styled(Text)`
-  display: 'inline-block',
+  display: inline-block;
   margin-right: 2em;
   margin-top: .05em;
 
