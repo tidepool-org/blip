@@ -3,22 +3,22 @@ import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
 import { Box, Flex, BoxProps } from 'theme-ui';
-import bows from 'bows';
 import compact from 'lodash/compact';
 import find from 'lodash/find';
-import flattenDeep from 'lodash/flattenDeep';
 import get from 'lodash/get';
+import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
+import reject from 'lodash/reject';
 import capitalize from 'lodash/capitalize';
 import isArray from 'lodash/isArray';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
-import { fieldsAreValid, getThresholdWarning, getFieldError } from '../../core/forms';
+import { getThresholdWarning, getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import { dateRegex, insulinModelOptions, stepValidationFields, warningThresholds } from './prescriptionFormConstants';
+import { dateRegex, getFieldStepMap, insulinModelOptions, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
@@ -34,7 +34,6 @@ import {
 
 const { ClipboardButton } = vizComponents;
 const t = i18next.t.bind(i18next);
-const log = bows('PrescriptionReview');
 
 const fieldsetPropTypes = {
   ...BoxProps,
@@ -44,54 +43,58 @@ const fieldsetPropTypes = {
 
 const emptyValueText = t('Not specified');
 
-const patientRows = (values, formikContext) => {
-  return [
+const patientRows = (values, formikContext, skippedFields = [], fieldStepMap = {}) => {
+  const rows = [
     {
       label: t('Email'),
       value: get(values, 'email', emptyValueText),
       error: getFieldError('email', formikContext, true),
-      step: [0, 2],
+      step: fieldStepMap.email,
     },
     {
       label: t('Mobile Number'),
       value: get(values, 'phoneNumber.number', emptyValueText),
-      error: getFieldError('phoneNumber.number', formikContext, true),
-      step: [1, 0],
+      error: get(values, 'phoneNumber.number') && getFieldError('phoneNumber.number', formikContext, true),
+      skipped: includes(skippedFields, 'phoneNumber'),
+      step: fieldStepMap['phoneNumber.number'],
     },
     {
       label: t('Type of Account'),
       value: get(values, 'accountType') ? capitalize(values.accountType) : emptyValueText,
       error: getFieldError('accountType', formikContext, true),
-      step: [0, 0],
+      step: fieldStepMap.accountType,
     },
     {
       label: t('Birthdate'),
       value: get(values, 'birthday', emptyValueText).replace(dateRegex, '$2/$3/$1'),
       error: getFieldError('birthday', formikContext, true),
-      step: [0, 1],
+      step: fieldStepMap.birthday,
       initialFocusedInput: 'birthday',
     },
     {
       label: t('Gender'),
       value: get(values, 'sex') ? capitalize(values.sex) : emptyValueText,
       error: getFieldError('sex', formikContext, true),
-      step: [1, 2],
+      step: fieldStepMap.sex,
     },
     {
       label: t('MRN'),
       value: get(values, 'mrn', emptyValueText),
       error: getFieldError('mrn', formikContext, true),
-      step: [1, 1],
+      skipped: includes(skippedFields, 'mrn'),
+      step: fieldStepMap.mrn,
     },
   ];
+
+  return reject(rows, { skipped: true });
 };
 
-const therapySettingsRows = (pump, formikContext) => {
+const therapySettingsRows = (pump, formikContext, skippedFields = []) => {
   const { values } = formikContext;
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits');
   const thresholds = warningThresholds(pump, bgUnits, values);
 
-  return [
+  const rows = [
     {
       id: 'cpt-training',
       label: t('CPT Training Required'),
@@ -100,6 +103,7 @@ const therapySettingsRows = (pump, formikContext) => {
         return values.training === 'inModule' ? t('Not required') : t('Required');
       })(),
       error: getFieldError('training', formikContext, true),
+      skipped: includes(skippedFields, 'training'),
     },
     {
       id: 'glucose-safety-limit',
@@ -285,20 +289,24 @@ const therapySettingsRows = (pump, formikContext) => {
       ),
     },
   ];
+
+  return reject(rows, { skipped: true });
 };
 
 export const PatientInfo = props => {
   const {
     t,
     currentStep,
+    fieldStepMap,
     handlers: { activeStepUpdate },
     isEditable,
+    skippedFields,
     ...themeProps
   } = props;
 
   const initialFocusedInputRef = useInitialFocusedInput();
 
-  const nameStep = [0, 1];
+  const nameStep = fieldStepMap.firstName;
   const formikContext = useFormikContext();
 
   const { values } = formikContext;
@@ -309,7 +317,7 @@ export const PatientInfo = props => {
   } = values;
 
   const patientName = [firstName, lastName].join(' ');
-  const rows = patientRows(values, formikContext);
+  const rows = patientRows(values, formikContext, skippedFields, fieldStepMap);
 
   const Row = ({ label, value, step, initialFocusedInput, error }) => (
     <Flex mb={4} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
@@ -353,13 +361,15 @@ export const TherapySettings = props => {
   const {
     t,
     currentStep,
+    fieldStepMap,
     handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
     isEditable,
     pump,
+    skippedFields,
     ...themeProps
   } = props;
 
-  const therapySettingsStep = [currentStep[0] - 1, 0];
+  const therapySettingsStep = fieldStepMap['initialSettings.basalRateSchedule'];
 
   const formikContext = useFormikContext();
   const { values } = formikContext;
@@ -371,7 +381,7 @@ export const TherapySettings = props => {
 
   const patientName = [firstName, lastName].join(' ');
 
-  const rows = therapySettingsRows(pump, formikContext);
+  const rows = therapySettingsRows(pump, formikContext, skippedFields);
 
   const Row = ({ label, value, warning, id, index, error }) => {
     let rowValues = isArray(value) ? value : [value];
@@ -489,8 +499,8 @@ export const TherapySettings = props => {
                 label: t('Name'),
                 value: patientName,
               },
-              ...patientRows(values, formikContext),
-            ], therapySettingsRows(pump, formikContext))}
+              ...patientRows(values, formikContext, skippedFields, fieldStepMap),
+            ], therapySettingsRows(pump, formikContext, skippedFields))}
           />
         </Flex>
       </Flex>
@@ -526,6 +536,7 @@ export const PrescriptionReview = withTranslation()(props => {
   const activeStep = activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined;
   const activeSubStep = activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined;
   const currentStep = [activeStep, activeSubStep];
+  const fieldStepMap = getFieldStepMap(props.steps);
 
   const { validateForm, values } = useFormikContext();
 
@@ -558,6 +569,7 @@ export const PrescriptionReview = withTranslation()(props => {
           border: 'default',
         }}
         currentStep={currentStep}
+        fieldStepMap={fieldStepMap}
         {...props}
       />
       <TherapySettings
@@ -572,17 +584,9 @@ export const PrescriptionReview = withTranslation()(props => {
           width: ['100%', null, '55%', '65%'],
         }}
         currentStep={currentStep}
+        fieldStepMap={fieldStepMap}
         {...props}
       />
     </Flex>
   );
 });
-
-const reviewFormStep = (schema, pump, handlers, values, isEditable, isPrescriber) => ({
-  label: t('Review and {{action}} Prescription', { action: isPrescriber ? 'Send' : 'Save' }),
-  completeText: t('{{action}} Prescription', { action: isPrescriber ? 'Send Final' : 'Save Pending' }),
-  disableComplete: !fieldsAreValid(flattenDeep(stepValidationFields), schema, values),
-  panelContent: <PrescriptionReview pump={pump} handlers={handlers} isEditable={isEditable} />
-});
-
-export default reviewFormStep;

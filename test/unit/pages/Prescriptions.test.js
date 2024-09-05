@@ -296,7 +296,7 @@ describe('Prescriptions', () => {
       expect(table.find('tr').at(2).text()).contains('Patient Two');
       expect(table.find('tr').at(2).text()).contains('10/10/1989');
       expect(table.find('tr').at(2).text()).contains('mrn2');
-      expect(table.find('tr').at(2).text()).contains('access2');
+      expect(table.find('tr').at(2).text()).not.contains('access2'); // draft should not show access code
       expect(table.find('tr').at(2).text()).contains('Draft');
     });
 

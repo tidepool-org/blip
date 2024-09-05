@@ -332,7 +332,7 @@ export function Stepper(props) {
       ? steps[activeStep].subSteps[activeSubStep]
       : steps[activeStep];
 
-    return (
+    return step ? (
       <Flex sx={{ justifyContent: 'flex-end' }} className="step-actions" mt={3} {...themeProps.actions}>
         {!step.hideBack && (
           <Button
@@ -376,19 +376,20 @@ export function Stepper(props) {
           </Button>
         )}
       </Flex>
-    );
+    ) : null;
   };
 
   const renderActiveStepPanel = () => {
     const Panel = stepHasSubSteps(activeStep)
-      ? steps[activeStep].subSteps[activeSubStep].panelContent
-      : steps[activeStep].panelContent;
+      ? steps[activeStep]?.subSteps?.[activeSubStep]?.panelContent
+      : steps[activeStep]?.panelContent;
 
-    return React.cloneElement(Panel, {
+    return Panel ? React.cloneElement(Panel || null, {
       key: activeStep,
       id: `${id}-step-panel-${activeStep}`,
       'aria-labelledby': getStepId(activeStep),
-    });
+      steps,
+    }) : null;
   };
 
   return (

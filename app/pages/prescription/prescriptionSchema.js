@@ -94,8 +94,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         .matches(phoneRegex, t('Please enter a valid phone number'))
         .required(t('Patient phone number is required')),
     }),
-    mrn: yup.string()
-      .required(t('Patient MRN number is required')),
+    mrn: yup.string(),
     sex: yup.string()
       .oneOf(map(sexOptions, 'value'), t('Please select a valid option'))
       .required(t('Patient gender is required')),
@@ -252,11 +251,9 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       ),
     }),
     training: yup.string()
-      .oneOf(map(trainingOptions, 'value'), t('Please select a valid option'))
-      .required(t('Training type is required')),
+      .oneOf(map(trainingOptions, 'value'), t('Please select a valid option')),
     therapySettings: yup.string()
-      .oneOf(map(therapySettingsOptions, 'value'), t('Please select a valid option'))
-      .required(t('Training type is required')),
+      .oneOf(map(therapySettingsOptions, 'value'), t('Please select a valid option')),
     therapySettingsReviewed: yup.boolean()
       .test('isTrue', t('Please confirm the therapy settings for this patient'), value => (value === true)),
   });

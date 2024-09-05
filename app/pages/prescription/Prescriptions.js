@@ -47,6 +47,7 @@ import Pill from '../../components/elements/Pill';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import { Body1, MediumTitle } from '../../components/elements/FontStyles';
 import { dateRegex, prescriptionStateOptions } from './prescriptionFormConstants';
@@ -67,6 +68,9 @@ const Prescriptions = props => {
   const { showPrescriptions } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
+  const rowsPerPage = 10;
 
   const {
     deletingPrescription,
@@ -158,6 +162,14 @@ const Prescriptions = props => {
     })),
     prescription => activeStates[prescription.state]
   );
+
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  useEffect(() => {
+    setPageCount(Math.ceil(data.length / rowsPerPage));
+  }, [data]);
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
@@ -288,8 +300,8 @@ const Prescriptions = props => {
   }, [selectedClinicId]);
 
 
-  const renderAccessCode = ({ accessCode }) => {
-    return (
+  const renderAccessCode = ({ accessCode, state }) => {
+    return includes(['draft', 'pending'], state) ? '' : (
       <Flex
         onClick={e => {
           // Prevent clicks from propogating up to the table row click handlers
@@ -507,14 +519,28 @@ const Prescriptions = props => {
           id="prescriptions-table"
           data={data}
           columns={columns}
-          rowsPerPage={10}
+          rowsPerPage={rowsPerPage}
+          page={page}
           searchText={searchText}
           emptyText={t('There are no prescriptions to show.')}
           onClickRow={handleRowClick}
           orderBy="createdTime"
           order="desc"
-          pagination={data.length > 10}
         />
+
+        {data.length > rowsPerPage && (
+          <Pagination
+            px="5%"
+            sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}
+            id="prescriptions-pagination"
+            count={pageCount}
+            page={page}
+            disabled={pageCount < 2}
+            onChange={handlePageChange}
+            showFirstButton={false}
+            showLastButton={false}
+          />
+        )}
 
         <Dialog
           id="prescription-delete"
