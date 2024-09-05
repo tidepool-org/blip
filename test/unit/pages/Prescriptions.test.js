@@ -352,7 +352,7 @@ describe('Prescriptions', () => {
       const table = wrapper.find(Table);
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(3); // header row + 2 prescriptions
-      const editButton = table.find('tr').at(1).find('Button[iconLabel="View Prescription"]');
+      const editButton = table.find('tr').at(1).find('Button[iconLabel="View Tidepool Loop Start Order"]');
       editButton.simulate('click');
 
       expect(store.getActions()).to.eql([
@@ -367,7 +367,7 @@ describe('Prescriptions', () => {
       const table = wrapper.find(Table);
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(3); // header row + 2 prescriptions
-      const editButton = table.find('tr').at(2).find('Button[iconLabel="Update Prescription"]');
+      const editButton = table.find('tr').at(2).find('Button[iconLabel="Update Tidepool Loop Start Order"]');
       editButton.simulate('click');
 
       expect(store.getActions()).to.eql([
@@ -397,7 +397,7 @@ describe('Prescriptions', () => {
       const table = wrapper.find(Table);
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(3); // header row + 2 prescriptions
-      const removeButton = table.find('tr').at(2).find('Button[iconLabel="Delete Prescription"]');
+      const removeButton = table.find('tr').at(2).find('Button[iconLabel="Delete Tidepool Loop Start Order"]');
 
       expect(wrapper.find('Dialog#prescription-delete').props().open).to.be.false;
       removeButton.simulate('click');
@@ -408,7 +408,7 @@ describe('Prescriptions', () => {
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
       const confirmRemoveButton = wrapper.find('Dialog#prescription-delete').find('Button#prescription-delete-confirm');
-      expect(confirmRemoveButton.text()).to.equal('Delete Prescription');
+      expect(confirmRemoveButton.text()).to.equal('Delete Tidepool Loop Start Order');
 
       store.clearActions();
 
