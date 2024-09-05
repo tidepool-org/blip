@@ -7,6 +7,9 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../../../app/core/constants';
 /* global context */
 /* global describe */
 /* global it */
+/* global sinon */
+/* global afterEach */
+/* global beforeEach */
 
 const expect = chai.expect;
 
@@ -1135,5 +1138,363 @@ describe('prescriptionFormConstants', function() {
 
   it('should export the list of valid country codes', function() {
     expect(prescriptionFormConstants.validCountryCodes).to.be.an('array').and.to.eql([1]);
+  });
+
+  describe('getFormSteps', () => {
+    let defaultValues;
+    const goodValues = {
+      // account fields
+      accountType: 'goodField',
+      firstName: 'goodField',
+      lastName: 'goodField',
+      caregiverFirstName: 'goodField',
+      caregiverLastName: 'goodField',
+      birthday: 'goodField',
+      email: 'goodField',
+      emailConfirm: 'goodField',
+
+      // profile fields
+      phoneNumber: {
+        number: 'goodField',
+      },
+      mrn: 'goodField',
+      sex: 'goodField',
+
+      // calculator fields
+      calculator: {
+        method: 'goodField',
+        totalDailyDose: 'goodField',
+        totalDailyDoseScaleFactor: 'goodField',
+        weight: 'goodField',
+        weightUnits: 'goodField',
+        recommendedBasalRate: 'goodField',
+        recommendedInsulinSensitivity: 'goodField',
+        recommendedCarbohydrateRatio: 'goodField',
+      },
+
+      // therapy settings fields
+      training: 'goodField',
+      initialSettings: {
+        glucoseSafetyLimit: 'goodField',
+        insulinModel: 'goodField',
+        basalRateMaximum: { value: 'goodField' },
+        bolusAmountMaximum: { value: 'goodField' },
+        bloodGlucoseTargetSchedule: 'goodField',
+        bloodGlucoseTargetPhysicalActivity: 'goodField',
+        bloodGlucoseTargetPreprandial: 'goodField',
+        basalRateSchedule: 'goodField',
+        carbohydrateRatioSchedule: 'goodField',
+        insulinSensitivitySchedule: 'goodField',
+        cgmId: prescriptionFormConstants.deviceIdMap.dexcomG6,
+        pumpId: prescriptionFormConstants.deviceIdMap.palmtree,
+      },
+
+      // review fields
+      therapySettingsReviewed: 'goodField',
+    };
+
+    const defaultOptions = {
+      skippedFields: [],
+      isEditable: true,
+      isPrescriber: true,
+      initialFocusedInput: 'myInput',
+      isSingleStepEdit: false,
+      stepAsyncState: null,
+    };
+
+    const validateSyncAt = sinon.stub().callsFake((fieldKey, values) => {
+      if (_.get(values, fieldKey) === 'badField') {
+        throw('error');
+      }
+    });
+
+    const schema = { validateSyncAt };
+    const invalidateValue = fieldPath => {
+      defaultValues = _.cloneDeep(goodValues);
+      _.set(defaultValues, fieldPath, 'badField');
+    }
+
+    const handlers = {
+      activeStepUpdate: sinon.stub(),
+      clearCalculator: sinon.stub(),
+    };
+
+    const devices = {
+      cgms: [{ id: prescriptionFormConstants.deviceIdMap.dexcomG6 }],
+      pumps: [{ id: prescriptionFormConstants.deviceIdMap.palmtree }],
+    };
+
+    beforeEach(() => {
+      defaultValues = _.cloneDeep(goodValues);
+    });
+
+    describe('account form steps', () => {
+      const accountFormSteps = (values = defaultValues, options = defaultOptions) => _.find(prescriptionFormConstants.getFormSteps(schema, devices, values, handlers, options), { key: 'account' });
+
+      it('should include the step label', () => {
+        expect(accountFormSteps().label).to.equal('Create Patient Account');
+      });
+
+      it('should include the step subSteps with initialFocusedInput passed to 2nd substep', () => {
+        const subSteps = accountFormSteps().subSteps;
+
+        expect(subSteps).to.be.an('array').and.have.lengthOf(3);
+
+        _.each(subSteps, (subStep, index) => {
+          expect(subStep.panelContent.type).to.be.a('function');
+          if (index === 1) expect(subStep.panelContent.props.initialFocusedInput).to.equal('myInput');
+        });
+      });
+
+      it('should disable the complete button for any invalid fields within a subStep', () => {
+        const subSteps = accountFormSteps().subSteps;
+        expect(subSteps[0].disableComplete).to.be.false;
+        expect(subSteps[1].disableComplete).to.be.false;
+        expect(subSteps[2].disableComplete).to.be.false;
+
+        expect(accountFormSteps(invalidateValue('accountType')).subSteps[0].disableComplete).to.be.true;
+        expect(accountFormSteps(invalidateValue('firstName')).subSteps[1].disableComplete).to.be.true;
+        expect(accountFormSteps(invalidateValue('lastName')).subSteps[1].disableComplete).to.be.true;
+        expect(accountFormSteps(invalidateValue('birthday')).subSteps[1].disableComplete).to.be.true;
+        expect(accountFormSteps(invalidateValue('caregiverFirstName')).subSteps[2].disableComplete).to.be.true;
+        expect(accountFormSteps(invalidateValue('caregiverLastName')).subSteps[2].disableComplete).to.be.true;
+        expect(accountFormSteps(invalidateValue('email')).subSteps[2].disableComplete).to.be.true;
+        expect(accountFormSteps(invalidateValue('emailConfirm')).subSteps[2].disableComplete).to.be.true;
+      });
+
+      it('should hide the back button for the first subStep', () => {
+        expect(accountFormSteps().subSteps[0].hideBack).to.be.true;
+        expect(accountFormSteps().subSteps[1].hideBack).to.be.undefined;
+        expect(accountFormSteps().subSteps[2].hideBack).to.be.undefined;
+      });
+    });
+
+    describe('profile form steps', () => {
+      const profileFormSteps = (values = defaultValues, options = defaultOptions) => _.find(prescriptionFormConstants.getFormSteps(schema, devices, values, handlers, options), { key: 'profile' });
+
+      it('should include the step label', () => {
+        expect(profileFormSteps().label).to.equal('Complete Patient Profile');
+      });
+
+      it('should include the step subSteps with devices passed to 4th substep', () => {
+        const subSteps = profileFormSteps().subSteps;
+
+        expect(subSteps).to.be.an('array').and.have.lengthOf(4);
+
+        _.each(subSteps, (subStep, index) => {
+          expect(subStep.panelContent.type).to.be.a('function');
+          if (index === 3) expect(subStep.panelContent.props.devices).to.eql(devices);
+        });
+      });
+
+      it('should disable the complete button for any invalid fields within a subStep', () => {
+        const subSteps = profileFormSteps().subSteps;
+        expect(subSteps[0].disableComplete).to.be.false;
+        expect(subSteps[1].disableComplete).to.be.false;
+        expect(subSteps[2].disableComplete).to.be.false;
+        expect(subSteps[3].disableComplete).to.be.false;
+
+        expect(profileFormSteps(invalidateValue('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
+        expect(profileFormSteps(invalidateValue('mrn')).subSteps[1].disableComplete).to.be.true;
+        expect(profileFormSteps(invalidateValue('sex')).subSteps[2].disableComplete).to.be.true;
+        expect(profileFormSteps(invalidateValue('initialSettings.pumpId')).subSteps[3].disableComplete).to.be.true;
+        expect(profileFormSteps(invalidateValue('initialSettings.cgmId')).subSteps[3].disableComplete).to.be.true;
+      });
+
+      it('should not hide the back button for the any subSteps', () => {
+        expect(profileFormSteps().subSteps[0].hideBack).to.be.undefined;
+        expect(profileFormSteps().subSteps[1].hideBack).to.be.undefined;
+        expect(profileFormSteps().subSteps[2].hideBack).to.be.undefined;
+        expect(profileFormSteps().subSteps[3].hideBack).to.be.undefined;
+      });
+    });
+
+    describe('settings calculator form steps', () => {
+      const settingsCalculatorFormSteps = (values = defaultValues, options = defaultOptions) => _.find(prescriptionFormConstants.getFormSteps(schema, devices, values, handlers, options), { key: 'calculator' });
+
+      it('should include the step label', () => {
+        expect(settingsCalculatorFormSteps().label).to.equal('Therapy Settings Calculator');
+      });
+
+      it('should set the onSkip handler', () => {
+        expect(settingsCalculatorFormSteps().onSkip).to.equal(handlers.clearCalculator);
+      });
+
+      it('should include the step subSteps', () => {
+        const subSteps = settingsCalculatorFormSteps().subSteps;
+        expect(subSteps).to.be.an('array').and.have.lengthOf(2);
+      });
+
+      it('should disable the complete button for any invalid fields within a subStep', () => {
+        const subSteps = settingsCalculatorFormSteps().subSteps;
+        expect(subSteps[0].disableComplete).to.be.false;
+        expect(subSteps[1].disableComplete).to.be.false;
+
+        expect(settingsCalculatorFormSteps(invalidateValue('calculator.method')).subSteps[0].disableComplete).to.be.true;
+        expect(settingsCalculatorFormSteps(invalidateValue('calculator.totalDailyDose')).subSteps[1].disableComplete).to.be.true;
+        expect(settingsCalculatorFormSteps(invalidateValue('calculator.totalDailyDoseScaleFactor')).subSteps[1].disableComplete).to.be.true;
+        expect(settingsCalculatorFormSteps(invalidateValue('calculator.weight')).subSteps[1].disableComplete).to.be.true;
+        expect(settingsCalculatorFormSteps(invalidateValue('calculator.weightUnits')).subSteps[1].disableComplete).to.be.true;
+        expect(settingsCalculatorFormSteps(invalidateValue('calculator.recommendedBasalRate')).subSteps[1].disableComplete).to.be.true;
+        expect(settingsCalculatorFormSteps(invalidateValue('calculator.recommendedInsulinSensitivity')).subSteps[1].disableComplete).to.be.true;
+        expect(settingsCalculatorFormSteps(invalidateValue('calculator.recommendedCarbohydrateRatio')).subSteps[1].disableComplete).to.be.true;
+      });
+
+      it('should not hide the back button for the any subSteps', () => {
+        expect(settingsCalculatorFormSteps().subSteps[0].hideBack).to.be.undefined;
+        expect(settingsCalculatorFormSteps().subSteps[1].hideBack).to.be.undefined;
+      });
+    });
+
+    describe('therapy settings form step', () => {
+      const therapySettingsFormStep = (values = defaultValues, options = defaultOptions) => _.find(prescriptionFormConstants.getFormSteps(schema, devices, values, handlers, options), { key: 'therapySettings' });
+
+      it('should include the step label', () => {
+        expect(therapySettingsFormStep().label).to.equal('Enter Therapy Settings');
+      });
+
+      it('should include panel content with pump passed along', () => {
+        const subSteps = therapySettingsFormStep().subSteps;
+
+        expect(subSteps).to.be.an('array').and.have.lengthOf(1);
+        expect(subSteps[0].panelContent.type).to.be.a('function');
+        expect(subSteps[0].panelContent.props.pump).to.eql(devices.pumps[0]);
+      });
+
+      it('should disable the complete button for any invalid fields', () => {
+        expect(therapySettingsFormStep().subSteps[0].disableComplete).to.be.false;
+        expect(therapySettingsFormStep(invalidateValue('training')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.glucoseSafetyLimit')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.insulinModel')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.basalRateMaximum.value')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.bolusAmountMaximum.value')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.bloodGlucoseTargetSchedule')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPhysicalActivity')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPreprandial')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.basalRateSchedule')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.carbohydrateRatioSchedule')).subSteps[0].disableComplete).to.be.true;
+        expect(therapySettingsFormStep(invalidateValue('initialSettings.insulinSensitivitySchedule')).subSteps[0].disableComplete).to.be.true;
+      });
+
+      it('should not hide the back button', () => {
+        expect(therapySettingsFormStep().subSteps[0].hideBack).to.be.undefined;
+      });
+    });
+
+    describe('review form step', () => {
+      const reviewFormStep = (values = defaultValues, options = defaultOptions) => _.find(prescriptionFormConstants.getFormSteps(schema, devices, values, handlers, options), { key: 'review' });
+
+      afterEach(() => {
+        handlers.activeStepUpdate.resetHistory();
+      });
+
+      it('should include the step label for a clinician with prescriber permissions', () => {
+        expect(reviewFormStep().label).to.equal('Review and Send Prescription');
+      });
+
+      it('should include the step label for a clinician without prescriber permissions', () => {
+        expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).label).to.equal('Review and Save Prescription');
+      });
+
+      it('should include the custom next button text for a clinician with prescriber permissions', () => {
+        expect(reviewFormStep().subSteps[0].completeText).to.equal('Send Final Prescription');
+      });
+
+      it('should include the custom next button text for a clinician without prescriber permissions', () => {
+        expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).subSteps[0].completeText).to.equal('Save Pending Prescription');
+      });
+
+      it('should include panel content with pump and handlers passed along as props', () => {
+        const subSteps = reviewFormStep().subSteps;
+
+        expect(subSteps).to.be.an('array').and.have.lengthOf(1);
+        expect(subSteps[0].panelContent.type).to.be.a('function');
+        expect(subSteps[0].panelContent.props.pump).to.eql(devices.pumps[0]);
+        expect(subSteps[0].panelContent.props.handlers).to.eql(handlers);
+      });
+
+      it('should disable the complete button if the any of the prescriptions fields are invalid', () => {
+        expect(reviewFormStep().subSteps[0].disableComplete).to.be.false;
+        expect(reviewFormStep(invalidateValue('accountType')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('firstName')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('lastName')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('birthday')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('caregiverFirstName')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('caregiverLastName')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('email')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('emailConfirm')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('mrn')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('sex')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('calculator.method')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('calculator.totalDailyDose')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('calculator.totalDailyDoseScaleFactor')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('calculator.weight')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('calculator.weightUnits')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('calculator.recommendedBasalRate')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('calculator.recommendedInsulinSensitivity')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('calculator.recommendedCarbohydrateRatio')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('training')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.pumpId')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.cgmId')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.glucoseSafetyLimit')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.insulinModel')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.basalRateMaximum.value')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.bolusAmountMaximum.value')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.bloodGlucoseTargetSchedule')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPhysicalActivity')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPreprandial')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.basalRateSchedule')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.carbohydrateRatioSchedule')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('initialSettings.insulinSensitivitySchedule')).subSteps[0].disableComplete).to.be.true;
+        expect(reviewFormStep(invalidateValue('therapySettingsReviewed')).subSteps[0].disableComplete).to.be.true;
+      });
+
+      it('should not hide the back button', () => {
+        expect(reviewFormStep().subSteps[0].hideBack).to.be.undefined;
+      });
+    });
+
+    it('should skip the fields listed in `skippedFields` option', () => {
+      const skippedFields =[
+        'calculator',
+        'mrn',
+        'phoneNumber',
+        'training',
+      ];
+
+      const formSteps = prescriptionFormConstants.getFormSteps(schema, devices, defaultValues, handlers, { ...defaultOptions, skippedFields })
+
+      // nothing excluded from account step
+      expect(formSteps).to.have.lengthOf(4);
+      expect(formSteps[0].label).to.equal('Create Patient Account');
+      expect(formSteps[0].subSteps).to.have.lengthOf(3)
+
+      // 2 substeps excluded from profile step
+      expect(formSteps[1].label).to.equal('Complete Patient Profile');
+      expect(formSteps[1].subSteps).to.have.lengthOf(2)
+
+      // substeps containing phone number and mrn are excluded
+      expect(formSteps[1].subSteps[0].fields).to.eql(['sex']);
+      expect(formSteps[1].subSteps[1].fields).to.eql(['initialSettings.pumpId', 'initialSettings.cgmId']);
+
+      // 3rd step is normally calculator, but is therapy settings instead
+      expect(formSteps[2].label).to.equal('Enter Therapy Settings');
+      expect(formSteps[2].subSteps).to.have.lengthOf(1)
+
+      // training field is excluded
+      expect(formSteps[2].subSteps[0].fields).to.eql([
+        'initialSettings.glucoseSafetyLimit',
+        'initialSettings.insulinModel',
+        'initialSettings.basalRateMaximum.value',
+        'initialSettings.bolusAmountMaximum.value',
+        'initialSettings.bloodGlucoseTargetSchedule',
+        'initialSettings.bloodGlucoseTargetPhysicalActivity',
+        'initialSettings.bloodGlucoseTargetPreprandial',
+        'initialSettings.basalRateSchedule',
+        'initialSettings.carbohydrateRatioSchedule',
+        'initialSettings.insulinSensitivitySchedule',
+      ]);
+    });
   });
 });
