@@ -209,22 +209,22 @@ const Prescriptions = props => {
     const items = [
       {
         icon: isEditable ? EditRoundedIcon : VisibilityRoundedIcon,
-        iconLabel: isEditable ? t('Update Prescription') : t('View Prescription'),
+        iconLabel: isEditable ? t('Update Tidepool Loop Start Order') : t('View Tidepool Loop Start Order'),
         iconPosition: 'left',
         id: isEditable ? 'update' : 'view',
         onClick: handleOpenPrescription(prescription),
-        text: isEditable ? t('Update Prescription') : t('View Prescription'),
+        text: isEditable ? t('Update Tidepool Loop Start Order') : t('View Tidepool Loop Start Order'),
         variant: 'actionListItem',
       },
     ];
 
     if (isEditable) items.push({
       icon: DeleteForeverRoundedIcon,
-      iconLabel: 'Delete Prescription',
+      iconLabel: 'Delete Tidepool Loop Start Order',
       iconPosition: 'left',
       id: 'delete',
       onClick: handleDeletePrescription(prescription),
-      text: t('Delete Prescription'),
+      text: t('Delete Tidepool Loop Start Order'),
       variant: 'actionListItemDanger',
       disabled: !isEditable,
     });
@@ -286,15 +286,15 @@ const Prescriptions = props => {
     <Icon
       variant="static"
       icon={FileCopyRoundedIcon}
-      label={t('Copy Access Code')}
-      title={t('Copy Access Code')}
+      label={t('Copy Activation Code')}
+      title={t('Copy Activation Code')}
     />, [t]
   );
 
   const copyCodeButtonSuccessText = useMemo(() => <span className="success">{t('✓')}</span>, [t]);
 
   const copyCodeButtonOnClick = useCallback(() => {
-    trackMetric('Clinic - Copy prescription access code', {
+    trackMetric('Clinic - Copy prescription activation code', {
       clinicId: selectedClinicId,
     });
   }, [selectedClinicId]);
@@ -332,7 +332,7 @@ const Prescriptions = props => {
       >
         <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>{accessCode}</Text>
         <ClipboardButton
-          buttonTitle={t('Copy Access Code')}
+          buttonTitle={t('Copy Activation Code')}
           buttonText={copyCodeButtonText}
           successText={(copyCodeButtonSuccessText)}
           onClick={copyCodeButtonOnClick}
@@ -347,7 +347,7 @@ const Prescriptions = props => {
     { title: t('MRN'), field: 'mrn', align: 'left', sortable: true, searchable: true },
     { title: t('Date of birth'), field: 'birthday', align: 'left', sortable: true, searchable: true },
     { title: t('Status'), field: 'state', render: renderState, align: 'left', sortable: true },
-    { title: t('Access Code'), field: 'accessCode', render: renderAccessCode, align: 'left', sortable: false },
+    { title: t('Activation Code'), field: 'accessCode', render: renderAccessCode, align: 'left', sortable: false },
     { title: '', field: 'more', render: renderMore, align: 'right', className: 'action-menu' },
   ];
 
@@ -392,7 +392,7 @@ const Prescriptions = props => {
             px={[2, 3]}
             sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
           >
-            {t('Add New Prescription')}
+            {t('Add New Tidepool Loop Start Order')}
           </Button>
 
           <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
@@ -549,12 +549,12 @@ const Prescriptions = props => {
           onClose={closeDeleteDialog}
         >
           <DialogTitle onClose={closeDeleteDialog}>
-            <MediumTitle mr={2} id="dialog-title">Delete Prescription for {patientNameFromPrescription(deleteDialog.prescription)}</MediumTitle>
+            <MediumTitle mr={2} id="dialog-title">Delete Tidepool Loop Start Order for {patientNameFromPrescription(deleteDialog.prescription)}</MediumTitle>
           </DialogTitle>
 
           <DialogContent>
             <Body1>
-              Are you sure you want to delete this prescription?
+              Are you sure you want to delete this Tidepool Loop start order?
             </Body1>
           </DialogContent>
 
@@ -569,7 +569,7 @@ const Prescriptions = props => {
               processing={deletingPrescription.inProgress}
               onClick={handleConfirmDeletePrescription}
             >
-              Delete Prescription
+              Delete Tidepool Loop Start Order
             </Button>
           </DialogActions>
         </Dialog>

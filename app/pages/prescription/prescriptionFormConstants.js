@@ -618,13 +618,13 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
     },
     {
       key: 'review',
-      label: t('Review and {{action}} Prescription', { action: isPrescriber ? 'Send' : 'Save' }),
+      label: t('Review and {{action}} Tidepool Loop Start Order', { action: isPrescriber ? 'Send' : 'Save' }),
       onComplete: handlers.stepSubmit,
       asyncState: stepAsyncState,
       subSteps: [
         {
           fields: ['therapySettingsReviewed'],
-          completeText: t('{{action}} Prescription', { action: isPrescriber ? 'Send Final' : 'Save Pending' }),
+          completeText: t('{{action}} Tidepool Loop Start Order', { action: isPrescriber ? 'Send Final' : 'Save Pending' }),
           panelContent: <PrescriptionReview pump={pump} handlers={handlers} isEditable={isEditable} skippedFields={skippedFields} />
         },
       ],

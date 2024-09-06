@@ -1389,19 +1389,19 @@ describe('prescriptionFormConstants', function() {
       });
 
       it('should include the step label for a clinician with prescriber permissions', () => {
-        expect(reviewFormStep().label).to.equal('Review and Send Prescription');
+        expect(reviewFormStep().label).to.equal('Review and Send Tidepool Loop Start Order');
       });
 
       it('should include the step label for a clinician without prescriber permissions', () => {
-        expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).label).to.equal('Review and Save Prescription');
+        expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).label).to.equal('Review and Save Tidepool Loop Start Order');
       });
 
       it('should include the custom next button text for a clinician with prescriber permissions', () => {
-        expect(reviewFormStep().subSteps[0].completeText).to.equal('Send Final Prescription');
+        expect(reviewFormStep().subSteps[0].completeText).to.equal('Send Final Tidepool Loop Start Order');
       });
 
       it('should include the custom next button text for a clinician without prescriber permissions', () => {
-        expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).subSteps[0].completeText).to.equal('Save Pending Prescription');
+        expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).subSteps[0].completeText).to.equal('Save Pending Tidepool Loop Start Order');
       });
 
       it('should include panel content with pump and handlers passed along as props', () => {

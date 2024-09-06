@@ -625,7 +625,7 @@ export const PrescriptionForm = props => {
     },
   };
 
-  const title = isNewPrescriptionFlow() ? t('Create New Prescription') : t('Prescription: {{name}}', {
+  const title = isNewPrescriptionFlow() ? t('Create New Tidepool Loop Start Order') : t('Tidepool Loop Start Order: {{name}}', {
     name: [values.firstName, values.lastName].join(' '),
   });
 
@@ -652,7 +652,7 @@ export const PrescriptionForm = props => {
           onClick={() => dispatch(push('/clinic-workspace/prescriptions'))}
           mr={5}
         >
-          {t('Back To Prescriptions')}
+          {t('Back To Tidepool Loop Start Orders')}
         </Button>
 
         <Text as={Headline} sx={{ textAlign: 'center' }}>{title}</Text>
