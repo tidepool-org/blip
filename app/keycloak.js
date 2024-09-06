@@ -1,4 +1,4 @@
-import Keycloak from 'keycloak-js/dist/keycloak.js';
+import Keycloak from 'keycloak-js';
 import React from 'react';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { useSelector, useStore } from 'react-redux';
