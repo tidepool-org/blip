@@ -35,6 +35,9 @@ const log = bows('Settings View');
 function formatDuration(milliseconds) {
   const days = Math.round(milliseconds / (1000 * 60 * 60 * 24));
 
+  if (days === 0) {
+    return '<1 day';
+  }
   if (days <= 31) {
     return `${days} day${days === 1 ? '' : 's'}`;
   }

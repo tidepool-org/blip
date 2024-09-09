@@ -4163,27 +4163,32 @@ describe('PatientData', function () {
     let instance;
     let props;
     let setStateSpy;
+    let logSpy;
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
         onFetchEarlierData: sinon.stub(),
+        trackMetric: sinon.stub(),
+        log: sinon.stub(),
       });
-
 
       wrapper = shallow(<PatientDataClass {...props} />);
       instance = wrapper.instance();
 
       setStateSpy = sinon.spy(instance, 'setState');
+      logSpy = sinon.spy(instance, 'log');
     });
 
     afterEach(() => {
       props.onFetchEarlierData.reset();
       props.trackMetric.reset();
       setStateSpy.resetHistory();
+      logSpy.resetHistory();
     });
 
     after(() => {
       setStateSpy.restore();
+      logSpy.restore();
     });
 
     context('currently fetching data', () => {
@@ -4225,6 +4230,7 @@ describe('PatientData', function () {
           medtronic: undefined,
           initial: false,
           useCache: false,
+          noDates: false,
         }, '40');
       });
 
@@ -4363,6 +4369,58 @@ describe('PatientData', function () {
           patientID: 'otherPatientId',
           clinicId: 'clinic123',
         });
+      });
+
+      it('should set startDate and endDate to undefined if noDates is true', () => {
+        const fetchedUntil = '2018-01-01T00:00:00.000Z';
+
+        wrapper.setProps({
+          currentPatientInViewId: '40',
+          data: {
+            fetchedUntil,
+          },
+        });
+
+        const options = {
+          noDates: true,
+        };
+
+        instance.fetchEarlierData(options);
+
+        sinon.assert.calledOnce(props.onFetchEarlierData);
+        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+          startDate: undefined,
+          endDate: undefined,
+        }, '40');
+      });
+
+      it('should call the log method', () => {
+        instance.fetchEarlierData();
+
+        sinon.assert.calledOnce(logSpy);
+        sinon.assert.calledWith(logSpy, 'fetching');
+      });
+
+      it('should pass the initial option correctly', () => {
+        const fetchedUntil = '2018-01-01T00:00:00.000Z';
+
+        wrapper.setProps({
+          currentPatientInViewId: '40',
+          data: {
+            fetchedUntil,
+          },
+        });
+
+        const options = {
+          initial: true,
+        };
+
+        instance.fetchEarlierData(options);
+
+        sinon.assert.calledOnce(props.onFetchEarlierData);
+        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+          initial: true,
+        }, '40');
       });
     });
   });
