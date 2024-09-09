@@ -1254,7 +1254,7 @@ export const PatientDataClass = createReactClass({
     this.fetchEarlierData({
       returnData: false,
       showLoading: true,
-      startDate: moment.utc().subtract(10, 'year').toISOString(),
+      noDates: true,
       type: 'pumpSettings,upload',
     });
 
@@ -2090,6 +2090,7 @@ export const PatientDataClass = createReactClass({
  * @param {boolean} [options.medtronic=this.props.medtronic] - Whether to include Medtronic data.
  * @param {boolean} [options.useCache=false] - Whether to use cached data.
  * @param {boolean} [options.initial=false] - Whether this is the initial data fetch.
+ * @param {boolean} [options.noDates=false] - Whether to fetch data without start and end dates..
  *
  * @returns {void}
  */
@@ -2110,7 +2111,13 @@ export const PatientDataClass = createReactClass({
       medtronic: this.props.medtronic,
       useCache: false,
       initial: false,
+      noDates: false,
     });
+
+    if (fetchOpts.noDates) {
+      fetchOpts.startDate = undefined;
+      fetchOpts.endDate = undefined;
+    }
 
     const count = this.state.fetchEarlierDataCount + 1;
 
