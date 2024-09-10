@@ -5268,9 +5268,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.42.0-rc.2":
-  version: 1.42.0-rc.2
-  resolution: "@tidepool/viz@npm:1.42.0-rc.2"
+"@tidepool/viz@npm:1.42.0-rc.3":
+  version: 1.42.0-rc.3
+  resolution: "@tidepool/viz@npm:1.42.0-rc.3"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5330,7 +5330,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 3fd41ada15753b717c00c5441f6f059fb86901481fd34a7e08a23c0798f11e281c1a445a5383d65fd06666441ce4e3f8bc72620d08c8656e208d2b33e91c32a0
+  checksum: 24b2b311d8253f7054c5083ffa93273d527fbbcfb292c6f40e026aae06dcddac23ec3205630ff9a3844d5de2edbd85ecab2503227c17272c29daa9d591ed6005
   languageName: node
   linkType: hard
 
@@ -7427,7 +7427,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.42.0-rc.2
+    "@tidepool/viz": 1.42.0-rc.3
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7551,7 +7551,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.30.0-rc.2
+    tideline: 1.30.0-rc.3
     tidepool-platform-client: 0.59.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22991,9 +22991,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.30.0-rc.2":
-  version: 1.30.0-rc.2
-  resolution: "tideline@npm:1.30.0-rc.2"
+"tideline@npm:1.30.0-rc.3":
+  version: 1.30.0-rc.3
+  resolution: "tideline@npm:1.30.0-rc.3"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -23013,7 +23013,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: bc0c370495110766a1e54b645195dd3801c89c051a8cc0e8ae340c0d7851bdf3bb41492f9593c2383cb1bbcc00073f20a22dd1f978c4b36ce7ce54efff9b82f6
+  checksum: 38519275a0bf05aeaf6865da1a50856ec0142dd1d41f424b4bcee434a9a98f3cf2d41cb54c113059ea330e196aa84f410ed5a42c2f77c813ef7bd7d7869f3c15
   languageName: node
   linkType: hard
 
