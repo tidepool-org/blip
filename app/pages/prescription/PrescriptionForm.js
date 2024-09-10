@@ -668,7 +668,7 @@ export const PrescriptionForm = props => {
       )}
 
       <FastField type="hidden" name="id" />
-      {formPersistReady && <PersistFormikValues persistInvalid name={storageKey} />}
+      {formPersistReady && !isSingleStepEdit && <PersistFormikValues persistInvalid name={storageKey} />}
     </Box>
   );
 };
