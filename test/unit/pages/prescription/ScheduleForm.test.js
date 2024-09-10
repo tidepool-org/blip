@@ -48,7 +48,7 @@ describe('ScheduleForm', () => {
         initialValues={{ ...formikContext.values }}
       >
         <ScheduleForm
-          addButtonText={'Add an additional foo'}
+          addButtonText={'+ Add an Additional foo'}
           fieldArrayName='fooSchedule'
           fields={[
             {
