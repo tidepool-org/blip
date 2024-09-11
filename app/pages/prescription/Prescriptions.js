@@ -392,7 +392,7 @@ const Prescriptions = props => {
             px={[2, 3]}
             sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
           >
-            {t('Add New Tidepool Loop Start Order')}
+            {t('Create New Tidepool Loop Start Order')}
           </Button>
 
           <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>

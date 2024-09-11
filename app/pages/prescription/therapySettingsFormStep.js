@@ -190,7 +190,7 @@ export const GlucoseSettings = props => {
 
         <Box {...scheduleGroupStyles}>
           <ScheduleForm
-            addButtonText={t('Add an additional correction range')}
+            addButtonText={t('+ Add an Additional Correction Range')}
             fieldArrayName='initialSettings.bloodGlucoseTargetSchedule'
             fields={[
               {
@@ -344,7 +344,7 @@ export const InsulinSettings = props => {
       <Box px={3}>
         <PopoverLabel
           id='insulin-to-carb-ratios'
-          label={t('Insulin to carb ratios')}
+          label={t('Insulin to Carb Ratios')}
           mb={2}
           popoverContent={(
             <Box p={3}>
@@ -357,11 +357,11 @@ export const InsulinSettings = props => {
 
         <Box {...scheduleGroupStyles}>
           <ScheduleForm
-            addButtonText={t('Add an additional carb ratio')}
+            addButtonText={t('+ Add an Additional Carb Ratio')}
             fieldArrayName='initialSettings.carbohydrateRatioSchedule'
             fields={[
               {
-                label: t('1 U of insulin covers (g/U)'),
+                label: t('1 U of Insulin Covers (g/U)'),
                 name: 'amount',
                 suffix: t('g/U'),
                 threshold: thresholds.carbRatio,
@@ -375,7 +375,7 @@ export const InsulinSettings = props => {
 
         <PopoverLabel
           id='basal-rates'
-          label={t('Basal rates')}
+          label={t('Basal Rates')}
           mb={2}
           popoverContent={(
             <Box p={3}>
@@ -388,11 +388,11 @@ export const InsulinSettings = props => {
 
         <Box {...scheduleGroupStyles}>
           <ScheduleForm
-            addButtonText={t('Add an additional basal rate')}
+            addButtonText={t('+ Add an Additional Basal Rate')}
             fieldArrayName='initialSettings.basalRateSchedule'
             fields={[
               {
-                label: t('Basal rates values (in U/hr)'),
+                label: t('Basal Rate Values (U/hr)'),
                 name: 'rate',
                 suffix: t('U/hr'),
                 threshold: thresholds.basalRate,
@@ -406,7 +406,7 @@ export const InsulinSettings = props => {
 
         <PopoverLabel
           id='insulin-sensitivity-factors'
-          label={t('Insulin sensitivity factors')}
+          label={t('Insulin Sensitivity Factors')}
           mb={2}
           popoverContent={(
             <Box p={3}>
@@ -422,11 +422,11 @@ export const InsulinSettings = props => {
 
         <Box {...scheduleGroupStyles} mb={3}>
           <ScheduleForm
-            addButtonText={t('Add an additional insulin sensitivity factor')}
+            addButtonText={t('+ Add an Additional Insulin Sensitivity Factor')}
             fieldArrayName='initialSettings.insulinSensitivitySchedule'
             fields={[
               {
-                label: t('1 U of insulin decreases BG by'),
+                label: t('1 U of Insulin Decreases BG by'),
                 name: 'amount',
                 suffix: bgUnits,
                 threshold: thresholds.insulinSensitivityFactor,

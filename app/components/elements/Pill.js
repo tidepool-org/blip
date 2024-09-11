@@ -8,7 +8,7 @@ import baseTheme from '../../themes/baseTheme';
 
 const namedPalletMap = {
   blues: ['blues.0', 'blues.9'],
-  cyans: ['cyans.0', 'cyans.9'],
+  cyans: ['cyans.0', '#15798E'],
   grays: ['grays.0', 'grays.9'],
   greens: ['greens.0', 'greens.9'],
   indigos: ['indigos.0', 'indigos.9'],
