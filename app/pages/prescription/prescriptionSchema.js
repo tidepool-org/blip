@@ -156,7 +156,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       glucoseSafetyLimit: yup.number()
         .min(ranges.glucoseSafetyLimit.min, rangeError('glucoseSafetyLimit'))
         .max(ranges.glucoseSafetyLimit.max, rangeError('glucoseSafetyLimit'))
-        .required(t('Suspend threshold is required')),
+        .required(t('Glucose safety limit is required')),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
           .min(ranges.basalRateMaximum.min, rangeError('basalRateMaximum'))
