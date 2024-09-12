@@ -94,7 +94,10 @@ export const defaultUnits = {
   weight: 'kg',
 };
 
-export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) || fallbackValue;
+export const getPumpGuardrail = (pump, path, fallbackValue) => {
+  const guardrail = get(pump, `guardRails.${path}`);
+  return guardrail ? getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) : fallbackValue;
+};
 
 export const getBgInTargetUnits = (bgValue, bgUnits, targetUnits) => {
   if (bgUnits === targetUnits || !isFinite(bgValue)) return bgValue;
