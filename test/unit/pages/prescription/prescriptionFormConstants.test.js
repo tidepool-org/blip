@@ -130,6 +130,7 @@ describe('prescriptionFormConstants', function() {
             nanos: 12000000,
           },
         },
+        guardRail4: null,
       },
     };
 
@@ -140,6 +141,10 @@ describe('prescriptionFormConstants', function() {
 
     it('should fall back to provided value if guard rail cannot be provided from path', () => {
       expect(prescriptionFormConstants.getPumpGuardrail(pump, 'guardRail3', 'foo')).to.equal('foo');
+    });
+
+    it('should fall back to provided value if guard rail provided from path is null', () => {
+      expect(prescriptionFormConstants.getPumpGuardrail(pump, 'guardRail4', 'bar')).to.equal('bar');
     });
   });
 
