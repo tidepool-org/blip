@@ -71,7 +71,9 @@ const prescriptionFormWrapper = Component => props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const devices = useSelector((state) => state.blip.devices);
   const prescriptions = useSelector((state) => state.blip.prescriptions);
+  const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = get(clinics, selectedClinicId);
   const prescriptionId = props.match?.params?.id;
   const prescription = get(keyBy(prescriptions, 'id'), prescriptionId);
 
@@ -110,94 +112,98 @@ const prescriptionFormWrapper = Component => props => {
 
       <Box id="clinic-workspace" sx={{ alignItems: 'center', minHeight: '10em' }} variant="containers.largeBordered" mb={9}>
         {fetchingDevices.completed && fetchingClinicPrescriptions.completed
-          ? <Component prescription={prescription} devices={devices} {...props} />
+          ? <Component prescription={prescription} devices={devices} clinic={clinic} {...props} />
           : <Loader />}
       </Box>
     </>
   );
 }
 
-export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
-  mapPropsToStatus: props => ({
-    hydratedValues: null,
-    isPrescriptionEditFlow: !!props.prescription,
-  }),
-  mapPropsToValues: props => {
-    const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
+export const prescriptionForm = () => {
+  const getBgUnits = props => get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', props.clinic?.preferredBgUnits || defaultUnits.bloodGlucose)
 
-    return {
-      id: get(props, 'prescription.id'),
-      state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
-      accountType: get(props, 'prescription.latestRevision.attributes.accountType'),
-      firstName: get(props, 'prescription.latestRevision.attributes.firstName'),
-      caregiverFirstName: get(props, 'prescription.latestRevision.attributes.caregiverFirstName'),
-      caregiverLastName: get(props, 'prescription.latestRevision.attributes.caregiverLastName'),
-      lastName: get(props, 'prescription.latestRevision.attributes.lastName'),
-      birthday: get(props, 'prescription.latestRevision.attributes.birthday'),
-      email: get(props, 'prescription.latestRevision.attributes.email'),
-      emailConfirm: get(props, 'prescription.latestRevision.attributes.email'),
-      phoneNumber: {
-        countryCode: get(props, 'prescription.latestRevision.attributes.phoneNumber.countryCode', validCountryCodes[0]),
-        number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number'),
-      },
-      mrn: get(props, 'prescription.latestRevision.attributes.mrn'),
-      sex: get(props, 'prescription.latestRevision.attributes.sex'),
-      calculator: {
-        method: get(props, 'prescription.latestRevision.attributes.calculator.method'),
-        weight: get(props, 'prescription.latestRevision.attributes.calculator.weight'),
-        weightUnits: get(props, 'prescription.latestRevision.attributes.calculator.weightUnits', defaultUnits.weight),
-        totalDailyDose: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDose'),
-        totalDailyDoseScaleFactor: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDoseScaleFactor', 1),
-        recommendedBasalRate: get(props, 'prescription.latestRevision.attributes.calculator.recommendedBasalRate'),
-        recommendedInsulinSensitivity: get(props, 'prescription.latestRevision.attributes.calculator.recommendedInsulinSensitivity'),
-        recommendedCarbohydrateRatio: get(props, 'prescription.latestRevision.attributes.calculator.recommendedCarbohydrateRatio'),
-      },
-      initialSettings: {
-        bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
-        pumpId: selectedPumpId,
-        cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId'),
-        insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel'),
-        glucoseSafetyLimit: get(props, 'prescription.latestRevision.attributes.initialSettings.glucoseSafetyLimit'),
-        basalRateMaximum: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value'),
-          units: defaultUnits.basalRate,
-        },
-        bolusAmountMaximum: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value'),
-          units: defaultUnits.bolusAmount,
-        },
-        bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
-          start: 0,
-        }]),
-        bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity'),
-        bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial'),
-        basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
-          start: 0,
-        }]),
-        carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
-          start: 0,
-        }]),
-        insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
-          start: 0,
-        }]),
-      },
-      training: get(props, 'prescription.latestRevision.attributes.training'),
-      therapySettings: get(props, 'prescription.latestRevision.attributes.therapySettings', 'initial'),
-      therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
-    };
-  },
-  validationSchema: props => {
-    if (!schema) schema = prescriptionSchema(
-      props.devices,
-      get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId'),
-      bgUnits,
-      get(props, 'prescription.latestRevision.attributes')
-    );
+  return {
+    mapPropsToStatus: props => ({
+      hydratedValues: null,
+      isPrescriptionEditFlow: !!props.prescription,
+    }),
+    mapPropsToValues: props => {
+      const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
 
-    return schema;
-  },
-  displayName: 'PrescriptionForm',
-});
+      return {
+        id: get(props, 'prescription.id'),
+        state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
+        accountType: get(props, 'prescription.latestRevision.attributes.accountType'),
+        firstName: get(props, 'prescription.latestRevision.attributes.firstName'),
+        caregiverFirstName: get(props, 'prescription.latestRevision.attributes.caregiverFirstName'),
+        caregiverLastName: get(props, 'prescription.latestRevision.attributes.caregiverLastName'),
+        lastName: get(props, 'prescription.latestRevision.attributes.lastName'),
+        birthday: get(props, 'prescription.latestRevision.attributes.birthday'),
+        email: get(props, 'prescription.latestRevision.attributes.email'),
+        emailConfirm: get(props, 'prescription.latestRevision.attributes.email'),
+        phoneNumber: {
+          countryCode: get(props, 'prescription.latestRevision.attributes.phoneNumber.countryCode', validCountryCodes[0]),
+          number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number'),
+        },
+        mrn: get(props, 'prescription.latestRevision.attributes.mrn'),
+        sex: get(props, 'prescription.latestRevision.attributes.sex'),
+        calculator: {
+          method: get(props, 'prescription.latestRevision.attributes.calculator.method'),
+          weight: get(props, 'prescription.latestRevision.attributes.calculator.weight'),
+          weightUnits: get(props, 'prescription.latestRevision.attributes.calculator.weightUnits', defaultUnits.weight),
+          totalDailyDose: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDose'),
+          totalDailyDoseScaleFactor: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDoseScaleFactor', 1),
+          recommendedBasalRate: get(props, 'prescription.latestRevision.attributes.calculator.recommendedBasalRate'),
+          recommendedInsulinSensitivity: get(props, 'prescription.latestRevision.attributes.calculator.recommendedInsulinSensitivity'),
+          recommendedCarbohydrateRatio: get(props, 'prescription.latestRevision.attributes.calculator.recommendedCarbohydrateRatio'),
+        },
+        initialSettings: {
+          bloodGlucoseUnits: getBgUnits(props),
+          pumpId: selectedPumpId,
+          cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId'),
+          insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel'),
+          glucoseSafetyLimit: get(props, 'prescription.latestRevision.attributes.initialSettings.glucoseSafetyLimit'),
+          basalRateMaximum: {
+            value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value'),
+            units: defaultUnits.basalRate,
+          },
+          bolusAmountMaximum: {
+            value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value'),
+            units: defaultUnits.bolusAmount,
+          },
+          bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
+            start: 0,
+          }]),
+          bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity'),
+          bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial'),
+          basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
+            start: 0,
+          }]),
+          carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
+            start: 0,
+          }]),
+          insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
+            start: 0,
+          }]),
+        },
+        training: get(props, 'prescription.latestRevision.attributes.training'),
+        therapySettings: get(props, 'prescription.latestRevision.attributes.therapySettings', 'initial'),
+        therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
+      };
+    },
+    validationSchema: props => {
+      if (!schema) schema = prescriptionSchema(
+        props.devices,
+        get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId'),
+        getBgUnits(props),
+        get(props, 'prescription.latestRevision.attributes')
+      );
+
+      return schema;
+    },
+    displayName: 'PrescriptionForm',
+  };
+};
 
 export const generateTherapySettingsOrderText = (patientRows = [], therapySettingsRows = []) => {
   const textUtil = new TextUtil();
@@ -258,6 +264,7 @@ export const PrescriptionForm = props => {
   const {
     t,
     api,
+    clinic,
     devices,
     location,
     prescription,
@@ -287,13 +294,11 @@ export const PrescriptionForm = props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const stepperId = 'prescription-form-steps';
-  const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
+  const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', clinic?.preferredBgUnits || defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.palmtree);
   const prescriptionState = get(prescription, 'state', 'draft');
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
   const isEditable = includes(['draft', 'pending'], prescriptionState);
-  const clinics = useSelector((state) => state.blip.clinics);
-  const clinic = get(clinics, selectedClinicId);
   const isPrescriber = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'PRESCRIBER');
   const { showPrescriptions } = useFlags();
   const ldClient = useLDClient();
