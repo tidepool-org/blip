@@ -129,7 +129,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
     basalRateMaximum: {
       min: max(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0),
-        min([maxBasalRate, getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30)]),
+        max([maxBasalRate, getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.5)]),
       ], isFinite)),
       max: min(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
@@ -137,7 +137,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
           70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
           parseFloat((maxBasalRate * 6.4).toFixed(2))
         ]),
-      ], isFinite)),
+      ], val => isFinite(val) && parseInt(val) > 0)),
       increment: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.05),
     },
     bloodGlucoseTarget: {
@@ -362,8 +362,13 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
   return {
     basalRate: recommendedBasalRate || getPumpGuardrail(pump, 'basalRates.defaultValue', undefined),
     basalRateMaximum: isFinite(maxBasalRate) && !touched?.initialSettings?.basalRateMaximum?.value
-      ? utils.roundToNearest(min([parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5))), 7.466666]), getPumpGuardrail(pump, 'basalRateMaximum.increment', 0.05))
-      : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
+      ? utils.roundToNearest(
+        min([
+          parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5))),
+          getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30)
+        ]),
+        getPumpGuardrail(pump, 'basalRateMaximum.increment', 0.05)
+      ) : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
     bloodGlucoseTarget,
     bloodGlucoseTargetPhysicalActivity: {
       low: getBgInTargetUnits(150, MGDL_UNITS, bgUnits),

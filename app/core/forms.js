@@ -3,8 +3,9 @@ import each from 'lodash/each';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
 import get from 'lodash/get';
-import isString from 'lodash/isString';
+import isEmpty from 'lodash/isEmpty';
 import isNumber from 'lodash/isNumber';
+import isString from 'lodash/isString';
 import trim from 'lodash/trim';
 
 import i18next from './language';
@@ -38,10 +39,19 @@ export const fieldsAreValid = (fieldNames, schema, values) =>
  * @param {Boolean} forceTouched treat field as touched to force showing error prior to user interaction
  * @returns error string or null
  */
-export const getFieldError = (fieldPath, { errors, touched, initialValues }, forceTouched) =>
-  (get(touched, fieldPath, forceTouched) || get(initialValues, fieldPath)) && get(errors, fieldPath)
+export const getFieldError = (fieldPath, formikContext, forceTouchedIfFilled = true) => {
+  const { errors, touched, initialValues, values, status } = formikContext;
+  const value = get(values, fieldPath);
+
+  const forceTouched = !status.validatingChanges && forceTouchedIfFilled && (
+    (isFinite(value) && parseFloat(value) >= 0) ||
+    (isString(value) && !isEmpty(value))
+  );
+
+  return (get(touched, fieldPath, forceTouched) || get(initialValues, fieldPath)) && get(errors, fieldPath)
     ? get(errors, fieldPath)
     : null;
+};
 
 /**
  * Returns the warning message for a value outside of the given threshold
@@ -110,10 +120,12 @@ export const onChangeWithDependantFields = (dependantFields, formikContext, setD
   const debouncedValidate = () => debounce(async fieldPath => {
     setDependantsTouched && await formikContext.setFieldTouched(fieldPath, true, true);
     await formikContext.validateField(fieldPath);
+    formikContext.setStatus({...formikContext.status, validatingChanges: false });
   }, 500);
 
   each(dependantFields, async dependantField => {
     const scheduleIndexPlaceholder = dependantField.indexOf('.$.');
+    formikContext.setStatus({...formikContext.status, validatingChanges: true });
 
     if (scheduleIndexPlaceholder > 0) {
       const fieldParts = dependantField.split('.$.');
