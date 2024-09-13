@@ -118,18 +118,22 @@ export const roundValueToIncrement = (value, increment = 1) => {
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
+  const maxAllowedBasalRate = getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30);
 
   const ranges = {
     basalRate: {
-      min: max([getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05), 0.05]),
-      max: min([getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30), 30]),
+      min: getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05),
+      max: maxAllowedBasalRate,
       increment: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
       schedules: { max: pump?.guardRails?.basalRates?.maxSegments || 48, minutesIncrement: 30 },
     },
     basalRateMaximum: {
       min: max(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0),
-        max([maxBasalRate, getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.5)]),
+        min([
+          max([maxBasalRate, getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.5)]),
+          maxAllowedBasalRate,
+        ]),
       ], isFinite)),
       max: min(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
@@ -166,8 +170,8 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'preprandialCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bolusAmountMaximum: {
-      min: max([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0.05), 0.05]),
-      max: min([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30), 30]),
+      min: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0.05),
+      max: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30),
       increment: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.increment', 0.05),
     },
     carbRatio: {
