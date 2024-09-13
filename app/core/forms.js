@@ -1,3 +1,5 @@
+import debounce from 'lodash/debounce';
+import each from 'lodash/each';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
 import get from 'lodash/get';
@@ -86,8 +88,8 @@ export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 
 
 /**
  * Add an empty option to a list of select or radio options
- * @param {Array} options - Array of options
- * @param {String} label - Display text to use for empty option
+ * @param {Array} options Array of options
+ * @param {String} label Display text to use for empty option
  * @param {*} value - Default empty value
  * @returns a new options array
  */
@@ -95,3 +97,33 @@ export const addEmptyOption = (options = [], label = t('Select one'), value = ''
   { value, label },
   ...options,
 ]);
+
+/**
+ * Formik Field onChange handler for fields that require validation of other fields when changing values
+ * @param {Array} dependantFields Array of dependant field paths
+ * @param {Object} formikContext Context provided by useFormikContext()
+ * @returns {Function} onChange handler function
+ */
+export const onChangeWithDependantFields = (dependantFields, formikContext, setDependantsTouched = true) => e => {
+  formikContext.handleChange(e);
+
+  const debouncedValidate = () => debounce(async fieldPath => {
+    setDependantsTouched && await formikContext.setFieldTouched(fieldPath, true, true);
+    await formikContext.validateField(fieldPath);
+  }, 500);
+
+  each(dependantFields, async dependantField => {
+    const scheduleIndexPlaceholder = dependantField.indexOf('.$.');
+
+    if (scheduleIndexPlaceholder > 0) {
+      const fieldParts = dependantField.split('.$.');
+      const fieldArrayValues = get(formikContext.values, fieldParts[0]);
+
+      each(fieldArrayValues, async (fieldArrayValue, index) => {
+        debouncedValidate()(`${fieldParts[0]}.${index}.${fieldParts[1]}`);
+      });
+    } else {
+      debouncedValidate()(dependantField);
+    }
+  });
+};

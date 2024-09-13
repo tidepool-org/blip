@@ -129,7 +129,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
     basalRateMaximum: {
       min: max(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0),
-        max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate')),
+        min([maxBasalRate, getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30)]),
       ], isFinite)),
       max: min(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
@@ -195,6 +195,22 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
   };
 
   return ranges;
+};
+
+export const dependantFields = {
+  'initialSettings.glucoseSafetyLimit': [
+    'initialSettings.bloodGlucoseTargetSchedule.$.low',
+    'initialSettings.bloodGlucoseTargetSchedule.$.high',
+    'initialSettings.bloodGlucoseTargetPreprandial.low',
+    'initialSettings.bloodGlucoseTargetPreprandial.high',
+    'initialSettings.bloodGlucoseTargetPhysicalActivity.low',
+    'initialSettings.bloodGlucoseTargetPhysicalActivity.high',
+  ],
+  'initialSettings.bloodGlucoseTargetSchedule.low': ['initialSettings.glucoseSafetyLimit'],
+  'initialSettings.bloodGlucoseTargetPreprandial.low': ['initialSettings.glucoseSafetyLimit'],
+  'initialSettings.bloodGlucoseTargetPhysicalActivity.low': ['initialSettings.glucoseSafetyLimit'],
+  'initialSettings.basalRateSchedule.rate': ['initialSettings.basalRateMaximum.value'],
+  'initialSettings.carbohydrateRatioSchedule.amount': ['initialSettings.basalRateMaximum.value'],
 };
 
 export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
@@ -312,7 +328,7 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
  * @param {Object} values form values provided by formik context
  * @returns {Object} default values keyed by setting
  */
-export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values = {}) => {
+export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values = {}, touched = {}) => {
   const {
     calculator: {
       recommendedBasalRate,
@@ -345,8 +361,8 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
 
   return {
     basalRate: recommendedBasalRate || getPumpGuardrail(pump, 'basalRates.defaultValue', undefined),
-    basalRateMaximum: isFinite(maxBasalRate)
-      ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
+    basalRateMaximum: isFinite(maxBasalRate) && !touched?.initialSettings?.basalRateMaximum?.value
+      ? utils.roundToNearest(min([parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5))), 7.466666]), getPumpGuardrail(pump, 'basalRateMaximum.increment', 0.05))
       : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
     bloodGlucoseTarget,
     bloodGlucoseTargetPhysicalActivity: {
