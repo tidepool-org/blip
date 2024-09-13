@@ -1308,7 +1308,7 @@ export const PatientDataClass = createReactClass({
     }
 
     // Prior to refetching data, we need to remove current data from the data worker
-    // Refetch will occur in UNSAFE_componentWillRecieveProps after data worker is emptied
+    // Refetch will occur in UNSAFE_componentWillReceiveProps after data worker is emptied
     this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
   },
 
@@ -1683,7 +1683,7 @@ export const PatientDataClass = createReactClass({
           endpoints: undefined,
           refreshChartType: this.state.chartType,
         }, () => {
-          this.props.onRefresh(this.props.currentPatientInViewId);
+          this.props.onRefresh(this.props.currentPatientInViewId, this.state.refreshChartType);
           this.props.removeGeneratedPDFS();
         });
       });
@@ -2372,7 +2372,22 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
     history: ownProps.history,
     uploadUrl: api.getUploadUrl(),
-    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom, medtronic }),
+    onRefresh: (patientId, chartType) => {
+      const fetchOptions = {
+        carelink,
+        dexcom,
+        medtronic
+      };
+      if(chartType === 'settings') {
+        _.extend(fetchOptions, {
+          type: 'pumpSettings,upload',
+          initial: false,
+          startDate: undefined,
+          endDate: undefined,
+        });
+      }
+      return dispatchProps.fetchPatientData(api, fetchOptions, patientId);
+    },
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
