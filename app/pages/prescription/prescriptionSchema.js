@@ -3,6 +3,7 @@ import i18next from '../../core/language';
 import find from 'lodash/find';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
+import max from 'lodash/max';
 import moment from 'moment';
 import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from '../../core/constants';
 import utils from '../../core/utils';
@@ -51,9 +52,9 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
     cgms: cgmDeviceOptions(devices),
   }
 
-  const rangeError = key => t('Please select a value between {{min}}-{{max}}', {
-    min: ranges[key].min,
-    max: ranges[key].max,
+  const rangeError = (key) => t('Please select a value between {{min}}-{{max}}', {
+    min: utils.roundToNearest(ranges[key].min, ranges[key].increment || 1),
+    max: utils.roundToNearest(ranges[key].max, ranges[key].increment || 1),
   });
 
   return yup.object().shape({
@@ -176,7 +177,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       bloodGlucoseTargetSchedule: yup.array().of(
         yup.object().shape({
           high: yup.number()
-            .min(yup.ref('low') || ranges.bloodGlucoseTarget.min, rangeError('bloodGlucoseTarget').replace(ranges.bloodGlucoseTarget.min, '${min}'))
+            .min(utils.roundToNearest(max([parseFloat(yup.ref('low')), ranges.bloodGlucoseTarget.min]), ranges.bloodGlucoseTarget.increment), rangeError('bloodGlucoseTarget').replace(ranges.bloodGlucoseTarget.min, '${min}'))
             .max(ranges.bloodGlucoseTarget.max, rangeError('bloodGlucoseTarget'))
             .required(t('High target is required')),
           low: yup.number()
@@ -192,7 +193,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       ),
       bloodGlucoseTargetPhysicalActivity: yup.object().shape({
         high: yup.number()
-          .min(yup.ref('low') || ranges.bloodGlucoseTargetPhysicalActivity.min, rangeError('bloodGlucoseTargetPhysicalActivity').replace(ranges.bloodGlucoseTargetPhysicalActivity.min, '${min}'))
+          .min(utils.roundToNearest(max([parseFloat(yup.ref('low')), ranges.bloodGlucoseTargetPhysicalActivity.min]), ranges.bloodGlucoseTargetPhysicalActivity.increment), rangeError('bloodGlucoseTargetPhysicalActivity').replace(ranges.bloodGlucoseTargetPhysicalActivity.min, '${min}'))
           .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeError('bloodGlucoseTargetPhysicalActivity'))
           .required(t('High target is required')),
         low: yup.number()
@@ -202,7 +203,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       }),
       bloodGlucoseTargetPreprandial: yup.object().shape({
         high: yup.number()
-          .min(yup.ref('low') || ranges.bloodGlucoseTargetPreprandial.min, rangeError('bloodGlucoseTargetPreprandial').replace(ranges.bloodGlucoseTargetPreprandial.min, '${min}'))
+          .min(utils.roundToNearest(max([parseFloat(yup.ref('low')), ranges.bloodGlucoseTargetPreprandial.min]), ranges.bloodGlucoseTargetPreprandial.increment), rangeError('bloodGlucoseTargetPreprandial').replace(ranges.bloodGlucoseTargetPreprandial.min, '${min}'))
           .max(ranges.bloodGlucoseTargetPreprandial.max, rangeError('bloodGlucoseTargetPreprandial'))
           .required(t('High target is required')),
         low: yup.number()
