@@ -390,7 +390,7 @@ const Prescriptions = props => {
             variant="primary"
             onClick={handleAddNew}
             px={[2, 3]}
-            sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
+            sx={{ fontSize: 1, lineHeight: ['inherit', null, 1] }}
           >
             {t('Create New Tidepool Loop Start Order')}
           </Button>
