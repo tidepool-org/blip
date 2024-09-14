@@ -126,7 +126,7 @@ const ScheduleForm = props => {
                   setFieldTouched(`${fieldArrayName}.${index}.${field.name}`);
                   setFieldValue(`${fieldArrayName}.${index}.${field.name}`, roundValueToIncrement(e.target.value, field.increment))
                 }}
-                onChange={onChangeWithDependantFields(field.dependantFields, formikContext, field.setDependantsTouched)}
+                onChange={onChangeWithDependantFields(`${fieldArrayName}.${index}.${field.name}`, field.dependantFields, formikContext, field.setDependantsTouched)}
                 {...inlineInputStyles}
               />
               {(fieldIndex < fields.length - 1 ) && separator && (

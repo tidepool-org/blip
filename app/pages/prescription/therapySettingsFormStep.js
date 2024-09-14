@@ -4,12 +4,17 @@ import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'theme-ui';
 import each from 'lodash/each';
+import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import map from 'lodash/map';
 import max from 'lodash/max';
+import uniq from 'lodash/uniq';
+import { default as _values } from 'lodash/values';
 
-import { getFieldError, getThresholdWarning, onChangeWithDependantFields } from '../../core/forms';
+import { getFieldError, getThresholdWarning, onChangeWithDependantFields, setFieldValidatingChanges } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
 import { Paragraph2, Body2, Headline, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -171,7 +176,7 @@ export const GlucoseSettings = props => {
             setFieldTouched('initialSettings.glucoseSafetyLimit');
             setFieldValue('initialSettings.glucoseSafetyLimit', roundValueToIncrement(e.target.value, ranges.glucoseSafetyLimit.increment));
           }}
-          onChange={onChangeWithDependantFields(dependantFields['initialSettings.glucoseSafetyLimit'], formikContext)}
+          onChange={onChangeWithDependantFields('initialSettings.glucoseSafetyLimit', dependantFields['initialSettings.glucoseSafetyLimit'], formikContext)}
           step={ranges.glucoseSafetyLimit.increment}
           {...ranges.glucoseSafetyLimit}
           {...{ ...inputStyles, themeProps: { mb: 4 }}}
@@ -245,7 +250,7 @@ export const GlucoseSettings = props => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPreprandial.low');
               setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment));
             }}
-            onChange={onChangeWithDependantFields(dependantFields['initialSettings.bloodGlucoseTargetPreprandial.low'], formikContext)}
+            onChange={onChangeWithDependantFields('initialSettings.bloodGlucoseTargetPreprandial.low', dependantFields['initialSettings.bloodGlucoseTargetPreprandial.low'], formikContext)}
             step={ranges.bloodGlucoseTargetPreprandial.increment}
             {...ranges.bloodGlucoseTargetPreprandial}
             {...inlineInputStyles}
@@ -297,7 +302,7 @@ export const GlucoseSettings = props => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPhysicalActivity.low');
               setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment));
             }}
-            onChange={onChangeWithDependantFields(dependantFields['initialSettings.bloodGlucoseTargetPhysicalActivity.low'], formikContext)}
+            onChange={onChangeWithDependantFields('initialSettings.bloodGlucoseTargetPhysicalActivity.low', dependantFields['initialSettings.bloodGlucoseTargetPhysicalActivity.low'], formikContext)}
             step={ranges.bloodGlucoseTargetPhysicalActivity.increment}
             {...ranges.bloodGlucoseTargetPhysicalActivity}
             {...inlineInputStyles}
@@ -469,7 +474,7 @@ export const InsulinSettings = props => {
           id="initialSettings.basalRateMaximum.value"
           name="initialSettings.basalRateMaximum.value"
           suffix={t('U/hr')}
-          error={getFieldError('initialSettings.basalRateMaximum.value', formikContext)}
+          error={getFieldError('initialSettings.basalRateMaximum.value', formikContext, false)}
           warning={getThresholdWarning(get(values,'initialSettings.basalRateMaximum.value'), thresholds.basalRateMaximum)}
           onBlur={e => {
             setFieldTouched('initialSettings.basalRateMaximum.value');
@@ -556,6 +561,7 @@ export const TherapySettings = withTranslation()(props => {
   const formikContext = useFormikContext();
 
   const {
+    initialValues,
     setFieldValue,
     touched,
     values,
@@ -656,6 +662,38 @@ export const TherapySettings = withTranslation()(props => {
       }
     }, field.dependancies || [field.defaultValue]);
   });
+
+  React.useEffect(() => {
+    // Validate all filled dependant fields on initial form hydration
+    const filledFieldValidator = () => async fieldPath => {
+      const value = get(values, fieldPath);
+
+      if (
+        (isFinite(value) && parseFloat(value) >= 0) ||
+        (isString(value) && !isEmpty(value))
+      ) {
+        setFieldValidatingChanges(fieldPath, true, formikContext);
+        await formikContext.setFieldTouched(fieldPath, true, true);
+        await formikContext.validateField(fieldPath);
+        setFieldValidatingChanges(fieldPath, false, formikContext);
+      }
+    };
+
+    each(uniq(flatten(_values(dependantFields))), dependantField => {
+      const scheduleIndexPlaceholder = dependantField.indexOf('.$.');
+
+      if (scheduleIndexPlaceholder > 0) {
+        const fieldParts = dependantField.split('.$.');
+        const fieldArrayValues = get(formikContext.values, fieldParts[0]);
+
+        each(fieldArrayValues, (fieldArrayValue, index) => {
+          filledFieldValidator()(`${fieldParts[0]}.${index}.${fieldParts[1]}`);
+        });
+      } else {
+        filledFieldValidator()(dependantField);
+      }
+    });
+  }, [initialValues]);
 
   return (
     <Box id="therapy-settings-step">
