@@ -15,7 +15,7 @@ import max from 'lodash/max';
 import uniq from 'lodash/uniq';
 import { default as _values } from 'lodash/values';
 
-import { getFieldError, getThresholdWarning, onChangeWithDependantFields, setFieldValidatingChanges } from '../../core/forms';
+import { getFieldError, getThresholdWarning, onChangeWithDependantFields } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
 import { Paragraph2, Body2, Headline, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -677,10 +677,8 @@ export const TherapySettings = withTranslation()(props => {
         (isFinite(value) && parseFloat(value) >= 0) ||
         (isString(value) && !isEmpty(value))
       ) {
-        setFieldValidatingChanges(fieldPath, true, formikContext);
         await formikContext.setFieldTouched(fieldPath, true, true);
         await formikContext.validateField(fieldPath);
-        setFieldValidatingChanges(fieldPath, false, formikContext);
       }
     };
 

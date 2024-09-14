@@ -43,7 +43,7 @@ export const getFieldError = (fieldPath, formikContext, forceTouchedIfFilled = t
   const { errors, touched, initialValues, values, status } = formikContext;
   const value = get(values, fieldPath);
 
-  const forceTouched = !status.validatingChanges?.[fieldPath] && forceTouchedIfFilled && ( // TODO: once all things work see if I actually need to track validation changes...
+  const forceTouched = forceTouchedIfFilled && (
     (isFinite(value) && parseFloat(value) >= 0) ||
     (isString(value) && !isEmpty(value))
   );
@@ -109,42 +109,21 @@ export const addEmptyOption = (options = [], label = t('Select one'), value = ''
 ]);
 
 /**
- * Set field-level validating form status
- *
- * @param {String} fieldPath path to the field in dot notation
- * @param {Boolean} status is field currently being validated
- * @param {Object} formikContext Context provided by useFormikContext()
- */
-export const setFieldValidatingChanges = (fieldPath, status, formikContext) => {
-  formikContext.setStatus({
-    ...formikContext.status,
-    validatingChanges: {
-      ...formikContext.status.validatingChanges || {},
-      [fieldPath]: status,
-    },
-  });
-};
-
-/**
  * Formik Field onChange handler for fields that require validation of other fields when changing values
  * @param {Array} dependantFields Array of dependant field paths
  * @param {Object} formikContext Context provided by useFormikContext()
  * @returns {Function} onChange handler function
  */
 export const onChangeWithDependantFields = (parentFieldPath, dependantFields, formikContext, setDependantsTouched = true) => async e => {
-  setFieldValidatingChanges(parentFieldPath, true, formikContext);
   formikContext.handleChange(e);
   await formikContext.setFieldTouched(parentFieldPath, true, true);
   await formikContext.validateField(parentFieldPath);
-  setFieldValidatingChanges(parentFieldPath, false, formikContext);
 
   const debouncedValidate = () => debounce(async fieldPath => {
-    setFieldValidatingChanges(fieldPath, true, formikContext);
     if (setDependantsTouched) {
       await formikContext.setFieldTouched(fieldPath, true, true);
       await formikContext.validateField(fieldPath);
     }
-    setFieldValidatingChanges(fieldPath, false, formikContext);
   }, 250);
 
   each(dependantFields, dependantField => {
