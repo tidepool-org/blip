@@ -34,7 +34,7 @@ import canonicalize from 'canonicalize';
 import { sha512 } from 'crypto-hash';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
-import { fieldsAreValid } from '../../core/forms';
+import { fieldsAreValid, getFieldError } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import Button from '../../components/elements/Button';
@@ -396,6 +396,9 @@ export const PrescriptionForm = props => {
       // We can't simply delete all future steps, as the clinician may have returned to the current
       // step via 'Back' button navigation and we don't want to lose existing data previously
       // entered in the later steps.
+
+      // We should, however, remove any future fields that don't pass field validation, since they
+      // would result in an error anyhow if submitted, and prevent forward navigation
       if (!isLastStep()) {
         const fieldsInFutureSteps = reduce(formSteps, (fields, step, index) => {
           if (index <= activeStep) return fields;
@@ -404,7 +407,7 @@ export const PrescriptionForm = props => {
           return fields;
         }, []);
 
-        const emptyFieldsInFutureSteps = remove(
+        const emptyOrInvalidFieldsInFutureSteps = remove(
           flattenDeep(fieldsInFutureSteps),
           fieldPath => {
             const value = get(values, fieldPath);
@@ -422,7 +425,7 @@ export const PrescriptionForm = props => {
             }
 
             // Return empty values for non-array fields
-            return isEmpty(value);
+            return isEmpty(value) || getFieldError(fieldPath, formikContext, true);
           }
         );
 
@@ -430,7 +433,7 @@ export const PrescriptionForm = props => {
         // N.B. There are some fieldpaths we check that end in '.value' or '.number'. If those keys
         // are empty, we exclude the parent object.
         fieldsToDelete.push(...map(
-          emptyFieldsInFutureSteps,
+          emptyOrInvalidFieldsInFutureSteps,
           fieldPath => fieldPath.replace(/\.(value|number)$/, '')
         ));
       }
