@@ -52,10 +52,16 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
     cgms: cgmDeviceOptions(devices),
   }
 
-  const rangeError = (key) => t('Please select a value between {{min}}-{{max}}', {
+  const rangeError = key => t('Please select a value between {{min}}-{{max}}', {
     min: utils.roundToNearest(ranges[key].min, ranges[key].increment || 1),
     max: utils.roundToNearest(ranges[key].max, ranges[key].increment || 1),
   });
+
+  const equalToOrAboveLow = key => (value, ctx) => {
+    const defaultMin = utils.roundToNearest(ranges[key].min, ranges[key].increment || 1);
+    const min = utils.roundToNearest(max([parseFloat(ctx.parent.low), ranges[key].min]), ranges[key].increment || 1);
+    return value >= parseFloat(min) || ctx.createError({ message: rangeError(key).replace(defaultMin, min) });
+  };
 
   return yup.object().shape({
     id: yup.string(),
@@ -176,14 +182,14 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       }),
       bloodGlucoseTargetSchedule: yup.array().of(
         yup.object().shape({
-          high: yup.number()
-            .min(utils.roundToNearest(max([parseFloat(yup.ref('low')), ranges.bloodGlucoseTarget.min]), ranges.bloodGlucoseTarget.increment), rangeError('bloodGlucoseTarget').replace(ranges.bloodGlucoseTarget.min, '${min}'))
-            .max(ranges.bloodGlucoseTarget.max, rangeError('bloodGlucoseTarget'))
-            .required(t('High target is required')),
           low: yup.number()
             .min(ranges.bloodGlucoseTarget.min, rangeError('bloodGlucoseTarget'))
             .max(ranges.bloodGlucoseTarget.max, rangeError('bloodGlucoseTarget'))
             .required(t('Low target is required')),
+          high: yup.number()
+            .test('min', null, equalToOrAboveLow('bloodGlucoseTarget'))
+            .max(ranges.bloodGlucoseTarget.max, rangeError('bloodGlucoseTarget'))
+            .required(t('High target is required')),
           start: yup.number()
             .integer()
             .min(0)
@@ -192,24 +198,24 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         }),
       ),
       bloodGlucoseTargetPhysicalActivity: yup.object().shape({
-        high: yup.number()
-          .min(utils.roundToNearest(max([parseFloat(yup.ref('low')), ranges.bloodGlucoseTargetPhysicalActivity.min]), ranges.bloodGlucoseTargetPhysicalActivity.increment), rangeError('bloodGlucoseTargetPhysicalActivity').replace(ranges.bloodGlucoseTargetPhysicalActivity.min, '${min}'))
-          .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeError('bloodGlucoseTargetPhysicalActivity'))
-          .required(t('High target is required')),
         low: yup.number()
           .min(ranges.bloodGlucoseTargetPhysicalActivity.min, rangeError('bloodGlucoseTargetPhysicalActivity'))
           .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeError('bloodGlucoseTargetPhysicalActivity'))
           .required(t('Low target is required')),
+        high: yup.number()
+          .test('min', null, equalToOrAboveLow('bloodGlucoseTargetPhysicalActivity'))
+          .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeError('bloodGlucoseTargetPhysicalActivity'))
+          .required(t('High target is required')),
       }),
       bloodGlucoseTargetPreprandial: yup.object().shape({
-        high: yup.number()
-          .min(utils.roundToNearest(max([parseFloat(yup.ref('low')), ranges.bloodGlucoseTargetPreprandial.min]), ranges.bloodGlucoseTargetPreprandial.increment), rangeError('bloodGlucoseTargetPreprandial').replace(ranges.bloodGlucoseTargetPreprandial.min, '${min}'))
-          .max(ranges.bloodGlucoseTargetPreprandial.max, rangeError('bloodGlucoseTargetPreprandial'))
-          .required(t('High target is required')),
         low: yup.number()
           .min(ranges.bloodGlucoseTargetPreprandial.min, rangeError('bloodGlucoseTargetPreprandial'))
           .max(ranges.bloodGlucoseTargetPreprandial.max, rangeError('bloodGlucoseTargetPreprandial'))
           .required(t('Low target is required')),
+        high: yup.number()
+          .test('min', null, equalToOrAboveLow('bloodGlucoseTargetPreprandial'))
+          .max(ranges.bloodGlucoseTargetPreprandial.max, rangeError('bloodGlucoseTargetPreprandial'))
+          .required(t('High target is required')),
       }),
       basalRateSchedule: yup.array().of(
         yup.object().shape({
