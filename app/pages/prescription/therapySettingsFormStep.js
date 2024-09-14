@@ -4,6 +4,7 @@ import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'theme-ui';
 import each from 'lodash/each';
+import filter from 'lodash/filter';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
@@ -561,6 +562,7 @@ export const TherapySettings = withTranslation()(props => {
   const formikContext = useFormikContext();
 
   const {
+    dirty,
     initialValues,
     setFieldValue,
     touched,
@@ -664,6 +666,9 @@ export const TherapySettings = withTranslation()(props => {
   });
 
   React.useEffect(() => {
+    // We need to not validate prior to initial values going in.
+    if (!dirty) return;
+
     // Validate all filled dependant fields on initial form hydration
     const filledFieldValidator = () => async fieldPath => {
       const value = get(values, fieldPath);
@@ -679,7 +684,10 @@ export const TherapySettings = withTranslation()(props => {
       }
     };
 
-    each(uniq(flatten(_values(dependantFields))), dependantField => {
+    const fields = uniq(flatten(_values(dependantFields)));
+    const excludedFields = ['initialSettings.basalRateMaximum.value'];
+
+    each(filter(fields, field => !includes(excludedFields, field)), dependantField => {
       const scheduleIndexPlaceholder = dependantField.indexOf('.$.');
 
       if (scheduleIndexPlaceholder > 0) {
@@ -693,7 +701,7 @@ export const TherapySettings = withTranslation()(props => {
         filledFieldValidator()(dependantField);
       }
     });
-  }, [initialValues]);
+  }, [initialValues, dirty]);
 
   return (
     <Box id="therapy-settings-step">
