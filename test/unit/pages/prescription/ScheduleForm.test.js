@@ -123,7 +123,7 @@ describe('ScheduleForm', () => {
     expect(addButton.prop('disabled')).to.be.false;
   });
 
-  it.skip('should add a row with same values as previous and a start time increased by 30m when the add button is clicked', (done) => {
+  it.skip('should add a row with same values as previous and a start time increased by 30m when the add button is clicked', () => {
     const rows = () => wrapper.find('.schedule-row').hostNodes();
     expect(rows()).to.have.length(1);
 
