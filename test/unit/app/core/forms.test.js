@@ -14,6 +14,7 @@ describe('forms', function() {
     touchedAndError: 'error!',
     touchedAndNoError: undefined,
     notTouchedAndError: 'error!',
+    notTouchedAndErrorAndFilled: 'error!',
     notTouchedAndNoError: undefined,
     initiallySetAndError: 'error!',
     notInitiallySetAndError: 'error!',
@@ -23,6 +24,7 @@ describe('forms', function() {
     touchedAndError: true,
     touchedAndNoError: true,
     notTouchedAndError: undefined,
+    notTouchedAndErrorAndFilled: undefined,
     notTouchedAndNoError: undefined,
     initiallySetAndError: undefined,
     notInitiallySetAndError: undefined,
@@ -32,6 +34,7 @@ describe('forms', function() {
     touchedAndError: undefined,
     touchedAndNoError: undefined,
     notTouchedAndError: undefined,
+    notTouchedAndErrorAndFilled: 'filled',
     notTouchedAndNoError: undefined,
     initiallySetAndError: 'foo',
     notInitiallySetAndError: undefined,
@@ -82,8 +85,12 @@ describe('forms', function() {
       expect(formUtils.getFieldError('notTouchedAndError', formikContext)).to.be.null;
     });
 
-    it('should return an error when field has not been touched and is in an error state, and the forceTouched argument is `true`', () => {
-      expect(formUtils.getFieldError('notTouchedAndError', formikContext, true)).to.equal('error!');
+    it('should return `null` when an empty field has not been touched and is in an error state, and the forceTouchedIfFilled argument is `true`', () => {
+      expect(formUtils.getFieldError('notTouchedAndError', formikContext, true)).to.be.null;
+    });
+
+    it('should return an error when a filled field has not been touched and is in an error state, and the forceTouchedIfFilled argument is `true`', () => {
+      expect(formUtils.getFieldError('notTouchedAndErrorAndFilled', formikContext, true)).to.equal('error!');
     });
 
     it('should return `null` when field has been touched and is not in an error state', () => {
