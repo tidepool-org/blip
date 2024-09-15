@@ -477,8 +477,6 @@ export const prescriptionStateOptions = [
   ...revisionStateOptions,
   { value: 'claimed', label: t('Claimed'), colorPalette: 'cyans' },
   { value: 'expired', label: t('Expired'), colorPalette: 'pinks' },
-  { value: 'active', label: t('Active'), colorPalette: 'greens' },
-  { value: 'inactive', label: t('Inactive'), colorPalette: 'purples' },
 ];
 
 export const typeOptions = [
