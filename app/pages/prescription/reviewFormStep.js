@@ -11,6 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import capitalize from 'lodash/capitalize';
+import trim from 'lodash/trim';
 import isArray from 'lodash/isArray';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
@@ -21,6 +22,7 @@ import { useInitialFocusedInput } from '../../core/hooks';
 import { dateRegex, getFieldStepMap, insulinModelOptions, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
+import personUtils from '../../core/personutils';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
 import Checkbox from '../../components/elements/Checkbox';
 import Icon from '../../components/elements/Icon';
@@ -85,6 +87,17 @@ const patientRows = (values, formikContext, skippedFields = [], fieldStepMap = {
       step: fieldStepMap.mrn,
     },
   ];
+
+  if (values.accountType === 'caregiver') {
+    const fullName = personUtils.fullnameFromSplitNames(values.caregiverFirstName, values.caregiverLastName);
+
+    rows.splice(3, 0, {
+      label: t('Caregiver Name'),
+      value: isEmpty(trim(fullName)) ? emptyValueText : fullName,
+      error: getFieldError('caregiverFirstName', formikContext, true) || getFieldError('caregiverLastName', formikContext, true) || isEmpty(values.caregiverFirstName) || isEmpty(values.caregiverLastName),
+      step: fieldStepMap.caregiverFirstName,
+    });
+  }
 
   return reject(rows, { skipped: true });
 };
