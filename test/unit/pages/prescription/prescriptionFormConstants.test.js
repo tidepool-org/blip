@@ -455,7 +455,7 @@ describe('prescriptionFormConstants', function() {
     it('should export the default ranges with mg/dL as default bg unit if pump is not provided', () => {
       expect(prescriptionFormConstants.pumpRanges()).to.eql({
         basalRate: { min: 0.05, max: 30, increment: 0.05, schedules: { max: 48, minutesIncrement: 30 } },
-        basalRateMaximum: { min: 0, max: 30, increment: 0.05 },
+        basalRateMaximum: { min: 0.05, max: 30, increment: 0.05 },
         bloodGlucoseTarget: { min: 87, max: 180, increment: 1, schedules: { max: 48, minutesIncrement: 30 } },
         bolusAmountMaximum: { min: 0.05, max: 30, increment: 0.05 },
         carbRatio: { min: 2, max: 150, increment: 0.1, schedules: { max: 48, minutesIncrement: 30 } },
@@ -505,7 +505,7 @@ describe('prescriptionFormConstants', function() {
         it('should set min to the higher of the default minimum guardrail (0) or Highest Scheduled Basal Rate', () => {
           expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
             initialSettings: { basalRateSchedule: [] }
-          }).basalRateMaximum.min).to.equal(0);
+          }).basalRateMaximum.min).to.equal(0.05);
 
           expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
             initialSettings: { basalRateSchedule: [ { rate: 1 }, { rate: 2 } ] }
@@ -686,7 +686,7 @@ describe('prescriptionFormConstants', function() {
       });
 
       context('max basal rate is set', () => {
-        it('should return a default value of 3.5x the max basal rate for basalRateMaximum', () => {
+        it('should return a default value of 3.5x the max basal rate for basalRateMaximum, rounded to the nearest increment', () => {
           const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
             birthday,
             initialSettings: { basalRateSchedule: [
@@ -696,7 +696,7 @@ describe('prescriptionFormConstants', function() {
             ] },
           });
 
-          expect(result.basalRateMaximum).to.equal(0.53);
+          expect(result.basalRateMaximum).to.equal(0.55);
         });
       });
 

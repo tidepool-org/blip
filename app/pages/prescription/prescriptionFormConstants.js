@@ -129,9 +129,9 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
     },
     basalRateMaximum: {
       min: max(filter([
-        getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0),
+        getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.05),
         min([
-          max([maxBasalRate, getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.5)]),
+          max([maxBasalRate, getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.05)]),
           maxAllowedBasalRate,
         ]),
       ], isFinite)),
