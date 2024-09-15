@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
 import { Box, Flex, BoxProps } from 'theme-ui';
+import cloneDeep from 'lodash/cloneDeep';
 import compact from 'lodash/compact';
 import find from 'lodash/find';
 import get from 'lodash/get';
@@ -538,11 +539,14 @@ export const PrescriptionReview = withTranslation()(props => {
   const currentStep = [activeStep, activeSubStep];
   const fieldStepMap = getFieldStepMap(props.steps);
 
-  const { validateForm, values } = useFormikContext();
+  const { resetForm, validateForm, values } = useFormikContext();
 
   // At this point we consider the prescription ready to send so we ensure the values are validated
   // so that we can highlight any fields that are in an invalid state with error styling
+  // We also reset the form state with the current values, since we don't want to persist errors
+  // that may have been persisted in localStorage in previous step edits.
   React.useEffect(() => {
+    // resetForm(cloneDeep(values))
     validateForm();
   }, [values]);
 

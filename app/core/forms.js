@@ -36,11 +36,11 @@ export const fieldsAreValid = (fieldNames, schema, values) =>
  * Returns the error state of a field in a way that's sensible for our components
  * @param {String} fieldPath path to the field in dot notation
  * @param {Object} formikContext context provided by useFormikContext()
- * @param {Boolean} forceTouched treat field as touched to force showing error prior to user interaction
+ * @param {Boolean} forceTouchedIfFilled treat field as touched to force showing error prior to user interaction if it has a value within it
  * @returns error string or null
  */
 export const getFieldError = (fieldPath, formikContext, forceTouchedIfFilled = true) => {
-  const { errors, touched, initialValues, values, status } = formikContext;
+  const { errors, touched, initialValues, values } = formikContext;
   const value = get(values, fieldPath);
 
   const forceTouched = forceTouchedIfFilled && (

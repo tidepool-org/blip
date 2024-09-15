@@ -363,9 +363,9 @@ export const PrescriptionForm = props => {
 
     singleStepEditComplete: (cancelFieldUpdates) => {
       if (cancelFieldUpdates) {
-        resetForm({values: cloneDeep(singleStepEditValues) });
+        setTimeout(() => resetForm({values: cloneDeep(singleStepEditValues) }), 100);
       } else {
-        resetForm({ values: cloneDeep(values) });
+        setTimeout(() => resetForm({ values: cloneDeep(values) }), 100);
       }
 
       handlers.activeStepUpdate(pendingStep);
@@ -561,7 +561,6 @@ export const PrescriptionForm = props => {
         if (prescriptionId) setFieldValue('id', prescriptionId);
 
         if (isLastStep()) {
-
           let messageAction = isRevision ? t('updated') : t('created');
           if (isPrescriber) messageAction = t('finalized and sent');
 
@@ -574,7 +573,7 @@ export const PrescriptionForm = props => {
         } else {
           if (prescriptionId && isNewPrescriptionFlow()) {
             // Redirect to normal prescription edit flow once we have a prescription ID
-            setStoredValues({ ...values, id: prescriptionId })
+            setStoredValues({ ...values, id: prescriptionId });
             dispatch(push(`/prescriptions/${prescriptionId}`));
           }
         }
@@ -615,6 +614,10 @@ export const PrescriptionForm = props => {
         setSingleStepEditValues(values)
       } else {
         handlers.activeStepUpdate(newStep);
+        setTimeout(() => {
+          formikContext.validateForm();
+          if (isLastStep()) delete localStorage[storageKey];
+        }, 0);
       }
 
       log('Step to', newStep.join(','));
@@ -657,7 +660,10 @@ export const PrescriptionForm = props => {
         <Button
           id="back-to-prescriptions"
           variant="primary"
-          onClick={() => dispatch(push('/clinic-workspace/prescriptions'))}
+          onClick={() => {
+            delete localStorage[storageKey];
+            dispatch(push('/clinic-workspace/prescriptions'));
+          }}
           mr={5}
         >
           {t('Back To Tidepool Loop Start Orders')}

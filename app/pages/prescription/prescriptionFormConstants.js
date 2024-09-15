@@ -456,7 +456,10 @@ export const shouldUpdateDefaultValue = (fieldPath, formikContext) => {
     touched,
   } = formikContext;
 
-  const initialValuesSource = status.isPrescriptionEditFlow ? initialValues : status.hydratedValues;
+  const initialValuesSource = {
+    ...initialValues,
+    ...(status.hydratedValues || {}),
+  };
 
   return (
     !status.isSingleStepEdit

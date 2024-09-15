@@ -4,15 +4,10 @@ import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'theme-ui';
 import each from 'lodash/each';
-import filter from 'lodash/filter';
-import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
-import isEmpty from 'lodash/isEmpty';
-import isString from 'lodash/isString';
 import map from 'lodash/map';
 import max from 'lodash/max';
-import uniq from 'lodash/uniq';
 import { default as _values } from 'lodash/values';
 
 import { getFieldError, getThresholdWarning, onChangeWithDependantFields } from '../../core/forms';
@@ -562,10 +557,9 @@ export const TherapySettings = withTranslation()(props => {
   const formikContext = useFormikContext();
 
   const {
-    dirty,
-    initialValues,
     setFieldValue,
     touched,
+    validateForm,
     values,
   } = formikContext;
 
@@ -666,40 +660,8 @@ export const TherapySettings = withTranslation()(props => {
   });
 
   React.useEffect(() => {
-    // We need to not validate prior to initial values going in.
-    if (!dirty) return;
-
-    // Validate all filled dependant fields on initial form hydration
-    const filledFieldValidator = () => async fieldPath => {
-      const value = get(values, fieldPath);
-
-      if (
-        (isFinite(value) && parseFloat(value) >= 0) ||
-        (isString(value) && !isEmpty(value))
-      ) {
-        await formikContext.setFieldTouched(fieldPath, true, true);
-        await formikContext.validateField(fieldPath);
-      }
-    };
-
-    const fields = uniq(flatten(_values(dependantFields)));
-    const excludedFields = ['initialSettings.basalRateMaximum.value'];
-
-    each(filter(fields, field => !includes(excludedFields, field)), dependantField => {
-      const scheduleIndexPlaceholder = dependantField.indexOf('.$.');
-
-      if (scheduleIndexPlaceholder > 0) {
-        const fieldParts = dependantField.split('.$.');
-        const fieldArrayValues = get(formikContext.values, fieldParts[0]);
-
-        each(fieldArrayValues, (fieldArrayValue, index) => {
-          filledFieldValidator()(`${fieldParts[0]}.${index}.${fieldParts[1]}`);
-        });
-      } else {
-        filledFieldValidator()(dependantField);
-      }
-    });
-  }, [initialValues, dirty]);
+    validateForm();
+  }, []);
 
   return (
     <Box id="therapy-settings-step">
