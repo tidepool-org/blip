@@ -301,7 +301,7 @@ const Prescriptions = props => {
 
 
   const renderAccessCode = ({ accessCode, state }) => {
-    return includes(['draft', 'pending'], state) ? '' : (
+    return state !== 'submitted' ? '' : (
       <Flex
         onClick={e => {
           // Prevent clicks from propogating up to the table row click handlers
