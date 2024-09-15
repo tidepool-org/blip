@@ -366,6 +366,7 @@ describe('PrescriptionForm', () => {
       const formikContext = {
         setValues: sinon.stub(),
         setStatus: sinon.stub(),
+        validateForm: sinon.stub(),
         values: props.prescription,
         status: { hydratedValues: {} },
       };
@@ -453,6 +454,7 @@ describe('PrescriptionForm', () => {
       const formikContext = {
         setValues: sinon.stub(),
         setStatus: sinon.stub(),
+        validateForm: sinon.stub(),
         values: props.prescription,
         status: { hydratedValues: {} },
       };
