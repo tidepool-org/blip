@@ -212,4 +212,40 @@ describe('forms', function() {
       ]);
     });
   });
+
+  describe.skip('onChangeWithDependantFields', () => {
+    const parentFieldPath = 'parentField';
+
+    const dependantFields = [
+      'dependantField',
+      'nested.dependantField',
+      'nested.dependantFieldArray.$.value',
+    ];
+
+    const formikContext = {
+      setFieldTouched: sinon.stub().resolves(null),
+      validateField: sinon.stub().resolves(null),
+      values: {
+        parentField: 'parentFieldValue',
+        dependantField: 'dependantFieldValue',
+        nested: {
+          dependantField: 'nestedDependantFieldValue',
+          dependantFieldArray: [
+            { value: 'arrayValue1' },
+            { value: 'arrayValue2' },
+          ]
+        },
+      },
+    };
+
+    it('return a function that sets parent field as touched and validate it, and do the same for child fields after a delay', done => {
+      const changeHandler = formUtils.onChangeWithDependantFields(parentFieldPath, dependantFields, formikContext);
+      expect(changeHandler).to.be.a('function');
+
+      setTimeout(() => {
+        done();
+      }, 300)
+    });
+
+  });
 });

@@ -114,7 +114,7 @@ export const addEmptyOption = (options = [], label = t('Select one'), value = ''
  * @param {Object} formikContext Context provided by useFormikContext()
  * @returns {Function} onChange handler function
  */
-export const onChangeWithDependantFields = (parentFieldPath, dependantFields, formikContext, setDependantsTouched = true) => async e => {
+export const onChangeWithDependantFields = (parentFieldPath, dependantFields, formikContext, setDependantsTouched = true, debounceValidateMs = 250) => async e => {
   formikContext.handleChange(e);
   await formikContext.setFieldTouched(parentFieldPath, true, true);
   await formikContext.validateField(parentFieldPath);
@@ -124,7 +124,7 @@ export const onChangeWithDependantFields = (parentFieldPath, dependantFields, fo
       await formikContext.setFieldTouched(fieldPath, true, true);
       await formikContext.validateField(fieldPath);
     }
-  }, 250);
+  }, debounceValidateMs);
 
   each(dependantFields, dependantField => {
     const scheduleIndexPlaceholder = dependantField.indexOf('.$.');
