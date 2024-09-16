@@ -53,6 +53,7 @@ describe('prescriptionFormConstants', function() {
 
   it('should export a device-id map with known device IDs', () => {
     expect(prescriptionFormConstants.deviceIdMap).to.eql({
+      cgmSimulator: 'c97bd194-5e5e-44c1-9629-4cb87be1a4c9',
       dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
       palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
     });
@@ -69,6 +70,7 @@ describe('prescriptionFormConstants', function() {
 
   it('should export extra details about each device', () => {
     expect(prescriptionFormConstants.deviceDetails).to.be.an('object').and.have.keys([
+      prescriptionFormConstants.deviceIdMap.cgmSimulator,
       prescriptionFormConstants.deviceIdMap.dexcomG6,
       prescriptionFormConstants.deviceIdMap.palmtree,
     ]);
@@ -1409,12 +1411,12 @@ describe('prescriptionFormConstants', function() {
         expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).subSteps[0].completeText).to.equal('Save Pending Tidepool Loop Start Order');
       });
 
-      it('should include panel content with pump and handlers passed along as props', () => {
+      it('should include panel content with devices and handlers passed along as props', () => {
         const subSteps = reviewFormStep().subSteps;
 
         expect(subSteps).to.be.an('array').and.have.lengthOf(1);
         expect(subSteps[0].panelContent.type).to.be.a('function');
-        expect(subSteps[0].panelContent.props.pump).to.eql(devices.pumps[0]);
+        expect(subSteps[0].panelContent.props.devices).to.eql(devices);
         expect(subSteps[0].panelContent.props.handlers).to.eql(handlers);
       });
 
