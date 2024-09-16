@@ -491,10 +491,10 @@ export const PrescriptionForm = props => {
       // Hydrate the locally stored values only in the following cases, allowing us to persist data
       // entered in form substeps but not yet saved to the database
       // 1. It's a new prescription and there is no locally stored id, and there are step and substep query params
-      // 2. We're editing an existing prescription, and the locally stored id matches the id in the url param
+      // 2. We're editing an existing prescription, and the locally stored id matches the id in the url param, and it's not the review step
       if (
         (isNewPrescriptionFlow() && !storedValues?.id && !isUndefined(activeStep) && !isUndefined(activeSubStep)) ||
-        (id && id === storedValues?.id)
+        (id && id === storedValues?.id && !isLastStep())
       ) {
         initialValues = { ...values, ...storedValues };
         setValues(initialValues);
@@ -569,7 +569,7 @@ export const PrescriptionForm = props => {
             variant: 'success',
           });
 
-          dispatch(push('/clinic-workspace/prescriptions'));
+          dispatch(push('/clinic-workspace/prescriptions', { reloadPrescriptions: true }));
         } else {
           if (prescriptionId && isNewPrescriptionFlow()) {
             // Redirect to normal prescription edit flow once we have a prescription ID
@@ -662,7 +662,7 @@ export const PrescriptionForm = props => {
           variant="primary"
           onClick={() => {
             delete localStorage[storageKey];
-            dispatch(push('/clinic-workspace/prescriptions'));
+            dispatch(push('/clinic-workspace/prescriptions', { reloadPrescriptions: true }));
           }}
           mr={5}
         >

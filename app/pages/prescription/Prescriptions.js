@@ -58,7 +58,7 @@ import * as actions from '../../redux/actions';
 import { borders } from '../../themes/baseTheme';
 
 const Prescriptions = props => {
-  const { t, history, api, trackMetric } = props;
+  const { t, history, location, api, trackMetric } = props;
   const dispatch = useDispatch();
   const membershipPermissionsInOtherCareTeams = useSelector((state) => state.blip.membershipPermissionsInOtherCareTeams);
   const prescriptions = useSelector((state) => state.blip.prescriptions);
@@ -99,7 +99,7 @@ const Prescriptions = props => {
       ], ({ workingState, action }) => {
         if (
           !workingState.inProgress &&
-          !workingState.completed &&
+          (!workingState.completed || location?.state?.reloadPrescriptions) &&
           !workingState.notification
         ) {
           dispatch(action());
