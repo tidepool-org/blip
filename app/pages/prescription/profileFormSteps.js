@@ -3,14 +3,11 @@ import { withTranslation } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex } from 'theme-ui';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import map from 'lodash/map';
 import InputMask from 'react-input-mask';
 
 import { getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
 import RadioGroup from '../../components/elements/RadioGroup';
-import Checkbox from '../../components/elements/Checkbox';
 import TextInput from '../../components/elements/TextInput';
 import { Caption, Headline } from '../../components/elements/FontStyles';
 
@@ -18,7 +15,6 @@ import {
   fieldsetStyles,
   condensedInputStyles,
   checkboxGroupStyles,
-  checkboxStyles,
 } from './prescriptionFormStyles';
 
 import {
@@ -124,66 +120,46 @@ export const PatientGender = withTranslation()(props => {
 });
 
 export const PatientDevices = withTranslation()(props => {
-  const { t, devices } = props;
+  const { t, devices, initialFocusedInput = 'initialSettings.pumpId' } = props;
   const formikContext = useFormikContext();
 
   const {
-    setFieldTouched,
-    setFieldValue,
     values,
   } = formikContext;
 
   const patientName = get(values, 'firstName', t('the patient'));
   const initialFocusedInputRef = useInitialFocusedInput();
-  const [hasInitialFocus, setHasInitialFocus] = React.useState(true);
 
   return (
     <Box id='patient-devices-step' {...fieldsetStyles}>
       <Headline mb={4}>{t('Does {{patientName}} have the necessary prescriptions for Tidepool Loop compatible devices?', { patientName })}</Headline>
       <Flex {...checkboxGroupStyles}>
-        {map(pumpDeviceOptions(devices), device => (
-          <React.Fragment key={device.value}>
-            <Field
-              as={Checkbox}
-              id="initialSettings.pumpId"
-              name="initialSettings.pumpId"
-              key={device.value}
-              checked={!isEmpty(get(values, 'initialSettings.pumpId', ''))}
-              label={device.label}
-              onChange={e => {
-                setFieldTouched('initialSettings.pumpId');
-                setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
-              }}
-              error={getFieldError('initialSettings.pumpId', formikContext)}
-              innerRef={initialFocusedInputRef}
-              onBlur={e => {
-                if (hasInitialFocus) return setHasInitialFocus(false);
-                setFieldTouched('initialSettings.pumpId');
-              }}
-              {...checkboxStyles}
-            />
-            <Caption mt={1}>{device.description}</Caption>
-          </React.Fragment>
-        ))}
+        <Box id='pump-device-selection'>
+          <FastField
+            as={RadioGroup}
+            label={t('Please select an insulin pump.')}
+            id="initialSettings.pumpId"
+            name="initialSettings.pumpId"
+            options={pumpDeviceOptions(devices)}
+            error={getFieldError('initialSettings.pumpId', formikContext)}
+            innerRef={initialFocusedInput === 'initialSettings.pumpId' ? initialFocusedInputRef : undefined}
+            onMouseDown={e => e.preventDefault()}
+          />
+        </Box>
       </Flex>
       <Flex {...checkboxGroupStyles}>
-        {map(cgmDeviceOptions(devices), device => (
-          <React.Fragment key={device.value}>
-            <FastField
-              as={Checkbox}
-              id="initialSettings.cgmId"
-              name="initialSettings.cgmId"
-              checked={!isEmpty(get(values, 'initialSettings.cgmId', ''))}
-              label={device.label}
-              onChange={e => {
-                setFieldValue('initialSettings.cgmId', e.target.checked ? device.value : '')
-              }}
-              error={getFieldError('initialSettings.cgmId', formikContext)}
-              {...checkboxStyles}
-            />
-            <Caption mt={1}>{device.description}</Caption>
-          </React.Fragment>
-        ))}
+        <Box id='cgm-device-selection'>
+          <FastField
+            as={RadioGroup}
+            label={t('Please select a continuous glucose monitor.')}
+            id="initialSettings.cgmId"
+            name="initialSettings.cgmId"
+            options={cgmDeviceOptions(devices)}
+            error={getFieldError('initialSettings.cgmId', formikContext)}
+            innerRef={initialFocusedInput === 'initialSettings.cgmId' ? initialFocusedInputRef : undefined}
+            onMouseDown={e => e.preventDefault()}
+          />
+        </Box>
       </Flex>
     </Box>
   );

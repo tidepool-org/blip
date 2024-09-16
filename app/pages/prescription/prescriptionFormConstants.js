@@ -38,6 +38,7 @@ export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 export const dateRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
 
 export const deviceIdMap = {
+  cgmSimulator: 'c97bd194-5e5e-44c1-9629-4cb87be1a4c9',
   dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
   palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
 };
@@ -45,6 +46,7 @@ export const deviceIdMap = {
 export const validDeviceIds = {
   cgms: [
     deviceIdMap.dexcomG6,
+    deviceIdMap.cgmSimulator,
   ],
   pumps: [
     deviceIdMap.palmtree,
@@ -53,6 +55,13 @@ export const validDeviceIds = {
 
 export const deviceDetails = {
   [deviceIdMap.dexcomG6]: {
+    description: (
+      <Trans>
+        Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
+      </Trans>
+    ),
+  },
+  [deviceIdMap.cgmSimulator]: {
     description: (
       <Trans>
         Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
@@ -557,7 +566,7 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
         {
           fields: ['caregiverFirstName', 'caregiverLastName', 'email', 'emailConfirm'],
           onComplete: () => log('Patient Email Complete'),
-          panelContent: <PatientEmail />,
+          panelContent: <PatientEmail initialFocusedInput={initialFocusedInput} />,
         },
       ],
     },
@@ -585,7 +594,7 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
         {
           fields: ['initialSettings.pumpId', 'initialSettings.cgmId'],
           onComplete: () => log('Patient Devices Complete'),
-          panelContent: <PatientDevices devices={devices} />,
+          panelContent: <PatientDevices devices={devices} initialFocusedInput={initialFocusedInput} />,
         },
       ],
     },
@@ -654,7 +663,7 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
         {
           fields: ['therapySettingsReviewed'],
           completeText: t('{{action}} Tidepool Loop Start Order', { action: isPrescriber ? 'Send Final' : 'Save Pending' }),
-          panelContent: <PrescriptionReview pump={pump} handlers={handlers} isEditable={isEditable} skippedFields={skippedFields} />
+          panelContent: <PrescriptionReview devices={devices} handlers={handlers} isEditable={isEditable} skippedFields={skippedFields} />
         },
       ],
     },
