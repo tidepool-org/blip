@@ -55,8 +55,6 @@ const patientRows = (devices, formikContext, skippedFields = [], fieldStepMap = 
   const cgmId = get(values, 'initialSettings.cgmId');
   const cgm = find(devices.cgms, { id: cgmId });
 
-  console.log('cgm, pump', cgm, pump);
-
   const rows = [
     {
       label: t('Email'),
