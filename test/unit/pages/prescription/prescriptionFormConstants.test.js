@@ -2,6 +2,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import * as prescriptionFormConstants from '../../../../app/pages/prescription/prescriptionFormConstants';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../../app/core/constants';
+import utils from '../../../../app/core/utils';
 
 /* global chai */
 /* global context */
@@ -186,14 +187,6 @@ describe('prescriptionFormConstants', function() {
       expect(prescriptionFormConstants.getBgStepInTargetUnits(NaN, MGDL_UNITS, MGDL_UNITS)).to.be.NaN;
       expect(prescriptionFormConstants.getBgStepInTargetUnits(Infinity, MGDL_UNITS, MGDL_UNITS)).to.equal(Infinity);
       expect(prescriptionFormConstants.getBgStepInTargetUnits('foo', MGDL_UNITS, MGDL_UNITS)).to.equal('foo');
-    });
-  });
-
-  describe('roundValueToIncrement', () => {
-    it('should round provided value to specified increment', () => {
-      expect(prescriptionFormConstants.roundValueToIncrement(1.355, .01)).to.equal(1.36);
-      expect(prescriptionFormConstants.roundValueToIncrement(1.355, .1)).to.equal(1.4);
-      expect(prescriptionFormConstants.roundValueToIncrement(1.355, 1)).to.equal(1);
     });
   });
 
@@ -901,13 +894,13 @@ describe('prescriptionFormConstants', function() {
 
         expect(expectedTDDInput).to.equal(12.5);
 
-        const expectedBasalRate = prescriptionFormConstants.roundValueToIncrement(expectedTDDInput / 2 / 24, 0.05);
+        const expectedBasalRate = utils.roundToNearest(expectedTDDInput / 2 / 24, 0.05);
         expect(expectedBasalRate).to.equal(0.25);
 
-        const expectedCarbohydrateRatio = prescriptionFormConstants.roundValueToIncrement(450 / expectedTDDInput, 1);
+        const expectedCarbohydrateRatio = utils.roundToNearest(450 / expectedTDDInput, 1);
         expect(expectedCarbohydrateRatio).to.equal(36);
 
-        const expectedInsulinSensitivity = prescriptionFormConstants.roundValueToIncrement(1700 / expectedTDDInput, 1);
+        const expectedInsulinSensitivity = utils.roundToNearest(1700 / expectedTDDInput, 1);
         expect(expectedInsulinSensitivity).to.equal(136);
 
         expect(prescriptionFormConstants.calculateRecommendedTherapySettings({

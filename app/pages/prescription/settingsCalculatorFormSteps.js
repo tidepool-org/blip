@@ -8,6 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
+import utils from '../../core/utils';
 import Button from '../../components/elements/Button';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
@@ -24,7 +25,6 @@ import {
 import {
   calculateRecommendedTherapySettings,
   calculatorMethodOptions,
-  roundValueToIncrement,
   totalDailyDoseScaleFactorOptions,
   weightUnitOptions,
 } from './prescriptionFormConstants';
@@ -111,7 +111,7 @@ export const CalculatorInputs = withTranslation()(props => {
             name="calculator.totalDailyDose"
             onBlur={e => {
               setFieldTouched('calculator.totalDailyDose');
-              setFieldValue('calculator.totalDailyDose', roundValueToIncrement(e.target.value, 0.1));
+              setFieldValue('calculator.totalDailyDose', utils.roundToNearest(e.target.value, 0.1));
             }}
             step={1}
             min={0}
@@ -145,7 +145,7 @@ export const CalculatorInputs = withTranslation()(props => {
               name="calculator.weight"
               onBlur={e => {
                 setFieldTouched('calculator.weight');
-                setFieldValue('calculator.weight', roundValueToIncrement(e.target.value, 0.1));
+                setFieldValue('calculator.weight', utils.roundToNearest(e.target.value, 0.1));
               }}
               step={1}
               min={0}

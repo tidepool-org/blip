@@ -120,11 +120,6 @@ export const getBgStepInTargetUnits = (stepValue, stepUnits, targetUnits) => {
     : stepValue * 10;
 };
 
-export const roundValueToIncrement = (value, increment = 1) => {
-  const inverse = 1 / increment;
-  return value ? Math.round(value * inverse) / inverse : value;
-};
-
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
   const maxAllowedBasalRate = getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30);
@@ -429,11 +424,11 @@ export const calculateRecommendedTherapySettings = values => {
   const baseTotalDailyDose = mean(baseTotalDailyDoseInputs);
 
   return {
-    recommendedBasalRate: roundValueToIncrement(baseTotalDailyDose / 2 / 24, 0.05),
-    recommendedCarbohydrateRatio: roundValueToIncrement(450 / baseTotalDailyDose, 1),
+    recommendedBasalRate: utils.roundToNearest(baseTotalDailyDose / 2 / 24, 0.05),
+    recommendedCarbohydrateRatio: utils.roundToNearest(450 / baseTotalDailyDose, 1),
     recommendedInsulinSensitivity: bgUnits === MGDL_UNITS
-      ? roundValueToIncrement(1700 / baseTotalDailyDose, 1)
-      : roundValueToIncrement(1700 / baseTotalDailyDose / MGDL_PER_MMOLL, 0.1),
+      ? utils.roundToNearest(1700 / baseTotalDailyDose, 1)
+      : utils.roundToNearest(1700 / baseTotalDailyDose / MGDL_PER_MMOLL, 0.1),
   };
 };
 
