@@ -384,6 +384,14 @@ describe('utils', () => {
     });
   });
 
+  describe('roundToNearest', () => {
+    it('should round provided value to nearest specified increment', () => {
+      expect(utils.roundToNearest(1.355, .01)).to.equal(1.36);
+      expect(utils.roundToNearest(1.355, .1)).to.equal(1.4);
+      expect(utils.roundToNearest(1.355, 1)).to.equal(1);
+    });
+  });
+
   describe('roundBgTarget', () => {
     it('should round a target BG value as appropriate', () => {
       // to the nearest 5 for mg/dL
