@@ -592,6 +592,24 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
+  describe('dependantFields', () => {
+    expect(prescriptionFormConstants.dependantFields).to.eql({
+      'initialSettings.glucoseSafetyLimit': [
+        'initialSettings.bloodGlucoseTargetSchedule.$.low',
+        'initialSettings.bloodGlucoseTargetSchedule.$.high',
+        'initialSettings.bloodGlucoseTargetPreprandial.low',
+        'initialSettings.bloodGlucoseTargetPreprandial.high',
+        'initialSettings.bloodGlucoseTargetPhysicalActivity.low',
+        'initialSettings.bloodGlucoseTargetPhysicalActivity.high',
+      ],
+      'initialSettings.bloodGlucoseTargetSchedule.low': ['initialSettings.glucoseSafetyLimit'],
+      'initialSettings.bloodGlucoseTargetPreprandial.low': ['initialSettings.glucoseSafetyLimit'],
+      'initialSettings.bloodGlucoseTargetPhysicalActivity.low': ['initialSettings.glucoseSafetyLimit'],
+      'initialSettings.basalRateSchedule.rate': ['initialSettings.basalRateMaximum.value'],
+      'initialSettings.carbohydrateRatioSchedule.amount': ['initialSettings.basalRateMaximum.value'],
+    });
+  });
+
   describe('defaultValues', () => {
     const pump = {
       guardRails: {
