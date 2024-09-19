@@ -281,7 +281,6 @@ utils.translateBg = (value, targetUnits) => {
  *
  * @param {Number} value a numerical value to round
  * @param {String} nearest increment to round to
- * @param {String} precision precision to display
  */
 utils.roundToNearest = (value, nearest) => {
   const [units, decimals = ''] = nearest.toString().split('.');

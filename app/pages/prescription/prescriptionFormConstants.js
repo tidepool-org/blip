@@ -628,7 +628,7 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
     {
       key: 'therapySettings',
       label: t('Enter Therapy Settings'),
-      onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handlers.stepSubmit,
+      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
       asyncState: isSingleStepEdit ? null : stepAsyncState,
       subSteps: [
         {

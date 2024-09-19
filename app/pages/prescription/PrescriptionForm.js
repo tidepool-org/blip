@@ -361,7 +361,11 @@ export const PrescriptionForm = props => {
       trackMetric('Clicked Copy Therapy Settings Order');
     },
 
-    singleStepEditComplete: (cancelFieldUpdates) => {
+    singleStepEditComplete: cancelFieldUpdates => {
+      // We need the short timeout below when setting values upon single step edit completions as a
+      // result of having to skip rendering the <FormikPersist> component while in single step edit
+      // mode.  When navigating back to the review step, the re-enabling of the asynchronous <FormikPersist>
+      // hydration otherwise overrides these values if the form reset isn't done in a subsequent render
       if (cancelFieldUpdates) {
         setTimeout(() => resetForm({values: cloneDeep(singleStepEditValues) }), 100);
       } else {
