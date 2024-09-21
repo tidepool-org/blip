@@ -7202,7 +7202,7 @@ __metadata:
     babel-plugin-rewire: 1.2.0
     babel-plugin-styled-components: 2.1.4
     babel-preset-react-app: 10.0.1
-    body-parser: 1.20.2
+    body-parser: 1.20.3
     bows: 1.7.2
     browser-locale: 1.0.3
     browserify-zlib: 0.2.0
