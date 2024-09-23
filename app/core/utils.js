@@ -277,6 +277,17 @@ utils.translateBg = (value, targetUnits) => {
 }
 
 /**
+ * Round to the nearest increment
+ *
+ * @param {Number} value a numerical value to round
+ * @param {String} nearest increment to round to
+ */
+utils.roundToNearest = (value, nearest) => {
+  const [units, decimals = ''] = nearest.toString().split('.');
+  return parseFloat((nearest * Math.round(value / nearest)).toFixed(decimals.length));
+}
+
+/**
  * Round a target BG value as appropriate
  * mg/dL - to the nearest 5
  * mmol/L - to the nearest .1
@@ -288,8 +299,7 @@ utils.translateBg = (value, targetUnits) => {
  */
 utils.roundBgTarget = (value, units) => {
   const nearest = units === MGDL_UNITS ? 5 : 0.1;
-  const precision = units === MGDL_UNITS ? 0 : 1;
-  return parseFloat((nearest * Math.round(value / nearest)).toFixed(precision));
+  return utils.roundToNearest(value, nearest);
 }
 
 utils.getTimePrefsForDataProcessing = (latestUpload, latestDiabetesDatum, queryParams) => {

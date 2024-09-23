@@ -153,7 +153,7 @@ describe('Prescriptions', () => {
               mrn: 'mrn1',
             },
           },
-          state: 'claimed',
+          state: 'submitted',
         },
         {
           id: 'patient2RxId',
@@ -291,7 +291,7 @@ describe('Prescriptions', () => {
       expect(table.find('tr').at(1).text()).contains('10/09/1989');
       expect(table.find('tr').at(1).text()).contains('mrn1');
       expect(table.find('tr').at(1).text()).contains('access1');
-      expect(table.find('tr').at(1).text()).contains('Claimed');
+      expect(table.find('tr').at(1).text()).contains('Submitted');
 
       expect(table.find('tr').at(2).text()).contains('Patient Two');
       expect(table.find('tr').at(2).text()).contains('10/10/1989');

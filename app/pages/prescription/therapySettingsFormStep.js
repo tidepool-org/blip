@@ -8,8 +8,10 @@ import get from 'lodash/get';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
 import max from 'lodash/max';
+import { default as _values } from 'lodash/values';
 
-import { getFieldError, getThresholdWarning } from '../../core/forms';
+import { getFieldError, getThresholdWarning, onChangeWithDependantFields } from '../../core/forms';
+import utils from '../../core/utils';
 import { useInitialFocusedInput } from '../../core/hooks';
 import { Paragraph2, Body2, Headline, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -20,10 +22,10 @@ import SettingsCalculatorResults from './SettingsCalculatorResults';
 
 import {
   defaultValues,
+  dependantFields,
   hasCalculatorResults,
   insulinModelOptions,
   pumpRanges,
-  roundValueToIncrement,
   shouldUpdateDefaultValue,
   trainingOptions,
   warningThresholds,
@@ -168,8 +170,9 @@ export const GlucoseSettings = props => {
           warning={getThresholdWarning(get(values,'initialSettings.glucoseSafetyLimit'), thresholds.glucoseSafetyLimit)}
           onBlur={e => {
             setFieldTouched('initialSettings.glucoseSafetyLimit');
-            setFieldValue('initialSettings.glucoseSafetyLimit', roundValueToIncrement(e.target.value, ranges.glucoseSafetyLimit.increment));
+            setFieldValue('initialSettings.glucoseSafetyLimit', utils.roundToNearest(e.target.value, ranges.glucoseSafetyLimit.increment));
           }}
+          onChange={onChangeWithDependantFields('initialSettings.glucoseSafetyLimit', dependantFields['initialSettings.glucoseSafetyLimit'], formikContext)}
           step={ranges.glucoseSafetyLimit.increment}
           {...ranges.glucoseSafetyLimit}
           {...{ ...inputStyles, themeProps: { mb: 4 }}}
@@ -194,6 +197,7 @@ export const GlucoseSettings = props => {
             fieldArrayName='initialSettings.bloodGlucoseTargetSchedule'
             fields={[
               {
+                dependantFields: dependantFields['initialSettings.bloodGlucoseTargetSchedule.low'],
                 label: t('Lower Target'),
                 name: 'low',
                 suffix: bgUnits,
@@ -240,8 +244,9 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPreprandial.low'), thresholds.bloodGlucoseTargetPreprandial)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPreprandial.low');
-              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment));
+              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.low', utils.roundToNearest(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment));
             }}
+            onChange={onChangeWithDependantFields('initialSettings.bloodGlucoseTargetPreprandial.low', dependantFields['initialSettings.bloodGlucoseTargetPreprandial.low'], formikContext)}
             step={ranges.bloodGlucoseTargetPreprandial.increment}
             {...ranges.bloodGlucoseTargetPreprandial}
             {...inlineInputStyles}
@@ -258,7 +263,7 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPreprandial.high'), thresholds.bloodGlucoseTargetPreprandial)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPreprandial.high');
-              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.high', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment));
+              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.high', utils.roundToNearest(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment));
             }}
             step={ranges.bloodGlucoseTargetPreprandial.increment}
             {...ranges.bloodGlucoseTargetPreprandial}
@@ -291,8 +296,9 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPhysicalActivity.low'), thresholds.bloodGlucoseTargetPhysicalActivity)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPhysicalActivity.low');
-              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment));
+              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.low', utils.roundToNearest(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment));
             }}
+            onChange={onChangeWithDependantFields('initialSettings.bloodGlucoseTargetPhysicalActivity.low', dependantFields['initialSettings.bloodGlucoseTargetPhysicalActivity.low'], formikContext)}
             step={ranges.bloodGlucoseTargetPhysicalActivity.increment}
             {...ranges.bloodGlucoseTargetPhysicalActivity}
             {...inlineInputStyles}
@@ -309,7 +315,7 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPhysicalActivity.high'), thresholds.bloodGlucoseTargetPhysicalActivity)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPhysicalActivity.high');
-              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.high', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment));
+              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.high', utils.roundToNearest(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment));
             }}
             step={ranges.bloodGlucoseTargetPhysicalActivity.increment}
             {...ranges.bloodGlucoseTargetPhysicalActivity}
@@ -361,8 +367,10 @@ export const InsulinSettings = props => {
             fieldArrayName='initialSettings.carbohydrateRatioSchedule'
             fields={[
               {
+                dependantFields: dependantFields['initialSettings.carbohydrateRatioSchedule.amount'],
                 label: t('1 U of Insulin Covers (g/U)'),
                 name: 'amount',
+                setDependantsTouched: false,
                 suffix: t('g/U'),
                 threshold: thresholds.carbRatio,
                 type: 'number',
@@ -392,8 +400,10 @@ export const InsulinSettings = props => {
             fieldArrayName='initialSettings.basalRateSchedule'
             fields={[
               {
+                dependantFields: dependantFields['initialSettings.basalRateSchedule.rate'],
                 label: t('Basal Rate Values (U/hr)'),
                 name: 'rate',
+                setDependantsTouched: false,
                 suffix: t('U/hr'),
                 threshold: thresholds.basalRate,
                 type: 'number',
@@ -460,11 +470,11 @@ export const InsulinSettings = props => {
           id="initialSettings.basalRateMaximum.value"
           name="initialSettings.basalRateMaximum.value"
           suffix={t('U/hr')}
-          error={getFieldError('initialSettings.basalRateMaximum.value', formikContext)}
+          error={getFieldError('initialSettings.basalRateMaximum.value', formikContext, false)}
           warning={getThresholdWarning(get(values,'initialSettings.basalRateMaximum.value'), thresholds.basalRateMaximum)}
           onBlur={e => {
             setFieldTouched('initialSettings.basalRateMaximum.value');
-            setFieldValue('initialSettings.basalRateMaximum.value', roundValueToIncrement(e.target.value, ranges.basalRateMaximum.increment));
+            setFieldValue('initialSettings.basalRateMaximum.value', utils.roundToNearest(e.target.value, ranges.basalRateMaximum.increment));
           }}
           step={ranges.basalRateMaximum.increment}
           {...ranges.basalRateMaximum}
@@ -493,7 +503,7 @@ export const InsulinSettings = props => {
           warning={getThresholdWarning(get(values,'initialSettings.bolusAmountMaximum.value'), thresholds.bolusAmountMaximum)}
           onBlur={e => {
             setFieldTouched('initialSettings.bolusAmountMaximum.value');
-            setFieldValue('initialSettings.bolusAmountMaximum.value', roundValueToIncrement(e.target.value, ranges.bolusAmountMaximum.increment));
+            setFieldValue('initialSettings.bolusAmountMaximum.value', utils.roundToNearest(e.target.value, ranges.bolusAmountMaximum.increment));
           }}
           step={ranges.bolusAmountMaximum.increment}
           {...ranges.bolusAmountMaximum}
@@ -548,6 +558,8 @@ export const TherapySettings = withTranslation()(props => {
 
   const {
     setFieldValue,
+    touched,
+    validateForm,
     values,
   } = formikContext;
 
@@ -574,9 +586,10 @@ export const TherapySettings = withTranslation()(props => {
     glucoseSafetyLimit,
   ]);
 
-  const defaults = React.useMemo(() => defaultValues(props.pump, bgUnits, values), [
+  const defaults = React.useMemo(() => defaultValues(props.pump, bgUnits, values, touched), [
     maxBasalRate,
-    values.calculator,
+    touched?.initialSettings?.basalRateMaximum?.value,
+    values?.calculator,
   ]);
 
   const fieldsWithDefaults = [
@@ -640,11 +653,15 @@ export const TherapySettings = withTranslation()(props => {
 
   each(fieldsWithDefaults, field => {
     React.useEffect(() => {
-      if (shouldUpdateDefaultValue(field.path, formikContext)) {
-        setFieldValue(field.path, roundValueToIncrement(field.defaultValue, field.increment));
+      if (field.defaultValue && shouldUpdateDefaultValue(field.path, formikContext)) {
+        setFieldValue(field.path, utils.roundToNearest(field.defaultValue, field.increment));
       }
     }, field.dependancies || [field.defaultValue]);
   });
+
+  React.useEffect(() => {
+    validateForm();
+  }, []);
 
   return (
     <Box id="therapy-settings-step">

@@ -38,6 +38,7 @@ export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 export const dateRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
 
 export const deviceIdMap = {
+  cgmSimulator: 'c97bd194-5e5e-44c1-9629-4cb87be1a4c9',
   dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
   palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
 };
@@ -45,6 +46,7 @@ export const deviceIdMap = {
 export const validDeviceIds = {
   cgms: [
     deviceIdMap.dexcomG6,
+    deviceIdMap.cgmSimulator,
   ],
   pumps: [
     deviceIdMap.palmtree,
@@ -53,6 +55,13 @@ export const validDeviceIds = {
 
 export const deviceDetails = {
   [deviceIdMap.dexcomG6]: {
+    description: (
+      <Trans>
+        Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
+      </Trans>
+    ),
+  },
+  [deviceIdMap.cgmSimulator]: {
     description: (
       <Trans>
         Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
@@ -111,25 +120,24 @@ export const getBgStepInTargetUnits = (stepValue, stepUnits, targetUnits) => {
     : stepValue * 10;
 };
 
-export const roundValueToIncrement = (value, increment = 1) => {
-  const inverse = 1 / increment;
-  return value ? Math.round(value * inverse) / inverse : value;
-};
-
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
+  const maxAllowedBasalRate = getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30);
 
   const ranges = {
     basalRate: {
-      min: max([getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05), 0.05]),
-      max: min([getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30), 30]),
+      min: getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05),
+      max: maxAllowedBasalRate,
       increment: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
       schedules: { max: pump?.guardRails?.basalRates?.maxSegments || 48, minutesIncrement: 30 },
     },
     basalRateMaximum: {
       min: max(filter([
-        getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0),
-        max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate')),
+        getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.05),
+        min([
+          max([maxBasalRate, getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.05)]),
+          maxAllowedBasalRate,
+        ]),
       ], isFinite)),
       max: min(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
@@ -137,7 +145,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
           70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
           parseFloat((maxBasalRate * 6.4).toFixed(2))
         ]),
-      ], isFinite)),
+      ], val => isFinite(val) && parseInt(val) > 0)),
       increment: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.05),
     },
     bloodGlucoseTarget: {
@@ -166,8 +174,8 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'preprandialCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bolusAmountMaximum: {
-      min: max([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0.05), 0.05]),
-      max: min([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30), 30]),
+      min: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0.05),
+      max: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30),
       increment: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.increment', 0.05),
     },
     carbRatio: {
@@ -195,6 +203,22 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
   };
 
   return ranges;
+};
+
+export const dependantFields = {
+  'initialSettings.glucoseSafetyLimit': [
+    'initialSettings.bloodGlucoseTargetSchedule.$.low',
+    'initialSettings.bloodGlucoseTargetSchedule.$.high',
+    'initialSettings.bloodGlucoseTargetPreprandial.low',
+    'initialSettings.bloodGlucoseTargetPreprandial.high',
+    'initialSettings.bloodGlucoseTargetPhysicalActivity.low',
+    'initialSettings.bloodGlucoseTargetPhysicalActivity.high',
+  ],
+  'initialSettings.bloodGlucoseTargetSchedule.low': ['initialSettings.glucoseSafetyLimit'],
+  'initialSettings.bloodGlucoseTargetPreprandial.low': ['initialSettings.glucoseSafetyLimit'],
+  'initialSettings.bloodGlucoseTargetPhysicalActivity.low': ['initialSettings.glucoseSafetyLimit'],
+  'initialSettings.basalRateSchedule.rate': ['initialSettings.basalRateMaximum.value'],
+  'initialSettings.carbohydrateRatioSchedule.amount': ['initialSettings.basalRateMaximum.value'],
 };
 
 export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
@@ -312,7 +336,7 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
  * @param {Object} values form values provided by formik context
  * @returns {Object} default values keyed by setting
  */
-export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values = {}) => {
+export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values = {}, touched = {}) => {
   const {
     calculator: {
       recommendedBasalRate,
@@ -345,9 +369,14 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
 
   return {
     basalRate: recommendedBasalRate || getPumpGuardrail(pump, 'basalRates.defaultValue', undefined),
-    basalRateMaximum: isFinite(maxBasalRate)
-      ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
-      : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
+    basalRateMaximum: isFinite(maxBasalRate) && !touched?.initialSettings?.basalRateMaximum?.value
+      ? utils.roundToNearest(
+        min([
+          parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5))),
+          getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30)
+        ]),
+        getPumpGuardrail(pump, 'basalRateMaximum.increment', 0.05)
+      ) : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
     bloodGlucoseTarget,
     bloodGlucoseTargetPhysicalActivity: {
       low: getBgInTargetUnits(150, MGDL_UNITS, bgUnits),
@@ -395,11 +424,11 @@ export const calculateRecommendedTherapySettings = values => {
   const baseTotalDailyDose = mean(baseTotalDailyDoseInputs);
 
   return {
-    recommendedBasalRate: roundValueToIncrement(baseTotalDailyDose / 2 / 24, 0.05),
-    recommendedCarbohydrateRatio: roundValueToIncrement(450 / baseTotalDailyDose, 1),
+    recommendedBasalRate: utils.roundToNearest(baseTotalDailyDose / 2 / 24, 0.05),
+    recommendedCarbohydrateRatio: utils.roundToNearest(450 / baseTotalDailyDose, 1),
     recommendedInsulinSensitivity: bgUnits === MGDL_UNITS
-      ? roundValueToIncrement(1700 / baseTotalDailyDose, 1)
-      : roundValueToIncrement(1700 / baseTotalDailyDose / MGDL_PER_MMOLL, 0.1),
+      ? utils.roundToNearest(1700 / baseTotalDailyDose, 1)
+      : utils.roundToNearest(1700 / baseTotalDailyDose / MGDL_PER_MMOLL, 0.1),
   };
 };
 
@@ -431,7 +460,10 @@ export const shouldUpdateDefaultValue = (fieldPath, formikContext) => {
     touched,
   } = formikContext;
 
-  const initialValuesSource = status.isPrescriptionEditFlow ? initialValues : status.hydratedValues;
+  const initialValuesSource = {
+    ...initialValues,
+    ...(status.hydratedValues || {}),
+  };
 
   return (
     !status.isSingleStepEdit
@@ -449,8 +481,6 @@ export const prescriptionStateOptions = [
   ...revisionStateOptions,
   { value: 'claimed', label: t('Claimed'), colorPalette: 'cyans' },
   { value: 'expired', label: t('Expired'), colorPalette: 'pinks' },
-  { value: 'active', label: t('Active'), colorPalette: 'greens' },
-  { value: 'inactive', label: t('Inactive'), colorPalette: 'purples' },
 ];
 
 export const typeOptions = [
@@ -531,7 +561,7 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
         {
           fields: ['caregiverFirstName', 'caregiverLastName', 'email', 'emailConfirm'],
           onComplete: () => log('Patient Email Complete'),
-          panelContent: <PatientEmail />,
+          panelContent: <PatientEmail initialFocusedInput={initialFocusedInput} />,
         },
       ],
     },
@@ -559,7 +589,7 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
         {
           fields: ['initialSettings.pumpId', 'initialSettings.cgmId'],
           onComplete: () => log('Patient Devices Complete'),
-          panelContent: <PatientDevices devices={devices} />,
+          panelContent: <PatientDevices devices={devices} initialFocusedInput={initialFocusedInput} />,
         },
       ],
     },
@@ -598,7 +628,7 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
     {
       key: 'therapySettings',
       label: t('Enter Therapy Settings'),
-      onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handlers.stepSubmit,
+      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
       asyncState: isSingleStepEdit ? null : stepAsyncState,
       subSteps: [
         {
@@ -628,7 +658,7 @@ export const getFormSteps = (schema, devices, values, handlers, options = {}) =>
         {
           fields: ['therapySettingsReviewed'],
           completeText: t('{{action}} Tidepool Loop Start Order', { action: isPrescriber ? 'Send Final' : 'Save Pending' }),
-          panelContent: <PrescriptionReview pump={pump} handlers={handlers} isEditable={isEditable} skippedFields={skippedFields} />
+          panelContent: <PrescriptionReview devices={devices} handlers={handlers} isEditable={isEditable} skippedFields={skippedFields} />
         },
       ],
     },

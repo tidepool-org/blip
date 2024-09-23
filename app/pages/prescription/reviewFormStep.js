@@ -11,6 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import capitalize from 'lodash/capitalize';
+import trim from 'lodash/trim';
 import isArray from 'lodash/isArray';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
@@ -18,9 +19,10 @@ import { components as vizComponents } from '@tidepool/viz';
 
 import { getThresholdWarning, getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import { dateRegex, getFieldStepMap, insulinModelOptions, warningThresholds } from './prescriptionFormConstants';
+import { cgmDeviceOptions, dateRegex, getFieldStepMap, insulinModelOptions, pumpDeviceOptions, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
+import personUtils from '../../core/personutils';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
 import Checkbox from '../../components/elements/Checkbox';
 import Icon from '../../components/elements/Icon';
@@ -43,12 +45,22 @@ const fieldsetPropTypes = {
 
 const emptyValueText = t('Not specified');
 
-const patientRows = (values, formikContext, skippedFields = [], fieldStepMap = {}) => {
+const patientRows = (devices, formikContext, skippedFields = [], fieldStepMap = {}) => {
+  const { values } = formikContext;
+  const pumpDevices = pumpDeviceOptions(devices);
+  const cgmDevices = cgmDeviceOptions(devices);
+  const skipDeviceSelection = cgmDevices.length === 1 && pumpDevices.length === 1;
+  const pumpId = get(values, 'initialSettings.pumpId');
+  const pump = find(devices.pumps, { id: pumpId })
+  const cgmId = get(values, 'initialSettings.cgmId');
+  const cgm = find(devices.cgms, { id: cgmId });
+
   const rows = [
     {
       label: t('Email'),
       value: get(values, 'email', emptyValueText),
       error: getFieldError('email', formikContext, true),
+      initialFocusedInput: 'email',
       step: fieldStepMap.email,
     },
     {
@@ -68,8 +80,8 @@ const patientRows = (values, formikContext, skippedFields = [], fieldStepMap = {
       label: t('Birthdate'),
       value: get(values, 'birthday', emptyValueText).replace(dateRegex, '$2/$3/$1'),
       error: getFieldError('birthday', formikContext, true),
-      step: fieldStepMap.birthday,
       initialFocusedInput: 'birthday',
+      step: fieldStepMap.birthday,
     },
     {
       label: t('Gender'),
@@ -84,14 +96,44 @@ const patientRows = (values, formikContext, skippedFields = [], fieldStepMap = {
       skipped: includes(skippedFields, 'mrn'),
       step: fieldStepMap.mrn,
     },
+    {
+      label: t('Insulin Pump'),
+      value: get(pump, 'displayName', emptyValueText),
+      error: getFieldError('mrn', formikContext, true),
+      initialFocusedInput: 'initialSettings.pumpId',
+      skipped: skipDeviceSelection || includes(skippedFields, 'initialSettings.pumpId'),
+      step: fieldStepMap['initialSettings.pumpId'],
+    },
+    {
+      label: t('Continuous Glucose Monitor'),
+      value: get(cgm, 'displayName', emptyValueText),
+      error: getFieldError('initialSettings.cgmId', formikContext, true),
+      initialFocusedInput: 'initialSettings.cgmId',
+      skipped: skipDeviceSelection || includes(skippedFields, 'initialSettings.cgmId'),
+      step: fieldStepMap['initialSettings.cgmId'],
+    },
   ];
+
+  if (values.accountType === 'caregiver') {
+    const fullName = personUtils.fullnameFromSplitNames(values.caregiverFirstName, values.caregiverLastName);
+
+    rows.splice(3, 0, {
+      label: t('Caregiver Name'),
+      value: isEmpty(trim(fullName)) ? emptyValueText : fullName,
+      error: getFieldError('caregiverFirstName', formikContext, true) || getFieldError('caregiverLastName', formikContext, true) || isEmpty(values.caregiverFirstName) || isEmpty(values.caregiverLastName),
+      initialFocusedInput: 'caregiverFirstName',
+      step: fieldStepMap.caregiverFirstName,
+    });
+  }
 
   return reject(rows, { skipped: true });
 };
 
-const therapySettingsRows = (pump, formikContext, skippedFields = []) => {
+const therapySettingsRows = (devices, formikContext, skippedFields = []) => {
   const { values } = formikContext;
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits');
+  const pumpId = get(values, 'initialSettings.pumpId');
+  const pump = find(devices.pumps, { id: pumpId });
   const thresholds = warningThresholds(pump, bgUnits, values);
 
   const rows = [
@@ -297,6 +339,7 @@ export const PatientInfo = props => {
   const {
     t,
     currentStep,
+    devices,
     fieldStepMap,
     handlers: { activeStepUpdate },
     isEditable,
@@ -317,7 +360,7 @@ export const PatientInfo = props => {
   } = values;
 
   const patientName = [firstName, lastName].join(' ');
-  const rows = patientRows(values, formikContext, skippedFields, fieldStepMap);
+  const rows = patientRows(devices, formikContext, skippedFields, fieldStepMap);
 
   const Row = ({ label, value, step, initialFocusedInput, error }) => (
     <Flex mb={4} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
@@ -361,10 +404,10 @@ export const TherapySettings = props => {
   const {
     t,
     currentStep,
+    devices,
     fieldStepMap,
     handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
     isEditable,
-    pump,
     skippedFields,
     ...themeProps
   } = props;
@@ -381,7 +424,7 @@ export const TherapySettings = props => {
 
   const patientName = [firstName, lastName].join(' ');
 
-  const rows = therapySettingsRows(pump, formikContext, skippedFields);
+  const rows = therapySettingsRows(devices, formikContext, skippedFields);
 
   const Row = ({ label, value, warning, id, index, error }) => {
     let rowValues = isArray(value) ? value : [value];
@@ -499,8 +542,8 @@ export const TherapySettings = props => {
                 label: t('Name'),
                 value: patientName,
               },
-              ...patientRows(values, formikContext, skippedFields, fieldStepMap),
-            ], therapySettingsRows(pump, formikContext, skippedFields))}
+              ...patientRows(devices, formikContext, skippedFields, fieldStepMap),
+            ], therapySettingsRows(devices, formikContext, skippedFields))}
           />
         </Flex>
       </Flex>

@@ -58,7 +58,7 @@ import * as actions from '../../redux/actions';
 import { borders } from '../../themes/baseTheme';
 
 const Prescriptions = props => {
-  const { t, history, api, trackMetric } = props;
+  const { t, history, location, api, trackMetric } = props;
   const dispatch = useDispatch();
   const membershipPermissionsInOtherCareTeams = useSelector((state) => state.blip.membershipPermissionsInOtherCareTeams);
   const prescriptions = useSelector((state) => state.blip.prescriptions);
@@ -99,7 +99,7 @@ const Prescriptions = props => {
       ], ({ workingState, action }) => {
         if (
           !workingState.inProgress &&
-          !workingState.completed &&
+          (!workingState.completed || location?.state?.reloadPrescriptions) &&
           !workingState.notification
         ) {
           dispatch(action());
@@ -301,7 +301,7 @@ const Prescriptions = props => {
 
 
   const renderAccessCode = ({ accessCode, state }) => {
-    return includes(['draft', 'pending'], state) ? '' : (
+    return state !== 'submitted' ? '' : (
       <Flex
         onClick={e => {
           // Prevent clicks from propogating up to the table row click handlers
@@ -390,7 +390,7 @@ const Prescriptions = props => {
             variant="primary"
             onClick={handleAddNew}
             px={[2, 3]}
-            sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
+            sx={{ fontSize: 1, lineHeight: ['inherit', null, 1] }}
           >
             {t('Create New Tidepool Loop Start Order')}
           </Button>

@@ -2,6 +2,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import * as prescriptionFormConstants from '../../../../app/pages/prescription/prescriptionFormConstants';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../../app/core/constants';
+import utils from '../../../../app/core/utils';
 
 /* global chai */
 /* global context */
@@ -53,6 +54,7 @@ describe('prescriptionFormConstants', function() {
 
   it('should export a device-id map with known device IDs', () => {
     expect(prescriptionFormConstants.deviceIdMap).to.eql({
+      cgmSimulator: 'c97bd194-5e5e-44c1-9629-4cb87be1a4c9',
       dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
       palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
     });
@@ -69,6 +71,7 @@ describe('prescriptionFormConstants', function() {
 
   it('should export extra details about each device', () => {
     expect(prescriptionFormConstants.deviceDetails).to.be.an('object').and.have.keys([
+      prescriptionFormConstants.deviceIdMap.cgmSimulator,
       prescriptionFormConstants.deviceIdMap.dexcomG6,
       prescriptionFormConstants.deviceIdMap.palmtree,
     ]);
@@ -184,14 +187,6 @@ describe('prescriptionFormConstants', function() {
       expect(prescriptionFormConstants.getBgStepInTargetUnits(NaN, MGDL_UNITS, MGDL_UNITS)).to.be.NaN;
       expect(prescriptionFormConstants.getBgStepInTargetUnits(Infinity, MGDL_UNITS, MGDL_UNITS)).to.equal(Infinity);
       expect(prescriptionFormConstants.getBgStepInTargetUnits('foo', MGDL_UNITS, MGDL_UNITS)).to.equal('foo');
-    });
-  });
-
-  describe('roundValueToIncrement', () => {
-    it('should round provided value to specified increment', () => {
-      expect(prescriptionFormConstants.roundValueToIncrement(1.355, .01)).to.equal(1.36);
-      expect(prescriptionFormConstants.roundValueToIncrement(1.355, .1)).to.equal(1.4);
-      expect(prescriptionFormConstants.roundValueToIncrement(1.355, 1)).to.equal(1);
     });
   });
 
@@ -455,7 +450,7 @@ describe('prescriptionFormConstants', function() {
     it('should export the default ranges with mg/dL as default bg unit if pump is not provided', () => {
       expect(prescriptionFormConstants.pumpRanges()).to.eql({
         basalRate: { min: 0.05, max: 30, increment: 0.05, schedules: { max: 48, minutesIncrement: 30 } },
-        basalRateMaximum: { min: 0, max: 30, increment: 0.05 },
+        basalRateMaximum: { min: 0.05, max: 30, increment: 0.05 },
         bloodGlucoseTarget: { min: 87, max: 180, increment: 1, schedules: { max: 48, minutesIncrement: 30 } },
         bolusAmountMaximum: { min: 0.05, max: 30, increment: 0.05 },
         carbRatio: { min: 2, max: 150, increment: 0.1, schedules: { max: 48, minutesIncrement: 30 } },
@@ -505,7 +500,7 @@ describe('prescriptionFormConstants', function() {
         it('should set min to the higher of the default minimum guardrail (0) or Highest Scheduled Basal Rate', () => {
           expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
             initialSettings: { basalRateSchedule: [] }
-          }).basalRateMaximum.min).to.equal(0);
+          }).basalRateMaximum.min).to.equal(0.05);
 
           expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
             initialSettings: { basalRateSchedule: [ { rate: 1 }, { rate: 2 } ] }
@@ -594,6 +589,24 @@ describe('prescriptionFormConstants', function() {
           }).glucoseSafetyLimit.max).to.equal(85);
         });
       });
+    });
+  });
+
+  describe('dependantFields', () => {
+    expect(prescriptionFormConstants.dependantFields).to.eql({
+      'initialSettings.glucoseSafetyLimit': [
+        'initialSettings.bloodGlucoseTargetSchedule.$.low',
+        'initialSettings.bloodGlucoseTargetSchedule.$.high',
+        'initialSettings.bloodGlucoseTargetPreprandial.low',
+        'initialSettings.bloodGlucoseTargetPreprandial.high',
+        'initialSettings.bloodGlucoseTargetPhysicalActivity.low',
+        'initialSettings.bloodGlucoseTargetPhysicalActivity.high',
+      ],
+      'initialSettings.bloodGlucoseTargetSchedule.low': ['initialSettings.glucoseSafetyLimit'],
+      'initialSettings.bloodGlucoseTargetPreprandial.low': ['initialSettings.glucoseSafetyLimit'],
+      'initialSettings.bloodGlucoseTargetPhysicalActivity.low': ['initialSettings.glucoseSafetyLimit'],
+      'initialSettings.basalRateSchedule.rate': ['initialSettings.basalRateMaximum.value'],
+      'initialSettings.carbohydrateRatioSchedule.amount': ['initialSettings.basalRateMaximum.value'],
     });
   });
 
@@ -686,7 +699,7 @@ describe('prescriptionFormConstants', function() {
       });
 
       context('max basal rate is set', () => {
-        it('should return a default value of 3.5x the max basal rate for basalRateMaximum', () => {
+        it('should return a default value of 3.5x the max basal rate for basalRateMaximum, rounded to the nearest increment', () => {
           const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
             birthday,
             initialSettings: { basalRateSchedule: [
@@ -696,7 +709,7 @@ describe('prescriptionFormConstants', function() {
             ] },
           });
 
-          expect(result.basalRateMaximum).to.equal(0.53);
+          expect(result.basalRateMaximum).to.equal(0.55);
         });
       });
 
@@ -899,13 +912,13 @@ describe('prescriptionFormConstants', function() {
 
         expect(expectedTDDInput).to.equal(12.5);
 
-        const expectedBasalRate = prescriptionFormConstants.roundValueToIncrement(expectedTDDInput / 2 / 24, 0.05);
+        const expectedBasalRate = utils.roundToNearest(expectedTDDInput / 2 / 24, 0.05);
         expect(expectedBasalRate).to.equal(0.25);
 
-        const expectedCarbohydrateRatio = prescriptionFormConstants.roundValueToIncrement(450 / expectedTDDInput, 1);
+        const expectedCarbohydrateRatio = utils.roundToNearest(450 / expectedTDDInput, 1);
         expect(expectedCarbohydrateRatio).to.equal(36);
 
-        const expectedInsulinSensitivity = prescriptionFormConstants.roundValueToIncrement(1700 / expectedTDDInput, 1);
+        const expectedInsulinSensitivity = utils.roundToNearest(1700 / expectedTDDInput, 1);
         expect(expectedInsulinSensitivity).to.equal(136);
 
         expect(prescriptionFormConstants.calculateRecommendedTherapySettings({
@@ -1409,12 +1422,12 @@ describe('prescriptionFormConstants', function() {
         expect(reviewFormStep(defaultValues, { ...defaultOptions, isPrescriber: false }).subSteps[0].completeText).to.equal('Save Pending Tidepool Loop Start Order');
       });
 
-      it('should include panel content with pump and handlers passed along as props', () => {
+      it('should include panel content with devices and handlers passed along as props', () => {
         const subSteps = reviewFormStep().subSteps;
 
         expect(subSteps).to.be.an('array').and.have.lengthOf(1);
         expect(subSteps[0].panelContent.type).to.be.a('function');
-        expect(subSteps[0].panelContent.props.pump).to.eql(devices.pumps[0]);
+        expect(subSteps[0].panelContent.props.devices).to.eql(devices);
         expect(subSteps[0].panelContent.props.handlers).to.eql(handlers);
       });
 
