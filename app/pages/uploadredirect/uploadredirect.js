@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { withTranslation, Trans } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import customProtocolCheck from 'custom-protocol-check';
@@ -28,6 +28,7 @@ const UploadRedirect = (props) => {
   const fromProfile = props.location.state?.referrer === 'profile';
   const linkUrl = `tidepooluploader://localhost/keycloak-redirect${props.location.hash}`;
   const ua = new UAParser().getResult();
+  const shouldRedirectToLogin = !props.location.hash && !fromProfile;
   let openText = 'Open Tidepool Uploader';
   switch (ua.browser.name) {
     case 'Firefox':
@@ -38,27 +39,33 @@ const UploadRedirect = (props) => {
       break;
     case 'Safari':
       openText = 'Allow'
+      break;
     default:
       break;
   }
 
-  if (!props.location.hash && !fromProfile) {
+  useEffect(() => {
+    if (!userHasFullName && !shouldRedirectToLogin) {
+      if (isClinicianAccount && !userHasClinicProfile) {
+        dispatch(
+          push({
+            pathname: '/clinic-details/profile',
+            state: { referrer: 'upload-launch' },
+          })
+        );
+      } else {
+        dispatch(
+          push({ pathname: '/profile', state: { referrer: 'upload-launch' } })
+        );
+      }
+    }
+  }, [dispatch, isClinicianAccount, userHasClinicProfile, userHasFullName, shouldRedirectToLogin]);
+
+  if (shouldRedirectToLogin) {
     return <Redirect to="/login" />;
   }
 
-  if (!userHasFullName) {
-    if (isClinicianAccount && !userHasClinicProfile) {
-      dispatch(
-        push({
-          pathname: '/clinic-details/profile',
-          state: { referrer: 'upload-launch' },
-        })
-      );
-    } else {
-      dispatch(
-        push({ pathname: '/profile', state: { referrer: 'upload-launch' } })
-      );
-    }
+  if(!userHasFullName) {
     return null;
   }
 

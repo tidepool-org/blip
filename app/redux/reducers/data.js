@@ -62,7 +62,7 @@ const data = (state = initialState.data, action) => {
 
       if (destination !== 'redux') {
         if (destination === 'window') window.patientData = result;
-        if (destination === 'download') console.save(result, 'patientData.json');
+        if (destination === 'download') console.save(result, result?.query?.raw ? 'rawData.json' : 'patientData.json');
         return state;
       }
 

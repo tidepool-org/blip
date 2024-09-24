@@ -5268,9 +5268,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.40.0-web-2994-web-2993-last-reviewed.2":
-  version: 1.40.0-web-2994-web-2993-last-reviewed.2
-  resolution: "@tidepool/viz@npm:1.40.0-web-2994-web-2993-last-reviewed.2"
+"@tidepool/viz@npm:1.42.0-web-3034-settings-selection.2":
+  version: 1.42.0-web-3034-settings-selection.2
+  resolution: "@tidepool/viz@npm:1.42.0-web-3034-settings-selection.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5330,7 +5330,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: ce581bb918ad82c4f630c4989962874441e59b6827460b5da737cb6268bda2c45303c4113788e98282cb8e45642bea30560e7145f0f946a499a0adddf034a8c3
+  checksum: 7f4a4ec580f619c24b657972e26809344ea944621fb5c246759f23390c954c24513a1696f6cc3daf38b48b63addb97bcec5c3fe05a9fd1dd781c03911f3ea827
   languageName: node
   linkType: hard
 
@@ -7192,7 +7192,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.40.0-web-2994-web-2993-last-reviewed.2
+    "@tidepool/viz": 1.42.0-web-3034-settings-selection.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7286,7 +7286,6 @@ __metadata:
     react-scroll: 1.9.0
     react-scroll-to-top: 3.0.0
     react-select: 5.7.7
-    react-test-renderer: 16.14.0
     react-window-size-listener: 1.5.4
     readable-stream: 4.4.2
     redux: 4.2.1
@@ -7316,8 +7315,8 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.28.1
-    tidepool-platform-client: 0.59.0-web-2994-web-2993-last-reviewed.2
+    tideline: 1.30.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1
+    tidepool-platform-client: 0.59.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -17531,7 +17530,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-test-renderer@npm:16.14.0, react-test-renderer@npm:^16.0.0-0":
+"react-test-renderer@npm:^16.0.0-0":
   version: 16.14.0
   resolution: "react-test-renderer@npm:16.14.0"
   dependencies:
@@ -19952,9 +19951,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.28.1":
-  version: 1.28.1
-  resolution: "tideline@npm:1.28.1"
+"tideline@npm:1.30.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1":
+  version: 1.30.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1
+  resolution: "tideline@npm:1.30.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -19974,19 +19973,19 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: e65581c9cdd8f067190339831700e9eb73834b20c54b8d70f621c13db3437b898af1508e8ba8e40e7bded27153d4065b3ea66c0337c7eec926e8fc9cc72eb789
+  checksum: cc11a683c8b29931493de204aa151bfed638d2c485f278207caa7889528fc6a921d74515de255b3331162de8677f2861e7f86699e455d1f3ec8110476e982fec
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.59.0-web-2994-web-2993-last-reviewed.2":
-  version: 0.59.0-web-2994-web-2993-last-reviewed.2
-  resolution: "tidepool-platform-client@npm:0.59.0-web-2994-web-2993-last-reviewed.2"
+"tidepool-platform-client@npm:0.59.0":
+  version: 0.59.0
+  resolution: "tidepool-platform-client@npm:0.59.0"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 966e2f0692cec8ddf6f714b718c175b742f322e2a4e406f3a946c2a6e866136e4437d1f42bcc58c9f34118fed07c9e6bf72e219d5d48aa143739355b04c90cdf
+  checksum: 9ea493f5e7f02657561bac509eee863869176744462ff478ab88df219031bf5847c70bd5773ec68502f4a3bf0f00c5053797f6a73849c598dd9f31dad0825fcd
   languageName: node
   linkType: hard
 

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
@@ -8,6 +9,7 @@ import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
 import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
+import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import { Box, Flex, Text } from 'theme-ui';
 import map from 'lodash/map';
 import filter from 'lodash/filter';
@@ -21,6 +23,8 @@ import reduce from 'lodash/reduce';
 import transform from 'lodash/transform';
 import values from 'lodash/values';
 import without from 'lodash/without';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
+import { components as vizComponents } from '@tidepool/viz';
 
 import {
   bindPopover,
@@ -35,6 +39,7 @@ import {
   DialogActions,
 } from '../../components/elements/Dialog';
 
+const { ClipboardButton } = vizComponents;
 import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import Checkbox from '../../components/elements/Checkbox';
@@ -49,7 +54,7 @@ import { useToasts } from '../../providers/ToastProvider';
 import { useIsFirstRender } from '../../core/hooks';
 import FilterIcon from '../../core/icons/FilterIcon.svg';
 import * as actions from '../../redux/actions';
-import { borders, radii } from '../../themes/baseTheme';
+import { borders } from '../../themes/baseTheme';
 
 const Prescriptions = props => {
   const { t, history, api, trackMetric } = props;
@@ -58,12 +63,22 @@ const Prescriptions = props => {
   const prescriptions = useSelector((state) => state.blip.prescriptions);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const { showPrescriptions } = useFlags();
+  const ldClient = useLDClient();
+  const ldContext = ldClient.getContext();
 
   const {
     deletingPrescription,
     fetchingAssociatedAccounts,
     fetchingClinicPrescriptions,
   } = useSelector((state) => state.blip.working);
+
+  useEffect(() => {
+    // Redirect to the base workspace if the LD clinic context is set and showPrescriptions flag is false
+    // and the clinic does not have the prescriptions entitlement
+    if ((clinic?.entitlements && !clinic.entitlements.prescriptions) && (ldContext?.clinic?.tier && !showPrescriptions)) dispatch(push('/clinic-workspace/patients'));
+  }, [ldContext, showPrescriptions, selectedClinicId, clinic?.entitlements, dispatch]);
 
   // Fetchers
   useEffect(() => {
@@ -131,6 +146,7 @@ const Prescriptions = props => {
 
   const data = filter(
     map(filter(prescriptions, { clinicId: selectedClinicId }), prescription => ({
+      accessCode: get(prescription, 'accessCode'),
       birthday: get(prescription, 'latestRevision.attributes.birthday', '').replace(dateRegex, '$2/$3/$1'),
       createdTime: get(prescription, 'latestRevision.attributes.createdTime'),
       firstName: get(prescription, 'latestRevision.attributes.firstName'),
@@ -151,10 +167,10 @@ const Prescriptions = props => {
     setSearchText('');
   }
 
-  const handleAddNew = () => props.history.push('/prescriptions/new');
+  const handleAddNew = () => dispatch(push('/prescriptions/new'));
 
   const handleOpenPrescription = prescription => popupState => {
-    props.history.push(`/prescriptions/${prescription.id}`);
+    dispatch(push(`/prescriptions/${prescription.id}`));
   };
 
   const handleDeletePrescription = prescription => popupState => {
@@ -181,22 +197,22 @@ const Prescriptions = props => {
     const items = [
       {
         icon: isEditable ? EditRoundedIcon : VisibilityRoundedIcon,
-        iconLabel: isEditable ? t('Update') : t('View'),
+        iconLabel: isEditable ? t('Update Prescription') : t('View Prescription'),
         iconPosition: 'left',
         id: isEditable ? 'update' : 'view',
         onClick: handleOpenPrescription(prescription),
-        text: isEditable ? t('Update prescription') : t('View Prescription'),
+        text: isEditable ? t('Update Prescription') : t('View Prescription'),
         variant: 'actionListItem',
       },
     ];
 
     if (isEditable) items.push({
       icon: DeleteForeverRoundedIcon,
-      iconLabel: 'Delete',
+      iconLabel: 'Delete Prescription',
       iconPosition: 'left',
       id: 'delete',
       onClick: handleDeletePrescription(prescription),
-      text: t('Delete prescription'),
+      text: t('Delete Prescription'),
       variant: 'actionListItemDanger',
       disabled: !isEditable,
     });
@@ -254,11 +270,72 @@ const Prescriptions = props => {
     return <Pill label="prescription status" colorPalette={colorPalette} text={label} />
   }
 
+  const copyCodeButtonText = useMemo(() =>
+    <Icon
+      variant="static"
+      icon={FileCopyRoundedIcon}
+      label={t('Copy Access Code')}
+      title={t('Copy Access Code')}
+    />, [t]
+  );
+
+  const copyCodeButtonSuccessText = useMemo(() => <span className="success">{t('✓')}</span>, [t]);
+
+  const copyCodeButtonOnClick = useCallback(() => {
+    trackMetric('Clinic - Copy prescription access code', {
+      clinicId: selectedClinicId,
+    });
+  }, [selectedClinicId]);
+
+
+  const renderAccessCode = ({ accessCode }) => {
+    return (
+      <Flex
+        onClick={e => {
+          // Prevent clicks from propogating up to the table row click handlers
+          e.stopPropagation();
+        }}
+        sx={{
+          columnGap: 2,
+          alignItems: 'flex-start',
+          button: {
+            border: 'none',
+            color: 'text.primary',
+            top: '1px',
+            p: 0,
+            m: 0,
+            position: 'relative',
+            '&:hover,&:active': {
+              border: 'none',
+              color: 'text.primary',
+              backgroundColor: 'transparent',
+            },
+          },
+          '.success': {
+            position: 'relative',
+            display: 'block',
+            top: '2px',
+          },
+        }}
+      >
+        <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>{accessCode}</Text>
+        <ClipboardButton
+          buttonTitle={t('Copy Access Code')}
+          buttonText={copyCodeButtonText}
+          successText={(copyCodeButtonSuccessText)}
+          onClick={copyCodeButtonOnClick}
+          getText={() => accessCode}
+        />
+      </Flex>
+    );
+  }
+
   const columns = [
     { title: t('Name'), field: 'patient', align: 'left', sortable: true, sortBy: 'firstName', render: renderName, searchable: true, searchBy: ['firstName', 'lastName'] },
     { title: t('MRN'), field: 'mrn', align: 'left', sortable: true, searchable: true },
     { title: t('Date of birth'), field: 'birthday', align: 'left', sortable: true, searchable: true },
     { title: t('Status'), field: 'state', render: renderState, align: 'left', sortable: true },
+    { title: t('Access Code'), field: 'accessCode', render: renderAccessCode, align: 'left', sortable: false },
     { title: '', field: 'more', render: renderMore, align: 'right', className: 'action-menu' },
   ];
 
@@ -290,7 +367,7 @@ const Prescriptions = props => {
   // Render
   return (
     <>
-      <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
+      <Flex sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
         {/* Flex Group 1: Search Box and Add Prescription button */}
         <Flex
           width={['100%', null, 'auto']}
@@ -306,10 +383,12 @@ const Prescriptions = props => {
             {t('Add New Prescription')}
           </Button>
 
-          <Box flex={1} sx={{ position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
+          <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
             <TextInput
               themeProps={{
-                width: ['100%', null, '250px'],
+                sx: {
+                  width: ['100%', null, '250px'],
+                },
               }}
               fontSize="12px"
               id="search-prescriptions"
@@ -429,8 +508,8 @@ const Prescriptions = props => {
           data={data}
           columns={columns}
           rowsPerPage={10}
-          rowHover={false}
           searchText={searchText}
+          emptyText={t('There are no prescriptions to show.')}
           onClickRow={handleRowClick}
           orderBy="createdTime"
           order="desc"
@@ -438,7 +517,7 @@ const Prescriptions = props => {
         />
 
         <Dialog
-          id={'prescription-delete'}
+          id="prescription-delete"
           aria-labelledby="dialog-title"
           open={deleteDialog.open}
           onClose={closeDeleteDialog}
@@ -459,6 +538,7 @@ const Prescriptions = props => {
             </Button>
 
             <Button
+              id="prescription-delete-confirm"
               variant="danger"
               processing={deletingPrescription.inProgress}
               onClick={handleConfirmDeletePrescription}

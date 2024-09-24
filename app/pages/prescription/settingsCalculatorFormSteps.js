@@ -50,7 +50,7 @@ export const CalculatorMethod = withTranslation()(props => {
   }, [method]);
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id="calculator-method-step" {...fieldsetStyles}>
       <Headline mb={4}>{t('Optional Therapy Settings Calculator')}</Headline>
       <Box mb={4}>
         <Paragraph1>
@@ -97,7 +97,7 @@ export const CalculatorInputs = withTranslation()(props => {
   const showWeight = includes(['weight', 'totalDailyDoseAndWeight'], method);
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id="calculator-inputs-step" {...fieldsetStyles}>
       <Headline mb={4}>{t('Optional Therapy Settings Calculator')}</Headline>
 
       <Box mb={4}>

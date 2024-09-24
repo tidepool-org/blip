@@ -71,6 +71,7 @@ export const ALL_FETCHED_DATA_TYPES = [
   ...DIABETES_DATA_TYPES,
   'cgmSettings',
   'deviceEvent',
+  'dosingDecision',
   'insulin',
   'physicalActivity',
   'pumpSettings',
