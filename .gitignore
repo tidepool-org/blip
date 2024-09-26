@@ -16,7 +16,6 @@ Thumbs.db
 
 # Application specific files
 *.log
-_book
 node_modules
 tmp
 deploy/
@@ -31,9 +30,6 @@ artifact_node.sh
 coverage/
 packageMounts/**/*
 !packageMounts/**/stub
-
-# GitBook
-_book/
 
 # Use yarn.lock
 package-lock.json
