@@ -541,7 +541,7 @@ const Settings = ({
 
             {selectedSettingsId ? renderChart() : renderMissingSettingsMessage()}
 
-            <Flex mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0}>
+            <Box mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0} sx={{ float: 'left', clear: 'both' }}>
               <Button
                 className="btn-refresh"
                 variant="secondary"
@@ -549,7 +549,7 @@ const Settings = ({
               >
                 {t('Refresh')}
               </Button>
-            </Flex>
+            </Box>
           </div>
         </div>
       </div>
