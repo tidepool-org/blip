@@ -46,7 +46,6 @@ export const deviceIdMap = {
 export const validDeviceIds = {
   cgms: [
     deviceIdMap.dexcomG6,
-    deviceIdMap.cgmSimulator,
   ],
   pumps: [
     deviceIdMap.palmtree,
@@ -62,11 +61,7 @@ export const deviceDetails = {
     ),
   },
   [deviceIdMap.cgmSimulator]: {
-    description: (
-      <Trans>
-        Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
-      </Trans>
-    ),
+    description: null,
   },
   [deviceIdMap.palmtree]: {
     description: (
