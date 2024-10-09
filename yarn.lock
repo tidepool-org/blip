@@ -5268,9 +5268,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.42.0-rc.11":
-  version: 1.42.0-rc.11
-  resolution: "@tidepool/viz@npm:1.42.0-rc.11"
+"@tidepool/viz@npm:1.42.0-rc.12":
+  version: 1.42.0-rc.12
+  resolution: "@tidepool/viz@npm:1.42.0-rc.12"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5330,7 +5330,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 20399f255cc1a72c8d05333c4b171227b94d3194c86be45f7a39e804e6df0739cf2fa90301fdce792abaf6fde5495280e0c64015a66e6da29449a3c48b3e62e6
+  checksum: af73fedbdff2ce721668b99c75e405edc6cb963e39cd78e11c37ae0f4c02f31e2cd3577e96f7c860e31aa9c9d9248dfa121532063daabc0ecfa128277b347ba0
   languageName: node
   linkType: hard
 
@@ -7427,7 +7427,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.42.0-rc.11
+    "@tidepool/viz": 1.42.0-rc.12
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7551,7 +7551,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.30.0-rc.3
+    tideline: 1.30.0-rc.4
     tidepool-platform-client: 0.59.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22991,9 +22991,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.30.0-rc.3":
-  version: 1.30.0-rc.3
-  resolution: "tideline@npm:1.30.0-rc.3"
+"tideline@npm:1.30.0-rc.4":
+  version: 1.30.0-rc.4
+  resolution: "tideline@npm:1.30.0-rc.4"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -23013,7 +23013,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 38519275a0bf05aeaf6865da1a50856ec0142dd1d41f424b4bcee434a9a98f3cf2d41cb54c113059ea330e196aa84f410ed5a42c2f77c813ef7bd7d7869f3c15
+  checksum: 0df59515fb2015d0ced5f9a5837e4b9cf9b4d68785d26d158be18f62a852197b43ac33cd1b0187e70f8b7a6f23c90c84d94cd9bb3f59ce24dfa838a5996dd5b2
   languageName: node
   linkType: hard
 
