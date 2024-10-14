@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.81.0-rc.23",
+  "version": "1.81.0-rc.24",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
@@ -66,7 +66,7 @@
     "@storybook/react": "7.5.0",
     "@storybook/react-webpack5": "7.5.0",
     "@testing-library/react-hooks": "8.0.1",
-    "@tidepool/viz": "1.42.0-rc.12",
+    "@tidepool/viz": "1.42.0-rc.13",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",
