@@ -573,7 +573,9 @@ export const PrescriptionForm = props => {
             variant: 'success',
           });
 
-          dispatch(push('/clinic-workspace/prescriptions', { reloadPrescriptions: true }));
+          if (values.state !== 'submitted') {
+            dispatch(push('/clinic-workspace/prescriptions', { reloadPrescriptions: true }));
+          }
         } else {
           if (prescriptionId && isNewPrescriptionFlow()) {
             // Redirect to normal prescription edit flow once we have a prescription ID
