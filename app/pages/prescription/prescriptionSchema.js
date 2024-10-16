@@ -65,6 +65,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
 
   return yup.object().shape({
     id: yup.string(),
+    accessCode: yup.string(),
     state: yup.string()
       .oneOf(map(revisionStateOptions, 'value'), t('Please set a valid prescription status')),
     accountType: yup.string()
