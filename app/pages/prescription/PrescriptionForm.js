@@ -362,6 +362,10 @@ export const PrescriptionForm = props => {
       trackMetric('Clicked Copy Therapy Settings Order');
     },
 
+    handlePrintTherapySettingsClicked: () => {
+      trackMetric('Clicked Print Therapy Settings Order');
+    },
+
     singleStepEditComplete: cancelFieldUpdates => {
       // We need the short timeout below when setting values upon single step edit completions as a
       // result of having to skip rendering the <PersistFormikValues> component while in single step

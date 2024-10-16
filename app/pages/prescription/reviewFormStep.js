@@ -16,6 +16,7 @@ import isArray from 'lodash/isArray';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
+import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import { getThresholdWarning, getFieldError } from '../../core/forms';
@@ -413,7 +414,12 @@ export const TherapySettings = props => {
     currentStep,
     devices,
     fieldStepMap,
-    handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
+    handlers: {
+      activeStepUpdate,
+      generateTherapySettingsOrderText,
+      handleCopyTherapySettingsClicked,
+      handlePrintTherapySettingsClicked,
+    },
     isEditable,
     skippedFields,
     ...themeProps
@@ -422,6 +428,7 @@ export const TherapySettings = props => {
   const therapySettingsStep = fieldStepMap['initialSettings.basalRateSchedule'];
 
   const [copying, setCopying] = React.useState(false);
+  const [printing, setPrinting] = React.useState(false);
   const formikContext = useFormikContext();
   const { values } = formikContext;
 
@@ -513,11 +520,33 @@ export const TherapySettings = props => {
               variant="secondaryCondensed"
               icon={EditRoundedIcon}
               iconPosition="left"
-              iconFontSize="14px"
+              iconFontSize="15px"
               label={t('Edit therapy settings')}
               onClick={() => activeStepUpdate(therapySettingsStep, currentStep)}
             >
               {t('Edit')}
+            </Button>
+          )}
+
+          {!isEditable && (
+            <Button
+              id="print-therapy-settings-order"
+              variant="primaryCondensed"
+              icon={PrintRoundedIcon}
+              iconPosition="left"
+              iconFontSize="15px"
+              label={t('Print therapy settings order')}
+              processing={printing}
+              onClick={() => {
+                setPrinting(true);
+                handlePrintTherapySettingsClicked();
+
+                setTimeout(() => {
+                  setPrinting(false);
+                }, 1000);
+              }}
+            >
+              {t('Print')}
             </Button>
           )}
 
@@ -527,10 +556,10 @@ export const TherapySettings = props => {
             variant="secondaryCondensed"
             icon={copying ? CheckRoundedIcon : FileCopyRoundedIcon}
             iconPosition="left"
-            iconFontSize={copying ? '17px' : '13px'}
+            iconFontSize={copying ? '17px' : '15px'}
             label={t('Copy therapy settings order as text')}
             sx={{
-              '.icon': { position: 'absolute', left: '18px' },
+              '.icon': { position: 'absolute', left: '16px' },
               button: {
                 fontSize: 0,
                 borderColor: 'transparent',
@@ -543,8 +572,8 @@ export const TherapySettings = props => {
                   backgroundColor: 'transparent',
                 },
                 py: '6px',
-                pr: '18px',
-                pl: '40px',
+                pr: '16px',
+                pl: '38px',
               }
             }}
           >

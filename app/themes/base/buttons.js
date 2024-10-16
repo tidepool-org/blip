@@ -148,7 +148,7 @@ export default ({
 
   const condensedStyles = {
     py: '6px',
-    px: '18px',
+    px: '16px',
     fontSize: 0,
   };
 
