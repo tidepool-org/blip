@@ -132,6 +132,7 @@ export const prescriptionForm = () => {
 
       return {
         id: get(props, 'prescription.id'),
+        accessCode: get(props, 'prescription.accessCode'),
         state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
         accountType: get(props, 'prescription.latestRevision.attributes.accountType'),
         firstName: get(props, 'prescription.latestRevision.attributes.firstName'),
