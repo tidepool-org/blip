@@ -146,30 +146,32 @@ export default ({
     },
   };
 
+  const condensedStyles = {
+    py: '6px',
+    px: '18px',
+    fontSize: 0,
+  };
+
   return {
     primary: primaryStyles,
     primaryCondensed: {
       ...primaryStyles,
-      py: '6px',
-      fontSize: 0,
+      ...condensedStyles,
     },
     secondary: secondaryStyles,
     secondaryCondensed: {
       ...secondaryStyles,
-      py: '6px',
-      fontSize: 0,
+      ...condensedStyles,
     },
     tertiary: tertiaryStyles,
     tertiaryCondensed: {
       ...tertiaryStyles,
-      py: '6px',
-      fontSize: 0,
+      ...condensedStyles,
     },
     quickAction: quickActionStyles,
     quickActionCondensed: {
       ...quickActionStyles,
-      py: '6px',
-      fontSize: 0,
+      ...condensedStyles,
     },
     danger: {
       ...defaultStyles,
