@@ -5268,9 +5268,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.42.0-rc.14":
-  version: 1.42.0-rc.14
-  resolution: "@tidepool/viz@npm:1.42.0-rc.14"
+"@tidepool/viz@npm:1.42.0":
+  version: 1.42.0
+  resolution: "@tidepool/viz@npm:1.42.0"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5330,7 +5330,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 2889b82080201def5158386abdd19dd785accb2ab64b911b3db0bc56d1c63d0e60784bc399c7a44d3678b94cc3453e5aa8ddc2ff49303bcade94c9656dc40029
+  checksum: dadaf71e4149b50438c23453829e3bbaf1cc0481b0ac41b1a6ab91f144366cf10ae3db9a3ff7bf56857f62a3cf14c22017713175d2a0df3548d1bbeadccc6de3
   languageName: node
   linkType: hard
 
@@ -7427,7 +7427,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.42.0-rc.14
+    "@tidepool/viz": 1.42.0
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7551,7 +7551,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.30.0-rc.4
+    tideline: 1.30.0
     tidepool-platform-client: 0.59.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22991,9 +22991,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.30.0-rc.4":
-  version: 1.30.0-rc.4
-  resolution: "tideline@npm:1.30.0-rc.4"
+"tideline@npm:1.30.0":
+  version: 1.30.0
+  resolution: "tideline@npm:1.30.0"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -23013,7 +23013,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 0df59515fb2015d0ced5f9a5837e4b9cf9b4d68785d26d158be18f62a852197b43ac33cd1b0187e70f8b7a6f23c90c84d94cd9bb3f59ce24dfa838a5996dd5b2
+  checksum: faf7028567b20f5136df1d2f34c70be89929c89269a68664bfad16a5cdd5dee3c8287e49ab95a641fa772f1d806c9dddd40352c3fad07bf01565b029f01d5032
   languageName: node
   linkType: hard
 
