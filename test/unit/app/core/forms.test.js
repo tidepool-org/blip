@@ -80,7 +80,7 @@ describe('forms', function() {
     });
   });
 
-  describe.only('getFieldError', () => {
+  describe('getFieldError', () => {
     it('should return `null` when field has not been touched and is not in an error state', () => {
       expect(formUtils.getFieldError('notTouchedAndNoError', formikContext)).to.be.null;
     });
