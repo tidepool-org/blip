@@ -15,6 +15,7 @@ import isUndefined from 'lodash/isUndefined';
 import * as yup from 'yup';
 import { Box, Flex, Text } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import {
   Title,
@@ -44,6 +45,7 @@ const { Loader } = vizComponents;
 
 export const ClinicianEdit = (props) => {
   const { t, api, trackMetric } = props;
+  const { showPrescriptions } = useFlags();
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
@@ -303,7 +305,7 @@ export const ClinicianEdit = (props) => {
                       borderBottom: 'none',
                     },
                     '&:last-child': {
-                      borderRadius: config.RX_ENABLED
+                      borderRadius: showPrescriptions
                         ? 0
                         : `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
                     },
@@ -312,7 +314,7 @@ export const ClinicianEdit = (props) => {
               }}
             />
 
-            {config.RX_ENABLED && (
+            {showPrescriptions && (
               <Box
                 p={4}
                 mb={3}
@@ -325,7 +327,7 @@ export const ClinicianEdit = (props) => {
               >
                 <Checkbox
                   {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
-                  label={t('Prescribing access')}
+                  label={t('Tidepool Loop Start Orders Finalization Permission')}
                   themeProps={{ bg: 'lightestGrey' }}
                 />
               </Box>

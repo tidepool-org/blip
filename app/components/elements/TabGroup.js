@@ -15,6 +15,7 @@ const StyledTab = styled(Tab)`
     font-family: inherit;
     min-height: auto;
     min-width: auto;
+    max-width: 300px;
     text-transform: none;
     padding: 12px ${space[4]}px;
     opacity: 1;

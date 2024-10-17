@@ -41,7 +41,10 @@ describe('ClinicWorkspace', () => {
     ClinicWorkspace.__Rewire__('PatientInvites', () => (<div>stubbed patient invites</div>));
     ClinicWorkspace.__Rewire__('ClinicPatients', () => (<div>stubbed clinic patients</div>));
     ClinicWorkspace.__Rewire__('Prescriptions', sinon.stub().returns('stubbed patient prescriptions'));
-    ClinicWorkspace.__Rewire__('config', { RX_ENABLED: true });
+
+    ClinicWorkspace.__Rewire__('useFlags', sinon.stub().returns({
+      showPrescriptions: true,
+    }));
   });
 
   after(() => {
@@ -50,7 +53,7 @@ describe('ClinicWorkspace', () => {
     ClinicWorkspace.__ResetDependency__('PatientInvites');
     ClinicWorkspace.__ResetDependency__('ClinicPatients');
     ClinicWorkspace.__ResetDependency__('Prescriptions');
-    ClinicWorkspace.__ResetDependency__('config');
+    ClinicWorkspace.__ResetDependency__('useFlags');
   });
 
   afterEach(() => {
@@ -184,7 +187,7 @@ describe('ClinicWorkspace', () => {
   });
 
   it('should render the prescriptions tab by default when `prescriptions` route param provided', () => {
-    expect(wrapper('prescriptions').find('button[aria-selected=true]').hostNodes().text()).to.equal('Prescriptions');
+    expect(wrapper('prescriptions').find('button[aria-selected=true]').hostNodes().text()).to.equal('Tidepool Loop Start Orders');
     expect(wrapper().find('div[role="tabpanel"][hidden=false]').parent('#prescriptionsTab')).to.have.lengthOf(1);
   });
 });

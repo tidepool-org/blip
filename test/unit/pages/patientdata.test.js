@@ -3332,23 +3332,6 @@ describe('PatientData', function () {
   describe('generateAGPImages', () => {
     let wrapper;
     let instance;
-    before(() => {
-      PD.__Rewire__('vizUtils', {
-        agp: {
-          generateAGPFigureDefinitions: sinon.stub()
-            .onFirstCall().resolves(['stubbed image data'])
-            .onSecondCall().rejects(new Error('failed image generation')),
-        },
-      });
-      PD.__Rewire__('Plotly', {
-        toImage: sinon.stub().returns('stubbed image data')
-      });
-    });
-
-    after(() => {
-      PD.__ResetDependency__('vizUtils');
-      PD.__ResetDependency__('Plotly');
-    });
 
     beforeEach(() => {
       wrapper = shallow(<PatientDataClass {...defaultProps} />);
@@ -3357,27 +3340,59 @@ describe('PatientData', function () {
       defaultProps.generateAGPImagesFailure.resetHistory();
     });
 
-    it('should call generateAGPImagesSuccess with image data upon successful image generation', done => {
-      instance.generateAGPImages(undefined, ['agpCGM']);
-      wrapper.update();
-      setTimeout(() => {
-        sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 0);
-        sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 1);
-        sinon.assert.calledWithMatch(defaultProps.generateAGPImagesSuccess, {
-          agpCGM: { 0: 'stubbed image data' },
+    context('successful image generation', () => {
+      before(() => {
+        PD.__Rewire__('vizUtils', {
+          agp: {
+            generateAGPFigureDefinitions: sinon.stub().resolves(['stubbed image data']),
+          },
         });
-        done();
+        PD.__Rewire__('Plotly', {
+          toImage: sinon.stub().returns('stubbed image data')
+        });
+      });
+
+      after(() => {
+        PD.__ResetDependency__('vizUtils');
+        PD.__ResetDependency__('Plotly');
+      });
+
+      it('should call generateAGPImagesSuccess with image data upon successful image generation', done => {
+        instance.generateAGPImages(undefined, ['agpCGM']);
+        wrapper.update();
+        setTimeout(() => {
+          sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 0);
+          sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 1);
+          sinon.assert.calledWithMatch(defaultProps.generateAGPImagesSuccess, {
+            agpCGM: { 0: 'stubbed image data' },
+          });
+          done();
+        });
       });
     });
 
-    it('should call generateAGPImagesFailure with error upon failed image generation', done => {
-      instance.generateAGPImages(undefined, ['agpCGM']);
-      wrapper.update();
-      setTimeout(() => {
-        sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 0);
-        sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 1);
-        expect(defaultProps.generateAGPImagesFailure.getCall(0).lastArg.message).to.equal('failed image generation');
-        done();
+    context('failed image generation', () => {
+      before(() => {
+        PD.__Rewire__('vizUtils', {
+          agp: {
+            generateAGPFigureDefinitions: sinon.stub().rejects(new Error('failed image generation')),
+          },
+        });
+      });
+
+      after(() => {
+        PD.__ResetDependency__('vizUtils');
+      });
+
+      it('should call generateAGPImagesFailure with error upon failed image generation', done => {
+        instance.generateAGPImages(undefined, ['agpCGM']);
+        wrapper.update();
+        setTimeout(() => {
+          sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 0);
+          sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 1);
+          expect(defaultProps.generateAGPImagesFailure.getCall(0).lastArg.message).to.equal('failed image generation');
+          done();
+        });
       });
     });
   });
@@ -4148,27 +4163,32 @@ describe('PatientData', function () {
     let instance;
     let props;
     let setStateSpy;
+    let logSpy;
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
         onFetchEarlierData: sinon.stub(),
+        trackMetric: sinon.stub(),
+        log: sinon.stub(),
       });
-
 
       wrapper = shallow(<PatientDataClass {...props} />);
       instance = wrapper.instance();
 
       setStateSpy = sinon.spy(instance, 'setState');
+      logSpy = sinon.spy(instance, 'log');
     });
 
     afterEach(() => {
       props.onFetchEarlierData.reset();
       props.trackMetric.reset();
       setStateSpy.resetHistory();
+      logSpy.resetHistory();
     });
 
     after(() => {
       setStateSpy.restore();
+      logSpy.restore();
     });
 
     context('currently fetching data', () => {
@@ -4210,6 +4230,7 @@ describe('PatientData', function () {
           medtronic: undefined,
           initial: false,
           useCache: false,
+          noDates: false,
         }, '40');
       });
 
@@ -4348,6 +4369,58 @@ describe('PatientData', function () {
           patientID: 'otherPatientId',
           clinicId: 'clinic123',
         });
+      });
+
+      it('should set startDate and endDate to undefined if noDates is true', () => {
+        const fetchedUntil = '2018-01-01T00:00:00.000Z';
+
+        wrapper.setProps({
+          currentPatientInViewId: '40',
+          data: {
+            fetchedUntil,
+          },
+        });
+
+        const options = {
+          noDates: true,
+        };
+
+        instance.fetchEarlierData(options);
+
+        sinon.assert.calledOnce(props.onFetchEarlierData);
+        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+          startDate: undefined,
+          endDate: undefined,
+        }, '40');
+      });
+
+      it('should call the log method', () => {
+        instance.fetchEarlierData();
+
+        sinon.assert.calledOnce(logSpy);
+        sinon.assert.calledWith(logSpy, 'fetching');
+      });
+
+      it('should pass the initial option correctly', () => {
+        const fetchedUntil = '2018-01-01T00:00:00.000Z';
+
+        wrapper.setProps({
+          currentPatientInViewId: '40',
+          data: {
+            fetchedUntil,
+          },
+        });
+
+        const options = {
+          initial: true,
+        };
+
+        instance.fetchEarlierData(options);
+
+        sinon.assert.calledOnce(props.onFetchEarlierData);
+        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+          initial: true,
+        }, '40');
       });
     });
   });
@@ -4740,6 +4813,7 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
+        onFetchEarlierData: sinon.stub(),
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
@@ -4751,16 +4825,26 @@ describe('PatientData', function () {
       var elem = mount(<PatientData {...props} />).find(PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
+      elem.instance().setState({
+        endpoints: [100,200],
+      });
       elem.instance().handleSwitchToSettings();
-      expect(props.trackMetric.callCount).to.equal(callCount + 1);
+      expect(props.trackMetric.callCount).to.equal(callCount + 2);
       expect(props.trackMetric.calledWith('Clicked Switch To Settings')).to.be.true;
     });
 
     it('should set the `chartType` state to `settings`', () => {
-      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      var props = {
+        ...defaultProps,
+        onFetchEarlierData: sinon.stub(),
+      };
+      const wrapper = shallow(<PatientDataClass {...props} />);
       const instance = wrapper.instance();
 
-      wrapper.setState({chartType: 'daily'});
+      wrapper.setState({
+        chartType: 'daily',
+        endpoints: [100,200],
+      });
 
       instance.handleSwitchToSettings();
       expect(wrapper.state('chartType')).to.equal('settings');

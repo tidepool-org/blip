@@ -1042,6 +1042,7 @@ export function fetchPatientData(api, options, id) {
   });
 
   let latestUpload;
+  let latestPumpSettings;
 
   return (dispatch, getState) => {
     // If we have a valid cache of the data in our redux store, return without dispatching the fetch
@@ -1120,7 +1121,7 @@ export function fetchPatientData(api, options, id) {
             // We want to make sure the latest upload, which may be beyond the data range we'll be
             // fetching, is stored so we can include it with the fetched results
             latestUpload = _.find(latestDatums, { type: 'upload' });
-            const latestPumpSettings = _.find(latestDatums, { type: 'pumpSettings' });
+            latestPumpSettings = _.find(latestDatums, { type: 'pumpSettings' });
             const latestPumpSettingsUploadId = _.get(latestPumpSettings || {}, 'uploadId');
             const latestPumpSettingsUpload = _.find(latestDatums, { type: 'upload', uploadId: latestPumpSettingsUploadId });
 
@@ -1206,10 +1207,13 @@ export function fetchPatientData(api, options, id) {
             ...resultsVal.teamNotes,
           ];
 
-          // If the latest upload is later than the latest diabetes datum, it would have been
+          // If the latest upload or pumpSettings is later than the latest diabetes datum, it would have been
           // outside of the fetched data range, and needs to be added.
           if (latestUpload && !_.find(combinedData, { id: latestUpload.id })) {
             combinedData.push(latestUpload);
+          }
+          if (latestPumpSettings && !_.find(combinedData, { id: latestPumpSettings.id })) {
+            combinedData.push(latestPumpSettings);
           }
 
           handleFetchSuccess(combinedData, id, options);
@@ -1225,11 +1229,15 @@ export function fetchPatientData(api, options, id) {
  * @param  {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
  */
-export function fetchClinicPrescriptions(api, clinicId) {
+export function fetchClinicPrescriptions(api, clinicId, options = {}) {
+  _.defaults(options, {
+    size: 1000,
+  });
+
   return (dispatch) => {
     dispatch(sync.fetchClinicPrescriptionsRequest());
 
-    api.prescription.getAllForClinic(clinicId, (err, prescriptions) => {
+    api.prescription.getAllForClinic(clinicId, options, (err, prescriptions) => {
       if (err) {
         dispatch(sync.fetchClinicPrescriptionsFailure(
           createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PRESCRIPTIONS, err), err

@@ -2,14 +2,13 @@ import React from 'react';
 import { withTranslation } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
 import { Box, Flex } from 'theme-ui';
-import bows from 'bows';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import i18next from '../../core/language';
+import utils from '../../core/utils';
 import Button from '../../components/elements/Button';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
@@ -26,14 +25,9 @@ import {
 import {
   calculateRecommendedTherapySettings,
   calculatorMethodOptions,
-  roundValueToIncrement,
-  stepValidationFields,
   totalDailyDoseScaleFactorOptions,
   weightUnitOptions,
 } from './prescriptionFormConstants';
-
-const t = i18next.t.bind(i18next);
-const log = bows('PrescriptionCalculator');
 
 export const CalculatorMethod = withTranslation()(props => {
   const { t, onMethodChange } = props;
@@ -50,7 +44,7 @@ export const CalculatorMethod = withTranslation()(props => {
   }, [method]);
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id="calculator-method-step" {...fieldsetStyles}>
       <Headline mb={4}>{t('Optional Therapy Settings Calculator')}</Headline>
       <Box mb={4}>
         <Paragraph1>
@@ -97,7 +91,7 @@ export const CalculatorInputs = withTranslation()(props => {
   const showWeight = includes(['weight', 'totalDailyDoseAndWeight'], method);
 
   return (
-    <Box {...fieldsetStyles}>
+    <Box id="calculator-inputs-step" {...fieldsetStyles}>
       <Headline mb={4}>{t('Optional Therapy Settings Calculator')}</Headline>
 
       <Box mb={4}>
@@ -117,7 +111,7 @@ export const CalculatorInputs = withTranslation()(props => {
             name="calculator.totalDailyDose"
             onBlur={e => {
               setFieldTouched('calculator.totalDailyDose');
-              setFieldValue('calculator.totalDailyDose', roundValueToIncrement(e.target.value, 0.1));
+              setFieldValue('calculator.totalDailyDose', utils.roundToNearest(e.target.value, 0.1));
             }}
             step={1}
             min={0}
@@ -151,7 +145,7 @@ export const CalculatorInputs = withTranslation()(props => {
               name="calculator.weight"
               onBlur={e => {
                 setFieldTouched('calculator.weight');
-                setFieldValue('calculator.weight', roundValueToIncrement(e.target.value, 0.1));
+                setFieldValue('calculator.weight', utils.roundToNearest(e.target.value, 0.1));
               }}
               step={1}
               min={0}
@@ -196,27 +190,3 @@ export const CalculatorInputs = withTranslation()(props => {
     </Box>
   );
 });
-
-const settingsCalculatorFormSteps = (schema, handlers, values ) => ({
-  label: t('Therapy Settings Calculator'),
-  optional: true,
-  onSkip: handlers.clearCalculator,
-  onEnter: handlers.goToFirstSubStep,
-  subSteps: [
-    {
-      disableComplete: isEmpty(get(values, stepValidationFields[2][0][0])) || !fieldsAreValid(stepValidationFields[2][0], schema, values),
-      onComplete: () => log('Calculator Method Complete'),
-      panelContent: <CalculatorMethod onMethodChange={() => {
-        handlers.clearCalculatorInputs();
-        handlers.clearCalculatorResults();
-      }} />,
-    },
-    {
-      disableComplete: !fieldsAreValid(stepValidationFields[2][1], schema, values),
-      onComplete: () => log('Calculator Inputs Complete'),
-      panelContent: <CalculatorInputs schema={schema} />
-    },
-  ],
-});
-
-export default settingsCalculatorFormSteps;

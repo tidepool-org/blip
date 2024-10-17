@@ -1,50 +1,53 @@
 import { default as baseTheme } from '../../themes/baseTheme';
 
 export const fieldsetStyles = {
-  width: [1, 0.75, 0.5, 0.33],
   mt: 5,
   mb: 6,
   mx: 'auto',
   p: 0,
   sx: {
+    width: ['100%', '75%', '50%', '33%'],
     border: 'none',
   },
   as: 'fieldset',
 };
 
-export const wideFieldsetStyles = {
-  width: [1, 0.75, 0.67],
-  maxWidth: '840px',
-};
-
-export const borderedFieldsetStyles = {
+export const wideBorderedFieldsetStyles = {
+  ...fieldsetStyles,
   py: 3,
   px: 4,
   sx: {
+    ...fieldsetStyles.sx,
+    width: '100%',
+    maxWidth: '1000px',
     border: baseTheme.borders.default,
     borderRadius: baseTheme.radii.large,
-  },
+  }
 };
 
 export const inputStyles = {
-  width: '100%',
   themeProps: {
+    sx: {
+      width: '100%',
+    },
     mb: 5,
   },
 };
 
 export const condensedInputStyles = {
-  width: '100%',
   themeProps: {
+    sx: {
+      width: '100%',
+    },
     mb: 3,
   },
 };
 
 export const inlineInputStyles = {
-  width: '100%',
   themeProps: {
     ml: 3,
     sx: {
+      width: '100%',
       '&:first-child': {
         ml: 0,
       },
@@ -53,8 +56,10 @@ export const inlineInputStyles = {
 };
 
 export const checkboxStyles = {
-  width: '100%',
   themeProps: {
+    sx: {
+      width: '100%',
+    },
     fontSize: 1,
   },
 };

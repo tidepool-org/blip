@@ -15,8 +15,9 @@ import {
 
 const StyledRadio = styled(Base)`
   color: ${colors.border.default};
-  width: 1.5em;
-  height: 1.5em;
+  width: 2em;
+  height: 2em;
+  padding: .25em;
   margin-right: 0.5em;
 
   cursor: pointer;
@@ -38,9 +39,9 @@ const StyledRadio = styled(Base)`
 `;
 
 const StyledRadioLabel = styled(Text)`
-  display: 'inline-block',
+  display: inline-block;
   margin-right: 2em;
-  margin-top: .05em;
+  margin-top: .3em;
 
   &.disabled {
     color: ${colors.text.primaryDisabled};

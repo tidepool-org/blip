@@ -1,7 +1,9 @@
 import * as yup from 'yup';
 import i18next from '../../core/language';
+import find from 'lodash/find';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
+import max from 'lodash/max';
 import moment from 'moment';
 import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from '../../core/constants';
 import utils from '../../core/utils';
@@ -51,9 +53,15 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
   }
 
   const rangeError = key => t('Please select a value between {{min}}-{{max}}', {
-    min: ranges[key].min,
-    max: ranges[key].max,
+    min: utils.roundToNearest(ranges[key].min, ranges[key].increment || 1),
+    max: utils.roundToNearest(ranges[key].max, ranges[key].increment || 1),
   });
+
+  const equalToOrAboveLow = key => (value, ctx) => {
+    const defaultMin = utils.roundToNearest(ranges[key].min, ranges[key].increment || 1);
+    const min = utils.roundToNearest(max([parseFloat(ctx.parent.low), ranges[key].min]), ranges[key].increment || 1);
+    return value >= parseFloat(min) || ctx.createError({ message: rangeError(key).replace(defaultMin, min) });
+  };
 
   return yup.object().shape({
     id: yup.string(),
@@ -75,6 +83,10 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       then: () => yup.string().required(t('Last name is required')),
     }),
     birthday: yup.date()
+      .transform((value, originalValue) => {
+        value = moment(originalValue, dateFormat, true);
+        return value.isValid() ? value.toDate() : new Date('');
+      })
       .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
       .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
       .required(t('Patient\'s birthday is required')),
@@ -93,8 +105,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         .matches(phoneRegex, t('Please enter a valid phone number'))
         .required(t('Patient phone number is required')),
     }),
-    mrn: yup.string()
-      .required(t('Patient MRN number is required')),
+    mrn: yup.string(),
     sex: yup.string()
       .oneOf(map(sexOptions, 'value'), t('Please select a valid option'))
       .required(t('Patient gender is required')),
@@ -156,7 +167,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       glucoseSafetyLimit: yup.number()
         .min(ranges.glucoseSafetyLimit.min, rangeError('glucoseSafetyLimit'))
         .max(ranges.glucoseSafetyLimit.max, rangeError('glucoseSafetyLimit'))
-        .required(t('Suspend threshold is required')),
+        .required(t('Glucose safety limit is required')),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
           .min(ranges.basalRateMaximum.min, rangeError('basalRateMaximum'))
@@ -175,14 +186,14 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       }),
       bloodGlucoseTargetSchedule: yup.array().of(
         yup.object().shape({
-          high: yup.number()
-            .min(yup.ref('low') || ranges.bloodGlucoseTarget.min, rangeError('bloodGlucoseTarget').replace(ranges.bloodGlucoseTarget.min, '${min}'))
-            .max(ranges.bloodGlucoseTarget.max, rangeError('bloodGlucoseTarget'))
-            .required(t('High target is required')),
           low: yup.number()
             .min(ranges.bloodGlucoseTarget.min, rangeError('bloodGlucoseTarget'))
             .max(ranges.bloodGlucoseTarget.max, rangeError('bloodGlucoseTarget'))
             .required(t('Low target is required')),
+          high: yup.number()
+            .test('min', null, equalToOrAboveLow('bloodGlucoseTarget'))
+            .max(ranges.bloodGlucoseTarget.max, rangeError('bloodGlucoseTarget'))
+            .required(t('High target is required')),
           start: yup.number()
             .integer()
             .min(0)
@@ -191,24 +202,24 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         }),
       ),
       bloodGlucoseTargetPhysicalActivity: yup.object().shape({
-        high: yup.number()
-          .min(yup.ref('low') || ranges.bloodGlucoseTargetPhysicalActivity.min, rangeError('bloodGlucoseTargetPhysicalActivity').replace(ranges.bloodGlucoseTargetPhysicalActivity.min, '${min}'))
-          .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeError('bloodGlucoseTargetPhysicalActivity'))
-          .required(t('High target is required')),
         low: yup.number()
           .min(ranges.bloodGlucoseTargetPhysicalActivity.min, rangeError('bloodGlucoseTargetPhysicalActivity'))
           .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeError('bloodGlucoseTargetPhysicalActivity'))
           .required(t('Low target is required')),
+        high: yup.number()
+          .test('min', null, equalToOrAboveLow('bloodGlucoseTargetPhysicalActivity'))
+          .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeError('bloodGlucoseTargetPhysicalActivity'))
+          .required(t('High target is required')),
       }),
       bloodGlucoseTargetPreprandial: yup.object().shape({
-        high: yup.number()
-          .min(yup.ref('low') || ranges.bloodGlucoseTargetPreprandial.min, rangeError('bloodGlucoseTargetPreprandial').replace(ranges.bloodGlucoseTargetPreprandial.min, '${min}'))
-          .max(ranges.bloodGlucoseTargetPreprandial.max, rangeError('bloodGlucoseTargetPreprandial'))
-          .required(t('High target is required')),
         low: yup.number()
           .min(ranges.bloodGlucoseTargetPreprandial.min, rangeError('bloodGlucoseTargetPreprandial'))
           .max(ranges.bloodGlucoseTargetPreprandial.max, rangeError('bloodGlucoseTargetPreprandial'))
           .required(t('Low target is required')),
+        high: yup.number()
+          .test('min', null, equalToOrAboveLow('bloodGlucoseTargetPreprandial'))
+          .max(ranges.bloodGlucoseTargetPreprandial.max, rangeError('bloodGlucoseTargetPreprandial'))
+          .required(t('High target is required')),
       }),
       basalRateSchedule: yup.array().of(
         yup.object().shape({
@@ -251,11 +262,9 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       ),
     }),
     training: yup.string()
-      .oneOf(map(trainingOptions, 'value'), t('Please select a valid option'))
-      .required(t('Training type is required')),
+      .oneOf(map(trainingOptions, 'value'), t('Please select a valid option')),
     therapySettings: yup.string()
-      .oneOf(map(therapySettingsOptions, 'value'), t('Please select a valid option'))
-      .required(t('Training type is required')),
+      .oneOf(map(therapySettingsOptions, 'value'), t('Please select a valid option')),
     therapySettingsReviewed: yup.boolean()
       .test('isTrue', t('Please confirm the therapy settings for this patient'), value => (value === true)),
   });

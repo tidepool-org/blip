@@ -4683,7 +4683,7 @@ describe('Actions', () => {
 
         let api = {
           prescription: {
-            getAllForClinic: sinon.stub().callsArgWith(1, null, prescriptions),
+            getAllForClinic: sinon.stub().callsArgWith(2, null, prescriptions),
           },
         };
 
@@ -4708,7 +4708,7 @@ describe('Actions', () => {
 
         let api = {
           prescription: {
-            getAllForClinic: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+            getAllForClinic: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           },
         };
 
@@ -6014,6 +6014,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -6494,6 +6495,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -6708,6 +6710,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -7636,6 +7639,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -9089,6 +9093,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,
@@ -9163,6 +9168,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
                   tideDashboard: false,

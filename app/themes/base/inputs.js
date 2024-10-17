@@ -70,6 +70,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     borderRadius: 0,
     color: colors.text.primary,
     fontSize: 'inherit',
+
+    'input:focus~svg': {
+      backgroundColor: 'rgba(90,152,248,0.24)',
+    },
   };
 
   const checkboxes = {
@@ -244,6 +248,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
       horizontal: {
         ...radios,
         flexDirection: 'row',
+        columnGap: 3,
       },
       vertical: {
         ...radios,

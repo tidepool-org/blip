@@ -1,30 +1,46 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'theme-ui';
-import isFinite from 'lodash/isFinite';
+import bows from 'bows';
+import each from 'lodash/each';
+import find from 'lodash/find';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isFinite from 'lodash/isFinite';
 import map from 'lodash/map';
 import max from 'lodash/max';
 import mean from 'lodash/mean';
 import min from 'lodash/min';
+import noop from 'lodash/noop';
 import filter from 'lodash/filter';
 import includes from 'lodash/includes';
+import reduce from 'lodash/reduce';
+import reject from 'lodash/reject';
 import moment from 'moment';
 
 import i18next from '../../core/language';
 import { LBS_PER_KG, MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import utils from '../../core/utils';
 import { getFloatFromUnitsAndNanos } from '../../core/data';
+import { fieldsAreValid } from '../../core/forms';
+
+import { AccountType, PatientEmail, PatientInfo } from './accountFormSteps';
+import { PatientDevices, PatientGender, PatientMRN, PatientPhone } from './profileFormSteps';
+import { CalculatorInputs, CalculatorMethod } from './settingsCalculatorFormSteps';
+import { TherapySettings } from './therapySettingsFormStep';
+import { PrescriptionReview } from './reviewFormStep';
 
 const t = i18next.t.bind(i18next);
+const log = bows('PrescriptionForm');
 
 export const dateFormat = 'YYYY-MM-DD';
 export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 export const dateRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
 
 export const deviceIdMap = {
+  cgmSimulator: 'c97bd194-5e5e-44c1-9629-4cb87be1a4c9',
   dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
-  omnipodHorizon: '6678c377-928c-49b3-84c1-19e2dafaff8d',
+  palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
 };
 
 export const validDeviceIds = {
@@ -32,21 +48,28 @@ export const validDeviceIds = {
     deviceIdMap.dexcomG6,
   ],
   pumps: [
-    deviceIdMap.omnipodHorizon,
+    deviceIdMap.palmtree,
   ],
 };
 
-export const deviceExtraInfo = {
-  [deviceIdMap.dexcomG6]: (
-    <Trans>
-      Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
-    </Trans>
-  ),
-  [deviceIdMap.omnipodHorizon]: (
-    <Trans>
-      Find information on how to prescribe Omnipod products <Link to="#">here</Link>.
-    </Trans>
-  ),
+export const deviceDetails = {
+  [deviceIdMap.dexcomG6]: {
+    description: (
+      <Trans>
+        Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link to="#">here</Link>.
+      </Trans>
+    ),
+  },
+  [deviceIdMap.cgmSimulator]: {
+    description: null,
+  },
+  [deviceIdMap.palmtree]: {
+    description: (
+      <Trans>
+        Find information on how to prescribe Palmtree products <Link to="#">here</Link>.
+      </Trans>
+    ),
+  },
 };
 
 export const pumpDeviceOptions = ({ pumps } = {}) => map(
@@ -54,7 +77,7 @@ export const pumpDeviceOptions = ({ pumps } = {}) => map(
   pump => ({
     value: pump.id,
     label: t('{{displayName}}', { displayName: pump.displayName }),
-    extraInfo: deviceExtraInfo[pump.id] || null,
+    ...(deviceDetails[pump.id] || {}),
   }),
 );
 
@@ -63,7 +86,7 @@ export const cgmDeviceOptions = ({ cgms } = {}) => map(
   cgm => ({
     value: cgm.id,
     label: t('{{displayName}}', { displayName: cgm.displayName }),
-    extraInfo: deviceExtraInfo[cgm.id] || null,
+    ...(deviceDetails[cgm.id] || {}),
   }),
 );
 
@@ -75,7 +98,10 @@ export const defaultUnits = {
   weight: 'kg',
 };
 
-export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) || fallbackValue;
+export const getPumpGuardrail = (pump, path, fallbackValue) => {
+  const guardrail = get(pump, `guardRails.${path}`);
+  return guardrail ? getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) : fallbackValue;
+};
 
 export const getBgInTargetUnits = (bgValue, bgUnits, targetUnits) => {
   if (bgUnits === targetUnits || !isFinite(bgValue)) return bgValue;
@@ -89,27 +115,32 @@ export const getBgStepInTargetUnits = (stepValue, stepUnits, targetUnits) => {
     : stepValue * 10;
 };
 
-export const roundValueToIncrement = (value, increment = 1) => {
-  const inverse = 1 / increment;
-  return value ? Math.round(value * inverse) / inverse : value;
-};
-
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
+  const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
+  const maxAllowedBasalRate = getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30);
+
   const ranges = {
     basalRate: {
-      min: max([getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05), 0.05]),
-      max: min([getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30), 30]),
+      min: getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05),
+      max: maxAllowedBasalRate,
       increment: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
+      schedules: { max: pump?.guardRails?.basalRates?.maxSegments || 48, minutesIncrement: 30 },
     },
     basalRateMaximum: {
       min: max(filter([
-        getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0),
-        max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate')),
+        getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.05),
+        min([
+          max([maxBasalRate, getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0.05)]),
+          maxAllowedBasalRate,
+        ]),
       ], isFinite)),
       max: min(filter([
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
-        70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
-      ], isFinite)),
+        max([
+          70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
+          parseFloat((maxBasalRate * 6.4).toFixed(2))
+        ]),
+      ], val => isFinite(val) && parseInt(val) > 0)),
       increment: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.05),
     },
     bloodGlucoseTarget: {
@@ -119,6 +150,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       ], isFinite)),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.maximum', 180), MGDL_UNITS, bgUnits),
       increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      schedules: { max: 48, minutesIncrement: 30 },
     },
     bloodGlucoseTargetPhysicalActivity: {
       min: max(filter([
@@ -137,20 +169,21 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'preprandialCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bolusAmountMaximum: {
-      min: max([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0.05), 0.05]),
-      max: min([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30), 30]),
+      min: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0.05),
+      max: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30),
       increment: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.increment', 0.05),
     },
     carbRatio: {
       min: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.minimum', 2),
       max: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.maximum', 150),
-      increment: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.increment', 0.01),
-      inputStep: 1,
+      increment: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.increment', 0.1),
+      schedules: { max: 48, minutesIncrement: 30 },
     },
     insulinSensitivityFactor: {
       min: getBgInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.minimum', 10), MGDL_UNITS, bgUnits),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.maximum', 500), MGDL_UNITS, bgUnits),
       increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      schedules: { max: 48, minutesIncrement: 30 },
     },
     glucoseSafetyLimit: {
       min: getBgInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 67), MGDL_UNITS, bgUnits),
@@ -165,6 +198,22 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
   };
 
   return ranges;
+};
+
+export const dependantFields = {
+  'initialSettings.glucoseSafetyLimit': [
+    'initialSettings.bloodGlucoseTargetSchedule.$.low',
+    'initialSettings.bloodGlucoseTargetSchedule.$.high',
+    'initialSettings.bloodGlucoseTargetPreprandial.low',
+    'initialSettings.bloodGlucoseTargetPreprandial.high',
+    'initialSettings.bloodGlucoseTargetPhysicalActivity.low',
+    'initialSettings.bloodGlucoseTargetPhysicalActivity.high',
+  ],
+  'initialSettings.bloodGlucoseTargetSchedule.low': ['initialSettings.glucoseSafetyLimit'],
+  'initialSettings.bloodGlucoseTargetPreprandial.low': ['initialSettings.glucoseSafetyLimit'],
+  'initialSettings.bloodGlucoseTargetPhysicalActivity.low': ['initialSettings.glucoseSafetyLimit'],
+  'initialSettings.basalRateSchedule.rate': ['initialSettings.basalRateMaximum.value'],
+  'initialSettings.carbohydrateRatioSchedule.amount': ['initialSettings.basalRateMaximum.value'],
 };
 
 export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
@@ -282,7 +331,7 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
  * @param {Object} values form values provided by formik context
  * @returns {Object} default values keyed by setting
  */
-export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values = {}) => {
+export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values = {}, touched = {}) => {
   const {
     calculator: {
       recommendedBasalRate,
@@ -294,16 +343,36 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
   const patientAge = moment().diff(moment(get(values, 'birthday'), dateFormat), 'years', true);
   const isPediatric = patientAge < 18;
+  const isPalmtree = pump.id === deviceIdMap.palmtree;
+
+  let bloodGlucoseTarget = {
+    low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
+    high: getBgInTargetUnits(105, MGDL_UNITS, bgUnits),
+  };
+
+  if (isPalmtree) {
+    bloodGlucoseTarget = {
+      low: getBgInTargetUnits(115, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(125, MGDL_UNITS, bgUnits),
+    };
+  } else if (isPediatric) {
+    bloodGlucoseTarget = {
+      low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(115, MGDL_UNITS, bgUnits),
+    };
+  }
 
   return {
-    basalRate: recommendedBasalRate || 0.05,
-    basalRateMaximum: isFinite(maxBasalRate)
-      ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
-      : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
-    bloodGlucoseTarget: {
-      low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
-      high: getBgInTargetUnits(isPediatric ? 115 : 105, MGDL_UNITS, bgUnits),
-    },
+    basalRate: recommendedBasalRate || getPumpGuardrail(pump, 'basalRates.defaultValue', undefined),
+    basalRateMaximum: isFinite(maxBasalRate) && !touched?.initialSettings?.basalRateMaximum?.value
+      ? utils.roundToNearest(
+        min([
+          parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5))),
+          getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30)
+        ]),
+        getPumpGuardrail(pump, 'basalRateMaximum.increment', 0.05)
+      ) : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
+    bloodGlucoseTarget,
     bloodGlucoseTargetPhysicalActivity: {
       low: getBgInTargetUnits(150, MGDL_UNITS, bgUnits),
       high: getBgInTargetUnits(170, MGDL_UNITS, bgUnits),
@@ -314,7 +383,7 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values 
     },
     carbohydrateRatio: recommendedCarbohydrateRatio,
     insulinSensitivity: recommendedInsulinSensitivity,
-    glucoseSafetyLimit: getBgInTargetUnits(isPediatric ? 80 : 75, MGDL_UNITS, bgUnits),
+    glucoseSafetyLimit: getBgInTargetUnits(isPediatric || isPalmtree ? 80 : 75, MGDL_UNITS, bgUnits),
   };
 };
 
@@ -350,11 +419,11 @@ export const calculateRecommendedTherapySettings = values => {
   const baseTotalDailyDose = mean(baseTotalDailyDoseInputs);
 
   return {
-    recommendedBasalRate: roundValueToIncrement(baseTotalDailyDose / 2 / 24, 0.05),
-    recommendedCarbohydrateRatio: roundValueToIncrement(450 / baseTotalDailyDose, 1),
+    recommendedBasalRate: utils.roundToNearest(baseTotalDailyDose / 2 / 24, 0.05),
+    recommendedCarbohydrateRatio: utils.roundToNearest(450 / baseTotalDailyDose, 1),
     recommendedInsulinSensitivity: bgUnits === MGDL_UNITS
-      ? roundValueToIncrement(1700 / baseTotalDailyDose, 1)
-      : roundValueToIncrement(1700 / baseTotalDailyDose / MGDL_PER_MMOLL, 0.1),
+      ? utils.roundToNearest(1700 / baseTotalDailyDose, 1)
+      : utils.roundToNearest(1700 / baseTotalDailyDose / MGDL_PER_MMOLL, 0.1),
   };
 };
 
@@ -386,7 +455,10 @@ export const shouldUpdateDefaultValue = (fieldPath, formikContext) => {
     touched,
   } = formikContext;
 
-  const initialValuesSource = status.isPrescriptionEditFlow ? initialValues : status.hydratedValues;
+  const initialValuesSource = {
+    ...initialValues,
+    ...(status.hydratedValues || {}),
+  };
 
   return (
     !status.isSingleStepEdit
@@ -404,8 +476,6 @@ export const prescriptionStateOptions = [
   ...revisionStateOptions,
   { value: 'claimed', label: t('Claimed'), colorPalette: 'cyans' },
   { value: 'expired', label: t('Expired'), colorPalette: 'pinks' },
-  { value: 'active', label: t('Active'), colorPalette: 'greens' },
-  { value: 'inactive', label: t('Inactive'), colorPalette: 'purples' },
 ];
 
 export const typeOptions = [
@@ -452,46 +522,201 @@ export const weightUnitOptions = [
 
 export const validCountryCodes = [1];
 
-export const stepValidationFields = [
-  [
-    ['accountType'],
-    ['firstName', 'lastName', 'birthday'],
-    ['caregiverFirstName', 'caregiverLastName', 'email', 'emailConfirm'],
-  ],
-  [
-    ['phoneNumber.number'],
-    ['mrn'],
-    ['sex'],
-    ['initialSettings.pumpId', 'initialSettings.cgmId'],
-  ],
-  [
-    ['calculator.method'],
-    [
-      'calculator.totalDailyDose',
-      'calculator.totalDailyDoseScaleFactor',
-      'calculator.weight',
-      'calculator.weightUnits',
-      'calculator.recommendedBasalRate',
-      'calculator.recommendedInsulinSensitivity',
-      'calculator.recommendedCarbohydrateRatio',
-    ],
-  ],
-  [
-    [
-      'training',
-      'initialSettings.glucoseSafetyLimit',
-      'initialSettings.insulinModel',
-      'initialSettings.basalRateMaximum.value',
-      'initialSettings.bolusAmountMaximum.value',
-      'initialSettings.bloodGlucoseTargetSchedule',
-      'initialSettings.bloodGlucoseTargetPhysicalActivity',
-      'initialSettings.bloodGlucoseTargetPreprandial',
-      'initialSettings.basalRateSchedule',
-      'initialSettings.carbohydrateRatioSchedule',
-      'initialSettings.insulinSensitivitySchedule',
-    ],
-  ],
-  [
-    ['therapySettingsReviewed'],
-  ],
-];
+export const getFormSteps = (schema, devices, values, handlers, options = {}) => {
+  const {
+    skippedFields = [],
+    isEditable,
+    isPrescriber,
+    initialFocusedInput,
+    isSingleStepEdit,
+    stepAsyncState,
+  } = options;
+
+  const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.palmtree);
+  const pump = find(devices.pumps, { id: pumpId });
+
+  const allSteps = [
+    {
+      key: 'account',
+      label: t('Create Patient Account'),
+      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
+      asyncState: isSingleStepEdit ? null : stepAsyncState,
+      subSteps: [
+        {
+          fields: ['accountType'],
+          hideBack: true,
+          onComplete: () => log('Account Type Complete'),
+          panelContent: <AccountType />,
+        },
+        {
+          fields: ['firstName', 'lastName', 'birthday'],
+          onComplete: () => log('Patient Info Complete'),
+          panelContent: <PatientInfo initialFocusedInput={initialFocusedInput} />,
+        },
+        {
+          fields: ['caregiverFirstName', 'caregiverLastName', 'email', 'emailConfirm'],
+          onComplete: () => log('Patient Email Complete'),
+          panelContent: <PatientEmail initialFocusedInput={initialFocusedInput} />,
+        },
+      ],
+    },
+    {
+      key: 'profile',
+      label: t('Complete Patient Profile'),
+      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
+      asyncState: isSingleStepEdit ? null : stepAsyncState,
+      subSteps: [
+        {
+          fields: ['phoneNumber.number'],
+          onComplete: () => log('Patient Phone Number Complete'),
+          panelContent: <PatientPhone />
+        },
+        {
+          fields: ['mrn'],
+          onComplete: () => log('Patient MRN Complete'),
+          panelContent: <PatientMRN />,
+        },
+        {
+          fields: ['sex'],
+          onComplete: () => log('Patient Gender Complete'),
+          panelContent: <PatientGender />,
+        },
+        {
+          fields: ['initialSettings.pumpId', 'initialSettings.cgmId'],
+          onComplete: () => log('Patient Devices Complete'),
+          panelContent: <PatientDevices devices={devices} initialFocusedInput={initialFocusedInput} />,
+        },
+      ],
+    },
+    {
+      key: 'calculator',
+      label: t('Therapy Settings Calculator'),
+      optional: true,
+      onSkip: handlers.clearCalculator,
+      onEnter: handlers.goToFirstSubStep,
+      onComplete: handlers.stepSubmit,
+      asyncState: stepAsyncState,
+      subSteps: [
+        {
+          fields: ['calculator.method'],
+          onComplete: () => log('Calculator Method Complete'),
+          panelContent: <CalculatorMethod onMethodChange={() => {
+            handlers.clearCalculatorInputs();
+            handlers.clearCalculatorResults();
+          }} />,
+        },
+        {
+          fields: [
+            'calculator.totalDailyDose',
+            'calculator.totalDailyDoseScaleFactor',
+            'calculator.weight',
+            'calculator.weightUnits',
+            'calculator.recommendedBasalRate',
+            'calculator.recommendedInsulinSensitivity',
+            'calculator.recommendedCarbohydrateRatio',
+          ],
+          onComplete: () => log('Calculator Inputs Complete'),
+          panelContent: <CalculatorInputs schema={schema} />
+        },
+      ],
+    },
+    {
+      key: 'therapySettings',
+      label: t('Enter Therapy Settings'),
+      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
+      asyncState: isSingleStepEdit ? null : stepAsyncState,
+      subSteps: [
+        {
+          fields: [
+            'training',
+            'initialSettings.glucoseSafetyLimit',
+            'initialSettings.insulinModel',
+            'initialSettings.basalRateMaximum.value',
+            'initialSettings.bolusAmountMaximum.value',
+            'initialSettings.bloodGlucoseTargetSchedule',
+            'initialSettings.bloodGlucoseTargetPhysicalActivity',
+            'initialSettings.bloodGlucoseTargetPreprandial',
+            'initialSettings.basalRateSchedule',
+            'initialSettings.carbohydrateRatioSchedule',
+            'initialSettings.insulinSensitivitySchedule',
+          ],
+          panelContent: <TherapySettings pump={pump} skippedFields={skippedFields} />,
+        },
+      ],
+    },
+    {
+      key: 'review',
+      label: t('Review and {{action}} Tidepool Loop Start Order', { action: isPrescriber ? 'Send' : 'Save' }),
+      onComplete: handlers.stepSubmit,
+      asyncState: stepAsyncState,
+      subSteps: [
+        {
+          fields: ['therapySettingsReviewed'],
+          completeText: t('{{action}} Tidepool Loop Start Order', { action: isPrescriber ? 'Send Final' : 'Save Pending' }),
+          panelContent: <PrescriptionReview devices={devices} handlers={handlers} isEditable={isEditable} skippedFields={skippedFields} />
+        },
+      ],
+    },
+  ];
+
+  const addCommonStepProps = step => ({
+    ...step,
+    completeText: isSingleStepEdit ? t('Update and Review') : step.completeText,
+    backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
+    hideBack: isSingleStepEdit ? false : step.hideBack,
+    disableBack: isSingleStepEdit ? false : step.disableBack,
+    onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
+    onBack: isSingleStepEdit ? handlers.singleStepEditComplete.bind(null, true) : step.onBack,
+  });
+
+  const enabledFields = [];
+
+  const formSteps = reduce(allSteps, (result, step) => {
+    if (includes(skippedFields, step.key)) return result;
+
+    const subSteps = reduce(step.subSteps, (subStepResult, subStep) => {
+      const fields = reject(subStep.fields, field => includes(skippedFields, field) || includes(skippedFields, field.split('.')[0]));
+      if (!fields.length) return subStepResult;
+
+      enabledFields.push(...fields);
+
+      let disableComplete = !fieldsAreValid(fields, schema, values);
+
+      if (!disableComplete) {
+        if (includes(fields, 'calculator.method')) {
+          disableComplete = isEmpty(get(values, 'calculator.method'));
+        }
+        if (includes(fields, 'therapySettingsReviewed')) {
+          disableComplete = !fieldsAreValid(enabledFields, schema, values);
+        }
+      }
+
+      subStepResult.push(addCommonStepProps({
+        ...subStep,
+        fields,
+        disableComplete,
+      }));
+
+      return subStepResult;
+    }, []);
+
+    if (subSteps.length) result.push(addCommonStepProps({
+      ...step,
+      subSteps,
+    }));
+
+    return result;
+  }, []);
+
+  return formSteps;
+};
+
+export const getFieldStepMap = steps => reduce(steps, (fieldMap, step, stepIndex) => {
+  each(map(step.subSteps, 'fields'), (fieldsArr, subStepIndex) => {
+    each(fieldsArr, field => {
+      fieldMap[field] = [stepIndex, subStepIndex];
+    });
+  });
+
+  return fieldMap;
+}, {});

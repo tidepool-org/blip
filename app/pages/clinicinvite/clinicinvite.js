@@ -8,6 +8,7 @@ import { push } from 'connected-react-router';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import * as yup from 'yup';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import {
   Title,
@@ -38,6 +39,7 @@ import config from '../../config';
 
 export const ClinicInvite = (props) => {
   const { t, api, trackMetric } = props;
+  const { showPrescriptions } = useFlags();
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
@@ -205,7 +207,7 @@ export const ClinicInvite = (props) => {
                   borderBottom: 'none',
                 },
                 '&:last-child': {
-                  borderRadius: config.RX_ENABLED
+                  borderRadius: showPrescriptions
                     ? 0
                     : `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
                 },
@@ -214,7 +216,7 @@ export const ClinicInvite = (props) => {
           }}
         />
 
-        {config.RX_ENABLED && (
+        {showPrescriptions && (
           <Box
             p={4}
             mb={3}
@@ -227,7 +229,7 @@ export const ClinicInvite = (props) => {
           >
             <Checkbox
               {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
-              label={t('Prescribing access')}
+              label={t('Tidepool Loop Start Orders Finalization Permission')}
               themeProps={{ sx: { bg: 'lightestGrey' } }}
             />
           </Box>

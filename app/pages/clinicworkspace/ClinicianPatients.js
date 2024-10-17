@@ -151,8 +151,10 @@ export const ClinicianPatients = (props) => {
             <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
               <TextInput
                 themeProps={{
-                  width: ['100%', null, '250px'],
-                  fontSize: '12px',
+                  sx: {
+                    width: ['100%', null, '250px'],
+                    fontSize: '12px',
+                  },
                 }}
                 id="patients-search"
                 placeholder={t('Search')}
