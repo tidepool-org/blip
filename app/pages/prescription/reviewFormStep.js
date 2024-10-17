@@ -556,7 +556,7 @@ export const TherapySettings = props => {
             variant="secondaryCondensed"
             icon={copying ? CheckRoundedIcon : FileCopyRoundedIcon}
             iconPosition="left"
-            iconFontSize={copying ? '17px' : '15px'}
+            iconFontSize={copying ? '16px' : '14px'}
             label={t('Copy therapy settings order as text')}
             sx={{
               '.icon': { position: 'absolute', left: '16px' },

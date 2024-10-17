@@ -17,7 +17,7 @@ const StyledIcon = styled(Box)`
   }
 
   .MuiSvgIcon-root {
-    font-size: ${({ sx }) => (sx?.fontSize ? sx.fontSize : 'inherit')};
+    font-size: inherit;
   }
 
   .icon-custom-svg {
