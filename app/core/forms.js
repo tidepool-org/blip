@@ -5,6 +5,7 @@ import map from 'lodash/map';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isNumber from 'lodash/isNumber';
+import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import trim from 'lodash/trim';
 
@@ -45,7 +46,7 @@ export const getFieldError = (fieldPath, formikContext, forceTouchedIfFilled = t
 
   const forceTouched = forceTouchedIfFilled && (
     (isFinite(value) && parseFloat(value) >= 0) ||
-    (isString(value) && !isEmpty(value))
+    ((isString(value) || isPlainObject(value)) && !isEmpty(value))
   );
 
   return (get(touched, fieldPath, forceTouched) || get(initialValues, fieldPath)) && get(errors, fieldPath)

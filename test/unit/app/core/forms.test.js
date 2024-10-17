@@ -16,6 +16,7 @@ describe('forms', function() {
     touchedAndNoError: undefined,
     notTouchedAndError: 'error!',
     notTouchedAndErrorAndFilled: 'error!',
+    notTouchedAndErrorAndNonEmptyObject: 'error!',
     notTouchedAndNoError: undefined,
     initiallySetAndError: 'error!',
     notInitiallySetAndError: 'error!',
@@ -26,6 +27,7 @@ describe('forms', function() {
     touchedAndNoError: true,
     notTouchedAndError: undefined,
     notTouchedAndErrorAndFilled: undefined,
+    notTouchedAndErrorAndNonEmptyObject: undefined,
     notTouchedAndNoError: undefined,
     initiallySetAndError: undefined,
     notInitiallySetAndError: undefined,
@@ -36,6 +38,7 @@ describe('forms', function() {
     touchedAndNoError: undefined,
     notTouchedAndError: undefined,
     notTouchedAndErrorAndFilled: 'filled',
+    notTouchedAndErrorAndNonEmptyObject: { path: 'filled' },
     notTouchedAndNoError: undefined,
     initiallySetAndError: 'foo',
     notInitiallySetAndError: undefined,
@@ -77,7 +80,7 @@ describe('forms', function() {
     });
   });
 
-  describe('getFieldError', () => {
+  describe.only('getFieldError', () => {
     it('should return `null` when field has not been touched and is not in an error state', () => {
       expect(formUtils.getFieldError('notTouchedAndNoError', formikContext)).to.be.null;
     });
@@ -92,6 +95,10 @@ describe('forms', function() {
 
     it('should return an error when a filled field has not been touched and is in an error state, and the forceTouchedIfFilled argument is `true`', () => {
       expect(formUtils.getFieldError('notTouchedAndErrorAndFilled', formikContext, true)).to.equal('error!');
+    });
+
+    it('should return an error when a non-empty object field has not been touched and is in an error state, and the forceTouchedIfFilled argument is `true`', () => {
+      expect(formUtils.getFieldError('notTouchedAndErrorAndNonEmptyObject', formikContext, true)).to.equal('error!');
     });
 
     it('should return `null` when field has been touched and is not in an error state', () => {
