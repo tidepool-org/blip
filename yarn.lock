@@ -7552,7 +7552,7 @@ __metadata:
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
     tideline: 1.30.0
-    tidepool-platform-client: 0.59.0
+    tidepool-platform-client: 0.60.0-web-3242-increase-prescriptions-fetch-limit.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -23017,15 +23017,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.59.0":
-  version: 0.59.0
-  resolution: "tidepool-platform-client@npm:0.59.0"
+"tidepool-platform-client@npm:0.60.0-web-3242-increase-prescriptions-fetch-limit.1":
+  version: 0.60.0-web-3242-increase-prescriptions-fetch-limit.1
+  resolution: "tidepool-platform-client@npm:0.60.0-web-3242-increase-prescriptions-fetch-limit.1"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 9ea493f5e7f02657561bac509eee863869176744462ff478ab88df219031bf5847c70bd5773ec68502f4a3bf0f00c5053797f6a73849c598dd9f31dad0825fcd
+  checksum: 58c8d7e8d65c404885050b6b31a40c6b9f21cb3232ab41ae7c100f70d5bd707ca784459c7685df26ce4ceac08a9390d825b8845f94ae1f3820640d1b2fb59aff
   languageName: node
   linkType: hard
 
