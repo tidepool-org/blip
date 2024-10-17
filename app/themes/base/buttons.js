@@ -34,10 +34,6 @@ export default ({
       },
     },
 
-    '.icon': {
-      fontSize: '1.125em',
-    },
-
     ':focus': {
       outline: 'none',
       boxShadow: shadows.focus,
