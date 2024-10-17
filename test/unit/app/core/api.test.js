@@ -751,8 +751,8 @@ describe('api', () => {
     describe('getAllForClinic', () => {
       it('should call tidepool.getPrescriptionsForClinic with the appropriate args', () => {
         const cb = sinon.stub();
-        api.prescription.getAllForClinic(cb);
-        sinon.assert.calledWith(tidepool.getPrescriptionsForClinic, cb);
+        api.prescription.getAllForClinic('clinicId', { foo: 'bar' } ,cb);
+        sinon.assert.calledWith(tidepool.getPrescriptionsForClinic, 'clinicId', { foo: 'bar' }, cb);
       });
     });
 
