@@ -9,8 +9,7 @@ import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { PersistFormikValues } from 'formik-persist-values';
 import each from 'lodash/each';
-import every from 'lodash/every';
-import find from 'lodash/find';
+import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -19,8 +18,8 @@ import keyBy from 'lodash/keyBy';
 import keys from 'lodash/keys';
 import noop from 'lodash/noop';
 import omit from 'lodash/omit';
+import reduce from 'lodash/reduce';
 import remove from 'lodash/remove';
-import slice from 'lodash/slice';
 import flattenDeep from 'lodash/flattenDeep';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
@@ -28,19 +27,15 @@ import isInteger from 'lodash/isInteger';
 import isArray from 'lodash/isArray';
 import { default as _values } from 'lodash/values';
 import includes from 'lodash/includes';
+import last from 'lodash/last';
 import { utils as vizUtils } from '@tidepool/viz';
 import { Box, Flex, Text } from 'theme-ui';
 import canonicalize from 'canonicalize';
 import { sha512 } from 'crypto-hash';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
-import { fieldsAreValid } from '../../core/forms';
+import { fieldsAreValid, getFieldError } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
-import accountFormSteps from './accountFormSteps';
-import profileFormSteps from './profileFormSteps';
-import settingsCalculatorFormSteps from './settingsCalculatorFormSteps';
-import therapySettingsFormStep from './therapySettingsFormStep';
-import reviewFormStep from './reviewFormStep';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import Button from '../../components/elements/Button';
 import Pill from '../../components/elements/Pill';
@@ -57,9 +52,9 @@ import {
   cgmDeviceOptions,
   defaultUnits,
   deviceIdMap,
+  getFormSteps,
   prescriptionStateOptions,
   pumpDeviceOptions,
-  stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
 
@@ -76,7 +71,9 @@ const prescriptionFormWrapper = Component => props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const devices = useSelector((state) => state.blip.devices);
   const prescriptions = useSelector((state) => state.blip.prescriptions);
+  const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = get(clinics, selectedClinicId);
   const prescriptionId = props.match?.params?.id;
   const prescription = get(keyBy(prescriptions, 'id'), prescriptionId);
 
@@ -115,94 +112,98 @@ const prescriptionFormWrapper = Component => props => {
 
       <Box id="clinic-workspace" sx={{ alignItems: 'center', minHeight: '10em' }} variant="containers.largeBordered" mb={9}>
         {fetchingDevices.completed && fetchingClinicPrescriptions.completed
-          ? <Component prescription={prescription} devices={devices} {...props} />
+          ? <Component prescription={prescription} devices={devices} clinic={clinic} {...props} />
           : <Loader />}
       </Box>
     </>
   );
 }
 
-export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
-  mapPropsToStatus: props => ({
-    hydratedValues: null,
-    isPrescriptionEditFlow: !!props.prescription,
-  }),
-  mapPropsToValues: props => {
-    const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
+export const prescriptionForm = () => {
+  const getBgUnits = props => get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', props.clinic?.preferredBgUnits || defaultUnits.bloodGlucose)
 
-    return {
-      id: get(props, 'prescription.id'),
-      state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
-      accountType: get(props, 'prescription.latestRevision.attributes.accountType'),
-      firstName: get(props, 'prescription.latestRevision.attributes.firstName'),
-      caregiverFirstName: get(props, 'prescription.latestRevision.attributes.caregiverFirstName'),
-      caregiverLastName: get(props, 'prescription.latestRevision.attributes.caregiverLastName'),
-      lastName: get(props, 'prescription.latestRevision.attributes.lastName'),
-      birthday: get(props, 'prescription.latestRevision.attributes.birthday'),
-      email: get(props, 'prescription.latestRevision.attributes.email'),
-      emailConfirm: get(props, 'prescription.latestRevision.attributes.email'),
-      phoneNumber: {
-        countryCode: get(props, 'prescription.latestRevision.attributes.phoneNumber.countryCode', validCountryCodes[0]),
-        number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number'),
-      },
-      mrn: get(props, 'prescription.latestRevision.attributes.mrn'),
-      sex: get(props, 'prescription.latestRevision.attributes.sex'),
-      calculator: {
-        method: get(props, 'prescription.latestRevision.attributes.calculator.method'),
-        weight: get(props, 'prescription.latestRevision.attributes.calculator.weight'),
-        weightUnits: get(props, 'prescription.latestRevision.attributes.calculator.weightUnits', defaultUnits.weight),
-        totalDailyDose: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDose'),
-        totalDailyDoseScaleFactor: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDoseScaleFactor', 1),
-        recommendedBasalRate: get(props, 'prescription.latestRevision.attributes.calculator.recommendedBasalRate'),
-        recommendedInsulinSensitivity: get(props, 'prescription.latestRevision.attributes.calculator.recommendedInsulinSensitivity'),
-        recommendedCarbohydrateRatio: get(props, 'prescription.latestRevision.attributes.calculator.recommendedCarbohydrateRatio'),
-      },
-      initialSettings: {
-        bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
-        pumpId: selectedPumpId,
-        cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId'),
-        insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel'),
-        glucoseSafetyLimit: get(props, 'prescription.latestRevision.attributes.initialSettings.glucoseSafetyLimit'),
-        basalRateMaximum: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value'),
-          units: defaultUnits.basalRate,
-        },
-        bolusAmountMaximum: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value'),
-          units: defaultUnits.bolusAmount,
-        },
-        bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
-          start: 0,
-        }]),
-        bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity'),
-        bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial'),
-        basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
-          start: 0,
-        }]),
-        carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
-          start: 0,
-        }]),
-        insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
-          start: 0,
-        }]),
-      },
-      training: get(props, 'prescription.latestRevision.attributes.training'),
-      therapySettings: get(props, 'prescription.latestRevision.attributes.therapySettings', 'initial'),
-      therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
-    };
-  },
-  validationSchema: props => {
-    if (!schema) schema = prescriptionSchema(
-      props.devices,
-      get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId'),
-      bgUnits,
-      get(props, 'prescription.latestRevision.attributes')
-    );
+  return {
+    mapPropsToStatus: props => ({
+      hydratedValues: null,
+      isPrescriptionEditFlow: !!props.prescription,
+    }),
+    mapPropsToValues: props => {
+      const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
 
-    return schema;
-  },
-  displayName: 'PrescriptionForm',
-});
+      return {
+        id: get(props, 'prescription.id'),
+        state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
+        accountType: get(props, 'prescription.latestRevision.attributes.accountType'),
+        firstName: get(props, 'prescription.latestRevision.attributes.firstName'),
+        caregiverFirstName: get(props, 'prescription.latestRevision.attributes.caregiverFirstName'),
+        caregiverLastName: get(props, 'prescription.latestRevision.attributes.caregiverLastName'),
+        lastName: get(props, 'prescription.latestRevision.attributes.lastName'),
+        birthday: get(props, 'prescription.latestRevision.attributes.birthday'),
+        email: get(props, 'prescription.latestRevision.attributes.email'),
+        emailConfirm: get(props, 'prescription.latestRevision.attributes.email'),
+        phoneNumber: {
+          countryCode: get(props, 'prescription.latestRevision.attributes.phoneNumber.countryCode', validCountryCodes[0]),
+          number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number'),
+        },
+        mrn: get(props, 'prescription.latestRevision.attributes.mrn'),
+        sex: get(props, 'prescription.latestRevision.attributes.sex'),
+        calculator: {
+          method: get(props, 'prescription.latestRevision.attributes.calculator.method'),
+          weight: get(props, 'prescription.latestRevision.attributes.calculator.weight'),
+          weightUnits: get(props, 'prescription.latestRevision.attributes.calculator.weightUnits', defaultUnits.weight),
+          totalDailyDose: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDose'),
+          totalDailyDoseScaleFactor: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDoseScaleFactor', 1),
+          recommendedBasalRate: get(props, 'prescription.latestRevision.attributes.calculator.recommendedBasalRate'),
+          recommendedInsulinSensitivity: get(props, 'prescription.latestRevision.attributes.calculator.recommendedInsulinSensitivity'),
+          recommendedCarbohydrateRatio: get(props, 'prescription.latestRevision.attributes.calculator.recommendedCarbohydrateRatio'),
+        },
+        initialSettings: {
+          bloodGlucoseUnits: getBgUnits(props),
+          pumpId: selectedPumpId,
+          cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId'),
+          insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel'),
+          glucoseSafetyLimit: get(props, 'prescription.latestRevision.attributes.initialSettings.glucoseSafetyLimit'),
+          basalRateMaximum: {
+            value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value'),
+            units: defaultUnits.basalRate,
+          },
+          bolusAmountMaximum: {
+            value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value'),
+            units: defaultUnits.bolusAmount,
+          },
+          bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
+            start: 0,
+          }]),
+          bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity'),
+          bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial'),
+          basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
+            start: 0,
+          }]),
+          carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
+            start: 0,
+          }]),
+          insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
+            start: 0,
+          }]),
+        },
+        training: get(props, 'prescription.latestRevision.attributes.training'),
+        therapySettings: get(props, 'prescription.latestRevision.attributes.therapySettings', 'initial'),
+        therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
+      };
+    },
+    validationSchema: props => {
+      if (!schema) schema = prescriptionSchema(
+        props.devices,
+        get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId'),
+        getBgUnits(props),
+        get(props, 'prescription.latestRevision.attributes')
+      );
+
+      return schema;
+    },
+    displayName: 'PrescriptionForm',
+  };
+};
 
 export const generateTherapySettingsOrderText = (patientRows = [], therapySettingsRows = []) => {
   const textUtil = new TextUtil();
@@ -263,10 +264,12 @@ export const PrescriptionForm = props => {
   const {
     t,
     api,
+    clinic,
     devices,
     location,
     prescription,
     trackMetric,
+    skippedFields: skippedFieldsProp
   } = props;
 
   const dispatch = useDispatch();
@@ -291,14 +294,11 @@ export const PrescriptionForm = props => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const stepperId = 'prescription-form-steps';
-  const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
+  const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', clinic?.preferredBgUnits || defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.palmtree);
-  const pump = find(devices.pumps, { id: pumpId });
   const prescriptionState = get(prescription, 'state', 'draft');
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
   const isEditable = includes(['draft', 'pending'], prescriptionState);
-  const clinics = useSelector((state) => state.blip.clinics);
-  const clinic = get(clinics, selectedClinicId);
   const isPrescriber = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'PRESCRIBER');
   const { showPrescriptions } = useFlags();
   const ldClient = useLDClient();
@@ -332,6 +332,8 @@ export const PrescriptionForm = props => {
   const activeStepsParam = params().get(activeStepParamKey);
 
   const [formPersistReady, setFormPersistReady] = useState(false);
+  const [formSteps, setFormSteps] = useState([]);
+  const [skippedFields, setSkippedFields] = useState(skippedFieldsProp);
   const [stepAsyncState, setStepAsyncState] = useState(asyncStates.initial);
   const [activeStep, setActiveStep] = useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined);
   const [activeSubStep, setActiveSubStep] = useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined);
@@ -339,8 +341,7 @@ export const PrescriptionForm = props => {
   const [initialFocusedInput, setInitialFocusedInput] = useState();
   const [singleStepEditValues, setSingleStepEditValues] = useState(values);
   const isSingleStepEdit = !!pendingStep.length;
-  const validationFields = [ ...stepValidationFields ];
-  const isLastStep = () => activeStep === validationFields.length - 1;
+  const isLastStep = () => activeStep === formSteps.length - 1;
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
@@ -360,11 +361,15 @@ export const PrescriptionForm = props => {
       trackMetric('Clicked Copy Therapy Settings Order');
     },
 
-    singleStepEditComplete: (cancelFieldUpdates) => {
+    singleStepEditComplete: cancelFieldUpdates => {
+      // We need the short timeout below when setting values upon single step edit completions as a
+      // result of having to skip rendering the <PersistFormikValues> component while in single step
+      // edit mode. When navigating back to the review step, the re-enabling of the async <PersistFormikValues>
+      // hydration overrides these values if the form reset isn't done in a subsequent render
       if (cancelFieldUpdates) {
-        resetForm({values: cloneDeep(singleStepEditValues) });
+        setTimeout(() => resetForm({values: cloneDeep(singleStepEditValues) }), 100);
       } else {
-        resetForm({ values: cloneDeep(values) });
+        setTimeout(() => resetForm({ values: cloneDeep(values) }), 100);
       }
 
       handlers.activeStepUpdate(pendingStep);
@@ -379,13 +384,35 @@ export const PrescriptionForm = props => {
         'therapySettingsReviewed',
       ];
 
+      // Delete fields that are intentionally skipped for the selected pump
+      if (skippedFields.length) {
+        fieldsToDelete.push(...(filter(skippedFields, fieldPath => {
+          const pathParts = fieldPath.split('.');
+          const value = get(values, pathParts);
+
+          // Skipped top-level fields can always be deleted from the payload
+          // Only delete nested skipped fields if they are empty.
+          return pathParts.length > 1 ? isEmpty(value) : true;
+        })));
+      }
+
       // Also delete any fields from future form steps if empty
       // We can't simply delete all future steps, as the clinician may have returned to the current
       // step via 'Back' button navigation and we don't want to lose existing data previously
       // entered in the later steps.
+
+      // We should, however, remove any future fields that don't pass field validation, since they
+      // would result in an error anyhow if submitted, and prevent forward navigation
       if (!isLastStep()) {
-        const emptyFieldsInFutureSteps = remove(
-          flattenDeep(slice(validationFields, activeStep + 1)),
+        const fieldsInFutureSteps = reduce(formSteps, (fields, step, index) => {
+          if (index <= activeStep) return fields;
+
+          fields.push(...map(step.subSteps, 'fields'));
+          return fields;
+        }, []);
+
+        const emptyOrInvalidFieldsInFutureSteps = remove(
+          flattenDeep(fieldsInFutureSteps),
           fieldPath => {
             const value = get(values, fieldPath);
 
@@ -398,11 +425,11 @@ export const PrescriptionForm = props => {
             ];
 
             if (includes(scheduleArrays, fieldPath) && value.length === 1) {
-              return keys(value[0]).length = 1;
+              return keys(value[0]).length === 1;
             }
 
-            // Return empty values for non-array fields
-            return isEmpty(value);
+            // Return undefined fields, or invalid non-array fields if they contain values
+            return isUndefined(value) || getFieldError(fieldPath, formikContext, true);
           }
         );
 
@@ -410,7 +437,7 @@ export const PrescriptionForm = props => {
         // N.B. There are some fieldpaths we check that end in '.value' or '.number'. If those keys
         // are empty, we exclude the parent object.
         fieldsToDelete.push(...map(
-          emptyFieldsInFutureSteps,
+          emptyOrInvalidFieldsInFutureSteps,
           fieldPath => fieldPath.replace(/\.(value|number)$/, '')
         ));
       }
@@ -435,121 +462,81 @@ export const PrescriptionForm = props => {
     },
   };
 
-  const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
-  const profileFormStepsProps = profileFormSteps(schema, devices, values);
-  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
-  const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
-  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable, isPrescriber);
+  useEffect(() => {
+    const pumpDevices = pumpDeviceOptions(devices);
+    const cgmDevices = cgmDeviceOptions(devices);
+    const newSkippedFields = [...skippedFields];
 
-  const stepProps = step => ({
-    ...step,
-    completeText: isSingleStepEdit ? t('Update and Review') : step.completeText,
-    backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
-    hideBack: isSingleStepEdit ? false : step.hideBack,
-    disableBack: isSingleStepEdit ? false : step.disableBack,
-    onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
-    onBack: isSingleStepEdit ? handlers.singleStepEditComplete.bind(null, true) : step.onBack,
-  });
+    // Skip device selection substep and set default pump and cgm IDs if there aren't multiple choices available
+    const skipDeviceSelection = cgmDevices.length === 1 && pumpDevices.length === 1;
+    if (skipDeviceSelection) {
+      if (!values.initialSettings?.cgmId) setFieldValue('initialSettings.cgmId', cgmDevices[0].value);
+      if (!values.initialSettings?.pumpId) setFieldValue('initialSettings.pumpId', pumpDevices[0].value);
+      newSkippedFields.push('initialSettings.pumpId', 'initialSettings.cgmId');
+    }
 
-  const subStepProps = subSteps => map(subSteps, subStep => stepProps(subStep));
+    const newFormSteps = getFormSteps(schema, devices, values, handlers, {
+      skippedFields: newSkippedFields,
+      initialFocusedInput,
+      isEditable,
+      isPrescriber,
+      isSingleStepEdit,
+      stepAsyncState,
+    });
 
-  const steps = [
-    {
-      ...accountFormStepsProps,
-      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
-      asyncState: isSingleStepEdit ? null : stepAsyncState,
-      subSteps: subStepProps(accountFormStepsProps.subSteps),
-    },
-    {
-      ...profileFormStepsProps,
-      onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
-      asyncState: isSingleStepEdit ? null : stepAsyncState,
-      subSteps: subStepProps(profileFormStepsProps.subSteps),
-    },
-    {
-      ...settingsCalculatorFormStepsProps,
-      onComplete: handlers.stepSubmit,
-      asyncState: stepAsyncState,
-      subSteps: subStepProps(settingsCalculatorFormStepsProps.subSteps),
-    },
-    {
-      ...stepProps(therapySettingsFormStepProps),
-      onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handlers.stepSubmit,
-      asyncState: isSingleStepEdit ? null : stepAsyncState,
-    },
-    {
-      ...reviewFormStepProps,
-      onComplete: handlers.stepSubmit,
-      asyncState: stepAsyncState,
-    },
-  ];
-
-  const pumpDevices = pumpDeviceOptions(devices);
-  const cgmDevices = cgmDeviceOptions(devices);
-
-  // Skip device selection substep and set default pump and cgm IDs if there aren't multiple choices available
-  const skipDeviceSelection = cgmDevices.length === 1 && pumpDevices.length === 1;
-  if (skipDeviceSelection) {
-    if (!values.initialSettings?.cgmId) setFieldValue('initialSettings.cgmId', cgmDevices[0].value);
-    if (!values.initialSettings?.pumpId) setFieldValue('initialSettings.pumpId', pumpDevices[0].value);
-    validationFields[1].splice(2, 1);
-    steps[1].subSteps.splice(3, 1);
-  }
-
-  // Skip calculator step if selected pump, or all available pump options are set to skip aace calculator
-  const skipCalculator = !!(pumpDevices.length && every(pumpDevices, { skipCalculator: true })) || !!find(devices, { value: pumpId })?.skipCalculator;
-  if (skipCalculator) {
-    validationFields.splice(2, 1);
-    steps.splice(2, 1);
-  }
+    setFormSteps(newFormSteps);
+    setSkippedFields(newSkippedFields);
+  }, [values, devices, initialFocusedInput, isEditable, isPrescriber, isSingleStepEdit, stepAsyncState])
 
   useEffect(() => {
-    let initialValues = { ...values }
+    if (formSteps.length && !formPersistReady) {
+      let initialValues = { ...values }
 
-    // Hydrate the locally stored values only in the following cases, allowing us to persist data
-    // entered in form substeps but not yet saved to the database
-    // 1. It's a new prescription and there is no locally stored id, and there are step and substep query params
-    // 2. We're editing an existing prescription, and the locally stored id matches the id in the url param
-    if (
-      (isNewPrescriptionFlow() && !storedValues?.id && !isUndefined(activeStep) && !isUndefined(activeSubStep)) ||
-      (id && id === storedValues?.id)
-    ) {
-      initialValues = { ...values, ...storedValues };
-      setValues(initialValues);
-    }
-
-    // After hydrating any relevant values, we delete the localStorage values so formikPersist has a clean start
-    delete localStorage[storageKey];
-
-    // Determine the latest incomplete step, and default to starting there
-    if (isEditable) {
-      let firstInvalidStep;
-      let firstInvalidSubStep;
-      let currentStep = 0;
-      let currentSubStep = 0;
-
-      while (isUndefined(firstInvalidStep) && currentStep < validationFields.length) {
-        while (currentSubStep < validationFields[currentStep].length) {
-          if (!fieldsAreValid(validationFields[currentStep][currentSubStep], schema, initialValues)) {
-            firstInvalidStep = currentStep;
-            firstInvalidSubStep = currentSubStep;
-            break;
-          }
-          currentSubStep++
-        }
-
-        currentStep++;
-        currentSubStep = 0;
+      // Hydrate the locally stored values only in the following cases, allowing us to persist data
+      // entered in form substeps but not yet saved to the database
+      // 1. It's a new prescription and there is no locally stored id, and there are step and substep query params
+      // 2. We're editing an existing prescription, and the locally stored id matches the id in the url param, and it's not the review step
+      if (
+        (isNewPrescriptionFlow() && !storedValues?.id && !isUndefined(activeStep) && !isUndefined(activeSubStep)) ||
+        (id && id === storedValues?.id && !isLastStep())
+      ) {
+        initialValues = { ...values, ...storedValues };
+        setValues(initialValues);
       }
 
-      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : steps.length - 1);
-      setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
-    }
+      // After hydrating any relevant values, we delete the localStorage values so formikPersist has a clean start
+      delete localStorage[storageKey];
 
-    // Now that any hydration is complete and we've cleared locally stored values,
-    // we're ready for formikPersist to take over form persistence
-    setFormPersistReady(true);
-  }, []);
+      // Determine the latest incomplete step, and default to starting there
+      if (isEditable) {
+        let firstInvalidStep;
+        let firstInvalidSubStep;
+        let currentStep = 0;
+        let currentSubStep = 0;
+
+        while (isUndefined(firstInvalidStep) && currentStep < formSteps.length) {
+          while (currentSubStep < formSteps[currentStep].subSteps.length) {
+            if (!fieldsAreValid(formSteps[currentStep].subSteps[currentSubStep].fields, schema, initialValues)) {
+              firstInvalidStep = currentStep;
+              firstInvalidSubStep = currentSubStep;
+              break;
+            }
+            currentSubStep++
+          }
+
+          currentStep++;
+          currentSubStep = 0;
+        }
+
+        setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : formSteps.length - 1);
+        setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
+      }
+
+      // Now that any hydration is complete and we've cleared locally stored values,
+      // we're ready for formikPersist to take over form persistence
+      setFormPersistReady(true);
+    }
+  }, [formSteps.length]);
 
   // Save whether or not we are editing a single step to the formik form status for easy reference
   useEffect(() => {
@@ -578,7 +565,6 @@ export const PrescriptionForm = props => {
         if (prescriptionId) setFieldValue('id', prescriptionId);
 
         if (isLastStep()) {
-
           let messageAction = isRevision ? t('updated') : t('created');
           if (isPrescriber) messageAction = t('finalized and sent');
 
@@ -587,11 +573,11 @@ export const PrescriptionForm = props => {
             variant: 'success',
           });
 
-          dispatch(push('/clinic-workspace/prescriptions'));
+          dispatch(push('/clinic-workspace/prescriptions', { reloadPrescriptions: true }));
         } else {
           if (prescriptionId && isNewPrescriptionFlow()) {
             // Redirect to normal prescription edit flow once we have a prescription ID
-            setStoredValues({ ...values, id: prescriptionId })
+            setStoredValues({ ...values, id: prescriptionId });
             dispatch(push(`/prescriptions/${prescriptionId}`));
           }
         }
@@ -632,11 +618,15 @@ export const PrescriptionForm = props => {
         setSingleStepEditValues(values)
       } else {
         handlers.activeStepUpdate(newStep);
+        setTimeout(() => {
+          formikContext.validateForm();
+          if (isLastStep()) delete localStorage[storageKey];
+        }, 0);
       }
 
       log('Step to', newStep.join(','));
     },
-    steps,
+    steps: formSteps,
     themeProps: {
       wrapper: {
         padding: 4,
@@ -650,7 +640,7 @@ export const PrescriptionForm = props => {
     },
   };
 
-  const title = isNewPrescriptionFlow() ? t('Create New Prescription') : t('Prescription: {{name}}', {
+  const title = isNewPrescriptionFlow() ? t('Create New Tidepool Loop Start Order') : t('Tidepool Loop Start Order: {{name}}', {
     name: [values.firstName, values.lastName].join(' '),
   });
 
@@ -674,26 +664,29 @@ export const PrescriptionForm = props => {
         <Button
           id="back-to-prescriptions"
           variant="primary"
-          onClick={() => dispatch(push('/clinic-workspace/prescriptions'))}
+          onClick={() => {
+            delete localStorage[storageKey];
+            dispatch(push('/clinic-workspace/prescriptions', { reloadPrescriptions: true }));
+          }}
           mr={5}
         >
-          {t('Back To Prescriptions')}
+          {t('Back To Tidepool Loop Start Orders')}
         </Button>
 
         <Text as={Headline} sx={{ textAlign: 'center' }}>{title}</Text>
         <Pill label="prescription status" colorPalette={prescriptionStateColorPalette} text={prescriptionStateLabel} />
       </Flex>
 
-      {isEditable && !isUndefined(activeStep) && <Stepper {...stepperProps} />}
+      {formSteps.length && isEditable && !isUndefined(activeStep) && <Stepper {...stepperProps} />}
 
-      {!isEditable && (
+      {formSteps.length && !isEditable && (
         <Box px={4}>
-          {reviewFormStepProps.panelContent}
+          {last(formSteps).subSteps[0].panelContent}
         </Box>
       )}
 
       <FastField type="hidden" name="id" />
-      {formPersistReady && <PersistFormikValues persistInvalid name={storageKey} />}
+      {formPersistReady && !isSingleStepEdit && <PersistFormikValues persistInvalid name={storageKey} />}
     </Box>
   );
 };
@@ -703,10 +696,17 @@ PrescriptionForm.propTypes = {
     pathname: PropTypes.string,
     search: PropTypes.string,
   }),
+  skippedFields: PropTypes.arrayOf(PropTypes.string),
 };
 
 PrescriptionForm.defaultProps = {
   location: window.location,
+  skippedFields: [
+    'calculator',
+    'mrn',
+    'phoneNumber',
+    'training',
+  ],
 };
 
 export default prescriptionFormWrapper(withFormik(prescriptionForm())(withTranslation()(PrescriptionForm)));

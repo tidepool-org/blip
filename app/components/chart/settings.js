@@ -35,6 +35,9 @@ const log = bows('Settings View');
 function formatDuration(milliseconds) {
   const days = Math.round(milliseconds / (1000 * 60 * 60 * 24));
 
+  if (days === 0) {
+    return '<1 day';
+  }
   if (days <= 31) {
     return `${days} day${days === 1 ? '' : 's'}`;
   }
@@ -538,7 +541,7 @@ const Settings = ({
 
             {selectedSettingsId ? renderChart() : renderMissingSettingsMessage()}
 
-            <Flex mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0}>
+            <Box mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0} sx={{ float: 'left', clear: 'both' }}>
               <Button
                 className="btn-refresh"
                 variant="secondary"
@@ -546,7 +549,7 @@ const Settings = ({
               >
                 {t('Refresh')}
               </Button>
-            </Flex>
+            </Box>
           </div>
         </div>
       </div>

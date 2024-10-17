@@ -11,9 +11,10 @@ import isInteger from 'lodash/isInteger';
 import sortedLastIndexBy from 'lodash/sortedLastIndexBy';
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 
-import { getFieldError, getThresholdWarning } from '../../core/forms';
+import { getFieldError, getThresholdWarning, onChangeWithDependantFields } from '../../core/forms';
 import { useFieldArray } from '../../core/hooks';
 import i18next from '../../core/language';
+import utils from '../../core/utils';
 import TextInput from '../../components/elements/TextInput';
 import Icon from '../../components/elements/Icon';
 import Button from '../../components/elements/Button';
@@ -21,13 +22,13 @@ import Select from '../../components/elements/Select';
 import { MS_IN_MIN, MS_IN_DAY } from '../../core/constants';
 import { convertMsPer24ToTimeString, convertTimeStringToMsPer24 } from '../../core/datetime';
 import { inlineInputStyles } from './prescriptionFormStyles';
-import { roundValueToIncrement } from './prescriptionFormConstants';
 
 const t = i18next.t.bind(i18next);
 
 const ScheduleForm = props => {
   const {
     addButtonText,
+    dependantFields,
     fieldArrayName,
     fields,
     max,
@@ -123,8 +124,9 @@ const ScheduleForm = props => {
                 warning={getThresholdWarning(get(values,`${fieldArrayName}.${index}.${field.name}`), field.threshold)}
                 onBlur={e => {
                   setFieldTouched(`${fieldArrayName}.${index}.${field.name}`);
-                  setFieldValue(`${fieldArrayName}.${index}.${field.name}`, roundValueToIncrement(e.target.value, field.increment))
+                  setFieldValue(`${fieldArrayName}.${index}.${field.name}`, utils.roundToNearest(e.target.value, field.increment))
                 }}
+                onChange={onChangeWithDependantFields(`${fieldArrayName}.${index}.${field.name}`, field.dependantFields, formikContext, field.setDependantsTouched)}
                 {...inlineInputStyles}
               />
               {(fieldIndex < fields.length - 1 ) && separator && (
@@ -178,8 +180,10 @@ ScheduleForm.propTypes = {
   addButtonText: PropTypes.string,
   fieldArrayName: PropTypes.string,
   fields: PropTypes.arrayOf(PropTypes.shape({
+    dependantFields: PropTypes.arrayOf(PropTypes.string),
     label: PropTypes.string,
     name: PropTypes.string,
+    setDependantsTouched: PropTypes.bool,
     min: PropTypes.number,
     max: PropTypes.number,
     increment: PropTypes.number,

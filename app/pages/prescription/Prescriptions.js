@@ -47,6 +47,7 @@ import Pill from '../../components/elements/Pill';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Table from '../../components/elements/Table';
+import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import { Body1, MediumTitle } from '../../components/elements/FontStyles';
 import { dateRegex, prescriptionStateOptions } from './prescriptionFormConstants';
@@ -57,7 +58,7 @@ import * as actions from '../../redux/actions';
 import { borders } from '../../themes/baseTheme';
 
 const Prescriptions = props => {
-  const { t, history, api, trackMetric } = props;
+  const { t, history, location, api, trackMetric } = props;
   const dispatch = useDispatch();
   const membershipPermissionsInOtherCareTeams = useSelector((state) => state.blip.membershipPermissionsInOtherCareTeams);
   const prescriptions = useSelector((state) => state.blip.prescriptions);
@@ -67,6 +68,9 @@ const Prescriptions = props => {
   const { showPrescriptions } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
+  const rowsPerPage = 10;
 
   const {
     deletingPrescription,
@@ -95,7 +99,7 @@ const Prescriptions = props => {
       ], ({ workingState, action }) => {
         if (
           !workingState.inProgress &&
-          !workingState.completed &&
+          (!workingState.completed || location?.state?.reloadPrescriptions) &&
           !workingState.notification
         ) {
           dispatch(action());
@@ -159,6 +163,14 @@ const Prescriptions = props => {
     prescription => activeStates[prescription.state]
   );
 
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  useEffect(() => {
+    setPageCount(Math.ceil(data.length / rowsPerPage));
+  }, [data]);
+
   function handleSearchChange(event) {
     setSearchText(event.target.value);
   }
@@ -197,22 +209,22 @@ const Prescriptions = props => {
     const items = [
       {
         icon: isEditable ? EditRoundedIcon : VisibilityRoundedIcon,
-        iconLabel: isEditable ? t('Update Prescription') : t('View Prescription'),
+        iconLabel: isEditable ? t('Update Tidepool Loop Start Order') : t('View Tidepool Loop Start Order'),
         iconPosition: 'left',
         id: isEditable ? 'update' : 'view',
         onClick: handleOpenPrescription(prescription),
-        text: isEditable ? t('Update Prescription') : t('View Prescription'),
+        text: isEditable ? t('Update Tidepool Loop Start Order') : t('View Tidepool Loop Start Order'),
         variant: 'actionListItem',
       },
     ];
 
     if (isEditable) items.push({
       icon: DeleteForeverRoundedIcon,
-      iconLabel: 'Delete Prescription',
+      iconLabel: 'Delete Tidepool Loop Start Order',
       iconPosition: 'left',
       id: 'delete',
       onClick: handleDeletePrescription(prescription),
-      text: t('Delete Prescription'),
+      text: t('Delete Tidepool Loop Start Order'),
       variant: 'actionListItemDanger',
       disabled: !isEditable,
     });
@@ -274,22 +286,22 @@ const Prescriptions = props => {
     <Icon
       variant="static"
       icon={FileCopyRoundedIcon}
-      label={t('Copy Access Code')}
-      title={t('Copy Access Code')}
+      label={t('Copy Activation Code')}
+      title={t('Copy Activation Code')}
     />, [t]
   );
 
   const copyCodeButtonSuccessText = useMemo(() => <span className="success">{t('✓')}</span>, [t]);
 
   const copyCodeButtonOnClick = useCallback(() => {
-    trackMetric('Clinic - Copy prescription access code', {
+    trackMetric('Clinic - Copy prescription activation code', {
       clinicId: selectedClinicId,
     });
   }, [selectedClinicId]);
 
 
-  const renderAccessCode = ({ accessCode }) => {
-    return (
+  const renderAccessCode = ({ accessCode, state }) => {
+    return state !== 'submitted' ? '' : (
       <Flex
         onClick={e => {
           // Prevent clicks from propogating up to the table row click handlers
@@ -320,7 +332,7 @@ const Prescriptions = props => {
       >
         <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>{accessCode}</Text>
         <ClipboardButton
-          buttonTitle={t('Copy Access Code')}
+          buttonTitle={t('Copy Activation Code')}
           buttonText={copyCodeButtonText}
           successText={(copyCodeButtonSuccessText)}
           onClick={copyCodeButtonOnClick}
@@ -335,7 +347,7 @@ const Prescriptions = props => {
     { title: t('MRN'), field: 'mrn', align: 'left', sortable: true, searchable: true },
     { title: t('Date of birth'), field: 'birthday', align: 'left', sortable: true, searchable: true },
     { title: t('Status'), field: 'state', render: renderState, align: 'left', sortable: true },
-    { title: t('Access Code'), field: 'accessCode', render: renderAccessCode, align: 'left', sortable: false },
+    { title: t('Activation Code'), field: 'accessCode', render: renderAccessCode, align: 'left', sortable: false },
     { title: '', field: 'more', render: renderMore, align: 'right', className: 'action-menu' },
   ];
 
@@ -378,9 +390,9 @@ const Prescriptions = props => {
             variant="primary"
             onClick={handleAddNew}
             px={[2, 3]}
-            sx={{ fontSize: 0, lineHeight: ['inherit', null, 1] }}
+            sx={{ fontSize: 1, lineHeight: ['inherit', null, 1] }}
           >
-            {t('Add New Prescription')}
+            {t('Create New Tidepool Loop Start Order')}
           </Button>
 
           <Box sx={{ flex: 1, position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
@@ -507,14 +519,28 @@ const Prescriptions = props => {
           id="prescriptions-table"
           data={data}
           columns={columns}
-          rowsPerPage={10}
+          rowsPerPage={rowsPerPage}
+          page={page}
           searchText={searchText}
           emptyText={t('There are no prescriptions to show.')}
           onClickRow={handleRowClick}
           orderBy="createdTime"
           order="desc"
-          pagination={data.length > 10}
         />
+
+        {data.length > rowsPerPage && (
+          <Pagination
+            px="5%"
+            sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}
+            id="prescriptions-pagination"
+            count={pageCount}
+            page={page}
+            disabled={pageCount < 2}
+            onChange={handlePageChange}
+            showFirstButton={false}
+            showLastButton={false}
+          />
+        )}
 
         <Dialog
           id="prescription-delete"
@@ -523,12 +549,12 @@ const Prescriptions = props => {
           onClose={closeDeleteDialog}
         >
           <DialogTitle onClose={closeDeleteDialog}>
-            <MediumTitle mr={2} id="dialog-title">Delete Prescription for {patientNameFromPrescription(deleteDialog.prescription)}</MediumTitle>
+            <MediumTitle mr={2} id="dialog-title">Delete Tidepool Loop Start Order for {patientNameFromPrescription(deleteDialog.prescription)}</MediumTitle>
           </DialogTitle>
 
           <DialogContent>
             <Body1>
-              Are you sure you want to delete this prescription?
+              Are you sure you want to delete this Tidepool Loop start order?
             </Body1>
           </DialogContent>
 
@@ -543,7 +569,7 @@ const Prescriptions = props => {
               processing={deletingPrescription.inProgress}
               onClick={handleConfirmDeletePrescription}
             >
-              Delete Prescription
+              Delete Tidepool Loop Start Order
             </Button>
           </DialogActions>
         </Dialog>

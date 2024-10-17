@@ -384,6 +384,14 @@ describe('utils', () => {
     });
   });
 
+  describe('roundToNearest', () => {
+    it('should round provided value to nearest specified increment', () => {
+      expect(utils.roundToNearest(1.355, .01)).to.equal(1.36);
+      expect(utils.roundToNearest(1.355, .1)).to.equal(1.4);
+      expect(utils.roundToNearest(1.355, 1)).to.equal(1);
+    });
+  });
+
   describe('roundBgTarget', () => {
     it('should round a target BG value as appropriate', () => {
       // to the nearest 5 for mg/dL
@@ -397,14 +405,15 @@ describe('utils', () => {
   });
 
   describe('getTimePrefsForDataProcessing', () => {
-    const latestUpload = { type: 'upload', time: '2018-02-02T00:00:00.000Z', timezone: 'US/Pacific' };
+    const latestUpload = { type: 'upload', normalTime: '2018-02-02T00:00:00.000Z', timezone: 'US/Pacific' };
+    const latestDiabetesDatum = { type: 'cbg', normalTime: '2018-02-02T01:00:00.000Z', timezoneOffset: -480 }; // US/Pacific will have an 8 hour offset (480 mins) at this time of year
 
     const queryParams = {};
 
     context('Timezone provided from queryParam', () => {
       it('should set a valid timezone from a query param', () => {
         const queryParamsWithValidTimezone = _.assign({}, queryParams, { timezone: 'UTC' });
-        expect(utils.getTimePrefsForDataProcessing(latestUpload, queryParamsWithValidTimezone)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(latestUpload, latestDiabetesDatum, queryParamsWithValidTimezone)).to.eql({
           timezoneAware: true,
           timezoneName: 'UTC',
         });
@@ -419,23 +428,7 @@ describe('utils', () => {
 
         const queryParamsWithInvalidTimezone = _.assign({}, queryParams, { timezone: 'invalid' });
 
-        expect(utils.getTimePrefsForDataProcessing(latestUpload, queryParamsWithInvalidTimezone)).to.eql({
-          timezoneAware: false,
-        });
-
-        DateTimeFormatStub.restore();
-      });
-
-      it('should fall back to timezone-naive display time when given an invalid timezone and cannot determine timezone from browser', () => {
-        const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
-          resolvedOptions: () => {
-            return { timeZone: undefined };
-          },
-        });
-
-        const queryParamsWithInvalidTimezone = _.assign({}, queryParams, { timezone: 'invalid' });
-
-        expect(utils.getTimePrefsForDataProcessing(latestUpload, queryParamsWithInvalidTimezone)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(latestUpload, latestDiabetesDatum, queryParamsWithInvalidTimezone)).to.eql({
           timezoneAware: false,
         });
 
@@ -444,8 +437,22 @@ describe('utils', () => {
     });
 
     context('Timezone provided from most recent upload', () => {
-      it('should set a valid timezone from `latestUpload.timezone`', () => {
-        expect(utils.getTimePrefsForDataProcessing(latestUpload, queryParams)).to.eql({
+      it('should set a valid timezone from `latestUpload.timezone` if latest diabetes datum is undefined', () => {
+        expect(utils.getTimePrefsForDataProcessing(latestUpload, undefined, queryParams)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        });
+      });
+
+      it('should set a valid timezone from `latestUpload.timezone` if latest diabetes datum does not have a timezoneOffset', () => {
+        expect(utils.getTimePrefsForDataProcessing(latestUpload, { ...latestDiabetesDatum, timezoneOffset: undefined }, queryParams)).to.eql({
+          timezoneAware: true,
+          timezoneName: 'US/Pacific',
+        });
+      });
+
+      it('should set a valid timezone from `latestUpload.timezone` if latest diabetes datum has a timezoneOffset that matches that of the latest upload timezone', () => {
+        expect(utils.getTimePrefsForDataProcessing(latestUpload, latestDiabetesDatum, queryParams)).to.eql({
           timezoneAware: true,
           timezoneName: 'US/Pacific',
         });
@@ -454,7 +461,7 @@ describe('utils', () => {
       it('should fall back to browser time when given an invalid timezone', () => {
         const dataWithInvalidTimezone = {
           type: 'upload',
-          time: '2018-02-10T00:00:00.000Z',
+          normalTime: '2018-02-10T00:00:00.000Z',
           timezone: 'invalid',
         };
 
@@ -464,7 +471,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, {}, queryParams)).to.eql({
           timezoneAware: true,
           timezoneName: 'Europe/Budapest',
         });
@@ -475,7 +482,7 @@ describe('utils', () => {
       it('should fall back to timezone-naive display time when given an invalid timezone and cannot determine timezone from browser', () => {
         const dataWithInvalidTimezone = {
           type: 'upload',
-          time: '2018-02-10T00:00:00.000Z',
+          normalTime: '2018-02-10T00:00:00.000Z',
           timezone: 'invalid',
         };
 
@@ -485,7 +492,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, undefined, queryParams)).to.eql({
           timezoneAware: false,
         });
 
@@ -493,11 +500,13 @@ describe('utils', () => {
       });
     });
 
-    context('Timezone offset provided from most recent upload', () => {
-      it('should set a valid timezone from `latestUpload.timezoneOffset`', () => {
+    context('Timezone offset provided from most recent diabetes datum', () => {
+      it('should set a valid timezone from `latestDiabetesDatum.timezoneOffset`', () => {
         expect(utils.getTimePrefsForDataProcessing({
           ...latestUpload,
           timezone: undefined,
+        }, {
+          ...latestDiabetesDatum,
           timezoneOffset: -420,
         }, queryParams)).to.eql({
           timezoneAware: true,
@@ -508,6 +517,8 @@ describe('utils', () => {
         expect(utils.getTimePrefsForDataProcessing({
           ...latestUpload,
           timezone: undefined,
+        }, {
+          ...latestDiabetesDatum,
           timezoneOffset: -(420 + 29),
         }, queryParams)).to.eql({
           timezoneAware: true,
@@ -517,6 +528,8 @@ describe('utils', () => {
         expect(utils.getTimePrefsForDataProcessing({
           ...latestUpload,
           timezone: undefined,
+        }, {
+          ...latestDiabetesDatum,
           timezoneOffset: -(420 + 30),
         }, queryParams)).to.eql({
           timezoneAware: true,
@@ -524,10 +537,10 @@ describe('utils', () => {
         });
       });
 
-      it('should fall back to browser time when given an invalid timezone', () => {
-        const dataWithInvalidTimezone = {
-          type: 'upload',
-          time: '2018-02-10T00:00:00.000Z',
+      it('should fall back to browser time when given an invalid timezone offset', () => {
+        const datumWithInvalidTimezoneOffset = {
+          type: 'cbg',
+          normalTime: '2018-02-10T00:00:00.000Z',
           timezoneOffset: -1000, // Too large: will not match an Etc/GMT timezone
         };
 
@@ -537,7 +550,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(undefined, datumWithInvalidTimezoneOffset, queryParams)).to.eql({
           timezoneAware: true,
           timezoneName: 'Europe/Budapest',
         });
@@ -545,10 +558,10 @@ describe('utils', () => {
         DateTimeFormatStub.restore();
       });
 
-      it('should fall back to timezone-naive display time when given an invalid timezone and cannot determine timezone from browser', () => {
-        const dataWithInvalidTimezone = {
-          type: 'upload',
-          time: '2018-02-10T00:00:00.000Z',
+      it('should fall back to timezone-naive display time when given an invalid timezone offset and cannot determine timezone from browser', () => {
+        const datumWithInvalidTimezoneOffset = {
+          type: 'cbg',
+          normalTime: '2018-02-10T00:00:00.000Z',
           timezoneOffset: -1000, // Too large: will not match an Etc/GMT timezone
         };
 
@@ -558,7 +571,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(undefined, datumWithInvalidTimezoneOffset, queryParams)).to.eql({
           timezoneAware: false,
         });
 
@@ -574,7 +587,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimePrefsForDataProcessing([], {})).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(undefined, undefined, {})).to.eql({
           timezoneAware: true,
           timezoneName: 'Europe/Budapest',
         });
@@ -589,7 +602,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimePrefsForDataProcessing([], {})).to.be.undefined;
+        expect(utils.getTimePrefsForDataProcessing(undefined, undefined, {})).to.be.undefined;
 
         DateTimeFormatStub.restore();
       });

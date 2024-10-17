@@ -229,7 +229,7 @@ export const ClinicInvite = (props) => {
           >
             <Checkbox
               {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
-              label={t('Prescribing access')}
+              label={t('Tidepool Loop Start Orders Finalization Permission')}
               themeProps={{ sx: { bg: 'lightestGrey' } }}
             />
           </Box>
