@@ -425,11 +425,11 @@ export const PrescriptionForm = props => {
             ];
 
             if (includes(scheduleArrays, fieldPath) && value.length === 1) {
-              return keys(value[0]).length = 1;
+              return keys(value[0]).length === 1;
             }
 
-            // Return empty values for non-array fields
-            return isEmpty(value) || getFieldError(fieldPath, formikContext, true);
+            // Return undefined fields, or invalid non-array fields if they contain values
+            return isUndefined(value) || getFieldError(fieldPath, formikContext, true);
           }
         );
 
