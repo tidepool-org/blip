@@ -28,7 +28,7 @@
     "lint": "yarn eslint app stories test"
   },
   "dependencies": {
-    "body-parser": "1.20.2",
+    "body-parser": "1.20.3",
     "custom-protocol-check": "1.4.0",
     "express": "4.19.2",
     "helmet": "3.23.3",
