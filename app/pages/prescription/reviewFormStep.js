@@ -25,6 +25,7 @@ import { cgmDeviceOptions, dateRegex, getFieldStepMap, insulinModelOptions, pump
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
 import personUtils from '../../core/personutils';
+import { useToasts } from '../../providers/ToastProvider';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
 import Checkbox from '../../components/elements/Checkbox';
 import Icon from '../../components/elements/Icon';
@@ -539,11 +540,28 @@ export const TherapySettings = props => {
               processing={printing}
               onClick={() => {
                 setPrinting(true);
-                handlePrintTherapySettingsClicked();
 
-                setTimeout(() => {
+                handlePrintTherapySettingsClicked(pdf => {
                   setPrinting(false);
-                }, 1000);
+                  console.log('pdf', pdf);
+
+                  if (pdf?.prescription?.url) {
+                    if (self.printWindowRef && !self.printWindowRef.closed) {
+                      // If we already have a ref to a PDF window, (re)use it
+                      self.printWindowRef.location.href = pdf.prescription.url;
+                    } else {
+                      // Otherwise, we create and open a new PDF window ref.
+                      self.printWindowRef = window.open(pdf.prescription.url);
+                    }
+
+                    setTimeout(() => {
+                      if (self.printWindowRef) {
+                        self.printWindowRef.focus();
+                        self.printWindowRef.print();
+                      }
+                    }, 100);
+                  }
+                });
               }}
             >
               {t('Print')}
