@@ -41,6 +41,7 @@ import Button from '../../components/elements/Button';
 import Pill from '../../components/elements/Pill';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
+import personUtils from '../../core/personutils';
 import { useToasts } from '../../providers/ToastProvider';
 import { Headline } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
@@ -343,6 +344,8 @@ export const PrescriptionForm = props => {
   const [singleStepEditValues, setSingleStepEditValues] = useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   const isLastStep = () => activeStep === formSteps.length - 1;
+  const [pdfCallback, setPDFCallback] = useState();
+  const pdf = useSelector((state) => state.blip.pdf);
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
@@ -362,8 +365,18 @@ export const PrescriptionForm = props => {
       trackMetric('Clicked Copy Therapy Settings Order');
     },
 
-    handlePrintTherapySettingsClicked: () => {
+    handlePrintTherapySettingsClicked: (onReady) => {
       trackMetric('Clicked Print Therapy Settings Order');
+      setPDFCallback(() => onReady);
+
+      const patient = personUtils.accountInfoFromClinicPatient({
+        fullName: personUtils.fullnameFromSplitNames(values.firstName, values.lastName),
+        birthDate: values.birthday,
+        email: values.email,
+        mrn: values.mrn,
+      });
+
+      dispatch(actions.worker.generatePDFRequest('prescription', null, { patient }, values.id, { bgPrefs: { bgUnits }, prescription: values }));
     },
 
     singleStepEditComplete: cancelFieldUpdates => {
@@ -466,6 +479,10 @@ export const PrescriptionForm = props => {
       }
     },
   };
+
+  useEffect(() => {
+    if (!isEmpty(pdf) && pdfCallback) pdfCallback(pdf);
+  }, [pdf, pdfCallback]);
 
   useEffect(() => {
     const pumpDevices = pumpDeviceOptions(devices);
