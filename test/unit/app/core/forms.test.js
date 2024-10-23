@@ -6,6 +6,7 @@ import get from 'lodash/get';
 /* global describe */
 /* global it */
 /* global beforeEach */
+/* global afterEach */
 
 const expect = chai.expect;
 
@@ -14,6 +15,8 @@ describe('forms', function() {
     touchedAndError: 'error!',
     touchedAndNoError: undefined,
     notTouchedAndError: 'error!',
+    notTouchedAndErrorAndFilled: 'error!',
+    notTouchedAndErrorAndNonEmptyObject: 'error!',
     notTouchedAndNoError: undefined,
     initiallySetAndError: 'error!',
     notInitiallySetAndError: 'error!',
@@ -23,6 +26,8 @@ describe('forms', function() {
     touchedAndError: true,
     touchedAndNoError: true,
     notTouchedAndError: undefined,
+    notTouchedAndErrorAndFilled: undefined,
+    notTouchedAndErrorAndNonEmptyObject: undefined,
     notTouchedAndNoError: undefined,
     initiallySetAndError: undefined,
     notInitiallySetAndError: undefined,
@@ -32,6 +37,8 @@ describe('forms', function() {
     touchedAndError: undefined,
     touchedAndNoError: undefined,
     notTouchedAndError: undefined,
+    notTouchedAndErrorAndFilled: 'filled',
+    notTouchedAndErrorAndNonEmptyObject: { path: 'filled' },
     notTouchedAndNoError: undefined,
     initiallySetAndError: 'foo',
     notInitiallySetAndError: undefined,
@@ -82,8 +89,16 @@ describe('forms', function() {
       expect(formUtils.getFieldError('notTouchedAndError', formikContext)).to.be.null;
     });
 
-    it('should return an error when field has not been touched and is in an error state, and the forceTouched argument is `true`', () => {
-      expect(formUtils.getFieldError('notTouchedAndError', formikContext, true)).to.equal('error!');
+    it('should return `null` when an empty field has not been touched and is in an error state, and the forceTouchedIfFilled argument is `true`', () => {
+      expect(formUtils.getFieldError('notTouchedAndError', formikContext, true)).to.be.null;
+    });
+
+    it('should return an error when a filled field has not been touched and is in an error state, and the forceTouchedIfFilled argument is `true`', () => {
+      expect(formUtils.getFieldError('notTouchedAndErrorAndFilled', formikContext, true)).to.equal('error!');
+    });
+
+    it('should return an error when a non-empty object field has not been touched and is in an error state, and the forceTouchedIfFilled argument is `true`', () => {
+      expect(formUtils.getFieldError('notTouchedAndErrorAndNonEmptyObject', formikContext, true)).to.equal('error!');
     });
 
     it('should return `null` when field has been touched and is not in an error state', () => {
@@ -204,5 +219,133 @@ describe('forms', function() {
         { label: 'One', value: '1' },
       ]);
     });
+  });
+
+  describe('onChangeWithDependantFields', () => {
+    const parentFieldPath = 'parentField';
+
+    const dependantFields = [
+      'dependantField',
+      'nested.dependantField',
+      'nested.dependantFieldArray.$.value',
+    ];
+
+    const formikContext = {
+      handleChange: sinon.stub(),
+      setFieldTouched: sinon.stub().resolves(),
+      validateField: sinon.stub().resolves(),
+      values: {
+        parentField: 'parentFieldValue',
+        dependantField: 'dependantFieldValue',
+        nested: {
+          dependantField: 'nestedDependantFieldValue',
+          dependantFieldArray: [
+            { value: 'arrayValue1' },
+            { value: 'arrayValue2' },
+          ]
+        },
+      },
+    };
+
+    afterEach(() => {
+      formikContext.handleChange.resetHistory();
+      formikContext.setFieldTouched.resetHistory();
+      formikContext.validateField.resetHistory();
+    });
+
+    it('return a function that sets parent field as touched and validate it, and do the same for child fields after a delay', done => {
+      const setDependantsTouched = true;
+      const debounceValidateMs = 1;
+
+      const changeHandler = formUtils.onChangeWithDependantFields(parentFieldPath, dependantFields, formikContext, setDependantsTouched, debounceValidateMs);
+      expect(changeHandler).to.be.a('function');
+
+      const event = 'changeEvent';
+      changeHandler(event);
+
+      setTimeout(() => {
+        sinon.assert.calledWith(formikContext.handleChange, 'changeEvent');
+        sinon.assert.calledWith(formikContext.setFieldTouched, 'parentField', true, true);
+        sinon.assert.calledWith(formikContext.validateField, 'parentField');
+
+        // because the dependant fields are debounced by 1ms, these should not yet be touched or validated
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'dependantField');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'dependantField');
+
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'nested.dependantField');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'nested.dependantField');
+
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'nested.dependantFieldArray.0.value');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'nested.dependantFieldArray.0.value');
+
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'nested.dependantFieldArray.1.value');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'nested.dependantFieldArray.1.value');
+
+        setTimeout(() => {
+          // after the requeste 1ms debounce, all the dependant fields are now touched and validated
+          sinon.assert.calledWith(formikContext.setFieldTouched, 'dependantField', true, true);
+          sinon.assert.calledWith(formikContext.validateField, 'dependantField');
+
+          sinon.assert.calledWith(formikContext.setFieldTouched, 'nested.dependantField', true, true);
+          sinon.assert.calledWith(formikContext.validateField, 'nested.dependantField');
+
+          sinon.assert.calledWith(formikContext.setFieldTouched, 'nested.dependantFieldArray.0.value', true, true);
+          sinon.assert.calledWith(formikContext.validateField, 'nested.dependantFieldArray.0.value');
+
+          sinon.assert.calledWith(formikContext.setFieldTouched, 'nested.dependantFieldArray.1.value', true, true);
+          sinon.assert.calledWith(formikContext.validateField, 'nested.dependantFieldArray.1.value');
+
+          done();
+        }, debounceValidateMs);
+      }, 0)
+    });
+
+    it('return not touch dependant fields if `setDependantsTouched` arg is false', done => {
+      const setDependantsTouched = false;
+      const debounceValidateMs = 1;
+
+      const changeHandler = formUtils.onChangeWithDependantFields(parentFieldPath, dependantFields, formikContext, setDependantsTouched, debounceValidateMs);
+      expect(changeHandler).to.be.a('function');
+
+      const event = 'changeEvent';
+      changeHandler(event);
+
+      setTimeout(() => {
+        sinon.assert.calledWith(formikContext.handleChange, 'changeEvent');
+        sinon.assert.calledWith(formikContext.setFieldTouched, 'parentField', true, true);
+        sinon.assert.calledWith(formikContext.validateField, 'parentField');
+
+        // because the dependant fields are debounced by 1ms, these should not yet be touched or validated
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'dependantField');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'dependantField');
+
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'nested.dependantField');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'nested.dependantField');
+
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'nested.dependantFieldArray.0.value');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'nested.dependantFieldArray.0.value');
+
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'nested.dependantFieldArray.1.value');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'nested.dependantFieldArray.1.value');
+
+        setTimeout(() => {
+          // even after the requeste 1ms debounce, all the dependant fields are still not touched or validated
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'dependantField');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'dependantField');
+
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'nested.dependantField');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'nested.dependantField');
+
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'nested.dependantFieldArray.0.value');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'nested.dependantFieldArray.0.value');
+
+        sinon.assert.neverCalledWith(formikContext.setFieldTouched, 'nested.dependantFieldArray.1.value');
+        sinon.assert.neverCalledWith(formikContext.validateField, 'nested.dependantFieldArray.1.value');
+
+          done();
+        }, debounceValidateMs);
+      }, 0)
+    });
+
   });
 });

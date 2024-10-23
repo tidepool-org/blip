@@ -405,8 +405,7 @@ export const PatientInvites = (props) => {
         {pendingInvites.length > rowsPerPage && (
           <Pagination
             px="5%"
-            sx={{ position: 'absolute', bottom: '-50px' }}
-            width="100%"
+            sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}
             id="clinic-invites-pagination"
             count={pageCount}
             page={page}

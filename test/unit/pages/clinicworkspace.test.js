@@ -187,7 +187,7 @@ describe('ClinicWorkspace', () => {
   });
 
   it('should render the prescriptions tab by default when `prescriptions` route param provided', () => {
-    expect(wrapper('prescriptions').find('button[aria-selected=true]').hostNodes().text()).to.equal('Prescriptions');
+    expect(wrapper('prescriptions').find('button[aria-selected=true]').hostNodes().text()).to.equal('Tidepool Loop Start Orders');
     expect(wrapper().find('div[role="tabpanel"][hidden=false]').parent('#prescriptionsTab')).to.have.lengthOf(1);
   });
 });

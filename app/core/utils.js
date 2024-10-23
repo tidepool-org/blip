@@ -277,6 +277,17 @@ utils.translateBg = (value, targetUnits) => {
 }
 
 /**
+ * Round to the nearest increment
+ *
+ * @param {Number} value a numerical value to round
+ * @param {String} nearest increment to round to
+ */
+utils.roundToNearest = (value, nearest) => {
+  const [units, decimals = ''] = nearest.toString().split('.');
+  return parseFloat((nearest * Math.round(value / nearest)).toFixed(decimals.length));
+}
+
+/**
  * Round a target BG value as appropriate
  * mg/dL - to the nearest 5
  * mmol/L - to the nearest .1
@@ -288,11 +299,10 @@ utils.translateBg = (value, targetUnits) => {
  */
 utils.roundBgTarget = (value, units) => {
   const nearest = units === MGDL_UNITS ? 5 : 0.1;
-  const precision = units === MGDL_UNITS ? 0 : 1;
-  return parseFloat((nearest * Math.round(value / nearest)).toFixed(precision));
+  return utils.roundToNearest(value, nearest);
 }
 
-utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
+utils.getTimePrefsForDataProcessing = (latestUpload, latestDiabetesDatum, queryParams) => {
   var timePrefsForTideline;
   var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -331,22 +341,33 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
     setNewTimePrefs(queryParams.timezone, false);
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
-  else if (!_.isEmpty(latestUpload) && (!_.isEmpty(latestUpload.timezone) || _.isFinite(latestUpload.timezoneOffset))) {
-    let timezone = latestUpload.timezone;
-
-    // If timezone is empty, set to the nearest Etc/GMT timezone using the timezoneOffset
-    if (_.isEmpty(timezone)) {
+  else if (_.isFinite(latestDiabetesDatum?.timezoneOffset)) {
+    // If the timeone on the latest upload record at the time of the latest diabetes datum has the
+    // same UTC offset, we use that, since it will also have DST changeover info available.
+    if (!_.isEmpty(latestUpload?.timezone)) {
+      const uploadTimezoneOffsetAtLatestDiabetesTime = moment.utc(latestDiabetesDatum.normalTime).tz(latestUpload.timezone).utcOffset();
+      if (uploadTimezoneOffsetAtLatestDiabetesTime === latestDiabetesDatum.timezoneOffset) {
+        setNewTimePrefs(latestUpload.timezone)
+        console.log('Defaulting to display in timezone of most recent upload at', latestUpload.normalTime, latestUpload.timezone);
+      }
+    }
+    // Otherwise, we calculate the nearest 'Etc/GMT' timezone from the timezone offset of the latest diabetes datum.
+    if(!timePrefsForTideline) {
       // GMT offsets signs in Etc/GMT timezone names are reversed from the actual offset
-      const offsetSign = Math.sign(latestUpload.timezoneOffset) === -1 ? '+' : '-';
-      const offsetDuration = moment.duration(Math.abs(latestUpload.timezoneOffset), 'minutes');
+      const offsetSign = Math.sign(latestDiabetesDatum.timezoneOffset) === -1 ? '+' : '-';
+      const offsetDuration = moment.duration(Math.abs(latestDiabetesDatum.timezoneOffset), 'minutes');
       let offsetHours = offsetDuration.hours();
       const offsetMinutes = offsetDuration.minutes();
       if (offsetMinutes >= 30) offsetHours += 1;
-      timezone = `Etc/GMT${offsetSign}${offsetHours}`;
+      const nearestTimezone = `Etc/GMT${offsetSign}${offsetHours}`;
+      setNewTimePrefs(nearestTimezone);
+      console.log('Defaulting to display in the nearest timezone of most recent diabetes datum timezone offset at', latestDiabetesDatum.normalTime, nearestTimezone);
     }
-
-    setNewTimePrefs(timezone);
-    console.log('Defaulting to display in timezone of most recent upload at', latestUpload.normalTime, timezone);
+  }
+  // Fallback to latest upload timezone if there is no diabetes data with timezone offsets
+  else if (!_.isEmpty(latestUpload) && (!_.isEmpty(latestUpload.timezone))) {
+    setNewTimePrefs(latestUpload.timezone);
+    console.log('Defaulting to display in timezone of most recent upload at', latestUpload.normalTime, latestUpload.timezone);
   }
   else if (browserTimezone) {
     setNewTimePrefs(browserTimezone);

@@ -1229,11 +1229,15 @@ export function fetchPatientData(api, options, id) {
  * @param  {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
  */
-export function fetchClinicPrescriptions(api, clinicId) {
+export function fetchClinicPrescriptions(api, clinicId, options = {}) {
+  _.defaults(options, {
+    size: 1000,
+  });
+
   return (dispatch) => {
     dispatch(sync.fetchClinicPrescriptionsRequest());
 
-    api.prescription.getAllForClinic(clinicId, (err, prescriptions) => {
+    api.prescription.getAllForClinic(clinicId, options, (err, prescriptions) => {
       if (err) {
         dispatch(sync.fetchClinicPrescriptionsFailure(
           createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PRESCRIPTIONS, err), err

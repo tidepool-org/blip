@@ -720,6 +720,39 @@ describe('Settings', () => {
     );
   });
 
+  it('formats duration correctly for very short periods in settings selection options', () => {
+    clock.jump(new Date('2023-01-03T00:00:00Z').getTime());
+    mountWrapper({
+      data: {
+        data: {
+          combined: [
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-01-01T20:00:00Z').valueOf(),
+              source: 'source1',
+            },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
+              source: 'source1',
+            },
+          ],
+        },
+        timePrefs: { timezoneName: 'UTC' },
+      },
+    });
+    wrapper.update();
+    const settingsRadioGroup = wrapper.find('RadioGroup#settings');
+    const radioOptions = settingsRadioGroup.find('Radio');
+    expect(radioOptions).to.have.lengthOf(2);
+    expect(radioOptions.at(0).text()).to.equal(
+      'Jan 02, 2023 - Jan 03, 2023 : Active for 1 day'
+    );
+    expect(radioOptions.at(1).text()).to.equal(
+      'Jan 01, 2023 - Jan 02, 2023 : Active for <1 day'
+    );
+  });
+
   it('formats duration correctly for longer periods in settings selection options', () => {
     clock.jump(new Date('2023-03-01T00:00:00Z').getTime());
     mountWrapper({

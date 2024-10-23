@@ -59,6 +59,7 @@ import { Box, Flex } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Paragraph2 } from '../../components/elements/FontStyles';
+import { DIABETES_DATA_TYPES } from '../../core/constants';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -1253,7 +1254,7 @@ export const PatientDataClass = createReactClass({
     this.fetchEarlierData({
       returnData: false,
       showLoading: true,
-      startDate: moment.utc().subtract(10, 'year').toISOString(),
+      noDates: true,
       type: 'pumpSettings,upload',
     });
 
@@ -1307,7 +1308,7 @@ export const PatientDataClass = createReactClass({
     }
 
     // Prior to refetching data, we need to remove current data from the data worker
-    // Refetch will occur in UNSAFE_componentWillRecieveProps after data worker is emptied
+    // Refetch will occur in UNSAFE_componentWillReceiveProps after data worker is emptied
     this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
   },
 
@@ -1682,7 +1683,7 @@ export const PatientDataClass = createReactClass({
           endpoints: undefined,
           refreshChartType: this.state.chartType,
         }, () => {
-          this.props.onRefresh(this.props.currentPatientInViewId);
+          this.props.onRefresh(this.props.currentPatientInViewId, this.state.refreshChartType);
           this.props.removeGeneratedPDFS();
         });
       });
@@ -1712,7 +1713,16 @@ export const PatientDataClass = createReactClass({
       let timePrefs = this.state.timePrefs;
       if (_.isEmpty(timePrefs)) {
         const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
-        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, this.props.queryParams);
+
+        const latestDiabetesDatum = _.maxBy(
+          _.filter(
+            _.values(_.get(nextProps, 'data.metaData.latestDatumByType', {})),
+            ({ type }) => _.includes(DIABETES_DATA_TYPES, type)
+          ),
+          'time'
+        );
+
+        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, latestDiabetesDatum, this.props.queryParams);
         stateUpdates.timePrefs = timePrefs;
       }
 
@@ -2080,6 +2090,7 @@ export const PatientDataClass = createReactClass({
  * @param {boolean} [options.medtronic=this.props.medtronic] - Whether to include Medtronic data.
  * @param {boolean} [options.useCache=false] - Whether to use cached data.
  * @param {boolean} [options.initial=false] - Whether this is the initial data fetch.
+ * @param {boolean} [options.noDates=false] - Whether to fetch data without start and end dates..
  *
  * @returns {void}
  */
@@ -2100,7 +2111,13 @@ export const PatientDataClass = createReactClass({
       medtronic: this.props.medtronic,
       useCache: false,
       initial: false,
+      noDates: false,
     });
+
+    if (fetchOpts.noDates) {
+      fetchOpts.startDate = undefined;
+      fetchOpts.endDate = undefined;
+    }
 
     const count = this.state.fetchEarlierDataCount + 1;
 
@@ -2355,7 +2372,22 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
     history: ownProps.history,
     uploadUrl: api.getUploadUrl(),
-    onRefresh: dispatchProps.fetchPatientData.bind(null, api, { carelink, dexcom, medtronic }),
+    onRefresh: (patientId, chartType) => {
+      const fetchOptions = {
+        carelink,
+        dexcom,
+        medtronic
+      };
+      if(chartType === 'settings') {
+        _.extend(fetchOptions, {
+          type: 'pumpSettings,upload',
+          initial: false,
+          startDate: undefined,
+          endDate: undefined,
+        });
+      }
+      return dispatchProps.fetchPatientData(api, fetchOptions, patientId);
+    },
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),

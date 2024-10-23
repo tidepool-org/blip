@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.82.0-web-3034-settings-selection.4",
+  "version": "1.81.0",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
@@ -180,8 +180,8 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.30.0-web-3005-web-3306-web-3007-web-3008-loop-stats.1",
-    "tidepool-platform-client": "0.59.0",
+    "tideline": "1.30.0",
+    "tidepool-platform-client": "0.60.0",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
     "url-loader": "4.1.1",

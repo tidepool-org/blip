@@ -53,7 +53,7 @@ export const ClinicWorkspace = (props) => {
   if (showPrescriptions) {
     tabs.push({
       name: 'prescriptions',
-      label: t('Prescriptions'),
+      label: t('Tidepool Loop Start Orders'),
       metric: 'Clinic - View prescriptions',
     });
   }
