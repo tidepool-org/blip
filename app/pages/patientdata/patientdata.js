@@ -1712,24 +1712,7 @@ export const PatientDataClass = createReactClass({
       // Set timePrefs to state
       let timePrefs = this.state.timePrefs;
       if (_.isEmpty(timePrefs)) {
-        const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
-        const latestDosingDecision = _.get(nextProps, 'data.metaData.latestDatumByType.dosingDecision');
-
-        let latestDiabetesDatum = _.maxBy(
-          _.filter(
-            _.values(_.get(nextProps, 'data.metaData.latestDatumByType', {})),
-            ({ type }) => _.includes(DIABETES_DATA_TYPES, type)
-          ),
-          'time'
-        );
-
-        // Loop diabetes datums do not have the timezoneOffset available, but the dosing decisions do,
-        // so we can pass that instead to derive an appropriate timezone from
-        if (!_.isFinite(latestDiabetesDatum?.timezoneOffset) && _.isFinite(latestDosingDecision?.timezoneOffset)) {
-          latestDiabetesDatum = latestDosingDecision;
-        }
-
-        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, latestDiabetesDatum, this.props.queryParams);
+        timePrefs = utils.getTimePrefsForDataProcessing(this.getMetaData('latestTimeZone', null, nextProps), this.props.queryParams);
         stateUpdates.timePrefs = timePrefs;
       }
 
