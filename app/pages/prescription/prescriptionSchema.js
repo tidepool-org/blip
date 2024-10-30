@@ -88,7 +88,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         return value.isValid() ? value.toDate() : new Date('');
       })
       .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
-      .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
+      .max(moment().endOf('day').format(dateFormat), t('Please enter a date that is not in the future'))
       .required(t('Patient\'s birthday is required')),
     email: yup.string()
       .matches(utils.emailRegex, t('Please enter a valid email address'))
