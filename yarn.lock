@@ -5268,9 +5268,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.42.1-web-3250-tandem-insulin-duration-fix.1":
-  version: 1.42.1-web-3250-tandem-insulin-duration-fix.1
-  resolution: "@tidepool/viz@npm:1.42.1-web-3250-tandem-insulin-duration-fix.1"
+"@tidepool/viz@npm:1.42.1-web-3251-use-dosing-decision-timezone-offset.1":
+  version: 1.42.1-web-3251-use-dosing-decision-timezone-offset.1
+  resolution: "@tidepool/viz@npm:1.42.1-web-3251-use-dosing-decision-timezone-offset.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5330,7 +5330,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 576152673babf1dd5b4672cd024a5c55b75b659186372fd55f86ea7353558b38ffa6638b5e3ae752af7b1978f9779630104229bda2f1681d4595d71857c4df5c
+  checksum: 5875b6ddd541a3d76c1956838d7692379b3f69d62e52fee43027dc9f5dec469602ad4fab01dcdf2c94b9ddef89413ee47baf1eca3adea968f450e176843ad1c5
   languageName: node
   linkType: hard
 
@@ -7427,7 +7427,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.42.1-web-3250-tandem-insulin-duration-fix.1
+    "@tidepool/viz": 1.42.1-web-3251-use-dosing-decision-timezone-offset.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
