@@ -541,27 +541,37 @@ export const TherapySettings = props => {
               onClick={() => {
                 setPrinting(true);
 
-                handlePrintTherapySettingsClicked(pdf => {
-                  setPrinting(false);
-                  console.log('pdf', pdf);
+                handlePrintTherapySettingsClicked(
+                  [
+                    {
+                      label: t('Name'),
+                      value: patientName,
+                    },
+                    ...patientRows(devices, formikContext, skippedFields, fieldStepMap),
+                  ],
+                  therapySettingsRows(devices, formikContext, skippedFields),
+                  pdf => {
+                    setPrinting(false);
+                    console.log('pdf', pdf);
 
-                  if (pdf?.prescription?.url) {
-                    if (self.printWindowRef && !self.printWindowRef.closed) {
-                      // If we already have a ref to a PDF window, (re)use it
-                      self.printWindowRef.location.href = pdf.prescription.url;
-                    } else {
-                      // Otherwise, we create and open a new PDF window ref.
-                      self.printWindowRef = window.open(pdf.prescription.url);
-                    }
-
-                    setTimeout(() => {
-                      if (self.printWindowRef) {
-                        self.printWindowRef.focus();
-                        self.printWindowRef.print();
+                    if (pdf?.prescription?.url) {
+                      if (self.printWindowRef && !self.printWindowRef.closed) {
+                        // If we already have a ref to a PDF window, (re)use it
+                        self.printWindowRef.location.href = pdf.prescription.url;
+                      } else {
+                        // Otherwise, we create and open a new PDF window ref.
+                        self.printWindowRef = window.open(pdf.prescription.url);
                       }
-                    }, 100);
+
+                      setTimeout(() => {
+                        if (self.printWindowRef) {
+                          self.printWindowRef.focus();
+                          self.printWindowRef.print();
+                        }
+                      }, 100);
+                    }
                   }
-                });
+                );
               }}
             >
               {t('Print')}

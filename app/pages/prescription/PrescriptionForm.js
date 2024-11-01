@@ -41,7 +41,6 @@ import Button from '../../components/elements/Button';
 import Pill from '../../components/elements/Pill';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
-import personUtils from '../../core/personutils';
 import { useToasts } from '../../providers/ToastProvider';
 import { Headline } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
@@ -365,18 +364,10 @@ export const PrescriptionForm = props => {
       trackMetric('Clicked Copy Therapy Settings Order');
     },
 
-    handlePrintTherapySettingsClicked: (onReady) => {
+    handlePrintTherapySettingsClicked: (patientRows, therapySettingsRows, onReady) => {
       trackMetric('Clicked Print Therapy Settings Order');
       setPDFCallback(() => onReady);
-
-      const patient = personUtils.accountInfoFromClinicPatient({
-        fullName: personUtils.fullnameFromSplitNames(values.firstName, values.lastName),
-        birthDate: values.birthday,
-        email: values.email,
-        mrn: values.mrn,
-      });
-
-      dispatch(actions.worker.generatePDFRequest('prescription', null, { patient }, values.id, { bgPrefs: { bgUnits }, prescription: values }));
+      dispatch(actions.worker.generatePDFRequest('prescription', null, {}, values.id, { prescription: { patientRows, therapySettingsRows } }));
     },
 
     singleStepEditComplete: cancelFieldUpdates => {
