@@ -16,6 +16,7 @@ describe('prescriptionSchema', function() {
     expect(schema._nodes).to.be.an('array').and.have.members([
       'id',
       'state',
+      'accessCode',
       'accountType',
       'firstName',
       'lastName',

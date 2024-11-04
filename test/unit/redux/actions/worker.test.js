@@ -52,7 +52,7 @@ describe('worker action creators', () => {
     it('should create an action to request a PDF generation', () => {
       expect(action).to.deep.equal({
         type: actionTypes.GENERATE_PDF_REQUEST,
-        meta: { WebWorker: true, worker: 'pdf', patientId },
+        meta: { WebWorker: true, worker: 'pdf', id: patientId },
         payload: {
           type,
           queries,
@@ -131,7 +131,7 @@ describe('worker action creators', () => {
     it('should create an action to add data to the worker', () => {
       expect(action).to.deep.equal({
         type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
-        meta: { WebWorker: true, worker: 'data', patientId },
+        meta: { WebWorker: true, worker: 'data', id: patientId },
         payload: {
           data: JSON.stringify(data),
           fetchedCount: 1,
@@ -193,7 +193,7 @@ describe('worker action creators', () => {
     it('should create an action to remove data from the worker with a stringified predicate', () => {
       expect(action).to.deep.equal({
         type: actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST,
-        meta: { WebWorker: true, worker: 'data', patientId },
+        meta: { WebWorker: true, worker: 'data', id: patientId },
         payload: {
           predicate: JSON.stringify(predicate),
         },
@@ -203,7 +203,7 @@ describe('worker action creators', () => {
     it('should create an action to remove data from the worker with an undefined predicate', () => {
       expect(actionWithUndefinedPredicate).to.deep.equal({
         type: actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST,
-        meta: { WebWorker: true, worker: 'data', patientId },
+        meta: { WebWorker: true, worker: 'data', id: patientId },
         payload: {
           predicate: undefined,
         },
@@ -261,7 +261,7 @@ describe('worker action creators', () => {
     it('should create an action to update a datum in the worker', () => {
       expect(action).to.deep.equal({
         type: actionTypes.DATA_WORKER_UPDATE_DATUM_REQUEST,
-        meta: { WebWorker: true, worker: 'data', patientId },
+        meta: { WebWorker: true, worker: 'data', id: patientId },
         payload: {
           datum: JSON.stringify(datum),
         },
@@ -317,7 +317,7 @@ describe('worker action creators', () => {
     it('should create an action to query data from the worker', () => {
       expect(action).to.deep.equal({
         type: actionTypes.DATA_WORKER_QUERY_DATA_REQUEST,
-        meta: { WebWorker: true, worker: 'data', patientId, destination: 'redux' },
+        meta: { WebWorker: true, worker: 'data', id: patientId, destination: 'redux' },
         payload: {
           query: JSON.stringify(query),
         },
