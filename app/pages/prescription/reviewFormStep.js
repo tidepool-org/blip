@@ -552,7 +552,6 @@ export const TherapySettings = props => {
                   therapySettingsRows(devices, formikContext, skippedFields),
                   pdf => {
                     setPrinting(false);
-                    console.log('pdf', pdf);
 
                     if (pdf?.prescription?.url) {
                       if (self.printWindowRef && !self.printWindowRef.closed) {
