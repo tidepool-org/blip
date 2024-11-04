@@ -77,6 +77,7 @@ describe('PDFWorker', () => {
     bgLog: {},
     settings: {},
     svgDataURLS: 'imageURLs',
+    pdfType: 'combined',
   });
 
   beforeEach(() => {
@@ -220,6 +221,7 @@ describe('PDFWorker', () => {
             daily: {  },
             settings: {  },
             svgDataURLS: undefined,
+            pdfType: 'combined',
           },
           queries: {
             agpBGM: 'agpBGM',
