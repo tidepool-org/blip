@@ -388,6 +388,7 @@ export const PrescriptionForm = props => {
       setStepAsyncState(asyncStates.pending);
       // Delete fields that we never want to send to the backend
       const fieldsToDelete = [
+        'accessCode',
         'emailConfirm',
         'id',
         'therapySettingsReviewed',
