@@ -132,6 +132,7 @@ export const prescriptionForm = () => {
 
       return {
         id: get(props, 'prescription.id'),
+        accessCode: get(props, 'prescription.accessCode'),
         state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
         accountType: get(props, 'prescription.latestRevision.attributes.accountType'),
         firstName: get(props, 'prescription.latestRevision.attributes.firstName'),
@@ -342,6 +343,8 @@ export const PrescriptionForm = props => {
   const [singleStepEditValues, setSingleStepEditValues] = useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   const isLastStep = () => activeStep === formSteps.length - 1;
+  const [pdfCallback, setPDFCallback] = useState();
+  const pdf = useSelector((state) => state.blip.pdf);
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
@@ -359,6 +362,12 @@ export const PrescriptionForm = props => {
 
     handleCopyTherapySettingsClicked: () => {
       trackMetric('Clicked Copy Therapy Settings Order');
+    },
+
+    handlePrintTherapySettingsClicked: (patientRows, therapySettingsRows, onReady) => {
+      trackMetric('Clicked Print Therapy Settings Order');
+      setPDFCallback(() => onReady);
+      dispatch(actions.worker.generatePDFRequest('prescription', null, {}, values.id, { prescription: { patientRows, therapySettingsRows } }));
     },
 
     singleStepEditComplete: cancelFieldUpdates => {
@@ -461,6 +470,10 @@ export const PrescriptionForm = props => {
       }
     },
   };
+
+  useEffect(() => {
+    if (!isEmpty(pdf) && pdfCallback) pdfCallback(pdf);
+  }, [pdf, pdfCallback]);
 
   useEffect(() => {
     const pumpDevices = pumpDeviceOptions(devices);
@@ -573,7 +586,9 @@ export const PrescriptionForm = props => {
             variant: 'success',
           });
 
-          dispatch(push('/clinic-workspace/prescriptions', { reloadPrescriptions: true }));
+          if (values.state !== 'submitted') {
+            dispatch(push('/clinic-workspace/prescriptions', { reloadPrescriptions: true }));
+          }
         } else {
           if (prescriptionId && isNewPrescriptionFlow()) {
             // Redirect to normal prescription edit flow once we have a prescription ID

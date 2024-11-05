@@ -13,10 +13,13 @@
  *
  * You may add as other modules to this list as well.
  */
+
+const path = require('path');
+
 const linkedPackages = {
-  // '@tidepool/viz': process.env.TIDEPOOL_DOCKER_VIZ_DIR || '../viz',
-  // 'tideline': process.env.TIDEPOOL_DOCKER_TIDELINE_DIR || '../tideline',
-  // 'tidepool-platform-client': process.env.TIDEPOOL_DOCKER_PLATFORM_CLIENT_DIR || '../platform-client',
+  // '@tidepool/viz': process.env.TIDEPOOL_DOCKER_VIZ_DIR || path.resolve(__dirname, '../../viz'),
+  // 'tideline': process.env.TIDEPOOL_DOCKER_TIDELINE_DIR || path.resolve(__dirname, '../../tideline'),
+  // 'tidepool-platform-client': process.env.TIDEPOOL_DOCKER_PLATFORM_CLIENT_DIR || path.resolve(__dirname, '../../platform-client'),
 };
 
 const featureFlags = {

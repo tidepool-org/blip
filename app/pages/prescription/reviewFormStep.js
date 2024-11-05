@@ -13,8 +13,10 @@ import reject from 'lodash/reject';
 import capitalize from 'lodash/capitalize';
 import trim from 'lodash/trim';
 import isArray from 'lodash/isArray';
+import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
+import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import { getThresholdWarning, getFieldError } from '../../core/forms';
@@ -23,11 +25,13 @@ import { cgmDeviceOptions, dateRegex, getFieldStepMap, insulinModelOptions, pump
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
 import personUtils from '../../core/personutils';
+import { useToasts } from '../../providers/ToastProvider';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
 import Checkbox from '../../components/elements/Checkbox';
 import Icon from '../../components/elements/Icon';
 import baseTheme from '../../themes/baseTheme';
 import PopoverLabel from '../../components/elements/PopoverLabel';
+import Button from '../../components/elements/Button';
 
 import {
   fieldsetStyles,
@@ -111,6 +115,11 @@ const patientRows = (devices, formikContext, skippedFields = [], fieldStepMap = 
       initialFocusedInput: 'initialSettings.cgmId',
       skipped: skipDeviceSelection || includes(skippedFields, 'initialSettings.cgmId'),
       step: fieldStepMap['initialSettings.cgmId'],
+    },
+    {
+      label: t('Activation Code'),
+      value: get(values, 'accessCode', emptyValueText),
+      skipped: values?.state !== 'submitted',
     },
   ];
 
@@ -406,7 +415,12 @@ export const TherapySettings = props => {
     currentStep,
     devices,
     fieldStepMap,
-    handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
+    handlers: {
+      activeStepUpdate,
+      generateTherapySettingsOrderText,
+      handleCopyTherapySettingsClicked,
+      handlePrintTherapySettingsClicked,
+    },
     isEditable,
     skippedFields,
     ...themeProps
@@ -414,6 +428,8 @@ export const TherapySettings = props => {
 
   const therapySettingsStep = fieldStepMap['initialSettings.basalRateSchedule'];
 
+  const [copying, setCopying] = React.useState(false);
+  const [printing, setPrinting] = React.useState(false);
   const formikContext = useFormikContext();
   const { values } = formikContext;
 
@@ -490,61 +506,124 @@ export const TherapySettings = props => {
 
   return (
     <Box {...themeProps}>
-      <Flex mb={3} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+      <Flex mb={5} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Headline mr={2}>{title}</Headline>
         <Flex
           theme={baseTheme}
           sx={{
             columnGap: 2,
             alignItems: 'center',
-            button: {
-              border: 'none',
-              color: 'text.primary',
-              top: '1px',
-              p: 0,
-              m: 0,
-              position: 'relative',
-              '&:hover,&:active': {
-                border: 'none',
-                color: 'text.primary',
-                backgroundColor: 'transparent',
-              },
-            },
-            '.success': {
-              position: 'relative',
-              display: 'block',
-              top: '2px',
-            },
           }}
         >
-          {isEditable && <Icon
-            variant="button"
-            icon={EditRoundedIcon}
-            label={t('Edit therapy settings')}
-            title={t('Edit therapy settings')}
-            onClick={() => activeStepUpdate(therapySettingsStep, currentStep)}
-          />}
+          {isEditable && (
+            <Button
+              id="edit-therapy-settings"
+              variant="secondaryCondensed"
+              icon={EditRoundedIcon}
+              iconPosition="left"
+              iconFontSize="15px"
+              label={t('Edit therapy settings')}
+              onClick={() => activeStepUpdate(therapySettingsStep, currentStep)}
+            >
+              {t('Edit')}
+            </Button>
+          )}
 
-          <ClipboardButton
-            buttonTitle={t('Copy therapy settings order as text')}
-            buttonText={(
-              <Icon
-                variant="static"
-                icon={FileCopyRoundedIcon}
-                label={t('Copy therapy settings order as text')}
-                title={t('Copy therapy settings order as text')}
-              />
-            )}
-            successText={<span className="success">{t('✓')}</span>}
-            onClick={handleCopyTherapySettingsClicked}
-            getText={generateTherapySettingsOrderText.bind(null, [
-              {
-                label: t('Name'),
-                value: patientName,
-              },
-              ...patientRows(devices, formikContext, skippedFields, fieldStepMap),
-            ], therapySettingsRows(devices, formikContext, skippedFields))}
-          />
+          {!isEditable && (
+            <Button
+              id="print-therapy-settings-order"
+              variant="primaryCondensed"
+              icon={PrintRoundedIcon}
+              iconPosition="left"
+              iconFontSize="15px"
+              label={t('Print therapy settings order')}
+              processing={printing}
+              onClick={() => {
+                setPrinting(true);
+
+                handlePrintTherapySettingsClicked(
+                  [
+                    {
+                      label: t('Name'),
+                      value: patientName,
+                    },
+                    ...patientRows(devices, formikContext, skippedFields, fieldStepMap),
+                  ],
+                  therapySettingsRows(devices, formikContext, skippedFields),
+                  pdf => {
+                    setPrinting(false);
+
+                    if (pdf?.prescription?.url) {
+                      if (self.printWindowRef && !self.printWindowRef.closed) {
+                        // If we already have a ref to a PDF window, (re)use it
+                        self.printWindowRef.location.href = pdf.prescription.url;
+                      } else {
+                        // Otherwise, we create and open a new PDF window ref.
+                        self.printWindowRef = window.open(pdf.prescription.url);
+                      }
+
+                      setTimeout(() => {
+                        if (self.printWindowRef) {
+                          self.printWindowRef.focus();
+                          self.printWindowRef.print();
+                        }
+                      }, 100);
+                    }
+                  }
+                );
+              }}
+            >
+              {t('Print')}
+            </Button>
+          )}
+
+          <Button
+            p={0}
+            id="copy-therapy-settings-order"
+            variant="secondaryCondensed"
+            icon={copying ? CheckRoundedIcon : FileCopyRoundedIcon}
+            iconPosition="left"
+            iconFontSize={copying ? '16px' : '14px'}
+            label={t('Copy therapy settings order as text')}
+            sx={{
+              '.icon': { position: 'absolute', left: '16px' },
+              button: {
+                fontSize: 0,
+                borderColor: 'transparent',
+                x: 0,
+                y: 0,
+                color: 'text.primary',
+                '&:hover,&:active': {
+                  borderColor: 'transparent',
+                  color: 'text.primary',
+                  backgroundColor: 'transparent',
+                },
+                py: '6px',
+                pr: '16px',
+                pl: '38px',
+              }
+            }}
+          >
+            <ClipboardButton
+              buttonTitle={t('Copy therapy settings order as text')}
+              buttonText={t('Copy as Text')}
+              successText={t('Copy as Text')}
+              onClick={() => {
+                setCopying(true);
+                handleCopyTherapySettingsClicked();
+              }}
+              onComplete={() => {
+                setCopying(false);
+              }}
+              getText={generateTherapySettingsOrderText.bind(null, [
+                {
+                  label: t('Name'),
+                  value: patientName,
+                },
+                ...patientRows(devices, formikContext, skippedFields, fieldStepMap),
+              ], therapySettingsRows(devices, formikContext, skippedFields))}
+            />
+          </Button>
         </Flex>
       </Flex>
 

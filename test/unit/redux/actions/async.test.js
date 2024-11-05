@@ -1529,7 +1529,7 @@ describe('Actions', () => {
               {
                 meta: {
                   WebWorker: true,
-                  patientId: null,
+                  id: null,
                   worker: 'data',
                 },
                 payload: {
@@ -1580,7 +1580,7 @@ describe('Actions', () => {
               {
                 meta: {
                   WebWorker: true,
-                  patientId: null,
+                  id: null,
                   worker: 'data',
                 },
                 payload: {
@@ -1632,7 +1632,7 @@ describe('Actions', () => {
               {
                 meta: {
                   WebWorker: true,
-                  patientId: null,
+                  id: null,
                   worker: 'data',
                 },
                 payload: {
@@ -1861,7 +1861,7 @@ describe('Actions', () => {
           {
             meta: {
               WebWorker: true,
-              patientId: null,
+              id: null,
               worker: 'data',
             },
             payload: {
@@ -1930,7 +1930,7 @@ describe('Actions', () => {
           {
             meta: {
               WebWorker: true,
-              patientId: null,
+              id: null,
               worker: 'data',
             },
             payload: {
@@ -1982,7 +1982,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', patientId: 'abc123' }, payload: { predicate: undefined } },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', id: 'abc123' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' },
           { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/' ], method: 'push' } }
         ];
@@ -2008,7 +2008,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', patientId: 'abc123' }, payload: { predicate: undefined } },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', id: 'abc123' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' }
         ];
         _.each(expectedActions, (action) => {
@@ -2042,7 +2042,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', patientId: 'abc123' }, payload: { predicate: undefined } },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', id: 'abc123' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' },
           { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/logged-out' ], method: 'push' } }
         ];
@@ -4463,7 +4463,7 @@ describe('Actions', () => {
               { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientId } },
               {
                 type: 'DATA_WORKER_ADD_DATA_REQUEST',
-                meta: { WebWorker: true, worker: 'data', patientId },
+                meta: { WebWorker: true, worker: 'data', id: patientId },
                 payload: {
                   data: JSON.stringify([...patientData, uploadRecord, ...teamNotes]),
                   fetchedCount: 6,
