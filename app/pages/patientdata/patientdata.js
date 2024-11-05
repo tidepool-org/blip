@@ -1712,17 +1712,7 @@ export const PatientDataClass = createReactClass({
       // Set timePrefs to state
       let timePrefs = this.state.timePrefs;
       if (_.isEmpty(timePrefs)) {
-        const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
-
-        const latestDiabetesDatum = _.maxBy(
-          _.filter(
-            _.values(_.get(nextProps, 'data.metaData.latestDatumByType', {})),
-            ({ type }) => _.includes(DIABETES_DATA_TYPES, type)
-          ),
-          'time'
-        );
-
-        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, latestDiabetesDatum, this.props.queryParams);
+        timePrefs = utils.getTimePrefsForDataProcessing(this.getMetaData('latestTimeZone', null, nextProps), this.props.queryParams);
         stateUpdates.timePrefs = timePrefs;
       }
 
