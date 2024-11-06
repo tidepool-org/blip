@@ -510,7 +510,7 @@ describe('TideDashboard', () => {
       const header = wrapper.find('#tide-dashboard-header').hostNodes();
       expect(header.text()).to.equal('TIDE Dashboard');
 
-      const expectedLastUploadTo = moment.utc(tideDashboardPatients.config.lastUploadDateFrom).toISOString()
+      const expectedLastUploadTo = moment.utc(tideDashboardPatients.config.lastDataCutoff).toISOString()
       const expectedLastUploadFrom = moment(expectedLastUploadTo).subtract(1, 'ms').toISOString();
 
       const dates = wrapper.find('#tide-dashboard-upload-dates').hostNodes();

@@ -677,8 +677,7 @@ export const TideDashboard = (props) => {
     if (options) {
       const queryOptions = { period: options.period };
       queryOptions['tags'] = reject(options?.tags || [], tagId => !patientTags?.[tagId]);
-      queryOptions['cgm.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-      queryOptions['cgm.lastUploadDateFrom'] = moment(queryOptions['cgm.lastUploadDateTo']).subtract(options.lastUpload, 'days').toISOString();
+      queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(options.lastUpload, 'days').toISOString();
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
@@ -760,7 +759,7 @@ export const TideDashboard = (props) => {
 
   const renderHeader = () => {
     const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const lastUploadDatesDayRange = moment(config?.lastUploadDateTo).diff(config?.lastUploadDateFrom, 'days');
+    const lastUploadDatesDayRange = moment(config?.lastDataCutoff).diff(config?.lastDataCutoff, 'days'); // TODO: this will be replaced with new data recency UI
     const periodDaysText = config?.period === '1d' ? t('day') : t('days');
 
     const uploadDatesLabel = t('Data uploaded {{descriptor}}', {
@@ -803,8 +802,8 @@ export const TideDashboard = (props) => {
               }}
             >
               {formatDateRange(
-                moment.utc(config?.lastUploadDateFrom).subtract(getOffset(config?.lastUploadDateFrom, timezone), 'minutes').toISOString(),
-                moment.utc(config?.lastUploadDateTo).subtract(getOffset(config?.lastUploadDateTo, timezone), 'minutes').subtract(1, 'ms').toISOString(),
+                moment.utc(config?.lastDataCutoff).subtract(getOffset(config?.lastDataCutoff, timezone), 'minutes').toISOString(),
+                moment.utc(config?.lastDataCutoff).subtract(getOffset(config?.lastDataCutoff, timezone), 'minutes').subtract(1, 'ms').toISOString(),
                 null,
                 'MMMM'
               )}

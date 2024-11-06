@@ -876,8 +876,8 @@ export const ClinicPatients = (props) => {
         }
 
         if (activeFilters.lastUploadDate && activeFilters.lastUploadType) {
-          filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-          filterOptions[`${activeFilters.lastUploadType}.lastUploadDateFrom`] = moment(filterOptions[`${activeFilters.lastUploadType}.lastUploadDateTo`]).subtract(activeFilters.lastUploadDate, 'days').toISOString();
+          filterOptions[`${activeFilters.lastUploadType}.lastDataTo`] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+          filterOptions[`${activeFilters.lastUploadType}.lastDataFrom`] = moment(filterOptions[`${activeFilters.lastUploadType}.lastDataTo`]).subtract(activeFilters.lastUploadDate, 'days').toISOString();
         }
 
         if (activeFilters.patientTags?.length) {
@@ -902,10 +902,10 @@ export const ClinicPatients = (props) => {
 
       const newPatientFetchOptions = {
         ...omit(patientFetchOptions, [
-          'bgm.lastUploadDateFrom',
-          'bgm.lastUploadDateTo',
-          'cgm.lastUploadDateFrom',
-          'cgm.lastUploadDateTo',
+          'bgm.lastDataFrom',
+          'bgm.lastDataTo',
+          'cgm.lastDataFrom',
+          'cgm.lastDataTo',
           'tags',
           'cgm.timeCGMUsePercent',
           'cgm.timeInVeryLowPercent',

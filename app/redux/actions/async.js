@@ -2934,8 +2934,7 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  * @param {Object} [options] - report config options
  * @param {Number} [options.period] - period to sort by (1d|7d|14d|30d)
  * @param {Array} [options.tags] - Array of patient tag IDs
- * @param {Number} [options.lastUploadDateFrom] - ISO date for start of last upload date filter range
- * @param {Number} [options.lastUploadDateTo] - ISO date for end of last upload date filter range
+ * @param {Number} [options.lastDataCutoff] - ISO date for start of last upload date filter range
  */
  export function fetchTideDashboardPatients(api, clinicId, options) {
   return (dispatch) => {
@@ -2968,16 +2967,16 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  * @param {Object} [options.patientFilters] - Filters used to generate the patient list
  * @param {String} [options.patientFilters.search] - Search query string
  * @param {Array} [options.patientFilters.tags] - Array of clinic patient tag IDs
- * @param {String} [options.patientFilters.cgm.lastUploadDateFrom] - UTC ISO datetime for minimum date of the last cgm upload
- * @param {String} [options.patientFilters.cgm.lastUploadDateTo] - UTC ISO datetime for maximum date of the last cgm upload
+ * @param {String} [options.patientFilters.cgm.lastDataFrom] - UTC ISO datetime for minimum date of the last cgm upload
+ * @param {String} [options.patientFilters.cgm.lastDataTo] - UTC ISO datetime for maximum date of the last cgm upload
  * @param {String} [options.patientFilters.cgm.timeInLowPercent] - Comparator and value for time in low percent
  * @param {String} [options.patientFilters.cgm.timeInHighPercent] - Comparator and value for time in high percent
  * @param {String} [options.patientFilters.cgm.timeInVeryLowPercent] - Comparator and value for time in very low percent
  * @param {String} [options.patientFilters.cgm.timeInTargetPercent] - Comparator and value for time in target percent
  * @param {String} [options.patientFilters.cgm.timeInVeryHighPercent] - Comparator and value for time in very high percent
  * @param {String} [options.patientFilters.cgm.timeCGMUsePercent] - Comparator and value for time of cgm use percent
- * @param {String} [options.patientFilters.bgm.lastUploadDateFrom] - UTC ISO datetime for minimum date of the last bgm upload
- * @param {String} [options.patientFilters.bgm.lastUploadDateTo] - UTC ISO datetime for maximum date of the last bgm upload
+ * @param {String} [options.patientFilters.bgm.lastDataFrom] - UTC ISO datetime for minimum date of the last bgm upload
+ * @param {String} [options.patientFilters.bgm.lastDataTo] - UTC ISO datetime for maximum date of the last bgm upload
  */
 export function fetchRpmReportPatients(api, clinicId, options) {
   return (dispatch) => {
