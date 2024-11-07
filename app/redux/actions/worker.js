@@ -19,10 +19,10 @@ import _ from 'lodash';
 import * as actionTypes from '../constants/actionTypes';
 
 /* PDF Worker */
-export function generatePDFRequest(type, queries, opts, patientId, data) {
+export function generatePDFRequest(type, queries, opts, id, data) {
   return {
     type: actionTypes.GENERATE_PDF_REQUEST,
-    meta: { WebWorker: true, worker: 'pdf', patientId },
+    meta: { WebWorker: true, worker: 'pdf', id },
     payload: {
       type,
       queries,
@@ -56,7 +56,7 @@ export function removeGeneratedPDFS() {
 export function dataWorkerAddDataRequest(data = [], returnData, patientId, fetchedUntil ) {
   return {
     type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
-    meta: { WebWorker: true, worker: 'data', patientId },
+    meta: { WebWorker: true, worker: 'data', id: patientId },
     payload: {
       data: JSON.stringify(data),
       fetchedCount: data.length,
@@ -84,7 +84,7 @@ export function dataWorkerAddDataFailure(error) {
 export function dataWorkerRemoveDataRequest(predicate, patientId) {
   return {
     type: actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST,
-    meta: { WebWorker: true, worker: 'data', patientId },
+    meta: { WebWorker: true, worker: 'data', id: patientId },
     payload: {
       predicate: predicate ? JSON.stringify(predicate) : undefined,
     },
@@ -108,7 +108,7 @@ export function dataWorkerRemoveDataFailure(error) {
 export function dataWorkerUpdateDatumRequest(datum = {}, patientId) {
   return {
     type: actionTypes.DATA_WORKER_UPDATE_DATUM_REQUEST,
-    meta: { WebWorker: true, worker: 'data', patientId },
+    meta: { WebWorker: true, worker: 'data', id: patientId },
     payload: {
       datum: JSON.stringify(datum),
     },
@@ -132,7 +132,7 @@ export function dataWorkerUpdateDatumFailure(error) {
 export function dataWorkerQueryDataRequest(query = {}, patientId, destination = 'redux') {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_REQUEST,
-    meta: { WebWorker: true, worker: 'data', patientId, destination },
+    meta: { WebWorker: true, worker: 'data', id: patientId, destination },
     payload: {
       query: JSON.stringify(query),
     },
