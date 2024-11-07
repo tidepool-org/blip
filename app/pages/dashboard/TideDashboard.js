@@ -513,6 +513,7 @@ const TideDashboardSection = React.memo(props => {
     timeInTargetPercent: t('Time in Range < 70%'),
     timeCGMUsePercent: t('CGM Wear Time < 70%'),
     meetingTargets: t('Meeting Targets'),
+    noData: t('Data Issues'),
   };
 
   return (
@@ -618,6 +619,7 @@ export const TideDashboard = (props) => {
     { groupKey: 'timeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
     { groupKey: 'timeCGMUsePercent', sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
     { groupKey: 'meetingTargets', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+    { groupKey: 'noData', sortDirection: 'asc', sortKey: 'lastData' },
   ];
 
   const [sections, setSections] = useState(defaultSections);
@@ -987,6 +989,8 @@ export const TideDashboard = (props) => {
 
       dispatch(push('/clinic-workspace/patients'));
     };
+
+    console.log('sections', sections);
 
     return hasResults ? (
       <Box id="tide-dashboard-patient-groups">
