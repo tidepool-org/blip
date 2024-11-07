@@ -22,7 +22,6 @@ import {
   MGDL_UNITS,
   MMOLL_UNITS,
 } from '../core/constants';
-import { prescription } from './api';
 
 const t = i18next.t.bind(i18next);
 
@@ -78,6 +77,14 @@ export const lastUploadDateFilterOptions = [
   { value: 7, label: t('Last 7 days') },
   { value: 14, label: t('Last 14 days') },
   { value: 30, label: t('Last 30 days') },
+];
+
+export const dataRecencyFilterOptions = [
+  { value: 1, label: t('24 hours') },
+  { value: 2, label: t('2 days') },
+  { value: 7, label: t('7 days') },
+  { value: 14, label: t('14 days') },
+  { value: 30, label: t('30 days') },
 ];
 
 export const summaryPeriodOptions = [
@@ -445,10 +452,10 @@ export const tideDashboardConfigSchema = yup.object().shape({
     .string()
     .oneOf(map(summaryPeriodOptions, 'value'))
     .required(t('Please select a duration period')),
-  lastUpload: yup
+  dataRecency: yup
     .number()
-    .oneOf(map(lastUploadDateFilterOptions, 'value'))
-    .required(t('Please select a last upload date option')),
+    .oneOf(map(dataRecencyFilterOptions, 'value'))
+    .required(t('Please select a data recency option')),
   tags: yup.array().of(yup.string())
     .min(1, t('Please select at least one tag')),
 });

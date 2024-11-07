@@ -15,7 +15,7 @@ import { TagList } from '../../components/elements/Tag';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { useLocalStorage } from '../../core/hooks';
 import { getCommonFormikFieldProps, getFieldError } from '../../core/forms';
-import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, lastUploadDateFilterOptions } from '../../core/clinicUtils';
+import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, dataRecencyFilterOptions } from '../../core/clinicUtils';
 import { Body0, Caption } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 import { push } from 'connected-react-router';
@@ -23,7 +23,7 @@ import { push } from 'connected-react-router';
 function getFormValues(config, clinicPatientTags) {
   return {
     period: config?.period || null,
-    lastUpload: config?.lastUpload || null,
+    dataRecency: config?.dataRecency || null,
     tags: config?.tags ? reject(config.tags, tagId => !clinicPatientTags?.[tagId]) : null,
   };
 }
@@ -123,11 +123,11 @@ export const TideDashboardConfigForm = props => {
       </Box>
 
       <Box sx={{ borderTop: borders.default }} pt={3}>
-        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select Last Upload Date')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Data recency: show me patients who sent data within the last')}</Body0>
 
         <RadioGroup
-          options={lastUploadDateFilterOptions}
-          {...getCommonFormikFieldProps('lastUpload', formikContext)}
+          options={dataRecencyFilterOptions}
+          {...getCommonFormikFieldProps('dataRecency', formikContext)}
           variant="vertical"
         />
       </Box>

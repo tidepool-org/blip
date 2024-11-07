@@ -677,9 +677,10 @@ export const TideDashboard = (props) => {
   const fetchDashboardPatients = useCallback((config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
-      const queryOptions = { period: options.period };
-      queryOptions['tags'] = reject(options?.tags || [], tagId => !patientTags?.[tagId]);
-      queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(options.lastUpload, 'days').toISOString();
+      const dataRecency = Number(options.dataRecency);
+      const queryOptions = { period: options.period, dataRecency: dataRecency };
+      queryOptions['tags'] = reject(options.tags || [], tagId => !patientTags?.[tagId]);
+      queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(dataRecency, 'days').toISOString();
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
@@ -760,20 +761,16 @@ export const TideDashboard = (props) => {
   }
 
   const renderHeader = () => {
-    const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const lastUploadDatesDayRange = moment(config?.lastDataCutoff).diff(config?.lastDataCutoff, 'days'); // TODO: this will be replaced with new data recency UI
+    console.log('config', config);
     const periodDaysText = config?.period === '1d' ? t('day') : t('days');
-
-    const uploadDatesLabel = t('Data uploaded {{descriptor}}', {
-      descriptor: lastUploadDatesDayRange === 1 ? 'on' : 'between',
-    })
+    const dataRecencyDaysText = config?.dataRecency === 1 ? t('day') : t('days');
 
     return (
       <Flex
         mb={3}
         sx={{ rowGap: 2, columnGap: 3, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}
       >
-        <Flex sx={{ gap: 2, alignItems: 'center' }}>
+        <Flex sx={{ gap: 3, alignItems: 'center' }}>
           <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '18px' }}>{t('TIDE Dashboard')}</Title>
 
           <Flex sx={{ gap: 2, position: 'relative', top: '2px', alignItems: 'center' }}>
@@ -785,41 +782,7 @@ export const TideDashboard = (props) => {
               }}
               ml={2}
             >
-              {uploadDatesLabel}
-            </Text>
-
-            <Text
-              id="tide-dashboard-upload-dates"
-              as={Flex}
-              px={3}
-              sx={{
-                borderRadius: radii.medium,
-                alignContent: 'center',
-                flexWrap: 'wrap',
-                fontSize: 0,
-                fontWeight: 'medium',
-                height: '24px',
-                bg: 'white',
-                color: loading ? 'white' : 'text.primary',
-              }}
-            >
-              {formatDateRange(
-                moment.utc(config?.lastDataCutoff).subtract(getOffset(config?.lastDataCutoff, timezone), 'minutes').toISOString(),
-                moment.utc(config?.lastDataCutoff).subtract(getOffset(config?.lastDataCutoff, timezone), 'minutes').subtract(1, 'ms').toISOString(),
-                null,
-                'MMMM'
-              )}
-            </Text>
-
-            <Text
-              sx={{
-                fontSize: 0,
-                fontWeight: 'medium',
-                color: 'text.primaryGrey',
-              }}
-              ml={2}
-            >
-              {t('Viewing data from')}
+              {t('Viewing data from the last')}
             </Text>
 
             <Text
@@ -838,6 +801,37 @@ export const TideDashboard = (props) => {
               }}
             >
               {config?.period.slice(0, -1)} {periodDaysText}
+            </Text>
+          </Flex>
+
+          <Flex sx={{ gap: 2, position: 'relative', top: '2px', alignItems: 'center' }}>
+            <Text
+              sx={{
+                fontSize: 0,
+                fontWeight: 'medium',
+                color: 'text.primaryGrey',
+              }}
+              ml={2}
+            >
+              {t('Data recency')}
+            </Text>
+
+            <Text
+              id="tide-dashboard-summary-period"
+              as={Flex}
+              px={3}
+              sx={{
+                borderRadius: radii.medium,
+                alignContent: 'center',
+                flexWrap: 'wrap',
+                fontSize: 0,
+                fontWeight: 'medium',
+                height: '24px',
+                bg: 'white',
+                color: loading ? 'white' : 'text.primary',
+              }}
+            >
+              {config?.dataRecency} {dataRecencyDaysText}
             </Text>
           </Flex>
         </Flex>
@@ -1052,6 +1046,7 @@ export const TideDashboard = (props) => {
       <Loader show={loading} overlay={!!patientGroups} />
       {renderHeader()}
       {patientGroups && renderPatientGroups()}
+      {/* {dataIssues && renderDataIssues()} */}
       {showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
 
