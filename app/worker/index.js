@@ -31,11 +31,11 @@ const log = bows('Worker');
 let q;
 
 onmessage = (msg) => {
-  const { patientId } = _.get(msg, 'data.meta', {});
+  const { id } = _.get(msg, 'data.meta', {});
 
-  if (patientId) {
-    // Instantiate a new queue if not set or patientId changes
-    if (!q || q.id !== patientId) q = newQueue(patientId);
+  if (id) {
+    // Instantiate a new queue if not set or id changes
+    if (!q || q.id !== id) q = newQueue(id);
 
     // Add message to queue
     q.push(msg);
@@ -43,11 +43,11 @@ onmessage = (msg) => {
   }
 };
 
-function newQueue(patientId) {
+function newQueue(id) {
   const _queue = queue(processMessage, 1);
-  _queue.id = patientId;
+  _queue.id = id;
 
-  log('New queue with patientId:', patientId, _queue);
+  log('New queue with id:', id, _queue);
   return _queue;
 }
 

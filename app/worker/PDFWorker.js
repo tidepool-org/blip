@@ -43,7 +43,7 @@ export default class PDFWorker {
       case actionTypes.GENERATE_PDF_REQUEST: {
         try {
           const { type, queries, data = {} } = action.payload;
-          const opts = { ...action.payload.opts };
+          const opts = { ...action.payload.opts, pdfType: type };
 
           if (queries) {
             // AGP report requires images to be generated on the main thread by Plotly in order to

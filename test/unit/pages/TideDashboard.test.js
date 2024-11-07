@@ -347,7 +347,7 @@ describe('TideDashboard', () => {
       expect(store.getActions()[0]).to.eql({
         meta: {
           WebWorker: true,
-          patientId: 'patientInViewID',
+          id: 'patientInViewID',
           worker: 'data',
         },
         payload: {
