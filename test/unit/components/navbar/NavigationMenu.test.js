@@ -218,7 +218,7 @@ describe('NavigationMenu', () => {
         {
           meta: {
             WebWorker: true,
-            patientId: undefined,
+            id: undefined,
             worker: 'data',
           },
           payload: {
@@ -329,7 +329,7 @@ describe('NavigationMenu', () => {
         {
           meta: {
             WebWorker: true,
-            patientId: undefined,
+            id: undefined,
             worker: 'data',
           },
           payload: {

@@ -157,7 +157,7 @@ Button.propTypes = {
 
 Button.defaultProps = {
   iconPosition: 'right',
-  iconFontSize: 'inherit',
+  iconFontSize: '1em',
   tagColorPalette: 'greens',
   tagFontSize: '0.75em',
   type: 'button',
