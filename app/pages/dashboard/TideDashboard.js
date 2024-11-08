@@ -248,6 +248,11 @@ const TideDashboardSection = React.memo(props => {
   const statEmptyText = '--';
 
   const dexcomConnectStateUI = React.useMemo(() => ({
+    noPendingConnections: {
+      colorPalette: 'neutral',
+      icon: null,
+      text: t('No Pending Connections'),
+    },
     pending: {
       colorPalette: 'primaryText',
       icon: null,
@@ -428,15 +433,21 @@ const TideDashboardSection = React.memo(props => {
 
   const renderDexcomConnectionStatus = useCallback(({ patient }) => {
     const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
+    let dexcomConnectState;
 
-    const dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
-      ? dexcomDataSource.state
-      : 'unknown';
+    if (dexcomDataSource) {
+      dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
+        ? dexcomDataSource.state
+        : 'unknown';
+    } else {
+      dexcomConnectState = 'noPendingConnections';
+    }
 
     const showViewButton = includes([
-      'pendingExpired',
       'disconnected',
       'error',
+      'noPendingConnections',
+      'pendingExpired',
       'unknown',
     ], dexcomConnectState);
 
