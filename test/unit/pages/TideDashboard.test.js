@@ -268,7 +268,7 @@ describe('TideDashboard', () => {
       tideDashboardConfig: {
         'clinicianUserId123|clinicID123': {
           period: '30d',
-          lastUpload: 14,
+          dataRecency: 14,
           tags: sampleTags.map(({ id }) => id),
         },
       },
@@ -386,7 +386,7 @@ describe('TideDashboard', () => {
         tideDashboardConfig: {
           'clinicianUserId123|clinicID123': {
             period: '30d',
-            lastUpload: 14,
+            dataRecency: 14,
             tags: [], // invalid: no tags selected
           },
         },
@@ -414,7 +414,7 @@ describe('TideDashboard', () => {
         tideDashboardConfig: {
           'clinicianUserId123|clinicID123': {
             period: '30d',
-            lastUpload: 14,
+            dataRecency: 14,
             tags: sampleTags.map(({ id }) => id),
           },
         },
@@ -493,7 +493,8 @@ describe('TideDashboard', () => {
             ...tideDashboardPatients,
             config: {
               ...tideDashboardPatients.config,
-              period: '17d',
+              period: '14d',
+              dataRecency: 1,
             },
           },
         },
@@ -510,34 +511,29 @@ describe('TideDashboard', () => {
       const header = wrapper.find('#tide-dashboard-header').hostNodes();
       expect(header.text()).to.equal('TIDE Dashboard');
 
-      const expectedLastUploadTo = moment.utc(tideDashboardPatients.config.lastDataCutoff).toISOString()
-      const expectedLastUploadFrom = moment(expectedLastUploadTo).subtract(1, 'ms').toISOString();
-
-      const dates = wrapper.find('#tide-dashboard-upload-dates').hostNodes();
-      expect(dates.text()).contains(moment(expectedLastUploadFrom).format('MMMM D'));
-      expect(dates.text()).contains(moment(expectedLastUploadFrom).format('YYYY'));
-      expect(dates.text()).contains(moment(expectedLastUploadTo).format('MMMM D'));
-      expect(dates.text()).contains(moment(expectedLastUploadTo).format('YYYY'));
-
       const period = wrapper.find('#tide-dashboard-summary-period').hostNodes();
-      expect(period.text()).contains('17 days');
+      expect(period.text()).contains('14 days');
+
+      const dataRecency = wrapper.find('#tide-dashboard-data-recency').hostNodes();
+      expect(dataRecency.text()).contains('24 hours');
     });
 
     it('should render a heading and table for dashboard section, with correctly ordered results', () => {
       const dashboardSections = wrapper.find('.dashboard-section');
-      expect(dashboardSections.hostNodes()).to.have.length(6);
+      expect(dashboardSections.hostNodes()).to.have.length(7);
 
       const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
-      expect(dashboardSectionLabels).to.have.length(6);
+      expect(dashboardSectionLabels).to.have.length(7);
       expect(dashboardSectionLabels.at(0).text()).to.equal('Time below 54 mg/dL > 1%');
       expect(dashboardSectionLabels.at(1).text()).to.equal('Time below 70 mg/dL > 4%');
       expect(dashboardSectionLabels.at(2).text()).to.equal('Drop in Time in Range > 15%');
       expect(dashboardSectionLabels.at(3).text()).to.equal('Time in Range < 70%');
       expect(dashboardSectionLabels.at(4).text()).to.equal('CGM Wear Time < 70%');
       expect(dashboardSectionLabels.at(5).text()).to.equal('Meeting Targets');
+      expect(dashboardSectionLabels.at(6).text()).to.equal('Data Issues');
 
       const dashboardSectionTables = dashboardSections.find('.dashboard-table').hostNodes();
-      expect(dashboardSectionTables).to.have.length(6);
+      expect(dashboardSectionTables).to.have.length(7);
 
       const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);
 
@@ -658,7 +654,7 @@ describe('TideDashboard', () => {
       );
 
       const dashboardSections = wrapper.find('.dashboard-section');
-      expect(dashboardSections.hostNodes()).to.have.length(6);
+      expect(dashboardSections.hostNodes()).to.have.length(7);
 
       const emptyTextNode = dashboardSections.at(1).find('.table-empty-text').hostNodes();
       expect(emptyTextNode).to.have.length(1);
@@ -711,10 +707,10 @@ describe('TideDashboard', () => {
 
       it('should show table headings mmol/L units', () => {
         const dashboardSections = wrapper.find('.dashboard-section');
-        expect(dashboardSections.hostNodes()).to.have.length(6);
+        expect(dashboardSections.hostNodes()).to.have.length(7);
 
         const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
-        expect(dashboardSectionLabels).to.have.length(6);
+        expect(dashboardSectionLabels).to.have.length(7);
         expect(dashboardSectionLabels.at(0).text()).to.equal('Time below 3.0 mmol/L > 1%');
         expect(dashboardSectionLabels.at(1).text()).to.equal('Time below 3.9 mmol/L > 4%');
 
@@ -927,17 +923,17 @@ describe('TideDashboard', () => {
       summaryPeriodOptions.at(3).find('input').last().simulate('change', { target: { name: 'period', value: '7d' } });
 
       // Ensure period filter options present
-      const lastUploadDateFilterOptions = dialog().find('#lastUpload').find('label').hostNodes();
+      const lastUploadDateFilterOptions = dialog().find('#dataRecency').find('label').hostNodes();
       expect(lastUploadDateFilterOptions).to.have.lengthOf(5);
 
-      expect(lastUploadDateFilterOptions.at(0).text()).to.equal('Today');
+      expect(lastUploadDateFilterOptions.at(0).text()).to.equal('24 hours');
       expect(lastUploadDateFilterOptions.at(0).find('input').props().value).to.equal('1');
 
-      expect(lastUploadDateFilterOptions.at(3).text()).to.equal('Last 14 days');
+      expect(lastUploadDateFilterOptions.at(3).text()).to.equal('14 days');
       expect(lastUploadDateFilterOptions.at(3).find('input').props().value).to.equal('14');
       expect(lastUploadDateFilterOptions.at(3).find('input').props().checked).to.be.true;
 
-      lastUploadDateFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'lastUpload', value: 1 } });
+      lastUploadDateFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'dataRecency', value: 1 } });
 
       // Submit the form
       const applyButton = () => dialog().find('#configureTideDashboardConfirm').hostNodes();
@@ -956,7 +952,7 @@ describe('TideDashboard', () => {
 
         expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
           period: '7d',
-          lastUpload: 1,
+          dataRecency: 1,
           tags: [sampleTags[1].id, sampleTags[2].id],
         });
 

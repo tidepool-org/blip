@@ -2934,7 +2934,7 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  * @param {Object} [options] - report config options
  * @param {Number} [options.period] - period to sort by (1d|7d|14d|30d)
  * @param {Array} [options.tags] - Array of patient tag IDs
- * @param {Number} [options.lastDataCutoff] - ISO date for start of last upload date filter range
+ * @param {Number} [options.lastDataCutoff] - ISO date for data recency cutoff date
  */
  export function fetchTideDashboardPatients(api, clinicId, options) {
   return (dispatch) => {

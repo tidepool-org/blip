@@ -69,6 +69,8 @@ import { fieldsAreValid } from '../../core/forms';
 import {
   patientSchema as validationSchema,
   tideDashboardConfigSchema,
+  dataRecencyFilterOptions,
+  summaryPeriodOptions,
 } from '../../core/clinicUtils';
 
 import { DEFAULT_FILTER_THRESHOLDS, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
@@ -901,9 +903,8 @@ export const TideDashboard = (props) => {
   }
 
   const renderHeader = () => {
-    console.log('config', config);
-    const periodDaysText = config?.period === '1d' ? t('day') : t('days');
-    const dataRecencyDaysText = config?.dataRecency === 1 ? t('day') : t('days');
+    const periodDaysText = keyBy(summaryPeriodOptions, 'value')?.[config?.period]?.label
+    const dataRecencyDaysText = keyBy(dataRecencyFilterOptions, 'value')?.[config?.dataRecency]?.label
 
     return (
       <Flex
@@ -940,7 +941,7 @@ export const TideDashboard = (props) => {
                 color: loading ? 'white' : 'text.primary',
               }}
             >
-              {config?.period.slice(0, -1)} {periodDaysText}
+              {periodDaysText}
             </Text>
           </Flex>
 
@@ -957,7 +958,7 @@ export const TideDashboard = (props) => {
             </Text>
 
             <Text
-              id="tide-dashboard-summary-period"
+              id="tide-dashboard-data-recency"
               as={Flex}
               px={3}
               sx={{
@@ -971,7 +972,7 @@ export const TideDashboard = (props) => {
                 color: loading ? 'white' : 'text.primary',
               }}
             >
-              {config?.dataRecency} {dataRecencyDaysText}
+              {dataRecencyDaysText}
             </Text>
           </Flex>
         </Flex>

@@ -704,7 +704,7 @@ describe('clinicUtils', function() {
 
       expect(clinicUtils.tideDashboardConfigSchema._nodes).to.be.an('array').and.have.members([
         'period',
-        'lastUpload',
+        'dataRecency',
         'tags',
       ]);
     });

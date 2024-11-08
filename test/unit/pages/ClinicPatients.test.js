@@ -3086,25 +3086,25 @@ describe('ClinicPatients', () => {
             expect(applyButton().props().disabled).to.be.true;
 
             // Ensure period filter options present
-            const lastUploadDateFilterOptions = dialog().find('#lastUpload').find('label').hostNodes();
-            expect(lastUploadDateFilterOptions).to.have.lengthOf(5);
+            const dataRecencyFilterOptions = dialog().find('#dataRecency').find('label').hostNodes();
+            expect(dataRecencyFilterOptions).to.have.lengthOf(5);
 
-            expect(lastUploadDateFilterOptions.at(0).text()).to.equal('Today');
-            expect(lastUploadDateFilterOptions.at(0).find('input').props().value).to.equal('1');
+            expect(dataRecencyFilterOptions.at(0).text()).to.equal('24 hours');
+            expect(dataRecencyFilterOptions.at(0).find('input').props().value).to.equal('1');
 
-            expect(lastUploadDateFilterOptions.at(1).text()).to.equal('Last 2 days');
-            expect(lastUploadDateFilterOptions.at(1).find('input').props().value).to.equal('2');
+            expect(dataRecencyFilterOptions.at(1).text()).to.equal('2 days');
+            expect(dataRecencyFilterOptions.at(1).find('input').props().value).to.equal('2');
 
-            expect(lastUploadDateFilterOptions.at(2).text()).to.equal('Last 7 days');
-            expect(lastUploadDateFilterOptions.at(2).find('input').props().value).to.equal('7');
+            expect(dataRecencyFilterOptions.at(2).text()).to.equal('7 days');
+            expect(dataRecencyFilterOptions.at(2).find('input').props().value).to.equal('7');
 
-            expect(lastUploadDateFilterOptions.at(3).text()).to.equal('Last 14 days');
-            expect(lastUploadDateFilterOptions.at(3).find('input').props().value).to.equal('14');
+            expect(dataRecencyFilterOptions.at(3).text()).to.equal('14 days');
+            expect(dataRecencyFilterOptions.at(3).find('input').props().value).to.equal('14');
 
-            expect(lastUploadDateFilterOptions.at(4).text()).to.equal('Last 30 days');
-            expect(lastUploadDateFilterOptions.at(4).find('input').props().value).to.equal('30');
+            expect(dataRecencyFilterOptions.at(4).text()).to.equal('30 days');
+            expect(dataRecencyFilterOptions.at(4).find('input').props().value).to.equal('30');
 
-            lastUploadDateFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'lastUpload', value: 14 } });
+            dataRecencyFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'dataRecency', value: 14 } });
 
             // Apply button should now be active
             expect(applyButton().props().disabled).to.be.false;
@@ -3127,7 +3127,7 @@ describe('ClinicPatients', () => {
 
               expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
                 period: '30d',
-                lastUpload: 14,
+                dataRecency: 14,
                 tags: ['tag1', 'tag3'],
               });
 
@@ -3140,7 +3140,7 @@ describe('ClinicPatients', () => {
               tideDashboardConfig: {
                 'clinicianUserId123|clinicID123': {
                   period: '30d',
-                  lastUpload: 14,
+                  dataRecency: 14,
                   tags: ['tag1', 'tag3'],
                 },
               },
@@ -3187,7 +3187,7 @@ describe('ClinicPatients', () => {
               tideDashboardConfig: {
                 'clinicianUserId123|clinicID123': {
                   period: '30d',
-                  lastUpload: 14,
+                  dataRecency: 14,
                   tags: [], // invalid: no tags selected
                 },
               },
