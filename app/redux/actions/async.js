@@ -2946,7 +2946,7 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
           createActionError(ErrorMessages.ERR_FETCHING_TIDE_DASHBOARD_PATIENTS, err), err
         ));
       } else {
-        if (results.config) results.config.dataRecency = options.dataRecency;
+        if (results.config) results.config.lastData = options.lastData;
         dispatch(sync.fetchTideDashboardPatientsSuccess(results));
       }
     });

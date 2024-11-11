@@ -15,7 +15,7 @@ import { TagList } from '../../components/elements/Tag';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { useLocalStorage } from '../../core/hooks';
 import { getCommonFormikFieldProps, getFieldError } from '../../core/forms';
-import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, dataRecencyFilterOptions } from '../../core/clinicUtils';
+import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, lastDataFilterOptions } from '../../core/clinicUtils';
 import { Body0, Caption } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 import { push } from 'connected-react-router';
@@ -23,7 +23,7 @@ import { push } from 'connected-react-router';
 function getFormValues(config, clinicPatientTags) {
   return {
     period: config?.period || null,
-    dataRecency: config?.dataRecency || null,
+    lastData: config?.lastData || null,
     tags: config?.tags ? reject(config.tags, tagId => !clinicPatientTags?.[tagId]) : null,
   };
 }
@@ -117,8 +117,8 @@ export const TideDashboardConfigForm = props => {
         <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
 
         <RadioGroup
-          options={dataRecencyFilterOptions}
-          {...getCommonFormikFieldProps('dataRecency', formikContext)}
+          options={lastDataFilterOptions}
+          {...getCommonFormikFieldProps('lastData', formikContext)}
           variant="vertical"
         />
       </Box>

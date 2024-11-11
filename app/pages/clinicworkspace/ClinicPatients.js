@@ -95,12 +95,12 @@ import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 
 import {
-  dateFormat,
   patientSchema as validationSchema,
   clinicPatientTagSchema,
+  lastDataFilterOptions,
   tideDashboardConfigSchema,
   rpmReportConfigSchema,
-  maxClinicPatientTags
+  maxClinicPatientTags,
 } from '../../core/clinicUtils';
 
 import { MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
@@ -121,8 +121,8 @@ const StyledScrollToTop = styled(ScrollToTop)`
 
 const defaultFilterState = {
   timeCGMUsePercent: null,
-  lastUploadDate: null,
-  lastUploadType: null,
+  lastData: null,
+  lastDataType: null,
   timeInRange: [],
   meetsGlycemicTargets: true,
   patientTags: [],
@@ -497,7 +497,7 @@ export const ClinicPatients = (props) => {
       // by (unless we already have the showDashboard entitlements figured out).
       // This prevents the a premature patient fetch to begin with an incorrect default sort.
       if (!isFirstRender || (isBoolean(showSummaryDashboard) && isBoolean(clinic?.entitlements?.summaryDashboard))) {
-        options.sort = showSummaryData || showSummaryDashboard || clinic?.entitlements?.summaryDashboard ? '-lastUploadDate' : '+fullName';
+        options.sort = showSummaryData || showSummaryDashboard || clinic?.entitlements?.summaryDashboard ? '-lastData' : '+fullName';
         options.sortType = 'cgm';
       }
 
@@ -513,7 +513,7 @@ export const ClinicPatients = (props) => {
     birthDate: 'asc',
     glucoseManagementIndicator: 'desc',
     averageGlucoseMmol: 'desc',
-    lastUploadDate: 'desc',
+    lastData: 'desc',
     lastReviewed: 'asc',
     timeInVeryLowRecords: 'desc',
     timeInVeryHighRecords: 'desc',
@@ -540,17 +540,12 @@ export const ClinicPatients = (props) => {
     { value: '>=0.7', label: t('70% or more') },
   ];
 
-  const lastUploadTypeFilterOptions = [
+  const lastDataTypeFilterOptions = [
     { value: 'cgm', label: t('CGM') },
     { value: 'bgm', label: t('BGM') },
   ];
 
-  const lastUploadDateFilterOptions = [
-    { value: 1, label: t('Today') },
-    { value: 2, label: t('Last 2 days') },
-    { value: 14, label: t('Last 14 days') },
-    { value: 30, label: t('Last 30 days') },
-  ];
+  const customLastDataFilterOptions = reject(lastDataFilterOptions, { value: 7 });
 
   const summaryPeriodOptions = [
     { value: '1d', label: t('24 hours') },
@@ -576,9 +571,9 @@ export const ClinicPatients = (props) => {
     popupId: 'summaryPeriodFilters',
   });
 
-  const lastUploadDatePopupFilterState = usePopupState({
+  const lastDataPopupFilterState = usePopupState({
     variant: 'popover',
-    popupId: 'lastUploadDateFilters',
+    popupId: 'lastDataFilters',
   });
 
   const patientTagsPopupFilterState = usePopupState({
@@ -869,15 +864,15 @@ export const ClinicPatients = (props) => {
       if (isEmpty(filterOptions.search)) delete filterOptions.search;
 
       if (showSummaryData) {
-        // If we are currently sorting by lastUpload date, ensure the sortType matches the filter
+        // If we are currently sorting by lastData date, ensure the sortType matches the filter
         // type if available, or falls back to the default sortType
-        if (filterOptions.sort?.indexOf('lastUploadDate') === 1) {
-          filterOptions.sortType = activeFilters.lastUploadType || defaultPatientFetchOptions.sortType;
+        if (filterOptions.sort?.indexOf('lastData') === 1) {
+          filterOptions.sortType = activeFilters.lastDataType || defaultPatientFetchOptions.sortType;
         }
 
-        if (activeFilters.lastUploadDate && activeFilters.lastUploadType) {
-          filterOptions[`${activeFilters.lastUploadType}.lastDataTo`] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-          filterOptions[`${activeFilters.lastUploadType}.lastDataFrom`] = moment(filterOptions[`${activeFilters.lastUploadType}.lastDataTo`]).subtract(activeFilters.lastUploadDate, 'days').toISOString();
+        if (activeFilters.lastData && activeFilters.lastDataType) {
+          filterOptions[`${activeFilters.lastDataType}.lastDataTo`] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+          filterOptions[`${activeFilters.lastDataType}.lastDataFrom`] = moment(filterOptions[`${activeFilters.lastDataType}.lastDataTo`]).subtract(activeFilters.lastData, 'days').toISOString();
         }
 
         if (activeFilters.patientTags?.length) {
@@ -1115,7 +1110,7 @@ export const ClinicPatients = (props) => {
 
       const sortColumnLabels = {
         fullName: 'Patient details',
-        'summary.lastUploadDate': 'Last upload',
+        'summary.lastData': 'Data recency',
         [`summary.periods.${activeSummaryPeriod}.timeCGMUsePercent`]: 'CGM use',
         [`summary.periods.${activeSummaryPeriod}.glucoseManagementIndicator`]: 'GMI',
       };
@@ -1196,7 +1191,7 @@ export const ClinicPatients = (props) => {
   const renderHeader = () => {
     const activeFiltersCount = without([
       activeFilters.timeCGMUsePercent,
-      activeFilters.lastUploadDate,
+      activeFilters.lastData,
       activeFilters.timeInRange?.length,
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
@@ -1379,32 +1374,35 @@ export const ClinicPatients = (props) => {
                 <Flex sx={{ flexShrink: 0, gap: 2 }}>
                   <Box
                     onClick={() => {
-                      if (!lastUploadDatePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Last upload filter open'), { clinicId: selectedClinicId });
+                      if (!lastDataPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Last data filter open'), { clinicId: selectedClinicId });
                     }}
                     sx={{ flexShrink: 0 }}
                   >
                     <Button
                       variant="filter"
                       id="last-upload-filter-trigger"
-                      selected={!!activeFilters.lastUploadDate}
-                      {...bindTrigger(lastUploadDatePopupFilterState)}
+                      selected={!!activeFilters.lastData}
+                      {...bindTrigger(lastDataPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
                       iconLabel="Filter by last upload"
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
-                      {activeFilters.lastUploadDate ? find(lastUploadDateFilterOptions, { value: activeFilters.lastUploadDate })?.label : t('Last Upload')}
+                      {activeFilters.lastData
+                        ? t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', ' ')
+                        : t('Data Recency')
+                      }
                     </Button>
                   </Box>
 
                   <Popover
-                    minWidth="11em"
+                    width="13em"
                     closeIcon
-                    {...bindPopover(lastUploadDatePopupFilterState)}
+                    {...bindPopover(lastDataPopupFilterState)}
                     onClickCloseIcon={() => {
                       trackMetric(prefixPopHealthMetric('Last upload filter close'), { clinicId: selectedClinicId });
                     }}
                     onClose={() => {
-                      lastUploadDatePopupFilterState.close();
+                      lastDataPopupFilterState.close();
                       setPendingFilters(activeFilters);
                     }}
                   >
@@ -1418,12 +1416,12 @@ export const ClinicPatients = (props) => {
                       <RadioGroup
                         id="last-upload-type"
                         name="last-upload-type"
-                        options={lastUploadTypeFilterOptions}
+                        options={lastDataTypeFilterOptions}
                         variant="vertical"
                         sx={{ fontSize: 0 }}
-                        value={pendingFilters.lastUploadType || activeFilters.lastUploadType}
+                        value={pendingFilters.lastDataType || activeFilters.lastDataType}
                         onChange={event => {
-                          setPendingFilters({ ...pendingFilters, lastUploadType: event.target.value || null });
+                          setPendingFilters({ ...pendingFilters, lastDataType: event.target.value || null });
                         }}
                       />
 
@@ -1436,21 +1434,20 @@ export const ClinicPatients = (props) => {
                           borderTop: borders.divider,
                         }}
                       >
-                        <Text color="grays.4" sx={{ fontSize: 0, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
-                          {t('Time Period')}
-                        </Text>
+                        <Body0 color="grays.4" sx={{ fontWeight: 'bold' }} mb={0}>{t('Data Recency')}</Body0>
+                        <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
                       </Box>
 
                       <RadioGroup
                         id="last-upload-filters"
                         name="last-upload-filters"
-                        options={lastUploadDateFilterOptions}
+                        options={customLastDataFilterOptions}
                         variant="vertical"
                         sx={{ fontSize: 0 }}
                         mb={3}
-                        value={pendingFilters.lastUploadDate || activeFilters.lastUploadDate}
+                        value={pendingFilters.lastData || activeFilters.lastData}
                         onChange={event => {
-                          setPendingFilters({ ...pendingFilters, lastUploadDate: parseInt(event.target.value) || null });
+                          setPendingFilters({ ...pendingFilters, lastData: parseInt(event.target.value) || null });
                         }}
                       />
                     </DialogContent>
@@ -1462,9 +1459,9 @@ export const ClinicPatients = (props) => {
                         variant="textSecondary"
                         onClick={() => {
                           trackMetric(prefixPopHealthMetric('Last upload clear filter'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, lastUploadDate: defaultFilterState.lastUploadDate, lastUploadType: defaultFilterState.lastUploadType });
-                          setActiveFilters({ ...activeFilters, lastUploadDate: defaultFilterState.lastUploadDate, lastUploadType: defaultFilterState.lastUploadType });
-                          lastUploadDatePopupFilterState.close();
+                          setPendingFilters({ ...activeFilters, lastData: defaultFilterState.lastData, lastDataType: defaultFilterState.lastDataType });
+                          setActiveFilters({ ...activeFilters, lastData: defaultFilterState.lastData, lastDataType: defaultFilterState.lastDataType });
+                          lastDataPopupFilterState.close();
                         }}
                       >
                         {t('Clear')}
@@ -1472,22 +1469,22 @@ export const ClinicPatients = (props) => {
 
                       <Button
                         id="apply-last-upload-filter"
-                        disabled={!pendingFilters.lastUploadDate || !pendingFilters.lastUploadType}
+                        disabled={!pendingFilters.lastData || !pendingFilters.lastDataType}
                         sx={{ fontSize: 1 }}
                         variant="textPrimary"
                         onClick={() => {
-                          const dateRange = pendingFilters.lastUploadDate === 1
+                          const dateRange = pendingFilters.lastData === 1
                             ? 'today'
-                            : `${pendingFilters.lastUploadDate} days`;
+                            : `${pendingFilters.lastData} days`;
 
                           trackMetric(prefixPopHealthMetric('Last upload apply filter'), {
                             clinicId: selectedClinicId,
                             dateRange,
-                            type: pendingFilters.lastUploadType,
+                            type: pendingFilters.lastDataType,
                           });
 
                           setActiveFilters(pendingFilters);
-                          lastUploadDatePopupFilterState.close();
+                          lastDataPopupFilterState.close();
                         }}
                       >
                         {t('Apply')}
@@ -1803,7 +1800,7 @@ export const ClinicPatients = (props) => {
                     sx={{ color: 'grays.4', borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
                   >
 
-                  <Text sx={{ fontSize: 0 }}>{t('View data from')}</Text>
+                  <Text sx={{ fontSize: 0 }}>{t('Summarizing')}</Text>
                 </Flex>
 
                 <Box
@@ -1819,12 +1816,12 @@ export const ClinicPatients = (props) => {
                     iconLabel="Filter by summary period duration"
                     sx={{ fontSize: 0, lineHeight: 1.3 }}
                   >
-                    {find(summaryPeriodOptions, { value: activeSummaryPeriod })?.label}
+                    {find(summaryPeriodOptions, { value: activeSummaryPeriod })?.label} {t('of data')}
                   </Button>
                 </Box>
 
                 <Popover
-                  minWidth="11em"
+                  width="13em"
                   closeIcon
                   {...bindPopover(summaryPeriodPopupFilterState)}
                   onClickCloseIcon={() => {
@@ -1836,6 +1833,8 @@ export const ClinicPatients = (props) => {
                   }}
                 >
                   <DialogContent px={2} py={3} dividers>
+                    <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will generate health summaries for the selected number of days.')}</Body0>
+
                     <RadioGroup
                       id="summary-period-filters"
                       name="summary-period-filters"
@@ -2236,7 +2235,7 @@ export const ClinicPatients = (props) => {
       >
         <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
-            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Select Patients to Display in the TIDE Dashboard')}</MediumTitle>
             <Body1 sx={{ fontWeight: 'medium', color: 'grays.4' }}>{t('You must make a selection in each category')}</Body1>
           </Box>
         </DialogTitle>
@@ -2741,77 +2740,77 @@ export const ClinicPatients = (props) => {
     </Box>
   ), [handleClickPatient, showSummaryData, t]);
 
-  const renderLastUploadDate = useCallback(({ summary }) => {
-    let formattedLastUploadDateCGM, formattedLastUploadDateBGM;
+  const renderLastDataDate = useCallback(({ summary }) => {
+    let formattedLastDataDateCGM, formattedLastDataDateBGM;
 
     const defaultStyles = {
       color: 'inherit',
       fontWeight: '400',
     };
 
-    if (summary?.cgmStats?.dates?.lastUploadDate) {
-      formattedLastUploadDateCGM = {
-        ...formatTimeAgo(summary.cgmStats.dates.lastUploadDate, timePrefs),
+    if (summary?.cgmStats?.dates?.lastData) {
+      formattedLastDataDateCGM = {
+        ...formatTimeAgo(summary.cgmStats.dates.lastData, timePrefs),
         ...defaultStyles,
       };
 
-      if (formattedLastUploadDateCGM.daysAgo < 2) {
-        formattedLastUploadDateCGM.color = 'feedback.success';
-        formattedLastUploadDateCGM.fontWeight = 'medium';
-      } else if (formattedLastUploadDateCGM.daysAgo <= 30) {
-        formattedLastUploadDateCGM.color = 'feedback.warning';
-        formattedLastUploadDateCGM.fontWeight = 'medium';
+      if (formattedLastDataDateCGM.daysAgo < 2) {
+        formattedLastDataDateCGM.color = 'feedback.success';
+        formattedLastDataDateCGM.fontWeight = 'medium';
+      } else if (formattedLastDataDateCGM.daysAgo <= 30) {
+        formattedLastDataDateCGM.color = 'feedback.warning';
+        formattedLastDataDateCGM.fontWeight = 'medium';
       }
     }
 
-    if (summary?.bgmStats?.dates?.lastUploadDate) {
-      formattedLastUploadDateBGM = {
-        ...formatTimeAgo(summary.bgmStats.dates.lastUploadDate, timePrefs),
+    if (summary?.bgmStats?.dates?.lastData) {
+      formattedLastDataDateBGM = {
+        ...formatTimeAgo(summary.bgmStats.dates.lastData, timePrefs),
         ...defaultStyles,
       };
 
-      if (formattedLastUploadDateBGM.daysAgo < 2) {
-        formattedLastUploadDateBGM.color = 'feedback.success';
-        formattedLastUploadDateBGM.fontWeight = 'medium';
-      } else if (formattedLastUploadDateBGM.daysAgo <= 30) {
-        formattedLastUploadDateBGM.color = 'feedback.warning';
-        formattedLastUploadDateBGM.fontWeight = 'medium';
+      if (formattedLastDataDateBGM.daysAgo < 2) {
+        formattedLastDataDateBGM.color = 'feedback.success';
+        formattedLastDataDateBGM.fontWeight = 'medium';
+      } else if (formattedLastDataDateBGM.daysAgo <= 30) {
+        formattedLastDataDateBGM.color = 'feedback.warning';
+        formattedLastDataDateBGM.fontWeight = 'medium';
       }
     }
 
     return (
       <Box classname="patient-last-upload">
-        {formattedLastUploadDateCGM && (
+        {formattedLastDataDateCGM && (
           <Box sx={{ whiteSpace: 'nowrap' }}>
             <Text>{t('CGM: ')}</Text>
             <Text
               sx={{
-                color: formattedLastUploadDateCGM.color,
-                fontWeight: formattedLastUploadDateCGM.fontWeight,
+                color: formattedLastDataDateCGM.color,
+                fontWeight: formattedLastDataDateCGM.fontWeight,
                 whiteSpace: 'nowrap',
               }}
             >
-              {formattedLastUploadDateCGM.text}
+              {formattedLastDataDateCGM.text}
             </Text>
           </Box>
         )}
 
-        {formattedLastUploadDateBGM && (
+        {formattedLastDataDateBGM && (
           <Box sx={{ whiteSpace: 'nowrap' }}>
             <Text>{t('BGM: ')}</Text>
             <Text
               sx={{
-                color: formattedLastUploadDateBGM.color,
-                fontWeight: formattedLastUploadDateBGM.fontWeight,
+                color: formattedLastDataDateBGM.color,
+                fontWeight: formattedLastDataDateBGM.fontWeight,
                 whiteSpace: 'nowrap',
               }}
             >
-              {formattedLastUploadDateBGM.text}
+              {formattedLastDataDateBGM.text}
             </Text>
           </Box>
         )}
 
-        {!formattedLastUploadDateCGM && !formattedLastUploadDateBGM && (
+        {!formattedLastDataDateCGM && !formattedLastDataDateBGM && (
           <Text sx={{ color: 'inherit', fontWeight: 'regular' }}>{statEmptyText}</Text>
         )}
       </Box>
@@ -3031,13 +3030,13 @@ export const ClinicPatients = (props) => {
       cols.splice(1, 2,
         ...[
           {
-            title: t('Last Upload'),
-            field: `${activeFilters.lastUploadType || 'cgm'}.lastUploadDate`,
+            title: t('Data Recency'),
+            field: `${activeFilters.lastDataType || 'cgm'}.lastData`,
             align: 'left',
             sortable: true,
-            defaultOrder: defaultSortOrders.lastUploadDate,
-            sortBy: 'lastUploadDate',
-            render: renderLastUploadDate,
+            defaultOrder: defaultSortOrders.lastData,
+            sortBy: 'lastData',
+            render: renderLastDataDate,
           },
           {
             title: t('Patient Tags'),
@@ -3156,7 +3155,7 @@ export const ClinicPatients = (props) => {
     renderBgRangeSummary,
     renderGMI,
     renderLastReviewed,
-    renderLastUploadDate,
+    renderLastDataDate,
     renderLinkedField,
     renderMore,
     renderPatient,
@@ -3164,12 +3163,12 @@ export const ClinicPatients = (props) => {
     showSummaryData,
     showSummaryDashboardLastReviewed,
     t,
-    activeFilters.lastUploadType,
+    activeFilters.lastDataType,
     defaultSortOrders.averageGlucoseMmol,
     defaultSortOrders.birthDate,
     defaultSortOrders.fullName,
     defaultSortOrders.glucoseManagementIndicator,
-    defaultSortOrders.lastUploadDate,
+    defaultSortOrders.lastData,
     defaultSortOrders.timeInVeryHighRecords,
     defaultSortOrders.timeInVeryLowRecords
   ]);

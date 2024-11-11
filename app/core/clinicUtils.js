@@ -71,7 +71,7 @@ export const preferredBgUnits = [
   { value: MMOLL_UNITS, label: MMOLL_UNITS },
 ];
 
-export const dataRecencyFilterOptions = [
+export const lastDataFilterOptions = [
   { value: 1, label: t('Within 24 hours') },
   { value: 2, label: t('Within 2 days') },
   { value: 7, label: t('Within 7 days') },
@@ -444,9 +444,9 @@ export const tideDashboardConfigSchema = yup.object().shape({
     .string()
     .oneOf(map(summaryPeriodOptions, 'value'))
     .required(t('Please select a duration period')),
-  dataRecency: yup
+  lastData: yup
     .number()
-    .oneOf(map(dataRecencyFilterOptions, 'value'))
+    .oneOf(map(lastDataFilterOptions, 'value'))
     .required(t('Please select a data recency option')),
   tags: yup.array().of(yup.string())
     .min(1, t('Please select at least one tag')),

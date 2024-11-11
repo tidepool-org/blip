@@ -58,13 +58,13 @@ describe('clinicUtils', function() {
     ]);
   });
 
-  it('should return all lastUploadDateFilterOptions options', () => {
-    expect(clinicUtils.lastUploadDateFilterOptions).to.eql([
-      { value: 1, label: 'Today' },
-      { value: 2, label: 'Last 2 days' },
-      { value: 7, label: 'Last 7 days' },
-      { value: 14, label: 'Last 14 days' },
-      { value: 30, label: 'Last 30 days' },
+  it('should return all lastDataFilterOptions options', () => {
+    expect(clinicUtils.lastDataFilterOptions).to.eql([
+      { value: 1, label: '24 hours' },
+      { value: 2, label: '2 days' },
+      { value: 7, label: '7 days' },
+      { value: 14, label: '14 days' },
+      { value: 30, label: '30 days' },
     ]);
   });
 
@@ -704,7 +704,7 @@ describe('clinicUtils', function() {
 
       expect(clinicUtils.tideDashboardConfigSchema._nodes).to.be.an('array').and.have.members([
         'period',
-        'dataRecency',
+        'lastData',
         'tags',
       ]);
     });

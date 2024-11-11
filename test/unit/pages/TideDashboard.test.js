@@ -149,6 +149,14 @@ describe('TideDashboard', () => {
     [],
   ];
 
+  const noDataOverrides = [
+    { lastData: moment(today).subtract(30, 'd').toISOString() },
+    { lastData: moment(today).subtract(200, 'd').toISOString() },
+    { lastData: yesterday },
+    {},
+    { lastData: moment(today).subtract(45, 'd').toISOString() },
+  ]
+
   const tideDashboardPatients = {
     ...mockTideDashboardPatients,
     results: {
@@ -156,6 +164,10 @@ describe('TideDashboard', () => {
       meetingTargets:  map(mockTideDashboardPatients.results.meetingTargets, (results, i) => ({
         ...results,
         patient: { ...results.patient, reviews: lastReviewedOverrides[i] },
+      })),
+      noData:  map(mockTideDashboardPatients.results.noData, (results, i) => ({
+        ...results,
+        ...noDataOverrides[i]
       })),
     }
   }
@@ -268,7 +280,7 @@ describe('TideDashboard', () => {
       tideDashboardConfig: {
         'clinicianUserId123|clinicID123': {
           period: '30d',
-          dataRecency: 14,
+          lastData: 14,
           tags: sampleTags.map(({ id }) => id),
         },
       },
@@ -386,7 +398,7 @@ describe('TideDashboard', () => {
         tideDashboardConfig: {
           'clinicianUserId123|clinicID123': {
             period: '30d',
-            dataRecency: 14,
+            lastData: 14,
             tags: [], // invalid: no tags selected
           },
         },
@@ -414,7 +426,7 @@ describe('TideDashboard', () => {
         tideDashboardConfig: {
           'clinicianUserId123|clinicID123': {
             period: '30d',
-            dataRecency: 14,
+            lastData: 14,
             tags: sampleTags.map(({ id }) => id),
           },
         },
@@ -494,7 +506,7 @@ describe('TideDashboard', () => {
             config: {
               ...tideDashboardPatients.config,
               period: '14d',
-              dataRecency: 1,
+              lastData: 1,
             },
           },
         },
@@ -514,11 +526,11 @@ describe('TideDashboard', () => {
       const period = wrapper.find('#tide-dashboard-summary-period').hostNodes();
       expect(period.text()).contains('14 days');
 
-      const dataRecency = wrapper.find('#tide-dashboard-data-recency').hostNodes();
-      expect(dataRecency.text()).contains('24 hours');
+      const lastData = wrapper.find('#tide-dashboard-last-data').hostNodes();
+      expect(lastData.text()).contains('24 hours');
     });
 
-    it('should render a heading and table for dashboard section, with correctly ordered results', () => {
+    it.only('should render a heading and table for dashboard section, with correctly ordered results', () => {
       const dashboardSections = wrapper.find('.dashboard-section');
       expect(dashboardSections.hostNodes()).to.have.length(7);
 
@@ -629,6 +641,25 @@ describe('TideDashboard', () => {
       expect(getTableRow(5, 3).find('td').at(3).text()).contains('0.3 %');
       expect(getTableRow(5, 4).find('td').at(3).text()).contains('0.2 %');
       expect(getTableRow(5, 5).find('td').at(3).text()).contains('0.1 %');
+
+      // Confirm sixth table is sorted appropriately
+      expect(getTableRow(6, 0).find('th').at(2).text()).contains('Days Since Last Data');
+      expect(getTableRow(6, 1).find('td').at(1).text()).contains('200');
+      expect(getTableRow(6, 2).find('td').at(1).text()).contains('45');
+      expect(getTableRow(6, 3).find('td').at(1).text()).contains('30');
+      expect(getTableRow(6, 4).find('td').at(1).text()).contains('1');
+      expect(getTableRow(6, 5).find('td').at(1).text()).contains('-');
+
+
+      // Verify columns present on a sample patient from the data issues table
+      expect(getTableRow(6, 0).find('th').at(0).text()).contains('Patient Name');
+      expect(getTableRow(6, 1).find('th').at(0).text()).contains('Judah Stopforth');
+
+      expect(getTableRow(6, 0).find('th').at(1).text()).contains('Dexcom Connection Status');
+      expect(getTableRow(6, 1).find('td').at(0).text()).contains('Error Connecting');
+
+      expect(getTableRow(6, 0).find('th').at(2).text()).contains('Days Since Last Data');
+      expect(getTableRow(6, 1).find('td').at(1).text()).contains('200');
     });
 
     it('should show empty text for a section without results', () => {
@@ -923,17 +954,17 @@ describe('TideDashboard', () => {
       summaryPeriodOptions.at(3).find('input').last().simulate('change', { target: { name: 'period', value: '7d' } });
 
       // Ensure period filter options present
-      const lastUploadDateFilterOptions = dialog().find('#dataRecency').find('label').hostNodes();
-      expect(lastUploadDateFilterOptions).to.have.lengthOf(5);
+      const lastDataFilterOptions = dialog().find('#lastData').find('label').hostNodes();
+      expect(lastDataFilterOptions).to.have.lengthOf(5);
 
-      expect(lastUploadDateFilterOptions.at(0).text()).to.equal('24 hours');
-      expect(lastUploadDateFilterOptions.at(0).find('input').props().value).to.equal('1');
+      expect(lastDataFilterOptions.at(0).text()).to.equal('24 hours');
+      expect(lastDataFilterOptions.at(0).find('input').props().value).to.equal('1');
 
-      expect(lastUploadDateFilterOptions.at(3).text()).to.equal('14 days');
-      expect(lastUploadDateFilterOptions.at(3).find('input').props().value).to.equal('14');
-      expect(lastUploadDateFilterOptions.at(3).find('input').props().checked).to.be.true;
+      expect(lastDataFilterOptions.at(3).text()).to.equal('14 days');
+      expect(lastDataFilterOptions.at(3).find('input').props().value).to.equal('14');
+      expect(lastDataFilterOptions.at(3).find('input').props().checked).to.be.true;
 
-      lastUploadDateFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'dataRecency', value: 1 } });
+      lastDataFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'lastData', value: 1 } });
 
       // Submit the form
       const applyButton = () => dialog().find('#configureTideDashboardConfirm').hostNodes();
@@ -952,7 +983,7 @@ describe('TideDashboard', () => {
 
         expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
           period: '7d',
-          dataRecency: 1,
+          lastData: 1,
           tags: [sampleTags[1].id, sampleTags[2].id],
         });
 

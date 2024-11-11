@@ -69,7 +69,7 @@ import { fieldsAreValid } from '../../core/forms';
 import {
   patientSchema as validationSchema,
   tideDashboardConfigSchema,
-  dataRecencyFilterOptions,
+  lastDataFilterOptions,
   summaryPeriodOptions,
 } from '../../core/clinicUtils';
 
@@ -819,10 +819,10 @@ export const TideDashboard = (props) => {
   const fetchDashboardPatients = useCallback((config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
-      const dataRecency = Number(options.dataRecency);
-      const queryOptions = { period: options.period, dataRecency: dataRecency };
+      const lastData = Number(options.lastData);
+      const queryOptions = { period: options.period, lastData };
       queryOptions['tags'] = reject(options.tags || [], tagId => !patientTags?.[tagId]);
-      queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(dataRecency, 'days').toISOString();
+      queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(lastData, 'days').toISOString();
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
@@ -904,7 +904,7 @@ export const TideDashboard = (props) => {
 
   const renderHeader = () => {
     const periodDaysText = keyBy(summaryPeriodOptions, 'value')?.[config?.period]?.label
-    const dataRecencyDaysText = keyBy(dataRecencyFilterOptions, 'value')?.[config?.dataRecency]?.label
+    const lastDataDaysText = keyBy(lastDataFilterOptions, 'value')?.[config?.lastData]?.label
 
     return (
       <Flex
@@ -958,7 +958,7 @@ export const TideDashboard = (props) => {
             </Text>
 
             <Text
-              id="tide-dashboard-data-recency"
+              id="tide-dashboard-last-data"
               as={Flex}
               px={3}
               sx={{
@@ -972,7 +972,7 @@ export const TideDashboard = (props) => {
                 color: loading ? 'white' : 'text.primary',
               }}
             >
-              {dataRecencyDaysText}
+              {lastDataDaysText}
             </Text>
           </Flex>
         </Flex>
