@@ -71,20 +71,12 @@ export const preferredBgUnits = [
   { value: MMOLL_UNITS, label: MMOLL_UNITS },
 ];
 
-export const lastUploadDateFilterOptions = [
-  { value: 1, label: t('Today') },
-  { value: 2, label: t('Last 2 days') },
-  { value: 7, label: t('Last 7 days') },
-  { value: 14, label: t('Last 14 days') },
-  { value: 30, label: t('Last 30 days') },
-];
-
 export const dataRecencyFilterOptions = [
-  { value: 1, label: t('24 hours') },
-  { value: 2, label: t('2 days') },
-  { value: 7, label: t('7 days') },
-  { value: 14, label: t('14 days') },
-  { value: 30, label: t('30 days') },
+  { value: 1, label: t('Within 24 hours') },
+  { value: 2, label: t('Within 2 days') },
+  { value: 7, label: t('Within 7 days') },
+  { value: 14, label: t('Within 14 days') },
+  { value: 30, label: t('Within 30 days') },
 ];
 
 export const summaryPeriodOptions = [
