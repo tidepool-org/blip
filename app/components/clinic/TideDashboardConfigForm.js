@@ -113,21 +113,23 @@ export const TideDashboardConfigForm = props => {
       </Box>
 
       <Box sx={{ borderTop: borders.default }} py={3}>
-        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select how many day(s) of data to view')}</Body0>
+        <Body0 sx={{ fontWeight: 'bold' }} mb={0}>{t('Data Recency')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
 
         <RadioGroup
-          options={summaryPeriodOptions}
-          {...getCommonFormikFieldProps('period', formikContext)}
+          options={dataRecencyFilterOptions}
+          {...getCommonFormikFieldProps('dataRecency', formikContext)}
           variant="vertical"
         />
       </Box>
 
       <Box sx={{ borderTop: borders.default }} pt={3}>
-        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Data recency: show me patients who sent data within the last')}</Body0>
+        <Body0 sx={{ fontWeight: 'bold' }} mb={0}>{t('Number of Days to Summarize')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will generate health summaries for the selected number of days.')}</Body0>
 
         <RadioGroup
-          options={dataRecencyFilterOptions}
-          {...getCommonFormikFieldProps('dataRecency', formikContext)}
+          options={summaryPeriodOptions}
+          {...getCommonFormikFieldProps('period', formikContext)}
           variant="vertical"
         />
       </Box>

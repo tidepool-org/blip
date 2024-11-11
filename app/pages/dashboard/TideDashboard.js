@@ -923,7 +923,7 @@ export const TideDashboard = (props) => {
               }}
               ml={2}
             >
-              {t('Viewing data from the last')}
+              {t('Summarizing')}
             </Text>
 
             <Text
@@ -941,7 +941,7 @@ export const TideDashboard = (props) => {
                 color: loading ? 'white' : 'text.primary',
               }}
             >
-              {periodDaysText}
+              {periodDaysText} {t('of data')}
             </Text>
           </Flex>
 
@@ -1003,7 +1003,7 @@ export const TideDashboard = (props) => {
       >
         <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
-            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Select Patients to Display in the TIDE Dashboard')}</MediumTitle>
             <Body1 sx={{ fontWeight: 'medium', color: 'grays.4' }}>{t('You must make a selection in each category')}</Body1>
           </Box>
         </DialogTitle>
