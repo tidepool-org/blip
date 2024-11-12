@@ -1189,7 +1189,6 @@ export const TideDashboard = (props) => {
       <Loader show={loading} overlay={!!patientGroups} />
       {renderHeader()}
       {patientGroups && renderPatientGroups()}
-      {/* {dataIssues && renderDataIssues()} */}
       {showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
 
