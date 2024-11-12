@@ -958,6 +958,7 @@ export const clinics = (state = initialState.clinics, action) => {
         ..._.map(results.timeInTargetPercent, 'patient'),
         ..._.map(results.timeCGMUsePercent, 'patient'),
         ..._.map(results.meetingTargets, 'patient'),
+        ..._.map(results.noData, 'patient'),
       ];
 
       return update(state, {

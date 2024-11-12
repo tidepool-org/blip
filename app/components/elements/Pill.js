@@ -18,6 +18,7 @@ const namedPalletMap = {
   primaryText: ['#F3F7FC', 'text.primary'],
   warning: ['#FFE8CF', 'feedback.warning'],
   success: ['#EBFBF0', 'feedback.success'],
+  neutral: ['lightestGrey', '#707070'],
   transparent: ['transparent', 'inherit'],
 };
 
@@ -102,6 +103,11 @@ Pill.propTypes = {
       'oranges',
       'pinks',
       'purples',
+      'primaryText',
+      'warning',
+      'success',
+      'neutral',
+      'transparent',
     ]),
     PropTypes.arrayOf(PropTypes.string),
   ]),
