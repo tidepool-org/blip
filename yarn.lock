@@ -14584,11 +14584,11 @@ __metadata:
   linkType: hard
 
 "markdown-to-jsx@npm:^7.1.8":
-  version: 7.3.2
-  resolution: "markdown-to-jsx@npm:7.3.2"
+  version: 7.6.0
+  resolution: "markdown-to-jsx@npm:7.6.0"
   peerDependencies:
     react: ">= 0.14.0"
-  checksum: 8885c6343b71570b0a7ec16cd85a49b853a830234790ee7430e2517ea5d8d361ff138bd52147f650790f3e7b3a28a15c755fc16f8856dd01ddf09a6161782e06
+  checksum: 7501919a17d68ee202e2bf7b4fb59d81cb7e0b9bf422d81a0a3765a99fb8eb448dc874376af1f5e4aca9304963bc55bf4d5d317bbb9f5c0ee46bd2f7c499f8b6
   languageName: node
   linkType: hard
 
