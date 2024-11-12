@@ -1380,7 +1380,7 @@ export const ClinicPatients = (props) => {
                   >
                     <Button
                       variant="filter"
-                      id="last-upload-filter-trigger"
+                      id="last-data-filter-trigger"
                       selected={!!activeFilters.lastData}
                       {...bindTrigger(lastDataPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
@@ -1388,7 +1388,7 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       {activeFilters.lastData
-                        ? t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', ' ')
+                        ? t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
                         : t('Data Recency')
                       }
                     </Button>

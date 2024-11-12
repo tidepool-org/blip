@@ -530,7 +530,7 @@ describe('TideDashboard', () => {
       expect(lastData.text()).contains('24 hours');
     });
 
-    it.only('should render a heading and table for dashboard section, with correctly ordered results', () => {
+    it('should render a heading and table for dashboard section, with correctly ordered results', () => {
       const dashboardSections = wrapper.find('.dashboard-section');
       expect(dashboardSections.hostNodes()).to.have.length(7);
 
@@ -957,10 +957,10 @@ describe('TideDashboard', () => {
       const lastDataFilterOptions = dialog().find('#lastData').find('label').hostNodes();
       expect(lastDataFilterOptions).to.have.lengthOf(5);
 
-      expect(lastDataFilterOptions.at(0).text()).to.equal('24 hours');
+      expect(lastDataFilterOptions.at(0).text()).to.equal('Within 24 hours');
       expect(lastDataFilterOptions.at(0).find('input').props().value).to.equal('1');
 
-      expect(lastDataFilterOptions.at(3).text()).to.equal('14 days');
+      expect(lastDataFilterOptions.at(3).text()).to.equal('Within 14 days');
       expect(lastDataFilterOptions.at(3).find('input').props().value).to.equal('14');
       expect(lastDataFilterOptions.at(3).find('input').props().checked).to.be.true;
 
