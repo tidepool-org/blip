@@ -184,7 +184,6 @@ export const useIsFirstRender = () => {
   return isFirstRenderRef.current;
 };
 
-//
 /**
  * Disables triggering the increment/decrememnt inputs on active number inputs while scrolling
  * c.f https://stackoverflow.com/a/56250826
